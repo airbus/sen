@@ -9,7 +9,7 @@ include(tps/spdlog)
 include(tps/asio)
 include(tps/concurrentqueue)
 
-add_sen_component(
+add_sen_package(
   TARGET ether
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -49,6 +49,7 @@ add_sen_component(
     asio::asio
     spdlog::spdlog
     concurrentqueue::concurrentqueue
+  IS_COMPONENT
 )
 
 sen_enable_static_analysis(ether)

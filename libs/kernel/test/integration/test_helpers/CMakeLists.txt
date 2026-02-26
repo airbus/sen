@@ -5,12 +5,13 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-sen_generate_package(
+add_sen_package(
   TARGET test_helpers
   SOURCES include/test_helpers/helpers.h
   STL_FILES stl/test_helpers/tester.stl
   BASE_PATH stl
   CODEGEN_SETTINGS codegen_settings.json
+  PUBLIC_SYMBOLS
 )
 
 target_include_directories(test_helpers PUBLIC include)

@@ -5,7 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-add_sen_component(
+add_sen_package(
   TARGET publish_types_manually
   MAINTAINER "Sen Core Team (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -13,6 +13,7 @@ add_sen_component(
   SOURCES src/component.cpp
   STL_FILES stl/struct_inheritance.stl
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
+  IS_COMPONENT
 )
 sen_enable_static_analysis(publish_types_manually)
 

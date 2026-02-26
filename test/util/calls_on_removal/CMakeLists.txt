@@ -5,10 +5,11 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-add_sen_component(
+add_sen_package(
   TARGET annoying_component
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
   DESCRIPTION "Executes a method call during object removal"
   SOURCES component.cpp
+  IS_COMPONENT
 )

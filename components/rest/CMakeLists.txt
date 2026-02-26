@@ -54,7 +54,7 @@ set(base_sources
     src/jwt.cpp
 )
 
-add_sen_component(
+add_sen_package(
   TARGET rest
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -67,6 +67,7 @@ add_sen_component(
        spdlog::spdlog
   BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
   TEST_TARGET rest_for_testing
+  IS_COMPONENT
 )
 
 set_target_properties(rest PROPERTIES FOLDER "components/rest")

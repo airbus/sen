@@ -9,7 +9,7 @@ include(tps/spdlog)
 
 set(_replayer_stl_files stl/sen/components/replayer/configuration.stl stl/sen/components/replayer/replayer.stl)
 
-add_sen_component(
+add_sen_package(
   TARGET replayer
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -29,6 +29,7 @@ add_sen_component(
   STL_FILES ${_replayer_stl_files}
   DEPS sen::db
   PRIVATE_DEPS spdlog::spdlog
+  IS_COMPONENT
 )
 
 set_target_properties(replayer PROPERTIES FOLDER "components/replayer")

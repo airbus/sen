@@ -8,7 +8,7 @@
 include(tps/spdlog)
 include(tps/asio)
 
-add_sen_component(
+add_sen_package(
   TARGET influx
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -26,6 +26,7 @@ add_sen_component(
           src/util.cpp
   STL_FILES stl/configuration.stl
   PRIVATE_DEPS asio::asio spdlog::spdlog
+  IS_COMPONENT
 )
 
 sen_enable_static_analysis(influx)

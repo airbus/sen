@@ -23,12 +23,14 @@ my_component/
 If we open the CMakeLists.txt file and fill in our info, we get:
 
 ```cmake title="CMakeLists.txt"
-add_sen_component(
+add_sen_package(
         TARGET my_component
         MAINTAINER "John Doe (johndoe@mail.com)"
         VERSION "0.0.1"
         DESCRIPTION "This is my first component"
-        SOURCES lang/component.cpp)
+        SOURCES lang/component.cpp
+        IS_COMPONENT
+)
 ```
 
 The `add_sen_component` function is a CMake helper that will create a shared library target
@@ -236,13 +238,15 @@ Now that we have defined our data model, let's tell Sen to include it into our c
 updating our CMake file:
 
 ```cmake title="CMakeLists.txt"  hl_lines="7"
-add_sen_component(
+add_sen_package(
         TARGET my_component
         MAINTAINER "John Doe (johndoe@mail.com)"
         VERSION "0.0.1"
         DESCRIPTION "This is my first component"
         SOURCES lang/component.cpp
-        STL_FILES stl/configuration.stl)
+        STL_FILES stl/configuration.stl
+        IS_COMPONENT
+)
 ```
 
 With this, we now have a generated header that can be used in our `component.cpp` file. The
