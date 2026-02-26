@@ -1,0 +1,104 @@
+/**
+
+@brief Core library
+@defgroup core Core library
+@{
+
+@defgroup base Base classes
+@brief General purpose, used by all other modules
+@{
+
+@defgroup error_handling Error handling
+@brief Error processing, assertions, contracts, results.
+@{
+@}
+
+@brief General utility macros
+@defgroup macros Macros
+@{
+@}
+
+@brief Compile-time template magic
+@defgroup templates Template Meta Programming
+@{
+@}
+
+@brief Hashing and compression utilities
+@defgroup hash Hashing and compression
+@{
+@}
+
+@brief Pools, pointers, and related utilities
+@defgroup mem Memory manipulation utilities
+@{
+@}
+
+@brief Containers, adapters, and commonly used functions
+@defgroup util General utilities
+@{
+@}
+
+@}
+
+@brief Serialization and deserialization functions
+@defgroup io Low level input / output
+@{
+@}
+
+@brief Types that represent types
+@defgroup meta Meta Type System
+@{
+
+@defgroup traits Traits
+@brief Trait structures for generated types
+@{
+@}
+
+@brief Classes and containers describing native and custom types
+@defgroup types Types
+@{
+@}
+
+@brief Helpers for working with meta types
+@defgroup type_utils Type Manipulation Utilities
+@{
+@}
+
+@}
+
+@brief Parsing and execution of STL
+@defgroup lang The Sen Type Language
+@{
+@}
+
+@brief Manipulation of objects
+@defgroup obj Objects
+@{
+@}
+
+@}
+
+@brief The Sen kernel API
+@defgroup kernel Kernel library
+@{
+@}
+
+@brief General sen utils
+@defgroup utils_library Sen Util Library
+@{
+
+@brief Dead Reckoning utility
+@defgroup dr Dead Reckoning Library
+@{
+@}
+
+@}
+
+@}
+
+@brief Provides means to read and write recordings
+@defgroup db Archive manipulation library
+@{
+@}
+
+*/

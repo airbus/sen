@@ -1,0 +1,175 @@
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ qualType }}
+//--------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+std::ostream& operator<<(std::ostream& out, const {{ name }}& val)
+{
+  using Traits = ::sen::VariantTraits<{{ qualType }}>;
+## for field in fields
+## if loop.is_first
+    std::ignore = Traits::tryPrintField<{{ field.key }}>(out, "{{ field.senQual }}", val, {% if field.ostreamNeedsNewline %}true{% else %}false{% endif %}){% if loop.is_last %};{% endif %}
+## else if loop.is_last
+              ||  Traits::tryPrintField<{{ field.key }}>(out, "{{ field.senQual }}", val, {% if field.ostreamNeedsNewline %}true{% else %}false{% endif %});
+## else
+              ||  Traits::tryPrintField<{{ field.key }}>(out, "{{ field.senQual }}", val, {% if field.ostreamNeedsNewline %}true{% else %}false{% endif %})
+## endif
+## endfor
+  return out;
+}
+
+}
+
+void sen::SerializationTraits<{{ qualType }}>::write(::sen::OutputStream& out, const {{ qualType }}& val)
+{
+## for field in fields
+## if loop.is_first
+  std::ignore = tryWriteField<{{ field.key }}>(out, val, {{ field.key }}U){% if loop.is_last %};{% endif %}  // NOLINT
+## else if loop.is_last
+            ||  tryWriteField<{{ field.key }}>(out, val, {{ field.key }}U);  // NOLINT
+## else
+            ||  tryWriteField<{{ field.key }}>(out, val, {{ field.key }}U)  // NOLINT
+## endif
+## endfor
+}
+
+void sen::SerializationTraits<{{ qualType }}>::read(::sen::InputStream& in, {{ qualType }}& val)
+{
+  uint32_t fieldKey = 0U;
+  in.readUInt32(fieldKey);
+
+  switch(fieldKey)
+  {
+## for field in fields
+    case {{ field.key }}U:  readField<{{ field.key }}>(in, val);  break;  // NOLINT
+## endfor
+    default: break;
+  }
+}
+
+uint32_t sen::SerializationTraits<{{ qualType }}>::serializedSize(const {{ qualType }}& val) noexcept
+{
+  uint32_t result = 0U;
+## for field in fields
+## if loop.is_first
+  std::ignore = getFieldSerializedSize<{{ field.key }}>(val, {{ field.key }}U, result){% if loop.is_last %};{% endif %}  // NOLINT
+## else if loop.is_last
+            ||  getFieldSerializedSize<{{ field.key }}>(val, {{ field.key }}U, result);  // NOLINT
+## else
+            ||  getFieldSerializedSize<{{ field.key }}>(val, {{ field.key }}U, result)  // NOLINT
+## endif
+## endfor
+  return result;
+}
+
+void sen::VariantTraits<{{ qualType }}>::valueToVariant(const {{ qualType }}& val, ::sen::Var& var)
+{
+  auto valueVar = std::make_shared<::sen::Var>();
+
+## for field in fields
+## if loop.is_first
+  std::ignore = tryFieldValueToVariant<{{ field.key }}>(val, var, valueVar, {{ field.key }}U){% if loop.is_last %};{% endif %}  // NOLINT
+## else if loop.is_last
+            ||  tryFieldValueToVariant<{{ field.key }}>(val, var, valueVar, {{ field.key }}U);  // NOLINT
+## else
+            ||  tryFieldValueToVariant<{{ field.key }}>(val, var, valueVar, {{ field.key }}U)  // NOLINT
+## endif
+## endfor
+}
+
+void sen::VariantTraits<{{ qualType }}>::variantToValue(const ::sen::Var& var, {{ qualType }}& val)
+{  
+  const auto tuple = var.getIf<::sen::KeyedVar>();
+  if (tuple != nullptr)
+  {
+    switch(std::get<0U>(*tuple))
+    {
+## for field in fields
+      case {{ field.key }}U: assignField<{{ field.key }}>(*std::get<1U>(*tuple), val); break;  // NOLINT
+## endfor
+      default: break;
+    }
+    return;
+  }
+
+  auto [typeName, valuePtr] = getTypeAndValue(var, MetaTypeTrait<{{ qualType }}>::meta());
+  if (typeName == nullptr)
+  {
+    return;
+  }
+
+  bool validType = true;
+
+## for field in fields
+## if loop.is_first
+  validType = assignFieldByName<{{ field.key }}>(typeName, "{{ field.senQual }}", "{{ field.senType }}", {% if field.isTypeAlias %}"{{ field.senAliasedType }}"{% else %}nullptr{% endif %}, (valuePtr? *valuePtr : ::sen::Var{}), val){% if loop.is_last %};{% endif %}
+## else if loop.is_last
+            ||  assignFieldByName<{{ field.key }}>(typeName, "{{ field.senQual }}", "{{ field.senType }}", {% if field.isTypeAlias %}"{{ field.senAliasedType }}"{% else %}nullptr{% endif %}, (valuePtr? *valuePtr : ::sen::Var{}), val);
+## else
+            ||  assignFieldByName<{{ field.key }}>(typeName, "{{ field.senQual }}", "{{ field.senType }}", {% if field.isTypeAlias %}"{{ field.senAliasedType }}"{% else %}nullptr{% endif %}, (valuePtr? *valuePtr : ::sen::Var{}), val)
+## endif
+## endfor
+
+  if (!validType)
+  {
+    const auto errorMessage = std::string("Invalid type '")
+        .append(typeName)
+        .append("' for variant '{{ name }}'. Valid types are:  {% for field in fields %}'{% if field.isTypeAlias %}{{ field.senAliasedType }}{% else %}{{ field.senType }}{% endif %}'{% if loop.is_last %}{% else %}, {% endif %}{% endfor %}");
+    ::sen::throwRuntimeError(errorMessage);
+  }
+}
+
+std::function<::sen::lang::Value(const void*)> sen::VariantTraits<{{ qualType }}>::getFieldValueGetterFunction(::sen::Span<uint16_t> fields)
+{
+## if length(fields) == 0
+  std::ignore = fields;
+  throwEmptyVariantError("{{ qualType }}");
+  return {};
+## else
+  expectAtLeastOneField("{{ qualType }}", fields);
+
+  switch(fields[0])
+  {
+## for field in fields
+    case {{ loop.index }}:
+## if field.isStructType or field.isVariantType
+      return [fieldGetter = ::sen::VariantTraits<{{ field.qualType }}>::getFieldValueGetterFunction(fields.subspan(1U))](const void* variantAddr){ return fieldGetter(&std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr))); };
+## else if field.isNativeType
+      return [](const void* variantAddr){ return std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr)); };
+## else if field.isEnum
+      return [](const void* variantAddr){ return static_cast<std::underlying_type_t<{{ field.qualType }}>>(std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr))); };
+## else if field.isDurationType
+      return [](const void* variantAddr){ return std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr)).toSeconds(); };
+## else if field.isQuantityType
+      return [](const void* variantAddr){ return std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr)).get(); };
+## else
+      throwNonNativeField("{{ qualType }}", "{{ field.qualType }}");
+      break;
+## endif
+
+## endfor
+   default:
+     throwInvalidFieldIndex("{{ qualType }}", fields[0]);
+  }
+  return {};
+## endif
+}
+
+::sen::ConstTypeHandle<::sen::VariantType> sen::MetaTypeTrait<{{ qualType }}>::meta()
+{
+  static auto type = ::sen::VariantType::make(
+  {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+    { 
+## for f in fields
+      { {{ f.key }}U, "{{ f.description }}", ::sen::MetaTypeTrait<{{ f.qualType }}>::meta() }{% if loop.index1 < length(fields) %}, {% endif %}  // NOLINT
+## endfor
+    }
+  });
+  return type;
+}

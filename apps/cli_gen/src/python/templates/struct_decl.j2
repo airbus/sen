@@ -1,0 +1,10 @@
+
+@dataclass
+class {{ name }}:
+## if length(fields) == 0
+    pass
+## else
+## for field in fields
+    {{ field.name }}: {{ field.pyAnnotationType }}
+## endfor
+## endif

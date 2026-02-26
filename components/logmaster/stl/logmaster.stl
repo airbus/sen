@@ -1,0 +1,53 @@
+import "stl/sen/kernel/log.stl"
+
+package sen.components.logmaster;
+
+// represents a logger
+class Logger
+{
+  // the current log level of this logger
+  var level : sen.kernel.log.LogLevel;
+
+  // the pattern used by this logger
+  var pattern : string [confirmed];
+
+  // true if muted
+  var muted : bool;
+
+  // mute this logger
+  fn mute();
+
+  // unmute this logger
+  fn unmute();
+
+  // unmute this logger
+  fn setLevel(level: sen.kernel.log.LogLevel);
+
+  // sets the pattern for this logger
+  fn setPattern(pattern: string);
+}
+
+// allows controlling the loggers
+class LogMaster
+{
+  var targetBus : string [static];
+
+  // mute all the loggers
+  fn muteAll();
+
+  // un-mutes all the muted loggers
+  fn unmuteAll();
+
+  // toggles the muting of all loggers
+  fn toggleMuteAll();
+
+  // sets all the loggers to a given level
+  fn setLevel(level: sen.kernel.log.LogLevel);
+}
+
+// component configuration
+struct Config
+{
+  targetBus : string,   // defaults to "local.log"
+  period    : Duration  // defaults to 500 milliseconds
+}

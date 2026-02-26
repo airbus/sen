@@ -1,0 +1,10 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/ether.yaml
+
+load:
+  - name: shell
+    query:
+      - name: not_focused
+        selection: "SELECT school.Student FROM school.primary WHERE focusLevel BETWEEN\
+          \ 0.0 AND 0.5"

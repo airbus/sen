@@ -1,0 +1,50 @@
+load:
+  - name: shell
+    group: 2
+  - name: py
+    group: 3
+    freqHz: 1
+    module: gen_crash_record
+  - name: recorder
+    group: 4
+    recordings:
+      - name: crash_recording
+        folder: .
+        indexKeyframes: true
+        indexObjects: true
+        keyframePeriod: 2 s
+        autoStart: true
+        selections:
+          - SELECT * FROM my.tutorial
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [aircrafts]
+    group: 3
+    objects:
+      - class: aircrafts.DummyAircraftImpl
+        name: myAircraft
+        bus: my.tutorial
+        speed: 250
+        entityType:
+          entityKind: 1
+          domain: 2
+          countryCode: 198
+          category: 1
+          subcategory: 3
+          specific: 0
+          extra: 0
+        alternateEntityType:
+          entityKind: 1
+          domain: 2
+          countryCode: 198
+          category: 1
+          subcategory: 3
+          specific: 0
+          extra: 0
+        entityIdentifier:
+          entityNumber: 1
+          federateIdentifier:
+            siteID: 1
+            applicationID: 1

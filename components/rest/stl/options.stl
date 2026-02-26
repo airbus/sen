@@ -1,0 +1,8 @@
+package sen.components.rest;
+
+optional<Duration> UpdateTime;
+
+struct SubscriptionOptions
+{
+  maxUpdateTime : UpdateTime  // Max. update time
+}

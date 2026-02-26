@@ -1,0 +1,157 @@
+package sen.components.rest;
+
+enum Status: u8
+{
+  open,
+  close
+}
+
+enum RelType: u8
+{
+  method,
+  setter,
+  getter,
+  evt,
+  property,
+  propertySubscribe,
+  propertyUnsubscribe,
+  def
+}
+
+enum InvokeStatus: u8
+{
+  pending,
+  finished,
+  failed
+}
+
+enum NotificationType: u8
+{
+  evt,
+  invoke,
+  property,
+  objectAdded,
+  objectRemoved,
+  count
+}
+
+struct Notification
+{
+  type : NotificationType,
+  time : TimeStamp,
+  data : string
+}
+
+enum HttpMethod: u8
+{
+  httpGet,
+  httpPost,
+  httpPut,
+  httpDelete,
+  httpOption
+}
+
+struct Link
+{
+  rel    : RelType,
+  href   : string,
+  method : HttpMethod
+}
+
+struct Argument
+{
+  name        : string,
+  description : string,
+  type        : string
+}
+
+struct Success
+{
+  msg : string
+}
+
+struct Error
+{
+  error : string
+}
+
+struct BusSummary
+{
+  id     : string,
+  status : Status
+}
+
+struct ObjectSummary
+{
+  objectId  : u32,
+  name      : string,
+  classname : string,
+  localname : string,
+  link      : Link
+}
+
+struct ObjectEvent
+{
+  name        : string,
+  description : string
+}
+
+struct Interest
+{
+  query : string,
+  name  : string
+}
+
+struct InterestSummary
+{
+  name    : string,
+  session : string,
+  bus     : string
+}
+
+sequence<InterestSummary> InterestsSummary;
+
+sequence<ObjectSummary> ObjectsSummary;
+
+struct Bus
+{
+  id      : string,
+  status  : Status,
+  objects : ObjectsSummary
+}
+
+sequence<Link> Links;
+
+struct Object
+{
+  objectId    : u32,
+  name        : string,
+  classname   : string,
+  localname   : string,
+  description : string,
+  links       : Links
+}
+
+sequence<BusSummary> Buses;
+
+struct Session
+{
+  name : string,
+}
+
+sequence<string> Sessions;
+
+sequence<Argument> Arguments;
+
+struct ObjectMethod
+{
+  name        : string,
+  description : string,
+  retType     : string,
+  args        : Arguments
+}
+
+struct ClientAuth
+{
+  id : string
+}

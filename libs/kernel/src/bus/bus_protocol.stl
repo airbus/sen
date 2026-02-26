@@ -1,0 +1,198 @@
+import "stl/sen/kernel/basic_types.stl"
+import "stl/sen/kernel/type_specs.stl"
+
+// IMPORTANT NOTE: Types defined in this file CANNOT be erased, as we need to keep track of older versions to ensure
+// runtime compatibility. Older versions are marked with a suffix V# after the name, being # the KernelProtocolVersion.
+
+package sen.kernel;
+
+// Used between remote participants to detect each other before sharing their interests. This prevents interests from
+// being lost in the communication
+struct RemoteParticipantReady
+{
+  id : u32
+}
+
+// Sends an interest between processes to request notification of eventual object additions in the remote process that
+// satisfy the query
+struct InterestStarted
+{
+  query : string,
+  id    : u32
+}
+
+struct InterestStopped
+{
+  id : u32
+}
+
+// Notifies an object addition between processes. It also contains the static state (values of static properties)
+struct ObjectAdded
+{
+  className : string,
+  typeHash  : u32,
+  name      : string,
+  id        : u32,
+  state     : Buffer,
+  time      : TimeStamp
+}
+
+sequence<ObjectAdded> ObjectAddedList;
+
+struct InterestDiscovery
+{
+  interestId : u32,
+  objects    : ObjectAddedList
+}
+
+sequence<InterestDiscovery> InterestDiscoveryList;
+
+struct InterestObjectRemoval
+{
+  interestId : u32,
+  ids        : U32List
+}
+
+sequence<InterestObjectRemoval> InterestObjectRemovalList;
+
+struct ObjectsPublished
+{
+  ownerId     : u32,
+  discoveries : InterestDiscoveryList
+}
+
+struct ObjectsRemoved
+{
+  removals : InterestObjectRemovalList
+}
+
+struct RepeatedName
+{
+  myObjectRegistrationTime : TimeStamp
+}
+
+struct RuntimeIncompatibleType
+{
+}
+
+struct Timeout
+{
+}
+
+variant PublicationRejectionReason
+{
+  RepeatedName,
+  RuntimeIncompatibleType,
+  Timeout
+}
+
+struct ObjectPublicationRejected
+{
+  objectId   : u32,
+  interestId : u32,
+  reason     : PublicationRejectionReason
+}
+
+sequence<ObjectPublicationRejected> RejectionList;
+
+struct PublicationRejection
+{
+  rejections : RejectionList
+}
+
+sequence<u32> SpecRequestList;
+sequence<u32> TypeHashList;
+
+struct ClassSpecResponse
+{
+  classHash      : u32,
+  spec           : CustomTypeSpec,
+  dependentTypes : TypeHashList
+}
+
+struct NonClassSpecResponse
+{
+  spec : CustomTypeSpec,
+}
+
+variant TypeSpecResponse
+{
+  ClassSpecResponse,
+  NonClassSpecResponse
+}
+
+sequence<TypeSpecResponse> TypeSpecResponseList;
+
+struct TypesInfoRequest
+{
+  ownerId  : u32,
+  requests : SpecRequestList
+}
+
+struct TypesInfoResponse
+{
+  ownerId : u32,
+  types   : TypeSpecResponseList
+}
+
+struct TypesInfoRejection
+{
+  ownerId    : u32,
+  rejections : StringList
+}
+
+sequence<u32> ObjectIdList;
+
+struct ObjectIdsByInterest
+{
+  interestId : u32,
+  objectIds  : ObjectIdList
+}
+
+sequence<ObjectIdsByInterest> ObjectIdsByInterestList;
+
+struct ObjectsStateRequest
+{
+  ownerId  : u32,
+  requests : ObjectIdsByInterestList
+}
+
+// Contains the dynamic state of an object that was published in a remote process. Used to update the object before
+// the remote participant publishes it locally
+struct ObjectState
+{
+  id        : u32,
+  timestamp : TimeStamp,
+  state     : Buffer,
+}
+
+sequence <ObjectState> ObjectStateList;
+
+struct ObjectStatesByInterest
+{
+  interestId   : u32,
+  objectStates : ObjectStateList
+}
+
+sequence<ObjectStatesByInterest> ObjectStatesByInterestList;
+
+struct ObjectsStateResponse
+{
+  ownerId   : u32,
+  responses : ObjectStatesByInterestList
+}
+
+variant ControlMessage
+{
+  RemoteParticipantReady,
+  InterestStarted,
+  InterestStopped,
+  ObjectsPublished,
+  ObjectsRemoved,
+  PublicationRejection,
+  ObjectsStateRequest,
+  ObjectsStateResponse,
+  TypesInfoRequest,
+  TypesInfoResponse,
+  TypesInfoRejection
+}

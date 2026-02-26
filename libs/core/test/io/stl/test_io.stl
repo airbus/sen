@@ -1,0 +1,140 @@
+package test_io;
+
+// Enums example of different types
+enum Color: u8
+{
+  red,
+  blue,
+  green,
+  yellow,
+  purple,
+  orange
+}
+
+enum AirportCode : i16
+{
+  abc,
+  alc,
+  lei,
+  ovd,
+  bjz,
+  bcn,
+  ibz,
+  bio,
+  rjl,
+  pmi,
+  pna,
+  svq,
+  vlc,
+  vgo,
+  vit,
+  zaz
+}
+
+enum PriorityStdCode : u8
+{
+  accelerateTraffic,
+  security,
+  inspections
+}
+
+// sequences
+sequence<AirportCode> VisitedAirports; // enum sequence
+sequence<string, 2> FlightPilots; // basic type bounded sequence
+sequence<VisitedAirports> AircraftVisitedAirports; // sequence of sequence
+
+// arrays
+array<u32, 3> AircraftTestCodes;
+
+// quantities
+quantity<f32, m> FlightDistance;
+quantity<f32, m_per_s> FlightVelocity;
+
+// inheritance structs
+struct Point
+{
+  x : u32,
+  y : u32,
+}
+
+ // one level of inheritance
+struct Point3D : Point
+{
+  z : u32
+}
+
+struct Circle : Point
+{
+  radius : f64
+}
+
+// two levels of inheritance
+struct Sphere : Point3D
+{
+  radius : f64
+}
+
+// three levels of inheritance with empty struct
+struct Hypersphere : Sphere
+{
+}
+
+struct Decongest
+{
+  passengersAboveLimit : u64,
+}
+
+// variants
+variant Figure
+{
+  Point,
+  Point3D,
+  Circle,
+  Sphere,
+  Hypersphere
+}
+
+variant AirportPriorityCode
+{
+  Decongest,
+  PriorityStdCode,
+  u64,
+  bool
+}
+
+// optionals
+optional<u16> MaybeLuggage; // optional native type
+optional<Point> MaybeAirportRepresentation; // optional struct
+optional<FlightDistance> MaybeDriftFlightDistance; // optional quantity
+optional<FlightPilots> MaybeInternPilots; // optional bounded sequence
+
+// sequence of variants
+sequence<Figure, 2> TrajectoryRepresentation;
+
+// sequence of optionals
+sequence<MaybeDriftFlightDistance> DriftsFlightDistance;
+
+struct SimulationRepresentation
+{
+  shape      : Figure,
+  color      : Color,
+  trajectory : TrajectoryRepresentation,
+  airportRep : MaybeAirportRepresentation
+}
+
+struct Flight
+{
+  aircraftID       : string,
+  origin           : AirportCode,
+  destination      : AirportCode,
+  distanceTraveled : FlightDistance,
+  duration         : Duration,
+  takeOff          : TimeStamp,
+  landing          : TimeStamp,
+  layovers         : VisitedAirports,
+  simulationInfo   : SimulationRepresentation,
+  onboardTravelers : u64,
+  testCodes        : AircraftTestCodes,
+  flightPilots     : FlightPilots,
+  internPilots     : MaybeInternPilots
+}

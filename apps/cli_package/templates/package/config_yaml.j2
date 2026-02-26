@@ -1,0 +1,15 @@
+load:
+  - name: shell
+    group: 2
+    open: [local.example]  # to see the created objects
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports:
+      - {{ package_name }}
+    objects:
+      - class: {{ package_name }}.{{ class_name }}Impl
+        name: myObject
+        bus: local.example
+        prop1: some value

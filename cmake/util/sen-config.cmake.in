@@ -1,0 +1,10 @@
+@PACKAGE_INIT@ 
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
+include("${CMAKE_CURRENT_LIST_DIR}/sen_targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/util/sen_utils.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/util/git_info.cmake")
+
+set(SEN_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)

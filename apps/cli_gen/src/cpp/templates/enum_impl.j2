@@ -1,0 +1,56 @@
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ qualType }}
+//--------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+std::ostream& operator<<(std::ostream& out, {{ name }} val)
+{
+  return out << ::sen::StringConversionTraits<{{ name }}>::toString(val);
+}
+
+}
+
+std::string_view sen::StringConversionTraits<{{ qualType }}>::toString({{ qualType }} val)
+{
+  switch(val)
+  { 
+## for e in enums
+    case {{ qualType }}::{{ e.name }}: return "{{ e.name }}"; 
+## endfor
+  }
+  ::sen::throwRuntimeError("invalid enum {{ qualType }} value");
+}
+
+std::string_view sen::toString({{ qualType }} value)
+{
+  return ::sen::StringConversionTraits<{{ qualType }}>::toString(value);
+}
+
+{{ qualType }} sen::StringConversionTraits<{{ qualType }}>::fromString(std::string_view val)
+{
+## for e in enums
+  if (val == "{{ e.name }}") { return {{ qualType }}::{{ e.name }}; }
+## endfor
+
+  ::sen::throwRuntimeError("invalid string for enum {{ qualType }} conversion");
+}
+
+::sen::ConstTypeHandle<::sen::EnumType> sen::MetaTypeTrait<{{ qualType }}>::meta()
+{
+  static auto type = ::sen::EnumType::make(
+  {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+    { 
+## for e in enums
+      { "{{ e.name }}", {{ e.key }}U, "{{ e.description }}" }{% if loop.index1 < length(enums) %}, {% endif %}  // NOLINT
+## endfor
+    },
+    ::sen::MetaTypeTrait<{{ storageQualType }}>::meta() // .sharedFromThis<::sen::IntegralType>()
+  });
+  return type;
+}

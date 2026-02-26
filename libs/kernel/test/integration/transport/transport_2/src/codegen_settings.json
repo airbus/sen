@@ -1,0 +1,9 @@
+{
+  "classes": {
+    "sen.test.TestClass": {
+      "checkedProperties": [
+        "prop7"
+      ]
+    }
+  }
+}

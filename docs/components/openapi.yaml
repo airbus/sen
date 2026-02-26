@@ -1,0 +1,910 @@
+openapi: "3.0.3"
+
+info:
+  title: OpenAPI document for Rest component
+  description: This component allows interaction with Sen sessions, interests, and
+    objects.
+  version: 0.2.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/auth:
+    post:
+      summary: Authenticate client
+      description: Creates a new client session and returns a JWT token for authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Client identifier
+              required:
+                - id
+      responses:
+        '200':
+          description: Authentication successful
+          headers:
+            Set-Cookie:
+              description: JWT token set as HttpOnly cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT bearer token
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/sessions:
+    get:
+      summary: List all sessions
+      description: Returns a list of all available Sen sessions
+      security: []
+      responses:
+        '200':
+          description: A list of session identifiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["local"]
+  /api/interests:
+    get:
+      summary: List all interests
+      description: Returns a list of all interests for the authenticated client
+      responses:
+        '200':
+          description: A list of interest summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InterestSummary'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      summary: Create a new interest
+      description: Creates a new interest with a Sen query to select objects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the interest
+                query:
+                  type: string
+                  description: Sen query to select objects
+              required:
+                - name
+                - query
+      responses:
+        '200':
+          description: Interest created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the created interest
+        '400':
+          description: Bad request. Invalid query or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/interests/{interest}:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get interest details
+      description: Returns details about a specific interest
+      responses:
+        '200':
+          description: Interest details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterestSummary'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      summary: Delete an interest
+      description: Deletes a specific interest
+      responses:
+        '200':
+          description: Interest deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/interests/{interest}/objects:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: List objects in interest
+      description: Returns a list of all objects matching the interest query
+      responses:
+        '200':
+          description: A list of object summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ObjectSummary'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/interests/{interest}/objects/{object}:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get object details
+      description: Returns information about a specific object including available
+        methods, properties, and events
+      responses:
+        '200':
+          description: Object details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Object'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/properties/{property}:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: property
+        description: Property name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get property value
+      description: Returns the current value of an object property
+      responses:
+        '200':
+          description: Property value
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The property value (type depends on property definition)
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/properties/{property}/subscribe:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: property
+        description: Property name
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Subscribe to property changes
+      description: Subscribe to receive notifications via SSE when the property value
+        changes
+      responses:
+        '200':
+          description: Subscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/properties/{property}/unsubscribe:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: property
+        description: Property name
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Unsubscribe from property changes
+      description: Unsubscribe from property change notifications
+      responses:
+        '200':
+          description: Unsubscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/methods/{method}:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: method
+        description: Method name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get method definition
+      description: Returns the definition of a specific method
+      responses:
+        '200':
+          description: Method definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectMethod'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/methods/{method}/invoke:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: method
+        description: Method name
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Invoke a method
+      description: Invokes a method on an object with the provided arguments. For
+        getters, returns immediately. For setters and regular methods, returns an
+        invoke ID to check the completion status later.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArgsList'
+      responses:
+        '200':
+          description: Method invocation result or status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoke'
+        '400':
+          description: Bad request. Invalid arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/interests/{interest}/objects/{object}/methods/{method}/invoke/{id}:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: method
+        description: Method name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: id
+        description: Invoke ID
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get method invocation status
+      description: Returns the current status and result of a method invocation
+      responses:
+        '200':
+          description: Invocation status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoke'
+        '400':
+          description: Bad request. Invalid invoke ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Invoke not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/interests/{interest}/objects/{object}/events/{event}:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: event
+        description: Event name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get event definition
+      description: Returns the definition of a specific event
+      responses:
+        '200':
+          description: Event definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectEvent'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/events/{event}/subscribe:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: event
+        description: Event name
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Subscribe to event
+      description: Subscribe to receive notifications via SSE when the event is emitted
+      responses:
+        '200':
+          description: Subscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/events/{event}/unsubscribe:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: event
+        description: Event name
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Unsubscribe from event
+      description: Unsubscribe from event notifications
+      responses:
+        '200':
+          description: Unsubscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/sse:
+    get:
+      summary: Server-Sent Events stream
+      description: Opens a persistent connection to receive real-time notifications
+        for subscribed events, properties, invokes, and object changes
+      responses:
+        '200':
+          description: Stream of notifications
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '400':
+          description: Connection error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/types/{type}:
+    parameters:
+      - in: path
+        name: type
+        description: Type name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get type introspection
+      description: Returns introspection information about a Sen type (custom types
+        return full spec, native types return basic info)
+      responses:
+        '200':
+          description: Type information
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CustomTypeInfo'
+                  - $ref: '#/components/schemas/NativeTypeInfo'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth endpoint
+  responses:
+    UnauthorizedError:
+      description: Unauthorized, missing or invalid JWT token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Success:
+      type: object
+      properties:
+        msg:
+          type: string
+      required:
+        - msg
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    InterestSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Interest name
+        query:
+          type: string
+          description: Sen query used for the interest
+      required:
+        - name
+        - query
+    ObjectId:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+      description: Sen Object Identifier
+    ObjectSummary:
+      type: object
+      properties:
+        objectId:
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+          description: Object name
+        className:
+          type: string
+          description: Object class name
+        localName:
+          type: string
+          description: Object local name
+        link:
+          $ref: '#/components/schemas/Link'
+      required:
+        - objectId
+        - name
+        - className
+        - localName
+        - link
+    Object:
+      type: object
+      properties:
+        objectId:
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+          description: Object name
+        className:
+          type: string
+          description: Qualified class name
+        localName:
+          type: string
+          description: Object local name
+        description:
+          type: string
+          description: Class description
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          description: Links to available methods, properties, and events
+      required:
+        - objectId
+        - name
+        - className
+        - localName
+        - description
+        - links
+    Link:
+      type: object
+      properties:
+        rel:
+          type: string
+          enum:
+            - method
+            - setter
+            - getter
+            - def
+            - property
+            - propertySubscribe
+            - propertyUnsubscribe
+            - evt
+          description: Relationship type
+        href:
+          type: string
+          description: URL path to the resource
+        method:
+          type: string
+          enum:
+            - httpGet
+            - httpPost
+          description: HTTP method to use
+      required:
+        - rel
+        - href
+        - method
+    ObjectMethod:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Method name
+        description:
+          type: string
+          description: Method description
+        ret_type:
+          type: string
+          description: Return type name
+        args:
+          type: array
+          items:
+            $ref: '#/components/schemas/Argument'
+          description: Method arguments
+      required:
+        - name
+        - description
+        - ret_type
+        - args
+    Argument:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Argument name
+        description:
+          type: string
+          description: Argument description
+        type:
+          type: string
+          description: Argument type name
+      required:
+        - name
+        - description
+        - type
+    ObjectEvent:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Event name
+        description:
+          type: string
+          description: Event description
+      required:
+        - name
+        - description
+    ArgsList:
+      type: array
+      items:
+        description: Method arguments as VarList (any JSON-serializable value)
+      description: List of arguments to pass to the method
+    Invoke:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+          description: Invoke ID (-1 for immediate results like getters)
+        status:
+          type: string
+          enum:
+            - pending
+            - finished
+          description: Invocation status
+        result:
+          description: Method result (present when status is finished or for getters)
+      required:
+        - status
+    Notification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - evt
+            - property
+            - invoke
+            - objectAdded
+            - objectRemoved
+          description: Notification type
+        data:
+          type: object
+          description: Notification data (structure depends on type)
+      required:
+        - type
+        - data
+    CustomTypeInfo:
+      type: object
+      description: Full specification for custom Sen types
+      additionalProperties: true
+    NativeTypeInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Type name
+        description:
+          type: string
+          description: Type description
+      required:
+        - name
+        - description

@@ -1,0 +1,21 @@
+#include "sen/kernel/component.h"
+
+#include "sen/kernel/component_api.h"
+#include "sen/kernel/detail/component_api_impl.h"
+
+#include <iostream>
+#include <thread>
+
+struct {{ component_name }}: public sen::kernel::Component
+{
+  sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
+  {
+    std::cout << "{{ component_name }} started running\n";
+
+    return api.execLoop(sen::Duration::fromHertz(1.0), [](){
+      std::cout << "{{ component_name }} run iteration\n";
+    });
+  }
+};
+
+SEN_COMPONENT({{ component_name }})

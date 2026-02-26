@@ -1,0 +1,15 @@
+
+@dataclass
+class {{ name }}():
+    type: str
+    value: Union[{{ listOf("{{ pyAnnotationType }}", fields)  }}]
+
+    def __init__(self, val):
+## for field in fields
+      {% if loop.is_first %}if{%else%}elif{% endif %} isinstance(val, {{ field.pyAnnotationType }}):
+        self.type = "{{field.senQual}}"
+## endfor
+      else:
+        raise Exception("invalid type used in union")
+
+      self.value = val

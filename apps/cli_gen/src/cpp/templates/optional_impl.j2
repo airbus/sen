@@ -1,0 +1,40 @@
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ qualType }}
+//--------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+std::ostream& operator<<(std::ostream& out, const {{ name }}& val)
+{
+  if (val.has_value())
+  {
+    return out << *val;
+  }
+  return out << "<empty>";
+}
+
+bool operator==(const {{ qualType }}& lhs, const {{ qualType }}& rhs)
+{
+  return static_cast<bool>(lhs) == static_cast<bool>(rhs) && (!lhs || *lhs == *rhs);
+}
+
+bool operator!=(const {{ qualType }}& lhs, const {{ qualType }}& rhs)
+{
+  return static_cast<bool>(lhs) != static_cast<bool>(rhs) || (static_cast<bool>(lhs) && *lhs != *rhs);
+}
+
+} // namespace {{ namespace }}
+
+::sen::ConstTypeHandle<::sen::OptionalType> sen::MetaTypeTrait<{{ qualType }}>::meta()
+{
+  static auto type = ::sen::OptionalType::make(
+  {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+    ::sen::MetaTypeTrait<{{ qualElementType }}>::meta()
+  });
+  return type;
+}

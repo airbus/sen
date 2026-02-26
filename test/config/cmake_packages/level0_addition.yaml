@@ -1,0 +1,22 @@
+load:
+  - name: shell
+    group: 2
+    open: [my.tutorial]  # to see the created objects
+
+build:
+
+  # here we build a component that imports our package
+  # and instantiate an object of our exported class
+  - name: myComponent
+    group: 3
+    freqHz: 10
+    imports: [level0_addition]
+    objects:
+      - name: myLevel0Object
+        class: level0.Level0ClassImpl
+        data0: this is level0
+        bus: my.tutorial
+      - name: myLevel0ObjectAddition
+        class: level0_addition.Level0ClassAdditionImpl
+        data0: this is level0
+        bus: my.tutorial

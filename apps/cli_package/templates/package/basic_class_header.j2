@@ -1,0 +1,31 @@
+#pragma once
+
+#include "{{ class_rel_stl_file }}.h"
+
+// sen
+#include "sen/kernel/component_api.h"
+
+namespace {{ package_name }}
+{
+
+class {{ class_name }}Impl: public {{ class_name }}Base
+{
+public:
+  SEN_NOCOPY_NOMOVE({{ class_name }}Impl)
+
+public:
+  {{ class_name }}Impl(const std::string& name, const sen::VarMap& args);
+  ~{{ class_name }}Impl() override = default;
+## if non_empty_classes
+
+public:
+  void update(sen::kernel::RunApi& runApi) override;
+
+protected:
+  int32_t addNumbersImpl(int32_t a, int32_t b) override;
+  std::string echoImpl(const std::string& message) override;
+  void changePropsImpl() override;
+## endif
+};
+
+}  // namespace {{ package_name }}

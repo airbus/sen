@@ -1,0 +1,1191 @@
+
+namespace {{ namespace }}
+{
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ interfaceName }}
+//--------------------------------------------------------------------------------------------------------------
+
+{{ blockComment(description, 0) }}
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{ interfaceName }}{% if length(parents) != 0 %}: {{ listOf("public virtual {{ qualInterfaceName }}", parents) }}{% endif %}
+{
+  SEN_NOCOPY_NOMOVE({{ name }}Interface)
+
+public:
+  {{ interfaceName }}() = default;
+  {% if length(parents) == 0 %}virtual {% endif %}~{{ interfaceName }}(){% if length(parents) != 0 %} override{% endif %} = default;
+
+public:
+  [[nodiscard]] static inline ::sen::ConstTypeHandle<::sen::ClassType> meta() noexcept;
+  [[nodiscard]] sen::Object& asObject() noexcept
+  {
+    auto obj = dynamic_cast<sen::Object*>(this);
+    SEN_ASSERT(obj != nullptr && "instance doesn't inherit from sen::Object");
+    return *obj;
+  }
+  [[nodiscard]] const sen::Object& asObject() const noexcept
+  {
+    auto obj = dynamic_cast<const sen::Object*>(this);
+    SEN_ASSERT(obj != nullptr && "instance doesn't inherit from sen::Object");
+    return *obj;
+  }
+## if length(props) != 0
+
+public: // properties
+## for prop in props
+  // {{ prop.name }}
+  [[nodiscard]] virtual {{ passedType(prop) }} {{ prop.getter.name }}() const noexcept = 0;
+## if prop.writeAllowed
+  virtual void {{ prop.setter.name }}({{ passedType(prop) }} val) = 0;
+## endif
+## if prop.dynamic
+  virtual ::sen::ConnectionGuard {{ prop.callbackName }}(::sen::PropertyCallback&& callback) = 0;
+## endif
+
+## endfor
+## endif
+## if length(methods) != 0
+## if length(props) == 0
+
+## endif
+public: // methods
+## for method in methods
+## if method.localOnly
+  virtual {{ method.qualType }} {{ method.name }}({{ argList(method.args, false) }}){% if method.constant %} const{% endif %} = 0;  // NOLINT
+## else
+  virtual void {{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback = {}){% if method.constant %} const{% endif %} = 0;  // NOLINT
+## endif
+
+## endfor
+## endif
+## if length(events) != 0
+## if length(props) == 0 and length(methods) == 0
+
+## endif
+public: // events
+## for event in events
+  virtual ::sen::ConnectionGuard {{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback) = 0;
+
+## endfor
+## endif
+};
+## if isInterface == false
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ localName }}
+//--------------------------------------------------------------------------------------------------------------
+
+## if inheritsFromLocalObject
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{localName}}: public ::sen::NativeObject, public virtual {{ interfaceName }}
+## else
+## if nonInterfaceParent.inheritsFromLocalObject
+template <class P = {{ nonInterfaceParent.qualLocalName }}>
+## else
+template <class P = {{ nonInterfaceParent.qualLocalName }}<>>
+## endif
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{localName}}: public P, public virtual {{ interfaceName }}
+## endif
+{
+  SEN_NOCOPY_NOMOVE({{ localName }})
+  SEN_IMPL_GEN_BASE_CLASS({{ localName }})
+
+public:
+  static constexpr bool is{{ localName }} = true;
+## if inheritsFromLocalObject == false
+  static_assert(P::is{{ nonInterfaceParent.localName }});
+## endif
+
+public: // special members
+  inline {% if length(constructor.args) == 0%}explicit {% endif %}{{localName}}(std::string name{% if length(constructor.args) != 0%}, {{ argList(constructor.args, false, true) }}{% endif %});
+
+## for iface in interfacesToImplement
+## if iface.hasMembers
+## if length(iface.methods) != 0
+
+public: // {{ iface.name }} methods
+## for method in iface.methods
+## if method.notLocal
+  inline void {{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback = {}){% if method.constant %} const{% endif %} final;  // NOLINT
+## endif
+## endfor
+## endif
+## if length(iface.props) != 0
+
+public: // {{ iface.name }} properties
+## for prop in iface.props
+  // {{ prop.name }}
+  [[nodiscard]] inline {{ passedType(prop) }} {{ prop.getter.name }}() const noexcept final;
+## if prop.dynamic
+  inline void {{ prop.setter.name }}({{ passedType(prop) }} val){% if prop.writeAllowed %}final{% endif %};
+  [[nodiscard]] inline {{ passedType(prop) }} {{ prop.nextGetter }}() const noexcept;
+  inline ::sen::ConnectionGuard {{ prop.callbackName }}(::sen::PropertyCallback&& callback) final;
+## endif
+
+## endfor
+## endif
+## if length(iface.events) != 0
+public: // {{ iface.name }} events
+## for event in iface.events
+  inline ::sen::ConnectionGuard {{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback) final;
+  inline void {{ event.name }}({{ argList(event.args, true) }}::sen::Emit mode = ::sen::Emit::onCommit);
+## endfor
+## endif
+## endif
+## endfor
+## for iface in interfacesToImplement
+## if length(iface.methods) != 0
+
+protected:  // {{ iface.name }} methods
+## for method in iface.methods
+## if method.notLocal
+## if method.deferred
+  virtual void {{ method.nameImpl }}({{ argList(method.args, true) }}std::promise<{{ method.qualType }}>&& promise){% if method.constant %} const{% endif %} = 0;
+## else
+  {% if method.type != "void" %}[[nodiscard]] {% endif %}virtual {{ method.qualType }} {{ method.nameImpl }}({{ argList(method.args) }}){% if method.constant %} const{% endif %} = 0;
+## endif
+## endif
+## endfor
+## endif
+
+protected:
+## for prop in iface.props
+## if prop.staticRO
+  inline void {{ prop.setter.name }}({{ passedType(prop) }} val){% if prop.writeAllowed %}final{% endif %};
+  [[nodiscard]] inline {{ passedType(prop) }} {{ prop.nextGetter }}() const noexcept;
+## endif
+## if prop.checkedSet
+  virtual bool {{ prop.checkerMethodName }}({{ passedType(prop) }} val) const { std::ignore = val; return true; }
+
+## endif
+## endfor
+## endfor
+## if needsPrivateMembers
+
+private:
+  friend class {{ remoteName }};
+  std::array<::sen::impl::PropertyFlags, {{ dynamicPropertyCount }}U> flags_ = {};
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::PropBuffer<{{ prop.type }}> {{ prop.name }}Prop_ = {};
+## endif
+## endfor
+## endfor
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic == false  
+  {{ prop.type }} {{ prop.name }}Prop_ = {};
+## endif
+## endfor
+## endfor
+## for iface in interfacesToImplement
+## for event in iface.events
+  ::sen::impl::EventBuffer<{{ listOf("{{ type }}", event.args) }}> {{event.name}}Event_;
+## endfor
+## endfor
+  std::array<::sen::impl::EventBuffer<>, {{ dynamicPropertyCount }}U> propEvents_ = {};
+## endif
+};
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ remoteName }}
+//--------------------------------------------------------------------------------------------------------------
+
+## if inheritsFromLocalObject
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{ remoteName }}: public ::sen::impl::RemoteObject, public virtual {{ interfaceName }}
+## else
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{ remoteName }}: public {{ nonInterfaceParent.qualRemoteName }}, public virtual {{ interfaceName }}
+## endif
+{
+  SEN_NOCOPY_NOMOVE({{ remoteName }})
+  SEN_IMPL_GEN_REMOTE_CLASS({{ remoteName }})
+
+## for iface in interfacesToImplement
+## if iface.hasMembers
+## if length(iface.methods) != 0
+
+public: // {{ iface.name }} methods
+## for method in iface.methods
+## if method.localOnly
+  {{ method.qualType }} {{ method.name }}({{ argList(method.args, false) }}){% if method.constant %} const{% endif %} final;  // NOLINT
+## else
+  void {{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback = {}){% if method.constant %} const{% endif %} final;  // NOLINT
+## endif
+## endfor
+## endif
+## if length(iface.props) != 0
+
+public: // {{ iface.name }} properties
+## for prop in iface.props
+  // {{ prop.name }}
+  [[nodiscard]] {{ passedType(prop) }} {{ prop.getter.name }}() const noexcept final;
+## if prop.writeAllowed
+  void {{ prop.setter.name }}({{ passedType(prop) }} val) final;
+## endif
+## if prop.dynamic
+  ::sen::ConnectionGuard {{ prop.callbackName }}(::sen::PropertyCallback&& callback) final;
+## endif
+
+## endfor
+## endif
+## if length(iface.events) != 0
+public: // {{ iface.name }} events
+## for event in iface.events
+  ::sen::ConnectionGuard {{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback) final;
+## endfor
+
+## endif
+## endif
+## endfor
+
+protected:
+  void copyStateFrom(const RemoteObject& other) override;
+  void copyStateFromImpl(const {{ remoteName }}& other);
+
+private:
+  std::array<::sen::impl::PropertyFlags, {{ dynamicPropertyCount }}U> flags_ = {};
+  std::array<bool, {{ methodCount }}U> methodTypesSyncFlags_ {};
+  std::array<bool, {{ eventCount }}U> eventTypesSyncFlags_ {};
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::PropBuffer<{{ prop.type }}> {{ prop.name }}Prop_ = {};
+## endif
+## endfor
+## endfor
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic == false  
+  {{ prop.type }} {{ prop.name }}Prop_ = {};
+## endif
+## endfor
+## endfor
+## for iface in interfacesToImplement
+## for event in iface.events
+  ::sen::impl::EventBuffer<{{ listOf("{{ type }}", event.args) }}> {{event.name}}Event_;
+## endfor
+## endfor
+  std::array<::sen::impl::EventBuffer<>, {{ dynamicPropertyCount }}U> propEvents_ = {};
+};
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ localProxyName }}
+//--------------------------------------------------------------------------------------------------------------
+
+## if inheritsFromLocalObject
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{ localProxyName }}: public ::sen::impl::NativeObjectProxy, public virtual {{ interfaceName }}
+## else
+class{% if publicSymbols %} SEN_EXPORT{% endif %} {{ localProxyName }}: public {{ nonInterfaceParent.qualLocalProxyName }}, public virtual {{ interfaceName }}
+## endif
+{
+  SEN_NOCOPY_NOMOVE({{ localProxyName }})
+  SEN_IMPL_GEN_LOCAL_PROXY_CLASS({{ localProxyName }})
+
+## for iface in interfacesToImplement
+## if iface.hasMembers
+## if length(iface.methods) != 0
+
+public: // {{ iface.name }} methods
+## for method in iface.methods
+## if method.localOnly
+  {{ method.qualType }} {{ method.name }}({{ argList(method.args, false) }}){% if method.constant %} const{% endif %} final;  // NOLINT
+## else
+  void {{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback = {}){% if method.constant %} const{% endif %} final;  // NOLINT
+## endif
+## endfor
+## endif
+## if length(iface.props) != 0
+
+public: // {{ iface.name }} properties
+## for prop in iface.props
+  // {{ prop.name }}
+  [[nodiscard]] {{ passedType(prop) }} {{ prop.getter.name }}() const noexcept final;
+## if prop.writeAllowed
+  void {{ prop.setter.name }}({{ passedType(prop) }} val) final;
+## endif
+## if prop.dynamic
+  ::sen::ConnectionGuard {{ prop.callbackName }}(::sen::PropertyCallback&& callback) final;
+## endif
+
+## endfor
+## endif
+## if length(iface.events) != 0
+public: // {{ iface.name }} events
+## for event in iface.events
+  ::sen::ConnectionGuard {{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback) final;
+## endfor
+
+## endif
+## endif
+## endfor
+
+private:
+## for iface in interfacesToImplement
+  {{ iface.interfaceName }}* ptr{{ iface.interfaceName }}_;
+## endfor
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  {{ prop.type }} {{ prop.name }}Prop_ = {};
+## endif
+## endfor
+## endfor
+  std::array<::sen::impl::EventBuffer<>, {{dynamicPropertyCount}}> propEvents_ = {};
+};
+
+## endif
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} type traits
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace sen
+{
+
+SEN_IMPL_GEN_CLASS_META_TRAITS(::{{ namespace }}::{{ interfaceName }}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+## if inheritsFromLocalObject
+SEN_IMPL_GEN_CLASS_TRAITS_NORMAL(::{{ namespace }}::{{ interfaceName }}, ::{{namespace}}::{{ remoteName }}, ::{{namespace}}::{{ localProxyName }}, ::{{namespace}}::{{ localName }})
+## else
+SEN_IMPL_GEN_CLASS_TRAITS_TEMPLATE(::{{ namespace }}::{{ interfaceName }}, ::{{namespace}}::{{ remoteName }}, ::{{namespace}}::{{ localProxyName }}, ::{{namespace}}::{{ localName }})
+## endif
+
+}
+
+## if isInterface == false
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} inline implementation
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ interfaceName }}
+//--------------------------------------------------------------------------------------------------------------
+
+::sen::ConstTypeHandle<::sen::ClassType> {{interfaceName}}::meta() noexcept
+{
+  return ::sen::MetaTypeTrait<{{ interfaceName }}>::meta();
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ localName }}
+//--------------------------------------------------------------------------------------------------------------
+
+## if inheritsFromLocalObject
+{{localName}}::{{localName}}(std::string name{% if length(constructor.args) != 0%}, {{ argList(constructor.args, false, true) }}{% endif %}): ::sen::NativeObject(std::move(name))
+## else
+template <class P>
+{{localName}}<P>::{{localName}}(std::string name{% if length(constructor.args) != 0%}, {{ argList(constructor.args, false, true) }}{% endif %}): P(std::move(name){% if length(nonInterfaceParent.constructor.args) != 0 %}, {{ listOf("std::move({{ name }})", nonInterfaceParent.constructor.args)}}{% endif %})
+## endif
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.staticRW
+  , {{ prop.name }}Prop_(std::move({{ prop.name }}))
+## endif
+## endfor
+## endfor
+{
+}
+
+## if inheritsFromLocalObject
+{{localName}}::{{localName}}(std::string name, const ::sen::VarMap& args): ::sen::NativeObject(std::move(name))
+## else
+template <class P>
+{{localName}}<P>::{{localName}}(std::string name, const ::sen::VarMap& args): P(std::move(name), args)
+## endif
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.staticRW
+  , {{ prop.name }}Prop_(::sen::impl::getFromMap<{{ prop.qualType }}>("{{ prop.name }}", args{% if prop.checkedSet %}, {{ prop.validatorFunc }}{% endif %}))
+## endif
+## endfor
+## endfor
+{  {% set propertyIndex=0 %}
+  std::ignore = args;
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::tryGetFromMap<{{ prop.qualType }}>("{{ prop.name }}", args, {{ prop.name }}Prop_[flags_[{{ propertyIndex }}U].currentIndex()]{% if prop.checkedSet %}, {{ prop.validatorFunc }}{% endif %});  {% set propertyIndex = propertyIndex + 1 %}  // NOLINT
+## endif
+## endfor
+## endfor
+}
+
+## if inheritsFromLocalObject
+::sen::ConstTypeHandle<::sen::ClassType> {{localName}}::getClass() const noexcept
+## else
+template <class P>
+::sen::ConstTypeHandle<::sen::ClassType> {{localName}}<P>::getClass() const noexcept
+## endif
+{
+  return meta();
+}
+
+## if inheritsFromLocalObject
+::sen::ConstTypeHandle<::sen::ClassType> {{localName}}::meta() noexcept
+## else
+template <class P>
+::sen::ConstTypeHandle<::sen::ClassType> {{localName}}<P>::meta() noexcept
+## endif
+{
+  return ::sen::MetaTypeTrait<{{ interfaceName }}>::meta();
+}
+
+## if inheritsFromLocalObject
+::sen::impl::FieldValueGetter {{localName}}::senImplGetFieldValueGetter(::sen::MemberHash propertyId, ::sen::Span<uint16_t> fields) const
+## else
+template <class P>
+::sen::impl::FieldValueGetter {{localName}}<P>::senImplGetFieldValueGetter(::sen::MemberHash propertyId, ::sen::Span<uint16_t> fields) const
+## endif
+{
+ std::ignore = propertyId;
+ std::ignore = fields;
+## if hasProperties
+  switch(propertyId.get())
+  { {% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{prop.id}}U:
+    {
+## if prop.isStructType or prop.isVariantType
+## if prop.dynamic
+      return {[this, getter = ::sen::VariantTraits<{{ prop.qualType }}>::getFieldValueGetterFunction(fields)](){ return getter(&{{ prop.name }}Prop_[flags_[{{ propertyIndex }}U].currentIndex()]); }, &flags_[{{ propertyIndex }}U]}; // NOLINT
+## else
+      return {[this, getter = ::sen::VariantTraits<{{ prop.qualType }}>::getFieldValueGetterFunction(fields)](){ return getter(&{{ prop.name }}Prop_); }, nullptr};
+## endif
+## else if prop.isNativeType
+      return {[this](){ return {{ prop.getter.name }}(); }, {%if prop.dynamic %}&flags_[{{ propertyIndex }}U]{% else %}nullptr{% endif %}};
+## else if prop.isEnum
+      return {[this](){ return std::string(::sen::StringConversionTraits<{{ prop.qualType }}>::toString({{ prop.getter.name }}())); }, {%if prop.dynamic %}&flags_[{{ propertyIndex }}U]{% else %}nullptr{% endif %}};
+## else if prop.isDurationType
+      return {[this](){ return {{ prop.getter.name }}().toSeconds(); }, {%if prop.dynamic %}&flags_[{{ propertyIndex }}U]{% else %}nullptr{% endif %}};
+## else if prop.isQuantityType
+      return {[this](){ return {{ prop.getter.name }}().get(); }, {%if prop.dynamic %}&flags_[{{ propertyIndex }}U]{% else %}nullptr{% endif %}};
+## else
+      ::sen::throwRuntimeError("non native type {{ prop.qualType }} supported for property {{ prop.name }}");
+## endif
+    } {%if prop.dynamic %} {% set propertyIndex = propertyIndex + 1 %} {% endif %}
+
+## endfor
+## endfor
+    default: break;
+  }
+
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  return {{ nonInterfaceParent.type }}::senImplGetFieldValueGetter(propertyId, fields);
+## else
+  return P::senImplGetFieldValueGetter(propertyId, fields);
+## endif
+## else
+  ::sen::throwRuntimeError("invalid property (reason a)");
+## endif
+## else
+  ::sen::throwRuntimeError("invalid property (reason b)");
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplStreamCall(::sen::MemberHash methodId, ::sen::InputStream& in, ::sen::StreamCallForwarder&& fwd)
+## else
+template <class P>
+void {{localName}}<P>::senImplStreamCall(::sen::MemberHash methodId, ::sen::InputStream& in, ::sen::StreamCallForwarder&& fwd)
+## endif
+{
+  std::ignore = methodId;
+  std::ignore = in;
+  std::ignore = fwd;
+## if implementsMethods
+
+  switch(methodId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{ prop.getter.id }}:  // NOLINT
+    {
+      fwd([this](::sen::OutputStream& out) { ::sen::SerializationTraits<{{ prop.qualType }}>::write(out, {{ prop.getter.name }}()); });
+      return;
+    }
+## if prop.writeAllowed
+    case {{ prop.setter.id }}:  // NOLINT
+    {
+      const auto val = ::sen::impl::fromStream<{{ prop.qualType }}>(in);
+      fwd([&](::sen::OutputStream& /*out*/){ {{ prop.setter.name }}(val); });
+      return;
+    }
+## endif
+## endfor
+## for method in iface.methods
+## if method.notLocal
+    case {{ method.id }}:  // NOLINT
+    {
+## if length(method.args) == 0
+## if method.qualType == "void"
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<void>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::OutputStream& /*out*/) { if (result.isError()){ std::rethrow_exception(result.getError()); } }); });
+      this->template senImplAsyncDeferredCall<void>(this, std::move(senImplCallback),  &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }});
+## else
+      fwd([this](::sen::OutputStream& /*out*/) { {{ method.nameImpl }}(); });
+## endif
+## else
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<{{ method.qualType }}>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::OutputStream& out) {
+            if (result.isOk())
+            {
+              ::sen::SerializationTraits<{{ method.qualType }}>::write(out, result.getValue());
+            }
+            else
+            {
+              std::rethrow_exception(result.getError());
+            }
+          });
+        });
+      this->template senImplAsyncDeferredCall<{{ method.qualType }}>(this, std::move(senImplCallback),  &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }});
+## else
+      fwd([this](::sen::OutputStream& out) { ::sen::SerializationTraits<{{ method.qualType }}>::write(out, {{ method.nameImpl }}()); });
+## endif
+## endif
+## else
+## for arg in method.args
+      const auto {{ arg.name }} = ::sen::impl::fromStream<{{ arg.qualType }}>(in);
+## endfor
+## if method.qualType == "void"
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<void>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::OutputStream& /*out*/) { if (result.isError()){ std::rethrow_exception(result.getError()); } }); });
+      this->template senImplAsyncDeferredCall<void>(this, std::move(senImplCallback), &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }}, {{ listOf("{{ name }}", method.args) }});
+## else
+      fwd([&](const ::sen::OutputStream& /*out*/) { {{ method.nameImpl }}({{ listOf("{{ name }}", method.args) }}); });
+## endif
+## else
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<{{ method.qualType }}>(this, [this, fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::OutputStream& out) {
+            if (result.isOk())
+            {
+              ::sen::SerializationTraits<{{ method.qualType }}>::write(out, result.getValue());
+            }
+            else
+            {
+              std::rethrow_exception(result.getError());
+            }
+          });
+         });
+      this->template senImplAsyncDeferredCall<{{ method.qualType }}>(this, std::move(senImplCallback), &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }}, {{ listOf("{{ name }}", method.args) }});
+## else
+      fwd([&](::sen::OutputStream& out) { ::sen::SerializationTraits<{{ method.qualType }}>::write(out, {{ method.nameImpl }}({{ listOf("{{ name }}", method.args) }})); });
+## endif
+## endif
+## endif
+      return;
+    }
+## endif
+## endfor
+## endfor
+    default: break;
+  }
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplStreamCall(methodId, in, std::move(fwd));
+## else
+  P::senImplStreamCall(methodId, in, std::move(fwd));
+## endif
+## else
+  ::sen::throwRuntimeError("invalid method id - possibly a code generator issue");
+  SEN_UNREACHABLE();
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplVariantCall(::sen::MemberHash methodId, const ::sen::VarList& args, ::sen::VariantCallForwarder&& fwd)
+## else
+template <class P>
+void {{localName}}<P>::senImplVariantCall(::sen::MemberHash methodId, const ::sen::VarList& args, ::sen::VariantCallForwarder&& fwd)
+## endif
+{
+  std::ignore = methodId;
+  std::ignore = args;
+  std::ignore = fwd;
+## if implementsMethods
+
+  switch(methodId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{ prop.getter.id }}:  // NOLINT
+    {
+      fwd([this](::sen::Var& ret){ ::sen::VariantTraits<{{ prop.qualType }}>::valueToVariant({{ prop.getter.name }}(), ret); });
+      return;
+    }
+## if prop.writeAllowed
+    case {{ prop.setter.id }}:  // NOLINT
+    {
+      fwd([&](::sen::Var& /*ret*/){ {{ prop.setter.name }}(::sen::toValue<{{ prop.qualType }}>(args.at(0U))); });
+      return;
+    }
+## endif
+## endfor
+## for method in iface.methods
+## if method.notLocal
+    case {{ method.id }}:  // NOLINT
+    {
+## if length(method.args) == 0
+## if method.qualType == "void"
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<void>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::Var& /*out*/) { if (result.isError()){ std::rethrow_exception(result.getError()); } });});
+      this->template senImplAsyncDeferredCall<void>(this, std::move(senImplCallback),  &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }});
+## else
+      fwd([&](::sen::Var& /*ret*/){ {{ method.nameImpl }}(); });
+## endif
+## else
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<{{ method.qualType }}>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::Var& ret) {
+            if (result.isOk())
+            {
+              ::sen::VariantTraits<{{ method.qualType }}>::valueToVariant(result.getValue(), ret);
+            }
+            else
+            {
+              std::rethrow_exception(result.getError());
+            }
+          });
+        });
+      this->template senImplAsyncDeferredCall<{{ method.qualType }}>(this, std::move(senImplCallback),  &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }});
+## else
+      fwd([&](::sen::Var& ret){ ::sen::VariantTraits<{{ method.qualType }}>::valueToVariant({{ method.nameImpl }}(), ret); });
+## endif
+## endif
+## else
+## for arg in method.args
+      auto {{ arg.name }} = ::sen::toValue<{{ arg.qualType }}>(args.at({{ loop.index }}U));
+## endfor
+## if method.qualType == "void"
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<void>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::Var& /*ret*/) { if (result.isError()){ std::rethrow_exception(result.getError()); } });});
+      this->template senImplAsyncDeferredCall<void>(this, std::move(senImplCallback), &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }}, {{ listOf("{{ name }}", method.args) }});
+## else
+      fwd([&](::sen::Var& /*ret*/){ {{ method.nameImpl }}({{ listOf("{{ name }}", method.args) }}); });
+## endif
+## else
+## if method.deferred
+      auto senImplCallback = ::sen::MethodCallback<{{ method.qualType }}>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::Var& ret) {
+            if (result.isOk())
+            {
+              ::sen::VariantTraits<{{ method.qualType }}>::valueToVariant(result.getValue(), ret);
+            }
+            else
+            {
+              std::rethrow_exception(result.getError());
+            }
+          });
+        });
+      this->template senImplAsyncDeferredCall<{{ method.qualType }}>(this, std::move(senImplCallback), &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }}, {{ listOf("{{ name }}", method.args) }});
+## else
+      fwd([&](::sen::Var& ret){ ::sen::VariantTraits<{{ method.qualType }}>::valueToVariant({{ method.nameImpl }}({{ listOf("{{ name }}", method.args) }}), ret); });
+## endif
+## endif
+## endif
+      return;
+    }
+## endif
+## endfor
+## endfor
+    default: break;
+  }
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplVariantCall(methodId, args, std::move(fwd));
+## else
+  P::senImplVariantCall(methodId, args, std::move(fwd));
+## endif
+## else
+  ::sen::throwRuntimeError("invalid method id - possibly a code generator issue");
+  SEN_UNREACHABLE();
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplRemoveTypedConnection(::sen::ConnId id)
+## else
+template <class P>
+void {{localName}}<P>::senImplRemoveTypedConnection(::sen::ConnId id)
+## endif
+{
+  std::ignore = id;
+
+## for iface in interfacesToImplement
+## for event in iface.events
+  if ({{event.name}}Event_.removeConnection(id)) { return; }
+## endfor
+## endfor
+## if needsPrivateMembers
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  if (propEvents_[{{propertyIndex}}U].removeConnection(id)) { return; } {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplRemoveTypedConnection(id);
+## else
+  P::senImplRemoveTypedConnection(id);
+## endif
+## endif
+}
+
+## if inheritsFromLocalObject
+::sen::Var {{localName}}::senImplGetPropertyImpl(::sen::MemberHash propertyId) const
+## else
+template <class P>
+::sen::Var {{localName}}<P>::senImplGetPropertyImpl(::sen::MemberHash propertyId) const
+## endif
+{
+  std::ignore = propertyId;
+## if implementsProperties
+  switch(propertyId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{prop.id}}U: return ::sen::toVariant<{{ prop.qualType }}>({{ prop.getter.name }}()); // NOLINT
+## endfor
+## endfor
+    default: break;
+  }
+
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  return {{ nonInterfaceParent.type }}::senImplGetPropertyImpl(propertyId);
+## else
+  return P::senImplGetPropertyImpl(propertyId);
+## endif
+## else
+  return {};
+## endif
+## else
+  return {};
+## endif
+}
+
+## if inheritsFromLocalObject
+::sen::Var {{localName}}::senImplGetNextPropertyUntyped(::sen::MemberHash propertyId) const
+## else
+template <class P>
+::sen::Var {{localName}}<P>::senImplGetNextPropertyUntyped(::sen::MemberHash propertyId) const
+## endif
+{
+  std::ignore = propertyId;
+## if implementsProperties
+  switch(propertyId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+    case {{prop.id}}U: return ::sen::toVariant<{{ prop.qualType }}>({{ prop.nextGetter }}()); // NOLINT
+## endif
+## endfor
+## endfor
+    default: break;
+  }
+
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  return {{ nonInterfaceParent.type }}::senImplGetNextPropertyUntyped(propertyId);
+## else
+  return P::senImplGetNextPropertyUntyped(propertyId);
+## endif
+## else
+  return {};
+## endif
+## else
+  return {};
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplSetNextPropertyUntyped(::sen::MemberHash propertyId, const ::sen::Var& value)
+## else
+template <class P>
+void {{localName}}<P>::senImplSetNextPropertyUntyped(::sen::MemberHash propertyId, const ::sen::Var& value)
+## endif
+{
+  std::ignore = propertyId;
+  std::ignore = value;
+
+## if implementsProperties
+  switch(propertyId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic or prop.staticRO
+    case {{prop.id}}U: {{ prop.setter.name }}(::sen::toValue<{{ prop.qualType }}>(value)); break; // NOLINT
+## endif
+## endfor
+## endfor
+    default: break;
+  }
+
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplSetNextPropertyUntyped(propertyId, value);
+## else
+  P::senImplSetNextPropertyUntyped(propertyId, value);
+## endif
+## else
+  return;
+## endif
+## else
+  return;
+## endif
+}
+
+## if inheritsFromLocalObject
+uint32_t {{localName}}::senImplComputeMaxReliableSerializedPropertySizeImpl() const
+## else
+template <class P>
+uint32_t {{localName}}<P>::senImplComputeMaxReliableSerializedPropertySizeImpl() const
+## endif
+{
+## if implementsDynamicProperties
+  uint32_t maxSize = 0U; {% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  maxSize = std::max(maxSize, ::sen::SerializationTraits<{{ prop.qualType }}>::serializedSize({{ prop.getter.name }}())); {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  return std::max(maxSize, {{ nonInterfaceParent.type }}::senImplComputeMaxReliableSerializedPropertySizeImpl());
+## else
+
+  return std::max(maxSize, P::senImplComputeMaxReliableSerializedPropertySizeImpl());
+## endif
+## else
+  return maxSize;
+## endif
+## else
+  return 0U;
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplCommitImpl(::sen::TimeStamp time)
+## else
+template <class P>
+void {{localName}}<P>::senImplCommitImpl(::sen::TimeStamp time)
+## endif
+{
+  std::ignore = time; {% set propertyIndex=0 %}
+  if (somePropertyIsDirty_)
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+    flags_[{{propertyIndex}}U].advanceCurrent(); {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+
+    const auto id = this->getId();{% set propertyIndex=0 %}
+    std::ignore = id;
+
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+    ::sen::impl::dispatchIfChanged(flags_[{{propertyIndex}}U], propEvents_[{{propertyIndex}}U], {{prop.id}}U, id, time, {{prop.transportEnum}}, this);  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+  }
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::senImplCommitImpl(time);
+## else
+
+  P::senImplCommitImpl(time);
+## endif
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplWriteChangedPropertiesToStream(::sen::OutputStream& confirmed, ::sen::impl::BufferProvider uni, ::sen::impl::BufferProvider multi)
+## else
+template <class P>
+void {{localName}}<P>::senImplWriteChangedPropertiesToStream(::sen::OutputStream& confirmed, ::sen::impl::BufferProvider uni, ::sen::impl::BufferProvider multi)
+## endif
+{
+  std::ignore = confirmed;
+  std::ignore = uni;
+  std::ignore = multi;
+  if (somePropertyIsDirty_)
+  {
+## if implementsDynamicProperties
+## set propertyIndex=0
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+## if prop.transportEnum == "::sen::TransportMode::unicast"
+    ::sen::impl::writePropertyIfChanged<{{ prop.qualType }}>(flags_[{{propertyIndex}}U], {{ prop.id }}U, uni, {{ prop.getter.name }}()); // NOLINT {% set propertyIndex = propertyIndex + 1 %}
+## else
+## if prop.transportEnum == "::sen::TransportMode::multicast"
+    ::sen::impl::writePropertyIfChanged<{{ prop.qualType }}>(flags_[{{propertyIndex}}U], {{ prop.id }}U, multi, {{ prop.getter.name }}()); // NOLINT {% set propertyIndex = propertyIndex + 1 %}
+## else
+    ::sen::impl::writePropertyIfChanged<{{ prop.qualType }}>(flags_[{{propertyIndex}}U], {{ prop.id }}U, confirmed, {{ prop.getter.name }}()); // NOLINT {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endif
+## endif
+## endfor
+## endfor
+## endif
+
+    somePropertyIsDirty_ = false;
+  }
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::senImplWriteChangedPropertiesToStream(confirmed, uni, multi);
+## else
+
+  P::senImplWriteChangedPropertiesToStream(confirmed, uni, multi);
+## endif
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplWriteAllPropertiesToStream(::sen::OutputStream& out) const
+## else
+template <class P>
+void {{localName}}<P>::senImplWriteAllPropertiesToStream(::sen::OutputStream& out) const
+## endif
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::senImplWriteAllPropertiesToStream(out);
+## else
+
+  P::senImplWriteAllPropertiesToStream(out);
+## endif
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplWriteStaticPropertiesToStream(::sen::OutputStream& out) const
+## else
+template <class P>
+void {{localName}}<P>::senImplWriteStaticPropertiesToStream(::sen::OutputStream& out) const
+## endif
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.static
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplWriteStaticPropertiesToStream(out);
+## else
+  P::senImplWriteStaticPropertiesToStream(out);
+## endif
+## endif
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::senImplWriteDynamicPropertiesToStream(::sen::OutputStream& out) const
+## else
+template <class P>
+void {{localName}}<P>::senImplWriteDynamicPropertiesToStream(::sen::OutputStream& out) const
+## endif
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplWriteDynamicPropertiesToStream(out);
+## else
+  P::senImplWriteDynamicPropertiesToStream(out);
+## endif
+## endif
+}
+
+## if inheritsFromLocalObject
+inline void {{localName}}::invokeAllPropertyCallbacks()
+## else
+template <class P>
+inline void {{localName}}<P>::invokeAllPropertyCallbacks()
+## endif
+{
+## if implementsProperties
+  const auto time = this->getLastCommitTime(); {% set propertyIndex=0 %}
+  const auto id = this->getId();
+  std::ignore = id;
+  std::ignore = time;
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::unconditionalDispatch(propEvents_[{{propertyIndex}}U], {{prop.id}}U, id, time, {{prop.transportEnum}}, this);  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::invokeAllPropertyCallbacks();
+## else
+
+  P::invokeAllPropertyCallbacks();
+## endif
+## endif
+}
+
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## if length(iface.methods) != 0
+## for method in iface.methods
+## if method.notLocal
+## if inheritsFromLocalObject
+void {{localName}}::{{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback) {% if method.constant %}const {% endif %}  // NOLINT
+## else
+template <class P>
+void {{localName}}<P>::{{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback) {% if method.constant %}const {% endif %}  // NOLINT
+## endif
+{
+## if method.deferred
+  this->template senImplAsyncDeferredCall<{{ method.type }}{% if length(method.args) != 0 %}, {{ listOf("{{ type }}", method.args) }}{% endif %}>(this, std::move(callback), &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }}{% if length(method.args) != 0 %}, {{ listOf("{{ name }}", method.args) }}{% endif %});
+## else
+  this->template senImplAsyncCall<{{ method.type }}{% if length(method.args) != 0 %}, {{ listOf("{{ type }}", method.args) }}{% endif %}>(this, std::move(callback), &{{ localName }}::{{ method.nameImpl }}, {{ method.confirmed }}{% if length(method.args) != 0 %}, {{ listOf("{{ name }}", method.args) }}{% endif %});
+## endif
+}
+
+## endif
+## endfor
+## endif
+## if length(iface.props) != 0
+## for prop in iface.props
+## if inheritsFromLocalObject
+{{ passedType(prop) }} {{localName}}::{{ prop.getter.name }}() const noexcept
+## else
+template <class P>
+{{ passedType(prop) }} {{localName}}<P>::{{ prop.getter.name }}() const noexcept
+## endif
+{
+## if prop.dynamic
+  return {{ prop.name }}Prop_[flags_[{{ propertyIndex }}U].currentIndex()];  // NOLINT
+## else
+  return {{ prop.name }}Prop_;
+## endif
+}
+
+## if prop.dynamic or prop.staticRO
+## if inheritsFromLocalObject
+void {{localName}}::{{ prop.setter.name }}({{ passedType(prop) }} val)
+## else
+template <class P>
+void {{localName}}<P>::{{ prop.setter.name }}({{ passedType(prop) }} val)
+## endif
+{
+## if prop.checkedSet
+  if (!{{ prop.checkerMethodName }}(val))
+  {
+    throw std::runtime_error("invalid value for property {{ prop.name }}");
+  }
+
+## endif
+## if prop.dynamic
+  auto writeLock = this->createWriterLock();
+  flags_[{{ propertyIndex }}U].setValue({{ prop.name }}Prop_, val);  // NOLINT
+  somePropertyIsDirty_ = true;
+## else if prop.staticRO
+  {{ prop.name }}Prop_ = val;
+## endif
+}
+
+## if inheritsFromLocalObject
+{{ passedType(prop) }} {{localName}}::{{ prop.nextGetter }}() const noexcept
+## else
+template <class P>
+{{ passedType(prop) }} {{localName}}<P>::{{ prop.nextGetter }}() const noexcept
+## endif
+{
+## if prop.dynamic
+  return {{ prop.name }}Prop_[flags_[{{ propertyIndex }}U].nextIndex()];
+## else
+  return {{ prop.name }}Prop_;
+## endif
+}
+
+## endif
+## if prop.dynamic
+## if inheritsFromLocalObject
+::sen::ConnectionGuard {{localName}}::{{ prop.callbackName }}(::sen::PropertyCallback&& callback)
+## else
+template <class P>
+::sen::ConnectionGuard {{localName}}<P>::{{ prop.callbackName }}(::sen::PropertyCallback&& callback)
+## endif
+{
+  return propEvents_[{{ propertyIndex }}U].addConnection(this, std::move(callback), this->senImplMakeConnectionId());  // NOLINT
+}
+
+## endif
+{% if prop.dynamic %} {% set propertyIndex = propertyIndex + 1 %} {% endif %}
+## endfor
+## endif
+## if length(iface.events) != 0
+## for event in iface.events
+## if inheritsFromLocalObject
+::sen::ConnectionGuard {{localName}}::{{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback)
+## else
+template <class P>
+::sen::ConnectionGuard {{localName}}<P>::{{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback)
+## endif
+{
+  return {{event.name}}Event_.addConnection(this, std::move(callback), this->senImplMakeConnectionId());
+}
+
+## if inheritsFromLocalObject
+void {{localName}}::{{ event.name }}({{ argList(event.args, true) }}::sen::Emit mode)
+## else
+template <class P>
+void {{localName}}<P>::{{ event.name }}({{ argList(event.args, true) }}::sen::Emit mode)
+## endif
+{
+  this->senImplProduceEvent({{event.name}}Event_, mode, {{ event.id }}U, {{ event.transportEnum }}, true{% if length(event.args) != 0%}, {% endif %}{{ listOf("{{ name }}", event.args) }});  // NOLINT
+}
+
+## endfor
+## endif
+## endfor
+}
+## endif

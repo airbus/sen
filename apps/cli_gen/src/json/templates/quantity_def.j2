@@ -1,0 +1,11 @@
+    "{{ senQual }}": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "description": "{{ description }}",
+      "type": "number"{% if exists("max") or exists("min") %},{% endif %}
+## if exists("min")
+      "minimum": {{ min }}{% if exists("max") %},{% endif %}
+## endif
+## if exists("max")
+      "maximum": {{ max }}
+## endif
+    }

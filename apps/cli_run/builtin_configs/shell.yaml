@@ -1,0 +1,6 @@
+load:
+  - name: ether
+    group: 2
+  - name: shell
+    group: 3
+    open: [local.kernel]

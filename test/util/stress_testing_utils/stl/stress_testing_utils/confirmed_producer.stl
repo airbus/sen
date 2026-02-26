@@ -1,0 +1,29 @@
+
+package stress_testing_utils;
+
+struct SmallStruct
+{
+  a : f64,
+  b : f64,
+  c : f64,
+  d : f64,
+}
+
+sequence<u64, 500> BigSequence;
+
+struct BigStruct
+{
+  a : SmallStruct,
+  b : SmallStruct,
+  c : string,
+  d : BigSequence,
+}
+
+// produces confirmed data on every cycle
+class ConfirmedDataProducer
+{
+  var prop1 : string [confirmed];
+  var prop2 : SmallStruct [confirmed];
+  var prop3 : BigStruct [confirmed];
+  var counter : u64 [confirmed];
+}

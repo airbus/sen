@@ -1,0 +1,45 @@
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ qualType }}
+//--------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+std::ostream& operator<<(std::ostream& out, const {{ name }}& val)
+{
+  return out << val.get();
+}
+
+} // namespace {{ namespace }}
+
+::std::optional<const sen::Unit*> sen::QuantityTraits<{{ qualType }}>::unit() noexcept
+{
+  static auto cachedUnitPointer = ::sen::UnitRegistry::get().searchUnitByAbbreviation("{{ unitAbbrev }}");
+  return cachedUnitPointer;
+}
+
+const sen::Unit& sen::QuantityTraits<{{ qualType }}>::unit(::sen::Unit::EnsureTag)
+{
+  if (auto maybeUnit = unit())
+  {
+    return *maybeUnit.value();
+  }
+
+  ::sen::throwRuntimeError("invalid call to QuantityTraits<{{ qualType }}>::unit()");
+}
+
+::sen::ConstTypeHandle<::sen::QuantityType> sen::MetaTypeTrait<{{ qualType }}>::meta()
+{
+  static auto type = ::sen::QuantityType::make(
+  {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+    ::sen::MetaTypeTrait<{{ qualElementType }}>::meta(),
+    ::sen::UnitRegistry::get().searchUnitByAbbreviation("{{ unitAbbrev }}"),
+    static_cast<float64_t>(::sen::QuantityTraits<{{ qualType }}>::min),
+    static_cast<float64_t>(::sen::QuantityTraits<{{ qualType }}>::max)
+  });
+  return type;
+}

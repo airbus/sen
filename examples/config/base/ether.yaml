@@ -1,0 +1,4 @@
+# $schema: schema.json
+load:
+  - name: ether
+    group: 10

@@ -1,0 +1,14 @@
+package test;
+
+// example class
+class MyClass
+{
+  // can be set by others
+  var prop : i32;
+
+  // fired when something happened
+  event somethingHappened();
+  
+  // fired when something else happened
+  event somethingElseHappened(arg: i32) [confirmed];
+}

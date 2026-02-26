@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+build:
+  - name: myComponent
+    group: 2
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - class: my_package.MyAbstractClass
+        name: myClass
+        bus: my.tutorial
+        prop1: some value

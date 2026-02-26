@@ -1,0 +1,13 @@
+# $schema: ../base/schema.json
+include:
+  - 1_aircraft.yaml
+
+# In this example we start the kernel with the virtualized time.
+# Here the time will not advance until we explicitly request it.
+# You will find that the kernel will be publishing an object called
+# 'clock' in the 'my.tutorial' bus, that you can use to control the
+# virtual time and see how components advance accordingly.
+kernel:
+  runMode: virtualTime
+  clockMaster: true
+  clockBus: my.tutorial

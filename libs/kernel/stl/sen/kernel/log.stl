@@ -1,0 +1,94 @@
+package sen.kernel.log;
+
+enum LogLevel: u8
+{
+  warn,
+  err,
+  critical,
+  trace,
+  debug,
+  info,
+  off
+}
+
+// stdout sink
+struct Stdout {}
+
+// stderr sink
+struct Stderr {}
+
+// colored stdout sink
+struct ColorStdout {}
+
+// colored stderr sink
+struct ColorStderr {}
+
+// basic file sink
+struct BasicFile
+{
+  fileName        : string,  // file to log to
+  truncate        : bool,    // defaults to false
+  createParentDir : bool     // true if we should create the parent dir first
+}
+
+// rotating file sink
+struct RotatingFile
+{
+  baseFileName : string,
+  maxSize      : u32,     // 0 means use defaults
+  maxFiles     : u32      // 0 means use defaults
+}
+
+// single-threaded null sink
+struct Null {}
+
+// syslog sink (only in linux)
+struct Syslog
+{
+  identity         : string,
+  option           : u32,
+  enableFormatting : bool
+}
+
+variant SinkType
+{
+  ColorStdout,
+  ColorStderr,
+  Stdout,
+  Stderr,
+  BasicFile,
+  RotatingFile,
+  Null,
+  Syslog
+}
+
+struct SinkConfig
+{
+  name           : string,
+  singleThreaded : bool,
+  level          : LogLevel,
+  config         : SinkType
+}
+
+sequence<string> SinkNameList;
+
+struct LoggerConfig
+{
+  name    : string,
+  sinks   : SinkNameList,
+  pattern : string,
+  level   : LogLevel
+}
+
+sequence<SinkConfig> SinkConfigList;
+sequence<LoggerConfig> LoggerConfigList;
+
+// Overall component configuration
+struct Config
+{
+  pattern   : string,            // default format (empty means default)
+  level     : LogLevel,          // default global level for all
+  sinks     : SinkConfigList,    // sinks to configure
+  loggers   : LoggerConfigList,  // loggers to configure
+  backtrace : bool               // log backtrace is printed on failure
+}

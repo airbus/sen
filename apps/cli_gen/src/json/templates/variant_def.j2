@@ -1,0 +1,32 @@
+    "{{ senQual }}": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "description": "{{ description }}",
+      "type": "object",
+      "properties": {
+        "type":  {
+          "enum": [
+## for field in fields
+            "{{ field.senType }}"{%if not loop.is_last %},{% endif %}
+## endfor
+          ]
+        }
+      },
+      "allOf": [
+## for field in fields
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "{{ field.senType }}" }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": { {{ field.jsonSchemaType }} }
+            },
+            "required": ["value"]
+          }
+        }{%if not loop.is_last %},{% endif %}
+## endfor
+      ],
+      "required": ["type"]
+    }

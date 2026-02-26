@@ -1,0 +1,91 @@
+package sen.components.ether;
+
+optional<string> MaybeDeviceName;
+
+// TCP-based discovery hub parameters
+struct DiscoveryHubAddress
+{
+  port : u16,     // Port where the discovery hub is running
+  host : string,  // name or IP of the host where the discovery hub is running
+}
+
+// TCP-based discovery parameters
+struct TcpDiscovery
+{
+  beamPeriod             : Duration,             // How often are we beaming our presence
+  beamExpirationTime     : Duration,             // Expiry time used by the beam tracker
+  hubAddress             : DiscoveryHubAddress,  // Where to find the discovery hub
+  allowVirtualInterfaces : bool                  // If true, virtual (NO_CARRIER) interfaces are also considered
+}
+
+// Multicast-based discovery parameters
+struct MulticastDiscovery
+{
+  beamPeriod             : Duration,         // How often are we beaming our presence
+  beamExpirationTime     : Duration,         // Expiry time used by the beam tracker
+  mcastGroup             : string,           // Defaults to '239.255.0.1'
+  port                   : u16,              // Defaults to 60543
+  device                 : MaybeDeviceName,  // Device to use for the network communication
+  allowVirtualInterfaces : bool              // If true, virtual (NO_CARRIER) interfaces are also considered
+}
+
+// Configuration parameters related to the discovery protocol
+variant DiscoveryConfig
+{
+  MulticastDiscovery,
+  TcpDiscovery,
+}
+
+// What to do when a queue is full
+enum QueueEvictionPolicy: u32
+{
+  dropOldest, // When full, drop the least recent element
+  dropNewest, // When full, drop the most recent element
+}
+
+struct QueueConfig
+{
+  evictionPolicy : QueueEvictionPolicy,  // What to do when a queue is full
+  maxSize        : u64,                  // Maximum element count, 0 means unbounded
+  warningLevel   : u64                   // Element count where warning will be issued, 0 means none
+}
+
+// Range of values of a u8
+struct ByteRange
+{
+  min : u8,  // minimum range
+  max : u8   // needs to be >= min
+}
+
+// Range of values of a IPv4 multicast address
+array<ByteRange, 4> MulticastRange;
+
+// Remember to set these to the same value in all related Sen instances
+struct BusConfig
+{
+  // Defaults to: [224-239], [0-255], [0-255], [0-255]
+  // Remember to keep a range wide enough for avoiding collisions if you have many buses.
+  multicastRange : MulticastRange,
+
+  // Defaults to 50985
+  // Change this in case you have limited control over the infrastructure.
+  multicastPort : u16,
+
+  // If true, no multicast traffic is performed and all the bus settings above
+  // become meaningless. Defaults to false.
+  multicastDisabled : bool
+}
+
+optional<u16> MaybeDiscoveryHubPort;
+
+// Overall component configuration
+struct Configuration
+{
+  discovery          : DiscoveryConfig,        // Discovery-related parameters
+  busOutQueue        : QueueConfig,            // Queue for broadcasting to buses
+  processUdpOutQueue : QueueConfig,            // Queue for communicating with processes over UDP
+  processTcpOutQueue : QueueConfig,            // Queue for communicating with processes over TCP
+  busConfig          : BusConfig,              // Bus transport configuration
+  runDiscoveryHub    : MaybeDiscoveryHubPort,  // If present, run the TCP discovery hub on this port
+  networkDevice      : MaybeDeviceName         // If present, the network device to use
+}

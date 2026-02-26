@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+load:
+  - name: tracy
+    group: 1
+
+build:
+  - name: myComponent
+    group: 2
+    freqHz: 10000
+    imports: [my_package]
+    priority: highest
+    objects:
+      - class: my_package.MyClassImpl
+        name: myClass
+        bus: my.tutorial
+        prop1: some value

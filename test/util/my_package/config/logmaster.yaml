@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+kernel:
+  logConfig:
+    backtrace: true
+    sinks:
+      - name: "stdout_sink"
+        singleThreaded: true
+        level: trace
+        config:
+          type: Stderr
+    loggers:
+      - name: "my_logger"
+        sinks: ["stdout_sink"]
+        level: info
+
+load:
+  - name: shell
+    group: 2
+    open: [local.log]
+
+  # to control the log level of the component, type
+  #   local.log.my_logger.setLevel "trace"
+  - name: logmaster
+    group: 3
+    targetBus: local.log
+
+build:
+  - name: myComponent
+    group: 3
+    freqHz: 10
+    imports: [my_package]
+    objects:
+      - name: myObject
+        class: my_package.MyClassImpl
+        prop1: someValue
+        bus: my.tutorial

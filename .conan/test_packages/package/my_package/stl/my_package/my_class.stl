@@ -1,0 +1,67 @@
+import "stl/my_package/basic_types.stl"
+
+package my_package;
+
+// example class
+class MyClass
+{
+  // does not change
+  var prop1 : string [static];
+
+  // can be set by others  
+  var prop2 : StructOfInts [writable];
+
+  // goes over tcp, settable
+  var prop3 : MyVariant [writable, confirmed, tag: someTag, tag: anotherTag];
+
+  // goes over udp
+  var prop4 : Vec2;
+
+  // can be set by others
+  var prop5 : i32  [writable];
+
+  // can be set by others
+  var prop6 : FloatArray [writable];
+
+  // can be set by others, but we approve those sets
+  var prop7 : i32  [writable];
+
+  // a property using a quantity with unit and range
+  var prop8 : MetersU16 [writable];
+
+  // a property using quantities without units but with range
+  var prop9 : UnitlessQuantity;
+
+  // a property with an optional value
+  var prop10 : MaybeFloat;
+
+  // if not zero, the max number of iterations
+  var iterationCount : u64 [writable];
+
+  // if true, throws an exception during execution
+  var throwException : bool [writable];
+
+  // this method returns "a + b"
+  fn addNumbers(a: i32, b: i32) -> i32;
+    
+  // this method returns message
+  fn echo(message: string) -> string;
+
+  // change some property
+  fn changeProps();
+
+  // a method that can only be called locally (same component)
+  fn someLocalMethod() [local];
+
+  // fired when something happened
+  event somethingHappened();
+  
+  // fired when something else happened
+  event somethingElseHappened(arg: i32) [confirmed];
+
+  // defer the method execution
+  fn doingSomethingDeferred() -> string;
+
+  // defer the method execution with no returning
+  fn doingSomethingDeferredWithoutReturning();
+}

@@ -1,0 +1,14 @@
+package sen.test;
+
+// Contains the result of a test. If the test fails, it contains the error log
+optional<string> TestResult;
+
+// Performs the test actions in the remote object
+class Tester
+{
+  var ready : bool [confirmed];
+
+  fn doTests()         -> TestResult; // performs the test and checks the changes in the remote object
+  fn checkLocalState() -> TestResult; // checks the changes in the local object modified by the test
+  fn shutdownKernel();                // commands a shutdown of the sen kernel
+}

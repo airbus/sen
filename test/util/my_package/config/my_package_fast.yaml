@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+kernel:
+  runMode: virtualTimeRunning
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - class: my_package.MyClassImpl
+        name: myClass
+        bus: local.tutorial
+        prop1: some value
+        iterationCount: 1000

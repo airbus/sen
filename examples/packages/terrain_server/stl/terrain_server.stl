@@ -1,0 +1,24 @@
+import "basic_types.stl"
+
+package terrain_server;
+
+// Provides information about the terrain.
+class TerrainServer
+{
+  // Where to publish the objects that might be created by this server.
+  var targetBus : string [static];
+
+  // Get information about a line of sight.
+  //
+  // @param ref the place for the query.
+  // @param range maximum distance for the test.
+  // @param noClouds if true, clouds are ignored.
+  // @param asObject if true, an LosQuery object is created.
+  fn requestLos(ref: netn.GeoReferenceVariant, range: Range, noClouds: bool, asObject: bool) -> LoS;
+
+  // Get information about the height of the terrain.
+  //
+  // @param ref the place for the query.
+  // @param asObject if true, an HatHotQuery object is created.
+  fn requestHatHot(ref: netn.GeoReferenceVariant, asObject: bool) -> HatHot;
+}

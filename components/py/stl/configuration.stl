@@ -1,0 +1,12 @@
+package sen.components.py;
+
+sequence<string> StringList;
+
+// Overall component configuration
+struct Configuration
+{
+  freqHz  : f32,         // update frequency in Hertz
+  module  : string,      // python module to use (name of a python script, without the .py)
+  imports : StringList,  // sen packages to import
+  bus     : string       // bus where to publish the interpreter object (none by default)
+}

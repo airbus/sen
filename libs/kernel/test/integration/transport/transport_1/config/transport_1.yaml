@@ -1,0 +1,22 @@
+load:
+  - name: ether
+    group: 10
+    runDiscoveryHub: 65454
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65454
+
+build:
+  - name: transport_1
+    group: 2
+    freqHz: 100
+    imports: [transport_1]
+    objects:
+      - name: tester1
+        class: sen.test.TesterImpl
+        bus: session.bus

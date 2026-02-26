@@ -1,0 +1,9 @@
+load:
+  - name: shell
+    group: 2
+  - name: ether
+    group: 3
+  - name: replayer
+    autoOpen: $autoOpen
+    autoPlay: $autoPlay
+    group: 4

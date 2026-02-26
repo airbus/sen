@@ -1,0 +1,31 @@
+import "stl/inheritance/basic_types.stl"
+import "stl/inheritance/my_class.stl"
+
+package inheritance;
+
+class MySubClass: extends MyClass
+{
+  var aString   : string [static];
+  var aEnum     : MyEnum;
+  var aFloat    : f32;
+  var aDouble   : f64;
+  var aBool     : bool;
+  var aStruct   : Vec2;
+  var aVariant  : MyVariant [confirmed];
+  var aDuration : Duration;
+  var aTime     : TimeStamp;
+  var aSequence : BoundedSeq;
+  var aArray    : ArrayOf4F32s;
+
+  // throws std::exception
+  fn throwError(error: string);
+
+  // fires the somethingHappened event
+  fn doSomething();
+  
+  // fires the somethingElseHappened event
+  fn doSomethingElse(arg: i32);
+
+  // inverts the aBool variable
+  fn invertBool();
+}

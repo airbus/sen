@@ -1,0 +1,42 @@
+load:
+  - name: tracy
+    group: 1
+  - name: ether
+    group: 2
+  - name: shell
+    group: 3
+
+build:
+  - name: producers
+    group: 4
+    imports: [stress_testing_utils]
+    freqHz: 200
+    objects:
+      - name: confirmedProducer1
+        class: stress_testing_utils.ConfirmedProducerImpl
+        bus: testing.confirmed
+      - name: confirmedProducer2
+        class: stress_testing_utils.ConfirmedProducerImpl
+        bus: testing.confirmed
+  - name: producers2
+    group: 5
+    imports: [stress_testing_utils]
+    freqHz: 200
+    objects:
+      - name: confirmedProducer3
+        class: stress_testing_utils.ConfirmedProducerImpl
+        bus: testing.confirmed
+      - name: confirmedProducer4
+        class: stress_testing_utils.ConfirmedProducerImpl
+        bus: testing.confirmed
+  - name: producers3
+    group: 6
+    imports: [stress_testing_utils]
+    freqHz: 200
+    objects:
+      - name: confirmedProducer5
+        class: stress_testing_utils.ConfirmedProducerImpl
+        bus: testing.confirmed
+      - name: confirmedProducer6
+        class: stress_testing_utils.ConfirmedProducerImpl
+        bus: testing.confirmed

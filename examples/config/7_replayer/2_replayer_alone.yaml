@@ -1,0 +1,11 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+  - ../base/ether.yaml
+
+load:
+  - name: shell
+    open:
+      - local.replay
+  - name: replayer
+    group: 20

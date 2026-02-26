@@ -1,0 +1,22 @@
+# $schema: ../base/schema.json
+include:
+  # bring the shell so that we can interact with our objects
+  - ../base/shell.yaml
+
+build:
+  # Let's build a component
+  - name: myComponent
+    freqHz: 30
+    # Import our package so that we can instantiate our objects
+    imports: [calculators]
+    group: 3
+    objects:
+      # We know that this package contains a CasioCalculator class. We instantiate it here.
+      - class: calculators.CasioCalculator
+        name: goodCalc
+        bus: my.tutorial
+        model: superCalc  # Defining the model is mandatory for instantiating this object.
+      - class: calculators.FaultyCalculator
+        name: badCalc
+        bus: my.tutorial
+        model: bsCalc

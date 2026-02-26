@@ -1,0 +1,12 @@
+### {{ senQual }}
+
+{{ description }}
+
+Representation: {{ elementType }}
+
+Unit:  {{ unitAbbrev }}
+
+{% if exists("max") -%}Max value: {{ max }}{% endif %}
+
+{% if exists("min") -%}Min value: {{ min }}{% endif %}
+

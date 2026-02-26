@@ -1,0 +1,23 @@
+@PACKAGE_INIT@
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+# find sen to obtain the replayer target
+if(NOT __dep_sen)
+set(__dep_sen YES)
+find_package(sen CONFIG REQUIRED)
+endif()
+
+get_external_interfaces(TARGET sen::replayer INSTALLATION_DIR ${SEN_INSTALL_DIR})
+
+get_target_property(_sen_replayer_stl_files sen::replayer INSTALL_STL_FILES)
+get_target_property(_sen_replayer_base_path sen::replayer INSTALL_BASE_PATH)
+
+add_sen_package(
+TARGET sen_replayer_interfaces
+BASE_PATH ${_sen_replayer_base_path}
+STL_FILES ${_sen_replayer_stl_files}
+DEPS sen::db
+)
+

@@ -1,0 +1,206 @@
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ qualType }}
+//--------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+std::ostream& operator<<(std::ostream& out, const {{ name }}& val)
+{
+## if fieldCount == 0
+  std::ignore = val;
+  return out;
+## else
+  out.setf(std::ios::left, std::ios::adjustfield);
+  const auto indent = std::setw(static_cast<int>(out.width() + 2U));
+  const auto nameWidth = std::setw({{ maxFieldNameLength }});
+  std::ignore = nameWidth;
+## for field in fields
+## if  field.ostreamNeedsNewline
+  {% if loop.is_first %}return out{% else %}          {% endif %} << indent << ' ' << "{{ field.name }}:\n" << indent << val.{{ field.name }}{% if loop.is_last %};{% else %} << '\n'{% endif %}
+## else
+  {% if loop.is_first %}return out{% else %}          {% endif %} << indent << ' ' << nameWidth << "{{ field.name }}: " << val.{{ field.name }}{% if loop.is_last %};{% else %} << '\n'{% endif %}
+## endif
+## endfor
+## endif
+}
+
+bool operator==(const {{ name }}& lhs, const {{ name }}& rhs)
+{
+## if exists("parentToInheritFrom")
+  if (static_cast<{{ qualParentType }}>(lhs) != static_cast<{{ qualParentType }}>(rhs))
+  {
+    return false;
+  }
+
+## endif
+## if fieldCount != 0
+## for field in fields
+## if loop.is_first
+  return lhs.{{ field.name }} == rhs.{{ field.name }}{% if loop.is_last %};{% endif %}
+## else if loop.is_last
+      && lhs.{{ field.name }} == rhs.{{ field.name }};
+## else
+      && lhs.{{ field.name }} == rhs.{{ field.name }}
+## endif
+## endfor
+## else
+  std::ignore = lhs;
+  std::ignore = rhs;
+  return true;
+## endif
+}
+
+bool operator!=(const {{ name }}& lhs, const {{ name }}& rhs)
+{
+  return !(lhs == rhs);
+}
+
+}  // namespace {{ namespace }}
+
+void sen::SerializationTraits<{{ qualType }}>::write(::sen::OutputStream& out, const {{ qualType }}& val)
+{
+## if exists("parentToInheritFrom")
+  ::sen::SerializationTraits<{{ qualParentType }}>::write(out, val);
+## else if fieldCount == 0
+  std::ignore = out;
+  std::ignore = val;
+## endif
+## for field in fields
+  ::sen::SerializationTraits<{{ field.qualType }}>::write(out, val.{{ field.name }});
+## endfor
+}
+
+void sen::SerializationTraits<{{ qualType }}>::read(::sen::InputStream& in, {{ qualType }}& val)
+{
+## if exists("parentToInheritFrom")
+  ::sen::SerializationTraits<{{ qualParentType }}>::read(in, val);
+## else if fieldCount == 0
+  std::ignore = in;
+  std::ignore = val;
+## endif
+## if fieldCount != 0
+## for field in fields
+  ::sen::SerializationTraits<{{ field.qualType }}>::read(in, val.{{ field.name }});
+## endfor
+## endif
+}
+
+uint32_t sen::SerializationTraits<{{ qualType }}>::serializedSize(const {{ qualType }}& val) noexcept
+{
+## if not exists("parentToInheritFrom") and fieldCount == 0
+  std::ignore = val;
+  return 0U;
+## else if exists("parentToInheritFrom") and fieldCount == 0
+  return ::sen::SerializationTraits<{{ qualParentType }}>::serializedSize(val);
+## else
+## for field in fields
+## if loop.is_first
+## if exists("parentToInheritFrom")
+  return ::sen::SerializationTraits<{{ qualParentType }}>::serializedSize(val)
+       + ::sen::SerializationTraits<{{ field.qualType }}>::serializedSize(val.{{ field.name }}){% if loop.is_last %};{% endif %}
+## else
+  return ::sen::SerializationTraits<{{ field.qualType }}>::serializedSize(val.{{ field.name }}){% if loop.is_last %};{% endif %}
+## endif
+## else if loop.is_last
+       + ::sen::SerializationTraits<{{ field.qualType }}>::serializedSize(val.{{ field.name }});
+## else
+       + ::sen::SerializationTraits<{{ field.qualType }}>::serializedSize(val.{{ field.name }})
+## endif
+## endfor
+## endif
+}
+
+void sen::VariantTraits<{{ qualType }}>::valueToVariant(const {{ qualType }}& val, ::sen::Var& var)
+{
+## if not exists("parentToInheritFrom") and length(fields) == 0
+  std::ignore = val;
+  std::ignore = var;
+## else
+## if exists("parentToInheritFrom")
+  ::sen::VariantTraits<{{ qualParentType }}>::valueToVariant(val, var);
+## else
+  var = VarMap{};
+## endif
+## if length(fields) != 0
+
+  auto& map = var.get<VarMap>();
+## for field in fields
+  ::sen::impl::structFieldToVarMap<{{ field.qualType }}>("{{ field.name }}", val.{{ field.name }}, map);
+## endfor
+## endif
+## endif
+}
+
+void sen::VariantTraits<{{ qualType }}>::variantToValue(const ::sen::Var& var, {{ qualType }}& val)
+{
+## if not exists("parentToInheritFrom") and length(fields) == 0
+  std::ignore = var;
+  std::ignore = val;
+## else
+## if exists("parentToInheritFrom")
+  ::sen::VariantTraits<{{ qualParentType }}>::variantToValue(var, val);
+
+## endif
+## if length(fields) != 0
+  auto map = getMap(var, "{{ qualType }}");
+## for field in fields
+  extractField(map, val.{{ field.name }}, "{{ field.name }}", "{{ field.qualType }}", "{{ qualType }}");
+## endfor
+## endif
+## endif
+}
+
+std::function<::sen::lang::Value(const void*)> sen::VariantTraits<{{ qualType }}>::getFieldValueGetterFunction(::sen::Span<uint16_t> fields)
+{
+## if length(fields) == 0
+  std::ignore = fields;
+  throwEmptyStructError("{{ qualType }}");
+  return {};
+## else
+  expectAtLeastOneField("{{ qualType }}", fields);
+
+  switch(fields[0])
+  {
+## for field in fields
+    case {{ loop.index }}:
+## if field.isStructType or field.isVariantType
+      return [fieldGetter = ::sen::VariantTraits<{{ field.qualType }}>::getFieldValueGetterFunction(fields.subspan(1U))](const void* structAddr){ return fieldGetter(&(static_cast<const {{ qualType }}*>(structAddr)->{{ field.name }})); };
+## else if field.isNativeType
+      return [](const void* structAddr){ return static_cast<const {{ qualType }}*>(structAddr)->{{ field.name }}; };
+## else if field.isEnum
+      return [](const void* structAddr){ return static_cast<std::underlying_type_t<{{ field.qualType }}>>(static_cast<const {{ qualType }}*>(structAddr)->{{ field.name }}); };
+## else if field.isDurationType
+      return [](const void* structAddr){ return (static_cast<const {{ qualType }}*>(structAddr)->{{ field.name }}).toSeconds(); };
+## else if field.isQuantityType
+      return [](const void* structAddr){ return (static_cast<const {{ qualType }}*>(structAddr)->{{ field.name }}).get(); };
+## else
+      throwNonNativeField("{{ qualType }}", "{{ field.name }}");
+      break;
+## endif
+
+## endfor
+   default:
+     throwInvalidFieldIndex("{{ qualType }}", fields[0]);
+  }
+  return {};
+## endif
+}
+
+sen::ConstTypeHandle<::sen::StructType> sen::MetaTypeTrait<{{ qualType }}>::meta()
+{
+  static auto type = ::sen::StructType::make(
+  {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+    { 
+## for field in fields
+      { "{{ field.name }}", "{{ field.description }}", ::sen::MetaTypeTrait<{{ field.qualType }}>::meta() }{% if loop.index1 < length(fields) %}, {% endif %}  // NOLINT
+## endfor
+    },
+    {% if exists("parentToInheritFrom") %}::sen::MetaTypeTrait<{{ qualParentType }}>::meta(){% else %}::std::nullopt{% endif %},
+  });
+  return type;
+}

@@ -1,0 +1,84 @@
+package my_package;
+
+// Enumerations are supported
+enum MyEnum: u8
+{
+  first,   // you can document each
+  second,  // enumerator in its own line
+  third    // keep them lower case
+}
+
+// This is an example struct holding floats
+struct Vec2
+{
+  x : f32,  // floats can be 32-bit wide
+  y : f64   // or 64-bit wide (doubles)
+}
+
+// This is an example struct holding integrals
+struct StructOfInts
+{  
+  field1 : u8,   // unsigned 8-bit int 
+  field2 : i16,  // signed 16-bit int
+  field3 : u16,  // unsigned 16-bit int 
+  field4 : i32,  // signed 32-bit int
+  field5 : u32,  // unsigned 32-bit int 
+  field6 : i64,  // signed 64-bit int
+  field7 : u64   // unsigned 32-bit int 
+}
+
+// This is an example struct holding
+// other built-in types
+struct StructOfOthers
+{
+  aBoolean  : bool,      // boolean
+  aString   : string,    // strings of characters
+  aDuration : Duration,  // time duration
+  aTime     : TimeStamp  // point in time
+}
+
+// You can define sequences of any type
+sequence<StructOfOthers> UnboundedSeq;
+
+// Sequences can be bounded so to have a
+// fixed capacity and variable size with no
+// dynamic memory allocation
+sequence<f32, 10> BoundedSeq;
+
+// We also have old-fashioned arrays
+array<f32, 10> FloatArray;
+
+// Aliases
+alias AliasedSeq BoundedSeq;
+
+alias MyInt u8;
+
+// Variants are safe unions, that allow you to
+// use the same variable to store values of
+// different types in a safe manner.
+variant MyVariant
+{
+  MyEnum,
+  StructOfOthers,
+  string
+}
+
+// Structs can have fields of any type
+// Here we use types defined in this file
+struct MyStruct
+{  
+  aEnum     : MyEnum,  
+  aStruct   : StructOfInts,
+  aVariant  : MyVariant,
+  aSequence : UnboundedSeq
+}
+
+// Quantities
+quantity<u16, m> MetersU16 [min: 0, max: 500];
+
+// Quantities may have no units
+quantity<u16, u16> UnitlessQuantity [min: 0, max: 511];
+
+// Optional
+optional<f32> MaybeFloat;
+

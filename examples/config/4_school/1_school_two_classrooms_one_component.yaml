@@ -1,0 +1,30 @@
+# $schema: ../base/schema.json
+
+# this example creates two ClassRoom objects in the school.primary
+# and school.secondary buses respectively.
+include:
+  - ../base/shell.yaml
+
+load:
+  # auto-open the buses that we will be interested in
+  - name: shell
+    open: [school.primary, school.secondary]
+
+build:
+  - name: schoolComponent
+    group: 3
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 5
+        createTeacher: true
+      - name: secondGrade
+        class: school.ClassroomImpl
+        studentsBus: school.secondary
+        bus: school.secondary
+        defaultSize: 10
+        createTeacher: true

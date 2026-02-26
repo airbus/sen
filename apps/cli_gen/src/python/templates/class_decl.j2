@@ -1,0 +1,16 @@
+## if isInterface == false
+@dataclass
+## if length(parents) != 0
+class {{ name }}({{  listOf("{{ name }}", parents) }}):
+## else
+class {{ name }}:
+## endif
+    name: str
+## for iface in interfacesToImplement
+## if length(iface.props) != 0
+## for prop in iface.props
+    {{ prop.name }}: {{ prop.pyAnnotationType }}
+## endfor
+## endif
+## endfor
+## endif

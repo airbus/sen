@@ -1,0 +1,743 @@
+//--------------------------------------------------------------------------------------------------------------
+// {{ interfaceName }}
+//--------------------------------------------------------------------------------------------------------------
+
+::sen::ConstTypeHandle<::sen::ClassType> sen::MetaTypeTrait<{{namespace}}::{{ interfaceName }}>::meta()
+{
+  static auto type = ::sen::ClassType::make(
+  ::sen::ClassSpec {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+## if length(props) == 0
+    {},  // no properties
+## else
+    {  // properties
+## for prop in props
+      { "{{ prop.name }}", "{{ prop.description }}", MetaTypeTrait<{{ prop.qualType }}>::meta(), {{ prop.categoryEnum }}, {{ prop.transportEnum }}, {{ prop.checkedSet }} , { {{ listOf("\"{{ value }}\"", prop.tags) }} }},  // NOLINT(readability-magic-numbers)
+## endfor
+    },
+## endif
+## if length(methods) == 0
+    {},  // no methods
+## else
+    {  // methods
+## for method in methods
+      MethodSpec(
+        /*callableSpec*/     { "{{ method.name }}", "{{ method.description }}", { {% for arg in method.args %}{ "{{ arg.name }}", "{{ arg.description }}", MetaTypeTrait<{{ arg.qualType }}>::meta() }, {% endfor %} }, {{ method.transportEnum }} }, 
+        /*returnType*/       {% if method.qualType == "void" %} VoidType::get() {% else %}MetaTypeTrait<{{ method.qualType }}>::meta(){% endif %},
+        /*constness*/        {% if method.constant %}Constness::constant{% else %}Constness::nonConstant{% endif %}, 
+        /*propertyRelation*/ NonPropertyRelated{}, 
+        /*deferred*/         {% if method.deferred %}true{% else %}false{% endif %},
+        /*localOnly*/        {% if method.localOnly %}true{% else %}false{% endif %}
+      ),  // NOLINT(readability-magic-numbers)
+## endfor
+    },
+## endif
+## if length(events) == 0
+    {},  // no events
+## else
+    {  // events
+## for event in events
+      { { "{{ event.name }}", "{{ event.description }}", { {% for arg in event.args %}{ "{{ arg.name }}", "{{ arg.description }}", MetaTypeTrait<{{ arg.qualType }}>::meta() }, {% endfor %} }, {{ event.transportEnum }} } },  // NOLINT(readability-magic-numbers)
+## endfor
+    },
+## endif
+## if exists("constructor")
+    MethodSpec{ { "constructor{{ name }}", "constructor", { {% for arg in constructor.args %}{ "{{ arg.name }}", "{{ arg.description }}", MetaTypeTrait<{{ arg.qualType }}>::meta() }, {% endfor %} }, TransportMode::confirmed }, sen::VoidType::get() , Constness::nonConstant,  NonPropertyRelated{}, false, false },  // NOLINT(readability-magic-numbers)
+## else
+    std::nullopt,
+## endif
+## if exists("parents")
+    {  // parents
+      {% for parent in parents %}::sen::MetaTypeTrait<::{{ parent.namespace }}::{{ parent.interfaceName }}>::meta(), {% endfor %}
+    },
+## else
+    {},  // no parents
+## endif
+    {% if isInterface %}true{% else %}false{% endif %},
+    {% if isAbstract %}true{% else %}false{% endif %},
+    {% if isInterface %}nullptr{% else %}[](::sen::impl::RemoteObjectInfo&& info){ return std::make_shared<::{{namespace}}::{{ remoteName }}>(std::move(info)); }{% endif %},
+    {% if isInterface %}nullptr{% else %}[](::sen::NativeObject* object, const std::string& localPrefix){ return std::make_shared<::{{namespace}}::{{ localProxyName }}>(object, localPrefix); }{% endif %},
+  });
+  return type;
+}
+
+## if isInterface == false
+namespace {{namespace}}
+{
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ remoteName }}
+//--------------------------------------------------------------------------------------------------------------
+
+## if inheritsFromLocalObject
+{{remoteName}}::{{remoteName}}(::sen::impl::RemoteObjectInfo&& info): ::sen::impl::RemoteObject(std::move(info))
+## else
+{{remoteName}}::{{remoteName}}(::sen::impl::RemoteObjectInfo&& info): {{ nonInterfaceParent.qualRemoteName }}(std::move(info))
+## endif
+{
+{% set propertyIndex=0 %}{% set methodIndex=0 %}{% set eventIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  flags_[{{ propertyIndex }}U].setTypesInSync(memberTypesInSync({{ prop.id }}U)); {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## for method in iface.methods
+  methodTypesSyncFlags_[{{ methodIndex }}U] = memberTypesInSync({{ method.id }}U); {% set methodIndex = methodIndex + 1 %}
+## endfor
+## for event in iface.events
+  eventTypesSyncFlags_[{{ eventIndex }}U] = memberTypesInSync({{ event.id }}U); {% set eventIndex = eventIndex + 1 %}
+## endfor
+## endfor
+}
+
+void {{remoteName}}::senImplWriteAllPropertiesToStream(::sen::OutputStream& out) const
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::senImplWriteAllPropertiesToStream(out);
+## else
+
+  {{ nonInterfaceParent.qualRemoteName }}::senImplWriteAllPropertiesToStream(out);
+## endif
+## endif
+}
+
+void {{remoteName}}::senImplWriteStaticPropertiesToStream(::sen::OutputStream& out) const
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.static
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplWriteStaticPropertiesToStream(out);
+## else
+  {{ nonInterfaceParent.qualRemoteName }}::senImplWriteStaticPropertiesToStream(out);
+## endif
+## endif
+}
+
+void {{remoteName}}::senImplWriteDynamicPropertiesToStream(::sen::OutputStream& out) const
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplWriteDynamicPropertiesToStream(out);
+## else
+  {{ nonInterfaceParent.qualRemoteName }}::senImplWriteDynamicPropertiesToStream(out);
+## endif
+## endif
+}
+
+void {{remoteName}}::invokeAllPropertyCallbacks()
+{
+## if implementsProperties
+  const auto time = this->getLastCommitTime(); {% set propertyIndex=0 %}
+  const auto id = this->getId();
+  std::ignore = id;
+  std::ignore = time;
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::unconditionalDispatch(propEvents_[{{propertyIndex}}U], {{prop.id}}U, id, time, {{prop.transportEnum}}, this);  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::invokeAllPropertyCallbacks();
+## else
+
+  {{ nonInterfaceParent.qualRemoteName }}::invokeAllPropertyCallbacks();
+## endif
+## endif
+}
+
+{% set propertyIndex=0 %}
+{% set methodIndex=0 %}
+## for iface in interfacesToImplement
+## if length(iface.methods) != 0
+## for method in iface.methods
+## if method.localOnly
+{{ method.qualType }} {{remoteName}}::{{ method.name }}({{ argList(method.args, false) }}){% if method.constant %} const{% endif %}
+{
+## for arg in method.args
+  std::ignore = {{ arg.name }};
+## endfor
+
+  ::sen::throwRuntimeError("calling local methods is not permitted across component boundaries ({{ method.name }})");
+}
+
+## else
+void {{remoteName}}::{{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback) {% if method.constant %}const {% endif %}  // NOLINT
+{
+  if (methodTypesSyncFlags_[{{ methodIndex }}U])
+  {
+    makeRemoteCall<{{ method.qualType }}{% if length(method.args) != 0 %}, {{ listOf("{{ qualType }}", method.args) }}{% endif %}>({{ method.id }}U, {{ method.transportEnum }}, std::move(callback){% if length(method.args) != 0 %}, {{ listOf("{{ name }}", method.args) }}{% endif %});  // NOLINT
+  }
+  else
+  {
+    static const auto* readerMethod = getClass()->searchMethodById({{ method.id }}U);
+    adaptAndMakeRemoteCall<{{ method.qualType }}{% if length(method.args) != 0 %}, {{ listOf("{{ qualType }}", method.args) }}{% endif %}>({{ method.id }}U, readerMethod, {{ method.transportEnum }}, std::move(callback){% if length(method.args) != 0 %}, {{ listOf("{{ name }}", method.args) }}{% endif %});  // NOLINT
+  }
+}
+
+## endif
+{% set methodIndex = methodIndex + 1 %}
+## endfor
+## endif
+## if length(iface.props) != 0
+## for prop in iface.props
+{{ passedType(prop) }} {{remoteName}}::{{ prop.getter.name }}() const noexcept
+{
+## if prop.dynamic
+  return {{ prop.name }}Prop_[flags_[{{ propertyIndex }}U].currentIndex()];  // NOLINT
+## else
+  return {{ prop.name }}Prop_;
+## endif
+}
+
+## if prop.writeAllowed
+void {{remoteName}}::{{ prop.setter.name }}({{ passedType(prop) }} val)
+{
+  if (flags_[{{ propertyIndex }}U].getTypesInSync())
+  {
+    makeRemoteCall<void, {{ prop.qualType }}>({{ prop.setter.id }}U, {{ prop.transportEnum }}, {}, val);  // NOLINT
+  }
+  else
+  {
+    static const auto* readerMethod = getClass()->searchMethodById({{ prop.setter.id }}U);
+    adaptAndMakeRemoteCall<void, {{ prop.qualType }}>({{ prop.setter.id }}U, readerMethod, {{ prop.transportEnum }}, {}, val);  // NOLINT
+  }
+}
+## endif
+## if prop.dynamic
+::sen::ConnectionGuard {{remoteName}}::{{ prop.callbackName }}(::sen::PropertyCallback&& callback)
+{
+  return propEvents_[{{ propertyIndex }}U].addConnection(this, std::move(callback), senImplMakeConnectionId());  // NOLINT
+}
+
+## endif
+{% if prop.dynamic %} {% set propertyIndex = propertyIndex + 1 %} {% endif %}
+## endfor
+## endif
+## if length(iface.events) != 0
+## for event in iface.events
+::sen::ConnectionGuard {{remoteName}}::{{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback)
+{
+  return {{event.name}}Event_.addConnection(this, std::move(callback), senImplMakeConnectionId());
+}
+
+## endfor
+## endif
+## endfor
+
+void {{remoteName}}::copyStateFrom(const RemoteObject& other)
+{
+  const auto otherRemote = dynamic_cast<const {{ remoteName }}*>(&other);
+  SEN_ASSERT(otherRemote != nullptr && "Remote object is not of required type '{{ remoteName }}'");
+  copyStateFromImpl(*otherRemote);
+}
+
+void {{remoteName}}::copyStateFromImpl(const {{ remoteName }}& other)
+{
+  flags_ = other.flags_ ;
+  methodTypesSyncFlags_ = other.methodTypesSyncFlags_;
+  eventTypesSyncFlags_ = other.eventTypesSyncFlags_;
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  {{ prop.name }}Prop_ = other.{{ prop.name }}Prop_;
+## endif
+## endfor
+## endfor
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic == false
+  {{ prop.name }}Prop_ = other.{{ prop.name }}Prop_;
+## endif
+## endfor
+## endfor
+## if inheritsFromLocalObject
+  RemoteObject::copyStateFrom(other);
+## else
+  {{ nonInterfaceParent.qualRemoteName }}::copyStateFromImpl(other);
+## endif
+}
+
+void {{remoteName}}::senImplRemoveTypedConnection(::sen::ConnId id)
+{
+  std::ignore = id;
+## if needsPrivateMembers
+## for iface in interfacesToImplement
+## for event in iface.events
+  if ({{event.name}}Event_.removeConnection(id)) { return; }
+## endfor
+## endfor
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  if (propEvents_[{{propertyIndex}}U].removeConnection(id)) {% set propertyIndex = propertyIndex + 1 %} { return; }
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+
+  {{ nonInterfaceParent.qualRemoteName }}::senImplRemoveTypedConnection(id);
+## endif
+}
+
+::sen::Var {{remoteName}}::senImplGetPropertyImpl(::sen::MemberHash propertyId) const
+{
+  std::ignore = propertyId;
+## if implementsProperties
+  switch(propertyId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{prop.id}}U:  return ::sen::toVariant<{{ prop.qualType }}>({{ prop.getter.name }}());  // NOLINT
+## endfor
+## endfor
+    default: break;
+  }
+## if exists("nonInterfaceParent")
+  return {{ nonInterfaceParent.qualRemoteName }}::senImplGetPropertyImpl(propertyId);
+## else
+  return {};
+## endif
+## else
+## if hasProperties
+  return {{ nonInterfaceParent.qualRemoteName }}::senImplGetPropertyImpl(propertyId);
+## else
+  return {};
+## endif
+## endif
+}
+
+void {{remoteName}}::drainInputs()
+{
+## if implementsDynamicProperties
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  flags_[{{propertyIndex}}U].advanceCurrent(); {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+
+  const auto id = this->getId();
+  const auto time = getLastCommitTime();
+  std::ignore = id;
+  std::ignore = time;
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::dispatchIfChanged(flags_[{{propertyIndex}}U], propEvents_[{{propertyIndex}}U], {{prop.id}}U, id, time, {{prop.transportEnum}}, this);  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+  {{ nonInterfaceParent.qualRemoteName }}::drainInputs();
+## endif
+}
+
+void {{remoteName}}::eventReceived(::sen::MemberHash eventId, ::sen::TimeStamp creationTime, const ::sen::Span<const uint8_t>& args)
+{
+  const auto id = getId();
+  std::ignore = eventId;
+  std::ignore = id;
+  std::ignore = creationTime;
+  std::ignore = args;
+## if implementsEvents
+  switch(eventId.get())
+  {
+{% set eventIndex=0 %}
+## for iface in interfacesToImplement
+## for event in iface.events
+    case {{ event.id }}U:
+    {
+      static const auto& readerArgs = getClass()->searchEventById({{ event.id }}U)->getArgs();
+      dispatchEventFromStream({{ event.name }}Event_, eventTypesSyncFlags_[{{ eventIndex }}U], readerArgs, eventId, creationTime, id, {{ event.transportEnum }}, args, this);  // NOLINT
+      return;
+    }
+{% set eventIndex = eventIndex + 1 %}
+## endfor
+## endfor
+    default: break;
+  }
+## endif
+## if exists("nonInterfaceParent")
+  {{ nonInterfaceParent.qualRemoteName }}::eventReceived(eventId, creationTime, args);
+## endif
+}
+
+bool {{remoteName}}::readPropertyFromStream(::sen::MemberHash id, ::sen::InputStream& in, bool initialState)
+{
+  std::ignore = id;
+  std::ignore = in;
+  std::ignore = initialState;
+## if implementsProperties
+  switch(id.get())
+  { {% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{ prop.id }}U:  // NOLINT
+    {
+      static const auto& readerType = getClass()->searchPropertyById({{ prop.id }}U)->getType();
+
+## if prop.dynamic
+      if (initialState)
+      {
+        readOrAdapt(in, {{ prop.name }}Prop_[0], {{ prop.id }}U, *readerType, flags_[{{propertyIndex}}U].getTypesInSync());
+        {{ prop.name }}Prop_[1] = {{ prop.name }}Prop_[0];  // NOLINT
+      }
+      else
+      {
+        readOrAdapt(in, {{ prop.name }}Prop_[flags_[{{ propertyIndex }}U].advanceNext()], {{ prop.id }}U, *readerType, flags_[{{propertyIndex}}U].getTypesInSync());
+      } {% set propertyIndex = propertyIndex + 1 %}
+## else
+      readOrAdapt(in, {{ prop.name }}Prop_, {{ prop.id }}U, *readerType, memberTypesInSync({{ prop.id }}U));
+## endif
+      return true;
+    }
+## endfor
+## endfor
+    default: break;
+  }
+## endif
+## if exists("nonInterfaceParent")
+  return {{ nonInterfaceParent.qualRemoteName }}::readPropertyFromStream(id, in, initialState);
+## else
+  return false;
+## endif
+}
+
+void {{remoteName}}::serializeMethodArgumentsFromVariants(::sen::MemberHash methodId, const ::sen::VarList& args, ::sen::OutputStream& out) const
+{
+  std::ignore = methodId;
+  std::ignore = args;
+  std::ignore = out;
+
+## if implementsMethods
+  switch(methodId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.writeAllowed
+    case {{ prop.setter.id }}:  // NOLINT
+    {
+      ::sen::impl::variantToStream<{{ prop.qualType }}>(out, args.at(0U));
+      return;
+    }
+## endif
+## endfor
+## for method in iface.methods
+## if length(method.args) != 0
+    case {{ method.id }}:  // NOLINT
+    {
+## for arg in method.args
+      ::sen::impl::variantToStream<{{ arg.qualType }}>(out, args.at({{ loop.index }}U));
+## endfor
+      return;
+    }
+## endif
+## endfor
+## endfor
+    default: break;
+  }
+## endif
+## if exists("nonInterfaceParent")
+  return {{ nonInterfaceParent.qualRemoteName }}::serializeMethodArgumentsFromVariants(methodId, args, out);
+## endif
+}
+
+::sen::Var {{remoteName}}::deserializeMethodReturnValueAsVariant(::sen::MemberHash methodId, ::sen::InputStream& in) const
+{
+  std::ignore = methodId;
+  std::ignore = in;
+
+## if implementsMethods
+  switch(methodId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{ prop.getter.id }}: return ::sen::impl::variantFromStream<{{ prop.qualType }}>(in); // NOLINT
+## endfor
+## for method in iface.methods
+## if method.qualType != "void"
+    case {{ method.id }}: return ::sen::impl::variantFromStream<{{ method.qualType }}>(in);  // NOLINT
+## endif
+## endfor 
+## endfor
+    default: break;
+  }
+## endif
+## if inheritsFromLocalObject == false
+## if exists("nonInterfaceParent")
+  return {{ nonInterfaceParent.qualRemoteName }}::deserializeMethodReturnValueAsVariant(methodId, in);
+## else
+  return {};
+## endif
+## else
+  return {};
+## endif
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ localProxyName }}
+//--------------------------------------------------------------------------------------------------------------
+
+## if inheritsFromLocalObject
+{{localProxyName}}::{{localProxyName}}(::sen::NativeObject* owner, const std::string& localPrefix): ::sen::impl::NativeObjectProxy(owner, localPrefix)
+## else
+{{localProxyName}}::{{localProxyName}}(::sen::NativeObject* owner, const std::string& localPrefix): {{ nonInterfaceParent.qualLocalProxyName }}(owner, localPrefix)
+## endif
+## for iface in interfacesToImplement
+  , ptr{{ iface.interfaceName }}_(dynamic_cast<{{ iface.interfaceName }}*>(owner))
+## endfor
+{
+}
+
+void {{localProxyName}}::senImplWriteAllPropertiesToStream(::sen::OutputStream& out) const
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+
+  {{ nonInterfaceParent.type }}::senImplWriteAllPropertiesToStream(out);
+## else
+
+  {{ nonInterfaceParent.qualLocalProxyName }}::senImplWriteAllPropertiesToStream(out);
+## endif
+## endif
+}
+
+void {{localProxyName}}::senImplWriteStaticPropertiesToStream(::sen::OutputStream& out) const
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.static
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplWriteStaticPropertiesToStream(out);
+## else
+  {{ nonInterfaceParent.qualLocalProxyName }}::senImplWriteStaticPropertiesToStream(out);
+## endif
+## endif
+}
+
+void {{localProxyName}}::senImplWriteDynamicPropertiesToStream(::sen::OutputStream& out) const
+{
+  std::ignore = out;
+## if implementsProperties
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::writePropertyToStream<{{ prop.qualType }}>({{ prop.id }}U, {{ prop.getter.name }}(), out);  // NOLINT
+## endif
+## endfor
+## endfor
+## endif
+## if exists("nonInterfaceParent")
+## if inheritsFromLocalObject
+  {{ nonInterfaceParent.type }}::senImplWriteDynamicPropertiesToStream(out);
+## else
+  {{ nonInterfaceParent.qualLocalProxyName }}::senImplWriteDynamicPropertiesToStream(out);
+## endif
+## endif
+}
+
+## for iface in interfacesToImplement
+## if length(iface.methods) != 0
+## for method in iface.methods
+## if method.localOnly
+{{ method.qualType }} {{localProxyName}}::{{ method.name }}({{ argList(method.args, false) }}){% if method.constant %} const{% endif %}
+{
+## for arg in method.args
+  std::ignore = {{ arg.name }};
+## endfor
+
+  ::sen::throwRuntimeError("calling local methods is not permitted across component boundaries ({{ method.name }})");
+}
+
+## else
+void {{localProxyName}}::{{ method.name }}({{ argList(method.args, true) }}::sen::MethodCallback<{{ method.qualType }}>&& callback) {% if method.constant %}const {% endif %}  // NOLINT
+{
+  ptr{{ iface.interfaceName }}_->{{ method.name }}({% if length(method.args) != 0 %}{{ listOf("{{ name }}", method.args) }}, {% endif %}std::move(callback));
+}
+
+## endif
+## endfor
+## endif
+## if length(iface.props) != 0
+{% set propertyIndex = 0 %}
+## for prop in iface.props
+{{ passedType(prop) }} {{localProxyName}}::{{ prop.getter.name }}() const noexcept
+{
+## if prop.dynamic
+  return {{ prop.name }}Prop_;
+## else
+  return ptr{{ iface.interfaceName }}_->{{ prop.getter.name }}();
+## endif
+}
+
+## if prop.writeAllowed
+void {{localProxyName}}::{{ prop.setter.name }}({{ passedType(prop) }} val)
+{
+  sendWork([=](){ ptr{{ iface.interfaceName }}_->{{ prop.setter.name }}(val); }, {{ prop.confirmed }});
+}
+
+## endif
+## if prop.dynamic
+::sen::ConnectionGuard {{localProxyName}}::{{ prop.callbackName }}(::sen::PropertyCallback&& callback)
+{
+  return propEvents_[{{ propertyIndex }}U].addConnection(this, std::move(callback), senImplMakeConnectionId());  // NOLINT {% set propertyIndex = propertyIndex + 1 %}
+}
+
+## endif
+## endfor
+## endif
+## if length(iface.events) != 0
+## for event in iface.events
+::sen::ConnectionGuard {{localProxyName}}::{{ event.callback }}(::sen::EventCallback<{{ listOf("{{ qualType }}", event.args) }}>&& callback)  // NOLINT
+{
+  return ptr{{ iface.interfaceName }}_->{{ event.callback }}(std::move(callback));
+}
+
+## endfor
+## endif
+## endfor
+
+void {{localProxyName}}::senImplRemoveTypedConnection(::sen::ConnId id)
+{
+  std::ignore = id;
+
+## if needsPrivateMembers
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  if (propEvents_[{{propertyIndex}}U].removeConnection(id)) {% set propertyIndex = propertyIndex + 1 %} { return; }
+## endif
+## endfor
+## endfor
+## endif
+## if inheritsFromLocalObject == false
+## if exists("nonInterfaceParent")
+
+  {{ nonInterfaceParent.qualLocalProxyName }}::senImplRemoveTypedConnection(id);
+## endif
+## endif
+  removeTypedConnectionOnOwner(id);
+}
+
+void {{localProxyName}}::drainInputsImpl(::sen::TimeStamp lastCommitTime)
+{
+  const auto id = getId();
+  std::ignore = id;
+  std::ignore = lastCommitTime;
+
+  std::array<bool, {{ dynamicPropertyCount }}> changedProperties = {}; {% set propertyIndex=0 %}
+  std::ignore = changedProperties;
+
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  const auto& {{ prop.name }}Owner = ptr{{ iface.interfaceName }}_->{{ prop.getter.name}}();
+  if ({{ prop.name }}Prop_ != {{ prop.name }}Owner)
+  {
+    {{ prop.name }}Prop_ = {{ prop.name }}Owner;
+    changedProperties[{{propertyIndex}}U] = true;
+  }
+  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+{% set propertyIndex=0 %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  if (changedProperties[{{propertyIndex}}U]) { propEvents_[{{propertyIndex}}U].dispatch({{ prop.id }}U, lastCommitTime, id, {{ prop.transportEnum }}, false, nullptr, this); }  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## if inheritsFromLocalObject == false
+## if exists("nonInterfaceParent")
+  {{ nonInterfaceParent.qualLocalProxyName }}::drainInputsImpl(lastCommitTime);
+## endif
+## endif
+}
+
+::sen::Var {{localProxyName}}::senImplGetPropertyImpl(::sen::MemberHash propertyId) const
+{
+  switch(propertyId.get())
+  {
+## for iface in interfacesToImplement
+## for prop in iface.props
+    case {{prop.id}}U:  return ::sen::toVariant<{{ prop.qualType }}>({{ prop.getter.name }}());  // NOLINT
+## endfor
+## endfor
+    default: break;
+  }
+
+## if inheritsFromLocalObject == false
+## if exists("nonInterfaceParent")
+  return {{ nonInterfaceParent.qualLocalProxyName }}::senImplGetPropertyImpl(propertyId);
+## else
+  return {};
+## endif
+## else
+  return {};
+## endif
+}
+
+}  // namespace {{namespace}}
+## endif

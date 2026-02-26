@@ -1,0 +1,38 @@
+load:
+  - name: shell
+    group: 2
+  - name: rest
+    group: 3
+    address: "0.0.0.0"
+    port: 3001
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [aircrafts]
+    group: 3
+    objects:
+      - class: aircrafts.DummyAircraftImpl
+        name: myAircraft
+        bus: my.tutorial
+        entityType:
+          entityKind: 1
+          domain: 2
+          countryCode: 198
+          category: 1
+          subcategory: 3
+          specific: 0
+          extra: 0
+        alternateEntityType:
+          entityKind: 1
+          domain: 2
+          countryCode: 198
+          category: 1
+          subcategory: 3
+          specific: 0
+          extra: 0
+        entityIdentifier:
+          entityNumber: 1
+          federateIdentifier:
+            siteID: 1
+            applicationID: 1

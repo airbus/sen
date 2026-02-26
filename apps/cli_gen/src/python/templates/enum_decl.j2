@@ -1,0 +1,7 @@
+@dataclass
+class {{ name }}(Enum):
+## for enum in enums
+    {{ enum.name }} = {{ enum.key }}
+## endfor
+    def __reduce_ex__(self, proto):
+      return self.__class__, (self._name_,)

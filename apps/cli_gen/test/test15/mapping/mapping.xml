@@ -1,0 +1,6 @@
+<senMapping>
+    <class name="MyModuleAClass">
+        <method hlaInteraction="ModuleBInteraction">
+        </method>
+    </class>
+</senMapping>

@@ -1,0 +1,13 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/ether.yaml
+
+build:
+  - name: shapes_listener
+    group: 4
+    freqHz: 5
+    imports: [shapes]
+    objects:
+      - class: shapes.ShapeListenerImpl
+        name: listener
+        bus: my.tutorial

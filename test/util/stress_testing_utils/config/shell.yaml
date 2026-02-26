@@ -1,0 +1,7 @@
+load:
+  - name: ether
+    group: 1
+  - name: shell
+    group: 2
+    open:
+      - testing.confirmed

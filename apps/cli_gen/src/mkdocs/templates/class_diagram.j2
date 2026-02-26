@@ -1,0 +1,7 @@
+*** if inheritsFromLocalObject
+*** else
+      {{name}} --> {{ nonInterfaceParent.name }}
+*** endif
+*** for parent in interfaceParents
+      {{name}} --> {{ parent.name }}
+*** endfor

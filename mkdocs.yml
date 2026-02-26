@@ -1,0 +1,212 @@
+# $schema: https://squidfunk.github.io/mkdocs-material/schema.json
+
+# --------------------------------------------------------------------------------------------------------------------#
+# General information
+# --------------------------------------------------------------------------------------------------------------------#
+
+# Project information
+site_name: "Sen"
+site_description: "Sen Software Infrastructure"
+site_url: https://github.com/airbus/sen
+site_author: "Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS"
+
+# Repository
+repo_name: airbus/sen
+repo_url: https://github.com/airbus/sen.git
+
+# Copyright
+copyright: &copy Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+
+# --------------------------------------------------------------------------------------------------------------------#
+# Theme
+# --------------------------------------------------------------------------------------------------------------------#
+theme:
+  name: material
+  logo: assets/images/logo_simple.svg
+  highlightjs: true
+  favicon: assets/images/logo_simple.svg
+  font: false
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - navigation.footer
+    - navigation.top
+    - navigation.footer
+    - navigation.instant
+    - navigation.instant.progress
+    - content.code.annotate
+    - content.code.copy
+    - content.tooltips
+    - toc.follow
+    - toc.integrate
+  icon:
+    repo: fontawesome/brands/github
+    admonition:
+      note: octicons/note-16
+  hljs_languages:
+    - cpp
+    - json
+    - console
+    - bat
+    - cmake
+    - xml
+    - rust
+    - yaml
+
+# --------------------------------------------------------------------------------------------------------------------#
+# Extra
+# --------------------------------------------------------------------------------------------------------------------#
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/extra.css
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css
+
+extra:
+  generator: false
+
+# --------------------------------------------------------------------------------------------------------------------#
+# Markdown
+# --------------------------------------------------------------------------------------------------------------------#
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 10
+  - admonition
+  - callouts
+  - def_list
+  - pymdownx.tasklist
+  - pymdownx.details
+  - pymdownx.critic
+  - tables
+  - footnotes
+  - md_in_html
+  - pymdownx.inlinehilite
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets:
+      base_path: docs
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.keys
+  - pymdownx.details
+  - attr_list
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - offline
+  - mkdocs-video:
+      is_video: true
+      video_muted: false
+      video_controls: true
+      video_loop: false
+      css_style:
+        width: "100%"
+        height: "22.172vw"
+  - git-revision-date-localized:
+      enable_creation_date: false
+      fallback_to_build_date: true
+  - redoc-tag:
+      height: 100vh
+
+# --------------------------------------------------------------------------------------------------------------------#
+# Navigation
+# --------------------------------------------------------------------------------------------------------------------#
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Getting Sen: getting_started/install.md
+      - Creating your first Package: getting_started/first_package.md
+  - Manual:
+      - users_guide/index.md
+      - Concepts: users_guide/main_concepts.md
+      - Workflow: users_guide/workflow.md
+      - Execution Model: users_guide/execution_model.md
+      - The Sen Type Language: users_guide/stl.md
+      - The Sen Query Language: users_guide/sql.md
+      - Using HLA FOMs: users_guide/hla.md
+      - Command Line Tools: users_guide/command_line.md
+      - CMake Integration: users_guide/cmake.md
+      - Run-Time Compatibility: users_guide/compatibility_conversions.md
+      - The Sen libraries:
+          - sen::core: users_guide/core_library.md
+          - sen::db: users_guide/db_library.md
+          - sen::kernel: users_guide/kernel_library.md
+          - sen::util: users_guide/util_library.md
+      - FAQ: users_guide/faq.md
+  - Components:
+      - components/index.md
+      - Explorer: components/explorer.md
+      - Shell: components/shell.md
+      - Influx: components/influx.md
+      - Python: components/py.md
+      - Recorder: components/recording.md
+      - Replayer: components/replaying.md
+      - Ether: components/ether.md
+      - Log Master: components/logmaster.md
+      - REST: components/rest.md
+      - Tracy: components/tracy.md
+  - Guides:
+      - Working with objects: howto_guides/objects.md
+      - The generated code: howto_guides/generated_code.md
+      - Using logs: howto_guides/logging.md
+      - Using component groups: howto_guides/using_groups.md
+      - Python as config: howto_guides/python_config.md
+      - Controlling the clock: howto_guides/controlling_clock.md
+      - Design Considerations: howto_guides/considerations.md
+      - Configuring your environment: howto_guides/configure_environment.md
+      - Creating Conan Packages for Sen-based projects: howto_guides/creating_conan_packages.md
+      - Generate exportable interfaces (STL files): howto_guides/exportable_interfaces.md
+      - Use interfaces from imported packages: howto_guides/consuming_interfaces.md
+      - Generate and consume specific CMake packages for interfaces: howto_guides/generate_interface_packages.md
+      - Configuring component sleeping between updates: howto_guides/precision_sleeper_config.md
+      - Using the Dead Reckoning library: howto_guides/dead_reckoning.md
+      - Implementing Unit Tests: howto_guides/unit_tests.md
+      - Writing a component (advanced): howto_guides/components.md
+  - Tutorials:
+      - tutorials/index.md
+      # - "Quick Start":
+      # - "Running the Sen Shell": tutorials/quick_start/running_the_shell.md
+      # - "Building a Calculator": tutorials/quick_start/building_calculator.md
+  - Examples:
+      - Simple package: snippets/examples/config/1_calculators/readme.md
+      - Inheritance: snippets/examples/config/2_inheritance/readme.md
+      - Updates: snippets/examples/config/3_aircraft/readme.md
+      - Interests: snippets/examples/config/11_shapes/readme.md
+      - Deferred methods: snippets/examples/config/12_fibonacci/readme.md
+      - Checked properties: snippets/examples/config/13_timer/readme.md
+      - Distributing work: snippets/examples/config/4_school/readme.md
+      - Influx and Grafana: snippets/examples/config/8_influx/readme.md
+      - Recorder: snippets/examples/config/6_recorder/readme.md
+      - Replayer: snippets/examples/config/7_replayer/readme.md
+      - Using Python: snippets/examples/config/10_python/readme.md
+      - Using HLA: snippets/examples/config/9_hla_servers/readme.md
+      - Web Generation: snippets/fom.md
+      - UML Generation: examples/generated_uml.md
+  - License:
+      - licenses/index.md
+      - External Libraries: licenses/licensed_code_in_sen.md

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "{{ schemaName }}.json",
+  "title": "{{ schemaName }}.json",
+  "type": "object",
+  "properties": {
+    "kernel": {
+      "$ref": "#/$defs/sen.kernel.KernelParams"
+    }
+## if exists("components")
+    , "load": {
+      "description": "The components to be loaded by the Sen kernel",
+      "type": "array",
+      "uniqueKeys": [ "/name" ],
+      "items": {
+        "description": "A Sen component",
+        "$ref": "#/$defs/sen.kernel.ComponentConfig",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Name of the component",
+            "enum": [
+## for component in components
+              "{{ component.name }}"{% if not loop.is_last %},{% endif %}
+## endfor
+            ]
+          }
+        },
+        "allOf": [
+## for component in components
+          {
+            "if": {
+              "properties": { "name": { "const": "{{ component.name }}" } }
+            },
+            "then": {
+## if existsIn(component, "configType")
+              "$ref": "#/$defs/{{ component.configType }}"
+## endif
+            }
+          }{% if not loop.is_last %},{% endif %}
+## endfor
+        ],
+        "required": [ "name" ]
+      }
+    }
+## endif
+## if exists("classes")
+    , "build": {
+      "type": "array",
+      "uniqueKeys": [ "/name" ],
+      "items": {
+        "description": "A component you wish Sen to build",
+        "type": "object",
+        "allOf": [ { "$ref": "#/$defs/sen.kernel.ComponentConfig" } ],
+        "required": [ "name", "freqHz" ],
+        "properties": {
+          "name": {
+            "description": "Name of the component",
+            "type": "string",
+            "minLength": 1
+          },
+          "freqHz": {
+            "description": "Cycle frequency in Hertz",
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "objects": {
+            "type": "array",
+            "uniqueKeys": [ "/name" ],
+            "items": {
+              "type": "object",
+              "required": ["name", "class", "bus"],
+              "properties": {
+                "name": {
+                  "description": "The name of the instance",
+                  "type": "string",
+                  "pattern": "^[a-z][a-zA-Z0-9_\\.]*$"
+                },
+                "bus": {
+                  "description": "The bus in which to publish the writeAllowed",
+                  "type": "string",
+                  "pattern": "^[a-z][a-zA-Z0-9_]*\\.[a-z][a-zA-Z0-9_]*$"
+                },
+                "class": {
+                  "description": "The qualified name of the class for this instance",
+                  "enum": [
+## for senQual in classes
+                    "{{ senQual }}"{% if not loop.is_last %},{% endif %}
+## endfor
+                  ]
+                }
+              },
+              "allOf": [
+## for senQual in classes
+                {
+                  "if":   { "properties": { "class": { "const": "{{ senQual }}" } } },
+                  "then": { "$ref": "#/$defs/{{ senQual }}" }
+                }{% if not loop.is_last %},{% endif %}
+## endfor
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+## endif
+  "$defs": {
+## for definition in definitions
+{{ definition }}{% if not loop.is_last %},{% endif %}
+## endfor
+  }
+}

@@ -1,0 +1,23 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+  - ../4_school/1_school_two_classrooms_one_component.yaml
+
+load:
+  - name: shell
+    open:
+      - local.recorder
+      - school.primary
+      - school.secondary
+  - name: recorder
+    group: 2
+    recordings:
+      - name: school_recording
+        folder: .
+        indexKeyframes: true
+        indexObjects: true
+        keyframePeriod: 2 s
+        autoStart: true
+        selections:
+          - SELECT * FROM school.primary
+          - SELECT * FROM school.secondary

@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+kernel:
+  runMode: virtualTime
+  clockMaster: true
+
+load:
+  - name: shell
+    group: 2
+    open: [my.tutorial]  # to see the created objects
+
+build:
+  - name: myComponent1
+    group: 3
+    freqHz: 1
+    imports: [my_package]
+    objects:
+      - name: myObject1
+        class: my_package.MyClassImpl
+        prop1: someValue
+        bus: local.tutorial
+  - name: myComponent2
+    group: 3
+    freqHz: 2
+    imports: [my_package]
+    objects:
+      - name: myObject2
+        class: my_package.MyClassImpl
+        prop1: someValue
+        bus: local.tutorial
+  - name: myComponent3
+    group: 3
+    freqHz: 3
+    imports: [my_package]
+    objects:
+      - name: myObject3
+        class: my_package.MyClassImpl
+        prop1: someValue
+        bus: local.tutorial

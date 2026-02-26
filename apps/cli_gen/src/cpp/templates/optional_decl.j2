@@ -1,0 +1,21 @@
+
+namespace {{ namespace }}
+{
+
+{{ blockComment(description, 0) }}
+SEN_IMPL_GEN_OPTIONAL({{ name }}, {{ qualElementType }}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+{% if publicSymbols %}SEN_EXPORT {% endif %}std::ostream& operator<<(std::ostream& out, const {{ name }}& val);
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} type traits
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace sen
+{
+
+SEN_IMPL_GEN_OPTIONAL_TRAITS({{ qualType }}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+}

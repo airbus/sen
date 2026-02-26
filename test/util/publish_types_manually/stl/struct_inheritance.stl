@@ -1,0 +1,21 @@
+package StructInheritance;
+
+struct GrandParent
+{
+  a : f32
+}
+
+struct Parent : GrandParent
+{
+  b : f32
+}
+
+struct Child : Parent
+{
+  c : f32
+}
+
+class Checker
+{
+  fn giveBirth() -> Child;
+}

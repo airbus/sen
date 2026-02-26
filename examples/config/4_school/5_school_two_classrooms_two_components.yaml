@@ -1,0 +1,37 @@
+# $schema: ../base/schema.json
+
+# this example is similar to the previous one, but we
+# build two components: example and example2 to illustrate
+# that the communication between components (and therefore
+# threads) is transparent to the code you write.
+include:
+  - ../base/shell.yaml
+
+load:
+  # auto-open the buses that we will be interested in
+  - name: shell
+    open: [school.primary, school.secondary]
+
+build:
+  - name: schoolComponent1
+    group: 3
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 5
+        createTeacher: true
+  - name: schoolComponent2
+    group: 4
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: secondGrade
+        class: school.ClassroomImpl
+        studentsBus: school.secondary
+        bus: school.secondary
+        defaultSize: 10
+        createTeacher: true

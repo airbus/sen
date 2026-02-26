@@ -1,0 +1,25 @@
+
+namespace {{ namespace }}
+{
+
+{{ blockComment(description, 0) }}
+## if exists("min") and exists("max")
+SEN_RANGED_QUANTITY({{ name }}, {{ qualElementType }}, {{ min }}, {{ max }})
+## else
+SEN_NON_RANGED_QUANTITY({{ name }}, {{ qualElementType }})
+## endif
+
+{% if publicSymbols %}SEN_EXPORT {% endif %}std::ostream& operator<<(std::ostream& out, const {{ name }}& val);
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} type traits
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace sen
+{
+
+SEN_IMPL_GEN_QUANTITY_TRAITS({{ qualType }}, {% if exists("max") %}{{ max }}{% else %}std::numeric_limits<ValueType>::max(){% endif %}, {% if exists("min") %}{{ min }}{% else %}std::numeric_limits<ValueType>::lowest(){% endif %}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+}

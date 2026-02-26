@@ -1,0 +1,273 @@
+import "stl/sen/kernel/log.stl"
+
+package sen.kernel;
+
+// Thread execution priorities
+enum Priority: u32
+{
+  lowest,     // for background work
+  nominalMin, // minimum priority for user threads
+  nominalMax, // maximum priority for user threads
+  highest     // supervisory work
+}
+
+// What can go wrong when creating a thread
+enum ThreadCreateErr: u32
+{
+  schedulerAlreadyStarted,       // threads cannot be created after the scheduler spins up
+  invalidStackSize,              // not all stack sizes are possible in all environments
+  invalidThreadFunction,         // the thread function was null
+  invalidThreadFunctionArgument, // the thread function argument is mandatory
+  invalidAffinity,               // support for affinity is system dependant
+  tooManyThreads,                // thread count is limited
+  internalOsError                // when the OS indicates not enough resources
+}
+
+// Native processor word size
+enum WordSize: u32
+{
+  bits32,  // 32-bit processor
+  bits64,  // 64-bit processor
+}
+
+// Status of git
+enum GitStatus: u8
+{
+  clean,    // files have not changed
+  modified, // local files differ from branch
+  unknown   // no information
+}
+
+// Build-related information
+struct BuildInfo
+{
+  maintainer : string,    // principal maintainer of the software
+  version    : string,    // version string (format-agnostic)
+  compiler   : string,    // vendor-specific compiler string
+  debugMode  : bool,      // compiled in debug mode or not
+  buildTime  : string,    // when did this build took place
+  wordSize   : WordSize,  // architecture
+  gitRef     : string,    // git ref spec
+  gitHash    : string,    // git hash
+  gitStatus  : GitStatus  // git status
+}
+
+// Basic information of a kernel component
+struct ComponentInfo
+{
+  name        : string,
+  description : string,
+  buildInfo   : BuildInfo
+}
+
+// Component queue eviction policy
+enum QueueEvictionPolicy: u32
+{
+  dropOldest, // when full, drop the least recent element
+  dropNewest, // when full, drop the most recent element
+}
+
+struct QueueConfig
+{
+  evictionPolicy : QueueEvictionPolicy,  // what to do when the queue is full
+  maxSize        : u64                   // 0 means unbounded
+}
+
+// Use the native system sleep
+struct SystemSleep;
+
+// Be more precise at the expense of some CPU cycles.
+struct PrecisionSleep
+{
+  veryCoarseGrainSleepTime : Duration,  // First set of sleeps. If 0 defaults to 7ms
+  coarseGrainSleepTime     : Duration   // Second set of sleeps. If 0 defaults to 1ms
+}
+
+// Component sleep policy
+variant SleepPolicy
+{
+  PrecisionSleep,
+  SystemSleep
+}
+
+// Basic runtime configuration for a component
+struct ComponentConfig
+{
+  priority    : Priority,     // thread priority
+  stackSize   : u32,          // thread stack size in bytes, 0 means default
+  group       : u32,          // the group where to run the component
+  cpuAffinity : u64,          // CPU affinity mask
+  inQueue     : QueueConfig,  // queuing of inbound information
+  outQueue    : QueueConfig,  // queuing of outbound information
+  sleepPolicy : SleepPolicy   // configurable component sleep policy
+}
+
+// Category of a problem during component execution
+enum ErrorCategory: u8
+{
+  runtimeError,       // same semantics of std::runtime_error
+  logicError,         // faulty logic such as violating logical preconditions or invariants
+  expectationsNotMet, // expectations on inputs or internal state were not met
+  ioError,            // problem while performing an I/O operation
+  other               // any other reason
+}
+
+// An operation is complete
+struct OpFinished;
+
+// An operation is not complete
+struct OpNotFinished
+{
+  waitHint : Duration  // How long to wait until the next try
+}
+
+// The status of an operation
+variant OpState
+{
+  OpFinished,   // done
+  OpNotFinished // not done
+}
+
+// Holds details of an execution error
+struct ExecError
+{
+  category    : ErrorCategory,  // general problem
+  explanation : string          // human-readable explanation
+}
+
+// State of a kernel component
+enum ComponentState: u8
+{
+  unloaded,
+  preloaded,
+  loading,
+  loaded,
+  initializing,
+  initialized,
+  running,
+  stopping,
+  stopped,
+  unloading,
+  error
+}
+
+// Unbounded sequence of strings for general purpose
+sequence<string> StringList;
+
+// Run modes for the kernel
+enum RunMode: u8
+{
+  realTime,           // components execute using system time
+  virtualTime,        // components execute using discrete steps (set by the user)
+  virtualTimeRunning, // same as virtualTime, but continuously advancing the time
+  startAndStop,       // starts and stops (useful for smoke tests)
+}
+
+// Parameters to configure kernel execution
+struct KernelParams
+{
+  runMode             : RunMode,                // how to run the kernel
+  appName             : string,                 // optional name of the application
+  bus                 : string,                 // where to publish the kernel objects (defaults to local.kernel)
+  clockBus            : string,                 // where to publish the virtual clock (if any), defaults to bus
+  clockName           : string,                 // the name of the virtual clock (if any), defaults to 'clock'
+  clockMaster         : bool,                   // if time is virtualized, publish a master clock to clockBus
+  logConfig           : sen.kernel.log.Config,  // logging configuration
+  crashReportDir      : string,                 // where to store crash reports (defaults to the temp dir)
+  crashReportDisabled : bool,                   // if true, no reports are generated
+  lockMemoryPages     : bool,                   // keep process pages memory-resident
+  sleepPolicy         : SleepPolicy             // configurable sleep policy of the kernel component
+}
+
+// Type of operating system
+enum OsKind : u8
+{
+  windowsOs, // Microsoft Windows
+  linuxOs,   // Linux
+  androidOs, // Android Linux
+  appleOs,   // Apple OS (iOS, tvOS, etc..)
+  unixOs,    // all unices not caught above
+  posixOs,   // Posix
+  otherOs    // other, unknown
+}
+
+// Type of CPU
+enum CpuArch : u8
+{
+  x86,       // x86
+  x64,       // x86_64
+  arm2,      // ARM2
+  arm3,      // ARM3
+  arm4T,     // ARM4T
+  arm5,      // ARM5
+  arm6T2,    // ARM6T2
+  arm6,      // ARM6
+  arm7,      // ARM7
+  arm7a,     // ARM7A
+  arm7r,     // ARM7R
+  arm7s,     // ARM7S
+  arm64,     // ARM64
+  mips,      // MIPS
+  superH,    // SUPERH
+  ppc,       // PowerPC
+  ppc64,     // PowerPC64
+  sparc,     // Sparc
+  m68k,      // Motorola 68000
+  otherArch  // other, unknown
+}
+
+// Basic information about a process
+struct ProcessInfo
+{
+  hostId      : u32,
+  processId   : u32,
+  sessionId   : u32,
+  sessionName : string,
+  appName     : string,
+  hostName    : string,
+  osKind      : OsKind,
+  osName      : string,
+  cpuArch     : CpuArch
+}
+
+// Unbounded sequence of ProcessInfo
+sequence<ProcessInfo> Processes;
+
+// Address to connect to a bus
+struct BusAddress
+{
+  sessionName : string,
+  busName     : string
+}
+
+// A general-purpose unbounded buffer
+sequence<u8> Buffer;
+
+// Type of measurement
+enum UnitCat: u8
+{
+  length,
+  mass,
+  time,
+  angle,
+  temperature,
+  frequency,
+  velocity,
+  angularVelocity,
+  acceleration,
+  angularAcceleration,
+  density,
+  pressure,
+  area,
+  force
+}
+
+// Describes a unit
+struct UnitInfo
+{
+  name         : string,
+  abbreviation : string,
+  category     : UnitCat
+}
+
+sequence<u32> U32List;

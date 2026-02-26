@@ -1,0 +1,59 @@
+package {{ package }} <<Folder>>
+{
+## if isInterface == false
+  class {{ name }}
+  {
+## for iface in interfacesToImplement
+## if iface.hasMembers
+## if length(iface.props) != 0
+## for prop in iface.props
+    + {{ prop.name }} : {{ prop.senType }}
+## endfor
+## endif
+## if length(iface.methods) != 0
+    __ methods __
+## for method in iface.methods
+    + {{ method.name }}({{ listOf("{{ name }}", method.args) }}) : {{ method.senType }}
+## endfor
+## endif
+## if length(iface.events) != 0
+    __ events __
+## for event in iface.events
+    + {{ event.name }}({{ listOf("{{ name }}", event.args) }})
+## endfor
+## endif
+## endif
+## endfor
+  }
+
+## if inheritsFromLocalObject
+## else
+  {{ nonInterfaceParent.name }} <|--- {{name}}
+## endif
+## for parent in interfaceParents
+  {{ parent.name }} <|--- {{name}}
+## endfor
+## else
+  interface {{ name }}
+  {
+## if length(props) != 0
+## for prop in props
+    + {{ prop.name }} : {{ prop.type }}
+## endfor
+## endif
+## if length(methods) != 0
+    __ methods __
+## for method in methods
+    + {abstract} {{ method.name }}({{ listOf("{{ name }}", method.args) }}) : {{ method.senType }}
+## endfor
+## endif
+## if length(events) != 0
+    __ events __
+## for event in events
+    + {abstract} {{ event.name }}({{ listOf("{{ name }}", event.args) }})
+## endfor
+## endif
+  }
+## endif
+}
+

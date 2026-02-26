@@ -1,0 +1,21 @@
+
+add_sen_component(
+  TARGET 
+    {{ target_name }}
+  MAINTAINER
+    "<your name goes here>"
+  VERSION 
+    "0.0.1"
+  DESCRIPTION 
+    "<component description goes here>"
+  SOURCES 
+## for source_file in source_files
+    {{ source_file }}
+## endfor
+## if length(stl_files) != 0
+  STL_FILES
+## for stl_file in stl_files
+    {{ stl_file }}
+## endfor
+## endif
+)

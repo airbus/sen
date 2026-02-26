@@ -1,0 +1,7 @@
+package level0;
+
+class Level0Class
+{
+  var data0 : string [static];
+  fn printSomething0();
+}

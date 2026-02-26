@@ -1,0 +1,47 @@
+#include "sen/kernel/component.h"
+
+#include "sen/kernel/component_api.h"
+#include "sen/kernel/detail/component_api_impl.h"
+#include "sen/kernel/kernel.h"
+#include "stl/{{ package_name }}/config.stl.h"
+
+#include <iostream>
+#include <thread>
+
+struct {{ component_name }}: public sen::kernel::Component
+{
+  sen::kernel::FuncResult load(sen::kernel::LoadApi&& api) override
+  {
+    // get our configuration
+    config_ = sen::toValue<{{ package_name }}::Configuration>(api.getConfig());
+
+    std::cout << "{{ component_name }} config:\n" << config_ << "\n";
+    return done();
+  }
+
+  sen::kernel::PassResult init(sen::kernel::InitApi&& /*api*/) override
+  {
+    std::cout << "{{ component_name }} init\n";
+    return done();
+  }
+
+  sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
+  {
+    std::cout << "{{ component_name }} started running\n";
+
+    return api.execLoop(sen::Duration::fromHertz(1.0), [](){
+      std::cout << "{{ component_name }} run iteration\n";
+    });
+  }
+
+  sen::kernel::FuncResult unload(sen::kernel::UnloadApi&& /*api*/) override
+  {
+    std::cout << "{{ component_name }} unloaded\n";
+    return done();
+  }
+
+private:
+  {{ package_name }}::Configuration config_;
+};
+
+SEN_COMPONENT({{ component_name }})

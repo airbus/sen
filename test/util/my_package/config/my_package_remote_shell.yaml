@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+
+# Here we instantiate a shell, but it is meant to be accessed remotely.
+# We do so by setting the serverEnabled parameter to true. You can optionally
+load:
+  - name: shell
+    serverEnabled: true
+    serverPort: 9094
+    group: 2
+    open: [my.tutorial]  # to see the created objects
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - class: my_package.MyClassImpl
+        name: myClass
+        bus: local.tutorial
+        prop1: some value

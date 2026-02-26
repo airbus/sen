@@ -1,0 +1,42 @@
+package shapes;
+
+/// Centimeters encoded in 32-bit floats.
+quantity<f32, cm> Centimeters;
+
+/// Degrees encoded in 32-bit floats.
+quantity<f32, deg> Degrees;
+
+/// A color enumeration.
+enum Color : u8 { red, green, blue }
+
+// Specification of a triangle.
+struct Triangle { side : Centimeters }
+
+// Specification of a rectangle.
+struct Rectangle { width : Centimeters, height : Centimeters }
+
+// Specification of a circle.
+struct Circle { radius : Centimeters }
+
+// A 2-D 32 bit vector
+struct Vec2 { x : Centimeters, y : Centimeters }
+
+// The geometry of a shape.
+variant Geometry { Triangle,  Rectangle,  Circle }
+
+// The wall that we might collide with.
+enum Wall : u8 { top, bottom, left, right }
+
+// A shape.
+class Shape
+{
+  var geometry : Geometry [static];   // Shape's geometry.
+  var frozen   : bool     [writable]; // True if the shape should move.
+  var color    : Color    [writable]; // Shape's color.
+  var position : Vec2;                // Shape's center.
+
+  // Emitted when the shape collides with a wall.
+  //
+  // @param wall the wall that we collided with.
+  event collidedWithWall(wall : Wall);
+}

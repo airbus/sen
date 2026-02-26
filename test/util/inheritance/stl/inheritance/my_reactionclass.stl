@@ -1,0 +1,4 @@
+package inheritance;
+
+// illustrates how to subscribe and react to events and property changes of other objects
+class MyReactionClass {}

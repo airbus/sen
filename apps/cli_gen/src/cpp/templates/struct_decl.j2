@@ -1,0 +1,33 @@
+
+namespace {{ namespace }}
+{
+
+{{ blockComment(description, 0) }}
+struct {{ name }}{% if exists("parentToInheritFrom") %}: public {{ parentToInheritFrom }} {% endif %}
+{
+## for field in fields
+## if field.requiresBlockComment
+
+  {{ blockComment(field.description, 2) }}
+  {{ field.type }} {{ field.name }}{};
+
+## else
+  {{ field.type }} {{ field.name }}{};{{ inlineComment(field) }}
+## endif
+## endfor
+};
+
+SEN_IMPL_GEN_STRUCT_OPERATORS({{ name }}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} type traits
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace sen
+{
+
+SEN_IMPL_GEN_STRUCT_TRAITS({{ qualType }}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+}

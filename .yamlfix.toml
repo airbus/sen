@@ -1,0 +1,10 @@
+allow_duplicate_keys = false
+comments_whitelines = 1
+comments_min_spaces_from_content = 2
+comments_require_starting_space = true
+section_whitelines = 1
+explicit_start = false
+none_representation = "null"
+quote_representation = "\""
+preserve_quotes = true
+sequence_style="keep_style"

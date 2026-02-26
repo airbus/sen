@@ -1,0 +1,10 @@
+{
+  "classes": {
+    "sen.test.Tester": {
+      "deferredMethods": [
+        "doTests",
+        "checkLocalState"
+      ]
+    }
+  }
+}

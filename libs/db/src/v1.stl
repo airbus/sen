@@ -1,0 +1,130 @@
+import "stl/sen/kernel/basic_types.stl"
+
+package sen.db.v1;
+
+// Magic number container
+struct Magic
+{
+  value : u32
+}
+
+enum FileKind: u8
+{
+  dataFile,
+  typesFile,
+  indexesFile,
+  annotationsFile,
+  summaryFile
+}
+
+// First entry in the archive files
+struct FileHeader
+{
+  version : u32,
+  kind    : FileKind
+}
+
+// The state of an object
+struct ObjectSnapshot
+{
+  objectId   : u32,
+  session    : string,
+  bus        : string,
+  name       : string,
+  type       : string,
+  properties : sen.kernel.Buffer
+}
+
+// List of object snapshots
+sequence<ObjectSnapshot> ObjectSnapshotList;
+
+// The snapshot of the system
+struct Keyframe
+{
+  time    : TimeStamp,
+  objects : ObjectSnapshotList
+}
+
+// A buffer that contains a compressed Keyframe
+struct CompressedKeyframe
+{
+  decompressedSize : u32,
+  buffer           : sen.kernel.Buffer
+}
+
+// The creation of an object
+struct Creation
+{
+  time   : TimeStamp,
+  object : ObjectSnapshot
+}
+
+// The deletion of an object
+struct Deletion
+{
+  time     : TimeStamp,
+  objectId : u32
+}
+
+// Change of a property value
+struct PropertyChange
+{
+  time       : TimeStamp,
+  objectId   : u32,
+  propertyId : u32,
+  value      : sen.kernel.Buffer
+}
+
+// Event instance
+struct Event
+{
+  time     : TimeStamp,
+  objectId : u32,
+  eventId  : u32,
+  args     : sen.kernel.Buffer
+}
+
+// Runtime data file entry
+variant RuntimeDataEntry
+{
+  PropertyChange,
+  Event,
+  Keyframe,
+  CompressedKeyframe,
+  Creation,
+  Deletion
+}
+
+// An index definition
+struct IndexDefinition
+{
+  objectId   : u32,
+  indexId    : u32,
+  session    : string,
+  bus        : string,
+  objectName : string,
+  objectType : string
+}
+
+// An index
+struct Index
+{
+  time       : TimeStamp,
+  indexId    : u32,
+  dataOffset : u64
+}
+
+// Index file entry
+variant IndexFileEntry
+{
+  IndexDefinition,
+  Index
+}
+
+// An annotation
+struct Annotation
+{
+  time  : TimeStamp,
+  type  : string,
+  value : sen.kernel.Buffer
+}

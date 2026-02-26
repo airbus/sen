@@ -1,0 +1,27 @@
+# $schema: ../base/schema.json
+load:
+  - name: shell
+    group: 2
+    query:
+      - name: not_focused
+        selection: "SELECT school.Student FROM school.primary WHERE focusLevel BETWEEN\
+          \ 0.0 AND 0.5"
+
+build:
+  - name: schoolComponent
+    group: 3
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 5
+        createTeacher: true
+      - name: secondGrade
+        class: school.ClassroomImpl
+        studentsBus: school.secondary
+        bus: school.secondary
+        defaultSize: 10
+        createTeacher: true

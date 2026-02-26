@@ -1,0 +1,33 @@
+
+namespace {{ namespace }}
+{
+
+{{ blockComment(description, 0) }}
+## if fixedSize
+constexpr std::size_t max{{ name }}Size = {{ maxSize }};
+SEN_IMPL_GEN_FIXED_SEQUENCE({{ name }}, {{ qualElementType }}, max{{ name }}Size)
+## else if isBounded
+constexpr std::size_t max{{ name }}Size = {{ maxSize }};
+SEN_IMPL_GEN_BOUNDED_SEQUENCE({{ name }}, {{ qualElementType }}, max{{ name }}Size)
+## else
+SEN_IMPL_GEN_UNBOUNDED_SEQUENCE({{ name }}, {{ qualElementType }})
+## endif
+
+{% if publicSymbols %}SEN_EXPORT {% endif %}std::ostream& operator<<(std::ostream& out, const {{ name }}& val);
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} type traits
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace sen
+{
+
+## if fixedSize
+SEN_IMPL_GEN_ARRAY_TRAITS({{ qualTypeAlias }}, {% if publicSymbols %}true{% else %}false{% endif %})
+## else
+SEN_IMPL_GEN_SEQUENCE_TRAITS({{ qualTypeAlias }}, {% if publicSymbols %}true{% else %}false{% endif %})
+## endif
+
+}

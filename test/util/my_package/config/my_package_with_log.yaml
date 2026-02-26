@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+kernel:
+  logConfig:
+    backtrace: true
+    sinks:
+      - name: "stdout_sink"
+        singleThreaded: true
+        level: trace
+        config:
+          type: Stderr
+          value: {}
+      - name: "file_sink"
+        singleThreaded: true
+        level: debug
+        config:
+          type: BasicFile
+          value:
+            fileName: logs/my_log.txt
+            truncate: false
+            createParentDir: true
+    loggers:
+      - name: "my_logger"
+        sinks: ["stdout_sink", "file_sink"]
+        pattern: "[%Y-%m-%d %H:%M:%S.%e] [thread %t] [%g:%#] [%l] %v"
+        level: trace  # has priority if more restrictive than the sinks' levels
+
+load:
+  - name: shell
+    group: 2
+    open: [my.tutorial]  # to see the created objects
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - class: my_package.MyClassImpl
+        name: myClass
+        bus: my.tutorial
+        prop1: some value

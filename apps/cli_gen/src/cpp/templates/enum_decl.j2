@@ -1,0 +1,26 @@
+
+namespace {{ namespace }}
+{
+
+{{ blockComment(description, 0) }}
+enum class {{ name }}: {{ storageType }}
+{
+## for enum in enums
+  {{ enum.name }} = {{ enum.key }},{{ inlineComment(enum) }}
+## endfor
+};
+
+{% if publicSymbols %}SEN_EXPORT {% endif %}std::ostream& operator<<(std::ostream& out, {{ name }} val);
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// {{ name }} type traits
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace sen
+{
+
+SEN_IMPL_GEN_ENUM_TRAITS({{ qualType }}, {% if publicSymbols %}true{% else %}false{% endif %})
+
+}

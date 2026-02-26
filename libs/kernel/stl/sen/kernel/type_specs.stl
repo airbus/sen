@@ -1,0 +1,554 @@
+import "stl/sen/kernel/basic_types.stl"
+
+// IMPORTANT NOTE: Types defined in this file CANNOT be erased, as we need to keep track of older versions to ensure
+// runtime compatibility. Older versions are marked with a suffix V# after the name, being # the KernelProtocolVersion.
+
+package sen.kernel;
+
+// built-in integrals
+enum IntegralType : u8
+{
+  uint8Type,
+  int16Type,
+  uint16Type,
+  int32Type,
+  uint32Type,
+  int64Type,
+  uint64Type
+}
+
+// built-in reals
+enum RealType: u8
+{
+  float32Type,
+  float64Type
+}
+
+// all built-in numeric types
+variant NumericType
+{
+  IntegralType,
+  RealType
+}
+
+// built-in others
+enum BasicType: u8
+{
+  booleanType,
+  stringType,
+  durationType,
+  timestampType,
+}
+
+// all built-in types
+variant BuiltInType
+{
+  NumericType,
+  BasicType
+}
+
+// optional value for a f64
+optional<f64> MaybeF64;
+
+// optional value for a u64
+optional<u64> MaybeU64;
+
+// an enumerator
+struct EnumeratorSpec
+{
+  name        : string,  // enumerator name
+  key         : u32,     // enumerator value
+  description : string   // enumerator description
+}
+
+struct EnumeratorSpecV5
+{
+  name : string,  // enumerator name
+  key  : u64,     // enumerator value
+  hash : u32      // unique hash
+}
+
+struct EnumeratorSpecV4
+{
+  name : string,  // enumerator name
+  key  : u64      // enumerator value
+}
+
+// list of enumerators
+sequence<EnumeratorSpec> EnumeratorSpecList;
+sequence<EnumeratorSpecV5> EnumeratorSpecListV5;
+sequence<EnumeratorSpecV4> EnumeratorSpecListV4;
+
+// spec of an enum type
+struct EnumTypeSpec
+{
+  enums       : EnumeratorSpecList,  // enumerators
+  storageType : IntegralType         // type used to store the value
+}
+
+struct EnumTypeSpecV5
+{
+  enums       : EnumeratorSpecListV5,  // enumerators
+  storageType : IntegralType,          // type used to store the value
+  hash        : u32                    // unique hash
+}
+
+struct EnumTypeSpecV4
+{
+  enums       : EnumeratorSpecListV4,  // enumerators
+  storageType : IntegralType           // type used to store the value
+}
+
+// spec of a quantity type
+struct QuantityTypeSpec
+{
+  elementType : NumericType,  // type used to store the value
+  unit        : UnitInfo,     // used unit
+  minValue    : MaybeF64,     // discarded if >= maxValue
+  maxValue    : MaybeF64,     // discarded if <= minValue
+}
+
+struct QuantityTypeSpecV5
+{
+  numericType : NumericType,  // type used to store the value
+  unit        : UnitInfo,     // used unit
+  minValue    : f64,          // discarded if >= maxValue
+  maxValue    : f64,          // discarded if <= minValue
+  hash        : u32           // unique hash
+}
+
+struct QuantityTypeSpecV4
+{
+  numericType : NumericType,  // type used to store the value
+  unit        : UnitInfo,     // used unit
+  minValue    : f64,          // discarded if >= maxValue
+  maxValue    : f64           // discarded if <= minValue
+}
+
+// spec of a sequence type
+struct SequenceTypeSpec
+{
+  elementType : string,    // qualified type name for stored values
+  maxSize     : MaybeU64,  // discarded when 0
+  fixedSize   : bool,
+}
+
+struct SequenceTypeSpecV5
+{
+  elementType : string,  // qualified type name for stored values
+  maxSize     : u64,     // discarded when 0
+  fixedSize   : bool,
+  hash        : u32      // unique hash
+}
+
+struct SequenceTypeSpecV4
+{
+  elementType : string,  // qualified type name for stored values
+  maxSize     : u64      // discarded when 0
+}
+
+// a field of a struct
+struct StructTypeFieldSpec
+{
+  name        : string,  // field name
+  description : string,  // documentation
+  type        : string,  // qualified type name held by this field
+}
+
+struct StructTypeFieldSpecV5
+{
+  name        : string,  // field name
+  description : string,  // documentation
+  type        : string,  // qualified type name held by this field
+  hash        : u32      // unique hash
+}
+
+struct StructTypeFieldSpecV4
+{
+  name        : string,  // field name
+  description : string,  // documentation
+  type        : string   // qualified type name held by this field
+}
+
+// list of struct fields
+sequence<StructTypeFieldSpec> StructTypeFieldSpecList;
+sequence<StructTypeFieldSpecV5> StructTypeFieldSpecListV5;
+sequence<StructTypeFieldSpecV4> StructTypeFieldSpecListV4;
+
+// spec of an struct type
+struct StructTypeSpec
+{
+  fields : StructTypeFieldSpecList,  // fields
+  parent : string,                   // qualified type name the parent struct, empty means none
+}
+
+struct StructTypeSpecV5
+{
+  fields : StructTypeFieldSpecListV5,  // fields
+  parent : string,                     // qualified type name the parent struct, empty means none
+  hash   : u32                         // unique hash
+}
+
+struct StructTypeSpecV4
+{
+  fields : StructTypeFieldSpecListV4,  // fields
+  parent : string                      // qualified type name the parent struct, empty means none
+}
+
+// a field of a variant
+struct VariantTypeFieldSpec
+{
+  key         : u32,     // key/index of this type within the variant
+  description : string,  // documentation
+  type        : string,  // qualified type name held by this field
+}
+
+struct VariantTypeFieldSpecV5
+{
+  key         : u32,     // key/index of this type within the variant
+  description : string,  // documentation
+  type        : string,  // qualified type name held by this field
+  hash        : u32      // unique hash
+}
+
+struct VariantTypeFieldSpecV4
+{
+  key         : u32,     // key/index of this type within the variant
+  description : string,  // documentation
+  type        : string   // qualified type name held by this field
+}
+
+// list of variant fields
+sequence<VariantTypeFieldSpec> VariantTypeFieldSpecList;
+sequence<VariantTypeFieldSpecV5> VariantTypeFieldSpecListV5;
+sequence<VariantTypeFieldSpecV4> VariantTypeFieldSpecListV4;
+
+// spec of an struct type
+struct VariantTypeSpec
+{
+  fields : VariantTypeFieldSpecList,
+}
+
+struct VariantTypeSpecV5
+{
+  fields : VariantTypeFieldSpecListV5,
+  hash   : u32
+}
+
+struct VariantTypeSpecV4
+{
+  fields : VariantTypeFieldSpecListV4
+}
+
+// data of an aliased type
+struct AliasTypeSpec
+{
+  aliasedType : string  // qualified type name being aliased
+}
+
+struct AliasTypeSpecV5
+{
+  aliasedType : string,  // qualified type name being aliased
+  hash        : u32      // unique hash
+}
+
+struct AliasTypeSpecV4
+{
+  aliasedType : string  // qualified type name being aliased
+}
+
+// data of an optional type
+struct OptionalTypeSpec
+{
+  type : string  // qualified type name
+}
+
+struct OptionalTypeSpecV5
+{
+  type : string,  // qualified type name
+  hash : u32      // unique hash
+}
+
+struct OptionalTypeSpecV4
+{
+  type : string  // qualified type name
+}
+
+// how to transport information
+enum TransportModeSpec : u8
+{
+  unicast,    // directed to each receiver, unreliable, unordered, no congestion control
+  multicast,  // directed to all receivers, unreliable, unordered, no congestion control
+  confirmed,  // directed to each receiver, reliable, ordered, with congestion control, relatively heavyweight
+}
+
+// an argument of a callable (methods and events)
+struct ArgSpec
+{
+  name        : string,  // argument name
+  description : string,  // documentation
+  type        : string   // qualified type name of the argument
+}
+
+struct ArgSpecV5
+{
+  name        : string,  // argument name
+  nameHash    : u32,     // hash computed with the argument name
+  description : string,  // documentation
+  type        : string,  // qualified type name of the argument
+  hash        : u32      // unique hash
+}
+
+struct ArgSpecV4
+{
+  name        : string,  // argument name
+  description : string,  // documentation
+  type        : string   // qualified type name of the argument
+}
+
+// list of argument specs
+sequence<ArgSpec> ArgSpecList;
+sequence<ArgSpecV5> ArgSpecListV5;
+sequence<ArgSpecV4> ArgSpecListV4;
+
+// spec for an event
+struct EventSpec
+{
+  name          : string,             // name of the type
+  description   : string,             // documentation
+  args          : ArgSpecList,        // arguments
+  transportMode : TransportModeSpec,  // transport mode
+}
+
+struct EventSpecV5
+{
+  memberHash    : u32,                // hash of the class member
+  name          : string,             // name of the type
+  description   : string,             // documentation
+  args          : ArgSpecListV5,      // arguments
+  transportMode : TransportModeSpec,  // transport mode
+  hash          : u32                 // unique hash
+}
+
+struct EventSpecV4
+{
+  memberHash    : u32,               // hash of the class member
+  name          : string,            // name of the type
+  description   : string,            // documentation
+  args          : ArgSpecListV4,     // arguments
+  transportMode : TransportModeSpec  // transport mode
+}
+
+// list of event specs
+sequence<EventSpec> EventSpecList;
+sequence<EventSpecV5> EventSpecListV5;
+sequence<EventSpecV4> EventSpecListV4;
+
+// method constness
+enum MethodConstnessSpec : u8
+{
+  constant,
+  nonConstant,
+}
+
+// method property relation
+enum PropertyRelationSpec : u8
+{
+  nonPropertyRelated,
+  propertyGetter,
+  propertySetter
+}
+
+// spec for methods
+struct MethodSpec
+{
+  name             : string,                // name of the type
+  description      : string,                // documentation
+  args             : ArgSpecList,           // arguments
+  transportMode    : TransportModeSpec,     // transport mode
+  constness        : MethodConstnessSpec,   // if it changes the state of the object
+  deferred         : bool,                  // if the execution of the method is deferred
+  returnType       : string,                // qualified return type name (empty for none)
+  propertyRelation : PropertyRelationSpec,  // property relation of the method
+  localOnly        : bool                   // true if the method can only be called locally
+}
+
+struct MethodSpecV5
+{
+  memberHash    : u32,                  // hash of the class member
+  name          : string,               // name of the type
+  description   : string,               // documentation
+  args          : ArgSpecListV5,        // arguments
+  transportMode : TransportModeSpec,    // transport mode
+  constness     : MethodConstnessSpec,  // if it changes the state of the object
+  localOnly     : bool,                 // true if the method can only be called locally
+  returnTypeId  : string,               // qualified return type name (empty for none)
+  hash          : u32                   // unique hash
+}
+
+struct MethodSpecV4
+{
+  memberHash    : u32,                  // hash of the class member
+  name          : string,               // name of the type
+  description   : string,               // documentation
+  args          : ArgSpecListV4,        // arguments
+  transportMode : TransportModeSpec,    // transport mode
+  constness     : MethodConstnessSpec,  // if it changes the state of the object
+  deferred      : bool,                 // true if the method is marked as deferred
+  returnTypeId  : string                // qualified return type name (empty for none)
+}
+
+// list of method specs
+sequence<MethodSpec> MethodSpecList;
+sequence<MethodSpecV5> MethodSpecListV5;
+sequence<MethodSpecV4> MethodSpecListV4;
+
+// how a property is seen by others
+enum PropertyCategorySpec: u8
+{
+  staticRW,   // does not change over time, can be set via code and config
+  staticRO,   // does not change over time, can be set via code
+  dynamicRW,  // may change over time, can be set from outside
+  dynamicRO   // may change over time, cannot be set from outside
+}
+
+// spec of a property
+struct PropertySpec
+{
+  name          : string,                // name of the type
+  description   : string,                // documentation
+  category      : PropertyCategorySpec,  // category
+  type          : string,                // qualified type name of the property
+  transportMode : TransportModeSpec,     // how to transport the data
+  tags          : StringList,            // user-defined tags
+  checkedSet    : bool                   // if setting the property is checked
+}
+
+struct PropertySpecV5
+{
+  memberHash    : u32,                   // hash of the class member
+  name          : string,                // name of the type
+  description   : string,                // documentation
+  category      : PropertyCategorySpec,  // category
+  type          : string,                // qualified type name of the property
+  transportMode : TransportModeSpec,     // how to transport the data
+  tags          : StringList,            // user-defined tags
+  hash          : u32                    // unique hash
+}
+
+struct PropertySpecV4
+{
+  memberHash    : u32,                   // hash of the class member
+  name          : string,                // name of the type
+  description   : string,                // documentation
+  category      : PropertyCategorySpec,  // category
+  type          : string,                // qualified type name of the property
+  transportMode : TransportModeSpec,     // how to transport the data
+  tags          : StringList             // user-defined tags
+}
+
+// list of property specs
+sequence<PropertySpec> PropertySpecList;
+sequence<PropertySpecV5> PropertySpecListV5;
+sequence<PropertySpecV4> PropertySpecListV4;
+
+// spec of a class
+struct ClassTypeSpec
+{
+  properties  : PropertySpecList,
+  methods     : MethodSpecList,
+  events      : EventSpecList,
+  constructor : MethodSpec,
+  parents     : StringList,
+  isInterface : bool,
+}
+
+struct ClassTypeSpecV5
+{
+  properties  : PropertySpecListV5,
+  methods     : MethodSpecListV5,
+  events      : EventSpecListV5,
+  isInterface : bool,
+  id          : u32,
+  constructor : MethodSpecV5,
+  parents     : StringList,
+  hash        : u32
+}
+
+struct ClassTypeSpecV4
+{
+  properties  : PropertySpecListV4,
+  methods     : MethodSpecListV4,
+  events      : EventSpecListV4,
+  isInterface : bool,
+  id          : u32,
+  constructor : MethodSpecV4,
+  parents     : StringList
+}
+
+// all custom types
+variant CustomTypeData
+{
+  EnumTypeSpec,
+  QuantityTypeSpec,
+  SequenceTypeSpec,
+  StructTypeSpec,
+  VariantTypeSpec,
+  AliasTypeSpec,
+  OptionalTypeSpec,
+  ClassTypeSpec
+}
+
+variant CustomTypeDataV5
+{
+  EnumTypeSpecV5,
+  QuantityTypeSpecV5,
+  SequenceTypeSpecV5,
+  StructTypeSpecV5,
+  VariantTypeSpecV5,
+  AliasTypeSpecV5,
+  OptionalTypeSpecV5,
+  ClassTypeSpecV5
+}
+
+variant CustomTypeDataV4
+{
+  EnumTypeSpecV4,
+  QuantityTypeSpecV4,
+  SequenceTypeSpecV4,
+  StructTypeSpecV4,
+  VariantTypeSpecV4,
+  AliasTypeSpecV4,
+  OptionalTypeSpecV4,
+  ClassTypeSpecV4
+}
+
+// spec of a custom type
+struct CustomTypeSpec
+{  
+  name          : string,         // name of the type
+  qualifiedName : string,         // package-qualified name
+  description   : string,         // documentation
+  data          : CustomTypeData  // spec data
+}
+
+struct CustomTypeSpecV5
+{
+  name          : string,           // name of the type
+  qualifiedName : string,           // package-qualified name
+  description   : string,           // documentation
+  data          : CustomTypeDataV5  // spec data
+}
+
+struct CustomTypeSpecV4
+{
+  name          : string,           // name of the type
+  qualifiedName : string,           // package-qualified name
+  description   : string,           // documentation
+  data          : CustomTypeDataV4  // spec data
+}
+
+// list of custom types
+sequence<CustomTypeSpec> CustomTypeSpecList;
+sequence<CustomTypeSpecV5> CustomTypeSpecListV5;
+sequence<CustomTypeSpecV4> CustomTypeSpecListV4;

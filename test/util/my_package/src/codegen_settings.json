@@ -1,0 +1,13 @@
+{
+  "classes": {
+    "my_package.MyClass": {
+      "deferredMethods": [
+        "doingSomethingDeferred",
+        "doingSomethingDeferredWithoutReturning"
+      ],
+      "checkedProperties": [
+        "prop7"
+      ]
+    }
+  }
+}

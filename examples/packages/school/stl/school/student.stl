@@ -1,0 +1,60 @@
+import "stl/school/person.stl"
+
+package school;
+
+// Represents that the student is sleeping.
+struct Sleeping
+{
+  since          : TimeStamp,  // Since when is sleeping.
+  snortingVolume : f32         // How loud is the snorting.
+}
+
+// Represents a student that is doing something.
+struct DoingSomething
+{
+  since      : TimeStamp,  // Since when.
+  taskName   : string,     // What is the student doing.
+  difficulty : f32,        // How hard is it (goes from 0 to 1).
+  progress   : f32         // What's the current progress (goes from 0 to 1).
+}
+
+// Represents a student that is doing nothing.
+struct DoingNothing
+{
+  since : TimeStamp  // Since when is the student idle.
+}
+
+// The status of a student.
+variant StudentStatus
+{
+  DoingNothing,
+  DoingSomething,
+  Sleeping
+}
+
+// Students are associated with classrooms and managed by teachers.
+class Student: extends Person
+{
+  // The current status of the student.
+  var status     : StudentStatus [confirmed];
+
+  // How focused is the student at any given time (goes from 0 to 1).
+  var focusLevel : f32;
+
+  // Request the student to start doing a given task.
+  //
+  // @param taskName name of the task that should be done.
+  // @param difficulty how hard the task is for this student (goes from 0 to 1).
+  fn startDoingTask(taskName: string, difficulty: f32) -> bool;
+
+  // Emitted when the student makes a noise.
+  //
+  // @param noise human-readable description of the noise being made.
+  // @param volume how loud was it (goes from 0 to 1).
+  event madeSomeNoise(noise: string, volume: f32);
+
+  // Emitted when the student gets distracted.
+  //
+  // @param reason human-readable explanation for the distraction.
+  event gotDistracted(reason: string);
+}

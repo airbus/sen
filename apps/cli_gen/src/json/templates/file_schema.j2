@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "{{ schemaName }}.json",
+  "title": "{{ schemaName }}.json",
+## if componentMode
+  "component": "{{ componentName }}",
+## if exists("configType")
+  "configType": "{{ configType }}",
+## endif
+## else
+  "classes": [
+## for class in classesThatCanBeInstantiated
+    "{{ class.senQual }}"{% if not loop.is_last %},{% endif %}
+## endfor
+   ],
+## endif
+  "$defs": {
+## for definition in definitions
+{{ definition }}{% if not loop.is_last %},{% endif %}
+## endfor
+  }
+}

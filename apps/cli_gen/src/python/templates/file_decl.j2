@@ -1,0 +1,13 @@
+## if exists("imports")
+## for module in imports
+from {{ module }} import *
+## endfor
+
+## endif
+import yaml
+from dataclasses import dataclass
+from typing import Union, TypedDict, List, NewType
+from datetime import datetime, timedelta
+from enum import Enum
+
+{{ visitorResult }}

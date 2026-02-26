@@ -1,0 +1,39 @@
+#include "{{ class_header_file }}"
+
+namespace {{ package_name }}
+{
+
+{{ class_name }}Impl::{{ class_name }}Impl(const std::string& name, const sen::VarMap& args)
+  : {{ class_name }}Base(name, args)
+{
+}
+## if non_empty_classes
+
+void {{ class_name }}Impl::update(sen::kernel::RunApi& runApi)
+{
+  std::ignore = runApi;  // here goes your update logic
+  setNextProp5(getProp5() + 1);
+}
+
+int32_t {{ class_name }}Impl::addNumbersImpl(int32_t a, int32_t b)
+{
+  return a + b;
+}
+
+std::string {{ class_name }}Impl::echoImpl(const std::string& message)
+{
+  return message;
+}
+
+void {{ class_name }}Impl::changePropsImpl()
+{
+  Vec2 val = getProp4();
+  val.x += 0.5f;        // simply make some changes
+  val.y += 1.5;         // to a property, to see the effect
+  setNextProp4(val);
+}
+## endif
+
+SEN_EXPORT_CLASS({{ class_name }}Impl)
+
+}  // namespace {{ package_name }}

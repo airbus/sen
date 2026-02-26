@@ -1,0 +1,10 @@
+### {{ senQual }}
+
+{{ description }}
+
+| Field     | Description |
+| :-------- | :---------- |
+*** for field in fields
+| **{{ field.name }}** | {{ toAnchor(field.senQual) }} {{ field.description }} |
+*** endfor
+

@@ -1,0 +1,6 @@
+<senMapping>
+    <class name="MyModuleAClass">
+        <event hlaInteraction="ModuleBInteraction"></event>
+        <event hlaInteraction="ModuleCInteraction" pack="true"></event>
+    </class>
+</senMapping>

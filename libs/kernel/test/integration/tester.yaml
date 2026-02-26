@@ -1,0 +1,16 @@
+load:
+  - name: ether
+    group: 10
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65454
+  - name: py
+    group: 5
+    freqHz: 100
+    imports: [transport_1, transport_2]
+    module: tester

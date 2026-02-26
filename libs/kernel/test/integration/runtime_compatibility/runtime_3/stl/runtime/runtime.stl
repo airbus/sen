@@ -1,0 +1,90 @@
+package sen.test.runtime;
+
+array<i64, 5> TestSequence;
+sequence<i32> TestSequence2;
+
+struct TestStruct
+{
+  attr1 : u8,
+  attr2 : u8
+}
+
+quantity<i32, m_per_s> Speed [min: 0.0, max: 120.0]; // defined in meters per second
+quantity<f32, rad> Angle;     // defined in radians
+quantity<f32, m> Distance;    // defined in meters
+
+optional<TestStruct> MaybeStruct;
+optional<Speed> MaybeSpeed;
+optional<string> MaybeString;
+optional<u64> MaybeNative;
+optional<TimeStamp> MaybeTimestamp;
+optional<Duration> MaybeDuration;
+optional<bool> MaybeBool;
+
+enum TestEnum: i64
+{
+  elem1,
+  elem2,
+  elem3,
+  elem4,
+  elem5
+}
+
+struct TestStructBase
+{
+  attr1 : f64
+}
+
+struct TestStructChild : TestStructBase
+{
+  x : u8,
+  y : u8,
+  z : u8
+}
+
+variant TestVariant
+{
+  string,
+  f32,
+  u8,
+  TestEnum
+}
+
+// Sample class used to test runtime compatibility
+class TestClass
+{
+  // basic types
+  var prop1  : string               [writable, confirmed]; // optional duration in the writer schema
+  var prop2  : u64                  [writable]; // optional timestamp in the writer schema
+  var prop3  : Speed                [writable]; // optional speed in the writer schema
+
+  // sequence
+  var prop4  : TestSequence         [writable, confirmed]; // fixed sequence in the writer schema
+  var prop5  : TestSequence2        [writable, confirmed]; // bounded sequence in the writer schema
+
+  // structs
+  var prop6  : TestStructBase       [writable, confirmed]; // TestStructBase in the writer schema
+
+  // quantities
+  var prop7  : Angle                [writable]; // angle in deg in the writer schema
+  var prop8  : Speed                [writable]; // speed in kph in the writer schema
+  var prop9  : Distance             [writable]; // distance in ft in the writer schema
+
+  // optionals
+  var prop10 : MaybeSpeed           [writable]; // speed in the writer schema
+  var prop11 : MaybeString          [writable, confirmed]; // string in the writer schema
+  var prop12 : MaybeNative          [writable]; // duration in the writer schema
+  var prop13 : MaybeBool            [writable]; // boolean in the writer schema
+
+  // variants
+  var prop14 : TestVariant          [writable, confirmed]; // TestStruct with different order/types in the writer schema
+  var prop15 : TestVariant          [writable, confirmed]; // variant with different types/order in the writer schema
+
+  // methods
+  fn testMethod(arg1: bool, arg2: TestStruct, arg3: u8) -> string;
+  fn testMethod2(arg1: TestStructBase, arg2: TestEnum) -> string;
+  fn emitEvents();
+
+  // events
+  event testEvent(arg1: f64, arg2: TestEnum, arg3: TestVariant);
+}

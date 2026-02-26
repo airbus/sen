@@ -1,0 +1,8 @@
+package my_package;
+
+// Overall component configuration
+struct Configuration
+{
+  someParam      : string,
+  someOtherParam : Duration
+}

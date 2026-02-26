@@ -1,0 +1,6 @@
+package my_package.sub;
+
+struct BaseTest
+{
+  val : string
+}

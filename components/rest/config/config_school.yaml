@@ -1,0 +1,26 @@
+load:
+  - name: shell
+    group: 2
+  - name: rest
+    group: 3
+    address: "0.0.0.0"
+    port: 3001
+
+build:
+  - name: schoolComponent
+    group: 3
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 5
+        createTeacher: true
+      - name: secondGrade
+        class: school.ClassroomImpl
+        studentsBus: school.secondary
+        bus: school.secondary
+        defaultSize: 10
+        createTeacher: true

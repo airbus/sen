@@ -1,0 +1,7 @@
+package sen.components.explorer;
+
+// Overall component configuration
+struct Configuration
+{
+  layoutFile : string  // the imgui layout file. Defaults to ""
+}

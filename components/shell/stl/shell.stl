@@ -1,0 +1,83 @@
+package sen.components.shell;
+
+// How lists should be printed
+enum ListStyle: u8
+{
+  treeStyle,  // use a tree
+  plainStyle, // simple list
+}
+
+// How timestamps should be printed
+enum TimeStyle: u8
+{
+  timestampUTC,   // use UTC timestamps
+  timestampLocal, // use local time timestamps
+}
+
+// How buffers should be printed
+enum BufferStyle: u8
+{
+  size,    // just print the buffer size
+  hexdump, // print the buffer content has hex numbers
+}
+
+// Holds information about a named query
+struct Query
+{
+  name      : string,  // the name of the query (cannot contain spaces or dots)
+  selection : string   // the query expression
+}
+
+sequence<string> SourcesList;
+sequence<Query> QueryList;
+
+// Configuration params for the shell
+struct Configuration
+{
+  prompt        : string,       // defaults to 'sen> '
+  timeStyle     : TimeStyle,    // how to display time
+  bufferStyle   : BufferStyle,  // how to display buffers
+  serverEnabled : bool,         // enables remote shell access (false by default)
+  serverPort    : u16,          // 0 means default
+  noLogo        : bool,         // true if you don't want a welcoming logo
+  open          : SourcesList,  // list of sources to open automatically
+  query         : QueryList,    // list of queries to create automatically
+  logBus        : string        // where to find the logmaster, if any (default: local.log)
+}
+
+// Provides a text-based interface to interact with the a sen kernel
+class Shell
+{
+  // service configuration
+  var config: Configuration [static];
+
+  // clears the screen
+  fn clear() [const];
+
+  // basic usage help
+  fn help() [const];
+
+  // lists previous commands
+  fn history() [const];
+
+  // lists all the existing objects and sources.
+  fn ls() [const];
+  
+  // opens a source (bus or session) without any condition
+  fn open(source: string);
+
+  // opens a named source using a condition expression
+  fn query(name: string, condition: string);
+  
+  // closes a previously-opened source (session, bus or query)
+  fn close(source: string);
+
+  // prints information about a type or instance
+  fn info(term: string) [const];
+
+  // requests the kernel to be shut-down
+  fn shutdown() [const];
+
+  // lists the current sources
+  fn src();
+}

@@ -1,0 +1,80 @@
+package sen.components.shell;
+
+struct SaveCursorPosition;
+struct RestoreCursorPosition;
+struct MoveCursorAllLeft;
+struct HideCursor;
+struct ShowCursor;
+struct NewLine;
+struct ClearScreen;
+struct ClearCurrentLine;
+struct ClearRemainingCurrentLine;
+
+struct SetWindowTitle
+{
+  text : string
+}
+
+struct MoveCursorLeft
+{
+  cells : u32
+}
+
+struct MoveCursorRight
+{
+  cells : u32
+}
+
+struct MoveCursorUp
+{
+  cells : u32
+}
+
+struct MoveCursorDown
+{
+  cells : u32
+}
+
+struct SetFgColor
+{
+  color : u32
+}
+
+struct SetBgColor
+{
+  color : u32
+}
+
+struct CPrint
+{
+  flags : u32,
+  color : u32,
+  text  : string
+}
+
+struct Print
+{  
+  text : string
+}
+
+variant TerminalCmd
+{
+  Print,
+  CPrint,
+  NewLine,
+  MoveCursorLeft,
+  MoveCursorRight,
+  MoveCursorUp,
+  MoveCursorDown,
+  MoveCursorAllLeft,
+  SetFgColor,
+  SetBgColor,
+  ClearCurrentLine,
+  ClearRemainingCurrentLine,
+  HideCursor,
+  ShowCursor,
+  SaveCursorPosition,
+  RestoreCursorPosition,
+  ClearScreen,
+  SetWindowTitle
+}

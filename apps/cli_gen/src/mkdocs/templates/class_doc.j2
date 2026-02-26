@@ -1,0 +1,60 @@
+### {{ senQual }}
+
+*** if inheritsFromLocalObject
+*** else
+Parent: {{ toAnchor(nonInterfaceParent.senQual) }}
+
+*** endif
+{{ description }}
+
+*** if hasOwnProperties
+**Properties**
+
+| Name      | Description |
+| :-------- | :---------- |
+*** for prop in props
+| **{{ prop.name }}** | {% if prop.writeAllowed %}:material-pencil:{ title="Writable" }{% else %}:material-pencil-lock:{ title="Read Only" }{% endif %}{% if prop.dynamic %}:material-clock-fast:{ title="Dynamic" }{% else %}:material-anvil:{ title="Static" }{% endif %}{% if prop.confirmed %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %} {{ toAnchor(prop.senQual) }} {{ prop.description }} |
+*** endfor
+*** endif
+*** if hasOwnMethods
+
+**Methods**
+
+*** for method in methods
+
+:octicons-triangle-right-16: **{{ method.name }}** {% if method.confirmed %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %} {% if method.senQual != "void" %}{{ toAnchor(method.senQual) }}{% endif %}
+
+:   {{ method.description }}
+
+    Returns: {{ toAnchor(method.senQual) }}
+
+*** if method.hasArgs
+    | Argument  | Type | Description |
+    | :-------- | :--- | :---------- |
+*** for arg in method.args
+    | {{ arg.name }} | {{ toAnchor(arg.senQual) }} | {{ arg.description }} |
+*** endfor
+
+*** endif
+*** endfor
+*** endif
+*** if hasOwnEvents
+**Events**
+
+*** for event in events
+:octicons-triangle-right-16: **{{ event.name }}** {% if event.transportEnum == "::sen::TransportMode::confirmed" %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %}
+
+:   {{ event.description }}
+
+*** if length(event.args) != 0
+    | Argument  | Type | Description |
+    | :-------- | :--- | :---------- |
+*** for arg in event.args
+    | {{ arg.name }} | {{ toAnchor(arg.senQual) }} | {{ arg.description }} |
+*** endfor
+*** endif
+
+*** endfor
+
+*** endif
+

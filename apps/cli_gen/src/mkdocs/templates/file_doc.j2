@@ -1,0 +1,140 @@
+# {{ title }}
+
+### Type Map
+
+=== "Classes"
+    <pre>
+      <code>
+{{ classHierarchy }}
+      </code>
+    </pre>
+
+=== "Structures"
+*** for package in packages
+    === "{{ package.name}}"
+{{ package.structTable }}
+
+*** endfor
+
+=== "Variants"
+*** for package in packages
+    === "{{ package.name}}"
+{{ package.variantTable }}
+
+*** endfor
+
+=== "Sequences"
+*** for package in packages
+    === "{{ package.name}}"
+{{ package.sequenceTable }}
+
+*** endfor
+
+=== "Quantities"
+*** for package in packages
+    === "{{ package.name}}"
+{{ package.quantityTable }}
+
+*** endfor
+
+=== "Enumerations"
+*** for package in packages
+    === "{{ package.name}}"
+{{ package.enumTable }}
+
+*** endfor
+
+=== "Aliases"
+*** for package in packages
+    === "{{ package.name}}"
+{{ package.aliasTable }}
+
+*** endfor
+
+## Classes
+
+{{ classesRoot }}
+
+## Data Types
+
+### Structures
+
+{{ structures }}
+
+### Variants
+
+{{ variants }}
+
+### Quantities
+
+{{ quantities }}
+
+### Enumerations
+
+{{ enumerations }}
+
+### Sequences
+
+{{ sequences }}
+
+### Aliases
+
+{{ aliases }}
+
+### Optionals
+
+{{ optionals }}
+
+### Basic Types
+
+#### u8
+
+8-bit unsigned integer.
+
+#### u16
+
+16-bit unsigned integer.
+
+#### i16
+
+16-bit signed integer.
+
+#### u32
+
+32-bit unsigned integer.
+
+#### i32
+
+32-bit signed integer.
+
+#### u64
+
+64-bit unsigned integer.
+
+#### i64
+
+64-bit signed integer.
+
+#### f32
+
+32-bit real number.
+
+#### f64
+
+64-bit real number.
+
+#### bool
+
+Boolean.
+
+#### string
+
+Text string.
+
+#### senDuration
+
+A time duration.
+
+#### senTimestamp
+
+A point in time.

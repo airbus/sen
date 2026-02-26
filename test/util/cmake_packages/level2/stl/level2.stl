@@ -1,0 +1,8 @@
+import "stl/level1.stl"
+
+package level2;
+
+class Level2Class: extends level1.Level1Class
+{
+  var data2 : string [static];
+}

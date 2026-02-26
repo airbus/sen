@@ -1,0 +1,29 @@
+    "{{ senQual }}": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "description": "{{ description }}",
+      "type": "object",
+      "properties": { {% set isFirst=true %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic or prop.staticRW
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}"{{ prop.name }}": {
+          "description": "{{ prop.description }}",
+          {{ prop.jsonSchemaType }}
+        }
+## endif
+## endfor
+## endfor
+      },
+      "required": [{% set isFirst=true %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.staticRW
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}"{{ prop.name }}"
+## endif
+## endfor
+## endfor
+      ]{% if exists("nonInterfaceParent") %},{% endif %}
+## if exists("nonInterfaceParent")
+      "allOf": [ { {{ nonInterfaceParent.jsonSchemaType }} } ]
+## endif
+    }

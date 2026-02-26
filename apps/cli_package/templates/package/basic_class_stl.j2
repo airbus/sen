@@ -1,0 +1,31 @@
+## if non_empty_classes
+import "stl/{{ package_name }}/basic_types.stl"
+
+## endif
+package {{ package_name }};
+
+class {{ class_name }}
+{
+## if non_empty_classes
+  var prop1 : string       [static];              // does not change
+  var prop2 : StructOfInts [writable];            // can be set by others
+  var prop3 : MyVariant    [writable, confirmed]; // goes over tcp, settable
+  var prop4 : Vec2;                               // goes over udp
+  var prop5 : i32          [writable];
+
+  // this method returns a + b
+  fn addNumbers(a: i32, b: i32) -> i32;
+    
+  // this method returns message
+  fn echo(message: string) -> string;
+
+  // change some property
+  fn changeProps();
+
+  // fired when something happened
+  event somethingHappened();
+  
+  // fired when something else happened
+  event somethingElseHappened(arg: i32) [confirmed];
+## endif
+}

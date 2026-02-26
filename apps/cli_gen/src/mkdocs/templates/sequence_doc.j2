@@ -1,0 +1,17 @@
+### {{ senQual }}
+
+|  |  |
+| :--- | :---- |
+| Element Type | {{ toAnchor(elementSenQual) }} |
+| Bounded | {% if isBounded %}Yes{% else %}No{% endif %} |
+*** if isBounded
+*** if fixedSize
+| Size | {{ maxSize }} |
+*** else
+| Max size | {{ maxSize }} |
+*** endif
+*** endif
+
+{{ description }}
+
+

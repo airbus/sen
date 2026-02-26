@@ -1,0 +1,21 @@
+include:
+  - shell.yaml
+
+build:
+  - name: monkey_4
+    group: 3
+    freqHz: 60
+    imports: [creator_monkeys, dummy_entities]
+    objects:
+      # CreatorMonkey object that will reproduce the stress test using some test objects
+      - name: creatorMonkeys
+        class: creator_monkeys.CreatorMonkeyImpl
+        maxObjectCount: 200
+        actionFrameInterval: 10
+        targetBus: chaos_monkeys.bus
+        objectsToCreate:
+          - creator_monkeys.MonkeyTestClassImpl
+          - creator_monkeys.MonkeyTestClass2Impl
+          - dummy_entities.DummyAircraft
+        secondsToLive: 30
+        bus: chaos_monkeys.bus

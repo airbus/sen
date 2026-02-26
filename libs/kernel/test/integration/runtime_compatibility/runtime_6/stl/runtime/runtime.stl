@@ -1,0 +1,95 @@
+package sen.test.runtime;
+
+sequence<i64, 8> TestSequence;
+sequence<f32, 3> TestSequence2;
+
+quantity<f32, hz> Frequency [min: -100, max: 100]; // defined in hertz
+quantity<f32, rad> Angle [min: 0, max: 3.14]; // defined in radian
+
+enum TestEnum : i32
+{
+  elem1,
+  elem2,
+  elem3,
+  elem4,
+  elem5
+}
+
+struct TestStruct
+{
+  attr1 : u8,
+  attr2 : u8
+}
+
+struct EmptyStruct
+{
+  attr1 : bool
+}
+
+struct TestStructBase
+{
+  alpha : i64,
+  beta  : u32
+}
+
+struct TestStructChild : TestStructBase
+{
+  z : f64,
+  x : f32,
+  y : i32,
+  w : u8
+}
+
+variant TestVariant
+{
+  u32,
+  TestStruct,
+  string,
+  EmptyStruct,
+  TestStruct
+}
+
+optional<string> MaybeString;
+optional<TestEnum> MaybeEnum;
+optional<TestSequence> MaybeSequence;
+optional<TestSequence2> MaybeSequence2;
+optional<TestVariant> MaybeVariant;
+optional<TestStruct> MaybeStruct;
+optional<Frequency> MaybeFrequency;
+optional<Angle> MaybeAngle;
+
+// Sample class used to test runtime compatibility
+class TestClass
+{
+  // sequences
+  var prop1  : TestSequence                   [writable, confirmed]; // sequence of different type and size in the writer scheme
+  var prop2  : TestSequence2                  [writable, confirmed]; // sequence of different size in the writer scheme
+  var prop3  : MaybeSequence                  [writable, confirmed]; // sequence in the writer scheme
+  var prop4  : MaybeSequence2                 [writable, confirmed]; // sequence in the writer scheme
+
+  // quantities
+  var prop5  : Frequency                      [writable]; // floating-point ranged quantity in the writer scheme
+  var prop6  : Angle                          [writable]; // floating-point quantity of different ranges and type in the writer scheme
+  var prop7  : MaybeFrequency                 [writable]; // optional quantity in the writer scheme
+  var prop8  : MaybeAngle                     [writable]; // optional quantity in the writer scheme
+
+  // struct
+  var prop9  : TestStruct                     [writable, confirmed]; // struct in the writer scheme
+  var prop10 : EmptyStruct                    [writable, confirmed]; // struct in the writer scheme
+  var prop11 : TestStructBase                 [writable, confirmed]; // different child struct in the writer scheme
+  var prop12 : TestStructChild                [writable, confirmed]; // different struct in the writer scheme
+  var prop13 : MaybeStruct                    [writable, confirmed]; // struct in the writer scheme
+
+  // variant
+  var prop14 : MaybeVariant                   [writable, confirmed]; // variant in the writer scheme
+
+  // enum
+  var prop15 : MaybeEnum                      [writable, confirmed]; // enum in the writer scheme
+
+  // methods
+  fn testMethod(arg1 : TestSequence2, arg3 : TestStructBase, arg2 : TestVariant) -> TestEnum;
+  fn emitEvents();
+
+  // events
+  event testEvent(arg1: u8, arg3: TestVariant, arg2: string);
+}

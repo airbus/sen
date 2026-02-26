@@ -1,0 +1,9 @@
+    "{{ senQual }}": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "description": "{{ description }}",
+      "enum": [
+## for enum in enums
+        "{{ enum.name }}"{%if not loop.is_last %},{% endif %}
+## endfor
+      ]
+    }

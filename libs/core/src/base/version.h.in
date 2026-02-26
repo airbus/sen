@@ -1,0 +1,35 @@
+// === version.h =======================================================================================================
+//                                               Sen Infrastructure
+//                   Licensed under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+//                                   See the LICENSE.txt file for more information.
+// =====================================================================================================================
+
+#ifndef SEN_CORE_BASE_VERSION_H
+#define SEN_CORE_BASE_VERSION_H
+
+// std
+#include <string_view>
+
+namespace sen
+{
+
+/// \addtogroup util
+/// @{
+
+// NOLINTNEXTLINE
+#define SEN_VERSION_STRING "@SEN_VERSION_STRING@\0"
+
+// NOLINTNEXTLINE
+#define SEN_VERSION_MAJOR @sen_VERSION_MAJOR@
+
+// NOLINTNEXTLINE
+#define SEN_VERSION_MINOR @sen_VERSION_MINOR@
+
+// NOLINTNEXTLINE
+#define SEN_VERSION_PATCH @sen_VERSION_PATCH@
+
+/// @}
+
+}  // namespace sen
+
+#endif // SEN_CORE_BASE_VERSION_H

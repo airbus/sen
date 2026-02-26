@@ -1,0 +1,9 @@
+
+class {{ name }}:
+    def __init__(self, value: {{ pyElemAnnotationType }}):
+        if not isinstance(value, {{ pyElemAnnotationType }}):
+            raise TypeError("Value must be a {{ pyElemAnnotationType }}")
+        self.value = value
+
+    def __repr__(self):
+        return f'{{ name }}({self.value})'

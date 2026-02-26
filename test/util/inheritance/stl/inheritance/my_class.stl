@@ -1,0 +1,23 @@
+import "stl/inheritance/basic_types.stl"
+
+package inheritance;
+
+class MyClass
+{
+  var prop1 : string       [static];              // does not change
+  var prop2 : StructOfInts [writable];            // can be set by others
+  var prop3 : MyVariant    [writable, confirmed]; // goes over tcp, settable
+  var prop4 : Vec2;                               // goes over udp
+
+  // this method returns a + b
+  fn addNumbers(a: i32, b: i32) -> i32;
+    
+  // this method returns message
+  fn echo(message: string) -> string;
+
+  // fired when something happened
+  event somethingHappened();
+  
+  // fired when something else happened
+  event somethingElseHappened(arg: i32) [confirmed];
+}

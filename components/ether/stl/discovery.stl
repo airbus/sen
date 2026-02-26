@@ -1,0 +1,19 @@
+import "stl/sen/kernel/basic_types.stl"
+
+package sen.components.ether;
+
+struct Endpoint
+{
+  ip   : u32,
+  port : u16
+}
+
+sequence<Endpoint, 27> EnpointList;
+
+struct SessionPresenceBeam
+{
+  protocolVersion : u16,
+  info            : sen.kernel.ProcessInfo,
+  beamPeriod      : Duration,
+  endpoints       : EnpointList
+}

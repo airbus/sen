@@ -1,0 +1,30 @@
+package sen.db;
+
+// IMPORTANT NOTE: Types defined in this file CANNOT be erased, as we need to keep track of older versions to ensure
+// runtime compatibility. Older versions are marked with a suffix V# after the name, being # the version number.
+
+// Settings for outputs
+struct OutSettings
+{
+  name           : string,  // name of the archive (cannot be empty)
+  folder         : string,  // storage folder
+  indexKeyframes : bool     // should we create indexes for keyframes
+}
+
+// Statistics of writing
+struct OutStats
+{
+  maxQueueSize : u64  // in bytes
+}
+
+// Summary of an archive
+struct Summary
+{
+  firstTime          : TimeStamp,  // the time of the first event
+  lastTime           : TimeStamp,  // the time of the last event
+  keyframeCount      : u32,        // number of written keyframes
+  objectCount        : u32,        // number of recorded objects
+  typeCount          : u32,        // number of types written
+  annotationCount    : u32,        // number of annotations
+  indexedObjectCount : u32         // number of indexed objects
+}

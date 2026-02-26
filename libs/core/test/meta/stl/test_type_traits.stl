@@ -1,0 +1,32 @@
+package test_type_traits;
+
+struct MyStruct1
+{
+  field1 : u32,
+  field2 : string,
+}
+
+variant MyVariant
+{
+  MyStruct1,
+  u32,
+  bool,
+}
+
+struct MyStruct2
+{
+  field1 : MyVariant,
+  field2 : f32,
+}
+
+class ClassWithoutTemplatedBase 
+{
+}
+
+class Base
+{
+}
+
+class ClassWithTemplatedBase: extends Base
+{
+}

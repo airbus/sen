@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Sen Explorer
+Comment=sen monitoring and debugging GUI
+Exec=sen-explorer
+Terminal=false
+Type=Application
+Categories=Simulation;Utility;X-GNOME-Utilities
+Icon=sen

@@ -1,0 +1,39 @@
+// === custom_type.h ===================================================================================================
+//                                               Sen Infrastructure
+//                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+//                                    See the LICENSE.txt file for more information.
+//                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+// =====================================================================================================================
+
+#ifndef SEN_CORE_META_CUSTOM_TYPE_H
+#define SEN_CORE_META_CUSTOM_TYPE_H
+
+// sen
+#include "sen/core/meta/type.h"
+#include "sen/core/meta/type_visitor.h"
+
+namespace sen
+{
+
+/// \addtogroup types
+/// @{
+
+/// Represents a user-defined type.
+class CustomType: public Type
+{
+  SEN_META_TYPE(CustomType)
+
+public:
+  /// The unique type name.
+  [[nodiscard]] virtual std::string_view getQualifiedName() const noexcept = 0;
+
+protected:
+  explicit CustomType(MemberHash hash) noexcept;
+  ~CustomType() noexcept override = default;
+};
+
+/// @}
+
+}  // namespace sen
+
+#endif  // SEN_CORE_META_CUSTOM_TYPE_H

@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+load:
+  - name: shell
+    group: 2  # auto open the bus, so we can
+    open: [local.tutorial]  # easily see the created objects
+
+build:
+
+  # here we build a component that imports our package
+  # and instantiates a class and a derived class
+  - name: myComponent
+    group: 3
+    freqHz: 1
+    imports: [inheritance]
+    objects:
+      - name: myInstance1
+        class: inheritance.MyClassImpl
+        prop1: someValue
+        bus: local.tutorial
+      - name: myInstance2
+        class: inheritance.MySubClassImpl
+        prop1: some other value
+        aString: this is a static string
+        bus: local.tutorial
+      - name: myReactionInstance
+        class: inheritance.MyReactionClassImpl
+        bus: local.tutorial

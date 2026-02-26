@@ -1,0 +1,40 @@
+import "stl/sen/kernel/basic_types.stl"
+
+package sen.components.ether;
+
+struct ProtocolVersion
+{
+  kernel : u32,
+  ether  : u32
+}
+
+struct Hello
+{
+  info    : sen.kernel.ProcessInfo,
+  udpPort : u16,
+  version : ProtocolVersion
+}
+
+struct Ready {}
+
+struct BusJoined
+{
+  participantId : u32,
+  busId         : u32,
+  busName       : string
+}
+
+struct BusLeft
+{  
+  participantId : u32,
+  busId         : u32,
+  busName       : string
+}
+
+variant ControlMessage
+{
+  Hello,
+  Ready,
+  BusJoined,
+  BusLeft
+}

@@ -1,0 +1,25 @@
+package sen.test;
+
+class TestClass
+{
+  // properties
+  var prop1 : u8        [writable, bestEffort];                     // writable, confirmed in the writer scheme
+  var prop2 : i64       [writable, confirmed];                      // writable, bestEffort in the writer scheme
+  var prop3 : f32       [writable];                                 // static in the writer scheme
+  var prop4 : f64       [writable];                                 // static no config in the writer scheme
+  var prop5 : Duration  [writable];                                 // dynamic, not writable in the writer schema
+  var prop6 : string    [static, confirmed];                        // writable, confirmed in the writer scheme
+  var prop7 : i32       [static_no_config, bestEffort];             // writable, checked in the writer scheme
+
+  // methods
+  fn testMethod()                                              [const, bestEffort]; // const, confirmed in the writer scheme
+  fn testMethod2(arg1 : u8, arg2 : string, arg3 : f64) -> bool [confirmed];         // bestEffort in the writer scheme
+  fn testMethod3(arg1 : f32, arg2 : u64) -> i32                [bestEffort];        // confirmed in the writer scheme
+  fn testMethod4(arg1 : i16) -> u16;                                                // not deferred in the writer schema
+  fn testMethod5(arg1 : bool) -> string                        [const, confirmed];  // const, bestEffort in the writer scheme
+  fn emitEvents();
+
+  // events
+  event testEvent(arg1 : string, arg2: TimeStamp, arg3: Duration)  [confirmed]; // confirmed in the writer scheme
+  event testEvent2(arg1 : string, arg2: TimeStamp, arg3: Duration) [confirmed]; // best effort in the writer scheme
+}

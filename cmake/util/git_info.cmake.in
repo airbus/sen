@@ -1,0 +1,41 @@
+# === git_info.cmake.in ================================================================================================
+#                                               Sen Infrastructure
+#                   Licensed under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+# ======================================================================================================================
+
+# Internal file for git_info.cmake
+set(HEAD_HASH)
+
+if(EXISTS "@HEAD_FILE@")
+  file(READ "@HEAD_FILE@" HEAD_CONTENTS LIMIT 1024)
+  string(STRIP "${HEAD_CONTENTS}" HEAD_CONTENTS)
+endif()
+
+if(HEAD_CONTENTS MATCHES "ref")
+  string(REPLACE "ref: " "" HEAD_REF "${HEAD_CONTENTS}")
+
+  if(EXISTS "@GIT_DIR@/${HEAD_REF}")
+    configure_file("@GIT_DIR@/${HEAD_REF}" "@GIT_DATA@/head-ref" COPYONLY)
+  else()
+    if(EXISTS "@GIT_DIR@/packed-refs")
+      configure_file("@GIT_DIR@/packed-refs" "@GIT_DATA@/packed-refs" COPYONLY)
+      file(READ "@GIT_DATA@/packed-refs" PACKED_REFS)
+
+      if(${PACKED_REFS} MATCHES "([0-9a-z]*) ${HEAD_REF}")
+        set(HEAD_HASH "${CMAKE_MATCH_1}")
+      endif()
+    endif()
+  endif()
+else()
+  if(EXISTS "@GIT_DIR@/HEAD")
+    configure_file("@GIT_DIR@/HEAD" "@GIT_DATA@/head-ref" COPYONLY)
+  endif()
+endif()
+
+if(NOT HEAD_HASH)
+  if(EXISTS "@GIT_DATA@/head-ref")
+    file(READ "@GIT_DATA@/head-ref" HEAD_HASH LIMIT 1024)
+    string(STRIP "${HEAD_HASH}" HEAD_HASH)
+  endif()
+endif()

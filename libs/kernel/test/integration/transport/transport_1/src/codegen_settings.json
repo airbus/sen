@@ -1,0 +1,12 @@
+{
+  "classes": {
+    "sen.test.TestClass": {
+      "deferredMethods": [
+        "testMethod4"
+      ],
+      "checkedProperties": [
+        "prop5"
+      ]
+    }
+  }
+}

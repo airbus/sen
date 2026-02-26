@@ -1,0 +1,39 @@
+
+//--------------------------------------------------------------------------------------------------------------
+// {{ qualTypeAlias }}
+//--------------------------------------------------------------------------------------------------------------
+
+namespace {{ namespace }}
+{
+
+std::ostream& operator<<(std::ostream& out, const {{ qualTypeAlias }}& val)
+{
+  if (val.empty())
+  {
+    return out << "[empty]";
+  }
+
+  out.setf(std::ios::left, std::ios::adjustfield);
+  const auto indent = std::setw(static_cast<int>(out.width() + 2U));
+  for(const auto& elem: val)
+  {
+    out << indent << elem << "\n";
+  }
+  return out;
+}
+
+}  // namespace {{ namespace }}
+
+::sen::ConstTypeHandle<::sen::SequenceType> sen::MetaTypeTrait<{{ qualTypeAlias }}>::meta()
+{
+  static auto type = ::sen::SequenceType::make(
+  {
+    "{{ name }}",
+    "{{ senQual }}",
+    "{{ description }}",
+    ::sen::MetaTypeTrait<{{ qualElementType }}>::meta(), // .ptr(),
+    {% if exists("maxSize") %}{{ maxSize }}{% else %}std::nullopt{% endif %},
+    {% if fixedSize %}true{% else %}false{% endif %}
+  });
+  return type;
+}

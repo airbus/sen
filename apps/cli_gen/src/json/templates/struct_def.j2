@@ -1,0 +1,13 @@
+    "{{ senQual }}": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "description": "{{ description }}",
+      "type": "object",
+      "properties": {
+## for field in fields
+        "{{ field.name }}": {
+          "description": "{{ field.description }}",
+          {{ field.jsonSchemaType }}
+        }{%if not loop.is_last %},{% endif %}
+## endfor
+      }
+    }

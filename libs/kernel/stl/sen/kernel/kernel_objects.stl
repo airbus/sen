@@ -1,0 +1,162 @@
+import "stl/sen/kernel/basic_types.stl"
+
+package sen.kernel;
+
+// Unbounded sequence of unit information structs
+sequence<UnitInfo> UnitList;
+
+// Parameters related to a component that will be loaded by the kernel
+struct LoadedComponentParams
+{
+  name   : string,          // the name of the component
+  config : ComponentConfig  // the configuration of the component
+}
+
+sequence<LoadedComponentParams> LoadedComponentList;
+
+// Parameters related to components build by the kernel
+struct BuiltComponentParams
+{
+  name    : string,           // the name of the component
+  period  : Duration,         // the execution period
+  config  : ComponentConfig,  // the configuration of the component
+  imports : StringList        // the imported packages
+}
+
+sequence<BuiltComponentParams> BuiltComponentList;
+
+// Information about an unhandled signal
+struct SignalData
+{
+  signalNumber : i32,     // signal number
+  signalName   : string,  // human-readable name
+}
+
+// Types of exceptions that can occur.
+enum ExceptionKind : u8
+{
+  runtime, // normally maps to std::runtime_error
+  logic,  // normally maps to std::logic_error
+  standard, // normally maps to std::exception
+  unknown // unknown exception
+}
+
+// Information about an unhandled exception
+struct UncaughtException
+{
+  exceptionKind : ExceptionKind,  // kind of exception
+  message       : string          // message it provides (if any)
+}
+
+// Information about an environment variable
+struct EnvVar
+{
+  name  : string,  // name of the variable
+  value : string,  // value of the variable
+}
+
+optional<UncaughtException> MaybeException;
+
+optional<SignalData> MaybeSignal;
+
+sequence<EnvVar> EnvironmentVarList;
+
+optional<StringList> MaybeStacktrace;
+
+optional<u32> MaybeTransportProtocol;
+
+// Information about Sen
+struct SenData
+{
+  version           : string,                  // the Sen version
+  compiler          : string,                  // the compiler used to build Sen
+  debugMode         : bool,                    // true if it was build in debug mode
+  buildTime         : string,                  // time of the build
+  wordSize          : WordSize,                // architecture
+  gitRef            : string,                  // git ref
+  gitHash           : string,                  // git hash
+  gitStatus         : GitStatus,               // status of the branch when build
+  kernelParams      : KernelParams,            // Sen kernel parameters
+  kernelProtocol    : u32,                     // version of the kernel protocol
+  transportProtocol : MaybeTransportProtocol,  // version of the transport protocol (if present)
+  loadedComponents  : LoadedComponentList,     // components to load
+  builtComponents   : BuiltComponentList,      // components to build
+}
+
+// Information about the process
+struct ProcessData
+{
+  processInfo : ProcessInfo,         // general process information
+  environment : EnvironmentVarList,  // list of environment variables
+  stacktrace  : MaybeStacktrace,     // the stack trace (if any)
+  recentLogs  : StringList,          // the last logs emitted by the process
+}
+
+// Information related to the error
+struct ErrorData
+{
+  time          : TimeStamp,       // time of the error
+  errorMessage  : StringList,      // message presented to the user
+  exceptionData : MaybeException,  // information about the unhandled exception (if any)
+  signalData    : MaybeSignal,     // information about the received signal (if any)
+}
+
+// Information about a detected error
+struct ErrorReport
+{
+  senData     : SenData,      // information related to Sen
+  processData : ProcessData,  // information related to the process
+  errorData   : ErrorData     // information related to the error
+}
+
+// Represents the kernel
+class KernelApi
+{
+  // kernel build information
+  var buildInfo : BuildInfo [static];
+  
+  // requests the kernel to shut down
+  fn shutdown();
+  
+  // registered units
+  fn getUnits() -> UnitList [const];
+  
+  // registered types, by name
+  fn getTypes() -> StringList [const];
+  
+  // configuration of the kernel execution
+  fn getConfig() -> KernelParams [const];
+}
+
+// Allows inspecting and controlling the advance of virtual time and associated component iteration
+class VirtualClock
+{
+  // the current virtual time
+  var time : TimeStamp;
+}
+
+// A clock for all the components loaded by the kernel
+class VirtualKernelClock: extends VirtualClock
+{
+  // updates the time, drains the inputs, and cycles components - doesn't flush outputs
+  fn processNoFlush(delta : Duration) -> Duration [bestEffort];
+
+  // makes component outputs visible to other components and returns the next step duration
+  fn flushOutputs() -> Duration [bestEffort];
+}
+
+// Controls all the VirtualKernelClock that it discovers in the bus where it's published
+class VirtualMasterClock: extends VirtualClock
+{
+  var delta : Duration [writable];
+
+  // calls advanceTimeDrainInputsAndUpdate(delta) and then flushOutputs()
+  // on all VirtualKernelClocks n times, where n is duration / delta
+  fn advanceTime(duration: Duration) -> Duration [bestEffort];
+
+  // single step forward, based on delta
+  fn step() -> Duration [bestEffort];
+
+  // perform 'count' steps forward, based on delta
+  fn steps(count: u64) -> Duration [bestEffort];
+}

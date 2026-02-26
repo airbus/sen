@@ -1,0 +1,9 @@
+import "stl/level0.stl"
+
+package level1;
+
+class Level1Class: extends level0.Level0Class
+{
+  var data1 : string [static];
+  fn printSomething1();
+}

@@ -1,0 +1,5 @@
+load:
+  # Load sen shell
+  - name: shell
+    group: 2
+    open: [chaos_monkeys.bus]
