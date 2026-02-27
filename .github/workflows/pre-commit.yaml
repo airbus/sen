@@ -15,6 +15,6 @@ jobs:
       - uses: actions/setup-python@v6
       - uses: pre-commit/action@v3.0.1
         with:
-          extra_args: --from-ref origin/vara-dev --to-ref HEAD
+          extra_args: --from-ref origin/main --to-ref HEAD
       - uses: pre-commit-ci/lite-action@v1.1.0
         if: always()
