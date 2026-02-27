@@ -368,7 +368,7 @@ struct MethodSpec
   transportMode    : TransportModeSpec,     // transport mode
   constness        : MethodConstnessSpec,   // if it changes the state of the object
   deferred         : bool,                  // if the execution of the method is deferred
-  returnType       : string,                // qualified return type name (empty for none)
+  returnType       : string,                // qualified return type name
   propertyRelation : PropertyRelationSpec,  // property relation of the method
   localOnly        : bool                   // true if the method can only be called locally
 }
