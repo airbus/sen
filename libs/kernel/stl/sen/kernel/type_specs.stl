@@ -525,7 +525,7 @@ variant CustomTypeDataV4
 
 // spec of a custom type
 struct CustomTypeSpec
-{  
+{
   name          : string,         // name of the type
   qualifiedName : string,         // package-qualified name
   description   : string,         // documentation

@@ -20,4 +20,3 @@ BASE_PATH ${_sen_recorder_base_path}
 STL_FILES ${_sen_recorder_stl_files}
 DEPS sen::db
 )
-

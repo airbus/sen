@@ -30,7 +30,7 @@ bool programAcceptsSet(sen::Duration /*val*/) const override
     std::cout << "Timer is off! Switch it on to start running." << std::endl;
     return true;
   }
-  
+
   std::cout << "Timer is running! cannot change the program." << std::endl;
   return false;
 }
@@ -47,7 +47,7 @@ This will open a shell and tell Sen to instantiate the implementations in the `m
 You can set the initial timer seconds by:
 
 ```
-my.tutorial.timer.setNextProgram "20 s" 
+my.tutorial.timer.setNextProgram "20 s"
 ```
 
 Note that the timer will not start running until it is On. You can turn on / off the `Timer` by:

@@ -81,4 +81,3 @@ You can access the recorded data using the provided C++ API (this is how the Sen
 ```c++
 --8<-- "snippets/examples/apps/recording_inspector/main.cpp"
 ```
-

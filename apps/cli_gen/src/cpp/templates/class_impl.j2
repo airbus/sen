@@ -24,10 +24,10 @@
     {  // methods
 ## for method in methods
       MethodSpec(
-        /*callableSpec*/     { "{{ method.name }}", "{{ method.description }}", { {% for arg in method.args %}{ "{{ arg.name }}", "{{ arg.description }}", MetaTypeTrait<{{ arg.qualType }}>::meta() }, {% endfor %} }, {{ method.transportEnum }} }, 
+        /*callableSpec*/     { "{{ method.name }}", "{{ method.description }}", { {% for arg in method.args %}{ "{{ arg.name }}", "{{ arg.description }}", MetaTypeTrait<{{ arg.qualType }}>::meta() }, {% endfor %} }, {{ method.transportEnum }} },
         /*returnType*/       {% if method.qualType == "void" %} VoidType::get() {% else %}MetaTypeTrait<{{ method.qualType }}>::meta(){% endif %},
-        /*constness*/        {% if method.constant %}Constness::constant{% else %}Constness::nonConstant{% endif %}, 
-        /*propertyRelation*/ NonPropertyRelated{}, 
+        /*constness*/        {% if method.constant %}Constness::constant{% else %}Constness::nonConstant{% endif %},
+        /*propertyRelation*/ NonPropertyRelated{},
         /*deferred*/         {% if method.deferred %}true{% else %}false{% endif %},
         /*localOnly*/        {% if method.localOnly %}true{% else %}false{% endif %}
       ),  // NOLINT(readability-magic-numbers)
@@ -501,7 +501,7 @@ void {{remoteName}}::serializeMethodArgumentsFromVariants(::sen::MemberHash meth
 ## if method.qualType != "void"
     case {{ method.id }}: return ::sen::impl::variantFromStream<{{ method.qualType }}>(in);  // NOLINT
 ## endif
-## endfor 
+## endfor
 ## endfor
     default: break;
   }

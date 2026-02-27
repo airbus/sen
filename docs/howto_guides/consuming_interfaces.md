@@ -117,8 +117,8 @@ them in local CMake variables:
 4 . Use the locally filled variables to generate the `cpp` code of the `school` interfaces:
 
 ```cmake
-sen_generate_cpp(TARGET sen_school_interfaces 
-                 BASE_PATH ${school_base_path} 
+sen_generate_cpp(TARGET sen_school_interfaces
+                 BASE_PATH ${school_base_path}
                  STL_FILES ${school_stl_files})
 ```
 
@@ -149,12 +149,12 @@ import stl/sen/packages/school/school.stl
 
 package town;
 
-class EducationCouncil 
+class EducationCouncil
 {
-    var councelor           : school.person   
+    var councelor           : school.person
     var neededTaxIncome     : f32
-    var primarySchool       : school.school   
-    var secondarySchool     : school.school   
+    var primarySchool       : school.school
+    var secondarySchool     : school.school
 }
 ```
 
@@ -165,7 +165,7 @@ class EducationCouncil
 
    class Town {
         // some class implementation ...
-        
+
         private:
             // pointer to our school object
             school::SchoolInterface * school_

@@ -3,7 +3,7 @@
 This component allows you to control your loggers.
 
 ```yaml
-load:  
+load:
   - name: logmaster
     group: 4
 ```

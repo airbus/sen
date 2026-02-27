@@ -157,14 +157,14 @@ EXCLUDE_SYMBOLS        = sen::impl \
                          SEN_UNAVAILABLE \
                          SEN_ALWAYS_INLINE \
                          SEN_HAS_BUILTIN \
-                         SEN_HAS_BUILTIN \                         
+                         SEN_HAS_BUILTIN \
                          SEN_PREDICT \
                          SEN_LIKELY \
                          SEN_UNLIKELY \
                          SEN_UNPREDICTABLE \
                          SEN_PREDICT_TRUE \
                          SEN_PREDICT_FALSE \
-                         SEN_EXPORT \ 
+                         SEN_EXPORT \
                          SEN_IMPORT \
                          SEN_PRIVATE \
                          SEN_INTEGRAL_TYPE \

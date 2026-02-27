@@ -116,7 +116,7 @@ that print:
 ```cpp title="removing prints from component.cpp" linenums="12"
 while (!api.stopRequested())
 {
-  std::this_thread::sleep_for(std::chrono::seconds(1));  
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 ```
 
@@ -217,7 +217,7 @@ sequence<User> UsersList;
 struct Configuration
 {
   serviceName : string,   // Name of our service
-  users       : UsersList // Our users  
+  users       : UsersList // Our users
 }
 ```
 
@@ -258,7 +258,7 @@ Let's have a look at it:
 namespace example
 {
 
-/// The address of a user 
+/// The address of a user
 struct Address
 {
   std::string city{};    ///<  Name of the city
@@ -266,7 +266,7 @@ struct Address
   u32 number{};          ///<  Number of the building
 };
 
-/// Subscription plan 
+/// Subscription plan
 enum class Plan: u8
 {
   basic = 0,    ///<  Only one HD screen
@@ -274,7 +274,7 @@ enum class Plan: u8
   gold = 2,     ///<  Unlimited 4K content
 };
 
-/// Information about our users 
+/// Information about our users
 struct User
 {
   std::string name{};     ///<  Full name
@@ -284,7 +284,7 @@ struct User
   sen::Duration since{};  ///<  Since when is subscribed
 };
 
-/// Our component configuration 
+/// Our component configuration
 struct Configuration
 {
   std::string serviceName{};  ///<  Name of our service
@@ -313,7 +313,7 @@ struct MyComponent: public sen::kernel::Component
   sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
   {
     std::cout << "MyComponent: started running\n";
-    
+
     // to store our configuration
     auto config = sen::toValue<example::Configuration>(api.getConfig());
 
@@ -345,7 +345,7 @@ We haven't yet provided any data to our component, so if we run it, we get the f
 
 ```
 MyComponent: started running
-  serviceName: 
+  serviceName:
   users:       null
 ```
 
@@ -449,7 +449,7 @@ And adding all of this into our example, we end up with a very compact component
 struct MyComponent: public sen::kernel::Component
 {
   sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
-  {    
+  {
     auto bus = api.getSource("local.kernel"); // get the source
     sen::ObjectList<sen::Object> objects;     // create a container
     bus->addSubscriber(sen::Interest::make("SELECT * FROM local.kernel", api.getTypes()),

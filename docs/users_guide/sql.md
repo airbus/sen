@@ -85,19 +85,19 @@ SELECT school.Student
   FROM school.primary
  WHERE focusLevel BETWEEN 0.0 AND 0.5
 
-SELECT rpr.PhysicalEntity 
+SELECT rpr.PhysicalEntity
   FROM se.env
- WHERE spatial.SpatialFPStruct.lat >= 34.0 
+ WHERE spatial.SpatialFPStruct.lat >= 34.0
    AND spatial.SpatialFPStruct.lon >= 4.0
 
 SELECT rpr.Aircraft
   FROM se.env
- WHERE forceIdentifier IN ("friendly", "neutral", "opposing") 
+ WHERE forceIdentifier IN ("friendly", "neutral", "opposing")
    AND (isActive OR spatial.SpatialFPStruct.lon < 1.0)
 
 SELECT se.Aircraft
 FROM   se.env
-WHERE  currentSpeed BETWEEN commandedSpeed - 10.0 AND 
+WHERE  currentSpeed BETWEEN commandedSpeed - 10.0 AND
                             commandedSpeed + 10.0
 ```
 

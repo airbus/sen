@@ -123,7 +123,7 @@ std::cout << "  indexed objects: " << summary.indexedObjectCount << "\n";
 for(auto cursor = input.begin(); !cursor.atEnd(); cursor++)
 {
     std::cout << " time: " << cursor.get().time.toLocalString() << "\n";
-    
+
     // use the data of the entry
     std::visit(sen::Overloaded {[](const PropertyChange& /*val*/) { },
                                 [](const Event& /*val*/) { },

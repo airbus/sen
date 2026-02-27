@@ -114,16 +114,16 @@ class KernelApi
 {
   // kernel build information
   var buildInfo : BuildInfo [static];
-  
+
   // requests the kernel to shut down
   fn shutdown();
-  
+
   // registered units
   fn getUnits() -> UnitList [const];
-  
+
   // registered types, by name
   fn getTypes() -> StringList [const];
-  
+
   // configuration of the kernel execution
   fn getConfig() -> KernelParams [const];
 }

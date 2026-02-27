@@ -8,7 +8,7 @@ You can enable it by adding this to your configuration file:
 kernel:
   runMode: virtualTime
   clockMaster: true
-  
+
 # ... rest of the configuration file
 ```
 
@@ -20,7 +20,7 @@ kernel:
   runMode: virtualTime
   clockMaster: true
   clockBus: se.clocks
-  
+
 # ... rest of the configuration file
 ```
 
@@ -59,7 +59,7 @@ kernel:
   clockMaster: true
 ```
 
-We use the kernel clock to step the time and monitor one object (with the explorer). You can see how the 
+We use the kernel clock to step the time and monitor one object (with the explorer). You can see how the
 properties change and the plot gets updated.
 
 ## Advancing large chunks of time

@@ -81,7 +81,7 @@ void sen::VariantTraits<{{ qualType }}>::valueToVariant(const {{ qualType }}& va
 }
 
 void sen::VariantTraits<{{ qualType }}>::variantToValue(const ::sen::Var& var, {{ qualType }}& val)
-{  
+{
   const auto tuple = var.getIf<::sen::KeyedVar>();
   if (tuple != nullptr)
   {
@@ -165,7 +165,7 @@ std::function<::sen::lang::Value(const void*)> sen::VariantTraits<{{ qualType }}
     "{{ name }}",
     "{{ senQual }}",
     "{{ description }}",
-    { 
+    {
 ## for f in fields
       { {{ f.key }}U, "{{ f.description }}", ::sen::MetaTypeTrait<{{ f.qualType }}>::meta() }{% if loop.index1 < length(fields) %}, {% endif %}  // NOLINT
 ## endfor

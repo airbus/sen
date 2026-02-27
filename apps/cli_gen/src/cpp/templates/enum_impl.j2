@@ -16,9 +16,9 @@ std::ostream& operator<<(std::ostream& out, {{ name }} val)
 std::string_view sen::StringConversionTraits<{{ qualType }}>::toString({{ qualType }} val)
 {
   switch(val)
-  { 
+  {
 ## for e in enums
-    case {{ qualType }}::{{ e.name }}: return "{{ e.name }}"; 
+    case {{ qualType }}::{{ e.name }}: return "{{ e.name }}";
 ## endfor
   }
   ::sen::throwRuntimeError("invalid enum {{ qualType }} value");
@@ -45,7 +45,7 @@ std::string_view sen::toString({{ qualType }} value)
     "{{ name }}",
     "{{ senQual }}",
     "{{ description }}",
-    { 
+    {
 ## for e in enums
       { "{{ e.name }}", {{ e.key }}U, "{{ e.description }}" }{% if loop.index1 < length(enums) %}, {% endif %}  // NOLINT
 ## endfor

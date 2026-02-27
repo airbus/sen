@@ -27,9 +27,9 @@ This will force us to implement a method that, instead of returning a value, rec
 that we can set whenever we want. In the case of the regular worker, we do the following:
 
 ```c++
-void FibonacciWorker::computeFibonacciImpl(uint32_t n, std::promise<uint64_t>&& promise) override 
-{ 
-  promise.set_value(fibonacci(n)); 
+void FibonacciWorker::computeFibonacciImpl(uint32_t n, std::promise<uint64_t>&& promise) override
+{
+  promise.set_value(fibonacci(n));
 }
 ```
 
@@ -90,4 +90,3 @@ You ask the `Worker` for computing _n_ Fibonacci number by:
 ```
 my.tutorial.fibWorker.computeFibonacci 8
 ```
-

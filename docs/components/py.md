@@ -371,9 +371,9 @@ load:
 
 ```
 ./sen run test.yaml
-    _________  __ 
+    _________  __
    / __/ __/ |/ /          compiler GNU-11.4.0 [mode: debug]
-  _\ \/ __/    /           revision 57a86bb1d7ebcd781bb034d73642dde198e69fde 
+  _\ \/ __/    /           revision 57a86bb1d7ebcd781bb034d73642dde198e69fde
  /___/___/_/|_/   0.0.1    branch   refs/heads/master [modified]
 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 

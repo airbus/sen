@@ -53,7 +53,7 @@ struct CPrint
 }
 
 struct Print
-{  
+{
   text : string
 }
 

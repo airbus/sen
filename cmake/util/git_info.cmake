@@ -233,7 +233,7 @@ function(get_version_from_git version_output_variable)
     if(res EQUAL 0)
 
       string(FIND ${out} "." dot_found)
-      if (dot_found EQUAL -1)
+      if(dot_found EQUAL -1)
         set(${version_output_variable}
             ${fallback_version}
             PARENT_SCOPE
@@ -242,9 +242,9 @@ function(get_version_from_git version_output_variable)
         # Split of major.minor.patch
         string(
           REPLACE "-"
-          ";"
-          out
-          ${out}
+                  ";"
+                  out
+                  ${out}
         )
 
         list(
@@ -254,10 +254,10 @@ function(get_version_from_git version_output_variable)
           out
         )
         set(${version_output_variable}
-          ${out}
-          PARENT_SCOPE
+            ${out}
+            PARENT_SCOPE
         )
-      endif ()
+      endif()
 
     else()
       set(${version_output_variable}

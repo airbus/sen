@@ -174,17 +174,17 @@ SEN_EXPORT_CLASS(MyClassImpl) // (1)!
 
 ```{ .yaml .annotate }
 load:
-  - name: shell # (1)! 
-    group: 2    # (2)! 
-    open: [local.example]  # (3)! 
+  - name: shell # (1)!
+    group: 2    # (2)!
+    open: [local.example]  # (3)!
 
 build:
-  - name: myComponent    # (4)! 
+  - name: myComponent    # (4)!
     freqHz: 30
     group: 3
     imports: [my_package] # (5)!
     objects:
-      - class: my_package.MyClassImpl # (6)! 
+      - class: my_package.MyClassImpl # (6)!
         name: myObject
         prop1: some value # (7)!
         bus: local.example # (8)!

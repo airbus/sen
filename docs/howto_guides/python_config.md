@@ -128,8 +128,8 @@ ether = {
 }
 
 myComponent = {
-    'name': 'myComponent', 
-    'group': 4, 
+    'name': 'myComponent',
+    'group': 4,
     'freqHz': 60,
     'imports': ['myPackage'],
     'objects': [myObject]

@@ -16,7 +16,7 @@ In CMake you can do as follows to generate C++ code:
 
 ```cmake
 sen_generate_cpp(
-  TARGET 
+  TARGET
     fom_lib
   HLA_FOM_DIRS
     rpr
