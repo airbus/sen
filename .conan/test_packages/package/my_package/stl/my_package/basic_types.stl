@@ -81,4 +81,3 @@ quantity<u16, u16> UnitlessQuantity [min: 0, max: 511];
 
 // Optional
 optional<f32> MaybeFloat;
-

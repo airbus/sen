@@ -90,4 +90,3 @@ You ask the `Worker` for computing _n_ Fibonacci number by:
 ```
 my.tutorial.fibWorker.computeFibonacci 8
 ```
-

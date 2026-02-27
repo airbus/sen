@@ -11,4 +11,3 @@ docker run -d \
   -v $PWD/grafana:/usr/share/grafana/data \
   --name datavis \
   grafana
-

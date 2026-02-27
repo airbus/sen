@@ -20,4 +20,3 @@ BASE_PATH ${_sen_replayer_base_path}
 STL_FILES ${_sen_replayer_stl_files}
 DEPS sen::db
 )
-
