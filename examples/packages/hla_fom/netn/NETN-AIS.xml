@@ -216,8 +216,8 @@ The NETN-AIS FOM module content is based on ITU-R M.1371-5, Technical characteri
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 1: Position Report Class A.
-
+                                <semantics>Message Type 1: Position Report Class A. 
+ 
 Message type for a scheduled position report; Class A shipborne mobile equipment. This message transmits information pertaining to a ships navigation: Longitude and latitude, time, heading, speed, ships navigation status (under power, at anchor...). This message is transmitted every 2 to 10 seconds while underway, and every 3 minutes while at anchor.</semantics>
                             </interactionClass>
                             <interactionClass>
@@ -225,8 +225,8 @@ Message type for a scheduled position report; Class A shipborne mobile equipment
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 2: Position Report Class A.
-
+                                <semantics>Message Type 2: Position Report Class A. 
+ 
 Message type for an assigned scheduled position report; Class A shipborne mobile equipment. This message transmits information pertaining to a ships navigation: Longitude and latitude, time, heading, speed, ships navigation status (under power, at anchor...). This message is transmitted every 2 to 10 seconds while underway, and every 3 minutes while at anchor.</semantics>
                             </interactionClass>
                             <interactionClass>
@@ -234,8 +234,8 @@ Message type for an assigned scheduled position report; Class A shipborne mobile
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 3: Position Report Class A.
-
+                                <semantics>Message Type 3: Position Report Class A. 
+ 
 Message type for a special position report, response to interrogation; Class A shipborne mobile equipment. This message transmits information pertaining to a ships navigation: Longitude and latitude, time, heading, speed, ships navigation status (under power, at anchor...). This message is transmitted every 2 to 10 seconds while underway, and every 3 minutes while at anchor.</semantics>
                             </interactionClass>
                         </interactionClass>
@@ -260,8 +260,8 @@ Message type for a special position report, response to interrogation; Class A s
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 4: Base Station Report.
-
+                                <semantics>Message Type 4: Base Station Report. 
+ 
 This message is to be used by fixed-location base stations to periodically report a position and time reference.</semantics>
                             </interactionClass>
                             <interactionClass>
@@ -269,8 +269,8 @@ This message is to be used by fixed-location base stations to periodically repor
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 11: UTC/Date Response.
-
+                                <semantics>Message Type 11: UTC/Date Response. 
+ 
 Identical to Message Type 4, with the semantics of a response to inquiry. This message type is only transmitted from a mobile station as a result of a UTC request message (Message Type 10).</semantics>
                             </interactionClass>
                         </interactionClass>
@@ -320,8 +320,8 @@ Identical to Message Type 4, with the semantics of a response to inquiry. This m
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 5: Static and Voyage Related Data.
-
+                                <semantics>Message Type 5: Static and Voyage Related Data. 
+ 
 This message type is transmitted every 6 minutes and should only be used by Class A shipborne and SAR aircraft AIS stations when reporting static or voyage related data.</semantics>
                                 <parameter>
                                     <name>IMO</name>
@@ -331,7 +331,7 @@ This message type is transmitted every 6 minutes and should only be used by Clas
                                 <parameter>
                                     <name>ETAtime</name>
                                     <dataType>EpochTimeSecInt64</dataType>
-                                    <semantics>Optional (Default: not available). Estimated time of arrival. Not applicable to SAR aircraft.
+                                    <semantics>Optional (Default: not available). Estimated time of arrival. Not applicable to SAR aircraft. 
 If a zero value is provided then this shall be interpreted as not available.</semantics>
                                 </parameter>
                                 <parameter>
@@ -350,8 +350,8 @@ If a zero value is provided then this shall be interpreted as not available.</se
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 19: Extended Class B CS Position Report.
-
+                                <semantics>Message Type 19: Extended Class B CS Position Report. 
+ 
 A slightly more detailed report than Message Type 18 for vessels using Class B transmitters. Omits navigational status and rate of turn. Fields are as in the common navigation block and the Message Type 5 message.</semantics>
                                 <parameter>
                                     <name>SpeedOverGround</name>
@@ -384,8 +384,8 @@ A slightly more detailed report than Message Type 18 for vessels using Class B t
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 24: Static Data Report.
-
+                                <semantics>Message Type 24: Static Data Report. 
+ 
 Equivalent of Message Type 5 for ships using Class B equipment. Also used to associate an MMSI with a name on either class A or class B equipment. This message type may be in part A or part B format. According to the standard, parts A and B are expected to be broadcast in adjacent pairs.</semantics>
                                 <parameter>
                                     <name>PartNumber</name>
@@ -414,8 +414,8 @@ Equivalent of Message Type 5 for ships using Class B equipment. Also used to ass
                             <sharing>Subscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Binary Payload for Message Types 6 and 8. The interpretation of the binary payload is controlled by:
-- The Designated Area Code (DAC), which is a jurisdiction code: 366 for the United States. It uses the same encoding as the area designator in MMMSIs; see [ITU-MID]. 1 designates international (ITU) messages.
+                            <semantics>Binary Payload for Message Types 6 and 8. The interpretation of the binary payload is controlled by: 
+- The Designated Area Code (DAC), which is a jurisdiction code: 366 for the United States. It uses the same encoding as the area designator in MMMSIs; see [ITU-MID]. 1 designates international (ITU) messages. 
 - The FID, which is the Functional ID for a message subtype. In some sources this is abbreviated FI.</semantics>
                             <parameter>
                                 <name>DesignatedAreaCode</name>
@@ -437,8 +437,8 @@ Equivalent of Message Type 5 for ships using Class B equipment. Also used to ass
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 6: Binary Addressed Message.
-
+                                <semantics>Message Type 6: Binary Addressed Message. 
+ 
 This message type is an addressed point-to-point message with a binary payload.</semantics>
                                 <parameter>
                                     <name>Destination</name>
@@ -451,8 +451,8 @@ This message type is an addressed point-to-point message with a binary payload.<
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 8: Binary Broadcast Message.
-
+                                <semantics>Message Type 8: Binary Broadcast Message. 
+ 
 This message type is a broadcast message with a binary payload.</semantics>
                             </interactionClass>
                         </interactionClass>
@@ -487,8 +487,8 @@ This message type is a broadcast message with a binary payload.</semantics>
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 7: Binary Acknowledge.
-
+                                <semantics>Message Type 7: Binary Acknowledge. 
+ 
 This message type is a receipt acknowledgement to the senders of a previous messages of Message Type 6. Up to 4 destination MMSIs can be acknowledged in one message.</semantics>
                             </interactionClass>
                             <interactionClass>
@@ -496,8 +496,8 @@ This message type is a receipt acknowledgement to the senders of a previous mess
                                 <sharing>PublishSubscribe</sharing>
                                 <transportation>HLAreliable</transportation>
                                 <order>Receive</order>
-                                <semantics>Message Type 13: Safety-Related Acknowledgement.
-
+                                <semantics>Message Type 13: Safety-Related Acknowledgement. 
+ 
 This message type is a receipt acknowledgement to senders of previous messages of Message Type 12.</semantics>
                             </interactionClass>
                         </interactionClass>
@@ -506,8 +506,8 @@ This message type is a receipt acknowledgement to senders of previous messages o
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Message type 9: Standard SAR Aircraft Position Report.
-
+                            <semantics>Message type 9: Standard SAR Aircraft Position Report. 
+ 
 Tracking information for search-and-rescue aircraft.</semantics>
                             <parameter>
                                 <name>Altitude</name>
@@ -540,8 +540,8 @@ Tracking information for search-and-rescue aircraft.</semantics>
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Message Type 10: UTC/Date Inquiry.
-
+                            <semantics>Message Type 10: UTC/Date Inquiry. 
+ 
 Request for UTC/Date information from an AIS base station.</semantics>
                             <parameter>
                                 <name>Destination</name>
@@ -554,8 +554,8 @@ Request for UTC/Date information from an AIS base station.</semantics>
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Type 12: Addressed Safety-Related Message.
-
+                            <semantics>Type 12: Addressed Safety-Related Message. 
+ 
 This is a point-to-point text message. The payload is interpreted as six-bit text.</semantics>
                             <parameter>
                                 <name>Destination</name>
@@ -573,8 +573,8 @@ This is a point-to-point text message. The payload is interpreted as six-bit tex
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Type 14: Safety-Related Broadcast Message.
-
+                            <semantics>Type 14: Safety-Related Broadcast Message. 
+ 
 This is a broadcast text message. The payload is interpreted as six-bit text.</semantics>
                             <parameter>
                                 <name>Message</name>
@@ -587,8 +587,8 @@ This is a broadcast text message. The payload is interpreted as six-bit text.</s
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Message Type 17: DGNSS Broadcast Binary Message.
-
+                            <semantics>Message Type 17: DGNSS Broadcast Binary Message. 
+ 
 This message type is used to broadcast differential corrections for GPS.</semantics>
                             <parameter>
                                 <name>Position</name>
@@ -601,8 +601,8 @@ This message type is used to broadcast differential corrections for GPS.</semant
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Message Type 18: Standard Class B CS Position Report.
-
+                            <semantics>Message Type 18: Standard Class B CS Position Report. 
+ 
 A less detailed report than message types 1-3 for vessels using Class B transmitters. Omits navigational status and rate of turn.</semantics>
                             <parameter>
                                 <name>SpeedOverGround</name>
@@ -635,8 +635,8 @@ A less detailed report than message types 1-3 for vessels using Class B transmit
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Message Type 21: Aid-to-Navigation Report.
-
+                            <semantics>Message Type 21: Aid-to-Navigation Report. 
+ 
 Identification and location message to be emitted by aids to navigation such as buoys and lighthouses.</semantics>
                             <parameter>
                                 <name>AidType</name>
@@ -694,8 +694,8 @@ Identification and location message to be emitted by aids to navigation such as 
                             <sharing>PublishSubscribe</sharing>
                             <transportation>HLAreliable</transportation>
                             <order>Receive</order>
-                            <semantics>Message Type 27: Long Range AIS Broadcast message.
-
+                            <semantics>Message Type 27: Long Range AIS Broadcast message. 
+ 
 This message type is primarily intended for long-range detection of AIS Class A equipped vessels (typically by satellite). This message has a similar content to Messages 1, 2 and 3, but the total number of bits has been compressed to allow for increased propagation delays associated with long-range detection.</semantics>
                             <parameter>
                                 <name>NavigationStatus</name>
@@ -730,8 +730,8 @@ This message type is primarily intended for long-range detection of AIS Class A 
                         <sharing>PublishSubscribe</sharing>
                         <transportation>HLAreliable</transportation>
                         <order>Receive</order>
-                        <semantics>Tasks entity (the source) to send a safety related message (AIS message type 12) to another entity (the destination).
-
+                        <semantics>Tasks entity (the source) to send a safety related message (AIS message type 12) to another entity (the destination). 
+ 
 Both source and destination must represent an AIS station (vessel, SAR aircraft, etc).</semantics>
                         <parameter>
                             <name>Entity</name>
@@ -749,8 +749,8 @@ Both source and destination must represent an AIS station (vessel, SAR aircraft,
                         <sharing>PublishSubscribe</sharing>
                         <transportation>HLAreliable</transportation>
                         <order>Receive</order>
-                        <semantics>Tasks entity (the source) to send a safety related broadcast message (AIS message type 14).
-
+                        <semantics>Tasks entity (the source) to send a safety related broadcast message (AIS message type 14). 
+ 
 The source must represent an AIS station (vessel, SAR aircraft, etc).</semantics>
                         <parameter>
                             <name>Message</name>
@@ -810,10 +810,10 @@ The source must represent an AIS station (vessel, SAR aircraft, etc).</semantics
                 <units>NA</units>
                 <resolution>NA</resolution>
                 <accuracy>NA</accuracy>
-                <semantics>A 30 bits value. The International Maritime Organization (IMO) number is a unique identifier for vessels. See https://www.itu.int/en/ITU-R.
-
-The IMO number is made of the three letters "IMO" followed by a seven-digit number. This number consists of a six-digit sequential unique number followed by a check digit. The integrity of an IMO number can be verified using its check digit.This is done by multiplying each of the first six digits by a factor of 2 to 7 corresponding to their position from right to left. The rightmost digit of this sum is the check digit. For example, for IMO 9074729: (9×7) + (0×6) + (7×5) + (4×4) + (7×3) + (2×2) = 139.
-
+                <semantics>A 30 bits value. The International Maritime Organization (IMO) number is a unique identifier for vessels. See https://www.itu.int/en/ITU-R. 
+ 
+The IMO number is made of the three letters "IMO" followed by a seven-digit number. This number consists of a six-digit sequential unique number followed by a check digit. The integrity of an IMO number can be verified using its check digit.This is done by multiplying each of the first six digits by a factor of 2 to 7 corresponding to their position from right to left. The rightmost digit of this sum is the check digit. For example, for IMO 9074729: (9×7) + (0×6) + (7×5) + (4×4) + (7×3) + (2×2) = 139. 
+ 
 This attribute represents the 7 digits value of the IMO number. The value shall be zero for not available (default). The value shall also be zero for inland vessels.</semantics>
             </simpleData>
             <simpleData>

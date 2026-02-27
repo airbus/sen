@@ -37,3 +37,6 @@ repos:
   rev: v0.6.13
   hooks:
     - id: cmake-format
+
+# Global Configuration
+exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*)
