@@ -25,7 +25,6 @@ repos:
     - id: check-json
     - id: check-added-large-files
     - id: check-toml
-    #- id: check-yaml
     - id: check-xml
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
@@ -38,4 +37,3 @@ repos:
   rev: v0.6.13
   hooks:
     - id: cmake-format
-    #  - id: cmake-lint
