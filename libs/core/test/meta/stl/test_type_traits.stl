@@ -19,7 +19,7 @@ struct MyStruct2
   field2 : f32,
 }
 
-class ClassWithoutTemplatedBase 
+class ClassWithoutTemplatedBase
 {
 }
 

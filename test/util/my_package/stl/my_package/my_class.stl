@@ -8,7 +8,7 @@ class MyClass
   // does not change
   var prop1 : string [static];
 
-  // can be set by others  
+  // can be set by others
   var prop2 : StructOfInts [writable];
 
   // goes over tcp, settable
@@ -46,7 +46,7 @@ class MyClass
 
   // this method returns "a + b"
   fn addNumbers(a: i32, b: i32) -> i32;
-    
+
   // this method returns message
   fn echo(message: string) -> string;
 
@@ -58,7 +58,7 @@ class MyClass
 
   // fired when something happened
   event somethingHappened();
-  
+
   // fired when something else happened
   event somethingElseHappened(arg: i32) [confirmed];
 

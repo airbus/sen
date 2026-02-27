@@ -641,8 +641,8 @@ More user-supplied information may be included, starting from the 9th character,
             <fixedRecordData>
                 <name>ArticulatedParameterStruct</name>
                 <encoding>HLAfixedRecord</encoding>
-                <semantics>Structure to specify a movable or attached part of an entity. Based on the Articulation Parameter record as specified in IEEE 1278.1-1995 section 5.2.5. 
- 
+                <semantics>Structure to specify a movable or attached part of an entity. Based on the Articulation Parameter record as specified in IEEE 1278.1-1995 section 5.2.5.
+
 Note that usage of this datatype for the PhyscialEntity object class attribute ArticulatedParametersArray and MunitionDetonation interaction class parameter ArticulatedPartData shall be in accordance with IEEE 1278.1-1995 Annex A.</semantics>
                 <field>
                     <name>ArticulatedParameterChange</name>
@@ -1301,8 +1301,8 @@ Note that usage of this datatype for the PhyscialEntity object class attribute A
     <notes>
         <note>
             <label>RPRnoteBase1</label>
-            <semantics>Federates shall send the time at which the data is valid in the user defined tag with every attribute values update and interaction. The time shall be in the first 8 bytes (octets) of the user defined tag, using the DIS timestamp field format (see section 5.2.31 of IEEE 1278.1-1995) converted into hexadecimal ASCII character representation (0-9 and A-F). The ordering of the characters shall be in accordance with section 5.1.1 of IEEE 1278.1-1995, that is most significant octet first, with the most significant bits first (i.e. the character for bits 4-7 precedes the character for bits 0-3). 
- 
+            <semantics>Federates shall send the time at which the data is valid in the user defined tag with every attribute values update and interaction. The time shall be in the first 8 bytes (octets) of the user defined tag, using the DIS timestamp field format (see section 5.2.31 of IEEE 1278.1-1995) converted into hexadecimal ASCII character representation (0-9 and A-F). The ordering of the characters shall be in accordance with section 5.1.1 of IEEE 1278.1-1995, that is most significant octet first, with the most significant bits first (i.e. the character for bits 4-7 precedes the character for bits 0-3).
+
 All federates shall transmit this field, even if they do not use it themselves, so that other federates can use its value to compensate for network transport delays.</semantics>
         </note>
         <note>
@@ -1323,7 +1323,7 @@ All federates shall transmit this field, even if they do not use it themselves, 
         </note>
         <note>
             <label>RPRnoteBase6</label>
-            <semantics>This note applies when this datatype is used within the BaseEntity.IsPartOf attribute. 
+            <semantics>This note applies when this datatype is used within the BaseEntity.IsPartOf attribute.
 The following StationName enumerations - On station RNG/BRG (15) and On station - x,y,z (16), are optional to transmit along with associated RelativeLocation or RelativeRangeAndBearing information. If these enumeration values (15) and (16) are received, they shall be ignored. The RelativeSpatial attribute shall be used in all cases. (Note: Although the RelativeLocation field uses the same WorldLocation contained in the RelativeSpatial attribute, in both these cases, the values do not represent a location in world coordinates, but, rather, the relative location of a part entity to the host entity in the referenced entity coordinate system. The RelativeRangeAndBearing field does not provide full relative spatial data and, therefore, cannot be substituted for the RelativeSpatial attribute.)</semantics>
         </note>
         <note>
@@ -1332,43 +1332,43 @@ The following StationName enumerations - On station RNG/BRG (15) and On station 
         </note>
         <note>
             <label>RPRnoteBase8</label>
-            <semantics>The TSPI_Change condition shall be evaluated as follows: The owner of a base entity object shall maintain two state models of the object in support of the dead reckoning process. One model shall be the internal model used by the simulation application to represent that object. The other shall be a dead reckoning model of the object. Certain thresholds shall be established as criteria for determining if the object's actual TSPI data has varied by an allowable amount from the dead reckoned TSPI data. TSPI_Change is TRUE when either: 
-a) the objects actual position differs from the dead reckoned position by more than DRA_POS_THRSH_DFLT 
-b) the objects actual orientation differs from the dead reckoned orientation by more than DRA_ORIENT_THRSH_DFLT 
+            <semantics>The TSPI_Change condition shall be evaluated as follows: The owner of a base entity object shall maintain two state models of the object in support of the dead reckoning process. One model shall be the internal model used by the simulation application to represent that object. The other shall be a dead reckoning model of the object. Certain thresholds shall be established as criteria for determining if the object's actual TSPI data has varied by an allowable amount from the dead reckoned TSPI data. TSPI_Change is TRUE when either:
+a) the objects actual position differs from the dead reckoned position by more than DRA_POS_THRSH_DFLT
+b) the objects actual orientation differs from the dead reckoned orientation by more than DRA_ORIENT_THRSH_DFLT
 See section 5.1.4 of IEEE 1278.1-1995 for the value of these symbolic constants.</semantics>
         </note>
         <note>
             <label>RPRnoteBase9</label>
-            <semantics>The values of the default update conditions are as follows: 
-DRA_POS_EPSILON_DFLT 0.001 m 
-DRA_ORIENT_EPSILON_DFLT 0.00001 rad 
-DRA_VEL_EPSILON_DFLT 0.001 m/s 
-DRA_ACCEL_EPSILON_DFLT 0.001 m/s/s 
+            <semantics>The values of the default update conditions are as follows:
+DRA_POS_EPSILON_DFLT 0.001 m
+DRA_ORIENT_EPSILON_DFLT 0.00001 rad
+DRA_VEL_EPSILON_DFLT 0.001 m/s
+DRA_ACCEL_EPSILON_DFLT 0.001 m/s/s
 DRA_ANG_VEL_EPSILON_DFLT 0.00001 rad/s</semantics>
         </note>
         <note>
             <label>RPRnoteBase10</label>
-            <semantics notes="RPRnoteBase8 RPRnoteBase9">The update condition for the WorldLocation field is TRUE when TSPI_Change is TRUE and the actual position differs from the last transmitted position by more than a threshold value in any direction. 
+            <semantics notes="RPRnoteBase8 RPRnoteBase9">The update condition for the WorldLocation field is TRUE when TSPI_Change is TRUE and the actual position differs from the last transmitted position by more than a threshold value in any direction.
 The default threshold shall be DRA_POS_EPSILSON_DFLT.</semantics>
         </note>
         <note>
             <label>RPRnoteBase11</label>
-            <semantics notes="RPRnoteBase8 RPRnoteBase9">The update condition for the Orientation field is TRUE when TSPI_Change is TRUE and the actual orientation differs from the last transmitted orientation by more than a threshold value in any orientation. 
+            <semantics notes="RPRnoteBase8 RPRnoteBase9">The update condition for the Orientation field is TRUE when TSPI_Change is TRUE and the actual orientation differs from the last transmitted orientation by more than a threshold value in any orientation.
 The default threshold shall be DRA_ORIENT_EPSILON_DFLT.</semantics>
         </note>
         <note>
             <label>RPRnoteBase12</label>
-            <semantics notes="RPRnoteBase8 RPRnoteBase9">In case Dead Reckoning Algorithm FPW (2), RPW (3), RVW (4), FVW (5), FPB (6), RPB (7), RVB (8), or RVB (9) is used, the update condition for the VelocityVector field is TRUE when TSPI_Change is TRUE and the actual velocity differs from the last transmitted velocity by more than a threshold value in any direction. 
+            <semantics notes="RPRnoteBase8 RPRnoteBase9">In case Dead Reckoning Algorithm FPW (2), RPW (3), RVW (4), FVW (5), FPB (6), RPB (7), RVB (8), or RVB (9) is used, the update condition for the VelocityVector field is TRUE when TSPI_Change is TRUE and the actual velocity differs from the last transmitted velocity by more than a threshold value in any direction.
 The default threshold shall be DRA_VEL_EPSILON_DFLT.</semantics>
         </note>
         <note>
             <label>RPRnoteBase13</label>
-            <semantics notes="RPRnoteBase8 RPRnoteBase9">In case Dead Reckoning Algorithm RVW (4), FVW (5), RVB (8), or RVB (9) is used, the update condition for the AccelerationVector field is TRUE when TSPI_Change is TRUE and the actual acceleration differs from the last transmitted acceleration by more than a threshold value in any direction. 
+            <semantics notes="RPRnoteBase8 RPRnoteBase9">In case Dead Reckoning Algorithm RVW (4), FVW (5), RVB (8), or RVB (9) is used, the update condition for the AccelerationVector field is TRUE when TSPI_Change is TRUE and the actual acceleration differs from the last transmitted acceleration by more than a threshold value in any direction.
 The default threshold shall be DRA_ACCEL_EPSILON_DFLT.</semantics>
         </note>
         <note>
             <label>RPRnoteBase14</label>
-            <semantics notes="RPRnoteBase8 RPRnoteBase9">In case Dead Reckoning Algorithm RPW (3), RVW (4), RPB (7), or RVB (8) is used, the update condition for the VelocityVector field is TRUE when TSPI_Change is TRUE and the actual angular velocity differs from the last transmitted angular velocity by more than a threshold value in any direction. 
+            <semantics notes="RPRnoteBase8 RPRnoteBase9">In case Dead Reckoning Algorithm RPW (3), RVW (4), RPB (7), or RVB (8) is used, the update condition for the VelocityVector field is TRUE when TSPI_Change is TRUE and the actual angular velocity differs from the last transmitted angular velocity by more than a threshold value in any direction.
 The default threshold shall be DRA_ANG_VEL_EPSILON_DFLT.</semantics>
         </note>
         <note>

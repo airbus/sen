@@ -63,10 +63,10 @@ conan config install -tf profiles .conan/profiles/<profile>
     ```ini
     [requires]
     sen/1.0.0
-    
+
     [layout]
     cmake_layout
-    
+
     [generators]
     CMakeToolchain
     CMakeDeps
@@ -77,17 +77,17 @@ conan config install -tf profiles .conan/profiles/<profile>
     ```python
     from conan import ConanFile
     from conan.tools.cmake import CMake, cmake_layout
-    
+
     class ProjectConfig(ConanFile):
         settings = "os", "arch", "compiler", "build_type"
         generators = "CMakeDeps", "CMakeToolchain"
-    
+
         def requirements(self):
             self.requires("sen/x.y.z")
-    
+
         def layout(self):
             cmake_layout(self)
-    
+
         def build(self):
             cmake = CMake(self)
             cmake.configure()
@@ -150,39 +150,39 @@ wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
 ??? note "Example"
 
     The process should look more or less like this:
-    
+
     ```sh
     $ wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
-    
+
     Sen installer script
-    
+
     Configuration
     > Version:    x.y.z
     > Platform:   linux-x86_64
     > Directory:  /home/<user name>/.sen
     > Build:      release
     > Compiler:   All
-    
+
     ? Install Sen x.y.z to /home/<user name>/.sen? [y/N] y
-    
+
     Installation
     ✓ Downloaded sen-x.y.z-x86_64-linux-gnu-a.b.c-release.
     ✓ Unpacked.
-    
+
     > Setup your fish environment with:
       source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
     ```
-    
+
     The installation will create a script that you can use to set up your environment.
     For example:
-    
+
     ```sh
     $ source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
     > environment configured for sen-x.y.z-x86_64-linux-gnu-a.b.c-release
     ```
-    
+
     You should be able to do this now:
-    
+
     ```text
     $ sen --version
     x.y.z

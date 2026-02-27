@@ -69,7 +69,7 @@ classDiagram
     }
     class DeadReckonerTemplateBase~T~ {
         #extrapolate(SpatialVariant) Situation
-    } 
+    }
     class DeadReckoner~T~ {
         +situation(timeStamp) override Situation
         +geodeticSituation(timeStamp) override GeodeticSituation
@@ -448,10 +448,10 @@ sequenceDiagram
     User->>SettableDeadReckoner: setSpatial(situation)
     User->>SettableDeadReckoner: setSpatial(situation)
     User->>SettableDeadReckoner: setSpatial(situation)
-    SettableDeadReckoner->>BaseEntityBase: setNextSpatial(value) 
+    SettableDeadReckoner->>BaseEntityBase: setNextSpatial(value)
     User->>SettableDeadReckoner: setSpatial(situation)
     User->>SettableDeadReckoner: setSpatial(situation)
-    SettableDeadReckoner->>BaseEntityBase: setNextSpatial(value) 
+    SettableDeadReckoner->>BaseEntityBase: setNextSpatial(value)
 ```
 
 You can see the functionality of the `SettableDeadReckoner<T>` in the diagram above. The

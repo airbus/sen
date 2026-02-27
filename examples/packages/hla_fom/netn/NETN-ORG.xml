@@ -878,7 +878,7 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
                 <field>
                     <name>EntityType</name>
                     <dataType>EntityTypeStruct</dataType>
-                    <semantics>DIS enumeration. 
+                    <semantics>DIS enumeration.
 Use 0.0.0.0.0.0.0 when not defined.</semantics>
                 </field>
                 <field>
@@ -979,22 +979,22 @@ Use 0.0.0.0.0.0.0 when not defined.</semantics>
                 <field>
                     <name>EvaluationRating</name>
                     <dataType>Text2</dataType>
-                    <semantics>A text amplifier for units, equipment and installations that consists of a one-letter reliability rating and a one-number credibility rating. 
- 
-Reliability Ratings: 
-A-completely reliable 
-B-usually reliable 
-C-fairly reliable 
-D-not usually reliable 
-E-unreliable 
-F-reliability cannot be judged 
- 
-Credibility Ratings: 
-1-confirmed by other sources 
-2-probably true 
-3-possibly true 
-4-doubtfully true 
-5-improbable 
+                    <semantics>A text amplifier for units, equipment and installations that consists of a one-letter reliability rating and a one-number credibility rating.
+
+Reliability Ratings:
+A-completely reliable
+B-usually reliable
+C-fairly reliable
+D-not usually reliable
+E-unreliable
+F-reliability cannot be judged
+
+Credibility Ratings:
+1-confirmed by other sources
+2-probably true
+3-possibly true
+4-doubtfully true
+5-improbable
 6-truth cannot be judged.</semantics>
                 </field>
                 <field>
@@ -1050,22 +1050,22 @@ Credibility Ratings:
                 <field>
                     <name>EvaluationRating</name>
                     <dataType>Text2</dataType>
-                    <semantics>A text amplifier for units, equipment and installations that consists of a one-letter reliability rating and a one-number credibility rating. 
- 
-Reliability Ratings: 
-A-completely reliable 
-B-usually reliable 
-C-fairly reliable 
-D-not usually reliable 
-E-unreliable 
-F-reliability cannot be judged 
- 
-Credibility Ratings: 
-1-confirmed by other sources 
-2-probably true 
-3-possibly true 
-4-doubtfully true 
-5-improbable 
+                    <semantics>A text amplifier for units, equipment and installations that consists of a one-letter reliability rating and a one-number credibility rating.
+
+Reliability Ratings:
+A-completely reliable
+B-usually reliable
+C-fairly reliable
+D-not usually reliable
+E-unreliable
+F-reliability cannot be judged
+
+Credibility Ratings:
+1-confirmed by other sources
+2-probably true
+3-possibly true
+4-doubtfully true
+5-improbable
 6-truth cannot be judged.</semantics>
                 </field>
                 <field>
@@ -1141,22 +1141,22 @@ Credibility Ratings:
                 <field>
                     <name>EvaluationRating</name>
                     <dataType>Text2</dataType>
-                    <semantics>A text amplifier for units, equipment and installations that consists of a one-letter reliability rating and a one-number credibility rating. 
- 
-Reliability Ratings: 
-A-completely reliable 
-B-usually reliable 
-C-fairly reliable 
-D-not usually reliable 
-E-unreliable 
-F-reliability cannot be judged 
- 
-Credibility Ratings: 
-1-confirmed by other sources 
-2-probably true 
-3-possibly true 
-4-doubtfully true 
-5-improbable 
+                    <semantics>A text amplifier for units, equipment and installations that consists of a one-letter reliability rating and a one-number credibility rating.
+
+Reliability Ratings:
+A-completely reliable
+B-usually reliable
+C-fairly reliable
+D-not usually reliable
+E-unreliable
+F-reliability cannot be judged
+
+Credibility Ratings:
+1-confirmed by other sources
+2-probably true
+3-possibly true
+4-doubtfully true
+5-improbable
 6-truth cannot be judged.</semantics>
                 </field>
                 <field>

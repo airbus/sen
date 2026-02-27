@@ -1777,12 +1777,12 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
                 <dataType>HLAbyte</dataType>
                 <cardinality>16</cardinality>
                 <encoding>HLAfixedArray</encoding>
-                <semantics>Deprecated. 
- 
-UUIDs are exchanged as a byte array and are encoded according to RFC 
- 
-4122, section 4.1.2 using 16 bytes. Also referred to as Variant 1 or RFC 4122/DCE 1.1 UUIDs. 
- 
+                <semantics>Deprecated.
+
+UUIDs are exchanged as a byte array and are encoded according to RFC
+
+4122, section 4.1.2 using 16 bytes. Also referred to as Variant 1 or RFC 4122/DCE 1.1 UUIDs.
+
 For example, 00112233-4455-8877-6699-aabbccddeeff is encoded as the bytes 00 11 22 33 44 55 88 77 66 99 aa bb cc dd ee ff.</semantics>
             </arrayData>
             <arrayData>
@@ -1839,8 +1839,8 @@ For example, 00112233-4455-8877-6699-aabbccddeeff is encoded as the bytes 00 11 
                 <dataType>HLAbyte</dataType>
                 <cardinality>16</cardinality>
                 <encoding>HLAfixedArray</encoding>
-                <semantics>4122, section 4.1.2 using 16 bytes. Also referred to as Variant 1 or RFC 4122/DCE 1.1 UUIDs. 
- 
+                <semantics>4122, section 4.1.2 using 16 bytes. Also referred to as Variant 1 or RFC 4122/DCE 1.1 UUIDs.
+
 For example, 00112233-4455-8877-6699-aabbccddeeff is encoded as the bytes 00 11 22 33 44 55 88 77 66 99 aa bb cc dd ee ff.</semantics>
             </arrayData>
             <arrayData>
@@ -1981,8 +1981,8 @@ For example, 00112233-4455-8877-6699-aabbccddeeff is encoded as the bytes 00 11 
                     <enumerator>Waypoints</enumerator>
                     <name>Waypoints</name>
                     <dataType>ArrayOfWorldLocationStruct</dataType>
-                    <semantics>The path defined by waypoints, not necessarily registered in the federation execution as a NETN_GeoObject.Path. 
- 
+                    <semantics>The path defined by waypoints, not necessarily registered in the federation execution as a NETN_GeoObject.Path.
+
 The array can be empty (size=0).</semantics>
                 </alternative>
                 <alternative>

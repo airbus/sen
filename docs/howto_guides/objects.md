@@ -82,15 +82,15 @@ provide a callback. For example:
 ```c++ title="Calling a method"
   myObject->divideNumbers(2, 2, {this, [&](const auto& response)
   {
-    if (response) 
+    if (response)
     {
-      std::cout << response.getValue() << "\n"; 
+      std::cout << response.getValue() << "\n";
     }
     else
     {
       std::cout << "error\n";
-    } 
-  }}); 
+    }
+  }});
 ```
 
 #### Handling responses and errors
@@ -106,7 +106,7 @@ fact that the method execution is finished (or detect any errors).
 if (result.isOk())
 {
   // it worked, do something with the return value
-  std::cout << result.getValue() << std::endl;  
+  std::cout << result.getValue() << std::endl;
 }
 else
 {
@@ -183,12 +183,12 @@ void divideNumbers(int32_t a, int32_t b, std::promise<int32_t> result)
   {
     if (theirResponse.isOk())
     {
-      ourResult.set_value(theirResponse.getValue()); 
+      ourResult.set_value(theirResponse.getValue());
     }
     else
     {
       ourResult.set_exception(theirResponse.getError());
-    } 
+    }
   }});
 }
 ```
@@ -310,7 +310,7 @@ auto bus = api.getSource(interest->getBusCondition().value());
 
 // create a container
 sen::ObjectList<sen::Object> objects;
-    
+
 // subscribe our container
 bus->addSubscriber(interest, &objects, true);
 ```

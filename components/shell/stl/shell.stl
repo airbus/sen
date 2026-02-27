@@ -62,13 +62,13 @@ class Shell
 
   // lists all the existing objects and sources.
   fn ls() [const];
-  
+
   // opens a source (bus or session) without any condition
   fn open(source: string);
 
   // opens a named source using a condition expression
   fn query(name: string, condition: string);
-  
+
   // closes a previously-opened source (session, bus or query)
   fn close(source: string);
 

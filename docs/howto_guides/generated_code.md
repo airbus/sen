@@ -32,7 +32,7 @@ If we take a look at the functions related to events:
 public: // MyClass event handlers
   ConnectionGuard onSomethingHappened(EventCallback<>&& callback) final;
   ConnectionGuard onSomethingElseHappened(EventCallback<i32>&& callback) final;
-  
+
 public: // MyClass events emission functions
   inline void somethingHappened(Emit mode = Emit::onCommit);
   inline void somethingElseHappened(i32 arg, Emit mode = Emit::onCommit);

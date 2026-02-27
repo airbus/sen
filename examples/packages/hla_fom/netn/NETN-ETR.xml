@@ -8,9 +8,9 @@
         <securityClassification>Not Classified</securityClassification>
         <purpose>The NETN ETR module provides a common standard interface for sending tasks to simulated entities represented in a federated distributed simulation. ETR contains common low level tasks that can easily be interpreted and executed by simulators that model the behavior of entities. It also defines a set of reports to provide status information, including the status of the tasks being executed by simulated entities.</purpose>
         <applicationDomain>Training</applicationDomain>
-        <description>	
-NATO Education and Training Network (NETN) Entity Tasking and Reports (ETR) Module. 
-        
+        <description>
+NATO Education and Training Network (NETN) Entity Tasking and Reports (ETR) Module.
+
 This module is a specification of how to represent simulation tasks requests provided to participants in a federated distributed simulation and simulator reports sent during the execution of tasks. The specification is based on IEEE 1516 High Level Architecture (HLA) Object Model Template (OMT) and primarily intended to support interoperability in a federated simulation (federation) based on HLA. An HLA OMT based Federation Object Model (FOM) is used to specify types of data and how it is encoded on the network. The NETN ETR FOM module is available as a XML file for use in HLA based federations.
         </description>
         <useLimitation> The NETN ETR FOM module is simulation oriented and focuses on tasks with a fine granularity: * It enables the transformation of command and control messages into tasks that can be executed by a simulator. * It defines status reports that can be used for producing command and control reports needed for decision making. * It supports the modelling of simulated command and control interactions between federates in a distributed simulation, for example during a MRM disaggregation process. * It contains a comprehensive set of tasks and reports that can easily be interpreted and executed by simulators. * It reflects the capabilities commonly found in COTS Computer Generated Forces (CGF) tools, but it is independent of a specific COTS CGF tool, agent framework, or agent modelling paradigm. * It is independent of any specific doctrine or tactics. An entity in ETR can be either a physical entity (e.g. platform or lifeform) or an aggregate entity. If a task or report relates to only a physical entity or to only an aggregate entity, then this is specified in the definition of the task. In the definition of each task it is not specified how an entity (physical or aggregate) will / should perform the task. 	</useLimitation>
@@ -1060,8 +1060,8 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
             <enumeratedData>
                 <name>MoveTypeEnum32</name>
                 <representation>HLAinteger32BE</representation>
-                <semantics>CrossCountry: move directly to the destination without taking into account the roads. 
-OnlyRoads: stay on the roads to get to the closest point to the destination that is still on a road; if there is no road very near to the start (within around 10 meters) there will be no movement at all. 
+                <semantics>CrossCountry: move directly to the destination without taking into account the roads.
+OnlyRoads: stay on the roads to get to the closest point to the destination that is still on a road; if there is no road very near to the start (within around 10 meters) there will be no movement at all.
 RoadsAndCrossCountry: move to the destination by taking into account the roads; it is allowed to go off the road.</semantics>
                 <enumerator>
                     <name>CrossCountry</name>
@@ -1100,10 +1100,10 @@ RoadsAndCrossCountry: move to the destination by taking into account the roads; 
             <enumeratedData>
                 <name>TaskModeEnum8</name>
                 <representation>HLAoctet</representation>
-                <semantics>Execute task in non-concurrent mode or concurrent mode. 
- 
-In the non-concurrent mode the task is placed on the task list for the entity, which serves as a waiting list. Once the task is at the head of the task list, and the currently executing task completes, it is removed from the task list and started. Using this task mode, tasks are executed one after the other. 
- 
+                <semantics>Execute task in non-concurrent mode or concurrent mode.
+
+In the non-concurrent mode the task is placed on the task list for the entity, which serves as a waiting list. Once the task is at the head of the task list, and the currently executing task completes, it is removed from the task list and started. Using this task mode, tasks are executed one after the other.
+
 In the concurrent mode, the task is executed concurrently with other tasks. As soon as the task is accepted for an entity, it is started. With this task mode, there is no task list involved.</semantics>
                 <enumerator>
                     <name>NonConcurrentMode</name>
@@ -1117,8 +1117,8 @@ In the concurrent mode, the task is executed concurrently with other tasks. As s
             <enumeratedData>
                 <name>PatrolTypeEnum32</name>
                 <representation>HLAinteger32BE</representation>
-                <semantics>Other - The behaviour is federate application specific (e.g. wait for next command, etc.) 
-Circle - At the end of route, move to start point of patrol route (federate application determines the route) 
+                <semantics>Other - The behaviour is federate application specific (e.g. wait for next command, etc.)
+Circle - At the end of route, move to start point of patrol route (federate application determines the route)
 Reverse - Follow the patrol route in reverse order.</semantics>
                 <enumerator>
                     <name>Other</name>
@@ -1136,7 +1136,7 @@ Reverse - Follow the patrol route in reverse order.</semantics>
             <enumeratedData>
                 <name>PatrolMoveTypeEnum32</name>
                 <representation>HLAinteger32BE</representation>
-                <semantics>Defines how the movment shall be done during the execution of the patrol. 
+                <semantics>Defines how the movment shall be done during the execution of the patrol.
 Other - Federate application specific.</semantics>
                 <enumerator>
                     <name>Other</name>
@@ -1210,7 +1210,7 @@ Other - Federate application specific.</semantics>
             <fixedRecordData>
                 <name>SpottedEntity</name>
                 <encoding>HLAfixedRecord</encoding>
-                <semantics>Descripton of the observed entity. 
+                <semantics>Descripton of the observed entity.
 The symbol contains information about the spotted entity's relation to the spotter and details about the type and echelon at the spotted entity.</semantics>
                 <field>
                     <name>SpottedEntity</name>
@@ -1230,30 +1230,30 @@ The symbol contains information about the spotted entity's relation to the spott
                 <field>
                     <name>Speed</name>
                     <dataType>VelocityMeterPerSecondFloat32</dataType>
-                    <semantics>The speed of the entity (m/s). 
- 
+                    <semantics>The speed of the entity (m/s).
+
 Default value: 0 m/s</semantics>
                 </field>
                 <field>
                     <name>Equipment</name>
                     <dataType>ArrayOfSpottedEquipment</dataType>
-                    <semantics>Spotted equipment list, type and number. 
- 
+                    <semantics>Spotted equipment list, type and number.
+
 Default value: Empty array.</semantics>
                 </field>
                 <field>
                     <name>Activity</name>
                     <dataType>AggregateMissionEnum16</dataType>
-                    <semantics>The current activity of the entity. (Fromm NETN-Base) 
+                    <semantics>The current activity of the entity. (Fromm NETN-Base)
 Default value: Moving (213)</semantics>
                 </field>
                 <field>
                     <name>Symbol</name>
                     <dataType>SymbolIdentifier</dataType>
-                    <semantics>Symbol identifier for the entity. The detailed level may vary and the publishing federate decides the level of details in the symbol description. E.g. 
-Default Ground value: app6b:SUGP------***** 
-Default Air value: app6b:SUAP------***** 
-Default Sea Surface value: app6b:SUSP------***** 
+                    <semantics>Symbol identifier for the entity. The detailed level may vary and the publishing federate decides the level of details in the symbol description. E.g.
+Default Ground value: app6b:SUGP------*****
+Default Air value: app6b:SUAP------*****
+Default Sea Surface value: app6b:SUSP------*****
 Default Subsurface value: app6b:SUUP------*****</semantics>
                 </field>
             </fixedRecordData>
@@ -1264,7 +1264,7 @@ Default Subsurface value: app6b:SUUP------*****</semantics>
                 <field>
                     <name>Type</name>
                     <dataType>EntityTypeStruct</dataType>
-                    <semantics>Use entity types from Supply Types, Expendibles or Sensors/Emitters tables  (SISO-REF-010-2010, 4.3), 
+                    <semantics>Use entity types from Supply Types, Expendibles or Sensors/Emitters tables  (SISO-REF-010-2010, 4.3),
 for aggregate entities, also use entity types from platform tables to describe the equipment type.</semantics>
                 </field>
                 <field>
@@ -1299,12 +1299,12 @@ for aggregate entities, also use entity types from platform tables to describe t
     <notes>
         <note>
             <label>netn-etr_1</label>
-            <semantics>The interaction classes are organized in a root class and four base classes: ETR_Task, ETR_Report, ETR_TaskManagement, and ETR_SimCon. 
- 
-* ETR_Root: root interaction class for the Entitiy Tasking and Reporting (ETR) interaction classes. 
-* ETR_Task: A base interaction class for more specialized task interaction classes. 
-* ETR_Report: A base interaction class for more specialized report interaction classes. 
-* ETR_TaskManagement: A base interaction class for more specialized task management interaction classes. 
+            <semantics>The interaction classes are organized in a root class and four base classes: ETR_Task, ETR_Report, ETR_TaskManagement, and ETR_SimCon.
+
+* ETR_Root: root interaction class for the Entitiy Tasking and Reporting (ETR) interaction classes.
+* ETR_Task: A base interaction class for more specialized task interaction classes.
+* ETR_Report: A base interaction class for more specialized report interaction classes.
+* ETR_TaskManagement: A base interaction class for more specialized task management interaction classes.
 * ETR_SimCon: A base interaction class for more specialized Simulation Control (SimCon) interaction classes</semantics>
         </note>
     </notes>

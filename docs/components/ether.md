@@ -151,7 +151,7 @@ load:
       type: TcpDiscovery
       value:
         hubAddress:
-          host: theComputer  # this can also be an IPv4 address 
+          host: theComputer  # this can also be an IPv4 address
           port: 64222        # has to match with the port where the hub will be running
 ```
 

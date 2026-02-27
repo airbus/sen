@@ -36,9 +36,9 @@ load:
 [2023-03-07 10:02:21.866] [sen.kernel] [debug] loading shell
 [2023-03-07 10:02:21.867] [sen.kernel] [debug] loading kernel
 [2023-03-07 10:02:21.867] [sen.kernel] [debug] initializing shell
-    _________  __ 
+    _________  __
    / __/ __/ |/ /          compiler GNU-11.3.0 [mode: debug]
-  _\ \/ __/    /           revision 5c937e6e5d344315b8c07c0af7e14cb682a837dc 
+  _\ \/ __/    /           revision 5c937e6e5d344315b8c07c0af7e14cb682a837dc
  /___/___/_/|_/   0.0.1    branch   refs/heads/master [modified]
 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 
@@ -54,7 +54,7 @@ load:
 [2023-03-07 10:02:21.867] [sen.kernel] [debug] running
 MyComponent: running
 sen:enrique-ubuntu/config> shutdown
-shutting down... 
+shutting down...
 [2023-03-07 10:03:26.618] [sen.kernel] [debug] stopping my_component
 MyComponent: finished running
 [2023-03-07 10:03:26.868] [sen.kernel] [debug] unloading my_component

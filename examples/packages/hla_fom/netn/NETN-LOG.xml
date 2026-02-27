@@ -11,7 +11,7 @@
         <applicationDomain>Training</applicationDomain>
         <description>NATO Education and Training Network (NETN) Logistics (LOG) Module
 Military logistics is the discipline of planning and carrying out the movement and maintenance of military forces including storage, distribution, maintenance and transportation of materiel.
-The NATO Education and Training Network Logistics Module (NETN-LOG) is a specification of how to model logistics services in a federated distributed simulation. 
+The NATO Education and Training Network Logistics Module (NETN-LOG) is a specification of how to model logistics services in a federated distributed simulation.
 The specification is based on IEEE 1516 High Level Architecture (HLA) Object Model Template (OMT) and primarily intended to support interoperability in a federated simulation (federation) based on HLA. A Federation Object Model (FOM) Module is used to specify how data is represented and exchanged in the federation. The NETN-LOG FOM module is available as an XML file for use in HLA based federations.
 </description>
         <useLimitation> The NETN Logistics module covers the following services:   * Supply Service  * Transport Service * Repair service   Examples of use:   * Refuelling of aircraft at an airbase or in the air  * Transport of supplies between facilities  * Repair of damaged platforms in facility or by unit * Transport of units, platforms, and humans by train, ship, or aircraft  * Embarkment and disembarkment of units on platforms</useLimitation>
@@ -66,7 +66,7 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
                     <sharing>Neither</sharing>
                     <transportation>HLAreliable</transportation>
                     <order>Receive</order>
-                    <semantics>A consumer federate initiates service negotiation using `RequestService`. A unique ServiceId and a reference to a `ConsumerEntity` are required parameters. A reference to a specific `ProviderEntity` and a system wall-clock time for when offers are expected `RequestTimeOut` are optional. 
+                    <semantics>A consumer federate initiates service negotiation using `RequestService`. A unique ServiceId and a reference to a `ConsumerEntity` are required parameters. A reference to a specific `ProviderEntity` and a system wall-clock time for when offers are expected `RequestTimeOut` are optional.
 Requests for specific types of services are defined as subclasses to `RequestService` and include parameters for detailing the requirements of the request. This may include information when, where and how the service should be delivered.</semantics>
                     <parameter>
                         <name>ConsumerEntity</name>
@@ -122,7 +122,7 @@ Requests for specific types of services are defined as subclasses to `RequestSer
                         <sharing>PublishSubscribe</sharing>
                         <transportation>HLAreliable</transportation>
                         <order>Receive</order>
-                        <semantics>A request for a Transport service. 
+                        <semantics>A request for a Transport service.
 Use a RequestTransport interaction to initiate a transport, embarkment or disembarkment of a platform.</semantics>
                         <parameter>
                             <name>TransportData</name>
@@ -432,7 +432,7 @@ Use a RequestTransport interaction to initiate a transport, embarkment or disemb
             <fixedRecordData>
                 <name>AppointmentStruct</name>
                 <encoding>HLAfixedRecord</encoding>
-                <semantics>Date ; Time and Location of an appointment. 
+                <semantics>Date ; Time and Location of an appointment.
 When date and time is set to zero (0), implies no date-time specification</semantics>
                 <field>
                     <name>DateTime</name>
@@ -451,8 +451,8 @@ When date and time is set to zero (0), implies no date-time specification</seman
     <notes>
         <note>
             <label>netn-log_1</label>
-            <semantics>All NETN Logistics services are based on a Logistics Service Pattern that include negotiation, delivery and acceptance of logistics services. The pattern is described below and is implemented as base classes in the NETN-LOG FOM Module. 
- 
+            <semantics>All NETN Logistics services are based on a Logistics Service Pattern that include negotiation, delivery and acceptance of logistics services. The pattern is described below and is implemented as base classes in the NETN-LOG FOM Module.
+
 The NETN-LOG FOM module extends RPR-FOM v2.0 FOM. Datatypes are re-used and extensions to object classes are defined.</semantics>
         </note>
     </notes>

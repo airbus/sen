@@ -86,7 +86,7 @@ The YAML below shows how to configure the sleep policy for all types of componen
 (kernel, loaded components and pipeline components):
 
 ```yaml"
-# configuring the sleep policy for the kernel component (the one used by the kernel to 
+# configuring the sleep policy for the kernel component (the one used by the kernel to
 # interact with other components).
 kernel:
   sleepPolicy:

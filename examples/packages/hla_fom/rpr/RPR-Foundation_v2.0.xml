@@ -120,8 +120,8 @@ Orlando, FL 32878-1238, USA
     <notes>
         <note>
             <label>RPRnoteFoundation1</label>
-            <semantics>This is the unique ObjectName associated with each object instance. The user can define the name to be used in the registerObjectInstance RTI call. If user does not define the name then the RTI will generate a unique name for the object. RTI generated names may be fairly long, so federations wishing to conserve bandwidth may wish to implement their own object naming scheme. 
- 
+            <semantics>This is the unique ObjectName associated with each object instance. The user can define the name to be used in the registerObjectInstance RTI call. If user does not define the name then the RTI will generate a unique name for the object. RTI generated names may be fairly long, so federations wishing to conserve bandwidth may wish to implement their own object naming scheme.
+
 The ObjectName is provided by the RTI in the discoverObjectInstance call. The user can also obtain the ObjectName for a particular object instance using the getObjectInstanceName call.</semantics>
         </note>
     </notes>

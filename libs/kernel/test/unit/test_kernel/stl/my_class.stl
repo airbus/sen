@@ -8,7 +8,7 @@ class MyClass
 
   // fired when something happened
   event somethingHappened();
-  
+
   // fired when something else happened
   event somethingElseHappened(arg: i32) [confirmed];
 }

@@ -1066,10 +1066,10 @@ Orlando, FL 32878-1238, USA
         </note>
         <note>
             <label>RPRnoteSIMAN4</label>
-            <semantics>The AttributeChangeResultR interaction should be sent in response to an AttributeChangeRequestR interaction by any object that is mentioned in the associated object list. The AttributeChangeResult parameter should indicate the success or failure of the object to implement the requested changes. If the object can implement the changes then the AttributeChangeResult parameter should be set to successful and the AttributeValueSet shall be empty. 
- 
-If the object cannot immediately comply with the request, but is likely to be able to comply in the future then the AttributeChangeRequest parameter shall be set to pending and the AttributeValueSet shall be empty. When the object complies with the request (or fails to implement the request) then another AttributeChangeResultR interaction shall be sent informing the initiating federate of the result of the request. 
- 
+            <semantics>The AttributeChangeResultR interaction should be sent in response to an AttributeChangeRequestR interaction by any object that is mentioned in the associated object list. The AttributeChangeResult parameter should indicate the success or failure of the object to implement the requested changes. If the object can implement the changes then the AttributeChangeResult parameter should be set to successful and the AttributeValueSet shall be empty.
+
+If the object cannot immediately comply with the request, but is likely to be able to comply in the future then the AttributeChangeRequest parameter shall be set to pending and the AttributeValueSet shall be empty. When the object complies with the request (or fails to implement the request) then another AttributeChangeResultR interaction shall be sent informing the initiating federate of the result of the request.
+
 If the object cannot comply with the request then the AttributeChangeResult parameter shall indicate the reason why the object cannot comply with the request, The AttributeValueSet shall contain the attributes which have been not been set and the current values of those attributes.</semantics>
         </note>
         <note>
@@ -1098,10 +1098,10 @@ If the object cannot comply with the request then the AttributeChangeResult para
         </note>
         <note>
             <label>RPRnoteSIMAN11</label>
-            <semantics>The AttributeChangeResult interaction should be sent in response to an AttributeChangeRequest interaction by any object that is mentioned in the associated object list.  The AttributeChangeResult parameter should indicate the success or failure of the object to implement the requested changes.  If the object can implement the changes then the AttributeChangeResult parameter should be set to successful and the AttributeValueSet shall be empty. 
- 
-If the object cannot immediately comply with the request, but is likely to be able to comply in the future then the AttributeChangeRequest parameter shall be set to pending and the AttributeValueSet shall be empty.  When the object complies with the request (or fails to implement the request) then another AttributeChangeResult interaction shall be sent informing the initiating federate of the result of the request. 
- 
+            <semantics>The AttributeChangeResult interaction should be sent in response to an AttributeChangeRequest interaction by any object that is mentioned in the associated object list.  The AttributeChangeResult parameter should indicate the success or failure of the object to implement the requested changes.  If the object can implement the changes then the AttributeChangeResult parameter should be set to successful and the AttributeValueSet shall be empty.
+
+If the object cannot immediately comply with the request, but is likely to be able to comply in the future then the AttributeChangeRequest parameter shall be set to pending and the AttributeValueSet shall be empty.  When the object complies with the request (or fails to implement the request) then another AttributeChangeResult interaction shall be sent informing the initiating federate of the result of the request.
+
 If the object cannot comply with the request then the AttributeChangeResult parameter shall indicate the reason why the object cannot comply with the request,  The AttributeValueSet shall contain the attributes which have been not been set and the current values of those attributes.</semantics>
         </note>
         <note>

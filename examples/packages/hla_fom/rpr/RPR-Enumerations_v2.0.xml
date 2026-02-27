@@ -16712,10 +16712,10 @@ Orlando, FL 32878-1238, USA
         </note>
         <note>
             <label>RPRnoteEnumerations2</label>
-            <semantics>Each emitter has up to three different names: a National Nomenclature name, a NATO Reporting name, and a Commercial Designation name. The emitter names have been generated from the names in the enumeration document (SISO-REF-010) according to the following rules: 
-a) The emitter name is the National Nomenclature name if there is one. If not then the emitter name is the NATO Reporting Name, if there is one. If not then then the emitter name is the Commercial Designation name. 
-b) All spaces have been replaced by underscores. 
-c) If the emitter name starts with a digit, then prepend "Emitter_". 
+            <semantics>Each emitter has up to three different names: a National Nomenclature name, a NATO Reporting name, and a Commercial Designation name. The emitter names have been generated from the names in the enumeration document (SISO-REF-010) according to the following rules:
+a) The emitter name is the National Nomenclature name if there is one. If not then the emitter name is the NATO Reporting Name, if there is one. If not then then the emitter name is the Commercial Designation name.
+b) All spaces have been replaced by underscores.
+c) If the emitter name starts with a digit, then prepend "Emitter_".
 d) Round brackets characters "(" and ")" have been replaced with "_".</semantics>
         </note>
         <note>

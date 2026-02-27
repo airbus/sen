@@ -17,14 +17,14 @@ struct Vec2
 
 // This is an example struct holding integrals
 struct StructOfInts
-{  
-  field1 : u8,   // unsigned 8-bit int 
+{
+  field1 : u8,   // unsigned 8-bit int
   field2 : i16,  // signed 16-bit int
-  field3 : u16,  // unsigned 16-bit int 
+  field3 : u16,  // unsigned 16-bit int
   field4 : i32,  // signed 32-bit int
-  field5 : u32,  // unsigned 32-bit int 
+  field5 : u32,  // unsigned 32-bit int
   field6 : i64,  // signed 64-bit int
-  field7 : u64   // unsigned 32-bit int 
+  field7 : u64   // unsigned 32-bit int
 }
 
 // This is an example struct holding
@@ -61,8 +61,8 @@ variant MyVariant
 // Structs can have fields of any type
 // Here we use types defined in this file
 struct MyStruct
-{  
-  aEnum     : MyEnum,  
+{
+  aEnum     : MyEnum,
   aStruct   : StructOfInts,
   aVariant  : MyVariant,
   aSequence : UnboundedSeq

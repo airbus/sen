@@ -1491,11 +1491,11 @@ Orlando, FL 32878-1238, USA
         </note>
         <note>
             <label>RPRnoteDER10</label>
-            <semantics>The TSPI_Change condition shall be evaluated as follows: 
-The owner of a base entity object shall maintain two state models of the object in support of the dead reckoning process. One model shall be the internal model used by the simulation application to  represent that object. The other shall be a dead reckoning model of the object. Certain thresholds shall be established as criteria for determining if the object's actual TSPI data has varied by an allowable amount from the dead reckoned TSPI data. 
-TSPI_Change is TRUE when either: 
-a) the objects actual position differs from the dead reckoned position by more than DRA_POS_THRSH_DFLT 
-b) the objects actual orientation differs from the dead reckoned orientation by more than DRA_ORIENT_THRSH_DFLT 
+            <semantics>The TSPI_Change condition shall be evaluated as follows:
+The owner of a base entity object shall maintain two state models of the object in support of the dead reckoning process. One model shall be the internal model used by the simulation application to  represent that object. The other shall be a dead reckoning model of the object. Certain thresholds shall be established as criteria for determining if the object's actual TSPI data has varied by an allowable amount from the dead reckoned TSPI data.
+TSPI_Change is TRUE when either:
+a) the objects actual position differs from the dead reckoned position by more than DRA_POS_THRSH_DFLT
+b) the objects actual orientation differs from the dead reckoned orientation by more than DRA_ORIENT_THRSH_DFLT
 See section 5.1.4 of IEEE 1278.1-1995 for the value of these symbolic constants.</semantics>
         </note>
         <note>

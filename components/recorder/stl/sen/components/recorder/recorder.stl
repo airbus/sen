@@ -16,7 +16,7 @@ class Recorder
 {
   var settings    : RecordingSettings  [static];
   var state       : RecorderState      [confirmed];
-  
+
   // starts (or resumes) recording
   fn start();
 

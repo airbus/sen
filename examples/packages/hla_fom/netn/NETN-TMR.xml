@@ -125,9 +125,9 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
                     <sharing>PublishSubscribe</sharing>
                     <transportation>HLAreliable</transportation>
                     <order>Receive</order>
-                    <semantics>An `OfferTransfer` interaction is sent by a **Response Federate** as a reply to a `RequestTransfer` to indicate if a transfer can be accomplished or not. 
- 
-**Special Case**: 
+                    <semantics>An `OfferTransfer` interaction is sent by a **Response Federate** as a reply to a `RequestTransfer` to indicate if a transfer can be accomplished or not.
+
+**Special Case**:
 When the transfer type is Divesting, the delivery order of the interaction `OfferTransfer` and the HLA ownership callback service `requestAttributeOwnershipRelease` at the receiving federate is not determined. Due to this, receiving a `requestAttributeOwnershipRelease` callback should be treated in the same way as receiving a `OfferTransfer` with a positive offer. The user-supplied tag in the callback contains the `EventId` which identifies a specific transfer process.</semantics>
                     <parameter>
                         <name>IsOffering</name>

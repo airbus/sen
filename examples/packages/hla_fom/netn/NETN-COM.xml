@@ -8,8 +8,8 @@
         <securityClassification>Not classified</securityClassification>
         <purpose>Simulation, Training</purpose>
         <applicationDomain></applicationDomain>
-        <description>NATO Education and Training Network (NETN) Communication Network (COM) Module. 
-        
+        <description>NATO Education and Training Network (NETN) Communication Network (COM) Module.
+
 This module is a specification of how to represent Communication Networks in a federated distributed simulation. The specification is based on IEEE 1516 High Level Architecture (HLA) Object Model Template (OMT) and primarily intended to support interoperability in a federated simulation (federation) based on HLA. An HLA OMT based Federation Object Model (FOM) is used to specify types of data and how it is encoded on the network. The NETN COM FOM module is available as a XML file for use in HLA based federations.</description>
         <useLimitation></useLimitation>
         <useHistory>1.0.0 - Initial version developed by MSG-164 and MSG-163 for NETN-FOM v3.0</useHistory>
@@ -69,7 +69,7 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
                 <objectClass>
                     <name>CommunicationNetwork</name>
                     <sharing>PublishSubscribe</sharing>
-                    <semantics>The CommunicationNetwork class specifies details about the type of and service used by a logical communication network. This corresponds to the CommunicationNet-Elements of MSDL Units and Equipments. 
+                    <semantics>The CommunicationNetwork class specifies details about the type of and service used by a logical communication network. This corresponds to the CommunicationNet-Elements of MSDL Units and Equipments.
 Instances of this object class should be considered as optional. No federate should rely on this data to work with communication networks.</semantics>
                     <attribute>
                         <name>UniqueName</name>
@@ -108,8 +108,8 @@ Instances of this object class should be considered as optional. No federate sho
                 <objectClass>
                     <name>CommunicationNode</name>
                     <sharing>PublishSubscribe</sharing>
-                    <semantics>A CommunicationNode is the representation of the interface of a simulated entity to logical communication networks. The location of the CommunicationNode is derived from the referenced entity or specified explicitly (if the referenced entity is not registered in the federation). 
- 
+                    <semantics>A CommunicationNode is the representation of the interface of a simulated entity to logical communication networks. The location of the CommunicationNode is derived from the referenced entity or specified explicitly (if the referenced entity is not registered in the federation).
+
 Connections to communication networks are established only if connectivity exists based on the status of available network devices and the simulation of links. Each potential connection is described in terms of requested connections  (the equivalent to the information provided by MSDL).</semantics>
                     <attribute>
                         <name>EntityId</name>
@@ -120,12 +120,12 @@ Connections to communication networks are established only if connectivity exist
                         <sharing>PublishSubscribe</sharing>
                         <transportation>HLAreliable</transportation>
                         <order>Receive</order>
-                        <semantics>Required. Reference by UUID to an object instance of one of the following classes: 
- 
-* NETN-MRM Aggregate Entity 
-* NETN-Physical extensions of RPR Physical Entities. 
- 
-If the referenced entity exists in the federation, the location of the node is derived from the location of the entity. 
+                        <semantics>Required. Reference by UUID to an object instance of one of the following classes:
+
+* NETN-MRM Aggregate Entity
+* NETN-Physical extensions of RPR Physical Entities.
+
+If the referenced entity exists in the federation, the location of the node is derived from the location of the entity.
 If the referenced entity does not exist in the federation, the location of the node is defined by the Location attribute.</semantics>
                     </attribute>
                     <attribute>
@@ -380,19 +380,19 @@ If the referenced entity does not exist in the federation, the location of the n
             <enumeratedData>
                 <name>CommunicationServiceTypeEnum</name>
                 <representation>HLAoctet</representation>
-                <semantics>The type of service used on a communication network. 
- 
-Service types as defined in MSDL. 
- 
-DATTRF: Data transfer 
-FAX: Facsimile 
-IFF: Identify Friend or Foe 
-IMAGE: Image 
-MCI: Multilateral Interoperability Programme (MIP) Common Interface Service 
-MHS: Message Handling Service 
-TDL: Tactical Data Link 
-VIDSVC: Video Service 
-VOCSVC:Voice Service 
+                <semantics>The type of service used on a communication network.
+
+Service types as defined in MSDL.
+
+DATTRF: Data transfer
+FAX: Facsimile
+IFF: Identify Friend or Foe
+IMAGE: Image
+MCI: Multilateral Interoperability Programme (MIP) Common Interface Service
+MHS: Message Handling Service
+TDL: Tactical Data Link
+VIDSVC: Video Service
+VOCSVC:Voice Service
 NOS: Not Otherwise Specified</semantics>
                 <enumerator>
                     <name>DATTRF</name>

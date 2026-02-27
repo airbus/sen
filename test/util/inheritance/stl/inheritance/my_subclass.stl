@@ -22,7 +22,7 @@ class MySubClass: extends MyClass
 
   // fires the somethingHappened event
   fn doSomething();
-  
+
   // fires the somethingElseHappened event
   fn doSomethingElse(arg: i32);
 

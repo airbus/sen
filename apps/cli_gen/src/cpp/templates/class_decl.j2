@@ -173,7 +173,7 @@ private:
 ## endfor
 ## for iface in interfacesToImplement
 ## for prop in iface.props
-## if prop.dynamic == false  
+## if prop.dynamic == false
   {{ prop.type }} {{ prop.name }}Prop_ = {};
 ## endif
 ## endfor
@@ -255,7 +255,7 @@ private:
 ## endfor
 ## for iface in interfacesToImplement
 ## for prop in iface.props
-## if prop.dynamic == false  
+## if prop.dynamic == false
   {{ prop.type }} {{ prop.name }}Prop_ = {};
 ## endif
 ## endfor

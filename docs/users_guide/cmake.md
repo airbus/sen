@@ -14,7 +14,7 @@ add_sen_package(
     [DEPS [dependencies...]]
     [BASE_PATH base_path]
     [STL_FILES [files...]]
-    [PLANTUML output] 
+    [PLANTUML output]
     [CODEGEN_SETTINGS file]
     [ALSO_STATIC value]
     [EXPORT_NAME name]

@@ -10,8 +10,8 @@ package school;
 class Person
 {
   var firstName     : string [static];
-  var surName       : string [static]; 
-  var brainActivity : f32;  
+  var surName       : string [static];
+  var brainActivity : f32;
 
   // method that takes a string and returns another
   // @param question the thing that you want to ask
@@ -220,11 +220,11 @@ struct MoveCursorUp { cells: u32 }
 struct MoveCursorDown { cells: u32 }
 struct Print { text : string }
 
-struct CPrint 
-{ 
+struct CPrint
+{
   flags : u32,
   color : u32,
-  text  : string 
+  text  : string
 }
 
 variant TerminalCommand
@@ -273,7 +273,7 @@ You can define classes as follows:
 ```
 [abstract] class <name> [: extends <parent_class>]
 {
-   <members>... 
+   <members>...
 }
 ```
 
@@ -297,7 +297,7 @@ There are 3 kinds of members that a class can have: properties, methods and even
 Methods are defined as follows:
 
 ```rust
-fn <name>([<arg_name> : <arg_type>]...) [ -> [return_type]] [<attribute>...]; 
+fn <name>([<arg_name> : <arg_type>]...) [ -> [return_type]] [<attribute>...];
 ```
 
 You can decorate methods with the following attributes:
@@ -314,7 +314,7 @@ class Example
 {
   // a method with no arguments (that doesn't return)
   fn methodWithoutArgs() [const, bestEffort];
-  
+
   // a method that returns a string
   fn methodThatReturns() -> string [const];
 
@@ -343,7 +343,7 @@ class Example
 {
   // an event without arguments
   event somethingHappened();
-  
+
   // an event with arguments
   event somethingElseHappened(what: string, count: u32);
 }
@@ -372,10 +372,10 @@ class Person
 {
   var firstName     : string [static];
   var surName       : string [static];
-  var kind          : string [static_no_config];    
+  var kind          : string [static_no_config];
   var stressLevel   : f32    [writable];
   var temperature   : f32    [writable];
-  var brainActivity : f32;    
+  var brainActivity : f32;
 }
 ```
 
@@ -451,15 +451,15 @@ Keep in mind that Sen (the STL parser) expects the HLA XML files to follow a cer
   - module_2
     - file_3.xml
     - file_4.xml
-  ...    
+  ...
   - module_n
     - file_5.xml
     - file_6.xml
-   
-  - mapping_1.xml    
+
+  - mapping_1.xml
   - mapping_2.xml
   - ...
-  - mapping_n.xml    
+  - mapping_n.xml
 ```
 
 This is needed because the XML files may depend on each other, and Sen needs to be able to find
@@ -529,7 +529,7 @@ class Example
   // @param what A description of what happened
   // @param count Number of times it occurred
   event somethingElseHappened(what: string, count: u32); // Example event
-  
+
   // This is just an example method
   // @param example1 This parameter is a string
   // You can add more description here of the parameter, but do not repeat @param example1

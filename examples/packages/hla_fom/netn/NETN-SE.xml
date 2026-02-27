@@ -235,7 +235,7 @@ Above license gives you the right to use and redistribute the NETN FOM Module (X
                 <objectClass>
                     <name>CheckPoint</name>
                     <sharing>PublishSubscribe</sharing>
-                    <semantics>A checkpoint defines a location where simulated aggregate and physical entities should stop and wait a specified time before continuing on their route. 
+                    <semantics>A checkpoint defines a location where simulated aggregate and physical entities should stop and wait a specified time before continuing on their route.
 If the checkpoint is currently in operation the status attribute should be set to true. A system simulating movement of physical or aggregate entities can be either directly affected by the checkpoint by subscribing to its state or indirectly by receiving an NETN-ETR `Wait` task.</semantics>
                     <attribute>
                         <name>DelayTime</name>
@@ -299,9 +299,9 @@ If the checkpoint is currently in operation the status attribute should be set t
                     <semantics>Reference to an instance of a leaf node subclass of RPR-FOM BaseEntity by its EntityIdentifier. E.g. an Aircraft, SurfaceVessel etc.</semantics>
                 </alternative>
                 <encoding>HLAvariantRecord</encoding>
-                <semantics>The area affected by an Environment Condition can be expressed as: 
-- a location on the earth's surface represented by a Point, 
-- an area on the earth's surface, represented by a Quadrangle, GeodeticPolygon, or GeodeticCircle, or 
+                <semantics>The area affected by an Environment Condition can be expressed as:
+- a location on the earth's surface represented by a Point,
+- an area on the earth's surface, represented by a Quadrangle, GeodeticPolygon, or GeodeticCircle, or
 - a reference to some other object/data. Objects that can be referenced are RPR entities, NETN entities, NETN-SE GeoObjects and GML Features.</semantics>
             </variantRecordData>
         </variantRecordDataTypes>

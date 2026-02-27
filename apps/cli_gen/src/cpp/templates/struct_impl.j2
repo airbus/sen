@@ -195,7 +195,7 @@ sen::ConstTypeHandle<::sen::StructType> sen::MetaTypeTrait<{{ qualType }}>::meta
     "{{ name }}",
     "{{ senQual }}",
     "{{ description }}",
-    { 
+    {
 ## for field in fields
       { "{{ field.name }}", "{{ field.description }}", ::sen::MetaTypeTrait<{{ field.qualType }}>::meta() }{% if loop.index1 < length(fields) %}, {% endif %}  // NOLINT
 ## endfor

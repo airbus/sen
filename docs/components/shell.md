@@ -88,7 +88,7 @@ You can inspect the list of active interests by using the `src` command. For exa
 `open local.kernel` and then call `src` we will see the following:
 
 ```
-  Name               Query                      
+  Name               Query
   local.kernel.all   SELECT * FROM local.kernel
 ```
 
