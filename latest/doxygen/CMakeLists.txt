@@ -15,6 +15,7 @@ if(Doxygen_FOUND)
   else()
     set(doxygen_output_dir ${PROJECT_SOURCE_DIR}/docs/doxygen_gen/)
   endif()
+  message(STATUS "====> ${doxygen_output_dir}")
 
   # doxyfile generation
   set(doxyfile_in Doxyfile.in)
