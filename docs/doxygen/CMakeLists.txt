@@ -13,8 +13,11 @@ if(Doxygen_FOUND)
   if(DEFINED ENV{MKDOCS_SITE_DIR})
     set(doxygen_output_dir $ENV{MKDOCS_SITE_DIR}/manual/doxygen)
   else()
-    set(doxygen_output_dir ${CMAKE_CURRENT_BINARY_DIR}/site/manual/doxygen)
+    set(doxygen_output_dir ${PROJECT_SOURCE_DIR}/docs/doxygen_gen/)
   endif()
+  # TODO: fix
+  set(doxygen_output_dir ${PROJECT_SOURCE_DIR}/docs/doxygen_gen/)
+  message(STATUS "====> ${doxygen_output_dir}")
 
   # doxyfile generation
   set(doxyfile_in Doxyfile.in)

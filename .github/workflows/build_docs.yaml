@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted # ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
@@ -38,26 +38,29 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install gcc
-
-      #- name: Setup conan profile
-      #  shell: bash
-      #  run: |
-      #    conan profile detect --force -vquiet
-      #    cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
-      #    echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
-      #    echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-      #    conan profile show -pr default
+          sudo apt install -y gcc g++ doxygen libxext-dev graphviz
 
       - name: Install pip dependencies
-        run: pip install conan mkdocs mkdocs-material mkdocs-material-extensions mkdocs-callouts mkdocs-video mkdocs-git-revision-date-localized-plugin mkdocs-redoc-tag mike
+        run: |
+          pip install conan pytest mike
+          pip install -r docs/requirements.txt
 
-      #- name: Build docs
-      #  run: |
-      #    conan install . --build=missing
-      #    cmake --preset=conan-gcc-release
-      #    cmake --build build/gcc/Release/ --target mkdocs
-      #    mv build
+      - name: Setup conan profile
+        shell: bash
+        run: |
+          conan profile detect --force -vquiet
+          cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
+          echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
+          echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
+          conan profile show -pr default
+
+      - name: Auto generate docs
+        run: |
+          conan install . --build=missing
+          cmake --preset=conan-gcc-release
+          cmake --build build/gcc/Release/
+          cmake --build build/gcc/Release/ --target doxydocs
+          cmake --build build/gcc/Release/ --target mkdocs
 
       - name: Build and deploy intermediate documentation
         run: mike deploy --push --update-aliases latest

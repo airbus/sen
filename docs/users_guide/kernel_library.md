@@ -10,5 +10,5 @@ that all specified components and settings are correctly initialized.
 
 ## API Reference
 
-Check out the [API Reference](../doxygen/html/index.html) for a detailed description of the Sen
+Check out the [API Reference](../doxygen_gen/html/index.html) for a detailed description of the Sen
 Kernel library.
