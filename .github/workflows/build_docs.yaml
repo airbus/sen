@@ -1,0 +1,63 @@
+# === build_docs.yaml  =================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+name: Build documentation
+
+on:
+  push:
+    branches:
+      - main
+      - feat/docs-ci
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      - name: Configure git user and gh-pages repo
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
+          git fetch origin gh-pages --depth=1
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install gcc
+
+      #- name: Setup conan profile
+      #  shell: bash
+      #  run: |
+      #    conan profile detect --force -vquiet
+      #    cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
+      #    echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
+      #    echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
+      #    conan profile show -pr default
+
+      - name: Install pip dependencies
+        run: pip install conan mkdocs mkdocs-material mkdocs-material-extensions mkdocs-callouts mkdocs-video mkdocs-git-revision-date-localized-plugin mkdocs-redoc-tag mike
+
+      #- name: Build docs
+      #  run: |
+      #    conan install . --build=missing
+      #    cmake --preset=conan-gcc-release
+      #    cmake --build build/gcc/Release/ --target mkdocs
+      #    mv build
+
+      - name: Build and deploy intermediate documentation
+        run: mike deploy --push --update-aliases latest
