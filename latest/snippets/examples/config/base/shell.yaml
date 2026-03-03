@@ -1,0 +1,6 @@
+# $schema: schema.json
+load:
+  - name: shell
+    group: 2
+    open:
+      - my.tutorial

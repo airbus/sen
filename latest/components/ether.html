@@ -170,7 +170,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.md">
+<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.html">
           
   
   
@@ -1114,7 +1114,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1126,7 +1126,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1138,7 +1138,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1150,7 +1150,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1162,7 +1162,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1174,7 +1174,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1186,7 +1186,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1198,7 +1198,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1210,7 +1210,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1222,7 +1222,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1234,7 +1234,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1246,7 +1246,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1320,7 +1320,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../licenses/licensed_code_in_sen.md">
+<a class="md-nav__link" href="../licenses/licensed_code_in_sen.html">
 <span class="md-ellipsis">
     
   
@@ -1351,7 +1351,97 @@
 </span></code></pre></div>
 <p>Sen processes discover each other using multicast. Normally, you don't need to change the default
 discovery parameters, but here you can see the available options:</p>
-<div class="language-rust highlight"><span class="filename">Ether component configuration options</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>
+<div class="language-rust highlight"><span class="filename">Ether component configuration options</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">package</span><span class="w"> </span><span class="n">sen</span><span class="p">.</span><span class="n">components</span><span class="p">.</span><span class="n">ether</span><span class="p">;</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="n">optional</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybeDeviceName</span><span class="p">;</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="c1">// TCP-based discovery hub parameters</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DiscoveryHubAddress</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="p">{</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="n">port</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span><span class="w">     </span><span class="c1">// Port where the discovery hub is running</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">  </span><span class="n">host</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">  </span><span class="c1">// name or IP of the host where the discovery hub is running</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="p">}</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="c1">// TCP-based discovery parameters</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="k">struct</span><span class="w"> </span><span class="nc">TcpDiscovery</span>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="p">{</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">  </span><span class="n">beamPeriod</span><span class="w">             </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="p">,</span><span class="w">             </span><span class="c1">// How often are we beaming our presence</span>
+</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">  </span><span class="n">beamExpirationTime</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="p">,</span><span class="w">             </span><span class="c1">// Expiry time used by the beam tracker</span>
+</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="w">  </span><span class="n">hubAddress</span><span class="w">             </span><span class="p">:</span><span class="w"> </span><span class="nc">DiscoveryHubAddress</span><span class="p">,</span><span class="w">  </span><span class="c1">// Where to find the discovery hub</span>
+</span><span id="__span-1-18"><a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="w">  </span><span class="n">allowVirtualInterfaces</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="w">                  </span><span class="c1">// If true, virtual (NO_CARRIER) interfaces are also considered</span>
+</span><span id="__span-1-19"><a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="p">}</span>
+</span><span id="__span-1-20"><a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="c1">// Multicast-based discovery parameters</span>
+</span><span id="__span-1-22"><a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MulticastDiscovery</span>
+</span><span id="__span-1-23"><a href="#__codelineno-1-23" id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="p">{</span>
+</span><span id="__span-1-24"><a href="#__codelineno-1-24" id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="w">  </span><span class="n">beamPeriod</span><span class="w">             </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="p">,</span><span class="w">         </span><span class="c1">// How often are we beaming our presence</span>
+</span><span id="__span-1-25"><a href="#__codelineno-1-25" id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="w">  </span><span class="n">beamExpirationTime</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="p">,</span><span class="w">         </span><span class="c1">// Expiry time used by the beam tracker</span>
+</span><span id="__span-1-26"><a href="#__codelineno-1-26" id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="w">  </span><span class="n">mcastGroup</span><span class="w">             </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">           </span><span class="c1">// Defaults to '239.255.0.1'</span>
+</span><span id="__span-1-27"><a href="#__codelineno-1-27" id="__codelineno-1-27" name="__codelineno-1-27"></a><span class="w">  </span><span class="n">port</span><span class="w">                   </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span><span class="w">              </span><span class="c1">// Defaults to 60543</span>
+</span><span id="__span-1-28"><a href="#__codelineno-1-28" id="__codelineno-1-28" name="__codelineno-1-28"></a><span class="w">  </span><span class="n">device</span><span class="w">                 </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDeviceName</span><span class="p">,</span><span class="w">  </span><span class="c1">// Device to use for the network communication</span>
+</span><span id="__span-1-29"><a href="#__codelineno-1-29" id="__codelineno-1-29" name="__codelineno-1-29"></a><span class="w">  </span><span class="n">allowVirtualInterfaces</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="w">              </span><span class="c1">// If true, virtual (NO_CARRIER) interfaces are also considered</span>
+</span><span id="__span-1-30"><a href="#__codelineno-1-30" id="__codelineno-1-30" name="__codelineno-1-30"></a><span class="p">}</span>
+</span><span id="__span-1-31"><a href="#__codelineno-1-31" id="__codelineno-1-31" name="__codelineno-1-31"></a>
+</span><span id="__span-1-32"><a href="#__codelineno-1-32" id="__codelineno-1-32" name="__codelineno-1-32"></a><span class="c1">// Configuration parameters related to the discovery protocol</span>
+</span><span id="__span-1-33"><a href="#__codelineno-1-33" id="__codelineno-1-33" name="__codelineno-1-33"></a><span class="n">variant</span><span class="w"> </span><span class="n">DiscoveryConfig</span>
+</span><span id="__span-1-34"><a href="#__codelineno-1-34" id="__codelineno-1-34" name="__codelineno-1-34"></a><span class="p">{</span>
+</span><span id="__span-1-35"><a href="#__codelineno-1-35" id="__codelineno-1-35" name="__codelineno-1-35"></a><span class="w">  </span><span class="n">MulticastDiscovery</span><span class="p">,</span>
+</span><span id="__span-1-36"><a href="#__codelineno-1-36" id="__codelineno-1-36" name="__codelineno-1-36"></a><span class="w">  </span><span class="n">TcpDiscovery</span><span class="p">,</span>
+</span><span id="__span-1-37"><a href="#__codelineno-1-37" id="__codelineno-1-37" name="__codelineno-1-37"></a><span class="p">}</span>
+</span><span id="__span-1-38"><a href="#__codelineno-1-38" id="__codelineno-1-38" name="__codelineno-1-38"></a>
+</span><span id="__span-1-39"><a href="#__codelineno-1-39" id="__codelineno-1-39" name="__codelineno-1-39"></a><span class="c1">// What to do when a queue is full</span>
+</span><span id="__span-1-40"><a href="#__codelineno-1-40" id="__codelineno-1-40" name="__codelineno-1-40"></a><span class="k">enum</span><span class="w"> </span><span class="nc">QueueEvictionPolicy</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span>
+</span><span id="__span-1-41"><a href="#__codelineno-1-41" id="__codelineno-1-41" name="__codelineno-1-41"></a><span class="p">{</span>
+</span><span id="__span-1-42"><a href="#__codelineno-1-42" id="__codelineno-1-42" name="__codelineno-1-42"></a><span class="w">  </span><span class="n">dropOldest</span><span class="p">,</span><span class="w"> </span><span class="c1">// When full, drop the least recent element</span>
+</span><span id="__span-1-43"><a href="#__codelineno-1-43" id="__codelineno-1-43" name="__codelineno-1-43"></a><span class="w">  </span><span class="n">dropNewest</span><span class="p">,</span><span class="w"> </span><span class="c1">// When full, drop the most recent element</span>
+</span><span id="__span-1-44"><a href="#__codelineno-1-44" id="__codelineno-1-44" name="__codelineno-1-44"></a><span class="p">}</span>
+</span><span id="__span-1-45"><a href="#__codelineno-1-45" id="__codelineno-1-45" name="__codelineno-1-45"></a>
+</span><span id="__span-1-46"><a href="#__codelineno-1-46" id="__codelineno-1-46" name="__codelineno-1-46"></a><span class="k">struct</span><span class="w"> </span><span class="nc">QueueConfig</span>
+</span><span id="__span-1-47"><a href="#__codelineno-1-47" id="__codelineno-1-47" name="__codelineno-1-47"></a><span class="p">{</span>
+</span><span id="__span-1-48"><a href="#__codelineno-1-48" id="__codelineno-1-48" name="__codelineno-1-48"></a><span class="w">  </span><span class="n">evictionPolicy</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueEvictionPolicy</span><span class="p">,</span><span class="w">  </span><span class="c1">// What to do when a queue is full</span>
+</span><span id="__span-1-49"><a href="#__codelineno-1-49" id="__codelineno-1-49" name="__codelineno-1-49"></a><span class="w">  </span><span class="n">maxSize</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="kt">u64</span><span class="p">,</span><span class="w">                  </span><span class="c1">// Maximum element count, 0 means unbounded</span>
+</span><span id="__span-1-50"><a href="#__codelineno-1-50" id="__codelineno-1-50" name="__codelineno-1-50"></a><span class="w">  </span><span class="n">warningLevel</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">u64</span><span class="w">                   </span><span class="c1">// Element count where warning will be issued, 0 means none</span>
+</span><span id="__span-1-51"><a href="#__codelineno-1-51" id="__codelineno-1-51" name="__codelineno-1-51"></a><span class="p">}</span>
+</span><span id="__span-1-52"><a href="#__codelineno-1-52" id="__codelineno-1-52" name="__codelineno-1-52"></a>
+</span><span id="__span-1-53"><a href="#__codelineno-1-53" id="__codelineno-1-53" name="__codelineno-1-53"></a><span class="c1">// Range of values of a u8</span>
+</span><span id="__span-1-54"><a href="#__codelineno-1-54" id="__codelineno-1-54" name="__codelineno-1-54"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ByteRange</span>
+</span><span id="__span-1-55"><a href="#__codelineno-1-55" id="__codelineno-1-55" name="__codelineno-1-55"></a><span class="p">{</span>
+</span><span id="__span-1-56"><a href="#__codelineno-1-56" id="__codelineno-1-56" name="__codelineno-1-56"></a><span class="w">  </span><span class="n">min</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span><span class="p">,</span><span class="w">  </span><span class="c1">// minimum range</span>
+</span><span id="__span-1-57"><a href="#__codelineno-1-57" id="__codelineno-1-57" name="__codelineno-1-57"></a><span class="w">  </span><span class="n">max</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span><span class="w">   </span><span class="c1">// needs to be &gt;= min</span>
+</span><span id="__span-1-58"><a href="#__codelineno-1-58" id="__codelineno-1-58" name="__codelineno-1-58"></a><span class="p">}</span>
+</span><span id="__span-1-59"><a href="#__codelineno-1-59" id="__codelineno-1-59" name="__codelineno-1-59"></a>
+</span><span id="__span-1-60"><a href="#__codelineno-1-60" id="__codelineno-1-60" name="__codelineno-1-60"></a><span class="c1">// Range of values of a IPv4 multicast address</span>
+</span><span id="__span-1-61"><a href="#__codelineno-1-61" id="__codelineno-1-61" name="__codelineno-1-61"></a><span class="n">array</span><span class="o">&lt;</span><span class="n">ByteRange</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MulticastRange</span><span class="p">;</span>
+</span><span id="__span-1-62"><a href="#__codelineno-1-62" id="__codelineno-1-62" name="__codelineno-1-62"></a>
+</span><span id="__span-1-63"><a href="#__codelineno-1-63" id="__codelineno-1-63" name="__codelineno-1-63"></a><span class="c1">// Remember to set these to the same value in all related Sen instances</span>
+</span><span id="__span-1-64"><a href="#__codelineno-1-64" id="__codelineno-1-64" name="__codelineno-1-64"></a><span class="k">struct</span><span class="w"> </span><span class="nc">BusConfig</span>
+</span><span id="__span-1-65"><a href="#__codelineno-1-65" id="__codelineno-1-65" name="__codelineno-1-65"></a><span class="p">{</span>
+</span><span id="__span-1-66"><a href="#__codelineno-1-66" id="__codelineno-1-66" name="__codelineno-1-66"></a><span class="w">  </span><span class="c1">// Defaults to: [224-239], [0-255], [0-255], [0-255]</span>
+</span><span id="__span-1-67"><a href="#__codelineno-1-67" id="__codelineno-1-67" name="__codelineno-1-67"></a><span class="w">  </span><span class="c1">// Remember to keep a range wide enough for avoiding collisions if you have many buses.</span>
+</span><span id="__span-1-68"><a href="#__codelineno-1-68" id="__codelineno-1-68" name="__codelineno-1-68"></a><span class="w">  </span><span class="n">multicastRange</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">MulticastRange</span><span class="p">,</span>
+</span><span id="__span-1-69"><a href="#__codelineno-1-69" id="__codelineno-1-69" name="__codelineno-1-69"></a>
+</span><span id="__span-1-70"><a href="#__codelineno-1-70" id="__codelineno-1-70" name="__codelineno-1-70"></a><span class="w">  </span><span class="c1">// Defaults to 50985</span>
+</span><span id="__span-1-71"><a href="#__codelineno-1-71" id="__codelineno-1-71" name="__codelineno-1-71"></a><span class="w">  </span><span class="c1">// Change this in case you have limited control over the infrastructure.</span>
+</span><span id="__span-1-72"><a href="#__codelineno-1-72" id="__codelineno-1-72" name="__codelineno-1-72"></a><span class="w">  </span><span class="n">multicastPort</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span>
+</span><span id="__span-1-73"><a href="#__codelineno-1-73" id="__codelineno-1-73" name="__codelineno-1-73"></a>
+</span><span id="__span-1-74"><a href="#__codelineno-1-74" id="__codelineno-1-74" name="__codelineno-1-74"></a><span class="w">  </span><span class="c1">// If true, no multicast traffic is performed and all the bus settings above</span>
+</span><span id="__span-1-75"><a href="#__codelineno-1-75" id="__codelineno-1-75" name="__codelineno-1-75"></a><span class="w">  </span><span class="c1">// become meaningless. Defaults to false.</span>
+</span><span id="__span-1-76"><a href="#__codelineno-1-76" id="__codelineno-1-76" name="__codelineno-1-76"></a><span class="w">  </span><span class="n">multicastDisabled</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-1-77"><a href="#__codelineno-1-77" id="__codelineno-1-77" name="__codelineno-1-77"></a><span class="p">}</span>
+</span><span id="__span-1-78"><a href="#__codelineno-1-78" id="__codelineno-1-78" name="__codelineno-1-78"></a>
+</span><span id="__span-1-79"><a href="#__codelineno-1-79" id="__codelineno-1-79" name="__codelineno-1-79"></a><span class="n">optional</span><span class="o">&lt;</span><span class="kt">u16</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybeDiscoveryHubPort</span><span class="p">;</span>
+</span><span id="__span-1-80"><a href="#__codelineno-1-80" id="__codelineno-1-80" name="__codelineno-1-80"></a>
+</span><span id="__span-1-81"><a href="#__codelineno-1-81" id="__codelineno-1-81" name="__codelineno-1-81"></a><span class="c1">// Overall component configuration</span>
+</span><span id="__span-1-82"><a href="#__codelineno-1-82" id="__codelineno-1-82" name="__codelineno-1-82"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
+</span><span id="__span-1-83"><a href="#__codelineno-1-83" id="__codelineno-1-83" name="__codelineno-1-83"></a><span class="p">{</span>
+</span><span id="__span-1-84"><a href="#__codelineno-1-84" id="__codelineno-1-84" name="__codelineno-1-84"></a><span class="w">  </span><span class="n">discovery</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">DiscoveryConfig</span><span class="p">,</span><span class="w">        </span><span class="c1">// Discovery-related parameters</span>
+</span><span id="__span-1-85"><a href="#__codelineno-1-85" id="__codelineno-1-85" name="__codelineno-1-85"></a><span class="w">  </span><span class="n">busOutQueue</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for broadcasting to buses</span>
+</span><span id="__span-1-86"><a href="#__codelineno-1-86" id="__codelineno-1-86" name="__codelineno-1-86"></a><span class="w">  </span><span class="n">processUdpOutQueue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for communicating with processes over UDP</span>
+</span><span id="__span-1-87"><a href="#__codelineno-1-87" id="__codelineno-1-87" name="__codelineno-1-87"></a><span class="w">  </span><span class="n">processTcpOutQueue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for communicating with processes over TCP</span>
+</span><span id="__span-1-88"><a href="#__codelineno-1-88" id="__codelineno-1-88" name="__codelineno-1-88"></a><span class="w">  </span><span class="n">busConfig</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">BusConfig</span><span class="p">,</span><span class="w">              </span><span class="c1">// Bus transport configuration</span>
+</span><span id="__span-1-89"><a href="#__codelineno-1-89" id="__codelineno-1-89" name="__codelineno-1-89"></a><span class="w">  </span><span class="n">runDiscoveryHub</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDiscoveryHubPort</span><span class="p">,</span><span class="w">  </span><span class="c1">// If present, run the TCP discovery hub on this port</span>
+</span><span id="__span-1-90"><a href="#__codelineno-1-90" id="__codelineno-1-90" name="__codelineno-1-90"></a><span class="w">  </span><span class="n">networkDevice</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDeviceName</span><span class="w">         </span><span class="c1">// If present, the network device to use</span>
+</span><span id="__span-1-91"><a href="#__codelineno-1-91" id="__codelineno-1-91" name="__codelineno-1-91"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="queue-sizes">Queue sizes<a class="headerlink" href="#queue-sizes" title="Permanent link">¶</a></h2>
 <p>If the components are pumping more data than the I/O stack can handle, your system will eventually

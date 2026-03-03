@@ -1,0 +1,9 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+
+load:
+  - name: py
+    group: 3
+    freqHz: 1
+    module: inspecting_objects

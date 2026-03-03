@@ -1,0 +1,16 @@
+package sen.components.py;
+
+import "configuration.stl"
+
+// represents the embedded Python interpreter
+class PythonInterpreter
+{
+  // evaluates a Python expression
+  fn eval(expr: string) -> string;
+
+  // executes a Python code block
+  fn exec(code: string);
+
+  // executes a Python file
+  fn execFile(file: string);
+}

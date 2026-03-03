@@ -1,0 +1,10 @@
+import "animal.stl"
+
+package animals;
+
+// A Cat is an animal that can jump.
+class Cat : extends Animal
+{
+  // Makes the cat jump to a given location.
+  fn jumpToLocation(x: MetersU32, y: MetersU32);
+}

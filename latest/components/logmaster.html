@@ -170,7 +170,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.md">
+<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.html">
           
   
   
@@ -948,7 +948,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.html">
 <span class="md-ellipsis">
     
   
@@ -960,7 +960,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.html">
 <span class="md-ellipsis">
     
   
@@ -972,7 +972,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.html">
 <span class="md-ellipsis">
     
   
@@ -984,7 +984,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.html">
 <span class="md-ellipsis">
     
   
@@ -996,7 +996,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1008,7 +1008,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1020,7 +1020,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1032,7 +1032,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1044,7 +1044,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1056,7 +1056,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1068,7 +1068,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1080,7 +1080,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1154,7 +1154,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../licenses/licensed_code_in_sen.md">
+<a class="md-nav__link" href="../licenses/licensed_code_in_sen.html">
 <span class="md-ellipsis">
     
   
@@ -1188,7 +1188,59 @@
 </ul>
 <p>The LogMaster instance allows you to control all the loggers at the same time. You can also
 individually control each logger. The interface of these classes is:</p>
-<div class="language-rust highlight"><span class="filename">Log Master interface</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>
+<div class="language-rust highlight"><span class="filename">Log Master interface</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">import</span><span class="w"> </span><span class="s">"stl/sen/kernel/log.stl"</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="n">package</span><span class="w"> </span><span class="n">sen</span><span class="p">.</span><span class="n">components</span><span class="p">.</span><span class="n">logmaster</span><span class="p">;</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="c1">// represents a logger</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="n">class</span><span class="w"> </span><span class="n">Logger</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="p">{</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="c1">// the current log level of this logger</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">sen</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">log</span><span class="p">.</span><span class="n">LogLevel</span><span class="p">;</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">  </span><span class="c1">// the pattern used by this logger</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">pattern</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">  </span><span class="c1">// true if muted</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">muted</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="p">;</span>
+</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="w">  </span><span class="c1">// mute this logger</span>
+</span><span id="__span-1-18"><a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">mute</span><span class="p">();</span>
+</span><span id="__span-1-19"><a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a>
+</span><span id="__span-1-20"><a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="w">  </span><span class="c1">// unmute this logger</span>
+</span><span id="__span-1-21"><a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">unmute</span><span class="p">();</span>
+</span><span id="__span-1-22"><a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a>
+</span><span id="__span-1-23"><a href="#__codelineno-1-23" id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="w">  </span><span class="c1">// unmute this logger</span>
+</span><span id="__span-1-24"><a href="#__codelineno-1-24" id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">:</span><span class="w"> </span><span class="nc">sen</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">log</span><span class="p">.</span><span class="n">LogLevel</span><span class="p">);</span>
+</span><span id="__span-1-25"><a href="#__codelineno-1-25" id="__codelineno-1-25" name="__codelineno-1-25"></a>
+</span><span id="__span-1-26"><a href="#__codelineno-1-26" id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="w">  </span><span class="c1">// sets the pattern for this logger</span>
+</span><span id="__span-1-27"><a href="#__codelineno-1-27" id="__codelineno-1-27" name="__codelineno-1-27"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">setPattern</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
+</span><span id="__span-1-28"><a href="#__codelineno-1-28" id="__codelineno-1-28" name="__codelineno-1-28"></a><span class="p">}</span>
+</span><span id="__span-1-29"><a href="#__codelineno-1-29" id="__codelineno-1-29" name="__codelineno-1-29"></a>
+</span><span id="__span-1-30"><a href="#__codelineno-1-30" id="__codelineno-1-30" name="__codelineno-1-30"></a><span class="c1">// allows controlling the loggers</span>
+</span><span id="__span-1-31"><a href="#__codelineno-1-31" id="__codelineno-1-31" name="__codelineno-1-31"></a><span class="n">class</span><span class="w"> </span><span class="n">LogMaster</span>
+</span><span id="__span-1-32"><a href="#__codelineno-1-32" id="__codelineno-1-32" name="__codelineno-1-32"></a><span class="p">{</span>
+</span><span id="__span-1-33"><a href="#__codelineno-1-33" id="__codelineno-1-33" name="__codelineno-1-33"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">targetBus</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-1-34"><a href="#__codelineno-1-34" id="__codelineno-1-34" name="__codelineno-1-34"></a>
+</span><span id="__span-1-35"><a href="#__codelineno-1-35" id="__codelineno-1-35" name="__codelineno-1-35"></a><span class="w">  </span><span class="c1">// mute all the loggers</span>
+</span><span id="__span-1-36"><a href="#__codelineno-1-36" id="__codelineno-1-36" name="__codelineno-1-36"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">muteAll</span><span class="p">();</span>
+</span><span id="__span-1-37"><a href="#__codelineno-1-37" id="__codelineno-1-37" name="__codelineno-1-37"></a>
+</span><span id="__span-1-38"><a href="#__codelineno-1-38" id="__codelineno-1-38" name="__codelineno-1-38"></a><span class="w">  </span><span class="c1">// un-mutes all the muted loggers</span>
+</span><span id="__span-1-39"><a href="#__codelineno-1-39" id="__codelineno-1-39" name="__codelineno-1-39"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">unmuteAll</span><span class="p">();</span>
+</span><span id="__span-1-40"><a href="#__codelineno-1-40" id="__codelineno-1-40" name="__codelineno-1-40"></a>
+</span><span id="__span-1-41"><a href="#__codelineno-1-41" id="__codelineno-1-41" name="__codelineno-1-41"></a><span class="w">  </span><span class="c1">// toggles the muting of all loggers</span>
+</span><span id="__span-1-42"><a href="#__codelineno-1-42" id="__codelineno-1-42" name="__codelineno-1-42"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">toggleMuteAll</span><span class="p">();</span>
+</span><span id="__span-1-43"><a href="#__codelineno-1-43" id="__codelineno-1-43" name="__codelineno-1-43"></a>
+</span><span id="__span-1-44"><a href="#__codelineno-1-44" id="__codelineno-1-44" name="__codelineno-1-44"></a><span class="w">  </span><span class="c1">// sets all the loggers to a given level</span>
+</span><span id="__span-1-45"><a href="#__codelineno-1-45" id="__codelineno-1-45" name="__codelineno-1-45"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">:</span><span class="w"> </span><span class="nc">sen</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">log</span><span class="p">.</span><span class="n">LogLevel</span><span class="p">);</span>
+</span><span id="__span-1-46"><a href="#__codelineno-1-46" id="__codelineno-1-46" name="__codelineno-1-46"></a><span class="p">}</span>
+</span><span id="__span-1-47"><a href="#__codelineno-1-47" id="__codelineno-1-47" name="__codelineno-1-47"></a>
+</span><span id="__span-1-48"><a href="#__codelineno-1-48" id="__codelineno-1-48" name="__codelineno-1-48"></a><span class="c1">// component configuration</span>
+</span><span id="__span-1-49"><a href="#__codelineno-1-49" id="__codelineno-1-49" name="__codelineno-1-49"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Config</span>
+</span><span id="__span-1-50"><a href="#__codelineno-1-50" id="__codelineno-1-50" name="__codelineno-1-50"></a><span class="p">{</span>
+</span><span id="__span-1-51"><a href="#__codelineno-1-51" id="__codelineno-1-51" name="__codelineno-1-51"></a><span class="w">  </span><span class="n">targetBus</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">   </span><span class="c1">// defaults to "local.log"</span>
+</span><span id="__span-1-52"><a href="#__codelineno-1-52" id="__codelineno-1-52" name="__codelineno-1-52"></a><span class="w">  </span><span class="n">period</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="w">  </span><span class="c1">// defaults to 500 milliseconds</span>
+</span><span id="__span-1-53"><a href="#__codelineno-1-53" id="__codelineno-1-53" name="__codelineno-1-53"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>You can set your custom target bus by specifying a <code>targetBus</code> value. This would allow you to expose
 these loggers over the network when using a data transport service (such as the ether component).</p></div>

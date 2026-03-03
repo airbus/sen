@@ -1,0 +1,13 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [timer]
+    group: 3
+    objects:
+      - class: timer.TimerImpl
+        name: timer
+        bus: my.tutorial

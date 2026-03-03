@@ -1,0 +1,15 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/ether.yaml
+  - ../base/shell.yaml
+
+build:
+  - name: client
+    group: 4
+    freqHz: 5
+    imports: [terrain_server]
+    objects:
+      - name: terrainClient
+        class: terrain_server.TerrainClientImpl
+        bus: my.tutorial
+        serverBus: my.tutorial

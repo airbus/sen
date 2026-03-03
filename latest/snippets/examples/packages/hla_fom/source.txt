@@ -1,0 +1,1 @@
+This folder contains a copy of the standard HLA Federation Object Models by SISO (https://www.sisostandards.org/page/DataFiles).

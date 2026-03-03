@@ -1,0 +1,58 @@
+import "stl/sen/db/basic_types.stl"
+
+package sen.components.replayer;
+
+// represents the replayer component and manages Replay objects.
+class Replayer
+{
+  // if true, automatically calls play when opening a replay
+  var autoPlay : bool [static];
+
+  // opens an archive in a given path, and creates a named Replay object.
+  fn open(name: string, path: string) [confirmed];
+
+  // closes the named Replay object, if any.
+  fn close(name: string) [confirmed];
+
+  // closes all previously opened replays
+  fn closeAll() [confirmed];
+}
+
+// the state in which a Replay can be
+enum ReplayStatus: u8
+{
+  stopped, // not running, at the start of the archive
+  paused,  // not running, at the position when pause was called
+  playing  // performing the replay
+}
+
+// controls the replay of a given archive
+class Replay
+{
+  // information about the archive being replayed
+  var archiveInfo : sen.db.Summary [static];
+
+  // file path to the archive
+  var archivePath : string [static];
+
+  // playback status
+  var status : ReplayStatus [confirmed];
+
+  // playback time
+  var playbackTime : TimeStamp [bestEffort];
+
+  // starts the playback from the current position
+  fn play()  [confirmed];
+
+  // hold the playback position, if playing
+  fn pause() [confirmed];
+
+  // goes to the start of the playback, erasing all objects
+  fn stop() [confirmed];
+
+  // restores the playback to the keyframe that's closest to a given time
+  fn seek(time: TimeStamp) [confirmed];
+
+  // if paused or stopped, advances the playback a given time delta
+  fn advance(time: Duration);
+}

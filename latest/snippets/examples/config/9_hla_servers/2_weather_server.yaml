@@ -1,0 +1,15 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/ether.yaml
+  - ../base/shell.yaml
+
+build:
+  - name: weather
+    group: 4
+    freqHz: 30
+    imports: [weather_server]
+    objects:
+      - name: weatherServer
+        class: weather_server.WeatherServerImpl
+        bus: my.tutorial
+        targetBus: my.tutorial

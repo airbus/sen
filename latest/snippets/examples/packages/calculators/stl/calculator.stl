@@ -1,0 +1,37 @@
+package calculators;
+
+// A simple calculator that can add and divide numbers.
+class Calculator
+{
+  // The model of the calculator
+  var model : string [static];
+
+  // The last result, or what is currently presented at the screen.
+  var current : f32;
+
+  // Returns "a + b" and sets the last result to it.
+  //
+  // @param a left-hand operator.
+  // @param b right-hand operator.
+  fn add(a: f32, b: f32) -> f32;
+
+  // Returns "a + R" where R is was the last result.
+  //
+  // @param a left-hand operator.
+  fn addWithCurrent(a: f32) -> f32;
+
+  // Returns "a / b" and sets the last result to it.
+  //
+  // @param a left-hand operator.
+  // @param b right-hand operator (if 0, the divisionByZero event gets emitted).
+  fn divide(a: f32, b: f32) -> f32;
+
+  // Returns "a / R" where R is was the last result.
+  // If R is 0, the divisionByZero event gets emitted.
+  //
+  // @param a left-hand operator.
+  fn divideByCurrent(a: f32) -> f32;
+
+  // Emitted when there's an attempt to divide by zero.
+  event divisionByZero();
+}

@@ -1,0 +1,16 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+
+load:
+  - name: recorder  # load the recorder component
+    group: 2
+    recordings:
+      - name: kernel_recording
+        folder: .
+        indexKeyframes: true
+        indexObjects: true
+        keyframePeriod: 2 s
+        autoStart: true
+        selections:
+          - SELECT * FROM local.kernel  # record all objects in local.kernel

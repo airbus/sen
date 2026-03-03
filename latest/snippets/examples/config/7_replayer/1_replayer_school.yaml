@@ -1,0 +1,15 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+  - ../base/ether.yaml
+
+load:
+  - name: shell
+    open:
+      - local.replay
+      - school.primary
+      - school.secondary
+  - name: replayer
+    autoOpen: school_recording  # this is the path to the archive
+    autoPlay: true  # start the playback right away
+    group: 20

@@ -1,0 +1,4 @@
+# $schema: schema.json
+load:
+  - name: explorer
+    group: 1

@@ -170,7 +170,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.md">
+<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.html">
           
   
   
@@ -1003,7 +1003,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1015,7 +1015,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1027,7 +1027,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1039,7 +1039,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1051,7 +1051,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1063,7 +1063,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1075,7 +1075,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1087,7 +1087,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1099,7 +1099,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1111,7 +1111,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1123,7 +1123,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1135,7 +1135,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.md">
+<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.html">
 <span class="md-ellipsis">
     
   
@@ -1209,7 +1209,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../licenses/licensed_code_in_sen.md">
+<a class="md-nav__link" href="../licenses/licensed_code_in_sen.html">
 <span class="md-ellipsis">
     
   
@@ -1266,7 +1266,26 @@ connect other tools to do your analytics.</p>
 <p>The Sen <code>influx</code> component sends the data to Telegraf over UDP or TCP.</p>
 <h2 id="running-the-influx-component">Running the Influx component<a class="headerlink" href="#running-the-influx-component" title="Permanent link">¶</a></h2>
 <p>The configuration parameters are:</p>
-<div class="language-rust highlight"><span class="filename">Influx configuration options</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>
+<div class="language-rust highlight"><span class="filename">Influx configuration options</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">package</span><span class="w"> </span><span class="n">sen</span><span class="p">.</span><span class="n">components</span><span class="p">.</span><span class="n">influx</span><span class="p">;</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SelectionList</span><span class="p">;</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="k">enum</span><span class="w"> </span><span class="nc">Protocol</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="p">{</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="n">udp</span><span class="p">,</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="n">tcp</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="p">}</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="c1">// Overall component configuration</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="p">{</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="n">samplingPeriod</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="p">,</span><span class="w">       </span><span class="c1">// sampling period for the recordings</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">  </span><span class="n">selections</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">SelectionList</span><span class="p">,</span><span class="w">  </span><span class="c1">// objects to be monitored (using sql)</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">  </span><span class="n">telegrafAddress</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">         </span><span class="c1">// ip or name of the Telegraf server</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">  </span><span class="n">telegrafPort</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span><span class="w">            </span><span class="c1">// port used by the Telegraf server</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="n">protocol</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">Protocol</span><span class="p">,</span><span class="w">       </span><span class="c1">// protocol used</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="n">batchSize</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w">             </span><span class="c1">// points to batch before emission (0 means no batching)</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>For example, you can run a Sen process and tell the <code>influx</code> component to forward all the objects in
 a given bus:</p>
