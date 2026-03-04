@@ -21,8 +21,6 @@ var structsen_1_1kernel_1_1_bus_id =
     [ "operator*", "structsen_1_1kernel_1_1_bus_id.html#ac8ebbda35ecfb861c47585be3a8c5dbb", null ],
     [ "get", "structsen_1_1kernel_1_1_bus_id.html#a695787c350c8d2a69c6825d8be4f5476", null ],
     [ "set", "structsen_1_1kernel_1_1_bus_id.html#aeb6e9327980a8423fe6d06b9609d1cab", null ],
-    [ "set", "structsen_1_1kernel_1_1_bus_id.html#a4994ee5434775455cf0f4d73849f84cc", null ],
     [ "val", "structsen_1_1kernel_1_1_bus_id.html#a9f8d78683e0de6397819f305380da90a", null ],
-    [ "val", "structsen_1_1kernel_1_1_bus_id.html#a6c75bcd1c64fb373b4f77d1551a91eda", null ],
     [ "userData", "structsen_1_1kernel_1_1_bus_id.html#a736d6b4341d3fd7fbd0e14eba3a8d332", null ]
 ];

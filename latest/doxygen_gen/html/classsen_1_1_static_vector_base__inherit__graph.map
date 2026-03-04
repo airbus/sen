@@ -1,9 +1,5 @@
 <map id="sen::StaticVectorBase&lt; T &gt;" name="sen::StaticVectorBase&lt; T &gt;">
-<area shape="rect" id="Node000001" title="Base class for stack&#45;based, exception&#45;safe and resizable vector with fixed&#45;capacity." alt="" coords="148,5,360,431"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_static_vector.html" title=" " alt="" coords="5,479,145,799"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,444,146,479,141,477,156,442"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_static_vector.html" title=" " alt="" coords="169,479,339,799"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="257,444,257,478,251,478,251,444"/>
-<area shape="rect" id="Node000004" href="$classsen_1_1_static_vector.html" title="Stack&#45;based, exception&#45;free and resizable vector with fixed&#45;capacity." alt="" coords="363,479,497,799"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="351,442,366,477,361,479,346,444"/>
+<area shape="rect" id="Node000001" title="Base class for stack&#45;based, exception&#45;safe and resizable vector with fixed&#45;capacity." alt="" coords="5,5,217,431"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_static_vector.html" title="Stack&#45;based, exception&#45;free and resizable vector with fixed&#45;capacity." alt="" coords="44,479,179,799"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,444,114,478,109,478,109,444"/>
 </map>

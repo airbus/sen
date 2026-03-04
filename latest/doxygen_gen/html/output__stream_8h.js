@@ -1,4 +1,4 @@
 var output__stream_8h =
 [
-    [ "OutputStream", "output__stream_8h.html#a7d090000cf689248498db0018674428f", null ]
+    [ "sen::OutputStream", "namespacesen.html#a13574a2883632e1dad665d434fd0bb1c", null ]
 ];

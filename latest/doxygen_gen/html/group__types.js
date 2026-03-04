@@ -52,55 +52,6 @@ var group__types =
       [ "operator!=", "classsen_1_1_callable.html#a942d868e79dc566cbc84bdd29fb0f4fb", null ],
       [ "getCallableSpec", "classsen_1_1_callable.html#ad06a26a24e525bfbd3f062b52e463b3b", null ]
     ] ],
-    [ "sen::ClassSpec", "group__types.html#structsen_1_1_class_spec", [
-      [ "name", "group__types.html#a2fc3ff6f8ad8e907d914601d99c960de", null ],
-      [ "qualifiedName", "group__types.html#ac3c606b92ca4d025f0c08e4226d2efca", null ],
-      [ "description", "group__types.html#a95843efba2a08f95346b9c04817b4278", null ],
-      [ "properties", "group__types.html#ad5bad8142ca203e26bee0609b43cea81", null ],
-      [ "methods", "group__types.html#a945ebdb1ab0c8b4737a62070c23f086e", null ],
-      [ "events", "group__types.html#a06cdf5fbff325ad7ce0f87e975745fc9", null ],
-      [ "constructor", "group__types.html#a27ae7cf3c359d5f51fafa06f4e15ed3f", null ],
-      [ "parents", "group__types.html#a39975d6f762bc234cb027300dc408237", null ],
-      [ "isInterface", "group__types.html#a23c4c071c5dbf01bce9c95d761191563", null ],
-      [ "isAbstract", "group__types.html#a88cd182a21f07b0f9bf663074ee09db9", null ],
-      [ "remoteProxyMaker", "group__types.html#a78ef4d7d2ac308a0444aad6bf28d58cc", null ],
-      [ "localProxyMaker", "group__types.html#adc739a14be4efc4dc8a904a25ea116bf", null ]
-    ] ],
-    [ "sen::ClassType", "classsen_1_1_class_type.html", [
-      [ "SearchMode", "classsen_1_1_class_type.html#a40810b7243ab9a6a7e6ceb9c5e40ece2", [
-        [ "includeParents", "classsen_1_1_class_type.html#a40810b7243ab9a6a7e6ceb9c5e40ece2a503c14e0f14c236092511f7e59ef9058", null ],
-        [ "doNotIncludeParents", "classsen_1_1_class_type.html#a40810b7243ab9a6a7e6ceb9c5e40ece2ac636cdbaca60f273dd1468f2bc3c142c", null ]
-      ] ],
-      [ "ClassType", "classsen_1_1_class_type.html#a83172e993c8a44bf7c834b2e11ef8e77", null ],
-      [ "~ClassType", "classsen_1_1_class_type.html#ab714fa0cb58f29b87c5b2e82f7280bd7", null ],
-      [ "getProperties", "classsen_1_1_class_type.html#a676fb994889bf89b66b8ebcab9c95cc7", null ],
-      [ "getMethods", "classsen_1_1_class_type.html#abf9dbfd2006f0f3539eb7240096ae5b9", null ],
-      [ "getEvents", "classsen_1_1_class_type.html#a3431f48ae5e108d625f7cbe9d3082da1", null ],
-      [ "getParents", "classsen_1_1_class_type.html#a5fa705dfb74e8f2bfec35ec69c6f7718", null ],
-      [ "getConstructor", "classsen_1_1_class_type.html#a60f9ad6232e37faf99632abba3134225", null ],
-      [ "searchPropertyByName", "classsen_1_1_class_type.html#aa343436e7c248a01271eb67f3ae9b5a0", null ],
-      [ "searchPropertyById", "classsen_1_1_class_type.html#af7b683f40c34c9c1e781a07d94b9e1f6", null ],
-      [ "searchMethodByName", "classsen_1_1_class_type.html#a2a7e925ca59433fed3265743a7065c5a", null ],
-      [ "searchMethodById", "classsen_1_1_class_type.html#aabbe94a063f271884aa7dc89617df01c", null ],
-      [ "searchEventByName", "classsen_1_1_class_type.html#ab2f1c1a8436d1b4904b3f05cdcc53f04", null ],
-      [ "searchEventById", "classsen_1_1_class_type.html#a523ee355d6b060d6ee24948a21aaf285", null ],
-      [ "isSameOrInheritsFrom", "classsen_1_1_class_type.html#a399563b943bf0208b6f9efed487dac99", null ],
-      [ "isSameOrInheritsFrom", "classsen_1_1_class_type.html#a121299237ed04bbcb19b6eeb4daeb5e9", null ],
-      [ "isInterface", "classsen_1_1_class_type.html#a15872b0a9cfea6fb9c9132c979e180ba", null ],
-      [ "isAbstract", "classsen_1_1_class_type.html#ae4b7c03df2e39b831f436809f8c2479c", null ],
-      [ "getId", "classsen_1_1_class_type.html#a1f70d1ee13b96fe3c9b22b5b88ac0ef1", null ],
-      [ "createRemoteProxy", "classsen_1_1_class_type.html#a4582777b69ec474837f9c8809e8f7832", null ],
-      [ "createLocalProxy", "classsen_1_1_class_type.html#a553e8c93e4963d101bd638874e27e4f2", null ],
-      [ "hasProxyMakers", "classsen_1_1_class_type.html#ac6bc8d8a7cefd5716a7e6340aaac1254", null ],
-      [ "setLocalProxyMaker", "classsen_1_1_class_type.html#aaa77b3d002bb222a52cd0b3651e0d695", null ],
-      [ "getName", "classsen_1_1_class_type.html#a87440b9494f7c8f3b9475ca46b68b9bc", null ],
-      [ "getQualifiedName", "classsen_1_1_class_type.html#a8b654bee99aa078254e3191ed7dbe4b9", null ],
-      [ "getDescription", "classsen_1_1_class_type.html#a9a0862cb55dcb0c1d244c0e0b1aceade", null ],
-      [ "equals", "classsen_1_1_class_type.html#ae8f86919885efd67611ab97c5e8174a9", null ],
-      [ "isBounded", "classsen_1_1_class_type.html#a7de76e55bb4c58501914677c0ab78360", null ],
-      [ "accept", "classsen_1_1_class_type.html#a502dcfa67529ec0d78189fd241560c98", null ],
-      [ "getHash", "classsen_1_1_class_type.html#adf956438f2ae47e8b11d08988234c656", null ]
-    ] ],
     [ "sen::CustomType", "classsen_1_1_custom_type.html", [
       [ "CustomType", "classsen_1_1_custom_type.html#a13ede1de6cb24f387abc92212e9549d2", null ],
       [ "~CustomType", "classsen_1_1_custom_type.html#ae718d6aa22aae8905103cfc467a63dfa", null ],
@@ -442,23 +393,18 @@ var group__types =
       [ "operator>", "structsen_1_1_member_hash.html#ad6f05cd4addbba3c7af3437e3f4fa095", null ],
       [ "operator>=", "structsen_1_1_member_hash.html#ae40305e7dea04585e2f39cb79d8ab8ea", null ],
       [ "operator++", "structsen_1_1_member_hash.html#a510ff6b0e79986426c5367730f2efb61", null ],
-      [ "operator++", "structsen_1_1_member_hash.html#adf9e88440b64be81bc94fdbd2fa2ef36", null ],
       [ "operator--", "structsen_1_1_member_hash.html#a4765c628eb86251695e0a5d6d985179b", null ],
-      [ "operator--", "structsen_1_1_member_hash.html#a75b490d1d7e0de26d35fad289e07e7bf", null ],
       [ "operator+=", "structsen_1_1_member_hash.html#ad1afe213f199ddfb7643ccc730c3788a", null ],
       [ "operator+", "structsen_1_1_member_hash.html#a0f6dbc2bf0819729dd671f0c4c7c3330", null ],
       [ "operator-=", "structsen_1_1_member_hash.html#a4fe0271da9ec7296ac44e438610c4a59", null ],
       [ "operator-", "structsen_1_1_member_hash.html#a07599774cd9baa3fadf887dc80c59bad", null ],
-      [ "operator-", "structsen_1_1_member_hash.html#a2ccb4520257da2059091db416f64570f", null ],
       [ "operator*=", "structsen_1_1_member_hash.html#a1792da0d6f58a160424d91af08773c30", null ],
       [ "operator*", "structsen_1_1_member_hash.html#ac8ebbda35ecfb861c47585be3a8c5dbb", null ],
       [ "get", "structsen_1_1_member_hash.html#a695787c350c8d2a69c6825d8be4f5476", null ],
       [ "set", "structsen_1_1_member_hash.html#aeb6e9327980a8423fe6d06b9609d1cab", null ],
-      [ "set", "structsen_1_1_member_hash.html#a4994ee5434775455cf0f4d73849f84cc", null ],
-      [ "val", "structsen_1_1_member_hash.html#a9f8d78683e0de6397819f305380da90a", null ],
-      [ "val", "structsen_1_1_member_hash.html#a6c75bcd1c64fb373b4f77d1551a91eda", null ]
+      [ "val", "structsen_1_1_member_hash.html#a9f8d78683e0de6397819f305380da90a", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< MemberHash >", "structsen_1_1_should_be_passed_by_value_3_01_member_hash_01_4.html", null ],
+    [ "sen::ShouldBePassedByValue&lt; MemberHash &gt;", "structsen_1_1_should_be_passed_by_value_3_01_member_hash_01_4.html", null ],
     [ "sen::Type", "classsen_1_1_type.html", [
       [ "~Type", "classsen_1_1_type.html#abb202556b7f905e653699c418e1ecd07", null ],
       [ "Type", "classsen_1_1_type.html#a52cbfdeb412e7093c444f7bfec6b9530", null ],
@@ -471,7 +417,7 @@ var group__types =
       [ "operator==", "classsen_1_1_type.html#a9497fcb3a78c7cf73f21b8d8cb124cb2", null ],
       [ "operator!=", "classsen_1_1_type.html#a8ce7289f7ff7cf9cd337f86e10fc7abe", null ]
     ] ],
-    [ "sen::TypeHandle< SenTypeType >", "classsen_1_1_type_handle.html", [
+    [ "sen::TypeHandle&lt; SenTypeType &gt;", "classsen_1_1_type_handle.html", [
       [ "TypeHandle", "classsen_1_1_type_handle.html#a74e3e6b8bc4785d0f7d636a952ff45e6", null ],
       [ "TypeHandle", "classsen_1_1_type_handle.html#a2f6f036595c263ada65491b18c53824f", null ],
       [ "TypeHandle", "classsen_1_1_type_handle.html#a371c09ec7c1e05e3384fea19cc654f4e", null ],
@@ -490,7 +436,7 @@ var group__types =
       [ "operator!=", "classsen_1_1_type_handle.html#a910372610c37802c79711bd5dcdfffdd", null ],
       [ "operator!=", "classsen_1_1_type_handle.html#a6f6ad4dcb1ef9c3f08c96a3f253b72ed", null ],
       [ "operator!=", "classsen_1_1_type_handle.html#a1c2d639c416a258fa81e1fa32af01b3a", null ],
-      [ "dynamicTypeHandleCast", "classsen_1_1_type_handle.html#acbf09809e89b11e115a0c4eb2f91b622", null ]
+      [ "dynamicTypeHandleCast", "classsen_1_1_type_handle.html#a1b32d1e260318392d2fecd2904561d7e", null ]
     ] ],
     [ "sen::VariantField", "structsen_1_1_variant_field.html", [
       [ "VariantField", "structsen_1_1_variant_field.html#a387a46918db084808cdd11f48f0c7832", null ],
@@ -521,20 +467,11 @@ var group__types =
       [ "accept", "classsen_1_1_variant_type.html#a502dcfa67529ec0d78189fd241560c98", null ],
       [ "getHash", "classsen_1_1_variant_type.html#adf956438f2ae47e8b11d08988234c656", null ]
     ] ],
-    [ "sen::PropertyList", "group__types.html#gaa1d1100e12ded380a354937a5654999e", null ],
-    [ "sen::MethodList", "group__types.html#ga02d2645c8b5d1b5018e3e5f98a19d258", null ],
-    [ "sen::EventList", "group__types.html#ga4bd9d10607ac45681df78aa8bf543aee", null ],
-    [ "sen::ClassList", "group__types.html#gac47bc1a1d3ab5bbd6c22dc1709624f98", null ],
-    [ "sen::RemoteProxyMaker", "group__types.html#ga87c8e75e4427c92eb31d7720877cdfa5", null ],
-    [ "sen::LocalProxyMaker", "group__types.html#ga7a68d5dc9d2fb7d6e14cc9c28913ab33", null ],
-    [ "sen::InstanceStorageType", "group__types.html#ga008714a5049378cfce57c87c96aef455", null ],
-    [ "sen::InstanceMakerFunc", "group__types.html#ga3a39bbec80af9be7127c75964316fb56", null ],
-    [ "sen::ExportedTypesList", "group__types.html#gafee38662b3dfafccd97b0efdd687e7cb", null ],
-    [ "sen::PropertyRelation", "group__types.html#ga31f47b8205ea760ced28ead8c6cb0d16", null ],
-    [ "sen::NativeFieldValueGetter", "group__types.html#ga7394dcdf545b5ce86d75bb6cd42e6a49", null ],
-    [ "sen::ConstSharedPtr", "group__types.html#ga8d4ffb51e4ae077d44d297d7da5208da", null ],
-    [ "sen::ConstTypeHandle", "group__types.html#ga64ced1d860468adfa2472ae9b644b19a", null ],
-    [ "sen::MaybeConstTypeHandle", "group__types.html#ga59a6958a1c89d122bc9e3072e4ed24f7", null ],
+    [ "sen::PropertyRelation", "group__types.html#ga209fec86b73cd5364245d58960c12e4e", null ],
+    [ "sen::NativeFieldValueGetter", "group__types.html#gac8d571260a6cf9ac1f71d45be806ba09", null ],
+    [ "sen::ConstSharedPtr", "group__types.html#gaa6fb159bd0ccbf9a11c2c13b4c61fb0e", null ],
+    [ "sen::ConstTypeHandle", "group__types.html#gae73ad15e959c56c8e8bf9c693da6dab2", null ],
+    [ "sen::MaybeConstTypeHandle", "group__types.html#gab37050f153e0549fbf688fb2d3934bc7", null ],
     [ "sen::Constness", "group__types.html#ga4f615168817be20467fd4a560d45e040", [
       [ "sen::Constness::constant", "group__types.html#gga4f615168817be20467fd4a560d45e040a617ac08757d38a5a7ed91c224f0e90a0", null ],
       [ "sen::Constness::nonConstant", "group__types.html#gga4f615168817be20467fd4a560d45e040a5b21749e2da316ad20d8dce752910735", null ]
@@ -550,8 +487,6 @@ var group__types =
       [ "sen::TransportMode::multicast", "group__types.html#ggae77540f91f8683ce9ee82122246dee50a6087b5325467bcd38d27ab67ec7e7861", null ],
       [ "sen::TransportMode::confirmed", "group__types.html#ggae77540f91f8683ce9ee82122246dee50aeda721c5f8c61daee37ca15ce3c4d881", null ]
     ] ],
-    [ "sen::operator==", "group__types.html#ga1c5a4dff7fda65c0a6ef64b5b1f352fe", null ],
-    [ "sen::operator!=", "group__types.html#ga3b72a7741aea139f69ad6b2d87132ff0", null ],
     [ "sen::operator==", "group__types.html#ga00d033b3f23f5d1d6ed7f09c06a9315d", null ],
     [ "sen::operator!=", "group__types.html#ga12f37560c5de0f2d8592753b17055f4b", null ],
     [ "sen::getNativeTypes", "group__types.html#gab88c961f46ce3349d933b79a6833430c", null ],

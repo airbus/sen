@@ -1,5 +1,7 @@
 <map id="sen::std_util::detail::IsInPlaceType&lt; std::in_place_type_t&lt; T &gt; &gt;" name="sen::std_util::detail::IsInPlaceType&lt; std::in_place_type_t&lt; T &gt; &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,183,213"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="42,5,146,71"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,84,97,118,91,118,91,84"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="37,119,215,213"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,116,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,82,104,117,99,120,81,84"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="141,5,245,71"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,84,153,120,148,117,167,82"/>
 </map>

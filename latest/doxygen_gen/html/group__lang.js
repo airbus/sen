@@ -93,8 +93,8 @@ var group__lang =
       [ "checkedProperties", "group__lang.html#ad95e3d30302cd5389bc079ddbc2137be", null ],
       [ "deferredMethods", "group__lang.html#aaba1f7e5dd7a0d8aa070c43f2be83108", null ]
     ] ],
-    [ "sen::lang::TypeSettings", "group__lang.html#structsen_1_1lang_1_1_type_settings", [
-      [ "classAnnotations", "group__lang.html#a9ed81906b3948c3547f750efa21f5477", null ]
+    [ "sen::lang::TypeSettings", "structsen_1_1lang_1_1_type_settings.html", [
+      [ "classAnnotations", "structsen_1_1lang_1_1_type_settings.html#a9ed81906b3948c3547f750efa21f5477", null ]
     ] ],
     [ "sen::lang::StlResolver", "classsen_1_1lang_1_1_stl_resolver.html", [
       [ "StlResolver", "classsen_1_1lang_1_1_stl_resolver.html#a8e1b74ba8245999a5ee4ae2e6faadb8e", null ],
@@ -266,13 +266,13 @@ var group__lang =
       [ "parse", "classsen_1_1lang_1_1_v_m.html#a7ac1192e3cc4ec53bfa0272fe4e0e524", null ],
       [ "compile", "classsen_1_1lang_1_1_v_m.html#ac866729ee7bc343c3d6b2728bc86ce39", null ]
     ] ],
-    [ "sen::lang::StlExprVal", "group__lang.html#ga2e0588b3986906971e2efd5719f48711", null ],
-    [ "sen::lang::StlAttributeList", "group__lang.html#ga610f5a121e5e54eac6a812d4dd41abbf", null ],
-    [ "sen::lang::StlStatement", "group__lang.html#gaa534ecda01af7ef53eb593d1ff99276e", null ],
-    [ "sen::lang::StlTokenList", "group__lang.html#ga3bd2222a8b5e6c3bf09221c56648c0cb", null ],
-    [ "sen::lang::Value", "group__lang.html#ga2ec92ffd0a2c95a2ae1ea0f89766dfda", null ],
-    [ "sen::lang::ValueGetter", "group__lang.html#ga74785e6ba092b8900037dd492b4bd17d", null ],
-    [ "sen::lang::Environment", "group__lang.html#gaa4e80be15cbeb08e9a035b15c8e19bd0", null ],
+    [ "sen::lang::StlExprVal", "group__lang.html#ga2e39da5a9573ddf664e483117f5d3699", null ],
+    [ "sen::lang::StlAttributeList", "group__lang.html#gac229260278559929cf4c008f8f88a456", null ],
+    [ "sen::lang::StlStatement", "group__lang.html#ga170c91699bd7e1ae59ff2c57c8c0df6f", null ],
+    [ "sen::lang::StlTokenList", "group__lang.html#ga8e17da860f29deac13529afd07f0176f", null ],
+    [ "sen::lang::Value", "group__lang.html#gaf9b0ac2016e9ea5975f55470c0ecdd8e", null ],
+    [ "sen::lang::ValueGetter", "group__lang.html#ga32f9c23440e7c27bfd0b1deed81cb0c6", null ],
+    [ "sen::lang::Environment", "group__lang.html#ga4de19ce4864f78fb6eca7263d11287eb", null ],
     [ "sen::lang::StlUnaryOperator", "group__lang.html#ga4e0eeefcf95ea836c8f1925dbccb22de", [
       [ "sen::lang::StlUnaryOperator::logicalNot", "group__lang.html#gga4e0eeefcf95ea836c8f1925dbccb22dea8d00aecbb338db4faaff1ae1fb58ab4b", null ],
       [ "sen::lang::StlUnaryOperator::negate", "group__lang.html#gga4e0eeefcf95ea836c8f1925dbccb22dea2d11beba811e6ec7b47d7a801cf8173f", null ]

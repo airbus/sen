@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['addconstref_0',['AddConstRef',['../group__templates.html#ga66359c2a03e6f56ba8984a51a9f2dbd8',1,'sen']]],
-  ['annotationcursor_1',['AnnotationCursor',['../group__db.html#gaab5e7bb175834c601918c7b7a9a97f17',1,'sen::db']]]
+  ['addconstref_0',['AddConstRef',['../group__templates.html#gacee7bd4239462a865b9b9c6235abd11f',1,'sen']]],
+  ['annotationcursor_1',['AnnotationCursor',['../group__db.html#ga3dc4b7b3b64103e8f79b49aba36ea46c',1,'sen::db']]]
 ];

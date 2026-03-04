@@ -8,5 +8,7 @@ var searchData=
   ['quantitytraitsbase_5',['QuantityTraitsBase',['../structsen_1_1_quantity_traits_base.html',1,'sen']]],
   ['quantitytype_6',['QuantityType',['../classsen_1_1_quantity_type.html',1,'sen']]],
   ['quat_7',['Quat',['../classsen_1_1util_1_1_quat.html',1,'sen::util']]],
-  ['querystatement_8',['QueryStatement',['../group__lang.html#structsen_1_1lang_1_1_query_statement',1,'sen::lang']]]
+  ['quat_3c_20f32_20_3e_8',['Quat&lt; f32 &gt;',['../classsen_1_1util_1_1_quat.html',1,'sen::util']]],
+  ['quat_3c_20f64_20_3e_9',['Quat&lt; f64 &gt;',['../classsen_1_1util_1_1_quat.html',1,'sen::util']]],
+  ['querystatement_10',['QueryStatement',['../group__lang.html#structsen_1_1lang_1_1_query_statement',1,'sen::lang']]]
 ];

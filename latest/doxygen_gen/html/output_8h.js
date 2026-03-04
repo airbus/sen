@@ -1,5 +1,5 @@
 var output_8h =
 [
-    [ "ErrorHandler", "output_8h.html#gadd80de20d286617489bc491abf6f5ffe", null ],
-    [ "ObjectInfoList", "output_8h.html#ga821cc6c473d568cbbfd82011363d8bf2", null ]
+    [ "sen::db::ErrorHandler", "group__db.html#gaac91ac50c14cdb3ae26db21bd27475cf", null ],
+    [ "sen::db::ObjectInfoList", "group__db.html#gaf639b0f6a3f3654eb5db87147067cb2b", null ]
 ];

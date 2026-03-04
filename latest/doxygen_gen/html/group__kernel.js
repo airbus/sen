@@ -211,9 +211,7 @@ var group__kernel =
       [ "operator*", "structsen_1_1kernel_1_1_bus_id.html#ac8ebbda35ecfb861c47585be3a8c5dbb", null ],
       [ "get", "structsen_1_1kernel_1_1_bus_id.html#a695787c350c8d2a69c6825d8be4f5476", null ],
       [ "set", "structsen_1_1kernel_1_1_bus_id.html#aeb6e9327980a8423fe6d06b9609d1cab", null ],
-      [ "set", "structsen_1_1kernel_1_1_bus_id.html#a4994ee5434775455cf0f4d73849f84cc", null ],
       [ "val", "structsen_1_1kernel_1_1_bus_id.html#a9f8d78683e0de6397819f305380da90a", null ],
-      [ "val", "structsen_1_1kernel_1_1_bus_id.html#a6c75bcd1c64fb373b4f77d1551a91eda", null ],
       [ "userData", "structsen_1_1kernel_1_1_bus_id.html#a736d6b4341d3fd7fbd0e14eba3a8d332", null ]
     ] ],
     [ "sen::kernel::ParticipantAddr", "group__kernel.html#structsen_1_1kernel_1_1_participant_addr", [
@@ -222,7 +220,7 @@ var group__kernel =
       [ "userData", "group__kernel.html#a27cf15eb093dd9e79d10afc1fb56f36f", null ]
     ] ],
     [ "sen::kernel::UniqueByteBufferManager", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html", [
-      [ "ByteBufferHandle", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#a627800b72d6a2235d6307c1b3c9a111b", null ],
+      [ "ByteBufferHandle", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#a834ed00743e2be45f298968a0b7e362d", null ],
       [ "UniqueByteBufferManager", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#a8fc6ac9f2ae2751d7413e12f40cafeda", null ],
       [ "~UniqueByteBufferManager", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#acd991c9a934091391c704bb4aeb3a739", null ],
       [ "getBuffer", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#a16d847a33552034b1b455d2d8ba68f29", null ]
@@ -260,10 +258,10 @@ var group__kernel =
       [ "startTimer", "classsen_1_1kernel_1_1_transport.html#ae6bcb81f842e05c56140c6782de8813b", null ],
       [ "cancelTimer", "classsen_1_1kernel_1_1_transport.html#a7ef6d717e4281fb2350ae438eda696a9", null ]
     ] ],
-    [ "sen::kernel::BestEffortBlockPtr", "group__kernel.html#gaa5698b1beadb2d36779985b2359a4116", null ],
-    [ "sen::kernel::ReliableBlockPtr", "group__kernel.html#ga842ed3eb50dd60c78568c41f4904d49f", null ],
-    [ "sen::kernel::BestEffortBufferList", "group__kernel.html#ga8da3d5a47cf024a90e148319a13bf6eb", null ],
-    [ "sen::kernel::TransportFactory", "group__kernel.html#ga1acbcd87fcb2bc77a2872b8f208dc252", null ],
+    [ "sen::kernel::BestEffortBlockPtr", "group__kernel.html#ga33b6a382032094bd51254625848b347c", null ],
+    [ "sen::kernel::ReliableBlockPtr", "group__kernel.html#gafcf24306f222d884d6d6483f3f82bcab", null ],
+    [ "sen::kernel::BestEffortBufferList", "group__kernel.html#ga396eafeb8e015a7bcd88c2c003a33d64", null ],
+    [ "sen::kernel::TransportFactory", "group__kernel.html#gae3d2f88877b2b1283d538e4ccc06bbd2", null ],
     [ "sen::kernel::getConfigAsVarFromYaml", "group__kernel.html#ga88684453a0bd9c7658a5c9d685edbe9f", null ],
     [ "sen::kernel::getConfigAsVarFromYaml", "group__kernel.html#ga9a413f3cc7d9d1aa6e5a1aba7904714a", null ],
     [ "sen::kernel::operator==", "group__kernel.html#gab5109d317d6d65ebeca686abb03bcc42", null ],

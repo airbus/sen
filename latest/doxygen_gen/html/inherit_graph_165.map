@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$structsen_1_1std__util_1_1_report_policy_log.html" title=" " alt="" coords="5,5,220,31"/>
+<area shape="rect" id="Node000000" href="$classsen_1_1_strong_type_base.html" title="Wraps T to make it a strong type." alt="" coords="5,42,200,67"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="252,5,425,45"/>
+<area shape="poly" id="edge31_Node000000_Node000001" title=" " alt="" coords="213,38,251,33,252,39,214,44"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title="CRTP class that wraps T to make it a strong type." alt="" coords="248,70,429,95"/>
+<area shape="poly" id="edge32_Node000000_Node000002" title=" " alt="" coords="214,65,248,69,247,75,213,70"/>
 </map>

@@ -4,7 +4,7 @@ var group__obj =
       [ "creationTime", "group__obj.html#a1eabe91da969f9d2f9ba8781ee790980", null ]
     ] ],
     [ "sen::MethodCallInfo", "group__obj.html#structsen_1_1_method_call_info", null ],
-    [ "sen::Callback< InfoClass, Args >", "classsen_1_1_callback.html", [
+    [ "sen::Callback&lt; InfoClass, Args &gt;", "classsen_1_1_callback.html", [
       [ "Function", "classsen_1_1_callback.html#a5cd11e91553c2166adf99e562ffe8770", null ],
       [ "FunctionWithCallInfo", "classsen_1_1_callback.html#a7633ec61e201eebfc2b3cdac25e2480f", null ],
       [ "CallbackFunc", "classsen_1_1_callback.html#ac745d17c6d20c22cf37a50ecfdafbedc", null ],
@@ -23,7 +23,7 @@ var group__obj =
       [ "Object", "classsen_1_1_connection_guard.html#a0720b5f434e636e22a3ed34f847eec57", null ],
       [ "impl::EventBuffer", "classsen_1_1_connection_guard.html#abd7f6de6e0f8ce3baeab7d2651e42475", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< InterestId >", "structsen_1_1_should_be_passed_by_value_3_01_interest_id_01_4.html", null ],
+    [ "sen::ShouldBePassedByValue&lt; InterestId &gt;", "structsen_1_1_should_be_passed_by_value_3_01_interest_id_01_4.html", null ],
     [ "sen::BusSpec", "group__obj.html#structsen_1_1_bus_spec", [
       [ "sessionName", "group__obj.html#afc28ffc1fd21f7afd12e1e5d152aaace", null ],
       [ "busName", "group__obj.html#a24351fdf5e2c3d5e640e5313cd326f5c", null ]
@@ -106,8 +106,8 @@ var group__obj =
       [ "kernel::PipelineComponent", "classsen_1_1_native_object.html#adbd2813d3cb2a36fcaae5ee279fc062f", null ],
       [ "impl::getWorkQueue", "classsen_1_1_native_object.html#ad84936b122b2b1a60237bd72e1356d0b", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< ConnId >", "structsen_1_1_should_be_passed_by_value_3_01_conn_id_01_4.html", null ],
-    [ "sen::ShouldBePassedByValue< ObjectId >", "structsen_1_1_should_be_passed_by_value_3_01_object_id_01_4.html", null ],
+    [ "sen::ShouldBePassedByValue&lt; ConnId &gt;", "structsen_1_1_should_be_passed_by_value_3_01_conn_id_01_4.html", null ],
+    [ "sen::ShouldBePassedByValue&lt; ObjectId &gt;", "structsen_1_1_should_be_passed_by_value_3_01_object_id_01_4.html", null ],
     [ "sen::Object", "classsen_1_1_object.html", [
       [ "Object", "classsen_1_1_object.html#a42d23c0b90c5e82b381d3dda51476470", null ],
       [ "~Object", "classsen_1_1_object.html#a27091c9a6e1fff7a1f29200a8c908b34", null ],
@@ -145,10 +145,10 @@ var group__obj =
       [ "removeSubscriber", "classsen_1_1_object_filter_base.html#a4da15a3b5458344ba74f270075b2f2e6", null ]
     ] ],
     [ "sen::ObjectFilter", "classsen_1_1_object_filter.html", [
-      [ "ObjectSet", "classsen_1_1_object_filter.html#structsen_1_1_object_filter_1_1_object_set", [
-        [ "newObjects", "classsen_1_1_object_filter.html#a76647bda133a061e70f7bb228f19c58b", null ],
-        [ "currentObjects", "classsen_1_1_object_filter.html#ae3d542cc47ace04c36f5a600a84a5f6f", null ],
-        [ "deletedObjects", "classsen_1_1_object_filter.html#acee97ae6b1f7ab3f015bab435e4c1625", null ]
+      [ "ObjectSet", "structsen_1_1_object_filter_1_1_object_set.html", [
+        [ "newObjects", "structsen_1_1_object_filter_1_1_object_set.html#a76647bda133a061e70f7bb228f19c58b", null ],
+        [ "currentObjects", "structsen_1_1_object_filter_1_1_object_set.html#ae3d542cc47ace04c36f5a600a84a5f6f", null ],
+        [ "deletedObjects", "structsen_1_1_object_filter_1_1_object_set.html#acee97ae6b1f7ab3f015bab435e4c1625", null ]
       ] ],
       [ "ObjectFilter", "classsen_1_1_object_filter.html#a3b048291fc68e5829289e4662074b46e", null ],
       [ "~ObjectFilter", "classsen_1_1_object_filter.html#a45991059d3b4d843b0837ed82538564d", null ],
@@ -166,7 +166,7 @@ var group__obj =
       [ "objectsRemoved", "classsen_1_1_object_filter.html#a2cd871df8231bdcc197db67a94617530", null ],
       [ "impl::FilteredProvider", "classsen_1_1_object_filter.html#afd461b56d319a3709a6893cc1587e60d", null ]
     ] ],
-    [ "sen::ObjectList< T >", "classsen_1_1_object_list.html", [
+    [ "sen::ObjectList&lt; T &gt;", "classsen_1_1_object_list.html", [
       [ "Iterators", "classsen_1_1_object_list.html#structsen_1_1_object_list_1_1_iterators", [
         [ "typedBegin", "classsen_1_1_object_list.html#a08e900e63ad80b22ee23a00305b7e42b", null ],
         [ "typedEnd", "classsen_1_1_object_list.html#af8301965395e27bce0348467e076308a", null ],
@@ -174,7 +174,7 @@ var group__obj =
         [ "untypedEnd", "classsen_1_1_object_list.html#a76cbcb11dc614b21797fc46fe4bec48c", null ]
       ] ],
       [ "TypedObjectList", "classsen_1_1_object_list.html#a1d389a0f60020341f80d2b502dbf474d", null ],
-      [ "UntypedObjectList", "classsen_1_1_object_list.html#a1dc1d515d72615853454f5a91d710dd9", null ],
+      [ "UntypedObjectList", "classsen_1_1_object_list.html#a7e0e7406e8863eae9136a6f7f5c8acf5", null ],
       [ "Callback", "classsen_1_1_object_list.html#aa0126582d6fc3b893f05d455ed29d48f", null ],
       [ "SearchMode", "classsen_1_1_object_list.html#a276f396d6f187606fc4e7820d0249652", [
         [ "includeSubClasses", "classsen_1_1_object_list.html#a276f396d6f187606fc4e7820d0249652abed1d7d535c435e8a858c25b90784a80", null ],
@@ -237,20 +237,20 @@ var group__obj =
       [ "getListeners", "classsen_1_1_object_mux.html#aec793a4558ecc54f5e881d8057378697", null ],
       [ "MuxedProviderListener", "classsen_1_1_object_mux.html#ac5218a902868d2d591654735eee54671", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< ObjectOwnerId >", "structsen_1_1_should_be_passed_by_value_3_01_object_owner_id_01_4.html", null ],
+    [ "sen::ShouldBePassedByValue&lt; ObjectOwnerId &gt;", "structsen_1_1_should_be_passed_by_value_3_01_object_owner_id_01_4.html", null ],
     [ "sen::ObjectInstanceDiscovery", "group__obj.html#structsen_1_1_object_instance_discovery", [
       [ "instance", "group__obj.html#a0e1192d94e59f470b5eb712a3a927cb7", null ],
       [ "id", "group__obj.html#a3ecbbaeba8e6249e1061754f12f1b05a", null ],
       [ "interestId", "group__obj.html#af5854487660180179a61f52fbde2db3b", null ],
       [ "ownerId", "group__obj.html#a90c1cefddb442b40624e06806ee39133", null ]
     ] ],
-    [ "sen::RemoteObjectDiscovery", "group__obj.html#structsen_1_1_remote_object_discovery", [
-      [ "id", "group__obj.html#ab03222f36730cd2e046dea1fb6b94136", null ],
-      [ "name", "group__obj.html#a97ddd00f206264865ec4fe2a0c431de6", null ],
-      [ "type", "group__obj.html#a6e457a80d259efb1ff84a29d8134a8ad", null ],
-      [ "proxyMaker", "group__obj.html#a0abd9d0273dacd6e091a23dd088337b1", null ],
-      [ "interestId", "group__obj.html#ad2218d5b214aee72100cd1723cf0588c", null ],
-      [ "ownerId", "group__obj.html#a9985751cdfb2d7a9aecc220710079e78", null ]
+    [ "sen::RemoteObjectDiscovery", "structsen_1_1_remote_object_discovery.html", [
+      [ "id", "structsen_1_1_remote_object_discovery.html#ab03222f36730cd2e046dea1fb6b94136", null ],
+      [ "name", "structsen_1_1_remote_object_discovery.html#a97ddd00f206264865ec4fe2a0c431de6", null ],
+      [ "type", "structsen_1_1_remote_object_discovery.html#a6e457a80d259efb1ff84a29d8134a8ad", null ],
+      [ "proxyMaker", "structsen_1_1_remote_object_discovery.html#a0abd9d0273dacd6e091a23dd088337b1", null ],
+      [ "interestId", "structsen_1_1_remote_object_discovery.html#ad2218d5b214aee72100cd1723cf0588c", null ],
+      [ "ownerId", "structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78", null ]
     ] ],
     [ "sen::ObjectRemoval", "group__obj.html#structsen_1_1_object_removal", [
       [ "interestId", "group__obj.html#ae690fb3d6dddb2ed2a2f0b52d5ffe03f", null ],
@@ -285,7 +285,7 @@ var group__obj =
       [ "getListeners", "classsen_1_1_object_provider.html#aec793a4558ecc54f5e881d8057378697", null ],
       [ "ObjectFilter", "classsen_1_1_object_provider.html#ab1edf6bdf2d81a1c0c396fbc47c3a2f6", null ]
     ] ],
-    [ "sen::ObjectRef< T >", "classsen_1_1_object_ref.html", [
+    [ "sen::ObjectRef&lt; T &gt;", "classsen_1_1_object_ref.html", [
       [ "Callback", "classsen_1_1_object_ref.html#ad674d9502455dc40c85f569e933d373d", null ],
       [ "ObjectRef", "classsen_1_1_object_ref.html#a9027eede17623ad8c9423b0e7d358c8d", null ],
       [ "~ObjectRef", "classsen_1_1_object_ref.html#ac8cfa691e940009ea57fb39b9cb958fd", null ],
@@ -328,7 +328,7 @@ var group__obj =
       [ "objectsRemoved", "classsen_1_1_object_source.html#a2cd871df8231bdcc197db67a94617530", null ],
       [ "kernel::impl::Runner", "classsen_1_1_object_source.html#a0ed948a7fb3a736a7756acd657ebed4c", null ]
     ] ],
-    [ "sen::Subscription< T >", "structsen_1_1_subscription.html", [
+    [ "sen::Subscription&lt; T &gt;", "structsen_1_1_subscription.html", [
       [ "Subscription", "group__obj.html#gad9c629f4c794a98665d23d0c3cb902e0", null ],
       [ "Subscription", "structsen_1_1_subscription.html#a0f8a64d4a7537bfd72a90346c2da1417", null ],
       [ "~Subscription", "group__obj.html#gacbf1d25d00a5c4b2fee2b5b334c307e4", null ],
@@ -336,20 +336,20 @@ var group__obj =
       [ "list", "structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca", null ],
       [ "source", "structsen_1_1_subscription.html#a1a9360a24f6ef187e8db2a64041dc9be", null ]
     ] ],
-    [ "sen::MethodResult", "group__obj.html#gaaac779eb1867745855632514ab4aa362", null ],
-    [ "sen::EventCallback", "group__obj.html#gae5dac786a760fabbe22b43a915456d4e", null ],
-    [ "sen::MethodCallback", "group__obj.html#ga8d372f49375f6250e3fd74398210db78", null ],
-    [ "sen::PropertyCallback", "group__obj.html#gabae9c1fcd34fa30cb1c8cc6fd0e8bebe", null ],
-    [ "sen::TypeCondition", "group__obj.html#ga7b13ad12fc78cf425982fa24a96db8b9", null ],
-    [ "sen::BusCondition", "group__obj.html#ga6e089d082bd4afaf337f09b073e9dcfb", null ],
-    [ "sen::VarInfoList", "group__obj.html#gaf2a67e588a8bab4a7a7e4c32c38165c3", null ],
-    [ "sen::StreamCall", "group__obj.html#ga33f9eb622352d64565fd098e37ad097d", null ],
-    [ "sen::VariantCall", "group__obj.html#gaf5b2113daa42f230634f1a0b4ccf5b82", null ],
-    [ "sen::StreamCallForwarder", "group__obj.html#ga47716704f22b2de439edb1bed80bd8ee", null ],
-    [ "sen::VariantCallForwarder", "group__obj.html#gaccc2b95ef8773248275aa0a914aa6ee7", null ],
-    [ "sen::ObjectAddition", "group__obj.html#gaf9b37b9825f559c188005694e9824108", null ],
-    [ "sen::ObjectAdditionList", "group__obj.html#gaf35ac1b80a6f945df94ca321a84b8685", null ],
-    [ "sen::ObjectRemovalList", "group__obj.html#ga63f62a4ca68ef8c0857ffe6178a7acaa", null ],
+    [ "sen::MethodResult", "group__obj.html#ga5013886b1e3330ff6f1f77e633279c9f", null ],
+    [ "sen::EventCallback", "group__obj.html#gaf7b45261a4a37f75b3ef13178e6380ef", null ],
+    [ "sen::MethodCallback", "group__obj.html#ga69a8d3f2009fdba17f03c21e7c589fa7", null ],
+    [ "sen::PropertyCallback", "group__obj.html#gafac374995a1c4431f47a5832012eacf9", null ],
+    [ "sen::TypeCondition", "group__obj.html#gaca3754293b68600236405fade596c0c7", null ],
+    [ "sen::BusCondition", "group__obj.html#ga1cbc5633a5ea8ee6e83b9eee1f2b2e63", null ],
+    [ "sen::VarInfoList", "group__obj.html#ga3a61382933a44a378add035a74febec6", null ],
+    [ "sen::StreamCall", "group__obj.html#ga30ee9d680cf2208afd51e2fe6ddfd808", null ],
+    [ "sen::VariantCall", "group__obj.html#ga6ff6cb8b6e7c2d10a35f6e1d95aec8eb", null ],
+    [ "sen::StreamCallForwarder", "group__obj.html#ga82a31d263f109c717214753bdfd7c6d7", null ],
+    [ "sen::VariantCallForwarder", "group__obj.html#gadc10d8bfac2afe7a7eec96d328305ad8", null ],
+    [ "sen::ObjectAddition", "group__obj.html#ga4d4d84aba4992ada0825a991db3ef032", null ],
+    [ "sen::ObjectAdditionList", "group__obj.html#ga82d17aa351823e354aec2c433af928fc", null ],
+    [ "sen::ObjectRemovalList", "group__obj.html#gae6b18640f36ffbe217cebe76ae4ad0f3", null ],
     [ "sen::Emit", "group__obj.html#ga3e6163dd3ea61144d97f1927d2fb4617", [
       [ "sen::Emit::now", "group__obj.html#gga3e6163dd3ea61144d97f1927d2fb4617a97bc592b27a9ada2d9a4bb418ed0ebed", null ],
       [ "sen::Emit::onCommit", "group__obj.html#gga3e6163dd3ea61144d97f1927d2fb4617a380e96dc974cd77385d0bc3692216de1", null ]

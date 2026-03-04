@@ -1,6 +1,6 @@
 var classsen_1_1util_1_1_dead_reckoner_template_base =
 [
-    [ "SpatialVariant", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a75abd37101fb3738688af2b4b238cec2", null ],
+    [ "SpatialVariant", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a72ec3842a7ab0b234c9167a9620bdded", null ],
     [ "StaticSpatial", "classsen_1_1util_1_1_dead_reckoner_template_base.html#aaf739ad19c131cd9eb36bb6aed0dcce9", null ],
     [ "FpsSpatial", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a650dafab482161e798524c6c55b7d489", null ],
     [ "RpsSpatial", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a0250a6457ef87cbb9b7c115c875a04e2", null ],

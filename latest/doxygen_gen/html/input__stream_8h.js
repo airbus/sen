@@ -1,4 +1,4 @@
 var input__stream_8h =
 [
-    [ "InputStream", "input__stream_8h.html#gab0d83355317b04fbc5acb7bd80089df7", null ]
+    [ "sen::InputStream", "group__io.html#ga11425923616d100c72a9fcada84143e8", null ]
 ];

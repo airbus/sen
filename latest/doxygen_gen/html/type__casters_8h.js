@@ -1,4 +1,4 @@
 var type__casters_8h =
 [
-    [ "pybind11::detail::type_caster< sen::ObjectId >", "structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4.html", "structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4" ]
+    [ "pybind11::detail::type_caster&lt; sen::ObjectId &gt;", "structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4.html", "structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4" ]
 ];

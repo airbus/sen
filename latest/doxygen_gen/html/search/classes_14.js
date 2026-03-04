@@ -12,7 +12,9 @@ var searchData=
   ['varianttype_9',['VariantType',['../classsen_1_1_variant_type.html',1,'sen']]],
   ['varinfo_10',['VarInfo',['../group__obj.html#structsen_1_1_var_info',1,'sen']]],
   ['vec3_11',['Vec3',['../classsen_1_1util_1_1_vec3.html',1,'sen::util']]],
-  ['velocity_12',['Velocity',['../group__dr.html#structsen_1_1util_1_1_velocity',1,'sen::util']]],
-  ['vm_13',['VM',['../classsen_1_1lang_1_1_v_m.html',1,'sen::lang']]],
-  ['voidtype_14',['VoidType',['../classsen_1_1_void_type.html',1,'sen']]]
+  ['vec3_3c_20f32_20_3e_12',['Vec3&lt; f32 &gt;',['../classsen_1_1util_1_1_vec3.html',1,'sen::util']]],
+  ['vec3_3c_20f64_20_3e_13',['Vec3&lt; f64 &gt;',['../classsen_1_1util_1_1_vec3.html',1,'sen::util']]],
+  ['velocity_14',['Velocity',['../group__dr.html#structsen_1_1util_1_1_velocity',1,'sen::util']]],
+  ['vm_15',['VM',['../classsen_1_1lang_1_1_v_m.html',1,'sen::lang']]],
+  ['voidtype_16',['VoidType',['../classsen_1_1_void_type.html',1,'sen']]]
 ];

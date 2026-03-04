@@ -8,7 +8,6 @@ var searchData=
   ['list_5',['list',['../structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca',1,'sen::Subscription']]],
   ['loc_6',['loc',['../structsen_1_1lang_1_1_stl_token.html#a3545c16a6b8256e110b04fb88d4688ed',1,'sen::lang::StlToken']]],
   ['localonly_7',['localOnly',['../structsen_1_1_method_spec.html#aff243e727fb92a685fcc5e8f588d8901',1,'sen::MethodSpec']]],
-  ['localproxymaker_8',['localProxyMaker',['../group__types.html#adc739a14be4efc4dc8a904a25ea116bf',1,'sen::ClassSpec']]],
-  ['longitude_9',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
-  ['lt_10',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator']]]
+  ['longitude_8',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
+  ['lt_9',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator']]]
 ];

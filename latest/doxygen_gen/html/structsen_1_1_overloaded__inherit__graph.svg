@@ -26,13 +26,13 @@
 <g id="Node000002" class="node">
 <title>Node2</title>
 <g id="a_Node000002"><a xlink:title=" ">
-<polygon fill="white" stroke="transparent" points="71,-134 51,-134 51,-85 71,-85 71,-134"/>
-<text text-anchor="start" x="56" y="-121.5" font-family="Helvetica,sans-Serif" font-size="10.00">Ts</text>
-<text text-anchor="start" x="59" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
-<text text-anchor="start" x="59" y="-91.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
-<polygon fill="#666666" stroke="#666666" points="51,-116.5 51,-116.5 71,-116.5 71,-116.5 51,-116.5"/>
-<polygon fill="#666666" stroke="#666666" points="51,-101.5 51,-101.5 71,-101.5 71,-101.5 51,-101.5"/>
-<polygon fill="none" stroke="#666666" points="51,-85 51,-134 71,-134 71,-85 51,-85"/>
+<polygon fill="white" stroke="transparent" points="75.5,-134 46.5,-134 46.5,-85 75.5,-85 75.5,-134"/>
+<text text-anchor="start" x="52" y="-121.5" font-family="Helvetica,sans-Serif" font-size="10.00">Ts...</text>
+<text text-anchor="start" x="59.5" y="-106.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
+<text text-anchor="start" x="59.5" y="-91.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
+<polygon fill="#666666" stroke="#666666" points="47,-116.5 47,-116.5 76,-116.5 76,-116.5 47,-116.5"/>
+<polygon fill="#666666" stroke="#666666" points="47,-101.5 47,-101.5 76,-101.5 76,-101.5 47,-101.5"/>
+<polygon fill="none" stroke="#666666" points="46.5,-85 46.5,-134 75.5,-134 75.5,-85 46.5,-85"/>
 </a>
 </g>
 </g>

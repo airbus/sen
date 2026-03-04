@@ -18,5 +18,5 @@ var classsen_1_1_type_handle =
     [ "operator!=", "classsen_1_1_type_handle.html#a910372610c37802c79711bd5dcdfffdd", null ],
     [ "operator!=", "classsen_1_1_type_handle.html#a6f6ad4dcb1ef9c3f08c96a3f253b72ed", null ],
     [ "operator!=", "classsen_1_1_type_handle.html#a1c2d639c416a258fa81e1fa32af01b3a", null ],
-    [ "dynamicTypeHandleCast", "classsen_1_1_type_handle.html#acbf09809e89b11e115a0c4eb2f91b622", null ]
+    [ "dynamicTypeHandleCast", "classsen_1_1_type_handle.html#a1b32d1e260318392d2fecd2904561d7e", null ]
 ];

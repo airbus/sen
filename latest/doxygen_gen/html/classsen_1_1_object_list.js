@@ -7,7 +7,7 @@ var classsen_1_1_object_list =
       [ "untypedEnd", "classsen_1_1_object_list.html#a76cbcb11dc614b21797fc46fe4bec48c", null ]
     ] ],
     [ "TypedObjectList", "classsen_1_1_object_list.html#a1d389a0f60020341f80d2b502dbf474d", null ],
-    [ "UntypedObjectList", "classsen_1_1_object_list.html#a1dc1d515d72615853454f5a91d710dd9", null ],
+    [ "UntypedObjectList", "classsen_1_1_object_list.html#a7e0e7406e8863eae9136a6f7f5c8acf5", null ],
     [ "Callback", "classsen_1_1_object_list.html#aa0126582d6fc3b893f05d455ed29d48f", null ],
     [ "SearchMode", "classsen_1_1_object_list.html#a276f396d6f187606fc4e7820d0249652", [
       [ "includeSubClasses", "classsen_1_1_object_list.html#a276f396d6f187606fc4e7820d0249652abed1d7d535c435e8a858c25b90784a80", null ],

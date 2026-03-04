@@ -8,7 +8,7 @@ var searchData=
   ['enumtraitsbase_5',['EnumTraitsBase',['../structsen_1_1_enum_traits_base.html',1,'sen']]],
   ['enumtype_6',['EnumType',['../classsen_1_1_enum_type.html',1,'sen']]],
   ['errorreporter_7',['ErrorReporter',['../classsen_1_1lang_1_1_error_reporter.html',1,'sen::lang']]],
-  ['event_8',['event',['../classsen_1_1db_1_1_event.html',1,'sen::db::Event'],['../classsen_1_1_event.html',1,'sen::Event']]],
+  ['event_8',['Event',['../classsen_1_1db_1_1_event.html',1,'sen::db::Event'],['../classsen_1_1_event.html',1,'sen::Event']]],
   ['eventinfo_9',['EventInfo',['../group__obj.html#structsen_1_1_event_info',1,'sen']]],
   ['eventspec_10',['EventSpec',['../group__types.html#structsen_1_1_event_spec',1,'sen']]]
 ];

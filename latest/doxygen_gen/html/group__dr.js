@@ -65,7 +65,7 @@ var group__dr =
       [ "accelerationVector", "group__dr.html#aa29269adb35ca5971d575c7ea6e225d1", null ],
       [ "angularAcceleration", "group__dr.html#aa28f6b4541986de3b283da6680705693", null ]
     ] ],
-    [ "sen::util::DeadReckoner< T >", "classsen_1_1util_1_1_dead_reckoner.html", [
+    [ "sen::util::DeadReckoner&lt; T &gt;", "classsen_1_1util_1_1_dead_reckoner.html", [
       [ "Parent", "classsen_1_1util_1_1_dead_reckoner.html#a00e5f1646c0975a252a7dc9b39b9df7d", null ],
       [ "SpatialVariant", "classsen_1_1util_1_1_dead_reckoner.html#ab1dc3cac5fb0080c0f0f30385ba3bca8", null ],
       [ "StaticSpatial", "classsen_1_1util_1_1_dead_reckoner.html#a2e95294ecb2c5ed26d9e338ebf7e50e0", null ],
@@ -118,8 +118,8 @@ var group__dr =
       [ "setCachedGeodeticSituation", "classsen_1_1util_1_1_dead_reckoner_base.html#a9edf40bb3c81bdf54024d03e784c7bf0", null ],
       [ "getCachedGeodeticSituation", "classsen_1_1util_1_1_dead_reckoner_base.html#a8f5125925e682f3499fd9dac57cdcf50", null ]
     ] ],
-    [ "sen::util::DeadReckonerTemplateBase< T >", "classsen_1_1util_1_1_dead_reckoner_template_base.html", [
-      [ "SpatialVariant", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a75abd37101fb3738688af2b4b238cec2", null ],
+    [ "sen::util::DeadReckonerTemplateBase&lt; T &gt;", "classsen_1_1util_1_1_dead_reckoner_template_base.html", [
+      [ "SpatialVariant", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a72ec3842a7ab0b234c9167a9620bdded", null ],
       [ "StaticSpatial", "classsen_1_1util_1_1_dead_reckoner_template_base.html#aaf739ad19c131cd9eb36bb6aed0dcce9", null ],
       [ "FpsSpatial", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a650dafab482161e798524c6c55b7d489", null ],
       [ "RpsSpatial", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a0250a6457ef87cbb9b7c115c875a04e2", null ],
@@ -153,7 +153,7 @@ var group__dr =
       [ "orientationThreshold", "group__dr.html#a999a824eb69d17300fb8fb878a5520dd", null ],
       [ "referenceSystem", "group__dr.html#a4e70b65ca94f8801e52c40bc38ba51c7", null ]
     ] ],
-    [ "sen::util::SettableDeadReckoner< T >", "classsen_1_1util_1_1_settable_dead_reckoner.html", [
+    [ "sen::util::SettableDeadReckoner&lt; T &gt;", "classsen_1_1util_1_1_settable_dead_reckoner.html", [
       [ "Parent", "classsen_1_1util_1_1_settable_dead_reckoner.html#a60def4bd6cc60023f5084647cfc5ab45", null ],
       [ "SpatialVariant", "classsen_1_1util_1_1_settable_dead_reckoner.html#a061ad9f8705ef1c9b6dc91e7c5367cb5", null ],
       [ "StaticSpatial", "classsen_1_1util_1_1_settable_dead_reckoner.html#a42c184c1f48dd6b3a94831c94b4e60db", null ],

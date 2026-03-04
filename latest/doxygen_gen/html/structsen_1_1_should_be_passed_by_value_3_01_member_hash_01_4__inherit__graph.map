@@ -1,5 +1,7 @@
 <map id="sen::ShouldBePassedByValue&lt; MemberHash &gt;" name="sen::ShouldBePassedByValue&lt; MemberHash &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,209,199"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="55,5,159,71"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,85,110,118,105,118,105,85"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="24,119,228,199"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,116,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,81,107,117,102,120,82,84"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="141,5,245,71"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,84,150,120,146,117,166,81"/>
 </map>

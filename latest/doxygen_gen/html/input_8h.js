@@ -1,5 +1,5 @@
 var input_8h =
 [
-    [ "DataCursor", "input_8h.html#gaef7cfc67ee75cc3570e6407dd6ad0339", null ],
-    [ "AnnotationCursor", "input_8h.html#gaab5e7bb175834c601918c7b7a9a97f17", null ]
+    [ "sen::db::DataCursor", "group__db.html#ga1282506e3e6fe58d1397620d262774a3", null ],
+    [ "sen::db::AnnotationCursor", "group__db.html#ga3dc4b7b3b64103e8f79b49aba36ea46c", null ]
 ];

@@ -1,7 +1,7 @@
 var callback_8h =
 [
-    [ "MethodResult", "callback_8h.html#gaaac779eb1867745855632514ab4aa362", null ],
-    [ "EventCallback", "callback_8h.html#gae5dac786a760fabbe22b43a915456d4e", null ],
-    [ "MethodCallback", "callback_8h.html#ga8d372f49375f6250e3fd74398210db78", null ],
-    [ "PropertyCallback", "callback_8h.html#gabae9c1fcd34fa30cb1c8cc6fd0e8bebe", null ]
+    [ "sen::MethodResult", "group__obj.html#ga5013886b1e3330ff6f1f77e633279c9f", null ],
+    [ "sen::EventCallback", "group__obj.html#gaf7b45261a4a37f75b3ef13178e6380ef", null ],
+    [ "sen::MethodCallback", "group__obj.html#ga69a8d3f2009fdba17f03c21e7c589fa7", null ],
+    [ "sen::PropertyCallback", "group__obj.html#gafac374995a1c4431f47a5832012eacf9", null ]
 ];

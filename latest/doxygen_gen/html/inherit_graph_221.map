@@ -1,5 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$structsen_1_1_variant_traits_base_base.html" title=" " alt="" coords="5,5,204,31"/>
-<area shape="rect" id="Node000001" href="$structsen_1_1_variant_traits_base.html" title="Base class for variant traits." alt="" coords="252,5,456,31"/>
-<area shape="poly" id="edge56_Node000000_Node000001" title=" " alt="" coords="218,15,252,15,252,21,218,21"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,35,120,60"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1test_1_1_test_class_impl.html" title=" " alt="" coords="168,5,344,31"/>
+<area shape="poly" id="edge119_Node000000_Node000001" title=" " alt="" coords="133,34,172,28,172,33,134,39"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1test_1_1runtime_1_1_test_class_impl.html" title=" " alt="" coords="187,55,325,95"/>
+<area shape="poly" id="edge120_Node000000_Node000002" title=" " alt="" coords="134,55,187,63,187,68,133,60"/>
 </map>

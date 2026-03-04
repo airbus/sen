@@ -16,24 +16,19 @@ var group__util =
       [ "operator>", "classsen_1_1_duration.html#ad6f05cd4addbba3c7af3437e3f4fa095", null ],
       [ "operator>=", "classsen_1_1_duration.html#ae40305e7dea04585e2f39cb79d8ab8ea", null ],
       [ "operator++", "classsen_1_1_duration.html#a510ff6b0e79986426c5367730f2efb61", null ],
-      [ "operator++", "classsen_1_1_duration.html#adf9e88440b64be81bc94fdbd2fa2ef36", null ],
       [ "operator--", "classsen_1_1_duration.html#a4765c628eb86251695e0a5d6d985179b", null ],
-      [ "operator--", "classsen_1_1_duration.html#a75b490d1d7e0de26d35fad289e07e7bf", null ],
       [ "operator+=", "classsen_1_1_duration.html#ad1afe213f199ddfb7643ccc730c3788a", null ],
       [ "operator+", "classsen_1_1_duration.html#a0f6dbc2bf0819729dd671f0c4c7c3330", null ],
       [ "operator-=", "classsen_1_1_duration.html#a4fe0271da9ec7296ac44e438610c4a59", null ],
       [ "operator-", "classsen_1_1_duration.html#a07599774cd9baa3fadf887dc80c59bad", null ],
-      [ "operator-", "classsen_1_1_duration.html#a2ccb4520257da2059091db416f64570f", null ],
       [ "operator*=", "classsen_1_1_duration.html#a1792da0d6f58a160424d91af08773c30", null ],
       [ "operator*", "classsen_1_1_duration.html#ac8ebbda35ecfb861c47585be3a8c5dbb", null ],
       [ "get", "classsen_1_1_duration.html#a695787c350c8d2a69c6825d8be4f5476", null ],
       [ "set", "classsen_1_1_duration.html#aeb6e9327980a8423fe6d06b9609d1cab", null ],
-      [ "set", "classsen_1_1_duration.html#a4994ee5434775455cf0f4d73849f84cc", null ],
-      [ "val", "classsen_1_1_duration.html#a9f8d78683e0de6397819f305380da90a", null ],
-      [ "val", "classsen_1_1_duration.html#a6c75bcd1c64fb373b4f77d1551a91eda", null ]
+      [ "val", "classsen_1_1_duration.html#a9f8d78683e0de6397819f305380da90a", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< Duration >", "structsen_1_1_should_be_passed_by_value_3_01_duration_01_4.html", null ],
-    [ "sen::Quantity< T, D >", "classsen_1_1_quantity.html", [
+    [ "sen::ShouldBePassedByValue&lt; Duration &gt;", "structsen_1_1_should_be_passed_by_value_3_01_duration_01_4.html", null ],
+    [ "sen::Quantity&lt; T, D &gt;", "classsen_1_1_quantity.html", [
       [ "ValueType", "classsen_1_1_quantity.html#a3393aca5fa412c14291756f07bab3777", null ],
       [ "Quantity", "classsen_1_1_quantity.html#a9e59a19bd0ababa75c3ed21d14c9daea", null ],
       [ "Quantity", "classsen_1_1_quantity.html#ab383ac6a471f69df84d412c40e7d280a", null ],
@@ -52,8 +47,8 @@ var group__util =
       [ "operator>", "classsen_1_1_quantity.html#a276760491a0bc3592eb77ca89849797d", null ],
       [ "operator>=", "classsen_1_1_quantity.html#af8b444893eec1988a8894a9becc3ec8a", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< Quantity< T, D > >", "structsen_1_1_should_be_passed_by_value_3_01_quantity_3_01_t_00_01_d_01_4_01_4.html", null ],
-    [ "sen::ScopeGuard< F >", "classsen_1_1_scope_guard.html", [
+    [ "sen::ShouldBePassedByValue&lt; Quantity&lt; T, D &gt; &gt;", "structsen_1_1_should_be_passed_by_value_3_01_quantity_3_01_t_00_01_d_01_4_01_4.html", null ],
+    [ "sen::ScopeGuard&lt; F &gt;", "classsen_1_1_scope_guard.html", [
       [ "ScopeGuard", "classsen_1_1_scope_guard.html#abedffbeeb9c7aff63bf7a52d48760fce", null ],
       [ "~ScopeGuard", "classsen_1_1_scope_guard.html#ac933301b1cf368757b8c9b2acb5d3970", null ],
       [ "makeScopeGuard", "classsen_1_1_scope_guard.html#a9038f2123bacd4ec60999dc54e5b300d", null ]
@@ -63,7 +58,7 @@ var group__util =
       [ "lineNumber", "group__util.html#a983654797b497256031d746967116e0a", null ],
       [ "functionName", "group__util.html#a1cce843bd0714bbc049b554809112664", null ]
     ] ],
-    [ "sen::Span< T >", "classsen_1_1_span.html", [
+    [ "sen::Span&lt; T &gt;", "classsen_1_1_span.html", [
       [ "element_type", "classsen_1_1_span.html#a3cfa46ebe88f1e1d8ae256ded28929a7", null ],
       [ "value_type", "classsen_1_1_span.html#a179921d026a5977d2b051ad7931bbfa4", null ],
       [ "index_type", "classsen_1_1_span.html#af82e2cc2323aaedd9c0b6bb0e1f4a6fd", null ],
@@ -99,7 +94,7 @@ var group__util =
       [ "cbegin", "classsen_1_1_span.html#a483d715acd7ed0462f87e5b9b26398e8", null ],
       [ "cend", "classsen_1_1_span.html#adae42f73cc62d26e3afd8d9415bf4bb4", null ]
     ] ],
-    [ "sen::StaticVectorBase< T >", "classsen_1_1_static_vector_base.html", [
+    [ "sen::StaticVectorBase&lt; T &gt;", "classsen_1_1_static_vector_base.html", [
       [ "value_type", "classsen_1_1_static_vector_base.html#af7ab0ae0131bb3e39d7d341db8b62828", null ],
       [ "difference_type", "classsen_1_1_static_vector_base.html#a43c24dd0315996ce1a35dbd969049cfa", null ],
       [ "pointer", "classsen_1_1_static_vector_base.html#adf62c13ecaf38725a44fe504cce8499e", null ],
@@ -166,9 +161,10 @@ var group__util =
       [ "resize", "classsen_1_1_static_vector_base.html#a2b258f5a828881334e70b867fbf92bb6", null ],
       [ "erase", "classsen_1_1_static_vector_base.html#aaf73a491af27c9a90ab3ac2a327a4dd1", null ],
       [ "erase", "classsen_1_1_static_vector_base.html#ae60cf95b5fa8831c68240695dfee08ab", null ],
-      [ "internalSetSize", "classsen_1_1_static_vector_base.html#a7062f09e872c3bcd8b58f845245b33e1", null ]
+      [ "internalSetSize", "classsen_1_1_static_vector_base.html#a7062f09e872c3bcd8b58f845245b33e1", null ],
+      [ "internalDestroy", "classsen_1_1_static_vector_base.html#aef1892bc09f918ad626671d74411d9fb", null ]
     ] ],
-    [ "sen::StaticVector< T, s >", "classsen_1_1_static_vector.html", [
+    [ "sen::StaticVector&lt; T, s &gt;", "classsen_1_1_static_vector.html", [
       [ "Base", "classsen_1_1_static_vector.html#ae413da135c6464c9c5a56c68454c5779", null ],
       [ "value_type", "classsen_1_1_static_vector.html#af7ab0ae0131bb3e39d7d341db8b62828", null ],
       [ "difference_type", "classsen_1_1_static_vector.html#a43c24dd0315996ce1a35dbd969049cfa", null ],
@@ -243,9 +239,10 @@ var group__util =
       [ "resize", "classsen_1_1_static_vector.html#a2b258f5a828881334e70b867fbf92bb6", null ],
       [ "erase", "classsen_1_1_static_vector.html#aaf73a491af27c9a90ab3ac2a327a4dd1", null ],
       [ "erase", "classsen_1_1_static_vector.html#ae60cf95b5fa8831c68240695dfee08ab", null ],
+      [ "internalDestroy", "classsen_1_1_static_vector.html#aef1892bc09f918ad626671d74411d9fb", null ],
       [ "internalSetSize", "classsen_1_1_static_vector.html#a7062f09e872c3bcd8b58f845245b33e1", null ]
     ] ],
-    [ "sen::StrongTypeBase< T >", "classsen_1_1_strong_type_base.html", [
+    [ "sen::StrongTypeBase&lt; T &gt;", "classsen_1_1_strong_type_base.html", [
       [ "ValueType", "classsen_1_1_strong_type_base.html#a2c010808b7c89a9b6c1ad7279f66bd1a", null ],
       [ "StrongTypeBase", "classsen_1_1_strong_type_base.html#a4d206689ff3279257d498d6d227f4f99", null ],
       [ "StrongTypeBase", "classsen_1_1_strong_type_base.html#af74bd5ed963f44de2603742bb8584b83", null ],
@@ -256,8 +253,8 @@ var group__util =
       [ "val", "classsen_1_1_strong_type_base.html#a9f8d78683e0de6397819f305380da90a", null ],
       [ "val", "classsen_1_1_strong_type_base.html#a6c75bcd1c64fb373b4f77d1551a91eda", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< StrongTypeBase< T > >", "structsen_1_1_should_be_passed_by_value_3_01_strong_type_base_3_01_t_01_4_01_4.html", null ],
-    [ "sen::StrongType< T, D >", "classsen_1_1_strong_type.html", [
+    [ "sen::ShouldBePassedByValue&lt; StrongTypeBase&lt; T &gt; &gt;", "structsen_1_1_should_be_passed_by_value_3_01_strong_type_base_3_01_t_01_4_01_4.html", null ],
+    [ "sen::StrongType&lt; T, D &gt;", "classsen_1_1_strong_type.html", [
       [ "ValueType", "classsen_1_1_strong_type.html#ac24376cd44b3e88d788c5bca14a1a66d", null ],
       [ "~StrongType", "classsen_1_1_strong_type.html#a6e4b7a9c710e2f3e470959c8614f4bde", null ],
       [ "operator==", "classsen_1_1_strong_type.html#a0be129ccdd8de295c795979bc4829fb3", null ],
@@ -303,7 +300,7 @@ var group__util =
       [ "toUtcString", "classsen_1_1_time_stamp.html#a02c952bc3f17fe764b6524313d7501b1", null ],
       [ "toLocalString", "classsen_1_1_time_stamp.html#afe93bb87d3cf8a98429d0a6ddc2a9b43", null ]
     ] ],
-    [ "sen::ShouldBePassedByValue< TimeStamp >", "structsen_1_1_should_be_passed_by_value_3_01_time_stamp_01_4.html", null ],
+    [ "sen::ShouldBePassedByValue&lt; TimeStamp &gt;", "structsen_1_1_should_be_passed_by_value_3_01_time_stamp_01_4.html", null ],
     [ "sen::Uuid", "classsen_1_1_uuid.html", [
       [ "Uuid", "classsen_1_1_uuid.html#a798a4111b812c176e64d8c2eae01fb45", null ],
       [ "~Uuid", "classsen_1_1_uuid.html#af7d4599e90e792cbb653972353ac04ee", null ],

@@ -1,6 +1,6 @@
 var classsen_1_1std__util_1_1detail_1_1_move_only_function_base =
 [
-    [ "SmallSizeBuffer.__unnamed1__", "classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#unionsen_1_1std__util_1_1detail_1_1_move_only_function_base_1_1_small_size_buffer_8____unnamed1____", [
+    [ "SmallSizeBuffer.__unnamed0__", "classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#unionsen_1_1std__util_1_1detail_1_1_move_only_function_base_1_1_small_size_buffer_8____unnamed0____", [
       [ "ptrToStoredCallable", "classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#a306f79b70241629fe66c9452c4b522a9", null ],
       [ "data", "classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#a58a023c1507296a2ca3ea0dfa7ab8472", null ]
     ] ],

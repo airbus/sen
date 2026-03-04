@@ -74,5 +74,6 @@ var classsen_1_1_static_vector =
     [ "resize", "classsen_1_1_static_vector.html#a2b258f5a828881334e70b867fbf92bb6", null ],
     [ "erase", "classsen_1_1_static_vector.html#aaf73a491af27c9a90ab3ac2a327a4dd1", null ],
     [ "erase", "classsen_1_1_static_vector.html#ae60cf95b5fa8831c68240695dfee08ab", null ],
+    [ "internalDestroy", "classsen_1_1_static_vector.html#aef1892bc09f918ad626671d74411d9fb", null ],
     [ "internalSetSize", "classsen_1_1_static_vector.html#a7062f09e872c3bcd8b58f845245b33e1", null ]
 ];

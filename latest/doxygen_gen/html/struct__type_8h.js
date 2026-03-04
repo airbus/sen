@@ -1,4 +1,4 @@
 var struct__type_8h =
 [
-    [ "NativeFieldValueGetter", "struct__type_8h.html#ga7394dcdf545b5ce86d75bb6cd42e6a49", null ]
+    [ "sen::NativeFieldValueGetter", "group__types.html#gac8d571260a6cf9ac1f71d45be806ba09", null ]
 ];

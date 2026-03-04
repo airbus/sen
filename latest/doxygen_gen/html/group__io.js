@@ -12,7 +12,7 @@ var group__io =
       [ "advance", "classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25", null ],
       [ "reverse", "classsen_1_1_buffer_writer.html#a95517c19415249e9a642369e44989c28", null ]
     ] ],
-    [ "sen::ResizableBufferWriter< Container >", "classsen_1_1_resizable_buffer_writer.html", [
+    [ "sen::ResizableBufferWriter&lt; Container &gt;", "classsen_1_1_resizable_buffer_writer.html", [
       [ "ResizableBufferWriter", "classsen_1_1_resizable_buffer_writer.html#a2945f644f76a2556c709553a31175dfa", null ],
       [ "~ResizableBufferWriter", "classsen_1_1_resizable_buffer_writer.html#a17442ab9b083ef020aee35c9f235fb5b", null ],
       [ "advance", "classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1", null ],
@@ -28,7 +28,7 @@ var group__io =
       [ "setPosition", "classsen_1_1_input_stream_base.html#a35dfb8b7cd39020bade24723d72fe3fe", null ],
       [ "reverse", "classsen_1_1_input_stream_base.html#ae362392580937f3846e6e368d8d8ccc6", null ]
     ] ],
-    [ "sen::InputStreamTemplate< BufferEndian >", "classsen_1_1_input_stream_template.html", [
+    [ "sen::InputStreamTemplate&lt; BufferEndian &gt;", "classsen_1_1_input_stream_template.html", [
       [ "~InputStreamTemplate", "classsen_1_1_input_stream_template.html#a90c4ea6cdff8acb7c189b613d685575e", null ],
       [ "readBool", "classsen_1_1_input_stream_template.html#a40d6e895758c04197a8cd15022427368", null ],
       [ "readInt8", "classsen_1_1_input_stream_template.html#a0355864e91007b85b236042e8f5b3f56", null ],
@@ -51,7 +51,7 @@ var group__io =
       [ "setPosition", "classsen_1_1_input_stream_template.html#a35dfb8b7cd39020bade24723d72fe3fe", null ],
       [ "reverse", "classsen_1_1_input_stream_template.html#ae362392580937f3846e6e368d8d8ccc6", null ]
     ] ],
-    [ "sen::OutputStreamTemplate< BufferEndian >", "classsen_1_1_output_stream_template.html", [
+    [ "sen::OutputStreamTemplate&lt; BufferEndian &gt;", "classsen_1_1_output_stream_template.html", [
       [ "OutputStreamTemplate", "classsen_1_1_output_stream_template.html#a271d5199a17b25ed8222747d31dbb006", null ],
       [ "~OutputStreamTemplate", "classsen_1_1_output_stream_template.html#a20dda5f95359fddff2df2cf22aabfc2f", null ],
       [ "writeBool", "classsen_1_1_output_stream_template.html#ad16d6b69b1dede5375b0773b8af765af", null ],
@@ -72,7 +72,7 @@ var group__io =
       [ "getWriter", "classsen_1_1_output_stream_template.html#a3234432f62c9f919661ee767849134e2", null ],
       [ "getWriter", "classsen_1_1_output_stream_template.html#a974a8652ef769284a45b6a916509675e", null ]
     ] ],
-    [ "sen::InputStream", "group__io.html#gab0d83355317b04fbc5acb7bd80089df7", null ],
+    [ "sen::InputStream", "group__io.html#ga11425923616d100c72a9fcada84143e8", null ],
     [ "sen::toValue", "group__io.html#ga904518bc1c074dd9b48963b092174ac1", null ],
     [ "sen::toVariant", "group__io.html#ga49a70fc4199a3f4966c25250c973c647", null ]
 ];

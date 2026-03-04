@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['session_0',['session',['../group__db.html#a6ca4e847059384a480338fde9392d826',1,'sen::db::ObjectIndexDef::session'],['../group__db.html#af9ac80bc8b9fda2935f3e5af67dd97db',1,'sen::db::ObjectInfo::session'],['../group__lang.html#a9179df4623236901fdd109694965e0ff',1,'sen::lang::BusNameStatement::session']]],
+  ['session_0',['session',['../group__lang.html#a9179df4623236901fdd109694965e0ff',1,'sen::lang::BusNameStatement::session'],['../group__db.html#a6ca4e847059384a480338fde9392d826',1,'sen::db::ObjectIndexDef::session'],['../group__db.html#af9ac80bc8b9fda2935f3e5af67dd97db',1,'sen::db::ObjectInfo::session']]],
   ['sessionname_1',['sessionName',['../group__obj.html#afc28ffc1fd21f7afd12e1e5d152aaace',1,'sen::BusSpec']]],
   ['set_2',['set',['../group__lang.html#ad692fa8b184a451e8c9fe3f3286dfbcf',1,'sen::lang::StlInExpr']]],
   ['shouldbepassedbyvaluev_3',['shouldBePassedByValueV',['../group__templates.html#ga372c9204fccc7b148c0dc061b2370cf2',1,'sen']]],

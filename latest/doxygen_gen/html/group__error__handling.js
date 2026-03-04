@@ -1,6 +1,6 @@
 var group__error__handling =
 [
-    [ "sen::Result< T, E >", "classsen_1_1_result.html", [
+    [ "sen::Result&lt; T, E &gt;", "classsen_1_1_result.html", [
       [ "ValueType", "classsen_1_1_result.html#a7e4bed6720a4716936928d593a1ede03", null ],
       [ "ErrorType", "classsen_1_1_result.html#ac7b555de0fa98789f41fbd75a3d51b98", null ],
       [ "Result", "classsen_1_1_result.html#aa3990404556997235b2047b940d67aef", null ],
@@ -22,7 +22,7 @@ var group__error__handling =
     [ "SEN_EXPECT", "group__error__handling.html#ga96b740f5a1fbffc3c9537b906a5bca1c", null ],
     [ "SEN_ASSERT", "group__error__handling.html#ga3efb47f576c2155c4b4109b6c0e07c8f", null ],
     [ "SEN_ENSURE", "group__error__handling.html#ga9199ffedb8fe6ce34227721483506a57", null ],
-    [ "sen::BoolResult", "group__error__handling.html#gae966c91b5015440bbf142e111b06cdac", null ],
+    [ "sen::BoolResult", "group__error__handling.html#ga371558e7ce43e972e4d8ea00a93527b7", null ],
     [ "sen::registerTerminateHandler", "group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c", null ],
     [ "sen::throwRuntimeError", "group__error__handling.html#gac4f878f792821f786237e910f2501d6f", null ],
     [ "sen::trace", "group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177", null ],

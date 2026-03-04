@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$structsen_1_1_guarded_1_1_temporary_access_token.html" title="Access token that enables the user to interact with the protected object while simultaneously holding..." alt="" coords="5,5,216,45"/>
+<area shape="rect" id="Node000000" href="$classsen_1_1_input_stream_base.html" title="Base class for input streams." alt="" coords="5,45,171,70"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_input_stream_template.html" title=" " alt="" coords="219,5,412,45"/>
+<area shape="poly" id="edge4_Node000000_Node000001" title=" " alt="" coords="184,41,218,36,219,42,185,46"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_input_stream_template.html" title="Binary input stream. Deserializes values. In general, I/O operations throw on failure." alt="" coords="219,69,412,109"/>
+<area shape="poly" id="edge5_Node000000_Node000002" title=" " alt="" coords="185,68,219,73,218,78,184,74"/>
 </map>

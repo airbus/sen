@@ -15,5 +15,8 @@ var classsen_1_1_result_3_01void_00_01_e_01_4 =
     [ "isOk", "classsen_1_1_result_3_01void_00_01_e_01_4.html#af6bfeb6b844426423f884844e34f8132", null ],
     [ "isError", "classsen_1_1_result_3_01void_00_01_e_01_4.html#ad7530fd44f4f8c7ec806bfaabf61d0ae", null ],
     [ "operator bool", "classsen_1_1_result_3_01void_00_01_e_01_4.html#ad3495f92bd2f10bebf0001542f2b9157", null ],
-    [ "getError", "classsen_1_1_result_3_01void_00_01_e_01_4.html#a1a5bcfaabbd799efdad73eda49a5f9cb", null ]
+    [ "getError", "classsen_1_1_result_3_01void_00_01_e_01_4.html#a1a5bcfaabbd799efdad73eda49a5f9cb", null ],
+    [ "getValueOr", "classsen_1_1_result.html#a64551fa08aa04c16f48f3db03597cf0d", null ],
+    [ "getValue", "classsen_1_1_result.html#a757b783a5b84ce6acf56af8b16dce4b9", null ],
+    [ "expect", "classsen_1_1_result.html#a1059c62c83e86d0dc1d24eaf0a97eaa2", null ]
 ];

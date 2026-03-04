@@ -7,8 +7,8 @@ var searchData=
   ['uchar_5ft_4',['uchar_t',['../group__util.html#ga387ff2274c7e2fece59208c1286ddf86',1,'numbers.h']]],
   ['underlyingvaluetypeoft_5',['UnderlyingValueTypeOfT',['../structsen_1_1_guarded.html#a420f2ab77ea6cd0ad10d329befcfc525',1,'sen::Guarded']]],
   ['unitlist_6',['UnitList',['../classsen_1_1_unit_registry.html#a02f7331293fcc2fd52087299155d2dc1',1,'sen::UnitRegistry']]],
-  ['unitrange_7',['UnitRange',['../classsen_1_1_unit_registry.html#ad4863863b942680e30012e00e3ad2029',1,'sen::UnitRegistry']]],
-  ['unitstorage_8',['UnitStorage',['../classsen_1_1_unit_registry.html#ae08d618cbacff4be011f6cf5280de0e6',1,'sen::UnitRegistry']]],
+  ['unitrange_7',['UnitRange',['../classsen_1_1_unit_registry.html#a88551188e144536c8e635a4a85fdabbc',1,'sen::UnitRegistry']]],
+  ['unitstorage_8',['UnitStorage',['../classsen_1_1_unit_registry.html#adf8dc14418000046299d6473f7664226',1,'sen::UnitRegistry']]],
   ['unloadfunc_9',['UnloadFunc',['../classsen_1_1kernel_1_1_test_component.html#a30a424558feb598b60e093f7acafd863',1,'sen::kernel::TestComponent']]],
-  ['untypedobjectlist_10',['UntypedObjectList',['../classsen_1_1_object_list.html#a1dc1d515d72615853454f5a91d710dd9',1,'sen::ObjectList']]]
+  ['untypedobjectlist_10',['UntypedObjectList',['../classsen_1_1_object_list.html#a7e0e7406e8863eae9136a6f7f5c8acf5',1,'sen::ObjectList']]]
 ];
