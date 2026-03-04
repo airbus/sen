@@ -5,7 +5,7 @@ environments.
 
 This library includes Dead Reckoning utilities.
 
-Check out the [API Reference](../doxygen/html/index.html) for a detailed description of the Sen Util
+Check out the [API Reference](../doxygen_gen/html/index.html) for a detailed description of the Sen Util
 library.
 
 ## Dead Reckoning Utilities
