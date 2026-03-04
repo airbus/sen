@@ -18,8 +18,8 @@ permissions:
   pages: write
 
 jobs:
-  deploy:
-    runs-on: self-hosted # ubuntu-latest
+  deploy_docs:
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v6
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y gcc g++ doxygen libxext-dev graphviz
+          sudo apt install -y gcc g++ libxext-dev graphviz
 
       - name: Install pip dependencies
         run: |
@@ -52,6 +52,11 @@ jobs:
           cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
+          sed -i '/^\[options\]$/i doxygen*:compiler.cppstd=20' ~/.conan2/profiles/default
+          sed -i '/^\[tool_requires\]$/a &:doxygen/[>=1.15.0]' ~/.conan2/profiles/default
+
+          cat ~/.conan2/profiles/default
+
           conan profile show -pr default
 
       - name: Auto generate docs

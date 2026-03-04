@@ -18,82 +18,78 @@ conan build . --profile <your_conan_profile> --build=missing
 
 ??? info "Conan Set-Up"
 
-````
-Install or upgrade Conan with:
+    Install or upgrade Conan with:
 
-```shell
-pip install -U conan
-```
+    ```shell
+    pip install -U conan
+    ```
 
-Then create a profile for your environment in `<HOME>/.conan2/profiles`. Example:
+    Then create a profile for your environment in `<HOME>/.conan2/profiles`. Example:
 
-```ini title="~/.conan2/profiles/gcc15"
-[settings]
-arch=x86_64
-build_type=Release
-compiler=gcc
-compiler.cppstd=17
-compiler.libcxx=libstdc++11
-compiler.version=15
-os=Linux
+    ```ini title="~/.conan2/profiles/gcc15"
+    [settings]
+    arch=x86_64
+    build_type=Release
+    compiler=gcc
+    compiler.cppstd=17
+    compiler.libcxx=libstdc++11
+    compiler.version=15
+    os=Linux
 
-[conf]
-tools.build:compiler_executables={"c": "gcc-15", "cpp": "g++-15"}
-```
+    [conf]
+    tools.build:compiler_executables={"c": "gcc-15", "cpp": "g++-15"}
+    ```
 
-As generator, we recommend Ninja. You can set it in `<HOME>/.conan2/global.conf`:
+    As generator, we recommend Ninja. You can set it in `<HOME>/.conan2/global.conf`:
 
-```text title="~/.conan2/global.conf"
-tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
-```
+    ```text title="~/.conan2/global.conf"
+    tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
+    ```
 
-You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be
-installed by running:
+    You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be
+    installed by running:
 
-```shell
-conan config install -tf profiles .conan/profiles/<profile>
-```
-````
+    ```shell
+    conan config install -tf profiles .conan/profiles/<profile>
+    ```
 
 ??? note "Example Conanfile"
 
-````
-=== "_conanfile.txt_"
+    === "_conanfile.txt_"
 
-    ```ini
-    [requires]
-    sen/1.0.0
+        ```ini
+        [requires]
+        sen/1.0.0
 
-    [layout]
-    cmake_layout
+        [layout]
+        cmake_layout
 
-    [generators]
-    CMakeToolchain
-    CMakeDeps
-    ```
+        [generators]
+        CMakeToolchain
+        CMakeDeps
+        ```
 
-=== "_conanfile.py_"
+    === "_conanfile.py_"
 
-    ```python
-    from conan import ConanFile
-    from conan.tools.cmake import CMake, cmake_layout
+        ```python
+        from conan import ConanFile
+        from conan.tools.cmake import CMake, cmake_layout
 
-    class ProjectConfig(ConanFile):
-        settings = "os", "arch", "compiler", "build_type"
-        generators = "CMakeDeps", "CMakeToolchain"
+        class ProjectConfig(ConanFile):
+            settings = "os", "arch", "compiler", "build_type"
+            generators = "CMakeDeps", "CMakeToolchain"
 
-        def requirements(self):
-            self.requires("sen/x.y.z")
+            def requirements(self):
+                self.requires("sen/x.y.z")
 
-        def layout(self):
-            cmake_layout(self)
+            def layout(self):
+                cmake_layout(self)
 
-        def build(self):
-            cmake = CMake(self)
-            cmake.configure()
-            cmake.build()
-    ```
-````
+            def build(self):
+                cmake = CMake(self)
+                cmake.configure()
+                cmake.build()
+        ```
 
 ## Using Release Packages
 
@@ -104,29 +100,25 @@ To ensure your system is able to find all the paths, you can do as follows:
 
 === "Linux"
 
-````
-```shell
-export SEN_PATH=<sen_path>
+    ```shell
+    export SEN_PATH=<sen_path>
 
-# Make the Sen binaries available
-export PATH=$SEN_PATH/bin:$PATH
+    # Make the Sen binaries available
+    export PATH=$SEN_PATH/bin:$PATH
 
-# Make the Sen libraries available
-export LD_LIBRARY_PATH=$SEN_PATH/bin:$LD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=$SEN_PATH/bin:$DYLD_LIBRARY_PATH
-```
-````
+    # Make the Sen libraries available
+    export LD_LIBRARY_PATH=$SEN_PATH/bin:$LD_LIBRARY_PATH
+    export DYLD_LIBRARY_PATH=$SEN_PATH/bin:$DYLD_LIBRARY_PATH
+    ```
 
 === "Windows"
 
-````
-```shell
-set SEN_PATH=<sen_path>
+    ```shell
+    set SEN_PATH=<sen_path>
 
-# Make the Sen binaries available
-set PATH=%SEN_PATH%/bin;%PATH%
-```
-````
+    # Make the Sen binaries available
+    set PATH=%SEN_PATH%/bin;%PATH%
+    ```
 
 In your CMakeLists.txt file, you would then set the path so that it can find Sen.
 
@@ -138,56 +130,54 @@ find_package(sen REQUIRED)
 
 ??? note "Helper script"
 
-````
-For Linux, we offer a script that automates the Sen installation (needs wget and curl).
+    For Linux, we offer a script that automates the Sen installation (needs wget and curl).
 
-Paste this in your shell:
+    Paste this in your shell:
 
-```shell
-wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
-```
-
-??? note "Example"
-
-    The process should look more or less like this:
-
-    ```sh
-    $ wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
-
-    Sen installer script
-
-    Configuration
-    > Version:    x.y.z
-    > Platform:   linux-x86_64
-    > Directory:  /home/<user name>/.sen
-    > Build:      release
-    > Compiler:   All
-
-    ? Install Sen x.y.z to /home/<user name>/.sen? [y/N] y
-
-    Installation
-    ✓ Downloaded sen-x.y.z-x86_64-linux-gnu-a.b.c-release.
-    ✓ Unpacked.
-
-    > Setup your fish environment with:
-      source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
+    ```shell
+    wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
     ```
 
-    The installation will create a script that you can use to set up your environment.
-    For example:
+    ??? note "Example"
 
-    ```sh
-    $ source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
-    > environment configured for sen-x.y.z-x86_64-linux-gnu-a.b.c-release
-    ```
+        The process should look more or less like this:
 
-    You should be able to do this now:
+        ```sh
+        $ wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
 
-    ```text
-    $ sen --version
-    x.y.z
-    ```
-````
+        Sen installer script
+
+        Configuration
+        > Version:    x.y.z
+        > Platform:   linux-x86_64
+        > Directory:  /home/<user name>/.sen
+        > Build:      release
+        > Compiler:   All
+
+        ? Install Sen x.y.z to /home/<user name>/.sen? [y/N] y
+
+        Installation
+        ✓ Downloaded sen-x.y.z-x86_64-linux-gnu-a.b.c-release.
+        ✓ Unpacked.
+
+        > Setup your fish environment with:
+          source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
+        ```
+
+        The installation will create a script that you can use to set up your environment.
+        For example:
+
+        ```sh
+        $ source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
+        > environment configured for sen-x.y.z-x86_64-linux-gnu-a.b.c-release
+        ```
+
+        You should be able to do this now:
+
+        ```text
+        $ sen --version
+        x.y.z
+        ```
 
 ## Building Sen
 

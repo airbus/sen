@@ -28,7 +28,8 @@ class SenConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
     def build_requirements(self):
-        self.build_requires("cmake/3.28.1")
+        self.tool_requires("cmake/3.28.1")
+        self.tool_requires("doxygen/[>=1.15.0]")
 
     def configure(self) -> None:
         if self.settings.os != "Windows":
