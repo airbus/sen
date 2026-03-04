@@ -1,0 +1,15 @@
+<map id="sen::kernel::ConfigGetter" name="sen::kernel::ConfigGetter">
+<area shape="rect" id="Node000001" title="Allows for fetching configuration parameters." alt="" coords="445,5,620,91"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="5,239,140,324"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="432,54,365,61,292,77,219,102,185,120,153,141,131,162,113,187,88,240,83,237,108,185,127,159,150,137,182,115,217,98,290,72,364,56,431,48"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="164,239,309,324"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="434,79,376,105,322,141,301,163,282,189,255,240,250,237,278,186,297,160,319,137,373,100,431,74"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="333,219,519,344"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="510,104,457,220,452,217,505,102"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="543,239,736,324"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="560,102,623,237,618,240,555,105"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="760,139,929,424"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="634,75,694,101,750,137,761,146,758,150,747,141,692,105,632,80"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="954,239,1114,324"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="634,48,707,55,788,70,869,97,907,115,944,137,969,158,990,184,1020,237,1015,240,985,187,965,162,940,141,905,119,867,101,786,75,706,60,634,53"/>
+</map>

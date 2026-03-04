@@ -1,0 +1,11 @@
+mkdocs==1.6.1
+mkdocs-material
+mkdocs-material-extensions
+mkdocs-macros-plugin
+mkdocs-with-pdf
+mkdocs-git-revision-date-localized-plugin
+mkdocs-video
+mkdocs-glightbox
+mkdocs-redoc-tag
+mkdocs-build-plantuml-plugin
+mkdocs-callouts

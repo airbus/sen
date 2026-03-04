@@ -1,0 +1,17 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classsen_1_1_strong_type_base.html" title="Wraps T to make it a strong type." alt="" coords="5,109,200,134"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="259,5,419,45"/>
+<area shape="poly" id="edge28_Node000000_Node000001" title=" " alt="" coords="143,100,247,55,278,43,280,48,249,60,145,105"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="248,69,429,109"/>
+<area shape="poly" id="edge30_Node000000_Node000003" title=" " alt="" coords="210,104,248,99,248,104,211,109"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="248,133,429,173"/>
+<area shape="poly" id="edge32_Node000000_Node000005" title=" " alt="" coords="211,133,248,138,248,144,210,139"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1_strong_type.html" title="CRTP class that wraps T to make it a strong type." alt="" coords="248,198,429,223"/>
+<area shape="poly" id="edge34_Node000000_Node000007" title=" " alt="" coords="143,137,249,183,289,195,287,201,247,188,141,142"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_duration.html" title="A time duration." alt="" coords="493,13,602,38"/>
+<area shape="poly" id="edge29_Node000001_Node000002" title=" " alt="" coords="432,23,492,23,492,28,432,28"/>
+<area shape="rect" id="Node000004" href="$structsen_1_1_member_hash.html" title="The hash of a member." alt="" coords="477,77,617,102"/>
+<area shape="poly" id="edge31_Node000003_Node000004" title=" " alt="" coords="443,87,477,87,477,92,443,92"/>
+<area shape="rect" id="Node000006" href="$structsen_1_1kernel_1_1_bus_id.html" title=" " alt="" coords="479,141,616,166"/>
+<area shape="poly" id="edge33_Node000005_Node000006" title=" " alt="" coords="443,151,478,151,478,156,443,156"/>
+</map>

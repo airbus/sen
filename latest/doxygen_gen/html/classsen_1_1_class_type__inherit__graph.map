@@ -1,0 +1,7 @@
+<map id="sen::ClassType" name="sen::ClassType">
+<area shape="rect" id="Node000001" title="Represents a class." alt="" coords="5,452,241,852"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_custom_type.html" title="Represents a user&#45;defined type." alt="" coords="45,299,202,404"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,418,126,452,121,452,121,418"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_type.html" title="Represents a type that can be used to define variables and arguments for methods or functions...." alt="" coords="23,5,224,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="126,265,126,298,121,298,121,265"/>
+</map>

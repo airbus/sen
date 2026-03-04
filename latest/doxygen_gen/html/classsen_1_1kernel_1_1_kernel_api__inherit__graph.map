@@ -1,0 +1,15 @@
+<map id="sen::kernel::KernelApi" name="sen::kernel::KernelApi">
+<area shape="rect" id="Node000001" title="User&#45;facing kernel functions." alt="" coords="439,5,626,271"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="5,419,140,504"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="427,172,360,197,288,229,217,271,153,321,133,343,116,369,90,420,85,417,111,366,129,340,150,317,214,266,286,225,358,192,425,167"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="164,419,309,504"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="430,218,374,266,323,320,287,371,259,420,254,417,282,368,319,317,371,263,427,214"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="333,399,519,524"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,285,449,399,444,398,482,283"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="543,419,736,504"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="583,283,628,418,623,419,578,285"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="760,319,929,604"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="639,214,696,263,751,317,762,330,758,333,747,320,693,267,636,218"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="954,419,1114,504"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="640,165,712,189,791,222,871,265,944,317,967,340,987,366,1017,417,1013,420,982,369,963,343,940,321,868,269,789,227,710,194,638,170"/>
+</map>

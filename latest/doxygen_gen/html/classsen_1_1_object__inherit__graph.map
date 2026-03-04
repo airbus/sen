@@ -1,0 +1,13 @@
+<map id="sen::Object" name="sen::Object">
+<area shape="rect" id="Node000001" title="A sen object." alt="" coords="112,133,385,643"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_native_object.html" title="An object instantiated in this process. This is the base class for all user&#45;implemented objects." alt="" coords="5,691,260,1225"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,657,190,691,185,690,192,656"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="284,925,445,991"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="306,656,361,925,356,926,301,657"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="171,5,326,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,99,251,133,246,133,246,99"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="156,1273,360,1339"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="353,1005,270,1274,265,1272,348,1003"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="384,1273,559,1339"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="381,1003,464,1272,459,1274,376,1005"/>
+</map>

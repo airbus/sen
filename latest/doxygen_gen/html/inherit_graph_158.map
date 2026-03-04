@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classsen_1_1_static_vector_base.html" title="Base class for stack&#45;based, exception&#45;safe and resizable vector with fixed&#45;capacity." alt="" coords="5,77,207,102"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_static_vector.html" title=" " alt="" coords="269,5,417,45"/>
+<area shape="poly" id="edge24_Node000000_Node000001" title=" " alt="" coords="167,70,269,43,270,48,168,75"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_static_vector.html" title=" " alt="" coords="255,69,432,109"/>
+<area shape="poly" id="edge25_Node000000_Node000002" title=" " alt="" coords="220,87,255,87,255,92,220,92"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_static_vector.html" title="Stack&#45;based, exception&#45;free and resizable vector with fixed&#45;capacity." alt="" coords="272,133,415,173"/>
+<area shape="poly" id="edge26_Node000000_Node000003" title=" " alt="" coords="168,103,272,132,271,137,167,108"/>
+</map>

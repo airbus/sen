@@ -1,0 +1,6 @@
+<map id="sen::test::TesterImpl" name="sen::test::TesterImpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,179,404"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="49,5,135,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,84,86,119,81,118,82,84"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="102,84,103,118,98,119,97,84"/>
+</map>

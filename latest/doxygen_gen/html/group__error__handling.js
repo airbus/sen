@@ -1,0 +1,34 @@
+var group__error__handling =
+[
+    [ "sen::Result< T, E >", "classsen_1_1_result.html", [
+      [ "ValueType", "classsen_1_1_result.html#a7e4bed6720a4716936928d593a1ede03", null ],
+      [ "ErrorType", "classsen_1_1_result.html#ac7b555de0fa98789f41fbd75a3d51b98", null ],
+      [ "Result", "classsen_1_1_result.html#aa3990404556997235b2047b940d67aef", null ],
+      [ "Result", "classsen_1_1_result.html#abf8026325b81cff166ea47911d2c5325", null ],
+      [ "~Result", "classsen_1_1_result.html#a5f2000b7572c5da43e80836279121c2f", null ],
+      [ "Result", "classsen_1_1_result.html#ad19bd44ea2a81d18222f0a3aa9f1fb75", null ],
+      [ "Result", "classsen_1_1_result.html#a55227cae208197977c3871662ffad003", null ],
+      [ "operator==", "classsen_1_1_result.html#a202af730340f524307561b4ec6d7f515", null ],
+      [ "operator!=", "classsen_1_1_result.html#a0e76c1d0a617d9a290136082b6837f47", null ],
+      [ "isOk", "classsen_1_1_result.html#a3d4b50bbc2eeffb448d592054d019090", null ],
+      [ "isError", "classsen_1_1_result.html#aea7f9ac1e4dd84263a83c53e0bf310f8", null ],
+      [ "operator bool", "classsen_1_1_result.html#aef1315b07c915959ea2b95903488de60", null ],
+      [ "getValueOr", "classsen_1_1_result.html#a64551fa08aa04c16f48f3db03597cf0d", null ],
+      [ "getValue", "classsen_1_1_result.html#a757b783a5b84ce6acf56af8b16dce4b9", null ],
+      [ "getValue", "classsen_1_1_result.html#a6eefb78292c6825db130b29e0a7958af", null ],
+      [ "getError", "classsen_1_1_result.html#ad498370f873eb49725c0ec3670ab1300", null ],
+      [ "expect", "classsen_1_1_result.html#a1059c62c83e86d0dc1d24eaf0a97eaa2", null ]
+    ] ],
+    [ "SEN_EXPECT", "group__error__handling.html#ga96b740f5a1fbffc3c9537b906a5bca1c", null ],
+    [ "SEN_ASSERT", "group__error__handling.html#ga3efb47f576c2155c4b4109b6c0e07c8f", null ],
+    [ "SEN_ENSURE", "group__error__handling.html#ga9199ffedb8fe6ce34227721483506a57", null ],
+    [ "sen::BoolResult", "group__error__handling.html#gae966c91b5015440bbf142e111b06cdac", null ],
+    [ "sen::registerTerminateHandler", "group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c", null ],
+    [ "sen::throwRuntimeError", "group__error__handling.html#gac4f878f792821f786237e910f2501d6f", null ],
+    [ "sen::trace", "group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177", null ],
+    [ "sen::trace", "group__error__handling.html#ga3a069900890fed0b69006729c3e12a7c", null ],
+    [ "sen::Ok", "group__error__handling.html#gab210783c20a9b5451afe4c7d5b20bbdc", null ],
+    [ "sen::Err", "group__error__handling.html#ga1216946e70f9e93d012678624ca7795c", null ],
+    [ "sen::Ok", "group__error__handling.html#ga31151cd0bbd6f2d76e601e6446d05442", null ],
+    [ "sen::Err", "group__error__handling.html#ga22997780552e19b1b2f3e02a77515ac3", null ]
+];

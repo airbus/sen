@@ -1,0 +1,28 @@
+var structsen_1_1kernel_1_1_bus_id =
+[
+    [ "Base", "structsen_1_1kernel_1_1_bus_id.html#aba48aeead96659702f77dcb27f3e9945", null ],
+    [ "ValueType", "structsen_1_1kernel_1_1_bus_id.html#ac24376cd44b3e88d788c5bca14a1a66d", null ],
+    [ "operator==", "structsen_1_1kernel_1_1_bus_id.html#a0be129ccdd8de295c795979bc4829fb3", null ],
+    [ "operator!=", "structsen_1_1kernel_1_1_bus_id.html#ac57e50da5102c9c6094527e56929067c", null ],
+    [ "operator<", "structsen_1_1kernel_1_1_bus_id.html#aff2c83d5c59ada1a05ce3ecf4f27d3f8", null ],
+    [ "operator<=", "structsen_1_1kernel_1_1_bus_id.html#abf3dffb6fdd5127f3cca51fc323a534e", null ],
+    [ "operator>", "structsen_1_1kernel_1_1_bus_id.html#ad6f05cd4addbba3c7af3437e3f4fa095", null ],
+    [ "operator>=", "structsen_1_1kernel_1_1_bus_id.html#ae40305e7dea04585e2f39cb79d8ab8ea", null ],
+    [ "operator++", "structsen_1_1kernel_1_1_bus_id.html#a510ff6b0e79986426c5367730f2efb61", null ],
+    [ "operator++", "structsen_1_1kernel_1_1_bus_id.html#adf9e88440b64be81bc94fdbd2fa2ef36", null ],
+    [ "operator--", "structsen_1_1kernel_1_1_bus_id.html#a4765c628eb86251695e0a5d6d985179b", null ],
+    [ "operator--", "structsen_1_1kernel_1_1_bus_id.html#a75b490d1d7e0de26d35fad289e07e7bf", null ],
+    [ "operator+=", "structsen_1_1kernel_1_1_bus_id.html#ad1afe213f199ddfb7643ccc730c3788a", null ],
+    [ "operator+", "structsen_1_1kernel_1_1_bus_id.html#a0f6dbc2bf0819729dd671f0c4c7c3330", null ],
+    [ "operator-=", "structsen_1_1kernel_1_1_bus_id.html#a4fe0271da9ec7296ac44e438610c4a59", null ],
+    [ "operator-", "structsen_1_1kernel_1_1_bus_id.html#a07599774cd9baa3fadf887dc80c59bad", null ],
+    [ "operator-", "structsen_1_1kernel_1_1_bus_id.html#a2ccb4520257da2059091db416f64570f", null ],
+    [ "operator*=", "structsen_1_1kernel_1_1_bus_id.html#a1792da0d6f58a160424d91af08773c30", null ],
+    [ "operator*", "structsen_1_1kernel_1_1_bus_id.html#ac8ebbda35ecfb861c47585be3a8c5dbb", null ],
+    [ "get", "structsen_1_1kernel_1_1_bus_id.html#a695787c350c8d2a69c6825d8be4f5476", null ],
+    [ "set", "structsen_1_1kernel_1_1_bus_id.html#aeb6e9327980a8423fe6d06b9609d1cab", null ],
+    [ "set", "structsen_1_1kernel_1_1_bus_id.html#a4994ee5434775455cf0f4d73849f84cc", null ],
+    [ "val", "structsen_1_1kernel_1_1_bus_id.html#a9f8d78683e0de6397819f305380da90a", null ],
+    [ "val", "structsen_1_1kernel_1_1_bus_id.html#a6c75bcd1c64fb373b4f77d1551a91eda", null ],
+    [ "userData", "structsen_1_1kernel_1_1_bus_id.html#a736d6b4341d3fd7fbd0e14eba3a8d332", null ]
+];

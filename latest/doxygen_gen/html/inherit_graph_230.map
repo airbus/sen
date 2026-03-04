@@ -1,0 +1,29 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,412,117,437"/>
+<area shape="rect" id="Node000001" href="$structsen_1_1_has_value_type_3_01_t_00_01std_1_1void__t_3_01typename_01_t_1_1_value_type_01_4_01_4.html" title="return true if T has an &#39;using ValueType&#39; or a &#39;typedef ValueType&#39;" alt="" coords="203,5,394,60"/>
+<area shape="poly" id="edge87_Node000000_Node000001" title=" " alt="" coords="60,398,63,333,77,245,90,198,108,152,132,109,163,71,181,56,202,46,204,51,184,61,167,75,137,112,113,155,95,200,82,247,69,334,65,399"/>
+<area shape="rect" id="Node000002" href="$structsen_1_1_should_be_passed_by_value_3_01_conn_id_01_4.html" title=" " alt="" coords="193,85,405,125"/>
+<area shape="poly" id="edge88_Node000000_Node000002" title=" " alt="" coords="61,397,68,342,85,271,98,234,115,198,137,164,164,135,191,117,194,122,167,139,141,167,120,200,103,236,90,273,73,343,67,398"/>
+<area shape="rect" id="Node000003" href="$structsen_1_1_should_be_passed_by_value_3_01_duration_01_4.html" title=" " alt="" coords="193,149,405,189"/>
+<area shape="poly" id="edge89_Node000000_Node000003" title=" " alt="" coords="64,398,75,354,94,300,123,245,141,220,164,199,191,182,194,187,167,203,145,224,127,248,99,302,80,356,70,399"/>
+<area shape="rect" id="Node000004" href="$structsen_1_1_should_be_passed_by_value_3_01_interest_id_01_4.html" title="Unique identifier that represents the interest." alt="" coords="193,213,405,253"/>
+<area shape="poly" id="edge90_Node000000_Node000004" title=" " alt="" coords="69,398,83,367,104,330,130,293,164,262,191,248,194,252,167,267,134,297,108,333,88,369,74,400"/>
+<area shape="rect" id="Node000005" href="$structsen_1_1_should_be_passed_by_value_3_01_member_hash_01_4.html" title=" " alt="" coords="193,277,405,317"/>
+<area shape="poly" id="edge91_Node000000_Node000005" title=" " alt="" coords="79,400,116,362,164,326,191,314,193,319,167,331,119,366,83,403"/>
+<area shape="rect" id="Node000006" href="$structsen_1_1_should_be_passed_by_value_3_01_object_id_01_4.html" title="Unique identifier for any object instance." alt="" coords="193,341,405,381"/>
+<area shape="poly" id="edge92_Node000000_Node000006" title=" " alt="" coords="114,405,165,390,211,378,212,383,166,395,115,410"/>
+<area shape="rect" id="Node000007" href="$structsen_1_1_should_be_passed_by_value_3_01_object_owner_id_01_4.html" title="Identifies the owner of an object." alt="" coords="193,405,405,445"/>
+<area shape="poly" id="edge93_Node000000_Node000007" title=" " alt="" coords="131,422,192,422,192,427,131,427"/>
+<area shape="rect" id="Node000008" href="$structsen_1_1_should_be_passed_by_value_3_01_quantity_3_01_t_00_01_d_01_4_01_4.html" title=" " alt="" coords="193,469,405,509"/>
+<area shape="poly" id="edge94_Node000000_Node000008" title=" " alt="" coords="115,439,166,454,212,466,211,471,165,459,114,444"/>
+<area shape="rect" id="Node000009" href="$structsen_1_1_should_be_passed_by_value_3_01_strong_type_3_01_t_00_01_d_01_4_01_4.html" title=" " alt="" coords="193,533,405,573"/>
+<area shape="poly" id="edge95_Node000000_Node000009" title=" " alt="" coords="83,446,119,484,167,518,193,530,191,535,164,523,116,488,79,450"/>
+<area shape="rect" id="Node000010" href="$structsen_1_1_should_be_passed_by_value_3_01_strong_type_base_3_01_t_01_4_01_4.html" title=" " alt="" coords="193,597,405,637"/>
+<area shape="poly" id="edge96_Node000000_Node000010" title=" " alt="" coords="74,449,88,480,108,516,134,552,167,582,194,597,191,602,164,587,130,556,104,519,83,482,69,451"/>
+<area shape="rect" id="Node000011" href="$structsen_1_1_should_be_passed_by_value_3_01_time_stamp_01_4.html" title=" " alt="" coords="193,661,405,701"/>
+<area shape="poly" id="edge97_Node000000_Node000011" title=" " alt="" coords="70,450,80,494,99,547,127,601,145,625,167,647,194,662,191,667,164,651,141,629,123,604,94,549,75,495,64,452"/>
+<area shape="rect" id="Node000012" href="$structsen_1_1std__util_1_1_is_instantiation_of_3_01_template_00_01_template_3_01_args_8_8_8_01_4_01_4.html" title=" " alt="" coords="165,725,432,765"/>
+<area shape="poly" id="edge98_Node000000_Node000012" title=" " alt="" coords="67,451,73,506,90,576,103,613,120,649,141,682,167,711,184,722,180,727,164,715,137,685,115,652,98,615,85,578,68,507,61,452"/>
+<area shape="rect" id="Node000013" href="$structsen_1_1std__util_1_1detail_1_1_is_in_place_type_3_01std_1_1in__place__type__t_3_01_t_01_4_01_4.html" title=" " alt="" coords="206,789,391,844"/>
+<area shape="poly" id="edge99_Node000000_Node000013" title=" " alt="" coords="65,451,69,516,82,603,95,649,113,695,137,737,167,775,186,789,207,800,205,804,183,794,163,779,132,740,108,697,90,651,77,604,63,516,60,451"/>
+</map>

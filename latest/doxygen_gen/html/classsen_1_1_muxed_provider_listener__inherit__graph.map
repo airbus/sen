@@ -1,0 +1,5 @@
+<map id="sen::MuxedProviderListener" name="sen::MuxedProviderListener">
+<area shape="rect" id="Node000001" title="An extended ObjectProviderListener that works together with ObjectMux and notifies when objects provi..." alt="" coords="5,219,225,344"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object_provider_listener.html" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="17,5,214,171"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,184,118,218,113,218,113,184"/>
+</map>

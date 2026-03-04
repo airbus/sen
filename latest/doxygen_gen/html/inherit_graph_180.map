@@ -1,0 +1,35 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classsen_1_1_type.html" title="Represents a type that can be used to define variables and arguments for methods or functions...." alt="" coords="5,325,88,351"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_custom_type.html" title="Represents a user&#45;defined type." alt="" coords="136,203,269,228"/>
+<area shape="poly" id="edge37_Node000000_Node000001" title=" " alt="" coords="73,314,183,226,187,230,77,318"/>
+<area shape="rect" id="Node000012" href="$classsen_1_1_native_type.html" title="Represents a native (built&#45;in) type that can be created on the stack or sent in a message." alt="" coords="139,325,266,351"/>
+<area shape="poly" id="edge48_Node000000_Node000012" title=" " alt="" coords="102,335,139,335,139,341,102,341"/>
+<area shape="rect" id="Node000016" href="$classsen_1_1_void_type.html" title="Used for indicating that no result value is provided." alt="" coords="147,375,258,400"/>
+<area shape="poly" id="edge52_Node000000_Node000016" title=" " alt="" coords="101,352,162,372,161,377,99,357"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_alias_type.html" title="Represents an aliased type." alt="" coords="333,5,448,31"/>
+<area shape="poly" id="edge38_Node000001_Node000002" title=" " alt="" coords="212,188,228,155,250,115,280,75,316,40,336,28,338,33,319,44,284,78,255,118,232,157,217,191"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_class_type.html" title="Represents a class." alt="" coords="331,55,450,80"/>
+<area shape="poly" id="edge39_Node000001_Node000003" title=" " alt="" coords="218,190,259,139,286,112,316,89,339,78,341,83,319,94,289,116,263,143,222,193"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_enum_type.html" title="Represents an enumeration." alt="" coords="331,104,451,129"/>
+<area shape="poly" id="edge40_Node000001_Node000004" title=" " alt="" coords="230,192,270,165,316,138,344,127,346,132,318,143,273,169,233,196"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_optional_type.html" title="Represents an optional type." alt="" coords="321,153,460,179"/>
+<area shape="poly" id="edge41_Node000001_Node000005" title=" " alt="" coords="264,197,340,176,342,181,265,202"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1_quantity_type.html" title="Represents a quantity." alt="" coords="321,203,460,228"/>
+<area shape="poly" id="edge42_Node000001_Node000006" title=" " alt="" coords="283,213,321,213,321,218,283,218"/>
+<area shape="rect" id="Node000009" href="$classsen_1_1_sequence_type.html" title="Represents a sequence type." alt="" coords="317,252,464,277"/>
+<area shape="poly" id="edge45_Node000001_Node000009" title=" " alt="" coords="265,229,342,249,340,254,264,234"/>
+<area shape="rect" id="Node000010" href="$classsen_1_1_struct_type.html" title="Represents a structure type." alt="" coords="330,301,451,327"/>
+<area shape="poly" id="edge46_Node000001_Node000010" title=" " alt="" coords="234,234,273,261,319,286,349,299,347,304,316,291,270,265,231,238"/>
+<area shape="rect" id="Node000011" href="$classsen_1_1_variant_type.html" title="Represents a variant type." alt="" coords="326,351,455,376"/>
+<area shape="poly" id="edge47_Node000001_Node000011" title=" " alt="" coords="223,238,263,287,290,313,319,336,344,348,341,353,316,340,286,317,259,291,218,241"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1_duration_type.html" title="Represents a sen::Duration (a time duration)." alt="" coords="521,179,660,204"/>
+<area shape="poly" id="edge43_Node000006_Node000007" title=" " alt="" coords="474,203,521,197,521,202,474,208"/>
+<area shape="rect" id="Node000008" href="$classsen_1_1_timestamp_type.html" title="Represents a sen::TimeStamp (a point in time)." alt="" coords="512,228,669,253"/>
+<area shape="poly" id="edge44_Node000006_Node000008" title=" " alt="" coords="474,223,512,228,512,233,474,228"/>
+<area shape="rect" id="Node000013" href="$classsen_1_1_numeric_type.html" title="Represents a numeric native type." alt="" coords="321,400,460,425"/>
+<area shape="poly" id="edge49_Node000012_Node000013" title=" " alt="" coords="255,353,270,360,318,385,351,397,349,402,316,390,268,364,253,358"/>
+<area shape="rect" id="Node000014" href="$classsen_1_1_integral_type.html" title="Represents an integral numeric type." alt="" coords="524,375,657,400"/>
+<area shape="poly" id="edge50_Node000013_Node000014" title=" " alt="" coords="474,399,523,393,524,398,474,405"/>
+<area shape="rect" id="Node000015" href="$classsen_1_1_real_type.html" title="Represents a floating point numeric type." alt="" coords="535,424,647,449"/>
+<area shape="poly" id="edge51_Node000013_Node000015" title=" " alt="" coords="474,420,535,427,534,433,473,425"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="sen::test::runtime::TesterImpl" name="sen::test::runtime::TesterImpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,179,679"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="49,5,135,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="64,85,57,119,51,118,58,84"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="76,85,72,119,67,118,71,84"/>
+<area shape="poly" id="edge3_Node000001_Node000002" title=" " alt="" coords="88,85,87,119,82,118,83,84"/>
+<area shape="poly" id="edge4_Node000001_Node000002" title=" " alt="" coords="101,84,102,118,97,119,96,85"/>
+<area shape="poly" id="edge5_Node000001_Node000002" title=" " alt="" coords="113,84,117,118,112,119,108,85"/>
+<area shape="poly" id="edge6_Node000001_Node000002" title=" " alt="" coords="126,84,133,118,127,119,120,85"/>
+</map>

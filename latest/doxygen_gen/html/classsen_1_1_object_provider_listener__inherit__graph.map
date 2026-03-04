@@ -1,0 +1,15 @@
+<map id="sen::ObjectProviderListener" name="sen::ObjectProviderListener">
+<area shape="rect" id="Node000001" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="565,5,763,171"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object_list.html" title=" " alt="" coords="5,366,192,606"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="552,96,468,108,376,130,330,146,286,166,244,191,206,221,177,252,155,288,137,327,123,367,118,365,132,326,150,286,173,249,202,217,241,187,283,162,328,141,375,125,467,102,551,91"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_object_list.html" title=" " alt="" coords="216,366,421,606"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="554,136,491,172,462,195,435,220,409,254,387,290,354,367,349,365,383,288,405,251,431,217,458,191,488,168,551,131"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_muxed_provider_listener.html" title="An extended ObjectProviderListener that works together with ObjectMux and notifies when objects provi..." alt="" coords="446,423,666,549"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="641,185,575,423,570,422,636,183"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_object_list.html" title="A list of objects that is managed by some source based on user&#45;expressed interests." alt="" coords="691,373,856,599"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="693,183,745,372,740,374,688,184"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1_object_mux.html" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="881,219,1138,753"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="776,143,825,177,870,217,883,231,879,235,866,221,822,181,773,147"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1_object_ref.html" title="Object references may or may not hold an object instance. Their value is set by a provider based on s..." alt="" coords="1163,343,1328,629"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="777,88,867,98,967,119,1017,136,1066,158,1111,184,1152,217,1177,244,1197,275,1225,342,1220,344,1192,277,1173,247,1149,221,1108,189,1063,162,1015,141,965,124,866,103,776,93"/>
+</map>

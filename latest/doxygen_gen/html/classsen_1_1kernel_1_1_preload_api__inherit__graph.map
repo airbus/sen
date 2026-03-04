@@ -1,0 +1,7 @@
+<map id="sen::kernel::PreloadApi" name="sen::kernel::PreloadApi">
+<area shape="rect" id="Node000001" title="What can be done when preloading a component." alt="" coords="103,319,288,444"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_config_getter.html" title="Allows for fetching configuration parameters." alt="" coords="5,95,180,181"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,192,172,317,167,319,113,194"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_kernel_api.html" title="User&#45;facing kernel functions." alt="" coords="205,5,391,271"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,284,224,319,219,317,234,282"/>
+</map>

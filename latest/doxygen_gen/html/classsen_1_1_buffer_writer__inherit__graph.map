@@ -1,0 +1,5 @@
+<map id="sen::BufferWriter" name="sen::BufferWriter">
+<area shape="rect" id="Node000001" title="A writer that owns a fixed size buffer." alt="" coords="5,179,135,304"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_writer.html" title="Interface for writing to a device." alt="" coords="23,5,117,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,145,73,178,67,178,67,145"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="sen::Writer" name="sen::Writer">
+<area shape="rect" id="Node000001" title="Interface for writing to a device." alt="" coords="209,5,302,131"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_buffer_writer.html" title="A writer that owns a fixed size buffer." alt="" coords="5,219,135,344"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,126,149,180,117,220,113,217,145,177,197,122"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_resizable_buffer_writer.html" title="A writer that owns a buffer that gets resized on demand." alt="" coords="159,211,351,351"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,145,258,211,253,211,253,145"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1test_1_1_test_writer.html" title=" " alt="" coords="375,179,519,384"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="314,123,365,177,377,190,373,193,361,180,310,127"/>
+</map>

@@ -1,0 +1,28 @@
+var classsen_1_1kernel_1_1_run_api =
+[
+    [ "RunApi", "classsen_1_1kernel_1_1_run_api.html#a9b8ffee6a182954f81df79e203650bbb", null ],
+    [ "~RunApi", "classsen_1_1kernel_1_1_run_api.html#a6816af6e6431c8cce62d6ef61f56664c", null ],
+    [ "stopRequested", "classsen_1_1kernel_1_1_run_api.html#ad8ffeac5ae2f9f429896745102840b3e", null ],
+    [ "drainInputs", "classsen_1_1kernel_1_1_run_api.html#a108e64a9bb8c92359aeb42904ba04fa8", null ],
+    [ "update", "classsen_1_1kernel_1_1_run_api.html#adf4f8d46b7792dbab76fe1de676f1195", null ],
+    [ "commit", "classsen_1_1kernel_1_1_run_api.html#a0a8228f00560f70ad9b6754f5aa46dd9", null ],
+    [ "execLoop", "classsen_1_1kernel_1_1_run_api.html#a913c56440c08af4db87ecb4996ee5d44", null ],
+    [ "getStartTime", "classsen_1_1kernel_1_1_run_api.html#a0719c5ccf817c65950d3bb775346426a", null ],
+    [ "getTime", "classsen_1_1kernel_1_1_run_api.html#af88ecc473e1a083867eb7365b28ce39c", null ],
+    [ "getTargetCycleTime", "classsen_1_1kernel_1_1_run_api.html#a7f33c2a56c647d13dc36a8a2f0dd0c68", null ],
+    [ "fetchMonitoringInfo", "classsen_1_1kernel_1_1_run_api.html#aa1af91117136c21134b1f78974e4d748", null ],
+    [ "getTracer", "classsen_1_1kernel_1_1_run_api.html#a0b9f68c58972303049e76fc539dcc560", null ],
+    [ "getConfig", "classsen_1_1kernel_1_1_run_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],
+    [ "getTypes", "classsen_1_1kernel_1_1_run_api.html#a7ba20735f5cad05911fb5c525d220561", null ],
+    [ "requestKernelStop", "classsen_1_1kernel_1_1_run_api.html#ae07f49618cc8899602c860df5592429f", null ],
+    [ "getSource", "classsen_1_1kernel_1_1_run_api.html#a24cc7a9ce982bb3462c6c7ef89e16813", null ],
+    [ "getSource", "classsen_1_1kernel_1_1_run_api.html#ac299cd0e75d9786fd8a9a4cefe457c96", null ],
+    [ "getSessionsDiscoverer", "classsen_1_1kernel_1_1_run_api.html#a957662bc5ca66f954f22ff9dd84a22eb", null ],
+    [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_run_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
+    [ "getAppName", "classsen_1_1kernel_1_1_run_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
+    [ "getWorkQueue", "classsen_1_1kernel_1_1_run_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
+    [ "selectAllFrom", "classsen_1_1kernel_1_1_run_api.html#a28d4fe464b2672619354c55208360335", null ],
+    [ "getConfigFilePath", "classsen_1_1kernel_1_1_run_api.html#a6be66d4510a6e2935671d79d2f147132", null ],
+    [ "impl::remoteProcessDetected", "classsen_1_1kernel_1_1_run_api.html#ae86e18ad27a7dd28b06ac8826bd985c9", null ],
+    [ "impl::remoteProcessLost", "classsen_1_1kernel_1_1_run_api.html#ab0180c422233f43193b0a865918730ad", null ]
+];

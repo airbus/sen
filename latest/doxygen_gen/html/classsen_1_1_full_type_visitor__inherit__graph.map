@@ -1,0 +1,5 @@
+<map id="sen::FullTypeVisitor" name="sen::FullTypeVisitor">
+<area shape="rect" id="Node000001" title="A Visitor for constant types. This class is based on the GoF Visitor design pattern...." alt="" coords="5,5,151,271"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_type_visitor.html" title="All the apply virtual methods are overriden to empty methods. Use TypeVisitor if you only need to han..." alt="" coords="17,319,139,584"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,285,81,319,75,319,75,285"/>
+</map>

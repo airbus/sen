@@ -1,0 +1,38 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="18,231,163,271"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_interest.html" title="Declares interest on objects that satisfy a set of conditions." alt="" coords="287,104,389,129"/>
+<area shape="poly" id="edge63_Node000000_Node000001" title=" " alt="" coords="118,219,164,177,192,156,223,138,254,127,286,119,287,125,256,132,225,143,195,160,167,181,121,223"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object.html" title="A sen object." alt="" coords="291,23,385,48"/>
+<area shape="poly" id="edge64_Node000000_Node000002" title=" " alt="" coords="110,218,157,155,188,120,222,89,262,64,301,46,303,51,264,69,226,93,192,124,161,158,114,222"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_object_provider.html" title="Base class for an entity that is able to produce objects." alt="" coords="263,153,413,179"/>
+<area shape="poly" id="edge66_Node000000_Node000004" title=" " alt="" coords="140,223,223,187,264,176,266,181,225,193,142,228"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="249,252,427,277"/>
+<area shape="poly" id="edge68_Node000000_Node000012" title=" " alt="" coords="177,253,249,257,249,263,177,259"/>
+<area shape="rect" id="Node000015" href="$classsen_1_1kernel_1_1_session_info_provider.html" title=" " alt="" coords="250,302,426,342"/>
+<area shape="poly" id="edge71_Node000000_Node000015" title=" " alt="" coords="174,273,225,287,266,299,265,305,223,293,173,278"/>
+<area shape="rect" id="Node000017" href="$classsen_1_1kernel_1_1_sessions_discoverer.html" title=" " alt="" coords="224,367,452,392"/>
+<area shape="poly" id="edge72_Node000000_Node000017" title=" " alt="" coords="133,277,178,311,201,333,225,352,258,364,256,369,223,356,197,337,174,315,130,281"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_native_object.html" title="An object instantiated in this process. This is the base class for all user&#45;implemented objects." alt="" coords="537,5,676,31"/>
+<area shape="poly" id="edge65_Node000002_Node000003" title=" " alt="" coords="399,29,537,20,537,25,399,34"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_object_mux.html" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="545,55,668,80"/>
+<area shape="poly" id="edge67_Node000004_Node000005" title=" " alt="" coords="425,149,451,138,465,127,474,115,483,102,499,90,544,73,546,78,501,95,487,106,478,118,469,131,453,143,427,154"/>
+<area shape="rect" id="Node000013" href="$classsen_1_1_callback.html" title=" " alt="" coords="515,447,698,472"/>
+<area shape="poly" id="edge69_Node000012_Node000013" title=" " alt="" coords="441,279,454,288,469,306,476,325,479,362,481,398,488,415,502,432,520,444,517,449,498,436,483,418,476,399,473,362,471,326,464,309,450,292,438,283"/>
+<area shape="rect" id="Node000014" href="$classsen_1_1_callback.html" title="Base class for event or method callbacks. It stores the queue where to push the response...." alt="" coords="513,382,701,422"/>
+<area shape="poly" id="edge70_Node000012_Node000014" title=" " alt="" coords="441,280,454,288,471,308,479,329,486,349,502,368,521,380,518,384,498,372,481,351,474,330,467,311,450,292,439,285"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1_object_provider_listener.html" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="237,203,439,228"/>
+<area shape="poly" id="edge77_Node000006_Node000005" title=" " alt="" coords="441,194,450,188,461,177,468,165,473,141,479,115,487,103,498,91,520,78,544,70,546,75,522,83,502,95,491,106,484,117,479,142,473,167,466,180,454,192,444,199"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1_object_list.html" title=" " alt="" coords="509,318,704,358"/>
+<area shape="poly" id="edge73_Node000006_Node000007" title=" " alt="" coords="444,231,454,237,470,254,479,271,486,288,502,304,522,316,519,320,498,308,482,291,474,273,466,257,450,241,441,236"/>
+<area shape="rect" id="Node000008" href="$classsen_1_1_object_list.html" title=" " alt="" coords="500,105,713,145"/>
+<area shape="poly" id="edge74_Node000006_Node000008" title=" " alt="" coords="427,196,451,188,475,171,499,154,528,142,530,147,501,159,478,176,453,192,429,201"/>
+<area shape="rect" id="Node000009" href="$classsen_1_1_muxed_provider_listener.html" title="An extended ObjectProviderListener that works together with ObjectMux and notifies when objects provi..." alt="" coords="505,169,708,195"/>
+<area shape="poly" id="edge75_Node000006_Node000009" title=" " alt="" coords="452,199,505,192,505,197,452,204"/>
+<area shape="rect" id="Node000010" href="$classsen_1_1_object_list.html" title="A list of objects that is managed by some source based on user&#45;expressed interests." alt="" coords="529,219,685,244"/>
+<area shape="poly" id="edge76_Node000006_Node000010" title=" " alt="" coords="452,219,529,224,528,229,452,225"/>
+<area shape="rect" id="Node000011" href="$classsen_1_1_object_ref.html" title="Object references may or may not hold an object instance. Their value is set by a provider based on s..." alt="" coords="529,268,684,293"/>
+<area shape="poly" id="edge78_Node000006_Node000011" title=" " alt="" coords="419,228,453,237,501,253,549,265,548,270,499,258,451,242,418,234"/>
+<area shape="rect" id="Node000016" href="$classsen_1_1kernel_1_1_source_info.html" title="Provides information about sources as strings." alt="" coords="5,324,176,349"/>
+<area shape="poly" id="edge79_Node000016_Node000015" title=" " alt="" coords="190,328,250,325,250,330,190,333"/>
+<area shape="poly" id="edge80_Node000016_Node000017" title=" " alt="" coords="179,349,264,364,263,369,178,354"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="Meta Type System" name="Meta Type System">
+<area shape="rect" id="Node000002" href="$group__core.html" title="Core library." alt="" coords="5,72,104,97"/>
+<area shape="rect" id="Node000001" title="Types that represent types." alt="" coords="153,72,296,97"/>
+<area shape="rect" id="Node000003" href="$group__traits.html" title="Trait structures for generated types." alt="" coords="531,5,588,31"/>
+<area shape="rect" id="Node000005" href="$group__type__utils.html" title="Helpers for working with meta types." alt="" coords="461,55,657,80"/>
+<area shape="rect" id="Node000004" href="$group__types.html" title="Classes and containers describing native and custom types." alt="" coords="530,120,589,145"/>
+</map>

@@ -1,0 +1,22 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classsen_1_1kernel_1_1_config_getter.html" title="Allows for fetching configuration parameters." alt="" coords="5,104,188,129"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="265,5,408,31"/>
+<area shape="poly" id="edge7_Node000000_Node000001" title=" " alt="" coords="128,94,177,66,235,40,271,28,273,33,237,44,180,71,131,99"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="260,55,413,80"/>
+<area shape="poly" id="edge8_Node000000_Node000003" title=" " alt="" coords="172,99,273,77,275,83,173,104"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="251,104,422,129"/>
+<area shape="poly" id="edge9_Node000000_Node000004" title=" " alt="" coords="202,114,251,114,251,119,202,119"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="236,153,437,179"/>
+<area shape="poly" id="edge10_Node000000_Node000005" title=" " alt="" coords="173,130,275,151,273,156,172,135"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="263,203,410,228"/>
+<area shape="poly" id="edge11_Node000000_Node000006" title=" " alt="" coords="177,132,189,138,205,151,214,164,223,176,237,188,266,200,264,205,235,192,219,180,210,167,201,155,187,143,174,137"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="253,252,421,277"/>
+<area shape="poly" id="edge12_Node000000_Node000007" title=" " alt="" coords="183,134,190,139,201,151,209,164,215,189,220,214,227,226,238,237,259,250,256,254,234,241,222,229,215,216,209,191,204,166,197,154,186,143,180,138"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_kernel_api.html" title="User&#45;facing kernel functions." alt="" coords="15,153,178,179"/>
+<area shape="poly" id="edge13_Node000002_Node000001" title=" " alt="" coords="178,145,186,139,197,127,203,115,209,90,215,65,222,52,234,40,264,24,266,29,238,44,227,55,220,67,214,92,208,117,201,130,190,143,181,149"/>
+<area shape="poly" id="edge14_Node000002_Node000003" title=" " alt="" coords="171,146,187,138,201,127,210,114,219,101,235,89,261,78,263,83,237,94,223,105,214,117,205,130,189,143,174,151"/>
+<area shape="poly" id="edge15_Node000002_Node000004" title=" " alt="" coords="172,148,273,127,275,132,173,153"/>
+<area shape="poly" id="edge16_Node000002_Node000005" title=" " alt="" coords="192,163,236,163,236,169,192,169"/>
+<area shape="poly" id="edge17_Node000002_Node000006" title=" " alt="" coords="173,179,275,200,273,205,172,184"/>
+<area shape="poly" id="edge18_Node000002_Node000007" title=" " alt="" coords="131,183,180,211,237,237,277,249,275,254,235,242,178,216,129,188"/>
+</map>

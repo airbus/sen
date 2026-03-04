@@ -1,0 +1,27 @@
+var classsen_1_1_uuid =
+[
+    [ "Uuid", "classsen_1_1_uuid.html#a798a4111b812c176e64d8c2eae01fb45", null ],
+    [ "~Uuid", "classsen_1_1_uuid.html#af7d4599e90e792cbb653972353ac04ee", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#a438287867dee365e80f6ace2306d7f81", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#a12971eade79b99d2c38540b67ec7dcd9", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#abcd21dea7713391248f281a33d36933b", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#a13989255e6557f83e5875c6f80b58bdf", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#a76b2ef3098e68453c566ff31ef09a770", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#a49c7382c7123341fa728f5c2160c0941", null ],
+    [ "Uuid", "classsen_1_1_uuid.html#a0a130c882750f08f47e16bfd734b43da", null ],
+    [ "operator=", "classsen_1_1_uuid.html#a6cd1ecd0d365f85fa510e00b00af73f2", null ],
+    [ "operator=", "classsen_1_1_uuid.html#a8aa11100a807ecf86b28977820e176ea", null ],
+    [ "operator==", "classsen_1_1_uuid.html#ad977069de33285c6823d187bef2c2f78", null ],
+    [ "operator!=", "classsen_1_1_uuid.html#a6dbf04cdeecfe24f557edbf00483e219", null ],
+    [ "operator<", "classsen_1_1_uuid.html#aa9e8423a6f9ad1530e642c5fd90794ca", null ],
+    [ "getVariant", "classsen_1_1_uuid.html#a188c5a1f8f93069bdb51296ca5ddfd51", null ],
+    [ "getVersion", "classsen_1_1_uuid.html#ae0b6c63a12ed218ea067333ed76bb529", null ],
+    [ "isNil", "classsen_1_1_uuid.html#a38d34aeb080fc78cf7cb4a2d763e5376", null ],
+    [ "getHash", "classsen_1_1_uuid.html#aa23dfb44008433b7d15efea7af6f8229", null ],
+    [ "getHash32", "classsen_1_1_uuid.html#a2df3321ed8ca94fe2541cfd60fd73a71", null ],
+    [ "toString", "classsen_1_1_uuid.html#a1bbf651bfb8da33f50b3906ba7cb69e8", null ],
+    [ "getBytes", "classsen_1_1_uuid.html#a1266551fe20ad9210271499efda28605", null ],
+    [ "copy", "classsen_1_1_uuid.html#a250b2ed944e555fffd1679d8096441f5", null ],
+    [ "copy", "classsen_1_1_uuid.html#aed70ae2790d4eb70c856738b31da3271", null ],
+    [ "swap", "classsen_1_1_uuid.html#a9fa4858b61001ff1d3f92b7ec6c8d08d", null ]
+];

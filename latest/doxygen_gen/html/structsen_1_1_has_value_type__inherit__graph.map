@@ -1,0 +1,5 @@
+<map id="sen::HasValueType&lt; typename, typename &gt;" name="sen::HasValueType&lt; typename, typename &gt;">
+<area shape="rect" id="Node000001" title="return false if T has not an &#39;using ValueType&#39; or a &#39;typedef ValueType&#39;" alt="" coords="5,119,179,199"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="37,5,147,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,85,95,118,89,118,89,85"/>
+</map>
