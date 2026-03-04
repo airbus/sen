@@ -6,5 +6,5 @@ tools are used to record and replay Sen objects.
 
 ## API Reference
 
-Check out the [API Reference](../doxygen/html/index.html) for a detailed description of the Sen DB
+Check out the [API Reference](../doxygen_gen/html/index.html) for a detailed description of the Sen DB
 library.

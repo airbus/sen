@@ -143,6 +143,7 @@ function(sen_generate_code)
   if(_arg_STL_FILES)
 
     # process the input codegen settings
+    set(_abs_settings_path)
     if(DEFINED _arg_CODEGEN_SETTINGS AND NOT (_arg_CODEGEN_SETTINGS STREQUAL ""))
       get_filename_component(_abs_settings_path ${_arg_CODEGEN_SETTINGS} ABSOLUTE)
       set(_settings_file_option --settings ${_abs_settings_path})
@@ -237,7 +238,7 @@ function(sen_generate_code)
         COMMAND_EXPAND_LISTS VERBATIM
         COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl ${_settings_file_option} ${_base_path_opt}
                 ${_abs_stl_file} ${_extra_options}
-        DEPENDS ${_abs_stl_file} sen::cli_gen
+        DEPENDS ${_abs_stl_file} sen::cli_gen ${_abs_settings_path}
         WORKING_DIRECTORY ${_file_output_dir}
         COMMENT "Generating sen code for ${_abs_stl_file} in ${_file_output_dir}"
       )
@@ -259,7 +260,7 @@ function(sen_generate_code)
         COMMAND_EXPAND_LISTS VERBATIM
         COMMAND sen::cli_gen json ${_schema_type} stl -b ${_abs_base_path} ${_stl_files} ${_extra_options} -o
                 ${_arg_SCHEMA_FILE} ${_component_name_opt}
-        DEPENDS ${_stl_files} sen::cli_gen
+        DEPENDS ${_stl_files} sen::cli_gen ${_abs_settings_path}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_TARGET} in ${_arg_SCHEMA_FILE}"
       )
@@ -397,7 +398,7 @@ function(sen_generate_code)
       COMMAND_EXPAND_LISTS VERBATIM
       COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} fom ${_settings_file_option} ${_mapping_opt}
               --directories=${_abs_fom_dirs}
-      DEPENDS sen::cli_gen ${_xml_files}
+      DEPENDS sen::cli_gen ${_xml_files} ${_abs_settings_path}
       WORKING_DIRECTORY ${_output_dir}
       COMMENT "Generating sen code for ${_arg_HLA_FOM_DIRS} in ${_output_dir}"
     )

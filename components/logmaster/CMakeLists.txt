@@ -7,7 +7,7 @@
 
 include(tps/spdlog)
 
-add_sen_component(
+add_sen_package(
   TARGET logmaster
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -20,6 +20,7 @@ add_sen_component(
   STL_FILES stl/logmaster.stl
   DEPS sen::kernel
   PRIVATE_DEPS spdlog::spdlog
+  IS_COMPONENT
 )
 
 set_target_properties(logmaster PROPERTIES FOLDER "components/logmaster")

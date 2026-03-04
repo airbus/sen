@@ -27,7 +27,9 @@ include_guard()
 #  [HLA_FOM_DIRS [dirs...]]
 #  [HLA_MAPPINGS_FILE [files...]]
 #  [EXPORTED_CLASSES name of the classes exported by the package (if null, the exported classes are parsed automatically from the source files)]
-#  [IS_COMPONENT | NO_SCHEMA | PUBLIC_SYMBOLS]
+#  [IS_COMPONENT flag used if we want to implement a custom Sen component]
+#  [NO_SCHEMA flag used when we dont want to generate a JSON schema for the YAML configuration files of the package]
+#  [PUBLIC_SYMBOLS flag used when we want to mark the symbols of the generated code as visible]
 #  [TEST_TARGET name] if set, a (static) test target is created (it exposes the internal package symbols)
 function(add_sen_package)
 

@@ -19,5 +19,5 @@ following:
 
 ## API Reference
 
-Check out the [API Reference](../doxygen/html/index.html) for a detailed description of the Sen Core
+Check out the [API Reference](../doxygen_gen/html/index.html) for a detailed description of the Sen Core
 library.

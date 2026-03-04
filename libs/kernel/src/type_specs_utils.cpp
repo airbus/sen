@@ -619,14 +619,14 @@ ConstTypeHandle<CustomType> makeNonNative(const CustomTypeSpec& typeData,
   callableSpec.args = getArgs(spec.args, nativeTypes, nonNativeTypes);
   callableSpec.transportMode = getTransportMode(spec.transportMode);
 
-  SEN_ASSERT(!spec.returnType.empty());
-
-  ::sen::MethodSpec result(callableSpec,
-                           findType(spec.returnType, nativeTypes, nonNativeTypes),
-                           getConstness(spec.constness),
-                           toPropertyRelation(spec.propertyRelation),
-                           spec.deferred,
-                           spec.localOnly);
+  ::sen::MethodSpec result(
+    callableSpec,
+    findType(
+      spec.returnType.empty() ? std::string(VoidType().getName()) : spec.returnType, nativeTypes, nonNativeTypes),
+    getConstness(spec.constness),
+    toPropertyRelation(spec.propertyRelation),
+    spec.deferred,
+    spec.localOnly);
 
   return result;
 }

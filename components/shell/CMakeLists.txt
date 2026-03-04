@@ -50,7 +50,7 @@ sen_internal_install(terminal_lib)
 # shell component
 # -------------------------------------------------------------------------------------------------------------
 
-add_sen_component(
+add_sen_package(
   TARGET shell
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -72,6 +72,7 @@ add_sen_component(
           src/shell_service/styles.h
   STL_FILES stl/shell.stl
   DEPS terminal_lib
+  IS_COMPONENT
 )
 
 set_target_properties(shell PROPERTIES FOLDER "components/shell")

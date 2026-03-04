@@ -236,10 +236,11 @@ add_sen_cli_gen_smoke_test(
 #
 # Check that after compilation, the generated types add the suffix of the modules:
 # Resulting types: RepeatedInteractionA and RepeatedInteractionB
-sen_generate_package(
+add_sen_package(
   TARGET repeated_fom
   HLA_FOM_DIRS test18/fom
   GEN_HDR_FILES repeated_fom_headers
+  PUBLIC_SYMBOLS
 )
 
 add_executable(repeated_types_tester test18/main.cpp)

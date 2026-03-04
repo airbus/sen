@@ -12,15 +12,15 @@ find_package(Python3 REQUIRED COMPONENTS Development)
 
 if(Python3_Development_FOUND)
 
-  sen_generate_package(
+  add_sen_package(
     TARGET py_interface
     STL_FILES stl/configuration.stl stl/python_interpreter.stl
-    NO_SCHEMA
+    NO_SCHEMA PUBLIC_SYMBOLS
   )
 
   sen_internal_install(py_interface)
 
-  add_sen_component(
+  add_sen_package(
     TARGET py
     MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
     VERSION "0.0.1"
@@ -40,6 +40,7 @@ if(Python3_Development_FOUND)
             src/interpreter_obj.cpp
     DEPS py_interface Python3::Python pybind11::pybind11
     PRIVATE_DEPS spdlog::spdlog
+    IS_COMPONENT
   )
 
   set_target_properties(py PROPERTIES FOLDER "components/py")

@@ -5,11 +5,11 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-sen_generate_package(
+add_sen_package(
   TARGET dummy_fom
   HLA_FOM_DIRS hla/rpr
   HLA_MAPPINGS_FILE hla/mapping.xml
-  NO_SCHEMA
+  NO_SCHEMA PUBLIC_SYMBOLS
 )
 
 add_sen_package(

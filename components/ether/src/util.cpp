@@ -134,7 +134,14 @@ void configureMulticastSocket(asio::ip::udp::socket& socket,
   // bind the socket to the multicast endpoint
   {
     asio::error_code error;
-    std::ignore = socket.bind({asio::ip::address_v4::any(), multicastEndpoint.port()}, error);
+
+#ifdef _WIN32
+    const auto bindAddress = asio::ip::address_v4::any();  // Windows doesn't allow binding to multicast groups
+#elif defined __linux
+    const auto bindAddress = multicastEndpoint.address();
+#endif
+
+    std::ignore = socket.bind({bindAddress, multicastEndpoint.port()}, error);
 
     if (error)
     {

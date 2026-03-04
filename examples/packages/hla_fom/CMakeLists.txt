@@ -5,7 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-sen_generate_package(
+add_sen_package(
   TARGET hla_fom
   BASE_PATH ${CMAKE_CURRENT_LIST_DIR}
   HLA_OUTPUT_DIR hla_fom
@@ -13,6 +13,7 @@ sen_generate_package(
   GEN_HDR_FILES fom_headers
   HLA_MAPPINGS_FILE base_mappings.xml
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
+  PUBLIC_SYMBOLS
 )
 
 sen_generate_uml(

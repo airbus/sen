@@ -7,7 +7,7 @@
 
 include(tps/tracy)
 
-add_sen_component(
+add_sen_package(
   TARGET tracy
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -15,6 +15,7 @@ add_sen_component(
   SOURCES src/component.cpp
   DEPS sen::kernel
   PRIVATE_DEPS Tracy::TracyClient
+  IS_COMPONENT
 )
 
 set_target_properties(tracy PROPERTIES FOLDER "components/tracy")

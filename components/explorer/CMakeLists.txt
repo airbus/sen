@@ -94,7 +94,7 @@ target_link_libraries(
          core
 )
 
-add_sen_component(
+add_sen_package(
   TARGET explorer
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -129,6 +129,7 @@ add_sen_component(
           src/util.cpp
   STL_FILES stl/configuration.stl
   PRIVATE_DEPS explorer_imgui spdlog::spdlog
+  IS_COMPONENT
 )
 
 set_target_properties(explorer PROPERTIES FOLDER "components/explorer")

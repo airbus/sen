@@ -9,7 +9,7 @@ include(tps/spdlog)
 
 set(_recorder_stl_files stl/sen/components/recorder/configuration.stl stl/sen/components/recorder/recorder.stl)
 
-add_sen_component(
+add_sen_package(
   TARGET recorder
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
@@ -23,6 +23,7 @@ add_sen_component(
   STL_FILES ${_recorder_stl_files}
   DEPS sen::db
   PRIVATE_DEPS spdlog::spdlog
+  IS_COMPONENT
 )
 
 set_target_properties(recorder PROPERTIES FOLDER "components/recorder")
