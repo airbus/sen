@@ -1,0 +1,55 @@
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+labels: ["bug", "needs triage"]
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: Current Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: possible_solution
+    attributes:
+      label: Possible solution
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: affected_version
+    attributes:
+      label: For which version(s) did you observe the bug?
+      options:
+        - label: 0.6.0
+
+  - type: checkboxes
+    id: affected_OS
+    attributes:
+      label: On which OS setup was this bug observed?
+      options:
+        - label: Windows
+        - label: Linux
