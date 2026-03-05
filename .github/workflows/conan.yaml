@@ -95,6 +95,7 @@ jobs:
       - name: Setup conan profile
         shell: bash
         run: |
+          rm ~/.conan2/profiles/default
           conan profile detect --force -vquiet
           cp .conan/profiles/sen_$COMPILER ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default

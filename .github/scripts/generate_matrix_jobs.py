@@ -56,7 +56,7 @@ def compute_jobs() -> list[JobSpecification]:
         JobSpecification("Basic GCC", "ubuntu-22.04",
                          Compiler("gcc", 12, "gcc-12", "g++-12"), 17, "Debug"))
 
-    ## Add clang jobs
+    # Add clang jobs
     jobs.append(
         JobSpecification("Basic Clang", "ubuntu-24.04",
                          Compiler("clang", 20, "clang-20", "clang++-20"), 17,
