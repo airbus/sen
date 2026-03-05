@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: sudo apt-get install -y libxext-dev
 
-      - name: Auto generate docs
+      - name: Generate release package
         run: |
           conan install . --build=missing
           cmake --preset=conan-gcc-release
@@ -81,6 +81,18 @@ jobs:
           cmake --build build/gcc/Release/ --target package
 
       - name: test
+        run: |
+          file build/clang/Release/sen-latest-x86_64-linux-clang-22.0.0-release.tar.gz
+          la build/clang/Release/sen-latest-x86_64-linux-clang-22.0.0-release.tar.gz
+  package_build_artifacts:
+    name: "Foo"
+    runs-on: ubuntu-latest
+    needs: create_release_with_artifacts
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: test2
         run: |
           file build/clang/Release/sen-latest-x86_64-linux-clang-22.0.0-release.tar.gz
           la build/clang/Release/sen-latest-x86_64-linux-clang-22.0.0-release.tar.gz

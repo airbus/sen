@@ -613,6 +613,8 @@ function(sen_configure_target target_name)
               -Wno-strict-aliasing
               -Wno-deprecated-copy
               -Wno-variadic-macros
+              -Wno-stringop-overread # workaround for gcc bug
+              -Wno-array-bounds # workaround for gcc bug
               -fsigned-char
               -fexceptions
               -ftls-model=global-dynamic
