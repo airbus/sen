@@ -1,24 +1,43 @@
-# === build_docs.yaml  =================================================================================================
+# === build_release.yaml  ==============================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-name: Build documentation
+name: Build release
 
 on:
   push:
     branches:
-      - main
-
-permissions:
-  contents: write
-  pages: write
+      - feat/release-workflow
 
 jobs:
-  deploy_docs:
+  compute-matrix-jobs:
+    name: "Generate build matrix"
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.compute-jobs.outputs.jobs }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - id: compute-jobs
+        run: python .github/scripts/generate_matrix_jobs.py --release
+  create_release_with_artifacts:
+    name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
+    needs: compute-matrix-jobs
     runs-on: self-hosted
+    strategy:
+      fail-fast: true
+      matrix:
+        include: ${{ fromJson(needs.compute-matrix-jobs.outputs.jobs) }}
+    env:
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cxx }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -28,21 +47,14 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Configure git user and gh-pages repo
-        run: |
-          git config --global user.name github-actions
-          git config --global user.email github-actions@github.com
-          git fetch origin gh-pages --depth=1
-
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y g++ graphviz
+      - name: Install gcc-${{ matrix.compiler.version }}
+        if: matrix.compiler.name == 'gcc'
+        shell: bash
+        run: sudo apt-get install -y g++-${{ matrix.compiler.version }}
 
       - name: Install pip dependencies
         run: |
-          pip install conan pytest mike
-          pip install -r docs/requirements.txt
+          pip install conan pytest
 
       - name: Setup conan profile
         shell: bash
@@ -66,8 +78,9 @@ jobs:
           conan install . --build=missing
           cmake --preset=conan-gcc-release
           cmake --build build/gcc/Release/
-          cmake --build build/gcc/Release/ --target doxydocs
-          cmake --build build/gcc/Release/ --target mkdocs
+          cmake --build build/gcc/Release/ --target package
 
-      - name: Build and deploy intermediate documentation
-        run: mike deploy --push --update-aliases latest
+      - name: test
+        run: |
+          file build/clang/Release/sen-latest-x86_64-linux-clang-22.0.0-release.tar.gz
+          la build/clang/Release/sen-latest-x86_64-linux-clang-22.0.0-release.tar.gz
