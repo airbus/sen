@@ -3,6 +3,8 @@
 *General-purpose, distributed, object-oriented system for applications that demand high modularity
 and rich communication.*
 
+[![Build documentation](https://github.com/airbus/sen/actions/workflows/build_docs.yaml/badge.svg)](https://github.com/airbus/sen/actions/workflows/build_docs.yaml)
+
 ![----------------------------------------------](docs/assets/images/separator1.png)
 
 ## 📖 Table of Contents
