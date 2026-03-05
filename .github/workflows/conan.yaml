@@ -1,0 +1,117 @@
+# === conan-ci.yaml ====================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+name: Conan CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  compute-matrix-jobs:
+    name: "Generate build matrix"
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.compute-jobs.outputs.jobs }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - id: compute-jobs
+        run: python .github/scripts/generate_matrix_jobs.py
+  build:
+    name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
+    needs: compute-matrix-jobs
+    runs-on: self-hosted
+    # runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include: ${{ fromJson(needs.compute-matrix-jobs.outputs.jobs) }}
+    env:
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cxx }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # Disable for now on local runner
+      #
+      # - name: Generate daily cache id
+      #   shell: bash
+      #   run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
+
+      # - name: Cache conan packages
+      #   uses: actions/cache@v5
+      #   if: always()
+      #   env:
+      #     cache-name: cache-conan-packages
+      #   with:
+      #     path: ~/.conan2/p
+      #     key: conanp-${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.build_type }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
+      #     restore-keys: conanp-${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.build_type }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
+
+      - uses: hendrikmuhs/ccache-action@v1.2
+        if: runner.os == 'Linux'
+        with:
+          key: ${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          max-size: 250M
+          verbose: 1
+
+      - name: Install gcc-${{ matrix.compiler.version }}
+        if: matrix.compiler.name == 'gcc'
+        shell: bash
+        run: sudo apt-get install -y g++-${{ matrix.compiler.version }}
+
+      - name: Install clang-${{ matrix.compiler.version }}
+        if: matrix.compiler.name == 'clang'
+        shell: bash
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh ${{ matrix.compiler.version }}
+          sudo apt install -y clang-tools-${{ matrix.compiler.version }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      - name: Install python dependencies
+        shell: bash
+        run: pip install -U conan pytest
+
+      - name: Setup conan profile
+        shell: bash
+        run: |
+          rm ~/.conan2/profiles/default
+          conan profile detect --force -vquiet
+          cp .conan/profiles/sen_$COMPILER ~/.conan2/profiles/default
+          echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
+          echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
+          conan profile show -pr default
+        env:
+          COMPILER: ${{ matrix.compiler.name }}
+
+      - name: Install system dependencies
+        # need for clang compat with sdl2 2.24.0
+        shell: bash
+        run: sudo apt-get install -y libxext-dev
+
+      - name: Create conan package
+        shell: bash
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          conan create . --user airbus --channel dev --lockfile-out=package.lock \
+              --build=missing -s:a build_type=${{ matrix.build_type }}
