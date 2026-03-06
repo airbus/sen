@@ -31,7 +31,7 @@ Sen is a simple way for applications to talk to one another and create, connect,
 complex systems with ease.
 
 Technically speaking, Sen is a general-purpose, distributed, object-oriented system with a focus on applications that
-demand low-latency, high-performance, rich inter/intra process communication, high modularity, and platform 
+demand low-latency, high-performance, rich inter/intra process communication, high modularity, and platform
 independence while providing low-overhead, full introspection and an extensible tooling support.
 
 ## Main Features
