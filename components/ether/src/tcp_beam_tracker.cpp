@@ -71,7 +71,7 @@ TcpBeamTracker::TcpBeamTracker(asio::io_context& io,
   asio::ip::tcp::resolver resolver(io);
   configureTcpSocket(socket_, config_);
 
-  const auto& tcpDiscoveryConfig = std::get<TcpDiscovery>(config.discovery);
+  const auto& tcpDiscoveryConfig = std::get<TcpDiscovery>(config_.discovery);
 
   bool found = false;
   const auto results =
