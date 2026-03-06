@@ -28,7 +28,7 @@ load:
 Once you start the shell, you can use tab to auto-complete and/or see the available commands. If you
 type `help` to you will see more info about all the options you have.
 
-![Screenshot](../assets/captures/shell_help.gif){: style="width:900px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_help.gif){: style="width:900px"}
 
 To shut down the shell, you simply type Ctrl+D or the `shutdown` command.
 
@@ -43,7 +43,7 @@ sessions. You need to open sessions and their buses so that the shell can start 
 The `open` command can be used to connect to a bus or to open a session and discover the available
 buses. This command has auto-complete capabilities to help you. Let's give it a try.
 
-![Screenshot](../assets/captures/shell_open_ls_close.gif){: style="width:900px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_open_ls_close.gif){: style="width:900px"}
 
 You can see that the shell lets you know about when objects are discovered. The 'ls' command shows
 them. Unsurprisingly, the `close` command does the inverse.
@@ -65,7 +65,7 @@ load:
 The Shell allows you to invoke methods on objects, no matter if they are local or remote. For
 example, this shows how to call the `addNumbers` method on an object.
 
-![Screenshot](../assets/captures/add_numbers.jpg){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/instantiate_class.gif){: style="width:1200px"}
 
 Keep in mind that due to Sen's asynchronous nature, the shell won't block and the call results will
 eventually arrive.
@@ -79,7 +79,7 @@ components.
 And there's also a method named `info`, that you can use to inspect all the details of the available
 types (the built-in types, and also any type received over the network during execution).
 
-![Screenshot](../assets/captures/shell_introspection.jpg){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_introspection.gif){: style="width:1200px"}
 
 ## Creating Queries
 
@@ -99,7 +99,7 @@ You can create your own queries, and therefore use the shell to monitor certain 
 example, lets create a query that ony notifies us about the entities in the se.env bus, with a force
 ID property that is "neutral" or "friendly". We call that query "friendly_fire":
 
-![Screenshot](../assets/captures/shell_query.gif){: style="width:1200px;"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_query.gif){: style="width:1200px;"}
 
 You can now see that the shell automatically opened the se.env bus and created a query named
 se.env.friendly_fire.
@@ -141,6 +141,8 @@ terminal is Windows and the Sen process is in a linux computer.
 
 For example, here you can see how we start a Sen process that hosts a shell that can only be
 remotely accessed, and then we use the `sen rshell` tool to connect to it.
+
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_remote.gif){: style="width:1200px;"}
 
 To configure your shell to accept remote connections you need to set the `serverEnabled` and
 `serverPort` parameters. In our last example we used the following:

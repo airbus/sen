@@ -4,7 +4,7 @@
 
 With Sen, you can use Grafana and InfluxDB to visualize the data that runs through your system.
 
-![Screenshot](../assets/captures/grafana.jpg){: style="width:1200px;"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/grafana.gif){: style="width:1200px;"}
 
 It works as follows:
 
