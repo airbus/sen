@@ -9,8 +9,6 @@ name: Build release
 
 on:
   push:
-    branches:
-      - feat/release-workflow
     tags:
       - \d+.\d+.\d+
       - \d+.\d+.\d+-rc\d+
@@ -28,11 +26,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
+
       - id: compute-jobs
         run: python .github/scripts/generate_matrix_jobs.py --release
+
   create_release_with_artifacts:
     name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
@@ -83,14 +84,14 @@ jobs:
         run: |
           conan install . --build=missing
           cmake --preset=conan-gcc-release
-          cmake --build build/gcc/Release/
           cmake --build build/gcc/Release/ --target package
 
       - name: Archive generated release package
         uses: actions/upload-artifact@v4
         with:
           name: release-gcc
-          path: build/gcc/Release/sen-latest-x86_64-linux-gnu-12.4.0-release.tar.gz
+          path: build/gcc/Release/sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+
   attach_release_artifacts:
     name: "Create Release Draft"
     runs-on: ubuntu-latest
@@ -98,17 +99,19 @@ jobs:
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v5
+
       - name: Print context
         run: |
           sudo apt-get install -y file
           ls -lisa
-          file sen-latest-x86_64-linux-gnu-12.4.0-release.tar.gz
+          file sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
           files: |
-            sen-latest-x86_64-linux-gnu-12.4.0-release.tar.gz
+            sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}
