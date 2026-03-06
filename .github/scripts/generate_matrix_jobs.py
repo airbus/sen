@@ -10,6 +10,7 @@ Script to generate various forms of job matrices.
 import os
 import json
 import typing as tp
+import argparse
 from dataclasses import dataclass, is_dataclass, asdict
 
 
@@ -47,27 +48,35 @@ class JobSpecification:
         return convert_dataclass_to_json(self)
 
 
-def compute_jobs() -> list[JobSpecification]:
+def compute_jobs(release: bool) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
     jobs = []
 
     # Add gcc jobs
-    jobs.append(
-        JobSpecification("Basic GCC", "ubuntu-22.04",
-                         Compiler("gcc", 12, "gcc-12", "g++-12"), 17, "Debug"))
+    if not release:
+        jobs.append(
+            JobSpecification("Basic GCC", "ubuntu-22.04",
+                             Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
+                             "Debug"))
+    else:
+        jobs.append(
+            JobSpecification("Basic GCC", "ubuntu-22.04",
+                             Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
+                             "Release"))
 
     # Add clang jobs
-    jobs.append(
-        JobSpecification("Basic Clang", "ubuntu-24.04",
-                         Compiler("clang", 20, "clang-20", "clang++-20"), 17,
-                         "Debug"))
+    if not release:
+        jobs.append(
+            JobSpecification("Basic Clang", "ubuntu-24.04",
+                             Compiler("clang", 20, "clang-20", "clang++-20"),
+                             17, "Debug"))
 
     return sorted(jobs)
 
 
-def main() -> None:
-    """Runs the job matrix generator."""
-    jobs = compute_jobs()
+def generate_jobs_file(release: bool) -> None:
+    """Generates the jobs file at GITHUB_OUTPUT."""
+    jobs = compute_jobs(release)
 
     if output_file := os.environ.get("GITHUB_OUTPUT"):
         with open(output_file, "wt", encoding='utf-8') as matrix_file:
@@ -75,6 +84,23 @@ def main() -> None:
                 f"jobs={json.dumps([j.as_json() for j in jobs])}")
     else:
         print("Error: No output file specified to write to.")
+
+
+def main() -> None:
+    """Runs the job matrix generator."""
+    parser = argparse.ArgumentParser(
+        prog="generate_matrix_jobs",
+        description=
+        "Generates the list of required matrix jobs for various building needs."
+    )
+    parser.add_argument(
+        "--release",
+        action=argparse.BooleanOptionalAction,
+        help="Generate the jobs needed for building release artifacts.")
+
+    args = parser.parse_args()
+
+    generate_jobs_file(release=args.release)
 
 
 if __name__ == "__main__":

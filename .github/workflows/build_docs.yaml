@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y gcc g++ libxext-dev graphviz
+          sudo apt install -y g++ graphviz
 
       - name: Install pip dependencies
         run: |
@@ -55,6 +55,11 @@ jobs:
           sed -i '/^\[options\]$/i doxygen*:compiler.cppstd=20' ~/.conan2/profiles/default
           sed -i '/^\[tool_requires\]$/a &:doxygen/[>=1.15.0]' ~/.conan2/profiles/default
           conan profile show -pr default
+
+      - name: Install system dependencies
+        # need for clang compat with sdl2 2.24.0
+        shell: bash
+        run: sudo apt-get install -y libxext-dev
 
       - name: Auto generate docs
         run: |

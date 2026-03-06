@@ -84,7 +84,11 @@ endif()
 # CPack configuration
 # -------------------------------------------------------------------------------------------------------------
 
-set(CPACK_GENERATOR ZIP)
+if(WIN32)
+  set(CPACK_GENERATOR ZIP)
+else()
+  set(CPACK_GENERATOR TGZ)
+endif()
 set(CPACK_PACKAGE_NAME "sen")
 set(CPACK_PACKAGE_VENDOR "Airbus")
 get_git_tags(tags_of_current_commit)
