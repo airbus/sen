@@ -1266,7 +1266,7 @@ get auto-complete, error-checking, argument parsing and even the ability to read
 </span></code></pre></div>
 <p>Once you start the shell, you can use tab to auto-complete and/or see the available commands. If you
 type <code>help</code> to you will see more info about all the options you have.</p>
-<p><img alt="Screenshot" src="../assets/captures/shell_help.gif" style="width:900px"/></p>
+<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_help.gif" style="width:900px"/></p>
 <p>To shut down the shell, you simply type Ctrl+D or the <code>shutdown</code> command.</p>
 <h2 id="opening-and-closing-buses">Opening and closing buses<a class="headerlink" href="#opening-and-closing-buses" title="Permanent link">¶</a></h2>
 <p>The <code>ls</code> command is specially useful because it allows you to see all the objects that are visible
@@ -1275,7 +1275,7 @@ by the shell.</p>
 sessions. You need to open sessions and their buses so that the shell can start discovering objects.</p>
 <p>The <code>open</code> command can be used to connect to a bus or to open a session and discover the available
 buses. This command has auto-complete capabilities to help you. Let's give it a try.</p>
-<p><img alt="Screenshot" src="../assets/captures/shell_open_ls_close.gif" style="width:900px"/></p>
+<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_open_ls_close.gif" style="width:900px"/></p>
 <p>You can see that the shell lets you know about when objects are discovered. The 'ls' command shows
 them. Unsurprisingly, the <code>close</code> command does the inverse.</p>
 <p>Sometimes you will find yourself having to open some buses every time you load the shell. This is
@@ -1290,7 +1290,7 @@ will automatically open them at the start:</p>
 <h2 id="calling-methods-on-objects">Calling methods on objects<a class="headerlink" href="#calling-methods-on-objects" title="Permanent link">¶</a></h2>
 <p>The Shell allows you to invoke methods on objects, no matter if they are local or remote. For
 example, this shows how to call the <code>addNumbers</code> method on an object.</p>
-<p><img alt="Screenshot" src="../assets/captures/add_numbers.jpg" style="width:1200px"/></p>
+<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/instantiate_class.gif" style="width:1200px"/></p>
 <p>Keep in mind that due to Sen's asynchronous nature, the shell won't block and the call results will
 eventually arrive.</p>
 <h2 id="introspecting-the-system">Introspecting the system<a class="headerlink" href="#introspecting-the-system" title="Permanent link">¶</a></h2>
@@ -1299,7 +1299,7 @@ object to find out the available types, units and the build information of the k
 components.</p>
 <p>And there's also a method named <code>info</code>, that you can use to inspect all the details of the available
 types (the built-in types, and also any type received over the network during execution).</p>
-<p><img alt="Screenshot" src="../assets/captures/shell_introspection.jpg" style="width:1200px"/></p>
+<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_introspection.gif" style="width:1200px"/></p>
 <h2 id="creating-queries">Creating Queries<a class="headerlink" href="#creating-queries" title="Permanent link">¶</a></h2>
 <p>When you <code>open</code> a bus, you are declaring an interest in all the objects that are published in it.
 You can inspect the list of active interests by using the <code>src</code> command. For example, if we call
@@ -1312,7 +1312,7 @@ objects of that bus.</p>
 <p>You can create your own queries, and therefore use the shell to monitor certain objects. For
 example, lets create a query that ony notifies us about the entities in the se.env bus, with a force
 ID property that is "neutral" or "friendly". We call that query "friendly_fire":</p>
-<p><img alt="Screenshot" src="../assets/captures/shell_query.gif" style="width:1200px;"/></p>
+<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_query.gif" style="width:1200px;"/></p>
 <p>You can now see that the shell automatically opened the se.env bus and created a query named
 se.env.friendly_fire.</p>
 <p>To close/delete a query, use te <code>close</code> command and pass the name of the query.</p>
@@ -1340,6 +1340,7 @@ commands from it.</p>
 terminal is Windows and the Sen process is in a linux computer.</p>
 <p>For example, here you can see how we start a Sen process that hosts a shell that can only be
 remotely accessed, and then we use the <code>sen rshell</code> tool to connect to it.</p>
+<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_remote.gif" style="width:1200px;"/></p>
 <p>To configure your shell to accept remote connections you need to set the <code>serverEnabled</code> and
 <code>serverPort</code> parameters. In our last example we used the following:</p>
 <div class="language-yaml highlight"><span class="filename">configuring a remote shell</span><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1"># Here we instantiate a shell, but it is meant to be accessed remotely.</span>
@@ -1363,7 +1364,7 @@ remotely accessed, and then we use the <code>sen rshell</code> tool to connect t
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 27, 2026 11:04:07 UTC">February 27, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 6, 2026 10:26:34 UTC">March 6, 2026</span>
 </span>
 </aside>
 </article>
