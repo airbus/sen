@@ -279,7 +279,7 @@ inline void EventBuffer<T...>::dispatch(MemberHash eventId,
 {
   EventInfo info {creationTime};
 
-  for (const auto& callback: callbacks_)
+  for (auto callback: callbacks_)
   {
     if (auto callbackLock = callback->lock(); callbackLock.isValid())
     {

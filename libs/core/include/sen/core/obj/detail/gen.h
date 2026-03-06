@@ -161,14 +161,36 @@ private:
 
 /// Used by the code generator NOLINTNEXTLINE
 #define SEN_IMPL_GEN_OPTIONAL(classname, elementtype, doExport)                                                        \
-  struct classname final: public std::optional<elementtype>                                                            \
+  struct classname                                                                                                     \
   {                                                                                                                    \
-    using Parent = std::optional<elementtype>;                                                                         \
-    using Parent::Parent;                                                                                              \
-    using Parent::operator=;                                                                                           \
-    using Parent::operator->;                                                                                          \
-    using Parent::operator*;                                                                                           \
-    using Parent::operator bool;                                                                                       \
+    template <typename... Args>                                                                                        \
+    classname(Args... args): val(std::forward<Args>(args)...)                                                          \
+    {                                                                                                                  \
+    }                                                                                                                  \
+    classname& operator=(classname& other)                                                                             \
+    {                                                                                                                  \
+      val = other.val;                                                                                                 \
+      return *this;                                                                                                    \
+    }                                                                                                                  \
+    classname& operator=(classname&& other)                                                                            \
+    {                                                                                                                  \
+      val = other.val;                                                                                                 \
+      return *this;                                                                                                    \
+    }                                                                                                                  \
+    constexpr const elementtype* operator->() const noexcept { return val.operator->(); }                              \
+    constexpr elementtype* operator->() noexcept { return val.operator->(); }                                          \
+    constexpr elementtype& operator*() & noexcept { return *val; }                                                     \
+    constexpr explicit operator bool() const noexcept { return bool(val); }                                            \
+    template <typename... Args>                                                                                        \
+    classname& emplace(Args... args)                                                                                   \
+    {                                                                                                                  \
+      val.emplace(std::forward<Args>(args)...);                                                                        \
+      return *this;                                                                                                    \
+    }                                                                                                                  \
+    operator std::optional<elementtype>() const { return val; }                                                        \
+                                                                                                                       \
+  private:                                                                                                             \
+    std::optional<elementtype> val;                                                                                    \
   };                                                                                                                   \
                                                                                                                        \
   SEN_MAYBE_EXPORT(doExport) bool operator==(const classname& lhs, const classname& rhs);                              \
