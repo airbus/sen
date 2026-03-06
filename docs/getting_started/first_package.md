@@ -207,7 +207,7 @@ To build and run, we follow the instructions provided by the call to `sen packag
 
 From this point you should be able to use the `shell` to inspect and interact with your object.
 
-![Screenshot](../assets/captures/add_numbers.jpg){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/listing_objects.gif){: style="width:1200px"}
 
 We can now stop the kernel by using the `shutdown` command.
 

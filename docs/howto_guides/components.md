@@ -140,7 +140,7 @@ If you now run it, you should see that the shell starts and then our component g
 now stop the kernel by using the `shutdown` command and see that our component does in fact shut
 down and prints the correct message.
 
-![Screenshot](../assets/captures/shutdown.gif){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shutdown.gif){: style="width:1200px"}
 
 When the Sen executable finishes without error, it prints a :smiley: and returns zero. If it detects
 and is able to handle an error it will print a :slightly_frowning_face: and returns non-zero. This
@@ -148,7 +148,7 @@ is independent of any component.
 
 If we do an `ls` in our *shell* we can see the objects that are currently published.
 
-![Screenshot](../assets/captures/component_ls.gif){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/component_ls.gif){: style="width:1200px"}
 
 You can see that the kernel itself is publishing some objects in a bus called "local.kernel". In
 that bus, it publishes objects that represent the running components. There we can see our component
@@ -158,7 +158,7 @@ component that is always added by the Sen kernel itself.
 Now let's inspect the object that was published to represent our component and see some info about
 it.
 
-![Screenshot](../assets/captures/print_component_info.gif){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/print_component_info.gif){: style="width:1200px"}
 
 Here we can see the meta information that gets automatically baked into our component binary. Some
 of it comes from our CMakeLists.txt, and some gets added by the build environment used when
@@ -505,7 +505,7 @@ SEN_COMPONENT(MyComponent)
 
 Let's run it:
 
-![Screenshot](../assets/captures/listing_objects.gif){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/listing_objects.gif){: style="width:1200px"}
 
 You can see that we can see some objects. In particular:
 

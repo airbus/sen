@@ -1,6 +1,6 @@
 # The Tracy component
 
-![Screenshot](../assets/captures/tracy.jpg){: style="width:1200px;"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/tracy.gif){: style="width:1200px;"}
 
 This component connects the [Tracy](https://github.com/wolfpld/tracy) profiler to the Sen tracing
 API.

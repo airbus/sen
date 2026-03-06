@@ -1,6 +1,6 @@
 # The Sen Explorer
 
-![Screenshot](../assets/captures/explorer_overview.jpg){: style="width:1200px;"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/explorer_overview.gif){: style="width:1200px;"}
 
 The Sen Explorer component starts a lightweight GUI to helps you understand and monitor the Sen
 world. You can see it as a graphical Shell. With it, you are able to:
