@@ -38,7 +38,7 @@ TEST(MemoryBlock, FixedMemoryBlockPoolDefault)
   return;  // skip last check when running with TSAN
 #    endif
 #  endif
-  EXPECT_EXIT(blockPool->getBlockPtr(), ::testing::KilledBySignal(SIGSEGV), ".*");  // NOLINT
+  EXPECT_EXIT(std::ignore = blockPool->getBlockPtr(), ::testing::KilledBySignal(SIGSEGV), ".*");  // NOLINT
 #endif
 }
 
