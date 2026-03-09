@@ -1,0 +1,7 @@
+include(sen_gcc)
+
+[options]
+doxygen*:compiler.cppstd=20
+
+[tool_requires]
+&:doxygen/[>=1.15.0]

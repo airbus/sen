@@ -71,8 +71,6 @@ jobs:
           cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-          sed -i '/^\[options\]$/i doxygen*:compiler.cppstd=20' ~/.conan2/profiles/default
-          sed -i '/^\[tool_requires\]$/a &:doxygen/[>=1.15.0]' ~/.conan2/profiles/default
           conan profile show -pr default
 
       - name: Install system dependencies
