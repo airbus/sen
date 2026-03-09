@@ -11,6 +11,14 @@ on:
   push:
     branches:
       - main
+    tags:
+      - \d+.\d+.\d+$
+      # Explicitly not build for release candidates
+      # - \d+.\d+.\d+-rc\d+
+    paths:
+      - "docs/**"
+      - ".github/workflows/build_docs.yaml"
+      - "mkdocs.yml"
 
 permissions:
   contents: write
@@ -49,11 +57,11 @@ jobs:
         run: |
           rm ~/.conan2/profiles/default
           conan profile detect --force -vquiet
-          cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
+          cp .conan/profiles/sen_gcc ~/.conan2/profiles/sen_gcc
+          cp .conan/profiles/sen_build_docs ~/.conan2/profiles/default
+          echo [conf] >> ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-          sed -i '/^\[options\]$/i doxygen*:compiler.cppstd=20' ~/.conan2/profiles/default
-          sed -i '/^\[tool_requires\]$/a &:doxygen/[>=1.15.0]' ~/.conan2/profiles/default
           conan profile show -pr default
 
       - name: Install system dependencies
@@ -69,5 +77,10 @@ jobs:
           cmake --build build/gcc/Release/ --target doxydocs
           cmake --build build/gcc/Release/ --target mkdocs
 
+      - name: Build and deploy release documentation
+        if: github.ref_type == 'tag'
+        run: mike deploy --push --update-aliases ${{ github.ref_name }}
+
       - name: Build and deploy intermediate documentation
+        if: github.ref_type != 'tag'
         run: mike deploy --push --update-aliases latest
