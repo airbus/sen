@@ -15,10 +15,6 @@ on:
       - \d+.\d+.\d+$
       # Explicitly not build for release candidates
       # - \d+.\d+.\d+-rc\d+
-    paths:
-      - "docs/**"
-      - ".github/workflows/build_docs.yaml"
-      - "mkdocs.yml"
 
 permissions:
   contents: write
