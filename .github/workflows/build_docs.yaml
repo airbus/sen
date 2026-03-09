@@ -11,6 +11,14 @@ on:
   push:
     branches:
       - main
+    tags:
+      - \d+.\d+.\d+$
+      # Explicitly not build for release candidates
+      # - \d+.\d+.\d+-rc\d+
+    paths:
+      - "docs/**"
+      - ".github/workflows/build_docs.yaml"
+      - "mkdocs.yml"
 
 permissions:
   contents: write
@@ -69,5 +77,10 @@ jobs:
           cmake --build build/gcc/Release/ --target doxydocs
           cmake --build build/gcc/Release/ --target mkdocs
 
+      - name: Build and deploy release documentation
+        if: github.ref_type == 'tag'
+        run: mike deploy --push --update-aliases ${{ github.ref_name }}
+
       - name: Build and deploy intermediate documentation
+        if: github.ref_type != 'tag'
         run: mike deploy --push --update-aliases latest
