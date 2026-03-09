@@ -29,7 +29,6 @@
 
 namespace sen::kernel
 {
-
 // The following class contains one-liners (single statements) that just wrap calls
 // to the OS, with no other logic. As such, they do not require coverage: we are
 // not testing the operating system.
@@ -88,7 +87,6 @@ int NativePosixAPI::pthread_setcanceltype(int type, int* old_type) noexcept  // 
 int NativePosixAPI::pthread_setaffinity_np(pthread_t thread, std::size_t cpuSetSize, const cpu_set_t* cpuSet) noexcept
 {
 #ifdef __APPLE__
-
   unsigned int core = 0;
   for (core = 0; core < 8 * cpuSetSize; core++)
   {
@@ -120,5 +118,4 @@ int NativePosixAPI::pthread_setname_np(pthread_t thread, const char* name) noexc
 int NativePosixAPI::pthread_detach(pthread_t thread) noexcept { return ::pthread_detach(thread); }
 
 // LCOV_EXCL_STOP
-
 }  // namespace sen::kernel

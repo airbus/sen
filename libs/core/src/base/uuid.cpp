@@ -34,7 +34,6 @@
 
 namespace
 {
-
 constexpr char emptyGuid[37] = "00000000-0000-0000-0000-000000000000";  // NOSONAR
 constexpr char guidEncoder[17] = "0123456789abcdef";                    // NOSONAR
 
@@ -62,12 +61,10 @@ constexpr char guidEncoder[17] = "0123456789abcdef";                    // NOSON
 {
   return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
 }
-
 }  // namespace
 
 namespace sen
 {
-
 // --------------------------------------------------------------------------------------------------------------------------
 // Uuid
 // --------------------------------------------------------------------------------------------------------------------------
@@ -170,7 +167,7 @@ Uuid Uuid::fromString(std::string_view str) noexcept
     return {};
   }
 
-  return Uuid {data.data()};
+  return Uuid {data};
 }
 
 std::string Uuid::toString() const
@@ -207,5 +204,4 @@ std::ostream& operator<<(std::ostream& s, const Uuid& id)
   s << id.toString();
   return s;
 }
-
 }  // namespace sen

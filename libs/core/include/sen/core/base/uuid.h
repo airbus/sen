@@ -10,6 +10,7 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/span.h"
 #include "sen/core/base/static_vector.h"
 
 // std
@@ -22,7 +23,6 @@
 
 namespace sen
 {
-
 /// \addtogroup util
 /// @{
 
@@ -64,14 +64,9 @@ public:
 
   /// Construct it from an array of bytes.
   /// Does not validate the data.
-  explicit Uuid(const uint8_t* bytes) noexcept;
+  explicit Uuid(Span<const uint8_t> bytes) noexcept;
 
   ~Uuid() = default;
-
-public:  // comparison operators
-  constexpr bool operator==(const Uuid& rhs) const noexcept;
-  constexpr bool operator!=(const Uuid& rhs) const noexcept;
-  constexpr bool operator<(const Uuid& rhs) const noexcept;
 
 public:
   /// True if all zeroes.
@@ -111,6 +106,11 @@ public:
   void swap(Uuid& other) noexcept;
 
 private:
+  friend constexpr bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept;
+  friend constexpr bool operator!=(const Uuid& lhs, const Uuid& rhs) noexcept;
+  friend constexpr bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept;
+
+private:
   uint64_t hi_ {};
   uint64_t lo_ {};
 };
@@ -119,19 +119,23 @@ private:
 // Inline implementation
 // --------------------------------------------------------------------------------------------------------------------------
 
-inline Uuid::Uuid(const uint8_t* bytes) noexcept
+[[nodiscard]] constexpr bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept
 {
-  std::memcpy(&hi_, bytes, 8);
-  std::memcpy(&lo_, bytes + 8, 8);
+  return lhs.hi_ == rhs.hi_ && lhs.lo_ == rhs.lo_;
 }
 
-constexpr bool Uuid::operator==(const Uuid& rhs) const noexcept { return hi_ == rhs.hi_ && lo_ == rhs.lo_; }
+[[nodiscard]] constexpr bool operator!=(const Uuid& lhs, const Uuid& rhs) noexcept { return !(lhs == rhs); }
 
-constexpr bool Uuid::operator!=(const Uuid& rhs) const noexcept { return !(*this == rhs); }
-
-constexpr bool Uuid::operator<(const Uuid& rhs) const noexcept
+[[nodiscard]] constexpr bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept
 {
-  return (hi_ < rhs.hi_) || (hi_ == rhs.hi_ && lo_ < rhs.lo_);
+  return (lhs.hi_ < rhs.hi_) || (lhs.hi_ == rhs.hi_ && lhs.lo_ < rhs.lo_);
+}
+
+inline Uuid::Uuid(Span<const uint8_t> bytes) noexcept
+{
+  SEN_ASSERT(bytes.size() >= 16);
+  std::memcpy(&hi_, bytes.data(), sizeof(uint64_t));
+  std::memcpy(&lo_, bytes.data() + sizeof(uint64_t), sizeof(uint64_t));
 }
 
 constexpr uint32_t Uuid::getHash32() const noexcept
@@ -234,7 +238,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& s, const Uuid& id);
-
 }  // namespace sen
 
 // --------------------------------------------------------------------------------------------------------------------------
@@ -243,13 +246,11 @@ std::ostream& operator<<(std::ostream& s, const Uuid& id);
 
 namespace std
 {
-
 template <>
 struct hash<sen::Uuid>
 {
   size_t operator()(const sen::Uuid& uuid) const noexcept { return uuid.getHash(); }
 };
-
 }  // namespace std
 
 #endif  // SEN_CORE_BASE_UUID_H

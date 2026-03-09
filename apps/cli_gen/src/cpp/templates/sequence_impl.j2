@@ -15,9 +15,14 @@ std::ostream& operator<<(std::ostream& out, const {{ qualTypeAlias }}& val)
 
   out.setf(std::ios::left, std::ios::adjustfield);
   const auto indent = std::setw(static_cast<int>(out.width() + 2U));
+
+## if qualElementType == "bool"
+  for(bool elem: val)
+## else
   for(const auto& elem: val)
+## endif
   {
-    out << indent << static_cast<{{ qualElementType }}>(elem) << "\n";
+    out << indent << elem << "\n";
   }
   return out;
 }

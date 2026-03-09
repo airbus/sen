@@ -395,7 +395,7 @@ class Person
         ASSERT_EQ("This is an event", events[0].description[1].lexeme);
       }
     }
-    EXPECT_NO_THROW(std::ignore = statements);
+    EXPECT_NO_THROW(statements);
   }
 
   // Parameter documented more than once

@@ -31,13 +31,6 @@ class SenConan(ConanFile):
         self.tool_requires("cmake/3.28.1")
 
     def configure(self) -> None:
-        #tracy
-        self.options["tracy"].delayed_init = True
-        self.options["tracy"].manual_lifetime = True
-
-        # spdlog
-        self.options["spdlog"].shared = True
-
         # sdl
         if self.settings.os != "Windows":
             self.options["sdl"].alsa = False

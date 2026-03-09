@@ -84,7 +84,6 @@ constexpr std::size_t maxTimeOverrunForLog = 100;
 
 namespace sen::kernel
 {
-
 std::shared_ptr<SessionInfoProvider> SessionsDiscoverer::makeSessionInfoProvider(const std::string& sessionName)
 {
   auto result = owner_->makeSessionInfoProvider(sessionName);
@@ -93,15 +92,12 @@ std::shared_ptr<SessionInfoProvider> SessionsDiscoverer::makeSessionInfoProvider
 }
 
 SessionInfoProvider::~SessionInfoProvider() { session_->infoProviderDeleted(this); }
-
 }  // namespace sen::kernel
 
 namespace sen::kernel::impl
 {
-
 namespace
 {
-
 template <typename R>
 void terminateIfError(const R& result, const char* operation, const ComponentContext& context)
 {
@@ -117,13 +113,13 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
 
 [[nodiscard]] NanoSecs getThreadCpuUserTime() noexcept
 {
-#if defined(__linux__)
+#ifdef __unix__
   rusage usage;  // NOLINT(misc-include-cleaner)
+#  if defined(__linux__)
   getrusage(RUSAGE_THREAD, &usage);
-  return std::chrono::seconds(usage.ru_utime.tv_sec) + std::chrono::microseconds(usage.ru_utime.tv_usec);
-#elif defined(__APPLE__)
-  rusage usage;  // NOLINT(misc-include-cleaner)
+#  elif defined(__APPLE__)
   getrusage(RUSAGE_SELF, &usage);
+#  endif
   return std::chrono::seconds(usage.ru_utime.tv_sec) + std::chrono::microseconds(usage.ru_utime.tv_usec);
 #elif defined(_WIN32)
   FILETIME creation;
@@ -141,7 +137,6 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
 #  error "OS support not implemented"
 #endif
 }
-
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------------------
@@ -756,5 +751,4 @@ void Runner::localParticipantDeleted(LocalParticipant* participant)
                                           }),
                            localParticipants_.end());
 }
-
 }  // namespace sen::kernel::impl
