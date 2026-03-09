@@ -101,7 +101,7 @@ var searchData=
   ['_7euniquebytebuffermanager_98',['~UniqueByteBufferManager',['../classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#acd991c9a934091391c704bb4aeb3a739',1,'sen::kernel::UniqueByteBufferManager']]],
   ['_7eunit_99',['~Unit',['../classsen_1_1_unit.html#a233e1648ec0731e20c04e6c5fa46b861',1,'sen::Unit']]],
   ['_7eunloadapi_100',['~UnloadApi',['../classsen_1_1kernel_1_1_unload_api.html#ad8d8297f8c6bfc0b944b912f5ac85961',1,'sen::kernel::UnloadApi']]],
-  ['_7euuid_101',['~Uuid',['../classsen_1_1_uuid.html#af7d4599e90e792cbb653972353ac04ee',1,'sen::Uuid']]],
+  ['_7euuid_101',['~Uuid',['../group__util.html#gaf7d4599e90e792cbb653972353ac04ee',1,'sen::Uuid']]],
   ['_7evar_102',['~Var',['../structsen_1_1_var.html#a479097ea33a35a1c85331298922377c0',1,'sen::Var']]],
   ['_7evarianttype_103',['~VariantType',['../classsen_1_1_variant_type.html#ab8381ce86b22301216f9c06065b82cc2',1,'sen::VariantType']]],
   ['_7evec3_104',['~Vec3',['../classsen_1_1util_1_1_vec3.html#ad4e6010d134cffd3353acefc41e1ce34',1,'sen::util::Vec3']]],

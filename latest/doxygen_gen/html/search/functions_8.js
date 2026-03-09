@@ -28,7 +28,7 @@ var searchData=
   ['isiec559_25',['isIEC559',['../classsen_1_1_numeric_type.html#aa921d941447f6fd7caca6fd0694861cc',1,'sen::NumericType']]],
   ['islocalparticipant_26',['isLocalParticipant',['../classsen_1_1_object_provider_listener.html#aeae59a2acebe4bbd3dda012d9fb457b3',1,'sen::ObjectProviderListener']]],
   ['ismoving_27',['isMoving',['../group__dr.html#ga8af1abb8bdb5619962e509fcafa5a755',1,'sen::util::impl']]],
-  ['isnil_28',['isNil',['../classsen_1_1_uuid.html#a38d34aeb080fc78cf7cb4a2d763e5376',1,'sen::Uuid']]],
+  ['isnil_28',['isNil',['../group__util.html#ga7120d77e0dc07b691cf6d5278518395e',1,'sen::Uuid']]],
   ['isnothrowinit_29',['isNothrowInit',['../classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#a1b81e1b6882e10836d614b16b8a8558c',1,'sen::std_util::detail::MoveOnlyFunctionBase']]],
   ['isok_30',['isOk',['../classsen_1_1_result.html#a3d4b50bbc2eeffb448d592054d019090',1,'sen::Result::isOk()'],['../classsen_1_1_result_3_01void_00_01_e_01_4.html#af6bfeb6b844426423f884844e34f8132',1,'sen::Result&lt; void, E &gt;::isOk()'],['../classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4.html#a3956a0c31c756e15e5d609374490e6e7',1,'sen::Result&lt; void, std::monostate &gt;::isOk()']]],
   ['isrealtimeonly_31',['isRealTimeOnly',['../classsen_1_1kernel_1_1_component.html#a85a16fa12f742eacc233033120cfd126',1,'sen::kernel::Component']]],
@@ -36,7 +36,7 @@ var searchData=
   ['isrotating_33',['isRotating',['../group__dr.html#ga700dc5434e2a5d13bb90cd2f8d633e9a',1,'sen::util::impl']]],
   ['issigned_34',['isSigned',['../classsen_1_1_numeric_type.html#a8460a654658dd39902f80187e35d3e59',1,'sen::NumericType']]],
   ['issituationcached_35',['isSituationCached',['../classsen_1_1util_1_1_dead_reckoner_base.html#ac673dbf58cfca43f586ee667e616bd1d',1,'sen::util::DeadReckonerBase']]],
-  ['isvalid_36',['isValid',['../classsen_1_1_quantity.html#a631c722a291bbe29cb2d5bd8b549ed95',1,'sen::Quantity::isValid()'],['../classsen_1_1_uuid.html#a749a706524de99761ecb92e0974a18ac',1,'sen::Uuid::isValid()'],['../classsen_1_1lang_1_1_chunk.html#a25189b2dac4bf219a2f9f85b5ccf9a6e',1,'sen::lang::Chunk::isValid()']]],
+  ['isvalid_36',['isValid',['../classsen_1_1_quantity.html#a631c722a291bbe29cb2d5bd8b549ed95',1,'sen::Quantity::isValid()'],['../group__util.html#ga15311e2d42771f786e9287235fe64a64',1,'sen::Uuid::isValid()'],['../classsen_1_1lang_1_1_chunk.html#a25189b2dac4bf219a2f9f85b5ccf9a6e',1,'sen::lang::Chunk::isValid()']]],
   ['iterateoverdependenttypes_37',['iterateOverDependentTypes',['../group__type__utils.html#ga7021bc8a8c092788dc332f6f8d1db534',1,'sen']]],
   ['iteratorrange_38',['IteratorRange',['../structsen_1_1util_1_1_iterator_range.html#abcf01909487c3a630e90c42dddd6f1d1',1,'sen::util::IteratorRange']]]
 ];

@@ -111,18 +111,15 @@ $(function(){initNavTree('uuid_8h.html','',''); });
   <div class="headertitle"><div class="title">uuid.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="class__helpers_8h_source.html">sen/core/base/class_helpers.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="numbers_8h_source.html">sen/core/base/numbers.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="compiler__macros_8h_source.html">sen/core/base/compiler_macros.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="span_8h_source.html">sen/core/base/span.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="static__vector_8h_source.html">sen/core/base/static_vector.h</a>&quot;</code><br />
-<code>#include &lt;emmintrin.h&gt;</code><br />
-<code>#include &lt;immintrin.h&gt;</code><br />
-<code>#include &lt;smmintrin.h&gt;</code><br />
 <code>#include &lt;array&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;cstring&gt;</code><br />
-<code>#include &lt;iosfwd&gt;</code><br />
 <code>#include &lt;random&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
 </div>
 <p><a href="uuid_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -131,7 +128,6 @@ Classes</h2></td></tr>
 <tr class="memitem:sen_3A_3AUuid" id="r_sen_3A_3AUuid"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_uuid.html">sen::Uuid</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Universal Unique Identifier.  <a href="classsen_1_1_uuid.html#details">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3AUuidRandomGenerator" id="r_sen_3A_3AUuidRandomGenerator"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_uuid_random_generator.html">sen::UuidRandomGenerator</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates UUIDs using the std random number generator.  <a href="classsen_1_1_uuid_random_generator.html#details">More...</a><br /></td></tr>
 <tr class="memitem:std_3A_3Ahash_3C_20sen_3A_3AUuid_20_3E" id="r_std_3A_3Ahash_3C_20sen_3A_3AUuid_20_3E"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structstd_1_1hash_3_01sen_1_1_uuid_01_4.html">std::hash&lt; sen::Uuid &gt;</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -162,6 +158,9 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga8ba20ba977383f7041aa5aa453c2e749" id="r_ga8ba20ba977383f7041aa5aa453c2e749"><td class="memItemLeft">constexpr bool&#160;</td><td class="memItemRight"><a class="el" href="group__util.html#ga8ba20ba977383f7041aa5aa453c2e749">sen::operator==</a> (const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;lhs, const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;rhs)</td></tr>
+<tr class="memitem:ga2bca46aea46efad46c9447053295146e" id="r_ga2bca46aea46efad46c9447053295146e"><td class="memItemLeft">constexpr bool&#160;</td><td class="memItemRight"><a class="el" href="group__util.html#ga2bca46aea46efad46c9447053295146e">sen::operator!=</a> (const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;lhs, const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;rhs)</td></tr>
+<tr class="memitem:ga81ff51214ef25b1c4b9a38348b6c444d" id="r_ga81ff51214ef25b1c4b9a38348b6c444d"><td class="memItemLeft">constexpr bool&#160;</td><td class="memItemRight"><a class="el" href="group__util.html#ga81ff51214ef25b1c4b9a38348b6c444d">sen::operator&lt;</a> (const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;lhs, const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;rhs)</td></tr>
 <tr class="memitem:gaaed47f75ca36310764728d233a9194ba" id="r_gaaed47f75ca36310764728d233a9194ba"><td class="memItemLeft">std::ostream &amp;&#160;</td><td class="memItemRight"><a class="el" href="group__util.html#gaaed47f75ca36310764728d233a9194ba">sen::operator&lt;&lt;</a> (std::ostream &amp;s, const <a class="el" href="classsen_1_1_uuid.html">Uuid</a> &amp;id)</td></tr>
 </table>
 </div><!-- contents -->

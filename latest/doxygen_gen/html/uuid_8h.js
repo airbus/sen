@@ -1,6 +1,5 @@
 var uuid_8h =
 [
-    [ "std::hash&lt; sen::Uuid &gt;", "structstd_1_1hash_3_01sen_1_1_uuid_01_4.html", "structstd_1_1hash_3_01sen_1_1_uuid_01_4" ],
     [ "sen::UuidVariant", "group__util.html#ga889714e61e56253694a19c232e46c675", [
       [ "sen::UuidVariant::ncs", "group__util.html#gga889714e61e56253694a19c232e46c675a020a8cfa922969a0b9035333f45988c3", null ],
       [ "sen::UuidVariant::rfc", "group__util.html#gga889714e61e56253694a19c232e46c675a1560a2dff5992750d9748cbda44b4c51", null ],
@@ -15,5 +14,8 @@ var uuid_8h =
       [ "sen::UuidVersion::randomNumberBased", "group__util.html#ggaa4be30d67a751121185e3cdd62a94065ab17554bda264ce85eff641885486d828", null ],
       [ "sen::UuidVersion::nameBasedSha1", "group__util.html#ggaa4be30d67a751121185e3cdd62a94065a01e4903c9250298a11299df0f7a8918a", null ]
     ] ],
+    [ "sen::operator==", "group__util.html#ga8ba20ba977383f7041aa5aa453c2e749", null ],
+    [ "sen::operator!=", "group__util.html#ga2bca46aea46efad46c9447053295146e", null ],
+    [ "sen::operator<", "group__util.html#ga81ff51214ef25b1c4b9a38348b6c444d", null ],
     [ "sen::operator<<", "group__util.html#gaaed47f75ca36310764728d233a9194ba", null ]
 ];

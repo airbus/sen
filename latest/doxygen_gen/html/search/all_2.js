@@ -91,7 +91,7 @@ var searchData=
   ['conversionimpl_88',['conversionImpl',['../namespacesen_1_1std__util_1_1impl.html#a5507386efeae9143636b7e22280e7602',1,'sen::std_util::impl']]],
   ['convert_89',['convert',['../classsen_1_1_unit.html#a2d231c688abfbcfca9cce2901a1b31ba',1,'sen::Unit']]],
   ['converttocompletetypesetcontext_90',['convertToCompleteTypeSetContext',['../classsen_1_1lang_1_1_fom_parser.html#a91cda9559d60b62107475b0d8e1ea405',1,'sen::lang::FomParser']]],
-  ['copy_91',['copy',['../classsen_1_1_uuid.html#a250b2ed944e555fffd1679d8096441f5',1,'sen::Uuid::copy(std::array&lt; uint8_t, byteCount &gt; &amp;arr) const'],['../classsen_1_1_uuid.html#aed70ae2790d4eb70c856738b31da3271',1,'sen::Uuid::copy(StaticVector&lt; uint8_t, byteCount &gt; &amp;vec) const']]],
+  ['copy_91',['copy',['../group__util.html#ga250b2ed944e555fffd1679d8096441f5',1,'sen::Uuid::copy(std::array&lt; uint8_t, byteCount &gt; &amp;arr) const'],['../group__util.html#gaed70ae2790d4eb70c856738b31da3271',1,'sen::Uuid::copy(StaticVector&lt; uint8_t, byteCount &gt; &amp;vec) const']]],
   ['core_20library_92',['Core library',['../group__core.html',1,'']]],
   ['core_2finclude_2fsen_2fcore_2fio_2futil_2eh_93',['util.h',['../core_2include_2sen_2core_2io_2util_8h.html',1,'']]],
   ['core_2finclude_2fsen_2fcore_2fmeta_2fevent_2eh_94',['event.h',['../core_2include_2sen_2core_2meta_2event_8h.html',1,'']]],

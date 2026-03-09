@@ -8,5 +8,6 @@ var searchData=
   ['bodytoworld_5',['bodyToWorld',['../namespacesen_1_1util.html#a6cc25c968f83350a1ef525b05259e936',1,'sen::util']]],
   ['bufferedtestreader_6',['BufferedTestReader',['../classsen_1_1test_1_1_buffered_test_reader.html#a1452513cacac1db7d86d8fcce7bc427e',1,'sen::test::BufferedTestReader']]],
   ['bufferwriter_7',['BufferWriter',['../classsen_1_1_buffer_writer.html#a92c55a7dcb238ea40301b4c767565321',1,'sen::BufferWriter']]],
-  ['buildnonnativetype_8',['buildNonNativeType',['../group__kernel.html#gaf1edbd1327904c8cb1ba7867180ba4b5',1,'sen::kernel']]]
+  ['buildnonnativetype_8',['buildNonNativeType',['../group__kernel.html#gaf1edbd1327904c8cb1ba7867180ba4b5',1,'sen::kernel']]],
+  ['bytes_9',['bytes',['../group__util.html#ga523f6fb26fd411fffa7b52c309b94457',1,'sen::Uuid']]]
 ];

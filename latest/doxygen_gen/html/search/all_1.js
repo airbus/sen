@@ -36,5 +36,6 @@ var searchData=
   ['busspec_33',['BusSpec',['../group__obj.html#structsen_1_1_bus_spec',1,'sen']]],
   ['bytebufferhandle_34',['ByteBufferHandle',['../classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#a834ed00743e2be45f298968a0b7e362d',1,'sen::kernel::UniqueByteBufferManager::ByteBufferHandle'],['../classsen_1_1kernel_1_1_transport_listener.html#a94916a055053241082d7d435d767bf07',1,'sen::kernel::TransportListener::ByteBufferHandle']]],
   ['bytebuffermanager_35',['ByteBufferManager',['../classsen_1_1kernel_1_1_transport_listener.html#acd61da7342c061cf02edae0cf72a68b3',1,'sen::kernel::TransportListener']]],
-  ['bytecount_36',['byteCount',['../classsen_1_1_uuid.html#a48b082a64f8e2c7ea9d406b79d556d23',1,'sen::Uuid']]]
+  ['bytecount_36',['byteCount',['../group__util.html#ga48b082a64f8e2c7ea9d406b79d556d23',1,'sen::Uuid']]],
+  ['bytes_37',['bytes',['../group__util.html#ga523f6fb26fd411fffa7b52c309b94457',1,'sen::Uuid']]]
 ];
