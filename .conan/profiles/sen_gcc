@@ -6,9 +6,11 @@ compiler.cppstd=17
 compiler.version=12
 compiler.libcxx=libstdc++11
 build_type=Release
+
 [options]
 [tool_requires]
 !ninja/*: ninja/[~1]
+
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
 tools.cmake.cmake_layout:build_folder_vars=['settings.compiler']

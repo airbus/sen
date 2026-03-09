@@ -56,7 +56,7 @@ class JobSpecification:
         return convert_dataclass_to_json(self)
 
 
-def compute_jobs(release: bool) -> list[JobSpecification]:
+def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
     jobs = []
 
@@ -81,13 +81,16 @@ def compute_jobs(release: bool) -> list[JobSpecification]:
                                       "clang++-20"), 17, "Debug"))
 
     # Add msvc jobs
+    jobs.append(
+        JobSpecification("Basic Windows", "windows", "windows-2022", None,
+                         Compiler("msvc", 194, "", ""), 17, "Debug"))
 
     return sorted(jobs)
 
 
-def generate_jobs_file(release: bool) -> None:
+def generate_jobs_file(release: bool, conan: bool) -> None:
     """Generates the jobs file at GITHUB_OUTPUT."""
-    jobs = compute_jobs(release)
+    jobs = compute_jobs(release, conan)
 
     if output_file := os.environ.get("GITHUB_OUTPUT"):
         with open(output_file, "wt", encoding='utf-8') as matrix_file:
@@ -108,10 +111,15 @@ def main() -> None:
         "--release",
         action=argparse.BooleanOptionalAction,
         help="Generate the jobs needed for building release artifacts.")
+    parser.add_argument(
+        "--conan",
+        action=argparse.BooleanOptionalAction,
+        help=
+        "Generate the jobs needed to ensure all required conan packages work.")
 
     args = parser.parse_args()
 
-    generate_jobs_file(release=args.release)
+    generate_jobs_file(release=args.release, conan=args.conan)
 
 
 if __name__ == "__main__":

@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: 3.x
       - id: compute-jobs
-        run: python .github/scripts/generate_matrix_jobs.py
+        run: python .github/scripts/generate_matrix_jobs.py --conan
   build:
     name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
@@ -94,8 +94,10 @@ jobs:
       - name: Setup conan profile
         shell: bash
         run: |
-          rm ~/.conan2/profiles/default
+          rm -f ~/.conan2/profiles/default
           conan profile detect --force -vquiet
+          conan cache clean "*"
+          conan profile show -pr default
           cp .conan/profiles/sen_$COMPILER ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
@@ -104,8 +106,9 @@ jobs:
           COMPILER: ${{ matrix.compiler.name }}
 
       - name: Install system dependencies
-        # need for clang compat with sdl2 2.24.0
+        if: matrix.compiler.name != 'msvc'
         shell: bash
+        # need for clang compat with sdl2 2.24.0
         run: sudo apt-get install -y libxext-dev
 
       - name: Create conan package
