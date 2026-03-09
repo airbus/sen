@@ -8,6 +8,7 @@
 #include "sen/kernel/kernel.h"
 
 // implementation
+#include "crash_reporter.h"
 #include "kernel_impl.h"
 #include "operating_system.h"
 
@@ -19,8 +20,6 @@
 #include "stl/sen/kernel/basic_types.stl.h"
 
 // std
-#include "crash_reporter.h"
-
 #include <filesystem>
 #include <memory>
 #include <string>

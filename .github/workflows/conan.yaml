@@ -117,3 +117,9 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           conan create . --user airbus --channel dev --lockfile-out=package.lock \
               --build=missing -s:a build_type=${{ matrix.build_type }}
+
+      - name: Remove unwanted parts from conan cache before backup
+        shell: bash
+        run: |
+          conan remove sen --confirm
+          conan cache clean "*" -s -b -d

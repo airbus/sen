@@ -13,9 +13,13 @@
 #include <gtest/gtest.h>
 
 SEN_RANGED_QUANTITY(MyQuantity, float32_t, -15.0f, 15.0f)
+
 SEN_RANGED_QUANTITY(MySmallQuantity, float64_t, 0.0055f, 0.0056f);
+
 SEN_RANGED_QUANTITY(MyNegativeSmallQuantity, float32_t, -20.001f, -20.00001f);
+
 SEN_RANGED_QUANTITY(MyMatchingBoundsQuantity, float32_t, -11.15f, -11.15f);
+
 SEN_RANGED_QUANTITY(MyCharsQuantity, char, 'A', 'Z');
 
 /// @test
@@ -127,7 +131,7 @@ TEST(RangeChecked, matchingBounds)
 {
   MyMatchingBoundsQuantity value = -11.15f;
 
-  EXPECT_NO_THROW(value == -11.15f);
+  EXPECT_NO_THROW(std::ignore = (value == -11.15f));
 
   float64_t x = value;
 

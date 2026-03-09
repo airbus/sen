@@ -198,6 +198,8 @@ namespace
 
   return buf;
 
+#elif defined(__APPLE__)
+  return getprogname();
 #else
   return ::program_invocation_short_name;
 #endif
@@ -206,11 +208,11 @@ namespace
 [[nodiscard]] std::string getHostName()
 {
   constexpr auto infoBufferSize = 32767;
-#ifdef __linux
+#if defined(__linux) || defined(__APPLE__)
   std::array<char, infoBufferSize> hostName {};
   gethostname(hostName.data(), hostName.size());  // NOLINT(misc-include-cleaner)
   return {hostName.data()};
-#else
+#elif defined(_WIN32)
   TCHAR infoBuffer[infoBufferSize];
   DWORD bufCharCount = infoBufferSize;
 

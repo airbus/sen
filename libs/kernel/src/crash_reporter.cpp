@@ -69,6 +69,11 @@
 #include <stdexcept>
 #include <utility>
 
+// with Apple we need to explicitly declare this as an external symbol
+#ifdef __APPLE__
+extern "C" char** environ;
+#endif
+
 namespace sen::kernel::impl
 {
 
@@ -288,7 +293,7 @@ void CrashReporter::collectEnvironmentVars()
 
   FreeEnvironmentStrings(lpvEnv);
 #else
-  for (auto env = environ; *env;  // NOLINT(misc-include-cleaner
+  for (auto env = environ; *env;  // NOLINT(misc-include-cleaner)
        ++env)                     // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   {
     if (auto elems = sen::impl::split(*env, '='); elems.size() == 2)
