@@ -35,10 +35,18 @@ class Compiler:
 
 
 @dataclass(frozen=True, order=True)
+class Container:
+    """Container specification"""
+    image: str
+
+
+@dataclass(frozen=True, order=True)
 class JobSpecification:
     """Pipeline job specification that defines the configuration options."""
     name: str
     os: str
+    runner: tp.Literal["ubuntu-latest", "self-hosted"]
+    container: Container | None
     compiler: Compiler
     std: tp.Literal[17, 20, 23]
     build_type: tp.Literal["Release", "Debug"]
@@ -55,21 +63,24 @@ def compute_jobs(release: bool) -> list[JobSpecification]:
     # Add gcc jobs
     if not release:
         jobs.append(
-            JobSpecification("Basic GCC", "ubuntu-22.04",
+            JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
                              Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
                              "Debug"))
     else:
         jobs.append(
-            JobSpecification("Basic GCC", "ubuntu-22.04",
+            JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
                              Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
                              "Release"))
 
     # Add clang jobs
     if not release:
         jobs.append(
-            JobSpecification("Basic Clang", "ubuntu-24.04",
-                             Compiler("clang", 20, "clang-20", "clang++-20"),
-                             17, "Debug"))
+            JobSpecification("Basic Clang", "ubuntu-24.04", "self-hosted",
+                             None,
+                             Compiler("clang", 20, "clang-20",
+                                      "clang++-20"), 17, "Debug"))
+
+    # Add msvc jobs
 
     return sorted(jobs)
 

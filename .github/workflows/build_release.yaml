@@ -37,7 +37,7 @@ jobs:
   create_release_with_artifacts:
     name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
-    runs-on: self-hosted
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: true
       matrix:
