@@ -48,10 +48,15 @@ SharedLibrary PosixOS::openSharedLibrary(std::string_view path)
 {
   std::filesystem::path nativePath(path);
 
-  // set 'libXYZ.so' as the library name
+  // set 'libXYZ.<extension>' as the library name
   std::string libName = "lib";
   libName.append(nativePath.stem());
+
+#ifdef __APPLE__
+  libName.append(".dylib");
+#else
   libName.append(".so");
+#endif
 
   nativePath.replace_filename(libName);
 

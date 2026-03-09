@@ -201,7 +201,7 @@ if(SEN_ENABLE_CMAKE_TARGET_GRAPH)
 
   find_program(dot_executable dot)
   if(NOT dot_executable)
-    message(WARNING "'dot' executable not found. 'sen.svg' will not be generated.")
+    message(WARNING "'dot' executable not found. Dependency graph cannot be generated.")
     return()
   endif()
 

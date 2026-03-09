@@ -15,8 +15,6 @@
 #include "runner.h"
 #include "wall_clock.h"
 
-#include <spdlog_config.h>
-
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/class_type.h"
@@ -31,6 +29,7 @@
 // spdlog
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog_config.h>
 
 // std
 #include <chrono>

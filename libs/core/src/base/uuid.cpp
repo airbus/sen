@@ -34,7 +34,6 @@
 
 namespace
 {
-
 constexpr char emptyGuid[37] = "00000000-0000-0000-0000-000000000000";  // NOSONAR
 constexpr char guidEncoder[17] = "0123456789abcdef";                    // NOSONAR
 
@@ -62,17 +61,15 @@ constexpr char guidEncoder[17] = "0123456789abcdef";                    // NOSON
 {
   return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
 }
-
 }  // namespace
 
 namespace sen
 {
-
 // --------------------------------------------------------------------------------------------------------------------------
 // Uuid
 // --------------------------------------------------------------------------------------------------------------------------
 
-bool Uuid::isValid(const std::string& str) noexcept
+bool Uuid::isValid(std::string_view str) noexcept
 {
   bool firstDigit = true;
   size_t hasBraces = 0;
@@ -118,7 +115,7 @@ bool Uuid::isValid(const std::string& str) noexcept
   return index >= byteCount;
 }
 
-Uuid Uuid::fromString(const std::string& str) noexcept
+Uuid Uuid::fromString(std::string_view str) noexcept
 {
   bool firstDigit = true;
   size_t hasBraces = 0;
@@ -175,6 +172,8 @@ Uuid Uuid::fromString(const std::string& str) noexcept
 
 std::string Uuid::toString() const
 {
+  const auto ourBytes = bytes();
+
   std::string str {emptyGuid};
 
   std::size_t index = 0U;
@@ -186,9 +185,9 @@ std::string Uuid::toString() const
       continue;
     }
 
-    str[i] = guidEncoder[bytes_[index] >> 4 & 0x0f];  // NOLINT
+    str[i] = guidEncoder[ourBytes[index] >> 4 & 0x0f];  // NOLINT
     ++i;
-    str[i] = guidEncoder[bytes_[index] & 0x0f];  // NOLINT
+    str[i] = guidEncoder[ourBytes[index] & 0x0f];  // NOLINT
     ++index;
     ++i;
   }
@@ -205,5 +204,4 @@ std::ostream& operator<<(std::ostream& s, const Uuid& id)
   s << id.toString();
   return s;
 }
-
 }  // namespace sen

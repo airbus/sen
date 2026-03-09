@@ -24,7 +24,7 @@
 // OS and compiler-specific
 #ifdef _WIN32
 #  include <intrin.h>
-#else
+#elif defined(__linux__)
 #  include <cpuid.h>
 #endif
 
@@ -100,6 +100,12 @@ bool WallClock::hardwareSupportsInvariantTSC()
 }
 
 SleepPolicy WallClock::getSleepPolicy() noexcept { return sleepPolicy_; }
+
+#elif defined(__APPLE__)
+
+bool WallClock::hardwareSupportsInvariantTSC() { return false; }
+
+SleepPolicy WallClock::getSleepPolicy() noexcept { return SystemSleep {}; }
 
 #else
 #  error "Architecture not supported"

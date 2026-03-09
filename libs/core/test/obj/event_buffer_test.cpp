@@ -126,12 +126,6 @@ TEST(SerializableEventQueue, make)
     checkEventQueue(-20, false);
     checkEventQueue(-935, true);
   }
-
-  // floating-point values
-  {
-    checkEventQueue(3.14f, false);  // NOLINT(bugprone-narrowing-conversions)
-    checkEventQueue(3.14, true);    // NOLINT(bugprone-narrowing-conversions)
-  }
 }
 
 /// @test

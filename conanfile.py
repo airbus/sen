@@ -20,7 +20,7 @@ class SenConan(ConanFile):
     # Metadata
     name = "sen"
     author = "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
-    url = "TBD"
+    url = "https://github.com/airbus/sen"
     description = "Sen Software Infrastructure"
     license = "Apache 2.0"
 

@@ -137,7 +137,7 @@ void configureMulticastSocket(asio::ip::udp::socket& socket,
 
 #ifdef _WIN32
     const auto bindAddress = asio::ip::address_v4::any();  // Windows doesn't allow binding to multicast groups
-#elif defined __linux
+#elif defined(__linux) || defined(__APPLE__)
     const auto bindAddress = multicastEndpoint.address();
 #endif
 

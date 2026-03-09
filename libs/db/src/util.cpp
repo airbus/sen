@@ -54,8 +54,12 @@ void doWrite(const Span<const uint8_t>& span, FILE* file)
 {
 #ifdef WIN32
   const auto error = span.size() != _fwrite_nolock(span.data(), 1U, span.size(), file);
-#else
+#elif defined(__APPLE__)
+  const auto error = span.size() != fwrite(span.data(), 1U, span.size(), file);
+#elif defined(__linux__)
   const auto error = span.size() != fwrite_unlocked(span.data(), 1U, span.size(), file);
+#else
+#  error "OS not supported"
 #endif
 
   if (error)
