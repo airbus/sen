@@ -20,7 +20,7 @@ class SenConan(ConanFile):
     # Metadata
     name = "sen"
     author = "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
-    url = "TBD"
+    url = "https://github.com/airbus/sen"
     description = "Sen Software Infrastructure"
     license = "Apache 2.0"
 
@@ -29,9 +29,16 @@ class SenConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/3.28.1")
-        self.tool_requires("doxygen/[>=1.15.0]")
 
     def configure(self) -> None:
+        #tracy
+        self.options["tracy"].delayed_init = True
+        self.options["tracy"].manual_lifetime = True
+
+        # spdlog
+        self.options["spdlog"].shared = True
+
+        # sdl
         if self.settings.os != "Windows":
             self.options["sdl"].alsa = False
             self.options["sdl"].pulse = False

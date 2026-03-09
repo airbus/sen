@@ -127,7 +127,7 @@ TEST(RangeChecked, matchingBounds)
 {
   MyMatchingBoundsQuantity value = -11.15f;
 
-  EXPECT_NO_THROW(value == -11.15f);
+  EXPECT_NO_THROW(std::ignore = (value == -11.15f));
 
   float64_t x = value;
 

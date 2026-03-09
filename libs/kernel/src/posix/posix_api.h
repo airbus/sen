@@ -10,10 +10,26 @@
 
 #include "sen/core/base/class_helpers.h"
 
+// os
 #include <pthread.h>
 #include <sched.h>
 
+// std
 #include <iosfwd>
+
+#ifdef __APPLE__
+
+// Definition of cpu_set for the Apple OS
+typedef struct cpu_set  // NOLINT
+{
+  uint32_t count;
+} cpu_set_t;  // NOLINT
+
+inline void CPU_ZERO(cpu_set_t* cs) { cs->count = 0; }                                   // NOLINT
+inline void CPU_SET(int num, cpu_set_t* cs) { cs->count |= (1 << num); }                 // NOLINT
+inline int CPU_ISSET(int num, const cpu_set_t* cs) { return (cs->count & (1 << num)); }  // NOLINT
+
+#endif
 
 namespace sen::kernel
 {

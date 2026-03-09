@@ -9,22 +9,16 @@
 #define SEN_CORE_BASE_UUID_H
 
 // sen
-#include "sen/core/base/class_helpers.h"
-#include "sen/core/base/numbers.h"
+#include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/static_vector.h"
-
-// intrinsics
-#include <emmintrin.h>
-#include <immintrin.h>
-#include <smmintrin.h>
 
 // std
 #include <array>
 #include <cstdint>
 #include <cstring>
-#include <iosfwd>
 #include <random>
 #include <string>
+#include <string_view>
 
 namespace sen
 {
@@ -55,76 +49,60 @@ enum class UuidVersion
 /// Universal Unique Identifier
 class Uuid
 {
-public:
-  static constexpr std::size_t byteCount = 16U;
-
-public:  // special members
-  Uuid() = default;
-  ~Uuid() = default;
-  Uuid(const Uuid& other);
-  Uuid(Uuid&& other) noexcept;
+  SEN_COPY_MOVE(Uuid)
 
 public:
-  /// Constructs the Uuid using the low-level registry as source.
-  /// Does not validate the data.
-  explicit Uuid(__m128i uuid) noexcept;
+  static constexpr std::size_t byteCount = 16;
 
-  /// Construct it from an array of bytes.
-  /// Does not validate the data.
-  explicit Uuid(uint8_t (&arr)[byteCount]) noexcept;  // NOSONAR
-
-  /// Construct it from an std::array of bytes.
-  /// Does not validate the data.
-  explicit Uuid(const std::array<uint8_t, byteCount>& arr) noexcept;
+public:
+  // Constructs an empty (nil) UUID.
+  constexpr Uuid() noexcept = default;
 
   /// Construct it from two consecutive 64-bit integers.
   /// Does not validate the data.
-  explicit Uuid(uint64_t x, uint64_t y);
+  constexpr Uuid(uint64_t hi, uint64_t lo) noexcept: hi_(hi), lo_(lo) {}
 
-  /// Construct it from a memory area.
+  /// Construct it from an array of bytes.
   /// Does not validate the data.
-  explicit Uuid(const uint8_t* bytes);
+  explicit Uuid(const uint8_t* bytes) noexcept;
+
+  ~Uuid() = default;
+
+public:  // comparison operators
+  constexpr bool operator==(const Uuid& rhs) const noexcept;
+  constexpr bool operator!=(const Uuid& rhs) const noexcept;
+  constexpr bool operator<(const Uuid& rhs) const noexcept;
 
 public:
-  Uuid& operator=(const Uuid& other);
-  Uuid& operator=(Uuid&& other) noexcept;
+  /// True if all zeroes.
+  [[nodiscard]] constexpr bool isNil() const noexcept { return (hi_ | lo_) == 0; }
 
-public:
-  [[nodiscard]] bool operator==(const Uuid& rhs) const noexcept;
-  [[nodiscard]] bool operator!=(const Uuid& rhs) const noexcept;
-  [[nodiscard]] bool operator<(const Uuid& rhs) const noexcept;
-
-public:
   /// The variant of the UUID according to the spec.
-  [[nodiscard]] UuidVariant getVariant() const noexcept;
+  [[nodiscard]] constexpr UuidVariant getVariant() const noexcept;
 
   /// The version of the UUID according to the spec.
-  [[nodiscard]] UuidVersion getVersion() const noexcept;
-
-  /// True if all zeroes.
-  [[nodiscard]] bool isNil() const noexcept;
+  [[nodiscard]] constexpr UuidVersion getVersion() const noexcept;
 
   /// Computes a 64-bit hash of the UUID.
-  [[nodiscard]] uint64_t getHash() const noexcept;
+  [[nodiscard]] constexpr uint64_t getHash() const noexcept { return hi_ ^ lo_; }
 
   /// Computes a 32-bit hash of the UUID.
-  [[nodiscard]] uint32_t getHash32() const noexcept;
+  [[nodiscard]] constexpr uint32_t getHash32() const noexcept;
 
-  /// True if the UUID is well-formed.
-  [[nodiscard]] static bool isValid(const std::string& str) noexcept;
-
-  /// Parses a string and generates a UUD.
-  /// Returns a Nil UUID in case of error.
-  [[nodiscard]] static Uuid fromString(const std::string& str) noexcept;
+  [[nodiscard]] std::array<uint8_t, byteCount> bytes() const noexcept;
 
   /// Builds a string out of this UUID.
   [[nodiscard]] std::string toString() const;
 
-  /// A copy of the bytes held in this UUID.
-  [[nodiscard]] StaticVector<uint8_t, byteCount> getBytes() const;
+  /// True if the UUID is well-formed.
+  [[nodiscard]] bool isValid(std::string_view s) noexcept;
+
+  /// Parses a string and generates a UUD.
+  /// Returns a Nil UUID in case of error.
+  [[nodiscard]] Uuid fromString(std::string_view s) noexcept;
 
   /// Copy this std::array of bytes into the UUID.
-  void copy(std::array<uint8_t, byteCount>& arr) const { memcpy(arr.data(), bytes_.data(), arr.size()); }
+  void copy(std::array<uint8_t, byteCount>& arr) const { arr = bytes(); }
 
   /// Copy this StaticVector of bytes into the UUID.
   void copy(StaticVector<uint8_t, byteCount>& vec) const;
@@ -133,130 +111,50 @@ public:
   void swap(Uuid& other) noexcept;
 
 private:
-  [[nodiscard]] SEN_ALWAYS_INLINE static const __m128i* constDataCast(const uint8_t* data) noexcept
-  {
-    return reinterpret_cast<const __m128i*>(data);  // NOLINT NOSONAR
-  }
-
-  [[nodiscard]] SEN_ALWAYS_INLINE static __m128i* dataCast(uint8_t* data) noexcept
-  {
-    return reinterpret_cast<__m128i*>(data);  // NOLINT NOSONAR
-  }
-
-private:
-  alignas(128) std::array<uint8_t, byteCount> bytes_ = {0U};
+  uint64_t hi_ {};
+  uint64_t lo_ {};
 };
 
-std::ostream& operator<<(std::ostream& s, const Uuid& id);
-
 // --------------------------------------------------------------------------------------------------------------------------
-// uuid generators
-// --------------------------------------------------------------------------------------------------------------------------
-
-/// Generates UUIDs using the std random number generator.
-class UuidRandomGenerator
-{
-public:
-  /// Use the default seed.
-  UuidRandomGenerator()
-    : generator_(std::random_device()())
-    , distribution_(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max())
-  {
-  }
-
-  /// Sets a custom seed.
-  explicit UuidRandomGenerator(uint64_t seed)
-    : generator_(seed), distribution_(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max())
-  {
-  }
-
-public:
-  /// Makes a UUID.
-  Uuid operator()();
-
-private:
-  std::mt19937_64 generator_;
-  std::uniform_int_distribution<uint64_t> distribution_;
-};
-
-/// @}
-
-//----------------------------------------------------------------------------------------------------------------------
 // Inline implementation
-//----------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------
 
-inline Uuid::Uuid(const Uuid& other)
+inline Uuid::Uuid(const uint8_t* bytes) noexcept
 {
-  __m128i x = _mm_load_si128(constDataCast(other.bytes_.data()));
-  _mm_store_si128(dataCast(bytes_.data()), x);
+  std::memcpy(&hi_, bytes, 8);
+  std::memcpy(&lo_, bytes + 8, 8);
 }
 
-inline Uuid::Uuid(Uuid&& other) noexcept
+constexpr bool Uuid::operator==(const Uuid& rhs) const noexcept { return hi_ == rhs.hi_ && lo_ == rhs.lo_; }
+
+constexpr bool Uuid::operator!=(const Uuid& rhs) const noexcept { return !(*this == rhs); }
+
+constexpr bool Uuid::operator<(const Uuid& rhs) const noexcept
 {
-  __m128i x = _mm_load_si128(constDataCast(other.bytes_.data()));
-  _mm_store_si128(dataCast(bytes_.data()), x);
+  return (hi_ < rhs.hi_) || (hi_ == rhs.hi_ && lo_ < rhs.lo_);
 }
 
-inline Uuid::Uuid(__m128i uuid) noexcept { _mm_store_si128(dataCast(bytes_.data()), uuid); }
-
-inline Uuid::Uuid(uint8_t (&arr)[byteCount]) noexcept  // NOSONAR
+constexpr uint32_t Uuid::getHash32() const noexcept
 {
-  __m128i x = _mm_loadu_si128(constDataCast(arr));
-  _mm_store_si128(dataCast(bytes_.data()), x);
+  uint64_t h = getHash();
+  return static_cast<uint32_t>(h ^ (h >> 32));
 }
 
-inline Uuid::Uuid(const std::array<uint8_t, byteCount>& arr) noexcept
+constexpr UuidVariant Uuid::getVariant() const noexcept
 {
-  __m128i x = _mm_loadu_si128(constDataCast(arr.data()));
-  _mm_store_si128(dataCast(bytes_.data()), x);
-}
+  auto b = static_cast<uint8_t>(lo_ >> 56);
 
-inline Uuid::Uuid(uint64_t x, uint64_t y)
-{
-  __m128i z = _mm_set_epi64x(x, y);  // NOLINT
-  _mm_store_si128(dataCast(bytes_.data()), z);
-}
-
-inline Uuid::Uuid(const uint8_t* bytes)
-{
-  __m128i x = _mm_loadu_si128(constDataCast(bytes));
-  _mm_store_si128(dataCast(bytes_.data()), x);
-}
-
-inline Uuid& Uuid::operator=(const Uuid& other)
-{
-  if (&other == this)
-  {
-    return *this;
-  }
-  __m128i x = _mm_load_si128(constDataCast(other.bytes_.data()));
-  _mm_store_si128(dataCast(bytes_.data()), x);
-  return *this;
-}
-
-inline Uuid& Uuid::operator=(Uuid&& other) noexcept
-{
-  if (&other == this)
-  {
-    return *this;
-  }
-
-  __m128i x = _mm_load_si128(constDataCast(other.bytes_.data()));
-  _mm_store_si128(dataCast(bytes_.data()), x);
-  return *this;
-}
-
-inline UuidVariant Uuid::getVariant() const noexcept
-{
-  if ((bytes_[8U] & 0x80) == 0x00)  // NOLINT
+  if ((b & 0x80) == 0)
   {
     return UuidVariant::ncs;
   }
-  else if ((bytes_[8U] & 0xC0) == 0x80)  // NOLINT
+
+  if ((b & 0xC0) == 0x80)
   {
     return UuidVariant::rfc;
   }
-  else if ((bytes_[8U] & 0xE0) == 0xC0)  // NOLINT NOSONAR
+
+  if ((b & 0xE0) == 0xC0)
   {
     return UuidVariant::microsoft;
   }
@@ -264,106 +162,86 @@ inline UuidVariant Uuid::getVariant() const noexcept
   return UuidVariant::reserved;
 }
 
+constexpr UuidVersion Uuid::getVersion() const noexcept
+{
+  uint8_t v = static_cast<uint8_t>(hi_ >> 12) & 0xF;
+
+  switch (v)
+  {
+    case 1:
+      return UuidVersion::timeBased;
+    case 2:
+      return UuidVersion::dceSecurity;
+    case 3:
+      return UuidVersion::nameBasedMd5;
+    case 4:
+      return UuidVersion::randomNumberBased;
+    case 5:
+      return UuidVersion::nameBasedSha1;
+    default:
+      return UuidVersion::none;
+  }
+}
+
+inline std::array<uint8_t, Uuid::byteCount> Uuid::bytes() const noexcept
+{
+  std::array<uint8_t, byteCount> out {};
+  std::memcpy(out.data(), &hi_, 8U);
+  std::memcpy(out.data() + 8U, &lo_, 8U);
+  return out;
+}
+
+inline void Uuid::swap(Uuid& other) noexcept
+{
+  std::swap(hi_, other.hi_);
+  std::swap(lo_, other.lo_);
+}
+
 inline void Uuid::copy(StaticVector<uint8_t, byteCount>& vec) const
 {
   vec.resize(byteCount);
-  memcpy(vec.data(), bytes_.data(), byteCount);
-}
-
-inline StaticVector<uint8_t, Uuid::byteCount> Uuid::getBytes() const
-{
-  StaticVector<uint8_t, Uuid::byteCount> result;
-  copy(result);
-  return result;
-}
-
-inline UuidVersion Uuid::getVersion() const noexcept
-{
-  if ((bytes_[6U] & 0xF0) == 0x10)  // NOLINT
-  {
-    return UuidVersion::timeBased;
-  }
-  else if ((bytes_[6U] & 0xF0) == 0x20)  // NOLINT
-  {
-    return UuidVersion::dceSecurity;
-  }
-  else if ((bytes_[6U] & 0xF0) == 0x30)  // NOLINT
-  {
-    return UuidVersion::nameBasedMd5;
-  }
-  else if ((bytes_[6U] & 0xF0) == 0x40)  // NOLINT
-  {
-    return UuidVersion::randomNumberBased;
-  }
-  else if ((bytes_[6U] & 0xF0) == 0x50)  // NOLINT NOSONAR
-  {
-    return UuidVersion::nameBasedSha1;
-  }
-
-  return UuidVersion::none;
-}
-
-inline bool Uuid::isNil() const noexcept
-{
-  __m128i x = _mm_load_si128(constDataCast(bytes_.data()));
-  return _mm_test_all_zeros(x, x);
-}
-
-inline void Uuid::swap(Uuid& other) noexcept { std::swap(bytes_, other.bytes_); }
-
-inline uint64_t Uuid::getHash() const noexcept
-{
-  return *(reinterpret_cast<const uint64_t*>(bytes_.data())) ^                    // NOLINT NOSONAR
-         *(reinterpret_cast<const uint64_t*>(bytes_.data()) + sizeof(uint64_t));  // NOLINT NOSONAR
-}
-
-inline uint32_t Uuid::getHash32() const noexcept
-{
-  const auto hash64 = getHash();
-  return static_cast<uint32_t>(hash64 ^ (hash64 >> 32U));  // NOLINT NOSONAR
-}
-
-inline bool Uuid::operator==(const Uuid& rhs) const noexcept
-{
-  __m128i x = _mm_load_si128(constDataCast(bytes_.data()));
-  __m128i y = _mm_load_si128(constDataCast(rhs.bytes_.data()));
-  __m128i neq = _mm_xor_si128(x, y);
-  return _mm_test_all_zeros(neq, neq);
-}
-
-inline bool Uuid::operator!=(const Uuid& rhs) const noexcept { return !(*this == rhs); }
-
-inline bool Uuid::operator<(const Uuid& rhs) const noexcept
-{
-  // There are no trivial 128-bits comparisons in SSE/AVX
-  // It's faster to compare two uint64_t
-  const auto* x = reinterpret_cast<const uint64_t*>(bytes_.data());      // NOLINT NOSONAR
-  const auto* y = reinterpret_cast<const uint64_t*>(rhs.bytes_.data());  // NOLINT NOSONAR
-  return *x < *y || (*x == *y && *(x + 1U) < *(y + 1U));                 // NOLINT NOSONAR
+  memcpy(vec.data(), bytes().data(), byteCount);
 }
 
 // --------------------------------------------------------------------------------------------------------------------------
 // UuidRandomGenerator
 // --------------------------------------------------------------------------------------------------------------------------
 
-inline Uuid UuidRandomGenerator::operator()()
+class UuidRandomGenerator
 {
-  // The two masks set the uuid version (4) and variant (1)
-  const __m128i and_mask = _mm_set_epi64x(0xffffffffffffff3fULL, 0xff0fffffffffffffULL);  // NOLINT
-  const __m128i or_mask = _mm_set_epi64x(0x0000000000000080ULL, 0x0040000000000000ULL);   // NOLINT
-  __m128i n = _mm_set_epi64x(distribution_(generator_), distribution_(generator_));       // NOLINT
-  __m128i uuid = _mm_or_si128(_mm_and_si128(n, and_mask), or_mask);
+public:
+  UuidRandomGenerator(): engine_(std::random_device {}()) {}
 
-  return Uuid(uuid);
-}
+  explicit UuidRandomGenerator(uint64_t seed): engine_(seed) {}
+
+  Uuid operator()()
+  {
+    uint64_t hi = dist_(engine_);
+    uint64_t lo = dist_(engine_);
+
+    hi &= 0xFFFFFFFFFFFF0FFFULL;
+    hi |= 0x0000000000004000ULL;
+
+    lo &= 0x3FFFFFFFFFFFFFFFULL;
+    lo |= 0x8000000000000000ULL;
+
+    return {hi, lo};
+  }
+
+private:
+  std::mt19937_64 engine_;
+  std::uniform_int_distribution<uint64_t> dist_;
+};
+
+std::ostream& operator<<(std::ostream& s, const Uuid& id);
 
 }  // namespace sen
 
 // --------------------------------------------------------------------------------------------------------------------------
-// std
+// Hashing support
 // --------------------------------------------------------------------------------------------------------------------------
 
-namespace std  // NOLINT
+namespace std
 {
 
 template <>

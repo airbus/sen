@@ -17,7 +17,7 @@ std::ostream& operator<<(std::ostream& out, const {{ qualTypeAlias }}& val)
   const auto indent = std::setw(static_cast<int>(out.width() + 2U));
   for(const auto& elem: val)
   {
-    out << indent << elem << "\n";
+    out << indent << static_cast<{{ qualElementType }}>(elem) << "\n";
   }
   return out;
 }

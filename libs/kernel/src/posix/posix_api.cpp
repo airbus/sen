@@ -8,14 +8,23 @@
 #include "./posix_api.h"
 
 // system
-#include <bits/pthreadtypes.h>
-#include <bits/types/struct_sched_param.h>
-#include <dlfcn.h>
+#ifdef __linux__
+#  include <bits/pthreadtypes.h>
+#  include <bits/types/struct_sched_param.h>
+#elif defined(__APPLE__)
+#  include "mach/mach.h"
+#  include "mach/thread_act.h"
+#  include "mach/thread_policy.h"
 
-// std
+#  include <sys/resource.h>
+#endif
+
+// posix
+#include <dlfcn.h>
 #include <pthread.h>
 #include <sched.h>
 
+// std
 #include <cstddef>
 
 namespace sen::kernel
@@ -78,12 +87,34 @@ int NativePosixAPI::pthread_setcanceltype(int type, int* old_type) noexcept  // 
 
 int NativePosixAPI::pthread_setaffinity_np(pthread_t thread, std::size_t cpuSetSize, const cpu_set_t* cpuSet) noexcept
 {
+#ifdef __APPLE__
+
+  unsigned int core = 0;
+  for (core = 0; core < 8 * cpuSetSize; core++)
+  {
+    if (CPU_ISSET(core, cpuSet) != 0)
+    {
+      break;
+    }
+  }
+
+  thread_affinity_policy_data_t policy = {static_cast<int>(core)};
+  auto machThread = pthread_mach_thread_np(thread);
+  thread_policy_set(machThread, THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
+  return 0;
+#else
   return ::pthread_setaffinity_np(thread, cpuSetSize, cpuSet);
+#endif
 }
 
 int NativePosixAPI::pthread_setname_np(pthread_t thread, const char* name) noexcept
 {
+#ifdef __APPLE__
+  std::ignore = thread;
+  return ::pthread_setname_np(name);
+#else
   return ::pthread_setname_np(thread, name);
+#endif
 }
 
 int NativePosixAPI::pthread_detach(pthread_t thread) noexcept { return ::pthread_detach(thread); }

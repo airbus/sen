@@ -72,7 +72,7 @@ namespace sen
 // Uuid
 // --------------------------------------------------------------------------------------------------------------------------
 
-bool Uuid::isValid(const std::string& str) noexcept
+bool Uuid::isValid(std::string_view str) noexcept
 {
   bool firstDigit = true;
   size_t hasBraces = 0;
@@ -118,7 +118,7 @@ bool Uuid::isValid(const std::string& str) noexcept
   return index >= byteCount;
 }
 
-Uuid Uuid::fromString(const std::string& str) noexcept
+Uuid Uuid::fromString(std::string_view str) noexcept
 {
   bool firstDigit = true;
   size_t hasBraces = 0;
@@ -170,11 +170,13 @@ Uuid Uuid::fromString(const std::string& str) noexcept
     return {};
   }
 
-  return Uuid {data};
+  return Uuid {data.data()};
 }
 
 std::string Uuid::toString() const
 {
+  const auto ourBytes = bytes();
+
   std::string str {emptyGuid};
 
   std::size_t index = 0U;
@@ -186,9 +188,9 @@ std::string Uuid::toString() const
       continue;
     }
 
-    str[i] = guidEncoder[bytes_[index] >> 4 & 0x0f];  // NOLINT
+    str[i] = guidEncoder[ourBytes[index] >> 4 & 0x0f];  // NOLINT
     ++i;
-    str[i] = guidEncoder[bytes_[index] & 0x0f];  // NOLINT
+    str[i] = guidEncoder[ourBytes[index] & 0x0f];  // NOLINT
     ++index;
     ++i;
   }

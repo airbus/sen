@@ -117,9 +117,13 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
 
 [[nodiscard]] NanoSecs getThreadCpuUserTime() noexcept
 {
-#ifdef __linux__
+#if defined(__linux__)
   rusage usage;  // NOLINT(misc-include-cleaner)
   getrusage(RUSAGE_THREAD, &usage);
+  return std::chrono::seconds(usage.ru_utime.tv_sec) + std::chrono::microseconds(usage.ru_utime.tv_usec);
+#elif defined(__APPLE__)
+  rusage usage;  // NOLINT(misc-include-cleaner)
+  getrusage(RUSAGE_SELF, &usage);
   return std::chrono::seconds(usage.ru_utime.tv_sec) + std::chrono::microseconds(usage.ru_utime.tv_usec);
 #elif defined(_WIN32)
   FILETIME creation;
@@ -133,6 +137,8 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
   const auto high = static_cast<uint64_t>(usrTime.dwHighDateTime);
   const auto low = static_cast<uint64_t>(usrTime.dwLowDateTime);
   return std::chrono::microseconds((((high << 32) | low) / 10) - 11644473600000000ull);  // NOLINT
+#else
+#  error "OS support not implemented"
 #endif
 }
 

@@ -121,7 +121,7 @@ For Debian-based systems, you can get all the dependencies using:
 
 ```shell
 pip install conan
-sudo apt-get install -y pkg-config graphviz libxext-dev
+sudo apt-get install -y pkg-config graphviz pytest libxext-dev
 ```
 
 You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be

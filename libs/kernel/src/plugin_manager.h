@@ -9,9 +9,12 @@
 #define SEN_LIBS_KERNEL_SRC_PLUGIN_MANAGER_H
 
 #include "operating_system.h"
+
+// sen
 #include "sen/core/base/class_helpers.h"
 #include "sen/kernel/kernel_config.h"
 
+// std
 #include <memory>
 #include <string>
 #include <vector>

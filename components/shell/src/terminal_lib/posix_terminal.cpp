@@ -10,9 +10,13 @@
 #include "terminal.h"
 #include "vterm.h"
 
-// os
-#include <bits/stdio_lim.h>
-#include <bits/types/struct_iovec.h>
+// linux
+#ifdef __linux__
+#  include <bits/stdio_lim.h>
+#  include <bits/types/struct_iovec.h>
+#endif
+
+// posix
 #include <fcntl.h>
 #include <stdio.h>  // NOLINT
 #include <sys/ioctl.h>
@@ -202,7 +206,8 @@ public:
     character = 0;
 
     const auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(timeout.toChrono()).count();
-    struct timeval selectTimeout = {microseconds / 1000000L, microseconds % 1000000L};  // NOLINT
+    struct timeval selectTimeout = {static_cast<decltype(selectTimeout.tv_sec)>(microseconds / 1000000L),    // NOLINT
+                                    static_cast<decltype(selectTimeout.tv_usec)>(microseconds % 1000000L)};  // NOLINT
 
     fd_set readSet = {};
     FD_ZERO(&readSet);          // NOLINT
