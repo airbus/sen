@@ -117,9 +117,11 @@ jobs:
         with:
           vs-version: '17.14'
 
-      - name: Install vcredist
+      - name: Setup MSVC Developer Command Prompt
+        uses: TheMrMilchmann/setup-msvc-dev@v3
         if: matrix.compiler.name == 'msvc'
-        run: choco install vcredist140
+        with:
+          arch: x64
 
       - name: Create conan package
         shell: bash
