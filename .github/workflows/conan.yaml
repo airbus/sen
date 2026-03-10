@@ -111,6 +111,11 @@ jobs:
         # need for clang compat with sdl2 2.24.0
         run: sudo apt-get install -y libxext-dev
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '17.14'
+
       - name: Create conan package
         shell: bash
         run: |
