@@ -117,6 +117,10 @@ jobs:
         with:
           vs-version: '17.14'
 
+      - name: Install vcredist
+        if: matrix.compiler.name == 'msvc'
+        run: choco install vcredist140
+
       - name: Create conan package
         shell: bash
         run: |
