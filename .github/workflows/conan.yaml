@@ -136,6 +136,11 @@ jobs:
       #   with:
       #     arch: x64
 
+      - uses: actions/setup-dotnet@v5
+        if: matrix.compiler.name == 'msvc'
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Create conan package
         if: matrix.compiler.name == 'msvc'
         shell: bash

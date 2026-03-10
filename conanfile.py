@@ -175,7 +175,15 @@ class SenConan(ConanFile):
         print(f"current_path_later={current_path}")
 
         cmake.configure()
-        cmake.build()
+        try:
+            cmake.build()
+        except Exception as e:
+            print("foo")
+            self.run(f"ldd {self.build_folder}\\bin\\sen.exe")
+            print("bar")
+            self.run(f"ldd {self.build_folder}\\bin\\cli_gen.exe")
+
+            raise e
 
         # TODO (SEN-480): Enable automatic testing
         # cmake.test()
