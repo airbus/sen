@@ -142,8 +142,6 @@ jobs:
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:build/msvc/Release/bin/:$PATH"
           echo $PATH
-          ls -lisa build/
-          ls -lisa build/msvc
           conan create . --user airbus --channel dev --lockfile-out=package.lock \
               --build=missing -s:a build_type=${{ matrix.build_type }}
 
