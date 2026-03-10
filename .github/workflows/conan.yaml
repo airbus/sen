@@ -117,15 +117,17 @@ jobs:
         with:
           vs-version: '17.14'
 
-      - name: Install Visual Studio BuildTools (C++/CMake + Windows SDK)
-        if: matrix.compiler.name == 'msvc'
-        shell: pwsh
-        run: |
-          choco upgrade -y visualstudio2022buildtools `
-            --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-                          --add Microsoft.VisualStudio.Component.VC.CMake.Project `
-                          --add Microsoft.VisualStudio.Component.Windows11SDK.22621 `
-                          --includeRecommended --includeOptional"
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      # - name: Install Visual Studio BuildTools (C++/CMake + Windows SDK)
+      #   if: matrix.compiler.name == 'msvc'
+      #   shell: pwsh
+      #   run: |
+      #     choco upgrade -y visualstudio2022buildtools `
+      #       --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+      #                     --add Microsoft.VisualStudio.Component.VC.CMake.Project `
+      #                     --add Microsoft.VisualStudio.Component.Windows11SDK.22621 `
+      #                     --includeRecommended --includeOptional"
 
       - name: Setup MSVC Developer Command Prompt
         uses: TheMrMilchmann/setup-msvc-dev@v3
