@@ -159,15 +159,20 @@ class SenConan(ConanFile):
         print(f"{self.build_folder=}")
 
         import os
-        current_path = os.environ["LD_LIBRARY_PATH"]
+        # current_path = os.environ["LD_LIBRARY_PATH"]
+        current_path = getenv("PATH", None)
 
-        os.environ["LD_LIBRARY_PATH"] = f"{self.build_folder}:{current_path}"
+        if current_path:
+            os.environ["PATH"] = f"{self.build_folder}\\bin:{current_path}"
+        else:
+            os.environ["PATH"] = f"{self.build_folder}\\bin"
 
         # env_path = getenv("PATH", None)
         # if env_path:
         #     print(f"{env_path=}")
 
-        print(f"{os.environ['LD_LIBRARY_PATH']=}")
+        current_path = getenv("PATH", None)
+        print(f"current_path_later={current_path}")
 
         cmake.configure()
         cmake.build()
