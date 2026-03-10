@@ -118,6 +118,7 @@ jobs:
           vs-version: '17.14'
 
       - uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.compiler.name == 'msvc'
 
       # - name: Install Visual Studio BuildTools (C++/CMake + Windows SDK)
       #   if: matrix.compiler.name == 'msvc'
@@ -134,6 +135,17 @@ jobs:
       #   if: matrix.compiler.name == 'msvc'
       #   with:
       #     arch: x64
+
+      - name: Create conan package
+        if: matrix.compiler.name == 'msvc'
+        shell: bash
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:build/msvc/Release/bin/:$PATH"
+          echo $PATH
+          ls -lisa build/
+          ls -lisa build/msvc
+          conan create . --user airbus --channel dev --lockfile-out=package.lock \
+              --build=missing -s:a build_type=${{ matrix.build_type }}
 
       - name: Create conan package
         shell: bash
