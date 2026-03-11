@@ -120,36 +120,6 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
         if: matrix.compiler.name == 'msvc'
 
-      # - name: Install Visual Studio BuildTools (C++/CMake + Windows SDK)
-      #   if: matrix.compiler.name == 'msvc'
-      #   shell: pwsh
-      #   run: |
-      #     choco upgrade -y visualstudio2022buildtools `
-      #       --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-      #                     --add Microsoft.VisualStudio.Component.VC.CMake.Project `
-      #                     --add Microsoft.VisualStudio.Component.Windows11SDK.22621 `
-      #                     --includeRecommended --includeOptional"
-
-      # - name: Setup MSVC Developer Command Prompt
-      #   uses: TheMrMilchmann/setup-msvc-dev@v3
-      #   if: matrix.compiler.name == 'msvc'
-      #   with:
-      #     arch: x64
-
-      - uses: actions/setup-dotnet@v5
-        if: matrix.compiler.name == 'msvc'
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Create conan package
-        if: matrix.compiler.name == 'msvc'
-        shell: bash
-        run: |
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:build/msvc/Release/bin/:$PATH"
-          echo $PATH
-          conan create . --user airbus --channel dev --lockfile-out=package.lock \
-              --build=missing -s:a build_type=${{ matrix.build_type }}
-
       - name: Create conan package
         shell: bash
         run: |
