@@ -39,7 +39,7 @@ jobs:
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
     strategy:
-      #fail-fast: true
+      fail-fast: true
       matrix:
         include: ${{ fromJson(needs.compute-matrix-jobs.outputs.jobs) }}
     env:
