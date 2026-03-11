@@ -81,9 +81,14 @@ def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:
                                       "clang++-20"), 17, "Debug"))
 
     # Add msvc jobs
-    jobs.append(
-        JobSpecification("Basic Windows", "windows", "windows-2022", None,
-                         Compiler("msvc", 194, "", ""), 17, "Debug"))
+    if release:
+        jobs.append(
+            JobSpecification("Basic Windows", "windows", "windows-2022", None,
+                             Compiler("msvc", 194, "cl", "cl"), 17, "Release"))
+    else:
+        jobs.append(
+            JobSpecification("Basic Windows", "windows", "windows-2022", None,
+                             Compiler("msvc", 194, "cl", "cl"), 17, "Debug"))
 
     return sorted(jobs)
 

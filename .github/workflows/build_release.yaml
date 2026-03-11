@@ -66,29 +66,32 @@ jobs:
       - name: Setup conan profile
         shell: bash
         run: |
-          rm ~/.conan2/profiles/default
+          rm -f ~/.conan2/profiles/default
           conan profile detect --force -vquiet
-          cp .conan/profiles/sen_gcc ~/.conan2/profiles/default
+          cp .conan/profiles/sen_${{ matrix.compiler.name }} ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
           conan profile show -pr default
 
       - name: Install system dependencies
-        # need for clang compat with sdl2 2.24.0
+        if: matrix.compiler.name != 'msvc'
         shell: bash
+        # need for clang compat with sdl2 2.24.0
         run: sudo apt-get install -y libxext-dev
 
       - name: Generate release package
         run: |
           conan install . --build=missing
-          cmake --preset=conan-gcc-release
-          cmake --build build/gcc/Release/ --target package
+          conan build .
+          cmake --build build/${{ matrix.compiler.name }}/Release/ --target package
 
       - name: Archive generated release package
         uses: actions/upload-artifact@v4
         with:
-          name: release-gcc
-          path: build/gcc/Release/sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+          name: release-${{ matrix.compiler.name }}
+          # sen-0.1.0-x86_64-linux-gnu-12.4.0-release.tar.gz
+          # sen-0.1.0-amd64-windows-msvc-19.44.35223.0-release.zip
+          path: build/${{ matrix.compiler.name }}/Release/sen-${{ github.ref_name }}-*
 
   attach_release_artifacts:
     name: "Create Release Draft"
@@ -101,15 +104,14 @@ jobs:
       - name: Print context
         run: |
           sudo apt-get install -y file
-          ls -lisa
-          file sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+          ls -rlisa
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
           files: |
-            sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+            release-*/*
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}
