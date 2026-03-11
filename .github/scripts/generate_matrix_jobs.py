@@ -45,7 +45,7 @@ class JobSpecification:
     """Pipeline job specification that defines the configuration options."""
     name: str
     os: str
-    runner: tp.Literal["ubuntu-latest", "self-hosted"]
+    runner: tp.Literal["ubuntu-latest", "windows-2022", "self-hosted"]
     container: Container | None
     compiler: Compiler
     std: tp.Literal[17, 20, 23]

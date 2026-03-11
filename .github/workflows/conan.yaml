@@ -96,8 +96,6 @@ jobs:
         run: |
           rm -f ~/.conan2/profiles/default
           conan profile detect --force -vquiet
-          conan cache clean "*"
-          conan profile show -pr default
           cp .conan/profiles/sen_$COMPILER ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
@@ -110,15 +108,6 @@ jobs:
         shell: bash
         # need for clang compat with sdl2 2.24.0
         run: sudo apt-get install -y libxext-dev
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        if: matrix.compiler.name == 'msvc'
-        with:
-          vs-version: '17.14'
-
-      - uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.compiler.name == 'msvc'
 
       - name: Create conan package
         shell: bash

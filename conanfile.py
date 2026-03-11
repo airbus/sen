@@ -156,38 +156,8 @@ class SenConan(ConanFile):
     def build(self):
         cmake = CMake(self)
 
-        print(f"{self.build_folder=}")
-
-        import os
-        # current_path = os.environ["LD_LIBRARY_PATH"]
-        current_path = getenv("PATH", None)
-
-        if current_path:
-            os.environ["PATH"] = f"{self.build_folder}\\bin:{current_path}"
-        else:
-            os.environ["PATH"] = f"{self.build_folder}\\bin"
-
-        # env_path = getenv("PATH", None)
-        # if env_path:
-        #     print(f"{env_path=}")
-
-        current_path = getenv("PATH", None)
-        print(f"current_path_later={current_path}")
-
         cmake.configure()
-        try:
-            cmake.build()
-        except Exception as e:
-            print("Status:")
-            self.run(f"ls -lisa {self.build_folder}\\bin")
-            print("foo")
-            self.run(f"ldd {self.build_folder}\\bin\\sen.exe")
-            print("bar")
-            self.run(f"ldd {self.build_folder}\\bin\\core.dll")
-            self.run(f"ldd {self.build_folder}\\bin\\util.dll")
-            #self.run(f"ldd {self.build_folder}\\bin\\cli_gen.exe")
-
-            raise e
+        cmake.build()
 
         # TODO (SEN-480): Enable automatic testing
         # cmake.test()
