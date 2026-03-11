@@ -183,7 +183,9 @@ class SenConan(ConanFile):
             print("foo")
             self.run(f"ldd {self.build_folder}\\bin\\sen.exe")
             print("bar")
-            self.run(f"ldd {self.build_folder}\\bin\\cli_gen.exe")
+            self.run(f"ldd {self.build_folder}\\bin\\core.dll")
+            self.run(f"ldd {self.build_folder}\\bin\\util.dll")
+            #self.run(f"ldd {self.build_folder}\\bin\\cli_gen.exe")
 
             raise e
 
