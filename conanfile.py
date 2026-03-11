@@ -178,6 +178,8 @@ class SenConan(ConanFile):
         try:
             cmake.build()
         except Exception as e:
+            print("Status:")
+            self.run(f"ls -lisa {self.build_folder}\\bin")
             print("foo")
             self.run(f"ldd {self.build_folder}\\bin\\sen.exe")
             print("bar")
