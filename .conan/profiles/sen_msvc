@@ -1,0 +1,15 @@
+[settings]
+os=Windows
+arch=x86_64
+compiler=msvc
+compiler.cppstd=17
+compiler.version=194
+compiler.runtime=dynamic
+build_type=Release
+
+[options]
+doxygen*:compiler.cppstd=20
+
+[conf]
+tools.build:compiler_executables={"c": "cl", "cpp": "cl"}
+tools.cmake.cmaketoolchain:generator=Ninja

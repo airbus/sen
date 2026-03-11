@@ -35,10 +35,18 @@ class Compiler:
 
 
 @dataclass(frozen=True, order=True)
+class Container:
+    """Container specification"""
+    image: str
+
+
+@dataclass(frozen=True, order=True)
 class JobSpecification:
     """Pipeline job specification that defines the configuration options."""
     name: str
     os: str
+    runner: tp.Literal["ubuntu-latest", "windows-2022", "self-hosted"]
+    container: Container | None
     compiler: Compiler
     std: tp.Literal[17, 20, 23]
     build_type: tp.Literal["Release", "Debug"]
@@ -48,35 +56,41 @@ class JobSpecification:
         return convert_dataclass_to_json(self)
 
 
-def compute_jobs(release: bool) -> list[JobSpecification]:
+def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
     jobs = []
 
     # Add gcc jobs
     if not release:
         jobs.append(
-            JobSpecification("Basic GCC", "ubuntu-22.04",
+            JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
                              Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
                              "Debug"))
     else:
         jobs.append(
-            JobSpecification("Basic GCC", "ubuntu-22.04",
+            JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
                              Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
                              "Release"))
 
     # Add clang jobs
     if not release:
         jobs.append(
-            JobSpecification("Basic Clang", "ubuntu-24.04",
-                             Compiler("clang", 20, "clang-20", "clang++-20"),
-                             17, "Debug"))
+            JobSpecification("Basic Clang", "ubuntu-24.04", "self-hosted",
+                             None,
+                             Compiler("clang", 20, "clang-20",
+                                      "clang++-20"), 17, "Debug"))
+
+    # Add msvc jobs
+    jobs.append(
+        JobSpecification("Basic Windows", "windows", "windows-2022", None,
+                         Compiler("msvc", 194, "", ""), 17, "Debug"))
 
     return sorted(jobs)
 
 
-def generate_jobs_file(release: bool) -> None:
+def generate_jobs_file(release: bool, conan: bool) -> None:
     """Generates the jobs file at GITHUB_OUTPUT."""
-    jobs = compute_jobs(release)
+    jobs = compute_jobs(release, conan)
 
     if output_file := os.environ.get("GITHUB_OUTPUT"):
         with open(output_file, "wt", encoding='utf-8') as matrix_file:
@@ -97,10 +111,15 @@ def main() -> None:
         "--release",
         action=argparse.BooleanOptionalAction,
         help="Generate the jobs needed for building release artifacts.")
+    parser.add_argument(
+        "--conan",
+        action=argparse.BooleanOptionalAction,
+        help=
+        "Generate the jobs needed to ensure all required conan packages work.")
 
     args = parser.parse_args()
 
-    generate_jobs_file(release=args.release)
+    generate_jobs_file(release=args.release, conan=args.conan)
 
 
 if __name__ == "__main__":

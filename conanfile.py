@@ -36,7 +36,7 @@ class SenConan(ConanFile):
         self.options["tracy"].manual_lifetime = True
 
         # spdlog
-        self.options["spdlog"].shared = True
+        # self.options["spdlog"].shared = True
 
         # sdl
         if self.settings.os != "Windows":
