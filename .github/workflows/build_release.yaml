@@ -9,8 +9,6 @@ name: Build release
 
 on:
   push:
-    branches:
-      - feat/release-windows
     tags:
       - \d+.\d+.\d+
       - \d+.\d+.\d+-rc\d+
@@ -82,32 +80,18 @@ jobs:
         run: sudo apt-get install -y libxext-dev
 
       - name: Generate release package
-        if: matrix.compiler.name != 'msvc'
         run: |
           conan install . --build=missing
-          cmake --list-presets
-          cmake --preset=conan-${{ matrix.compiler.name }}-release
-          cmake --build build/${{ matrix.compiler.name }}/Release/ --target package
-
-          ls -lisa build/${{ matrix.compiler.name }}/Release/
-
-      - name: Generate release package
-        if: matrix.compiler.name == 'msvc'
-        run: |
-          conan install . --build=missing
-          # ./build/${{ matrix.compiler.name }}/Release/generators/conanvcvars.bat
-          # cmake --preset=conan-${{ matrix.compiler.name }}-release
           conan build .
           cmake --build build/${{ matrix.compiler.name }}/Release/ --target package
-
-          dir build/${{ matrix.compiler.name }}/Release/
-          dir build/${{ matrix.compiler.name }}/Release/generators/
 
       - name: Archive generated release package
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.compiler.name }}
-          path: build/${{ matrix.compiler.name }}/Release/sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+          # sen-0.1.0-x86_64-linux-gnu-12.4.0-release.tar.gz
+          # sen-0.1.0-amd64-windows-msvc-19.44.35223.0-release.zip
+          path: build/${{ matrix.compiler.name }}/Release/sen-${{ github.ref_name }}-*
 
   attach_release_artifacts:
     name: "Create Release Draft"
@@ -120,15 +104,14 @@ jobs:
       - name: Print context
         run: |
           sudo apt-get install -y file
-          ls -lisa
-          file sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+          ls -rlisa
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
           files: |
-            sen-${{ github.ref_name }}-x86_64-linux-gnu-12.4.0-release.tar.gz
+            release-*/*
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}
