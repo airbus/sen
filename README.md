@@ -4,13 +4,13 @@
 and rich communication.</h4>
 
 <div align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-main-features">Main Features</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-how-to-build">How to Build</a> •
-  <a href="#-limitations">Limitations</a> •
-  <a href="#-contributing">Contributing</a> •
-  <a href="#-credits">Credits</a> •
+  <a href="#overview">Overview</a> •
+  <a href="#main-features">Main Features</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#how-to-build">How to Build</a> •
+  <a href="#limitations">Limitations</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#credits">Credits</a> •
   <a href="https://airbus.github.io/sen/latest/">Docs</a>
 </div>
 
@@ -24,7 +24,7 @@ and rich communication.</h4>
 
 </div>
 
-
+<a name="overview"></a>
 ## 🚀 Overview
 
 Sen is a simple way for applications to talk to one another and create, connect, and integrate
@@ -34,6 +34,7 @@ Technically speaking, Sen is a general-purpose, distributed, object-oriented sys
 demand low-latency, high-performance, rich inter/intra process communication, high modularity, and platform
 independence while providing low-overhead, full introspection and an extensible tooling support.
 
+<a name="main-features"></a>
 ## Main Features
 
 **🏗️ Architecture**
@@ -91,6 +92,7 @@ independence while providing low-overhead, full introspection and an extensible 
 - Python bindings for accessing recorded data.
 - Backward compatible ICDs with runtime interoperability.
 
+<a name="quick-start"></a>
 ## ⚡ Quick start
 
 We provide binary releases and Conan packages. To use Conan:
@@ -113,6 +115,7 @@ sen run config.yaml                                       # Run it
 
 Take a look to the examples, but there's much more to Sen, so don't forget to read the [docs](https://airbus.github.io/sen/latest/).
 
+<a name="how-to-build"></a>
 ## 🔨 How to Build
 
 You need [Conan](https://conan.io/) and a C++17 compiler (GCC, Clang, Visual Studio).
@@ -135,6 +138,7 @@ conan build   . --profile=sen_gcc                 # Build the software
 
 Alternatively, build with `cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build`.
 
+<a name="limitations"></a>
 ## ⚠️ Limitations
 
 Sen is currently under active development. If you choose to use it right now, be prepared for
@@ -143,10 +147,12 @@ potential bugs and breaking changes.
 Always check the official documentation and release notes for updates and proceed with caution.
 Happy coding! 🚀
 
+<a name="contributing"></a>
 ## 🙌 Contributing
 
 Contributions are encouraged and valued. Have a look at our [guidelines](CONTRIBUTING.md) for the full picture.
 
+<a name="credits"></a>
 ## 💖 Credits
 
 Huge thanks to all the people using Sen and providing active feedback!
