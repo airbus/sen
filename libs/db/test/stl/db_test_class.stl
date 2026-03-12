@@ -1,0 +1,18 @@
+package db_test;
+
+// example class for testing db functionality.
+class TestObj
+{
+  // can be set by others
+  var speed : f64;
+
+  // fired when something else happened
+  event valueChanged(newVal: f64) [confirmed];
+}
+
+class OtherObj
+{
+  var altitude : f64;
+
+  event altitudeChanged(newVal: f64) [confirmed];
+}

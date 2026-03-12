@@ -5,7 +5,18 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-set(db_tests input_test.cpp output_test.cpp)
+set(db_tests
+    annotation_test.cpp
+    creation_test.cpp
+    deletion_test.cpp
+    event_test.cpp
+    input_test.cpp
+    keyframe_test.cpp
+    output_test.cpp
+    property_change_test.cpp
+    snapshot_test.cpp
+    util_test.cpp
+)
 
 add_sen_unit_test_suite(
   db_test
@@ -14,6 +25,12 @@ add_sen_unit_test_suite(
   sen::core
   sen::kernel
   sen::db
+)
+
+sen_generate_cpp(
+  TARGET db_test
+  STL_FILES stl/db_test_class.stl
+  GEN_HDR_FILES public_generated_files
 )
 
 target_include_directories(
