@@ -11,6 +11,9 @@
 #include "detail/dead_reckoner_base.h"
 #include "detail/dead_reckoner_impl.h"
 
+// sen
+#include "sen/util/dr/algorithms.h"
+
 // std
 #include <algorithm>
 
@@ -133,14 +136,16 @@ template <typename T>
 inline DeadReckoner<T>::DeadReckoner(const T& object, DrConfig config)
   : DeadReckonerTemplateBase<T>(config), object_ {object}
 {
+  const auto& objSpatial = object_.getSpatial();
   // true if the DR algorithm used is body-centered
-  auto isBody = std::find(bodyAlgorithms.begin(),
-                          bodyAlgorithms.end(),
-                          static_cast<SpatialAlgorithm>(object_.getSpatial().index())) != bodyAlgorithms.end();
+  auto isBody =
+    std::find(bodyAlgorithms.begin(), bodyAlgorithms.end(), static_cast<SpatialAlgorithm>(objSpatial.index())) !=
+    bodyAlgorithms.end();
 
   // initialize situation and geodetic situation processors
   processSituation_ = getSituationProcessor(isBody);
   processGeodeticSituation_ = getGeodeticSituationProcessor(isBody);
+  DeadReckonerBase::setCachedSituation(toSituation(objSpatial));
 }
 
 template <typename T>
