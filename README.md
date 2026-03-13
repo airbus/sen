@@ -120,12 +120,7 @@ Take a look to the examples, but there's much more to Sen, so don't forget to re
 
 You need [Conan](https://conan.io/) and a C++17 compiler (GCC, Clang, Visual Studio).
 
-For Debian-based systems, you can get all the dependencies using:
-
-```shell
-pip install conan
-sudo apt-get install -y pkg-config graphviz pytest libxext-dev
-```
+To install conan, do `pip install conan.`.
 
 You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be
 installed by running `conan config install -tf profiles .conan/profiles/<profile>`. Here we use 'sen_gcc'
@@ -133,10 +128,20 @@ but you can use the profile of your choice.
 
 ```shell
 conan install . --profile=sen_gcc --build=missing # Fetch third-party dependencies (only needed once)
-conan build   . --profile=sen_gcc                 # Build the software
+conan build   . --profile=sen_gcc                 # Build Sen
 ```
 
-Alternatively, build with `cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build`.
+Alternatively, if you want to control the CMake usage, you can do:
+
+```shell
+conan install . --profile=sen_gcc --build=missing # Fetch third-party dependencies (only needed once)
+source build/gcc/Release/generators/conanbuild.sh # Make all the required tools available
+cmake --preset conan-gcc-release                  # Generate the build system
+cmake --build build/gcc/Release                   # Build Sen
+```
+
+If you would like to the full development environment for Sen (incl. testing, docs, etc...),
+you would need to install the `pytest`, `graphviz` and `plantuml` packages using your package manager.
 
 <a name="limitations"></a>
 ## ⚠️ Limitations
