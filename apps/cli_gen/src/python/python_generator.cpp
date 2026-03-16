@@ -8,8 +8,9 @@
 #include "python/python_generator.h"
 
 // app
-#include "cpp/json_type_storage.h"
-#include "cpp/util.h"
+#include "common/json_type_storage.h"
+#include "common/util.h"
+#include "python/python_templates.h"
 
 // templates
 #include "python_templates/alias_decl.h"
@@ -25,6 +26,7 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/hash32.h"
+#include "sen/core/lang/fom_parser.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
@@ -38,10 +40,14 @@
 #include "sen/core/meta/type_visitor.h"
 #include "sen/core/meta/variant_type.h"
 
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
+
 // inja
 #include <inja/environment.hpp>
 #include <inja/json.hpp>
-#include <inja/template.hpp>
 
 // std
 #include <algorithm>
@@ -57,30 +63,6 @@
 
 namespace
 {
-
-struct PythonTemplates
-{
-  inja::Template structTemplate;
-  inja::Template enumTemplate;
-  inja::Template variantTemplate;
-  inja::Template classTemplate;
-  inja::Template sequenceTemplate;
-  inja::Template aliasTemplate;
-  inja::Template quantityTemplate;
-};
-
-PythonTemplates makeTemplates(inja::Environment& env)
-{
-  PythonTemplates result;
-  result.structTemplate = env.parse(sen::decompressSymbolToString(struct_decl, struct_declSize));
-  result.enumTemplate = env.parse(sen::decompressSymbolToString(enum_decl, enum_declSize));
-  result.variantTemplate = env.parse(sen::decompressSymbolToString(variant_decl, variant_declSize));
-  result.classTemplate = env.parse(sen::decompressSymbolToString(class_decl, class_declSize));
-  result.sequenceTemplate = env.parse(sen::decompressSymbolToString(sequence_decl, sequence_declSize));
-  result.aliasTemplate = env.parse(sen::decompressSymbolToString(alias_decl, alias_declSize));
-  result.quantityTemplate = env.parse(sen::decompressSymbolToString(quantity_decl, quantity_declSize));
-  return result;
-}
 
 class TemplateVisitor: protected sen::TypeVisitor
 {
@@ -244,19 +226,6 @@ std::string generateFile(inja::Environment& env,
   return env.render(fileTemplate, fileData);
 }
 
-void openFile(const std::filesystem::path& outputFile, std::ofstream& stream)
-{
-  stream.open(outputFile, std::ios_base::trunc | std::ios_base::out);
-  if (!stream.is_open() || stream.fail())
-  {
-    std::string err;
-    err.append("could not open file '");
-    err.append(outputFile.generic_string());
-    err.append("' for writing");
-    sen::throwRuntimeError(err);
-  }
-}
-
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------------------
@@ -286,7 +255,7 @@ void PythonGenerator::write(const std::filesystem::path& inputFile)
 {
   inja::Environment env;
   configureEnv(env);
-  auto templates = makeTemplates(env);
+  auto templates = makePythonTemplates(env);
 
   auto outputFile = inputFile.stem().string();
 
@@ -302,4 +271,36 @@ void PythonGenerator::write(const std::filesystem::path& inputFile)
   stream.close();
 
   std::cout << "stl|python> " << outputFile << std::endl;
+}
+
+void PythonGenerator::setup(CLI::App& app)
+{
+  auto py = app.add_subcommand("py", "generates Python dataclasses");
+  py->allow_extras();
+  py->require_subcommand();
+
+  auto stl = setupStlInput(*py,
+                           [](auto args)
+                           {
+                             sen::lang::TypeSetContext context;
+                             for (const auto& fileName: args->inputs)
+                             {
+                               const auto* newDoc = sen::lang::readTypesFile(fileName, args->includePaths, context, {});
+                               SEN_ASSERT(newDoc && "There should always be a document returned.");
+                               PythonGenerator(*newDoc).write(fileName);
+                             }
+                           });
+
+  auto fom = setupFomInput(*py,
+                           [](auto args)
+                           {
+                             const sen::lang::TypeSetContext typeSets =
+                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+
+                             for (const auto& typeSet: typeSets)
+                             {
+                               PythonGenerator(typeSet).write(std::filesystem::path(typeSet.fileName));
+                             }
+                           });
+  stl->excludes(fom);
 }

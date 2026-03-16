@@ -8,15 +8,16 @@
 #include "cpp/cpp_generator.h"
 
 // app
+#include "common/json_type_storage.h"
+#include "common/util.h"
 #include "cpp/cpp_templates.h"
-#include "cpp/json_type_storage.h"
-#include "cpp/util.h"
 
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/io/util.h"
+#include "sen/core/lang/fom_parser.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
@@ -29,6 +30,11 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_visitor.h"
 #include "sen/core/meta/variant_type.h"
+
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
 
 // inja
 #include <inja/environment.hpp>
@@ -111,101 +117,6 @@ private:
   const TemplateSet& templates_;
   std::string result_;
 };
-
-void openFile(const std::filesystem::path& path, std::ofstream& stream)
-{
-  stream.open(path, std::ios_base::trunc | std::ios_base::out);
-  if (!stream.is_open() || stream.fail())
-  {
-    std::string err;
-    err.append("could not open file '");
-    err.append(path.string());
-    err.append("' for writing");
-    sen::throwRuntimeError(err);
-  }
-}
-
-template <typename F>
-void writeFile(const std::filesystem::path& path, std::vector<std::filesystem::path>& writtenFiles, F&& generator)
-{
-  // don't do anything if already written
-  if (std::find(writtenFiles.begin(), writtenFiles.end(), path) != writtenFiles.end())
-  {
-    return;
-  }
-
-  const auto fileContents = generator();
-  writtenFiles.push_back(path);
-
-  if (const auto parentPath = path.parent_path(); !parentPath.empty() && !std::filesystem::exists(parentPath))
-  {
-    std::filesystem::create_directories(parentPath);
-  }
-
-  // do not rewrite the file if it has the same content
-  if (std::filesystem::exists(path))
-  {
-    std::ifstream in(path);
-    std::string existingContents;
-
-    // reserve required memory in one go
-    in.seekg(0U, std::ios::end);
-    existingContents.reserve(static_cast<std::size_t>(in.tellg()));
-    in.seekg(0U, std::ios::beg);
-
-    // read contents
-    existingContents.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-
-    if (existingContents == fileContents)
-    {
-      return;
-    }
-  }
-
-  std::ofstream stream;
-  openFile(path, stream);
-  stream << fileContents;
-  SEN_ENSURE(stream.good());
-  stream.close();
-}
-
-std::filesystem::path typesSourceFileFromSTLFile(const std::filesystem::path& file)
-{
-  return file.filename().concat(".h");
-}
-
-std::filesystem::path implSourceFileFromSTLFile(const std::filesystem::path& file)
-{
-  return file.filename().concat(".cpp");
-}
-
-std::string computeCppNamespace(const sen::lang::TypeSet& set)
-{
-  std::string result;
-  for (std::size_t i = 0U; i < set.package.size(); ++i)
-  {
-    result.append(set.package[i]);
-    if (i != set.package.size() - 1U)
-    {
-      result.append("::");
-    }
-  }
-
-  return result;
-}
-
-std::string computeFileId(const std::string& fileName)
-{
-  std::filesystem::path filePath(fileName);
-
-  std::string stringToUse = filePath.stem().string();
-  if (filePath.has_parent_path())
-  {
-    stringToUse.append(filePath.parent_path().stem().string());
-  }
-
-  return intToHex2(sen::crc32(stringToUse));
-}
 
 }  // namespace
 
@@ -466,4 +377,63 @@ void CppGenerator::generatePackageExportsFile(const std::string& packageName,
   writeFile(fileName, writtenFiles, [&]() { return env.render(getPackageExportTemplate(env), fileData); });
 
   std::cout << "stl|cpp> " << fileName << std::endl;
+}
+
+void CppGenerator::setup(CLI::App& app)
+{
+  auto cppExtraArgs = std::make_shared<CppExtraArgs>();
+
+  auto cpp = app.add_subcommand("cpp", "Generates C++ code");
+  cpp->allow_extras();
+  cpp->require_subcommand();
+
+  cpp->add_option("-r, --recursive", cppExtraArgs->recursive, "recursively generate imported packages");
+  cpp->add_flag("--public-symbols", cppExtraArgs->publicSymbols, "make generated classes public");
+
+  auto stl = setupStlInput(*cpp,
+                           [cppExtraArgs](auto args)
+                           {
+                             CppGenerator generator;
+                             const auto settings = readTypeSettings(args->codegenOptionsFile);
+
+                             sen::lang::TypeSetContext context;
+                             for (const auto& fileName: args->inputs)
+                             {
+                               auto typeSet = sen::lang::readTypesFile(fileName, args->includePaths, context, settings);
+                               generator.writeFiles(
+                                 *typeSet, cppExtraArgs->recursive, cppExtraArgs->publicSymbols, args->basePath);
+                             }
+                           });
+
+  auto fom = setupFomInput(*cpp,
+                           [cppExtraArgs](auto args)
+                           {
+                             CppGenerator generator;
+                             const auto settings = readTypeSettings(args->codegenOptionsFile);
+                             const auto typeSets =
+                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, settings);
+
+                             for (const auto& set: typeSets)
+                             {
+                               generator.writeFiles(set, cppExtraArgs->recursive, cppExtraArgs->publicSymbols, "");
+                             }
+                           });
+
+  stl->excludes(fom);
+}
+
+void CppGenerator::exportsSetup(CLI::App& app)
+{
+  auto args = std::make_shared<Args>();
+  auto exp = app.add_subcommand("exp_package", "generates exports symbols for a sen STL package");
+  exp->add_option("-p, --package", args->packageName, "name of the package to create the exports");
+  exp->add_option("-f, --file", args->stlFiles, "name of the stl file containing types");
+  exp->add_option("-d, --depends", args->dependentPackages, "name of the packages we depend on");
+  exp->add_option("-i, --implements", args->userTypes, "name of types implemented in this package");
+  exp->callback(
+    [args]()
+    {
+      CppGenerator::generatePackageExportsFile(
+        args->packageName, args->stlFiles, args->dependentPackages, args->userTypes);
+    });
 }

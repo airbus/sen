@@ -10,7 +10,9 @@
 #include "mkdocs/classdoc_tree.h"
 
 // utilities
-#include "cpp/util.h"
+#include "common/json_type_storage.h"
+#include "common/util.h"
+#include "mkdocs/mkdocs_templates.h"
 
 // templates
 #include "mkdocs_templates/alias_doc.h"
@@ -28,6 +30,7 @@
 #include "sen/core/base/assert.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/base/u8string_util.h"
+#include "sen/core/lang/fom_parser.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
@@ -40,6 +43,11 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_visitor.h"
 #include "sen/core/meta/variant_type.h"
+
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
 
 // inja
 #include <inja/environment.hpp>
@@ -118,61 +126,6 @@ namespace
 {
   return toAnchorStr(data.get<std::string>(), data.get<std::string>());
 }
-
-struct MkDocsTemplates
-{
-  inja::Template aliasTemplate;
-  inja::Template classTemplate;
-  inja::Template classDiagram;
-  inja::Template enumTemplate;
-  inja::Template quantityTemplate;
-  inja::Template sequenceTemplate;
-  inja::Template structTemplate;
-  inja::Template variantTemplate;
-  inja::Template optionalTemplate;
-};
-
-MkDocsTemplates makeTemplates(inja::Environment& env)
-{
-  MkDocsTemplates result;
-  result.aliasTemplate = env.parse(sen::decompressSymbolToString(alias_doc, alias_docSize));
-  result.classTemplate = env.parse(sen::decompressSymbolToString(class_doc, class_docSize));
-  result.classDiagram = env.parse(sen::decompressSymbolToString(class_diagram, class_diagramSize));
-  result.enumTemplate = env.parse(sen::decompressSymbolToString(enum_doc, enum_docSize));
-  result.quantityTemplate = env.parse(sen::decompressSymbolToString(quantity_doc, quantity_docSize));
-  result.sequenceTemplate = env.parse(sen::decompressSymbolToString(sequence_doc, sequence_docSize));
-  result.structTemplate = env.parse(sen::decompressSymbolToString(struct_doc, struct_docSize));
-  result.variantTemplate = env.parse(sen::decompressSymbolToString(variant_doc, variant_docSize));
-  result.optionalTemplate = env.parse(sen::decompressSymbolToString(optional_doc, optional_docSize));
-  return result;
-}
-
-struct TypeGroups
-{
-  std::vector<const sen::Type*> classTypes;
-  std::vector<const sen::Type*> enumTypes;
-  std::vector<const sen::Type*> structTypes;
-  std::vector<const sen::Type*> sequenceTypes;
-  std::vector<const sen::Type*> quantityTypes;
-  std::vector<const sen::Type*> aliasTypes;
-  std::vector<const sen::Type*> variantTypes;
-  std::vector<const sen::Type*> optionalTypes;
-};
-
-struct TemplateVisitorResult
-{
-  std::string enumerationsDoc;
-  std::string structuresDoc;
-  std::string variantsDoc;
-  std::string sequencesDoc;
-  std::string quantitiesDoc;
-  std::string aliasesDoc;
-  std::string classesDoc;
-  std::string optionalsDoc;
-
-  std::vector<Node> rootClasses;
-  TypeGroups groups;
-};
 
 class TemplateVisitor: protected sen::TypeVisitor
 {
@@ -615,17 +568,10 @@ void append(const std::vector<T>& src, std::vector<T>& target)
   return env.render(fileTemplate, fileData);
 }
 
-void openFile(const std::filesystem::path& outputFile, std::ofstream& stream)
+void setupMKDocsArgs(CLI::App& app, MKDocsArgs& args)
 {
-  stream.open(outputFile, std::ios_base::trunc | std::ios_base::out);
-  if (!stream.is_open() || stream.fail())
-  {
-    std::string err;
-    err.append("could not open file '");
-    err.append(outputFile.generic_string());
-    err.append("' for writing");
-    sen::throwRuntimeError(err);
-  }
+  app.add_option("-o, --output", args.outputFile, "output file");
+  app.add_option("-t, --title", args.title, "document title");
 }
 
 }  // namespace
@@ -649,7 +595,7 @@ void MkDocsGenerator::write(const std::filesystem::path& outputFile, const std::
   configureEnv(env);
   env.set_line_statement("***");
   env.add_callback("toAnchor", 1, [](auto& args) { return toAnchor(*args.front()); });
-  auto templates = makeTemplates(env);
+  auto templates = makeMkDocsTemplates(env);
 
   {
     std::ofstream stream;
@@ -660,4 +606,38 @@ void MkDocsGenerator::write(const std::filesystem::path& outputFile, const std::
   }
 
   std::cout << "stl|mkdocs> " << outputFile << std::endl;
+}
+
+void MkDocsGenerator::setup(CLI::App& app)
+{
+  auto mkdocsArgs = std::make_shared<MKDocsArgs>();
+  auto mkdocs = app.add_subcommand("mkdocs", "generates MKDocs documentation");
+  mkdocs->allow_extras();
+  mkdocs->require_subcommand();
+
+  auto stl = setupStlInput(*mkdocs,
+                           [mkdocsArgs](auto args)
+                           {
+                             sen::lang::TypeSetContext typeSets;
+                             for (const auto& fileName: args->inputs)
+                             {
+                               std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
+                             }
+
+                             MkDocsGenerator(typeSets).write(mkdocsArgs->outputFile, mkdocsArgs->title);
+                           });
+
+  setupMKDocsArgs(*stl, *mkdocsArgs);
+
+  auto fom = setupFomInput(
+    *mkdocs,
+    [mkdocsArgs](auto args)
+    {
+      const sen::lang::TypeSetContext typeSets = sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+
+      MkDocsGenerator(typeSets).write(std::filesystem::path(mkdocsArgs->outputFile), mkdocsArgs->title);
+    });
+
+  setupMKDocsArgs(*fom, *mkdocsArgs);
+  stl->excludes(fom);
 }

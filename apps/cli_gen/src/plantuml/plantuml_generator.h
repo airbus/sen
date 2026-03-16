@@ -8,8 +8,20 @@
 #ifndef SEN_APPS_CLI_GEN_SRC_PLANTUML_PLANTUML_GENERATOR_H
 #define SEN_APPS_CLI_GEN_SRC_PLANTUML_PLANTUML_GENERATOR_H
 
-#include "cpp/json_type_storage.h"
+#include "common/json_type_storage.h"
+
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
+
+// sen
 #include "sen/core/lang/stl_resolver.h"
+
+// std
+#include <filesystem>
+#include <string>
+#include <vector>
 
 enum class UMLGenerationMode
 {
@@ -24,6 +36,14 @@ enum class UMLEnumMode
   noEnumerators
 };
 
+struct UmlArgs
+{
+  std::string outputFile = "output.plantuml";
+  bool onlyClasses = false;
+  bool onlyTypes = false;
+  bool noEnumerators = false;
+};
+
 // Generates PlantUML code out of .stl files
 class PlantUMLGenerator
 {
@@ -36,6 +56,9 @@ public:
   ~PlantUMLGenerator() noexcept = default;
 
 public:
+  /// Initializes uml generator
+  static void setup(CLI::App& app);
+
   // Generates the files or throws std::exception.
   void write(const std::filesystem::path& outputFile, UMLGenerationMode generationMode, UMLEnumMode enumMode);
 

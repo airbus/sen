@@ -14,12 +14,14 @@
 #include "plantuml_templates/variant_decl.h"
 
 // app
-#include "cpp/json_type_storage.h"
-#include "cpp/util.h"
+#include "common/json_type_storage.h"
+#include "common/util.h"
+#include "plantuml/plantuml_templates.h"
 
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/hash32.h"
+#include "sen/core/lang/fom_parser.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
@@ -32,6 +34,11 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_visitor.h"
 #include "sen/core/meta/variant_type.h"
+
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
 
 // inja
 #include <inja/environment.hpp>
@@ -52,24 +59,6 @@
 
 namespace
 {
-
-struct PlantUmlTemplates
-{
-  inja::Template structTemplate;
-  inja::Template enumTemplate;
-  inja::Template variantTemplate;
-  inja::Template classTemplate;
-};
-
-PlantUmlTemplates makeTemplates(inja::Environment& env)
-{
-  PlantUmlTemplates result;
-  result.structTemplate = env.parse(sen::decompressSymbolToString(struct_decl, struct_declSize));
-  result.enumTemplate = env.parse(sen::decompressSymbolToString(enum_decl, enum_declSize));
-  result.variantTemplate = env.parse(sen::decompressSymbolToString(variant_decl, variant_declSize));
-  result.classTemplate = env.parse(sen::decompressSymbolToString(class_decl, class_declSize));
-  return result;
-}
 
 class TemplateVisitor: protected sen::TypeVisitor
 {
@@ -230,17 +219,33 @@ std::string generateFile(inja::Environment& env,
   return env.render(fileTemplate, fileData);
 }
 
-void openFile(const std::filesystem::path& outputFile, std::ofstream& stream)
+void setupUmlArgs(CLI::App& app, UmlArgs& args)
 {
-  stream.open(outputFile, std::ios_base::trunc | std::ios_base::out);
-  if (!stream.is_open() || stream.fail())
+  app.add_option("-o, --output", args.outputFile, "output plantuml file");
+  auto onlyClasses = app.add_flag("--only-classes", args.onlyClasses, "only generate class diagrams");
+  auto onlyTypes = app.add_flag("--only-types", args.onlyTypes, "only generate diagrams for basic types");
+  auto noEnumerators = app.add_flag("--no-enumerators", args.noEnumerators, "do not generate enumerations");
+
+  onlyClasses->excludes(onlyTypes);
+  onlyClasses->excludes(noEnumerators);
+}
+
+UMLGenerationMode getUmlGenerationMode(const std::shared_ptr<UmlArgs>& args)
+{
+  if (args->onlyClasses)
   {
-    std::string err;
-    err.append("could not open file '");
-    err.append(outputFile.generic_string());
-    err.append("' for writing");
-    sen::throwRuntimeError(err);
+    return UMLGenerationMode::onlyClasses;
   }
+  if (args->onlyTypes)
+  {
+    return UMLGenerationMode::onlyBasicTypes;
+  }
+  return UMLGenerationMode::all;
+}
+
+UMLEnumMode getUmlEnumMode(const std::shared_ptr<UmlArgs>& args)
+{
+  return args->noEnumerators ? UMLEnumMode::noEnumerators : UMLEnumMode::all;
 }
 
 }  // namespace
@@ -264,7 +269,7 @@ void PlantUMLGenerator::write(const std::filesystem::path& outputFile,
 {
   inja::Environment env;
   configureEnv(env);
-  auto templates = makeTemplates(env);
+  auto templates = makePlantumlTemplates(env);
 
   std::ofstream stream;
   openFile(outputFile, stream);
@@ -273,4 +278,40 @@ void PlantUMLGenerator::write(const std::filesystem::path& outputFile,
   stream.close();
 
   std::cout << "stl|uml> " << outputFile << std::endl;
+}
+
+void PlantUMLGenerator::setup(CLI::App& app)
+{
+  auto umlArgs = std::make_shared<UmlArgs>();
+  auto uml = app.add_subcommand("uml", "generates UML diagrams");
+  uml->allow_extras();
+  uml->require_subcommand();
+
+  auto stl = setupStlInput(*uml,
+                           [umlArgs](auto args)
+                           {
+                             sen::lang::TypeSetContext typeSets;
+                             for (const auto& fileName: args->inputs)
+                             {
+                               std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
+                             }
+
+                             PlantUMLGenerator(typeSets).write(
+                               umlArgs->outputFile, getUmlGenerationMode(umlArgs), getUmlEnumMode(umlArgs));
+                           });
+
+  setupUmlArgs(*stl, *umlArgs);
+
+  auto fom = setupFomInput(
+    *uml,
+    [umlArgs](auto args)
+    {
+      const sen::lang::TypeSetContext typeSets = sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+
+      PlantUMLGenerator(typeSets).write(
+        std::filesystem::path(umlArgs->outputFile), getUmlGenerationMode(umlArgs), getUmlEnumMode(umlArgs));
+    });
+
+  setupUmlArgs(*fom, *umlArgs);
+  stl->excludes(fom);
 }

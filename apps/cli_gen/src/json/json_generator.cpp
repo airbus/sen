@@ -8,7 +8,8 @@
 #include "json/json_generator.h"
 
 // app
-#include "cpp/json_type_storage.h"
+#include "common/json_type_storage.h"
+#include "common/util.h"
 #include "json/json_templates.h"
 
 // sen
@@ -16,6 +17,7 @@
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/base/uuid.h"
+#include "sen/core/lang/fom_parser.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
@@ -28,6 +30,12 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_visitor.h"
 #include "sen/core/meta/variant_type.h"
+
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
+#include <CLI/Validators.hpp>
 
 // templates
 #include "json_templates/config_schema.h"
@@ -127,74 +135,16 @@ private:
   std::string result_;
 };
 
-void openFile(const std::filesystem::path& path, std::ofstream& stream)
+void setupJsonPackageArgs(CLI::App& app, JsonPackageArgs& args)
 {
-  stream.open(path, std::ios_base::trunc | std::ios_base::out);
-  if (!stream.is_open() || stream.fail())
-  {
-    std::string err;
-    err.append("could not open file '");
-    err.append(path.string());
-    err.append("' for writing");
-    sen::throwRuntimeError(err);
-  }
+  app.add_option("-o, --output", args.outFile, "output file");
+  app.add_option("-c, --class", args.classes, "Classes implemented by the user");
 }
 
-template <typename F>
-void writeFile(const std::filesystem::path& path, std::vector<std::filesystem::path>& writtenFiles, F&& generator)
+void setupJsonComponentArgs(CLI::App& app, JsonComponentArgs& args)
 {
-  // don't do anything if already written
-  if (std::find(writtenFiles.begin(), writtenFiles.end(), path) != writtenFiles.end())
-  {
-    return;
-  }
-
-  const auto fileContents = generator();
-  writtenFiles.push_back(path);
-
-  if (const auto parentPath = path.parent_path(); !parentPath.empty() && !std::filesystem::exists(parentPath))
-  {
-    std::filesystem::create_directories(parentPath);
-  }
-
-  // do not rewrite the file if it has the same content
-  if (std::filesystem::exists(path))
-  {
-    std::ifstream in(path);
-    std::string existingContents;
-
-    // reserve required memory in one go
-    in.seekg(0U, std::ios::end);
-    existingContents.reserve(static_cast<std::size_t>(in.tellg()));
-    in.seekg(0U, std::ios::beg);
-
-    // read contents
-    existingContents.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-
-    if (existingContents == fileContents)
-    {
-      return;
-    }
-  }
-
-  std::ofstream stream;
-  openFile(path, stream);
-  stream << fileContents;
-  SEN_ENSURE(stream.good());
-  stream.close();
-}
-
-void readFile(const std::filesystem::path& fileName, std::string& contents)
-{
-  std::ifstream in(fileName);
-
-  // reserve required memory in one go
-  in.seekg(0U, std::ios::end);
-  contents.reserve(static_cast<std::size_t>(in.tellg()));
-  in.seekg(0U, std::ios::beg);
-
-  // read contents
-  contents.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+  app.add_option("-o, --output", args.outFile, "output file");
+  app.add_option("-n, --name", args.componentName, "name of the component");
 }
 
 }  // namespace
@@ -552,4 +502,110 @@ void JsonGenerator::writeComponentFiles(const sen::lang::TypeSetContext& typeSet
 void JsonGenerator::writeCombination(const std::string& outFile, const std::vector<std::filesystem::path>& schemas)
 {
   pimpl_->writeCombination(outFile, schemas);
+}
+
+void JsonGenerator::setupGenJsonPackage(CLI::App& app)
+{
+  auto jsonPackageArgs = std::make_shared<JsonPackageArgs>();
+  auto jsonPackage = app.add_subcommand("package", "generates JSON schemas for packages");
+  jsonPackage->allow_extras();
+  jsonPackage->require_subcommand();
+
+  auto stl = setupStlInput(*jsonPackage,
+                           [jsonPackageArgs](auto args)
+                           {
+                             JsonGenerator generator;
+                             sen::lang::TypeSetContext typeSets;
+
+                             for (const auto& fileName: args->inputs)
+                             {
+                               std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
+                             }
+
+                             generator.writePackageFiles(typeSets, jsonPackageArgs->outFile, jsonPackageArgs->classes);
+                           });
+
+  setupJsonPackageArgs(*stl, *jsonPackageArgs);
+
+  auto fom = setupFomInput(*jsonPackage,
+                           [jsonPackageArgs](auto args)
+                           {
+                             const sen::lang::TypeSetContext typeSets =
+                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+
+                             JsonGenerator generator;
+                             generator.writePackageFiles(typeSets, jsonPackageArgs->outFile, jsonPackageArgs->classes);
+                           });
+
+  setupJsonPackageArgs(*fom, *jsonPackageArgs);
+  stl->excludes(fom);
+}
+
+void JsonGenerator::setupGenJsonComponent(CLI::App& app)
+{
+  auto jsonComponentArgs = std::make_shared<JsonComponentArgs>();
+  auto jsonComponent = app.add_subcommand("component", "generates JSON schemas for components");
+  jsonComponent->allow_extras();
+  jsonComponent->require_subcommand();
+
+  auto stl = setupStlInput(*jsonComponent,
+                           [jsonComponentArgs](auto args)
+                           {
+                             sen::lang::TypeSetContext typeSets;
+
+                             for (const auto& fileName: args->inputs)
+                             {
+                               std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
+                             }
+
+                             JsonGenerator generator;
+                             generator.writeComponentFiles(
+                               typeSets, jsonComponentArgs->outFile, jsonComponentArgs->componentName);
+                           });
+
+  setupJsonComponentArgs(*stl, *jsonComponentArgs);
+
+  auto fom = setupFomInput(
+    *jsonComponent,
+    [jsonComponentArgs](auto args)
+    {
+      const sen::lang::TypeSetContext typeSets = sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+
+      JsonGenerator generator;
+      generator.writeComponentFiles(typeSets, jsonComponentArgs->outFile, jsonComponentArgs->componentName);
+    });
+
+  setupJsonComponentArgs(*fom, *jsonComponentArgs);
+  stl->excludes(fom);
+}
+
+void JsonGenerator::setupGenJsonSchemaArgs(CLI::App& app)
+{
+  auto jsonSchemaArgs = std::make_shared<JsonSchemaArgs>();
+  auto jsonSchema = app.add_subcommand("schema", "generates JSON schemas for sen configurations");
+  jsonSchema->allow_extras();
+
+  jsonSchema->add_option("schema_files", jsonSchemaArgs->schemas, "JSON schema files")
+    ->required()
+    ->check(CLI::ExistingFile);
+
+  jsonSchema->add_option("-o, --output", jsonSchemaArgs->outFile, "output file");
+
+  jsonSchema->callback(
+    [jsonSchemaArgs]()
+    {
+      JsonGenerator generator;
+      generator.writeCombination(jsonSchemaArgs->outFile, jsonSchemaArgs->schemas);
+    });
+}
+
+void JsonGenerator::setup(CLI::App& app)
+{
+  auto json = app.add_subcommand("json", "generates JSON schemas");
+  json->allow_extras();
+  json->require_subcommand();
+
+  setupGenJsonPackage(*json);
+  setupGenJsonComponent(*json);
+  setupGenJsonSchemaArgs(*json);
 }

@@ -8,8 +8,18 @@
 #ifndef SEN_APPS_CLI_GEN_SRC_PYTHON_PYTHON_GENERATOR_H
 #define SEN_APPS_CLI_GEN_SRC_PYTHON_PYTHON_GENERATOR_H
 
-#include "cpp/json_type_storage.h"
+#include "common/json_type_storage.h"
 #include "sen/core/lang/stl_resolver.h"
+
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
+
+// std
+#include <filesystem>
+#include <string>
+#include <vector>
 
 // Generates Python code out of .stl files
 class PythonGenerator
@@ -23,6 +33,9 @@ public:
   ~PythonGenerator() noexcept = default;
 
 public:
+  /// Initializes python generator
+  static void setup(CLI::App& app);
+
   /// Replace the characters of the filename that will be considered invalid in Python with underscores.
   static void replaceInvalidCharacters(std::string& str);
 

@@ -5,10 +5,10 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "cpp/json_type_storage.h"
+#include "json_type_storage.h"
 
 // app
-#include "cpp/util.h"
+#include "util.h"
 
 // sen
 #include "sen/core/base/compiler_macros.h"
@@ -315,33 +315,6 @@ private:
 // Helpers
 //--------------------------------------------------------------------------------------------------------------
 
-std::string computeCppNamespace(const std::vector<std::string>& package)
-{
-  std::string result;
-  for (std::size_t i = 0U; i < package.size(); ++i)
-  {
-    result.append(package[i]);
-    if (i != package.size() - 1U)
-    {
-      result.append("::");
-    }
-  }
-
-  return result;
-}
-
-std::string computeCppNamespace(const sen::lang::TypeSet& set) { return computeCppNamespace(set.package); }
-
-std::string computeCppNamespace(const sen::CustomType& type)
-{
-  auto tokens = tokenize(std::string(type.getQualifiedName()), '.');
-  if (tokens.size() > 1)
-  {
-    tokens.pop_back();
-  }
-  return computeCppNamespace(tokens);
-}
-
 std::string getSenQual(const sen::Type& type)
 {
   if (type.isCustomType())
@@ -547,7 +520,7 @@ inja::json JsonTypeStorage::toJson(const sen::StructField& field) const
   data["jsonSchemaType"] = JSONSchemaRef::get(*field.type);
   data["name"] = field.name;
   data["description"] = escapeInvalidStringCharacters(field.description);
-  data["requiresBlockComment"] = (field.description.size() > impl::maxCommentLineLength);
+  data["requiresBlockComment"] = field.description.size() > impl::maxCommentLineLength;
   addIsTypeInfo(data, fieldType.type());
   data["isEnum"] = fieldType->isEnumType();
   data["ostreamNeedsNewline"] =

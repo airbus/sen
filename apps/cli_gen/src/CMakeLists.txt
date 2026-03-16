@@ -11,6 +11,17 @@ include(tps/inja)
 include(tps/spdlog)
 
 # -------------------------------------------------------------------------------------------------------------
+# Cli Gen Common
+# -------------------------------------------------------------------------------------------------------------
+
+set(cli_gen_common
+    common/json_type_storage.cpp
+    common/json_type_storage.h
+    common/util.cpp
+    common/util.h
+)
+
+# -------------------------------------------------------------------------------------------------------------
 # CPP Generator
 # -------------------------------------------------------------------------------------------------------------
 
@@ -44,19 +55,9 @@ sen_internal_generate_template_headers(
   ${cpp_templates}
 )
 
-set(cpp_headers
-    cpp/cpp_generator.h
-    cpp/cpp_templates.h
-    cpp/json_type_storage.h
-    cpp/util.h
-)
+set(cpp_headers cpp/cpp_generator.h cpp/cpp_templates.h)
 
-set(cpp_sources
-    cpp/cpp_generator.cpp
-    cpp/cpp_templates.cpp
-    cpp/json_type_storage.cpp
-    cpp/util.cpp
-)
+set(cpp_sources cpp/cpp_generator.cpp cpp/cpp_templates.cpp)
 
 source_group("cpp/headers" FILES ${cpp_headers})
 source_group("cpp/sources" FILES ${cpp_sources})
@@ -82,9 +83,9 @@ sen_internal_generate_template_headers(
   ${plantuml_templates}
 )
 
-set(plantuml_headers plantuml/plantuml_generator.h)
+set(plantuml_headers plantuml/plantuml_generator.h plantuml/plantuml_templates.h)
 
-set(plantuml_sources plantuml/plantuml_generator.cpp)
+set(plantuml_sources plantuml/plantuml_generator.cpp plantuml/plantuml_templates.cpp)
 
 source_group("plantuml/headers" FILES ${plantuml_headers})
 source_group("plantuml/sources" FILES ${plantuml_sources})
@@ -115,8 +116,13 @@ sen_internal_generate_template_headers(
   ${mkdocs_templates}
 )
 
-set(mkdocs_headers mkdocs/mkdocs_generator.h)
-set(mkdocs_sources mkdocs/mkdocs_generator.cpp mkdocs/classdoc_tree.cpp mkdocs/classdoc_tree.h)
+set(mkdocs_headers mkdocs/mkdocs_generator.h mkdocs/mkdocs_templates.h)
+set(mkdocs_sources
+    mkdocs/mkdocs_generator.cpp
+    mkdocs/classdoc_tree.cpp
+    mkdocs/classdoc_tree.h
+    mkdocs/mkdocs_templates.cpp
+)
 
 source_group("mkdocs/headers" FILES ${mkdocs_headers})
 source_group("mkdocs/sources" FILES ${mkdocs_sources})
@@ -146,8 +152,8 @@ sen_internal_generate_template_headers(
   ${python_templates}
 )
 
-set(python_headers python/python_generator.h)
-set(python_sources python/python_generator.cpp)
+set(python_headers python/python_generator.h python/python_templates.h)
+set(python_sources python/python_generator.cpp python/python_templates.cpp)
 
 source_group("python/headers" FILES ${python_headers})
 source_group("plantuml/sources" FILES ${python_sources})
@@ -193,6 +199,7 @@ source_group("json/sources" FILES ${json_sources})
 
 add_executable(
   cli_gen
+  ${cli_gen_common}
   ${cpp_headers}
   ${cpp_sources}
   ${cpp_template_dumps}

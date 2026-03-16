@@ -10,6 +10,34 @@
 
 #include "sen/core/lang/stl_resolver.h"
 
+// cli11
+#include <CLI/App.hpp>
+// NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
+#include <CLI/CLI.hpp>
+
+// std
+#include <filesystem>
+#include <string>
+#include <vector>
+
+struct JsonPackageArgs
+{
+  std::string outFile;
+  std::vector<std::string> classes;
+};
+
+struct JsonComponentArgs
+{
+  std::string outFile;
+  std::string componentName;
+};
+
+struct JsonSchemaArgs
+{
+  std::string outFile;
+  std::vector<std::filesystem::path> schemas;
+};
+
 /// Generates a JSON schema out of a type set
 class JsonGenerator
 {
@@ -22,6 +50,18 @@ public:
   ~JsonGenerator();
 
 public:
+  /// Initializes json package
+  static void setupGenJsonPackage(CLI::App& app);
+
+  /// Initializes json component
+  static void setupGenJsonComponent(CLI::App& app);
+
+  /// Initializes json schema
+  static void setupGenJsonSchemaArgs(CLI::App& app);
+
+  /// Initializes json generator
+  static void setup(CLI::App& app);
+
   /// Generates the schema file for a package (may throw std::exception).
   void writePackageFiles(const sen::lang::TypeSetContext& typeSets,
                          const std::string& outputFile,
