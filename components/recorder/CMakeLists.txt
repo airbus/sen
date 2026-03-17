@@ -36,4 +36,6 @@ sen_internal_install(recorder)
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/recorder.json DESTINATION schemas)
 
 # tests
-add_subdirectory(test)
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()
