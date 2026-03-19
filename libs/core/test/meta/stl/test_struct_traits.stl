@@ -1,0 +1,30 @@
+package test_struct_traits;
+
+struct MyEmptyStruct
+{
+}
+
+struct MyStructWithNativeFieldsOnly
+{
+  field1 : u32,
+  field2 : string,
+  field3 : f32,
+}
+
+variant MyVariant
+{
+  string,
+  u32,
+  bool,
+}
+
+optional<string> MaybeString;
+
+struct MyStructWithNonNativeFields
+{
+  field1 : MaybeString,
+  field2 : MyVariant,
+  field3 : f64,
+  field4 : Duration,
+  field5 : MyStructWithNativeFieldsOnly
+}

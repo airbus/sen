@@ -36,6 +36,7 @@ set(meta_tests
     meta/property_test.cpp
     meta/quantity_type_test.cpp
     meta/sequence_type_test.cpp
+    meta/struct_traits_test.cpp
     meta/struct_type_test.cpp
     meta/time_types_test.cpp
     meta/type_test.cpp
@@ -80,6 +81,7 @@ add_library(core_test_meta_generated OBJECT)
 sen_generate_cpp(
   TARGET core_test_meta_generated
   STL_FILES meta/stl/test_type_traits.stl
+  STL_FILES meta/stl/test_struct_traits.stl
   BASE_PATH meta
 )
 
@@ -99,6 +101,8 @@ add_sen_unit_test_suite(
   ${obj_tests}
   LINK_DEPS
   sen::core
+  PRIVATE
+  cpptrace::cpptrace
   core_test_io_generated
   core_test_meta_generated
   core_test_obj_generated
