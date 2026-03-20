@@ -131,7 +131,15 @@ inline void ObjectRef<T>::onObjectsRemoved(const ObjectRemovalList& removals)
 {
   if (ptr_.load() != nullptr)
   {
-    const auto* instance = ptr_.load()->asObject();
+    const Object* instance;
+    if constexpr (!std::is_same_v<T, Object>)
+    {
+      instance = &ptr_.load()->asObject();
+    }
+    else
+    {
+      instance = ptr_.load();
+    }
     for (const auto& removal: removals)
     {
       if (instance->getId() == removal.objectid)
