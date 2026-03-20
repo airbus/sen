@@ -62,6 +62,10 @@ struct RemoteInterestsHandler
   std::vector<InterestId>& removeSubscriber(RemoteParticipant* remote);
   void addObject(InterestId interestId, ObjectUpdate* update);
   void removeObject(ObjectUpdate* update);
+
+  /// Removes object updates associated to a certain interest. There can be more than one interest mapped to a certain
+  /// update. Returns true if the update was completely removed from the interest handler
+  [[nodiscard]] bool removeObjectUpdateByInterest(ObjectUpdate* update, InterestId interestId);
   void clear();
 };
 
@@ -171,6 +175,38 @@ inline void RemoteInterestsHandler::removeObject(ObjectUpdate* update)
                                 }
                               });
   remotesUpdatesBMMap.remove(update);
+}
+
+inline bool RemoteInterestsHandler::removeObjectUpdateByInterest(ObjectUpdate* update, InterestId interestId)
+{
+  // remove the deleted interest/update link
+  interestsUpdatesBMMap.remove(interestId, update);
+
+  remotesUpdatesBMMap.forEach(update,
+                              [this, update, interestId](RemoteParticipant* remote)
+                              {
+                                auto& remoteInterestsUpdates = remotesToInterestsUpdatesMap[remote];
+
+                                // remove the deleted interest/update link
+                                remoteInterestsUpdates.remove(interestId, update);
+
+                                if (!remoteInterestsUpdates.contains(update))
+                                {
+                                  // safe deletion of the update from the remote (if we still find the update in the
+                                  // remoteInterestsUpdates map, this means that this remote used another interest,
+                                  // therefore we should not remove the update from this remote)
+                                  remotesUpdatesBMMap.remove(remote, update);
+                                }
+
+                                if (remoteInterestsUpdates.empty())
+                                {
+                                  remotesToInterestsUpdatesMap.erase(remote);
+                                }
+                              });
+
+  // return true if the update was completely removed from the handler because no other interests linked to it were
+  // found
+  return !interestsUpdatesBMMap.contains(update);
 }
 
 inline void RemoteInterestsHandler::clear()

@@ -79,7 +79,8 @@ RemoteInterestsManager::RemoteInterestsManager(ObjectOwnerId ownerIdRef, LocalPa
       const auto& orphanUpdates = interestsUpdatesBMMap.remove(interestId).second;
       for (auto* update: orphanUpdates)
       {
-        update->applyToNativeObject([&](auto* localObject) { removeObjectById(localObject->getId()); });
+        update->applyToNativeObject([&](auto* localObject)
+                                    { removeObjectUpdatesByInterest(localObject->getId(), interestId); });
       }
     });
 }
@@ -255,7 +256,7 @@ void RemoteInterestsManager::subscriberAdded(std::shared_ptr<Interest> interest,
     owner_->getLogger().debug("LP {}: remote participant {} subscribed to interest {}",
                               owner_->getDebugName(),
                               remote->getId().get(),
-                              interest->getId().get());
+                              interest->getQueryString());
 
     // add to the interest list of participants
     {
@@ -384,16 +385,15 @@ void RemoteInterestsManager::objectsAdded(std::shared_ptr<Interest> interest, Ob
 
 void RemoteInterestsManager::objectsRemoved(std::shared_ptr<Interest> interest, ObjectRemovalList removals)
 {
-  std::ignore = interest;
   for (const auto& removal: removals)
   {
-    removeObjectById(removal.objectid);
+    removeObjectUpdatesByInterest(removal.objectid, interest->getId());
   }
 }
 
-void RemoteInterestsManager::removeObjectById(const ObjectId& objectId)
+void RemoteInterestsManager::removeObjectUpdatesByInterest(ObjectId objectId, InterestId interestId)
 {
-  auto updateItr = objectIdToUpdateItr_.find(objectId);
+  const auto updateItr = objectIdToUpdateItr_.find(objectId);
   if (updateItr == objectIdToUpdateItr_.end())
   {
     return;
@@ -401,11 +401,13 @@ void RemoteInterestsManager::removeObjectById(const ObjectId& objectId)
 
   auto* updatePtr = &(*updateItr->second);
 
-  remoteInterestsHandler_.removeObject(updatePtr);
-
-  objectUpdates_.erase(updateItr->second);
-  updatesObjectIdsBiMap_.remove(objectId);
-  objectIdToUpdateItr_.erase(updateItr);
+  // only erase the object update if only one interest was linked to it
+  if (remoteInterestsHandler_.removeObjectUpdateByInterest(updatePtr, interestId))
+  {
+    objectUpdates_.erase(updateItr->second);
+    updatesObjectIdsBiMap_.remove(objectId);
+    objectIdToUpdateItr_.erase(updateItr);
+  }
 }
 
 }  // namespace sen::kernel::impl
