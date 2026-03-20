@@ -6,7 +6,7 @@ var searchData=
   ['checkedset_3',['checkedSet',['../structsen_1_1_property_spec.html#ae42c0db495b8e456fb6d5791ab6fbdf1',1,'sen::PropertySpec']]],
   ['classannotations_4',['classAnnotations',['../structsen_1_1lang_1_1_type_settings.html#a9ed81906b3948c3547f750efa21f5477',1,'sen::lang::TypeSettings']]],
   ['classname_5',['className',['../classsen_1_1kernel_1_1_kernel_config.html#a52411b8d6a1227b10008d30700f268a2',1,'sen::kernel::KernelConfig::ObjectConfig']]],
-  ['component_6',['component',['../classsen_1_1kernel_1_1_kernel_config.html#afd3c48b0cc7a12251aeb6b7bd3b0ebde',1,'sen::kernel::KernelConfig::ComponentToLoad']]],
+  ['component_6',['component',['../structsen_1_1db_1_1test_1_1_single_class_setup.html#a15d64256db334bcf0791936a9a77f454',1,'sen::db::test::SingleClassSetup::component'],['../structsen_1_1db_1_1test_1_1_dual_class_setup.html#a594aeee0cdeb595157d2202d22bec5e6',1,'sen::db::test::DualClassSetup::component'],['../classsen_1_1kernel_1_1_kernel_config.html#afd3c48b0cc7a12251aeb6b7bd3b0ebde',1,'sen::kernel::KernelConfig::ComponentToLoad::component']]],
   ['componentinfomakerfuncname_7',['componentInfoMakerFuncName',['../namespacesen_1_1kernel.html#a63a48158dfeb0f8574cf16d93fee6e0d',1,'sen::kernel']]],
   ['componentmakerfuncname_8',['componentMakerFuncName',['../namespacesen_1_1kernel.html#a30752a4f78a152232186ef8f54152490',1,'sen::kernel']]],
   ['components_9',['components',['../namespacesen_1_1kernel.html#a6ac5008d93f7453a30d374f612b2c304',1,'sen::kernel::KernelMonitoringInfo']]],

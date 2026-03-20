@@ -24,7 +24,8 @@ var searchData=
   ['drrpw_21',['drRpw',['../group__dr.html#ga9a8ec2c2177a201b6e8694b9a2d7ae99',1,'sen::util']]],
   ['drrvb_22',['drRvb',['../group__dr.html#ga0ac042d209d0fd7d0e4abcaad4415107',1,'sen::util']]],
   ['drrvw_23',['drRvw',['../group__dr.html#ga1cd97ac8a5b71be3a718d3fa4d86d505',1,'sen::util']]],
-  ['duration_24',['Duration',['../classsen_1_1_duration.html#a3fe4cce2f7e0dafad89c940bc205e8d9',1,'sen::Duration::Duration(std::chrono::nanoseconds value) noexcept'],['../classsen_1_1_duration.html#a2fef572142216e92a55c22434773f1ef',1,'sen::Duration::Duration(std::chrono::duration&lt; Rep, Period &gt; value) noexcept']]],
-  ['durationtype_25',['DurationType',['../classsen_1_1_duration_type.html#afa3f067f873ce55301ea7888f936ce6b',1,'sen::DurationType']]],
-  ['dynamictypehandlecast_26',['dynamicTypeHandleCast',['../group__types.html#ga9e4e0a4d70ae8b0a35d8b01afed15256',1,'sen']]]
+  ['dualclasssetup_24',['DualClassSetup',['../structsen_1_1db_1_1test_1_1_dual_class_setup.html#a51970ee03701c0340ae9fd1a25196288',1,'sen::db::test::DualClassSetup']]],
+  ['duration_25',['Duration',['../classsen_1_1_duration.html#a3fe4cce2f7e0dafad89c940bc205e8d9',1,'sen::Duration::Duration(std::chrono::nanoseconds value) noexcept'],['../classsen_1_1_duration.html#a2fef572142216e92a55c22434773f1ef',1,'sen::Duration::Duration(std::chrono::duration&lt; Rep, Period &gt; value) noexcept']]],
+  ['durationtype_26',['DurationType',['../classsen_1_1_duration_type.html#afa3f067f873ce55301ea7888f936ce6b',1,'sen::DurationType']]],
+  ['dynamictypehandlecast_27',['dynamicTypeHandleCast',['../group__types.html#ga9e4e0a4d70ae8b0a35d8b01afed15256',1,'sen']]]
 ];

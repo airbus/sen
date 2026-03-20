@@ -57,7 +57,7 @@ var searchData=
   ['compileerror_54',['CompileError',['../classsen_1_1lang_1_1_v_m.html#structsen_1_1lang_1_1_v_m_1_1_compile_error',1,'sen::lang::VM']]],
   ['compiler_5fmacros_2eh_55',['compiler_macros.h',['../compiler__macros_8h.html',1,'']]],
   ['component_56',['Component',['../classsen_1_1kernel_1_1_component.html',1,'sen::kernel::Component'],['../classsen_1_1kernel_1_1_component.html#af384003e3eeafbe06eef62b8daf82d2a',1,'sen::kernel::Component::Component()']]],
-  ['component_57',['component',['../classsen_1_1kernel_1_1_kernel_config.html#afd3c48b0cc7a12251aeb6b7bd3b0ebde',1,'sen::kernel::KernelConfig::ComponentToLoad']]],
+  ['component_57',['component',['../structsen_1_1db_1_1test_1_1_single_class_setup.html#a15d64256db334bcf0791936a9a77f454',1,'sen::db::test::SingleClassSetup::component'],['../structsen_1_1db_1_1test_1_1_dual_class_setup.html#a594aeee0cdeb595157d2202d22bec5e6',1,'sen::db::test::DualClassSetup::component'],['../classsen_1_1kernel_1_1_kernel_config.html#afd3c48b0cc7a12251aeb6b7bd3b0ebde',1,'sen::kernel::KernelConfig::ComponentToLoad::component']]],
   ['component_2eh_58',['component.h',['../component_8h.html',1,'']]],
   ['component_5fapi_2eh_59',['component_api.h',['../component__api_8h.html',1,'']]],
   ['componentcontext_60',['ComponentContext',['../group__kernel.html#structsen_1_1kernel_1_1_component_context',1,'sen::kernel']]],

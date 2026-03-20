@@ -1,3 +1,40 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$structstd_1_1hash_3_01sen_1_1_uuid_01_4.html" title=" " alt="" coords="5,5,177,31"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="18,309,163,349"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_interest.html" title="Declares interest on objects that satisfy a set of conditions." alt="" coords="287,127,389,152"/>
+<area shape="poly" id="edge65_Node000000_Node000001" title=" " alt="" coords="107,295,152,226,185,191,223,161,254,147,286,140,287,145,255,152,225,166,188,195,157,229,111,298"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object.html" title="A sen object." alt="" coords="291,41,385,67"/>
+<area shape="poly" id="edge66_Node000000_Node000002" title=" " alt="" coords="103,295,149,207,182,157,222,112,261,84,301,64,303,69,264,88,226,116,186,160,153,209,108,297"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_object_provider.html" title="Base class for an entity that is able to produce objects." alt="" coords="263,176,413,201"/>
+<area shape="poly" id="edge68_Node000000_Node000004" title=" " alt="" coords="116,296,163,251,192,229,223,210,262,196,264,201,225,215,195,233,166,255,120,300"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="249,332,427,357"/>
+<area shape="poly" id="edge70_Node000000_Node000012" title=" " alt="" coords="177,332,249,336,248,342,177,337"/>
+<area shape="rect" id="Node000016" href="$classsen_1_1kernel_1_1_session_info_provider.html" title=" " alt="" coords="250,431,426,471"/>
+<area shape="poly" id="edge74_Node000000_Node000016" title=" " alt="" coords="135,354,178,383,201,400,225,416,258,429,256,434,223,420,198,405,174,387,132,359"/>
+<area shape="rect" id="Node000018" href="$classsen_1_1kernel_1_1_sessions_discoverer.html" title=" " alt="" coords="224,381,452,407"/>
+<area shape="poly" id="edge75_Node000000_Node000018" title=" " alt="" coords="169,350,225,366,277,379,276,384,223,371,167,355"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_native_object.html" title="An object instantiated in this process. This is the base class for all user&#45;implemented objects." alt="" coords="537,5,676,31"/>
+<area shape="poly" id="edge67_Node000002_Node000003" title=" " alt="" coords="399,43,537,25,537,30,399,49"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_object_mux.html" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="545,55,668,80"/>
+<area shape="poly" id="edge69_Node000004_Node000005" title=" " alt="" coords="425,174,450,161,466,145,474,126,481,107,498,89,521,78,544,70,546,75,523,82,502,93,486,110,478,128,471,147,454,165,427,179"/>
+<area shape="rect" id="Node000013" href="$classsen_1_1_callback.html" title=" " alt="" coords="511,382,702,422"/>
+<area shape="poly" id="edge71_Node000012_Node000013" title=" " alt="" coords="413,358,453,366,514,379,513,385,451,371,412,363"/>
+<area shape="rect" id="Node000014" href="$classsen_1_1_callback.html" title=" " alt="" coords="507,446,706,486"/>
+<area shape="poly" id="edge72_Node000012_Node000014" title=" " alt="" coords="441,360,454,367,470,383,479,400,487,416,502,432,522,443,519,448,498,436,482,419,474,402,466,386,450,371,438,364"/>
+<area shape="rect" id="Node000015" href="$classsen_1_1_callback.html" title="Base class for event or method callbacks. It stores the queue where to push the response...." alt="" coords="513,510,701,550"/>
+<area shape="poly" id="edge73_Node000012_Node000015" title=" " alt="" coords="442,358,454,367,468,383,475,399,479,432,483,465,489,481,502,496,518,508,515,512,498,500,485,483,478,466,474,433,470,401,463,385,450,371,439,362"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1_object_provider_listener.html" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="237,225,439,251"/>
+<area shape="poly" id="edge80_Node000006_Node000005" title=" " alt="" coords="443,216,450,211,463,197,469,182,473,152,478,120,485,104,498,89,520,76,544,68,546,73,522,81,502,93,489,107,483,122,479,152,474,184,467,200,454,215,446,221"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1_object_list.html" title=" " alt="" coords="509,154,704,194"/>
+<area shape="poly" id="edge76_Node000006_Node000007" title=" " alt="" coords="410,220,451,210,527,191,528,197,453,215,411,225"/>
+<area shape="rect" id="Node000008" href="$classsen_1_1_object_list.html" title=" " alt="" coords="500,218,713,258"/>
+<area shape="poly" id="edge77_Node000006_Node000008" title=" " alt="" coords="452,235,500,235,500,241,452,241"/>
+<area shape="rect" id="Node000009" href="$classsen_1_1_muxed_provider_listener.html" title="An extended ObjectProviderListener that works together with ObjectMux and notifies when objects provi..." alt="" coords="505,283,708,308"/>
+<area shape="poly" id="edge78_Node000006_Node000009" title=" " alt="" coords="412,251,547,280,546,285,411,256"/>
+<area shape="rect" id="Node000010" href="$classsen_1_1_object_list.html" title="A list of objects that is managed by some source based on user&#45;expressed interests." alt="" coords="529,332,685,357"/>
+<area shape="poly" id="edge79_Node000006_Node000010" title=" " alt="" coords="373,255,432,286,501,317,542,329,541,334,499,322,429,291,371,260"/>
+<area shape="rect" id="Node000011" href="$classsen_1_1_object_ref.html" title="Object references may or may not hold an object instance. Their value is set by a provider based on s..." alt="" coords="529,104,684,129"/>
+<area shape="poly" id="edge81_Node000006_Node000011" title=" " alt="" coords="438,218,450,211,466,194,474,176,482,158,498,140,528,125,530,130,502,144,486,161,479,178,471,197,454,215,441,222"/>
+<area shape="rect" id="Node000017" href="$classsen_1_1kernel_1_1_source_info.html" title="Provides information about sources as strings." alt="" coords="5,397,176,423"/>
+<area shape="poly" id="edge82_Node000017_Node000016" title=" " alt="" coords="181,422,250,434,249,439,180,428"/>
+<area shape="poly" id="edge83_Node000017_Node000018" title=" " alt="" coords="190,401,224,399,224,404,190,406"/>
 </map>

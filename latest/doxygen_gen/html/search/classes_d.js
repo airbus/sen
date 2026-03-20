@@ -21,8 +21,9 @@ var searchData=
   ['optionaltraitsbase_18',['OptionalTraitsBase',['../structsen_1_1_optional_traits_base.html',1,'sen']]],
   ['optionaltype_19',['OptionalType',['../classsen_1_1_optional_type.html',1,'sen']]],
   ['orientation_20',['Orientation',['../group__dr.html#structsen_1_1util_1_1_orientation',1,'sen::util']]],
-  ['output_21',['Output',['../classsen_1_1db_1_1_output.html',1,'sen::db']]],
-  ['outputstreamtemplate_22',['OutputStreamTemplate',['../classsen_1_1_output_stream_template.html',1,'sen']]],
-  ['outputstreamtemplate_3c_20littleendian_20_3e_23',['OutputStreamTemplate&lt; LittleEndian &gt;',['../classsen_1_1_output_stream_template.html',1,'sen']]],
-  ['overloaded_24',['Overloaded',['../structsen_1_1_overloaded.html',1,'sen']]]
+  ['otherobjimpl_21',['OtherObjImpl',['../classsen_1_1db_1_1test_1_1_other_obj_impl.html',1,'sen::db::test']]],
+  ['output_22',['Output',['../classsen_1_1db_1_1_output.html',1,'sen::db']]],
+  ['outputstreamtemplate_23',['OutputStreamTemplate',['../classsen_1_1_output_stream_template.html',1,'sen']]],
+  ['outputstreamtemplate_3c_20littleendian_20_3e_24',['OutputStreamTemplate&lt; LittleEndian &gt;',['../classsen_1_1_output_stream_template.html',1,'sen']]],
+  ['overloaded_25',['Overloaded',['../structsen_1_1_overloaded.html',1,'sen']]]
 ];

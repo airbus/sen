@@ -58,6 +58,7 @@ var hierarchy =
     ] ],
     [ "sen::util::DrConfig", "group__dr.html#structsen_1_1util_1_1_dr_config", null ],
     [ "sen::util::DrThreshold", "group__dr.html#structsen_1_1util_1_1_dr_threshold", null ],
+    [ "sen::db::test::DualClassSetup", "structsen_1_1db_1_1test_1_1_dual_class_setup.html", null ],
     [ "std::enable_shared_from_this", null, [
       [ "sen::Interest", "classsen_1_1_interest.html", null ],
       [ "sen::Object", "classsen_1_1_object.html", [
@@ -186,6 +187,9 @@ var hierarchy =
     [ "sen::OptionalSpec", "structsen_1_1_optional_spec.html", null ],
     [ "sen::OptionalTraitsBase&lt; T &gt;", "structsen_1_1_optional_traits_base.html", null ],
     [ "sen::util::Orientation", "group__dr.html#structsen_1_1util_1_1_orientation", null ],
+    [ "db_test::OtherObjBase", null, [
+      [ "sen::db::test::OtherObjImpl", "classsen_1_1db_1_1test_1_1_other_obj_impl.html", null ]
+    ] ],
     [ "sen::db::Output", "classsen_1_1db_1_1_output.html", null ],
     [ "sen::OutputStreamTemplate&lt; BufferEndian &gt;", "classsen_1_1_output_stream_template.html", null ],
     [ "sen::kernel::PackageManager", "classsen_1_1kernel_1_1_package_manager.html", null ],
@@ -228,6 +232,7 @@ var hierarchy =
     [ "sen::SerializationTraits&lt; T &gt;", "group__traits.html#structsen_1_1_serialization_traits", null ],
     [ "sen::SerializationTraits&lt; Duration &gt;", "structsen_1_1_serialization_traits_3_01_duration_01_4.html", null ],
     [ "sen::SerializationTraits&lt; TimeStamp &gt;", "structsen_1_1_serialization_traits_3_01_time_stamp_01_4.html", null ],
+    [ "sen::db::test::SingleClassSetup", "structsen_1_1db_1_1test_1_1_single_class_setup.html", null ],
     [ "sen::util::Situation", "group__dr.html#structsen_1_1util_1_1_situation", null ],
     [ "sen::std_util::detail::MoveOnlyFunctionBase::SmallSizeBuffer.__unnamed0__", "classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#unionsen_1_1std__util_1_1detail_1_1_move_only_function_base_1_1_small_size_buffer_8____unnamed0____", null ],
     [ "sen::util::SmartPtrIteratorAdapter&lt; IteratorType &gt;", "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html", null ],
@@ -303,6 +308,7 @@ var hierarchy =
     [ "sen::StructSpec", "structsen_1_1_struct_spec.html", null ],
     [ "sen::StructTraitsBase", "structsen_1_1_struct_traits_base.html", null ],
     [ "sen::Subscription&lt; T &gt;", "structsen_1_1_subscription.html", null ],
+    [ "sen::db::test::TempDir", "classsen_1_1db_1_1test_1_1_temp_dir.html", null ],
     [ "sen::detail::TemplatedBaseTypeDispatcher&lt; T, BaseClassType, baseIsTemplate &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher", null ],
     [ "sen::detail::TemplatedBaseTypeDispatcher&lt; T, BaseClassType, true &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher_3_01_t_00_01_base_class_type_00_01true_01_4", null ],
     [ "sen::Guarded&lt; T, MutexType &gt;::TemporaryAccessToken", "structsen_1_1_guarded_1_1_temporary_access_token.html", null ],
@@ -330,6 +336,9 @@ var hierarchy =
       [ "sen::test::runtime::TesterImpl", "classsen_1_1test_1_1runtime_1_1_tester_impl.html", null ]
     ] ],
     [ "sen::kernel::TestKernel", "classsen_1_1kernel_1_1_test_kernel.html", null ],
+    [ "db_test::TestObjBase", null, [
+      [ "sen::db::test::TestObjImpl", "classsen_1_1db_1_1test_1_1_test_obj_impl.html", null ]
+    ] ],
     [ "sen::test::TestReader", "classsen_1_1test_1_1_test_reader.html", [
       [ "sen::test::BufferedTestReader", "classsen_1_1test_1_1_buffered_test_reader.html", null ]
     ] ],
