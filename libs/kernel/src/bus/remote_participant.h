@@ -73,6 +73,9 @@ public:
 public:
   [[nodiscard]] const Interest& getInterest() const noexcept { return *interest_; }
 
+  /// Given a list of additions, returns the list of object IDs that are already stored in the current additions
+  [[nodiscard]] ObjectIdList getRepeatedAdditions(const ObjectAdditionList& additions);
+
 public:  // implements ObjectProvider
   void notifyObjectsAdded(const ObjectAdditionList& additions) override;
   void notifyObjectsRemoved(const ObjectRemovalList& removals) override;
@@ -108,6 +111,9 @@ public:
 public:
   void remoteObjectsAdded(InterestId interestId, const ObjectAdditionList& additions);
   void remoteObjectsRemoved(InterestId interestId, const ObjectRemovalList& removals);
+
+  /// Given a list of additions, commands the remote provider to return a list with the ids of the repeated additions
+  [[nodiscard]] ObjectIdList getRepeatedAdditions(InterestId interestId, const ObjectAdditionList& additions);
 
 private:
   RemoteParticipant* owner_;

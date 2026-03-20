@@ -129,6 +129,24 @@ constexpr std::chrono::steady_clock::duration remoteObjectResolutionTimeout = st
 // RemoteProvider
 //--------------------------------------------------------------------------------------------------------------
 
+ObjectIdList RemoteProvider::getRepeatedAdditions(const ObjectAdditionList& additions)
+{
+  ObjectIdList result;
+  result.reserve(additions.size());
+
+  for (const auto& addition: additions)
+  {
+    const auto id = getObjectId(addition);
+
+    if (currentAdditions_.find(id) != currentAdditions_.end())
+    {
+      result.push_back(id.get());
+    }
+  }
+
+  return result;
+}
+
 void RemoteProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
 {
   std::vector<ObjectAddition> nonRepeatedAdditions;
@@ -137,6 +155,7 @@ void RemoteProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
   for (const auto& addition: additions)
   {
     const auto id = getObjectId(addition);
+
     auto itr = currentAdditions_.find(id);
     if (itr == currentAdditions_.end())
     {
@@ -291,8 +310,7 @@ void RemoteObjectFilter::removeSubscriber(ObjectProviderListener* listener, bool
 
 void RemoteObjectFilter::remoteObjectsAdded(InterestId interestId, const ObjectAdditionList& additions)
 {
-  auto itr = providers_.find(interestId);
-  if (itr != providers_.end())
+  if (const auto itr = providers_.find(interestId); itr != providers_.end())
   {
     itr->second->notifyObjectsAdded(additions);
   }
@@ -305,6 +323,16 @@ void RemoteObjectFilter::remoteObjectsRemoved(InterestId interestId, const Objec
   {
     itr->second->notifyObjectsRemoved(removals);
   }
+}
+
+ObjectIdList RemoteObjectFilter::getRepeatedAdditions(InterestId interestId, const ObjectAdditionList& additions)
+{
+  if (const auto itr = providers_.find(interestId); itr != providers_.end())
+  {
+    return itr->second->getRepeatedAdditions(additions);
+  }
+
+  return {};
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -1500,6 +1528,13 @@ void RemoteParticipant::objectsStateResponse(const ObjectsStateResponse& msg)
       }
     }
 
+    // stop monitoring the state of repeated object additions (additions for two or more different local participants
+    // that have the same interest)
+    for (const auto id: incomingInterestsManager_.getRepeatedAdditions(interestId, additions))
+    {
+      monitoredObjects_.stopMonitoring(id, session_->getTransport());
+    }
+
     incomingInterestsManager_.remoteObjectsAdded(interestId, std::move(additions));
   }
 }
@@ -1818,6 +1853,7 @@ std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy
   if (!remotes->empty())
   {
     proxy->copyStateFrom(*remotes->front());
+    monitoredObjects_.stopMonitoring(proxy->getId(), session_->getTransport());
   }
   else
   {
@@ -1838,6 +1874,8 @@ void RemoteParticipant::stopTrackingProxy(ObjectId objectId)
     auto mapItr = trackedProxies_.find(objectId);
     if (mapItr == trackedProxies_.end())
     {
+      // stop monitoring the object (the proxy might not have been created yet)
+      monitoredObjects_.stopMonitoring(objectId, session_->getTransport());
       return;
     }
     remotes = mapItr->second;
@@ -1866,6 +1904,8 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
     auto mapItr = trackedProxies_.find(id);
     if (mapItr == trackedProxies_.end())
     {
+      // stop monitoring the objet in case the proxy has not been tracked yet
+      monitoredObjects_.stopMonitoring(id, session_->getTransport());
       return;
     }
     remotes = mapItr->second;
@@ -1882,6 +1922,10 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
   {
     Lock lock(usageMutex_);
     trackedProxies_.erase(id);
+  }
+
+  {
+    Lock lock(usageMutex_);
     monitoredObjects_.stopMonitoring(id, session_->getTransport());
   }
 }
