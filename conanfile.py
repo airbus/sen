@@ -115,10 +115,6 @@ class SenConan(ConanFile):
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if env_var_to_bool("ENABLE_EXAMPLES") else "OFF"
         tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if env_var_to_bool("ENABLE_TESTS") else "OFF"
 
-        if self.settings.os == "Windows":
-            # Needed for windows builds until we have moved towards a windows conan profile
-            tc.generator = "Ninja"
-
         # directory for the generated documentation
         site_dir = getenv("MKDOCS_SITE_DIR")
         if site_dir:
