@@ -140,14 +140,13 @@ function(sen_generate_code)
   # generated headers to be returned in the end
   set(_gen_hdr_files)
 
-  if(_arg_STL_FILES)
+  # process the input codegen settings
+  if(DEFINED _arg_CODEGEN_SETTINGS AND NOT (_arg_CODEGEN_SETTINGS STREQUAL ""))
+    get_filename_component(_abs_settings_path ${_arg_CODEGEN_SETTINGS} ABSOLUTE)
+    set(_settings_file_option --settings ${_abs_settings_path})
+  endif()
 
-    # process the input codegen settings
-    set(_abs_settings_path)
-    if(DEFINED _arg_CODEGEN_SETTINGS AND NOT (_arg_CODEGEN_SETTINGS STREQUAL ""))
-      get_filename_component(_abs_settings_path ${_arg_CODEGEN_SETTINGS} ABSOLUTE)
-      set(_settings_file_option --settings ${_abs_settings_path})
-    endif()
+  if(_arg_STL_FILES)
 
     # get any imported dirs
     set(_extra_options "$<TARGET_PROPERTY:${_arg_TARGET},SEN_IMPORT_DIRS>")

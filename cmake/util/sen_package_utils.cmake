@@ -187,6 +187,7 @@ function(add_sen_package)
         BASE_PATH ${_arg_BASE_PATH}
         HLA_FOM_DIRS ${_arg_HLA_FOM_DIRS}
         HLA_MAPPINGS_FILE ${_arg_HLA_MAPPINGS_FILE}
+        CODEGEN_SETTINGS ${_arg_CODEGEN_SETTINGS}
         SCHEMA_FILE ${_schema_file}
         GEN_HDR_FILES _gen_hdr_files VISIBLE_CLASSES ${_make_classes_visible}
       )

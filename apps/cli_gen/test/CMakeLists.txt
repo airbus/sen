@@ -252,3 +252,23 @@ add_sen_smoke_test(
   COMMAND repeated_types_tester
   WORKING_DIRECTORY ${working_dir} REQ_DEPS repeated_types_tester
 )
+
+# Test case 19
+#
+# ModuleA-19 defines a class with an attribute that will then be implemented as
+# checked using codegen settings
+#
+# Tests that the cli_gen reads codegen settings correctly for FOM code generation
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+add_sen_integration_test(
+  hla_fom_gen_integration_test_19
+  COMMAND
+  ${Python3_EXECUTABLE}
+  ${hla_fom_gen_test_sources}/test19/test.py
+  WORKING_DIRECTORY ${working_dir}
+  REQ_DEPS cli_gen
+)
+
+# link them so the checker only runs if the generator succeeds
+set_tests_properties(hla_fom_gen_integration_test_19 PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
