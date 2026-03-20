@@ -61,12 +61,13 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
   }
 
   std::ignore = objects->onAdded(
-    [this, busLocator](const auto& iterators)
+    [this, busLocator, interestName](const auto& iterators)
     {
       for (auto it = iterators.untypedBegin; it != iterators.untypedEnd; ++it)
       {
         notify(Notification {
           NotificationType::objectAdded,
+          interestName,
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
           toJson(*it->get(), busLocator),
         });
@@ -82,6 +83,7 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
 
         notify(Notification {
           NotificationType::objectRemoved,
+          interestName,
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
           toJson(*untypedObj, busLocator),
         });

@@ -157,6 +157,7 @@ std::string toSSE(const Notification& notification)
 
   auto data = Json {
     {"time", notification.time.toUtcString()},
+    {"interest", notification.interest},
     {"data", Json::parse(notification.data)},
   };
   sse.append("data: ");

@@ -37,9 +37,10 @@ enum NotificationType: u8
 
 struct Notification
 {
-  type : NotificationType,
-  time : TimeStamp,
-  data : string
+  type     : NotificationType,
+  interest : string,
+  time     : TimeStamp,
+  data     : string
 }
 
 enum HttpMethod: u8

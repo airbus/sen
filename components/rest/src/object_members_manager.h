@@ -11,6 +11,7 @@
 // component
 #include "locators.h"
 #include "notifications.h"
+#include "types.h"
 
 // generated code
 #include "stl/options.stl.h"
@@ -49,12 +50,14 @@ private:
 private:
   /// Subscribe to property updates of a given Sen object
   bool subscribeProperty(const sen::kernel::KernelApi& kernelApi,
+                         const InterestName& interestName,
                          std::shared_ptr<sen::Object> object,
                          const PropertyLocator& propertyLocator,
                          const SubscriptionOptions& options);
 
   /// Subscribe to eventupdates of a given Sen object
   bool subscribeEvent(const sen::kernel::KernelApi& kernelApi,
+                      const InterestName& interestName,
                       std::shared_ptr<sen::Object> object,
                       const EventLocator& eventLocator);
 

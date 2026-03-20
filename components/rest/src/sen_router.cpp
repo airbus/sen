@@ -659,7 +659,7 @@ JsonResponse SenRouter::subscribePropertyUpdateHandler(ClientSession& clientSess
     return JsonResponse(httpBadRequestError, Error {std::move(errMsg)});
   }
 
-  bool hasSubscribed = clientSession.subscribeProperty(api_, object, locator, opts);
+  bool hasSubscribed = clientSession.subscribeProperty(api_, object, locator, opts, urlParams[0]);
   if (hasSubscribed)
   {
     return JsonResponse(httpSuccess, Success {"property change subscription succeeded"});
@@ -815,14 +815,14 @@ JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
     return JsonResponse(httpBadRequestError, Error {"Invalid args. Error: " + argsError.value()});
   }
 
-  Invoke invoke = clientSession.newInvoke();
+  Invoke invoke = clientSession.newInvoke(urlParams[0]);
   if (invoke.id.has_value())
   {
     object->invokeUntyped(method,
                           args,
                           {api_.getWorkQueue(),
-                           [invoke, &clientSession](const sen::MethodResult<Var>& result)
-                           { clientSession.updateInvoke(invoke.id.value(), result); }});
+                           [invoke, &clientSession, interest = urlParams[0]](const sen::MethodResult<Var>& result)
+                           { clientSession.updateInvoke(interest, invoke.id.value(), result); }});
 
     return JsonResponse {httpSuccess, toJson(invoke)};
   }
@@ -903,7 +903,7 @@ JsonResponse SenRouter::subscribeEventHandler(ClientSession& clientSession,
     return JsonResponse(httpNotFoundError, Error {"event not found"});
   }
 
-  bool hasSubscribed = clientSession.subscribeEvent(api_, object, locator);
+  bool hasSubscribed = clientSession.subscribeEvent(api_, object, locator, urlParams[0]);
   if (hasSubscribed)
   {
     return JsonResponse(httpSuccess, Success {"event subscription succeeded"});
