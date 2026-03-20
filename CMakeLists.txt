@@ -12,8 +12,8 @@ cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # build options
-option(SEN_BUILD_EXAMPLES "Build examples" ON)
-option(SEN_BUILD_TESTS "Build tests" ON)
+option(SEN_BUILD_EXAMPLES "Build examples" OFF)
+option(SEN_BUILD_TESTS "Build tests" OFF)
 option(SEN_BUILD_DOCS "Build documentation" ON)
 option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
 option(SEN_DISABLE_EXTRA_COMPONENTS "Disable non-critical components" OFF)
