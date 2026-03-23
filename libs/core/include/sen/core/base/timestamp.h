@@ -21,7 +21,10 @@ namespace sen
 /// \addtogroup util
 /// @{
 
-/// A point in time.
+/// An absolute point in simulation or wall-clock time, stored as nanoseconds since the Unix epoch.
+///
+/// `TimeStamp` is a thin, trivially-copyable wrapper around a `Duration`. All arithmetic
+/// operators follow the same conventions as `std::chrono::time_point`.
 class TimeStamp
 {
 public:
@@ -29,6 +32,9 @@ public:
 
 public:  // defaults
   constexpr TimeStamp() noexcept = default;
+
+  /// Constructs a `TimeStamp` at the given offset from the Unix epoch (1970-01-01T00:00:00Z).
+  /// @param timeSinceEpoch Nanoseconds elapsed since the epoch.
   constexpr explicit TimeStamp(Duration timeSinceEpoch) noexcept: timeSinceEpoch_(timeSinceEpoch) {}
   ~TimeStamp() noexcept = default;
 
@@ -39,59 +45,75 @@ public:  // special members
   SEN_MOVE_ASSIGN(TimeStamp) = default;
 
 public:  // factories
+  /// Parses an ISO 8601 date-time string and returns the corresponding `TimeStamp`.
+  /// @param iso8601Time String in ISO 8601 format (e.g. `"2024-01-15T10:30:00Z"`).
+  /// @return `Ok(timestamp)` on success, or `Err(message)` if parsing fails.
   static Result<TimeStamp, std::string> make(const std::string_view iso8601Time);
 
 public:  // accessors
-  /// Time passed since 1 January 1970 UTC.
+  /// Returns the duration elapsed since the Unix epoch (1970-01-01T00:00:00Z).
+  /// @return Duration in nanoseconds since the epoch.
   [[nodiscard]] constexpr Duration sinceEpoch() const noexcept { return timeSinceEpoch_; }
 
 public:  // operators
-  /// Compares two Timestamps to determine if they are equal.
+  /// @return `true` if both timestamps represent the same point in time.
   constexpr bool operator==(const TimeStamp& other) const noexcept { return timeSinceEpoch_ == other.timeSinceEpoch_; }
 
-  /// Compares two Timestamps to determine if they are not equal.
+  /// @return `true` if the timestamps represent different points in time.
   constexpr bool operator!=(const TimeStamp& other) const noexcept { return timeSinceEpoch_ != other.timeSinceEpoch_; }
 
-  /// True if *this is less than other.
+  /// @return `true` if `*this` is strictly earlier than `other`.
   constexpr bool operator<(const TimeStamp& other) const noexcept { return timeSinceEpoch_ < other.timeSinceEpoch_; }
 
-  /// True if *this is less or equal than other.
+  /// @return `true` if `*this` is earlier than or equal to `other`.
   constexpr bool operator<=(const TimeStamp& other) const noexcept { return timeSinceEpoch_ <= other.timeSinceEpoch_; }
 
-  /// True if *this is greater than other.
+  /// @return `true` if `*this` is strictly later than `other`.
   constexpr bool operator>(const TimeStamp& other) const noexcept { return timeSinceEpoch_ > other.timeSinceEpoch_; }
 
-  /// True if *this is greater or equal than other.
+  /// @return `true` if `*this` is later than or equal to `other`.
   constexpr bool operator>=(const TimeStamp& other) const noexcept { return timeSinceEpoch_ >= other.timeSinceEpoch_; }
 
-  /// Adds other to *this and returns *this.
+  /// Advances `*this` by `other` in place.
+  /// @param other Duration to add.
+  /// @return Reference to `*this`.
   TimeStamp& operator+=(const Duration& other) noexcept
   {
     timeSinceEpoch_ += other;
     return *this;
   }
 
-  /// Returns a TimeStamp of *this + other.
+  /// Returns a new `TimeStamp` that is `other` later than `*this`.
+  /// @param other Duration to add.
+  /// @return New `TimeStamp` at `*this + other`.
   constexpr TimeStamp operator+(const Duration& other) const noexcept { return TimeStamp(timeSinceEpoch_ + other); }
 
-  /// Removes other from *this and returns *this.
+  /// Moves `*this` earlier by `other` in place.
+  /// @param other Duration to subtract.
+  /// @return Reference to `*this`.
   TimeStamp& operator-=(const Duration& other) noexcept
   {
     timeSinceEpoch_ -= other;
     return *this;
   }
 
-  /// Returns a TimeStamp of *this - other.
+  /// Returns a new `TimeStamp` that is `other` earlier than `*this`.
+  /// @param other Duration to subtract.
+  /// @return New `TimeStamp` at `*this - other`.
   constexpr TimeStamp operator-(const Duration& other) const noexcept { return TimeStamp(timeSinceEpoch_ - other); }
 
-  /// Returns a Duration of *this - other.
+  /// Returns the elapsed time between `*this` and another `TimeStamp`.
+  /// @param other Reference point to subtract.
+  /// @return Signed `Duration`; negative if `other` is later than `*this`.
   constexpr Duration operator-(const TimeStamp& other) const noexcept { return sinceEpoch() - other.sinceEpoch(); }
 
 public:
-  /// UTC string representation of this time point.
+  /// Returns a human-readable UTC string (e.g. `"2024-01-15 10:30:00.123456789 UTC"`).
+  /// @return Formatted UTC timestamp string.
   [[nodiscard]] std::string toUtcString() const;
 
-  /// Local string representation of this time point.
+  /// Returns a human-readable local-time string using the system time zone.
+  /// @return Formatted local timestamp string.
   [[nodiscard]] std::string toLocalString() const;
 
 private:

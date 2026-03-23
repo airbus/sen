@@ -18,7 +18,9 @@ namespace sen::db
 
 class Input;
 
-/// Represents the change of a property value.
+/// Recording entry produced when a property value changes on a tracked object.
+/// The new value is stored in the Sen wire format and lazily deserialised to `Var` on first access.
+/// Returned by a `DataCursor` when iterating over a recording that includes property updates.
 /// \ingroup db
 class PropertyChange
 {
@@ -28,16 +30,22 @@ public:
   ~PropertyChange() = default;
 
 public:
-  /// The ID of the object that holds the property.
+  /// Returns the ID of the object whose property changed.
+  /// @return The `ObjectId` of the source object.
   [[nodiscard]] ObjectId getObjectId() const noexcept;
 
-  /// The meta information of the property.
+  /// Returns the compile-time property descriptor (name, type, getter/setter info).
+  /// @return Non-owning pointer to the `Property` meta object; valid for the lifetime of the type registry.
   [[nodiscard]] const Property* getProperty() const noexcept;
 
-  /// The property value as a serialized buffer.
+  /// Returns the new property value as a raw serialised byte span.
+  /// Useful for zero-copy forwarding without deserialising to `Var`.
+  /// @return Non-owning span into the internal buffer; valid for the lifetime of this PropertyChange.
   [[nodiscard]] Span<const uint8_t> getValueAsBuffer() const noexcept;
 
-  /// The property value as a variant.
+  /// Returns the new property value as a type-erased variant.
+  /// The value is lazily deserialised from the internal buffer and cached on first call.
+  /// @return Reference to the cached `Var`; valid for the lifetime of this PropertyChange.
   [[nodiscard]] const Var& getValueAsVariant() const;
 
 private:

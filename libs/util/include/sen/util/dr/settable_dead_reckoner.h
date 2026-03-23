@@ -36,9 +36,10 @@ enum class ReferenceSystem : u32
 /// data) and the entity dynamics (speed and changes of direction)
 struct DrThreshold
 {
-  LengthMeters distanceThreshold {1.0};
-  AngleRadians orientationThreshold {0.05f};
-  ReferenceSystem referenceSystem {ReferenceSystem::world};
+  LengthMeters distanceThreshold {1.0};  ///< Maximum positional error (metres) before a spatial update is triggered.
+  AngleRadians orientationThreshold {0.05f};  ///< Maximum angular error (radians) before a spatial update is triggered.
+  ReferenceSystem referenceSystem {
+    ReferenceSystem::world};  ///< Whether velocity/acceleration are expressed in world or body frame.
 };
 
 /// Allows the user to get the extrapolated situation of an object and to set the Spatial when the error of the
@@ -51,6 +52,8 @@ public:
   SEN_NOCOPY_NOMOVE(SettableDeadReckoner)
 
 public:
+  /// @param object      Mutable reference to the RPR entity whose spatial property will be updated.
+  /// @param thresholds  Error thresholds that govern when a spatial update is written back to @p object.
   explicit SettableDeadReckoner(T& object, DrThreshold thresholds = {});
   ~SettableDeadReckoner() override = default;
 
@@ -69,23 +72,29 @@ public:
   using RprAngularVelocity = typename Parent::RprAngularVelocity;
 
 public:
-  /// Returns a mutable reference to the RPR object whose position is extrapolated
+  /// Returns a mutable reference to the RPR object whose position is extrapolated.
+  /// @return Mutable reference to the tracked entity.
   [[nodiscard]] T& object() noexcept;
 
-  /// Returns a constant reference to the RPR object whose position is extrapolated
+  /// Returns a constant reference to the RPR object whose position is extrapolated.
+  /// @return Const reference to the tracked entity.
   [[nodiscard]] const T& object() const noexcept;
 
 public:
   /// Updates the spatial property of the object if the update period is exceeded or if the extrapolation error
   /// exceeds the threshold.
+  /// @param situation  New ECEF-frame situation to evaluate against the current extrapolation.
   void setSpatial(const Situation& situation);
 
   /// Updates the spatial property of the object from a Geodetic Situation input if the update period is exceeded or
   /// if the extrapolation error exceeds the threshold.
+  /// @param situation  New geodetic/NED-frame situation to evaluate against the current extrapolation.
   void setSpatial(const GeodeticSituation& situation);
 
   /// Directly sets the frozen state of the object's spatial to true/false. The timestamp is needed to coherently
   /// apply the new frozen state to the current extrapolated situation.
+  /// @param timeStamp  Simulation time at which the frozen state change takes effect.
+  /// @param value      `true` to freeze the entity, `false` to unfreeze.
   void setFrozen(sen::TimeStamp timeStamp, bool value);
 
 private:

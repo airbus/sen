@@ -20,52 +20,55 @@
 namespace sen::kernel
 {
 
-/// Holds a component instance and basic info. \ingroup kernel
+/// Bundles a `Component` instance with its static metadata for in-process registration.
+/// \ingroup kernel
 struct ComponentContext
 {
-  Component* instance = nullptr;
-  ComponentConfig config {};
-  ComponentInfo info {};
+  Component* instance = nullptr;  ///< Non-owning pointer to the component; lifetime must exceed the kernel's.
+  ComponentConfig config {};      ///< Configuration block passed to every lifecycle API.
+  ComponentInfo info {};          ///< Static identity and build metadata of the component.
 };
 
-/// Holds the kernel configuration information. \ingroup kernel
+/// Immutable description of the kernel's startup configuration.
+/// Build one of these (directly or via `KernelBootloader`) and pass it to `Kernel`.
+/// \ingroup kernel
 class KernelConfig final
 {
 public:
-  /// Information about a component to load from a plugin
+  /// Identifies a component shared library to load at startup.
   struct ComponentPluginToLoad
   {
-    const std::string path;  ///< Path to the shared object
-    ComponentConfig config;  ///< Component configuration parameters
-    VarMap params;           ///< Dynamic user-defined parameters
+    const std::string path;  ///< Filesystem path to the `.so` / `.dll` / `.dylib` plugin file.
+    ComponentConfig config;  ///< Configuration block passed to every lifecycle API of the component.
+    VarMap params;           ///< Dynamic user-defined parameters available via `ConfigGetter::getConfig()`.
   };
 
-  /// Information about a component to load
+  /// Identifies an already-instantiated in-memory component to register at startup.
   struct ComponentToLoad
   {
-    ComponentContext component;  ///< Component instance
-    ComponentConfig config;      ///< Component configuration parameters
-    VarMap params;               ///< Dynamic user-defined parameters
+    ComponentContext component;  ///< Component instance (pointer, config, and info).
+    ComponentConfig config;      ///< Configuration block passed to every lifecycle API.
+    VarMap params;               ///< Dynamic user-defined parameters.
   };
 
-  /// Information about how to create an object
+  /// Describes a single object to be created by a pipeline component.
   struct ObjectConfig
   {
-    std::string name;       ///< The unique name of the object (process-wide)
-    std::string className;  ///< The name of its class.
-    BusAddress bus;         ///< The bus where to publish it, if any
-    VarMap params;          ///< Dynamic user-defined parameters
+    std::string name;       ///< Unique instance name for the object (process-wide).
+    std::string className;  ///< Fully-qualified STL class name (e.g. `"sen.geometry.Point"`).
+    BusAddress bus;         ///< Bus on which to publish the object at creation time.
+    VarMap params;          ///< Initial property values and dynamic parameters for the object.
   };
 
-  /// Information about how to create a pipeline
+  /// Describes a pipeline to load â€” a lightweight built-in component that hosts a set of objects.
   struct PipelineToLoad
   {
-    std::string name;                   /// The name of the pipeline
-    ComponentConfig config;             /// Config data (of the owning component)
-    StringList imports;                 /// Libraries to import
-    std::vector<ObjectConfig> objects;  /// Objects to create
-    Duration period;                    /// Time between updates (0 for event-triggered execution)
-    VarMap params;                      /// Dynamic user-defined parameters
+    std::string name;                   ///< Human-readable name of the pipeline (used in logs).
+    ComponentConfig config;             ///< Configuration block of the owning pipeline component.
+    StringList imports;                 ///< STL library paths to import before creating objects.
+    std::vector<ObjectConfig> objects;  ///< Objects to instantiate when the pipeline starts.
+    Duration period;                    ///< Cycle period; zero means event-triggered (no fixed rate).
+    VarMap params;                      ///< Additional dynamic parameters.
   };
 
 public:  // special members
@@ -77,41 +80,50 @@ public:  // special members
   SEN_MOVE_CONSTRUCT(KernelConfig) = default;
 
 public:  // execution management
-  /// Sets general parameters
+  /// Sets the global kernel execution parameters (run mode, real-time settings, etc.).
+  /// @param params New parameters to apply.
   void setParams(KernelParams params) noexcept;
 
-  /// Gets the behavior of the kernel when calling run.
-  /// By default it is blockUntilDone.
+  /// Returns the current kernel execution parameters.
+  /// @return Const reference to the `KernelParams`; valid for the lifetime of this config.
   [[nodiscard]] const KernelParams& getParams() const noexcept;
 
 public:  // main configuration settings
-  /// Adds a plugin to be loaded by the kernel upon startup.
-  /// Overrides previous parameters in case of repeated plugins.
+  /// Adds a shared-library plugin to the startup load list.
+  /// If a plugin with the same path was already added, its parameters are overwritten.
+  /// @param plugin Description of the shared library to load.
   void addToLoad(ComponentPluginToLoad plugin);
 
-  /// Adds a component to be loaded by the kernel upon startup.
-  /// Overrides previous parameters in case of repeated plugins.
+  /// Adds an in-memory component to the startup load list.
+  /// If a component with the same name was already added, its parameters are overwritten.
+  /// @param component Description of the in-process component to register.
   void addToLoad(ComponentToLoad component);
 
-  /// Adds a pipeline to be loaded by the kernel upon startup.
-  /// Overrides previous parameters in case of repeated plugins.
+  /// Adds a pipeline to the startup load list.
+  /// If a pipeline with the same name was already added, its parameters are overwritten.
+  /// @param pipeline Description of the pipeline to create.
   void addToLoad(PipelineToLoad pipeline);
 
 public:
-  /// The components to be loaded from plugins on startup.
+  /// Returns all plugin components scheduled to load at startup.
+  /// @return Const reference to the plugin list; valid for the lifetime of this config.
   [[nodiscard]] const std::vector<ComponentPluginToLoad>& getPluginsToLoad() const noexcept;
 
-  /// The in-memory components to be loaded on startup.
+  /// Returns all in-memory components scheduled to load at startup.
+  /// @return Const reference to the component list; valid for the lifetime of this config.
   [[nodiscard]] const std::vector<ComponentToLoad>& getComponentsToLoad() const noexcept;
 
-  /// The pipelines to be loaded on startup.
+  /// Returns all pipelines scheduled to load at startup.
+  /// @return Const reference to the pipeline list; valid for the lifetime of this config.
   [[nodiscard]] const std::vector<PipelineToLoad>& getPipelinesToLoad() const noexcept;
 
 public:
-  /// Sets the path to the configuration file's path used to construct the kernel.
+  /// Records the path to the YAML configuration file associated with this config object.
+  /// @param path Filesystem path to the config file.
   void setConfigFilePath(const std::filesystem::path& path) noexcept { path_ = path; }
 
-  /// Gets the path to the configuration file used to construct the kernel.
+  /// Returns the filesystem path of the YAML configuration file, if one was set.
+  /// @return The config file path, or an empty path if not set.
   [[nodiscard]] std::filesystem::path getConfigFilePath() const noexcept { return path_; }
 
 private:

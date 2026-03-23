@@ -16,9 +16,10 @@ namespace sen::db
 
 class Input;
 
-/// Represents the state of the system at a given time.
-/// The state of the system is made of the snapshots of all the
-/// objects present at the time of the snapshot. \ingroup db
+/// Recording entry that captures the complete property state of every live object
+/// at a specific point in time (a "save point" within the recording).
+/// Allows `Input::at()` to seek directly to a keyframe without replaying from the beginning.
+/// \ingroup db
 class Keyframe
 {
   SEN_COPY_MOVE(Keyframe)
@@ -27,7 +28,9 @@ public:
   ~Keyframe() = default;
 
 public:
-  /// The set of snapshots for all the objects present at the time.
+  /// Returns a span over the property snapshots for all objects alive at keyframe time.
+  /// @return Non-owning span of `Snapshot` objects, one per live object; valid for the
+  ///         lifetime of this Keyframe.
   [[nodiscard]] Span<const Snapshot> getSnapshots() const noexcept;
 
 private:

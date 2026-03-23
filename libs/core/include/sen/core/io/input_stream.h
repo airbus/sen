@@ -24,21 +24,38 @@ namespace sen
 /// \addtogroup io
 /// @{
 
-/// Base class for input streams.
+/// Cursor over a read-only byte buffer, providing position management for deserialisation.
+/// Shared base for `InputStreamTemplate`; use the concrete `InputStream` type alias directly.
 class InputStreamBase
 {
   SEN_COPY_MOVE(InputStreamBase)
 
 public:
+  /// Constructs the stream over an externally owned byte span.
+  /// @param buffer The byte buffer to read from; must outlive this stream.
   explicit InputStreamBase(Span<const uint8_t> buffer) noexcept: buffer_(std::move(buffer)) {}
   ~InputStreamBase() = default;
 
 public:
-  /// Skips a number of bytes.
+  /// Advances the read cursor by `bytes` and returns a pointer to the start of the consumed region.
+  /// @param bytes Number of bytes to consume.
+  /// @return Pointer to the beginning of the consumed region.
+  /// @throws std::runtime_error if advancing would read past the end of the buffer.
   [[nodiscard]] const uint8_t* advance(std::size_t bytes);
+
+  /// Attempts to advance the cursor by up to `bytes` without throwing on a short read.
+  /// @param bytes Desired number of bytes to consume.
+  /// @return Pair of (pointer to start of region, actual bytes consumed); may be less than `bytes` at end.
   [[nodiscard]] std::pair<const uint8_t*, std::size_t> tryAdvance(std::size_t bytes);
+
+  /// Returns `true` if the read cursor has reached the end of the buffer.
   [[nodiscard]] bool atEnd() const noexcept { return cursor_ == buffer_.size(); }
+
+  /// Returns the current read position as a byte offset from the beginning of the buffer.
   [[nodiscard]] std::size_t getPosition() const noexcept { return cursor_; }
+
+  /// Seeks the read cursor to an absolute byte offset.
+  /// @param pos New cursor position; must be within `[0, buffer.size()]`.
   void setPosition(std::size_t pos) noexcept { cursor_ = pos; }
 
 protected:
@@ -49,9 +66,10 @@ private:
   std::size_t cursor_ = 0U;
 };
 
-/// Binary input stream.
-/// Deserializes values.
-/// In general, I/O operations throw on failure.
+/// Binary deserialisation stream over a byte buffer, parameterised by byte order.
+/// All `read*()` methods consume bytes from the buffer in declaration order.
+/// @tparam BufferEndian Byte-order tag (`LittleEndian` or `BigEndian`).
+/// @throws std::runtime_error on any read that would exceed the buffer length.
 template <typename BufferEndian>
 class InputStreamTemplate final: public InputStreamBase
 {
@@ -62,6 +80,10 @@ public:
   ~InputStreamTemplate() noexcept = default;
 
 public:
+  /// @name Primitive read methods
+  /// Each method reads the appropriate number of bytes and stores the result in `val`.
+  /// @throws std::runtime_error if the buffer is exhausted before the read completes.
+  /// @{
   void readBool(bool& val);
   void readInt8(int8_t& val) { readBasic(val); }
   void readUInt8(uint8_t& val) { readBasic(val); }
@@ -73,8 +95,11 @@ public:
   void readUInt64(uint64_t& val) { readBasic(val); }
   void readFloat32(float32_t& val);
   void readFloat64(float64_t& val);
+  /// Reads a length-prefixed UTF-8 string (4-byte `uint32` size followed by that many bytes).
   void readString(std::string& val);
+  /// Reads a 64-bit nanosecond timestamp.
   void readTimeStamp(TimeStamp& val);
+  /// @}
 
 private:
   template <typename T>

@@ -26,18 +26,24 @@ namespace sen::lang
 /// \addtogroup lang
 /// @{
 
-/// Converts a string into a list of tokens.
+/// Lexer that converts a raw STL source string into a flat list of tokens.
+/// The first stage of the STL pipeline: source text â†’ `StlTokenList` â†’ `StlParser` â†’ AST.
 class StlScanner
 {
   SEN_NOCOPY_NOMOVE(StlScanner)
 
 public:
-  /// The string is stored for eventual scanning.
+  /// Constructs the scanner over the given source text.
+  /// @param program STL source string to scan; the reference must remain valid
+  ///                until `scanTokens()` returns.
   explicit StlScanner(const std::string& program);
   ~StlScanner() = default;
 
 public:
-  /// Scans the string. Throws in case of error.
+  /// Scans the full source string and returns the resulting token list.
+  /// The returned reference is valid for the lifetime of this scanner object.
+  /// @return Reference to the internal token list, always terminated by an `endOfFile` token.
+  /// @throws std::runtime_error if an unexpected character or malformed literal is encountered.
   [[nodiscard]] const StlTokenList& scanTokens();
 
 private:

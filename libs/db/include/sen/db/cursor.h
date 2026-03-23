@@ -19,8 +19,25 @@ namespace sen::db
 
 class Input;
 
-/// A cursor that can be used to iterate over the contents of a recording.
-/// The cursor holds a payload which can have one of the values given as type arguments.
+/// Forward-only iterator over the entries of a Sen recording.
+///
+/// Each entry carries a timestamp and a `Payload` variant holding one of the recorded
+/// event types (`T...`), a sentinel `End` value when the recording is exhausted, or
+/// `std::monostate` before the first call to `operator++`.
+///
+/// Typical usage:
+/// @code
+/// auto cursor = input.makeCursor();
+/// for (++cursor; !cursor.atEnd(); ++cursor)
+/// {
+///   auto& entry = cursor.get();
+///   if (auto* creation = std::get_if<Creation>(&entry.payload))
+///     process(*creation);
+/// }
+/// @endcode
+///
+/// @tparam End  Sentinel type stored in the payload when the recording is exhausted.
+/// @tparam T    Payload types produced by the recording (e.g. `Creation`, `Update`, `Event`).
 /// \ingroup db
 template <typename End, typename... T>
 class Cursor
@@ -28,33 +45,37 @@ class Cursor
   SEN_MOVE_ONLY(Cursor)
 
 public:
-  /// The content of the current entry.
+  /// Variant holding the current entry content.
+  /// `std::monostate` â€” cursor not yet advanced (before first `++`).
+  /// `T...`           â€” one of the recorded entry types.
+  /// `End`            â€” recording exhausted (no more entries).
   using Payload = std::variant<std::monostate, T..., End>;
 
-  /// The current entry.
+  /// A single timestamped entry from the recording.
   struct Entry
   {
-    TimeStamp time;   /// When.
-    Payload payload;  /// What.
+    TimeStamp time;   ///< Timestamp recorded by the source component at emission time.
+    Payload payload;  ///< The entry content; inspect with `std::get` or `std::get_if`.
   };
 
 public:
   ~Cursor() = default;
 
 public:
-  /// True if the cursor is at the end of the recording.
+  /// @return True if the recording is exhausted and no more entries can be read.
   [[nodiscard]] bool atEnd() const noexcept { return std::holds_alternative<End>(entry_.payload); }
 
-  /// True if the cursor is at the start of the recording.
+  /// @return True if the cursor has not yet been advanced (payload holds `std::monostate`).
   [[nodiscard]] bool atBegining() const noexcept { return std::holds_alternative<std::monostate>(entry_.payload); }
 
-  /// The current entry.
+  /// @return Reference to the current entry; valid until the next call to `operator++`.
   [[nodiscard]] const Entry& get() const noexcept { return entry_; }
 
-  /// The current entry.
+  /// @return Reference to the current entry (same as `get()`).
   [[nodiscard]] const Entry& operator->() const noexcept { return entry_; }
 
-  /// Advance the cursor one step.
+  /// Advances the cursor to the next entry in the recording.
+  /// @return Reference to `*this` for chaining.
   Cursor& operator++()
   {
     frontProvider_(entry_);

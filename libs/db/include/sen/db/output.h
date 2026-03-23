@@ -26,54 +26,81 @@ namespace sen::db
 /// A function to be called in case of error. \ingroup db
 using ErrorHandler = std::function<void()>;
 
-/// Basic information about an object tracked for recording. \ingroup db
+/// Identifies a live object to be included in a recording or keyframe. \ingroup db
 struct ObjectInfo
 {
-  const Object* instance;
-  std::string session;
-  std::string bus;
+  const Object* instance;  ///< Non-owning pointer to the live object; must remain valid during the write call.
+  std::string session;     ///< Session name under which the object is published.
+  std::string bus;         ///< Bus name on which the object is visible.
 };
 
 /// A list of information elements about tracked objects. \ingroup db
 using ObjectInfoList = std::vector<ObjectInfo>;
 
-/// Allows the creation of recordings. \ingroup db
+/// Writes a Sen recording to the filesystem asynchronously.
+/// All `write` methods are non-blocking; entries are queued and flushed by a background writer.
+/// Typically owned by the kernel recorder component and not used directly by application code.
+/// \ingroup db
 class Output
 {
   SEN_MOVE_ONLY(Output)
 
 public:
-  /// Takes the settings and a function to call in case of error.
+  /// Opens (or creates) the recording directory and starts the background writer thread.
+  /// @param settings      Output configuration (path, indexing options, compression, etc.).
+  /// @param errorHandler  Callback invoked on the background thread if a write error occurs.
   Output(OutSettings settings, std::function<void()> errorHandler);
   ~Output();
 
 public:
-  /// The settings passed during construction.
+  /// Returns the settings supplied at construction.
+  /// @return Reference to the internal `OutSettings`; valid for the lifetime of this Output.
   [[nodiscard]] const OutSettings& getSettings() const noexcept;
 
-  /// The time of creation of the recording.
+  /// Returns the wall-clock time at which this recording was created.
+  /// @return Reference to the creation timestamp; valid for the lifetime of this Output.
   [[nodiscard]] const TimeStamp& getCreationTime() const noexcept;
 
-  /// Fetch the current statistics. Thread-safe.
+  /// Returns a snapshot of current recording statistics (bytes written, entry counts, etc.).
+  /// Thread-safe; may be called concurrently with write methods.
+  /// @return Copy of the current `OutStats`.
   [[nodiscard]] OutStats fetchStats() const;
 
 public:
-  /// Asynchronously write a keyframe containing the state of the given objects.
+  /// Enqueues a keyframe entry capturing the full property state of the given objects.
+  /// @param time    Simulation timestamp for this keyframe.
+  /// @param objects List of live objects whose state should be snapshotted.
   void keyframe(TimeStamp time, const ObjectInfoList& objects);
 
-  /// Asynchronously write a creation entry for the given object. Index it if needed.
+  /// Enqueues an object-creation entry for the given object.
+  /// @param time    Simulation timestamp of the creation event.
+  /// @param object  The newly published object and its bus/session metadata.
+  /// @param indexed If `true`, also adds the object to the archive index for random-access playback.
   void creation(TimeStamp time, const ObjectInfo& object, bool indexed);
 
-  /// Asynchronously write a deletion entry for the given object.
+  /// Enqueues an object-deletion entry.
+  /// @param time      Simulation timestamp of the deletion event.
+  /// @param objectId  ID of the object that was un-published.
   void deletion(TimeStamp time, ObjectId objectId);
 
-  /// Asynchronously write a property change entry for the given object.
+  /// Enqueues a property-change entry.
+  /// @param time          Simulation timestamp of the property update.
+  /// @param objectId      ID of the object whose property changed.
+  /// @param propertyId    Hash of the property descriptor (`MemberHash`).
+  /// @param propertyValue Serialised new value in Sen wire format (moved in).
   void propertyChange(TimeStamp time, ObjectId objectId, MemberHash propertyId, ::sen::kernel::Buffer&& propertyValue);
 
-  /// Asynchronously write an event entry for the given object.
+  /// Enqueues an event-emission entry.
+  /// @param time      Simulation timestamp of the event.
+  /// @param objectId  ID of the object that emitted the event.
+  /// @param eventId   Hash of the event descriptor (`MemberHash`).
+  /// @param args      Serialised event arguments in Sen wire format (moved in).
   void event(TimeStamp time, ObjectId objectId, MemberHash eventId, ::sen::kernel::Buffer&& args);
 
-  /// Asynchronously write an annotation entry.
+  /// Enqueues a user-defined annotation entry.
+  /// @param time  Simulation timestamp to associate with the annotation.
+  /// @param type  Type descriptor for the annotation value.
+  /// @param value Serialised annotation value in Sen wire format (moved in).
   void annotation(TimeStamp time, const Type* type, ::sen::kernel::Buffer&& value);
 
 private:

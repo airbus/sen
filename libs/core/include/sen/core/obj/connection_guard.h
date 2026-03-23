@@ -44,14 +44,15 @@ public:
   SEN_MOVE_ASSIGN(ConnectionGuard);
 
 public:
-  /// Constructs an emtpy guard.
+  /// Constructs an empty (no-op) guard that holds no connection.
   ConnectionGuard();
 
-  /// Removes the associated callback from the object if the object has not been destructed and
-  /// keep() has not been called.
+  /// Unregisters the associated callback from its source object unless `keep()` was called
+  /// or the source object has already been destroyed.
   ~ConnectionGuard();
 
-  /// Tells this class to keep the callback even when this guard is destroyed.
+  /// Instructs the guard to leave the callback registered even when this guard is destroyed.
+  /// After calling `keep()`, the guard becomes a no-op on destruction.
   void keep() noexcept;
 
 private:

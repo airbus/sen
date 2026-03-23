@@ -80,63 +80,80 @@ void remoteProcessLost(RunApi& api, const ProcessInfo& processInfo);
 
 }  // namespace impl
 
-/// Monitoring information about components.
+/// Runtime monitoring snapshot for a single component.
 struct ComponentMonitoringInfo
 {
-  ComponentInfo info;
-  ComponentConfig config;
-  bool requiresRealTime = false;
-  std::optional<Duration> cycleTime;
-  std::size_t objectCount = 0;
+  ComponentInfo info;                 ///< Static identity and metadata of the component.
+  ComponentConfig config;             ///< Configuration block supplied at load time.
+  bool requiresRealTime = false;      ///< `true` if the component was configured to run on a real-time thread.
+  std::optional<Duration> cycleTime;  ///< Configured target cycle time, or `nullopt` if not periodic.
+  std::size_t objectCount = 0;        ///< Number of objects currently registered by this component.
 };
 
-/// Kernel monitoring information.
+/// Runtime monitoring snapshot for the entire kernel.
 struct KernelMonitoringInfo
 {
-  RunMode runMode = RunMode::realTime;
-  TransportStats transportStats {};
-  std::vector<ComponentMonitoringInfo> components;
+  RunMode runMode = RunMode::realTime;              ///< Current execution mode (real-time or simulation).
+  TransportStats transportStats {};                 ///< Aggregate transport-layer statistics (bytes, messages, errors).
+  std::vector<ComponentMonitoringInfo> components;  ///< Per-component snapshots, in registration order.
 };
 
-/// User-facing kernel functions. \ingroup kernel
+/// Facade exposing kernel services to a component during all lifecycle phases.
+/// Available through every lifecycle API (`RegistrationApi`, `InitApi`, `RunApi`, etc.).
+/// \ingroup kernel
 class KernelApi
 {
 public:
   KernelApi(Kernel& kernel, impl::Runner* runner) noexcept;
 
 public:
-  /// The types registered into the kernel.
+  /// Returns the type registry containing all types loaded for this kernel instance.
+  /// @return Mutable reference to the `CustomTypeRegistry`.
   [[nodiscard]] CustomTypeRegistry& getTypes() noexcept;
 
-  /// Issues an asynchronous request to stop the kernel.
-  /// The request is ignored if a previous stop request was issued.
+  /// Schedules an asynchronous shutdown of the kernel with the given exit code.
+  /// Subsequent calls are ignored if a stop has already been requested.
+  /// @param exitCode Process exit code to use when the kernel stops (default 0).
   void requestKernelStop(int exitCode = 0);
 
-  /// Gets an object source, where objects can be found and published.
+  /// Returns (or creates) the `ObjectSource` for the given bus address.
+  /// Object sources are the entry points for publishing and subscribing to objects on a bus.
+  /// @param address Structured `{sessionName, busName}` bus address.
+  /// @return Shared pointer to the `ObjectSource` for that address.
   [[nodiscard]] std::shared_ptr<ObjectSource> getSource(const BusAddress& address);
 
-  /// Gets an object source, where objects can be found and published.
-  /// The address parameter must be given as <session-name>.<bus-name>.
+  /// Returns (or creates) the `ObjectSource` for a bus specified as `"<session>.<bus>"`.
+  /// @param address Dot-separated `"session.bus"` string.
+  /// @return Shared pointer to the `ObjectSource` for that address.
   [[nodiscard]] std::shared_ptr<ObjectSource> getSource(const std::string& address);
 
-  /// Object that allows discovering sessions and buses
+  /// Returns the sessions discoverer, which tracks all known sessions and buses on the network.
+  /// @return Reference to the shared `SessionsDiscoverer`; valid for the lifetime of the kernel.
   [[nodiscard]] SessionsDiscoverer& getSessionsDiscoverer() noexcept;
 
-  /// Gets information about the process where an object is.
-  /// Returns nullptr if the object resides in the current process.
+  /// Returns process information for the process that owns `object`.
+  /// @param object The object whose owner to look up.
+  /// @return Pointer to the `ProcessInfo` of the owning process, or `nullptr` if `object` is local.
   [[nodiscard]] const ProcessInfo* fetchOwnerInfo(const Object* object) const noexcept;
 
-  /// Gets the (optional) application name passed to the kernel as a configuration parameter
+  /// Returns the application name supplied in the kernel configuration, if any.
+  /// @return Reference to the application name string; may be empty if not configured.
   [[nodiscard]] const std::string& getAppName() const noexcept;
 
-  /// The work queue of this runner
+  /// Returns the internal work queue for this runner (advanced use only).
+  /// @return Non-owning pointer to the `WorkQueue`; valid for the lifetime of this runner.
   [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue() const noexcept;
 
+  /// Subscribes to all objects of type `T` visible on `bus` and returns a managed `Subscription`.
+  /// @tparam T  Sen class type to select; use `Object` to select all types.
+  /// @tparam B  Bus address type (`BusAddress` or `std::string`).
+  /// @param bus The bus to subscribe to.
+  /// @return Shared pointer to the new `Subscription<T>`.
   template <typename T, typename B>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const B& bus);
 
-  /// Gets the path to the configuration file used to construct the kernel.
-  /// It might be empty if the kernel is programmatically configured.
+  /// Returns the path to the YAML configuration file used to initialise the kernel.
+  /// @return Filesystem path, or an empty path if the kernel was configured programmatically.
   [[nodiscard]] std::filesystem::path getConfigFilePath() const noexcept { return kernel_.getConfigPath(); }
 
 private:
@@ -151,14 +168,18 @@ private:
   impl::Runner* runner_;
 };
 
-/// Allows for fetching configuration parameters. \ingroup kernel
+/// Mixin that provides read access to the component's configuration map.
+/// Inherited by all lifecycle API classes so components can read their YAML config in every phase.
+/// \ingroup kernel
 class ConfigGetter
 {
 public:
+  /// @param config Reference to the component's parsed configuration map; must outlive this object.
   explicit ConfigGetter(const VarMap& config) noexcept;
 
 public:
-  /// Gets the configuration associated with this component.
+  /// Returns the component's configuration map as parsed from its YAML block.
+  /// @return Const reference to the `VarMap`; valid for the lifetime of this object.
   [[nodiscard]] const VarMap& getConfig() const noexcept;
 
 private:
@@ -176,7 +197,9 @@ public:
   ~RegistrationApi() noexcept = default;
 };
 
-/// What can be done when preloading a component
+/// API available during the `preload` lifecycle phase (before any objects are created).
+/// Use this phase to register custom transports or tracers before the kernel starts.
+/// \ingroup kernel
 class PreloadApi: public ConfigGetter, public KernelApi
 {
   SEN_NOCOPY_NOMOVE(PreloadApi)
@@ -187,17 +210,23 @@ public:
   ~PreloadApi() noexcept = default;
 
 public:
-  /// Installs a transport factory for the kernel to use for sessions.
+  /// Registers a custom transport factory with the kernel.
+  /// The factory is invoked whenever a session of the matching version is opened.
+  /// @param factory          Callable that creates transport instances.
+  /// @param transportVersion Version tag matched against the session's transport configuration.
   void installTransportFactory(TransportFactory&& factory, uint32_t transportVersion) const;
 
-  /// Installs a tracer factory.
+  /// Registers a custom tracer factory with the kernel.
+  /// @param factory Callable that creates `Tracer` instances for performance instrumentation.
   void installTracerFactory(TracerFactory&& factory) const;
 
 private:
   Kernel& kernel_;
 };
 
-/// What can be done when loading a component
+/// API available during the `load` lifecycle phase.
+/// Provides access to the type registry and kernel services for resource allocation before objects are published.
+/// \ingroup kernel
 class LoadApi: public ConfigGetter, public KernelApi
 {
   SEN_NOCOPY_NOMOVE(LoadApi)
@@ -208,7 +237,9 @@ public:
   ~LoadApi() noexcept = default;
 };
 
-/// What can be done when initializing a component. \ingroup kernel
+/// API available during the `init` lifecycle phase.
+/// Use this to register objects on buses; `init()` is called repeatedly until `done()` is returned.
+/// \ingroup kernel
 class InitApi: public ConfigGetter, public KernelApi
 {
   SEN_NOCOPY_NOMOVE(InitApi)
@@ -219,7 +250,9 @@ public:
   ~InitApi() noexcept = default;
 };
 
-/// What can be done while a component is running. \ingroup kernel
+/// API available while a component is actively running (inside its `run()` method).
+/// Provides the main execution primitives: input draining, object update, output commit, and timing.
+/// \ingroup kernel
 class RunApi: public ConfigGetter, public KernelApi
 {
 public:
@@ -236,42 +269,57 @@ public:
   ~RunApi() noexcept = default;
 
 public:
-  /// True if stop has been requested by the runtime.
+  /// Returns the atomic flag that is set when the kernel requests a shutdown.
+  /// Poll this in your run loop to exit cleanly.
+  /// @return Const reference to the stop-requested flag.
   [[nodiscard]] const std::atomic_bool& stopRequested() const noexcept;
 
-  /// Perform any request coming from the outside and drainInputs all the local
-  /// data structures with their most up-to-date value.
-  /// This method is thread-safe.
+  /// Processes all pending external requests and refreshes local data structures
+  /// with the latest incoming property values and events.
+  /// Call this at the start of each cycle before reading object state.
+  /// Thread-safe.
   void drainInputs();
 
-  /// This calls update() on all the objects registered by the component.
+  /// Calls `update()` on all objects registered by this component.
+  /// Typically called after `drainInputs()` to allow objects to react to new inputs.
   void update();
 
-  /// Send changes, so that they become visible to other participants.
-  /// This includes object additions and removals, property changes and
-  /// emitted events that others might have interest in.
-  /// This method is thread-safe.
+  /// Publishes all accumulated changes (object additions/removals, property updates, events)
+  /// so they become visible to other participants on the bus.
+  /// Call this at the end of each cycle after writing object state.
+  /// Thread-safe.
   void commit();
 
-  /// A basic execution loop.
-  /// Func is an optional callback that will be invoked on each cycle.
+  /// Runs a fixed-rate execution loop, calling `func` on each cycle.
+  /// The loop exits when `stopRequested()` is set or an error occurs.
+  /// @param cycleTime Target period for each iteration.
+  /// @param func      Optional callable invoked once per cycle (after `drainInputs`/`update`/`commit`).
+  /// @param logOverruns If `true`, warns when a cycle takes longer than `cycleTime`.
+  /// @return `Ok(void)` on clean shutdown, or `Err(ExecError)` on failure.
   [[nodiscard]] FuncResult execLoop(Duration cycleTime,
                                     std::function<void()>&& func = nullptr,
                                     bool logOverruns = true);
 
-  /// The initial simulation time for the objects in the component
+  /// Returns the simulation timestamp at which this component started running.
+  /// @return Start time as a `TimeStamp`.
   [[nodiscard]] TimeStamp getStartTime() const noexcept;
 
-  /// The (potentially virtualized) time.
+  /// Returns the current (potentially virtualised) simulation time.
+  /// In real-time mode this tracks wall-clock time; in simulation mode it advances discretely.
+  /// @return Current `TimeStamp`.
   [[nodiscard]] TimeStamp getTime() const noexcept;
 
-  /// If present, it returns the configured cycle time for iterations.
+  /// Returns the configured target cycle time for this component, if any.
+  /// @return The cycle time `Duration`, or `nullopt` if the component has no fixed rate.
   [[nodiscard]] std::optional<Duration> getTargetCycleTime() const noexcept;
 
-  /// Monitoring information.
+  /// Returns a snapshot of kernel-wide monitoring information (transport stats, component states).
+  /// @return `KernelMonitoringInfo` populated at the time of the call.
   [[nodiscard]] KernelMonitoringInfo fetchMonitoringInfo() const;
 
-  /// Create a scoped zone used for tracing runtime performance.
+  /// Returns the performance tracer for this component's runner thread.
+  /// Use the returned `Tracer` to create named zones for profiling.
+  /// @return Reference to the `Tracer`; valid for the lifetime of this `RunApi`.
   [[nodiscard]] Tracer& getTracer() const noexcept;
 
 private:
@@ -286,7 +334,9 @@ private:
   Guarded<TimeStamp>& timePoint_;
 };
 
-/// What can be done when unloading a component. \ingroup kernel
+/// API available during the `unload` lifecycle phase.
+/// Use this to release kernel-level resources after `run()` has returned.
+/// \ingroup kernel
 class UnloadApi: public ConfigGetter, public KernelApi
 {
   SEN_NOCOPY_NOMOVE(UnloadApi)

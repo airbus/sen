@@ -22,7 +22,11 @@ namespace sen
 /// \addtogroup util
 /// @{
 
-/// CRTP class that wraps T to ensure it's value stays within a certain range.
+/// CRTP wrapper that constrains a value of type `T` to the `[D::min, D::max]` range.
+/// Use `SEN_RANGED_QUANTITY` to define concrete range-checked types, or
+/// `SEN_NON_RANGED_QUANTITY` for unconstrained quantities.
+/// @tparam T Underlying arithmetic type.
+/// @tparam D Derived type (CRTP); must expose `hasRange`, and optionally `min`/`max`.
 template <typename T, typename D>
 class Quantity
 {
@@ -49,19 +53,22 @@ public:
   ~Quantity() = default;
 
 public:  // getters and setters
-  /// The stored value.
+  /// @return The stored value by copy.
   [[nodiscard]] constexpr T get() const noexcept { return value_; }
 
-  /// The stored value.
+  /// Implicit conversion to `T`.
+  /// @return The stored value.
   constexpr operator T() const noexcept { return value_; }  // NOLINT implicit conversions allowed
 
-  /// The validity of data
+  /// @return `true` if the stored value is marked as valid (see `setValid()`).
   [[nodiscard]] constexpr bool isValid() const noexcept { return validity_; }
 
-  /// The validity of data
+  /// Explicit boolean conversion (same as `isValid()`).
   constexpr explicit operator bool() const noexcept { return validity_; }
 
-  /// Sets the value. Throws std::exception if out of range.
+  /// Assigns a new value, checking the range constraint.
+  /// @param other New value; must be within `[D::min, D::max]` when `D::hasRange` is `true`.
+  /// @throws std::exception if the value is out of range.
   template <typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
   constexpr Quantity& operator=(U other)
   {
@@ -69,14 +76,17 @@ public:  // getters and setters
     return *this;
   }
 
-  /// Sets the value. Throws std::exception if out of range.
+  /// Sets the stored value, checking the range constraint.
+  /// @param other New value; must be within `[D::min, D::max]` when `D::hasRange` is `true`.
+  /// @throws std::exception if the value is out of range.
   template <typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
   constexpr void set(U other)
   {
     checkAndSet(other);
   }
 
-  /// Sets the validity of data
+  /// Overrides the validity flag without changing the stored value.
+  /// @param valid New validity state.
   constexpr void setValid(bool valid) { validity_ = valid; }
 
 public:  // comparison operators

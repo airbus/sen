@@ -18,7 +18,9 @@ namespace sen
 /// \addtogroup obj
 /// @{
 
-/// A list of objects and a reference to its source (to keep it alive).
+/// Bundles an `ObjectList<T>` with its owning `ObjectSource`, keeping the source alive
+/// for as long as the subscription exists and automatically unsubscribing on destruction.
+/// @tparam T  Sen class type used to filter the subscribed objects.
 template <typename T>
 struct Subscription
 {
@@ -33,8 +35,10 @@ public:  // special members
   ~Subscription();
 
 public:
-  ObjectList<T> list;                    // NOLINT(misc-non-private-member-variables-in-classes)
-  std::shared_ptr<ObjectSource> source;  // NOLINT(misc-non-private-member-variables-in-classes)
+  ObjectList<T>
+    list;  ///< Live list of discovered objects of type `T`. NOLINT(misc-non-private-member-variables-in-classes)
+  std::shared_ptr<ObjectSource> source;  ///< Shared ownership of the source bus; keeps it alive while the subscription
+                                         ///< exists. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 //-------------------------------------------------------------------------------------------------------------------

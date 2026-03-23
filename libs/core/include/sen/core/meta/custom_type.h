@@ -18,16 +18,21 @@ namespace sen
 /// \addtogroup types
 /// @{
 
-/// Represents a user-defined type.
+/// Abstract base class for all user-defined types (`ClassType`, `EnumType`, `StructType`, `VariantType`).
+///
+/// A `CustomType` extends `Type` with a mandatory fully-qualified name that uniquely identifies
+/// it within a type registry. Concrete subclasses are constructed through their respective
+/// `make()` factory functions.
 class CustomType: public Type
 {
   SEN_META_TYPE(CustomType)
 
 public:
-  /// The unique type name.
+  /// @return Fully-qualified name of this type, including namespace (e.g. `"ns.MyClass"`).
   [[nodiscard]] virtual std::string_view getQualifiedName() const noexcept = 0;
 
 protected:
+  /// @param hash Pre-computed 32-bit hash that identifies this type instance.
   explicit CustomType(MemberHash hash) noexcept;
   ~CustomType() noexcept override = default;
 };

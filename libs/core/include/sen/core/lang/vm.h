@@ -80,23 +80,30 @@ using ValueGetter = std::function<Value()>;
 /// The environment is an indexed list of value getter functions.
 using Environment = Span<ValueGetter>;
 
-/// Get T out of the value variant.
+/// Extracts the alternative `T` from a `Value` variant.
+/// @tparam T One of the types in `Value` (e.g. `int32_t`, `float64_t`, `bool`).
+/// @param value The variant to extract from.
+/// @return The stored value of type `T`.
+/// @throws std::bad_variant_access if `value` does not currently hold type `T`.
 template <typename T>
 [[nodiscard]] inline T extract(const Value& value)
 {
   return std::get<T>(value);
 }
 
-/// True if the variant holds T.
+/// Checks whether a `Value` variant currently holds the alternative `T`.
+/// @tparam T One of the types in `Value` (e.g. `int32_t`, `float64_t`, `bool`).
+/// @param value The variant to inspect.
+/// @return `true` if `value` holds `T`, `false` otherwise.
 template <typename T>
 [[nodiscard]] inline bool holds(const Value& value) noexcept
 {
   return std::holds_alternative<T>(value);
 }
 
-/// A chunk of byte code.
-/// It holds code and constants needed by the code.
-/// Constants are accessed by index.
+/// A compiled unit of Sen byte code.
+/// Holds the raw instruction bytes and the constant pool referenced by `opConstant`.
+/// Constants are addressed by an 8-bit index, so a chunk supports up to 256 constants.
 class Chunk
 {
   SEN_MOVE_ONLY(Chunk)
@@ -106,40 +113,55 @@ public:  // special members
   ~Chunk() = default;
 
 public:
-  /// Prints a human-readable view of the chunk
+  /// Disassembles and prints the entire chunk to stdout for debugging.
+  /// @param name Label displayed in the header of the disassembly output.
   void disassemble(const std::string& name) const;
 
-  /// Stores a constant and returns the index that can be used to refer to it
+  /// Appends a constant to the pool and returns its index.
+  /// @param value The constant value to store.
+  /// @return 8-bit index that can be used with `opConstant` to push this value.
   [[nodiscard]] uint8_t addConstant(const Value& value);
 
-  /// The constant stored at a given slot
+  /// Returns the constant at the given pool index.
+  /// @param offset Index returned by a previous call to `addConstant()`.
+  /// @return Reference to the stored constant; valid for the lifetime of this chunk.
   [[nodiscard]] const Value& getConstant(uint8_t offset) const;
 
-  /// Appends a byte to the code. The line is just for debugging.
+  /// Appends a single instruction byte to the code buffer.
+  /// @param byte Raw opcode or inline argument byte to append.
   void addCode(uint8_t byte);
 
-  /// The variables used by this chunk.
+  /// Returns the list of variable names referenced by this chunk.
+  /// @return Non-owning span over the internal variable-name table; valid for the lifetime of this chunk.
   [[nodiscard]] Span<const std::string> getVariables() const;
 
-  /// Registers a variable and obtains the index.
+  /// Looks up a variable by name, registering it if not yet known.
+  /// @param name Variable name as it appears in the query expression.
+  /// @return 8-bit index used by `opFetchVariable` to retrieve the variable's value at runtime.
   [[nodiscard]] uint8_t getOrRegisterVariable(const std::string& name);
 
-  /// Returns true if it contains code
+  /// Returns `true` if the chunk contains at least one instruction byte.
   [[nodiscard]] bool isValid() const noexcept;
 
-  /// The stored code.
+  /// Returns a pointer to the raw instruction bytes.
+  /// @return Pointer to the beginning of the code buffer; valid for the lifetime of this chunk.
   [[nodiscard]] const uint8_t* code() const noexcept;
 
-  /// The size of the code
+  /// Returns the number of instruction bytes in the code buffer.
   [[nodiscard]] int count() const noexcept;
 
-  /// Patches the a code byte at some offset
+  /// Overwrites a single byte in the code buffer (used for back-patching jump targets).
+  /// @param offset Position in the code buffer to overwrite.
+  /// @param byte   New byte value to write at that position.
   void patch(std::size_t offset, uint8_t byte);
 
-  /// Prints a human-readable view of the instruction at a given offset
+  /// Disassembles and prints the instruction at the given offset.
+  /// @param offset Byte offset into the code buffer.
+  /// @return Offset of the next instruction (i.e. `offset + instruction size`).
   [[nodiscard]] std::size_t disassembleInstruction(std::size_t offset) const;
 
-  /// Prints a value.
+  /// Prints a human-readable representation of a `Value` to stdout.
+  /// @param value The value to print.
   static void printValue(const Value& value);
 
 private:
@@ -154,7 +176,8 @@ private:
   StaticVector<std::string, stackMax> variablesDef_;
 };
 
-/// Virtual machine for executing Sen byte code.
+/// Stack-based virtual machine for executing compiled Sen query byte code.
+/// Typical usage: `parse()` a query string â†’ `compile()` the statement â†’ `interpret()` the chunk.
 class VM
 {
   SEN_MOVE_ONLY(VM)
@@ -164,26 +187,34 @@ public:
   ~VM() = default;
 
 public:
-  /// Compilation failure report.
+  /// Describes a compilation failure returned by `compile()`.
   struct CompileError
   {
-    std::string what;
+    std::string what;  ///< Human-readable description of the compilation error.
   };
 
-  /// Runtime error report.
+  /// Describes a runtime failure returned by `interpret()`.
   struct RuntimeError
   {
-    std::string what;
+    std::string what;  ///< Human-readable description of the runtime error.
   };
 
 public:
-  /// Interpret a chunk of code.
+  /// Executes a compiled chunk and returns the result value left on the stack.
+  /// @param chunk       The compiled byte-code chunk to run.
+  /// @param environment Variable bindings indexed by the variable table in `chunk`.
+  /// @return `Ok(value)` on success, or `Err(RuntimeError)` if execution fails.
   [[nodiscard]] Result<Value, RuntimeError> interpret(const Chunk& chunk, Environment environment = {});
 
-  /// Parse a query string into a statement. Throws in case of error.
+  /// Lexes and parses a Sen Query Language string into an AST statement.
+  /// @param query  The query expression string to parse (e.g. `"SELECT * FROM bus WHERE x > 0"`).
+  /// @return The parsed `QueryStatement` ready for compilation.
+  /// @throws std::runtime_error if the query string is syntactically invalid.
   [[nodiscard]] QueryStatement parse(const std::string& query) const;
 
-  /// Compile source code into a chunk.
+  /// Compiles a parsed query statement into an executable `Chunk`.
+  /// @param statement  AST produced by `parse()`.
+  /// @return `Ok(chunk)` on success, or `Err(CompileError)` if the statement cannot be compiled.
   [[nodiscard]] Result<Chunk, CompileError> compile(const QueryStatement& statement) const;
 
 private:

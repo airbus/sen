@@ -46,63 +46,81 @@ enum class UuidVersion
   nameBasedSha1 = 5       ///< The name-based version specified in RFS 4122 with SHA1 hashing.
 };
 
-/// Universal Unique Identifier
+/// Universal Unique Identifier (RFC 4122).
+/// Stored as two 64-bit integers (hi and lo) for efficient comparison and hashing.
+/// The nil UUID (all zeroes) is the default-constructed value.
 class Uuid
 {
   SEN_COPY_MOVE(Uuid)
 
 public:
+  /// Number of bytes in a UUID (16, as per RFC 4122).
   static constexpr std::size_t byteCount = 16;
 
 public:
-  // Constructs an empty (nil) UUID.
+  /// Constructs a nil UUID (all zeroes).
   constexpr Uuid() noexcept = default;
 
-  /// Construct it from two consecutive 64-bit integers.
-  /// Does not validate the data.
+  /// Constructs a UUID from two consecutive 64-bit integers.
+  /// @note Does not validate the data against RFC 4122.
+  /// @param hi High 64 bits (time-low, time-mid, time-hi-and-version).
+  /// @param lo Low 64 bits (clock-seq and node).
   constexpr Uuid(uint64_t hi, uint64_t lo) noexcept: hi_(hi), lo_(lo) {}
 
-  /// Construct it from an array of bytes.
-  /// Does not validate the data.
+  /// Constructs a UUID from a raw byte span.
+  /// @note Does not validate the data against RFC 4122.
+  /// @param bytes Span of at least 16 bytes in big-endian RFC 4122 order.
   explicit Uuid(Span<const uint8_t> bytes) noexcept;
 
   ~Uuid() = default;
 
 public:
-  /// True if all zeroes.
+  /// @return True if all 128 bits are zero (nil UUID).
   [[nodiscard]] constexpr bool isNil() const noexcept { return (hi_ | lo_) == 0; }
 
-  /// The variant of the UUID according to the spec.
+  /// @return The variant field of the UUID as defined in RFC 4122.
   [[nodiscard]] constexpr UuidVariant getVariant() const noexcept;
 
-  /// The version of the UUID according to the spec.
+  /// @return The version field of the UUID as defined in RFC 4122.
   [[nodiscard]] constexpr UuidVersion getVersion() const noexcept;
 
-  /// Computes a 64-bit hash of the UUID.
+  /// Computes a 64-bit hash by XOR-ing the high and low halves.
+  /// @return A 64-bit hash value suitable for use in hash maps.
   [[nodiscard]] constexpr uint64_t getHash() const noexcept { return hi_ ^ lo_; }
 
-  /// Computes a 32-bit hash of the UUID.
+  /// Computes a 32-bit hash by folding the 64-bit hash.
+  /// @return A 32-bit hash value derived from getHash().
   [[nodiscard]] constexpr uint32_t getHash32() const noexcept;
 
+  /// Returns the UUID as a 16-byte array in RFC 4122 byte order.
+  /// @return Array of 16 bytes, high bytes first.
   [[nodiscard]] std::array<uint8_t, byteCount> bytes() const noexcept;
 
-  /// Builds a string out of this UUID.
+  /// Serialises this UUID to the canonical string form
+  /// `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
+  /// @return Lowercase hex string with dashes, 36 characters long.
   [[nodiscard]] std::string toString() const;
 
-  /// True if the UUID is well-formed.
+  /// Checks whether the string @p s is a well-formed UUID string.
+  /// @param s String to validate (expected format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`).
+  /// @return True if @p s can be parsed as a valid UUID.
   [[nodiscard]] bool isValid(std::string_view s) noexcept;
 
-  /// Parses a string and generates a UUD.
-  /// Returns a Nil UUID in case of error.
+  /// Parses a UUID from a canonical string.
+  /// @param s String in the form `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
+  /// @return Parsed UUID, or a nil UUID if @p s is malformed.
   [[nodiscard]] Uuid fromString(std::string_view s) noexcept;
 
-  /// Copy this std::array of bytes into the UUID.
+  /// Copies the UUID bytes into an existing std::array.
+  /// @param arr Output array of exactly 16 bytes; overwritten with the UUID bytes.
   void copy(std::array<uint8_t, byteCount>& arr) const { arr = bytes(); }
 
-  /// Copy this StaticVector of bytes into the UUID.
+  /// Copies the UUID bytes into an existing StaticVector.
+  /// @param vec Output vector; resized to 16 and overwritten with the UUID bytes.
   void copy(StaticVector<uint8_t, byteCount>& vec) const;
 
-  /// Swap the internal data.
+  /// Swaps the contents of this UUID with @p other.
+  /// @param other The UUID to swap with.
   void swap(Uuid& other) noexcept;
 
 private:
@@ -211,13 +229,26 @@ inline void Uuid::copy(StaticVector<uint8_t, byteCount>& vec) const
 // UuidRandomGenerator
 // --------------------------------------------------------------------------------------------------------------------------
 
+/// Generates version-4 (randomly generated) UUIDs.
+/// Satisfies the `UniformRandomBitGenerator` concept so it can be used
+/// wherever a standard generator is expected.
+///
+/// @code
+/// UuidRandomGenerator gen;
+/// Uuid id = gen();  // new random UUID
+/// @endcode
 class UuidRandomGenerator
 {
 public:
+  /// Constructs a generator seeded from a non-deterministic source (`std::random_device`).
   UuidRandomGenerator(): engine_(std::random_device {}()) {}
 
+  /// Constructs a generator with a fixed @p seed for reproducible output.
+  /// @param seed Seed value for the internal Mersenne Twister engine.
   explicit UuidRandomGenerator(uint64_t seed): engine_(seed) {}
 
+  /// Generates and returns a new version-4 UUID.
+  /// @return A randomly generated UUID with variant RFC 4122 and version 4.
   Uuid operator()()
   {
     uint64_t hi = dist_(engine_);

@@ -20,7 +20,10 @@ namespace sen
 /// \addtogroup util
 /// @{
 
-/// A time duration.
+/// A signed time interval stored as a 64-bit nanosecond count.
+///
+/// `Duration` is trivially copyable and interoperates with `std::chrono::duration`
+/// via implicit constructors. Use `fromHertz()` to express cycle periods as frequencies.
 class Duration final: public StrongType<std::int64_t, Duration>
 {
 public:
@@ -30,12 +33,17 @@ public:
   using Base::set;
   using ValueType = Base::ValueType;
 
+  /// Implicit conversion from `std::chrono::nanoseconds`.
+  /// @param value Nanosecond duration from the `<chrono>` library.
   template <class Rep, class Period>
   constexpr Duration(std::chrono::nanoseconds value) noexcept  // NOLINT(hicpp-explicit-conversions)
     : Base(value.count())
   {
   }
 
+  /// Implicit conversion from any `std::chrono::duration` specialisation.
+  /// The value is truncated to whole nanoseconds.
+  /// @param value Any `std::chrono::duration` (e.g. `std::chrono::milliseconds{5}`).
   template <class Rep, class Period>
   constexpr Duration(std::chrono::duration<Rep, Period> value) noexcept  // NOLINT(hicpp-explicit-conversions)
   {
@@ -51,32 +59,40 @@ public:  // special members
   ~Duration() noexcept = default;
 
 public:  // accessors
-  /// Number of nanoseconds.
+  /// Returns the duration as a raw nanosecond count.
+  /// @return Signed 64-bit nanosecond count.
   [[nodiscard]] constexpr ValueType getNanoseconds() const noexcept { return get(); }
 
-  /// Conversion to std::chrono representation.
+  /// Converts to a `std::chrono::nanoseconds` for use with the `<chrono>` library.
+  /// @return Equivalent `std::chrono::nanoseconds` value.
   [[nodiscard]] constexpr std::chrono::nanoseconds toChrono() const noexcept
   {
     return std::chrono::nanoseconds {get()};
   }
 
-  /// Number of seconds.
+  /// Returns the duration in seconds as a 64-bit floating-point number.
+  /// @return Duration in seconds; fractional for sub-second values.
   [[nodiscard]] constexpr float64_t toSeconds() const noexcept
   {
     return std::chrono::duration<float64_t>(toChrono()).count();
   }
 
 public:
-  /// Creates a duration out of a frequency in Hertz.
-  /// @pre hz != 0.0
+  /// Creates a `Duration` equal to one period of the given frequency.
+  /// Useful for expressing component cycle times as Hz (e.g. `Duration::fromHertz(60.0)`).
+  /// @pre `hz != 0.0`
+  /// @param hz Frequency in Hertz.
+  /// @return Duration equal to `1 / hz` seconds.
   [[nodiscard]] static constexpr Duration fromHertz(float64_t hz) noexcept
   {
     using F64Seconds = std::chrono::duration<float64_t, std::chrono::seconds::period>;
     return {F64Seconds(1.0 / hz)};
   }
 
-  /// Creates a duration out of a frequency in Hertz.
-  /// @pre hz != 0.0
+  /// Creates a `Duration` equal to one period of the given frequency (single-precision overload).
+  /// @pre `hz != 0.0f`
+  /// @param hz Frequency in Hertz.
+  /// @return Duration equal to `1 / hz` seconds.
   [[nodiscard]] static constexpr Duration fromHertz(float32_t hz) noexcept
   {
     using F32Seconds = std::chrono::duration<float32_t, std::chrono::seconds::period>;

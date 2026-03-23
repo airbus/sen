@@ -32,6 +32,9 @@ struct Arg final
   SEN_COPY_MOVE(Arg)
 
 public:
+  /// @param theName        Argument name (must be unique within the callable).
+  /// @param theDescription Human-readable description of the argument's purpose.
+  /// @param theType        Type handle describing the argument's value type.
   Arg(std::string theName, std::string theDescription, ConstTypeHandle<> theType)
     : name(std::move(theName)), description(std::move(theDescription)), type(std::move(theType))
   {
@@ -53,18 +56,20 @@ public:
   ~Arg() = default;
 
 public:
-  std::string name;         // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string description;  // NOLINT(misc-non-private-member-variables-in-classes)
-  ConstTypeHandle<> type;   // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string name;         ///< Argument name.  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string description;  ///< Human-readable description.  // NOLINT(misc-non-private-member-variables-in-classes)
+  ConstTypeHandle<> type;   ///< Type of the argument value.  // NOLINT(misc-non-private-member-variables-in-classes)
 
 public:
+  /// Returns the 32-bit FNV hash of the argument name, computed lazily and cached.
+  /// @return Hash of `name`.
   [[nodiscard]] uint32_t getNameHash() const noexcept;
 
 private:
   mutable uint32_t nameHash_ = 0;
 };
 
-/// Data of a callable.
+/// Descriptor used to construct a `Callable` instance.
 struct CallableSpec final
 {
 
@@ -81,10 +86,10 @@ struct CallableSpec final
 
   friend bool operator!=(const CallableSpec& lhs, const CallableSpec& rhs) noexcept { return !(lhs == rhs); }
 
-  std::string name;
-  std::string description;
-  std::vector<Arg> args;
-  TransportMode transportMode = TransportMode::confirmed;
+  std::string name;                                        ///< Callable name (must be a valid lower-case identifier).
+  std::string description;                                 ///< Human-readable description.
+  std::vector<Arg> args;                                   ///< Ordered list of callable arguments.
+  TransportMode transportMode = TransportMode::confirmed;  ///< Delivery guarantee for remote invocations.
 };
 
 /// Represents something that can be called.
@@ -98,24 +103,26 @@ public:  // special members
   virtual ~Callable() = default;
 
 public:
-  /// Callable name
+  /// @return The callable's name.
   [[nodiscard]] std::string_view getName() const noexcept;
 
-  /// Callable description
+  /// @return Human-readable description of the callable.
   [[nodiscard]] std::string_view getDescription() const noexcept;
 
-  /// The transport mode of this callable
+  /// @return Delivery guarantee used when invoking this callable remotely.
   [[nodiscard]] TransportMode getTransportMode() const noexcept;
 
-  /// Gets the arguments.
+  /// @return Read-only span over the ordered argument list.
   [[nodiscard]] Span<const Arg> getArgs() const noexcept;
 
-  /// Get the field data given a name.
-  /// Nullptr means not found.
-  /// @param name the name of the field.
+  /// Looks up an argument by name.
+  /// @param name The argument name to search for.
+  /// @return Pointer to the matching `Arg`, or `nullptr` if not found.
   [[nodiscard]] const Arg* getArgFromName(std::string_view name) const;
 
-  /// Get the index in the vector of Args given a name hash
+  /// Looks up the position of an argument by its name hash.
+  /// @param nameHash 32-bit hash of the argument name.
+  /// @return Zero-based index into the args vector.
   [[nodiscard]] size_t getArgIndexFromNameHash(MemberHash nameHash) const;
 
 public:  // comparison

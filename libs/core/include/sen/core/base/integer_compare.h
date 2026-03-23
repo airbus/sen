@@ -29,8 +29,13 @@ using std::cmp_not_equal;
 namespace sen::std_util
 {
 
-// Forward implementation of std::cmp_* from C++20.
+// Forward implementation of std::cmp_* from C++20 for compilers that do not yet provide them.
 // Impl provided by: https://en.cppreference.com/w/cpp/utility/intcmp.html
+// These functions compare integer values without signed/unsigned conversion warnings or UB.
+
+/// Returns `true` if @p t and @p u compare equal, accounting for signed/unsigned differences.
+/// @tparam T  Integer type of the left operand.
+/// @tparam U  Integer type of the right operand.
 template <class T, class U>
 // NOLINTNEXTLINE(readability-identifier-naming): name defined by std
 constexpr bool cmp_equal(T t, U u) noexcept
@@ -51,6 +56,7 @@ constexpr bool cmp_equal(T t, U u) noexcept
   }
 }
 
+/// Returns `true` if @p t and @p u compare not equal, accounting for signed/unsigned differences.
 template <class T, class U>
 // NOLINTNEXTLINE(readability-identifier-naming): name defined by std
 constexpr bool cmp_not_equal(T t, U u) noexcept
@@ -58,6 +64,7 @@ constexpr bool cmp_not_equal(T t, U u) noexcept
   return !cmp_equal(t, u);
 }
 
+/// Returns `true` if @p t is strictly less than @p u, accounting for signed/unsigned differences.
 template <class T, class U>
 // NOLINTNEXTLINE(readability-identifier-naming): name defined by std
 constexpr bool cmp_less(T t, U u) noexcept
@@ -78,6 +85,7 @@ constexpr bool cmp_less(T t, U u) noexcept
   }
 }
 
+/// Returns `true` if @p t is strictly greater than @p u, accounting for signed/unsigned differences.
 template <class T, class U>
 // NOLINTNEXTLINE(readability-identifier-naming): name defined by std
 constexpr bool cmp_greater(T t, U u) noexcept
@@ -85,6 +93,7 @@ constexpr bool cmp_greater(T t, U u) noexcept
   return cmp_less(u, t);
 }
 
+/// Returns `true` if @p t is less than or equal to @p u, accounting for signed/unsigned differences.
 template <class T, class U>
 // NOLINTNEXTLINE(readability-identifier-naming): name defined by std
 constexpr bool cmp_less_equal(T t, U u) noexcept
@@ -92,6 +101,7 @@ constexpr bool cmp_less_equal(T t, U u) noexcept
   return !cmp_less(u, t);
 }
 
+/// Returns `true` if @p t is greater than or equal to @p u, accounting for signed/unsigned differences.
 template <class T, class U>
 // NOLINTNEXTLINE(readability-identifier-naming): name defined by std
 constexpr bool cmp_greater_equal(T t, U u) noexcept

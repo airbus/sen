@@ -49,12 +49,15 @@ struct Guarded
 {
   using UnderlyingValueTypeOfT = std::remove_reference_t<T>;
 
+  /// Constructs the protected value in-place, forwarding all arguments to its constructor.
+  /// @param args  Arguments forwarded to the constructor of `T`.
   template <typename... TArgs>
   explicit Guarded(TArgs... args): value_(std::forward<TArgs>(args)...)
   {
   }
 
   /// Returns a copy of the protected value.
+  /// @return A copy of the underlying value, acquired under the mutex.
   UnderlyingValueTypeOfT getValue() const
   {
     std::lock_guard lock(mutex_);
@@ -65,6 +68,9 @@ public:  // Operators
   // NOLINTNEXTLINE(hicpp-explicit-conversions): intended to be used as a wrapper
   operator UnderlyingValueTypeOfT() const { return getValue(); }
 
+  /// Assigns a new value to the protected object under the mutex.
+  /// @param newValue  New value to assign; must be convertible to `T`.
+  /// @return Reference to this `Guarded` instance.
   template <typename U, std::enable_if_t<std::is_convertible_v<U, T>, bool> = true>
   Guarded& operator=(U&& newValue)
   {
@@ -73,6 +79,9 @@ public:  // Operators
     return *this;
   }
 
+  /// Returns the sum of the protected value and @p rhs under the mutex.
+  /// @param rhs  Right-hand side operand.
+  /// @return `value_ + rhs`.
   template <typename U>
   T operator+(U&& rhs) const
   {
@@ -80,6 +89,9 @@ public:  // Operators
     return value_ + rhs;
   }
 
+  /// Adds @p rhs to the protected value under the mutex.
+  /// @param rhs  Value to add.
+  /// @return Reference to this `Guarded` instance.
   template <typename U>
   Guarded& operator+=(U&& rhs)
   {
@@ -98,6 +110,8 @@ public:  // Access token handling
   /// can be accessed by other threads.
   struct TemporaryAccessToken
   {
+    /// @param valuePtr  Pointer to the protected value; must not be null.
+    /// @param m         Mutex to lock for the lifetime of this token.
     TemporaryAccessToken(T* valuePtr, MutexType& m): valuePtr_(valuePtr), lock_(m) {}
 
     std::conditional_t<std::is_pointer_v<T>, T&, T*> operator->()
@@ -117,8 +131,11 @@ public:  // Access token handling
     std::lock_guard<MutexType> lock_;
   };
 
+  /// Returns a `TemporaryAccessToken` that locks the mutex and exposes `operator->` on the value.
   TemporaryAccessToken operator->() { return createAccessToken(); }
 
+  /// Creates and returns a `TemporaryAccessToken` that holds the mutex for its lifetime.
+  /// @return Token providing scoped access to the protected value.
   [[nodiscard]] TemporaryAccessToken createAccessToken() { return TemporaryAccessToken(&value_, mutex_); }
 
 public:

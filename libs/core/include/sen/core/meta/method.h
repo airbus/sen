@@ -28,11 +28,11 @@ namespace sen
 // forward declarations
 class Property;
 
-/// Method constness.
+/// Whether a method modifies the state of the object.
 enum class Constness
 {
-  constant,
-  nonConstant,
+  constant,     ///< The method does not modify the object's state (equivalent to a C++ `const` member function).
+  nonConstant,  ///< The method may modify the object's state.
 };
 
 /// Indicates that the method is not directly related to any property.
@@ -40,24 +40,30 @@ struct NonPropertyRelated
 {
 };
 
-/// Indicates that the method represents a getter of a property.
+/// Tag indicating that this method is the generated getter for a property.
 struct PropertyGetter
 {
-  const Property* property;
+  const Property* property;  ///< The property this getter reads; never null.
 };
 
-/// Indicates that the method represents a setter of a property.
+/// Tag indicating that this method is the generated setter for a property.
 struct PropertySetter
 {
-  const Property* property;
+  const Property* property;  ///< The property this setter writes; never null.
 };
 
 /// Information about the relation between a method and a property.
 using PropertyRelation = std::variant<NonPropertyRelated, PropertyGetter, PropertySetter>;
 
-/// Data of a method.
+/// Compile-time description of a method, consumed by the code generator and the type registry.
 struct MethodSpec final
 {
+  /// @param callableSpec  Name, documentation, and parameter list of the method.
+  /// @param returnType    Type handle for the return value; use the void type handle for void methods.
+  /// @param constness     Whether the method is `const` (does not mutate object state).
+  /// @param propertyRelation  Association to a property getter, setter, or neither.
+  /// @param deferred      If true, the implementation receives a `std::promise` instead of returning directly.
+  /// @param localOnly     If true, the method is only callable within the same component (not over the network).
   MethodSpec(CallableSpec callableSpec,
              ConstTypeHandle<> returnType,
              Constness constness = Constness::nonConstant,
@@ -83,12 +89,17 @@ struct MethodSpec final
   friend bool operator!=(const MethodSpec& lhs, const MethodSpec& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  CallableSpec callableSpec;                                  // NOLINT(misc-non-private-member-variables-in-classes)
-  Constness constness = Constness::nonConstant;               // NOLINT(misc-non-private-member-variables-in-classes)
-  ConstTypeHandle<> returnType;                               // NOLINT(misc-non-private-member-variables-in-classes)
-  PropertyRelation propertyRelation = NonPropertyRelated {};  // NOLINT(misc-non-private-member-variables-in-classes)
-  bool deferred = false;                                      // NOLINT(misc-non-private-member-variables-in-classes)
-  bool localOnly = false;                                     // NOLINT(misc-non-private-member-variables-in-classes)
+  CallableSpec callableSpec;  ///< Name, doc, and parameters. NOLINT(misc-non-private-member-variables-in-classes)
+  Constness constness =
+    Constness::nonConstant;      ///< Whether the method is const. NOLINT(misc-non-private-member-variables-in-classes)
+  ConstTypeHandle<> returnType;  ///< Return type; void type handle for void methods.
+                                 ///< NOLINT(misc-non-private-member-variables-in-classes)
+  PropertyRelation propertyRelation =
+    NonPropertyRelated {};  ///< Association to a property, if any. NOLINT(misc-non-private-member-variables-in-classes)
+  bool deferred = false;    ///< If true, the implementation returns via std::promise.
+                            ///< NOLINT(misc-non-private-member-variables-in-classes)
+  bool localOnly =
+    false;  ///< If true, not callable across process boundaries. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /// Represents a method.
@@ -103,27 +114,29 @@ public:
   Method(const MethodSpec& spec, Private notUsable);
 
 public:
-  /// Factory function that validates the spec and creates a method.
-  /// Throws std::exception if the spec is not valid.
+  /// Factory function that validates the spec and creates a `Method` instance.
+  /// @param spec Descriptor containing the callable spec, return type, and property relation.
+  /// @return Shared pointer to the newly created `Method`.
+  /// @throws std::exception if the spec is not valid.
   [[nodiscard]] static std::shared_ptr<Method> make(MethodSpec spec);
 
 public:  // special members
   ~Method() override = default;
 
 public:
-  /// The constness of the method.
+  /// @return Whether the method modifies the object's state (`constant` or `nonConstant`).
   [[nodiscard]] Constness getConstness() const noexcept;
 
-  /// True if the method is marked as deferred.
+  /// @return `true` if the implementation delivers its result via `std::promise` (async response).
   [[nodiscard]] bool getDeferred() const noexcept;
 
-  /// Gets the return type of the method (nullptr means void).
+  /// @return Type handle for the return value; holds the void type handle for void methods.
   [[nodiscard]] ConstTypeHandle<> getReturnType() const noexcept;
 
-  /// Information about the relation to a property.
+  /// @return Variant describing whether this method is a property getter, setter, or unrelated.
   [[nodiscard]] const PropertyRelation& getPropertyRelation() const noexcept;
 
-  /// True if the method is the method is only locally available (within the same component).
+  /// @return True if the method is only available within the same component (not callable over the network).
   [[nodiscard]] bool getLocalOnly() const noexcept;
 
   /// Compares if it is equivalent to another method.
@@ -132,10 +145,10 @@ public:
   /// Compares if it is not equivalent to another method.
   [[nodiscard]] bool operator!=(const Method& other) const noexcept;
 
-  /// Returns a unique hash to identify the method
+  /// @return 32-bit hash derived from the method's name, return type, and argument types.
   [[nodiscard]] MemberHash getHash() const noexcept;
 
-  /// Returns the hash of the method's unqualified name
+  /// @return 32-bit hash of the method's unqualified name (used for fast lookup).
   [[nodiscard]] MemberHash getId() const noexcept;
 
 private:

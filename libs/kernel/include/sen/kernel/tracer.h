@@ -36,7 +36,8 @@ public:  // for scoped (RAII) zones
   /// Create a scoped zone.
   /// You can use scoped zones to trace the lifetime of a given block (the typical example is a function).
   ///
-  /// @param location use the SEN_SL() macro.
+  /// @param location  Source location; pass the result of `SEN_SL()`.
+  /// @return RAII scope-guard that calls `zoneEnd()` on destruction.
   ///
   /// example usage:
   /// @code
@@ -58,8 +59,9 @@ public:  // for scoped (RAII) zones
   [[nodiscard]] auto makeScopedZone(const SourceLocation& location);
 
   /// Create a scoped zone with a given name.
-  /// @param name should not change for a given zone during the program execution.
-  /// @param location use the SEN_SL macro.
+  /// @param name      Human-readable label; must remain constant for a given call site across the program lifetime.
+  /// @param location  Source location; pass the result of `SEN_SL()`.
+  /// @return RAII scope-guard that calls `zoneEnd()` on destruction.
   ///
   /// example usage:
   /// @code

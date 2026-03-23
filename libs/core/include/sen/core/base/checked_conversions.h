@@ -25,6 +25,7 @@
 namespace sen::std_util
 {
 
+/// Conversion report policy that logs the message to `stderr` and then asserts (terminates in debug builds).
 struct ReportPolicyAssertion
 {
   static void report(std::string message)
@@ -34,16 +35,19 @@ struct ReportPolicyAssertion
   }
 };
 
+/// Conversion report policy that forwards the message to the Sen trace/log subsystem.
 struct ReportPolicyTrace
 {
   static void report(std::string_view message) { trace(std::string(message)); }
 };
 
+/// Conversion report policy that writes the message to the Sen log subsystem.
 struct ReportPolicyLog
 {
   static void report(std::string_view message);
 };
 
+/// Conversion report policy that silently discards the message (no side effects).
 struct ReportPolicyIgnore
 {
   static void report(std::string_view message) { std::ignore = message; }

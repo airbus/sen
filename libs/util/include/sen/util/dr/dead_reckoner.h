@@ -53,22 +53,36 @@ public:  // type aliases
 public:
   /// Constructor for the DeadReckoner where an object inheriting from rpr::BaseEntity is inputted as a reference.
   /// This is the easiest version of the API to instantiate a DeadReckoner.
+  /// @param object  Const reference to the RPR entity whose spatial state is used to seed the reckoner.
+  /// @param config  Dead-reckoning configuration (smoothing window, update rate, etc.); defaults to library defaults.
   explicit DeadReckoner(const T& object, DrConfig config = {});
   ~DeadReckoner() override = default;
 
 public:  // overrides DeadReckonerBase
+  /// @param timeStamp  Simulation time at which to evaluate the extrapolated situation.
+  /// @return Extrapolated `Situation` (ECEF frame) at @p timeStamp.
   [[nodiscard]] Situation situation(sen::TimeStamp timeStamp) override;
+
+  /// @param timeStamp  Simulation time at which to evaluate the extrapolated situation.
+  /// @return Extrapolated `GeodeticSituation` (geodetic/NED frame) at @p timeStamp.
   [[nodiscard]] GeodeticSituation geodeticSituation(sen::TimeStamp timeStamp) override;
 
 public:
-  /// Provides direct mutable access to the internal object managed by this instance of the DeadReckoner
+  /// Provides direct mutable access to the internal object managed by this instance of the DeadReckoner.
+  /// @return Mutable reference to the tracked entity.
   [[nodiscard]] T& getObject() noexcept;
 
 public:  // situation translation helpers
-  /// Translates a SpatialVariant to a Situation struct
+  /// Translates a SpatialVariant to a Situation struct.
+  /// @param spatial     RPR spatial variant describing the entity's kinematic state.
+  /// @param timeStamp   Timestamp to embed in the resulting `Situation`; defaults to the epoch.
+  /// @return `Situation` (ECEF frame) derived from @p spatial.
   [[nodiscard]] static Situation toSituation(const SpatialVariant& spatial, sen::TimeStamp timeStamp = {});
 
-  /// Translates a SpatialVariant to a GeodeticSituation struct
+  /// Translates a SpatialVariant to a GeodeticSituation struct.
+  /// @param spatial     RPR spatial variant describing the entity's kinematic state.
+  /// @param timeStamp   Timestamp to embed in the resulting `GeodeticSituation`; defaults to the epoch.
+  /// @return `GeodeticSituation` (geodetic/NED frame) derived from @p spatial.
   [[nodiscard]] static GeodeticSituation toGeodeticSituation(const SpatialVariant& spatial,
                                                              sen::TimeStamp timeStamp = {});
 
@@ -98,7 +112,9 @@ private:
 // Utils
 //-------------------------------------------------------------------------------------------------------------------
 
-/// Transform a Situation to a GeodeticSituation
+/// Converts an ECEF `Situation` to a geodetic/NED `GeodeticSituation`.
+/// @param value  Source situation in the ECEF world frame.
+/// @return Equivalent `GeodeticSituation` with LLA position and NED-frame vectors.
 [[nodiscard]] inline GeodeticSituation toGeodeticSituation(const Situation& value)
 {
   const auto geoLocation = impl::toLla(value.worldLocation);
@@ -112,7 +128,9 @@ private:
                             value.angularAcceleration};
 }
 
-/// Transforms a GeodeticSituation to a Situation
+/// Converts a geodetic/NED `GeodeticSituation` to an ECEF `Situation`.
+/// @param value  Source situation with LLA position and NED-frame vectors.
+/// @return Equivalent `Situation` in the ECEF world frame.
 [[nodiscard]] inline Situation toSituation(const GeodeticSituation& value)
 {
   // translate input geodetic situation to standard reference system

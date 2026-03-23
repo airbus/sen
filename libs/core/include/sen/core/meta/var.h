@@ -39,64 +39,83 @@ struct Var;
 // Conversion functions
 //--------------------------------------------------------------------------------------------------------------
 
-/// Converts a variant into its Json representation.
-/// See https://www.Json.org/Json-en.html for details
+/// Serialises a `Var` to a JSON string.
+/// @param var    The variant to serialise.
+/// @param indent Number of spaces per indentation level (default 2; pass 0 for compact output).
+/// @return JSON text representation.
 [[nodiscard]] std::string toJson(const Var& var, int indent = 2);
 
-/// Inverse as toJson
+/// Deserialises a JSON string into a `Var`.
+/// @param str JSON text to parse.
+/// @return The parsed `Var`.
+/// @throws std::exception if `str` is not valid JSON.
 [[nodiscard]] Var fromJson(const std::string& str);
 
-/// Converts a variant into its bson (Binary JSON) representation.
-/// See https://bsonspec.org/ for details.
+/// Serialises a `Var` to BSON (Binary JSON) bytes.
+/// @param var The variant to serialise.
+/// @return BSON-encoded byte vector.
 [[nodiscard]] std::vector<std::uint8_t> toBson(const Var& var);
 
-/// Inverse as toBson
+/// Deserialises BSON bytes into a `Var`.
+/// @param bson BSON-encoded bytes to parse.
+/// @return The parsed `Var`.
 [[nodiscard]] Var fromBson(const std::vector<std::uint8_t>& bson);
 
-/// Converts a variant into its MessagePack representation.
-/// See https://msgpack.org/ for details.
+/// Serialises a `Var` to CBOR (Concise Binary Object Representation) bytes.
+/// @param var The variant to serialise.
+/// @return CBOR-encoded byte vector.
 [[nodiscard]] std::vector<std::uint8_t> toCbor(const Var& var);
 
-/// Inverse as toCbor
+/// Deserialises CBOR bytes into a `Var`.
+/// @param cbor CBOR-encoded bytes to parse.
+/// @return The parsed `Var`.
 [[nodiscard]] Var fromCbor(const std::vector<std::uint8_t>& cbor);
 
-/// Converts a variant into its msgpack representation.
-/// See https://cbor.io/ for details.
+/// Serialises a `Var` to MessagePack bytes.
+/// @param var The variant to serialise.
+/// @return MessagePack-encoded byte vector.
 [[nodiscard]] std::vector<std::uint8_t> toMsgpack(const Var& var);
 
-/// Inverse as toMsgpack
+/// Deserialises MessagePack bytes into a `Var`.
+/// @param msgpack MessagePack-encoded bytes to parse.
+/// @return The parsed `Var`.
 [[nodiscard]] Var fromMsgpack(const std::vector<std::uint8_t>& msgpack);
 
-/// Converts a variant into its UBJSON (Universal Binary JSON Specification) representation.
-/// See https://ubjson.org/ for details.
+/// Serialises a `Var` to UBJSON (Universal Binary JSON) bytes.
+/// @param var The variant to serialise.
+/// @return UBJSON-encoded byte vector.
 [[nodiscard]] std::vector<std::uint8_t> toUbjson(const Var& var);
 
-/// Inverse as toUbjson
+/// Deserialises UBJSON bytes into a `Var`.
+/// @param ubson UBJSON-encoded bytes to parse.
+/// @return The parsed `Var`.
 [[nodiscard]] Var fromUbjson(const std::vector<std::uint8_t>& ubson);
 
-/// Converts a string to a duration
+/// Parses a human-readable duration string (e.g. `"100ms"`, `"1s"`) into a `Duration`.
+/// @param str Duration string to parse.
+/// @return The parsed `Duration`.
+/// @throws std::exception if `str` is not a recognised duration format.
 [[nodiscard]] Duration stringToDuration(const std::string& str);
 
-/// Tries to transform the stored value to T.
-/// For expensive types, like strings, maps or lists is better use:
-///   - a visitor, or
-///   - is<T>() together with tryGet<T>().
+/// Extracts or converts the value stored in `var` to type `To`.
 ///
-/// Rules:
-///   - Empty Vars generate T{}
-///   - Native type conversion use c++ rules.
-///   - If T is std::string and the var holds a bool, it returns "true" or "false"
-///   - If T is bool and the var holds a std::string, it returns true if the string is "true"
-///   - Durations can be converted to: strings (nanoseconds), timestamps and integrals
-///   - Timestamps can be converted to: strings (nanoseconds), durations and integrals
-///   - Lists and maps can only be converted to strings
+/// For expensive types (strings, maps, lists) prefer using a visitor or `holds<T>()`
+/// combined with `get<T>()` to avoid unnecessary copies.
 ///
-/// Throws std::exception if the conversion could not be made
+/// Conversion rules:
+///   - An empty `Var` (`std::monostate`) returns `To{}`.
+///   - Between native numeric types, standard C++ conversion rules apply.
+///   - `std::string` â†’ `bool`: `"true"` â†’ `true`, anything else â†’ `false`.
+///   - `bool` â†’ `std::string`: `true` â†’ `"true"`, `false` â†’ `"false"`.
+///   - `Duration` â†’ `std::string` / `TimeStamp` / integral: nanosecond count.
+///   - `TimeStamp` â†’ `std::string` / `Duration` / integral: nanosecond count.
+///   - `VarList` / `VarMap` can only be converted to `std::string` (JSON).
 ///
-/// @tparam To: type to transform to
-/// @tparam checkedConversion: whether conversions should be checked against precision loss/truncation
-///
-/// @param var: Var containing the value that should be converted
+/// @tparam To                 Target type to convert to.
+/// @tparam checkedConversion  If `true`, conversions that would lose precision or truncate throw.
+/// @param var Variant holding the source value.
+/// @return A copy of the value converted to `To`.
+/// @throws std::exception if the conversion is not supported or fails a precision check.
 template <typename To, bool checkedConversion = false>
 [[nodiscard]] To getCopyAs(const Var& var);
 
@@ -113,8 +132,12 @@ using KeyedVar = std::tuple<uint32_t, std::shared_ptr<Var>>;
 // Var
 //--------------------------------------------------------------------------------------------------------------
 
-/// Can hold any supported value type.
-/// Wraps std::variant to allow recursion and implements some helpers.
+/// Universal type-erased value container used throughout the Sen framework.
+/// Wraps `std::variant` to allow recursive types (`VarList`, `VarMap`, `KeyedVar`)
+/// and provides ergonomic helpers for type checking, extraction, and conversion.
+///
+/// Use `holds<T>()` to check the active type, `get<T>()` or `getIf<T>()` to access
+/// the value, and `getCopyAs<T>()` for cross-type conversion.
 struct Var
 {
   SEN_COPY_MOVE(Var)
@@ -172,68 +195,84 @@ public:
   }
 
 public:
-  /// True if the Var holds a value of T.
+  /// Returns `true` if this `Var` currently holds a value of type `T`.
+  /// @tparam T One of the alternatives in `ValueType`.
   template <typename T>
   [[nodiscard]] constexpr bool holds() const noexcept
   {
     return std::holds_alternative<T>(value_);
   }
 
-  /// True if the Var holds a value of type T, where T is in Ts .
+  /// Returns `true` if this `Var` holds any of the types in `Ts`.
+  /// @tparam Ts Pack of alternatives to test against (e.g. `holdsAnyOff<int32_t, uint32_t>()`).
   template <typename... Ts>
   [[nodiscard]] constexpr bool holdsAnyOff() const noexcept
   {
     return (holds<Ts>() || ...);
   }
 
-  /// Checks whether the contained value is a integral type.
+  /// Returns `true` if the active type is any integer type (including `bool`, `uint8_t`, etc.).
   [[nodiscard]] constexpr bool holdsIntegralValue() const noexcept
   {
     return holdsAnyOff<int32_t, uint32_t, int64_t, uint64_t, uint8_t, int16_t, uint16_t, bool>();
   }
 
-  /// Checks whether the contained value is a floating point type.
+  /// Returns `true` if the active type is `float32_t` or `float64_t`.
   [[nodiscard]] constexpr bool holdsFloatingPointValue() const noexcept { return holdsAnyOff<float32_t, float64_t>(); }
 
-  /// True if the Var holds a value of std::monostate.
+  /// Returns `true` if this `Var` is empty (holds `std::monostate`, the default-constructed state).
   [[nodiscard]] constexpr bool isEmpty() const noexcept { return std::holds_alternative<std::monostate>(value_); }
 
-  /// See sen::getCopyAs().
+  /// Converts the stored value to `T`. See the free function `sen::getCopyAs()` for conversion rules.
+  /// @tparam T                 Target type.
+  /// @tparam checkedConversion If `true`, precision-losing conversions throw.
+  /// @return Copy of the stored value converted to `T`.
   template <typename T, bool checkedConversion = false>
   [[nodiscard]] T getCopyAs() const
   {
     return ::sen::getCopyAs<T>(*this);
   }
 
-  /// Same as std::get<T>(this->value);.
+  /// Returns a reference to the stored value of type `T`.
+  /// @tparam T Alternative type to extract; must match the active alternative.
+  /// @return Mutable reference to the stored value.
+  /// @throws std::bad_variant_access if `T` is not the active alternative.
   template <typename T>
   [[nodiscard]] constexpr T& get()
   {
     return std::get<T>(value_);
   }
 
-  /// Same as std::get<T>(this->value);.
+  /// Returns a const reference to the stored value of type `T`.
+  /// @tparam T Alternative type to extract; must match the active alternative.
+  /// @return Const reference to the stored value.
+  /// @throws std::bad_variant_access if `T` is not the active alternative.
   template <typename T>
   [[nodiscard]] constexpr const T& get() const
   {
     return std::get<T>(value_);
   }
 
-  /// Same as std::get_if<T>(&(this->value)).
+  /// Returns a pointer to the stored value of type `T`, or `nullptr` if `T` is not active.
+  /// @tparam T Alternative type to test for.
+  /// @return Const pointer to the stored value, or `nullptr`.
   template <typename T>
   [[nodiscard]] const T* getIf() const noexcept
   {
     return std::get_if<T>(&value_);
   }
 
-  /// Same as std::get_if<T>(&(this->value)).
+  /// Returns a pointer to the stored value of type `T`, or `nullptr` if `T` is not active.
+  /// @tparam T Alternative type to test for.
+  /// @return Mutable pointer to the stored value, or `nullptr`.
   template <typename T>
   [[nodiscard]] T* getIf() noexcept
   {
     return std::get_if<T>(&value_);
   }
 
-  /// Swaps contents with another Var.
+  /// Exchanges the contents of this `Var` with `rhs`.
+  /// @param rhs The other `Var` to swap with.
   void swap(Var& rhs) noexcept;
 
   [[nodiscard]] friend bool operator==(const Var& lhs, const Var& rhs) noexcept { return lhs.isEqual(rhs); }
@@ -254,12 +293,21 @@ struct IsVariantMember<T, Var>: public IsVariantMember<T, typename Var::ValueTyp
 template <typename T>
 constexpr bool isVarTypeMemberV = IsVariantMember<T, Var>::value;
 
-/// Finds an element in a map or throws std::exception
-/// containing the provided string otherwise.
+/// Looks up a key in a `VarMap` and returns a reference to the associated value.
+/// @param map          The map to search.
+/// @param key          The key to look up.
+/// @param errorMessage Message passed to the thrown exception if the key is absent.
+/// @return Const reference to the found `Var`.
+/// @throws std::runtime_error (with `errorMessage`) if `key` is not in `map`.
 [[nodiscard]] const Var& findElement(const VarMap& map, const std::string& key, const std::string& errorMessage);
 
-/// Finds an element in a map or throws std::exception
-/// containing the provided string otherwise.
+/// Looks up a key in a `VarMap` and returns the associated value converted to `T`.
+/// @tparam T           Target type for the conversion (see `getCopyAs`).
+/// @param map          The map to search.
+/// @param key          The key to look up.
+/// @param errorMessage Message passed to the thrown exception if the key is absent.
+/// @return The found value converted to `T`.
+/// @throws std::runtime_error (with `errorMessage`) if `key` is not in `map`.
 template <typename T>
 [[nodiscard]] T findElementAs(const VarMap& map, const std::string& key, const std::string& errorMessage)
 {

@@ -25,22 +25,31 @@ namespace sen::lang
 /// \addtogroup lang
 /// @{
 
-/// Parses STL types and queries out of a list of tokens.
+/// Recursive-descent parser that converts a flat token stream into an AST of STL statements.
 class StlParser
 {
 public:
-  /// Stores the tokens for eventual parsing.
+  /// Constructs the parser over an existing token list.
+  /// @param tokens Token stream produced by `StlLexer`; the list must outlive this parser.
   explicit StlParser(const StlTokenList& tokens);
 
+  /// Exception thrown when the token stream does not conform to the STL grammar.
+  /// The `what()` string contains a human-readable description including the offending token.
   struct ParseError: public std::runtime_error
   {
     explicit ParseError(const std::string& msg): std::runtime_error(msg) {}
   };
 
-  /// Parse the tokens given in the constructor into a set of statements.
+  /// Parses the full token stream into a sequence of top-level STL statements
+  /// (imports, package declarations, type definitions, class definitions, etc.).
+  /// @return Ordered list of parsed statements ready for the code generator or type registry.
+  /// @throws ParseError if the token stream is syntactically invalid.
   [[nodiscard]] std::vector<StlStatement> parse();
 
-  /// Parse the tokens as a query statement.
+  /// Parses the token stream as a single Sen Query Language statement.
+  /// Use this entry point when the input is a query string rather than a full STL file.
+  /// @return The parsed query statement.
+  /// @throws ParseError if the token stream does not represent a valid query.
   [[nodiscard]] QueryStatement parseQuery();
 
 private:  // declarations

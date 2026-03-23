@@ -60,21 +60,21 @@ using RemoteProxyMaker = std::function<std::shared_ptr<impl::RemoteObject>(impl:
 /// A function that creates local proxy objects.
 using LocalProxyMaker = std::function<std::shared_ptr<impl::NativeObjectProxy>(NativeObject*, const std::string&)>;
 
-/// Data of a class.
+/// Descriptor used to construct a `ClassType` instance.
 struct ClassSpec final
 {
-  std::string name;
-  std::string qualifiedName;
-  std::string description;
-  std::vector<PropertySpec> properties;
-  std::vector<MethodSpec> methods;
-  std::vector<EventSpec> events;
-  std::optional<MethodSpec> constructor;
-  ClassList parents;
-  bool isInterface = false;
-  bool isAbstract = false;
-  RemoteProxyMaker remoteProxyMaker = nullptr;
-  LocalProxyMaker localProxyMaker = nullptr;
+  std::string name;                             ///< Short type name (e.g. `"Vehicle"`).
+  std::string qualifiedName;                    ///< Fully-qualified name (e.g. `"ns.Vehicle"`).
+  std::string description;                      ///< Human-readable description of the class.
+  std::vector<PropertySpec> properties;         ///< Property descriptors declared on this class.
+  std::vector<MethodSpec> methods;              ///< Method descriptors declared on this class.
+  std::vector<EventSpec> events;                ///< Event descriptors declared on this class.
+  std::optional<MethodSpec> constructor;        ///< Optional constructor method descriptor.
+  ClassList parents;                            ///< Direct parent class handles (single or multiple inheritance).
+  bool isInterface = false;                     ///< `true` if this class is an interface (no implementation).
+  bool isAbstract = false;                      ///< `true` if this class cannot be instantiated directly.
+  RemoteProxyMaker remoteProxyMaker = nullptr;  ///< Factory for remote proxy objects; may be null.
+  LocalProxyMaker localProxyMaker = nullptr;    ///< Factory for local proxy objects; may be null.
 };
 
 // Comparison operators
@@ -111,13 +111,19 @@ public:
                                                                 const char* packagePath);
 
 public:
-  /// Get the properties of this class.
+  /// Gets the properties of this class.
+  /// @param mode Whether to include properties inherited from parent classes.
+  /// @return List of shared pointers to the matching `Property` objects.
   [[nodiscard]] PropertyList getProperties(SearchMode mode) const;
 
-  /// Get the methods of this class.
+  /// Gets the methods of this class.
+  /// @param mode Whether to include methods inherited from parent classes.
+  /// @return List of shared pointers to the matching `Method` objects.
   [[nodiscard]] MethodList getMethods(SearchMode mode) const;
 
-  /// Get the events of this class.
+  /// Gets the events of this class.
+  /// @param mode Whether to include events inherited from parent classes.
+  /// @return List of shared pointers to the matching `Event` objects.
   [[nodiscard]] EventList getEvents(SearchMode mode) const;
 
   /// Get the parents of this class (if any).
@@ -168,10 +174,15 @@ public:
   /// The unique class id (in this hierarchy).
   [[nodiscard]] MemberHash getId() const noexcept;
 
-  /// Creates a remote proxy for this class. May return nullptr if the class cannot be instantiated.
+  /// Creates a remote proxy for this class.
+  /// @param info Ownership/identity information for the new remote object.
+  /// @return Shared pointer to the proxy, or `nullptr` if `remoteProxyMaker` is not set.
   [[nodiscard]] std::shared_ptr<impl::RemoteObject> createRemoteProxy(impl::RemoteObjectInfo&& info) const;
 
-  /// Creates a local proxy for this class. May return nullptr if the class cannot be instantiated.
+  /// Creates a local proxy for this class.
+  /// @param object      The native object to wrap.
+  /// @param localPrefix Prefix prepended to the proxy's name.
+  /// @return Shared pointer to the proxy, or `nullptr` if `localProxyMaker` is not set.
   [[nodiscard]] std::shared_ptr<impl::NativeObjectProxy> createLocalProxy(NativeObject* object,
                                                                           const std::string& localPrefix) const;
 

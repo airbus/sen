@@ -35,36 +35,39 @@ struct ShouldBePassedByValue<ObjectOwnerId>: std::true_type
 {
 };
 
-/// Holds information about an object that has been discovered.
+/// Discovery record for a locally-hosted object (same process).
 struct ObjectInstanceDiscovery
 {
-  std::shared_ptr<Object> instance;
-  ObjectId id;
-  InterestId interestId;
-  ObjectOwnerId ownerId;
+  std::shared_ptr<Object> instance;  ///< Shared ownership pointer to the discovered object.
+  ObjectId id;                       ///< Unique numeric identifier of the object.
+  InterestId interestId;             ///< ID of the `Interest` whose filter matched this object.
+  ObjectOwnerId ownerId;             ///< ID of the component that published the object.
 };
 
-/// Holds information about a remote object that has been discovered.
+/// Discovery record for an object hosted in a remote process.
 struct RemoteObjectDiscovery
 {
-  ObjectId id;
-  std::string name;
-  ConstTypeHandle<ClassType> type;
-  std::function<std::shared_ptr<impl::ProxyObject>(impl::WorkQueue*, const std::string&, ObjectOwnerId)> proxyMaker;
-  InterestId interestId;
-  ObjectOwnerId ownerId;
+  ObjectId id;                      ///< Unique numeric identifier of the object.
+  std::string name;                 ///< Object name as published by the remote component.
+  ConstTypeHandle<ClassType> type;  ///< Reflected class type of the remote object.
+  std::function<std::shared_ptr<impl::ProxyObject>(impl::WorkQueue*, const std::string&, ObjectOwnerId)>
+    proxyMaker;           ///< Factory that creates a local proxy; called by the framework.
+  InterestId interestId;  ///< ID of the `Interest` whose filter matched this object.
+  ObjectOwnerId ownerId;  ///< ID of the component that published the object.
 };
 
-/// Holds information about an object that is
-/// already present and we explicitly asked for.
+/// Tagged union representing one discovered object.
+/// Use `std::holds_alternative<ObjectInstanceDiscovery>` to distinguish local from remote objects,
+/// or the helper functions `getObjectId()`, `getObjectOwnerId()`, `getInterestId()`,
+/// and `getObjectInstance()` for type-independent access.
 using ObjectAddition = std::variant<ObjectInstanceDiscovery, RemoteObjectDiscovery>;
 
-/// Holds information about an object that has been removed.
+/// Record produced when an object is removed from its source.
 struct ObjectRemoval
 {
-  InterestId interestId;
-  ObjectId objectid;
-  ObjectOwnerId ownerId;
+  InterestId interestId;  ///< ID of the `Interest` that originally matched this object.
+  ObjectId objectid;      ///< Unique identifier of the removed object.
+  ObjectOwnerId ownerId;  ///< ID of the component that published the object.
 };
 
 /// Sequence of object additions.
@@ -73,13 +76,18 @@ using ObjectAdditionList = std::vector<ObjectAddition>;
 /// Sequence of object removals.
 using ObjectRemovalList = std::vector<ObjectRemoval>;
 
-// Helpers to extract information out of the previous containers
+/// Returns the object's unique identifier regardless of whether it is local or remote.
+/// @param discovery An `ObjectAddition` variant entry from an `ObjectAdditionList`.
+/// @return The `ObjectId` stored in either the `ObjectInstanceDiscovery` or `RemoteObjectDiscovery`.
 [[nodiscard]] inline ObjectId getObjectId(const ObjectAddition& discovery)
 {
   return std::holds_alternative<ObjectInstanceDiscovery>(discovery) ? std::get<ObjectInstanceDiscovery>(discovery).id
                                                                     : std::get<RemoteObjectDiscovery>(discovery).id;
 }
 
+/// Returns the owner ID regardless of whether the object is local or remote.
+/// @param discovery An `ObjectAddition` variant entry.
+/// @return The `ObjectOwnerId` of the publishing component.
 [[nodiscard]] inline ObjectOwnerId getObjectOwnerId(const ObjectAddition& discovery)
 {
   return std::holds_alternative<ObjectInstanceDiscovery>(discovery)
@@ -87,6 +95,9 @@ using ObjectRemovalList = std::vector<ObjectRemoval>;
            : std::get<RemoteObjectDiscovery>(discovery).ownerId;
 }
 
+/// Returns the interest ID that caused this discovery regardless of object locality.
+/// @param discovery An `ObjectAddition` variant entry.
+/// @return The `InterestId` of the filter that matched the object.
 [[nodiscard]] inline InterestId getInterestId(const ObjectAddition& discovery)
 {
   return std::holds_alternative<ObjectInstanceDiscovery>(discovery)
@@ -94,6 +105,9 @@ using ObjectRemovalList = std::vector<ObjectRemoval>;
            : std::get<RemoteObjectDiscovery>(discovery).interestId;
 }
 
+/// Returns the raw object pointer for a local discovery, or `nullptr` for remote objects.
+/// @param discovery An `ObjectAddition` variant entry.
+/// @return Pointer to the local `Object` instance, or `nullptr` if the object is remote.
 [[nodiscard]] inline Object* getObjectInstance(const ObjectAddition& discovery)
 {
   return std::holds_alternative<ObjectInstanceDiscovery>(discovery)
@@ -103,8 +117,9 @@ using ObjectRemovalList = std::vector<ObjectRemoval>;
 
 [[nodiscard]] ObjectRemoval makeRemoval(const ObjectAddition& discovery);
 
-/// Allows reacting to objects being added or removed to an object provider.
-/// It automatically unregisters itself from all the providers upon destruction.
+/// Observer interface for tracking objects added to or removed from an `ObjectProvider`.
+/// Automatically unregisters itself from all providers it was added to upon destruction.
+/// Subclass this and implement `onObjectsAdded` / `onObjectsRemoved` to react to changes.
 class ObjectProviderListener
 {
   SEN_MOVE_ONLY(ObjectProviderListener)
@@ -118,10 +133,12 @@ public:  // implementation & optimization-related (they return nullptr by defaul
   [[nodiscard]] virtual kernel::impl::LocalParticipant* isLocalParticipant() noexcept;
 
 protected:
-  /// Called when objects are been added to a source.
+  /// Invoked when one or more objects have been added to (or discovered on) a provider.
+  /// @param additions List of discovery records, one per newly-added object.
   virtual void onObjectsAdded(const ObjectAdditionList& additions) = 0;
 
-  /// Called when objects will be removed from a source.
+  /// Invoked when one or more objects are about to be removed from a provider.
+  /// @param removals List of removal records, one per object being removed.
   virtual void onObjectsRemoved(const ObjectRemovalList& removals) = 0;
 
 private:

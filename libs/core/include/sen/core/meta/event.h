@@ -19,24 +19,30 @@ namespace sen
 /// \addtogroup types
 /// @{
 
-/// Data of an event.
+/// Descriptor used to construct an `Event` instance.
 struct EventSpec final
 {
-  CallableSpec callableSpec;
+  CallableSpec callableSpec;  ///< Name, description, and argument list of the event.
 };
 
 // Comparison operators
 bool operator==(const EventSpec& lhs, const EventSpec& rhs) noexcept;
 bool operator!=(const EventSpec& lhs, const EventSpec& rhs) noexcept;
 
-/// Represents an event.
+/// Represents an event declared on a class type.
+///
+/// An event is a named signal emitted by an object that zero or more subscribers can observe.
+/// It is described by an `EventSpec` (name, description, and typed argument list) and is
+/// constructed via the `make()` factory function.
 class Event final: public Callable
 {
   SEN_NOCOPY_NOMOVE(Event)
 
 public:
-  /// Factory function that validates the spec and creates a class type.
-  /// Throws std::exception if the spec is not valid.
+  /// Factory function that validates the spec and creates an `Event` instance.
+  /// @param spec Descriptor containing the event name and argument list.
+  /// @return Shared pointer to the newly created `Event`.
+  /// @throws std::exception if the spec is not valid (e.g. empty name).
   [[nodiscard]] static std::shared_ptr<Event> make(const EventSpec& spec);
 
 public:  // special members
@@ -48,10 +54,10 @@ public:  // special members
   /// Checks if other is not equivalent to this.
   [[nodiscard]] bool operator!=(const Event& other) const noexcept;
 
-  /// Returns a unique hash to identify the Event
+  /// @return 32-bit hash derived from the event's name and argument types.
   [[nodiscard]] MemberHash getHash() const noexcept;
 
-  /// Returns a name hash of the event
+  /// @return 32-bit hash of the event's unqualified name (used for fast lookup).
   [[nodiscard]] MemberHash getId() const noexcept;
 
 private:

@@ -40,14 +40,19 @@ struct Enumerator final
   friend bool operator!=(const Enumerator& lhs, const Enumerator& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  std::string name;         /// The name of the enumerator
-  uint32_t key = 0;         /// The key of the enumerator
-  std::string description;  /// The description of the enumerator
+  std::string name;         ///< Display name of the enumerator (e.g. `"red"`).
+  uint32_t key = 0;         ///< Numeric value associated with this enumerator.
+  std::string description;  ///< Human-readable description of the enumerator.
 };
 
-/// Data of an enum type.
+/// Descriptor used to construct an `EnumType` instance.
 struct EnumSpec final
 {
+  /// @param name          Short type name (e.g. `"Color"`).
+  /// @param qualifiedName Fully-qualified name including namespace (e.g. `"ns.Color"`).
+  /// @param description   Human-readable description of the enumeration.
+  /// @param enums         List of enumerators that belong to this type.
+  /// @param storageType   Integral type used to store the enumerator values on the wire.
   EnumSpec(std::string name,
            std::string qualifiedName,
            std::string description,
@@ -72,11 +77,12 @@ struct EnumSpec final
   friend bool operator!=(const EnumSpec& lhs, const EnumSpec& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  std::string name;                           // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string qualifiedName;                  // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string description;                    // NOLINT(misc-non-private-member-variables-in-classes)
-  std::vector<Enumerator> enums;              // NOLINT(misc-non-private-member-variables-in-classes)
-  ConstTypeHandle<IntegralType> storageType;  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string name;           ///< Short type name.  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string qualifiedName;  ///< Fully-qualified type name.  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string description;    ///< Human-readable description.  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::vector<Enumerator> enums;  ///< List of enumerators.  // NOLINT(misc-non-private-member-variables-in-classes)
+  ConstTypeHandle<IntegralType>
+    storageType;  ///< Underlying integral storage type.  // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /// Represents an enumeration.
@@ -93,24 +99,27 @@ public:  // special members
   ~EnumType() override = default;
 
 public:
-  /// Factory function that validates the spec and creates a enum type.
-  /// Throws std::exception if the spec is not valid.
+  /// Factory function that validates the spec and creates an enum type.
+  /// @param spec Descriptor containing name, enumerators, and storage type.
+  /// @return Owning handle to the newly created `EnumType`.
+  /// @throws std::exception if the spec is not valid (e.g. duplicate keys or empty name).
   [[nodiscard]] static TypeHandle<EnumType> make(EnumSpec spec);
 
 public:
-  /// Gets the type used to store the enumeration's values.
+  /// @return The integral type used to store this enumeration's values on the wire.
   [[nodiscard]] const IntegralType& getStorageType() const noexcept;
 
-  /// Get the enumerator data using a key. Nullptr means not found.
-  /// @param key the enumerator's value.
+  /// Looks up an enumerator by its numeric key.
+  /// @param key The enumerator value to search for.
+  /// @return Pointer to the matching `Enumerator`, or `nullptr` if not found.
   [[nodiscard]] const Enumerator* getEnumFromKey(uint32_t key) const noexcept;
 
-  /// Get the enumerator data using a name. Nullptr means not found.
-  /// @param name the name of the enumerator.
+  /// Looks up an enumerator by name.
+  /// @param name The enumerator name to search for.
+  /// @return Pointer to the matching `Enumerator`, or `nullptr` if not found.
   [[nodiscard]] const Enumerator* getEnumFromName(std::string_view name) const noexcept;
 
-  /// Gets the enumerators lists.
-  /// @return the enumerators lists.
+  /// @return Read-only span over the full list of enumerators.
   [[nodiscard]] Span<const Enumerator> getEnums() const noexcept;
 
 public:  // Type

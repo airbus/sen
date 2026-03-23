@@ -52,11 +52,11 @@ struct BusId: public StrongType<uint32_t, BusId>
   void* userData = nullptr;  ///< Allows transport implementations to inject information.
 };
 
-/// To identify remote participants.
+/// Uniquely identifies a remote participant (process + owner ID pair).
 struct ParticipantAddr
 {
-  ProcessId proc;
-  ObjectOwnerId id;
+  ProcessId proc;    ///< Identifier of the remote process.
+  ObjectOwnerId id;  ///< Identifier of the object owner within that process.
 
   void* userData = nullptr;  ///< Allows transport implementations to inject information.
 };
@@ -92,9 +92,10 @@ public:
   UniqueByteBufferManager();
   ~UniqueByteBufferManager();
 
-  /// Returns a handle to a buffer that fix size elements.
-  ///
-  /// @param size: of the buffer
+  /// Returns a pooled buffer of exactly @p size bytes, creating one if none is available.
+  /// The buffer is automatically returned to the pool when the handle is destroyed.
+  /// @param size  Required buffer capacity in bytes.
+  /// @return RAII handle owning a `std::vector<uint8_t>` of at least @p size bytes.
   ByteBufferHandle getBuffer(size_t size);
 
 private:
@@ -114,26 +115,43 @@ public:
   using ByteBufferManager = UniqueByteBufferManager;
   using ByteBufferHandle = ByteBufferManager::ByteBufferHandle;
 
-  /// Returns access to the buffer manager for easy access to memory buffers.
+  /// Returns the buffer manager that provides pooled memory for inbound message handling.
+  /// @return Mutable reference to the `ByteBufferManager`; valid for the lifetime of this listener.
   virtual ByteBufferManager& getBufferManager() = 0;
 
 public:
-  /// A process is not reachable anymore.
+  /// Called when a remote process can no longer be reached.
+  /// @param who  Identifier of the process that disconnected.
   virtual void remoteProcessLost(ProcessId who) = 0;
 
-  /// Some participant is part of, or recently joined a bus.
+  /// Called when a remote participant joins (or is discovered on) a bus.
+  /// @param addr         Network address of the participant.
+  /// @param processInfo  Build and identity metadata of the remote process.
+  /// @param bus          Opaque bus identifier.
+  /// @param busName      Human-readable name of the bus.
   virtual void remoteParticipantJoinedBus(ParticipantAddr addr,
                                           const ProcessInfo& processInfo,
                                           BusId bus,
                                           std::string busName) = 0;
 
-  /// Some participant left a bus.
+  /// Called when a remote participant leaves a bus.
+  /// @param addr     Network address of the participant that left.
+  /// @param bus      Opaque bus identifier.
+  /// @param busName  Human-readable name of the bus.
   virtual void remoteParticipantLeftBus(ParticipantAddr addr, BusId bus, std::string busName) = 0;
 
-  /// Message received on a bus via broadcast.
+  /// Called when a broadcast message is received on a bus.
+  /// @param busId   Identifier of the bus the message arrived on.
+  /// @param msg     View over the raw message bytes.
+  /// @param buffer  RAII handle keeping the underlying memory alive.
   virtual void remoteBroadcastMessageReceived(BusId busId, Span<const uint8_t> msg, ByteBufferHandle buffer) = 0;
 
-  /// Direct message received on a bus (independently of the communication channel).
+  /// Called when a unicast (direct) message is received.
+  /// @param to              Recipient owner identifier.
+  /// @param busId           Bus the message was delivered on.
+  /// @param msg             View over the raw message bytes.
+  /// @param buffer          RAII handle keeping the underlying memory alive.
+  /// @param ensureNotDropped If `true`, the message must not be silently discarded.
   virtual void remoteMessageReceived(ObjectOwnerId to,
                                      BusId busId,
                                      Span<const uint8_t> msg,
@@ -144,10 +162,10 @@ public:
 /// Global transport statistics.
 struct TransportStats
 {
-  std::size_t udpSentBytes = 0;
-  std::size_t udpReceivedBytes = 0;
-  std::size_t tcpSentBytes = 0;
-  std::size_t tcpReceivedBytes = 0;
+  std::size_t udpSentBytes = 0;      ///< Total bytes sent via UDP (best-effort) since the transport started.
+  std::size_t udpReceivedBytes = 0;  ///< Total bytes received via UDP since the transport started.
+  std::size_t tcpSentBytes = 0;      ///< Total bytes sent via TCP (reliable) since the transport started.
+  std::size_t tcpReceivedBytes = 0;  ///< Total bytes received via TCP since the transport started.
 };
 
 /// Interface for implementing a Sen inter-process transport solution.
@@ -161,38 +179,61 @@ public:
   virtual ~Transport() = default;
 
 public:
-  /// Start the message exchange, and set the listener that will react to inputs.
+  /// Starts the message exchange and registers the listener that handles incoming events.
   /// This method is non-blocking.
+  /// @param listener  Callback sink that receives all transport events; must outlive this transport.
   virtual void start(TransportListener* listener) = 0;
 
-  /// Send a message over a bus to a participant using a given mode.
+  /// Sends a single-buffer message to a remote participant on the given bus.
+  /// @param to     Destination participant address.
+  /// @param busId  Bus to send on.
+  /// @param mode   Transport QoS mode (unicast / multicast / confirmed).
+  /// @param data   Memory block containing the serialised message.
   virtual void sendTo(ParticipantAddr& to, BusId& busId, TransportMode mode, MemBlockPtr data) = 0;
 
-  /// Send a compound message (typically header and data) over a bus to a participant using a given mode.
+  /// Sends a two-buffer (header + payload) message to a remote participant.
+  /// @param to     Destination participant address.
+  /// @param busId  Bus to send on.
+  /// @param mode   Transport QoS mode.
+  /// @param data1  First memory block (typically a header).
+  /// @param data2  Second memory block (typically the payload).
   virtual void sendTo(ParticipantAddr& to, BusId& busId, TransportMode mode, MemBlockPtr data1, MemBlockPtr data2) = 0;
 
-  /// Notify other participants that there's a local participant that recently joined a bus.
+  /// Notifies remote participants that a local owner has joined a bus.
+  /// @param participant  Local owner identifier.
+  /// @param bus          Opaque bus identifier.
+  /// @param busName      Human-readable bus name.
   virtual void localParticipantJoinedBus(ObjectOwnerId participant, BusId bus, const std::string& busName) = 0;
 
-  /// Notify other participants that there's a local participant that recently left a bus.
+  /// Notifies remote participants that a local owner has left a bus.
+  /// @param participant  Local owner identifier.
+  /// @param bus          Opaque bus identifier.
+  /// @param busName      Human-readable bus name.
   virtual void localParticipantLeftBus(ObjectOwnerId participant, BusId bus, const std::string& busName) = 0;
 
-  /// The process info of this process.
+  /// Returns the `ProcessInfo` of the local process as seen by this transport.
+  /// @return Const reference to the local `ProcessInfo`; valid for the lifetime of this transport.
   [[nodiscard]] virtual const ProcessInfo& getOwnInfo() const noexcept = 0;
 
-  /// Stop the message exchange.
+  /// Stops the message exchange and releases all network resources.
   virtual void stop() noexcept = 0;
 
   virtual void stopIO() noexcept {}
 
-  /// Fetch the current statistics.
+  /// Returns a snapshot of transport-layer statistics (bytes sent/received).
+  /// @return `TransportStats` populated at the time of the call.
   [[nodiscard]] virtual TransportStats fetchStats() const = 0;
 
 public:  // timers
-  /// Starts an asio asynchronous timer that executes a callback when the steady_clock timeout is reached
+  /// Starts an asynchronous timer that fires after @p timeout and invokes @p timeoutCallback.
+  /// @param timeout          Duration to wait before firing.
+  /// @param timeoutCallback  Callable invoked when the timer expires.
+  /// @return Opaque `TimerId` that can be passed to `cancelTimer()`.
   virtual TimerId startTimer(std::chrono::steady_clock::duration timeout, std::function<void()>&& timeoutCallback) = 0;
 
-  /// Cancels a timer, avoiding its expiration
+  /// Cancels a previously started timer, preventing its callback from firing.
+  /// @param id  Timer identifier returned by `startTimer()`.
+  /// @return `true` if the timer was successfully cancelled before expiry; `false` otherwise.
   virtual bool cancelTimer(TimerId id) = 0;
 
 private:

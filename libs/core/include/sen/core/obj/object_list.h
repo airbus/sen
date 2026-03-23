@@ -33,11 +33,11 @@ public:
   static constexpr std::size_t defaultListSizeHint = 10U;
 
 public:  // types
-  /// How to search for objects
+  /// Controls whether objects whose class is a subclass of `T` are also accepted.
   enum class SearchMode
   {
-    includeSubClasses,
-    ignoreSubClasses,
+    includeSubClasses,  ///< Accept instances of `T` and any subclass of `T`.
+    ignoreSubClasses,   ///< Accept only instances whose exact class is `T`.
   };
 
   using TypedObjectList = std::list<T*>;
@@ -54,35 +54,39 @@ public:  // types
   using Callback = std::function<void(const Iterators& iterators)>;
 
 public:  // special members
-  /// The sizeHint reserves space the internal containers
-  /// to prevent memory reallocation in the initial iterations.
-  /// Passes the remaining arguments to the imp::Subscriber constructor.
+  /// Constructs a standalone list with pre-reserved internal storage.
+  /// @param sizeHint Expected number of objects; pre-allocates the iterator map to avoid early rehashing.
   explicit ObjectList(std::size_t sizeHint = defaultListSizeHint) { iteratorMap_.reserve(sizeHint); }
 
-  /// Automatically adds itself as a listener to the provider
+  /// Constructs a list and immediately subscribes to a provider.
+  /// @param provider  The object provider to listen to (existing objects are reported immediately).
+  /// @param sizeHint  Expected number of objects; pre-allocates the iterator map.
   ObjectList(ObjectProvider& provider, std::size_t sizeHint): ObjectList(sizeHint) { provider.addListener(this, true); }
 
   ~ObjectList() override = default;
 
 public:
-  /// Installs a function to be called when objects are added / discovered.
-  /// This function will be called during drainInputs().
-  /// Replaces any previously-installed function.
+  /// Installs a callback invoked whenever objects are added or newly discovered.
+  /// The callback fires during `drainInputs()` with iterators spanning the newly-added objects.
+  /// If objects are already present when the callback is installed, it is called immediately.
+  /// @param function New callback; replaces any previously-installed one.
+  /// @return The previously-installed callback (may be `nullptr`).
   [[nodiscard]] Callback onAdded(Callback&& function) noexcept;
 
-  /// Installs a function to be called when objects are added / discovered.
-  /// This function will be called during drainInputs().
-  /// Replaces any previously-installed function.
+  /// Installs a callback invoked whenever objects are removed.
+  /// The callback fires during `drainInputs()` with iterators spanning the removed objects.
+  /// @param function New callback; replaces any previously-installed one.
+  /// @return The previously-installed callback (may be `nullptr`).
   [[nodiscard]] Callback onRemoved(Callback&& function) noexcept
   {
     return std::exchange(onRemoved_, std::move(function));
   }
 
 public:  // multiple object lookup
-  /// Gets the list of currently-registered objects.
+  /// @return List of raw typed pointers to all currently-tracked objects.
   [[nodiscard]] const std::list<T*>& getObjects() const noexcept { return typedObjects_; }
 
-  /// Gets the list of currently-registered objects.
+  /// @return List of type-erased shared pointers to all currently-tracked objects.
   [[nodiscard]] const std::list<std::shared_ptr<Object>>& getUntypedObjects() const noexcept { return untypedObjects_; }
 
 protected:  // implements ObjectProviderListener

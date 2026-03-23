@@ -34,10 +34,15 @@ public:
   ~MuxedProviderListener() override;
 
 public:
-  /// Called when an object is added that is already present in the ObjectMux's list
+  /// Called when an object is added by a new source but is already tracked by the mux.
+  /// This differs from `onObjectsAdded` in that the object is already visible; this call
+  /// indicates the multiplicity has increased.
+  /// @param additions List of re-added objects with their associated interest IDs.
   virtual void onExistingObjectsReadded(const ObjectAdditionList& additions) = 0;
 
-  /// Called when an object is removed, but other providers for the ObjectMux also provide it
+  /// Called when one source no longer provides an object, but the mux still has other sources for it.
+  /// The object itself is not removed from the combined list; only its reference count decreases.
+  /// @param removals List of objects whose multiplicity has decreased.
   virtual void onObjectsRefCountReduced(const ObjectRemovalList& removals) = 0;
 
 private:
@@ -63,14 +68,33 @@ public:
   ~ObjectMux() override = default;
 
 public:  // implements ObjectProvider (public methods)
+  /// @param listener                    Listener to register.
+  /// @param notifyAboutExistingObjects  If `true`, immediately deliver additions for all currently-tracked objects.
   void addListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects) override;
+
+  /// @param listener                    Listener to unregister.
+  /// @param notifyAboutExistingObjects  If `true`, deliver removals for all currently-tracked objects before detaching.
   void removeListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects) override;
+
+  /// @return `true` if `listener` is currently registered.
   [[nodiscard]] bool hasListener(ObjectProviderListener* listener) const noexcept override;
+
+  /// @return `true` if at least one listener is registered.
   [[nodiscard]] bool hasListeners() const noexcept override;
 
 public:
+  /// Registers an extended mux listener that also receives re-add and ref-count events.
+  /// @param listener                    Muxed listener to register.
+  /// @param notifyAboutExistingObjects  If `true`, immediately deliver additions for all currently-tracked objects.
   void addMuxedListener(MuxedProviderListener* listener, bool notifyAboutExistingObjects);
+
+  /// Unregisters a muxed listener.
+  /// @param listener                    Muxed listener to remove.
+  /// @param notifyAboutExistingObjects  If `true`, deliver removals for all currently-tracked objects before detaching.
   void removeMuxedListener(MuxedProviderListener* listener, bool notifyAboutExistingObjects);
+
+  /// @param listener The listener to check.
+  /// @return `true` if the given muxed listener is currently registered.
   [[nodiscard]] bool hasMuxedListener(MuxedProviderListener* listener) const noexcept;
 
 protected:  // implements ObjectProvider (protected methods)

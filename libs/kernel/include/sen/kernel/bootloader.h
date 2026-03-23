@@ -21,35 +21,49 @@
 namespace sen::kernel
 {
 
-/// Loads a configuration YAML file and returns its contents as a sen::VarMap.
-/// This function does not validate the correctness of the configuration, but simply
-/// translates the contents into the Var. It resolves included yamls. \ingroup kernel
+/// Parses a YAML configuration file into a `VarMap`, resolving any `!include` directives.
+/// Does not validate configuration correctness; it only performs structural parsing.
+/// @param path             Path to the top-level YAML configuration file.
+/// @param printFinalConfig If `true`, prints the fully resolved YAML to stdout.
+/// @return Parsed `VarMap` representing the configuration tree.
+/// \ingroup kernel
 [[nodiscard]] VarMap getConfigAsVarFromYaml(const std::filesystem::path& path, bool printFinalConfig = false);
 
-/// Loads a configuration YAML file and returns its contents as a sen::VarMap.
-/// This function does not validate the correctness of the configuration, but simply
-/// translates the contents into the Var. It resolves included yamls.
-/// If the "path" argument is not correct, it will not resolve the inclusions. \ingroup kernel
+/// Parses an in-memory YAML string into a `VarMap`, resolving `!include` directives relative to @p path.
+/// If @p path does not point to a valid directory, includes will not be resolved.
+/// @param content          YAML content to parse.
+/// @param path             Base path used for resolving `!include` directives.
+/// @param printFinalConfig If `true`, prints the fully resolved YAML to stdout.
+/// @return Parsed `VarMap` representing the configuration tree.
+/// \ingroup kernel
 [[nodiscard]] VarMap getConfigAsVarFromYaml(const std::string& content,
                                             const std::filesystem::path& path,
                                             bool printFinalConfig = false);
 
-/// Configures a kernel for running. \ingroup kernel
+/// Parses a kernel YAML configuration and produces a `KernelConfig` ready to be passed to `Kernel`.
+/// \ingroup kernel
 class Bootloader final
 {
   SEN_NOCOPY_NOMOVE(Bootloader)
 
 public:
-  /// Opens a YAML configuration file and stores it in a KernelConfig structure.
+  /// Parses the YAML file at @p path and returns a fully populated `Bootloader`.
+  /// @param path         Path to the YAML configuration file.
+  /// @param printConfig  If `true`, prints the resolved configuration to stdout.
+  /// @return Unique pointer to the initialised `Bootloader`.
   static std::unique_ptr<Bootloader> fromYamlFile(const std::filesystem::path& path, bool printConfig);
 
-  /// Reads the configuration from a string in YAML format
+  /// Parses an in-memory YAML string and returns a fully populated `Bootloader`.
+  /// @param config       YAML configuration content.
+  /// @param printConfig  If `true`, prints the resolved configuration to stdout.
+  /// @return Unique pointer to the initialised `Bootloader`.
   static std::unique_ptr<Bootloader> fromYamlString(const std::string& config, bool printConfig);
 
   ~Bootloader();
 
 public:
-  /// The loaded configuration info
+  /// Returns the `KernelConfig` built from the parsed YAML.
+  /// @return Mutable reference to the `KernelConfig`; valid for the lifetime of this `Bootloader`.
   [[nodiscard]] KernelConfig& getConfig() noexcept;
 
 private:

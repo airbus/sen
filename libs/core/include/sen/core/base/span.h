@@ -110,22 +110,29 @@ public:  // constructors
   }
 
 public:  // subviews
-  /// Returns a new span over the first count elements of *this
-  /// @pre count >= 0 && count <= size()
+  /// Returns a sub-span covering the first `count` elements.
+  /// @pre `count <= size()`
+  /// @param count Number of elements to include.
+  /// @return A new `Span` over `[data(), data() + count)`.
   [[nodiscard]] Span first(index_type count) const noexcept;
 
-  /// Returns a new Span over the last count elements of *this
-  /// @pre count >= 0 && count <= size()
+  /// Returns a sub-span covering the last `count` elements.
+  /// @pre `count <= size()`
+  /// @param count Number of elements to include.
+  /// @return A new `Span` over `[data() + size() - count, data() + size())`.
   [[nodiscard]] Span last(index_type count) const noexcept;
 
-  /// Returns a new Span over the elements of *this beginning at offset and
-  /// extending for size() - offset elements.
-  /// @pre offset >= 0 && offset <= size()
+  /// Returns a sub-span starting at `offset` and extending to the end.
+  /// @pre `offset <= size()`
+  /// @param offset Starting element index.
+  /// @return A new `Span` over `[data() + offset, data() + size())`.
   [[nodiscard]] Span subspan(index_type offset = 0) const noexcept;
 
-  /// Returns a new Span over the elements of *this beginning at offset and
-  /// extending for count elements.
-  /// @pre offset >= 0 && count <= size() - offset
+  /// Returns a sub-span starting at `offset` with exactly `count` elements.
+  /// @pre `offset <= size()` and `count <= size() - offset`
+  /// @param offset Starting element index.
+  /// @param count  Number of elements to include.
+  /// @return A new `Span` over `[data() + offset, data() + offset + count)`.
   [[nodiscard]] Span subspan(index_type offset, index_type count) const noexcept;
 
 public:  // observers
@@ -196,42 +203,56 @@ template <typename T>
 // makeSpan
 //--------------------------------------------------------------------------------------------------------------
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// Constructs a `Span<T>` from a pointer and an element count.
+/// @param ptr  Pointer to the first element.
+/// @param size Number of elements in the span.
+/// @return A `Span<T>` over `[ptr, ptr + size)`.
 template <typename T>
 [[nodiscard]] constexpr Span<T> makeSpan(T* ptr, std::size_t size) noexcept
 {
   return Span<T>(ptr, size);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// Constructs a `Span<T>` from a C-style array.
+/// @param arr Reference to the array.
+/// @return A `Span<T>` covering all `n` elements of `arr`.
 template <typename T, std::size_t n>
 [[nodiscard]] constexpr Span<T> makeSpan(T (&arr)[n]) noexcept
 {
   return makeSpan(arr, n);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// Constructs a single-element `Span<T>` from a reference.
+/// @param val Reference to the single element.
+/// @return A `Span<T>` of size 1 pointing at `val`.
 template <typename T>
 [[nodiscard]] constexpr Span<T> makeSpan(T& val) noexcept
 {
   return makeSpan(&val, 1UL);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// Constructs a `Span<T>` from an iterator range `[first, last)`.
+/// @param first Iterator to the first element.
+/// @param last  Past-the-end iterator.
+/// @return A `Span<T>` over the range.
 template <typename Iterator, typename T = typename std::iterator_traits<Iterator>::value_type>
 [[nodiscard]] constexpr Span<T> makeSpan(Iterator first, Iterator last) noexcept
 {
   return makeSpan(&*first, static_cast<std::size_t>(std::distance(first, last)));
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// Constructs a `Span<T>` from a `std::vector<T>`.
+/// @param vector The vector to span.
+/// @return A `Span<T>` over all elements of `vector`.
 template <typename T>
 [[nodiscard]] constexpr Span<T> makeSpan(std::vector<T>& vector) noexcept
 {
   return Span<T>(vector);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// Constructs a `Span<T>` from a `std::array<T, s>`.
+/// @param array The array to span.
+/// @return A `Span<T>` over all elements of `array`.
 template <typename T, std::size_t s>
 [[nodiscard]] constexpr Span<T> makeSpan(std::array<T, s>& array) noexcept
 {
@@ -242,40 +263,47 @@ template <typename T, std::size_t s>
 // makeConstSpan
 //--------------------------------------------------------------------------------------------------------------
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
-/// The element types will be const qualified.
+/// Constructs a read-only `Span<const T>` from a pointer and element count.
+/// @param ptr  Pointer to the first element.
+/// @param size Number of elements.
+/// @return A `Span<const T>` over `[ptr, ptr + size)`.
 template <typename T>
 [[nodiscard]] constexpr Span<const T> makeConstSpan(const T* ptr, std::size_t size) noexcept
 {
   return Span<const T>(ptr, size);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
-/// The element types will be const qualified.
+/// Constructs a read-only `Span<const T>` from a C-style array.
+/// @param arr Const reference to the array.
+/// @return A `Span<const T>` covering all `n` elements.
 template <typename T, std::size_t n>
 [[nodiscard]] constexpr Span<const T> makeConstSpan(const T (&arr)[n]) noexcept
 {
   return makeConstSpan(arr, n);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
-/// The element types will be const qualified.
+/// Constructs a read-only `Span<const T>` from an iterator range `[first, last)`.
+/// @param first Iterator to the first element.
+/// @param last  Past-the-end iterator.
+/// @return A `Span<const T>` over the range.
 template <typename Iterator, typename T = typename std::iterator_traits<Iterator>::value_type>
 [[nodiscard]] constexpr Span<const T> makeConstSpan(Iterator first, Iterator last) noexcept
 {
   return makeConstSpan(&*first, static_cast<std::size_t>(std::distance(first, last)));
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
-/// The element types will be const qualified.
+/// Constructs a read-only `Span<const T>` from a `const std::vector<T>`.
+/// @param vector The vector to span.
+/// @return A `Span<const T>` over all elements.
 template <typename T>
 [[nodiscard]] constexpr Span<const T> makeConstSpan(const std::vector<T>& vector) noexcept
 {
   return Span<const T>(vector);
 }
 
-/// Takes in a type that can be passed to a contiguous range and returns a Span.
-/// The element types will be const qualified.
+/// Constructs a read-only `Span<const T>` from a `const std::array<T, s>`.
+/// @param array The array to span.
+/// @return A `Span<const T>` over all elements.
 template <typename T, std::size_t s>
 [[nodiscard]] constexpr Span<const T> makeConstSpan(const std::array<T, s>& array) noexcept
 {

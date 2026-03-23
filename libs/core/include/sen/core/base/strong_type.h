@@ -16,7 +16,9 @@ namespace sen
 /// \addtogroup util
 /// @{
 
-/// Wraps T to make it a strong type.
+/// Non-CRTP base that stores a single value of type `T` and exposes typed accessors.
+/// `T` must be a scalar or trivial type satisfying all `noexcept` special-member requirements.
+/// @tparam T Underlying value type.
 template <typename T>
 class StrongTypeBase
 {
@@ -40,7 +42,8 @@ public:
   /// Initializes the wrapped value using the default constructor.
   constexpr StrongTypeBase() noexcept = default;
 
-  /// Conversion constructor.
+  /// Implicit conversion constructor from any type convertible to `T`.
+  /// @param value Value to store, converted to `T` via `static_cast`.
   template <typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
   constexpr StrongTypeBase(U value) noexcept: value_(static_cast<T>(value))  // NOLINT
   {
@@ -49,12 +52,17 @@ public:
   ~StrongTypeBase() = default;
 
 public:  // getters and setters
+  /// @return The stored value by copy.
   [[nodiscard]] constexpr T get() const noexcept { return value_; }
+  /// @param value New value to store (copy).
   constexpr void set(const T& value) noexcept { value_ = value; }
+  /// @param value New value to store (move).
   constexpr void set(T&& value) noexcept { value_ = std::move(value); }
 
 protected:  // accessors for subclasses
+  /// @return Mutable reference to the stored value (for use by `StrongType` operators).
   [[nodiscard]] constexpr T& val() noexcept { return value_; }
+  /// @return Const reference to the stored value (for use by `StrongType` operators).
   [[nodiscard]] constexpr const T& val() const noexcept { return value_; }
 
 private:
@@ -66,7 +74,10 @@ struct ShouldBePassedByValue<StrongTypeBase<T>>: std::true_type
 {
 };
 
-/// CRTP class that wraps T to make it a strong type.
+/// CRTP wrapper that adds comparison and arithmetic operators to `StrongTypeBase<T>`.
+/// Operators are conditionally enabled based on what `T` itself supports.
+/// @tparam T Underlying value type.
+/// @tparam D Derived type (CRTP parameter).
 template <typename T, typename D>
 class StrongType: public StrongTypeBase<T>
 {

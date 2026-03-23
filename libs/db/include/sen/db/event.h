@@ -16,7 +16,9 @@ namespace sen::db
 
 class Input;
 
-/// Represents the emission of an event by some object.
+/// Recording entry produced when an object emits a Sen event.
+/// Arguments are stored in the Sen wire format and lazily deserialised to `Var` on first access.
+/// Returned by a `Cursor` when iterating over a recording that includes event emissions.
 /// \ingroup db
 class Event
 {
@@ -26,16 +28,21 @@ public:
   ~Event() = default;
 
 public:
-  /// The ID of the object that emitted the event.
+  /// @return ID of the object that emitted this event.
   [[nodiscard]] ObjectId getObjectId() const noexcept;
 
-  /// The meta information about the event.
+  /// @return Pointer to the compile-time event descriptor (name, argument types, QoS).
+  ///         Valid for the lifetime of the type registry; never null for a well-formed recording.
   [[nodiscard]] const ::sen::Event* getEvent() const noexcept;
 
-  /// The list of arguments, as variants.
+  /// Returns the event arguments as a list of type-erased variants.
+  /// Arguments are lazily deserialised and cached on first call.
+  /// @return Reference to the cached argument list; valid for the lifetime of this Event.
   [[nodiscard]] const std::vector<Var>& getArgsAsVariants() const;
 
-  /// The list of arguments, as a (serialized) binary buffer.
+  /// Returns the event arguments as a raw serialised byte span.
+  /// Useful for zero-copy forwarding without deserialising to `Var`.
+  /// @return Non-owning span into the internal buffer; valid for the lifetime of this Event.
   [[nodiscard]] Span<const uint8_t> getArgsAsBuffer() const noexcept;
 
 private:

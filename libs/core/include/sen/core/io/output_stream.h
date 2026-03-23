@@ -20,19 +20,25 @@
 namespace sen
 {
 
-/// Binary output stream. \ingroup io
-/// Serializes values.
-/// In general, I/O operations throw on failure.
+/// Binary serialisation stream that writes values into a `Writer`, parameterised by byte order.
+/// All `write*()` methods append bytes to the underlying writer in declaration order.
+/// @tparam BufferEndian Byte-order tag (`LittleEndian` or `BigEndian`).
+/// \ingroup io
 template <typename BufferEndian>
 class OutputStreamTemplate final
 {
   SEN_NOCOPY_NOMOVE(OutputStreamTemplate)
 
 public:
+  /// Constructs the stream over an existing `Writer`.
+  /// @param writer Byte sink to write into; must outlive this stream.
   explicit OutputStreamTemplate(Writer& writer) noexcept: writer_(writer) {}
   ~OutputStreamTemplate() noexcept = default;
 
 public:
+  /// @name Primitive write methods
+  /// Each method serialises the value and appends it to the underlying writer.
+  /// @{
   void writeBool(bool val) { writeBasic(impl::BoolTransportType {val ? uchar_t {1U} : uchar_t {0U}}); }
   void writeChar(char val) { writeBasic(val); }
   void writeUChar(unsigned char val) { writeBasic(val); }
@@ -46,11 +52,19 @@ public:
   void writeUInt64(uint64_t val) { writeBasic(val); }
   void writeFloat32(float32_t val) { writeBasic(val); }
   void writeFloat64(float64_t val) { writeBasic(val); }
+  /// Serialises a string as a 4-byte `uint32` length prefix followed by the UTF-8 bytes.
   void writeString(std::string_view val);
+  /// Serialises a `TimeStamp` as a 64-bit nanosecond count since the epoch.
   void writeTimestamp(TimeStamp val) { writeInt64(val.sinceEpoch().getNanoseconds()); }
+  /// @}
 
 public:
+  /// Returns the underlying `Writer` (mutable).
+  /// @return Reference to the writer passed at construction.
   [[nodiscard]] Writer& getWriter() noexcept { return writer_; }
+
+  /// Returns the underlying `Writer` (const).
+  /// @return Const reference to the writer passed at construction.
   [[nodiscard]] const Writer& getWriter() const noexcept { return writer_; }
 
 private:

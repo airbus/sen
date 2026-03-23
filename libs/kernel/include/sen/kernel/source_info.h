@@ -36,19 +36,23 @@ public:
   virtual ~SourceInfo() = default;
 
 public:
-  /// The name of the session
+  /// Returns the name of the session this source belongs to.
+  /// @return Const reference to the session name string; valid for the lifetime of this object.
   [[nodiscard]] const std::string& getName() const noexcept;
 
-  /// Name of the buses discovered so far
+  /// Returns the names of all buses (sources) discovered so far on this session.
+  /// @return Vector of bus name strings at the time of the call.
   [[nodiscard]] std::vector<std::string> getDetectedSources() const;
 
-  /// Sets a callback that will be invoked when sources are detected.
-  /// The first time it will be called for each of the already-detected sources.
+  /// Sets a callback invoked whenever a new source (bus) is detected.
+  /// On first registration, the callback is immediately invoked for each already-known source.
   /// Replaces any previously-set callback.
+  /// @param callback  Function called with the bus name each time a new source appears.
   void onSourceDetected(const std::function<void(const std::string&)>& callback);
 
-  /// Sets a callback that will be invoked when sources are undetected.
+  /// Sets a callback invoked whenever a previously-known source (bus) disappears.
   /// Replaces any previously-set callback.
+  /// @param callback  Function called with the bus name each time a source is lost.
   void onSourceUndetected(const std::function<void(const std::string&)>& callback);
 
 protected:  // interface towards the owner
@@ -80,6 +84,7 @@ private:
   std::vector<std::string> currentSources_;
 };
 
+/// Provides per-session source discovery â€” tracks which buses are live within a single session.
 /// \ingroup kernel
 class SessionInfoProvider: public SourceInfo, public std::enable_shared_from_this<SessionInfoProvider>
 {
@@ -95,6 +100,8 @@ private:
   std::shared_ptr<impl::Session> session_;
 };
 
+/// Discovers all sessions available on the network and exposes per-session `SessionInfoProvider` objects.
+/// \ingroup kernel
 class SessionsDiscoverer: public SourceInfo, public std::enable_shared_from_this<SessionsDiscoverer>
 {
 public:
@@ -104,6 +111,9 @@ public:
   ~SessionsDiscoverer() override = default;
 
 public:
+  /// Returns (or creates) a `SessionInfoProvider` for the named session.
+  /// @param sessionName  Name of the session to track.
+  /// @return Shared pointer to the `SessionInfoProvider` for that session.
   [[nodiscard]] std::shared_ptr<SessionInfoProvider> makeSessionInfoProvider(const std::string& sessionName);
 
 protected:

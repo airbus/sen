@@ -24,8 +24,10 @@ template <typename T>
 [[nodiscard]] inline T makeRandomSeed();
 }  // namespace impl
 
-/// Utility class for generating n-dimensional noise. \ingroup hash
+/// Utility class for generating n-dimensional gradient (Perlin-style) noise. \ingroup hash
 /// Mainly useful in tests and examples.
+/// @tparam FloatType       Floating-point type used for positions and output values (e.g. `float` or `double`).
+/// @tparam dimensionCount  Number of spatial dimensions (e.g. `1` for 1-D, `2` for 2-D noise).
 template <typename FloatType, std::size_t dimensionCount>
 class GradientNoise final
 {
@@ -45,10 +47,13 @@ public:
   ~GradientNoise() = default;
 
 public:
-  /// Seed the gradient noise.
+  /// Seeds the pseudo-random generator used for gradient computation.
+  /// @param val  New seed value; defaults to the engine's built-in default seed.
   void seed(SeedType val = EngineType::default_seed) { seed_ = val; }
 
-  /// Return a noise value from an n-dimensional position.
+  /// Returns a noise value sampled at the given n-dimensional position.
+  /// @param position  Array of `dimensionCount` coordinates at which to evaluate the noise.
+  /// @return Noise value in the range `[-1, 1]`.
   FloatType operator()(std::array<FloatType, dimensionCount> position);
 
 private:

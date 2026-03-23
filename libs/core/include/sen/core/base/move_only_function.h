@@ -252,6 +252,10 @@ constexpr bool is_move_only_function_v<MoveOnlyFunctionImpl<FunctionType>> = tru
 
 namespace sen::std_util
 {
+/// Move-only callable wrapper equivalent to C++23 `std::move_only_function`.
+/// Unlike `std::function`, captured state is never copied â€” only moved.
+/// Supports all cv/ref qualifier combinations for the call operator.
+/// @tparam FwdArgs Function signature (e.g. `void(int)`, `int() const`).
 template <typename... FwdArgs>
 using move_only_function = detail::MoveOnlyFunctionImpl<FwdArgs...>;  // NOLINT(readability-identifier-naming)
 }  // namespace sen::std_util

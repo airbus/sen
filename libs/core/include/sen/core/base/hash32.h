@@ -29,40 +29,68 @@ namespace sen
 /// \addtogroup hash
 /// @{
 
-/// Initial seed for all hashes
+/// Initial seed for generic Sen hashes.
 constexpr u32 hashSeed = 23835769U;
+/// Seed used specifically for property member hashes.
 constexpr u32 propertyHashSeed = 19830715U;
+/// Seed used specifically for method member hashes.
 constexpr u32 methodHashSeed = 93580253U;
+/// Seed used specifically for event member hashes.
 constexpr u32 eventHashSeed = 12125807U;
 
-/// This hash is combined when no Type is found in a certain spec
+/// Sentinel hash value combined into a spec hash when a `Type` is absent (null handle).
 constexpr u32 nonPresentTypeHash = 18121997U;
 
-/// Calculates the CRC32 for any sequence of values. (You could use type traits and a
-/// static assert to ensure the values can be converted to 8 bits.).
+/// Computes a CRC-32 checksum over any iterator range whose elements are byte-convertible.
+/// @tparam InputIterator  Iterator type; elements must be convertible to 8-bit values.
+/// @param first  Start of the range.
+/// @param last   Past-the-end of the range.
+/// @return 32-bit CRC checksum of the byte sequence `[first, last)`.
 template <typename InputIterator>
 [[nodiscard]] u32 crc32(InputIterator first, InputIterator last) noexcept;
 
-/// CRC32 for strings.
+/// Computes a CRC-32 checksum over the bytes of a string.
+/// @param str  Input string view.
+/// @return 32-bit CRC checksum of @p str's bytes.
 [[nodiscard]] inline u32 crc32(std::string_view str) noexcept { return crc32(str.begin(), str.end()); }
 
-/// Combines the hash of different values into a single 32-bit hash.
+/// Combines the hashes of one or more values into a single 32-bit hash starting from @p seed.
+/// Produces platform-independent (portable) results suitable for cross-process comparison.
+/// @tparam Types  Pack of hashable value types.
+/// @param seed  Starting seed (use `hashSeed` or a domain-specific seed constant).
+/// @param args  Values to fold into the hash.
+/// @return Combined 32-bit hash.
 template <typename... Types>
 [[nodiscard]] u32 hashCombine(u32 seed, const Types&... args) noexcept;
 
-/// Old version of the hashCombine method. The current one replaced this implementation to allow sen processes
-/// to discover and connect themselves between platforms (Windows and Linux). We keep this old implementation to
-/// enable replaying Sen recordings generated with the old hashes.
+/// Legacy (platform-dependent) hash-combine kept for backward compatibility with old recordings.
+/// The current `hashCombine()` replaced this to enable cross-platform (Windows â†” Linux) discovery.
+/// Use only when replaying Sen recordings that were generated with the old hash scheme.
+/// @tparam Types  Pack of hashable value types.
+/// @param seed  Starting seed.
+/// @param args  Values to fold into the hash.
+/// @return Combined platform-dependent 32-bit hash.
 template <typename... Types>
 [[nodiscard]] uint_fast32_t platformDependentHashCombine(uint_fast32_t seed, const Types&... args) noexcept;
 
-/// Decompresses a blob into its original shape.
+/// Decompresses an in-memory compressed blob and returns a pointer to the raw bytes.
+/// The caller is responsible for freeing the returned buffer.
+/// @param compressedData  Pointer to the compressed byte blob.
+/// @return Pointer to the decompressed bytes; must be freed by the caller.
 unsigned char* decompressSymbol(const void* compressedData);
 
-/// Decompresses a blob into a string.
+/// Decompresses an in-memory blob into a `std::string`.
+/// @param compressedData  Pointer to the compressed byte blob.
+/// @param originalSize    Expected size of the decompressed content in bytes.
+/// @return Decompressed content as a `std::string`.
 [[nodiscard]] std::string decompressSymbolToString(const void* compressedData, unsigned int originalSize);
 
-/// Creates a C++ source file that contains an array representing the contents of another file.
+/// Compresses the contents of @p inputFile and writes a C++ source file containing
+/// the result as a named `unsigned char[]` array â€” for embedding binary assets in code.
+/// @param inputFile   Path to the binary file to embed.
+/// @param symbolName  C identifier to use for the generated array symbol.
+/// @param outputFile  Path to write the generated `.cpp` source file.
+/// @return `true` on success; `false` if the input file cannot be read or the output cannot be written.
 [[nodiscard]] bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
                                              std::string_view symbolName,
                                              const std::filesystem::path& outputFile);

@@ -21,14 +21,27 @@
 namespace sen::kernel
 {
 
-/// Convenience helper for doing sen::Ok(sen::kernel::OpState {sen::kernel::OpFinished {}})
+/// Convenience helper that returns a `PassResult` indicating the operation has finished.
+/// Equivalent to `sen::Ok(sen::kernel::OpState{sen::kernel::OpFinished{}})`.
+/// @return A `PassResult` signalling completion.
 [[nodiscard]] inline PassResult done() { return Ok(OpState {OpFinished {}}); }
 
-/// Base class for implementing sen kernel components.
+/// Abstract base class for all Sen kernel components.
 ///
-/// Users shall define the SEN_COMPONENT(name) macro *once*
-/// somewhere in their shared lib (in the global namespace)
-/// where 'name' shall be the name of the subclass.
+/// A component is a dynamically loaded (or statically registered) unit of behaviour
+/// that participates in the kernel's structured lifecycle:
+///
+/// 1. **preload** â€” Install transports or tracers; no kernel-aware objects yet.
+/// 2. **load**    â€” Allocate self-contained resources that do not touch the kernel.
+/// 3. **init**    â€” Register objects on buses; called repeatedly until `done()` is returned.
+/// 4. **run**     â€” Execute the main loop on a dedicated thread; exit when `stopRequested()`.
+/// 5. **unload**  â€” Release kernel-level resources.
+/// 6. **postUnloadCleanup** â€” Final teardown pass, called for every component.
+///
+/// To make a shared library loadable by the kernel, place the `SEN_COMPONENT(YourClass)` macro
+/// once in a `.cpp` file in the global namespace. The macro exports the factory functions the
+/// kernel uses to instantiate and inspect the component at runtime.
+///
 /// \ingroup kernel
 class Component
 {
@@ -39,42 +52,52 @@ public:  // special members
   virtual ~Component() = default;
 
 public:
-  /// Preload the component and initialize all self-contained resources.
-  /// This function is just called once.
+  /// Called once before `load()` to install transports or tracers.
+  /// @param api Provides access to kernel services and component configuration.
+  /// @return `Ok()` on success, or `Err(ExecError)` to abort the startup sequence.
   virtual FuncResult preload(PreloadApi&& /* api */) { return Ok(); }
 
-  /// Load the component and initialize all self-contained resources.
-  /// This function is just called once.
+  /// Called once to allocate self-contained resources (file handles, threads, etc.).
+  /// At this point the kernel type registry is available but no objects are published yet.
+  /// @param api Provides access to kernel services and component configuration.
+  /// @return `Ok()` on success, or `Err(ExecError)` to abort the startup sequence.
   virtual FuncResult load(LoadApi&& /* api */) { return Ok(); }
 
-  /// Initialize the component and perform kernel-related operations.
-  /// This may include dependency resolution, and resource registration.
-  /// This function will be continuously called until it returns that it's done.
+  /// Called repeatedly until the component returns `done()`.
+  /// Use this phase to register objects on buses and resolve inter-component dependencies.
+  /// Return `delay(duration)` to defer re-invocation; return `done()` when ready.
+  /// @param api Provides access to kernel services and component configuration.
+  /// @return `done()` when initialisation is complete, `delay(t)` to be called again after `t`.
   virtual PassResult init(InitApi&& /* api */) { return done(); }
 
-  /// Runs the component in a dedicated thread.
-  /// This function is called once and only when the kernel
-  /// has reached the desired group of this component.
-  /// Implementations shall end the execution thread when
-  /// the stopFlag is set to true.
+  /// Main execution entry point; runs on a dedicated kernel thread.
+  /// Called exactly once after `init()` completes and the component's group is started.
+  /// Implementations must return (or call `Ok()`) when `api.stopRequested()` is set.
+  /// @param api Provides access to `drainInputs()`, `commit()`, `execLoop()`, and timing.
+  /// @return `Ok()` on clean exit, or `Err(ExecError)` to signal a fatal runtime failure.
   virtual FuncResult run(RunApi& /* api */) { return Ok(); }
 
-  /// Unload any self-contained resources.
-  /// This function is just called once.
+  /// Called once after `run()` returns to release kernel-level resources.
+  /// @param api Provides access to kernel services and component configuration.
+  /// @return `Ok()` on success, or `Err(ExecError)` to signal a cleanup failure.
   virtual FuncResult unload(UnloadApi&& /* api */) { return Ok(); }
 
-  /// Do an additional (and final) clean up step after unloading the component.
-  /// This function is just called once for all components and independently of the chosen group.
+  /// Called once for every component after all components have been unloaded.
+  /// Use this for final cleanup that must happen regardless of group configuration.
   virtual void postUnloadCleanup() {}
 
-  /// Return true here if your component is not designed to work with virtualized time.
+  /// Returns `true` if this component cannot operate with a virtualised (non-wall-clock) time source.
+  /// When `true`, the kernel will not allow this component in simulation-mode deployments.
   [[nodiscard]] virtual bool isRealTimeOnly() const noexcept { return false; }
 
 protected:  // helpers
-  /// Convenience function to return an operation delay request.
+  /// Returns a `PassResult` that asks the kernel to call `init()` again after `time` has elapsed.
+  /// @param time How long to wait before the next `init()` invocation.
+  /// @return A `PassResult` signalling deferred re-initialisation.
   [[nodiscard]] static PassResult delay(Duration time) noexcept { return Ok(OpState {OpNotFinished {time}}); }
 
-  /// Convenience function to return a finished operation result.
+  /// Returns a `PassResult` signalling that `init()` has completed successfully.
+  /// @return A `PassResult` signalling completion.
   [[nodiscard]] static PassResult done() noexcept { return kernel::done(); }
 };
 
@@ -163,7 +186,9 @@ constexpr auto* componentInfoMakerFuncName = SEN_STRINGIFY(SEN_COMPONENT_INFO_MA
 extern "C" SEN_EXPORT sen::kernel::Component* SEN_COMPONENT_MAKER();
 extern "C" SEN_EXPORT const sen::kernel::ComponentInfo* SEN_COMPONENT_INFO_MAKER();
 
-/// Use this macro to make your library loadable.
+/// Exports the factory functions required by the kernel to load this component from a shared library.
+/// Place this macro exactly once per shared library, in the global namespace of a `.cpp` file.
+/// @param component_name The unqualified name of the `Component` subclass to instantiate.
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage, bugprone-macro-parentheses)
 #define SEN_COMPONENT(component_name)                                                                                  \
                                                                                                                        \

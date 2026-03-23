@@ -22,21 +22,33 @@ struct Var;
 /// \addtogroup traits
 /// @{
 
-/// Helper class that traits classes can inherit from when the
-/// type at hand is basic (native or trivial).
+/// Mixin base for traits classes whose type is a native or trivially-serialisable scalar.
 ///
-/// The idea is to use it as follows:
-/// \code{.cpp}
+/// Inherit from this in a `*Traits<T>` specialisation to get a default implementation of
+/// `variantToValue`, `valueToVariant`, and `serializedSize`:
+/// @code{.cpp}
 /// template <>
-/// struct *Traits<MyType>: public BasicTraits<MyType>
-/// \endcode
+/// struct MyTraits<int32_t>: public BasicTraits<int32_t> {};
+/// @endcode
+///
+/// @tparam T Native or trivially-copyable type to provide default trait operations for.
 template <typename T>
 struct BasicTraits
 {
-  static constexpr bool available = true;
+  static constexpr bool available = true;  ///< Marks the type as having a complete traits implementation.
 
+  /// Extracts a value of type `T` from a `Var`.
+  /// @param var Source variant value.
+  /// @param val Output reference that receives the extracted value.
   static void variantToValue(const Var& var, T& val) { val = getCopyAs<T>(var); }
+
+  /// Stores a value of type `T` into a `Var`.
+  /// @param val Value to store.
+  /// @param var Output variant that receives the value.
   static void valueToVariant(T val, Var& var) { var = val; }
+
+  /// @param val Value whose serialised byte count is requested.
+  /// @return Number of bytes required to serialise `val`.
   static constexpr uint32_t serializedSize(T val) noexcept { return impl::getSerializedSize(val); }
 };
 

@@ -34,7 +34,10 @@ public:
   virtual ~FixedMemoryBlockPoolBase() = default;
 
 public:
-  /// The minimum block size of a pool
+  /// Returns the minimum usable block size for a pool instantiated with template parameter `size`.
+  /// Blocks must be at least `sizeof(void*)` bytes to store the free-list next pointer.
+  /// @tparam size Requested block size in bytes.
+  /// @return `max(size, sizeof(void*))`.
   template <std::size_t size>
   [[nodiscard]] static constexpr std::size_t minBlockSize() noexcept
   {
@@ -93,7 +96,8 @@ public:
   }
 
 public:
-  /// Allocate a memory block.
+  /// Acquires a block from the pool, growing the pool if necessary.
+  /// @return Shared pointer to a `FixedMemoryBlock` that returns itself to the pool on destruction.
   [[nodiscard]] std::shared_ptr<FixedMemoryBlock> getBlockPtr() noexcept
   {
     return std::make_shared<FixedMemoryBlock>(this->shared_from_this(), alloc());
@@ -158,10 +162,12 @@ public:  // basic container interface
   /// True if size == 0.
   [[nodiscard]] bool empty() const noexcept { return size() == 0; }
 
-  /// Resizes the memory area. Re-allocates memory if needed. Use with care.
+  /// Resizes the memory area to exactly `size` bytes, re-allocating if necessary.
+  /// @param size New byte count.
   virtual void resize(std::size_t size) = 0;
 
-  /// Set the capacity without increasing the size. Good for preventing re-allocations.
+  /// Pre-allocates capacity for at least `size` bytes without changing the logical size.
+  /// @param size Minimum capacity to reserve in bytes.
   virtual void reserve(std::size_t size) = 0;
 
 public:  // translation into Span of uint8_t
@@ -208,11 +214,13 @@ public:  // basic container interface
   /// How many bytes have been used.
   [[nodiscard]] std::size_t size() const noexcept override { return size_; }
 
-  /// Sets the number of used bytes. Does not allocate.
-  /// Throws if the size is larger than the block capacity.
+  /// Sets the number of used bytes without allocating new memory.
+  /// @param size New logical size in bytes.
+  /// @throws std::exception if `size` exceeds the pool block's fixed capacity.
   void resize(std::size_t size) override;
 
-  /// Does nothing, but exists to keep the container interface uniform.
+  /// No-op for fixed-capacity blocks; present to satisfy the `MemoryBlock` interface.
+  /// @param size Ignored.
   void reserve(std::size_t size) override;
 
 private:

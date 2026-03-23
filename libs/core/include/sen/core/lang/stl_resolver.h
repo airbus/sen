@@ -28,22 +28,24 @@ namespace sen::lang
 
 struct TypeSet;
 
-/// A set of types coming from a STL file.
+/// The resolved output of a single STL file: the package path, all declared types,
+/// and pointers to any imported `TypeSet`s that this file depends on.
 struct TypeSet
 {
-  std::string fileName;
-  std::string parentDirectory;
-  std::vector<std::string> package;
-  std::vector<ConstTypeHandle<sen::CustomType>> types;
-  std::vector<const TypeSet*> importedSets;
+  std::string fileName;              ///< Base file name (without directory) of the STL source.
+  std::string parentDirectory;       ///< Directory containing the STL source file.
+  std::vector<std::string> package;  ///< Fully-qualified package path (e.g. `{"sen", "geometry"}`).
+  std::vector<ConstTypeHandle<sen::CustomType>>
+    types;                                   ///< All custom types declared in this file, in declaration order.
+  std::vector<const TypeSet*> importedSets;  ///< Non-owning pointers to directly imported `TypeSet`s.
 };
 
-/// The environment where a resolution takes place.
+/// Filesystem context supplied to `StlResolver` so it can locate imported STL files.
 struct ResolverContext
 {
-  std::filesystem::path originalFileName;
-  std::filesystem::path absoluteFileName;
-  std::vector<std::filesystem::path> includePaths;
+  std::filesystem::path originalFileName;           ///< Path as written in the import statement or command line.
+  std::filesystem::path absoluteFileName;           ///< Canonical absolute path of the STL file being resolved.
+  std::vector<std::filesystem::path> includePaths;  ///< Search paths tried in order when resolving imports.
 };
 
 /// The set of types used during resolution.
@@ -97,16 +99,24 @@ struct TypeSettings
   std::unordered_map<std::string, ClassAnnotations> classAnnotations;
 };
 
-/// Resolves a list of statements into a set of types.
+/// Semantic analyser that walks a parsed STL statement list and builds a `TypeSet`.
+/// Third stage of the STL pipeline: AST (`StlStatement` list) â†’ `TypeSet` â†’ type registry.
 class StlResolver
 {
 public:
-  /// Stores the statements, context, and the global context.
+  /// Constructs the resolver with all inputs needed for a single-file resolution pass.
+  /// @param statements   AST produced by `StlParser::parse()` for the file being resolved.
+  /// @param context      Filesystem context used to locate imported STL files.
+  /// @param globalContext Shared registry of all previously resolved `TypeSet`s; new sets
+  ///                     for this file and its imports are added here during `resolve()`.
   StlResolver(const std::vector<StlStatement>& statements,
               const ResolverContext& context,
               TypeSetContext& globalContext) noexcept;
 
-  /// Do the resolution based on the inputs passed on the constructor.
+  /// Runs the full resolution pass and returns the `TypeSet` for the primary file.
+  /// Imports are resolved recursively; all resulting sets are registered in `globalContext`.
+  /// @param settings  Per-type annotations (e.g. checked properties, deferred methods).
+  /// @return Non-owning pointer to the newly created `TypeSet`; owned by `globalContext`.
   [[nodiscard]] const TypeSet* resolve(const TypeSettings& settings);
 
 private:
@@ -115,7 +125,15 @@ private:
   TypeSetContext& globalContext_;
 };
 
-/// Helper function to use the resolver.
+/// Convenience helper that runs the full STL pipeline (scan â†’ parse â†’ resolve) for a file.
+/// Handles include-path resolution and recursive import processing automatically.
+/// @param fileName           Path to the `.stl` file to read and resolve.
+/// @param includePaths       Directories to search when resolving `import` statements.
+/// @param globalTypeSetContext Shared `TypeSet` registry; resolved sets are appended here.
+/// @param settings           Per-type annotations forwarded to `StlResolver::resolve()`.
+/// @param from               Optional caller name used in error messages (e.g. a parent file path).
+/// @return Non-owning pointer to the `TypeSet` for `fileName`; owned by `globalTypeSetContext`.
+/// @throws std::runtime_error if the file cannot be read, scanned, parsed, or resolved.
 [[nodiscard]] const TypeSet* readTypesFile(const std::filesystem::path& fileName,
                                            const std::vector<std::filesystem::path>& includePaths,
                                            TypeSetContext& globalTypeSetContext,

@@ -40,11 +40,11 @@ struct ShouldBePassedByValue<InterestId>: std::true_type
 /// A condition set on an object's type.
 using TypeCondition = std::variant<std::monostate, ConstTypeHandle<ClassType>, std::string>;
 
-/// The name/address of a bus
+/// The name/address of a bus.
 struct BusSpec
 {
-  std::string sessionName;
-  std::string busName;
+  std::string sessionName;  ///< Name of the session that owns the bus (e.g. `"session"`).
+  std::string busName;      ///< Name of the bus within that session (e.g. `"objects"`).
 };
 
 /// Converts a BusSpec into a session.bus string representation
@@ -73,31 +73,36 @@ public:
   SEN_NOCOPY_NOMOVE(Interest)
 
 public:
-  /// Make an interest from a query.
-  /// Throws std::exception if not well formed.
+  /// Creates an `Interest` by parsing and compiling a query expression.
+  /// @param query        STL filter expression.
+  /// @param typeRegistry Registry used to resolve type names referenced in the query.
+  /// @return Shared pointer to the newly created `Interest`.
+  /// @throws std::exception if the query is syntactically or semantically invalid.
   [[nodiscard]] static std::shared_ptr<Interest> make(std::string_view query, const CustomTypeRegistry& typeRegistry);
 
   ~Interest() = default;
 
 public:
-  /// The condition related to the type.
+  /// @return The type condition extracted from the query (class handle, name string, or empty).
   [[nodiscard]] const TypeCondition& getTypeCondition() const noexcept;
 
-  /// The unique ID of this interest.
+  /// @return Unique identifier assigned to this interest instance.
   [[nodiscard]] InterestId getId() const noexcept;
 
-  /// The code that can evaluate the condition.
+  /// @return Compiled VM bytecode that evaluates the query's filter expression.
   [[nodiscard]] const lang::Chunk& getQueryCode() const noexcept;
 
-  /// The user-defined string that encodes the criteria.
+  /// @return The original query string as supplied to `make()`.
   [[nodiscard]] const std::string& getQueryString() const noexcept;
 
-  /// The source of this interest (if any).
+  /// @return Optional bus constraint embedded in the query, or `std::nullopt` if absent.
   [[nodiscard]] const BusCondition& getBusCondition() const noexcept;
 
-  /// Compute the information about the variables used in the query expression (if any).
-  /// Throws in case the type is not known, or if there's an error in the expression
-  /// (property or field not present, wrong type used, etc.).
+  /// Returns (and caches) metadata about property variables referenced in the query expression.
+  /// Thread-safe; result is computed lazily on first call for a given class type.
+  /// @param classType Class type whose properties should be resolved against the query.
+  /// @return List of `VarInfo` entries mapping query variables to class properties and field paths.
+  /// @throws std::exception if a referenced property or field is not found, or the type is unknown.
   [[nodiscard]] const VarInfoList& getOrComputeVarInfoList(const ClassType* classType) const;
 
 public:

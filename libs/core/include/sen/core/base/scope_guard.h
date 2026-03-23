@@ -16,11 +16,20 @@ namespace sen
 /// \addtogroup util
 /// @{
 
-/// Makes scope guard from a callable taking no arguments.
+/// Creates a `ScopeGuard` that invokes `f` when the returned guard goes out of scope.
+/// Only rvalue callables are accepted to prevent accidental copies.
+/// @tparam F Callable type taking no arguments (deduced).
+/// @param f  Callable to invoke on destruction; must be an rvalue reference.
+/// @return A `ScopeGuard<F>` that will call `f` on destruction.
 template <class F>
 [[nodiscard]] auto makeScopeGuard(F&& f);
 
-/// Runs the function object F on destruction
+/// RAII wrapper that executes a callable when the guard goes out of scope.
+///
+/// Use `makeScopeGuard()` to create instances â€” the constructor is private.
+/// The guard is non-copyable and non-movable; use it only as a local variable.
+///
+/// @tparam F No-argument callable type to invoke on destruction.
 template <typename F>
 class [[nodiscard]] ScopeGuard
 {
@@ -30,7 +39,7 @@ public:  // special members
   ScopeGuard() = delete;
 
 public:
-  /// Will trigger the given callback.
+  /// Invokes the stored callable unconditionally.
   ~ScopeGuard() noexcept { f_(); }
 
 private:

@@ -36,6 +36,9 @@ class StructType;
 /// Holds the information for a field in the struct.
 struct StructField final
 {
+  /// @param name        Field name (must be unique within the struct).
+  /// @param description Human-readable description of the field's purpose.
+  /// @param type        Type handle describing the field's value type.
   StructField(std::string name, std::string description, ConstTypeHandle<> type)
     : name(std::move(name)), description(std::move(description)), type(std::move(type))
   {
@@ -50,17 +53,22 @@ struct StructField final
   friend bool operator!=(const StructField& lhs, const StructField& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  std::string name;         // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string description;  // NOLINT(misc-non-private-member-variables-in-classes)
-  ConstTypeHandle<> type;   // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string name;         ///< Field name. NOLINT(misc-non-private-member-variables-in-classes)
+  std::string description;  ///< Human-readable description. NOLINT(misc-non-private-member-variables-in-classes)
+  ConstTypeHandle<> type;   ///< Type of the field value. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /// A function that extracts a native value from a field
 using NativeFieldValueGetter = std::function<lang::Value(const void*)>;
 
-/// Data of struct type.
+/// Descriptor used to construct a `StructType` instance.
 struct StructSpec final
 {
+  /// @param name          Short type name (e.g. `"Point"`).
+  /// @param qualifiedName Fully-qualified name including namespace (e.g. `"ns.Point"`).
+  /// @param description   Human-readable description of the struct.
+  /// @param fields        Ordered list of fields belonging to this struct.
+  /// @param parent        Optional handle to a parent struct whose fields are inherited.
   StructSpec(std::string name,
              std::string qualifiedName,
              std::string description,
@@ -84,11 +92,12 @@ struct StructSpec final
   friend bool operator!=(const StructSpec& lhs, const StructSpec& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  std::string name;                         // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string qualifiedName;                // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string description;                  // NOLINT(misc-non-private-member-variables-in-classes)
-  std::vector<StructField> fields;          // NOLINT(misc-non-private-member-variables-in-classes)
-  MaybeConstTypeHandle<StructType> parent;  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string name;           ///< Short type name. NOLINT(misc-non-private-member-variables-in-classes)
+  std::string qualifiedName;  ///< Fully-qualified type name. NOLINT(misc-non-private-member-variables-in-classes)
+  std::string description;    ///< Human-readable description. NOLINT(misc-non-private-member-variables-in-classes)
+  std::vector<StructField> fields;  ///< Ordered list of fields. NOLINT(misc-non-private-member-variables-in-classes)
+  MaybeConstTypeHandle<StructType>
+    parent;  ///< Optional parent struct type. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /// Represents a structure type.
@@ -104,21 +113,24 @@ public:  // special members
 
 public:
   /// Factory function that validates the spec and creates a struct type.
-  /// Throws std::exception if the spec is not valid.
+  /// @param spec Descriptor containing name, fields, and optional parent.
+  /// @return Owning handle to the newly created `StructType`.
+  /// @throws std::exception if the spec is not valid (e.g. duplicate field names or empty name).
   [[nodiscard]] static TypeHandle<StructType> make(StructSpec spec);
 
 public:
-  /// Get the field data given a name.. Nullptr means not found.
-  /// @param name the name of the field.
+  /// Looks up a field by name (own fields only, no parent traversal).
+  /// @param name The field name to search for.
+  /// @return Pointer to the matching `StructField`, or `nullptr` if not found.
   [[nodiscard]] const StructField* getFieldFromName(std::string_view name) const;
 
-  /// Gets the fields.
+  /// @return Read-only span over this struct's own fields (does not include parent fields).
   [[nodiscard]] Span<const StructField> getFields() const noexcept;
 
-  /// Gets the fields including parents in the search
+  /// @return All fields including those inherited from parent structs, in declaration order.
   [[nodiscard]] std::vector<StructField> getAllFields() const noexcept;
 
-  /// Gets the parent struct, if any.
+  /// @return Handle to the parent struct, or `std::nullopt` if this is a root struct.
   [[nodiscard]] MaybeConstTypeHandle<StructType> getParent() const noexcept;
 
 public:  // Type

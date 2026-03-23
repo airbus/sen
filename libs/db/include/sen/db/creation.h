@@ -15,7 +15,10 @@ namespace sen::db
 
 class Input;
 
-/// Represents the creation of an object. \ingroup db
+/// Recording entry produced when a new object is published to a Sen bus.
+/// Contains the full initial property state of the object as a `Snapshot`.
+/// Returned by a `Cursor` when iterating over a recording that includes object-creation events.
+/// \ingroup db
 class Creation
 {
   SEN_COPY_MOVE(Creation)
@@ -24,7 +27,7 @@ public:
   ~Creation() = default;
 
 public:
-  /// The object snapshot when it was created.
+  /// @return Immutable snapshot of the object's full property state at the moment of creation.
   [[nodiscard]] const Snapshot& getSnapshot() const noexcept;
 
 private:

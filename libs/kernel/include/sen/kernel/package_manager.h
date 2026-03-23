@@ -27,17 +27,23 @@ class PackageManager
   SEN_NOCOPY_NOMOVE(PackageManager)
 
 public:
+  /// @param reg  Type registry that receives the types declared in each imported package.
   explicit PackageManager(CustomTypeRegistry& reg);
   ~PackageManager();
 
 public:
-  /// Imports a set of packages. Throws std::exception on failure.
+  /// Imports the named packages, registering their types into the registry.
+  /// @param packageNames  Names of the Sen packages to import (e.g. `"sen.geometry"`).
+  /// @throws std::exception if any package cannot be found or loaded.
   void import(const std::vector<std::string>& packageNames);
 
-  /// The types loaded so far.
+  /// Returns the type registry containing all types loaded so far.
+  /// @return Const reference to the internal `CustomTypeRegistry`; valid for the lifetime of this object.
   [[nodiscard]] const CustomTypeRegistry& getImportedTypes() const noexcept;
 
-  /// Look for a manually-defined type inside the imported packages.
+  /// Looks up a named type across all imported packages.
+  /// @param typeName  Fully-qualified type name to search for.
+  /// @return Non-owning pointer to the `Type`, or `nullptr` if not found.
   [[nodiscard]] const Type* lookupType(const std::string& typeName);
 
 private:

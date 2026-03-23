@@ -16,7 +16,9 @@ namespace sen::db
 
 class Input;
 
-/// Represents the full state of an object at a point in time.
+/// Immutable snapshot of the full property state of a recorded object at a specific point in time.
+/// Snapshots are produced by the `sen::db::Input` cursor and give random-access to property values
+/// either as type-erased variants (`Var`) or as raw serialised bytes.
 /// \ingroup db
 class Snapshot
 {
@@ -26,29 +28,39 @@ public:
   ~Snapshot() = default;
 
 public:
-  /// The ID of the object.
+  /// @return Unique numeric identifier of the recorded object.
   [[nodiscard]] ObjectId getObjectId() const noexcept;
 
-  /// The name of the object.
+  /// @return Name of the recorded object as published to the bus.
   [[nodiscard]] const std::string& getName() const noexcept;
 
-  /// The session where the object was published.
+  /// @return Name of the session on which the object was published.
   [[nodiscard]] const std::string& getSessionName() const noexcept;
 
-  /// The bus where the object was published.
+  /// @return Name of the bus on which the object was published.
   [[nodiscard]] const std::string& getBusName() const noexcept;
 
-  /// The class of the object.
+  /// @return Type handle for the reflected `ClassType` of the recorded object.
   [[nodiscard]] const ConstTypeHandle<ClassType>& getType() const noexcept { return type_; }
 
 public:
-  /// Get the value of a property as a variant.
+  /// Returns the value of a property as a type-erased variant.
+  /// The result is lazily deserialised and cached on first access.
+  /// @param property  Descriptor of the property to read (must belong to the object's class).
+  /// @return Reference to the cached Var; the reference is valid for the lifetime of this Snapshot.
+  /// @throws std::out_of_range if @p property is not part of the recorded object's type.
   [[nodiscard]] const Var& getPropertyAsVariant(const Property* property) const;
 
-  /// Get the value of a property as a serialized buffer.
+  /// Returns the value of a property as a raw serialised byte span.
+  /// Useful for zero-copy forwarding without deserialising to a Var.
+  /// @param property  Descriptor of the property to read (must belong to the object's class).
+  /// @return Non-owning span into the internal buffer; valid for the lifetime of this Snapshot.
+  /// @throws std::out_of_range if @p property is not part of the recorded object's type.
   [[nodiscard]] Span<const uint8_t> getPropertyAsBuffer(const Property* property) const;
 
-  /// Get the buffer containing all the serialized properties.
+  /// Returns a span over the entire serialised property buffer for this snapshot.
+  /// The layout matches the Sen wire format used by the recorder component.
+  /// @return Non-owning span into the internal buffer; valid for the lifetime of this Snapshot.
   [[nodiscard]] Span<const uint8_t> getAllPropertiesBuffer() const noexcept;
 
 private:

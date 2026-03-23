@@ -30,7 +30,19 @@ namespace sen
 /// \addtogroup obj
 /// @{
 
-/// Allows adding and receiving objects.
+/// Bus-scoped registry of live `NativeObject` instances.
+///
+/// An `ObjectSource` is the entry point for publishing objects onto a bus and for
+/// subscribing to objects published by others (via the inherited `ObjectFilter`).
+/// Obtain one through `KernelApi::getSource()`.
+///
+/// Typical usage inside a component:
+/// @code{.cpp}
+/// auto source = api.getSource("session.bus");
+/// source->add(std::make_shared<MyObject>("my_object"));
+/// // ... later, when shutting down:
+/// source->remove(myObjectPtr);
+/// @endcode
 class ObjectSource: public ObjectFilter
 {
 public:
@@ -44,19 +56,23 @@ public:
   ~ObjectSource() override = default;
 
 public:
-  /// Registers an object (including its type).
-  /// It does nothing if the object is already registered.
-  /// Returns false if one or more objects could not be added.
-  /// This method is thread-safe.
+  /// Publishes a batch of objects onto the bus, registering their types if not already known.
+  /// Objects that are already registered are silently skipped.
+  /// Thread-safe.
+  /// @param instances Span of shared pointers to the objects to publish.
+  /// @return `true` if all objects were added successfully, `false` if any failed.
   virtual bool add(const Span<NativeObjectPtr>& instances) = 0;
 
-  /// Registers an object (including its type).
-  /// It does nothing if the objects are already present.
-  /// Returns false if the objects could not be added.
-  /// This method is thread-safe.
+  /// Publishes a single object onto the bus.
+  /// Thread-safe.
+  /// @param instance Shared pointer to the object to publish.
+  /// @return `true` on success, `false` if the object could not be added.
   bool add(NativeObjectPtr instance) { return add(makeSpan<NativeObjectPtr>(instance)); }
 
-  /// Convenience helper.
+  /// Publishes a typed vector of objects onto the bus.
+  /// @tparam T Concrete `NativeObject` subclass.
+  /// @param instances Vector of shared pointers to publish.
+  /// @return `true` if all objects were added successfully.
   template <typename T>
   bool add(const std::vector<std::shared_ptr<T>>& instances)
   {
@@ -64,17 +80,20 @@ public:
     return add(makeSpan(vec));
   }
 
-  /// Unregisters an object and notifies any registered listeners.
-  /// Ignores objects that are not present.
-  /// This method is thread-safe.
+  /// Un-publishes a batch of objects from the bus and notifies all subscribers.
+  /// Objects that are not currently registered are silently ignored.
+  /// Thread-safe.
+  /// @param instances Span of shared pointers to the objects to remove.
   virtual void remove(const Span<NativeObjectPtr>& instances) = 0;
 
-  /// Unregisters an object.
-  /// Does nothing if the object is not present.
-  /// This method is thread-safe.
+  /// Un-publishes a single object from the bus.
+  /// Thread-safe.
+  /// @param instance Shared pointer to the object to remove.
   void remove(NativeObjectPtr instance) { remove(makeSpan<NativeObjectPtr>(instance)); }
 
-  /// Convenience helper.
+  /// Un-publishes a typed vector of objects from the bus.
+  /// @tparam T Concrete `NativeObject` subclass.
+  /// @param instances Vector of shared pointers to remove.
   template <typename T>
   void remove(const std::vector<std::shared_ptr<T>>& instances)
   {

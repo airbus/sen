@@ -15,7 +15,8 @@ namespace sen::db
 
 class Input;
 
-/// Represents the deletion of an object.
+/// Recording entry produced when an object is un-published from a Sen bus.
+/// Returned by a `DataCursor` when iterating over a recording that includes object-deletion events.
 /// \ingroup db
 class Deletion
 {
@@ -25,7 +26,8 @@ public:
   ~Deletion() = default;
 
 public:
-  /// The ID of the object that got deleted.
+  /// Returns the ID of the object that was deleted.
+  /// @return The `ObjectId` of the un-published object.
   [[nodiscard]] ObjectId getObjectId() const noexcept;
 
 private:

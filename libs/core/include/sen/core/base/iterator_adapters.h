@@ -20,13 +20,21 @@ namespace sen::util
 //===--------------------------------------------------------------------------------------------------------------===//
 
 /// Basic range abstraction to form a minimal range around two iterators.
+/// @tparam IteratorType  Iterator type that models at least `InputIterator`.
 template <typename IteratorType>
 struct IteratorRange
 {
+  /// @param begin  Iterator to the first element of the range.
+  /// @param end    Past-the-end iterator of the range.
   IteratorRange(IteratorType begin, IteratorType end): begin_(std::move(begin)), end_(std::move(end)) {}
 
+  /// @return Iterator to the first element.
   [[nodiscard]] IteratorType begin() const { return begin_; }
+
+  /// @return Past-the-end iterator.
   [[nodiscard]] IteratorType end() const { return end_; }
+
+  /// @return `true` if the range contains no elements.
   [[nodiscard]] bool empty() const { return begin_ == end_; }
 
 private:
@@ -36,8 +44,10 @@ private:
 
 /// Create a simple range for the two iterators.
 ///
-/// @param[in] begin: of the range
-/// @param[in] end: of the range
+/// @tparam IteratorType  Iterator type (deduced).
+/// @param[in] begin  Start of the range.
+/// @param[in] end    Past-the-end of the range.
+/// @return An `IteratorRange<IteratorType>` spanning `[begin, end)`.
 ///
 /// Example:
 /// @code{.cpp}
@@ -56,7 +66,9 @@ IteratorRange<IteratorType> makeRange(IteratorType begin, IteratorType end)
 
 /// Create a simple range for the given container.
 ///
-/// @param[in] container: to iterate over
+/// @tparam ContainerType  Container type that provides `begin()`/`end()` (deduced).
+/// @param[in] container   Container to iterate over.
+/// @return An `IteratorRange` spanning the full container.
 ///
 /// Example:
 /// @code{.cpp}
@@ -83,22 +95,35 @@ auto makeRange(ContainerType& container)
 /// pair). This way, the adapter ensures that the lock is held during iteration.
 ///
 /// The lock is taken during construction and release during destructions of this adapter.
+/// @tparam LockType      Lock template (e.g. `std::lock_guard`) â€” takes `MutexType` as its argument.
+/// @tparam IteratorType  Iterator type for the protected range.
+/// @tparam MutexType     Mutex type guarding the range.
 template <template <typename> typename LockType, typename IteratorType, typename MutexType>
 class LockedRangeAdapter
 {
 public:
+  /// Constructs the adapter from a container, acquiring the lock immediately.
+  /// @param container  Container whose `begin()`/`end()` define the range.
+  /// @param m          Mutex to lock for the lifetime of this adapter.
   template <typename ContainerType>
   LockedRangeAdapter(ContainerType& container, MutexType& m)
     : lock_(m), beginIterator_(std::begin(container)), endIterator_(std::end(container))
   {
   }
 
+  /// Constructs the adapter from an explicit iterator pair, acquiring the lock immediately.
+  /// @param begin  Start of the range.
+  /// @param end    Past-the-end of the range.
+  /// @param m      Mutex to lock for the lifetime of this adapter.
   LockedRangeAdapter(IteratorType begin, IteratorType end, MutexType& m)
     : lock_(m), beginIterator_(begin), endIterator_(end)
   {
   }
 
+  /// @return Iterator to the first element (lock is held).
   IteratorType begin() const noexcept(std::is_nothrow_copy_constructible_v<IteratorType>) { return beginIterator_; }
+
+  /// @return Past-the-end iterator (lock is held).
   IteratorType end() const noexcept(std::is_nothrow_copy_constructible_v<IteratorType>) { return endIterator_; }
 
 private:
@@ -109,11 +134,11 @@ private:
 
 /// Create a LockedRangeAdapter for the given iterator pair and lock the given mutex.
 ///
-/// @tparam LockType: type of the lock that should be created
-///
-/// @param[in] begin: of the range
-/// @param[in] end: of the range
-/// @param[in] mutex: that should be locked
+/// @tparam LockType      Lock template (e.g. `std::lock_guard`).
+/// @param[in] begin      Start of the range.
+/// @param[in] end        Past-the-end of the range.
+/// @param[in] m          Mutex to hold for the duration of iteration.
+/// @return A `LockedRangeAdapter` spanning `[begin, end)` while holding `m`.
 ///
 /// Example:
 /// @code{.cpp}
@@ -130,10 +155,10 @@ auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& m)
 
 /// Create a LockedRangeAdapter for the given container and lock the given mutex.
 ///
-/// @tparam LockType: type of the lock that should be created
-///
-/// @param[in] container: to wrap the range around
-/// @param[in] mutex: that should be locked
+/// @tparam LockType      Lock template (e.g. `std::lock_guard`).
+/// @param[in] container  Container to iterate over.
+/// @param[in] m          Mutex to hold for the duration of iteration.
+/// @return A `LockedRangeAdapter` spanning the full container while holding `m`.
 ///
 /// Example:
 /// @code{.cpp}
@@ -162,6 +187,8 @@ auto makeLockedRange(ContainerType& container, MutexType& m)
 /// Iterator adapter to turn a iterator that iterates over a smart ptr sequence into one that iterates over pointers to
 /// the underlying type.
 ///
+/// @tparam IteratorType  Iterator over a range of smart pointers (e.g. `std::unique_ptr<T>`).
+///
 /// Example:
 /// @code{.cpp}
 ///   struct Foo
@@ -177,6 +204,7 @@ auto makeLockedRange(ContainerType& container, MutexType& m)
 template <typename IteratorType>
 struct SmartPtrIteratorAdapter
 {
+  /// @param iter  Underlying smart-pointer iterator to wrap.
   explicit SmartPtrIteratorAdapter(IteratorType iter): iter_(iter) {}
 
   // NOLINTBEGIN(readability-identifier-naming): iterator tags

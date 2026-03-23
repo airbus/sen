@@ -16,11 +16,12 @@ namespace sen::lang
 /// \addtogroup lang
 /// @{
 
-/// Location of a character in a program.
+/// Identifies the position of a lexeme within an STL source string.
+/// Stored in every `StlToken` and used by the scanner/parser to produce precise error messages.
 struct CodeLocation
 {
-  const char* src;     /// Points to the source code
-  std::size_t offset;  /// Offset relative to the start of the source code
+  const char* src;     ///< Pointer to the start of the source string (not owned).
+  std::size_t offset;  ///< Byte offset of the lexeme from the beginning of the source string.
 };
 
 /// @}

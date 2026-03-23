@@ -26,12 +26,14 @@ namespace sen
 namespace impl
 {
 
-/// Holds a successful result.
+/// Intermediate value produced by `Ok(val)`, implicitly convertible to `Result<T, E>`.
+/// @tparam T The success value type.
 template <typename T>
 struct Ok final
 {
   using ValueT = T;
 
+  /// @param theVal The success value to wrap.
   explicit Ok(T theVal) noexcept(std::is_nothrow_move_constructible_v<T>): val(std::move(theVal)) {}
 
   ~Ok() noexcept = default;
@@ -40,21 +42,23 @@ struct Ok final
   SEN_COPY_ASSIGN(Ok) = default;     // NOLINT(misc-include-cleaner)
   SEN_MOVE_ASSIGN(Ok) = default;     // NOLINT(misc-include-cleaner)
 
-  T val;  // NOLINT(misc-non-private-member-variables-in-classes)
+  T val;  ///< The wrapped success value. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-/// Indicates a successful result with no payload.
+/// `Ok` specialisation for `void` success (no payload).
 template <>
 struct Ok<void> final
 {
 };
 
-/// Holds a non-successful result.
+/// Intermediate value produced by `Err(val)`, implicitly convertible to `Result<T, E>`.
+/// @tparam E The error value type.
 template <typename E>
 struct Err final
 {
   using ValueT = E;
 
+  /// @param theVal The error value to wrap.
   explicit Err(E theVal) noexcept(std::is_nothrow_move_constructible_v<E>): val(std::move(theVal)) {}
 
   ~Err() noexcept = default;
@@ -63,10 +67,10 @@ struct Err final
   SEN_COPY_ASSIGN(Err) = default;
   SEN_MOVE_ASSIGN(Err) = default;
 
-  E val;  // NOLINT(misc-non-private-member-variables-in-classes)
+  E val;  ///< The wrapped error value. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-/// Indicates a non-successful result with no payload.
+/// `Err` specialisation for `void` errors (failure with no payload, used by `BoolResult`).
 template <>
 struct Err<void> final
 {
@@ -156,7 +160,10 @@ public:  // special members
   ~Result() = default;
 
 public:  // conversion support
-  /// Do a conversion construction from a compatible Result
+  /// Converting copy-constructor from a compatible `Result<U, G>`.
+  /// Enabled when `T` is constructible from `const U&` and `E` is constructible from `const G&`.
+  /// @tparam U Compatible success type.
+  /// @tparam G Compatible error type.
   template <typename U,
             typename G,
             std::enable_if_t<std::conjunction_v<std::is_constructible<T, const U&>, std::is_constructible<E, const G&>>,
@@ -176,7 +183,10 @@ public:  // conversion support
   {
   }
 
-  /// Do a conversion construction from a compatible Result
+  /// Converting move-constructor from a compatible `Result<U, G>`.
+  /// Enabled when `T` is constructible from `U&&` and `E` is constructible from `G&&`.
+  /// @tparam U Compatible success type.
+  /// @tparam G Compatible error type.
   template <typename U,
             typename G,
             std::enable_if_t<std::conjunction_v<std::is_constructible<T, U>, std::is_constructible<E, G>>, bool> = true>
@@ -267,8 +277,11 @@ public:  // access
     return std::get<E>(value_);
   }
 
-  /// Extracts the value of the correct result, or
-  /// terminates the program with a given error message.
+  /// Returns the success value, or terminates the program with a diagnostic message if the result holds an error.
+  /// Useful for asserting that a result must be successful at a given call site.
+  /// @param errorMsg  Message surfaced in the debugger / crash log on failure.
+  /// @return Const reference to the success value.
+  /// @warning Calls `getValue()` which terminates if this is an error result.
   template <typename U = T>
   [[nodiscard]] const impl::NonVoidT<U>& expect(std::string_view errorMsg = {}) const noexcept
   {
@@ -287,15 +300,22 @@ using BoolResult = Result<void, std::monostate>;
 // Helpers
 //--------------------------------------------------------------------------------------------------------------
 
-/// Helper (syntactic sugar) to create Results that indicate success.
+/// Creates a success wrapper that implicitly converts to `Result<T, E>`.
+/// @tparam T  Type of the success value (deduced).
+/// @param val The success value to wrap.
+/// @return An `Ok<T>` that can be returned from any function returning `Result<T, E>`.
 template <typename T, typename CleanT = std::decay_t<T>>
 impl::Ok<CleanT> Ok(T&& val) noexcept;  // NOLINT(readability-identifier-naming)
 
-/// Helper (syntactic sugar) to create Results that indicate error.
+/// Creates an error wrapper that implicitly converts to `Result<T, E>`.
+/// @tparam E  Type of the error value (deduced).
+/// @param val The error value to wrap.
+/// @return An `Err<E>` that can be returned from any function returning `Result<T, E>`.
 template <typename E, typename CleanE = std::decay_t<E>>
 impl::Err<CleanE> Err(E&& val) noexcept;  // NOLINT(readability-identifier-naming)
 
-/// If T is void, use the void specialization of Ok.
+/// Creates a void success wrapper for use with `Result<void, E>`.
+/// @return An `Ok<void>` that can be returned from any function returning `Result<void, E>`.
 impl::Ok<void> Ok() noexcept;  // NOLINT(readability-identifier-naming)
 
 /// If E is void, use the void specialization of Err.

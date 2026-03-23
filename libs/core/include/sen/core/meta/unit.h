@@ -86,7 +86,9 @@ public:
   ~Unit() noexcept = default;
 
 public:
-  /// Moves the spec into a member.
+  /// Validates the spec and creates a `Unit` instance.
+  /// @param spec Descriptor with name, category, and conversion coefficients.
+  /// @return Owning pointer to the newly created `Unit`.
   static std::unique_ptr<Unit> make(UnitSpec spec);
 
   struct EnsureTag
@@ -108,24 +110,35 @@ public:
   /// Unique abbreviation.
   [[nodiscard]] std::string_view getAbbreviation() const noexcept;
 
-  /// Converts 'value' given in this unit to an equivalent SI unit.
+  /// Converts a value expressed in this unit to its SI equivalent.
+  /// @param value Input value in this unit.
+  /// @return Equivalent value in the SI base unit for this category.
   [[nodiscard]] float64_t toSI(float64_t value) const noexcept;
 
-  /// Converts 'value' given in SI to this unit.
+  /// Converts an SI value to this unit.
+  /// @param value Input value in the SI base unit.
+  /// @return Equivalent value expressed in this unit.
   [[nodiscard]] float64_t fromSI(float64_t value) const noexcept;
 
-  /// Parses a string, searching for a valid unit specification within the same category.
-  /// Returns a valid value if the string contains a number and it also converts the value
-  /// from the specified unit.
+  /// Parses a string that contains a numeric value and a unit abbreviation in the same category,
+  /// then converts the value to this unit.
+  /// @param str Input string (e.g. `"100 km"`).
+  /// @return `Ok(converted_value)` on success, or `Err(message)` if parsing fails.
   [[nodiscard]] Result<float64_t, std::string> fromString(const std::string& str) const noexcept;
 
-  /// Converts a a value between units.
+  /// Converts a value from one unit to another within the same category.
+  /// @param from  Source unit.
+  /// @param to    Target unit.
+  /// @param value Value expressed in `from`.
+  /// @return Equivalent value expressed in `to`.
   [[nodiscard]] static float64_t convert(const Unit& from, const Unit& to, float64_t value) noexcept;
 
-  /// A string that describes the category.
+  /// Returns a human-readable name for a `UnitCategory` value.
+  /// @param category The category to describe.
+  /// @return String view of the category name (e.g. `"length"`).
   [[nodiscard]] static std::string_view getCategoryString(UnitCategory category) noexcept;
 
-  /// Returns a unique hash computed for the UnitSpec at compilation time
+  /// @return 32-bit hash of this unit's spec, computed once at construction.
   [[nodiscard]] MemberHash getHash() const noexcept;
 
 public:  /// Comparison

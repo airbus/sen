@@ -34,7 +34,8 @@ namespace sen
 /// \addtogroup types
 /// @{
 
-/// The hash of a member.
+/// Strong typedef for the 32-bit compile-time hash that uniquely identifies a type or member.
+/// Used as a key in registries and wire-format headers to avoid string comparisons at runtime.
 struct MemberHash: public StrongType<uint32_t, MemberHash>
 {
   using StrongType<uint32_t, MemberHash>::StrongType;
@@ -76,26 +77,35 @@ public:
   virtual ~Type() = default;
 
 public:
-  /// The type name.
+  /// Returns the unqualified type name (e.g. `"Point"` for `sen.geometry.Point`).
+  /// @return Non-owning string view; valid for the lifetime of the type object.
   [[nodiscard]] virtual std::string_view getName() const noexcept = 0;
 
-  /// The type documentation.
+  /// Returns the human-readable description of this type (from the STL doc-comment, if any).
+  /// @return Non-owning string view; valid for the lifetime of the type object.
   [[nodiscard]] virtual std::string_view getDescription() const noexcept = 0;
 
-  /// Accepts a type visitor.
+  /// Dispatches to the appropriate `apply()` overload of a `FullTypeVisitor`.
+  /// @param tv The visitor to invoke.
   virtual void accept(FullTypeVisitor& tv) const = 0;
 
-  /// True if values of this type have a bounded memory footprint (do not grow or shrink).
+  /// Returns `true` if values of this type always occupy a fixed amount of memory
+  /// (i.e., cannot grow or shrink at runtime). Strings, sequences, and maps are unbounded.
   [[nodiscard]] virtual bool isBounded() const noexcept = 0;
 
-  /// Returns the unique hash computed for the type at compile time
+  /// Returns the compile-time hash that uniquely identifies this type in registries and wire headers.
+  /// @return 32-bit `MemberHash` set at construction.
   [[nodiscard]] MemberHash getHash() const noexcept;
 
 public:
-  /// Checks that a lower case name (used for fields, enums, etc) is valid.
+  /// Validates that a name follows the lower-case identifier rules required for fields and enum values.
+  /// @param name The identifier to validate.
+  /// @return `Ok(void)` if valid, or `Err(message)` describing the violation.
   static Result<void, std::string> validateLowerCaseName(std::string_view name);
 
-  /// Checks that a upper case name (used for type names) is valid.
+  /// Validates that a name follows the PascalCase rules required for type names.
+  /// @param name The identifier to validate.
+  /// @return `Ok(void)` if valid, or `Err(message)` describing the violation.
   static Result<void, std::string> validateTypeName(std::string_view name);
 
 public:
@@ -154,9 +164,13 @@ private:
   MemberHash hash_;
 };
 
-/// Handle around a type that, by default, ensures the lifetime of the underlying type.
+/// Owning or non-owning smart handle to a `Type` subclass.
 ///
-/// Note: A type handle always contains a type (i.e., there are no empty handles).
+/// A `TypeHandle` can hold either a `shared_ptr` (owning) or a raw pointer (non-owning).
+/// Handles are always non-null â€” there are no empty handles.
+/// Use `makeNonOwningTypeHandle()` to explicitly opt out of ownership.
+///
+/// @tparam SenTypeType Concrete type class, e.g. `StructType`, `EnumType`, or the base `Type`.
 template <typename SenTypeType>
 class TypeHandle final
 {
@@ -270,20 +284,28 @@ private:
 template <typename T>
 TypeHandle(std::shared_ptr<T> type) -> TypeHandle<T>;
 
-/// Creates a non-owning type handle from a type pointer.
+/// Creates a non-owning `TypeHandle` from a raw type pointer.
 ///
-/// Note: This is an explicit opt-out of the type-lifetime management system of the TypeHandle. That is, the user is
-/// responsible for ensuring a long enough lifetime of the underlying type (e.g., through a object with static storage
-/// duration).
+/// This is an explicit opt-out of the handle's lifetime-management system.
+/// The caller is responsible for ensuring that `typePtr` remains valid for the
+/// entire lifetime of the returned handle (e.g., by storing the type in a registry
+/// with static or process-wide lifetime).
 ///
-/// @param typePtr: which should be wrapped by the handle
+/// @tparam T    The concrete type class pointed to by `typePtr`.
+/// @param typePtr Non-null pointer to the type to wrap; must outlive the returned handle.
+/// @return A non-owning `TypeHandle<T>` wrapping `typePtr`.
 template <typename T>
 TypeHandle<T> makeNonOwningTypeHandle(T* typePtr)
 {  // explicit factory function to prevent accidental creation/convertion from a type *
   return TypeHandle<T> {typePtr};
 }
 
-/// Downcasts the type inside the type handle to the specified one, if possible.
+/// Attempts to downcast the wrapped type to `T` using `dynamic_cast`.
+/// Works for both owning (`shared_ptr`) and non-owning (raw pointer) handles.
+/// @tparam T Target type class to downcast to (must be a subclass of `U`).
+/// @tparam U Source type class currently held by the handle.
+/// @param handle The handle to downcast.
+/// @return `optional<TypeHandle<T>>` containing the downcast handle, or `nullopt` if the cast fails.
 template <typename T, typename U>
 std::optional<TypeHandle<T>> dynamicTypeHandleCast(const TypeHandle<U>& handle)
 {
@@ -311,13 +333,15 @@ std::optional<TypeHandle<T>> dynamicTypeHandleCast(const TypeHandle<U>& handle)
   return std::nullopt;
 }
 
-/// Utility typedef.
+/// Convenience alias for a `shared_ptr` to an immutable `T`.
 template <typename T>
 using ConstSharedPtr = std::shared_ptr<const T>;
 
+/// Convenience alias for a `TypeHandle` to a `const T` (the most common handle type in APIs).
 template <typename T = Type>
 using ConstTypeHandle = TypeHandle<const T>;
 
+/// Convenience alias for an optional `ConstTypeHandle<T>` (used when a type may be absent).
 template <typename T = Type>
 using MaybeConstTypeHandle = std::optional<ConstTypeHandle<T>>;
 

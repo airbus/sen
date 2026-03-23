@@ -44,17 +44,25 @@ public:
   virtual ~ObjectFilterBase() = default;
 
 public:
-  /// Add a subscriber to the filter on a specific interest.
+  /// Registers a listener for objects that match the given interest.
+  /// @param interest             Filter criteria that an object must satisfy.
+  /// @param listener             Callback that receives addition/removal notifications.
+  /// @param notifyAboutExisting  If `true`, immediately notify the listener about already-present objects.
   virtual void addSubscriber(std::shared_ptr<Interest> interest,
                              ObjectProviderListener* listener,
                              bool notifyAboutExisting) = 0;
 
-  /// Removes a previously-added subscriber on a specific interest.
+  /// Unregisters a listener for a specific interest.
+  /// @param interest             The interest the listener was registered with.
+  /// @param listener             The listener to remove.
+  /// @param notifyAboutExisting  If `true`, send removal notifications for all currently-tracked objects.
   virtual void removeSubscriber(std::shared_ptr<Interest> interest,
                                 ObjectProviderListener* listener,
                                 bool notifyAboutExisting) = 0;
 
-  // Removes all the instances of the listener.
+  /// Unregisters all subscriptions held by a listener, regardless of interest.
+  /// @param listener             The listener to remove completely.
+  /// @param notifyAboutExisting  If `true`, send removal notifications for all currently-tracked objects.
   virtual void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) = 0;
 };
 
@@ -63,11 +71,12 @@ public:
 class ObjectFilter: public ObjectFilterBase
 {
 public:
+  /// Snapshot of object state changes produced during a single evaluation cycle.
   struct ObjectSet
   {
-    std::unordered_map<ObjectId, std::shared_ptr<Object>> newObjects;
-    std::unordered_map<ObjectId, std::shared_ptr<Object>> currentObjects;
-    std::unordered_set<ObjectId> deletedObjects;
+    std::unordered_map<ObjectId, std::shared_ptr<Object>> newObjects;      ///< Objects added since the last evaluation.
+    std::unordered_map<ObjectId, std::shared_ptr<Object>> currentObjects;  ///< All objects currently tracked.
+    std::unordered_set<ObjectId> deletedObjects;  ///< Objects removed since the last evaluation.
   };
 
 public:
@@ -87,11 +96,14 @@ public:  // implements ObjectFilterBase
   void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) override;
 
 public:
-  /// Creates a uniquely named provider for objects determined on a given interest.
-  /// Returns any provider with the same name and interest.
+  /// Returns an existing provider with the given name and interest, or creates a new one.
+  /// @param name     Unique identifier for this provider within the filter.
+  /// @param interest Filter criteria the provider should apply.
+  /// @return Shared pointer to the (possibly newly created) `ObjectProvider`.
   std::shared_ptr<ObjectProvider> getOrCreateNamedProvider(const std::string& name, std::shared_ptr<Interest> interest);
 
-  /// Deletes any provider with this name. Does nothing if none found.
+  /// Removes the named provider, releasing its resources. Does nothing if not found.
+  /// @param name Name of the provider to remove.
   void removeNamedProvider(std::string_view name);
 
 protected:

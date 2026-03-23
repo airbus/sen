@@ -31,6 +31,9 @@ namespace sen
 /// Holds the information for a field in the variant.
 struct VariantField final
 {
+  /// @param key         Discriminant value that selects this field.
+  /// @param description Human-readable description of the field's purpose.
+  /// @param type        Type handle describing the field's value type (must not be void).
   VariantField(uint32_t key, std::string description, ConstTypeHandle<> type)
     : key(key), description(std::move(description)), type(std::move(type))
   {
@@ -46,9 +49,12 @@ struct VariantField final
   friend bool operator!=(const VariantField& lhs, const VariantField& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  uint32_t key = 0;         // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string description;  // NOLINT(misc-non-private-member-variables-in-classes)
-  ConstTypeHandle<> type;   // NOLINT(misc-non-private-member-variables-in-classes)
+  uint32_t key =
+    0;  ///< Discriminant value that selects this alternative. NOLINT(misc-non-private-member-variables-in-classes)
+  std::string description;  ///< Human-readable description of this alternative.
+                            ///< NOLINT(misc-non-private-member-variables-in-classes)
+  ConstTypeHandle<>
+    type;  ///< Type of the value carried by this alternative. NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /// Data of a variant type.
@@ -64,10 +70,10 @@ struct VariantSpec final
   friend bool operator!=(const VariantSpec& lhs, const VariantSpec& rhs) noexcept { return !(lhs == rhs); }
 
 public:
-  std::string name;
-  std::string qualifiedName;
-  std::string description;
-  std::vector<VariantField> fields;
+  std::string name;                  ///< Short type name (e.g. `"Shape"`).
+  std::string qualifiedName;         ///< Fully-qualified type name (e.g. `"ns.Shape"`).
+  std::string description;           ///< Human-readable description of the variant.
+  std::vector<VariantField> fields;  ///< Ordered list of alternative fields.
 };
 
 /// Represents a variant type.
@@ -84,15 +90,18 @@ public:  // special members
 
 public:
   /// Factory function that validates the spec and creates a variant type.
-  /// Throws std::exception if the spec is not valid.
+  /// @param spec Descriptor containing the name and alternative fields.
+  /// @return Owning handle to the newly created `VariantType`.
+  /// @throws std::exception if the spec is not valid (e.g. duplicate keys or empty name).
   [[nodiscard]] static TypeHandle<VariantType> make(VariantSpec spec);
 
 public:
-  /// Get the field data using a key. Nullptr means not found.
-  /// @param key the field's value.
+  /// Looks up an alternative by its discriminant key.
+  /// @param key The discriminant value to search for.
+  /// @return Pointer to the matching `VariantField`, or `nullptr` if not found.
   [[nodiscard]] const VariantField* getFieldFromKey(uint32_t key) const noexcept;
 
-  /// Gets the fields.
+  /// @return Read-only span over the full list of alternative fields.
   [[nodiscard]] Span<const VariantField> getFields() const noexcept;
 
 public:  // Type

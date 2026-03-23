@@ -28,11 +28,11 @@ public:
   /// A function that reports the error to some sink.
   using ReportFunc = std::function<void(const CodeLocation&, const std::string&, std::size_t, bool isWarning)>;
 
-  /// Reports an error using the defined function.
-  /// @param loc: the place where the error is located.
-  /// @param message: human-readable error message.
-  /// @param width: (optional) width of the error (in characters).
-  /// @param isWarning (optional) true if we should mark the problem as a warning.
+  /// Dispatches an error or warning to the installed report function.
+  /// @param loc       Source location where the problem was detected.
+  /// @param message   Human-readable description of the problem.
+  /// @param width     Number of source characters the problem spans (0 = unknown).
+  /// @param isWarning `true` to classify the report as a warning rather than an error.
   static void report(const CodeLocation& loc,
                      const std::string& message,
                      std::size_t width = 0U,

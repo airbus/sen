@@ -18,11 +18,12 @@ namespace sen
 /// \addtogroup obj
 /// @{
 
-/// Object references may or may not hold an object instance. Their
-/// value is set by a provider based on some defined
-/// interest which was given during construction.
+/// Holds a type-safe pointer to at most one discovered object instance.
+/// The reference is populated automatically by an `ObjectProvider` once an object
+/// matching the configured `Interest` is discovered, and cleared on removal.
 ///
 /// Methods of this class are thread-safe.
+/// @tparam T  Sen class type of the expected object; use `Object` to accept any type.
 template <typename T>
 class ObjectRef final: public ObjectProviderListener
 {
@@ -37,30 +38,40 @@ public:  // special members
   ~ObjectRef() override = default;
 
 public:
-  /// True if the reference holds a valid pointer to an instance.
+  /// Returns `true` if the reference currently holds a valid object pointer.
+  /// @return `true` when an instance has been discovered and not yet removed.
   [[nodiscard]] bool valid() const noexcept { return ptr_.load() != nullptr; }
 
-  /// True if the reference holds a valid pointer to an instance.
+  /// Implicit boolean conversion â€” equivalent to `valid()`.
+  /// @return `true` when the reference is non-null.
   [[nodiscard]] operator bool() const noexcept { return valid(); }  // NOLINT(hicpp-explicit-conversions)
 
-  /// Access the internal instance.
+  /// Provides pointer-style access to the held object instance.
+  /// @return Non-owning pointer to the instance; undefined behaviour if `!valid()`.
   [[nodiscard]] T* operator->() noexcept { return ptr_.load(); }
 
-  /// Access the internal instance.
+  /// Provides const pointer-style access to the held object instance.
+  /// @return Non-owning const pointer to the instance; undefined behaviour if `!valid()`.
   [[nodiscard]] const T* operator->() const noexcept { return ptr_.load(); }
 
-  /// Access the internal instance.
+  /// Returns a mutable reference to the held object instance.
+  /// @return Reference to the instance; undefined behaviour if `!valid()`.
   [[nodiscard]] T& get() noexcept { return *ptr_.load(); }
 
-  /// Access the internal instance.
+  /// Returns a const reference to the held object instance.
+  /// @return Const reference to the instance; undefined behaviour if `!valid()`.
   [[nodiscard]] const T& get() const noexcept { return *ptr_.load(); }
 
-  /// Installs a function to be called when objects are added / discovered.
-  /// Replaces any previously-installed function.
+  /// Installs a callback invoked each time an object is discovered and assigned to this reference.
+  /// Replaces any previously-installed callback.
+  /// @param function  Callable invoked (with no arguments) when a new object is assigned.
+  /// @return The previously-installed callback, or an empty function if none was set.
   Callback onAdded(Callback&& function) noexcept { return std::exchange(onAdded_, std::move(function)); }
 
-  /// Installs a function to be called when objects are added / discovered.
-  /// Replaces any previously-installed function.
+  /// Installs a callback invoked each time the held object is removed from the provider.
+  /// Replaces any previously-installed callback.
+  /// @param function  Callable invoked (with no arguments) when the object is cleared.
+  /// @return The previously-installed callback, or an empty function if none was set.
   Callback onRemoved(Callback&& function) noexcept { return std::exchange(onRemoved_, std::move(function)); }
 
 protected:  // implements ObjectProviderListener

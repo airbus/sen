@@ -21,7 +21,10 @@ namespace sen::db
 
 class Input;
 
-/// Represents an annotation which can be added to a recording. \ingroup db
+/// Recording entry that carries a user-defined typed annotation attached to a point in time.
+/// Annotations are written via `Output::annotation()` and iterated with an `AnnotationCursor`.
+/// The value is stored in the Sen wire format and lazily deserialised to `Var` on first access.
+/// \ingroup db
 class Annotation
 {
   SEN_COPY_MOVE(Annotation)
@@ -30,14 +33,18 @@ public:
   ~Annotation() = default;
 
 public:
-  /// The data type of the annotation value.
+  /// Returns the compile-time type descriptor for this annotation's value.
+  /// @return Non-owning handle to the type; valid for the lifetime of the type registry.
   [[nodiscard]] const ConstTypeHandle<>& getType() const noexcept;
 
-  /// The annotation content, as a buffer.
+  /// Returns the annotation value as a raw serialised byte span.
+  /// Useful for zero-copy forwarding without deserialising to `Var`.
+  /// @return Non-owning span into the internal buffer; valid for the lifetime of this Annotation.
   [[nodiscard]] Span<const uint8_t> getValueAsBuffer() const noexcept;
 
-  /// The annotation content, as a variant.
-  /// Contents of the variant are obtained by interpreting the buffer as the type of the annotation.
+  /// Returns the annotation value as a type-erased variant.
+  /// The value is lazily deserialised from the internal buffer and cached on first call.
+  /// @return Reference to the cached `Var`; valid for the lifetime of this Annotation.
   [[nodiscard]] const Var& getValueAsVariant() const;
 
 private:
