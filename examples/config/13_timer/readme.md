@@ -1,5 +1,7 @@
 # Checked Properties Example
 
+> **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic properties and functions).
+
 This example shows how to use checked properties.
 
 ## Interface
@@ -39,7 +41,7 @@ bool programAcceptsSet(sen::Duration /*val*/) const override
 ## How to run it
 
 ```
-sen run config/14_timer/1_timer.yaml
+sen run config/13_timer/1_timer.yaml
 ```
 
 This will open a shell and tell Sen to instantiate the implementations in the `my.tutorial` bus.

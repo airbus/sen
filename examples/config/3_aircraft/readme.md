@@ -1,5 +1,7 @@
 # Aircraft example
 
+> **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy, STL inheritance). Familiarity with [HLA FOMs](https://en.wikipedia.org/wiki/High_Level_Architecture) is helpful but not required.
+
 Here you can see how to use an HLA-based definition to implement a simple aircraft simulation using
 the `update()` method.
 

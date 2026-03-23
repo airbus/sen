@@ -1,5 +1,7 @@
 # Calculators example
 
+> **Prerequisites:** none - this is the first example. Read the [docs quick start](https://airbus.github.io/sen/latest/) if you haven't set up Sen yet.
+
 This example illustrates how you can create a package that holds two implementations of a class
 defined in STL.
 

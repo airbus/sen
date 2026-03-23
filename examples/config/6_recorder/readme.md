@@ -1,5 +1,7 @@
 # Recorder example
 
+> **Prerequisites:** [4 - School](../4_school/readme.md) (produces the objects we'll record).
+
 This example shows how to use the Sen recorder component.
 
 ## Recording some local objects
