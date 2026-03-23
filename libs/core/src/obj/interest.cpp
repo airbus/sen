@@ -172,7 +172,7 @@ std::string asString(const BusSpec& spec)
 // Interest
 //--------------------------------------------------------------------------------------------------------------
 
-Interest::Interest(std::string_view query, const CustomTypeRegistry& typeRegistry)
+Interest::Interest(std::string_view query, const CustomTypeRegistry& typeRegistry, Private /*notUsable*/)
   : queryString_(query), id_(crc32(queryString_))
 {
   lang::VM vm;
@@ -213,44 +213,9 @@ Interest::Interest(std::string_view query, const CustomTypeRegistry& typeRegistr
   code_ = std::move(compileResult).getValue();
 }
 
-Interest::Interest(std::string_view query, TypeCondition typeCondition)
-  : queryString_(query), type_(std::move(typeCondition)), id_(crc32(queryString_))
-{
-  lang::VM vm;
-  auto statement = vm.parse(queryString_);
-  auto compileResult = vm.compile(statement);
-  if (compileResult.isError())
-  {
-    throwRuntimeError(compileResult.getError().what);
-  }
-
-  if (!statement.bus.session.lexeme.empty())
-  {
-    busCondition_ = BusSpec {statement.bus.session.lexeme, statement.bus.bus.lexeme};
-  }
-
-  if (statement.type.has_value())
-  {
-    const auto codeTypeName = extractQualifiedTypeName(typeCondition);
-    const auto queryTypeName = statement.type.value().qualifiedName;
-    if (codeTypeName != queryTypeName)
-    {
-      std::string err;
-      err.append("inconsistent type condition; code indicates ");
-      err.append(codeTypeName);
-      err.append("' but the query string indicates '");
-      err.append(queryTypeName);
-      err.append("'");
-      throwRuntimeError(err);
-    }
-  }
-
-  code_ = std::move(compileResult).getValue();
-}
-
 std::shared_ptr<Interest> Interest::make(std::string_view query, const CustomTypeRegistry& typeRegistry)
 {
-  return std::shared_ptr<Interest>(new Interest(query, typeRegistry));  // NOSONAR
+  return std::make_shared<Interest>(query, typeRegistry, Private {});
 }
 
 const VarInfoList& Interest::getOrComputeVarInfoList(const ClassType* classType) const

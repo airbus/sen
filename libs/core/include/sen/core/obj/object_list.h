@@ -131,11 +131,6 @@ inline T* ObjectList<T>::getCastedObject(Object* object)
 {
   if constexpr (!std::is_same_v<T, Object>)
   {
-    if (object == nullptr)
-    {
-      throwRuntimeError("Attempted to cast a null sen::Object pointer");
-    }
-
     auto* castedObject = dynamic_cast<T*>(object);
     if (castedObject == nullptr)
     {
@@ -227,7 +222,7 @@ inline void ObjectList<T>::onObjectsRemoved(const ObjectRemovalList& removals)
     }
   }
 
-  if (onRemoved_)
+  if (onRemoved_ && !typedRemovals.empty())
   {
     Iterators iterators;
     iterators.typedBegin = typedRemovals.begin();
