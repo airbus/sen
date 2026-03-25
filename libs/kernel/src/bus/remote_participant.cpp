@@ -129,24 +129,6 @@ constexpr std::chrono::steady_clock::duration remoteObjectResolutionTimeout = st
 // RemoteProvider
 //--------------------------------------------------------------------------------------------------------------
 
-ObjectIdList RemoteProvider::getRepeatedAdditions(const ObjectAdditionList& additions)
-{
-  ObjectIdList result;
-  result.reserve(additions.size());
-
-  for (const auto& addition: additions)
-  {
-    const auto id = getObjectId(addition);
-
-    if (currentAdditions_.find(id) != currentAdditions_.end())
-    {
-      result.push_back(id.get());
-    }
-  }
-
-  return result;
-}
-
 void RemoteProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
 {
   std::vector<ObjectAddition> nonRepeatedAdditions;
@@ -156,8 +138,7 @@ void RemoteProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
   {
     const auto id = getObjectId(addition);
 
-    auto itr = currentAdditions_.find(id);
-    if (itr == currentAdditions_.end())
+    if (currentAdditions_.find(id) == currentAdditions_.end())
     {
       currentAdditions_.try_emplace(id, addition);
       nonRepeatedAdditions.push_back(addition);
@@ -323,16 +304,6 @@ void RemoteObjectFilter::remoteObjectsRemoved(InterestId interestId, const Objec
   {
     itr->second->notifyObjectsRemoved(removals);
   }
-}
-
-ObjectIdList RemoteObjectFilter::getRepeatedAdditions(InterestId interestId, const ObjectAdditionList& additions)
-{
-  if (const auto itr = providers_.find(interestId); itr != providers_.end())
-  {
-    return itr->second->getRepeatedAdditions(additions);
-  }
-
-  return {};
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -1526,13 +1497,6 @@ void RemoteParticipant::objectsStateResponse(const ObjectsStateResponse& msg)
                        getId().get(),
                        objectState.id);
       }
-    }
-
-    // stop monitoring the state of repeated object additions (additions for two or more different local participants
-    // that have the same interest)
-    for (const auto id: incomingInterestsManager_.getRepeatedAdditions(interestId, additions))
-    {
-      monitoredObjects_.stopMonitoring(id, session_->getTransport());
     }
 
     incomingInterestsManager_.remoteObjectsAdded(interestId, std::move(additions));

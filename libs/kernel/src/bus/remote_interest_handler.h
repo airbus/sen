@@ -182,8 +182,10 @@ inline bool RemoteInterestsHandler::removeObjectUpdateByInterest(ObjectUpdate* u
   // remove the deleted interest/update link
   interestsUpdatesBMMap.remove(interestId, update);
 
+  std::vector<RemoteParticipant*> remotesToRemove;
+  remotesToRemove.reserve(10U);  // estimated reserve
   remotesUpdatesBMMap.forEach(update,
-                              [this, update, interestId](RemoteParticipant* remote)
+                              [this, update, interestId, &remotesToRemove](RemoteParticipant* remote)
                               {
                                 auto& remoteInterestsUpdates = remotesToInterestsUpdatesMap[remote];
 
@@ -195,7 +197,7 @@ inline bool RemoteInterestsHandler::removeObjectUpdateByInterest(ObjectUpdate* u
                                   // safe deletion of the update from the remote (if we still find the update in the
                                   // remoteInterestsUpdates map, this means that this remote used another interest,
                                   // therefore we should not remove the update from this remote)
-                                  remotesUpdatesBMMap.remove(remote, update);
+                                  remotesToRemove.push_back(remote);
                                 }
 
                                 if (remoteInterestsUpdates.empty())
@@ -203,6 +205,12 @@ inline bool RemoteInterestsHandler::removeObjectUpdateByInterest(ObjectUpdate* u
                                   remotesToInterestsUpdatesMap.erase(remote);
                                 }
                               });
+
+  // remove pending remotes from the map
+  for (auto* remote: remotesToRemove)
+  {
+    remotesUpdatesBMMap.remove(remote, update);
+  }
 
   // return true if the update was completely removed from the handler because no other interests linked to it were
   // found

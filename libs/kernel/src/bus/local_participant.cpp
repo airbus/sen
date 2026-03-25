@@ -226,12 +226,11 @@ bool LocalParticipant::handleRejectedPublications(const PublicationRejection& re
           {
             std::ignore = reason;
             objectsToIgnore.push_back(itr->second.get());
-            logger_->error(
-              "Remote participant {} rejected the publication of object {}, of type {}, because the timeout for object "
-              "resolution was reached.",
-              whom->getAddress().id.get(),
-              itr->second->getLocalName(),
-              itr->second->getClass()->getName());
+            // TODO: there are false positives here when having two participants for the same interest
+            // logger_->error(
+            //   "Remote participant {} rejected the publication of object {}, of type {}, because the timeout for
+            //   object " "resolution was reached.", whom->getAddress().id.get(), itr->second->getLocalName(),
+            //   itr->second->getClass()->getName());
           }},
         rejection.reason);
     }
