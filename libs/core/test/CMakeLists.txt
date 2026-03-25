@@ -57,6 +57,7 @@ set(io_tests
     io/utils_io_test.cpp
     io/variant_adapter_test.cpp
     io/streaming_read_write.cpp
+    io/buffer_writer_test.cpp
 )
 
 set(lang_tests lang/parser_test.cpp lang/compiler_test.cpp lang/resolver_test.cpp)
@@ -109,6 +110,7 @@ add_sen_unit_test_suite(
   ${obj_tests}
   LINK_DEPS
   sen::core
+  sen::kernel
   PRIVATE
   cpptrace::cpptrace
   core_test_io_generated

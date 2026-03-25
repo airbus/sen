@@ -204,7 +204,7 @@ inline void writeSequencePayload(::sen::OutputStream& out, const T& val, std::si
 {
   using ValueType = typename T::value_type;
 
-  if constexpr (::sen::impl::allowsContiguousIO<ValueType>())
+  if constexpr (::sen::impl::allowsContiguousIO<ValueType>)
   {
     const auto bytesToWrite = sizeof(ValueType) * size;
     auto buffer = out.getWriter().advance(bytesToWrite);
@@ -255,7 +255,7 @@ inline void readSequencePayload(::sen::InputStream& in, T& val, std::size_t size
   using ValueType = typename T::value_type;
 
   // read the data
-  if constexpr (::sen::impl::allowsContiguousIO<ValueType>())
+  if constexpr (::sen::impl::allowsContiguousIO<ValueType>)
   {
     const auto bytes = size * sizeof(ValueType);
     std::memcpy(val.data(), in.advance(bytes), bytes);
@@ -304,7 +304,7 @@ inline void readArray(::sen::InputStream& in, T& val)
   using ValueType = typename T::value_type;
 
   // read the data
-  if constexpr (::sen::impl::allowsContiguousIO<ValueType>())
+  if constexpr (::sen::impl::allowsContiguousIO<ValueType>)
   {
     const auto bytes = val.size() * sizeof(ValueType);
     std::memcpy(val.data(), in.advance(bytes), bytes);
@@ -326,7 +326,7 @@ inline uint32_t sequenceSerializedSize(const T& val) noexcept
   const auto valSize = static_cast<uint32_t>(val.size());
   uint32_t total = ::sen::impl::getSerializedSize<uint32_t>(valSize);
 
-  if constexpr (::sen::impl::allowsContiguousIO<ValueType>())
+  if constexpr (::sen::impl::allowsContiguousIO<ValueType>)
   {
     total += static_cast<uint32_t>(sizeof(ValueType)) * valSize;
   }
@@ -344,7 +344,7 @@ template <typename T>
 inline uint32_t arraySerializedSize(const T& val) noexcept
 {
   using ValueType = typename T::value_type;
-  if constexpr (::sen::impl::allowsContiguousIO<ValueType>())
+  if constexpr (::sen::impl::allowsContiguousIO<ValueType>)
   {
     return static_cast<uint32_t>(sizeof(ValueType)) * static_cast<uint32_t>(val.size());
   }

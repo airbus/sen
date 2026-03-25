@@ -8,6 +8,7 @@
 #ifndef SEN_CORE_IO_BUFFER_WRITER_H
 #define SEN_CORE_IO_BUFFER_WRITER_H
 
+#include "sen/core/base/assert.h"
 #include "sen/core/base/span.h"
 
 #include <vector>
@@ -64,7 +65,11 @@ public:
 
 public:  // implements sen::Writer
   [[nodiscard]] uint8_t* advance(size_t size) override;
-  void reverse(size_t size) override { buffer_.resize(buffer_.size() - size); }
+  void reverse(size_t size) override
+  {
+    SEN_ASSERT(buffer_.size() >= size);
+    buffer_.resize(buffer_.size() - size);
+  }
 
 private:
   Container& buffer_;

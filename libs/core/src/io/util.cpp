@@ -358,7 +358,14 @@ public:
       const auto* variantField = type.getFieldFromKey(fieldKey);
       if (variantField == nullptr)
       {
-        getLogger()->warn("missing type with key {} while adapting variant to {}.", fieldKey, type.getQualifiedName());
+        std::string err;
+        err.append("missing type with key ");
+        err.append(std::to_string(fieldKey));
+        err.append(" while adapting variant to ");
+        err.append(type.getQualifiedName());
+
+        getLogger()->warn(err);
+        result_ = Err(std::move(err));
         return;
       }
 
@@ -650,11 +657,6 @@ private:
       }
     }
   }
-
-  struct ReportPolicyLogVariantAdapter
-  {
-    static void report(std::string_view message) { getLogger()->warn(message); }
-  };
 
 private:
   Var& var_;

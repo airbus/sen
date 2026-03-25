@@ -8,8 +8,10 @@
 #include "../support/reader_writer.h"
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/numbers.h"
+#include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/io/detail/endianness.h"
 #include "sen/core/io/detail/serialization_traits.h"
@@ -25,12 +27,21 @@
 #include <iterator>
 #include <limits>
 #include <string>
+#include <tuple>
+#include <vector>
 
 using sen::InputStream;
 using sen::test::BufferedTestReader;
 
 namespace
 {
+
+class TestInputStream: public sen::InputStreamBase
+{
+public:
+  using InputStreamBase::InputStreamBase;
+  using InputStreamBase::reverse;
+};
 
 template <typename T>
 void copyIntoBufferAsBytes(BufferedTestReader& reader, const T data)
@@ -46,22 +57,22 @@ void copyIntoBufferAsBytes(BufferedTestReader& reader, const T data)
   else
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto dataPtr = reinterpret_cast<const uint8_t*>(&data);  // NOSONAR
+    const auto dataPtr = reinterpret_cast<const uint8_t*>(&data);  // NOSONAR
     for (std::size_t i = 0U; i < sizeof(T); ++i)
     {
-      reader.getBuffer().push_back(*(std::next(dataPtr, static_cast<int>(i))));
+      reader.getBuffer().push_back(*std::next(dataPtr, sen::std_util::checkedConversion<std::ptrdiff_t>(i)));
     }
   }
 }
 
 void copyIntoBufferAsBytes(BufferedTestReader& reader, const sen::Duration& data)
 {
-  copyIntoBufferAsBytes(reader, (data.getNanoseconds()));
+  copyIntoBufferAsBytes(reader, data.getNanoseconds());
 }
 
 void copyIntoBufferAsBytesT(BufferedTestReader& reader, const sen::TimeStamp& data)
 {
-  auto duration = data.sinceEpoch();
+  const auto duration = data.sinceEpoch();
   copyIntoBufferAsBytes(reader, duration);
 }
 
@@ -224,7 +235,7 @@ void checkTimeStamp(const sen::TimeStamp data)
 void checkBoolean(const bool data)
 {
   BufferedTestReader reader;
-  copyIntoBufferAsBytes(reader, static_cast<sen::impl::BoolTransportType>(data ? 1U : 0U));
+  copyIntoBufferAsBytes(reader, sen::std_util::checkedConversion<sen::impl::BoolTransportType>(data ? 1U : 0U));
 
   InputStream in(reader.getBuffer());
   bool val = !data;
@@ -325,7 +336,7 @@ TEST(InputStream, BigEndian)
 {
   // uint32_t
   {
-    uint32_t data = 93982U;
+    constexpr uint32_t data = 93982U;
     BufferedTestReader reader;
     copyIntoBufferAsBytes(reader, data);
 
@@ -339,7 +350,7 @@ TEST(InputStream, BigEndian)
 
   // float64_t
   {
-    float64_t data = 6533.32;
+    constexpr float64_t data = 6533.32;
     BufferedTestReader reader;
     copyIntoBufferAsBytes(reader, data);
 
@@ -350,4 +361,69 @@ TEST(InputStream, BigEndian)
     EXPECT_EQ(sen::impl::swapBytes(val), data);
     EXPECT_EQ(sizeof(float64_t), reader.getBuffer().size() * sizeof(uint8_t));
   }
+}
+
+/// @test
+/// Check positioning logic and boundary manipulation
+/// @requirements(SEN-1051)
+TEST(InputStream, positionAndReverse)
+{
+  const std::vector<uint8_t> buff = {10, 20, 30, 40};
+  TestInputStream in(sen::makeConstSpan<uint8_t>(buff));
+
+  EXPECT_EQ(in.getPosition(), 0U);
+
+  in.setPosition(2U);
+  EXPECT_EQ(in.getPosition(), 2U);
+  EXPECT_FALSE(in.atEnd());
+
+  const auto* ptr = in.advance(1U);
+  EXPECT_EQ(*ptr, 30);
+  EXPECT_EQ(in.getPosition(), 3U);
+
+  in.reverse(2U);
+  EXPECT_EQ(in.getPosition(), 1U);
+
+  in.setPosition(4U);
+  EXPECT_EQ(in.getPosition(), 4U);
+  EXPECT_TRUE(in.atEnd());
+}
+
+/// @test
+/// Check exception trigger on buffer underflow via advance
+/// @requirements(SEN-1051)
+TEST(InputStream, advanceUnderflow)
+{
+  const std::vector<uint8_t> buff = {10, 20};
+  sen::InputStreamBase in(sen::makeConstSpan<uint8_t>(buff));
+
+  EXPECT_NO_THROW(std::ignore = in.advance(1U));
+  EXPECT_ANY_THROW(std::ignore = in.advance(5U));
+}
+
+/// @test
+/// Check tryAdvance logic including partial advances and exceptions
+/// @requirements(SEN-1051)
+TEST(InputStream, tryAdvance)
+{
+  const std::vector<uint8_t> buff = {10, 20, 30};
+  sen::InputStreamBase in(sen::makeConstSpan<uint8_t>(buff));
+
+  const auto result1 = in.tryAdvance(0U);
+  EXPECT_EQ(result1.second, 0U);
+  EXPECT_EQ(in.getPosition(), 0U);
+
+  const auto result2 = in.tryAdvance(2U);
+  EXPECT_EQ(result2.second, 2U);
+  EXPECT_EQ(*result2.first, 10);
+  EXPECT_EQ(*std::next(result2.first), 20);
+  EXPECT_EQ(in.getPosition(), 2U);
+
+  const auto result3 = in.tryAdvance(5U);
+  EXPECT_EQ(result3.second, 1U);
+  EXPECT_EQ(*result3.first, 30);
+  EXPECT_EQ(in.getPosition(), 3U);
+  EXPECT_TRUE(in.atEnd());
+
+  EXPECT_ANY_THROW(std::ignore = in.tryAdvance(1U));
 }
