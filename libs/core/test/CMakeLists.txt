@@ -39,6 +39,7 @@ set(meta_tests
     meta/struct_traits_test.cpp
     meta/struct_type_test.cpp
     meta/time_types_test.cpp
+    meta/type_match_test.cpp
     meta/type_test.cpp
     meta/type_traits_test.cpp
     meta/type_visitor_test.cpp
