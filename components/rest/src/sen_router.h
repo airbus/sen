@@ -23,15 +23,17 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
-#include "sen/core/base/result.h"
 #include "sen/core/obj/object.h"
 #include "sen/kernel/component_api.h"
+
+// asio
+#include <asio/ip/tcp.hpp>
 
 // std
 #include <memory>
 #include <optional>
-#include <shared_mutex>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace sen::components::rest
@@ -48,6 +50,8 @@ public:
   ~SenRouter() override;
 
   [[nodiscard]] std::optional<std::shared_ptr<ClientSession>> getClientSessionFromToken(const JWT& token) const;
+
+  void releaseAll() override;
 
 private:
   /// Authorize and returns a new client session token for the requesting client.
@@ -140,8 +144,9 @@ private:
 
   /// Blocking handler returning server-sent-events notifications for a client session.
   JsonResponse getNotificationsHandler(ClientSession& clientSession,
-                                       HttpSession& httpSession,
-                                       const UrlParams& urlParams) const;
+                                       std::shared_ptr<HttpSession> httpSession,
+                                       const UrlParams& urlParams,
+                                       asio::ip::tcp::socket socket) const;
 
   /// Returns type introspection
   JsonResponse getTypeIntrospection(const ClientSession& clientSession,
@@ -150,6 +155,8 @@ private:
 
 private:
   // Helpers
+  void logClientSession(const ClientSession& clientSession, std::string_view functionName) const;
+
   [[nodiscard]] std::shared_ptr<sen::Object> getObject(const InterestSubscription& interestSubscription,
                                                        const std::string& objectName) const;
   [[nodiscard]] std::optional<Object> getObjectDefinition(const InterestSubscription& interestSubscription,
@@ -165,7 +172,6 @@ private:
 
   kernel::RunApi& api_;
   std::unordered_map<std::string, std::shared_ptr<ClientSession>> clientSessions_;
-  mutable std::shared_mutex clientSessionsMutex_;
 };
 
 }  // namespace sen::components::rest

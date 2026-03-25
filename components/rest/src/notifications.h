@@ -17,7 +17,6 @@
 // std
 #include <cstddef>
 #include <memory>
-#include <mutex>
 #include <optional>
 #include <queue>
 #include <unordered_set>
@@ -33,7 +32,7 @@ class Notifier;
 // It is designerd to work in conjunction with 'Notifier' class.
 class ObserverGuard
 {
-  SEN_NOCOPY_NOMOVE(ObserverGuard)
+  SEN_MOVE_ONLY(ObserverGuard)
 
 public:
   ~ObserverGuard();
@@ -70,7 +69,6 @@ private:
 
   void unregister(std::shared_ptr<class NotificationsManager> manager);
 
-  std::mutex mutex_;
   std::unordered_set<std::shared_ptr<class NotificationsManager>> managers_;
 };
 

@@ -35,7 +35,6 @@
 // std
 #include <exception>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -86,8 +85,6 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
        lastUpdate = info.creationTime;
 
-       const std::lock_guard<std::mutex> lock(membersMutex_);
-
        const auto objectIt = members_.find(objectId);
        if (objectIt == members_.cend())
        {
@@ -124,6 +121,7 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
                                           std::shared_ptr<sen::Object> object,
                                           const EventLocator& eventLocator)
 {
+
   const sen::Event* event = object->getClass()->searchEventByName(static_cast<std::string_view>(eventLocator.event()));
   if (!event)
   {
@@ -138,8 +136,6 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
     {kernelApi.getWorkQueue(),
      [this, object, objectId, interest, memberId](const sen::EventInfo& info, const sen::VarList& value)
      {
-       const std::lock_guard<std::mutex> lock(membersMutex_);
-
        const auto objectIt = members_.find(objectId);
        if (objectIt == members_.cend())
        {

@@ -21,6 +21,8 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
+#include <variant>
 
 namespace sen::components::rest
 {
@@ -60,22 +62,31 @@ std::optional<HttpMethod> fromString(std::string methodStr)
 // BaseRouter
 //--------------------------------------------------------------------------------------------------------------
 
-void BaseRouter::addRoute(HttpMethod method, const std::string& path, const RouteCallback callback)
+std::pair<std::string, std::regex> BaseRouter::parseAndValidateRoute(const std::string& path)
 {
   const std::regex pattern("^(/(" + std::string(pathParamRegex) + "|" + std::string(pathSegmentRegex) + "))+/?$");
-
-  if (std::regex_match(path, pattern))
-  {
-    const std::regex paramMatcherRegex("/" + std::string(pathParamRegex));
-    const std::string paramMatcherStr =
-      std::regex_replace(path, paramMatcherRegex, "/(" + std::string(pathSegmentRegex) + ")");
-
-    routes_[method].emplace_back(path, std::regex(paramMatcherStr), callback);
-  }
-  else
+  if (!std::regex_match(path, pattern))
   {
     ::sen::throwRuntimeError("Invalid route path");
   }
+
+  const std::regex paramMatcherRegex("/" + std::string(pathParamRegex));
+  const std::string paramMatcherStr =
+    std::regex_replace(path, paramMatcherRegex, "/(" + std::string(pathSegmentRegex) + ")");
+
+  return {paramMatcherStr, std::regex(paramMatcherStr)};
+}
+
+void BaseRouter::addRoute(HttpMethod method, const std::string& path, const RouteCallback callback)
+{
+  auto [matcherStr, matcherRegex] = parseAndValidateRoute(path);
+  routes_[method].emplace_back(path, std::move(matcherRegex), callback);
+}
+
+void BaseRouter::addStreamRoute(HttpMethod method, const std::string& path, const StreamRouteCallback callback)
+{
+  auto [matcherStr, matcherRegex] = parseAndValidateRoute(path);
+  routes_[method].emplace_back(path, std::move(matcherRegex), callback);
 }
 
 void BaseRouter::releaseAll() { routes_.clear(); }
@@ -83,8 +94,8 @@ void BaseRouter::releaseAll() { routes_.clear(); }
 std::optional<MatchedRoute> BaseRouter::matchPath(HttpMethod method, const std::string& path) const noexcept
 {
   std::smatch matches;
-  const auto routes = routes_.find(method);
 
+  const auto routes = routes_.find(method);
   if (routes == routes_.cend())
   {
     return std::nullopt;
@@ -95,7 +106,14 @@ std::optional<MatchedRoute> BaseRouter::matchPath(HttpMethod method, const std::
     if (std::regex_match(path, route.matcher) && std::regex_search(path, matches, route.matcher))
     {
       UrlParams params {matches.cbegin() + 1, matches.cend()};
-      return MatchedRoute {params, route.callback};
+      if (std::holds_alternative<RouteCallback>(route.callback))
+      {
+        return MatchedRoute {params, std::get<RouteCallback>(route.callback)};
+      }
+      if (std::holds_alternative<StreamRouteCallback>(route.callback))
+      {
+        return MatchedRoute {params, std::get<StreamRouteCallback>(route.callback)};
+      }
     }
   }
 

@@ -34,6 +34,7 @@
 #include <asio/ip/tcp.hpp>
 
 // std
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -46,6 +47,8 @@ constexpr auto defaultRestAPIUpdateFreq = Duration::fromHertz(10.0);
 
 kernel::FuncResult RestAPIComponent::preload(kernel::PreloadApi&& api)
 {
+  initialized_ = false;
+
   if (auto result = readConfig(api.getConfig()); result.isError())
   {
     return result;
@@ -56,30 +59,39 @@ kernel::FuncResult RestAPIComponent::preload(kernel::PreloadApi&& api)
 
 kernel::FuncResult RestAPIComponent::unload(kernel::UnloadApi&& api)
 {
+  getLogger()->trace("Unloading RestAPIComponent");
+
   std::ignore = api;
-  server_.reset();
+  if (server_)
+  {
+    server_->stop();
+    server_.reset();
+    getLogger()->trace("Server stopped");
+  }
+
+  getLogger()->trace("RestAPIComponent unloaded");
   return done();
 }
 
 [[nodiscard]] kernel::FuncResult RestAPIComponent::run(kernel::RunApi& api)
 {
-  SEN_ASSERT(server_.has_value());
+  SEN_ASSERT(server_ == nullptr);
 
-  std::unique_ptr<BaseRouter> router = std::make_unique<SenRouter>(api);
+  if (!initialized_)
+  {
+    asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(config_.address), config_.port);
+    server_ = HttpServer::create<SenRouter>(ctx_, api);
+    server_->start(endpoint);
 
-  asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(config_.address), config_.port);
-  server_.value().start(std::move(router),
-                        endpoint,
-                        threadPoolSize_,
-                        [this]() { getLogger()->info("Listening on {}:{}", config_.address, config_.port); });
+    initialized_ = true;
+  }
+  lastUpdateTime_ = api.getTime();
 
-  auto result = api.execLoop(defaultRestAPIUpdateFreq, nullptr, false);
-  server_.value().stop();
-
-  return result;
+  return api.execLoop(
+    defaultRestAPIUpdateFreq,
+    [this]() { ctx_.run_until(std::chrono::steady_clock::now() + defaultRestAPIUpdateFreq.toChrono()); },
+    false);
 }
-
-[[nodiscard]] uint16_t RestAPIComponent::getThreadPoolSize() const { return threadPoolSize_; }
 
 [[nodiscard]] uint16_t RestAPIComponent::getListenPort() const { return config_.port; }
 
@@ -96,8 +108,6 @@ sen::kernel::FuncResult RestAPIComponent::readConfig(const sen::VarMap& params)
   {
     return sen::Err(sen::kernel::ExecError {sen::kernel::ErrorCategory::expectationsNotMet, ec.message()});
   }
-  // Set default thread pool size if optional has no value
-  threadPoolSize_ = config_.threadPoolSize.value_or(defaultThreadPoolSize);
 
   return sen::kernel::done();
 }

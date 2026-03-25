@@ -19,13 +19,18 @@
 // generated code
 #include "stl/types.stl.h"
 
+// asio
+#include <asio/ip/tcp.hpp>
+
 // std
 #include <functional>
+#include <memory>
 #include <optional>
 #include <regex>
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace sen::components::rest
@@ -33,6 +38,8 @@ namespace sen::components::rest
 
 using UrlParams = std::vector<std::string>;
 using RouteCallback = std::function<HttpResponse(HttpSession&, const UrlParams&)>;
+using StreamRouteCallback =
+  std::function<HttpResponse(std::shared_ptr<HttpSession>, const UrlParams&, asio::ip::tcp::socket)>;
 
 // Template helpers bind member functions instead lambdas
 template <typename T, typename MemberFn>
@@ -51,16 +58,22 @@ struct Route
   {
     // Left blank intentionally
   }
+  // NOLINTNEXTLINE
+  Route(std::string _path, std::regex _matcher, StreamRouteCallback _callback)
+    : path(std::move(_path)), matcher(std::move(_matcher)), callback(std::move(_callback))
+  {
+    // Left blank intentionally
+  }
 
-  std::string path;        // NOLINT(misc-non-private-member-variables-in-classes)
-  std::regex matcher;      // NOLINT(misc-non-private-member-variables-in-classes)
-  RouteCallback callback;  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::string path;                                           // NOLINT(misc-non-private-member-variables-in-classes)
+  std::regex matcher;                                         // NOLINT(misc-non-private-member-variables-in-classes)
+  std::variant<RouteCallback, StreamRouteCallback> callback;  // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 struct MatchedRoute
 {
   UrlParams params;
-  RouteCallback callback;
+  std::variant<RouteCallback, StreamRouteCallback> callback;
 };
 
 /// BaseRouter base class for routing HTTP requests to appropriate handlers.
@@ -76,14 +89,18 @@ public:
   /// Returns a matching route callback for the given path and HTTP method.
   [[nodiscard]] std::optional<MatchedRoute> matchPath(HttpMethod method, const std::string& path) const noexcept;
 
+  /// Clean up
+  virtual void releaseAll();
+
 protected:
   /// Adds a new route callback for the given endpoint path.
   void addRoute(HttpMethod method, const std::string& path, const RouteCallback callback);
 
-  /// Clean up all the routes.
-  void releaseAll();
+  void addStreamRoute(HttpMethod method, const std::string& path, const StreamRouteCallback callback);
 
 private:
+  std::pair<std::string, std::regex> parseAndValidateRoute(const std::string& path);
+
   std::unordered_map<HttpMethod, std::vector<Route>> routes_;
 };
 

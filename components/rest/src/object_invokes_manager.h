@@ -36,14 +36,11 @@ class ObjectInvokesManager: public Notifier
 {
   SEN_NOCOPY_NOMOVE(ObjectInvokesManager)
 
-private:
-  friend class ClientSession;
-
+public:
   ObjectInvokesManager() = default;
-
   ~ObjectInvokesManager() = default;
 
-private:
+public:
   /// Creates a new invoke with an unique ID.
   [[nodiscard]] Invoke newInvoke(const InterestName& interest);
 

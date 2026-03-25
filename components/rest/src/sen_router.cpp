@@ -15,6 +15,7 @@
 #include "json_response.h"
 #include "jwt.h"
 #include "locators.h"
+#include "notification_loop.h"
 #include "object_interests_manager.h"
 #include "types.h"
 #include "utils.h"
@@ -38,17 +39,15 @@
 
 // asio
 #include <asio/buffer.hpp>
+#include <asio/ip/tcp.hpp>
 #include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
 
 // std
 #include <algorithm>
 #include <atomic>
-#include <cstddef>
 #include <exception>
 #include <memory>
-#include <mutex>
 #include <optional>
-#include <shared_mutex>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -74,32 +73,62 @@ constexpr std::string_view restApiHandle = "rest.";
 // Helpers
 //--------------------------------------------------------------------------------------------------------------
 
-void logClientSession(const ClientSession& clientSession, std::string_view functionName)
+struct AuthResult
 {
-  getLogger()->debug("[ClientSession: {}] {}", clientSession.getClientId(), functionName);
+  ClientSession& session;
+};
+
+inline std::variant<AuthResult, JsonResponse> validateAuth(SenRouter* obj, HttpSession& httpSession)
+{
+  auto bearerTokenOpt = httpSession.getRequest().sessionToken();
+  if (!bearerTokenOpt.has_value())
+  {
+    return JsonResponse(httpUnauthorizedError, Error {"Bearer token not found"});
+  }
+  if (!bearerTokenOpt->valid)
+  {
+    return JsonResponse(httpUnauthorizedError, Error {toString(bearerTokenOpt->error)});
+  }
+  auto clientSessionOpt = obj->getClientSessionFromToken(*bearerTokenOpt);
+  if (!clientSessionOpt.has_value())
+  {
+    return JsonResponse(httpUnauthorizedError, Error {"Invalid session"});
+  }
+  return AuthResult {*clientSessionOpt.value()};
 }
 
 template <typename MemberFn>
 RouteCallback bindAuthRouteCallback(SenRouter* obj, MemberFn memberFn)
 {
-  return [obj, memberFn](HttpSession& session, const UrlParams& params)
+  return [obj, memberFn](HttpSession& httpSession, const UrlParams& params)
   {
-    auto bearerTokenOpt = session.getRequest().sessionToken();
-    if (!bearerTokenOpt.has_value())
+    auto result = validateAuth(obj, httpSession);
+    if (auto* error = std::get_if<JsonResponse>(&result))
     {
-      return JsonResponse(httpUnauthorizedError, Error {"Bearer token not found"});
+      return *error;
     }
-    if (!bearerTokenOpt->valid)
-    {
-      return JsonResponse(httpUnauthorizedError, Error {toString(bearerTokenOpt->error)});
-    }
-    auto clientSessionOpt = obj->getClientSessionFromToken(*bearerTokenOpt);
-    if (!clientSessionOpt.has_value())
-    {
-      return JsonResponse(httpUnauthorizedError, Error {"Invalid session"});
-    }
-    return (obj->*memberFn)(*clientSessionOpt.value(), session, params);
+    return (obj->*memberFn)(std::get<AuthResult>(result).session, httpSession, params);
   };
+}
+
+template <typename MemberFn>
+StreamRouteCallback bindAuthStreamRouteCallback(SenRouter* obj, MemberFn memberFn)
+{
+  return
+    [obj, memberFn](std::shared_ptr<HttpSession> httpSession, const UrlParams& params, asio::ip::tcp::socket socket)
+  {
+    auto result = validateAuth(obj, *httpSession);
+    if (auto* error = std::get_if<JsonResponse>(&result))
+    {
+      return *error;
+    }
+    return (obj->*memberFn)(std::get<AuthResult>(result).session, httpSession, params, std::move(socket));
+  };
+}
+
+void SenRouter::logClientSession(const ClientSession& clientSession, std::string_view functionName) const
+{
+  getLogger()->debug("[ClientSession: {}] {}", clientSession.getClientId(), functionName);
 }
 
 std::shared_ptr<sen::Object> SenRouter::getObject(const InterestSubscription& interestSubscription,
@@ -113,7 +142,7 @@ std::shared_ptr<sen::Object> SenRouter::getObject(const InterestSubscription& in
   }
 
   auto objectAddress = std::string(restApiHandle) + objectLocator.getValue().toObjectAddress();
-  auto objects = interestSubscription.objects->getUntypedObjects();
+  auto objects = interestSubscription.subscription->list.getUntypedObjects();
   auto objectIt = std::find_if(objects.cbegin(),
                                objects.cend(),
                                [&objectAddress](const std::shared_ptr<sen::Object> o)
@@ -253,10 +282,11 @@ std::optional<ObjectEvent> SenRouter::getEventDefinition(const InterestSubscript
   };
 }
 
-Result<InterestSubscription, std::string> SenRouter::interestSubscriptionFromName(ClientSession& clientSession,
-                                                                                  const std::string& interestName) const
+[[nodiscard]] Result<InterestSubscription, std::string> SenRouter::interestSubscriptionFromName(
+  ClientSession& clientSession,
+  const std::string& interestName) const
 {
-  auto interestSubscription = clientSession.findInterest(interestName);
+  auto interestSubscription = clientSession.interestsManager().findInterest(interestName);
   if (!interestSubscription.has_value())
   {
     return sen::Err(std::string("Interest not found"));
@@ -271,7 +301,6 @@ std::optional<std::shared_ptr<ClientSession>> SenRouter::getClientSessionFromTok
   {
     auto clientAuth = sen::toValue<ClientAuth>(sen::fromJson(token.payload));
 
-    std::shared_lock lock(clientSessionsMutex_);
     auto it = clientSessions_.find(clientAuth.id);
     if (it == clientSessions_.end())
     {
@@ -347,7 +376,8 @@ SenRouter::SenRouter(kernel::RunApi& api): api_(api)
            bindAuthRouteCallback(this, &SenRouter::unsubscribeEventHandler));
 
   // notifications as SSE endpoint
-  addRoute(HttpMethod::httpGet, "/api/sse", bindAuthRouteCallback(this, &SenRouter::getNotificationsHandler));
+  addStreamRoute(
+    HttpMethod::httpGet, "/api/sse", bindAuthStreamRouteCallback(this, &SenRouter::getNotificationsHandler));
 
   // types instrospection
   addRoute(HttpMethod::httpGet, "/api/types/:type", bindAuthRouteCallback(this, &SenRouter::getTypeIntrospection));
@@ -355,10 +385,21 @@ SenRouter::SenRouter(kernel::RunApi& api): api_(api)
 
 SenRouter::~SenRouter()
 {
-  std::unique_lock<std::shared_mutex> lock(clientSessionsMutex_);
+  getLogger()->trace("Destroying SenRouter");
 
   releaseAll();
+
+  getLogger()->trace("SenRouter destroyed");
+}
+
+void SenRouter::releaseAll()
+{
+  for (auto& clientSession: clientSessions_)
+  {
+    clientSession.second.reset();
+  }
   clientSessions_.clear();
+  BaseRouter::releaseAll();
 }
 
 HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& httpSession,
@@ -369,7 +410,6 @@ HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& h
     const auto payload = Json::parse(httpSession.getRequest().body());
     auto clientAuth = sen::toValue<ClientAuth>(sen::fromJson(httpSession.getRequest().body()));
 
-    std::unique_lock<std::shared_mutex> lock(clientSessionsMutex_);
     if (clientSessions_.find(clientAuth.id) != clientSessions_.cend())
     {
       clientSessions_.erase(clientAuth.id);
@@ -415,7 +455,7 @@ JsonResponse SenRouter::getInterestHandler(ClientSession& clientSession,
     return getErrorInvalidParams();
   }
 
-  auto interestOpt = clientSession.getInterestSummary(urlParams[0]);
+  auto interestOpt = clientSession.interestsManager().getInterestSummary(urlParams[0]);
   if (!interestOpt.has_value())
   {
     return getErrorNotFound();
@@ -430,7 +470,7 @@ JsonResponse SenRouter::getInterestsHandler(ClientSession& clientSession,
 {
   logClientSession(clientSession, "getInterests");
 
-  auto interests = clientSession.getAllInterestsSummary();
+  auto interests = clientSession.interestsManager().getAllInterestsSummary();
   return JsonResponse {httpSuccess, interests};
 }
 
@@ -494,7 +534,7 @@ JsonResponse SenRouter::removeInterestHandler(ClientSession& clientSession,
     return getErrorInvalidParams();
   }
 
-  if (!clientSession.removeInterest(urlParams[0]))
+  if (!clientSession.interestsManager().removeInterest(urlParams[0]))
   {
     return JsonResponse(httpBadRequestError, Error {"interest deletion failed"});
   }
@@ -523,7 +563,7 @@ JsonResponse SenRouter::getObjectsHandler(ClientSession& clientSession,
   std::string rootUrl = httpSession.getRequest().path();
   ObjectsSummary objects;
 
-  for (const auto& object: interestSubscription.objects->getObjects())
+  for (const auto& object: interestSubscription.subscription->list.getObjects())
   {
     const std::string objUrl = rootUrl + "/" + urlSanitizeLocalName(object->getLocalName());
     auto objectClass = object->getClass();
@@ -659,7 +699,7 @@ JsonResponse SenRouter::subscribePropertyUpdateHandler(ClientSession& clientSess
     return JsonResponse(httpBadRequestError, Error {std::move(errMsg)});
   }
 
-  bool hasSubscribed = clientSession.subscribeProperty(api_, object, locator, opts, urlParams[0]);
+  bool hasSubscribed = clientSession.membersManager().subscribeProperty(api_, urlParams[0], object, locator, opts);
   if (hasSubscribed)
   {
     return JsonResponse(httpSuccess, Success {"property change subscription succeeded"});
@@ -705,7 +745,7 @@ JsonResponse SenRouter::unsubscribePropertyUpdateHandler(ClientSession& clientSe
     return JsonResponse(httpNotFoundError, Error {"property not found"});
   }
 
-  bool hasUnsubscribed = clientSession.unsubscribeMember(object->getId(), prop->getId());
+  bool hasUnsubscribed = clientSession.membersManager().unsubscribe(object->getId(), prop->getId());
   if (hasUnsubscribed)
   {
     return JsonResponse(httpSuccess, Success {"property change unsubscription succeeded"});
@@ -815,14 +855,14 @@ JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
     return JsonResponse(httpBadRequestError, Error {"Invalid args. Error: " + argsError.value()});
   }
 
-  Invoke invoke = clientSession.newInvoke(urlParams[0]);
+  Invoke invoke = clientSession.invokesManager().newInvoke(urlParams[0]);
   if (invoke.id.has_value())
   {
     object->invokeUntyped(method,
                           args,
                           {api_.getWorkQueue(),
                            [invoke, &clientSession, interest = urlParams[0]](const sen::MethodResult<Var>& result)
-                           { clientSession.updateInvoke(interest, invoke.id.value(), result); }});
+                           { clientSession.invokesManager().updateInvoke(interest, invoke.id.value(), result); }});
 
     return JsonResponse {httpSuccess, toJson(invoke)};
   }
@@ -903,7 +943,7 @@ JsonResponse SenRouter::subscribeEventHandler(ClientSession& clientSession,
     return JsonResponse(httpNotFoundError, Error {"event not found"});
   }
 
-  bool hasSubscribed = clientSession.subscribeEvent(api_, object, locator, urlParams[0]);
+  bool hasSubscribed = clientSession.membersManager().subscribeEvent(api_, urlParams[0], object, locator);
   if (hasSubscribed)
   {
     return JsonResponse(httpSuccess, Success {"event subscription succeeded"});
@@ -950,7 +990,7 @@ JsonResponse SenRouter::unsubscribeEventHandler(ClientSession& clientSession,
     return JsonResponse(httpNotFoundError, Error {"event not found"});
   }
 
-  bool hasUnsubscribed = clientSession.unsubscribeMember(object->getId(), event->getId());
+  bool hasUnsubscribed = clientSession.membersManager().unsubscribe(object->getId(), event->getId());
   if (hasUnsubscribed)
   {
     return JsonResponse(httpSuccess, Success {"event unsubscription succeeded"});
@@ -973,7 +1013,7 @@ JsonResponse SenRouter::getInvokeMethodStatusHandler(ClientSession& clientSessio
   try
   {
     InvokeId invokeId = std::stoi(urlParams[3]);
-    auto invokeOpt = clientSession.findInvoke(invokeId);
+    auto invokeOpt = clientSession.invokesManager().findInvoke(invokeId);
     if (invokeOpt.has_value())
     {
       return JsonResponse {httpSuccess, toJson(invokeOpt.value())};
@@ -988,86 +1028,30 @@ JsonResponse SenRouter::getInvokeMethodStatusHandler(ClientSession& clientSessio
 }
 
 JsonResponse SenRouter::getNotificationsHandler(ClientSession& clientSession,
-                                                HttpSession& httpSession,
-                                                [[maybe_unused]] const UrlParams& urlParams) const
+                                                std::shared_ptr<HttpSession> httpSession,
+                                                [[maybe_unused]] const UrlParams& urlParams,
+                                                asio::ip::tcp::socket socket) const
 {
   logClientSession(clientSession, "getNotificationsSSE");
 
   // Send SSE header to client
-  auto& sessionSocket = httpSession.getSocket();
-  if (!sessionSocket.is_open())
-  {
-    return JsonResponse(httpInternalServerError, Error {"Invalid HttpSession socket"});
-  }
-
   HttpResponse res(httpSuccess,
                    {
                      HttpHeader("Content-Type", "text/event-stream"),
                      HttpHeader("Cache-Control", "no-cache"),
                      HttpHeader("Connection", "keep-alive"),
                    });
-  std::error_code socketError = res.socketWrite(sessionSocket);
+  std::error_code socketError = res.socketWrite(socket);
   if (socketError)
   {
     return JsonResponse(httpInternalServerError, Error {socketError.message()});
   }
 
-  NotificationType notificationType = NotificationType::evt;
-  auto membersObserver = clientSession.getObserverGuard(NotifierType::membersNotifier);
-  auto invokesObserver = clientSession.getObserverGuard(NotifierType::invokesNotifier);
-  auto interestsObserver = clientSession.getObserverGuard(NotifierType::interestsNotifier);
+  auto sharedSocket = std::make_shared<asio::ip::tcp::socket>(std::move(socket));
+  auto notificationLoop = std::make_shared<NotificationLoop>(httpSession, sharedSocket, clientSession);
+  notificationLoop->start();
 
-  char dummyBuffer[1];
-  std::atomic<bool> connectionClosed = false;
-
-  sessionSocket.async_read_some(
-    asio::buffer(dummyBuffer, 1),
-    [&connectionClosed](const std::error_code& socketError, [[maybe_unused]] std::size_t nbytes)
-    {
-      if (socketError && !connectionClosed)
-      {
-        connectionClosed = true;
-      }
-    });
-
-  // block for pending notifications and send them to client
-  while (!connectionClosed)
-  {
-    std::optional<Notification> notification = std::nullopt;
-    switch (notificationType)
-    {
-      case NotificationType::evt:
-      case NotificationType::property:
-        notification = membersObserver.next();
-        break;
-      case NotificationType::objectAdded:
-      case NotificationType::objectRemoved:
-        notification = interestsObserver.next();
-        break;
-      case NotificationType::invoke:
-      default:
-        notification = invokesObserver.next();
-    }
-
-    if (notification.has_value())
-    {
-      std::string sse = toSSE(notification.value());
-      asio::write(sessionSocket, asio::buffer(sse), socketError);  // NOLINT(misc-include-cleaner)
-
-      if (socketError)
-      {
-        // write failed probably due to closed connection
-        break;
-      }
-    }
-
-    int nextNotificationType = (static_cast<int>(notificationType) + 1) % static_cast<int>(NotificationType::count);
-    notificationType = static_cast<NotificationType>(nextNotificationType);
-
-    std::this_thread::yield();
-  }
-
-  return JsonResponse(httpBadRequestError, Error {"broken connection"});
+  return JsonResponse(httpSuccess);
 }
 
 JsonResponse SenRouter::getTypeIntrospection([[maybe_unused]] const ClientSession& clientSession,

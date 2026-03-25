@@ -13,24 +13,19 @@
 #include "notifications.h"
 #include "object_interests_manager.h"
 #include "types.h"
+#include "utils.h"
 
 // generated code
-#include "stl/options.stl.h"
 #include "stl/types.stl.h"
 
 // sen
 #include "sen/core/base/result.h"
 #include "sen/core/io/util.h"
-#include "sen/core/meta/type.h"
 #include "sen/core/meta/var.h"
-#include "sen/core/obj/callback.h"
 #include "sen/core/obj/object.h"
 #include "sen/kernel/component_api.h"
 
 // std
-#include <memory>
-#include <mutex>
-#include <optional>
 #include <string>
 
 namespace sen::components::rest
@@ -38,9 +33,9 @@ namespace sen::components::rest
 
 ClientSession::~ClientSession()
 {
-  const std::lock_guard<std::mutex> lock(mutex_);
-  invokes_.releaseAllInvokes();
+  getLogger()->trace("Destroying ClientSession");
   interests_.releaseAllInterests();
+  getLogger()->trace("ClientSession destroyed");
 }
 
 [[nodiscard]] std::string ClientSession::encodeToken() const
@@ -53,36 +48,11 @@ ClientSession::~ClientSession()
 
 [[nodiscard]] const std::string& ClientSession::getClientId() const { return clientId_; }
 
-[[nodiscard]] Invoke ClientSession::newInvoke(const InterestName& interest)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return invokes_.newInvoke(interest);
-}
-
-[[nodiscard]] std::optional<Invoke> ClientSession::findInvoke(const InvokeId& id)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return invokes_.findInvoke(id);
-}
-
-bool ClientSession::updateInvoke(const InterestName& interest, const InvokeId& id, const sen::MethodResult<Var>& result)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return invokes_.updateInvoke(interest, id, result);
-}
-
-void ClientSession::releaseInvoke(const InvokeId& id)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return invokes_.releaseInvoke(id);
-}
-
 Result<InterestName, InterestError> ClientSession::createInterest(sen::kernel::RunApi& runApi,
                                                                   const BusLocator& busLocator,
                                                                   const InterestName& interestName,
                                                                   const std::string& query)
 {
-  const std::lock_guard<std::mutex> lock(mutex_);
   return interests_.createInterest(runApi,
                                    busLocator,
                                    interestName,
@@ -92,61 +62,6 @@ Result<InterestName, InterestError> ClientSession::createInterest(sen::kernel::R
                                      // Clean up internal object resources
                                      members_.unsubscribeAll(objectId);
                                    });
-}
-
-bool ClientSession::removeInterest(InterestName interestName)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return interests_.removeInterest(interestName) == interests_.interests_.cend();
-}
-
-std::optional<InterestSubscription> ClientSession::findInterest(const InterestName& interestName)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return interests_.findInterest(interestName);
-}
-
-std::optional<InterestSummary> ClientSession::getInterestSummary(const InterestName& interestName)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return interests_.getInterestSummary(interestName);
-}
-
-InterestsSummary ClientSession::getAllInterestsSummary()
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return interests_.getAllInterestsSummary();
-}
-
-bool ClientSession::subscribeEvent(const sen::kernel::KernelApi& kernelApi,
-                                   std::shared_ptr<sen::Object> object,
-                                   const EventLocator& eventLocator,
-                                   const InterestName& interest)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return members_.subscribeEvent(kernelApi, interest, object, eventLocator);
-}
-
-bool ClientSession::subscribeProperty(const sen::kernel::KernelApi& kernelApi,
-                                      std::shared_ptr<sen::Object> object,
-                                      const PropertyLocator& propertyLocator,
-                                      const SubscriptionOptions& options,
-                                      const InterestName& interest)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return members_.subscribeProperty(kernelApi, interest, object, propertyLocator, options);
-}
-
-bool ClientSession::unsubscribeMember(sen::ObjectId objectId, const sen::MemberHash& memberId)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return members_.unsubscribe(objectId, memberId);
-}
-
-bool ClientSession::unsubscribeAllMembers(sen::ObjectId objectId)
-{
-  const std::lock_guard<std::mutex> lock(mutex_);
-  return members_.unsubscribeAll(objectId);
 }
 
 ObserverGuard ClientSession::getObserverGuard(NotifierType guardType)

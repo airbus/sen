@@ -70,8 +70,6 @@ To start this component, you will need to configure the following parameters:
 
 - `address`: The IP address or hostname the server will bind to
 - `port`: The port number the server will listen on
-- `threadPoolSize` (optional): The number of threads in the pool for handling incoming requests
-  (defaults to 10)
 
 For example, the following configuration binds the server to all network interfaces on port 8080:
 
@@ -82,22 +80,6 @@ load:
     address: "0.0.0.0"
     port: 8080
 ```
-
-### Thread Pool Size
-
-The `threadPoolSize` parameter configures the number of threads used to handle incoming requests.
-This parameter should be considered carefully during deployment.
-
-For example, if `threadPoolSize` is set to 1, only one request can be served at a time. Additional
-requests will remain blocked until the current request is completed. In a low-concurrency
-environment this may not be an issue, provided that requests complete quickly and without blocking.
-
-However, with **SSE** (Server-Sent Events), the connection to the client remains open in order to
-send push notifications. This would cause all other requests to remain permanently blocked. The
-solution is to increase `threadPoolSize` to more than 1.
-
-By default, the thread pool size is set to 10 threads. You may need to increase this number in
-production environments with more clients or with heavier **SSE** usage.
 
 ### Example Using cURL
 

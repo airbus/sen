@@ -4,7 +4,6 @@ optional<u16> ThreadPoolSize;
 
 struct Configuration
 {
-  address        : string,         // The IP address or hostname the server will bind to
-  port           : u16,            // The port number the server will listen on
-  threadPoolSize : ThreadPoolSize  // The size of the thread pool for handling incoming requests
+  address : string,  // The IP address or hostname the server will bind to
+  port    : u16,     // The port number the server will listen on
 }

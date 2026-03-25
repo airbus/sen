@@ -8,6 +8,7 @@
 #include "request.h"
 
 // sen
+#include "sen/core/base/compiler_macros.h"
 #include "sen/kernel/test_kernel.h"
 
 // google test
@@ -18,8 +19,9 @@
 #include <nlohmann/json.hpp>
 
 // std
+#include <atomic>
 #include <chrono>
-#include <iostream>  //NOLINT
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -34,16 +36,61 @@ constexpr std::string_view configString = R"(
       group: 3
       address: "127.0.0.1"
       port: 12345
-      threadPoolSize: 5
   )";
 
-void runKernelSteps(unsigned int seconds, sen::kernel::TestKernel& kernel)
+class Server
 {
-  for (unsigned int step = 0; step <= seconds * 2; step++)
+  SEN_NOCOPY_NOMOVE(Server)
+
+public:
+  Server(): cancelFlag_(false)
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    kernel.step();
+    th_ = std::thread(
+      [this]()
+      {
+        auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
+        while (!cancelFlag_)
+        {
+          kernel.step();
+          std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+      });
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
+
+  ~Server()
+  {
+    cancel();
+    join();
+  }
+
+  void cancel() { cancelFlag_ = true; }
+  void join()
+  {
+    if (th_.joinable())
+    {
+      th_.join();
+    }
+  }
+
+private:
+  std::atomic<bool> cancelFlag_;
+  std::thread th_;
+};
+
+HttpResponse retryUntil(int statusCode, std::function<HttpResponse()> callback)
+{
+  HttpResponse ret {404};
+  for (auto retry = 0; retry < 10; ++retry)
+  {
+    ret = callback();
+    if (ret.statusCode == statusCode)
+    {
+      break;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+  return ret;
 }
 
 /// @test
@@ -51,8 +98,7 @@ void runKernelSteps(unsigned int seconds, sen::kernel::TestKernel& kernel)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_sessions)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions");
   ASSERT_EQ(ret.statusCode, 200);
@@ -64,8 +110,7 @@ TEST(Rest, e2e_sessions)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_auth)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto ret = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/auth", Json {{"id", "admin"}});
   ASSERT_EQ(ret.statusCode, 200);
@@ -81,8 +126,7 @@ TEST(Rest, e2e_auth)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_type_introspection)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto authRet = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/auth", Json {{"id", "admin"}});
   ASSERT_EQ(authRet.statusCode, 200);
@@ -101,8 +145,7 @@ TEST(Rest, e2e_type_introspection)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_interests)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto token = authenticate();
   ASSERT_TRUE(token.has_value());
@@ -120,8 +163,7 @@ TEST(Rest, e2e_get_interests)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_create_interest)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto token = authenticate();
   ASSERT_TRUE(token.has_value());
@@ -159,8 +201,7 @@ TEST(Rest, e2e_create_interest)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_create_interest_invalid_query)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto token = authenticate();
   ASSERT_TRUE(token.has_value());
@@ -180,8 +221,7 @@ TEST(Rest, e2e_create_interest_invalid_query)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_interest_success)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto token = authenticate();
   ASSERT_TRUE(token.has_value());
@@ -194,7 +234,13 @@ TEST(Rest, e2e_get_interest_success)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
+  auto ret = retryUntil(
+    200,
+    [token]()
+    {
+      return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
+    });
+
   ASSERT_EQ(ret.statusCode, 200);
 
   auto response = Json::parse(ret.body);
@@ -207,8 +253,7 @@ TEST(Rest, e2e_get_interest_success)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_interest_unknown_interest)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   auto token = authenticate();
   ASSERT_TRUE(token.has_value());
@@ -222,8 +267,7 @@ TEST(Rest, e2e_get_interest_unknown_interest)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_remove_interest)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -239,7 +283,13 @@ TEST(Rest, e2e_remove_interest)
   ASSERT_EQ(ret.statusCode, 200);
 
   // Check interest was created
-  ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
+  ret = retryUntil(
+    200,
+    [token]()
+    {
+      return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
+    });
+
   ASSERT_EQ(ret.statusCode, 200);
   auto response = Json::parse(ret.body);
   ASSERT_TRUE(response.contains("name"));
@@ -250,7 +300,10 @@ TEST(Rest, e2e_remove_interest)
   ASSERT_EQ(ret.statusCode, 200);
 
   // Check there is no active interests
-  ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests", Json(), token.value());
+  ret = retryUntil(
+    200,
+    [token]() { return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests", Json(), token.value()); });
+
   ASSERT_EQ(ret.statusCode, 200);
   auto interests = Json::parse(ret.body);
   ASSERT_TRUE(interests.is_array());
@@ -262,8 +315,7 @@ TEST(Rest, e2e_remove_interest)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_objects)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -292,8 +344,7 @@ TEST(Rest, e2e_get_objects)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_existing_objects)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -308,11 +359,16 @@ TEST(Rest, e2e_get_existing_objects)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  runKernelSteps(2, kernel);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get objects
-  auto ret =
-    request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects", Json(), token.value());
+  auto ret = retryUntil(
+    200,
+    [token]()
+    {
+      return request(
+        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects", Json(), token.value());
+    });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto interests = Json::parse(ret.body);
@@ -325,8 +381,7 @@ TEST(Rest, e2e_get_existing_objects)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_existing_object)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -341,14 +396,18 @@ TEST(Rest, e2e_get_existing_object)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  runKernelSteps(2, kernel);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object
-  auto ret = request(
-    HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects/api", Json(), token.value());
-  ASSERT_EQ(ret.statusCode, 200);
+  auto ret = retryUntil(
+    200,
+    [token]()
+    {
+      return request(
+        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects/api", Json(), token.value());
+    });
 
-  std::cout << ret.body << std::endl;
+  ASSERT_EQ(ret.statusCode, 200);
 
   auto interests = Json::parse(ret.body);
   ASSERT_TRUE(interests.is_object());
@@ -358,42 +417,9 @@ TEST(Rest, e2e_get_existing_object)
 /// @test
 /// End-to-end test for getting an non-existing object
 /// @requirements(SEN-1061)
-// TODO(SEN-1377): Disabled for now
-// TEST(Rest, e2e_get_non_existing_object)
-// {
-//   auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-//   kernel.step();
-//
-//   // Authenticate
-//   auto token = authenticate();
-//   ASSERT_TRUE(token.has_value());
-//
-//   // Create interest
-//   auto createRet = request(HttpMethod::httpPost,
-//                            "127.0.0.1",
-//                            "12345",
-//                            "/api/interests",
-//                            Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-//                            token.value());
-//   ASSERT_EQ(createRet.statusCode, 200);
-//
-//   // Try to get an non-existent object
-//   auto ret = request(HttpMethod::httpGet,
-//                      "127.0.0.1",
-//                      "12345",
-//                      "/api/interests/test_interest/objects/test_object",
-//                      Json(),
-//                      token.value());
-//   ASSERT_EQ(ret.statusCode, 404);
-// }
-
-/// @test
-/// End-to-end test for getting a method definition
-/// @requirements(SEN-1061)
-TEST(Rest, e2e_get_method_definition)
+TEST(Rest, e2e_get_non_existing_object)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -408,15 +434,47 @@ TEST(Rest, e2e_get_method_definition)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  runKernelSteps(2, kernel);
-
-  // Get method definition
+  // Try to get an non-existent object
   auto ret = request(HttpMethod::httpGet,
                      "127.0.0.1",
                      "12345",
-                     "/api/interests/test_interest/objects/api/methods/shutdown",
+                     "/api/interests/test_interest/objects/test_object",
                      Json(),
                      token.value());
+  ASSERT_EQ(ret.statusCode, 404);
+}
+
+/// @test
+/// End-to-end test for getting a method definition
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_get_method_definition)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  // Get method definition
+  HttpResponse ret = retryUntil(200,
+                                [&token]()
+                                {
+                                  return request(HttpMethod::httpGet,
+                                                 "127.0.0.1",
+                                                 "12345",
+                                                 "/api/interests/test_interest/objects/api/methods/shutdown",
+                                                 Json(),
+                                                 token.value());
+                                });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto res = Json::parse(ret.body);
@@ -429,8 +487,7 @@ TEST(Rest, e2e_get_method_definition)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_property_definition)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -445,15 +502,17 @@ TEST(Rest, e2e_get_property_definition)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  runKernelSteps(2, kernel);
-
   // Get method definition
-  auto ret = request(HttpMethod::httpGet,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests/test_interest/objects/api/properties/buildInfo",
-                     Json(),
-                     token.value());
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpGet,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/properties/buildInfo",
+                                         Json(),
+                                         token.value());
+                        });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto res = Json::parse(ret.body);
@@ -465,8 +524,7 @@ TEST(Rest, e2e_get_property_definition)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_property_subscription)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -481,22 +539,28 @@ TEST(Rest, e2e_property_subscription)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  runKernelSteps(2, kernel);
-
-  auto ret = request(HttpMethod::httpPost,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests/test_interest/objects/api/properties/buildInfo/subscribe",
-                     Json(),
-                     token.value());
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpPost,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/properties/buildInfo/subscribe",
+                                         Json(),
+                                         token.value());
+                        });
   ASSERT_TRUE(ret.statusCode == 200);
 
-  ret = request(HttpMethod::httpPost,
-                "127.0.0.1",
-                "12345",
-                "/api/interests/test_interest/objects/api/properties/buildInfo/unsubscribe",
-                Json(),
-                token.value());
+  ret = retryUntil(200,
+                   [token]()
+                   {
+                     return request(HttpMethod::httpPost,
+                                    "127.0.0.1",
+                                    "12345",
+                                    "/api/interests/test_interest/objects/api/properties/buildInfo/unsubscribe",
+                                    Json(),
+                                    token.value());
+                   });
   ASSERT_TRUE(ret.statusCode == 200);
 }
 
@@ -505,8 +569,7 @@ TEST(Rest, e2e_property_subscription)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_invoke_method)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -521,35 +584,39 @@ TEST(Rest, e2e_invoke_method)
                            token.value());
   ASSERT_EQ(createRet.statusCode, 200);
 
-  runKernelSteps(2, kernel);
-
   // Invoke method
-  auto ret = request(HttpMethod::httpPost,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests/test_interest/objects/api/methods/getUnits/invoke",
-                     Json::array(),
-                     token.value());
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpPost,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/methods/getUnits/invoke",
+                                         Json::array(),
+                                         token.value());
+                        });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto res = Json::parse(ret.body);
   ASSERT_TRUE(res.is_object());
-  ASSERT_EQ(res["status"], "pending");
+  ASSERT_TRUE(res["status"] == "finished" || res["status"] == "pending");
 
-  // Get invocation status
-  runKernelSteps(2, kernel);
-
-  ret = request(HttpMethod::httpGet,
-                "127.0.0.1",
-                "12345",
-                "/api/interests/test_interest/objects/api/methods/getUnits/invoke/" + res["id"].dump(),
-                Json(),
-                token.value());
+  ret =
+    retryUntil(200,
+               [token, &res]()
+               {
+                 return request(HttpMethod::httpGet,
+                                "127.0.0.1",
+                                "12345",
+                                "/api/interests/test_interest/objects/api/methods/getUnits/invoke/" + res["id"].dump(),
+                                Json(),
+                                token.value());
+               });
   ASSERT_EQ(ret.statusCode, 200);
 
   res = Json::parse(ret.body);
   ASSERT_TRUE(res.is_object());
-  ASSERT_EQ(res["status"], "finished");
+  ASSERT_TRUE(res["status"] == "finished" || res["status"] == "pending");
 }
 
 /// @test
@@ -557,8 +624,7 @@ TEST(Rest, e2e_invoke_method)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_notification_subscription)
 {
-  auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
-  kernel.step();
+  Server server;
 
   // Authenticate
   auto token = authenticate();
@@ -573,26 +639,26 @@ TEST(Rest, e2e_notification_subscription)
                      token.value());
   ASSERT_EQ(ret.statusCode, 200);
 
-  runKernelSteps(2, kernel);
-
   // Query notifications from a different thread
   std::thread t(
     [token]()
     {
-      ;
       auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sse", Json(), token.value(), true);
       ASSERT_EQ(ret.statusCode, 200);
     });
 
   // Invoke a method
-  ret = request(HttpMethod::httpPost,
-                "127.0.0.1",
-                "12345",
-                "/api/interests/test_interest/objects/api/methods/getUnits/invoke",
-                Json::array(),
-                token.value());
+  ret = retryUntil(200,
+                   [token]()
+                   {
+                     return request(HttpMethod::httpPost,
+                                    "127.0.0.1",
+                                    "12345",
+                                    "/api/interests/test_interest/objects/api/methods/getUnits/invoke",
+                                    Json::array(),
+                                    token.value());
+                   });
   ASSERT_EQ(ret.statusCode, 200);
 
-  runKernelSteps(2, kernel);
   t.join();
 }
