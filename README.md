@@ -129,18 +129,19 @@ sen run config.yaml                                       # Run it
 
 ```yaml
 load:
-  - name: shell
-    group: 2
-    open: [local.my_package]       # open this bus in the shell
+  - name: shell                   # load the shell component
+    group: 2                      # start it in group 2
+    open: [mySession.myBus]       # automatically open this bus in the shell
 
 build:
-  - name: myComponent
-    freqHz: 30
-    imports: [my_package]          # load our package
+  - name: myComponent                 # build this component
+    freqHz: 30                        # run it at 30 Hz
+    imports: [my_package]             # load our package
+    group: 3                          # run it after the shell
     objects:
-      - class: my_package.MyClassImpl
-        name: myObject
-        bus: local.my_package
+      - class: my_package.MyClassImpl # instantiate this class
+        name: myObject                # set the name of the object
+        bus: mySession.myBus          # publish this object to the bus
 ```
 
 Take a look at the examples, but there's much more to Sen, so don't forget to read the [docs](https://airbus.github.io/sen/latest/).
