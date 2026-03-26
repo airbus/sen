@@ -134,7 +134,7 @@ load:
     open: [mySession.myBus]       # automatically open this bus in the shell
 
 build:
-  - name: myComponent                 # build this component
+  - name: myComponent                  # build this component
     freqHz: 30                        # run it at 30 Hz
     imports: [my_package]             # load our package
     group: 3                          # run it after the shell
