@@ -22,15 +22,6 @@
 namespace sen
 {
 
-[[noreturn]] void VariantTraitsBaseBase::throwEmptyStructError(const char* name)
-{
-  std::string err;
-  err.append("variant '");
-  err.append(name);
-  err.append("' has no fields");
-  throwRuntimeError(err);
-}
-
 void VariantTraitsBaseBase::expectAtLeastOneField(const char* name, const Span<uint16_t>& fields)
 {
   if (fields.empty())

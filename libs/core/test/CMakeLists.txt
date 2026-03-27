@@ -46,6 +46,7 @@ set(meta_tests
     meta/unit_registry_test.cpp
     meta/unit_test.cpp
     meta/var_test.cpp
+    meta/variant_traits_test.cpp
     meta/variant_type_test.cpp
 )
 
@@ -92,6 +93,7 @@ sen_generate_cpp(
   TARGET core_test_meta_generated
   STL_FILES meta/stl/test_type_traits.stl
   STL_FILES meta/stl/test_struct_traits.stl
+  STL_FILES meta/stl/test_variant_traits.stl
   BASE_PATH meta
 )
 

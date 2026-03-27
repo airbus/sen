@@ -1,0 +1,18 @@
+package test_variant_traits;
+
+struct MockStruct
+{
+  field1 : u32,
+  field2 : string,
+}
+
+optional<string> MaybeString;
+
+variant MockVariant
+{
+  MockStruct,
+  f64,
+  u32,
+  bool,
+  MaybeString,
+}

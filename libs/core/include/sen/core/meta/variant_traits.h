@@ -33,7 +33,6 @@ struct Var;
 struct VariantTraitsBaseBase
 {
 protected:
-  [[noreturn]] static void throwEmptyStructError(const char* name);
   static void expectAtLeastOneField(const char* name, const Span<uint16_t>& fields);
   [[noreturn]] static void throwNonNativeField(const char* variantName, const char* fieldName);
   [[noreturn]] static void throwInvalidFieldIndex(const char* variantName, uint16_t index);
