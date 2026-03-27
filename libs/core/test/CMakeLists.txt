@@ -76,6 +76,7 @@ set(obj_tests
     obj/connection_guard_test.cpp
     obj/object_filter_test.cpp
     obj/object_list_test.cpp
+    obj/object_ref_test.cpp
     obj/subscription_test.cpp
     obj/native_object_test.cpp
     obj/gen_test.cpp
