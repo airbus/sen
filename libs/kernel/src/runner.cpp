@@ -113,7 +113,7 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
 
 [[nodiscard]] NanoSecs getThreadCpuUserTime() noexcept
 {
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
   rusage usage;  // NOLINT(misc-include-cleaner)
 #  if defined(__linux__)
   getrusage(RUSAGE_THREAD, &usage);
