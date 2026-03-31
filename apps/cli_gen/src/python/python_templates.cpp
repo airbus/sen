@@ -30,6 +30,7 @@ PythonTemplates makePythonTemplates(inja::Environment& env)
   result.structTemplate = env.parse(sen::decompressSymbolToString(struct_decl, struct_declSize));
   result.enumTemplate = env.parse(sen::decompressSymbolToString(enum_decl, enum_declSize));
   result.variantTemplate = env.parse(sen::decompressSymbolToString(variant_decl, variant_declSize));
+  result.optionalTemplate = env.parse(sen::decompressSymbolToString(optional_decl, optional_declSize));
   result.classTemplate = env.parse(sen::decompressSymbolToString(class_decl, class_declSize));
   result.sequenceTemplate = env.parse(sen::decompressSymbolToString(sequence_decl, sequence_declSize));
   result.aliasTemplate = env.parse(sen::decompressSymbolToString(alias_decl, alias_declSize));
