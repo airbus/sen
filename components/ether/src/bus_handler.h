@@ -88,7 +88,6 @@ private:
   OutputQueue<OutMessage> outQueue_;
   asio::io_context& io_;
   std::array<OutMessage, bulkBufferSize> bulkBuffer_ {};
-  sen::kernel::Tracer& tracer_;
 };
 
 }  // namespace sen::components::ether
