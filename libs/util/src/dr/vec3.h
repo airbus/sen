@@ -26,7 +26,7 @@ public:
   SEN_COPY_MOVE(Vec3)
 
 public:
-  Vec3() noexcept;
+  Vec3() noexcept = default;
 
   Vec3(T x, T y, T z) noexcept;
 
@@ -108,7 +108,7 @@ public:
   T normalize() noexcept;
 
 private:
-  T v_[3];
+  T v_[3] {};
 };
 
 using Vec3f = Vec3<f32>;
@@ -117,14 +117,6 @@ using Vec3d = Vec3<f64>;
 //-------------------------------------------------------------------------------------------------------------------
 // Inline implementation
 //-------------------------------------------------------------------------------------------------------------------
-
-template <typename T>
-inline Vec3<T>::Vec3() noexcept
-{
-  v_[0] = 0.0f;
-  v_[1] = 0.0f;
-  v_[2] = 0.0f;
-}
 
 template <typename T>
 inline Vec3<T>::Vec3(T x, T y, T z) noexcept

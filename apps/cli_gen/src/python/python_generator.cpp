@@ -57,7 +57,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -88,53 +87,21 @@ protected:
     sen::throwRuntimeError(err);
   }
 
-  void apply(const sen::StructType& type) override
-  {
-    static auto structTypeTemplate = sen::decompressSymbolToString(struct_decl, struct_declSize);
-    compute(type, structTypeTemplate);
-  }
+  void apply(const sen::StructType& type) override { compute(type, templates_.structTemplate); }
 
-  void apply(const sen::EnumType& type) override
-  {
-    static auto enumTypeTemplate = sen::decompressSymbolToString(enum_decl, enum_declSize);
-    compute(type, enumTypeTemplate);
-  }
+  void apply(const sen::EnumType& type) override { compute(type, templates_.enumTemplate); }
 
-  void apply(const sen::VariantType& type) override
-  {
-    static auto variantTypeTemplate = sen::decompressSymbolToString(variant_decl, variant_declSize);
-    compute(type, variantTypeTemplate);
-  }
+  void apply(const sen::VariantType& type) override { compute(type, templates_.variantTemplate); }
 
-  void apply(const sen::SequenceType& type) override
-  {
-    static auto sequenceTypeTemplate = sen::decompressSymbolToString(sequence_decl, sequence_declSize);
-    compute(type, sequenceTypeTemplate);
-  }
+  void apply(const sen::SequenceType& type) override { compute(type, templates_.sequenceTemplate); }
 
-  void apply(const sen::AliasType& type) override
-  {
-    static auto aliasTypeTemplate = sen::decompressSymbolToString(alias_decl, alias_declSize);
-    compute(type, aliasTypeTemplate);
-  }
+  void apply(const sen::AliasType& type) override { compute(type, templates_.aliasTemplate); }
 
-  void apply(const sen::OptionalType& type) override
-  {
-    static auto optionalTypeTemplate = sen::decompressSymbolToString(optional_decl, optional_declSize);
-    compute(type, optionalTypeTemplate);
-  }
+  void apply(const sen::OptionalType& type) override { compute(type, templates_.optionalTemplate); }
 
-  void apply(const sen::QuantityType& type) override
-  {
-    static auto quantityTypeTemplate = sen::decompressSymbolToString(quantity_decl, quantity_declSize);
-    compute(type, quantityTypeTemplate);
-  }
+  void apply(const sen::QuantityType& type) override { compute(type, templates_.quantityTemplate); }
 
-  void apply(const sen::ClassType& type) override
-  {
-    static auto classTypeTemplate = sen::decompressSymbolToString(class_decl, class_declSize);
-    compute(type, classTypeTemplate);
-  }
+  void apply(const sen::ClassType& type) override { compute(type, templates_.classTemplate); }
 
 private:
   TemplateVisitor(inja::Environment& env,
@@ -146,15 +113,12 @@ private:
   }
 
   template <typename T>
-  inline void compute(const T& type, std::string_view templateStr)
+  inline void compute(const T& type, const inja::Template& templateStr)
   {
-    if (!templateStr.empty())
-    {
-      auto typeInfo = typeStorage_.getOrCreate(type);
-      typeInfo["package"] = packageName_;
+    auto typeInfo = typeStorage_.getOrCreate(type);
+    typeInfo["package"] = packageName_;
 
-      result_ = env_.render(templateStr, typeInfo);
-    }
+    result_ = env_.render(templateStr, typeInfo);
   }
 
 private:

@@ -52,7 +52,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -85,26 +84,17 @@ protected:
     sen::throwRuntimeError(err);
   }
 
-  void apply(const sen::StructType& type) override
-  {
-    static auto structTypeTemplate = sen::decompressSymbolToString(struct_decl, struct_declSize);
-    compute(type, structTypeTemplate);
-  }
+  void apply(const sen::StructType& type) override { compute(type, templates_.structTemplate); }
 
   void apply(const sen::EnumType& type) override
   {
     if (enumMode_ != UMLEnumMode::noEnumerators)
     {
-      static auto enumTypeTemplate = sen::decompressSymbolToString(enum_decl, enum_declSize);
-      compute(type, enumTypeTemplate);
+      compute(type, templates_.enumTemplate);
     }
   }
 
-  void apply(const sen::VariantType& type) override
-  {
-    static auto variantTypeTemplate = sen::decompressSymbolToString(variant_decl, variant_declSize);
-    compute(type, variantTypeTemplate);
-  }
+  void apply(const sen::VariantType& type) override { compute(type, templates_.variantTemplate); }
 
   void apply(const sen::SequenceType& type) override
   {
@@ -126,11 +116,7 @@ protected:
     std::ignore = type;  // not depicted
   }
 
-  void apply(const sen::ClassType& type) override
-  {
-    static auto classTypeTemplate = sen::decompressSymbolToString(class_decl, class_declSize);
-    compute(type, classTypeTemplate);
-  }
+  void apply(const sen::ClassType& type) override { compute(type, templates_.classTemplate); }
 
 private:
   TemplateVisitor(inja::Environment& env,
@@ -147,15 +133,12 @@ private:
   }
 
   template <typename T>
-  inline void compute(const T& type, std::string_view templateStr)
+  inline void compute(const T& type, const inja::Template& templateStr)
   {
-    if (!templateStr.empty())
-    {
-      auto typeInfo = typeStorage_.getOrCreate(type);
-      typeInfo["package"] = packageName_;
+    auto typeInfo = typeStorage_.getOrCreate(type);
+    typeInfo["package"] = packageName_;
 
-      result_ = env_.render(templateStr, typeInfo);
-    }
+    result_ = env_.render(templateStr, typeInfo);
   }
 
 private:
