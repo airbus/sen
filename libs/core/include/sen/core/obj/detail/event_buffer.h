@@ -225,10 +225,13 @@ inline bool EventBuffer<T...>::removeConnection(ConnId id)
 {
   for (auto itr = eventCallbacks_.begin(); itr != eventCallbacks_.end(); ++itr)
   {
-    if (itr->id() == id)
+    if (itr->getConnectionId() == id)
     {
 
-      if (auto callbackLock = itr->callback()->lock(); callbackLock.isValid())
+      // the callback might survive the erasure from this list when
+      // enqueued in some runner. Therefore, we need to explicitly cancel it,
+      // so that it doesn't get invoked from now on.
+      if (auto callbackLock = itr->getCallback()->lock(); callbackLock.isValid())
       {
         callbackLock.invalidate();
       }
@@ -284,17 +287,17 @@ inline void EventBuffer<T...>::dispatch(MemberHash eventId,
   // for (const auto& callback: callbacks_)
   for (const auto& callbackEntry: eventCallbacks_)
   {
-    if (auto callbackLock = callbackEntry.callback()->lock(); callbackLock.isValid())
+    if (auto callbackLock = callbackEntry.getCallback()->lock(); callbackLock.isValid())
     {
 #if SEN_GCC_VERSION_CHECK_SMALLER(12, 4, 0)
       // TODO (SEN-717): clean up with gcc12.4 on debian
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-      auto work = [cb = callbackEntry.callback(), info, args...]() { cb->invoke(info, args...); };
+      auto work = [cb = callbackEntry.getCallback(), info, args...]() { cb->invoke(info, args...); };
 #  pragma GCC diagnostic pop
 #else
       // Note: if modified, patch line below
-      auto work = [cb = callbackEntry.callback(), info, args...]() { cb->invoke(info, args...); };
+      auto work = [cb = callbackEntry.getCallback(), info, args...]() { cb->invoke(info, args...); };
 #endif
       callbackLock.pushAnswer(std::move(work), impl::cannotBeDropped(transportMode));
     }
@@ -344,15 +347,15 @@ inline void EventBuffer<T...>::immediateDispatch(MemberHash eventId,
 
   for (auto& callbackEntry: eventCallbacks_)
   {
-    if (auto callbackLock = callbackEntry.callback()->lock(); callbackLock.isValid())
+    if (auto callbackLock = callbackEntry.getCallback()->lock(); callbackLock.isValid())
     {
       if (callbackLock.isSameQueue(queue))
       {
-        callbackEntry.callback()->invoke(info, args...);
+        callbackEntry.getCallback()->invoke(info, args...);
       }
       else
       {
-        auto work = [cb = callbackEntry.callback(), info, args...]() { cb->invoke(info, args...); };
+        auto work = [cb = callbackEntry.getCallback(), info, args...]() { cb->invoke(info, args...); };
         callbackLock.pushAnswer(std::move(work), impl::cannotBeDropped(transportMode));
       }
     }
