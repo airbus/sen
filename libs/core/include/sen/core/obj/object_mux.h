@@ -85,12 +85,6 @@ protected:
   void notifyExistingObjectsReadded(const ObjectAdditionList& additions);
   void notifyObjectsRefCountReduced(const ObjectRemovalList& removals);
 
-  /// Does nothing by default.
-  void muxedListenerAdded(MuxedProviderListener* listener, bool notifyAboutExistingObjects);
-
-  /// Does nothing by default.
-  void muxedListenerRemoved(MuxedProviderListener* listener, bool notifyAboutExistingObjects);
-
   void callOnExistingObjectsReadded(MuxedProviderListener* listener, const ObjectAdditionList& additions) const;
   void callOnObjectsRefCountReduced(MuxedProviderListener* listener, const ObjectRemovalList& removals) const;
 
