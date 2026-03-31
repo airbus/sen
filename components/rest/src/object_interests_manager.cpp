@@ -10,6 +10,7 @@
 // component
 #include "locators.h"
 #include "types.h"
+#include "utils.h"
 
 // generated code
 #include "stl/types.stl.h"
@@ -20,6 +21,7 @@
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_list.h"
+#include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
 // std
@@ -45,34 +47,36 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
                                                                                 const std::string& query,
                                                                                 InterestCallback&& onObjectRemoved)
 {
-  auto source = runApi.getSource(busLocator.toBusAddress());
-  if (!source)
-  {
-    return sen::Err(InterestError::invalidBus);
-  }
-
-  auto objects = std::make_shared<sen::ObjectList<sen::Object>>();
-  auto interest = sen::Interest::make(query, runApi.getTypes());
-
   // Check interest name uniqueness
   if (interests_.find(interestName) != interests_.cend())
   {
     return sen::Err(InterestError::nameNotUnique);
   }
 
-  std::ignore = objects->onAdded(
-    [this, busLocator](const auto& iterators)
+  auto source = runApi.getSource(busLocator.toBusAddress());
+  if (!source)
+  {
+    return sen::Err(InterestError::invalidBus);
+  }
+
+  auto interest = sen::Interest::make(query, runApi.getTypes());
+  auto subscription = std::make_shared<sen::Subscription<sen::Object>>();
+  subscription->source = source;
+
+  std::ignore = subscription->list.onAdded(
+    [this, busLocator, interestName](const auto& iterators)
     {
       for (auto it = iterators.untypedBegin; it != iterators.untypedEnd; ++it)
       {
         notify(Notification {
           NotificationType::objectAdded,
+          interestName,
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
           toJson(*it->get(), busLocator),
         });
       }
     });
-  std::ignore = objects->onRemoved(
+  std::ignore = subscription->list.onRemoved(
     [this, busLocator, onObjectRemoved, interestName = interestName](const auto& iterators)
     {
       for (auto it = iterators.untypedBegin; it != iterators.untypedEnd; ++it)
@@ -82,6 +86,7 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
 
         notify(Notification {
           NotificationType::objectRemoved,
+          interestName,
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
           toJson(*untypedObj, busLocator),
         });
@@ -90,34 +95,34 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
       }
     });
 
-  source->addSubscriber(interest, objects.get(), true);
-  interests_.emplace(interestName,
-                     InterestSubscription {
-                       std::move(source),
-                       interest,
-                       std::move(objects),
-                       busLocator,
-                     });
+  subscription->source->addSubscriber(interest, &subscription->list, false);
+  interests_.emplace(interestName, InterestSubscription {interest, subscription, busLocator});
 
   return sen::Ok(interestName);
 }
 
-InterestMapIterator ObjectInterestsManager::removeInterest(InterestName interestName)
+bool ObjectInterestsManager::removeInterest(InterestName interestName)
 {
+  getLogger()->trace("Remove interest begin");
+
   auto interestIt = interests_.find(interestName);
   if (interestIt == interests_.end())
   {
-    return interests_.end();
+    return false;
   }
 
-  auto source = interestIt->second.source;
+  auto source = interestIt->second.subscription->source;
   if (!source)
   {
-    return interests_.end();
+    return false;
   }
 
-  source->removeSubscriber(interestIt->second.interest, interestIt->second.objects.get(), false);
-  return interests_.erase(interestIt);
+  source->removeSubscriber(interestIt->second.interest, &interestIt->second.subscription->list, false);
+  interests_.erase(interestIt);
+
+  getLogger()->trace("Remove interest finished");
+
+  return true;
 }
 
 [[nodiscard]] std::optional<InterestSubscription> ObjectInterestsManager::findInterest(
@@ -164,9 +169,14 @@ InterestMapIterator ObjectInterestsManager::removeInterest(InterestName interest
 
 void ObjectInterestsManager::releaseAllInterests()
 {
-  for (auto it = interests_.begin(); it != interests_.end();)
+  for (const auto& [interestName, interest]: interests_)
   {
-    it = removeInterest(it->first);
+    std::ignore = interestName;
+    auto source = interest.subscription->source;
+    if (source)
+    {
+      source->removeSubscriber(interest.interest, &interest.subscription->list, false);
+    }
   }
   interests_.clear();
 }

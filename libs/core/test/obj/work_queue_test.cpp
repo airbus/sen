@@ -13,9 +13,11 @@
 #include <gtest/gtest.h>
 
 // std
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <thread>
 #include <utility>
 
 using sen::impl::Call;
@@ -216,4 +218,46 @@ TEST(WorkQueue, waitExecuteAll)
     queue.waitExecuteAll(sen::Duration {0});
     EXPECT_EQ(counter, 0U);
   }
+}
+
+/// @test
+/// Checks dropping of an element when no custom drop callback is set
+/// @requirements(SEN-360)
+TEST(WorkQueue, dropOldestDefaultCallback)
+{
+  counter = 0;
+
+  WorkQueue queue(1, true);
+  queue.enable();
+
+  queue.push([]() { counter += 10; }, false);
+
+  queue.push([]() { counter += 20; }, false);
+
+  EXPECT_TRUE(queue.executeAll());
+
+  EXPECT_EQ(counter, 20);
+}
+
+/// @test
+/// Check wait execution of a single call
+/// @requirements(SEN-360)
+TEST(WorkQueue, waitExecuteOne)
+{
+  counter = 0;
+  WorkQueue queue(0, false);
+  queue.enable();
+
+  std::thread worker([&queue]() { queue.waitExecuteOne(); });
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  EXPECT_EQ(counter, 0);
+
+  queue.push([]() { counter++; }, false);
+
+  worker.join();
+
+  EXPECT_EQ(counter, 1);
+  EXPECT_EQ(queue.getCurrentSize(), 0);
 }

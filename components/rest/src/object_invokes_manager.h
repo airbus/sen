@@ -36,22 +36,19 @@ class ObjectInvokesManager: public Notifier
 {
   SEN_NOCOPY_NOMOVE(ObjectInvokesManager)
 
-private:
-  friend class ClientSession;
-
+public:
   ObjectInvokesManager() = default;
-
   ~ObjectInvokesManager() = default;
 
-private:
+public:
   /// Creates a new invoke with an unique ID.
-  [[nodiscard]] Invoke newInvoke();
+  [[nodiscard]] Invoke newInvoke(const InterestName& interest);
 
   /// Finds and returns the invoke details for a given invoke ID.
   [[nodiscard]] std::optional<Invoke> findInvoke(const InvokeId& id);
 
   /// Updates the status and result of an existing invoke.
-  bool updateInvoke(const InvokeId& id, const MethodResult<Var>& result);
+  bool updateInvoke(const InterestName& interest, const InvokeId& id, const MethodResult<Var>& result);
 
   /// Releases a specific invoke by ID.
   void releaseInvoke(const InvokeId& id);

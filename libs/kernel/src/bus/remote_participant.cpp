@@ -137,8 +137,8 @@ void RemoteProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
   for (const auto& addition: additions)
   {
     const auto id = getObjectId(addition);
-    auto itr = currentAdditions_.find(id);
-    if (itr == currentAdditions_.end())
+
+    if (currentAdditions_.find(id) == currentAdditions_.end())
     {
       currentAdditions_.try_emplace(id, addition);
       nonRepeatedAdditions.push_back(addition);
@@ -291,8 +291,7 @@ void RemoteObjectFilter::removeSubscriber(ObjectProviderListener* listener, bool
 
 void RemoteObjectFilter::remoteObjectsAdded(InterestId interestId, const ObjectAdditionList& additions)
 {
-  auto itr = providers_.find(interestId);
-  if (itr != providers_.end())
+  if (const auto itr = providers_.find(interestId); itr != providers_.end())
   {
     itr->second->notifyObjectsAdded(additions);
   }
@@ -1818,6 +1817,7 @@ std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy
   if (!remotes->empty())
   {
     proxy->copyStateFrom(*remotes->front());
+    monitoredObjects_.stopMonitoring(proxy->getId(), session_->getTransport());
   }
   else
   {
@@ -1838,6 +1838,8 @@ void RemoteParticipant::stopTrackingProxy(ObjectId objectId)
     auto mapItr = trackedProxies_.find(objectId);
     if (mapItr == trackedProxies_.end())
     {
+      // stop monitoring the object (the proxy might not have been created yet)
+      monitoredObjects_.stopMonitoring(objectId, session_->getTransport());
       return;
     }
     remotes = mapItr->second;
@@ -1866,6 +1868,8 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
     auto mapItr = trackedProxies_.find(id);
     if (mapItr == trackedProxies_.end())
     {
+      // stop monitoring the objet in case the proxy has not been tracked yet
+      monitoredObjects_.stopMonitoring(id, session_->getTransport());
       return;
     }
     remotes = mapItr->second;
@@ -1882,6 +1886,10 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
   {
     Lock lock(usageMutex_);
     trackedProxies_.erase(id);
+  }
+
+  {
+    Lock lock(usageMutex_);
     monitoredObjects_.stopMonitoring(id, session_->getTransport());
   }
 }

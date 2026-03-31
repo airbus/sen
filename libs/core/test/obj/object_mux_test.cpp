@@ -612,3 +612,18 @@ TEST_F(ObjectMuxTest, ListenerSelfRemoval)
   EXPECT_NO_THROW(providerA->notifyObjectsAdded({makeAdd(obj1)}));
   EXPECT_FALSE(mux.hasMuxedListener(&riskyListener));
 }
+
+/// @test
+/// Verifies the default implementations of the polymorphic cast methods natively provided by the Object base class
+/// @requirements(SEN-362)
+TEST_F(ObjectMuxTest, DefaultPolymorphicCasts)
+{
+  const auto obj = createObj(10, "MinimalObj");
+
+  EXPECT_EQ(obj->asNativeObject(), nullptr);
+  EXPECT_EQ(obj->asProxyObject(), nullptr);
+
+  const Object* constObj = obj.get();
+  EXPECT_EQ(constObj->asNativeObject(), nullptr);
+  EXPECT_EQ(constObj->asProxyObject(), nullptr);
+}

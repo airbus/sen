@@ -443,6 +443,26 @@ TEST(ClassType, makeValid)
     const auto type = ClassType::make(spec);
     checkSpecData(*type, spec);
   }
+
+  // qualifiedName from parent
+  {
+    const ClassSpec parentSpec {
+      "TestClassParent", "ns.TestClassParent", "", {}, {}, {}, std::nullopt, {}, true, {}, {}};
+
+    auto parentClass = ClassType::make(parentSpec);
+
+    // with package path
+    auto implWithPkg = ClassType::makeImplementation("ImplClass", parentClass, "other.pkg");
+    EXPECT_EQ(implWithPkg->getName(), "ImplClass");
+    EXPECT_EQ(implWithPkg->getQualifiedName(), "other.pkg.ImplClass");
+    EXPECT_EQ(implWithPkg->getDescription(), "Implementation of ns.TestClassParent");
+
+    // without package path
+    auto implWithoutPkg = ClassType::makeImplementation("ImplClassWO", parentClass, nullptr);
+    EXPECT_EQ(implWithoutPkg->getName(), "ImplClassWO");
+    EXPECT_EQ(implWithoutPkg->getQualifiedName(), "ns.ImplClassWO");
+    EXPECT_EQ(implWithoutPkg->getDescription(), "Implementation of ns.TestClassParent");
+  }
 }
 
 /// @test
@@ -535,6 +555,36 @@ TEST(ClassType, makeInvalid)
     checkInvalidSpec(invalid);
   }
 
+  // repeated properties name
+  {
+    const auto invalid = ClassSpec {"TestClass",
+                                    "ns.TestClass",
+                                    "",
+                                    {{"propertySameName",
+                                      "",
+                                      sen::StringType::get(),
+                                      PropertyCategory::staticRO,
+                                      TransportMode::confirmed,
+                                      false,
+                                      {}},
+                                     {"propertySameName",
+                                      "",
+                                      sen::StringType::get(),
+                                      PropertyCategory::dynamicRO,
+                                      TransportMode::multicast,
+                                      false,
+                                      {}}},
+                                    methods(),
+                                    events(),
+                                    std::nullopt,
+                                    {},
+                                    true,
+                                    {},
+                                    {}};
+
+    checkInvalidSpec(invalid);
+  }
+
   // parent properties() in child
   {
     const ClassSpec parentSpec {"TestClass", "ns.TestClass", "", properties(), {}, {}, std::nullopt, {}, false, {}, {}};
@@ -603,6 +653,32 @@ TEST(ClassType, makeInvalid)
     checkInvalidSpec(invalid);
   }
 
+  // repeated method names
+  {
+    const auto invalid = ClassSpec {"TestClassChild",
+                                    "ns.TestClassChild",
+                                    "",
+                                    properties(),
+                                    {{{"methodSameName", "", {}, TransportMode::multicast},
+                                      sen::TimestampType::get(),
+                                      Constness::constant,
+                                      sen::PropertyGetter {},
+                                      false,
+                                      false},
+                                     {{"methodSameName", "", {}, TransportMode::multicast},
+                                      sen::TimestampType::get(),
+                                      Constness::constant,
+                                      sen::PropertyGetter {},
+                                      false,
+                                      false}},
+                                    events(),
+                                    std::nullopt,
+                                    {},
+                                    true};
+
+    checkInvalidSpec(invalid);
+  }
+
   // parent methods in child
   {
     const ClassSpec parentSpec {"TestClass", "ns.TestClass", "", {}, methods(), {}, std::nullopt, {}, false, {}, {}};
@@ -658,6 +734,24 @@ TEST(ClassType, makeInvalid)
     checkInvalidSpec(invalid);
   }
 
+  // repeated event names
+  {
+    const auto invalid = ClassSpec {
+      "TestClassChild",
+      "ns.TestClassChild",
+      "",
+      properties(),
+      methods(),
+      {{"eventSameName", "", {}, TransportMode::confirmed}, {"eventSameName", "", {}, TransportMode::confirmed}},
+      std::nullopt,
+      {},
+      true,
+      {},
+      {}};
+
+    checkInvalidSpec(invalid);
+  }
+
   // parent events() in child
   {
     const ClassSpec parentSpec {"TestClass", "ns.TestClass", "", {}, {}, events(), std::nullopt, {}, false, {}, {}};
@@ -684,6 +778,25 @@ TEST(ClassType, makeInvalid)
                             Constness::nonConstant,
                             sen::NonPropertyRelated {},
                             true}};
+    checkInvalidSpec(invalid);
+  }
+
+  // repeated parent
+  {
+    const ClassSpec parentSpec {"TestClass", "ns.TestClass", "", {}, {}, {}, std::nullopt, {}, false, {}, {}};
+    const ClassSpec parentSpec2 {"TestClass", "ns.TestClass", "", {}, {}, {}, std::nullopt, {}, false, {}, {}};
+    const auto invalid = ClassSpec {"TestClassChild",
+                                    "ns.TestClassChild",
+                                    "",
+                                    {},
+                                    {},
+                                    {},
+                                    std::nullopt,
+                                    {{ClassType::make(parentSpec)}, {ClassType::make(parentSpec2)}},
+                                    false,
+                                    {},
+                                    {}};
+
     checkInvalidSpec(invalid);
   }
 }
@@ -958,5 +1071,138 @@ TEST(ClassType, compute)
     const std::string makerExpectedPrefix = "senMakeInstance";
     EXPECT_EQ(type->computeInstanceMakerFuncName("exampleText").substr(0, makerExpectedPrefix.length()),
               makerExpectedPrefix);
+  }
+}
+
+/// @test
+/// Checks that searchMethodByName finds properties
+/// @requirements(SEN-355)
+TEST(ClassType, searchMethodByNameFindsPropertyGetterAndSetter)
+{
+  auto type = ClassType::make(validSpec());
+
+  // search for the getter method of property1
+  {
+    const auto* found = type->searchMethodByName("getProperty1", ClassType::SearchMode::doNotIncludeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "getProperty1");
+  }
+
+  // search for the getter method of property2
+  {
+    const auto* found = type->searchMethodByName("getProperty2", ClassType::SearchMode::doNotIncludeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "getProperty2");
+  }
+
+  // search for the setter method of property2
+  {
+    const auto* found = type->searchMethodByName("setNextProperty2", ClassType::SearchMode::doNotIncludeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "setNextProperty2");
+  }
+}
+
+/// @test
+/// Checks that searchMethodById finds properties
+/// @requirements(SEN-355)
+TEST(ClassType, searchMethodByIdFindsPropertyGetter)
+{
+  auto type = ClassType::make(validSpec());
+
+  // getter method by name first to obtain the ID
+  const auto* getter = type->searchMethodByName("getProperty1", ClassType::SearchMode::doNotIncludeParents);
+  ASSERT_NE(getter, nullptr);
+
+  // search by ID
+  const auto* found = type->searchMethodById(getter->getId(), ClassType::SearchMode::doNotIncludeParents);
+  ASSERT_NE(found, nullptr);
+  EXPECT_EQ(found->getId(), getter->getId());
+}
+
+/// @test
+/// Checks that searchEventByName finds property change notification events
+/// @requirements(SEN-355)
+TEST(ClassType, searchEventByNameFindsChangeEvent)
+{
+  auto type = ClassType::make(validSpec());
+
+  // search for the change event of property1
+  {
+    const auto* found = type->searchEventByName("property1Changed", ClassType::SearchMode::doNotIncludeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "property1Changed");
+  }
+
+  // search for the change event of property2
+  {
+    const auto* found = type->searchEventByName("property2Changed", ClassType::SearchMode::doNotIncludeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "property2Changed");
+  }
+}
+
+/// @test
+/// Checks that searchMethodByName and searchEventByName find members in parent classes
+/// @requirements(SEN-355)
+TEST(ClassType, searchByNameFindsInParent)
+{
+  const ClassSpec parentSpec {
+    "TestClassParent", "ns.TestClassParent", "", {}, methods(), events(), std::nullopt, {}, false, {}, {}};
+
+  const auto childSpec = ClassSpec {
+    "TestClassChild", "ns.TestClassChild", "", {}, {}, {}, std::nullopt, {ClassType::make(parentSpec)}, false, {}, {}};
+
+  auto childType = ClassType::make(childSpec);
+
+  // search for a parent method by name with includeParents mode
+  {
+    const auto* found = childType->searchMethodByName("first", ClassType::SearchMode::includeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "first");
+  }
+
+  // search for a parent event by name with includeParents mode
+  {
+    const auto* found = childType->searchEventByName("first", ClassType::SearchMode::includeParents);
+    ASSERT_NE(found, nullptr);
+    EXPECT_EQ(found->getName(), "first");
+  }
+
+  // search without includeParents mode should not find parent members
+  {
+    const auto* foundMethod = childType->searchMethodByName("first", ClassType::SearchMode::doNotIncludeParents);
+    EXPECT_EQ(foundMethod, nullptr);
+
+    const auto* foundEvent = childType->searchEventByName("first", ClassType::SearchMode::doNotIncludeParents);
+    EXPECT_EQ(foundEvent, nullptr);
+  }
+}
+
+/// @test
+/// Checks ClassSpec operator==
+/// @requirements(SEN-355)
+TEST(ClassType, specComparisonWithParents)
+{
+  const ClassSpec parentSpec1 {"TestClass", "ns.TestClass", "", {}, {}, {}, std::nullopt, {}, false, {}, {}};
+  auto parentType1 = ClassType::make(parentSpec1);
+
+  // same parents
+  {
+    ClassSpec lhs {"TestClassChild", "ns.TestClassChild", "", {}, {}, {}, std::nullopt, {parentType1}, false, {}, {}};
+    ClassSpec rhs {"TestClassChild", "ns.TestClassChild", "", {}, {}, {}, std::nullopt, {parentType1}, false, {}, {}};
+
+    EXPECT_EQ(lhs, rhs);
+  }
+
+  // different parents
+  {
+    const ClassSpec parentSpec2 {"TestClass2", "ns.TestClass2", "", {}, {}, {}, std::nullopt, {}, false, {}, {}};
+    auto parentType2 = ClassType::make(parentSpec2);
+
+    ClassSpec lhs {"TestClassChild", "ns.TestClassChild", "", {}, {}, {}, std::nullopt, {parentType1}, false, {}, {}};
+    ClassSpec rhs {"TestClassChild", "ns.TestClassChild", "", {}, {}, {}, std::nullopt, {parentType2}, false, {}, {}};
+
+    EXPECT_NE(lhs, rhs);
   }
 }

@@ -21,8 +21,7 @@
 #include "sen/core/base/result.h"
 #include "sen/core/obj/connection_guard.h"
 #include "sen/core/obj/interest.h"
-#include "sen/core/obj/object_list.h"
-#include "sen/core/obj/object_source.h"
+#include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
 // std
@@ -38,23 +37,21 @@ enum class InterestError
 {
   invalidBus,
   nameNotUnique,
+  creatingSubscription,
 };
 
 /// Represents a subscription to a specific interest. It stores
 /// all the objects currently live for the interest.
 struct InterestSubscription
 {
-  /// Source interest
-  std::shared_ptr<sen::ObjectSource> source;
-
   /// Interest
   std::shared_ptr<sen::Interest> interest;
 
-  /// List of live objects for this interest subscription
-  std::shared_ptr<sen::ObjectList<sen::Object>> objects;
+  /// Objects subscriptions
+  std::shared_ptr<sen::Subscription<sen::Object>> subscription;
 
   /// Bus subscription of this interest
-  const BusLocator busLocator;
+  BusLocator busLocator;
 };
 
 using InterestMap = std::unordered_map<InterestName, InterestSubscription>;
@@ -70,14 +67,11 @@ class ObjectInterestsManager: public Notifier
 {
   SEN_NOCOPY_NOMOVE(ObjectInterestsManager)
 
-private:
-  friend class ClientSession;
-
+public:
   ObjectInterestsManager() = default;
-
   ~ObjectInterestsManager() = default;
 
-private:
+public:
   /// Creates a new interest subscription with the specified parameters.
   Result<InterestName, InterestError> createInterest(sen::kernel::RunApi& runApi,
                                                      const BusLocator& busLocator,
@@ -86,7 +80,7 @@ private:
                                                      InterestCallback&& onObjectRemoved);
 
   /// Removes an existing interest subscription by name.
-  InterestMapIterator removeInterest(InterestName interestName);
+  bool removeInterest(InterestName interestName);
 
   /// Finds and returns the interest subscription details for a given interest name.
   [[nodiscard]] std::optional<InterestSubscription> findInterest(const InterestName& interestName) const;

@@ -758,15 +758,12 @@ template <class P>
 ## endfor
     default: break;
   }
-
+## endif
 ## if exists("nonInterfaceParent")
 ## if inheritsFromLocalObject
   return {{ nonInterfaceParent.type }}::senImplGetPropertyImpl(propertyId);
 ## else
   return P::senImplGetPropertyImpl(propertyId);
-## endif
-## else
-  return {};
 ## endif
 ## else
   return {};
@@ -793,15 +790,12 @@ template <class P>
 ## endfor
     default: break;
   }
-
+## endif
 ## if exists("nonInterfaceParent")
 ## if inheritsFromLocalObject
   return {{ nonInterfaceParent.type }}::senImplGetNextPropertyUntyped(propertyId);
 ## else
   return P::senImplGetNextPropertyUntyped(propertyId);
-## endif
-## else
-  return {};
 ## endif
 ## else
   return {};
@@ -830,15 +824,12 @@ void {{localName}}<P>::senImplSetNextPropertyUntyped(::sen::MemberHash propertyI
 ## endfor
     default: break;
   }
-
+## endif
 ## if exists("nonInterfaceParent")
 ## if inheritsFromLocalObject
   {{ nonInterfaceParent.type }}::senImplSetNextPropertyUntyped(propertyId, value);
 ## else
   P::senImplSetNextPropertyUntyped(propertyId, value);
-## endif
-## else
-  return;
 ## endif
 ## else
   return;

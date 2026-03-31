@@ -44,7 +44,7 @@ public:
     setBody(sen::toJson(var));
   }
 
-  JsonResponse(int statusCode, const std::string& data)
+  explicit JsonResponse(int statusCode = httpInternalServerError, const std::string& data = "")
     : HttpResponse(statusCode, std::vector<HttpHeader> {{"Content-Type", "application/json"}}, data)
   {
     // Left blank intentionally

@@ -218,11 +218,7 @@ inline bool EventBuffer<T...>::removeConnection(ConnId id)
     {
       ids_.erase(ids_.begin() + i);
 
-      auto itr = callbacks_.begin();
-      for (std::size_t pos = 0; pos < i; ++pos)
-      {
-        ++itr;
-      }
+      auto itr = std::next(callbacks_.begin(), i);
 
       // the callback might survive the erasure from this list when
       // enqueued in some runner. Therefore, we need to explicitly cancel it,

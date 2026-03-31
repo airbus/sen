@@ -118,6 +118,19 @@ std::string toJson(const sen::Object& object, const PropertyLocator& propertyLoc
     .dump();
 }
 
+std::string toJson(const sen::Object& object, const sen::VarList& value)
+{
+  auto objectClass = object.getClass();
+  auto dataJsonString = toJson(value);
+  return Json {
+    {"name", object.getName()},
+    {"classname", objectClass->getQualifiedName()},
+    {"localname", object.getLocalName()},
+    {"value", Json::parse(dataJsonString)},
+  }
+    .dump();
+}
+
 Interest fromJson(const Json& j)
 {
   Interest interest;

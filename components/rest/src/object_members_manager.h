@@ -11,6 +11,7 @@
 // component
 #include "locators.h"
 #include "notifications.h"
+#include "types.h"
 
 // generated code
 #include "stl/options.stl.h"
@@ -24,7 +25,6 @@
 
 // std
 #include <memory>
-#include <mutex>
 #include <unordered_map>
 
 namespace sen::components::rest
@@ -39,22 +39,21 @@ class ObjectMembersManager: public Notifier
 {
   SEN_NOCOPY_NOMOVE(ObjectMembersManager)
 
-private:
-  friend class ClientSession;
-
+public:
   ObjectMembersManager() = default;
-
   ~ObjectMembersManager() = default;
 
-private:
+public:
   /// Subscribe to property updates of a given Sen object
   bool subscribeProperty(const sen::kernel::KernelApi& kernelApi,
+                         const InterestName& interestName,
                          std::shared_ptr<sen::Object> object,
                          const PropertyLocator& propertyLocator,
                          const SubscriptionOptions& options);
 
   /// Subscribe to eventupdates of a given Sen object
   bool subscribeEvent(const sen::kernel::KernelApi& kernelApi,
+                      const InterestName& interestName,
                       std::shared_ptr<sen::Object> object,
                       const EventLocator& eventLocator);
 
@@ -67,7 +66,6 @@ private:
   bool unsubscribeAll(const sen::ObjectId& objectId);
 
 private:
-  std::mutex membersMutex_;
   std::unordered_map<ObjectId, std::unordered_map<sen::MemberHash, ConnectionGuard>> members_;
 };
 

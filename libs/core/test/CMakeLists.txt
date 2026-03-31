@@ -39,12 +39,14 @@ set(meta_tests
     meta/struct_traits_test.cpp
     meta/struct_type_test.cpp
     meta/time_types_test.cpp
+    meta/type_match_test.cpp
     meta/type_test.cpp
     meta/type_traits_test.cpp
     meta/type_visitor_test.cpp
     meta/unit_registry_test.cpp
     meta/unit_test.cpp
     meta/var_test.cpp
+    meta/variant_traits_test.cpp
     meta/variant_type_test.cpp
 )
 
@@ -57,6 +59,7 @@ set(io_tests
     io/utils_io_test.cpp
     io/variant_adapter_test.cpp
     io/streaming_read_write.cpp
+    io/buffer_writer_test.cpp
 )
 
 set(lang_tests lang/parser_test.cpp lang/compiler_test.cpp lang/resolver_test.cpp)
@@ -68,6 +71,15 @@ set(obj_tests
     obj/event_buffer_test.cpp
     obj/property_flags_test.cpp
     obj/object_mux_test.cpp
+    obj/remote_object_test.cpp
+    obj/native_object_proxy_test.cpp
+    obj/connection_guard_test.cpp
+    obj/object_filter_test.cpp
+    obj/object_list_test.cpp
+    obj/object_ref_test.cpp
+    obj/subscription_test.cpp
+    obj/native_object_test.cpp
+    obj/gen_test.cpp
 )
 
 add_library(core_test_io_generated OBJECT)
@@ -82,6 +94,7 @@ sen_generate_cpp(
   TARGET core_test_meta_generated
   STL_FILES meta/stl/test_type_traits.stl
   STL_FILES meta/stl/test_struct_traits.stl
+  STL_FILES meta/stl/test_variant_traits.stl
   BASE_PATH meta
 )
 
@@ -101,6 +114,7 @@ add_sen_unit_test_suite(
   ${obj_tests}
   LINK_DEPS
   sen::core
+  sen::kernel
   PRIVATE
   cpptrace::cpptrace
   core_test_io_generated

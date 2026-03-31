@@ -1,0 +1,9 @@
+{
+  "classes": {
+    "fom.MyModuleAClass": {
+      "checkedProperties": [
+        "moduleAInt"
+      ]
+    }
+  }
+}

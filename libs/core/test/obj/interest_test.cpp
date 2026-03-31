@@ -8,7 +8,6 @@
 // sen
 #include "sen/core/base/hash32.h"
 #include "sen/core/lang/vm.h"
-#include "sen/core/meta/class_type.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/native_types.h"
@@ -29,6 +28,12 @@
 #include <utility>
 #include <vector>
 
+namespace sen
+{
+bool operator==(const TypeCondition& lhs, const TypeCondition& rhs) noexcept;
+bool operator!=(const TypeCondition& lhs, const TypeCondition& rhs) noexcept;
+}  // namespace sen
+
 using sen::BusSpec;
 using sen::ClassSpec;
 using sen::ClassType;
@@ -48,7 +53,6 @@ namespace
 
 StructSpec validStructSpec()
 {
-
   const std::vector<StructField> validStructFields = {
     {"x", "", sen::Float32Type::get()}, {"y", "", sen::Float32Type::get()}, {"z", "", sen::Float32Type::get()}};
 
@@ -118,7 +122,7 @@ ClassSpec validClassSpec()
 /// @requirements(SEN-363)
 TEST(BusSpec, asString)
 {
-  BusSpec spec {"mySession", "myBus"};
+  const BusSpec spec {"mySession", "myBus"};
 
   EXPECT_EQ(sen::asString(spec), "mySession.myBus");
 }
@@ -150,7 +154,44 @@ TEST(TypeCondition, ExtractQualifiedName)
 }
 
 /// @test
-/// Checks comparison between different type conditions
+/// Checks comparison between different type conditions natively using the hidden
+/// operator implementations located inside the cpp file
+/// @requirements(SEN-363)
+TEST(TypeCondition, CustomCompareOperators)
+{
+  // Same strings
+  {
+    sen::TypeCondition condAlpha {std::string("qualifiedNameExample")};
+    sen::TypeCondition condBeta {std::string("qualifiedNameExample")};
+
+    EXPECT_TRUE(sen::operator==(condAlpha, condBeta));
+    EXPECT_FALSE(sen::operator!=(condAlpha, condBeta));
+  }
+
+  // Same class type
+  {
+    const auto classAlpha = ClassType::make(validClassSpec());
+    const auto classBeta = ClassType::make(validClassSpec());
+
+    sen::TypeCondition condAlpha {classAlpha};
+    sen::TypeCondition condBeta {classBeta};
+
+    EXPECT_TRUE(sen::operator==(condAlpha, condBeta));
+    EXPECT_FALSE(sen::operator!=(condAlpha, condBeta));
+  }
+
+  // Different names
+  {
+    sen::TypeCondition condAlpha {std::string("nameA")};
+    sen::TypeCondition condBeta {std::string("nameB")};
+
+    EXPECT_FALSE(sen::operator==(condAlpha, condBeta));
+    EXPECT_TRUE(sen::operator!=(condAlpha, condBeta));
+  }
+}
+
+/// @test
+/// Checks comparison between different type conditions using the standard behavior
 /// @requirements(SEN-363)
 TEST(TypeCondition, compare)
 {
@@ -210,7 +251,6 @@ TEST(TypeCondition, compare)
     const auto rhsSharedPtr = ClassType::make(rhsSpec);
     sen::TypeCondition rhs {std::in_place_type<sen::TypeHandle<const ClassType>>, rhsSharedPtr};
 
-    // TODO SEN-473: Check this, why the same?
     EXPECT_NE(std::get<sen::TypeHandle<const ClassType>>(lhs), std::get<sen::TypeHandle<const ClassType>>(rhs));
   }
 
@@ -268,33 +308,59 @@ TEST(Interest, make)
 }
 
 /// @test
-/// Checks comparison between different interests
+/// Validates that an exception is thrown when a non-class type is used in the query.
+/// Ensures type safety during parsing and evaluation.
+/// @requirements(SEN-363)
+TEST(Interest, make_ThrowsOnNonClassType)
+{
+  sen::CustomTypeRegistry types;
+  types.add(StructType::make(validStructSpec()));
+
+  EXPECT_ANY_THROW({ std::ignore = Interest::make("SELECT ns.TestStruct FROM some.bus", types); });
+}
+
+/// @test
+/// Validates that an exception is thrown when the query contains a compilation error
+/// inside the VM.
+/// @requirements(SEN-363)
+TEST(Interest, make_ThrowsOnCompileError)
+{
+  const sen::CustomTypeRegistry types;
+
+  EXPECT_ANY_THROW({ std::ignore = Interest::make("SELECT rpr.Aircraft FROM se.env WHERE 30 > ", types); });
+}
+
+/// @test
+/// Checks comparison between different interests. Validates the design decision that
+/// equality is strictly defined by the query string, ignoring the TypeRegistry
 /// @requirements(SEN-363)
 TEST(Interest, compare)
 {
-  // same
+  // same string, same object
   {
     auto lhs = Interest::make("SELECT * FROM se.env WHERE -10 < 0", sen::CustomTypeRegistry());
     const auto& rhs = lhs;
 
-    EXPECT_EQ(lhs, rhs);
+    EXPECT_EQ(*lhs, *rhs);
+    EXPECT_FALSE(*lhs != *rhs);
   }
 
-  // different types
+  // same string, different TypeRegistry
   {
-    auto types = sen::CustomTypeRegistry();
-    types.add(sen::UInt8Type::get());
-    types.add(sen::Int32Type::get());
+    auto types1 = sen::CustomTypeRegistry();
+    types1.add(sen::UInt8Type::get());
+    types1.add(sen::Int32Type::get());
+    auto lhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", types1);
 
-    auto lhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", types);
+    auto types2 = sen::CustomTypeRegistry();
+    types2.add(sen::StringType::get());
+    auto rhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", types2);
 
-    types.add(sen::StringType::get());
-    auto rhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", types);
-
-    EXPECT_NE(lhs, rhs);
+    EXPECT_EQ(*lhs, *rhs);
+    EXPECT_FALSE(*lhs != *rhs);
   }
 
-  // empty type vs no empty type
+  // same string, empty TypeRegistry vs populated TypeRegistry -> MUST be equal
   {
     auto types = sen::CustomTypeRegistry();
     types.add(sen::UInt8Type::get());
@@ -302,6 +368,8 @@ TEST(Interest, compare)
 
     auto lhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", types);
     auto rhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", sen::CustomTypeRegistry());
+
+    EXPECT_EQ(*lhs, *rhs);
   }
 
   // different query condition
@@ -313,29 +381,24 @@ TEST(Interest, compare)
     auto lhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 1", types);
     auto rhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 0", types);
 
-    EXPECT_NE(lhs, rhs);
+    EXPECT_NE(*lhs, *rhs);
+    EXPECT_TRUE(*lhs != *rhs);
   }
 
   // different object selection
   {
-    auto types = sen::CustomTypeRegistry();
-    types.add(sen::UInt8Type::get());
-
     auto lhs = Interest::make("SELECT se.Aircraft FROM se.env WHERE -10 < 1", sen::CustomTypeRegistry());
     auto rhs = Interest::make("SELECT * FROM se.env WHERE -10 < 1", sen::CustomTypeRegistry());
 
-    EXPECT_NE(lhs, rhs);
+    EXPECT_NE(*lhs, *rhs);
   }
 
   // different session
   {
-    auto types = sen::CustomTypeRegistry();
-    types.add(sen::UInt8Type::get());
-
     auto lhs = Interest::make("SELECT * FROM se.env WHERE -10 < 1", sen::CustomTypeRegistry());
     auto rhs = Interest::make("SELECT * FROM ses.env WHERE -10 < 1", sen::CustomTypeRegistry());
 
-    EXPECT_NE(lhs, rhs);
+    EXPECT_NE(*lhs, *rhs);
   }
 
   // different bus
@@ -343,20 +406,20 @@ TEST(Interest, compare)
     auto lhs = Interest::make("SELECT * FROM se.env WHERE -10 < 1", sen::CustomTypeRegistry());
     auto rhs = Interest::make("SELECT * FROM se.env2 WHERE -10 < 1", sen::CustomTypeRegistry());
 
-    EXPECT_NE(lhs, rhs);
+    EXPECT_NE(*lhs, *rhs);
   }
 }
 
 /// @test
 /// Checks correct behavior of type registry getter
 /// @requirements(SEN-363)
-TEST(Interest, getTypeRegistry)
+TEST(Interest, getTypeCondition)
 {
   sen::CustomTypeRegistry types;
 
   // empty
   {
-    auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
+    const auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
 
     EXPECT_EQ(interest->getTypeCondition(), sen::TypeCondition {});
   }
@@ -364,7 +427,7 @@ TEST(Interest, getTypeRegistry)
   // basic
   {
     types.add(sen::UInt8Type::get());
-    auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
+    const auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
 
     EXPECT_EQ(interest->getTypeCondition(), sen::TypeCondition {});
   }
@@ -374,7 +437,7 @@ TEST(Interest, getTypeRegistry)
     types.add(sen::UInt8Type::get());
     types.add(sen::Float64Type::get());
     types.add(sen::Int64Type::get());
-    auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
+    const auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
 
     EXPECT_EQ(interest->getTypeCondition(), sen::TypeCondition {});
   }
@@ -389,13 +452,15 @@ TEST(Interest, getQueryStr)
 
   {
     types.add(sen::Float64Type::get());
-    auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
+    const auto interest = Interest::make("SELECT * FROM se.env WHERE -10 < 1", types);
+
     EXPECT_EQ(interest->getQueryString(), "SELECT * FROM se.env WHERE -10 < 1");
   }
 
   {
     types.add(sen::Int64Type::get());
-    auto interest = Interest::make("SELECT rpr.Aircraft FROM se.env", types);
+    const auto interest = Interest::make("SELECT rpr.Aircraft FROM se.env", types);
+
     EXPECT_EQ(interest->getQueryString(), "SELECT rpr.Aircraft FROM se.env");
   }
 }
@@ -406,13 +471,13 @@ TEST(Interest, getQueryStr)
 TEST(Interest, getQueryCode)
 {
   const auto program = "SELECT rpr.Aircraft FROM se.env WHERE 3.14 IN (3.14, 2.68, 0.014)";
-  auto interest = Interest::make(program, sen::CustomTypeRegistry());
+  const auto interest = Interest::make(program, sen::CustomTypeRegistry());
 
-  sen::lang::VM vm;
-  auto statement = vm.parse(program);
+  const sen::lang::VM vm;
+  const auto statement = vm.parse(program);
   auto compileResult = vm.compile(statement);
 
-  sen::lang::Chunk queryCode = std::move(compileResult).getValue();
+  const sen::lang::Chunk queryCode = std::move(compileResult).getValue();
   EXPECT_TRUE(queryCode.isValid());
   EXPECT_EQ(interest->getQueryCode().count(), queryCode.count());
 }
@@ -423,9 +488,9 @@ TEST(Interest, getQueryCode)
 TEST(Interest, getBusCondition)
 {
   const auto program = "SELECT rpr.Aircraft FROM se.env WHERE 10 - 20 = -10";
-  auto interest = Interest::make(program, sen::CustomTypeRegistry());
+  const auto interest = Interest::make(program, sen::CustomTypeRegistry());
 
-  auto busSpec = interest->getBusCondition();
+  const auto busSpec = interest->getBusCondition();
   EXPECT_EQ(busSpec->sessionName, "se");
   EXPECT_EQ(busSpec->busName, "env");
 }
@@ -437,21 +502,77 @@ TEST(Interest, getID)
 {
   {
     const auto program = "SELECT rpr.Aircraft FROM se.env WHERE 10 - 20 = -10";
-    auto interest = Interest::make(program, sen::CustomTypeRegistry());
+    const auto interest = Interest::make(program, sen::CustomTypeRegistry());
 
     EXPECT_EQ(interest->getId().get(), sen::crc32(interest->getQueryString()));
   }
 
   {
     const auto program = "SELECT * FROM se.env WHERE (50 + 20.50) = 70.50";
-    auto interest = Interest::make(program, sen::CustomTypeRegistry());
+    const auto interest = Interest::make(program, sen::CustomTypeRegistry());
 
     EXPECT_EQ(interest->getId().get(), sen::crc32(interest->getQueryString()));
   }
 }
 
 /// @test
-/// Checks correct behavior of get or compute var info list
+/// Validates robust extraction for queries holding no explicit logical conditions
+/// @requirements(SEN-363)
+TEST(Interest, getVarInfoList_EmptyCode)
+{
+  const auto type = ClassType::make(validClassSpec());
+
+  const auto interest = Interest::make(R"(SELECT rpr.Aircraft FROM se.env)", sen::CustomTypeRegistry());
+  const auto varList = interest->getOrComputeVarInfoList(type.type());
+
+  EXPECT_TRUE(varList.empty());
+}
+
+/// @test
+/// Checks variant field introspection to ensure paths like VariantProperty.TypeName resolve correctly
+/// @requirements(SEN-363)
+TEST(Interest, getVarInfoList_Variant)
+{
+  const auto type = ClassType::make(validClassSpec());
+
+  const auto interest =
+    Interest::make(R"(SELECT rpr.Aircraft FROM se.env WHERE direction.f64 > 10.0)", sen::CustomTypeRegistry());
+  const auto varList = interest->getOrComputeVarInfoList(type.type());
+
+  EXPECT_FALSE(varList.empty());
+  EXPECT_EQ(varList.size(), 1);
+  EXPECT_EQ(varList[0].fieldIndexes.size(), 1);
+  EXPECT_EQ(varList[0].fieldIndexes[0], 0);
+}
+
+/// @test
+/// Rejects attempts to traverse missing properties nested inside a variant
+/// @requirements(SEN-363)
+TEST(Interest, getVarInfoList_MissingVariantField)
+{
+  const auto type = ClassType::make(validClassSpec());
+
+  const auto interest = Interest::make(R"(SELECT rpr.Aircraft FROM se.env WHERE direction.NonExistentField > 10.0)",
+                                       sen::CustomTypeRegistry());
+
+  EXPECT_ANY_THROW({ std::ignore = interest->getOrComputeVarInfoList(type.type()); });
+}
+
+/// @test
+/// Detects queries attempting to dot-traverse native types holding no inner fields
+/// @requirements(SEN-363)
+TEST(Interest, getVarInfoList_InvalidPropertyField)
+{
+  const auto type = ClassType::make(validClassSpec());
+
+  const auto interest =
+    Interest::make(R"(SELECT rpr.Aircraft FROM se.env WHERE objectID.something > 10.0)", sen::CustomTypeRegistry());
+
+  EXPECT_ANY_THROW({ std::ignore = interest->getOrComputeVarInfoList(type.type()); });
+}
+
+/// @test
+/// Checks correct behavior of get or compute var info list under standard conditions
 /// @requirements(SEN-363)
 TEST(Interest, getVarInfoList)
 {

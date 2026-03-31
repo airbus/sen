@@ -29,7 +29,7 @@ namespace sen::components::rest
 // Invokes
 //--------------------------------------------------------------------------------------------------------------
 
-Invoke ObjectInvokesManager::newInvoke()
+Invoke ObjectInvokesManager::newInvoke(const InterestName& interest)
 {
   InvokeId invokeId = ++lastInvokeId_;
 
@@ -41,6 +41,7 @@ Invoke ObjectInvokesManager::newInvoke()
 
   notify(Notification {
     NotificationType::invoke,
+    interest,
     sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
     toJson(invoke),
   });
@@ -48,7 +49,9 @@ Invoke ObjectInvokesManager::newInvoke()
   return invoke;
 }
 
-bool ObjectInvokesManager::updateInvoke(const InvokeId& id, const MethodResult<Var>& result)
+bool ObjectInvokesManager::updateInvoke(const InterestName& interest,
+                                        const InvokeId& id,
+                                        const MethodResult<Var>& result)
 {
   if (auto invokeIt = invokes_.find(id); invokeIt != invokes_.cend())
   {
@@ -57,6 +60,7 @@ bool ObjectInvokesManager::updateInvoke(const InvokeId& id, const MethodResult<V
 
     notify(Notification {
       NotificationType::invoke,
+      interest,
       sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
       toJson(invokeIt->second),
     });

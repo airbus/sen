@@ -35,7 +35,6 @@
 // std
 #include <exception>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -51,6 +50,7 @@ namespace sen::components::rest
 //--------------------------------------------------------------------------------------------------------------
 
 bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kernelApi,
+                                             const InterestName& interest,
                                              std::shared_ptr<sen::Object> object,
                                              const PropertyLocator& propertyLocator,
                                              const SubscriptionOptions& options)
@@ -69,6 +69,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
     {kernelApi.getWorkQueue(),
      [this,
       object,
+      interest,
       propertyLocator,
       objectId,
       memberId,
@@ -84,8 +85,6 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
        lastUpdate = info.creationTime;
 
-       const std::lock_guard<std::mutex> lock(membersMutex_);
-
        const auto objectIt = members_.find(objectId);
        if (objectIt == members_.cend())
        {
@@ -99,7 +98,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
          try
          {
            auto propertyData = toJson(*object, propertyLocator);
-           notify(Notification {NotificationType::property, info.creationTime, propertyData});
+           notify(Notification {NotificationType::property, interest, info.creationTime, propertyData});
          }
          catch (std::exception& e)
          {
@@ -118,9 +117,11 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
 }
 
 bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelApi,
+                                          const InterestName& interest,
                                           std::shared_ptr<sen::Object> object,
                                           const EventLocator& eventLocator)
 {
+
   const sen::Event* event = object->getClass()->searchEventByName(static_cast<std::string_view>(eventLocator.event()));
   if (!event)
   {
@@ -133,10 +134,8 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
   auto guard = object->onEventUntyped(
     event,
     {kernelApi.getWorkQueue(),
-     [this, objectId, memberId](const sen::EventInfo& info, const sen::VarList& args)
+     [this, object, objectId, interest, memberId](const sen::EventInfo& info, const sen::VarList& value)
      {
-       const std::lock_guard<std::mutex> lock(membersMutex_);
-
        const auto objectIt = members_.find(objectId);
        if (objectIt == members_.cend())
        {
@@ -147,7 +146,8 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
        const auto eventIt = objectIt->second.find(memberId);
        if (eventIt != objectIt->second.cend())
        {
-         notify(Notification {NotificationType::evt, info.creationTime, toJson(args)});
+
+         notify(Notification {NotificationType::evt, interest, info.creationTime, toJson(*object, value)});
        }
        else
        {

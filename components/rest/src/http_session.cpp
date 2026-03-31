@@ -22,6 +22,7 @@
 // asio
 #include <asio/buffer.hpp>
 #include <asio/error.hpp>
+#include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/post.hpp>
 #include <asio/thread_pool.hpp>
@@ -33,6 +34,7 @@
 #include <system_error>
 #include <tuple>
 #include <utility>
+#include <variant>
 
 namespace sen::components::rest
 {
@@ -47,10 +49,8 @@ constexpr size_t maxPayloadSize = 1024;
 // HttpSession
 //--------------------------------------------------------------------------------------------------------------
 
-HttpSession::HttpSession(std::shared_ptr<asio::thread_pool> threadPool,
-                         asio::ip::tcp::socket socket,
-                         std::shared_ptr<BaseRouter> router)
-  : socket_(std::move(socket)), threadPool_(std::move(threadPool)), router_(std::move(router))
+HttpSession::HttpSession(asio::io_context& ctx, asio::ip::tcp::socket socket, std::shared_ptr<BaseRouter> router)
+  : ctx_(ctx), socket_(std::move(socket)), router_(std::move(router))
 {
   llhttp_settings_init(&settings_);
   settings_.on_url = onURL;
@@ -62,26 +62,29 @@ HttpSession::HttpSession(std::shared_ptr<asio::thread_pool> threadPool,
   llhttp_init(&parser_, HTTP_REQUEST, &settings_);
 }
 
+HttpSession::~HttpSession() { getLogger()->trace("HttpSession destroyed"); }
+
 void HttpSession::start()
 {
-  if (!threadPool_)
-  {
-    ::sen::throwRuntimeError("Thread pool not initialized");
-  }
+  SEN_ASSERT(socket_.is_open());
 
   auto self = shared_from_this();
-  socket_.async_read_some(
-    asio::buffer(data_, maxReadLength),
-    [this, self](std::error_code ec, std::size_t length)
-    {
-      if (ec)
-      {
-        getLogger()->error("HttpSession error on read {} {}", ec.value(), ec.message());
-        return;
-      }
-      self->parser_.data = self.get();
-      asio::post(*self->threadPool_, [this, self, length]() { llhttp_execute(&parser_, self->data_.data(), length); });
-    });
+  socket_.async_read_some(asio::buffer(data_, maxReadLength),
+                          [self](std::error_code ec, std::size_t length)
+                          {
+                            if (ec)
+                            {
+                              getLogger()->error("HttpSession error on read {} {}", ec.value(), ec.message());
+                              return;
+                            }
+
+                            asio::post(self->ctx_,
+                                       [self, length]() mutable
+                                       {
+                                         self->parser_.data = &self;
+                                         llhttp_execute(&self->parser_, self->data_.data(), length);
+                                       });
+                          });
 }
 
 int HttpSession::onMethod(llhttp_t* parser, const char* path, size_t nbytes)
@@ -94,7 +97,7 @@ int HttpSession::onMethod(llhttp_t* parser, const char* path, size_t nbytes)
     return -1;
   }
 
-  auto session = static_cast<HttpSession*>(parser->data);
+  auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
   auto method = static_cast<llhttp_method_t>(llhttp_get_method(parser));
   session->request_.method_ += llhttp_method_name(method);
 
@@ -108,25 +111,35 @@ int HttpSession::onMessageComplete(llhttp_t* parser)
     return -1;
   }
 
-  auto session = static_cast<HttpSession*>(parser->data);
+  auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
   const auto method = fromString(session->request_.method_);
   if (!method.has_value())
   {
     return -1;
   }
 
-  auto route = session->router_->matchPath(method.value(), session->request_.path_);
   HttpResponse response;
+  auto route = session->router_->matchPath(method.value(), session->request_.path_);
   if (route.has_value())
   {
-    response = route->callback(*session, route.value().params);
+    if (std::holds_alternative<RouteCallback>(route->callback))
+    {
+      response = std::get<RouteCallback>(route->callback)(*session, route.value().params);
+    }
+    else if (std::holds_alternative<StreamRouteCallback>(route->callback))
+    {
+      response = std::get<StreamRouteCallback>(route->callback)(session, route.value().params, session->takeSocket());
+    }
   }
 
-  std::error_code ec = response.socketWrite(session->socket_);
-  if (ec && ec != asio::error::broken_pipe && ec != asio::error::connection_reset && ec != asio::error::not_connected)
+  if (session->socket_.is_open())
   {
-    getLogger()->error(ec.message());
-    return -1;
+    std::error_code ec = response.socketWrite(session->socket_);
+    if (ec && ec != asio::error::broken_pipe && ec != asio::error::connection_reset && ec != asio::error::not_connected)
+    {
+      getLogger()->error(ec.message());
+      return -1;
+    }
   }
 
   return 0;
@@ -136,7 +149,7 @@ int HttpSession::onURL(llhttp_t* parser, const char* path, size_t nbytes)
 {
   if (parser && parser->data)
   {
-    auto session = static_cast<HttpSession*>(parser->data);
+    auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
     session->request_.path_ += std::string(path, nbytes);
     return 0;
   }
@@ -147,7 +160,7 @@ int HttpSession::onBody([[maybe_unused]] llhttp_t* parser, const char* data, siz
 {
   if (parser && parser->data && nbytes < maxPayloadSize)
   {
-    auto session = static_cast<HttpSession*>(parser->data);
+    auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
     session->request_.body_ += std::string(data, nbytes);
     return 0;
   }
@@ -158,7 +171,7 @@ int HttpSession::onHeaderField([[maybe_unused]] llhttp_t* parser, const char* da
 {
   if (parser && parser->data && nbytes > 0 && nbytes < HttpHeader::maxHeaderFieldLen)
   {
-    auto session = static_cast<HttpSession*>(parser->data);
+    auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
 
     // Field names are case insensitive (https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names)
     session->currentHttpField_ = tolower(std::string(data, nbytes));
@@ -173,7 +186,8 @@ int HttpSession::onHeaderValue([[maybe_unused]] llhttp_t* parser, const char* da
 {
   if (parser && parser->data && nbytes > 0 && nbytes < HttpHeader::maxHeaderValueLen)
   {
-    auto session = static_cast<HttpSession*>(parser->data);
+    auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
+
     if (session->currentHttpField_.empty())
     {
       return -1;

@@ -179,3 +179,51 @@ TEST(Unit, toAndFromSI)
     checkToFromSI(-item, *unit, spec);
   }
 }
+
+/// @test
+/// Checks fromString with a numeric-only string
+/// @requirements(SEN-894)
+TEST(Unit, fromStringNumericOnly)
+{
+  const UnitSpec spec = {UnitCategory::length, "testunit", "testunits", "tu", 1.0, 0.0, 0.0};
+  auto unit = Unit::make(spec);
+
+  auto result = unit->fromString("10.5");
+  EXPECT_TRUE(result.isOk());
+  EXPECT_DOUBLE_EQ(result.getValue(), 10.5);
+}
+
+/// @test
+/// Checks fromString with a value that causes out of range
+/// @requirements(SEN-894)
+TEST(Unit, fromStringOutOfRange)
+{
+  const UnitSpec spec = {UnitCategory::length, "testunit2", "testunits2", "tu2", 1.0, 0.0, 0.0};
+  auto unit = Unit::make(spec);
+
+  const std::string testNumber(500, '9');
+  auto result = unit->fromString(testNumber);
+  EXPECT_TRUE(result.isError());
+  EXPECT_NE(result.getError().find("did not fit the underlying storage type"), std::string::npos);
+}
+
+/// @test
+/// Checks getCategoryString for all unit categories
+/// @requirements(SEN-894)
+TEST(Unit, getCategoryString)
+{
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::length), "length");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::mass), "mass");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::time), "time");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::angle), "angle");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::temperature), "temperature");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::density), "density");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::pressure), "pressure");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::area), "area");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::force), "force");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::frequency), "frequency");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::velocity), "velocity");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::angularVelocity), "angular velocity");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::acceleration), "acceleration");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::angularAcceleration), "angular acceleration");
+}

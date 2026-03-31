@@ -10,6 +10,7 @@
 
 // component
 #include "locators.h"
+#include "notification_loop.h"
 #include "notifications.h"
 #include "object_interests_manager.h"
 #include "object_invokes_manager.h"
@@ -31,7 +32,6 @@
 
 // std
 #include <memory>
-#include <mutex>
 #include <optional>
 #include <string>
 #include <utility>
@@ -58,24 +58,19 @@ public:
 
   ~ClientSession();
 
-public:
+  inline ObjectInterestsManager& interestsManager() { return interests_; }
+  inline ObjectInvokesManager& invokesManager() { return invokes_; }
+  inline ObjectMembersManager& membersManager() { return members_; }
+
+private:
+  friend class SenRouter;
+  friend class NotificationLoop;
+
   /// Encodes the session client ID into a HTTP-friendly token.
   [[nodiscard]] std::string encodeToken() const;
 
   /// Retrieves the unique client ID for this client session.
   [[nodiscard]] const std::string& getClientId() const;
-
-  /// Creates a new invoke with an unique ID.
-  [[nodiscard]] Invoke newInvoke();
-
-  /// Finds and returns the invoke details for a given invoke ID.
-  [[nodiscard]] std::optional<Invoke> findInvoke(const InvokeId& id);
-
-  /// Updates the status and result of an existing invoke.
-  bool updateInvoke(const InvokeId& id, const sen::MethodResult<sen::Var>& result);
-
-  /// Releases a specific invoke by ID.
-  void releaseInvoke(const InvokeId& id);
 
   /// Creates a new interest.
   sen::Result<InterestName, InterestError> createInterest(sen::kernel::RunApi& runApi,
@@ -83,43 +78,11 @@ public:
                                                           const InterestName& interestName,
                                                           const std::string& query);
 
-  /// Removes an existing interest and cleans up associated subscriptions.
-  bool removeInterest(InterestName interestName);
-
-  /// Finds and returns the interest subscription details for a given interest name.
-  [[nodiscard]] std::optional<InterestSubscription> findInterest(const InterestName& interestName);
-
-  /// Retrieves a summary of a specific interest by name.
-  [[nodiscard]] std::optional<InterestSummary> getInterestSummary(const InterestName& interestName);
-
-  /// Retrieves a list of summaries for all registered interests.
-  [[nodiscard]] InterestsSummary getAllInterestsSummary();
-
-  /// Subscribes to event updates of a Sen object.
-  bool subscribeEvent(const sen::kernel::KernelApi& kernelApi,
-                      std::shared_ptr<sen::Object> object,
-                      const EventLocator& eventLocator);
-
-  /// Subscribes to property updates of a Sen object.
-  bool subscribeProperty(const sen::kernel::KernelApi& kernelApi,
-                         std::shared_ptr<sen::Object> object,
-                         const PropertyLocator& propertyLocator,
-                         const SubscriptionOptions& options);
-
-  /// Unsubscribes from a member of a given Sen object.
-  /// Members can be properties or events
-  bool unsubscribeMember(sen::ObjectId objectId, const sen::MemberHash& memberId);
-
-  /// Unsubscribes from all members of a given Sen object
-  /// Members can be properties or events
-  bool unsubscribeAllMembers(sen::ObjectId objectId);
-
   /// Returns a observer guard for a given notifier type
   [[nodiscard]] ObserverGuard getObserverGuard(NotifierType guardType);
 
 private:
   std::string clientId_;
-  std::mutex mutex_;
 
   ObjectInterestsManager interests_;
   ObjectInvokesManager invokes_;

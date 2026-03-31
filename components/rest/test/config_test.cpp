@@ -27,7 +27,6 @@ TEST(Rest, success_config)
       group: 3
       address: "127.0.0.1"
       port: 12345
-      threadPoolSize: 5
   )";
 
   auto kernel = sen::kernel::TestKernel::fromYamlString(configString);
@@ -36,7 +35,6 @@ TEST(Rest, success_config)
 
   auto component = dynamic_cast<const sen::components::rest::RestAPIComponent*>(context.value()->instance);
 
-  ASSERT_EQ(component->getThreadPoolSize(), 5);
   ASSERT_EQ(component->getListenAddress(), "127.0.0.1");
   ASSERT_EQ(component->getListenPort(), 12345);
 }
@@ -60,7 +58,6 @@ TEST(Rest, success_default_config)
 
   auto component = dynamic_cast<const sen::components::rest::RestAPIComponent*>(context.value()->instance);
 
-  ASSERT_EQ(component->getThreadPoolSize(), 10);
   ASSERT_EQ(component->getListenAddress(), "127.0.0.1");
   ASSERT_EQ(component->getListenPort(), 12345);
 }

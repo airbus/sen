@@ -71,6 +71,7 @@ class Interest: public std::enable_shared_from_this<Interest>
 {
 public:
   SEN_NOCOPY_NOMOVE(Interest)
+  SEN_PRIVATE_TAG
 
 public:
   /// Make an interest from a query.
@@ -104,9 +105,8 @@ public:
   [[nodiscard]] bool operator==(const Interest& other) const noexcept;
   [[nodiscard]] bool operator!=(const Interest& other) const noexcept;
 
-private:
-  Interest(std::string_view query, const CustomTypeRegistry& typeRegistry);
-  Interest(std::string_view query, TypeCondition typeCondition);
+public:
+  Interest(std::string_view query, const CustomTypeRegistry& typeRegistry, Private notUsable);
 
 private:
   std::string queryString_;

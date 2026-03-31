@@ -284,24 +284,6 @@ private:
     return object->getClass()->isSameOrInheritsFrom(className);
   }
 
-  [[nodiscard]] static const ClassType* findClass(const std::string& qualifiedName, const ClassType* objectClass)
-  {
-    if (objectClass->getQualifiedName() == qualifiedName)
-    {
-      return objectClass;
-    }
-
-    for (const auto& parent: objectClass->getParents())
-    {
-      if (auto* found = findClass(qualifiedName, parent->asClassType()))
-      {
-        return found;
-      }
-    }
-
-    return nullptr;
-  }
-
   [[nodiscard]] bool shouldBePresent(TrackedObject& track) const
   {
     if (invalidQuery_)
@@ -428,29 +410,27 @@ std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std
   // check if the provider for this interest already exists
   for (const auto& providerw: providers_)
   {
-    auto provider = providerw.lock();
-    if (!provider)
+    if (const auto provider = providerw.lock(); provider)
     {
-      continue;
-    }
-    if (provider->getInterest() == *interest)
-    {
-      if (provider->hasName())
+      if (provider->getInterest() == *interest)
       {
-        if (provider->getName() != name)
+        if (provider->hasName())
         {
-          std::string err;
-          err.append("there is already a source with the same interest specification but named '");
-          err.append(provider->getName());
-          err.append("' instead of '");
-          err.append(name);
-          err.append("'");
-          throwRuntimeError(err);
+          if (provider->getName() != name)
+          {
+            std::string err;
+            err.append("there is already a source with the same interest specification but named '");
+            err.append(provider->getName());
+            err.append("' instead of '");
+            err.append(name);
+            err.append("'");
+            throwRuntimeError(err);
+          }
+          return provider->shared_from_this();
         }
+        provider->setName(name);
         return provider->shared_from_this();
       }
-      provider->setName(name);
-      return provider->shared_from_this();
     }
   }
 
@@ -471,21 +451,19 @@ void ObjectFilter::removeNamedProvider(std::string_view name)
 
   for (std::size_t i = 0U; i < providers_.size(); ++i)
   {
-    auto provider = providers_[i].lock();
-    if (!provider)
+    if (const auto provider = providers_[i].lock(); provider)
     {
-      continue;
-    }
-    if (provider->hasName() && provider->getName() == name)
-    {
-      provider->clearName();
-
-      // delete the provider if there are no listeners
-      if (!provider->hasListeners())
+      if (provider->hasName() && provider->getName() == name)
       {
-        providers_.erase(providers_.begin() + i);  // NOLINT(bugprone-narrowing-conversions)
+        provider->clearName();
+
+        // delete the provider if there are no listeners
+        if (!provider->hasListeners())
+        {
+          providers_.erase(providers_.begin() + i);  // NOLINT(bugprone-narrowing-conversions)
+        }
+        return;
       }
-      return;
     }
   }
 }
@@ -596,12 +574,10 @@ void ObjectFilter::evaluate(const ObjectSet& objects)
     auto providers = providers_;
     for (const auto& providerw: providers)
     {
-      auto provider = providerw.lock();
-      if (!provider)
+      if (const auto provider = providerw.lock(); provider)
       {
-        continue;
+        provider->stopTrackingAndNotify(objects.deletedObjects);
       }
-      provider->stopTrackingAndNotify(objects.deletedObjects);
     }
   }
 
@@ -610,12 +586,10 @@ void ObjectFilter::evaluate(const ObjectSet& objects)
   {
     for (const auto& providerw: providers_)
     {
-      auto provider = providerw.lock();
-      if (!provider)
+      if (const auto provider = providerw.lock(); provider)
       {
-        continue;
+        provider->startTracking(objects.newObjects);
       }
-      provider->startTracking(objects.newObjects);
     }
 
     lastPresentObjects_.insert(objects.newObjects.begin(), objects.newObjects.end());

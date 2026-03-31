@@ -45,15 +45,23 @@ template <typename T>
 inline Subscription<T>::Subscription(Subscription&& other) noexcept
   : list(std::move(other.list)), source(std::move(other.source))
 {
-  other.source = {};
 }
 
 template <typename T>
 inline Subscription<T>& Subscription<T>::operator=(Subscription&& other) noexcept
 {
-  list = std::move(other.list);
-  source = other.source;
-  other.source.reset();
+  if (this != &other)
+  {
+    if (source)
+    {
+      source->removeSubscriber(&list, true);
+    }
+
+    list = std::move(other.list);
+    source = std::move(other.source);
+  }
+
+  return *this;
 }
 
 template <typename T>

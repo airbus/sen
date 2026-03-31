@@ -117,6 +117,7 @@ HttpResponse request(const HttpMethod& method,
     response.append(buf, len);
     if (isSSE && len >= eventHeader.size() && memcmp(buf, eventHeader.data(), eventHeader.size()) == 0)
     {
+      std::cout << buf << std::endl;
       return HttpResponse {200, response};
     }
   }

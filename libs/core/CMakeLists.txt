@@ -103,6 +103,8 @@ set(obj_sources
     src/obj/object_provider.cpp
     src/obj/native_object_proxy.cpp
     src/obj/callback.cpp
+    src/obj/object_list.cpp
+    src/obj/subscription.cpp
 )
 
 # -------------------------------------------------------------------------------------------------------------

@@ -145,9 +145,10 @@ private:
     classname(std::initializer_list<Y> elems): Parent()                                                                \
     {                                                                                                                  \
       std::size_t i = 0;                                                                                               \
-      for (auto itr = elems.begin(); itr != elems.end() && i < size; ++itr)                                            \
+      for (auto itr = elems.begin(); itr != elems.end() && i < size;                                                   \
+           ++itr) /* NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) */                                        \
       {                                                                                                                \
-        (*this)[i] = *itr;                                                                                             \
+        (*this)[i] = *itr; /* NOLINT(cppcoreguidelines-pro-bounds-constant-array-index) */                             \
         ++i;                                                                                                           \
       }                                                                                                                \
     }                                                                                                                  \

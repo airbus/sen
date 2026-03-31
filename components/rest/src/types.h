@@ -50,6 +50,8 @@ struct Invoke
 
 [[nodiscard]] std::string toJson(const sen::Object& object, const PropertyLocator& propertyLocator);
 
+[[nodiscard]] std::string toJson(const sen::Object& object, const sen::VarList& value);
+
 [[nodiscard]] Interest fromJson(const nlohmann::json& j);
 
 }  // namespace sen::components::rest

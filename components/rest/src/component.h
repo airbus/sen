@@ -16,18 +16,20 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/timestamp.h"
 #include "sen/core/meta/var.h"
 
 // kernel
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 
+// asio
+#include <asio/io_context.hpp>
+
 // std
-#include <cstddef>
 #include <cstdint>
-#include <optional>
+#include <memory>
 #include <string>
-#include <utility>
 
 namespace sen::components::rest
 {
@@ -44,18 +46,18 @@ public:
   kernel::FuncResult preload(kernel::PreloadApi&& api) override;
   kernel::FuncResult unload(kernel::UnloadApi&& api) override;
   [[nodiscard]] kernel::FuncResult run(kernel::RunApi& api) override;
-  [[nodiscard]] uint16_t getThreadPoolSize() const;
   [[nodiscard]] uint16_t getListenPort() const;
   [[nodiscard]] const std::string& getListenAddress() const;
 
 private:
   sen::kernel::FuncResult readConfig(const sen::VarMap& params);
-  static constexpr size_t defaultThreadPoolSize = 10;
 
 private:
-  uint16_t threadPoolSize_ {defaultThreadPoolSize};
-  std::optional<HttpServer> server_ {std::in_place};
+  std::unique_ptr<HttpServer> server_;
+  asio::io_context ctx_;
   Configuration config_;
+  TimeStamp lastUpdateTime_;
+  bool initialized_;
 };
 
 }  // namespace sen::components::rest

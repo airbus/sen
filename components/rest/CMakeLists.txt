@@ -48,6 +48,7 @@ set(base_sources
     src/object_interests_manager.cpp
     src/object_members_manager.cpp
     src/notifications.cpp
+    src/notification_loop.cpp
     src/utils.cpp
     src/response_adapter.cpp
     src/locators.cpp

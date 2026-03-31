@@ -46,7 +46,7 @@ public:
   ~ExampleClassImpl2() override = default;
 
 public:
-  void myFunc(int value) { std::ignore = value; }
+  void myFunc(const int value) { std::ignore = value; }
 };
 
 SEN_EXPORT_CLASS(ExampleClassImpl2)
@@ -87,10 +87,10 @@ void copyIntoBufferAsBytes(test::BufferedTestReader& reader, const T data)
   else
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto dataPtr = reinterpret_cast<const uint8_t*>(&data);  // NOSONAR
+    const auto dataPtr = reinterpret_cast<const uint8_t*>(&data);  // NOSONAR
     for (std::size_t i = 0U; i < sizeof(T); ++i)
     {
-      reader.getBuffer().push_back(*(std::next(dataPtr, static_cast<int>(i))));
+      reader.getBuffer().push_back(*std::next(dataPtr, static_cast<int>(i)));
     }
   }
 }
@@ -305,7 +305,7 @@ TEST(SerializableEventQueue, dropOldest)
 TEST(EventBuffer, addRemoveConnection)
 {
   auto validQueue = WorkQueue(50, false);
-  sen::InstanceStorageType obj;
+  InstanceStorageType obj;
   example_class::makeExampleClassImpl2("obj1", {}, obj);
 
   // add connection from an event callback of a plain function
@@ -337,7 +337,7 @@ TEST(EventBuffer, produce)
   SerializableEventQueue eventQueue(maxSizeQueue, true);
 
   auto workQueue = WorkQueue(50, false);
-  sen::InstanceStorageType obj;
+  InstanceStorageType obj;
   example_class::makeExampleClassImpl2("obj1", {}, obj);
 
   // basic (emit now, unicast)
@@ -400,7 +400,7 @@ TEST(EventBuffer, dispatch)
   SerializableEventQueue eventQueue(maxSizeQueue, true);
 
   auto workQueue = WorkQueue(50, false);
-  sen::InstanceStorageType obj;
+  InstanceStorageType obj;
   example_class::makeExampleClassImpl2("obj1", {}, obj);
 
   // confirmed
@@ -451,7 +451,7 @@ TEST(EventBuffer, dispatchImmediate)
   SerializableEventQueue eventQueue(maxSizeQueue, true);
 
   auto workQueue = WorkQueue(50, false);
-  sen::InstanceStorageType obj;
+  InstanceStorageType obj;
   example_class::makeExampleClassImpl2("obj1", {}, obj);
 
   // confirmed
@@ -506,7 +506,7 @@ TEST(EventBuffer, dispatchFromStream)
   SerializableEventQueue eventQueue(maxSizeQueue, true);
 
   auto workQueue = WorkQueue(50, false);
-  sen::InstanceStorageType obj;
+  InstanceStorageType obj;
   example_class::makeExampleClassImpl2("obj1", {}, obj);
 
   // multicast, native type
@@ -552,6 +552,84 @@ TEST(EventBuffer, dispatchFromStream)
       EXPECT_EQ(name, "rpr.Aircraft1");
     }
   }
+}
+
+/// @test
+/// Check dispatch with no arguments
+/// @requirements(SEN-574)
+TEST(EventBuffer, dispatchNoArguments)
+{
+  constexpr size_t maxSizeQueue = 30U;
+  SerializableEventQueue eventQueue(maxSizeQueue, true);
+
+  auto workQueue = WorkQueue(50, false);
+  InstanceStorageType obj;
+  example_class::makeExampleClassImpl2("obj1", {}, obj);
+
+  bool invoked = false;
+  auto cbFunc = [&invoked] { invoked = true; };
+
+  EventBuffer<> buffer;
+  buffer.addConnection(obj.get(), EventCallback<>(&workQueue, cbFunc), ConnId {1U}).keep();
+
+  buffer.dispatch(
+    event.eventId, TimeStamp {100}, event.producerId, TransportMode::confirmed, true, &eventQueue, obj.get());
+
+  EXPECT_FALSE(invoked);
+
+  if (workQueue.executeAll())
+  {
+    EXPECT_TRUE(invoked);
+  }
+
+  ASSERT_EQ(eventQueue.getContents().size(), 1U);
+  const auto& queuedEvent = eventQueue.getContents().front();
+  EXPECT_EQ(queuedEvent.eventId.get(), event.eventId.get());
+  EXPECT_EQ(queuedEvent.serializedSize, 0U);
+
+  test::TestWriter writer;
+  OutputStream out(writer);
+  queuedEvent.serializeFunc(out);
+  EXPECT_EQ(writer.getWriteCount(), 0U);
+}
+
+/// @test
+/// Check that dispatch correctly serializes events into the transport queue when requested
+/// @requirements(SEN-574)
+TEST(EventBuffer, dispatchSerializationToTransportQueue)
+{
+  constexpr size_t maxSizeQueue = 10U;
+  SerializableEventQueue eventQueue(maxSizeQueue, true);
+
+  auto workQueue = WorkQueue(50, false);
+  InstanceStorageType obj;
+  example_class::makeExampleClassImpl2("obj1", {}, obj);
+
+  const EventBuffer<uint32_t> buffer;
+  constexpr uint32_t testValue = 0xDEADBEEF;
+
+  buffer.dispatch(event.eventId,
+                  TimeStamp {12345},
+                  event.producerId,
+                  TransportMode::confirmed,
+                  true,
+                  &eventQueue,
+                  obj.get(),
+                  testValue);
+
+  ASSERT_EQ(eventQueue.getContents().size(), 1U);
+
+  const auto& queuedEvent = eventQueue.getContents().front();
+  EXPECT_EQ(queuedEvent.eventId, event.eventId);
+  EXPECT_EQ(queuedEvent.creationTime.sinceEpoch().getNanoseconds(), 12345);
+
+  test::TestWriter writer;
+  OutputStream out(writer);
+
+  ASSERT_NE(queuedEvent.serializeFunc, nullptr);
+  queuedEvent.serializeFunc(out);
+
+  EXPECT_EQ(writer.getBuffer().size(), sizeof(uint32_t));
 }
 
 }  // namespace

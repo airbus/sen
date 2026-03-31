@@ -119,7 +119,8 @@ protected:  // implements ObjectFilter
   void objectsRemoved(std::shared_ptr<Interest> interest, ObjectRemovalList removals) override;
 
 private:
-  void removeObjectById(const ObjectId& objectId);
+  /// Only removes updates linked to a certain interest (the updates could be linked to other interests as well)
+  void removeObjectUpdatesByInterest(ObjectId objectId, InterestId interestId);
   void sendEvents(const std::list<::sen::impl::SerializableEvent>& events);
   void sendObjectUpdates();
   void updateRemoteReference();

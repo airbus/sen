@@ -755,8 +755,8 @@ public:
 public:
   void check(const VoidType& from, const Type& to)
   {
-    // see if we can convert the internal type.
-    addIssuesForConversion(from, to);
+    // VoidType cannot be converted to any other data type
+    rejectConversion(from, to);
   }
 };
 
