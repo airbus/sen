@@ -8,6 +8,7 @@
 #include "sen/util/dr/detail/dead_reckoner_impl.h"
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/numbers.h"
 #include "sen/util/dr/algorithms.h"
 
@@ -120,7 +121,9 @@ Orientation ecefToNed(const Orientation& value, const GeodeticWorldLocation& lat
   const auto [x0, y0, z0] = getNedTrihedron(latLonAlt);
 
   // quaternion containing the orientation with respect to the ECEF coordinates
-  const Quatd inputOrientation {value.psi, value.theta, value.phi};
+  const Quatd inputOrientation {std_util::checkedConversion<double>(value.psi),
+                                std_util::checkedConversion<double>(value.theta),
+                                std_util::checkedConversion<double>(value.phi)};
 
   // i and j unit vectors transformed with the input orientation quaternion
   const auto xf = inputOrientation * Vec3d {1, 0, 0};
@@ -147,8 +150,10 @@ Orientation nedToEcef(const Orientation& value, const GeodeticWorldLocation& lat
   const auto [x0, y0, z0] = getNedTrihedron(latLonAlt);
 
   // compute final x and y vectors resulting from the transformation of the orientation with respect to NED
-  const auto xf = Quatd {value.theta, y0} * Quatd {value.psi, z0} * x0;
-  const auto yf = Quatd {value.phi, x0} * Quatd {value.psi, z0} * y0;
+  const auto xf = Quatd {std_util::checkedConversion<double>(value.theta), y0} *
+                  Quatd {std_util::checkedConversion<double>(value.psi), z0} * x0;
+  const auto yf = Quatd {std_util::checkedConversion<double>(value.phi), x0} *
+                  Quatd {std_util::checkedConversion<double>(value.psi), z0} * y0;
 
   // ECEF unit vectors
   const Vec3d xi {1, 0, 0};
