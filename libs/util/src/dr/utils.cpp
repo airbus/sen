@@ -8,6 +8,7 @@
 #include "utils.h"
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/numbers.h"
 #include "sen/util/dr/algorithms.h"
@@ -29,27 +30,57 @@ Location toWorldLocation(const Vec3d& value) { return {value.getX(), value.getY(
 
 Vec3d fromWorldLocation(const Location& value) { return {value.x, value.y, value.z}; }
 
-Vec3d fromVelocity(const Velocity& value) { return {value.x, value.y, value.z}; }
+Vec3d fromVelocity(const Velocity& value)
+{
+  return {std_util::checkedConversion<double>(value.x),
+          std_util::checkedConversion<double>(value.y),
+          std_util::checkedConversion<double>(value.z)};
+}
 
 Velocity toVelocity(const Vec3d& value) { return {value.getX(), value.getY(), value.getZ()}; }
 
-Vec3d fromAcceleration(const Acceleration& value) { return {value.x, value.y, value.z}; }
+Vec3d fromAcceleration(const Acceleration& value)
+{
+  return {std_util::checkedConversion<double>(value.x),
+          std_util::checkedConversion<double>(value.y),
+          std_util::checkedConversion<double>(value.z)};
+}
 
 Acceleration toAcceleration(const Vec3d& value) { return {value.getX(), value.getY(), value.getZ()}; }
 
 AngularAcceleration toAngularAcceleration(const Vec3d& value) { return {value.getX(), value.getY(), value.getZ()}; }
 
-Vec3d fromAngularVelocity(const AngularVelocity& value) { return {value.x, value.y, value.z}; }
+Vec3d fromAngularVelocity(const AngularVelocity& value)
+{
+  return {std_util::checkedConversion<double>(value.x),
+          std_util::checkedConversion<double>(value.y),
+          std_util::checkedConversion<double>(value.z)};
+}
 
-Vec3d fromAngularAcceleration(const AngularAcceleration& value) { return {value.x, value.y, value.z}; }
+Vec3d fromAngularAcceleration(const AngularAcceleration& value)
+{
+  return {std_util::checkedConversion<double>(value.x),
+          std_util::checkedConversion<double>(value.y),
+          std_util::checkedConversion<double>(value.z)};
+}
 
 AngularVelocity toAngularVelocity(const Vec3d& value) { return {value.getX(), value.getY(), value.getZ()}; }
 
 Orientation toOrientation(const Vec3d& value) { return {value.getX(), value.getY(), value.getZ()}; }
 
-Vec3d fromOrientationToVec(const Orientation& value) { return {value.psi, value.theta, value.phi}; }
+Vec3d fromOrientationToVec(const Orientation& value)
+{
+  return {std_util::checkedConversion<double>(value.psi),
+          std_util::checkedConversion<double>(value.theta),
+          std_util::checkedConversion<double>(value.phi)};
+}
 
-Quatd fromOrientationToQuat(const Orientation& value) { return {value.psi, value.theta, value.phi}; }
+Quatd fromOrientationToQuat(const Orientation& value)
+{
+  return {std_util::checkedConversion<double>(value.psi),
+          std_util::checkedConversion<double>(value.theta),
+          std_util::checkedConversion<double>(value.phi)};
+}
 
 Vec3d nedToEcef(const Vec3d& value, const GeodeticWorldLocation& latLonAlt) noexcept
 {
@@ -58,7 +89,7 @@ Vec3d nedToEcef(const Vec3d& value, const GeodeticWorldLocation& latLonAlt) noex
 
 Vec3d ecefToNed(const Vec3d& value, const GeodeticWorldLocation& latLonAlt) noexcept
 {
-  return Quatd {toRad(latLonAlt.longitude), -halfPi - toRad(latLonAlt.latitude), 0.0f}.inverse() * value;
+  return Quatd {toRad(latLonAlt.longitude), -halfPi - toRad(latLonAlt.latitude), 0.0}.inverse() * value;
 }
 
 Vec3d bodyToNed(const Vec3d& value, const Orientation& orientationNed) noexcept

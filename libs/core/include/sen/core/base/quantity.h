@@ -11,6 +11,7 @@
 // sen
 #include "compiler_macros.h"
 #include "sen/core/base/assert.h"
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/class_helpers.h"
 
 // std
@@ -43,7 +44,7 @@ public:
   template <typename U, typename = std::enable_if_t<std::is_convertible_v<U, T>>>
   constexpr Quantity(U value)  // NOLINT implicit conversions allowed
   {
-    checkAndSet(value);
+    checkAndSet(std_util::checkedConversion<T>(value));
   }
 
   ~Quantity() = default;

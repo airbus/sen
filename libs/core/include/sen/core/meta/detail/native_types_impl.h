@@ -8,6 +8,7 @@
 #ifndef SEN_CORE_META_DETAIL_NATIVE_TYPES_IMPL_H
 #define SEN_CORE_META_DETAIL_NATIVE_TYPES_IMPL_H
 
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/io/detail/serialization_traits.h"
 #include "sen/core/io/input_stream.h"
@@ -66,17 +67,17 @@ public:
 
   [[nodiscard]] double getMaxValue() const noexcept final
   {
-    return std::numeric_limits<NativeType>::max();  // NOLINT(clang-diagnostic-double-promotion)
+    return std_util::checkedConversion<double>(std::numeric_limits<NativeType>::max());
   }
 
   [[nodiscard]] double getMinValue() const noexcept final
   {
-    return std::numeric_limits<NativeType>::lowest();  // NOLINT(clang-diagnostic-double-promotion)
+    return std_util::checkedConversion<double>(std::numeric_limits<NativeType>::lowest());
   }
 
   [[nodiscard]] double getEpsilon() const noexcept final
   {
-    return std::numeric_limits<NativeType>::epsilon();  // NOLINT(clang-diagnostic-double-promotion)
+    return std_util::checkedConversion<double>(std::numeric_limits<NativeType>::epsilon());
   }
 
   [[nodiscard]] std::size_t getByteSize() const noexcept final { return sizeof(NativeType); }
