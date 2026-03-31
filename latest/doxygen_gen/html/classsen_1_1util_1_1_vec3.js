@@ -1,6 +1,6 @@
 var classsen_1_1util_1_1_vec3 =
 [
-    [ "Vec3", "classsen_1_1util_1_1_vec3.html#acd28edab175ac1962cbe542fcc62225d", null ],
+    [ "Vec3", "classsen_1_1util_1_1_vec3.html#afa73f58efb62183911660ceec3075fd0", null ],
     [ "Vec3", "classsen_1_1util_1_1_vec3.html#aeb2b3e154b7f53da5756327ab77c5d81", null ],
     [ "~Vec3", "classsen_1_1util_1_1_vec3.html#ad4e6010d134cffd3353acefc41e1ce34", null ],
     [ "ptr", "classsen_1_1util_1_1_vec3.html#aae8a6d94d6da709fbda182afc10dd0f8", null ],

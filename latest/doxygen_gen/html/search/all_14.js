@@ -33,7 +33,7 @@ var searchData=
   ['varinfolist_30',['VarInfoList',['../group__obj.html#ga3a61382933a44a378add035a74febec6',1,'sen']]],
   ['varlist_31',['VarList',['../group__type__utils.html#ga589f5733305a95c056fa0155a92784a8',1,'sen']]],
   ['varmap_32',['VarMap',['../group__type__utils.html#ga3ae50544ad34402f50a10a392ba495a2',1,'sen']]],
-  ['vec3_33',['Vec3',['../classsen_1_1util_1_1_vec3.html',1,'sen::util::Vec3&lt; T &gt;'],['../classsen_1_1util_1_1_vec3.html#acd28edab175ac1962cbe542fcc62225d',1,'sen::util::Vec3::Vec3() noexcept'],['../classsen_1_1util_1_1_vec3.html#aeb2b3e154b7f53da5756327ab77c5d81',1,'sen::util::Vec3::Vec3(T x, T y, T z) noexcept']]],
+  ['vec3_33',['Vec3',['../classsen_1_1util_1_1_vec3.html',1,'sen::util::Vec3&lt; T &gt;'],['../classsen_1_1util_1_1_vec3.html#afa73f58efb62183911660ceec3075fd0',1,'sen::util::Vec3::Vec3() noexcept=default'],['../classsen_1_1util_1_1_vec3.html#aeb2b3e154b7f53da5756327ab77c5d81',1,'sen::util::Vec3::Vec3(T x, T y, T z) noexcept']]],
   ['vec3_2eh_34',['vec3.h',['../vec3_8h.html',1,'']]],
   ['vec3_3c_20f32_20_3e_35',['Vec3&lt; f32 &gt;',['../classsen_1_1util_1_1_vec3.html',1,'sen::util']]],
   ['vec3_3c_20f64_20_3e_36',['Vec3&lt; f64 &gt;',['../classsen_1_1util_1_1_vec3.html',1,'sen::util']]],
