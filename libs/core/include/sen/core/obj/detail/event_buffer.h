@@ -149,8 +149,20 @@ public:
                          MaybeRef<T>... args) const;
 
 private:
-  std::vector<ConnId> ids_;
-  std::list<std::shared_ptr<Callback>> callbacks_;
+  struct CallbackEntry
+  {
+    using CallbackStorageType = std::shared_ptr<Callback>;
+
+    CallbackEntry(ConnId id, CallbackStorageType callback): id_(id), callback_(std::move(callback)) {}
+
+    [[nodiscard]] ConnId id() const { return id_; }
+    const CallbackStorageType& callback() const { return callback_; }
+
+  private:
+    ConnId id_;
+    CallbackStorageType callback_;
+  };
+  std::vector<CallbackEntry> eventCallbacks_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -204,34 +216,28 @@ inline void SerializableEventQueue::push(SerializableEvent&& event)
 template <typename... T>
 inline ConnectionGuard EventBuffer<T...>::addConnection(Object* source, Callback callback, ConnId id)
 {
-  ids_.push_back(id);
-  callbacks_.push_back(std::make_shared<decltype(callback)>(std::move(callback)));
+  eventCallbacks_.emplace_back(id, std::make_shared<decltype(callback)>(std::move(callback)));
   return {source, id.get(), 0U, true};
 }
 
 template <typename... T>
 inline bool EventBuffer<T...>::removeConnection(ConnId id)
 {
-  for (typename decltype(ids_)::size_type i = 0U; i < ids_.size(); ++i)
+  for (auto itr = eventCallbacks_.begin(); itr != eventCallbacks_.end(); ++itr)
   {
-    if (ids_[i] == id)
+    if (itr->id() == id)
     {
-      ids_.erase(ids_.begin() + i);
 
-      auto itr = std::next(callbacks_.begin(), i);
-
-      // the callback might survive the erasure from this list when
-      // enqueued in some runner. Therefore, we need to explicitly cancel it,
-      // so that it doesn't get invoked from now on.
-      if (auto callbackLock = (*itr)->lock(); callbackLock.isValid())
+      if (auto callbackLock = itr->callback()->lock(); callbackLock.isValid())
       {
         callbackLock.invalidate();
       }
 
-      callbacks_.erase(itr);
+      eventCallbacks_.erase(itr);
       return true;
     }
   }
+
   return false;
 }
 
@@ -275,19 +281,20 @@ inline void EventBuffer<T...>::dispatch(MemberHash eventId,
 {
   EventInfo info {creationTime};
 
-  for (const auto& callback: callbacks_)
+  // for (const auto& callback: callbacks_)
+  for (const auto& callbackEntry: eventCallbacks_)
   {
-    if (auto callbackLock = callback->lock(); callbackLock.isValid())
+    if (auto callbackLock = callbackEntry.callback()->lock(); callbackLock.isValid())
     {
 #if SEN_GCC_VERSION_CHECK_SMALLER(12, 4, 0)
       // TODO (SEN-717): clean up with gcc12.4 on debian
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-      auto work = [cb = callback, info, args...]() { cb->invoke(info, args...); };
+      auto work = [cb = callbackEntry.callback(), info, args...]() { cb->invoke(info, args...); };
 #  pragma GCC diagnostic pop
 #else
       // Note: if modified, patch line below
-      auto work = [cb = callback, info, args...]() { cb->invoke(info, args...); };
+      auto work = [cb = callbackEntry.callback(), info, args...]() { cb->invoke(info, args...); };
 #endif
       callbackLock.pushAnswer(std::move(work), impl::cannotBeDropped(transportMode));
     }
@@ -335,17 +342,17 @@ inline void EventBuffer<T...>::immediateDispatch(MemberHash eventId,
 {
   EventInfo info {creationTime};
 
-  for (auto& callback: callbacks_)
+  for (auto& callbackEntry: eventCallbacks_)
   {
-    if (auto callbackLock = callback->lock(); callbackLock.isValid())
+    if (auto callbackLock = callbackEntry.callback()->lock(); callbackLock.isValid())
     {
       if (callbackLock.isSameQueue(queue))
       {
-        callback->invoke(info, args...);
+        callbackEntry.callback()->invoke(info, args...);
       }
       else
       {
-        auto work = [cb = callback, info, args...]() { cb->invoke(info, args...); };
+        auto work = [cb = callbackEntry.callback(), info, args...]() { cb->invoke(info, args...); };
         callbackLock.pushAnswer(std::move(work), impl::cannotBeDropped(transportMode));
       }
     }
