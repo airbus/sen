@@ -18,6 +18,7 @@ struct PythonTemplates
   inja::Template structTemplate;
   inja::Template enumTemplate;
   inja::Template variantTemplate;
+  inja::Template optionalTemplate;
   inja::Template classTemplate;
   inja::Template sequenceTemplate;
   inja::Template aliasTemplate;
