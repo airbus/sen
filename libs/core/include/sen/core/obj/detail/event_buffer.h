@@ -155,8 +155,8 @@ private:
 
     CallbackEntry(ConnId id, CallbackStorageType callback): id_(id), callback_(std::move(callback)) {}
 
-    [[nodiscard]] ConnId id() const { return id_; }
-    const CallbackStorageType& callback() const { return callback_; }
+    [[nodiscard]] ConnId getConnectionId() const noexcept { return id_; }
+    const CallbackStorageType& getCallback() const noexcept { return callback_; }
 
   private:
     ConnId id_;
