@@ -11,6 +11,7 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/integer_compare.h"
+#include "sen/core/base/numbers.h"
 
 // std
 #include <cassert>
@@ -70,20 +71,26 @@ ToType conversionImpl(FromType from)
   }
   else if constexpr (std::is_floating_point_v<ToType> || std::is_floating_point_v<FromType>)
   {
-
-    if (std::isless(from, std::numeric_limits<ToType>::lowest()))
+    if constexpr (std::is_same_v<FromType, ToType>)
     {
-      ReportPolicy::report("Needed to truncate `from` as it's value was to small for ToType.");
-      return std::numeric_limits<ToType>::lowest();
+      return from;
     }
-
-    if (std::isgreater(from, std::numeric_limits<ToType>::max()))
+    else
     {
-      ReportPolicy::report("Needed to truncate `from` as it's value was to big for ToType.");
-      return std::numeric_limits<ToType>::max();
-    }
+      if (std::isless(static_cast<float64_t>(from), static_cast<float64_t>(std::numeric_limits<ToType>::lowest())))
+      {
+        ReportPolicy::report("Needed to truncate `from` as it's value was to small for ToType.");
+        return std::numeric_limits<ToType>::lowest();
+      }
 
-    return static_cast<ToType>(from);
+      if (std::isgreater(static_cast<float64_t>(from), static_cast<float64_t>(std::numeric_limits<ToType>::max())))
+      {
+        ReportPolicy::report("Needed to truncate `from` as it's value was to big for ToType.");
+        return std::numeric_limits<ToType>::max();
+      }
+
+      return static_cast<ToType>(from);
+    }
   }
   else
   {
