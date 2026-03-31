@@ -34,6 +34,7 @@ var group__obj =
     ] ],
     [ "sen::Interest", "classsen_1_1_interest.html", [
       [ "~Interest", "classsen_1_1_interest.html#abed340332e44160b7323ad107344b3f9", null ],
+      [ "Interest", "classsen_1_1_interest.html#a622d7a8f88084913f4ab4a2546789ba8", null ],
       [ "getTypeCondition", "classsen_1_1_interest.html#a809c41396afcedd054d494ea6ca6452e", null ],
       [ "getId", "classsen_1_1_interest.html#a98e27f8bbbbc4576465902ba8ff77b81", null ],
       [ "getQueryCode", "classsen_1_1_interest.html#a24a41a7ac14b0e90d2a8b20d07462990", null ],

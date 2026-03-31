@@ -1,5 +1,6 @@
 var NAVTREEINDEX9 =
 {
+"classsen_1_1util_1_1_quat.html#abe7f9c75d5cc32d172f6854102f9eb9d":[2,0,1,1,19,31],
 "classsen_1_1util_1_1_quat.html#ac148382e1a995af50d428f7ad9c52850":[1,0,1,1,20,27],
 "classsen_1_1util_1_1_quat.html#ac148382e1a995af50d428f7ad9c52850":[2,0,1,1,19,27],
 "classsen_1_1util_1_1_quat.html#ac4e0c39e912d6bd8d70c39e09dab8d2c":[1,0,1,1,20,32],
@@ -248,6 +249,5 @@ var NAVTREEINDEX9 =
 "functions_e.html":[2,3,0,4],
 "functions_enum.html":[2,3,4],
 "functions_f.html":[2,3,0,5],
-"functions_func.html":[2,3,1],
-"functions_func.html":[2,3,1,0]
+"functions_func.html":[2,3,1]
 };

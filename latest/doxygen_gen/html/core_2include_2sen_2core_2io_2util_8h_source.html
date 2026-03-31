@@ -316,7 +316,7 @@ $(function(){initNavTree('core_2include_2sen_2core_2io_2util_8h_source.html','',
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>{</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  <span class="keyword">using </span>ValueType = <span class="keyword">typename</span> T::value_type;</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;())</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;)</div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  {</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bytesToWrite = <span class="keyword">sizeof</span>(ValueType) * size;</div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keyword">auto</span> buffer = out.<a class="code hl_function" href="classsen_1_1_output_stream_template.html#a3234432f62c9f919661ee767849134e2">getWriter</a>().<a class="code hl_function" href="classsen_1_1_writer.html#a4fedec8387648de6c00d1a06c0a06909">advance</a>(bytesToWrite);</div>
@@ -367,7 +367,7 @@ $(function(){initNavTree('core_2include_2sen_2core_2io_2util_8h_source.html','',
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>  <span class="keyword">using </span>ValueType = <span class="keyword">typename</span> T::value_type;</div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>  <span class="comment">// read the data</span></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;())</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;)</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  {</div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bytes = size * <span class="keyword">sizeof</span>(ValueType);</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    std::memcpy(val.data(), in.<a class="code hl_function" href="classsen_1_1_input_stream_base.html#afa21d11951ffa3321f00d40d9568d5b9">advance</a>(bytes), bytes);</div>
@@ -416,7 +416,7 @@ $(function(){initNavTree('core_2include_2sen_2core_2io_2util_8h_source.html','',
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>  <span class="keyword">using </span>ValueType = <span class="keyword">typename</span> T::value_type;</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>  <span class="comment">// read the data</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;())</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;)</div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>  {</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <span class="keyword">const</span> <span class="keyword">auto</span> bytes = val.size() * <span class="keyword">sizeof</span>(ValueType);</div>
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    std::memcpy(val.data(), in.<a class="code hl_function" href="classsen_1_1_input_stream_base.html#afa21d11951ffa3321f00d40d9568d5b9">advance</a>(bytes), bytes);</div>
@@ -438,7 +438,7 @@ $(function(){initNavTree('core_2include_2sen_2core_2io_2util_8h_source.html','',
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  <span class="keyword">const</span> <span class="keyword">auto</span> valSize = <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(val.size());</div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  uint32_t total = ::sen::impl::getSerializedSize&lt;uint32_t&gt;(valSize);</div>
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;())</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;)</div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  {</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    total += <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(<span class="keyword">sizeof</span>(ValueType)) * valSize;</div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>  }</div>
@@ -456,7 +456,7 @@ $(function(){initNavTree('core_2include_2sen_2core_2io_2util_8h_source.html','',
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="keyword">inline</span> uint32_t arraySerializedSize(<span class="keyword">const</span> T&amp; val) <span class="keyword">noexcept</span></div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>{</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  <span class="keyword">using </span>ValueType = <span class="keyword">typename</span> T::value_type;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;())</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>  <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (::sen::impl::allowsContiguousIO&lt;ValueType&gt;)</div>
 <div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>  {</div>
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(<span class="keyword">sizeof</span>(ValueType)) * <span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(val.size());</div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>  }</div>

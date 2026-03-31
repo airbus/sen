@@ -51,7 +51,7 @@ var searchData=
   ['integer_5fcompare_2eh_48',['integer_compare.h',['../integer__compare_8h.html',1,'']]],
   ['integral_49',['integral',['../group__lang.html#ggaee813470fafe0a4febd39e9b592f188ca25aa2761448ea05599418ee93dd1d5c5',1,'sen::lang']]],
   ['integraltype_50',['IntegralType',['../classsen_1_1_integral_type.html',1,'sen::IntegralType'],['../classsen_1_1_integral_type.html#ae6d1271f8c9e086a03dad6af9493d34a',1,'sen::IntegralType::IntegralType()']]],
-  ['interest_51',['Interest',['../classsen_1_1_interest.html',1,'sen']]],
+  ['interest_51',['Interest',['../classsen_1_1_interest.html',1,'sen::Interest'],['../classsen_1_1_interest.html#a622d7a8f88084913f4ab4a2546789ba8',1,'sen::Interest::Interest()']]],
   ['interest_2eh_52',['interest.h',['../interest_8h.html',1,'']]],
   ['interestid_53',['interestId',['../group__obj.html#af5854487660180179a61f52fbde2db3b',1,'sen::ObjectInstanceDiscovery::interestId'],['../structsen_1_1_remote_object_discovery.html#ad2218d5b214aee72100cd1723cf0588c',1,'sen::RemoteObjectDiscovery::interestId'],['../group__obj.html#ae690fb3d6dddb2ed2a2f0b52d5ffe03f',1,'sen::ObjectRemoval::interestId']]],
   ['interfacetype_54',['InterfaceType',['../structsen_1_1_sen_class_relation.html#a218165b6c23cf7f06d2da60d5df75345',1,'sen::SenClassRelation::InterfaceType'],['../structsen_1_1_sen_class_relation.html#a218165b6c23cf7f06d2da60d5df75345',1,'sen::SenClassRelation&lt; T &amp; &gt;::InterfaceType'],['../structsen_1_1_sen_class_relation.html#a218165b6c23cf7f06d2da60d5df75345',1,'sen::SenClassRelation&lt; const T &amp; &gt;::InterfaceType'],['../structsen_1_1_sen_class_relation.html#a218165b6c23cf7f06d2da60d5df75345',1,'sen::SenClassRelation&lt; const T &gt;::InterfaceType']]],

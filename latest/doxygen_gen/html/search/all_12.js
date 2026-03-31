@@ -27,7 +27,7 @@ var searchData=
   ['testwriter_24',['TestWriter',['../classsen_1_1test_1_1_test_writer.html',1,'sen::test::TestWriter'],['../classsen_1_1test_1_1_test_writer.html#a4220618982ec5429067e323d88717421',1,'sen::test::TestWriter::TestWriter()']]],
   ['the_20sen_20type_20language_25',['The Sen Type Language',['../group__lang.html',1,'']]],
   ['theta_26',['theta',['../group__dr.html#a7691414781971fcfeef76ec62f3aa2b6',1,'sen::util::Orientation']]],
-  ['throwemptystructerror_27',['throwEmptyStructError',['../structsen_1_1_struct_traits_base.html#aeca62c331fefdcf0d7cc74b4e9869d97',1,'sen::StructTraitsBase::throwEmptyStructError()'],['../structsen_1_1_variant_traits_base_base.html#a99d9719d8265c7e4727cf369a8c28f9c',1,'sen::VariantTraitsBaseBase::throwEmptyStructError()']]],
+  ['throwemptystructerror_27',['throwEmptyStructError',['../structsen_1_1_struct_traits_base.html#aeca62c331fefdcf0d7cc74b4e9869d97',1,'sen::StructTraitsBase']]],
   ['throwinvalidfieldindex_28',['throwInvalidFieldIndex',['../structsen_1_1_struct_traits_base.html#a8a63195c708b7508236f5402b218b2b2',1,'sen::StructTraitsBase::throwInvalidFieldIndex()'],['../structsen_1_1_variant_traits_base_base.html#a85bd709bafd6bfc378a08d407e32be2a',1,'sen::VariantTraitsBaseBase::throwInvalidFieldIndex()']]],
   ['thrownonnativefield_29',['throwNonNativeField',['../structsen_1_1_struct_traits_base.html#a9017e059c120b4d55f93231b727feecd',1,'sen::StructTraitsBase::throwNonNativeField()'],['../structsen_1_1_variant_traits_base_base.html#a1855937a62a4d9f26712755c7d0e60de',1,'sen::VariantTraitsBaseBase::throwNonNativeField()']]],
   ['throwruntimeerror_30',['throwRuntimeError',['../group__error__handling.html#gac4f878f792821f786237e910f2501d6f',1,'sen']]],

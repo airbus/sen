@@ -425,9 +425,10 @@ Macros</h2></td></tr>
 <div class="line">  classname(std::initializer_list&lt;Y&gt; elems): Parent()                                                                \</div>
 <div class="line">  {                                                                                                                  \</div>
 <div class="line">    std::size_t i = 0;                                                                                               \</div>
-<div class="line">    for (<span class="keyword">auto</span> itr = elems.begin(); itr != elems.end() &amp;&amp; i &lt; size; ++itr)                                            \</div>
+<div class="line">    for (<span class="keyword">auto</span> itr = elems.begin(); itr != elems.end() &amp;&amp; i &lt; size;                                                   \</div>
+<div class="line">         ++itr) <span class="comment">/* NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) */</span>                                        \</div>
 <div class="line">    {                                                                                                                \</div>
-<div class="line">      (*this)[i] = *itr;                                                                                             \</div>
+<div class="line">      (*this)[i] = *itr; <span class="comment">/* NOLINT(cppcoreguidelines-pro-bounds-constant-array-index) */</span>                             \</div>
 <div class="line">      ++i;                                                                                                           \</div>
 <div class="line">    }                                                                                                                \</div>
 <div class="line">  }                                                                                                                  \</div>
