@@ -163,7 +163,7 @@ protected:
 
 private:
   friend class {{ remoteName }};
-  std::array<::sen::impl::PropertyFlags, {{ dynamicPropertyCount }}U> flags_ = {};
+  [[maybe_unused]] std::array<::sen::impl::PropertyFlags, {{ dynamicPropertyCount }}U> flags_ {};
 ## for iface in interfacesToImplement
 ## for prop in iface.props
 ## if prop.dynamic
@@ -183,7 +183,7 @@ private:
   ::sen::impl::EventBuffer<{{ listOf("{{ type }}", event.args) }}> {{event.name}}Event_;
 ## endfor
 ## endfor
-  std::array<::sen::impl::EventBuffer<>, {{ dynamicPropertyCount }}U> propEvents_ = {};
+  [[maybe_unused]] std::array<::sen::impl::EventBuffer<>, {{ dynamicPropertyCount }}U> propEvents_ {};
 ## endif
 };
 
@@ -265,7 +265,7 @@ private:
   ::sen::impl::EventBuffer<{{ listOf("{{ type }}", event.args) }}> {{event.name}}Event_;
 ## endfor
 ## endfor
-  std::array<::sen::impl::EventBuffer<>, {{ dynamicPropertyCount }}U> propEvents_ = {};
+  [[maybe_unused]] std::array<::sen::impl::EventBuffer<>, {{ dynamicPropertyCount }}U> propEvents_ {};
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -321,7 +321,7 @@ public: // {{ iface.name }} events
 
 private:
 ## for iface in interfacesToImplement
-  {{ iface.interfaceName }}* ptr{{ iface.interfaceName }}_;
+  [[maybe_unused]] {{ iface.interfaceName }}* ptr{{ iface.interfaceName }}_;
 ## endfor
 ## for iface in interfacesToImplement
 ## for prop in iface.props
@@ -330,7 +330,7 @@ private:
 ## endif
 ## endfor
 ## endfor
-  std::array<::sen::impl::EventBuffer<>, {{dynamicPropertyCount}}> propEvents_ = {};
+  [[maybe_unused]] std::array<::sen::impl::EventBuffer<>, {{dynamicPropertyCount}}> propEvents_ {};
 };
 
 ## endif

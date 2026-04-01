@@ -59,14 +59,15 @@ protected:                                                                      
   inline void senImplRemoveTypedConnection(::sen::ConnId id) override;                                                 \
   [[nodiscard]] inline ::sen::impl::FieldValueGetter senImplGetFieldValueGetter(                                       \
     ::sen::MemberHash propertyId, ::sen::Span<uint16_t> fields) const override;                                        \
-  inline void invokeAllPropertyCallbacks() override;                                                                   \
-                                                                                                                       \
-private:                                                                                                               \
-  bool somePropertyIsDirty_ = false;
+  inline void invokeAllPropertyCallbacks() override;
 
 /// Used by the generated code for simplicity NOLINTNEXTLINE
 #define SEN_IMPL_GEN_BASE_CLASS(classname)                                                                             \
   SEN_IMPL_GEN_NATIVE_MEMBERS                                                                                          \
+                                                                                                                       \
+private:                                                                                                               \
+  bool somePropertyIsDirty_ = false;                                                                                   \
+                                                                                                                       \
 public:                                                                                                                \
   inline classname(std::string name, const ::sen::VarMap& args);                                                       \
   ~classname() override = default;                                                                                     \
