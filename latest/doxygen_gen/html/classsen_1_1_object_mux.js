@@ -17,8 +17,6 @@ var classsen_1_1_object_mux =
     [ "notifyMuxedRemovedOnExistingObjects", "classsen_1_1_object_mux.html#a16a01eb40fa9a0c159722c6ce882fe4a", null ],
     [ "notifyExistingObjectsReadded", "classsen_1_1_object_mux.html#a64643b90b56a1dacf568d740862289ad", null ],
     [ "notifyObjectsRefCountReduced", "classsen_1_1_object_mux.html#a8201be294296e34d9d80c9ba679a6eca", null ],
-    [ "muxedListenerAdded", "classsen_1_1_object_mux.html#a3c10368d20d62ef3917c308a7d7d8c62", null ],
-    [ "muxedListenerRemoved", "classsen_1_1_object_mux.html#aee10631d04feca685aae0f570b28928b", null ],
     [ "callOnExistingObjectsReadded", "classsen_1_1_object_mux.html#ad830503f850abd2609746e467915a44b", null ],
     [ "callOnObjectsRefCountReduced", "classsen_1_1_object_mux.html#a3a876152748a8ec17016c8a0962d6b1b", null ],
     [ "onObjectsAdded", "classsen_1_1_object_mux.html#a3148741aaf3608690e3708b83a4a97d3", null ],

@@ -120,7 +120,7 @@ $(function(){initNavTree('classsen_1_1_object_mux.html','','classsen_1_1_object_
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_mux__inherit__graph.svg" width="491" height="1102"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_mux__inherit__graph.svg" width="491" height="1062"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -155,10 +155,6 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a16a01eb40fa9a0c159722c6ce882fe4a" id="r_a16a01eb40fa9a0c159722c6ce882fe4a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a16a01eb40fa9a0c159722c6ce882fe4a">notifyMuxedRemovedOnExistingObjects</a> (<a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *listener)</td></tr>
 <tr class="memitem:a64643b90b56a1dacf568d740862289ad" id="r_a64643b90b56a1dacf568d740862289ad"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a64643b90b56a1dacf568d740862289ad">notifyExistingObjectsReadded</a> (const <a class="el" href="group__obj.html#ga82d17aa351823e354aec2c433af928fc">ObjectAdditionList</a> &amp;additions)</td></tr>
 <tr class="memitem:a8201be294296e34d9d80c9ba679a6eca" id="r_a8201be294296e34d9d80c9ba679a6eca"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a8201be294296e34d9d80c9ba679a6eca">notifyObjectsRefCountReduced</a> (const <a class="el" href="group__obj.html#gae6b18640f36ffbe217cebe76ae4ad0f3">ObjectRemovalList</a> &amp;removals)</td></tr>
-<tr class="memitem:a3c10368d20d62ef3917c308a7d7d8c62" id="r_a3c10368d20d62ef3917c308a7d7d8c62"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a3c10368d20d62ef3917c308a7d7d8c62">muxedListenerAdded</a> (<a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *listener, bool notifyAboutExistingObjects)</td></tr>
-<tr class="memdesc:a3c10368d20d62ef3917c308a7d7d8c62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does nothing by default.  <br /></td></tr>
-<tr class="memitem:aee10631d04feca685aae0f570b28928b" id="r_aee10631d04feca685aae0f570b28928b"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#aee10631d04feca685aae0f570b28928b">muxedListenerRemoved</a> (<a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *listener, bool notifyAboutExistingObjects)</td></tr>
-<tr class="memdesc:aee10631d04feca685aae0f570b28928b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does nothing by default.  <br /></td></tr>
 <tr class="memitem:ad830503f850abd2609746e467915a44b" id="r_ad830503f850abd2609746e467915a44b"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad830503f850abd2609746e467915a44b">callOnExistingObjectsReadded</a> (<a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *listener, const <a class="el" href="group__obj.html#ga82d17aa351823e354aec2c433af928fc">ObjectAdditionList</a> &amp;additions) const</td></tr>
 <tr class="memitem:a3a876152748a8ec17016c8a0962d6b1b" id="r_a3a876152748a8ec17016c8a0962d6b1b"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a3a876152748a8ec17016c8a0962d6b1b">callOnObjectsRefCountReduced</a> (<a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *listener, const <a class="el" href="group__obj.html#gae6b18640f36ffbe217cebe76ae4ad0f3">ObjectRemovalList</a> &amp;removals) const</td></tr>
 <tr class="memitem:a3148741aaf3608690e3708b83a4a97d3" id="r_a3148741aaf3608690e3708b83a4a97d3"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a3148741aaf3608690e3708b83a4a97d3">onObjectsAdded</a> (const <a class="el" href="group__obj.html#ga82d17aa351823e354aec2c433af928fc">ObjectAdditionList</a> &amp;additions) override</td></tr>
@@ -655,68 +651,6 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a id="a3c10368d20d62ef3917c308a7d7d8c62" name="a3c10368d20d62ef3917c308a7d7d8c62"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c10368d20d62ef3917c308a7d7d8c62">&#9670;&#160;</a></span>muxedListenerAdded()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual void sen::ObjectMux::muxedListenerAdded </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *</td>          <td class="paramname"><span class="paramname"><em>listener</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>notifyAboutExistingObjects</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel protected">protected</span><span class="mlabel virtual">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Does nothing by default. </p>
-
-</div>
-</div>
-<a id="aee10631d04feca685aae0f570b28928b" name="aee10631d04feca685aae0f570b28928b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee10631d04feca685aae0f570b28928b">&#9670;&#160;</a></span>muxedListenerRemoved()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual void sen::ObjectMux::muxedListenerRemoved </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="#ac5218a902868d2d591654735eee54671">MuxedProviderListener</a> *</td>          <td class="paramname"><span class="paramname"><em>listener</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>notifyAboutExistingObjects</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel protected">protected</span><span class="mlabel virtual">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Does nothing by default. </p>
 
 </div>
 </div>

@@ -1,9 +1,9 @@
 <map id="sen::ObjectMux" name="sen::ObjectMux">
-<area shape="rect" id="Node000001" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="101,561,358,1096"/>
+<area shape="rect" id="Node000001" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="101,561,358,1056"/>
 <area shape="rect" id="Node000002" href="$classsen_1_1_object_provider_listener.html" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="5,241,203,406"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,419,166,561,160,562,125,421"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,419,168,560,163,562,126,420"/>
 <area shape="rect" id="Node000003" href="$classsen_1_1_object_provider.html" title="Base class for an entity that is able to produce objects." alt="" coords="227,133,485,513"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="308,528,299,562,294,561,302,526"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="306,527,297,562,291,561,301,526"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="251,5,461,85"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="359,99,359,133,353,133,353,99"/>
 </map>
