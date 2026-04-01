@@ -68,7 +68,6 @@ private:
   std::bitset<17> remoteFlags_;
   bool testMethodPassed_ = false;
   bool testMethod2Passed_ = false;
-  bool testEventPassed_ = true;
   std::shared_ptr<sen::Subscription<sen::kernel::KernelApiInterface>> kernelApiSub_;
   sen::kernel::KernelApiInterface* kernelApiObj_ = nullptr;
 };

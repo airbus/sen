@@ -561,7 +561,7 @@ void {{localName}}<P>::senImplStreamCall(::sen::MemberHash methodId, ::sen::Inpu
 ## endif
 ## else
 ## if method.deferred
-      auto senImplCallback = ::sen::MethodCallback<{{ method.qualType }}>(this, [this, fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::OutputStream& out) {
+      auto senImplCallback = ::sen::MethodCallback<{{ method.qualType }}>(this, [fwd = std::move(fwd)](const auto& result) mutable { fwd([&](::sen::OutputStream& out) {
             if (result.isOk())
             {
               ::sen::SerializationTraits<{{ method.qualType }}>::write(out, result.getValue());

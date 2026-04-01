@@ -304,10 +304,8 @@ class KernelApiImpl: public KernelApiBase
   SEN_NOCOPY_NOMOVE(KernelApiImpl)
 
 public:  // special members
-  KernelApiImpl(std::string name, KernelImpl* impl, ObjectSource* kernelObjectsSource)
-    : KernelApiBase(std::move(name), Kernel::getBuildInfo())
-    , kernelImpl_(impl)
-    , kernelObjectsSource_(kernelObjectsSource)
+  KernelApiImpl(std::string name, KernelImpl* impl)
+    : KernelApiBase(std::move(name), Kernel::getBuildInfo()), kernelImpl_(impl)
   {
     SEN_ASSERT(kernelImpl_);
     populateUnits();
@@ -367,7 +365,6 @@ private:
   mutable StringList types_;
   KernelParams config_;
   std::vector<std::shared_ptr<Connection>> connections_;
-  ObjectSource* kernelObjectsSource_;
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -386,7 +383,7 @@ FuncResult KernelComponent::run(RunApi& api)
   std::shared_ptr<ObjectSource> clockBus;
 
   // add the api
-  auto kernelApiObject = std::make_shared<KernelApiImpl>("api", impl_, objectsBus.get());
+  auto kernelApiObject = std::make_shared<KernelApiImpl>("api", impl_);
   objectsBus->add(kernelApiObject);
 
   // add the virtual clock, if needed

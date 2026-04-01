@@ -60,7 +60,7 @@ private:
   moodycamel::ConcurrentQueue<std::unique_ptr<BufferType>> buffers_;
 };
 
-UniqueByteBufferManager::UniqueByteBufferManager(): pImpl_(std::make_unique<UniqueByteBufferManagerImpl>()) {};
+UniqueByteBufferManager::UniqueByteBufferManager(): pImpl_(std::make_unique<UniqueByteBufferManagerImpl>()) {}
 UniqueByteBufferManager::~UniqueByteBufferManager() = default;
 
 UniqueByteBufferManager::ByteBufferHandle UniqueByteBufferManager::getBuffer(size_t size)

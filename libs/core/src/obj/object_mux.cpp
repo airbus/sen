@@ -76,8 +76,6 @@ void ObjectMux::addMuxedListener(MuxedProviderListener* listener, bool notifyAbo
     {
       notifyMuxedAddedOnExistingObjects(listener);
     }
-
-    muxedListenerAdded(listener, notifyAboutExistingObjects);
   }
 }
 
@@ -94,8 +92,6 @@ void ObjectMux::removeMuxedListener(MuxedProviderListener* listener, bool notify
 
     (*itr)->removeMuxedProvider(this);
     muxedListeners_.erase(itr);
-
-    muxedListenerRemoved(listener, notifyAboutExistingObjects);
   }
 }
 
@@ -239,18 +235,6 @@ void ObjectMux::notifyObjectsRefCountReduced(const ObjectRemovalList& removals)
   {
     callOnObjectsRefCountReduced(listener, removals);
   }
-}
-
-void ObjectMux::muxedListenerAdded(MuxedProviderListener* listener, bool notifyAboutExistingObjects)
-{
-  std::ignore = listener;
-  std::ignore = notifyAboutExistingObjects;
-}
-
-void ObjectMux::muxedListenerRemoved(MuxedProviderListener* listener, bool notifyAboutExistingObjects)
-{
-  std::ignore = listener;
-  std::ignore = notifyAboutExistingObjects;
 }
 
 bool ObjectMux::hasListener(ObjectProviderListener* listener) const noexcept

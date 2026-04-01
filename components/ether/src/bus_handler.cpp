@@ -141,7 +141,6 @@ BusHandler::BusHandler(uint32_t sessionId,
   , logger_(getLogger())
   , outQueue_(config.busOutQueue)
   , io_(io)
-  , tracer_(tracer)
 {
   const auto group = computeMulticastAddress(sessionId, busId.get(), discoveryPort, config.busConfig.multicastRange);
 

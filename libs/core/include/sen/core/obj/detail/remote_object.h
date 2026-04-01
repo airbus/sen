@@ -398,15 +398,13 @@ inline void RemoteObject::adaptAndMakeRemoteCall(MemberHash id,
     // when receiving the response, add the callback to the work queue
     auto responseHandler = [cb = std::move(callback),
                             writerReturnType = writerMethod->getReturnType(),
-                            id,
                             us = shared_from_this(),  // NOLINT
-                            this,
                             transportMode](const auto& response) mutable
     {
       if (auto cbLock = cb.lock(); cbLock.isValid())
       {
         auto result = makeMethodResult<R>(response,
-                                          [writerReturnType, id, this](const auto& buffer)
+                                          [writerReturnType](const auto& buffer)
                                           {
                                             if constexpr (std::is_void_v<R>)
                                             {
