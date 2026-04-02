@@ -63,18 +63,14 @@ class SenConan(ConanFile):
         self.requires("spdlog/1.17.0", visible=True)
 
     def export_sources(self):
-        # sources that are in git, but we don't want to include in the package
-        _excluded_sources = (".conan", ".github", ".cmake-format.py", ".gitattributes", ".gitignore",
-                             ".mdformat.toml", ".pre-commit-config.yaml", ".sonar", ".yamlfix.toml", ".yamllint",
-                             "conanfile.py", "docs", "utils", "README.md")
+        # Sources are located in the same place as this recipe, copy them to the recipe
+        include_patterns = ["apps/*", "cmake/*", "components/*", "examples/*", "libs/*", "test/*",
+                           "CMakeLists.txt", ".clang-tidy", ".clang-format", "LICENSE.txt", "util/*"]
 
-        git = Git(self, folder=self.recipe_folder)
-        # get the list of files not ignored by .gitignore
-        included_sources = git.included_files()
+        exclude_patterns = ["*/__pycache__/*", "*/.mypy_cache/*", "doc/*", "*/schema.json"]
 
-        for file_path in included_sources:
-            if not file_path.startswith(_excluded_sources):
-                copy(self, file_path, self.recipe_folder, self.export_sources_folder)
+        for export_source_pattern in include_patterns:
+            copy(self, export_source_pattern, self.recipe_folder, self.export_sources_folder, excludes=exclude_patterns)
 
     # avoid copying source files to the build folder (avoids in-source builds)
     no_copy_source = True

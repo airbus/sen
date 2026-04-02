@@ -12,7 +12,9 @@ include(tps/cpptrace)
 include(tps/pugixml)
 
 get_version_from_git_raw(SEN_VERSION_STRING)
-configure_file(src/base/version.h.in ${CMAKE_CURRENT_LIST_DIR}/include/sen/core/base/version.h @ONLY)
+configure_file(
+  src/base/version.h.in ${CMAKE_CURRENT_LIST_DIR}/include/sen/core/base/version.h @ONLY NEWLINE_STYLE UNIX
+)
 
 # -------------------------------------------------------------------------------------------------------------
 # base
