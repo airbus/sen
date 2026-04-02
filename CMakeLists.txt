@@ -19,6 +19,17 @@ option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
 option(SEN_DISABLE_EXTRA_COMPONENTS "Disable non-critical components" OFF)
 option(SEN_COVERAGE_ENABLE "Enable coverage generation" OFF)
 option(SEN_ENABLE_CMAKE_TARGET_GRAPH "Enable the generation of a graphviz with the targets" ON)
+set(SEN_USE_SANITIZER
+    "None"
+    CACHE STRING "With sanitizer setup to enable"
+)
+set_property(
+  CACHE SEN_USE_SANITIZER
+  PROPERTY STRINGS
+           None
+           ASanUBSan
+           Thread
+)
 
 # get access to our utility functions
 include(util/sen_utils)
@@ -60,6 +71,7 @@ if(${SEN_COVERAGE_ENABLE})
   endif()
 endif()
 
+include(util/sanitizers)
 include(util/test)
 
 # libs

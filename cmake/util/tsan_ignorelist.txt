@@ -1,0 +1,29 @@
+# TODO(SEN-1503):  fix deadlock
+deadlock:sen::impl::RemoteObject::makeRemoteCall*
+
+# TODO(SEN-1504):  fix deadlock
+deadlock:sen::kernel::impl::RemoteParticipant::onObjectsAdded*
+
+# TODO(SEN-1505):  fix deadlock
+deadlock:sen::kernel::impl::Bus::isObjectNameUsedLocally*
+
+# TODO(SEN-1506):  fix deadlock
+deadlock:sen::components::ether::EtherTransport::detectedNewProcess*
+
+# TODO(SEN-1510): fix thread leak
+thread:sen::components::ether::EtherTransport::start*
+
+# TODO(SEN-1507):  fix race
+race:sen::test::TesterRemoteProxy::getReady*
+
+# TODO(SEN-1508):  fix race
+race:sen::kernel::impl::LocalParticipant::localSubscriberAdded
+
+# TODO(SEN-1509):  fix race
+race:sen::ObjectProvider::notifyObjectsAdded
+
+# TODO(SEN-1511):races with ::clear (e2e_test)
+race:sen::impl::WorkQueueImpl::push
+
+# TODO(SEN-1501): spdlog + pybind11 interaction
+race:pybind11::scoped_interpreter::scoped_interpreter

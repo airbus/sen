@@ -118,7 +118,26 @@ function(add_sen_unit_test_suite test_name)
     list(APPEND labels "LABELS;flaky")
   endif()
 
-  gtest_discover_tests(${test_name} DISCOVERY_MODE PRE_TEST PROPERTIES LABELS ${labels})
+  set(environment "")
+  if(LSAN_SUPPRESSION_FILE)
+    list(APPEND environment "LSAN_OPTIONS=suppressions=${LSAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(ASAN_SUPPRESSION_FILE)
+    list(APPEND environment "ASAN_OPTIONS=suppressions=${ASAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(TSAN_SUPPRESSION_FILE)
+    list(APPEND environment "TSAN_OPTIONS=suppressions=${TSAN_SUPPRESSION_FILE}")
+  endif()
+
+  gtest_discover_tests(
+    ${test_name} DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS
+               ${labels}
+               ENVIRONMENT
+               ${environment}
+  )
 
   add_dependencies(run_unit_tests ${test_name})
   add_dependencies(run_tests ${test_name})
@@ -151,6 +170,18 @@ function(add_sen_integration_test test_name)
     list(APPEND labels "LABELS;flaky")
   endif()
   set_tests_properties(${test_name} PROPERTIES LABELS ${labels})
+
+  if(LSAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "LSAN_OPTIONS=set:suppressions=${LSAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(ASAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "ASAN_OPTIONS=set:suppressions=${ASAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(TSAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "TSAN_OPTIONS=set:suppressions=${TSAN_SUPPRESSION_FILE}")
+  endif()
 
   add_dependencies(run_integration_tests ${_arg_REQ_COMPONENTS} ${_arg_REQ_DEPS})
   add_dependencies(run_tests ${_arg_REQ_COMPONENTS} ${_arg_REQ_DEPS})
@@ -220,12 +251,22 @@ function(add_sen_run_smoke_test test_name)
 
   if(NOT WIN32)
     set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=${_working_dir}")
-    set_tests_properties(
-      ${test_name}
-      PROPERTIES
-        ENVIRONMENT_MODIFICATION
-        "PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>;LD_LIBRARY_PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
+    append_test_env_modification(
+      ${test_name} "PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
+      "LD_LIBRARY_PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
     )
+  endif()
+
+  if(LSAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "LSAN_OPTIONS=set:suppressions=${LSAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(ASAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "ASAN_OPTIONS=set:suppressions=${ASAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(TSAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "TSAN_OPTIONS=set:suppressions=${TSAN_SUPPRESSION_FILE}")
   endif()
 
 endfunction()
@@ -291,4 +332,30 @@ function(add_sen_cli_gen_smoke_test test_name)
     cli_gen
     ${_arg_REQ_DEPS}
   )
+endfunction()
+
+# add_sen_cli_gen_smoke_test(
+#   <test_target_name>
+#   [list of modifications]
+# )
+function(append_test_env_modification test_target_name)
+  set(new_modifications ${ARGN})
+
+  if(NOT new_modifications)
+    message(
+      AUTHOR_WARNING
+        "append_test_env_modification called for '${test_target_name}' but no modifications were provided!"
+    )
+    return()
+  endif()
+
+  get_test_property(${test_target_name} ENVIRONMENT_MODIFICATION current_modifications)
+
+  if(current_modifications STREQUAL "NOTFOUND")
+    set(current_modifications "")
+  endif()
+
+  list(APPEND current_modifications ${new_modifications})
+
+  set_tests_properties(${test_target_name} PROPERTIES ENVIRONMENT_MODIFICATION "${current_modifications}")
 endfunction()

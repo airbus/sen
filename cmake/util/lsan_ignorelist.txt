@@ -1,0 +1,15 @@
+# TODO(SEN-1501): fix leak
+leak:strdup
+leak:*strdup*
+leak:*_strdup*
+leak:*pybind11*
+leak:*python*
+
+# TODO(SEN-1498): fix leak
+leak:sen::kernel::impl::Session::makeInfoProvider
+
+# TODO(SEN-1499): fix leak
+leak:sen::ObjectProvider::addListener
+
+# TODO(SEN-1500): fix leak
+leak:sen::impl::FilteredProvider::createTrackedObject

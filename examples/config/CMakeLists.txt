@@ -29,12 +29,8 @@ foreach(config_file ${configs})
       set(test_name ${config}_smoke)
       add_sen_run_smoke_test(${test_name} CONFIG_FILE ${config_file})
 
-      # set the python path, as some tests require it
-      set_tests_properties(
-        ${test_name}
-        PROPERTIES
-          ENVIRONMENT_MODIFICATION
-          "PYTHONPATH=path_list_append:${PROJECT_SOURCE_DIR}/examples/config/10_python/scripts;PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>;LD_LIBRARY_PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
+      append_test_env_modification(
+        ${test_name} "PYTHONPATH=path_list_append:${PROJECT_SOURCE_DIR}/examples/config/10_python/scripts"
       )
     endif()
   endif()
