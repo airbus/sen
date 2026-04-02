@@ -355,6 +355,8 @@ void UpdatesBufferStorage::stopMonitoring(ObjectId objectId, Transport& transpor
   }
 }
 
+void UpdatesBufferStorage::eraseMonitoredData(ObjectId objectId) { data_.erase(objectId); }
+
 void UpdatesBufferStorage::applyStateAndStopMonitoring(sen::impl::RemoteObject& proxy, Transport& transport)
 {
   if (const auto itr = data_.find(proxy.getId()); itr != data_.end())
@@ -1419,8 +1421,8 @@ void RemoteParticipant::processObjectAddition(ObjectIdList& additions,
       // protect this access to the monitored objects via timer callback
       Lock usageLock(usageMutex_);
 
-      // stop monitoring the object
-      monitoredObjects_.stopMonitoring(id, session_->getTransport());
+      // erase stored data for the object
+      monitoredObjects_.eraseMonitoredData(id);
 
       // send object rejection (reason: timeout)
       sendControlMessage(getRemoteAddress(ownerId), PublicationRejection {{{id, interestId, Timeout {}}}});
@@ -1493,9 +1495,7 @@ void RemoteParticipant::objectsStateResponse(const ObjectsStateResponse& msg)
       }
       else
       {
-        logger_->debug("RP {}: Could not find data for object with id {}. It should be among the monitored objects.",
-                       getId().get(),
-                       objectState.id);
+        additions.emplace_back(makeRemoteObjectDiscoveryFromProxy(objectState.id, interestId));
       }
     }
 
@@ -1654,6 +1654,45 @@ void RemoteParticipant::registerRemoteTypeFoundInBus(ConstTypeHandle<CustomType>
   }
 }
 
+std::function<std::shared_ptr<sen::impl::ProxyObject>(sen::impl::WorkQueue*, const std::string&, ObjectOwnerId)>
+RemoteParticipant::createProxyMaker(const std::string& name,
+                                    sen::ObjectId id,
+                                    MaybeConstTypeHandle<ClassType> proxyClass,
+                                    MaybeConstTypeHandle<ClassType> writerSchema)
+{
+  return [this, name, id, proxyClassType = proxyClass.value(), writerSchema](
+           ::sen::impl::WorkQueue* workQueue, const std::string& localPrefix, ObjectOwnerId ownerId)
+  {
+    std::string localName;
+    if (localPrefix.empty())
+    {
+      localName = name;
+    }
+    else
+    {
+      localName = localPrefix;
+      localName.append(".");
+      localName.append(name);
+    }
+
+    auto deletionFunc = [this](auto instance) { proxyAboutToBeDeleted(instance); };
+
+    ::sen::impl::RemoteObjectInfo info {
+      proxyClassType,
+      name,
+      id,
+      workQueue,
+      getProxyCallFunc(writerSchema.has_value() ? writerSchema->type() : proxyClassType.type()),
+      localName,
+      deletionFunc,
+      ownerId,
+      weak_from_this(),
+      writerSchema};
+
+    return startTrackingProxy(*proxyClassType, std::move(info));
+  };
+}
+
 RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscovery(const ObjectAdded& addition, InterestId interestId)
 {
   // try to get the local and remote classes from their respective registries
@@ -1754,40 +1793,29 @@ RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscovery(const ObjectA
 
   SEN_ASSERT(proxyClass.has_value() && "We should have initiated/found a proxy class by now.");
 
-  auto proxyMaker = [this, name = addition.name, id = addition.id, proxyClassType = proxyClass.value(), writerSchema](
-                      ::sen::impl::WorkQueue* workQueue, const std::string& localPrefix, ObjectOwnerId ownerId)
-  {
-    std::string localName;
-    if (localPrefix.empty())
-    {
-      localName = name;
-    }
-    else
-    {
-      localName = localPrefix;
-      localName.append(".");
-      localName.append(name);
-    }
-
-    auto deletionFunc = [this](auto instance) { proxyAboutToBeDeleted(instance); };
-
-    ::sen::impl::RemoteObjectInfo info {
-      proxyClassType,
-      name,
-      id,
-      workQueue,
-      getProxyCallFunc(writerSchema.has_value() ? writerSchema->type() : proxyClassType.type()),
-      localName,
-      deletionFunc,
-      ownerId,
-      weak_from_this(),
-      writerSchema};
-
-    return startTrackingProxy(*proxyClassType, std::move(info));
-  };
+  auto proxyMaker = createProxyMaker(addition.name, addition.id, proxyClass, writerSchema);
 
   return {
     addition.id, addition.name, std::move(proxyClass).value(), std::move(proxyMaker), interestId, ownerAddress_.id};
+}
+
+RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscoveryFromProxy(ObjectId objectId, InterestId interestId)
+{
+  if (const auto it = trackedProxies_.find(objectId); it != trackedProxies_.end())
+  {
+    auto proxy = it->second->front();
+    auto proxyMaker = createProxyMaker(proxy->getName(), proxy->getId(), proxy->getClass(), proxy->getWriterSchema());
+
+    return {objectId, proxy->getName(), proxy->getClass(), std::move(proxyMaker), interestId, ownerAddress_.id};
+  }
+
+  std::string err = "Could not make remote object discovery (interest ID: ";
+  err.append(std::to_string(interestId.get()));
+  err.append(" | objectId: ");
+  err.append(std::to_string(objectId.get()));
+  err.append(") from existing proxy");
+
+  throwRuntimeError(std::move(err));
 }
 
 std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy(const ClassType& proxyClass,

@@ -52,7 +52,10 @@ public:
   {
     if (auto* local = instanceDiscovery.instance->asNativeObject())
     {
-      return {instanceDiscovery.instance->getClass()->createLocalProxy(local, localPrefix_)};
+      auto proxy = instanceDiscovery.instance->getClass()->createLocalProxy(local, localPrefix_);
+      proxy->drainInputs();
+
+      return {proxy};
     }
     throw std::logic_error("remote object instance received by a proxy manager");
   }

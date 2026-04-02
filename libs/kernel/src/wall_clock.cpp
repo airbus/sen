@@ -24,7 +24,7 @@
 // OS and compiler-specific
 #ifdef _WIN32
 #  include <intrin.h>
-#elif defined(__linux__)
+#elif defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
 #  include <cpuid.h>
 #endif
 
@@ -101,7 +101,7 @@ bool WallClock::hardwareSupportsInvariantTSC()
 
 SleepPolicy WallClock::getSleepPolicy() noexcept { return sleepPolicy_; }
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__aarch64__)
 
 bool WallClock::hardwareSupportsInvariantTSC() { return false; }
 

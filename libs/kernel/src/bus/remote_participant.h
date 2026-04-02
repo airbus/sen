@@ -27,6 +27,7 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/obj/detail/remote_object.h"
+#include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_filter.h"
@@ -161,6 +162,9 @@ public:
   /// Erases the associated data and stops monitoring the object.
   void stopMonitoring(ObjectId objectId, Transport& transport);
 
+  /// Erases stored data of an object. Called when the timeout is reached for the object
+  void eraseMonitoredData(ObjectId objectId);
+
   /// Applies any stored initial state and received updates, if any.
   /// Erases the associated data and stops monitoring the object.
   void applyStateAndStopMonitoring(sen::impl::RemoteObject& proxy, Transport& transport);
@@ -269,7 +273,14 @@ private:
   void sendControlMessage(ParticipantAddr to, T&& message);
 
 private:
+  [[nodiscard]] std::function<
+    std::shared_ptr<sen::impl::ProxyObject>(sen::impl::WorkQueue*, const std::string&, ObjectOwnerId)>
+  createProxyMaker(const std::string& name,
+                   sen::ObjectId id,
+                   MaybeConstTypeHandle<ClassType> proxyClassType,
+                   MaybeConstTypeHandle<ClassType> writerSchema);
   [[nodiscard]] RemoteObjectDiscovery makeRemoteObjectDiscovery(const ObjectAdded& addition, InterestId interestId);
+  [[nodiscard]] RemoteObjectDiscovery makeRemoteObjectDiscoveryFromProxy(ObjectId objectId, InterestId interestId);
   [[nodiscard]] MemBlockPtr makeObjectUpdateHdr(const NativeObject* object, uint32_t propertiesBufferSize) const;
   [[nodiscard]] MemBlockPtr makeEventsHeader() const;
   [[nodiscard]] MemBlockPtr makeObjectNotFoundResponseHeader(ObjectId objectId, uint32_t ticketId) const;

@@ -184,7 +184,7 @@ SEN_ALWAYS_INLINE int64_t WallClock::readTimeStampCounterRegistry() noexcept
   uint64_t rdx;
   asm volatile("rdtsc" : "=a"(rax), "=d"(rdx));  // NOLINT(hicpp-no-assembler)
   return static_cast<int64_t>((rdx << 32U) + rax);
-#elif defined __arm64
+#elif defined __arm64 || defined __aarch64__
   int64_t tsc;
   asm volatile("mrs %0, cntvct_el0" : "=r"(tsc));
   return tsc;
