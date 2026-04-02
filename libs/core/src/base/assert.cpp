@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <exception>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -29,9 +30,44 @@
 namespace sen::impl
 {
 
+std::string CheckInfo::str() const noexcept
+{
+  std::stringstream representation;
+
+  // insert case prefix
+  switch (checkType_)
+  {
+    case sen::impl::CheckType::assert:
+      representation << "assert";
+      break;
+    case sen::impl::CheckType::expect:
+      representation << "expect";
+      break;
+    case sen::impl::CheckType::ensure:
+      representation << "ensure";
+      break;
+  }
+
+  // insert expression
+  representation << " ==> [";
+  representation << expression_;
+  representation << "]";
+
+  // insert location information
+  representation << " in " << sourceLocation_.functionName;
+  representation << " at " << sourceLocation_.fileName;
+  representation << ":" << sourceLocation_.lineNumber;
+
+  return representation.str();
+}
+
 [[noreturn]] void defaultCheckHandler(const CheckInfo& checkInfo) noexcept
 {
   std::ignore = checkInfo;  // inspect this in your debugging session.
+#if defined(DEBUG)
+  std::cerr << "Err: " << checkInfo << std::endl;
+#endif
+  lastReportedAssertionError = checkInfo;
   std::raise(SIGABRT);
   SEN_UNREACHABLE();
 }

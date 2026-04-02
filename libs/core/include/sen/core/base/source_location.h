@@ -57,13 +57,19 @@ struct SourceLocation
   std::string_view functionName {"function name not set"};
 };
 
+#ifdef WIN32
+#  define SEN_PRETTY_FUNCTION_NAME __FUNCSIG__
+#else
+#  define SEN_PRETTY_FUNCTION_NAME __PRETTY_FUNCTION__
+#endif
+
 /// Convenience macro including the source location info.
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define SEN_SL()                                                                                                       \
   ::sen::SourceLocation                                                                                                \
   {                                                                                                                    \
     std::string_view {&__FILE__[SEN_SL_CONSTEXPR_VAL(::sen::impl::getFilenameOffset(__FILE__))]}, __LINE__,            \
-      std::string_view(__FUNCTION__)                                                                                   \
+      std::string_view(SEN_PRETTY_FUNCTION_NAME)                                                                       \
   }
 
 /// @}

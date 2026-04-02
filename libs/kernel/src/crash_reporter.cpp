@@ -9,6 +9,7 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/detail/assert_impl.h"
 #include "sen/core/base/uuid.h"
 #include "sen/core/base/version.h"
 #include "sen/core/io/util.h"
@@ -365,6 +366,10 @@ void CrashReporter::collectExceptionData()
 void CrashReporter::collectErrorData()
 {
   report_.errorData.time = TimeStamp(std::chrono::system_clock::now().time_since_epoch());
+  if (sen::impl::lastReportedAssertionError)
+  {
+    report_.errorData.errorMessage.push_back("Violation: " + sen::impl::lastReportedAssertionError->str());
+  }
   collectExceptionData();
 }
 

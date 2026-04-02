@@ -38,6 +38,13 @@ namespace sen
 /// Checks an intermediate result produced by a procedure (not an input or output). NOLINTNEXTLINE
 #define SEN_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())
 
+/// Checks an intermediate result produced by a procedure (not an input or output). NOLINTNEXTLINE
+#if defined(DEBUG)
+#  define SEN_DEBUG_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())
+#else
+#  define SEN_DEBUG_ASSERT(expr)
+#endif
+
 /// Checks a post-condition of a procedure (function return value for example).  NOLINTNEXTLINE
 #define SEN_ENSURE(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::ensure, #expr, SEN_SL())
 

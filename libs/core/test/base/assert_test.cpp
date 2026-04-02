@@ -39,10 +39,10 @@ void testAssertHandler(const CheckInfo& checkInfo) noexcept
   callCount++;
 
   auto& expectedCheckInfo = getExpectedCheckInfo();
-  ASSERT_EQ(checkInfo.checkType, expectedCheckInfo.checkType);
-  ASSERT_EQ(checkInfo.sourceLocation.lineNumber, expectedCheckInfo.sourceLocation.lineNumber + 1);
-  ASSERT_EQ(checkInfo.sourceLocation.fileName, expectedCheckInfo.sourceLocation.fileName);
-  ASSERT_EQ(checkInfo.expression, expectedCheckInfo.expression);
+  ASSERT_EQ(checkInfo.getCheckType(), expectedCheckInfo.getCheckType());
+  ASSERT_EQ(checkInfo.getSourceLocation().lineNumber, expectedCheckInfo.getSourceLocation().lineNumber + 1);
+  ASSERT_EQ(checkInfo.getSourceLocation().fileName, expectedCheckInfo.getSourceLocation().fileName);
+  ASSERT_EQ(checkInfo.getExpression(), expectedCheckInfo.getExpression());
 }
 
 class AssertTest: public ::testing::Test
@@ -69,11 +69,8 @@ protected:
 TEST_F(AssertTest, macros_triggering_expect)
 {
   auto& expectedCheckInfo = getExpectedCheckInfo();
-  expectedCheckInfo = {CheckType::assert, "", SEN_SL()};
 
-  expectedCheckInfo.checkType = CheckType::expect;
-  expectedCheckInfo.expression = "false";
-  expectedCheckInfo.sourceLocation = SEN_SL();
+  expectedCheckInfo = {CheckType::expect, "false", SEN_SL()};
   SEN_EXPECT(false);
 
   ASSERT_EQ(callCount, prevCallCount + 1);
@@ -85,11 +82,8 @@ TEST_F(AssertTest, macros_triggering_expect)
 TEST_F(AssertTest, macros_triggering_ensure)
 {
   auto& expectedCheckInfo = getExpectedCheckInfo();
-  expectedCheckInfo = {CheckType::assert, "", SEN_SL()};
 
-  expectedCheckInfo.checkType = CheckType::ensure;
-  expectedCheckInfo.expression = "false";
-  expectedCheckInfo.sourceLocation = SEN_SL();
+  expectedCheckInfo = {CheckType::ensure, "false", SEN_SL()};
   SEN_ENSURE(false);
 
   ASSERT_EQ(callCount, prevCallCount + 1);
@@ -101,11 +95,8 @@ TEST_F(AssertTest, macros_triggering_ensure)
 TEST_F(AssertTest, macros_triggering_assert)
 {
   auto& expectedCheckInfo = getExpectedCheckInfo();
-  expectedCheckInfo = {CheckType::assert, "", SEN_SL()};
 
-  expectedCheckInfo.checkType = CheckType::assert;
-  expectedCheckInfo.expression = "false";
-  expectedCheckInfo.sourceLocation = SEN_SL();
+  expectedCheckInfo = {CheckType::assert, "false", SEN_SL()};
   SEN_ASSERT(false);
 
   ASSERT_EQ(callCount, prevCallCount + 1);

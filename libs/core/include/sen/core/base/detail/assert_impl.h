@@ -13,6 +13,10 @@
 // std
 #include <cstdint>
 #include <functional>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <string_view>
 
 namespace sen::impl
 {
@@ -28,10 +32,33 @@ enum class CheckType : std::uint8_t
 /// Groups the information of a check that is present in the code.
 struct CheckInfo
 {
-  CheckType checkType;
-  std::string_view expression;
-  SourceLocation sourceLocation;
+  /// Check information summaries information about a condition check, so it can later be inspected and stored.
+  ///
+  /// Note: The expression needs to be a statically allocated string.
+  ///
+  /// \param checkType: type of the check done
+  /// \param expression: that is checked
+  /// \param sourceLocation: where the check is performed
+  CheckInfo(CheckType checkType, std::string_view expression, SourceLocation sourceLocation)
+    : checkType_(checkType), expression_(expression), sourceLocation_(sourceLocation)
+  {
+  }
+
+  [[nodiscard]] CheckType getCheckType() const noexcept { return checkType_; }
+  [[nodiscard]] std::string_view getExpression() const noexcept { return expression_; }
+  [[nodiscard]] const SourceLocation& getSourceLocation() const noexcept { return sourceLocation_; }
+
+  [[nodiscard]] std::string str() const noexcept;
+
+  friend std::ostream& operator<<(std::ostream& s, const CheckInfo& checkInfo) { return s << checkInfo.str(); }
+
+private:
+  CheckType checkType_;
+  std::string_view expression_;
+  SourceLocation sourceLocation_;
 };
+
+inline std::optional<CheckInfo> lastReportedAssertionError {std::nullopt};
 
 /// This function gets called when a check is failed.
 /// It internally calls the currently set handler (@see setFailedCheckHandler).
