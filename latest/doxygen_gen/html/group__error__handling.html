@@ -132,6 +132,8 @@ Macros</h2></td></tr>
 <tr class="memdesc:ga96b740f5a1fbffc3c9537b906a5bca1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks a pre-condition of a procedure (function parameter for example). NOLINTNEXTLINE.  <br /></td></tr>
 <tr class="memitem:ga3efb47f576c2155c4b4109b6c0e07c8f" id="r_ga3efb47f576c2155c4b4109b6c0e07c8f"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga3efb47f576c2155c4b4109b6c0e07c8f">SEN_ASSERT</a>(expr)</td></tr>
 <tr class="memdesc:ga3efb47f576c2155c4b4109b6c0e07c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks an intermediate result produced by a procedure (not an input or output). NOLINTNEXTLINE.  <br /></td></tr>
+<tr class="memitem:ga7fd0cc85598f5fcb52f96fd5ea585d5e" id="r_ga7fd0cc85598f5fcb52f96fd5ea585d5e"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga7fd0cc85598f5fcb52f96fd5ea585d5e">SEN_DEBUG_ASSERT</a>(expr)</td></tr>
+<tr class="memdesc:ga7fd0cc85598f5fcb52f96fd5ea585d5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks an intermediate result produced by a procedure (not an input or output). NOLINTNEXTLINE.  <br /></td></tr>
 <tr class="memitem:ga9199ffedb8fe6ce34227721483506a57" id="r_ga9199ffedb8fe6ce34227721483506a57"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga9199ffedb8fe6ce34227721483506a57">SEN_ENSURE</a>(expr)</td></tr>
 <tr class="memdesc:ga9199ffedb8fe6ce34227721483506a57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks a post-condition of a procedure (function return value for example). NOLINTNEXTLINE.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -179,7 +181,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::expect, #expr, <a class="code hl_define" href="group__util.html#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a>())</div>
-<div class="ttc" id="agroup__util_html_ga67f9d625678e6053a67e1111ab985477"><div class="ttname"><a href="group__util.html#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a></div><div class="ttdeci">#define SEN_SL()</div><div class="ttdoc">Convenience macro including the source location info. NOLINTNEXTLINE(cppcoreguidelines-macro-usage).</div><div class="ttdef"><b>Definition</b> source_location.h:62</div></div>
+<div class="ttc" id="agroup__util_html_ga67f9d625678e6053a67e1111ab985477"><div class="ttname"><a href="group__util.html#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a></div><div class="ttdeci">#define SEN_SL()</div><div class="ttdoc">Convenience macro including the source location info. NOLINTNEXTLINE(cppcoreguidelines-macro-usage).</div><div class="ttdef"><b>Definition</b> source_location.h:68</div></div>
 </div><!-- fragment -->
 <p>Checks a pre-condition of a procedure (function parameter for example). NOLINTNEXTLINE. </p>
 
@@ -201,6 +203,25 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, <a class="code hl_define" href="group__util.html#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a>())</div>
 </div><!-- fragment -->
+<p>Checks an intermediate result produced by a procedure (not an input or output). NOLINTNEXTLINE. </p>
+
+</div>
+</div>
+<a id="ga7fd0cc85598f5fcb52f96fd5ea585d5e" name="ga7fd0cc85598f5fcb52f96fd5ea585d5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7fd0cc85598f5fcb52f96fd5ea585d5e">&#9670;&#160;</a></span>SEN_DEBUG_ASSERT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SEN_DEBUG_ASSERT</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>expr</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Checks an intermediate result produced by a procedure (not an input or output). NOLINTNEXTLINE. </p>
 
 </div>

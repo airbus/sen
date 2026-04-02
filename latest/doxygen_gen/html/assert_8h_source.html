@@ -136,21 +136,27 @@ $(function(){initNavTree('assert_8h_source.html','',''); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3efb47f576c2155c4b4109b6c0e07c8f">   39</a></span><span class="preprocessor">#define SEN_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga9199ffedb8fe6ce34227721483506a57">   42</a></span><span class="preprocessor">#define SEN_ENSURE(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::ensure, #expr, SEN_SL())</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">   45</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">registerTerminateHandler</a>();</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">   48</a></span>[[noreturn]] <span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">throwRuntimeError</a>(<span class="keyword">const</span> std::string&amp; err);</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">   51</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>();</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3a069900890fed0b69006729c3e12a7c">   56</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>(std::string preMessage);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>}  <span class="comment">// namespace sen</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#if defined(DEBUG)</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">#  define SEN_DEBUG_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga7fd0cc85598f5fcb52f96fd5ea585d5e">   45</a></span><span class="preprocessor">#  define SEN_DEBUG_ASSERT(expr)</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga9199ffedb8fe6ce34227721483506a57">   49</a></span><span class="preprocessor">#define SEN_ENSURE(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::ensure, #expr, SEN_SL())</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">   52</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">registerTerminateHandler</a>();</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">   55</a></span>[[noreturn]] <span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">throwRuntimeError</a>(<span class="keyword">const</span> std::string&amp; err);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">   58</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>();</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3a069900890fed0b69006729c3e12a7c">   63</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>(std::string preMessage);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>}  <span class="comment">// namespace sen</span></div>
 </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_BASE_ASSERT_H</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_BASE_ASSERT_H</span></div>
 <div class="ttc" id="aassert__impl_8h_html"><div class="ttname"><a href="assert__impl_8h.html">assert_impl.h</a></div></div>
 <div class="ttc" id="agroup__error__handling_html_gac4f878f792821f786237e910f2501d6f"><div class="ttname"><a href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">sen::throwRuntimeError</a></div><div class="ttdeci">void throwRuntimeError(const std::string &amp;err)</div><div class="ttdoc">Throws std::exception that attempts to collect the stack trace. We also wrap it to avoid including st...</div></div>
 <div class="ttc" id="agroup__error__handling_html_gad79d10d8f842efdfe11a5762effc423c"><div class="ttname"><a href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">sen::registerTerminateHandler</a></div><div class="ttdeci">void registerTerminateHandler()</div><div class="ttdoc">Installs a custom termination handler.</div></div>

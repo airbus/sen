@@ -332,6 +332,7 @@ var group__util =
     ] ],
     [ "SEN_RANGED_QUANTITY", "group__util.html#ga604b9229c2c1593e274f7e2f63e25ac4", null ],
     [ "SEN_NON_RANGED_QUANTITY", "group__util.html#ga02e739ce3ef0ed537e4a97e1cceeb4fe", null ],
+    [ "SEN_PRETTY_FUNCTION_NAME", "group__util.html#ga9e68c647656ea5857ccff35011444225", null ],
     [ "SEN_SL", "group__util.html#ga67f9d625678e6053a67e1111ab985477", null ],
     [ "SEN_VERSION_STRING", "group__util.html#ga8bfaa66eb525bfc04faa5e38affd0ada", null ],
     [ "SEN_VERSION_MAJOR", "group__util.html#gafee6b1459d1ae3519be37ada49c62ed1", null ],
