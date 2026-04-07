@@ -162,19 +162,36 @@ private:
   SEN_MAYBE_EXPORT(doExport) bool operator!=(const classname& lhs, const classname& rhs);
 
 /// Used by the code generator NOLINTNEXTLINE
-#define SEN_IMPL_GEN_OPTIONAL(classname, elementtype, doExport)                                                        \
-  struct classname final: public std::optional<elementtype>                                                            \
+#define SEN_IMPL_GEN_OPTIONAL(classname, elementtype)                                                                  \
+  class classname final: private std::optional<elementtype>                                                            \
   {                                                                                                                    \
     using Parent = std::optional<elementtype>;                                                                         \
+                                                                                                                       \
+  public:                                                                                                              \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \
+                                                                                                                       \
     using Parent::operator->;                                                                                          \
     using Parent::operator*;                                                                                           \
     using Parent::operator bool;                                                                                       \
-  };                                                                                                                   \
+    using Parent::has_value;                                                                                           \
+    using Parent::value;                                                                                               \
+    using Parent::value_or;                                                                                            \
                                                                                                                        \
-  SEN_MAYBE_EXPORT(doExport) bool operator==(const classname& lhs, const classname& rhs);                              \
-  SEN_MAYBE_EXPORT(doExport) bool operator!=(const classname& lhs, const classname& rhs);
+    using Parent::reset;                                                                                               \
+    using Parent::swap;                                                                                                \
+    using Parent::emplace;                                                                                             \
+                                                                                                                       \
+    using Parent::value_type;                                                                                          \
+                                                                                                                       \
+    Parent asOptional() const { return *this; }                                                                        \
+                                                                                                                       \
+    friend bool operator==(const classname& lhs, const classname& rhs)                                                 \
+    {                                                                                                                  \
+      return lhs.asOptional() == rhs.asOptional();                                                                     \
+    }                                                                                                                  \
+    friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
+  };
 
 /// Used by the code generator NOLINTNEXTLINE
 #define SEN_IMPL_GEN_OPTIONAL_TRAITS(classname, doExport)                                                              \
