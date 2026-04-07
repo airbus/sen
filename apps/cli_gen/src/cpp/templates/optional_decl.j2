@@ -3,7 +3,7 @@ namespace {{ namespace }}
 {
 
 {{ blockComment(description, 0) }}
-SEN_IMPL_GEN_OPTIONAL({{ name }}, {{ qualElementType }}, {% if publicSymbols %}true{% else %}false{% endif %})
+SEN_IMPL_GEN_OPTIONAL({{ name }}, {{ qualElementType }})
 
 {% if publicSymbols %}SEN_EXPORT {% endif %}std::ostream& operator<<(std::ostream& out, const {{ name }}& val);
 

@@ -457,8 +457,8 @@ ConstTypeHandle<CustomType> makeNonNative(const CustomTypeSpec& typeData,
                             typeData.description,
                             getNumericType(spec.elementType),
                             UnitRegistry::get().searchUnitByName(spec.unit.name),
-                            spec.minValue,
-                            spec.maxValue);
+                            spec.minValue.asOptional(),
+                            spec.maxValue.asOptional());
 
   return QuantityType::make(quantitySpec);
 }
@@ -524,7 +524,7 @@ ConstTypeHandle<CustomType> makeNonNative(const CustomTypeSpec& typeData,
                             typeData.qualifiedName,
                             typeData.description,
                             findType(spec.elementType, nativeTypes, nonNativeTypes),
-                            spec.maxSize,
+                            spec.maxSize.asOptional(),
                             spec.fixedSize);
 
   return SequenceType::make(sequenceSpec);

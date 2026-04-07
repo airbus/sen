@@ -50,22 +50,7 @@ sen::impl::RemoteObjectInfo createTestProxyInfo()
 SEN_IMPL_GEN_UNBOUNDED_SEQUENCE(TestUnboundedSeq, int)
 SEN_IMPL_GEN_BOUNDED_SEQUENCE(TestBoundedSeq, int, 5)
 SEN_IMPL_GEN_FIXED_SEQUENCE(TestFixedSeq, int, 3)
-SEN_IMPL_GEN_OPTIONAL(TestOptionalInt, int, false)
-
-bool operator==(const TestOptionalInt& lhs, const TestOptionalInt& rhs)
-{
-  if (lhs.has_value() != rhs.has_value())
-  {
-    return false;
-  }
-  if (!lhs.has_value())
-  {
-    return true;
-  }
-  return *lhs == *rhs;
-}
-
-bool operator!=(const TestOptionalInt& lhs, const TestOptionalInt& rhs) { return !(lhs == rhs); }
+SEN_IMPL_GEN_OPTIONAL(TestOptionalInt, int)
 
 }  // namespace
 
