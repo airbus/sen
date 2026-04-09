@@ -125,7 +125,9 @@ class MyManagerImpl : public MyManagerBase
     sen::Subscription<WorkerInterface> workers_;
 
     // ❌ wrong — local in registered(), destroyed immediately
-    // sen::Subscription<WorkerInterface> workers;
+  void registered(sen::kernel::RegistrationApi& api) override {
+    sen::Subscription<WorkerInterface> workers;
+  }
 };
 ```
 
