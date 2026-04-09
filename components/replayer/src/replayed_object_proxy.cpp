@@ -36,7 +36,6 @@ ReplayedObjectProxy::ReplayedObjectProxy(ReplayedObject* owner, std::string_view
 {
   for (const auto& prop: owner_->getAllProps())
   {
-    varCache_.try_emplace(prop->getId(), owner->getPropertyUntyped(prop.get()));
     timeCache_.try_emplace(prop->getId(), owner->getPropertyLastTime(prop.get()));
   }
 }
@@ -56,7 +55,6 @@ void ReplayedObjectProxy::drainInputsImpl(TimeStamp lastCommitTime)
       EventInfo info {};
       info.creationTime = ownersPropTime;
 
-      varCache_[prop->getId()] = owner_->getPropertyUntyped(prop.get());
       timeItr->second = ownersPropTime;
 
       senImplEventEmitted(prop->getId(), []() { return VarList {}; }, info);
@@ -66,11 +64,8 @@ void ReplayedObjectProxy::drainInputsImpl(TimeStamp lastCommitTime)
 
 Var ReplayedObjectProxy::senImplGetPropertyImpl(MemberHash propertyId) const
 {
-  if (auto itr = varCache_.find(propertyId); itr != varCache_.end())
-  {
-    return itr->second;
-  }
-  return {};
+  auto readLock = owner_->getReplayerReadLock();
+  return owner_->getPropertyUntyped(owner_->getClass()->searchPropertyById(propertyId));
 }
 
 void ReplayedObjectProxy::senImplWriteAllPropertiesToStream(OutputStream& out) const

@@ -254,7 +254,6 @@ ReplayedObject::ReplayedObject(const db::Snapshot& snapshot, TimeStamp timeStamp
 {
   for (const auto& prop: allProps_)
   {
-    varCache_.try_emplace(prop->getId(), snapshot.getPropertyAsVariant(prop.get()));
     timeCache_.try_emplace(prop->getId(), timeStamp);
 
     // create the buffer
@@ -297,8 +296,22 @@ void ReplayedObject::senImplRemoveTypedConnection(ConnId id)
 
 Var ReplayedObject::senImplGetPropertyImpl(MemberHash propertyId) const
 {
-  auto itr = varCache_.find(propertyId);
-  return itr != varCache_.end() ? itr->second : Var {};
+  auto itr = bufferCache_.find(propertyId);
+  if (itr == bufferCache_.end() || itr->second.empty())
+  {
+    return Var {};
+  }
+
+  const auto* prop = meta_->searchPropertyById(propertyId);
+  if (!prop)
+  {
+    return Var {};
+  }
+
+  Var result;
+  InputStream in(itr->second);
+  ::sen::impl::readFromStream(result, in, *prop->getType());
+  return result;
 }
 
 uint32_t ReplayedObject::senImplComputeMaxReliableSerializedPropertySizeImpl() const
@@ -331,7 +344,6 @@ void ReplayedObject::senImplCommitImpl(TimeStamp time)
     for (const auto& [propId, propData]: changedProperties_)
     {
       bufferCache_[propId->getId()] = propData->buffer;
-      varCache_[propId->getId()] = propData->var;
       timeCache_[propId->getId()] = propData->time;
     }
   }
@@ -358,7 +370,6 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::PropertyChange& prope
 
       // save the time, var, and buffer
       changeData->time = entryTime;
-      changeData->var = propertyChange.getValueAsVariant();
       changeData->buffer.resize(span.size());
       std::memcpy(changeData->buffer.data(), span.data(), span.size());
 
@@ -372,7 +383,6 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Event& event)
   pendingChanges_.emplace_back(
     [this, entryTime, event]()
     {
-      auto variantsPtr = std::make_shared<std::vector<Var>>(event.getArgsAsVariants());
       auto bufferPtr = std::make_shared<std::vector<uint8_t>>();
       {
         auto span = event.getArgsAsBuffer();
@@ -381,7 +391,7 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Event& event)
       }
 
       addWorkToQueue(
-        [entryTime, ev = event.getEvent(), buffer = std::move(bufferPtr), variants = std::move(variantsPtr), this]()
+        [entryTime, ev = event.getEvent(), buffer = std::move(bufferPtr), this]()
         {
           const auto serializedSize = static_cast<uint32_t>(buffer->size());
 
@@ -393,7 +403,23 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Event& event)
                                        ev->getTransportMode(),
                                        serializedSize});
 
-          senImplEventEmitted(ev->getId(), [args = variants]() { return *args; }, EventInfo {entryTime});
+          senImplEventEmitted(
+            ev->getId(),
+            [buf = buffer, ev]() -> std::vector<Var>
+            {
+              std::vector<Var> args;
+              if (const auto& eventArgs = ev->getArgs(); !eventArgs.empty())
+              {
+                args.reserve(eventArgs.size());
+                InputStream in(*buf);
+                for (const auto& arg: eventArgs)
+                {
+                  ::sen::impl::readFromStream(args.emplace_back(), in, *arg.type);
+                }
+              }
+              return args;
+            },
+            EventInfo {entryTime});
         },
         impl::cannotBeDropped(event.getEvent()->getTransportMode()));
     });
@@ -424,8 +450,6 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Snapshot& snapshot)
           itr->second->buffer.resize(span.size());
           std::memcpy(itr->second->buffer.data(), span.data(), span.size());
 
-          // copy the variant
-          itr->second->var = snapshot.getPropertyAsVariant(prop.get());
           itr->second->time = entryTime;
         }
       }
@@ -580,7 +604,22 @@ impl::FieldValueGetter ReplayedObject::senImplGetFieldValueGetter(MemberHash pro
     throwRuntimeError(err);
   }
 
-  FieldGetterVisitor visitor(varCache_.find(propertyId)->second, fields);
+  auto bufItr = bufferCache_.find(propertyId);
+  if (bufItr == bufferCache_.end() || bufItr->second.empty())
+  {
+    std::string err;
+    err.append("no buffer found for property with id ");
+    err.append(std::to_string(propertyId.get()));
+    err.append(" in object ");
+    err.append(getName());
+    throwRuntimeError(err);
+  }
+
+  Var propVar;
+  InputStream in(bufItr->second);
+  ::sen::impl::readFromStream(propVar, in, *prop->getType());
+
+  FieldGetterVisitor visitor(std::move(propVar), fields);
   prop->getType()->accept(visitor);
 
   return visitor.takeResult();
