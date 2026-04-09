@@ -47,7 +47,7 @@ var searchData=
   ['sen_5fimpl_5fgen_5ffixed_5fsequence_44',['SEN_IMPL_GEN_FIXED_SEQUENCE',['../gen_8h.html#afc35cafe5149ed23fc28dc9442e62006',1,'gen.h']]],
   ['sen_5fimpl_5fgen_5flocal_5fproxy_5fclass_45',['SEN_IMPL_GEN_LOCAL_PROXY_CLASS',['../gen_8h.html#a9f19c6ca2c644f64f47ce76b18141fa5',1,'gen.h']]],
   ['sen_5fimpl_5fgen_5fnative_5fmembers_46',['SEN_IMPL_GEN_NATIVE_MEMBERS',['../gen_8h.html#a06c414c49ba27d06e4948218b4985706',1,'gen.h']]],
-  ['sen_5fimpl_5fgen_5foptional_47',['SEN_IMPL_GEN_OPTIONAL',['../gen_8h.html#aeb3c64575d6353ebea362308c51c39df',1,'gen.h']]],
+  ['sen_5fimpl_5fgen_5foptional_47',['SEN_IMPL_GEN_OPTIONAL',['../gen_8h.html#a954924db2070eba6b379c7d44b0f5b11',1,'gen.h']]],
   ['sen_5fimpl_5fgen_5foptional_5ftraits_48',['SEN_IMPL_GEN_OPTIONAL_TRAITS',['../gen_8h.html#ada9e3c0bbab817360ed199cb00bc329c',1,'gen.h']]],
   ['sen_5fimpl_5fgen_5fquantity_5ftraits_49',['SEN_IMPL_GEN_QUANTITY_TRAITS',['../gen_8h.html#a1e4657d3f89a8ada04ac4bad880ccc2b',1,'gen.h']]],
   ['sen_5fimpl_5fgen_5fremote_5fclass_50',['SEN_IMPL_GEN_REMOTE_CLASS',['../gen_8h.html#a05f502b079cf8e49a20e8277ca3158bd',1,'gen.h']]],
