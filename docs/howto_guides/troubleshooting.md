@@ -302,7 +302,7 @@ the class.
 
 **Symptom:** The kernel refuses to start with a YAML parse error or a type mismatch.
 
-**Cause:** A property name is misspelled, or the value type does not match the STL declaration (e.g.
+**Cause:** A property name is misspelled, or the value type does not match the STL declaration (e.g., 
 a string where a number is expected).
 
 **Fix:** Check that:
