@@ -280,6 +280,13 @@ public:  // capacity
   }
 
 public:  // modifiers
+  /// Clears orphans that may be left from previous operations
+  void clearOrphans()
+  {
+    xOrphans_.clear();
+    yOrphans_.clear();
+  }
+
   /// Inserts a pair of elements.
   /// If the element is already in the list it is not added again.
   void add(X xElement, Y yElement)

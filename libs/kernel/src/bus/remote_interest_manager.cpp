@@ -76,7 +76,11 @@ RemoteInterestsManager::RemoteInterestsManager(ObjectOwnerId ownerIdRef, LocalPa
       owner_->getLogger().debug("Interest {} removed", interestId.get());
 
       auto& interestsUpdatesBMMap = remoteInterestsHandler_.interestsUpdatesBMMap;
-      const auto& orphanUpdates = interestsUpdatesBMMap.remove(interestId).second;
+
+      // clear any orphans that may be left from previous removals (call to remove does not always clear them)
+      interestsUpdatesBMMap.clearOrphans();
+
+      const auto orphanUpdates = interestsUpdatesBMMap.remove(interestId).second;
       for (auto* update: orphanUpdates)
       {
         update->applyToNativeObject([&](auto* localObject)
