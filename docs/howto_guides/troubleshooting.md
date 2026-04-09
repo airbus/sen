@@ -124,7 +124,7 @@ class MyManagerImpl : public MyManagerBase
     // ✅ correct — member variable, lives as long as the object
     sen::Subscription<WorkerInterface> workers_;
 
-    // ❌ wrong — local in registered(), destroyed immediately
+    // ❌ wrong — local in registered(), destroyed after exiting `registered`.
   void registered(sen::kernel::RegistrationApi& api) override {
     sen::Subscription<WorkerInterface> workers;
   }
