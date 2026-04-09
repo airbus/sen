@@ -78,7 +78,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
      {
        std::ignore = args;
 
-       if (maxUpdateTime.has_value() && (info.creationTime - lastUpdate) <= maxUpdateTime)
+       if (maxUpdateTime.has_value() && (info.creationTime - lastUpdate) <= maxUpdateTime.asOptional())
        {
          // Dropping update
          return;

@@ -15,16 +15,6 @@ std::ostream& operator<<(std::ostream& out, const {{ name }}& val)
   return out << "<empty>";
 }
 
-bool operator==(const {{ qualType }}& lhs, const {{ qualType }}& rhs)
-{
-  return static_cast<bool>(lhs) == static_cast<bool>(rhs) && (!lhs || *lhs == *rhs);
-}
-
-bool operator!=(const {{ qualType }}& lhs, const {{ qualType }}& rhs)
-{
-  return static_cast<bool>(lhs) != static_cast<bool>(rhs) || (static_cast<bool>(lhs) && *lhs != *rhs);
-}
-
 } // namespace {{ namespace }}
 
 ::sen::ConstTypeHandle<::sen::OptionalType> sen::MetaTypeTrait<{{ qualType }}>::meta()
