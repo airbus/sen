@@ -121,11 +121,12 @@ subscription, which can cascade into the object being removed.
 ```cpp
 class MyManagerImpl : public MyManagerBase
 {
-    // ✅ correct — member variable, lives as long as the object
-    sen::Subscription<WorkerInterface> workers_;
+  // ✅ correct — member variable, lives as long as the object
+  sen::Subscription<WorkerInterface> workers_;
 
-    // ❌ wrong — local in registered(), destroyed after exiting `registered`.
-  void registered(sen::kernel::RegistrationApi& api) override {
+  // ❌ wrong — local in registered(), destroyed after exiting `registered`.
+  void registered(sen::kernel::RegistrationApi& api) override
+  {
     sen::Subscription<WorkerInterface> workers;
   }
 };
@@ -302,7 +303,7 @@ the class.
 
 **Symptom:** The kernel refuses to start with a YAML parse error or a type mismatch.
 
-**Cause:** A property name is misspelled, or the value type does not match the STL declaration (e.g., 
+**Cause:** A property name is misspelled, or the value type does not match the STL declaration (e.g.,
 a string where a number is expected).
 
 **Fix:** Check that:
