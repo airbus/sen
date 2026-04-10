@@ -270,7 +270,7 @@ void KernelImpl::sessionUnavailable(const std::string& name) const  // NOSONAR
 
 std::shared_ptr<spdlog::logger> KernelImpl::getKernelLogger()
 {
-  static std::shared_ptr<spdlog::logger> logger = spdlog::stderr_color_mt("kernel");
+  static std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt("kernel");
   return logger;
 }
 
