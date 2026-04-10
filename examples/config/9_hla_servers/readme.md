@@ -1,5 +1,7 @@
 # HLA Servers Examples
 
+> **Prerequisites:** [3 - Aircraft](../3_aircraft/readme.md) (HLA concepts and request/response patterns).
+
 Here we implement a terrain server (and a client) and a weather server.
 
 ## Terrain Server
@@ -74,7 +76,7 @@ care of more object types and handle UUIDs.
 ### How to run it
 
 ```
-sen run sen run config/9_hla_servers/3_weather_server.yaml
+sen run config/9_hla_servers/3_weather_server.yaml
 ```
 
 In this case you need to populate the parameters in a more involved manner due to the nature of the

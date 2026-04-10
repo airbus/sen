@@ -8,6 +8,10 @@
 include(tps/implot)
 include(tps/spdlog)
 
+if(APPLE)
+  return()
+endif()
+
 # get the imgui root dir
 get_target_property(IMGUI_INCLUDE_DIR_WITH_GEN imgui::imgui INTERFACE_INCLUDE_DIRECTORIES)
 string(

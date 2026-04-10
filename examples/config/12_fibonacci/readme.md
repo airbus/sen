@@ -70,7 +70,7 @@ in the `workersBus`, it finds itself as well. This is taken into account when se
 ## How to run it
 
 ```
-sen run config/13_fibonacci/1_fibonacci.yaml
+sen run config/12_fibonacci/1_fibonacci.yaml
 ```
 
 This will open a shell and tell Sen to instantiate the implementations in the `my.tutorial` bus.

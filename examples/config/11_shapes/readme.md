@@ -1,5 +1,7 @@
 # Shapes example
 
+> **Prerequisites:** [4 - School](../4_school/readme.md) (object discovery, subscriptions).
+
 This example illustrates how to manage interests on objects using C++.
 
 The idea is:
@@ -148,3 +150,22 @@ my.tutorial.listener.startListeningTo "my.tutorial", null, {"min": 0, "max": 20}
 ```
 my.tutorial.listener.startListeningTo "my.tutorial", "green", {"min": 0, "max": 20}, {"min": 0, "max": 20}
 ```
+
+## Using the explorer
+
+You can replace the producer config with the explorer variant to visually monitor shape positions,
+property changes, and collision events in real time:
+
+In terminal A (listener, unchanged):
+
+```
+sen run config/11_shapes/1_shapes_listener.yaml
+```
+
+In terminal B (producer with explorer GUI):
+
+```
+sen run config/11_shapes/2_shapes_producer_exp.yaml
+```
+
+Then use the explorer to open the `my.tutorial` bus and monitor the shapes.

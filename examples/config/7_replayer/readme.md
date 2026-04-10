@@ -1,5 +1,7 @@
 # Replayer example
 
+> **Prerequisites:** [6 - Recorder](../6_recorder/readme.md) - you need a recording on disk before you can replay it.
+
 This example uses the recordings produced by the previous example.
 
 ## How to run it
