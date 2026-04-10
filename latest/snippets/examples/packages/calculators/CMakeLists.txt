@@ -10,7 +10,7 @@ add_sen_package(
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
   DESCRIPTION "Example package"
-  SOURCES src/casio_calculator.cpp src/faulty_calculator.cpp
+  SOURCES src/casio_calculator.cpp src/faulty_calculator.cpp src/client.cpp
   STL_FILES stl/calculator.stl
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
 )

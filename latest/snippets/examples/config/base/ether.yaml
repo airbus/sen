@@ -1,4 +1,8 @@
 # $schema: schema.json
 load:
+  # Ether is the Ethernet transport component. It enables inter-process and
+  # cross-machine communication over TCP (unicast) and UDP (multicast).
+  # It runs in group 10 so it starts after application components and the shell,
+  # but its discovery mechanism will still find remote peers as they come online.
   - name: ether
     group: 10

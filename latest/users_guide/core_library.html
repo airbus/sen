@@ -161,7 +161,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/index.html">
+<a class="md-tabs__link" href="../tutorials/hello_sen.html">
           
   
   
@@ -170,7 +170,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../snippets/examples/config/1_calculators/readme.html">
+<a class="md-tabs__link" href="../examples/index.html">
           
   
   
@@ -325,6 +325,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="mental_model.html">
+<span class="md-ellipsis">
+    
+  
+    Mental Model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="workflow.html">
 <span class="md-ellipsis">
     
@@ -421,8 +433,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_11" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_11" id="__nav_3_11_label" tabindex="0">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -433,8 +445,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_3_11_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_11">
+<nav aria-expanded="true" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_12">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -473,10 +485,55 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#api-reference">
+<a class="md-nav__link" href="#base-utilities-base">
 <span class="md-ellipsis">
       
-        API Reference
+        Base utilities (base)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inputoutput-io">
+<span class="md-ellipsis">
+      
+        Input/Output (io)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#meta-type-system-meta">
+<span class="md-ellipsis">
+      
+        Meta type system (meta)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stl-parser-and-vm-lang">
+<span class="md-ellipsis">
+      
+        STL parser and VM (lang)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#object-helpers-obj">
+<span class="md-ellipsis">
+      
+        Object helpers (obj)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      
+        See Also
       
     </span>
 </a>
@@ -911,6 +968,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/troubleshooting.html">
+<span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -938,11 +1007,23 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/index.html">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two Objects Talking
   
 
     
@@ -975,6 +1056,18 @@
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/index.html">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.html">
 <span class="md-ellipsis">
@@ -1204,32 +1297,52 @@
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
 <div><h1 id="sencore">sen::core<a class="headerlink" href="#sencore" title="Permanent link">¶</a></h1>
-<p>The Sen Core library encapsulates a variety of Sen functionalities, which can be grouped in the
-following:</p>
+<p>The Sen Core library encapsulates foundational utilities shared across all Sen components. It is
+divided into the following modules:</p>
+<h2 id="base-utilities-base">Base utilities (<code>base</code>)<a class="headerlink" href="#base-utilities-base" title="Permanent link">¶</a></h2>
 <ul>
-<li>Basic tools (base):</li>
-<li>Error processing, assertions, contracts, results</li>
-<li>General utility macros</li>
-<li>Compile-time template helpers</li>
-<li>Hashing and compression utilities</li>
-<li>Memory manipulation utilities (pools, pointers...)</li>
-<li>Input/Output utilities (io)</li>
-<li>The Sen meta type system (meta):</li>
-<li>Trait structures for generated types</li>
-<li>Classes and containers describing native and custom types</li>
-<li>Type manipulation utilities</li>
-<li>Helpers for the parsing and execution of STL files (lang)</li>
-<li>Helpers for the instantiation/manipulation of objects (obj)</li>
+<li><strong>Error processing</strong> - contracts, assertions, and result types for communicating failure without
+  exceptions across component boundaries.</li>
+<li><strong>General macros</strong> - <code>SEN_NOCOPY_NOMOVE</code>, <code>SEN_EXPORT_CLASS</code>, and other helpers used throughout
+  every package.</li>
+<li><strong>Compile-time template helpers</strong> - type traits and metaprogramming utilities for building the
+  generated code layer.</li>
+<li><strong>Hashing and compression</strong> - lightweight hash functions and LZ4-based compression helpers.</li>
+<li><strong>Memory utilities</strong> - memory pools and smart pointer wrappers.</li>
+<li><strong>General utilities</strong> - like conversion helpers.</li>
 </ul>
-<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">¶</a></h2>
-<p>Check out the <a href="../doxygen_gen/html/index.html">API Reference</a> for a detailed description of the Sen Core
-library.</p></div>
+<h2 id="inputoutput-io">Input/Output (<code>io</code>)<a class="headerlink" href="#inputoutput-io" title="Permanent link">¶</a></h2>
+<p>Serialization and deserialization utilities for the internal wire format, JSON, YAML, and XML.
+Used both by the kernel and by the code generator for config parsing and introspection output.</p>
+<h2 id="meta-type-system-meta">Meta type system (<code>meta</code>)<a class="headerlink" href="#meta-type-system-meta" title="Permanent link">¶</a></h2>
+<p>The runtime reflection layer:</p>
+<ul>
+<li><strong>Trait structures</strong> - compile-time descriptions of every generated type (name, fields, methods,
+  events, QoS attributes).</li>
+<li><strong>Type registry</strong> - a runtime catalog of all known types, used for introspection, shell
+  auto-completion, and schema validation.</li>
+<li><strong>Type manipulation utilities</strong> - comparison, hashing, and serialization helpers that work on
+  any registered type.</li>
+</ul>
+<h2 id="stl-parser-and-vm-lang">STL parser and VM (<code>lang</code>)<a class="headerlink" href="#stl-parser-and-vm-lang" title="Permanent link">¶</a></h2>
+<p>The parser and virtual machine for the Sen Type Language (STL). The code generator invokes this
+layer at build time; the kernel uses it at runtime for dynamic type loading and backward
+compatibility resolution.</p>
+<h2 id="object-helpers-obj">Object helpers (<code>obj</code>)<a class="headerlink" href="#object-helpers-obj" title="Permanent link">¶</a></h2>
+<p>Utilities for instantiating, naming, and managing the lifecycle of Sen objects. These are used by
+the generated <code>*Base</code> classes that your implementations inherit from.</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="stl.html">STL language reference</a> - how to define types consumed by this library</li>
+<li><a href="../howto_guides/generated_code.html">Generated code guide</a> - the C++ code this library underpins</li>
+<li><a href="../doxygen_gen/html/index.html">API Reference</a> - full Doxygen documentation (available after building the docs)</li>
+</ul></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 4, 2026 10:41:45 UTC">March 4, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 10, 2026 05:41:00 UTC">April 10, 2026</span>
 </span>
 </aside>
 </article>

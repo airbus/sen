@@ -8,7 +8,7 @@
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
 <link href="https://github.com/airbus/sen/latest/snippets/examples/config/1_calculators/readme.html" rel="canonical"/>
-<link href="../../../../tutorials/index.html" rel="prev"/>
+<link href="../../../../examples/index.html" rel="prev"/>
 <link href="../2_inheritance/readme.html" rel="next"/>
 <link href="../../../../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.4" name="generator"/>
@@ -161,7 +161,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../../../tutorials/index.html">
+<a class="md-tabs__link" href="../../../../tutorials/hello_sen.html">
           
   
   
@@ -170,7 +170,7 @@
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="readme.html">
+<a class="md-tabs__link" href="../../../../examples/index.html">
           
   
   
@@ -325,6 +325,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../../../users_guide/mental_model.html">
+<span class="md-ellipsis">
+    
+  
+    Mental Model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../../../users_guide/workflow.html">
 <span class="md-ellipsis">
     
@@ -421,8 +433,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_11" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_11" id="__nav_3_11_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -433,8 +445,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_11_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_11">
+<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_12">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -882,6 +894,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../howto_guides/troubleshooting.html">
+<span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -909,11 +933,23 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../../../tutorials/index.html">
+<a class="md-nav__link" href="../../../../tutorials/hello_sen.html">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two Objects Talking
   
 
     
@@ -946,6 +982,18 @@
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../examples/index.html">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item md-nav__item--active">
 <input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -1240,6 +1288,9 @@
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
 <div><h1 id="calculators-example">Calculators example<a class="headerlink" href="#calculators-example" title="Permanent link">¶</a></h1>
+<blockquote>
+<p><strong>Prerequisites:</strong> none - this is the first example. Read the <a href="https://airbus.github.io/sen/latest/">docs quick start</a> if you haven't set up Sen yet.</p>
+</blockquote>
 <p>This example illustrates how you can create a package that holds two implementations of a class
 defined in STL.</p>
 <h2 id="interface">Interface<a class="headerlink" href="#interface" title="Permanent link">¶</a></h2>
@@ -1281,6 +1332,15 @@ defined in STL.</p>
 </span><span id="__span-0-35"><a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="w">  </span><span class="c1">// Emitted when there's an attempt to divide by zero.</span>
 </span><span id="__span-0-36"><a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">divisionByZero</span><span class="p">();</span>
 </span><span id="__span-0-37"><a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="p">}</span>
+</span><span id="__span-0-38"><a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a>
+</span><span id="__span-0-39"><a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="n">class</span><span class="w"> </span><span class="n">Client</span>
+</span><span id="__span-0-40"><a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="p">{</span>
+</span><span id="__span-0-41"><a href="#__codelineno-0-41" id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">  </span><span class="c1">// Where to find the calculator objects.</span>
+</span><span id="__span-0-42"><a href="#__codelineno-0-42" id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">calcBus</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-0-43"><a href="#__codelineno-0-43" id="__codelineno-0-43" name="__codelineno-0-43"></a>
+</span><span id="__span-0-44"><a href="#__codelineno-0-44" id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">  </span><span class="c1">// Uses any available calculator.</span>
+</span><span id="__span-0-45"><a href="#__codelineno-0-45" id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">useCalculator</span><span class="p">();</span>
+</span><span id="__span-0-46"><a href="#__codelineno-0-46" id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">¶</a></h2>
 <p>It also provides two implementations for the <code>Calculator</code> class.</p>
@@ -1529,7 +1589,7 @@ you will need to start two processes.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 9, 2026 20:18:25 UTC">April 9, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 10, 2026 05:42:17 UTC">April 10, 2026</span>
 </span>
 </aside>
 </article>
@@ -1543,7 +1603,7 @@ you will need to start two processes.</p>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Tutorials" class="md-footer__link md-footer__link--prev" href="../../../../tutorials/index.html">
+<a aria-label="Previous: Examples" class="md-footer__link md-footer__link--prev" href="../../../../examples/index.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1552,7 +1612,7 @@ you will need to start two processes.</p>
                 Previous
               </span>
 <div class="md-ellipsis">
-                Tutorials
+                Examples
               </div>
 </div>
 </a>
