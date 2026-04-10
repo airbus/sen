@@ -170,7 +170,13 @@ void KernelImpl::idleThread()
   stopRequestedCondition_.wait(lock, [this]() { return stopRequested_.load(); });
 }
 
-void KernelImpl::configureCrashReporting() { CrashReporter::get().registerKernel(config_); }
+void KernelImpl::configureCrashReporting()
+{
+  if (!config_.getParams().crashReportDisabled)
+  {
+    CrashReporter::get().registerKernel(config_);
+  }
+}
 
 void KernelImpl::doStop()
 {
