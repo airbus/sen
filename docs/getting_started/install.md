@@ -190,4 +190,4 @@ To build, use `conan build . --profile=sen_gcc`. Alternatively, use
 `cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build` (you can replace 'sen_gcc'
 with the preset of your choice).
 
-**Note:** If you want to build Sen with tests/examples supply the following environment variables when calling conan: `ENABLE_EXAMPLES=false ENABLE_TESTS=false`
+**Note:** If you want to build Sen with tests/examples supply the following environment variables when calling conan: `ENABLE_EXAMPLES=true ENABLE_TESTS=true`
