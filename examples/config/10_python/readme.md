@@ -1,5 +1,7 @@
 # Python Interpreter examples
 
+> **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic objects). Sub-examples 5 and 6 also use [4 - School](../4_school/readme.md).
+
 Here you can see how we load and execute Python scripts inside a Sen process.
 
 First make sure that you have the `PYTHONPATH` environment variable correctly set to point to our
@@ -61,7 +63,7 @@ This example contains the following files:
 
 ## Creating objects
 
-In this example we ee how to create and publish objects using Python.
+In this example we see how to create and publish objects using Python.
 
 Run it with:
 

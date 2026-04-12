@@ -261,14 +261,14 @@ Say that we have components A, B and C. Components A and B are in group 1. Compo
 2. In group 1, the kernel finds the *A* and *B* components, so it: (1) loads them, (2) initializes
    them, and gets them running. We have reached level 1.
 3. In group 2, the kernel finds *C*, so it (1) loads it, (2) initializes it and (3) runs it.
-4. The kernel does not find andy other group, so it reaches the "running" state.
+4. The kernel does not find any other group, so it reaches the "running" state.
 
 At this point, if we command the kernel to shut-down, the kernel does the same process, but in
 reverse.
 
 1. In group 2, the kernel finds *C*, so it stops it and then unloads it.
 2. In group 1, the kernel finds the *B* and *A* components, so it stops them, and then unloads them.
-3. The kernel does not find andy other group, so it reaches the "stopped" state, and finishes the
+3. The kernel does not find any other group, so it reaches the "stopped" state, and finishes the
    execution.
 
 You see that during start-up the kernel proceeds by groups, and within each group it goes by layers:
@@ -417,3 +417,11 @@ Packages become common assets. With the multidimensional modularity of Sen:
   objects. This is done via configuration files. This is also the easiest and most flexible way of
   creating components.
 - You can also implement your own components, with code.
+
+## See Also
+
+- [Create your first package](../getting_started/first_package.md) - put these concepts into practice
+- [Execution Model](execution_model.md) - a deeper look at the drainâ€“updateâ€“commit cycle
+- [STL language reference](stl.md) - how to define types for your objects
+- [Command Line reference](command_line.md) - full YAML configuration schema
+- [How-to: Working with objects](../howto_guides/objects.md) - registration, subscriptions, events in C++

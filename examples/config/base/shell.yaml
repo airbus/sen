@@ -1,6 +1,11 @@
 # $schema: schema.json
 load:
+  # The shell provides an interactive CLI for inspecting and calling methods on
+  # objects published to Sen buses. It runs in group 2, after the explorer (group 1)
+  # but before application components (group 3+), so it is ready before objects appear.
   - name: shell
     group: 2
     open:
+      # Pre-open this bus so the shell starts with visibility into the tutorial objects.
+      # You can also open buses interactively at runtime with: open <bus.name>
       - my.tutorial

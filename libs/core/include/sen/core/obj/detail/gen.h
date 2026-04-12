@@ -184,6 +184,8 @@ private:
     using Parent = std::optional<elementtype>;                                                                         \
                                                                                                                        \
   public:                                                                                                              \
+    using Parent::value_type;                                                                                          \
+                                                                                                                       \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \
                                                                                                                        \
@@ -198,15 +200,13 @@ private:
     using Parent::swap;                                                                                                \
     using Parent::emplace;                                                                                             \
                                                                                                                        \
-    using Parent::value_type;                                                                                          \
+    constexpr const Parent& asOptional() const noexcept { return *this; }                                              \
                                                                                                                        \
-    Parent asOptional() const { return *this; }                                                                        \
-                                                                                                                       \
-    friend bool operator==(const classname& lhs, const classname& rhs)                                                 \
+    friend constexpr bool operator==(const classname& lhs, const classname& rhs)                                       \
     {                                                                                                                  \
       return lhs.asOptional() == rhs.asOptional();                                                                     \
     }                                                                                                                  \
-    friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
+    friend constexpr bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }             \
   };
 
 /// Used by the code generator NOLINTNEXTLINE

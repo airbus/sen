@@ -1,4 +1,7 @@
 # $schema: schema.json
 load:
+  # The explorer is a GUI tool for inspecting objects, monitoring property values
+  # over time (plots), and browsing events across all buses. It runs in group 1,
+  # the first group to start, so the window is ready before any objects appear.
   - name: explorer
     group: 1

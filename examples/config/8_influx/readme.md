@@ -1,5 +1,7 @@
 # Influx component example
 
+> **Prerequisites:** [4 - School](../4_school/readme.md) (the data source used here). Docker must be installed and running.
+
 Here you will find a container that hosts Grafana, InfluxDB and Telegraf. Your Sen instance will
 connect to Telegraf and you can then connect to Grafana to see the data.
 

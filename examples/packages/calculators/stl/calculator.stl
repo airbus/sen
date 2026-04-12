@@ -35,3 +35,12 @@ class Calculator
   // Emitted when there's an attempt to divide by zero.
   event divisionByZero();
 }
+
+class Client
+{
+  // Where to find the calculator objects.
+  var calcBus : string [static];
+
+  // Uses any available calculator.
+  fn useCalculator();
+}

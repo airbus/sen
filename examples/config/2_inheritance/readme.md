@@ -1,5 +1,7 @@
 # Inheritance example
 
+> **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic package and object instantiation).
+
 This example shows how inheritance works in Sen.
 
 ## Interface

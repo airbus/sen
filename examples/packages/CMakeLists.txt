@@ -18,6 +18,7 @@ set(packages
     shapes
     fibonacci
     timer
+    my_counter
 )
 
 # add the subdirectories and fetch the schemas

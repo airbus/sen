@@ -1,5 +1,7 @@
 # School example
 
+> **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy), [3 - Aircraft](../3_aircraft/readme.md) (update loop and virtual time). This is the most comprehensive local example - take your time with it.
+
 This is a small example that illustrates how objects can discover and interact with each other.
 
 The idea is:

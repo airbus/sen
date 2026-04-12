@@ -146,6 +146,7 @@ nav:
   - Manual:
       - users_guide/index.md
       - Concepts: users_guide/main_concepts.md
+      - Mental Model: users_guide/mental_model.md
       - Workflow: users_guide/workflow.md
       - Execution Model: users_guide/execution_model.md
       - The Sen Type Language: users_guide/stl.md
@@ -189,12 +190,12 @@ nav:
       - Using the Dead Reckoning library: howto_guides/dead_reckoning.md
       - Implementing Unit Tests: howto_guides/unit_tests.md
       - Writing a component (advanced): howto_guides/components.md
+      - Troubleshooting: howto_guides/troubleshooting.md
   - Tutorials:
-      - tutorials/index.md
-      # - "Quick Start":
-      # - "Running the Sen Shell": tutorials/quick_start/running_the_shell.md
-      # - "Building a Calculator": tutorials/quick_start/building_calculator.md
+      - "Tutorial 1: Hello Sen": tutorials/hello_sen.md
+      - "Tutorial 2: Two Objects Talking": tutorials/two_objects.md
   - Examples:
+      - examples/index.md
       - Simple package: snippets/examples/config/1_calculators/readme.md
       - Inheritance: snippets/examples/config/2_inheritance/readme.md
       - Updates: snippets/examples/config/3_aircraft/readme.md
