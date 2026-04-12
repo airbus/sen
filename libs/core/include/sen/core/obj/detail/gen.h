@@ -176,11 +176,8 @@ private:
                                                                                                                        \
     constexpr const Parent& asArray() const noexcept { return *this; }                                                 \
                                                                                                                        \
-    friend constexpr bool operator==(const classname& lhs, const classname& rhs)                                       \
-    {                                                                                                                  \
-      return lhs.asArray() == rhs.asArray();                                                                           \
-    }                                                                                                                  \
-    friend constexpr bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }             \
+    friend bool operator==(const classname& lhs, const classname& rhs) { return lhs.asArray() == rhs.asArray(); }      \
+    friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
