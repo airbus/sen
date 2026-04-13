@@ -691,13 +691,12 @@ void {{localProxyName}}::drainInputsImpl(::sen::TimeStamp lastCommitTime)
 ## for iface in interfacesToImplement
 ## for prop in iface.props
 ## if prop.dynamic
-  const auto& {{ prop.name }}Owner = ptr{{ iface.interfaceName }}_->{{ prop.getter.name}}();
-  if ({{ prop.name }}Prop_ != {{ prop.name }}Owner)
+  if (const auto& {{ prop.name }}Owner = ptr{{ iface.interfaceName }}_->{{ prop.getter.name}}(); {{ prop.name }}Prop_ != {{ prop.name }}Owner)
   {
     {{ prop.name }}Prop_ = {{ prop.name }}Owner;
     changedProperties[{{propertyIndex}}U] = true;
   }
-  {% set propertyIndex = propertyIndex + 1 %}
+{% set propertyIndex = propertyIndex + 1 %}
 ## endif
 ## endfor
 ## endfor

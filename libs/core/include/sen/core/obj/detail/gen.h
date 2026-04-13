@@ -135,24 +135,49 @@ private:
   };
 
 /// Used by the code generator NOLINTNEXTLINE
-#define SEN_IMPL_GEN_FIXED_SEQUENCE(classname, element, size)                                                          \
-  struct classname final: public std::array<element, size>                                                             \
+#define SEN_IMPL_GEN_FIXED_SEQUENCE(classname, element, num_elements)                                                  \
+  class classname final: private std::array<element, num_elements>                                                     \
   {                                                                                                                    \
-    using Parent = std::array<element, size>;                                                                          \
+    using Parent = std::array<element, num_elements>;                                                                  \
+                                                                                                                       \
+  public:                                                                                                              \
+    using Parent::value_type;                                                                                          \
+                                                                                                                       \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \
                                                                                                                        \
+    using Parent::at;                                                                                                  \
+    using Parent::operator[];                                                                                          \
+    using Parent::front;                                                                                               \
+    using Parent::back;                                                                                                \
+    using Parent::data;                                                                                                \
+                                                                                                                       \
+    using Parent::begin;                                                                                               \
+    using Parent::cbegin;                                                                                              \
+    using Parent::rbegin;                                                                                              \
+    using Parent::crbegin;                                                                                             \
+    using Parent::end;                                                                                                 \
+    using Parent::cend;                                                                                                \
+    using Parent::rend;                                                                                                \
+    using Parent::crend;                                                                                               \
+                                                                                                                       \
+    using Parent::empty;                                                                                               \
+    using Parent::size;                                                                                                \
+    using Parent::max_size;                                                                                            \
+                                                                                                                       \
+    using Parent::fill;                                                                                                \
+    using Parent::swap;                                                                                                \
+                                                                                                                       \
     template <typename Y, typename = std::enable_if_t<std::is_convertible_v<Y, element>, int>>                         \
-    classname(std::initializer_list<Y> elems): Parent()                                                                \
+    constexpr classname(std::initializer_list<Y> elems): Parent()                                                      \
     {                                                                                                                  \
-      std::size_t i = 0;                                                                                               \
-      for (auto itr = elems.begin(); itr != elems.end() && i < size;                                                   \
-           ++itr) /* NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) */                                        \
-      {                                                                                                                \
-        (*this)[i] = *itr; /* NOLINT(cppcoreguidelines-pro-bounds-constant-array-index) */                             \
-        ++i;                                                                                                           \
-      }                                                                                                                \
+      std::move(std::begin(elems), std::end(elems), std::begin(*this));                                                \
     }                                                                                                                  \
+                                                                                                                       \
+    constexpr const Parent& asArray() const noexcept { return *this; }                                                 \
+                                                                                                                       \
+    friend bool operator==(const classname& lhs, const classname& rhs) { return lhs.asArray() == rhs.asArray(); }      \
+    friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
