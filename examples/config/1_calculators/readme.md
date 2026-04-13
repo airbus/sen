@@ -13,6 +13,8 @@ This package provides the definition of a calculator.
 --8<-- "snippets/examples/packages/calculators/stl/calculator.stl"
 ```
 
+The STL file declares the `Calculator` class: its properties (`model`, `current`), its methods (`add`, `addWithCurrent`, `divide`, `divideByCurrent`), and its events (`divisionByZero`). Sen generates a `CalculatorBase` C++ class from this definition. Your implementation inherits from it and overrides the `*Impl` methods.
+
 ## Implementation
 
 It also provides two implementations for the `Calculator` class.
@@ -28,6 +30,25 @@ It also provides two implementations for the `Calculator` class.
     ```c++ title="Another implementation of a calculator"
     --8<-- "snippets/examples/packages/calculators/src/faulty_calculator.cpp"
     ```
+
+## CMakeLists.txt explained
+
+```cmake
+add_sen_package(
+  TARGET calculators           # Name of the CMake and runtime target
+  MAINTAINER "..."             # Who owns this package
+  VERSION "0.0.1"              # Semantic version embedded in metadata
+  DESCRIPTION "Example package"
+  SOURCES                      # C++ files implementing the package logic
+    src/casio_calculator.cpp
+    src/faulty_calculator.cpp
+    src/client.cpp
+  STL_FILES stl/calculator.stl # STL interface file; Sen generates C++ from this
+  SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}  # Where the JSON schema is written
+)
+```
+
+`add_sen_package` creates a shared library that Sen loads at runtime. `STL_FILES` triggers code generation: the Sen compiler reads the STL file and produces the `CalculatorBase` C++ class. `SOURCES` lists the hand-written C++ files that are compiled alongside the generated code. `SCHEMA_PATH` controls where the YAML configuration schema is written, making it available for validation and editor tooling.
 
 ## How to run it
 
