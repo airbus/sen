@@ -155,8 +155,8 @@ Macros</h2></td></tr>
 <tr class="memdesc:a5b2b6a7cdb356d752f4963058d8a6b96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the code generator NOLINTNEXTLINE.  <br /></td></tr>
 <tr class="memitem:ad4d950850e7cc6a7d0946a155be27a06" id="r_ad4d950850e7cc6a7d0946a155be27a06"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ad4d950850e7cc6a7d0946a155be27a06">SEN_IMPL_GEN_BOUNDED_SEQUENCE</a>(classname,  element,  maxSize)</td></tr>
 <tr class="memdesc:ad4d950850e7cc6a7d0946a155be27a06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the code generator NOLINTNEXTLINE.  <br /></td></tr>
-<tr class="memitem:afc35cafe5149ed23fc28dc9442e62006" id="r_afc35cafe5149ed23fc28dc9442e62006"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#afc35cafe5149ed23fc28dc9442e62006">SEN_IMPL_GEN_FIXED_SEQUENCE</a>(classname,  element,  size)</td></tr>
-<tr class="memdesc:afc35cafe5149ed23fc28dc9442e62006"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the code generator NOLINTNEXTLINE.  <br /></td></tr>
+<tr class="memitem:a3e35200c1b786d7a3e59f6e66cbd7118" id="r_a3e35200c1b786d7a3e59f6e66cbd7118"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#a3e35200c1b786d7a3e59f6e66cbd7118">SEN_IMPL_GEN_FIXED_SEQUENCE</a>(classname,  element,  num_elements)</td></tr>
+<tr class="memdesc:a3e35200c1b786d7a3e59f6e66cbd7118"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the code generator NOLINTNEXTLINE.  <br /></td></tr>
 <tr class="memitem:a620c5dcea34994a16b4be3894538173f" id="r_a620c5dcea34994a16b4be3894538173f"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#a620c5dcea34994a16b4be3894538173f">SEN_IMPL_GEN_STRUCT_OPERATORS</a>(classname,  doExport)</td></tr>
 <tr class="memdesc:a620c5dcea34994a16b4be3894538173f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the code generator NOLINTNEXTLINE.  <br /></td></tr>
 <tr class="memitem:a954924db2070eba6b379c7d44b0f5b11" id="r_a954924db2070eba6b379c7d44b0f5b11"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#a954924db2070eba6b379c7d44b0f5b11">SEN_IMPL_GEN_OPTIONAL</a>(classname,  elementtype)</td></tr>
@@ -394,8 +394,8 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a id="afc35cafe5149ed23fc28dc9442e62006" name="afc35cafe5149ed23fc28dc9442e62006"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc35cafe5149ed23fc28dc9442e62006">&#9670;&#160;</a></span>SEN_IMPL_GEN_FIXED_SEQUENCE</h2>
+<a id="a3e35200c1b786d7a3e59f6e66cbd7118" name="a3e35200c1b786d7a3e59f6e66cbd7118"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e35200c1b786d7a3e59f6e66cbd7118">&#9670;&#160;</a></span>SEN_IMPL_GEN_FIXED_SEQUENCE</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -413,29 +413,11 @@ Macros</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>size</em></span>&#160;)</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>num_elements</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">struct </span>classname final: <span class="keyword">public</span> std::array&lt;element, size&gt;                                                             \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  <span class="keyword">using </span>Parent = std::array&lt;element, size&gt;;                                                                          \</div>
-<div class="line">  <span class="keyword">using </span>Parent::Parent;                                                                                              \</div>
-<div class="line">  <span class="keyword">using </span>Parent::operator=;                                                                                           \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Y, <span class="keyword">typename</span> = std::enable_if_t&lt;std::is_convertible_v&lt;Y, element&gt;, <span class="keywordtype">int</span>&gt;&gt;                         \</div>
-<div class="line">  classname(std::initializer_list&lt;Y&gt; elems): Parent()                                                                \</div>
-<div class="line">  {                                                                                                                  \</div>
-<div class="line">    std::size_t i = 0;                                                                                               \</div>
-<div class="line">    for (<span class="keyword">auto</span> itr = elems.begin(); itr != elems.end() &amp;&amp; i &lt; size;                                                   \</div>
-<div class="line">         ++itr) <span class="comment">/* NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic) */</span>                                        \</div>
-<div class="line">    {                                                                                                                \</div>
-<div class="line">      (*this)[i] = *itr; <span class="comment">/* NOLINT(cppcoreguidelines-pro-bounds-constant-array-index) */</span>                             \</div>
-<div class="line">      ++i;                                                                                                           \</div>
-<div class="line">    }                                                                                                                \</div>
-<div class="line">  }                                                                                                                  \</div>
-<div class="line">};</div>
-</div><!-- fragment -->
+
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 
 </div>

@@ -6,7 +6,7 @@ var gen_8h =
     [ "SEN_IMPL_GEN_LOCAL_PROXY_CLASS", "gen_8h.html#a9f19c6ca2c644f64f47ce76b18141fa5", null ],
     [ "SEN_IMPL_GEN_UNBOUNDED_SEQUENCE", "gen_8h.html#a5b2b6a7cdb356d752f4963058d8a6b96", null ],
     [ "SEN_IMPL_GEN_BOUNDED_SEQUENCE", "gen_8h.html#ad4d950850e7cc6a7d0946a155be27a06", null ],
-    [ "SEN_IMPL_GEN_FIXED_SEQUENCE", "gen_8h.html#afc35cafe5149ed23fc28dc9442e62006", null ],
+    [ "SEN_IMPL_GEN_FIXED_SEQUENCE", "gen_8h.html#a3e35200c1b786d7a3e59f6e66cbd7118", null ],
     [ "SEN_IMPL_GEN_STRUCT_OPERATORS", "gen_8h.html#a620c5dcea34994a16b4be3894538173f", null ],
     [ "SEN_IMPL_GEN_OPTIONAL", "gen_8h.html#a954924db2070eba6b379c7d44b0f5b11", null ],
     [ "SEN_IMPL_GEN_OPTIONAL_TRAITS", "gen_8h.html#ada9e3c0bbab817360ed199cb00bc329c", null ],
