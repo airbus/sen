@@ -266,6 +266,25 @@ optional<f64> MaybeFloat64;
 optional<Error> MaybeError;
 ```
 
+## Aliases
+
+You can define alternative names for types. For example,
+
+```
+alias StringAlias string;
+alias MyInt u8;
+```
+
+From this point you can use your custom names in other places. For example,
+
+```rust
+struct MyStuct
+{
+  field1 : StringAlias, // same as string
+  field2 : MyInt        // same as u8
+}
+```
+
 ## Classes
 
 You can define classes as follows:
@@ -488,15 +507,17 @@ comments in two main ways:
 struct Point
 {
   // The X coordinate
-  x: i32; // horizontal axis
-  // The Y coordinate
-  y: i32; // vertical axis
+  x: i32,
+
+  y: i32 // The Y coordinate
 }
 ```
 
 ```rust
-// A temperature in Celsius
-quantity Temperature: f32; // float type
+// An angle in radians
+quantity<f32, rad> Angle;
+
+quantity<f32, rad> Angle; // An angle in radians
 ```
 
 ### Classes
@@ -520,7 +541,7 @@ You can add multiple lines of comments, but only one @param per parameter.
 class Example
 {
   // Stores the first name
-  var firstName : string [static]; // A string property
+  var firstName : string [static];
 
   // Stores the surname
   var surName   : string [static];
