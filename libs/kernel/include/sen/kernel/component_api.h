@@ -19,6 +19,7 @@
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
+#include "sen/core/obj/object_list.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/core/obj/subscription.h"
 
@@ -41,6 +42,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace sen::kernel
@@ -134,6 +136,25 @@ public:
 
   template <typename T, typename B>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const B& bus);
+
+  /// Overload of selectAllFrom that installs addition and removal callbacks before subscribing,
+  /// so they fire for objects already present at subscription time.
+  /// Pass nullptr for either callback to skip it.
+  template <typename T, typename B>
+  [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(
+    const B& bus,
+    typename sen::ObjectList<T>::Callback onAdded,
+    typename sen::ObjectList<T>::Callback onRemoved = nullptr);
+
+  /// Creates a subscription for objects matching the given Sen query string.
+  /// Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions.
+  /// Example: selectFrom<Shape>(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")").
+  /// It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.
+  template <typename T, typename Bus>
+  [[nodiscard]] std::shared_ptr<Subscription<T>> selectFrom(const Bus& bus,
+                                                            const std::string& query,
+                                                            typename sen::ObjectList<T>::Callback onAdded = nullptr,
+                                                            typename sen::ObjectList<T>::Callback onRemoved = nullptr);
 
   /// Gets the path to the configuration file used to construct the kernel.
   /// It might be empty if the kernel is programmatically configured.
@@ -306,6 +327,48 @@ inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const B& bus)
   auto sub = std::make_shared<Subscription<T>>();
   sub->source = getSource(bus);
   sub->source->addSubscriber(Interest::make(buildQuery<T>(bus), getTypes()), &sub->list, true);
+  return sub;
+}
+
+template <typename T, typename B>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const B& bus,
+                                                                 typename sen::ObjectList<T>::Callback onAdded,
+                                                                 typename sen::ObjectList<T>::Callback onRemoved)
+{
+  auto sub = std::make_shared<Subscription<T>>();
+  // Install callbacks before subscribing so they fire for objects already present.
+  if (onAdded)
+  {
+    std::ignore = sub->list.onAdded(std::move(onAdded));
+  }
+  if (onRemoved)
+  {
+    std::ignore = sub->list.onRemoved(std::move(onRemoved));
+  }
+  sub->source = getSource(bus);
+  sub->source->addSubscriber(Interest::make(buildQuery<T>(bus), getTypes()), &sub->list, true);
+  return sub;
+}
+
+template <typename T, typename Bus>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectFrom(const Bus& bus,
+                                                              const std::string& query,
+                                                              typename sen::ObjectList<T>::Callback onAdded,
+                                                              typename sen::ObjectList<T>::Callback onRemoved)
+{
+  auto sub = std::make_shared<Subscription<T>>();
+
+  // Install callbacks before subscribing so they fire for objects already present.
+  if (onAdded)
+  {
+    std::ignore = sub->list.onAdded(std::move(onAdded));
+  }
+  if (onRemoved)
+  {
+    std::ignore = sub->list.onRemoved(std::move(onRemoved));
+  }
+  sub->source = getSource(bus);
+  sub->source->addSubscriber(Interest::make(query, getTypes()), &sub->list, true);
   return sub;
 }
 

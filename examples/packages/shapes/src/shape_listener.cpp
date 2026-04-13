@@ -14,7 +14,6 @@
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/obj/connection_guard.h"
-#include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_list.h"
 #include "sen/core/obj/subscription.h"
@@ -51,22 +50,20 @@ protected:
                                    const MaybeInterval& xRange,
                                    const MaybeInterval& yRange) override
   {
-    const auto query = makeQueryName();                                // create a name for our query
-    auto sub = std::make_shared<sen::Subscription<ShapeInterface>>();  // create up a subscription
-    sub->source = api_->getSource(bus);                                // get the bus
+    const auto queryName = makeQueryName();  // create a name for our query
 
-    // install the callbacks
-    std::ignore = sub->list.onAdded([query, this](const auto& iterators) { shapesDetected(query, iterators); });
-    std::ignore = sub->list.onRemoved([query, this](const auto& iterators) { shapesGone(query, iterators); });
-
-    auto interest = makeInterest(query, bus, color, xRange, yRange);  // build the interest.
-    sub->source->addSubscriber(interest, &sub->list, true);           // connect the list.
-    subscriptions_.emplace(query, std::move(sub));                    // save the subscription.
+    // build and log the query string, then create the subscription
+    subscriptions_.emplace(queryName,
+                           api_->selectFrom<ShapeInterface>(
+                             bus,
+                             buildQuery(queryName, bus, color, xRange, yRange),
+                             [queryName, this](const auto& iterators) { shapesDetected(queryName, iterators); },
+                             [queryName, this](const auto& iterators) { shapesGone(queryName, iterators); }));
 
     // update the query count
     setNextQueryCount(
       sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyIgnore>(subscriptions_.size()));
-    return query;
+    return queryName;
   }
 
   void stopListeningToImpl(const std::string& queryName) override
@@ -159,11 +156,11 @@ private:
   }
 
 private:
-  std::shared_ptr<sen::Interest> makeInterest(std::string_view queryName,
-                                              const std::string& bus,
-                                              const MaybeColor& color,
-                                              const MaybeInterval& xRange,
-                                              const MaybeInterval& yRange)
+  std::string buildQuery(std::string_view queryName,
+                         const std::string& bus,
+                         const MaybeColor& color,
+                         const MaybeInterval& xRange,
+                         const MaybeInterval& yRange)
   {
     // we build a string encoding our interest using the Sen Query Language
     std::string query("SELECT ");  // NOLINTNEXTLINE(misc-include-cleaner)
@@ -175,7 +172,7 @@ private:
     addRangeCondition("position.y", yRange, whereWritten, query);
 
     std::cout << getName() << ": " << queryName << " = '" << query << "'\n";  // log the query that we create.
-    return sen::Interest::make(query, api_->getTypes());                      // make the interest.
+    return query;
   }
 
   std::string makeQueryName() { return std::string("query_").append(std::to_string(nextQueryId_++)); }
