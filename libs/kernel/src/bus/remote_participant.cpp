@@ -362,11 +362,11 @@ void UpdatesBufferStorage::applyStateAndStopMonitoring(sen::impl::RemoteObject& 
   if (const auto itr = data_.find(proxy.getId()); itr != data_.end())
   {
     // initialize with addition
-    proxy.initializeState(itr->second.staticState.state, itr->second.staticState.time);
+    proxy.initializeState(itr->second.staticState.state.asVector(), itr->second.staticState.time);
 
     // initialize with the requested state
     const auto& dynamicStateTime = itr->second.dynamicState.timestamp;
-    proxy.initializeState(itr->second.dynamicState.state, dynamicStateTime);
+    proxy.initializeState(itr->second.dynamicState.state.asVector(), dynamicStateTime);
 
     // apply updates newer than the requested state
     for (const auto& update: itr->second.updates)
@@ -918,7 +918,7 @@ void RemoteParticipant::rcvMethodCall(TransportMode mode, InputStream& in)
             }
           };
 
-          InputStream argsIn(*argsBuffer);
+          InputStream argsIn(argsBuffer->asVector());
 
           // ensure that the stream call can modify the local object
           localObject->senImplStreamCall(methodId, argsIn, std::move(callForwarder));
@@ -954,11 +954,11 @@ void RemoteParticipant::rcvMethodResponse(InputStream& in)
       if (retValSize != 0U)
       {
         auto retValBuffer = makeConstSpan(in.advance(retValSize), retValSize);
-        responseData.returnValBuffer = std::make_shared<Buffer>(retValBuffer.begin(), retValBuffer.end());
+        responseData.returnValBuffer = std::make_shared<std::vector<uint8_t>>(retValBuffer.begin(), retValBuffer.end());
       }
       else
       {
-        responseData.returnValBuffer = std::make_shared<Buffer>();
+        responseData.returnValBuffer = std::make_shared<std::vector<uint8_t>>();
       }
     }
     break;

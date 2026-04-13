@@ -721,7 +721,7 @@ private:
     const auto type = kernelTypes_.get(entry.type);
 
     SEN_ASSERT(type.has_value() && "The type for the annotation should be known by the kernel.");
-    return {entry.time, db::Annotation(std::move(type).value(), std::move(entry.value))};
+    return {entry.time, db::Annotation(std::move(type).value(), std::move(entry.value).asVector())};
   }
 
   [[nodiscard]] DataCursor::Entry provideRuntimeDataFront(const DataCursorState& state)
@@ -793,7 +793,7 @@ private:
                              elem.session,
                              elem.bus,
                              findClassAndAssociateObjectId(elem.type, elem.objectId),
-                             std::move(elem.properties)});
+                             std::move(elem.properties).asVector()});
       }
 
       return {data.time, db::Keyframe(std::move(snapshots))};
@@ -827,7 +827,7 @@ private:
                       }
                     }
 
-                    return {data.time, PropertyChange(data.objectId, property, std::move(data.value))};
+                    return {data.time, PropertyChange(data.objectId, property, std::move(data.value).asVector())};
                   },
                   [this](v1::Event& data) -> DataCursor::Entry
                   {
@@ -856,14 +856,14 @@ private:
                       }
                     }
 
-                    return {data.time, db::Event(data.objectId, event, std::move(data.args))};
+                    return {data.time, db::Event(data.objectId, event, std::move(data.args).asVector())};
                   },
                   processKeyframe,
                   [&processKeyframe](v1::CompressedKeyframe& data) -> DataCursor::Entry
                   {
                     // uncompress the buffer
                     std::vector<uint8_t> memBuffer;
-                    uncompressBuffer(data.buffer, memBuffer, data.decompressedSize);
+                    uncompressBuffer(data.buffer.asVector(), memBuffer, data.decompressedSize);
 
                     // read the keyframe
                     v1::Keyframe keyframe;
@@ -882,7 +882,7 @@ private:
                                                   data.object.session,
                                                   data.object.bus,
                                                   findClassAndAssociateObjectId(data.object.type, data.object.objectId),
-                                                  std::move(data.object.properties)))};
+                                                  std::move(data.object.properties).asVector()))};
                   },
                   [](v1::Deletion& data) -> DataCursor::Entry { return {data.time, db::Deletion(data.objectId)}; }},
       dataEntry);

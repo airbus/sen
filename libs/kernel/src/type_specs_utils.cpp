@@ -641,7 +641,7 @@ ConstTypeHandle<CustomType> makeNonNative(const CustomTypeSpec& typeData,
           getPropertyCategory(spec.category),
           getTransportMode(spec.transportMode),
           spec.checkedSet,
-          spec.tags};
+          spec.tags.asVector()};
 }
 
 [[nodiscard]] ::sen::EventSpec makeEventSpec(const EventSpec& spec,

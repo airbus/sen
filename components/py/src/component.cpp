@@ -79,7 +79,7 @@ struct PyComponent: public kernel::Component
 
     if (!config_.imports.empty())
     {
-      packageManager_->import(config_.imports);
+      packageManager_->import(config_.imports.asVector());
     }
 
     return done();
