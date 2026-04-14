@@ -1,0 +1,7 @@
+package py_test_package;
+
+class TestObject
+{
+  var staticProp  : u32 [static];
+  var dynamicProp : f64 [writable];
+}
