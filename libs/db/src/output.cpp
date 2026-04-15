@@ -256,7 +256,7 @@ public:
 
       v1::CompressedKeyframe compressedKey;
       compressedKey.decompressedSize = static_cast<uint32_t>(memBuf.size());
-      writeToCompressedBuffer(memBuf, compressedKey.buffer);
+      writeToCompressedBuffer(memBuf.asVector(), compressedKey.buffer);
 
       if (createIndex)
       {

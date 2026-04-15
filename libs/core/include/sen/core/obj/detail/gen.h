@@ -39,6 +39,7 @@
 
 // std
 #include <optional>
+#include <type_traits>
 
 #define SEN_IMPL_GEN_NATIVE_MEMBERS                                                                                    \
 protected:                                                                                                             \
@@ -118,11 +119,54 @@ private:
 
 /// Used by the code generator NOLINTNEXTLINE
 #define SEN_IMPL_GEN_UNBOUNDED_SEQUENCE(classname, elementtype)                                                        \
-  struct classname final: public std::vector<elementtype>                                                              \
+  class classname final: private std::vector<elementtype>                                                              \
   {                                                                                                                    \
     using Parent = std::vector<elementtype>;                                                                           \
+                                                                                                                       \
+  public:                                                                                                              \
+    using Parent::value_type;                                                                                          \
+                                                                                                                       \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \
+    using Parent::assign;                                                                                              \
+                                                                                                                       \
+    using Parent::at;                                                                                                  \
+    using Parent::operator[];                                                                                          \
+    using Parent::front;                                                                                               \
+    using Parent::back;                                                                                                \
+    using Parent::data;                                                                                                \
+                                                                                                                       \
+    using Parent::begin;                                                                                               \
+    using Parent::cbegin;                                                                                              \
+    using Parent::rbegin;                                                                                              \
+    using Parent::crbegin;                                                                                             \
+    using Parent::end;                                                                                                 \
+    using Parent::cend;                                                                                                \
+    using Parent::rend;                                                                                                \
+    using Parent::crend;                                                                                               \
+                                                                                                                       \
+    using Parent::empty;                                                                                               \
+    using Parent::size;                                                                                                \
+    using Parent::max_size;                                                                                            \
+    using Parent::reserve;                                                                                             \
+    using Parent::capacity;                                                                                            \
+    using Parent::shrink_to_fit;                                                                                       \
+                                                                                                                       \
+    using Parent::clear;                                                                                               \
+    using Parent::insert;                                                                                              \
+    using Parent::emplace;                                                                                             \
+    using Parent::erase;                                                                                               \
+    using Parent::push_back;                                                                                           \
+    using Parent::emplace_back;                                                                                        \
+    using Parent::pop_back;                                                                                            \
+    using Parent::resize;                                                                                              \
+    using Parent::swap;                                                                                                \
+                                                                                                                       \
+    constexpr const Parent& asVector() const& noexcept { return *this; }                                               \
+    Parent asVector() && noexcept(std::is_nothrow_move_constructible_v<Parent>) { return std::move(*this); }           \
+                                                                                                                       \
+    friend bool operator==(const classname& lhs, const classname& rhs) { return lhs.asVector() == rhs.asVector(); }    \
+    friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -174,7 +218,8 @@ private:
       std::move(std::begin(elems), std::end(elems), std::begin(*this));                                                \
     }                                                                                                                  \
                                                                                                                        \
-    constexpr const Parent& asArray() const noexcept { return *this; }                                                 \
+    constexpr const Parent& asArray() const& noexcept { return *this; }                                                \
+    Parent asArray() && noexcept(std::is_nothrow_move_constructible_v<element>) { return std::move(*this); }           \
                                                                                                                        \
     friend bool operator==(const classname& lhs, const classname& rhs) { return lhs.asArray() == rhs.asArray(); }      \
     friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
@@ -209,7 +254,8 @@ private:
     using Parent::swap;                                                                                                \
     using Parent::emplace;                                                                                             \
                                                                                                                        \
-    constexpr const Parent& asOptional() const noexcept { return *this; }                                              \
+    constexpr const Parent& asOptional() const& noexcept { return *this; }                                             \
+    Parent asOptional() && noexcept(std::is_nothrow_move_constructible_v<Parent>) { return std::move(*this); }         \
                                                                                                                        \
     friend constexpr bool operator==(const classname& lhs, const classname& rhs)                                       \
     {                                                                                                                  \
