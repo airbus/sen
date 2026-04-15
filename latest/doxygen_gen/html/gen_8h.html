@@ -139,6 +139,7 @@ $(function(){initNavTree('gen_8h.html','',''); });
 <code>#include &quot;<a class="el" href="remote__object_8h_source.html">sen/core/obj/detail/remote_object.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="native__object_8h_source.html">sen/core/obj/native_object.h</a>&quot;</code><br />
 <code>#include &lt;optional&gt;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
 </div>
 <p><a href="gen_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -249,7 +250,7 @@ Macros</h2></td></tr>
 <div class="line">  [[nodiscard]] static inline ::<a class="code hl_namespace" href="namespacesen.html">sen</a>::ConstTypeHandle&lt;::<a class="code hl_namespace" href="namespacesen.html">sen</a>::ClassType&gt; meta() noexcept;                                \</div>
 <div class="line">                                                                                                                       \</div>
 <div class="line">private:</div>
-<div class="ttc" id="agen_8h_html_a06c414c49ba27d06e4948218b4985706"><div class="ttname"><a href="#a06c414c49ba27d06e4948218b4985706">SEN_IMPL_GEN_NATIVE_MEMBERS</a></div><div class="ttdeci">#define SEN_IMPL_GEN_NATIVE_MEMBERS</div><div class="ttdef"><b>Definition</b> gen.h:43</div></div>
+<div class="ttc" id="agen_8h_html_a06c414c49ba27d06e4948218b4985706"><div class="ttname"><a href="#a06c414c49ba27d06e4948218b4985706">SEN_IMPL_GEN_NATIVE_MEMBERS</a></div><div class="ttdeci">#define SEN_IMPL_GEN_NATIVE_MEMBERS</div><div class="ttdef"><b>Definition</b> gen.h:44</div></div>
 <div class="ttc" id="anamespacesen_html"><div class="ttname"><a href="namespacesen.html">sen</a></div><div class="ttdef"><b>Definition</b> assert.h:17</div></div>
 </div><!-- fragment -->
 <p>Used by the generated code for simplicity NOLINTNEXTLINE. </p>
@@ -348,13 +349,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">struct </span>classname final: <span class="keyword">public</span> std::vector&lt;elementtype&gt;                                                              \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  <span class="keyword">using </span>Parent = std::vector&lt;elementtype&gt;;                                                                           \</div>
-<div class="line">  <span class="keyword">using </span>Parent::Parent;                                                                                              \</div>
-<div class="line">  <span class="keyword">using </span>Parent::operator=;                                                                                           \</div>
-<div class="line">};</div>
-</div><!-- fragment -->
+
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 
 </div>
@@ -487,15 +482,17 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>Parent::swap;                                                                                                \</div>
 <div class="line">  <span class="keyword">using </span>Parent::emplace;                                                                                             \</div>
 <div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">constexpr</span> <span class="keyword">const</span> Parent&amp; asOptional() const noexcept { <span class="keywordflow">return</span> *<span class="keyword">this</span>; }                                              \</div>
+<div class="line">  <span class="keyword">constexpr</span> <span class="keyword">const</span> Parent&amp; asOptional() const&amp; noexcept { <span class="keywordflow">return</span> *<span class="keyword">this</span>; }                                             \</div>
+<div class="line">  Parent asOptional() &amp;&amp; <span class="keyword">noexcept</span>(std::is_nothrow_move_constructible_v&lt;Parent&gt;) { <span class="keywordflow">return</span> std::move(*<span class="keyword">this</span>); }         \</div>
 <div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">friend</span> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> classname&amp; lhs, <span class="keyword">const</span> classname&amp; rhs)                                       \</div>
+<div class="line">  <span class="keyword">friend</span> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="group__util.html#ga5f068ffc8f1b111e89e3bd90807b40d5">operator==</a>(<span class="keyword">const</span> classname&amp; lhs, <span class="keyword">const</span> classname&amp; rhs)                                       \</div>
 <div class="line">  {                                                                                                                  \</div>
 <div class="line">    <span class="keywordflow">return</span> lhs.asOptional() == rhs.asOptional();                                                                     \</div>
 <div class="line">  }                                                                                                                  \</div>
 <div class="line">  <span class="keyword">friend</span> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="group__util.html#ga3f8a5f2478ee1587dccb93735ac35f0c">operator!=</a>(<span class="keyword">const</span> classname&amp; lhs, <span class="keyword">const</span> classname&amp; rhs) { <span class="keywordflow">return</span> !(lhs == rhs); }             \</div>
 <div class="line">};</div>
 <div class="ttc" id="agroup__util_html_ga3f8a5f2478ee1587dccb93735ac35f0c"><div class="ttname"><a href="group__util.html#ga3f8a5f2478ee1587dccb93735ac35f0c">sen::operator!=</a></div><div class="ttdeci">constexpr bool operator!=(const Span&lt; T &gt; &amp;lhs, const Span&lt; T &gt; &amp;rhs) noexcept</div><div class="ttdef"><b>Definition</b> span.h:190</div></div>
+<div class="ttc" id="agroup__util_html_ga5f068ffc8f1b111e89e3bd90807b40d5"><div class="ttname"><a href="group__util.html#ga5f068ffc8f1b111e89e3bd90807b40d5">sen::operator==</a></div><div class="ttdeci">constexpr bool operator==(const Span&lt; T &gt; &amp;lhs, const Span&lt; T &gt; &amp;rhs) noexcept</div><div class="ttdef"><b>Definition</b> span.h:184</div></div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 

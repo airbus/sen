@@ -24,7 +24,7 @@ var namespacesen_1_1db =
     [ "writeToBuffer", "namespacesen_1_1db.html#a80523d8259e0394bf629c5cb7ec73735", null ],
     [ "write", "namespacesen_1_1db.html#a8d1f0d80a3b341f507970f84023cfc3b", null ],
     [ "writeSizeAndDataToBuffer", "namespacesen_1_1db.html#a9853f38fa52481f9e5e6dff0e935b5a7", null ],
-    [ "writeToCompressedBuffer", "namespacesen_1_1db.html#afd5599ab2806d09ed67276df98b9f198", null ],
+    [ "writeToCompressedBuffer", "namespacesen_1_1db.html#ac6c0cf97a19aae2ce3007cc8d1bd7afd", null ],
     [ "uncompressBuffer", "namespacesen_1_1db.html#a379dd686ff2456fda1ba2aea7005129d", null ],
     [ "openFile", "namespacesen_1_1db.html#a655a32f9ac062ad2c211e2553c8c6095", null ],
     [ "searchOwner", "namespacesen_1_1db.html#a2df88d8740b1b0ba009646df3a2da80b", null ],

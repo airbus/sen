@@ -168,7 +168,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a8d1f0d80a3b341f507970f84023cfc3b template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a8d1f0d80a3b341f507970f84023cfc3b">write</a> (T &amp;&amp;data, FILE *file)</td></tr>
 <tr class="memitem:a9853f38fa52481f9e5e6dff0e935b5a7" id="r_a9853f38fa52481f9e5e6dff0e935b5a7"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a9853f38fa52481f9e5e6dff0e935b5a7 template"><td class="memItemLeft">std::shared_ptr&lt; ResizableHeapBlock &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a9853f38fa52481f9e5e6dff0e935b5a7">writeSizeAndDataToBuffer</a> (const T &amp;data)</td></tr>
-<tr class="memitem:afd5599ab2806d09ed67276df98b9f198" id="r_afd5599ab2806d09ed67276df98b9f198"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#afd5599ab2806d09ed67276df98b9f198">writeToCompressedBuffer</a> (const std::vector&lt; uint8_t &gt; &amp;memBuf, std::vector&lt; uint8_t &gt; &amp;lz4Buf)</td></tr>
+<tr class="memitem:ac6c0cf97a19aae2ce3007cc8d1bd7afd" id="r_ac6c0cf97a19aae2ce3007cc8d1bd7afd"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac6c0cf97a19aae2ce3007cc8d1bd7afd">writeToCompressedBuffer</a> (const std::vector&lt; uint8_t &gt; &amp;memBuf, kernel::Buffer &amp;lz4Buf)</td></tr>
 <tr class="memitem:a379dd686ff2456fda1ba2aea7005129d" id="r_a379dd686ff2456fda1ba2aea7005129d"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a379dd686ff2456fda1ba2aea7005129d">uncompressBuffer</a> (const std::vector&lt; uint8_t &gt; &amp;lz4Buf, std::vector&lt; uint8_t &gt; &amp;memBuf, std::size_t decompressedSize)</td></tr>
 <tr class="memitem:a655a32f9ac062ad2c211e2553c8c6095" id="r_a655a32f9ac062ad2c211e2553c8c6095"><td class="memItemLeft">FILE *&#160;</td><td class="memItemRight"><a class="el" href="#a655a32f9ac062ad2c211e2553c8c6095">openFile</a> (const std::filesystem::path &amp;path)</td></tr>
 <tr class="memitem:a2df88d8740b1b0ba009646df3a2da80b" id="r_a2df88d8740b1b0ba009646df3a2da80b"><td class="memItemLeft">const ::sen::ClassType *&#160;</td><td class="memItemRight"><a class="el" href="#a2df88d8740b1b0ba009646df3a2da80b">searchOwner</a> (const ::sen::ClassType *classType, const <a class="el" href="classsen_1_1_property.html">::sen::Property</a> *property) noexcept</td></tr>
@@ -323,8 +323,8 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
-<a id="afd5599ab2806d09ed67276df98b9f198" name="afd5599ab2806d09ed67276df98b9f198"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd5599ab2806d09ed67276df98b9f198">&#9670;&#160;</a></span>writeToCompressedBuffer()</h2>
+<a id="ac6c0cf97a19aae2ce3007cc8d1bd7afd" name="ac6c0cf97a19aae2ce3007cc8d1bd7afd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6c0cf97a19aae2ce3007cc8d1bd7afd">&#9670;&#160;</a></span>writeToCompressedBuffer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -337,7 +337,7 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; uint8_t &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>lz4Buf</em></span>&#160;)</td>
+          <td class="paramtype">kernel::Buffer &amp;</td>          <td class="paramname"><span class="paramname"><em>lz4Buf</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">

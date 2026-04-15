@@ -19,7 +19,7 @@ var searchData=
   ['writestring_16',['writeString',['../classsen_1_1_output_stream_template.html#a0fdaad5b370a47400af64037b88d8525',1,'sen::OutputStreamTemplate']]],
   ['writetimestamp_17',['writeTimestamp',['../classsen_1_1_output_stream_template.html#a3b4af5c7b64cfddee5355ad207077b5d',1,'sen::OutputStreamTemplate']]],
   ['writetobuffer_18',['writeToBuffer',['../namespacesen_1_1db.html#a80523d8259e0394bf629c5cb7ec73735',1,'sen::db']]],
-  ['writetocompressedbuffer_19',['writeToCompressedBuffer',['../namespacesen_1_1db.html#afd5599ab2806d09ed67276df98b9f198',1,'sen::db']]],
+  ['writetocompressedbuffer_19',['writeToCompressedBuffer',['../namespacesen_1_1db.html#ac6c0cf97a19aae2ce3007cc8d1bd7afd',1,'sen::db']]],
   ['writeuchar_20',['writeUChar',['../classsen_1_1_output_stream_template.html#a53ae75e8606f02406528b45e111fb975',1,'sen::OutputStreamTemplate']]],
   ['writeuint16_21',['writeUInt16',['../classsen_1_1_output_stream_template.html#a3a42cab9f1b2c507b9e4180ff9ac4b06',1,'sen::OutputStreamTemplate']]],
   ['writeuint32_22',['writeUInt32',['../classsen_1_1_output_stream_template.html#a1c5a180dbbafaee903df5a65cd60748e',1,'sen::OutputStreamTemplate']]],

@@ -5,7 +5,7 @@ var db_2src_2util_8h =
     [ "sen::db::writeToBuffer", "namespacesen_1_1db.html#a80523d8259e0394bf629c5cb7ec73735", null ],
     [ "sen::db::write", "namespacesen_1_1db.html#a8d1f0d80a3b341f507970f84023cfc3b", null ],
     [ "sen::db::writeSizeAndDataToBuffer", "namespacesen_1_1db.html#a9853f38fa52481f9e5e6dff0e935b5a7", null ],
-    [ "sen::db::writeToCompressedBuffer", "namespacesen_1_1db.html#afd5599ab2806d09ed67276df98b9f198", null ],
+    [ "sen::db::writeToCompressedBuffer", "namespacesen_1_1db.html#ac6c0cf97a19aae2ce3007cc8d1bd7afd", null ],
     [ "sen::db::uncompressBuffer", "namespacesen_1_1db.html#a379dd686ff2456fda1ba2aea7005129d", null ],
     [ "sen::db::openFile", "namespacesen_1_1db.html#a655a32f9ac062ad2c211e2553c8c6095", null ],
     [ "sen::db::searchOwner", "namespacesen_1_1db.html#a2df88d8740b1b0ba009646df3a2da80b", null ],
