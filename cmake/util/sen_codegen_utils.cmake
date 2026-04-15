@@ -7,22 +7,60 @@
 
 include_guard()
 
-# Takes a target and adds Sen generated code to it or creates a new target (STATIC library) with the generated code.
+# Generates code from STL or HLA FOM files and adds the result to an existing target.
+# The target must already exist before calling this function.
+# For the common case of building a full Sen package, prefer add_sen_package() instead.
 #
 # sen_generate_code(
-#  TARGET <target>
-#  OUTPUT_DIR <path>
-#  [BASE_PATH base_path]
-#  [LANG [cpp | py]]
-#  [CODEGEN_SETTINGS file]
-#  [GEN_HDR_FILES variable]
-#  [SCHEMA_FILE path]
-#  [SCHEMA_COMPONENT_NAME name]
-#  [HLA_OUTPUT_DIR path]
-#  [STL_FILES [files...]]
-#  [HLA_FOM_DIRS [dirs...]]
-#  [HLA_MAPPINGS_FILE [files...]]
-#  [VISIBLE_CLASSES [yes | no]]
+#   TARGET <name>
+#     An already-created CMake target to which generated sources will be added.
+#
+#   [OUTPUT_DIR <path>]
+#     Directory where generated files are written.
+#     Defaults to ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_generated.
+#
+#   [BASE_PATH <path>]
+#     Root directory for import resolution and relative-path computation.
+#     Defaults to CMAKE_CURRENT_SOURCE_DIR.
+#
+#   [LANG <cpp|py>]
+#     Output language for generated code. Defaults to cpp.
+#     Use py to generate Python bindings instead of C++ headers.
+#
+#   [CODEGEN_SETTINGS <file>]
+#     Path to a settings file forwarded to the code generator (cli_gen).
+#
+#   [GEN_HDR_FILES <variable>]
+#     Output variable. Receives the list of generated header files,
+#     useful for adding them to IDE source groups.
+#
+#   [SCHEMA_FILE <path>]
+#     If set, triggers JSON schema generation and writes the schema to this path.
+#
+#   [SCHEMA_COMPONENT_NAME <name>]
+#     When set alongside SCHEMA_FILE, the schema is generated as a component
+#     schema (rather than a package schema) with this name embedded.
+#
+#   [HLA_OUTPUT_DIR <path>]
+#     Subdirectory within OUTPUT_DIR for HLA-derived files.
+#     Only relevant when HLA_FOM_DIRS is used.
+#
+#   [STL_FILES <files...>]
+#     Sen Type Language (.stl) files from which code is generated.
+#     Mutually exclusive with HLA_FOM_DIRS.
+#
+#   [HLA_FOM_DIRS <dirs...>]
+#     Directories containing HLA FOM XML files from which code is generated.
+#     Mutually exclusive with STL_FILES.
+#
+#   [HLA_MAPPINGS_FILE <files...>]
+#     HLA mapping files that customise FOM-to-code translation.
+#     Requires HLA_FOM_DIRS.
+#
+#   [VISIBLE_CLASSES <YES|NO>]
+#     Whether generated class symbols are exported with public visibility.
+#     Defaults to NO. Set to YES when the generated headers must be consumed
+#     across shared-library boundaries (e.g. Python bindings).
 function(sen_generate_code)
 
   set(_one_value_args
@@ -437,23 +475,52 @@ function(sen_generate_code)
 
 endfunction()
 
-# Version of the sen_generate_code function that generates cpp code
+# Convenience wrapper for sen_generate_code() that generates C++ code (the default).
+# Accepts the same arguments as sen_generate_code() except LANG, which is fixed to cpp.
 macro(sen_generate_cpp)
   sen_generate_code(${ARGV})
 endmacro()
 
-# Version of the sen_generate_code function that generates python code
+# Convenience wrapper for sen_generate_code() that generates Python bindings.
+# Accepts the same arguments as sen_generate_code() except LANG, which is fixed to py.
 macro(sen_generate_python)
   sen_generate_code(${ARGV} LANG py)
 endmacro()
 
-# Generates a plantuml diagram out of a set of STL files
+# Generates a PlantUML diagram from STL or HLA FOM files.
+# Creates a custom target that runs the diagram generator on demand.
 #
 # sen_generate_uml(
-#   [BASE_PATH base_path] STL_FILES [files...]
-#   [HLA_FOM_DIRS [directories...]]
-#   [CLASSES_ONLY | TYPES_ONLY | TYPES_ONLY_NO_ENUMS]
-#   OUT output_file)
+#   TARGET <name>
+#     Name of the custom CMake target that triggers diagram generation.
+#
+#   OUT <file>
+#     Path to the output .puml file to be written.
+#
+#   [BASE_PATH <path>]
+#     Root directory for import resolution. Defaults to CMAKE_CURRENT_SOURCE_DIR.
+#
+#   [STL_FILES <files...>]
+#     Sen Type Language (.stl) files to diagram. Mutually exclusive with HLA_FOM_DIRS.
+#
+#   [HLA_FOM_DIRS <dirs...>]
+#     Directories containing HLA FOM XML files to diagram.
+#     Mutually exclusive with STL_FILES.
+#
+#   [HLA_MAPPINGS_FILE <files...>]
+#     HLA mapping files forwarded to the diagram generator. Requires HLA_FOM_DIRS.
+#
+#   [CLASSES_ONLY]
+#     Include only class and interface definitions in the diagram.
+#     Omits primitive types, structs, and enumerations.
+#
+#   [TYPES_ONLY]
+#     Include only type definitions (structs, enums, aliases).
+#     Omits class and interface diagrams.
+#
+#   [TYPES_ONLY_NO_ENUMS]
+#     Like TYPES_ONLY but also omits the individual enumerator values,
+#     showing only the enum names.
 function(sen_generate_uml)
 
   set(_options CLASSES_ONLY TYPES_ONLY TYPES_ONLY_NO_ENUMS)
@@ -555,13 +622,25 @@ function(sen_generate_uml)
   endif()
 endfunction()
 
-# Invokes a python script that generates a YAML config file.
+# Invokes a Python script at build time to generate a YAML configuration file.
+# Creates a custom target that re-runs the script whenever its inputs change.
+# If mypy is found, also creates a <TARGET>_check target that type-checks the script.
 #
 # sen_generate_yaml(
-#  TARGET <target>
-#  SCRIPT python_script
-#  OUTPUT output_file
-#  [DEPS [dependencies...]]
+#   TARGET <name>
+#     Name of the custom CMake target that triggers YAML generation.
+#
+#   SCRIPT <file>
+#     Path to the Python script that produces the YAML. The script is called with
+#     OUTPUT as its only argument: python script.py <output_file>.
+#
+#   OUTPUT <file>
+#     Path where the generated YAML file will be written.
+#
+#   [DEPS <targets...>]
+#     Targets this script depends on. Python-language targets (created with
+#     sen_generate_python) automatically have their generated directory prepended
+#     to PYTHONPATH so the script can import the generated types.
 #)
 function(sen_generate_yaml)
 

@@ -7,30 +7,91 @@
 
 include_guard()
 
-# Adds a sen package that implements Sen generated code. Generated code can be obtained from STL files or XML FOM files
+# Creates a Sen package: a SHARED library that combines user-written sources with code
+# generated from STL or HLA FOM files, and registers the result with the Sen runtime.
+# The produced target can be loaded at runtime by sen and participates in the type system.
 #
 # add_sen_package(
-#  TARGET <target>
-#  [MAINTAINER <maintainer>]
-#  [DESCRIPTION <description>]
-#  [VERSION <version>]
-#  [BASE_PATH base_path]
-#  [EXPORT_NAME name of the Sen package exported, defaults to target's name if not set]
-#  [SCHEMA_PATH path]
-#  [GEN_HDR_FILES variable]
-#  [CODEGEN_SETTINGS file]
-#  [HLA_OUTPUT_DIR path]
-#  [SOURCES [files...]]
-#  [DEPS [dependencies...]]
-#  [PRIVATE_DEPS [dependencies...]]
-#  [STL_FILES [files...]]
-#  [HLA_FOM_DIRS [dirs...]]
-#  [HLA_MAPPINGS_FILE [files...]]
-#  [EXPORTED_CLASSES name of the classes exported by the package (if null, the exported classes are parsed automatically from the source files)]
-#  [IS_COMPONENT flag used if we want to implement a custom Sen component]
-#  [NO_SCHEMA flag used when we dont want to generate a JSON schema for the YAML configuration files of the package]
-#  [PUBLIC_SYMBOLS flag used when we want to mark the symbols of the generated code as visible]
-#  [TEST_TARGET name] if set, a (static) test target is created (it exposes the internal package symbols)
+#   TARGET <name>
+#     Name of the CMake target to create.
+#
+#   [MAINTAINER <name>]
+#     Person or team responsible for this package. Defaults to "unknown".
+#     Note: AUTHOR is a deprecated alias for MAINTAINER.
+#
+#   [DESCRIPTION <text>]
+#     Human-readable description embedded in the package metadata.
+#
+#   [VERSION <version>]
+#     Package version string. Defaults to the CMake project version.
+#
+#   [BASE_PATH <path>]
+#     Root directory used to compute relative paths for generated files and
+#     interface resolution. Defaults to CMAKE_CURRENT_SOURCE_DIR.
+#
+#   [EXPORT_NAME <name>]
+#     Name under which the package is registered with the Sen runtime.
+#     Defaults to TARGET.
+#
+#   [SCHEMA_PATH <path>]
+#     Directory where the JSON schema describing the package's YAML configuration
+#     will be written. Defaults to ${PROJECT_SOURCE_DIR}/schemas.
+#
+#   [GEN_HDR_FILES <variable>]
+#     Output variable. Receives the list of header files produced by code
+#     generation, useful for adding them to IDE source groups.
+#
+#   [CODEGEN_SETTINGS <file>]
+#     Path to a settings file forwarded to the code generator (cli_gen).
+#
+#   [HLA_OUTPUT_DIR <path>]
+#     Subdirectory within the generated output directory for HLA-derived files.
+#     Only relevant when HLA_FOM_DIRS is used.
+#
+#   [SOURCES <files...>]
+#     C++ source files implementing the package logic.
+#
+#   [DEPS <targets...>]
+#     Public dependencies. Linked with PUBLIC linkage; their exported Sen types
+#     are re-exported by this package.
+#
+#   [PRIVATE_DEPS <targets...>]
+#     Private dependencies. Linked with PRIVATE linkage; not visible to consumers.
+#
+#   [STL_FILES <files...>]
+#     Sen Type Language (.stl) files from which C++ code is generated.
+#     Mutually exclusive with HLA_FOM_DIRS.
+#
+#   [HLA_FOM_DIRS <dirs...>]
+#     Directories containing HLA FOM XML files from which C++ code is generated.
+#     Mutually exclusive with STL_FILES.
+#
+#   [HLA_MAPPINGS_FILE <files...>]
+#     HLA mapping files that customise FOM-to-C++ translation.
+#     Requires HLA_FOM_DIRS.
+#
+#   [EXPORTED_CLASSES <names...>]
+#     Explicit list of class names (within the package namespace) to register
+#     with the Sen runtime. If omitted, the list is derived automatically by
+#     scanning SOURCES for SEN_EXPORT_CLASS() macros.
+#
+#   [IS_COMPONENT]
+#     Mark this package as a Sen component. Enables component-specific code
+#     generation (e.g. embedding the component name in the schema).
+#
+#   [NO_SCHEMA]
+#     Skip JSON schema generation. Use this when the package has no YAML
+#     configuration interface or when schema generation is handled elsewhere.
+#
+#   [PUBLIC_SYMBOLS]
+#     Export generated code symbols with public visibility. Required when the
+#     generated headers are consumed by Python bindings or other shared libraries
+#     that need to resolve the symbols at link time.
+#
+#   [TEST_TARGET <name>]
+#     If set, also creates a STATIC library with this name. It links the same
+#     sources as TARGET but exposes internal symbols, making them accessible
+#     from unit tests without needing a shared-library boundary.
 function(add_sen_package)
 
   set(_options IS_COMPONENT NO_SCHEMA PUBLIC_SYMBOLS)
@@ -283,13 +344,14 @@ function(add_sen_package)
 
 endfunction()
 
-# Creates a package with public symbol visibility
-# NOTE: this function is kept for retro-compatibility.
+# Deprecated wrapper for add_sen_package(... PUBLIC_SYMBOLS).
+# Kept for backwards compatibility â€” prefer add_sen_package() with PUBLIC_SYMBOLS directly.
 macro(sen_generate_package)
   add_sen_package(${ARGV} PUBLIC_SYMBOLS)
 endmacro()
 
-# Version of the add_sen_package function that creates a Sen component
+# Convenience wrapper for add_sen_package(... IS_COMPONENT).
+# Use this instead of add_sen_package() when creating a Sen component.
 macro(add_sen_component)
   add_sen_package(${ARGV} IS_COMPONENT)
 endmacro()

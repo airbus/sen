@@ -6,55 +6,55 @@ To build a Sen package, use the `add_sen_package` function:
 
 ```cmake
 add_sen_package(
-  TARGET <target>
-  [MAINTAINER <maintainer>]
-  [DESCRIPTION <description>]
+  TARGET <name>
+  [MAINTAINER <name>]
+  [DESCRIPTION <text>]
   [VERSION <version>]
-  [BASE_PATH base_path]
-  [EXPORT_NAME name of the Sen package exported, defaults to target's name if not set]
-  [SCHEMA_PATH path]
-  [GEN_HDR_FILES variable]
-  [CODEGEN_SETTINGS file]
-  [HLA_OUTPUT_DIR path]
-  [SOURCES [files...]]
-  [DEPS [dependencies...]]
-  [PRIVATE_DEPS [dependencies...]]
-  [STL_FILES [files...]]
-  [HLA_FOM_DIRS [dirs...]]
-  [HLA_MAPPINGS_FILE [files...]]
-  [EXPORTED_CLASSES name of the classes exported by the package (if null, the exported classes are parsed automatically from the source files)]
-  [IS_COMPONENT flag used if we want to implement a custom Sen component]
-  [NO_SCHEMA flag used when we dont want to generate a JSON schema for the YAML configuration files of the package]
-  [PUBLIC_SYMBOLS flag used when we want to mark the symbols of the generated code as visible]
-  [TEST_TARGET name] if provided, a (static) test target is created (it exposes the internal package symbols)
+  [BASE_PATH <path>]
+  [EXPORT_NAME <name>]
+  [SCHEMA_PATH <path>]
+  [GEN_HDR_FILES <variable>]
+  [CODEGEN_SETTINGS <file>]
+  [HLA_OUTPUT_DIR <path>]
+  [SOURCES <files...>]
+  [DEPS <targets...>]
+  [PRIVATE_DEPS <targets...>]
+  [STL_FILES <files...>]
+  [HLA_FOM_DIRS <dirs...>]
+  [HLA_MAPPINGS_FILE <files...>]
+  [EXPORTED_CLASSES <names...>]
+  [IS_COMPONENT]
+  [NO_SCHEMA]
+  [PUBLIC_SYMBOLS]
+  [TEST_TARGET <name>]
 )
 ```
 
 It takes the following parameters:
 
-| Name                | Mandatory        | Multiple         | Description                                                                                                                 |
-| ------------------- | ---------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `TARGET`            | :material-check: |                  | Name of the target that will be created for this component.                                                                 |
-| `MAINTAINER`        |                  |                  | Name of the maintainer/author.                                                                                              |
-| `DESCRIPTION`       |                  |                  | Textual description of the implemented function.                                                                            |
-| `VERSION`           |                  |                  | Semantic versioning for the generated binary.                                                                               |
-| `BASE_PATH`         |                  |                  | Import path for Sen files and the one to be used by its dependencies.                                                       |
-| `EXPORT_NAME`       |                  |                  | Name of the exported Sen package. Defaults to the target's name if not set.                                                 |
-| `SCHEMA_PATH`       |                  |                  | Path where you want to have the data model schema.                                                                          |
-| `GEN_HDR_FILES`     |                  |                  | Variable containing generated header files.                                                                                 |
-| `CODEGEN_SETTINGS`  |                  |                  | Path to the JSON file containing the settings for the code generator.                                                       |
-| `HLA_OUTPUT_DIR`    |                  |                  | Path where HLA output files will be placed.                                                                                 |
-| `SOURCES`           |                  | :material-check: | List of source files (relative to this file).                                                                               |
-| `DEPS`              |                  | :material-check: | List of libraries that the component will publicly link to.                                                                 |
-| `PRIVATE_DEPS`      |                  | :material-check: | List of libraries that the component will privately link to.                                                                |
-| `STL_FILES`         |                  | :material-check: | List of STL files to process from which the Sen package will generate code.                                                 |
-| `HLA_FOM_DIRS`      |                  | :material-check: | Directories containing HLA FOM files.                                                                                       |
-| `HLA_MAPPINGS_FILE` |                  | :material-check: | Files containing HLA mappings.                                                                                              |
-| `EXPORTED_CLASSES`  |                  |                  | Name of the classes exported by the package (if null, the exported classes are parsed automatically from the source files). |
-| `IS_COMPONENT`      |                  |                  | If present, a sen component is generated.                                                                                   |
-| `PUBLIC_SYMBOLS`    |                  |                  | If present, all symbols of the generated code are visible.                                                                  |
-| `NO_SCHEMA`         |                  |                  | If present, no schema is generated for the data model.                                                                      |
-| `TEST_TARGET`       |                  |                  | If used, a (static) test target is created exposing internal package symbols.                                               |
+| Name                | Mandatory        | Multiple         | Description                                                                                                                                                           |
+| ------------------- | ---------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TARGET`            | :material-check: |                  | Name of the CMake target to create.                                                                                                                                   |
+| `MAINTAINER`        |                  |                  | Person or team responsible for this package. Defaults to `"unknown"`. Note: `AUTHOR` is a deprecated alias.                                                          |
+| `DESCRIPTION`       |                  |                  | Human-readable description embedded in the package metadata.                                                                                                          |
+| `VERSION`           |                  |                  | Package version string. Defaults to the CMake project version.                                                                                                        |
+| `BASE_PATH`         |                  |                  | Root directory used to compute relative paths for generated files and interface resolution. Defaults to `CMAKE_CURRENT_SOURCE_DIR`.                                    |
+| `EXPORT_NAME`       |                  |                  | Name under which the package is registered with the Sen runtime. Defaults to `TARGET`.                                                                                |
+| `SCHEMA_PATH`       |                  |                  | Directory where the JSON schema describing the package's YAML configuration will be written. Defaults to `${PROJECT_SOURCE_DIR}/schemas`.                             |
+| `GEN_HDR_FILES`     |                  |                  | **Output variable.** Receives the list of header files produced by code generation, useful for adding them to IDE source groups.                                      |
+| `CODEGEN_SETTINGS`  |                  |                  | Path to a settings file forwarded to the code generator (`cli_gen`).                                                                                                  |
+| `HLA_OUTPUT_DIR`    |                  |                  | Subdirectory within the generated output directory for HLA-derived files. Only relevant when `HLA_FOM_DIRS` is used.                                                  |
+| `SOURCES`           |                  | :material-check: | C++ source files implementing the package logic.                                                                                                                      |
+| `DEPS`              |                  | :material-check: | Public dependencies. Linked with `PUBLIC` linkage; their exported Sen types are re-exported by this package.                                                          |
+| `PRIVATE_DEPS`      |                  | :material-check: | Private dependencies. Linked with `PRIVATE` linkage; not visible to consumers.                                                                                        |
+| `STL_FILES`         |                  | :material-check: | Sen Type Language (`.stl`) files from which C++ code is generated. Mutually exclusive with `HLA_FOM_DIRS`.                                                            |
+| `HLA_FOM_DIRS`      |                  | :material-check: | Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with `STL_FILES`.                                                       |
+| `HLA_MAPPINGS_FILE` |                  | :material-check: | HLA mapping files that customise FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                                                    |
+| `EXPORTED_CLASSES`  |                  | :material-check: | Explicit list of class names to register with the Sen runtime. If omitted, derived automatically by scanning `SOURCES` for `SEN_EXPORT_CLASS()` macros.               |
+| `IS_COMPONENT`      |                  |                  | Marks this package as a Sen component. Enables component-specific code generation (e.g. embedding the component name in the schema).                                  |
+| `NO_SCHEMA`         |                  |                  | Skip JSON schema generation. Use this when the package has no YAML configuration interface or when schema generation is handled elsewhere.                             |
+| `PUBLIC_SYMBOLS`    |                  |                  | Export generated code symbols with public visibility. Required when the generated headers are consumed by Python bindings or other shared libraries.                   |
+| `TEST_TARGET`       |                  |                  | If set, also creates a `STATIC` library with this name exposing internal symbols, making them accessible from unit tests without needing a shared-library boundary.   |
 
 For example,
 
@@ -230,17 +230,40 @@ add_sen_package(
 
 ### Direct code generation
 
+`sen_generate_cpp` generates C++ code from STL or HLA FOM files and adds the result to an existing
+CMake target. For the common case of building a full Sen package, prefer `add_sen_package()` instead.
+
 ```cmake
 sen_generate_cpp(
-    TARGET <target>
-    [BASE_PATH base_path]
-    [STL_FILES [files...]]
-    [HLA_FOM_DIRS [directories...]]
-    [HLA_MAPPINGS_FILE file]
-    [GEN_HDR_FILES variable]
-    [CODEGEN_SETTINGS file]
+    TARGET <name>
+    [OUTPUT_DIR <path>]
+    [BASE_PATH <path>]
+    [CODEGEN_SETTINGS <file>]
+    [GEN_HDR_FILES <variable>]
+    [SCHEMA_FILE <path>]
+    [SCHEMA_COMPONENT_NAME <name>]
+    [HLA_OUTPUT_DIR <path>]
+    [STL_FILES <files...>]
+    [HLA_FOM_DIRS <dirs...>]
+    [HLA_MAPPINGS_FILE <files...>]
+    [VISIBLE_CLASSES <YES|NO>]
 )
 ```
+
+| Name                   | Mandatory        | Multiple         | Description                                                                                                                         |
+| ---------------------- | ---------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `TARGET`               | :material-check: |                  | An already-created CMake target to which generated sources will be added.                                                           |
+| `OUTPUT_DIR`           |                  |                  | Directory where generated files are written. Defaults to `${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_generated`.                         |
+| `BASE_PATH`            |                  |                  | Root directory for import resolution and relative-path computation. Defaults to `CMAKE_CURRENT_SOURCE_DIR`.                         |
+| `CODEGEN_SETTINGS`     |                  |                  | Path to a settings file forwarded to the code generator (`cli_gen`).                                                                |
+| `GEN_HDR_FILES`        |                  |                  | **Output variable.** Receives the list of generated header files, useful for adding them to IDE source groups.                      |
+| `SCHEMA_FILE`          |                  |                  | If set, triggers JSON schema generation and writes the schema to this path.                                                         |
+| `SCHEMA_COMPONENT_NAME`|                  |                  | When set alongside `SCHEMA_FILE`, the schema is generated as a component schema with this name embedded.                            |
+| `HLA_OUTPUT_DIR`       |                  |                  | Subdirectory within `OUTPUT_DIR` for HLA-derived files. Only relevant when `HLA_FOM_DIRS` is used.                                  |
+| `STL_FILES`            |                  | :material-check: | Sen Type Language (`.stl`) files from which C++ code is generated. Mutually exclusive with `HLA_FOM_DIRS`.                         |
+| `HLA_FOM_DIRS`         |                  | :material-check: | Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with `STL_FILES`.                    |
+| `HLA_MAPPINGS_FILE`    |                  | :material-check: | HLA mapping files that customise FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                  |
+| `VISIBLE_CLASSES`      |                  |                  | Whether generated class symbols are exported with public visibility (`YES` or `NO`). Required when consumed across shared-library boundaries. |
 
 For example,
 
@@ -279,16 +302,31 @@ sen_enable_static_analysis(ether)
 
 ### UML diagrams
 
-Sen can generate PlantUML diagrams.
+Sen can generate PlantUML diagrams from STL or HLA FOM files.
 
 ```cmake
 sen_generate_uml(
-    [BASE_PATH base_path]
-    [STL_FILES [files...]] | [HLA_FOM_DIRS [directories...]]
+    TARGET <name>
+    OUT <file>
+    [BASE_PATH <path>]
+    [STL_FILES <files...>]
+    [HLA_FOM_DIRS <dirs...>]
+    [HLA_MAPPINGS_FILE <files...>]
     [CLASSES_ONLY | TYPES_ONLY | TYPES_ONLY_NO_ENUMS]
-    OUT output_file
 )
 ```
+
+| Name                | Mandatory        | Multiple         | Description                                                                                                                      |
+| ------------------- | ---------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `TARGET`            | :material-check: |                  | Name of the custom CMake target that triggers diagram generation.                                                                |
+| `OUT`               | :material-check: |                  | Path to the output `.puml` file to be written.                                                                                   |
+| `BASE_PATH`         |                  |                  | Root directory for import resolution. Defaults to `CMAKE_CURRENT_SOURCE_DIR`.                                                    |
+| `STL_FILES`         |                  | :material-check: | Sen Type Language (`.stl`) files to diagram. Mutually exclusive with `HLA_FOM_DIRS`.                                            |
+| `HLA_FOM_DIRS`      |                  | :material-check: | Directories containing HLA FOM XML files to diagram. Mutually exclusive with `STL_FILES`.                                       |
+| `HLA_MAPPINGS_FILE` |                  | :material-check: | HLA mapping files forwarded to the diagram generator. Requires `HLA_FOM_DIRS`.                                                  |
+| `CLASSES_ONLY`      |                  |                  | Include only class and interface definitions. Omits primitive types, structs, and enumerations.                                  |
+| `TYPES_ONLY`        |                  |                  | Include only type definitions (structs, enums, aliases). Omits class and interface diagrams.                                     |
+| `TYPES_ONLY_NO_ENUMS`|                 |                  | Like `TYPES_ONLY` but also omits individual enumerator values, showing only the enum names.                                     |
 
 For example:
 
@@ -340,22 +378,31 @@ There is another CMake function that helps you in generating the final YAML file
 
 ```cmake
 sen_generate_yaml(
-    TARGET <target>
-    SCRIPT python_script
-    OUTPUT output_file
-    [DEPS [dependencies...]]
+    TARGET <name>
+    SCRIPT <file>
+    OUTPUT <file>
+    [DEPS <targets...>]
 )
 ```
+
+| Name     | Mandatory        | Multiple         | Description                                                                                                                                                      |
+| -------- | ---------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TARGET` | :material-check: |                  | Name of the custom CMake target that triggers YAML generation.                                                                                                   |
+| `SCRIPT` | :material-check: |                  | Path to the Python script that produces the YAML. Called as `python script.py <output_file>`.                                                                    |
+| `OUTPUT` | :material-check: |                  | Path where the generated YAML file will be written.                                                                                                              |
+| `DEPS`   |                  | :material-check: | Targets this script depends on. Python-language targets (created with `sen_generate_python`) have their generated directory automatically prepended to `PYTHONPATH`. |
 
 In the `DEPS` argument you need to set all the dependencies, and be sure to add the target that you
 used to generate the Python code. This way, this function will automatically configure the
 `PYTHONPATH` with the folders that host the generated code.
 
+If [mypy](https://mypy-lang.org/) is found, this function also creates a `<TARGET>_check` target
+that type-checks the script, and makes `TARGET` depend on it so type checking runs before YAML
+generation.
+
 Keep in mind that the generated Python code and the generated YAML file are not meant to be kept
 under version control. The idea is to have a single source of truth: your config script for the
 data, and the STL (or HLA) files for the types.
-
-If [mypy](https://mypy-lang.org/) is found, this function will run the checks on the script.
 
 ### Obtaining external interfaces information
 
@@ -366,8 +413,7 @@ The following CMake utility obtains interface-related properties from a target s
 `BASE_PATH` or `HLA_FOM_DIRS`.
 
 ```cmake
-
-sen_generate_python(
+get_external_interfaces(
     TARGET <targetName>
     INSTALLATION_DIR <directory>
 )
