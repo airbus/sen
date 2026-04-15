@@ -17,11 +17,13 @@
 
 // std
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <future>
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <random>
 #include <string>
 #include <thread>
 #include <utility>
@@ -29,13 +31,9 @@
 namespace fibonacci
 {
 
-namespace
+// Pure Fibonacci computation (no side effects, suitable for unit testing).
+[[nodiscard]] uint64_t computeFibonacci(uint32_t n)
 {
-
-[[nodiscard]] uint64_t fibonacci(uint32_t n)
-{
-  std::this_thread::sleep_for(std::chrono::seconds(5));  // sleep some time to simulate some heavy workload
-
   if (n == 0 || n == 1)
   {
     return n;
@@ -52,8 +50,6 @@ namespace
   return fib2;
 }
 
-}  // namespace
-
 /// Computes the Fibonacci number.
 class FibonacciWorker: public WorkerBase
 {
@@ -65,7 +61,11 @@ public:
   ~FibonacciWorker() override = default;
 
 public:
-  void computeFibonacciImpl(uint32_t n, std::promise<uint64_t>&& promise) override { promise.set_value(fibonacci(n)); }
+  void computeFibonacciImpl(uint32_t n, std::promise<uint64_t>&& promise) override
+  {
+    std::this_thread::sleep_for(std::chrono::seconds(5));  // simulate heavy workload
+    promise.set_value(::fibonacci::computeFibonacci(n));
+  }
 };
 
 /// Forwards work to the workers found in "workersBus".
@@ -101,7 +101,8 @@ public:
     if (workers_->list.getObjects().empty())
     {
       std::cout << "No workers available, manager is performing the task" << std::endl;
-      promise.set_value(fibonacci(n));
+      std::this_thread::sleep_for(std::chrono::seconds(5));  // simulate heavy workload
+      promise.set_value(::fibonacci::computeFibonacci(n));
     }
     else
     {
@@ -113,15 +114,19 @@ public:
   }
 
 private:
-  [[nodiscard]] WorkerInterface& selectRandomWorker() const
+  [[nodiscard]] WorkerInterface& selectRandomWorker()
   {
     const auto& objects = workers_->list.getObjects();
-
-    // NOLINTNEXTLINE
-    return objects.size() == 1 ? *objects.front() : *(*std::next(objects.begin(), rand() % objects.size()));
+    if (objects.size() == 1)
+    {
+      return *objects.front();
+    }
+    std::uniform_int_distribution<std::size_t> dist {0, objects.size() - 1};
+    return *(*std::next(objects.begin(), static_cast<std::ptrdiff_t>(dist(rng_))));
   }
 
 private:
+  std::mt19937 rng_ {std::random_device {}()};
   std::shared_ptr<sen::Subscription<WorkerInterface>> workers_;
 };
 
