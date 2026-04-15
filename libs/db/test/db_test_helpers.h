@@ -20,9 +20,9 @@
 
 // std
 #include <chrono>
-#include <ctime>
 #include <filesystem>
 #include <memory>
+#include <random>
 #include <string>
 
 namespace sen::db::test
@@ -31,7 +31,7 @@ namespace sen::db::test
 class TempDir
 {
 public:
-  TempDir(): path_(std::filesystem::temp_directory_path() / ("db_test_" + std::to_string(std::time(nullptr))))
+  TempDir(): path_(std::filesystem::temp_directory_path() / ("db_test_" + getRandomPathPostFix()))
   {
     std::filesystem::create_directories(path_);
   }
@@ -52,6 +52,17 @@ public:
   }
 
   [[nodiscard]] const std::filesystem::path& path() const { return path_; }
+
+private:
+  /// Returns a random post fix for temporary files paths.
+  static std::string getRandomPathPostFix()
+  {
+    static std::random_device rd;
+    static std::mt19937_64 engine(rd());
+    static std::uniform_int_distribution<uint64_t> dist;
+
+    return std::to_string(dist(engine));
+  }
 
 private:
   std::filesystem::path path_;
