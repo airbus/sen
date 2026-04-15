@@ -24,9 +24,8 @@ namespace inheritance
 
 void MyReactionClassImpl::registered(sen::kernel::RegistrationApi& api)
 {
-  sub_ = api.selectAllFrom<MySubClassImpl>("local.tutorial");
-
-  std::ignore = sub_->list.onAdded(
+  sub_ = api.selectAllFrom<MySubClassImpl>(
+    "local.tutorial",
     [this](const auto& iterators)
     {
       for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)

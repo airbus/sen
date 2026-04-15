@@ -65,22 +65,9 @@ public:
     // open the bus
     bus_ = api.getSource(getStudentsBus());
 
-    // detect students (even if they are remote)
-    allStudents_ = api.selectAllFrom<StudentInterface>(getStudentsBus());
-
-    // create the teacher
-    if (getCreateTeacher())
-    {
-      auto [first, sur, full] = makeName();
-      teacher_ = std::make_shared<TeacherImpl>(full, first, sur, allStudents_);
-      setNextTeacherName(full);
-
-      // publish the teacher
-      bus_->add(teacher_);
-    }
-
-    // react to events produced by students
-    std::ignore = allStudents_->list.onAdded(
+    // detect students (even if they are remote) and react to noise events when they join
+    allStudents_ = api.selectAllFrom<StudentInterface>(
+      getStudentsBus(),
       [&](const auto& iterators)
       {
         for (auto itr = iterators.typedBegin; itr != iterators.typedEnd; ++itr)
@@ -94,6 +81,17 @@ public:
           (*itr)->onMadeSomeNoise({this, std::move(cb)}).keep();
         }
       });
+
+    // create the teacher
+    if (getCreateTeacher())
+    {
+      auto [first, sur, full] = makeName();
+      teacher_ = std::make_shared<TeacherImpl>(full, first, sur, allStudents_);
+      setNextTeacherName(full);
+
+      // publish the teacher
+      bus_->add(teacher_);
+    }
 
     if (getDefaultSize() != 0U)
     {

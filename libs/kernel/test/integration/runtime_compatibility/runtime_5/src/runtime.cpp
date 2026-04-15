@@ -105,8 +105,8 @@ void TesterImpl::registered(sen::kernel::RegistrationApi& api)
   api.getSource("session.bus")->add(localObj_);
 
   // detect kernel api
-  kernelApiSub_ = api.selectAllFrom<sen::kernel::KernelApiInterface>("local.kernel");
-  std::ignore = kernelApiSub_->list.onAdded(
+  kernelApiSub_ = api.selectAllFrom<sen::kernel::KernelApiInterface>(
+    "local.kernel",
     [this](const auto& iterators)
     {
       for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
@@ -133,8 +133,8 @@ void TesterImpl::registered(sen::kernel::RegistrationApi& api)
   localObj_->onProp15Changed({this, [this]() { localFlags_.set(14); }}).keep();
 
   // detect remote object
-  remoteObjSub_ = api.selectAllFrom<TestClassInterface>("session.bus");
-  std::ignore = remoteObjSub_->list.onAdded(
+  remoteObjSub_ = api.selectAllFrom<TestClassInterface>(
+    "session.bus",
     [this](const auto& iterators)
     {
       for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)

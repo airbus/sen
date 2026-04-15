@@ -134,15 +134,15 @@ public:
   /// The work queue of this runner
   [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue() const noexcept;
 
-  template <typename T, typename B>
-  [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const B& bus);
+  template <typename T, typename Bus>
+  [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const Bus& bus);
 
   /// Overload of selectAllFrom that installs addition and removal callbacks before subscribing,
   /// so they fire for objects already present at subscription time.
   /// Pass nullptr for either callback to skip it.
-  template <typename T, typename B>
+  template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(
-    const B& bus,
+    const Bus& bus,
     typename sen::ObjectList<T>::Callback onAdded,
     typename sen::ObjectList<T>::Callback onRemoved = nullptr);
 
@@ -321,8 +321,8 @@ public:
 // Inline implementation
 //----------------------------------------------------------------------------------------------------------------------
 
-template <typename T, typename B>
-inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const B& bus)
+template <typename T, typename Bus>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const Bus& bus)
 {
   auto sub = std::make_shared<Subscription<T>>();
   sub->source = getSource(bus);
@@ -330,10 +330,10 @@ inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const B& bus)
   return sub;
 }
 
-template <typename T, typename B>
-inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const B& bus,
-                                                                 typename sen::ObjectList<T>::Callback onAdded,
-                                                                 typename sen::ObjectList<T>::Callback onRemoved)
+template <typename T, typename Bus>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const Bus& bus,
+                                                                 typename ObjectList<T>::Callback onAdded,
+                                                                 typename ObjectList<T>::Callback onRemoved)
 {
   auto sub = std::make_shared<Subscription<T>>();
   // Install callbacks before subscribing so they fire for objects already present.

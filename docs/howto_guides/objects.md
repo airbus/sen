@@ -272,22 +272,17 @@ The code to see the objects that are published by the kernel in the "local.tutor
 like this.
 
 ```cpp title="Using object sources to discover objects"
-sub_ = api.selectAllFrom<MySubClassImpl>("local.tutorial");
-
-// you can now use sub_.list to iterate over the objects,
-// (which will be automatically populated), and also add
-// callbacks like:
-//   sub_->list.onAdded(...);
-//   sub_->list.onRemoved(...);
-// For example:
-
-std::ignore = sub_->list.onAdded(
-  [this](const auto &iterators) {
-    for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
-    {
-      (*it)->onSomethingHappened({this, [](){ std::cout << "something happened!\n"; }}).keep();
+sub_ = api.selectAllFrom<MySubClassImpl>(
+    "local.tutorial",
+    [this](const auto &iterators) {
+      for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
+      {
+        (*it)->onSomethingHappened({this, [](){ std::cout << "something happened!\n"; }}).keep();
+      }
     }
-  });
+  );
+
+// you can also use sub_.list to iterate over the objects (which will be automatically populated)
 ```
 
 NOTE: Keep in mind the subscription and the registered callbacks are tied to the lifetime of the
