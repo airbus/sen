@@ -42,28 +42,27 @@ ObjectListWrapper::ObjectListWrapper(std::shared_ptr<ObjectSource> source,
   : source_(std::move(source)), provider_(std::move(provider)), providerName_(std::move(providerName)), api_(api)
 {
   std::ignore = list_.onAdded(
-    [this](const auto& iterators)
+    [this](const auto& addedObjects)
     {
-      for (auto itr = iterators.typedBegin; itr != iterators.typedEnd; ++itr)
+      for (auto obj: addedObjects)
       {
-        wrappers_.push_back(ObjectWrapper::makeGeneric((*itr)->shared_from_this(), api_));
+        wrappers_.push_back(ObjectWrapper::makeGeneric(obj->shared_from_this(), api_));
         callBack(wrappers_.back(), onAddedCallback_);
       }
     });
 
   std::ignore = list_.onRemoved(
-    [this](const auto& iterators)
+    [this](const auto& removedObjects)
     {
-      for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+      for (auto obj: removedObjects)
       {
-        auto untyped = (*itr).get();
         for (auto wrapperItr = wrappers_.begin(); wrapperItr != wrappers_.end(); ++wrapperItr)
         {
-          if (wrapperItr->get()->getId() == untyped->getId())
+          if (wrapperItr->get()->getId() == obj->getId())
           {
-            const auto& obj = *wrapperItr;
+            const auto& wrapper = *wrapperItr;
             wrappers_.erase(wrapperItr);
-            callBack(obj, onRemovedCallback_);
+            callBack(wrapper, onRemovedCallback_);
             break;
           }
         }

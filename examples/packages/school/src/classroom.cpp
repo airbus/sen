@@ -68,9 +68,9 @@ public:
     // detect students (even if they are remote) and react to noise events when they join
     allStudents_ = api.selectAllFrom<StudentInterface>(
       getStudentsBus(),
-      [&](const auto& iterators)
+      [&](const auto& addedObjects)
       {
-        for (auto itr = iterators.typedBegin; itr != iterators.typedEnd; ++itr)
+        for (auto* student: addedObjects)
         {
           // when someone makes some noise, someone else will hear it
           auto cb = [&](const std::string& noise, float32_t volume)
@@ -78,7 +78,7 @@ public:
             students_.at(rand() % students_.size())->hearSomeNoise(noise, volume);  // NOLINT
           };
 
-          (*itr)->onMadeSomeNoise({this, std::move(cb)}).keep();
+          student->onMadeSomeNoise({this, std::move(cb)}).keep();
         }
       });
 

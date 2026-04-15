@@ -30,18 +30,18 @@ struct MyComponent: public sen::kernel::Component
     sen::ObjectList<sen::Object> objects;     // create a container
 
     std::ignore = objects.onRemoved(
-      [&api](const auto& iterators)
+      [&api](const auto& removedObjects)
       {
-        for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+        for (auto* obj: removedObjects)
         {
-          const auto* meta = (*itr)->getClass().type();
+          const auto* meta = obj->getClass().type();
           const auto methods = meta->getMethods(sen::ClassType::SearchMode::doNotIncludeParents);
 
           for (const auto& method: methods)
           {
             if (method->getArgs().empty())
             {
-              (*itr)->invokeUntyped(
+              obj->invokeUntyped(
                 method.get(),
                 {},
                 {api.getWorkQueue(), [](const sen::MethodResult<sen::Var>& result) { std::ignore = result; }});

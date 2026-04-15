@@ -475,27 +475,22 @@ struct MyComponent: public sen::kernel::Component
 {
   sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
   {
-    auto bus = api.getSource("local.kernel"); // get the source
-    sen::ObjectList<sen::Object> objects;     // create a container
-
-    // print discovered objects
-    std::ignore = objects.onAdded([](const auto& iterators)
-    {
-      for (auto itr = iterators.typedBegin; itr != iterators.typedEnd; ++itr)
+    subscription = api->selectAllFrom<sen::Object>(
+      "local.kernel",
+      [](const auto& addedObjects) {
+        for (auto obj : addedObjects)
+        {
+          std::cout << "\n - got " << obj->getLocalName() << "\n";
+        }
+      },
+      [](const auto& removedObjects)
       {
-        std::cout << "\n - got " << (*itr)->getLocalName() << "\n";
-      }
-    });
-    std::ignore = objects.onRemoved([](const auto& iterators)
-    {
-      for (auto itr = iterators.typedBegin; itr != iterators.typedEnd; ++itr)
-      {
-        std::cout << "\n - lost " << (*itr)->getLocalName() << "\n";
-      }
-    });
+        for (auto obj : removedObjects)
+        {
+          std::cout << "\n - got " << obj->getLocalName() << "\n";
+        }
+      });
 
-    bus->addSubscriber(sen::Interest::make("SELECT * FROM local.kernel", api.getTypes()),
-                       &objects, true); // subscribe to all objects
     return api.execLoop(sen::Duration::fromHertz(1.0));
   }
 };

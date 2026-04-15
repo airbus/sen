@@ -266,12 +266,11 @@ void BusWindow::open()
   auto* queue = api_.getWorkQueue();
 
   std::ignore = objects_->list.onAdded(
-    [this, queue](const auto& iterators)
+    [this, queue](const auto& addedObjects)
     {
-      for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+      for (auto obj: addedObjects)
       {
-        auto untypedObj = (*itr).get();
-        auto state = ObjectState::make(api_, untypedObj, queue, eventExplorer_, printerRegistry_, reporterRegistry_);
+        auto state = ObjectState::make(api_, obj, queue, eventExplorer_, printerRegistry_, reporterRegistry_);
 
         sen::kernel::ProcessInfo ownerInfo {};
         if (auto objOwnerInfo = state->getOwnerInfo(); objOwnerInfo != nullptr)
@@ -308,13 +307,11 @@ void BusWindow::open()
     });
 
   std::ignore = objects_->list.onRemoved(
-    [this](const auto& iterators)
+    [this](const auto& removedObjects)
     {
-      for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+      for (auto obj: removedObjects)
       {
-        auto untypedObj = (*itr).get();
-
-        auto objectId = untypedObj->getId();
+        auto objectId = obj->getId();
         for (const auto& app: apps_)
         {
           if (app->removeState(objectId))

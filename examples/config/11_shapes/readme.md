@@ -47,8 +47,8 @@ The more interesting part is in `shape_listener.cpp`. Let's see how the `startLi
     sub->source = api_->getSource(bus);                                // get the bus
 
     // install the callbacks
-    std::ignore = sub->list.onAdded([query, this](const auto& iterators) { shapesDetected(query, iterators); });
-    std::ignore = sub->list.onRemoved([query, this](const auto& iterators) { shapesGone(query, iterators); });
+    std::ignore = sub->list.onAdded([query, this](const auto& addedObjects) { shapesDetected(query, addedObjects); });
+    std::ignore = sub->list.onRemoved([query, this](const auto& removedObjects) { shapesGone(query, removedObjects); });
 
     auto interest = makeInterest(query, bus, color, xRange, yRange);  // build the interest.
     sub->source->addSubscriber(interest, &sub->list, true);           // connect the list.

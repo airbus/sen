@@ -26,12 +26,11 @@ void MyReactionClassImpl::registered(sen::kernel::RegistrationApi& api)
 {
   sub_ = api.selectAllFrom<MySubClassImpl>(
     "local.tutorial",
-    [this](const auto& iterators)
+    [this](const auto& addedObjects)
     {
-      for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
+      for (auto* other: addedObjects)
       {
         auto us = shared_from_this();
-        auto other = *it;
 
         auto somethingHandler = [us]()
         { std::cout << us->getName() << ": Reacting to event \"SomethingHappened\"" << std::endl; };
@@ -48,7 +47,7 @@ void MyReactionClassImpl::registered(sen::kernel::RegistrationApi& api)
         other->onSomethingHappened({this, std::move(somethingHandler)}).keep();
         other->onSomethingElseHappened({this, std::move(somethingElseHandler)}).keep();
         other->onABoolChanged({this, std::move(propertyHandler)}).keep();
-      };
+      }
     });
 }
 

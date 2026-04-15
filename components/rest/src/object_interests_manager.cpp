@@ -64,34 +64,31 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
   subscription->source = source;
 
   std::ignore = subscription->list.onAdded(
-    [this, busLocator, interestName](const auto& iterators)
+    [this, busLocator, interestName](const auto& addedObjects)
     {
-      for (auto it = iterators.untypedBegin; it != iterators.untypedEnd; ++it)
+      for (auto obj: addedObjects)
       {
         notify(Notification {
           NotificationType::objectAdded,
           interestName,
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
-          toJson(*it->get(), busLocator),
+          toJson(*obj, busLocator),
         });
       }
     });
   std::ignore = subscription->list.onRemoved(
-    [this, busLocator, onObjectRemoved, interestName = interestName](const auto& iterators)
+    [this, busLocator, onObjectRemoved, interestName = interestName](const auto& removedObjects)
     {
-      for (auto it = iterators.untypedBegin; it != iterators.untypedEnd; ++it)
+      for (auto obj: removedObjects)
       {
-        auto untypedObj = it->get();
-        auto objectId = untypedObj->getId();
-
         notify(Notification {
           NotificationType::objectRemoved,
           interestName,
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
-          toJson(*untypedObj, busLocator),
+          toJson(*obj, busLocator),
         });
 
-        onObjectRemoved(interestName, objectId);
+        onObjectRemoved(interestName, obj->getId());
       }
     });
 

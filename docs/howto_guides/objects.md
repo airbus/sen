@@ -274,10 +274,10 @@ like this.
 ```cpp title="Using object sources to discover objects"
 sub_ = api.selectAllFrom<MySubClassImpl>(
     "local.tutorial",
-    [this](const auto &iterators) {
-      for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
+    [this](const auto &addedObjects) {
+      for (auto obj : addedObjects)
       {
-        (*it)->onSomethingHappened({this, [](){ std::cout << "something happened!\n"; }}).keep();
+        obj->onSomethingHappened({this, [](){ std::cout << "something happened!\n"; }}).keep();
       }
     }
   );

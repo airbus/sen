@@ -128,26 +128,19 @@ void TesterImpl::registered(sen::kernel::RegistrationApi& api)
 
   // detect kernel api
   kernelApiSub_ = api.selectAllFrom<sen::kernel::KernelApiInterface>(
-    "local.kernel",
-    [this](const auto& iterators)
-    {
-      for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
-      {
-        kernelApiObj_ = *it;
-      }
-    });
+    "local.kernel", [this](const auto& addedObjects) { kernelApiObj_ = *addedObjects.begin(); });
 
   // detect remote object
   remoteObjSub_ = api.selectAllFrom<TestClassInterface>(
     "session.bus",
-    [this](const auto& iterators)
+    [this](const auto& addedObjects)
     {
-      for (auto it = iterators.typedBegin; it != iterators.typedEnd; ++it)
+      for (auto elem: addedObjects)
       {
         // ensure the object is remote
-        if ((*it)->asObject().getId() != localObj_->getId())
+        if (elem->asObject().getId() != localObj_->getId())
         {
-          remoteObj_ = *it;
+          remoteObj_ = elem;
           setNextReady(true);
 
           // remote object callbacks

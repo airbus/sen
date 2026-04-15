@@ -220,21 +220,21 @@ ShellImpl::ShellImpl(const std::string& name,
   objects_ = std::make_unique<ObjectList<Object>>(mux_, 10U);  // NOLINT readability-magic-numbers
 
   std::ignore = objects_->onAdded(
-    [this](const auto& iterators)
+    [this](const auto& addedObjects)
     {
       if (printDetectedObjects_)
       {
-        auto objectCount = std::distance(iterators.untypedBegin, iterators.untypedEnd);
+        auto objectCount = std::distance(addedObjects.untypedBegin, addedObjects.untypedEnd);
         if (objectCount > tooManyLimit)
         {
           term_->cprintf(informationStyle, " - shell: detected %zu new objects\n", objectCount);  // NOLINT
         }
         else
         {
-          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          for (auto obj: addedObjects)
           {
             term_->cprint(informationStyle, " - shell: detected ");
-            term_->cprint(enumValueStyle, getLocalNameWithoutShellPrefix((*itr).get()));
+            term_->cprint(enumValueStyle, getLocalNameWithoutShellPrefix(obj));
             term_->newLine();
           }
         }
@@ -242,21 +242,21 @@ ShellImpl::ShellImpl(const std::string& name,
     });
 
   std::ignore = objects_->onRemoved(
-    [this](const auto& iterators)
+    [this](const auto& removedObjects)
     {
       if (printDetectedObjects_)
       {
-        auto objectCount = std::distance(iterators.untypedBegin, iterators.untypedEnd);
+        auto objectCount = std::distance(removedObjects.untypedBegin, removedObjects.untypedEnd);
         if (objectCount > tooManyLimit)
         {
           term_->cprintf(informationStyle, " - shell: %zu objects were removed\n", objectCount);  // NOLINT
         }
         else
         {
-          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          for (auto obj: removedObjects)
           {
             term_->cprint(informationStyle, " - shell: object removed: ");
-            term_->cprint(enumValueStyle, getLocalNameWithoutShellPrefix((*itr).get()));
+            term_->cprint(enumValueStyle, getLocalNameWithoutShellPrefix(obj));
             term_->newLine();
           }
         }
