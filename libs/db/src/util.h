@@ -35,7 +35,7 @@ inline void write(T&& data, FILE* file);
 template <typename T>
 [[nodiscard]] inline std::shared_ptr<ResizableHeapBlock> writeSizeAndDataToBuffer(const T& data);
 
-void writeToCompressedBuffer(const std::vector<uint8_t>& memBuf, std::vector<uint8_t>& lz4Buf);
+void writeToCompressedBuffer(const std::vector<uint8_t>& memBuf, kernel::Buffer& lz4Buf);
 
 void uncompressBuffer(const std::vector<uint8_t>& lz4Buf, std::vector<uint8_t>& memBuf, std::size_t decompressedSize);
 

@@ -79,7 +79,7 @@ public:
     }
 
     // create the recorder
-    auto recorder = std::make_unique<Recorder>(std::move(database), config.selections, api);
+    auto recorder = std::make_unique<Recorder>(std::move(database), config.selections.asVector(), api);
 
     getLogger()->info("sending information to InfluxDB");
     return api.execLoop(config.samplingPeriod, nullptr, false);

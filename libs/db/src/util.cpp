@@ -74,7 +74,7 @@ std::shared_ptr<spdlog::logger> getLogger()
   return logger;
 }
 
-void writeToCompressedBuffer(const std::vector<uint8_t>& memBuf, std::vector<uint8_t>& lz4Buf)
+void writeToCompressedBuffer(const std::vector<uint8_t>& memBuf, kernel::Buffer& lz4Buf)
 {
   // allocate space for the compressed data
   lz4Buf.resize(LZ4_compressBound(static_cast<int>(memBuf.size())));
