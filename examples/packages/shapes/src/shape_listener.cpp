@@ -70,8 +70,7 @@ protected:
   {
     if (auto itr = subscriptions_.find(queryName); itr != subscriptions_.end())
     {
-      itr->second->source->removeSubscriber(&itr->second->list, true);          // remove all subscriptions.
-      subscriptions_.erase(itr);                                                // erase the entry.
+      subscriptions_.erase(itr);  // erase the entry (Subscription dtor unsubscribes).
       std::cout << getName() << ": [" << queryName << "] Stopped listening\n";  // print a log.
       setNextQueryCount(sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyLog>(
         subscriptions_.size()));  // update the query count.

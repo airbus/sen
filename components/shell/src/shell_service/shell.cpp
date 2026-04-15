@@ -308,8 +308,7 @@ ShellImpl::ShellImpl(const std::string& name,
 
   std::string logQuery = "SELECT sen.components.logmaster.LogMaster FROM ";
   logQuery.append(config.logBus);
-  logMasterSub_.source = api.getSource(config.logBus);
-  logMasterSub_.source->addSubscriber(Interest::make(logQuery, api.getTypes()), &logMasterSub_.list, true);
+  logMasterSub_.attachTo(api.getSource(config.logBus), Interest::make(logQuery, api.getTypes()), true);
 
   // create the initial queries
   for (const auto& elem: config.query)

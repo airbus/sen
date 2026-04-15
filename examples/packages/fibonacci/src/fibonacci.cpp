@@ -91,8 +91,7 @@ protected:
 
     // install the interest
     workers_ = std::make_shared<sen::Subscription<WorkerInterface>>();
-    workers_->source = api.getSource(getWorkersBus());
-    workers_->source->addSubscriber(sen::Interest::make(query, api.getTypes()), &workers_->list, true);
+    workers_->attachTo(api.getSource(getWorkersBus()), sen::Interest::make(query, api.getTypes()), true);
   }
 
 public:

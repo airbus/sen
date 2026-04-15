@@ -61,7 +61,6 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
 
   auto interest = sen::Interest::make(query, runApi.getTypes());
   auto subscription = std::make_shared<sen::Subscription<sen::Object>>();
-  subscription->source = source;
 
   std::ignore = subscription->list.onAdded(
     [this, busLocator, interestName](const auto& addedObjects)
@@ -92,7 +91,7 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
       }
     });
 
-  subscription->source->addSubscriber(interest, &subscription->list, false);
+  subscription->attachTo(std::move(source), interest, false);
   interests_.emplace(interestName, InterestSubscription {interest, subscription, busLocator});
 
   return sen::Ok(interestName);
@@ -108,13 +107,7 @@ bool ObjectInterestsManager::removeInterest(InterestName interestName)
     return false;
   }
 
-  auto source = interestIt->second.subscription->source;
-  if (!source)
-  {
-    return false;
-  }
-
-  source->removeSubscriber(interestIt->second.interest, &interestIt->second.subscription->list, false);
+  interestIt->second.subscription->release(false);
   interests_.erase(interestIt);
 
   getLogger()->trace("Remove interest finished");
@@ -169,11 +162,7 @@ void ObjectInterestsManager::releaseAllInterests()
   for (const auto& [interestName, interest]: interests_)
   {
     std::ignore = interestName;
-    auto source = interest.subscription->source;
-    if (source)
-    {
-      source->removeSubscriber(interest.interest, &interest.subscription->list, false);
-    }
+    interest.subscription->release(false);
   }
   interests_.clear();
 }

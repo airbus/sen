@@ -9,6 +9,8 @@
 
 // sen
 #include "sen/core/base/span.h"
+#include "sen/core/meta/type_registry.h"
+#include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_provider.h"
 #include "sen/core/obj/object_source.h"
@@ -38,6 +40,13 @@ protected:
   void drainInputs() override {}
 };
 
+/// Builds a trivial interest for testing subscription lifecycle.
+std::shared_ptr<sen::Interest> makeTestInterest()
+{
+  static sen::CustomTypeRegistry types;
+  return sen::Interest::make("SELECT * FROM test.bus", types);
+}
+
 }  // namespace
 
 /// @test
@@ -47,7 +56,7 @@ TEST(SubscriptionTest, DefaultConstructor)
 {
   const sen::Subscription<sen::Object> sub;
 
-  EXPECT_FALSE(sub.source);
+  EXPECT_FALSE(sub.getSource());
 }
 
 /// @test
@@ -58,10 +67,25 @@ TEST(SubscriptionTest, DestructorRemovesSubscriber)
   {
     const auto source = std::make_shared<MockObjectSource>(getTestOwnerId());
     sen::Subscription<sen::Object> sub;
-    sub.source = source;
+    sub.attachTo(source, makeTestInterest(), false);
+    EXPECT_TRUE(sub.getSource());
   }
 
   SUCCEED();
+}
+
+/// @test
+/// Verifies release() detaches the source and suppresses removal notifications when requested
+/// @requirements(SEN-362)
+TEST(SubscriptionTest, ReleaseDetachesSource)
+{
+  const auto source = std::make_shared<MockObjectSource>(getTestOwnerId());
+  sen::Subscription<sen::Object> sub;
+  sub.attachTo(source, makeTestInterest(), false);
+
+  EXPECT_TRUE(sub.getSource());
+  sub.release(false);
+  EXPECT_FALSE(sub.getSource());
 }
 
 /// @test
@@ -71,12 +95,11 @@ TEST(SubscriptionTest, MoveConstructor)
 {
   const auto source = std::make_shared<MockObjectSource>(getTestOwnerId());
   sen::Subscription<sen::Object> sub1;
-  sub1.source = source;
+  sub1.attachTo(source, makeTestInterest(), false);
 
   const sen::Subscription sub2(std::move(sub1));
 
-  EXPECT_EQ(sub2.source, source);
-  EXPECT_FALSE(sub1.source);
+  EXPECT_EQ(sub2.getSource(), source);
 }
 
 /// @test
@@ -90,13 +113,12 @@ TEST(SubscriptionTest, MoveAssignmentSelfAndEmpty)
 
   sub2 = std::move(sub1);
 
-  EXPECT_FALSE(sub2.source);
-  EXPECT_FALSE(sub1.source);
+  EXPECT_FALSE(sub2.getSource());
 
   auto* ptr = &sub2;
   sub2 = std::move(*ptr);
 
-  EXPECT_FALSE(sub2.source);
+  EXPECT_FALSE(sub2.getSource());
 }
 
 /// @test
@@ -109,13 +131,12 @@ TEST(SubscriptionTest, MoveAssignmentOverwritesExistingSource)
   const auto source2 = std::make_shared<MockObjectSource>(getTestOwnerId());
 
   sen::Subscription<sen::Object> sub1;
-  sub1.source = source1;
+  sub1.attachTo(source1, makeTestInterest(), false);
 
   sen::Subscription<sen::Object> sub2;
-  sub2.source = source2;
+  sub2.attachTo(source2, makeTestInterest(), false);
 
   sub1 = std::move(sub2);
 
-  EXPECT_EQ(sub1.source, source2);
-  EXPECT_FALSE(sub2.source);
+  EXPECT_EQ(sub1.getSource(), source2);
 }

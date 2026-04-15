@@ -325,8 +325,7 @@ template <typename T, typename Bus>
 inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const Bus& bus)
 {
   auto sub = std::make_shared<Subscription<T>>();
-  sub->source = getSource(bus);
-  sub->source->addSubscriber(Interest::make(buildQuery<T>(bus), getTypes()), &sub->list, true);
+  sub->attachTo(getSource(bus), Interest::make(buildQuery<T>(bus), getTypes()), true);
   return sub;
 }
 
@@ -345,8 +344,7 @@ inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const Bus& bus,
   {
     std::ignore = sub->list.onRemoved(std::move(onRemoved));
   }
-  sub->source = getSource(bus);
-  sub->source->addSubscriber(Interest::make(buildQuery<T>(bus), getTypes()), &sub->list, true);
+  sub->attachTo(getSource(bus), Interest::make(buildQuery<T>(bus), getTypes()), true);
   return sub;
 }
 
@@ -367,8 +365,7 @@ inline std::shared_ptr<Subscription<T>> KernelApi::selectFrom(const Bus& bus,
   {
     std::ignore = sub->list.onRemoved(std::move(onRemoved));
   }
-  sub->source = getSource(bus);
-  sub->source->addSubscriber(Interest::make(query, getTypes()), &sub->list, true);
+  sub->attachTo(getSource(bus), Interest::make(query, getTypes()), true);
   return sub;
 }
 

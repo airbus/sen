@@ -20,6 +20,7 @@
 #include "sen/core/base/u8string_util.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
+#include "sen/core/obj/object_source.h"
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
@@ -227,7 +228,9 @@ void BusWindow::open()
   {
     return;
   }
+
   std::shared_ptr<sen::Interest> interest;
+  std::shared_ptr<sen::ObjectSource> source;
 
   if (querySelection_.empty())
   {
@@ -250,7 +253,7 @@ void BusWindow::open()
       return;
     }
 
-    const auto source = api_.getSource(address_.sessionName + "." + address_.busName);
+    source = api_.getSource(address_.sessionName + "." + address_.busName);
 
     if (!source)
     {
@@ -258,7 +261,6 @@ void BusWindow::open()
     }
 
     objects_ = std::make_shared<sen::Subscription<sen::Object>>();
-    objects_->source = source;
   }
 
   SEN_ASSERT(objects_ != nullptr);
@@ -328,6 +330,6 @@ void BusWindow::open()
 
   if (interest)
   {
-    objects_->source->addSubscriber(interest, &objects_->list, true);
+    objects_->attachTo(std::move(source), std::move(interest), true);
   }
 }
