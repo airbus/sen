@@ -14,13 +14,13 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/uuid.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
 
 // std
 #include <chrono>
-#include <ctime>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -31,7 +31,7 @@ namespace sen::db::test
 class TempDir
 {
 public:
-  TempDir(): path_(std::filesystem::temp_directory_path() / ("db_test_" + std::to_string(std::time(nullptr))))
+  TempDir(): path_(std::filesystem::temp_directory_path() / ("db_test_" + getRandomPathPostFix()))
   {
     std::filesystem::create_directories(path_);
   }
@@ -52,6 +52,10 @@ public:
   }
 
   [[nodiscard]] const std::filesystem::path& path() const { return path_; }
+
+private:
+  /// Returns a random post fix for temporary files paths.
+  static std::string getRandomPathPostFix() { return sen::UuidRandomGenerator()().toString(); }
 
 private:
   std::filesystem::path path_;

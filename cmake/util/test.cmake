@@ -27,7 +27,6 @@ endif()
 
 set(CMAKE_CTEST_ARGUMENTS
     "--parallel"
-    "0"
     "--output-junit"
     "ctestParallelReport.xml"
     ${CMAKE_COMMON_CTEST_ARGUMENTS}
