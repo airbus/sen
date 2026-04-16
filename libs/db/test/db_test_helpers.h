@@ -14,6 +14,7 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/uuid.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
@@ -22,7 +23,6 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
-#include <random>
 #include <string>
 
 namespace sen::db::test
@@ -55,14 +55,7 @@ public:
 
 private:
   /// Returns a random post fix for temporary files paths.
-  static std::string getRandomPathPostFix()
-  {
-    static std::random_device rd;
-    static std::mt19937_64 engine(rd());
-    static std::uniform_int_distribution<uint64_t> dist;
-
-    return std::to_string(dist(engine));
-  }
+  static std::string getRandomPathPostFix() { return sen::UuidRandomGenerator()().toString(); }
 
 private:
   std::filesystem::path path_;
