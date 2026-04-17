@@ -618,7 +618,11 @@ function(sen_configure_target target_name)
         "$<$<CONFIG:Release>:-O3>"
     )
 
-    set(common_linker_options_ -Wno-undef LINKER:--exclude-libs,ALL)
+    set(common_linker_options_ -Wno-undef)
+
+    if(SEN_USE_SANITIZER STREQUAL None)
+      list(APPEND common_linker_options_ LINKER:--exclude-libs,ALL)
+    endif()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
