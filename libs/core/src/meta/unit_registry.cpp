@@ -186,6 +186,7 @@ UnitRegistry::UnitRegistry()
   addUnit(units_, {UnitCategory::time,                "week",                       "weeks",                      "week",         604800.0, 0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "month",                      "months",                     "month",        2.628e+6, 0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "year",                       "years",                      "year",         3.154e+7, 0.0, 0.0});
+  addUnit(units_, {UnitCategory::torque,              "newton_meter",               "newton_meters",              "Nm",           1.0,      0.0, 0.0});
 
   // other length units
   addUnit(units_, {UnitCategory::length, "foot",         "feet",          "ft",  381.0 / 1250.0, 0.0, 0.0});         // NOLINT(readability-magic-numbers)
@@ -202,8 +203,11 @@ UnitRegistry::UnitRegistry()
   addUnit(units_, {UnitCategory::temperature, "fahrenheit", "fahrenheit",  "degF", 5.0 / 9.0, 273.15, -32.0});       // NOLINT(readability-magic-numbers)
 
   // other velocity units
-  addUnit(units_, {UnitCategory::velocity, "km_per_hour",    "km_per_hour",    "kph", 5.0 / 18.0, 0.0, 0.0});       // NOLINT(readability-magic-numbers)
-  addUnit(units_, {UnitCategory::velocity, "miles_per_hour", "miles_per_hour", "mph",    0.44704, 0.0, 0.0});       // NOLINT(readability-magic-numbers)
+  addUnit(units_, {UnitCategory::velocity, "km_per_hour",     "km_per_hour",    "kph", 5.0 / 18.0, 0.0, 0.0});       // NOLINT(readability-magic-numbers)
+  addUnit(units_, {UnitCategory::velocity, "miles_per_hour",  "miles_per_hour", "mph",    0.44704, 0.0, 0.0});       // NOLINT(readability-magic-numbers)
+  addUnit(units_, {UnitCategory::velocity, "knot",            "knots",          "kn",           1852.0 / 3600.0,       0.0, 0.0});  // NOLINT(readability-magic-numbers)
+  addUnit(units_, {UnitCategory::velocity, "feet_per_second", "feets_per_second", "ft_per_s",    381.0 / 1250.0,        0.0, 0.0});  // NOLINT(readability-magic-numbers)
+  addUnit(units_, {UnitCategory::velocity, "feet_per_minute", "feets_per_minute",  "ft_per_min",  381.0 / (60 * 1250.0), 0.0, 0.0});  // NOLINT(readability-magic-numbers)
 
   // other angular velocity units
   addUnit(units_, {UnitCategory::angularVelocity, "degrees_per_second", "degrees_per_second",   "deg_per_s",      180.0 / piValue, 0.0, 0.0}); // NOLINT

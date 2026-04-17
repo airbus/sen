@@ -235,6 +235,12 @@ TEST(UnitRegistry, conversion)
 {
   checkConversion(42.5, "ft", 0.0069946, "nmi");
   checkConversion(90.0, "kph", 55.923407, "mph");
+
+  checkConversion(25.0, "m", 82.02099738, "ft");
+
+  checkConversion(90.0, "m_per_s", 174.94600432, "kn");
+  checkConversion(90.0, "m_per_s", 295.27559055, "ft_per_s");
+  checkConversion(90.0, "m_per_s", 17716.53543307, "ft_per_min");
 }
 
 /// @test
@@ -339,4 +345,14 @@ TEST(UnitRegistry, getFrequencyUnits)
   const auto units = UnitRegistry::get().getUnitsByCategory(UnitCategory::frequency);
 
   checkUnitInGroup(units, "hertz");
+}
+
+/// @test
+/// Check that common torque units are registered
+/// @requirements(SEN-894)
+TEST(UnitRegistry, getTorqueUnits)
+{
+  const auto units = UnitRegistry::get().getUnitsByCategory(UnitCategory::torque);
+
+  checkUnitInGroup(units, "newton_meter");
 }

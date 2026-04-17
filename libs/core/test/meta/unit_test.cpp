@@ -226,4 +226,5 @@ TEST(Unit, getCategoryString)
   EXPECT_EQ(Unit::getCategoryString(UnitCategory::angularVelocity), "angular velocity");
   EXPECT_EQ(Unit::getCategoryString(UnitCategory::acceleration), "acceleration");
   EXPECT_EQ(Unit::getCategoryString(UnitCategory::angularAcceleration), "angular acceleration");
+  EXPECT_EQ(Unit::getCategoryString(UnitCategory::torque), "torque");
 }

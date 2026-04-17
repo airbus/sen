@@ -45,6 +45,7 @@ enum class UnitCategory
   angularVelocity,
   acceleration,
   angularAcceleration,
+  torque
 };
 
 /// Data about a given unit definition.

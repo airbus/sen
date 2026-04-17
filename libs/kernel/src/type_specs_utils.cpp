@@ -115,6 +115,8 @@ UnitCat getUnitCat(UnitCategory category)
       return UnitCat::area;
     case UnitCategory::force:
       return UnitCat::force;
+    case UnitCategory::torque:
+      return UnitCat::torque;
     default:
       break;
   }
