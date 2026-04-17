@@ -122,6 +122,13 @@ add_sen_unit_test_suite(
   core_test_obj_generated
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+    target_compile_options(core_test PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
+    )
+  endif()
+endif()
+
 set_target_properties(
   core_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )

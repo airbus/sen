@@ -35,6 +35,13 @@ add_sen_unit_test_suite(
   ${rest_test_deps}
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+    target_compile_options(rest_test PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
+    )
+  endif()
+endif()
+
 target_include_directories(
   rest_test SYSTEM
   INTERFACE
@@ -49,6 +56,14 @@ add_sen_unit_test_suite(
   ${rest_test_deps}
   FLAKY
 )
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+    target_compile_options(
+      rest_flaky_test PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
+    )
+  endif()
+endif()
 
 target_include_directories(
   rest_flaky_test SYSTEM

@@ -16,6 +16,14 @@ add_sen_unit_test_suite(
   sen::db
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+    target_compile_options(
+      recorder_test PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
+    )
+  endif()
+endif()
+
 target_include_directories(
   recorder_test SYSTEM
   INTERFACE

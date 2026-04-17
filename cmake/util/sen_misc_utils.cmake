@@ -627,6 +627,12 @@ function(sen_configure_target target_name)
       target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
       target_link_options(${target_name} PRIVATE ${common_linker_options_})
     endif()
+
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+      target_compile_options(
+        ${target_name} PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
+      )
+    endif()
   endif()
 
   set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
