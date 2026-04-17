@@ -375,7 +375,7 @@ function(sen_generate_code)
 
         # compute the files for this .xml
         if(${_arg_LANG} STREQUAL cpp)
-          set(_file_output_headers ${_output_file_prefix}.h ${_output_file_prefix}.traits.h)
+          set(_file_output_headers ${_output_file_prefix}.h)
           set(_file_output_files ${_file_output_headers} ${_output_file_prefix}.cpp)
         elseif(${_arg_LANG} STREQUAL py)
           # replace the XML extension of the FOM file with the .py extension
@@ -404,7 +404,7 @@ function(sen_generate_code)
 
     # add HLA root files to the output files list if building cpp
     if(${_arg_LANG} STREQUAL cpp)
-      set(_hla_root_files ${_output_dir}/hla.stl.cpp ${_output_dir}/hla.stl.h ${_output_dir}/hla.stl.traits.h)
+      set(_hla_root_files ${_output_dir}/hla.stl.cpp ${_output_dir}/hla.stl.h)
       target_sources(${_arg_TARGET} PRIVATE ${_hla_root_files})
       list(APPEND _fom_generated_files ${_hla_root_files})
     endif()
