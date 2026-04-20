@@ -9,6 +9,7 @@
 #include "builtin_configs/explorer.h"
 #include "builtin_configs/replay.h"
 #include "builtin_configs/shell.h"
+#include "builtin_configs/term.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -106,6 +107,14 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   if (args->preset == "shell")
   {
     presetContents = sen::decompressSymbolToString(shell, shellSize);
+  }
+  else if (args->preset == "term")
+  {
+    const auto& remaining = app.remaining();
+    bool repl = std::any_of(remaining.begin(), remaining.end(), [](const auto& flag) { return flag == "--repl"; });
+
+    presetContents = sen::decompressSymbolToString(term, termSize);
+    std::ignore = replace(presetContents, "$termMode", repl ? "mode: repl" : "");
   }
   else if (args->preset == "explorer")
   {
@@ -227,7 +236,8 @@ int runApp(int argc, char* argv[])
   app.get_formatter()->column_width(35);
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
-  app.add_option("--preset", args->preset, "Preset name")->check(CLI::IsMember({"shell", "explorer", "replay"}));
+  app.add_option("--preset", args->preset, "Preset name")
+    ->check(CLI::IsMember({"shell", "term", "explorer", "replay"}));
   app.add_flag("--start-stop", args->startStop, "Stops execution after all components are running");
   app.add_flag("--print-config", args->printConfig, "Print the configuration that will be used");
 

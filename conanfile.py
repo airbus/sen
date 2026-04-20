@@ -40,6 +40,7 @@ class SenConan(ConanFile):
         self.requires("nlohmann_json/3.11.3", visible=False)
         self.requires("pugixml/1.14", visible=False)
         self.requires("rapidyaml/0.5.0", visible=False)
+        self.requires("ftxui/6.1.9", visible=False)
         self.requires("cpptrace/1.0.4", visible=False)
         self.requires("llhttp/9.1.3", visible=False)
         self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)

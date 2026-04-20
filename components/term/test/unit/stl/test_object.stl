@@ -1,0 +1,108 @@
+package term.test;
+
+// A simple struct used to exercise composite-typed method arguments in the form UI.
+struct Point
+{
+  x : i32,  // horizontal coordinate
+  y : i32   // vertical coordinate
+}
+
+// Enum used to test the enum-cycler editor in the form UI.
+enum Colour: u8
+{
+  red,
+  green,
+  blue
+}
+
+// Sequence types used to exercise the sequence editor in the form UI.
+sequence<i32> IntSeq;
+sequence<Point> PointSeq;
+
+// Bounded sequence, capped at 4 elements. Users can add up to 4 and remove freely.
+sequence<i32, 4> BoundedInts;
+
+// Fixed-size array, exactly 3 elements, cardinality pinned. Users can edit each slot but
+// cannot add or remove elements.
+array<i32, 3> TripleInts;
+
+// Variant used to test the variant editor in the form UI.
+variant Shape
+{
+  Point,   // treat a Point as a "point shape"
+  string,  // a string "shape" (e.g. a textual label)
+  i32      // a scalar shape (e.g. a radius only)
+}
+
+// Optional-of-composite type, exercises the empty/filled toggle in the form UI.
+optional<Point> MaybePoint;
+
+// Optional-of-scalar type, same empty/filled toggle, inner is a single scalar leaf.
+optional<i32> MaybeInt;
+
+// Bounded meter-valued quantity with u16 storage, exercises the quantity editor
+// (integer spin on the value + cycler for the unit, clamp to [0, 500]).
+quantity<u16, m> Meters [min: 0, max: 500];
+
+// Unit-less f32 quantity with a range, exercises the no-unit-picker path.
+quantity<f32, f32> Ratio [min: 0.0, max: 1.0];
+
+// Test object for unit testing method invocation in the term component.
+class TestObject
+{
+  // a readable string property
+  var status : string [confirmed];
+
+  // a writable integer property
+  var counter : i32 [writable];
+
+  // a method with no arguments
+  fn ping() -> string [const];
+
+  // a method with arguments and a return value
+  fn add(a : i32, b : i32) -> i32 [const];
+
+  // a method that takes a string argument
+  fn echo(message : string) -> string [const];
+
+  // a method that takes a composite (struct) argument, exercises the form's tree navigation
+  fn movePoint(p : Point) -> Point [const];
+
+  // a method with bool and enum args, exercises the specialized editors in the form UI
+  fn configure(enabled : bool, tint : Colour) [const];
+
+  // sum a variable-length list of integers, exercises the sequence editor
+  fn sumInts(values : IntSeq) -> i32 [const];
+
+  // compute the centroid of a list of points, exercises nested composites (struct-in-sequence)
+  fn centroid(points : PointSeq) -> Point [const];
+
+  // takes a bounded sequence, exercises the "add up to N" path of the sequence editor.
+  fn sumBounded(values : BoundedInts) -> i32 [const];
+
+  // takes a fixed-size array, exercises the "no add / no remove" path. The form must start
+  // with N default elements so the invocation dispatches with the right cardinality.
+  fn sumTriple(values : TripleInts) -> i32 [const];
+
+  // takes a Shape variant, exercises the variant editor (type picker + dynamic subtree)
+  fn describe(s : Shape) -> string [const];
+
+  // takes an optional Point, exercises the optional-of-composite editor (empty/filled toggle)
+  fn anchor(p : MaybePoint) -> string [const];
+
+  // takes an optional scalar, same toggle, inner is a single i32 leaf
+  fn limit(v : MaybeInt) -> i32 [const];
+
+  // takes a Duration, Duration inherits from QuantityType but is handled by the form as a
+  // scalar text field (see arg_form.cpp). This method exists so tests can exercise that path.
+  fn wait(duration : Duration) -> string [const];
+
+  // takes a bounded meter-valued quantity, exercises integer-spin + unit cycler + range clamp.
+  fn setLength(length : Meters) -> string [const];
+
+  // takes an unit-less quantity, exercises the no-unit-picker path.
+  fn setRatio(ratio : Ratio) -> string [const];
+
+  // a void method
+  fn reset();
+}

@@ -109,6 +109,7 @@ add_subdirectory(apps/cli_remote_shell)
 
 # critical components
 add_subdirectory(components/shell)
+add_subdirectory(components/term)
 add_subdirectory(components/ether)
 
 # non-critical components
@@ -146,6 +147,7 @@ if(SEN_BUILD_TESTS)
   add_subdirectory(test/util/stress_testing_utils)
   add_subdirectory(test/util/calls_on_removal)
   add_subdirectory(test/util/publish_types_manually)
+  add_subdirectory(test/util/log_emitter)
 endif()
 
 # coverage

@@ -1,0 +1,5 @@
+# Absolute minimal config to test if the term UI appears.
+load:
+  - name: term
+    group: 2
+    noLogo: true

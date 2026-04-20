@@ -67,4 +67,10 @@ class MyClass
 
   // defer the method execution with no returning
   fn doingSomethingDeferredWithoutReturning();
+
+  // tests the usage of complex argument types
+  // @param a the first parameter
+  // @param b the second parameter
+  // @param c the third parameter
+  fn doSomethingWithComplexArgs(a: u32, b: StructOfOthers, c: MyEnum);
 }

@@ -165,6 +165,7 @@ nav:
       - components/index.md
       - Explorer: components/explorer.md
       - Shell: components/shell.md
+      - Term: components/term.md
       - Influx: components/influx.md
       - Python: components/py.md
       - Recorder: components/recording.md

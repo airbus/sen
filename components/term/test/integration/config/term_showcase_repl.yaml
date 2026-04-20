@@ -1,0 +1,109 @@
+# Walkthrough configuration for the term component. Starts the term alongside a single
+# "showcase" object that exercises every form editor and also ticks a handful of properties at
+# staggered rates so the watch pane has live data to display.
+#
+# Run interactively:
+#
+#   ./bin/sen run examples/config/term_showcase.yaml
+#
+# Form editors: type any of these and hit Enter to open the form:
+#   local.demo.showcase.moveTo        struct
+#   local.demo.showcase.perform       variant
+#   local.demo.showcase.sumInts       sequence
+#   local.demo.showcase.setLength     quantity with unit picker
+#   local.demo.showcase.configure     bool + enum
+#   local.demo.showcase.setPosition   optional of composite
+#
+# Watch pane (F5 to toggle): try any of these to see different update rates:
+#   watch local.demo.showcase.ticks         every cycle (~33 ms)
+#   watch local.demo.showcase.temperature   every 10 cycles (~0.33 s)
+#   watch local.demo.showcase.position      every 20 cycles (~0.67 s)
+#   watch local.demo.showcase.status        every 30 cycles (~1 s), enum rotation
+#   watch local.demo.showcase.length        every 40 cycles (~1.3 s), quantity sweep
+#   watch local.demo.showcase.trail         every 50 cycles, sequence growing then trimming
+#   watch local.demo.showcase.message       every 60 cycles (~2 s)
+#   watch local.demo.showcase.enabled       every 90 cycles (~3 s)
+#   watch local.demo.showcase.current       every 120 cycles (~4 s), variant reshape
+#   watch local.demo.showcase.target        every 180 cycles (~6 s), optional toggle
+#
+# Worker lifecycle: the showcase spawns and removes Worker objects every few seconds:
+#   watch local.demo.showcase.workerCount   see the count change as workers come and go
+#   watch local.demo.worker_0               watch a worker, then see it disconnect/reconnect
+#
+# See components/term/test/integration/packages/term_showcase/stl/term_showcase/term_showcase.stl for the full type list.
+load:
+  - name: ether
+    group: 10
+  - name: term
+    group: 2
+    mode: repl
+    open:
+      - local.demo
+      - my.tutorial
+    query:
+      - name: workers
+        selection: "SELECT term_showcase.Worker FROM local.demo"
+      - name: everything
+        selection: "SELECT * FROM local.demo"
+
+build:
+  - name: showcaseComponent
+    freqHz: 30
+    group: 3
+    imports: [term_showcase]
+    objects:
+      - class: term_showcase.ShowcaseImpl
+        name: showcase
+        bus: local.demo
+  - name: logEmittingComponent
+    freqHz: 10
+    imports: [term_showcase, log_emitter]
+    group: 7
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: logEmitter
+        config:
+          rate: slow
+          output: mixed
+        bus: local.demo
+  - name: fibonacciManagerComponent
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciManager
+        workersBus: my.tutorial
+        name: fibManager
+        bus: my.tutorial
+  - name: fibonacciRunner1
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: my.tutorial
+  - name: fibonacciRunner2
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: my.tutorial
+  - name: fibonacciRunner3
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerC
+        bus: my.tutorial
+  - name: fibonacciRunner4
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerD
+        bus: my.tutorial

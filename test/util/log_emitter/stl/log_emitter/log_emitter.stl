@@ -1,0 +1,43 @@
+package log_emitter;
+
+// How often log messages are emitted
+enum EmitRate: u8
+{
+  slow,     // every ~5 seconds
+  moderate, // every ~1 second
+  fast      // every ~0.2 seconds
+}
+
+// What kind of output to produce
+enum OutputKind: u8
+{
+  spdlogOnly,  // only spdlog messages
+  stdoutOnly,  // only stdout/stderr writes
+  mixed        // both spdlog and stdout/stderr
+}
+
+// Configuration for the log emitter
+struct EmitterConfig
+{
+  rate   : EmitRate,    // emission rate
+  output : OutputKind,  // what kind of output to produce
+  prefix : string       // prefix for emitted messages
+}
+
+// A test utility that periodically emits log messages via spdlog at various
+// levels and writes to stdout/stderr. Useful for testing the term component's
+// output capture and log routing.
+class Emitter
+{
+  // configuration
+  var config  : EmitterConfig [static];
+
+  // a counter that increments each time a message is emitted
+  var counter : u64;
+
+  // the last message that was emitted
+  var lastMessage : string [confirmed];
+
+  // event fired each time a message is emitted
+  event messageEmitted(message: string, level: string);
+}

@@ -49,6 +49,14 @@ protected:
   bool prop7AcceptsSet(int32_t val) const override;
   void doingSomethingDeferredImpl(std::promise<std::string>&& promise) override;
   void doingSomethingDeferredWithoutReturningImpl(std::promise<void>&& promise) override;
+  void doSomethingWithComplexArgsImpl(u32 a,
+                                      const ::my_package::StructOfOthers& b,
+                                      const ::my_package::MyEnum& c) override
+  {
+    std::ignore = a;
+    std::ignore = b;
+    std::ignore = c;
+  }
 
 private:
   void updateProp5(sen::kernel::RunApi& runApi);

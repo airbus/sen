@@ -8,7 +8,12 @@
 include(tps/cli11)
 include(tps/spdlog)
 
-set(builtin_configs builtin_configs/shell.yaml builtin_configs/explorer.yaml builtin_configs/replay.yaml)
+set(builtin_configs
+    builtin_configs/shell.yaml
+    builtin_configs/term.yaml
+    builtin_configs/explorer.yaml
+    builtin_configs/replay.yaml
+)
 
 set(builtin_configs_headers)
 foreach(_config_file ${builtin_configs})

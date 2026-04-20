@@ -1,0 +1,7 @@
+load:
+  - name: ether
+    group: 2
+  - name: term
+    group: 3
+    $termMode
+    open: [local.kernel]

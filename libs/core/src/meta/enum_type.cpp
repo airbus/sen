@@ -142,7 +142,7 @@ const Enumerator* EnumType::getEnumFromName(std::string_view name) const noexcep
     return nullptr;
   }
 
-  if (const auto& itr = nameToEnumMap_.find(name.data()); itr != nameToEnumMap_.end())
+  if (const auto& itr = nameToEnumMap_.find(std::string(name)); itr != nameToEnumMap_.end())
   {
     return itr->second;
   }
