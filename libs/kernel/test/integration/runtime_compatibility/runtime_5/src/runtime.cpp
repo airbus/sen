@@ -71,7 +71,7 @@ constexpr EmptyStruct prop10 {true};
 constexpr TestStructBase prop11 {5U};
 constexpr TestStructChild prop12 {{}, 1.12, 0.67, -33};
 constexpr TestStruct prop13 {3U, 4U};
-constexpr TestVariant prop14 = TestVariant {std::in_place_index<4>, TestStruct {31U, 33U}};
+constexpr TestVariant prop14 = TestVariant {std::in_place_index<1>, TestStruct {31U, 33U}};
 const TestEnum prop15 = TestEnum::elem2;
 
 }  // namespace

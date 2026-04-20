@@ -83,7 +83,7 @@ constexpr TestStructChild prop12 {{}, 1.12, 0.67, -33};
 constexpr MaybeStruct prop13 {{3U, 4U}};
 const MaybeVariant& prop14()
 {
-  static const MaybeVariant prop14 = {TestVariant {std::in_place_index<4>, TestStruct {31U, 33U}}};
+  static const MaybeVariant prop14 = {TestVariant {std::in_place_index<1>, TestStruct {31U, 33U}}};
   return prop14;
 }
 

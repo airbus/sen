@@ -43,8 +43,7 @@ variant TestVariant
   i16,
   TestStruct,
   TestEnum,
-  EmptyStruct,
-  TestStruct
+  EmptyStruct
 }
 
 optional<string> MaybeString;

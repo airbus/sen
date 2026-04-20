@@ -86,7 +86,7 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
   contents.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-[[nodiscard]] std::string computeQualifiedName(std::string_view packagePrefix, std::string_view name)
+[[nodiscard]] std::string computeQualifiedName(const std::string_view packagePrefix, const std::string_view name)
 {
   std::string result;
   if (!packagePrefix.empty())
@@ -99,7 +99,7 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
   return result;
 }
 
-[[nodiscard]] bool isTypeNameQualified(std::string_view name)
+[[nodiscard]] bool isTypeNameQualified(const std::string_view name)
 {
   // if it has a package path separator then it must be qualified
   return (name.find_first_of(packagePathSeparator) != std::string::npos);
@@ -139,7 +139,7 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
   return std::nullopt;
 }
 
-[[nodiscard]] std::optional<Var> tryFindAttribute(std::string_view name, const StlAttributeList& attributes)
+[[nodiscard]] std::optional<Var> tryFindAttribute(const std::string_view name, const StlAttributeList& attributes)
 {
   for (const auto& element: attributes)
   {
@@ -194,7 +194,7 @@ public:
                                               const TypeSettings& settings)
   {
     // create a new typeset for this file
-    auto newTypeSet = globalContext.createNewTypeSet();
+    const auto newTypeSet = globalContext.createNewTypeSet();
 
     // set the filename here, the rest of fields are set during
     // the visit to each of the statements below
@@ -210,7 +210,7 @@ public:
   }
 
 public:
-  void operator()(std::monostate statement) const { std::ignore = statement; }
+  void operator()(const std::monostate statement) const { std::ignore = statement; }
 
   void operator()(const StlImportStatement& statement)
   {
@@ -290,7 +290,7 @@ public:
 
     StructSpec spec(specName, specQualifiedName, specDescription, fields, parent);
 
-    addType([&spec]() { return StructType::make(spec); }, spec.name, statement.identifier);
+    addType([&spec]() { return StructType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlEnumStatement& statement)
@@ -324,7 +324,7 @@ public:
                   std::move(enums),
                   std::move(storageType).value());
 
-    addType([&spec]() { return EnumType::make(spec); }, spec.name, statement.identifier);
+    addType([&spec]() { return EnumType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlVariantStatement& statement)
@@ -345,7 +345,36 @@ public:
       spec.fields.push_back(std::move(fieldSpec));
     }
 
-    addType([&spec]() { return VariantType::make(spec); }, spec.name, statement.identifier);
+    // check that the variant does hold each type exactly once (we assume here that variants do not hold an excessively
+    // large number of types)
+    // for CustomType types we compare the qualifiedName to differentiate between types with the same name coming from
+    // different packages
+    for (size_t i = 0; i < spec.fields.size(); i++)
+    {
+      const auto outerTypeName = spec.fields[i].type->isCustomType()
+                                   ? spec.fields[i].type->asCustomType()->getQualifiedName()
+                                   : spec.fields[i].type->getName();
+      for (size_t j = i + 1; j < spec.fields.size(); j++)
+      {
+        const auto innerTypeName = spec.fields[j].type->isCustomType()
+                                     ? spec.fields[j].type->asCustomType()->getQualifiedName()
+                                     : spec.fields[j].type->getName();
+        if (outerTypeName == innerTypeName)
+        {
+          std::string msg;
+          msg.append("variant '");
+          msg.append(spec.name);
+          msg.append("' contains type '");
+          msg.append(spec.fields[j].type->getName());
+          msg.append("' more than once.");
+
+          ErrorReporter::report(statement.identifier.codeLocation(), msg);
+          throwRuntimeError(msg);
+        }
+      }
+    }
+
+    addType([&spec]() { return VariantType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlSequenceStatement& statement)
@@ -363,7 +392,7 @@ public:
                       maxSize,
                       false);
 
-    addType([&spec]() { return SequenceType::make(spec); }, spec.name, statement.identifier);
+    addType([&spec]() { return SequenceType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlArrayStatement& statement)
@@ -375,44 +404,40 @@ public:
                       getCopyAs<uint64_t>(statement.size.value()),
                       true);
 
-    addType([&spec]() { return SequenceType::make(spec); }, spec.name, statement.identifier);
+    addType([&spec]() { return SequenceType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlQuantityStatement& statement)
   {
-    auto elementType = ensureFindType(statement.valueTypeName, "type not found", TypeKind::valueType);
-    if (!elementType->isNumericType())
-    {
-      errorIfNotFound(std::optional {elementType}, statement.valueTypeName.path.front(), "type is not numeric");
-      return;
-    }
+    const auto elementType = dynamicTypeHandleCast<const NumericType>(
+      ensureFindType(statement.valueTypeName, "type not found", TypeKind::valueType));
+    errorIfNotFound(elementType, statement.valueTypeName.path.front(), "type is not numeric");
 
     std::optional<float64_t> maxValue;
     std::optional<float64_t> minValue;
 
     if (statement.attributes)
     {
-      if (auto max = tryFindAttribute("max", *statement.attributes))
+      if (const auto max = tryFindAttribute("max", *statement.attributes))
       {
         maxValue = getCopyAs<float64_t>(*max);
       }
 
-      if (auto min = tryFindAttribute("min", *statement.attributes))
+      if (const auto min = tryFindAttribute("min", *statement.attributes))
       {
         minValue = getCopyAs<float64_t>(*min);
       }
     }
 
-    SEN_ASSERT(elementType->isNumericType() && "ElementType needs to be numeric");
     QuantitySpec spec(statement.identifier.lexeme(),
                       computeQualifiedName(packagePrefix_, statement.identifier.lexeme()),
                       generateDescription(statement.description),
-                      dynamicTypeHandleCast<const NumericType>(elementType).value(),
+                      elementType.value(),
                       UnitRegistry::get().searchUnitByAbbreviation(statement.unitName.lexeme()),
                       minValue,
                       maxValue);
 
-    addType([&spec]() { return QuantityType::make(spec); }, "quantity", statement.identifier);
+    addType([&spec]() { return QuantityType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlTypeAliasStatement& statement)
@@ -422,7 +447,7 @@ public:
                    generateDescription(statement.description),
                    ensureFindType(statement.typeName, "type not found", TypeKind::valueType));
 
-    addType([&spec]() { return AliasType::make(spec); }, spec.name, statement.identifier);
+    addType([&spec]() { return AliasType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlOptionalTypeStatement& statement)
@@ -432,7 +457,7 @@ public:
                       generateDescription(statement.description),
                       ensureFindType(statement.typeName, "type not found", TypeKind::valueType));
 
-    addType([&spec]() { return OptionalType::make(spec); }, spec.name, statement.identifier);
+    addType([&spec]() { return OptionalType::make(spec); }, spec.qualifiedName, statement.identifier);
   }
 
   void operator()(const StlClassStatement& statement)
@@ -452,20 +477,7 @@ public:
       const auto parentType =
         ensureFindType(parentToken, "expecting a valid parent type for class", TypeKind::classType);
 
-      if (!parentType->isClassType())
-      {
-        std::string msg;
-        msg.append("invalid type '");
-        msg.append(parentName);
-        msg.append("' as parent for class '");
-        msg.append(classSpec.name);
-        msg.append("'");
-        ErrorReporter::report(parentToken.path.front().codeLocation(), msg, parentName.size());
-        throwRuntimeError(msg);
-      }
-
-      const auto parentClass = parentType->asClassType();
-      if (parentClass->isInterface())
+      if (const auto parentClass = parentType->asClassType(); parentClass->isInterface())
       {
         std::string msg;
         msg.append("cannot extend interface '");
@@ -486,21 +498,7 @@ public:
     {
       const auto ifaceType = ensureFindType(iface, "expecting a valid parent type for interface", TypeKind::classType);
 
-      if (ifaceType->isClassType())
-      {
-        std::string msg;
-        msg.append("invalid type '");
-        msg.append(iface.qualifiedName);
-        msg.append("' as parent interface for class '");
-        msg.append(classSpec.name);
-        msg.append("'");
-
-        ErrorReporter::report(iface.path.front().codeLocation(), msg, iface.qualifiedName.size());
-        throwRuntimeError(msg);
-      }
-
-      const auto ifaceClass = ifaceType->asClassType();
-      if (!ifaceClass->isInterface())
+      if (const auto ifaceClass = ifaceType->asClassType(); !ifaceClass->isInterface())
       {
         std::string msg;
         msg.append("type '");
@@ -518,11 +516,18 @@ public:
 
     classSpec.constructor = makeConstructor(classSpec);
 
-    addType([&classSpec]() { return ClassType::make(classSpec); }, classSpec.name, statement.members.identifier);
+    addType(
+      [&classSpec]() { return ClassType::make(classSpec); }, classSpec.qualifiedName, statement.members.identifier);
   }
 
   void operator()(const StlInterfaceStatement& statement)
   {
+    // TODO(SEN-1555): remove this error report when we add official support for STL interfaces.
+    const std::string msg {"STL interfaces are not supported!"};
+
+    ErrorReporter::report(statement.identifier.codeLocation(), msg);
+    throwRuntimeError(msg);
+
     checkPackageIsDefined(statement.identifier);
 
     ClassSpec classSpec;
@@ -530,7 +535,7 @@ public:
     populateClassMembers(classSpec, statement);
     classSpec.constructor = makeConstructor(classSpec);
 
-    addType([&classSpec]() { return ClassType::make(classSpec); }, classSpec.name, statement.identifier);
+    addType([&classSpec]() { return ClassType::make(classSpec); }, classSpec.qualifiedName, statement.identifier);
   }
 
 private:
@@ -564,6 +569,14 @@ private:
       }
       set = true;
       val = TransportMode::confirmed;
+    }
+  }
+
+  static void reportInvalidTransportMode(const StlAttribute& attr)
+  {
+    if (!(attr.name.lexeme() == "confirmed" || attr.name.lexeme() == "bestEffort"))
+    {
+      reportInvalidAttribute(attr);
     }
   }
 
@@ -620,6 +633,9 @@ private:
           }
 
           computeTransportMode(attr, methodCallableSpec.transportMode, transportModeSet);
+
+          // we also have to ensure that no other single word attribute is allowed
+          reportInvalidTransportMode(attr);
         }
         else
         {
@@ -666,6 +682,8 @@ private:
         if (isSingleWordAttribute(attr))
         {
           computeTransportMode(attr, eventSpec.callableSpec.transportMode, transportModeSet);
+          // we also have to ensure that no other single word attribute is allowed
+          reportInvalidTransportMode(attr);
         }
         else
         {
@@ -730,6 +748,9 @@ private:
             propertySpecCheckedSet = true;
             continue;
           }
+
+          // we also have to ensure that no other single word attribute is allowed
+          reportInvalidTransportMode(attr);
         }
         else
         {
@@ -991,7 +1012,7 @@ private:
   }
 
   template <typename F>
-  void addType(const F& func, const std::string& typeName, const StlToken& token)
+  void addType(const F& func, const std::string& qualifiedTypeName, const StlToken& token)
   {
     if (auto valid = Type::validateTypeName(token.lexeme()); valid.isError())
     {
@@ -1002,11 +1023,12 @@ private:
     // check that the type is not repeated
     for (const auto& other: set_.types)
     {
-      if (const auto* custom = other->asCustomType(); custom && custom->getQualifiedName() == typeName)
+      const auto* custom = other->asCustomType();
+      if (custom && custom->getQualifiedName() == qualifiedTypeName)
       {
         std::string msg;
         msg.append("There is already a type named '");
-        msg.append(typeName);
+        msg.append(qualifiedTypeName);
         msg.append("'");
 
         ErrorReporter::report(token.codeLocation(), msg, token.lexeme().size());
@@ -1023,7 +1045,7 @@ private:
     {
       std::string msg;
       msg.append("Type '");
-      msg.append(typeName);
+      msg.append(qualifiedTypeName);
       msg.append("': ");
       msg.append(err.what());
 
@@ -1216,7 +1238,7 @@ const TypeSet* StlResolver::resolve(const TypeSettings& settings)
                                            const std::vector<std::filesystem::path>& includePaths,
                                            TypeSetContext& globalTypeSetContext,
                                            const TypeSettings& settings,
-                                           std::string_view from)
+                                           const std::string_view from)
 {
   // check if we already resolved this
   for (const auto& element: globalTypeSetContext)
@@ -1235,7 +1257,7 @@ const TypeSet* StlResolver::resolve(const TypeSettings& settings)
     }
   }
 
-  auto fileNameToUse = searchFile(fileName, includePaths, from);
+  const auto fileNameToUse = searchFile(fileName, includePaths, from);
   if (fileNameToUse.empty())
   {
     std::string err;

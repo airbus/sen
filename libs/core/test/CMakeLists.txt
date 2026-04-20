@@ -68,7 +68,7 @@ set(io_tests
 set(lang_tests
     lang/parser_test.cpp
     lang/compiler_test.cpp
-    lang/resolver_test.cpp
+    lang/stl_resolver_test.cpp
     lang/stl_token_test.cpp
 )
 
@@ -149,3 +149,8 @@ source_group("io" FILES ${io_tests})
 source_group("obj" FILES ${obj_tests})
 
 target_compile_definitions(core_test PRIVATE ABS_FILE="${CMAKE_CURRENT_SOURCE_DIR}/base/hash32_test.cpp")
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/complex_stl_file.stl
+  ${CMAKE_CURRENT_BINARY_DIR}/bin/lang/stl/stl_resolver_test/complex_stl_file.stl COPYONLY
+)
