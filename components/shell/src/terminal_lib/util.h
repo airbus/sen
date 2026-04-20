@@ -38,7 +38,7 @@ inline void trim(std::string& str, std::string_view whitespaces = " ")
 
 [[nodiscard]] inline std::string fromArgList(const char* fmt, va_list args);
 
-inline void parseArgv(const Method* method, std::string_view buffer, VarList& result);
+void parseArgv(const Method* method, std::string_view buffer, VarList& result);
 
 [[nodiscard]] inline std::string getHostName() { return asio::ip::host_name(); }
 

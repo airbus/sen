@@ -197,7 +197,23 @@ void parseArgv(const Method* method, std::string_view buffer, VarList& result)
   doc.append(remaining);
   doc.append("}");
 
-  result = findElement(fromJson(doc).get<VarMap>(), "args", "parsing error").get<VarList>();
+  try
+  {
+    result = findElement(fromJson(doc).get<VarMap>(), "args", "parsing error").get<VarList>();
+  }
+  catch (const std::exception& e)
+  {
+    if (method != nullptr && method->getArgs().empty())
+    {
+      // We inject a dummy argument. This ensures that 'executeCall' correctly throws its corresponding error
+      result.emplace_back(std::string(""));
+      return;
+    }
+    std::string err =
+      "Error parsing the arguments. Make sure to enclose string arguments in quotation marks and separate them with a "
+      "comma.";
+    throw std::runtime_error(err);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -285,6 +301,7 @@ ShellImpl::ShellImpl(const std::string& name,
   catch (const std::runtime_error& err)
   {
     printer_.printError(err.what());  // NOLINT
+    lineEdit_->refresh();
   }
 
   // create the line editor
@@ -333,7 +350,6 @@ void ShellImpl::onInput(std::string_view input, kernel::RunApi& api)
 
   lineEdit_->getHistory()->addLine(input);
   execute(input, api);
-  lineEdit_->refresh();
 }
 
 ShellImpl::Call ShellImpl::parseCommand(std::string_view cmd)
@@ -424,6 +440,7 @@ void ShellImpl::execute(std::string_view command, kernel::RunApi& api)
     if (call.hasWriterSchema && call.writerMethod == nullptr)
     {
       printer_.printError("Method '%s' is not defined in the remote object", call.methodName.c_str());  // NOLINT
+      lineEdit_->refresh();
       return;
     }
     if (call.hasWriterSchema && call.writerMethod != nullptr &&
@@ -432,16 +449,19 @@ void ShellImpl::execute(std::string_view command, kernel::RunApi& api)
       // NOLINTNEXTLINE
       printer_.printError("Method '%s' cannot be called in the remote object, not enough args",
                           call.methodName.c_str());
+      lineEdit_->refresh();
       return;
     }
     if (call.method == nullptr)
     {
       printer_.printError("Method '%s' not found", call.methodName.c_str());  // NOLINT
+      lineEdit_->refresh();
       return;
     }
     if (call.object == nullptr)
     {
       printer_.printError("Could not find object %s", call.objectName.c_str());  // NOLINT
+      lineEdit_->refresh();
       return;
     }
 
@@ -452,16 +472,19 @@ void ShellImpl::execute(std::string_view command, kernel::RunApi& api)
   {
     printer_.printError("The method %s takes no arguments", call.method->getName().data());  // NOLINT
     printer_.printDescription(*call.object->getClass(), call.method);
+    lineEdit_->refresh();
   }
   catch (const TooManyArgsException&)
   {
     printer_.printError("Too many arguments for method %s", call.method->getName().data());  // NOLINT
     printer_.printDescription(*call.object->getClass(), call.method);
+    lineEdit_->refresh();
   }
   catch (const NotEnoughArgsException&)
   {
     printer_.printError("Not enough arguments for method %s", call.method->getName().data());  // NOLINT
     printer_.printDescription(*call.object->getClass(), call.method);
+    lineEdit_->refresh();
   }
   catch (const InvalidEnumValueArg& err)
   {
@@ -475,24 +498,29 @@ void ShellImpl::execute(std::string_view command, kernel::RunApi& api)
     {
       printer_.printError("Invalid enumeration '%s'", argName);  // NOLINT
     }
+    lineEdit_->refresh();
   }
   catch (const MethodNotFound&)
   {
     printer_.printError("Method '%s' not found", call.methodName.c_str());  // NOLINT
     printer_.printDescription(*call.object->getClass());
+    lineEdit_->refresh();
   }
   catch (const InstanceNotFound&)
   {
     printer_.printError("Instance '%s' not found", call.objectName.c_str());  // NOLINT
     printer_.printInstances(objects_->getObjects());
+    lineEdit_->refresh();
   }
   catch (const std::exception& err)
   {
     printer_.printError("%s", err.what());  // NOLINT
+    lineEdit_->refresh();
   }
   catch (...)
   {
     printer_.printError("Unknown exception thrown");  // NOLINT
+    lineEdit_->refresh();
   }
 }
 
@@ -523,6 +551,7 @@ void ShellImpl::executeCall(const Call& call, const Method* method)
     if (isGetter != nullptr)
     {
       printer_.printPropertyValue(isGetter->property, call.object->getPropertyUntyped(isGetter->property));
+      lineEdit_->refresh();
       return;
     }
   }
@@ -609,7 +638,7 @@ void ShellImpl::helpImpl() const
     }
   }
   Printer::printTable(header, table, 6, false, lineEdit_->getTerminal(), helpStyle);  // NOLINT
-  lineEdit_->refresh();
+  term->newLine();
 }
 
 void ShellImpl::historyImpl() const
@@ -617,24 +646,16 @@ void ShellImpl::historyImpl() const
   const History* history = lineEdit_->getHistory();
   const auto& lines = history->getLines();
 
-  if (!lines.empty())
-  {
-    lineEdit_->getTerminal()->newLine();
-  }
-
   size_t lineNumber = 1;
   for (const auto& line: lines)
   {
     lineEdit_->getTerminal()->printf("%3zd %s\n", lineNumber, line.c_str());  // NOLINT
     lineNumber++;
   }
-  lineEdit_->refresh();
 }
 
 void ShellImpl::lsImpl() const
 {
-  lineEdit_->getTerminal()->newLine();
-
   auto sessions = api_.getSessionsDiscoverer().getDetectedSources();
 
   if (objects_->getUntypedObjects().empty() && sessions.empty())
@@ -752,6 +773,7 @@ void ShellImpl::lsImpl() const
   }
 
   root.print(lineEdit_->getTerminal(), "", true, true);
+  lineEdit_->getTerminal()->newLine();
   lineEdit_->refresh();
 }
 
@@ -800,12 +822,12 @@ ShellImpl::SourceData& ShellImpl::getOrOpenSource(const kernel::BusAddress& addr
   if (!sourceData.source)
   {
     printer_.printError("could not find source");  // NOLINT
+    lineEdit_->refresh();
     throwRuntimeError("could not find source");
   }
 
   if (printDetectedObjects_)
   {
-    term_->newLine();
     term_->cprint(informationStyle, " - shell opened ");
     term_->cprint(enumValueStyle, id);
     term_->newLine();
@@ -956,6 +978,7 @@ void ShellImpl::srcImpl()
   }
 
   Printer::printTable({"Name", "Query"}, content, 2U, true, term_);
+  term_->newLine();
 }
 
 void ShellImpl::closeImpl(const std::string& source)
@@ -1038,7 +1061,6 @@ void ShellImpl::closeImpl(const std::string& source)
     if (firstTime)
     {
       firstTime = false;
-      term_->newLine();
     }
 
     if (printDetectedObjects_)

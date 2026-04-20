@@ -365,97 +365,95 @@ public:
                 return true;
               default:
               {
-                // extended escape, read additional two bytes.
+                // extended escape, read additional byte(s).
                 if (c < 49 || c > 54)  // NOLINT
                 {
                   break;
                 }
 
-                std::array<char, 2> seq2 {};
-
-                ssize_t sz = read(termFd_, seq2.data(), 2);
-
-                if (sz < 1)
+                char seq1 = 0;
+                if (read(termFd_, &seq1, 1) != 1)
                 {
                   break;
                 }
-                if (sz == 1)
-                {
-                  seq2[1] = 0;
-                }
 
-                if (c == 49 && seq2[0] == 53 && seq2[1] == 126)  // NOLINT
+                // 4-byte sequences
+                if (seq1 == '~')
                 {
-                  resultKey = Key::keyF5;
-                  return true;
+                  if (c == '2')
+                  {
+                    resultKey = Key::keyInsert;
+                    return true;
+                  }
+                  if (c == '3')
+                  {
+                    resultKey = Key::keyDelete;
+                    return true;
+                  }
+                  if (c == '5')
+                  {
+                    resultKey = Key::keyPageUp;
+                    return true;
+                  }
+                  if (c == '6')
+                  {
+                    resultKey = Key::keyPageDown;
+                    return true;
+                  }
                 }
-
-                if (c == 49 && seq2[0] == 55 && seq2[1] == 126)  // NOLINT
+                else
                 {
-                  resultKey = Key::keyF6;
-                  return true;
-                }
+                  // 5-byte sequences
+                  char seq2 = 0;
+                  if (read(termFd_, &seq2, 1) != 1)
+                  {
+                    break;
+                  }
 
-                if (c == 49 && seq2[0] == 56 && seq2[1] == 126)  // NOLINT
-                {
-                  resultKey = Key::keyF7;
-                  return true;
+                  if (seq2 == '~')
+                  {
+                    if (c == '1' && seq1 == '5')
+                    {
+                      resultKey = Key::keyF5;
+                      return true;
+                    }
+                    if (c == '1' && seq1 == '7')
+                    {
+                      resultKey = Key::keyF6;
+                      return true;
+                    }
+                    if (c == '1' && seq1 == '8')
+                    {
+                      resultKey = Key::keyF7;
+                      return true;
+                    }
+                    if (c == '1' && seq1 == '9')
+                    {
+                      resultKey = Key::keyF8;
+                      return true;
+                    }
+                    if (c == '2' && seq1 == '0')
+                    {
+                      resultKey = Key::keyF9;
+                      return true;
+                    }
+                    if (c == '2' && seq1 == '1')
+                    {
+                      resultKey = Key::keyF10;
+                      return true;
+                    }
+                    if (c == '2' && seq1 == '3')
+                    {
+                      resultKey = Key::keyF11;
+                      return true;
+                    }
+                    if (c == '2' && seq1 == '4')
+                    {
+                      resultKey = Key::keyF12;
+                      return true;
+                    }
+                  }
                 }
-
-                if (c == 49 && seq2[0] == 57 && seq2[1] == 126)  // NOLINT
-                {
-                  resultKey = Key::keyF8;
-                  return true;
-                }
-
-                if (c == 50 && seq2[0] == 48 && seq2[1] == 126)  // NOLINT
-                {
-                  resultKey = Key::keyF9;
-                  return true;
-                }
-
-                if (c == 50 && seq2[0] == 49 && seq2[1] == 126)  // NOLINT
-                {
-                  resultKey = Key::keyF10;
-                  return true;
-                }
-
-                if (c == 50 && seq2[0] == 51 && seq2[1] == 126)  // NOLINT
-                {
-                  resultKey = Key::keyF11;
-                  return true;
-                }
-
-                if (c == 50 && seq2[0] == 52 && seq2[1] == 126)  // NOLINT
-                {
-                  resultKey = Key::keyF12;
-                  return true;
-                }
-
-                if (c == 50 && seq2[0] == 126 && seq2[1] == 0)  // NOLINT
-                {
-                  resultKey = Key::keyInsert;
-                  return true;
-                }
-
-                if (c == 51 && seq2[0] == 126 && seq2[1] == 0)  // NOLINT
-                {
-                  resultKey = Key::keyDelete;
-                  return true;
-                }
-
-                if (c == 53 && seq2[0] == 126 && seq2[1] == 0)  // NOLINT
-                {
-                  resultKey = Key::keyPageUp;
-                  return true;
-                }
-
-                if (c == 54 && seq2[0] == 126 && seq2[1] == 0)  // NOLINT
-                {
-                  resultKey = Key::keyPageDown;
-                  return true;
-                }
-
                 break;
               }
             }
