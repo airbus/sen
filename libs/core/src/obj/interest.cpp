@@ -205,9 +205,9 @@ Interest::Interest(std::string_view query, const CustomTypeRegistry& typeRegistr
     throwRuntimeError(compileResult.getError().what);
   }
 
-  if (!statement.bus.session.lexeme.empty())
+  if (!statement.bus.session.lexeme().empty())
   {
-    busCondition_ = BusSpec {statement.bus.session.lexeme, statement.bus.bus.lexeme};
+    busCondition_ = BusSpec {statement.bus.session.lexeme(), statement.bus.bus.lexeme()};
   }
 
   code_ = std::move(compileResult).getValue();

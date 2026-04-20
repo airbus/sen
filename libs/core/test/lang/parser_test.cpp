@@ -307,8 +307,8 @@ TEST(Parser, basicQuery)
 
   EXPECT_TRUE(query.type.has_value());
   EXPECT_EQ(query.type.value().qualifiedName, "rpr.PhysicalEntity");
-  EXPECT_EQ(query.bus.session.lexeme, "se");
-  EXPECT_EQ(query.bus.bus.lexeme, "env");
+  EXPECT_EQ(query.bus.session.lexeme(), "se");
+  EXPECT_EQ(query.bus.bus.lexeme(), "env");
 }
 
 /// @test
@@ -334,8 +334,8 @@ TEST(Parser, queryCondition)
 
     EXPECT_TRUE(query.type.has_value());
     EXPECT_EQ(query.type.value().qualifiedName, "rpr.PhysicalEntity");
-    EXPECT_EQ(query.bus.session.lexeme, "se");
-    EXPECT_EQ(query.bus.bus.lexeme, "env");
+    EXPECT_EQ(query.bus.session.lexeme(), "se");
+    EXPECT_EQ(query.bus.bus.lexeme(), "env");
     EXPECT_TRUE(query.condition);
   }
 }
@@ -384,15 +384,15 @@ class Person
         const auto& functions = classDecl.members.functions;
         const auto& events = classDecl.members.events;
 
-        ASSERT_EQ("This variable stores the first name of a person", properties[0].description[0].lexeme);
-        ASSERT_EQ("This variable stores the surname of a person", properties[1].description[0].lexeme);
-        ASSERT_EQ("This variable stores the brain activity of a person", properties[2].description[0].lexeme);
-        ASSERT_EQ("It is a f32", properties[2].description[1].lexeme);
+        ASSERT_EQ("This variable stores the first name of a person", properties[0].description[0].lexeme());
+        ASSERT_EQ("This variable stores the surname of a person", properties[1].description[0].lexeme());
+        ASSERT_EQ("This variable stores the brain activity of a person", properties[2].description[0].lexeme());
+        ASSERT_EQ("It is a f32", properties[2].description[1].lexeme());
 
-        ASSERT_EQ("method that takes a string and returns another", functions[0].description[0].lexeme);
+        ASSERT_EQ("method that takes a string and returns another", functions[0].description[0].lexeme());
 
-        ASSERT_EQ("an event that requires confirmed transport", events[0].description[0].lexeme);
-        ASSERT_EQ("This is an event", events[0].description[1].lexeme);
+        ASSERT_EQ("an event that requires confirmed transport", events[0].description[0].lexeme());
+        ASSERT_EQ("This is an event", events[0].description[1].lexeme());
       }
     }
     EXPECT_NO_THROW(std::ignore = statements);
