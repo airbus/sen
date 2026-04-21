@@ -131,7 +131,7 @@ TEST(FixedString, assignInitializerList)
   EXPECT_EQ(str, newContent);
 }
 
-//===--------------------------------------------------------------------===//
+//--------------------------------------------------------------------------------------------------------------------//
 // Element access
 
 TEST(FixedString, accessAt)
@@ -210,7 +210,7 @@ TEST(FixedString, accessDataReads)
   std::char_traits<char>::compare(str.c_str(), "Foobar", 6);
 }
 
-//===--------------------------------------------------------------------===//
+//--------------------------------------------------------------------------------------------------------------------//
 // Iterators
 
 TEST(FixedString, iterators)
@@ -273,7 +273,7 @@ TEST(FixedString, iteratorsReverse)
   }
 }
 
-//===--------------------------------------------------------------------===//
+//--------------------------------------------------------------------------------------------------------------------//
 // Capacity
 
 TEST(FixedString, capacity)
@@ -293,7 +293,7 @@ TEST(FixedString, empty)
   EXPECT_TRUE(str.empty());
 }
 
-//===--------------------------------------------------------------------===//
+//--------------------------------------------------------------------------------------------------------------------//
 // Modifiers
 
 TEST(FixedString, clear)
@@ -306,7 +306,7 @@ TEST(FixedString, clear)
   EXPECT_TRUE(str.empty());
 }
 
-//===--------------------------------------------------------------------===//
+//--------------------------------------------------------------------------------------------------------------------//
 // Search
 
 TEST(FixedString, findFound)
@@ -372,4 +372,185 @@ TEST(FixedString, rfindNotFound)
   EXPECT_EQ(str.rfind('x'), FixedString<0>::npos);
   EXPECT_EQ(str.rfind('x', 5), FixedString<0>::npos);
 }
+
+TEST(FixedString, findFirstOfFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<3> other("bar");
+  EXPECT_EQ(str.find_first_of(other), 3);
+  EXPECT_EQ(str.find_first_of(other, 1), 3);
+
+  EXPECT_EQ(str.find_first_of("abr"), 3);
+  EXPECT_EQ(str.find_first_of("abr", 4), 4);
+  EXPECT_EQ(str.find_first_of("arb", 4, 2), 4);
+
+  EXPECT_EQ(str.find_first_of('b'), 3);
+  EXPECT_EQ(str.find_first_of('b', 5), 6);
+}
+
+TEST(FixedString, findFirstOfNotFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<3> other("BAR");
+  EXPECT_EQ(str.find_first_of(other), FixedString<0>::npos);
+  EXPECT_EQ(str.find_first_of(other, 1), FixedString<0>::npos);
+
+  EXPECT_EQ(str.find_first_of("BAR"), FixedString<0>::npos);
+  EXPECT_EQ(str.find_first_of("BAR", 4), FixedString<0>::npos);
+  EXPECT_EQ(str.find_first_of("BAR", 4, 2), FixedString<0>::npos);
+
+  EXPECT_EQ(str.find_first_of('x'), FixedString<6>::npos);
+  EXPECT_EQ(str.find_first_of('x', 5), FixedString<0>::npos);
+}
+
+TEST(FixedString, findFirstNotOfFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<3> other("Fob");
+  EXPECT_EQ(str.find_first_not_of(other), 4);
+  EXPECT_EQ(str.find_first_not_of(other, 5), 5);
+
+  EXPECT_EQ(str.find_first_not_of("Fob"), 4);
+  EXPECT_EQ(str.find_first_not_of("Fob", 5), 5);
+  EXPECT_EQ(str.find_first_not_of("For", 5, 2), 5);
+  EXPECT_EQ(str.find_first_not_of("Fobar", 4, 4), 5);
+
+  EXPECT_EQ(str.find_first_not_of('F'), 1);
+  EXPECT_EQ(str.find_first_not_of('b', 6), 7);
+}
+
+TEST(FixedString, findFirstNotOfNotFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<5> other("Fobar");
+  EXPECT_EQ(str.find_first_not_of(other), FixedString<0>::npos);
+  EXPECT_EQ(str.find_first_not_of(other, 1), FixedString<0>::npos);
+
+  EXPECT_EQ(str.find_first_not_of("Fobar"), FixedString<0>::npos);
+  EXPECT_EQ(str.find_first_not_of("Fobar", 4), FixedString<0>::npos);
+  EXPECT_EQ(str.find_first_not_of("barFou", 10, 5), FixedString<0>::npos);
+
+  FixedString<3> str2(std::string("XXX"));
+  EXPECT_EQ(str2.find_first_not_of('X'), FixedString<0>::npos);
+  EXPECT_EQ(str2.find_first_not_of('X', 1), FixedString<0>::npos);
+}
+
+TEST(FixedString, findLastOfFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<3> other("bar");
+  EXPECT_EQ(str.find_last_of(other), 8);
+  EXPECT_EQ(str.find_last_of(other, 5), 5);
+
+  EXPECT_EQ(str.find_last_of("abr"), 8);
+  EXPECT_EQ(str.find_last_of("abr", 4), 4);
+  EXPECT_EQ(str.find_last_of("arb", 4, 2), 4);
+
+  EXPECT_EQ(str.find_last_of('b'), 6);
+  EXPECT_EQ(str.find_last_of('b', 5), 3);
+}
+
+TEST(FixedString, findLastOfNotFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<3> other("XUR");
+  EXPECT_EQ(str.find_last_of(other), FixedString<0>::npos);
+  EXPECT_EQ(str.find_last_of(other, 1), FixedString<0>::npos);
+
+  EXPECT_EQ(str.find_last_of("XUR"), FixedString<0>::npos);
+  EXPECT_EQ(str.find_last_of("XUR", 4), FixedString<0>::npos);
+  EXPECT_EQ(str.find_last_of("XUR", 4, 2), FixedString<0>::npos);
+
+  EXPECT_EQ(str.find_last_of('x'), FixedString<6>::npos);
+  EXPECT_EQ(str.find_last_of('x', 5), FixedString<0>::npos);
+}
+
+TEST(FixedString, findLastNotOfFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<3> other("Fob");
+  EXPECT_EQ(str.find_last_not_of(other), 8);
+  EXPECT_EQ(str.find_last_not_of(other, 5), 5);
+
+  EXPECT_EQ(str.find_last_not_of("Fob"), 8);
+  EXPECT_EQ(str.find_last_not_of("Fob", 5), 5);
+  EXPECT_EQ(str.find_last_not_of("For", 5, 2), 5);
+  EXPECT_EQ(str.find_last_not_of("obaFr", 4, 3), 0);
+
+  EXPECT_EQ(str.find_last_not_of('F'), 10);
+  EXPECT_EQ(str.find_last_not_of('b', 6), 5);
+}
+
+TEST(FixedString, findLastNotOfNotFound)
+{
+  FixedString<12> str(std::string("FoobarbarooF"));
+
+  FixedString<5> other("Fobar");
+  EXPECT_EQ(str.find_last_not_of(other), FixedString<0>::npos);
+  EXPECT_EQ(str.find_last_not_of(other, 1), FixedString<0>::npos);
+
+  EXPECT_EQ(str.find_last_not_of("Fobar"), FixedString<0>::npos);
+  EXPECT_EQ(str.find_last_not_of("Fobar", 4), FixedString<0>::npos);
+  EXPECT_EQ(str.find_last_not_of("barFou", 10, 5), FixedString<0>::npos);
+
+  FixedString<3> str2(std::string("XXX"));
+  EXPECT_EQ(str2.find_last_not_of('X'), FixedString<0>::npos);
+  EXPECT_EQ(str2.find_last_not_of('X', 1), FixedString<0>::npos);
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+// Operations
+
+TEST(FixedString, comparisions)
+{
+  FixedString<3> baseString {"Foo"};
+
+  FixedString<3> otherFixedString {"Bar"};
+  FixedString<3> sameFixedString {"Foo"};
+  EXPECT_FALSE(baseString == otherFixedString);
+  EXPECT_TRUE(baseString == sameFixedString);
+  EXPECT_TRUE(baseString != otherFixedString);
+  EXPECT_FALSE(baseString != sameFixedString);
+
+  std::string otherString {"Bar"};
+  std::string sameString {"Foo"};
+  EXPECT_FALSE(baseString == otherString);
+  EXPECT_TRUE(baseString == sameString);
+  EXPECT_TRUE(baseString != otherString);
+  EXPECT_FALSE(baseString != sameString);
+  EXPECT_FALSE(otherString == baseString);
+  EXPECT_TRUE(sameString == baseString);
+  EXPECT_TRUE(otherString != baseString);
+  EXPECT_FALSE(sameString != baseString);
+
+  std::string_view otherStringView {"Bar"};
+  std::string_view sameStringView {"Foo"};
+  EXPECT_FALSE(baseString == otherStringView);
+  EXPECT_TRUE(baseString == sameStringView);
+  EXPECT_TRUE(baseString != otherStringView);
+  EXPECT_FALSE(baseString != sameStringView);
+  EXPECT_FALSE(otherStringView == baseString);
+  EXPECT_TRUE(sameStringView == baseString);
+  EXPECT_TRUE(otherStringView != baseString);
+  EXPECT_FALSE(sameStringView != baseString);
+
+  const char* otherCharPtr {"Bar"};
+  const char* sameCharPtr {"Foo"};
+  EXPECT_FALSE(baseString == otherCharPtr);
+  EXPECT_TRUE(baseString == sameCharPtr);
+  EXPECT_TRUE(baseString != otherCharPtr);
+  EXPECT_FALSE(baseString != sameCharPtr);
+  EXPECT_FALSE(otherCharPtr == baseString);
+  EXPECT_TRUE(sameCharPtr == baseString);
+  EXPECT_TRUE(otherCharPtr != baseString);
+  EXPECT_FALSE(sameCharPtr != baseString);
+}
+
 }  // namespace

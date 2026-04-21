@@ -8,9 +8,11 @@
 #ifndef SEN_CORE_BASE_FIXED_STRING_H
 #define SEN_CORE_BASE_FIXED_STRING_H
 
+// sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/iterator_adapters.h"
 
+// std
 #include <algorithm>
 #include <cstddef>
 #include <limits>
@@ -20,12 +22,24 @@
 namespace sen
 {
 
+// NOLINTBEGIN(readability-identifier-naming)
+
 template <typename CharT, size_t maxCapacity, typename Traits = std::char_traits<CharT>>
 class FixedStringBase
 {
 public:
-  // NOLINTNEXTLINE(readability-identifier-naming)
+  using traits_type = Traits;
+  using value_type = CharT;
   using size_type = size_t;
+  // difference_type
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  // pointer
+  // const_pointer
+  // iterator
+  // const_iterator
+  // reverse_iterator
+  // const_reverse_iterator
 
 public:
   static constexpr size_type npos {std::numeric_limits<size_type>::max()};
@@ -36,7 +50,7 @@ public:
   explicit FixedStringBase(const std::string& s): FixedStringBase(std::string_view(s)) {};
   explicit FixedStringBase(std::string_view s) { assignRange(util::makeRange(s.begin(), s.end())); };
 
-  //===--------------------------------------------------------------------===//
+  //------------------------------------------------------------------------------------------------------------------//
   // Basic member functions
 
   template <typename CharT2 = CharT, size_t capacity2>
@@ -74,7 +88,7 @@ public:
     return *this;
   }
 
-  //===--------------------------------------------------------------------===//
+  //------------------------------------------------------------------------------------------------------------------//
   // Element access
 
   [[nodiscard]] CharT& at(size_t idx)
@@ -145,7 +159,7 @@ public:
   // NOLINTNEXTLINE(readability-identifier-naming)
   [[nodiscard]] const CharT* c_str() const noexcept { return data(); }
 
-  //===--------------------------------------------------------------------===//
+  //------------------------------------------------------------------------------------------------------------------//
   // Iterators
 
   auto begin() { return data_.begin(); }
@@ -164,7 +178,7 @@ public:
   auto rend() const { return data_.crend(); }
   auto crend() const noexcept { return data_.crend(); }
 
-  //===--------------------------------------------------------------------===//
+  //------------------------------------------------------------------------------------------------------------------//
   // Capacity
 
   [[nodiscard]] constexpr bool empty() const noexcept { return usedSize_ == 0U; }
@@ -172,7 +186,7 @@ public:
   [[nodiscard]] constexpr size_t length() const noexcept { return usedSize_; }
   [[nodiscard]] constexpr size_t capacity() const noexcept { return maxCapacity; }
 
-  //===--------------------------------------------------------------------===//
+  //--------------------------------------------------------------------------//
   // Modifiers
 
   void clear() { usedSize_ = 0; }
@@ -211,8 +225,10 @@ public:
   // TODO: swap
   // void swap(FixedStringBase& other)
 
-  //===--------------------------------------------------------------------===//
+  //------------------------------------------------------------------------------------------------------------------//
   // Search
+
+  // TODO: review all constexpr
 
   size_type find(const CharT* s, size_type pos, size_type count) const noexcept { return view().find(s, pos, count); }
   size_type find(const CharT* s, size_type pos = 0) const noexcept { return view().find(s, pos); }
@@ -232,40 +248,71 @@ public:
     return view().rfind(t, pos);
   }
 
-  // NOLINTNEXTLINE(readability-identifier-naming)
-  size_type find_first_of(const FixedStringBase& str, size_type pos = 0) const
+  size_type find_first_of(const CharT* s, size_type pos, size_type count) const noexcept
   {
-    return view().find_first_not_of(str.view(), pos);
+    return view().find_first_of(s, pos, count);
   }
-  // TODO: find_first_of
-
-  // NOLINTNEXTLINE(readability-identifier-naming)
-  size_type find_first_not_of(const FixedStringBase& str, size_type pos = 0) const
+  size_type find_first_of(const CharT* s, size_type pos = 0) const noexcept { return view().find_first_of(s, pos); }
+  size_type find_first_of(CharT ch, size_type pos = 0) const noexcept { return view().find_first_of(ch, pos); }
+  template <class StringViewLike>
+  size_type find_first_of(const StringViewLike& t, size_type pos = 0) const noexcept
   {
-    return view().find_first_not_of(str.view(), pos);
-  }
-  // TODO: find_first_not_of
 
-  // NOLINTNEXTLINE(readability-identifier-naming)
-  size_type find_last_of(const FixedStringBase& str, size_type pos = npos) const
+    return view().find_first_of(t, pos);
+  }
+
+  size_type find_first_not_of(const CharT* s, size_type pos, size_type count) const noexcept
   {
-    return view().find_last_of(str.view(), pos);
+    return view().find_first_not_of(s, pos, count);
   }
-  // TODO: find_last_of
-
-  // NOLINTNEXTLINE(readability-identifier-naming)
-  size_type find_last_not_of(const FixedStringBase& str, size_type pos = npos) const
+  size_type find_first_not_of(const CharT* s, size_type pos = 0) const noexcept
   {
-    return view().find_last_not_of(str.view(), pos);
+    return view().find_first_not_of(s, pos);
   }
-  // TODO: find_last_not_of
+  size_type find_first_not_of(CharT ch, size_type pos = 0) const noexcept { return view().find_first_not_of(ch, pos); }
+  template <class StringViewLike>
+  size_type find_first_not_of(const StringViewLike& t, size_type pos = 0) const noexcept
+  {
 
-  //===--------------------------------------------------------------------===//
+    return view().find_first_not_of(t, pos);
+  }
+
+  size_type find_last_of(const CharT* s, size_type pos, size_type count) const noexcept
+  {
+    return view().find_last_of(s, pos, count);
+  }
+  size_type find_last_of(const CharT* s, size_type pos = npos) const noexcept { return view().find_last_of(s, pos); }
+  size_type find_last_of(CharT ch, size_type pos = npos) const noexcept { return view().find_last_of(ch, pos); }
+  template <class StringViewLike>
+  size_type find_last_of(const StringViewLike& t, size_type pos = npos) const noexcept
+  {
+
+    return view().find_last_of(t, pos);
+  }
+
+  size_type find_last_not_of(const CharT* s, size_type pos, size_type count) const noexcept
+  {
+    return view().find_last_not_of(s, pos, count);
+  }
+  size_type find_last_not_of(const CharT* s, size_type pos = npos) const noexcept
+  {
+    return view().find_last_not_of(s, pos);
+  }
+  size_type find_last_not_of(CharT ch, size_type pos = npos) const noexcept { return view().find_last_not_of(ch, pos); }
+  template <class StringViewLike>
+  size_type find_last_not_of(const StringViewLike& t, size_type pos = npos) const noexcept
+  {
+
+    return view().find_last_not_of(t, pos);
+  }
+
+  //------------------------------------------------------------------------------------------------------------------//
   // Operations
 
   int compare(const FixedStringBase& str) const { return view().compare(str.view()); }
 
 #ifdef __cpp_lib_starts_ends_with
+  // TODO: write tests
   constexpr bool starts_with(std::basic_string_view<CharT, Traits> sv) const noexcept { return view().starts_with(sv); }
   constexpr bool starts_with(CharT ch) const noexcept { return view().starts_with(ch); }
   constexpr bool starts_with(const CharT* s) const { return view().starts_with(s); }
@@ -276,6 +323,7 @@ public:
 #endif
 
 #ifdef __cpp_lib_string_contains
+  // TODO: write tests
   constexpr bool contains(std::basic_string_view<CharT, Traits> sv) const noexcept { return view().contains(sv); }
   constexpr bool contains(CharT ch) const noexcept { return view().contains(ch); }
   constexpr bool contains(const CharT* s) const { return view().contains(s); }
@@ -294,8 +342,10 @@ public:
   {
     return lhs.size() == rhs.size() && !Traits::compare(lhs.data_.data(), rhs.data(), lhs.usedSize_);
   }
-  // TODO: std::string compare
-  // TODO: std::string_view compare
+  friend bool operator==(std::string_view lhs, const FixedStringBase& rhs)
+  {
+    return lhs.size() == rhs.size() && !Traits::compare(lhs.data(), rhs.data_.data(), rhs.usedSize_);
+  }
   friend bool operator==(const FixedStringBase& lhs, const CharT* rhs)
   {
     return lhs.size() == Traits::length(rhs) && !Traits::compare(lhs.data_.data(), rhs, lhs.usedSize_);
@@ -306,6 +356,8 @@ public:
   }
 
   friend bool operator!=(const FixedStringBase& lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const FixedStringBase& lhs, std::string_view rhs) { return !(lhs == rhs); }
+  friend bool operator!=(std::string_view lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
   friend bool operator!=(const FixedStringBase& lhs, const CharT* rhs) { return !(lhs == rhs); }
   friend bool operator!=(const CharT* lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
 
@@ -339,12 +391,13 @@ private:
   [[nodiscard]] constexpr bool isNotWithinCapacity(size_t idx) const noexcept { return !isWithinCapacity(idx); }
 
   StorageType data_ {'\0'};
-  size_t usedSize_ {0};
+  size_type usedSize_ {0};
 };
 
 template <size_t maxSize>
 using FixedString = FixedStringBase<char, maxSize>;
 
 }  // namespace sen
+// NOLINTEND(readability-identifier-naming)
 
 #endif  // SEN_CORE_BASE_FIXED_STRING_H
