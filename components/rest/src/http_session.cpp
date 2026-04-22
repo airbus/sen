@@ -68,9 +68,8 @@ void HttpSession::start()
 {
   SEN_ASSERT(socket_.is_open());
 
-  auto self = shared_from_this();
   socket_.async_read_some(asio::buffer(data_, maxReadLength),
-                          [self](std::error_code ec, std::size_t length)
+                          [self = shared_from_this()](std::error_code ec, std::size_t length)
                           {
                             if (ec)
                             {
@@ -79,10 +78,11 @@ void HttpSession::start()
                             }
 
                             asio::post(self->ctx_,
-                                       [self, length]() mutable
+                                       [self = std::move(self), length]() mutable
                                        {
-                                         self->parser_.data = &self;
+                                         self->parser_.data = static_cast<void*>(&self);
                                          llhttp_execute(&self->parser_, self->data_.data(), length);
+                                         self->parser_.data = nullptr;  // clean ptr into self
                                        });
                           });
 }
