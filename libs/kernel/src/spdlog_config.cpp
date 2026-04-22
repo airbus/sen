@@ -182,6 +182,11 @@ SinkMap createSinks(const log::Config& config, const spdlog::details::registry& 
                   }},
       sinkConfig.config);
 
+    if (!sinkConfig.pattern.empty())
+    {
+      sink->set_pattern(sinkConfig.pattern);
+    }
+
     sink->set_level(mapLogLevel(sinkConfig.level));
     result.try_emplace(sinkConfig.name, sink);
   }
