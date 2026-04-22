@@ -984,3 +984,27 @@ TEST(IOUtils, EmptySequenceWrite)
 
   EXPECT_EQ(writer.getBuffer().size(), 4U);
 }
+
+/// @test
+/// Check that optional fields in structs are automatically initialized to monostate if missing
+/// @requirements(SEN-1053)
+TEST(IOUtils, AdaptVariantOptionalStructFields)
+{
+  auto optType = sen::OptionalType::make({"MaybeInt", "MaybeInt", "", sen::Int32Type::get()});
+  sen::StructSpec spec(
+    "OptStruct", "OptStruct", "", {{"mandatory", "", sen::Int32Type::get()}, {"optionalField", "", optType}});
+  auto structType = sen::StructType::make(spec);
+
+  sen::VarMap map1;
+  map1["mandatory"] = 10;
+  sen::Var var1 = map1;
+  auto res1 = sen::impl::adaptVariant(*structType, var1);
+  EXPECT_TRUE(res1.isOk());
+  EXPECT_TRUE(var1.get<sen::VarMap>()["optionalField"].holds<std::monostate>());
+
+  sen::VarMap map2;
+  map2["optionalField"] = 10;
+  sen::Var var2 = map2;
+  auto res2 = sen::impl::adaptVariant(*structType, var2);
+  EXPECT_TRUE(res2.isError());
+}
