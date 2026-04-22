@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -56,6 +57,9 @@ public:
   /// Collects transport statistics
   TransportStats fetchTransportStats() const;
 
+  /// Returns the transport protocol version, or empty if no transport is installed.
+  [[nodiscard]] std::optional<uint32_t> getTransportVersion() const;
+
   void startMessageProcessing() { messageDispatcher_.start(); }
 
 private:  // interface towards Session
@@ -90,6 +94,7 @@ private:
   mutable std::recursive_mutex localSessionsMutex_;
   mutable std::recursive_mutex remoteSessionsMutex_;
   TransportFactory factory_;
+  std::optional<uint32_t> transportVersion_;
   std::vector<Session*> locallyOpenedSessions_;
   std::unordered_map<std::string, std::vector<ProcessInfo>> remotelyDetectedProcessesPerSession_;
   KernelImpl& kernel_;

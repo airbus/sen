@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -210,7 +211,14 @@ void SessionManager::setTransportFactory(TransportFactory&& factory, uint32_t tr
 {
   Lock usageLock(usageMutex_);
   factory_ = std::move(factory);
+  transportVersion_ = transportVersion;
   CrashReporter::get().setTransportVersion(transportVersion);
+}
+
+std::optional<uint32_t> SessionManager::getTransportVersion() const
+{
+  Lock usageLock(usageMutex_);
+  return transportVersion_;
 }
 
 SessionManager::DeletionGuard SessionManager::makeDeletionGuard(Session* session) { return {this, session}; }

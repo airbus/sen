@@ -8,10 +8,12 @@
 #include "pipeline_component.h"
 
 // implementation
+#include "kernel_impl.h"
 #include "operating_system.h"
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/type.h"
@@ -67,8 +69,8 @@ namespace
 // PipelineComponent
 //--------------------------------------------------------------------------------------------------------------
 
-PipelineComponent::PipelineComponent(KernelConfig::PipelineToLoad config)
-  : config_(std::move(config)), os_(makeNativeOS())
+PipelineComponent::PipelineComponent(KernelConfig::PipelineToLoad config, impl::KernelImpl& kernelImpl)
+  : config_(std::move(config)), kernelImpl_(kernelImpl), os_(makeNativeOS())
 {
 }
 
@@ -85,6 +87,9 @@ FuncResult PipelineComponent::preload(PreloadApi&& api)
   openLibs(types);
   fetchTypes(types);
   validateConfig(types);
+
+  // notify the kernel with the package build information we collected
+  kernelImpl_.registerImportedPackages(importedPackages_);
 
   return done();
 }
@@ -118,6 +123,8 @@ FuncResult PipelineComponent::unload(UnloadApi&& api)
 }
 
 bool PipelineComponent::isRealTimeOnly() const noexcept { return false; }
+
+Span<const ComponentInfo> PipelineComponent::getImportedPackages() const noexcept { return importedPackages_; }
 
 //--------------------------------------------------------------------------------------------------------------
 // PipelineComponent implementation
@@ -162,6 +169,16 @@ void PipelineComponent::openLibs(CustomTypeRegistry& reg)
         spdlog::debug("imported type {} from library {}",
                       type->isCustomType() ? type->asCustomType()->getQualifiedName() : type->getName(),
                       importedLibrary);
+      }
+    }
+
+    // collect package build information
+    if (auto* infoFunc = os_->getSymbol(lib, "getPackageInfo"); infoFunc != nullptr)
+    {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      if (const auto* info = (*reinterpret_cast<PackageInfoGetterFunc>(infoFunc))(); info != nullptr)
+      {
+        importedPackages_.push_back(*info);
       }
     }
   }

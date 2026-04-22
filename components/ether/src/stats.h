@@ -15,10 +15,15 @@
 namespace sen::components::ether
 {
 
-extern std::atomic<std::size_t> udpSentBytes;
-extern std::atomic<std::size_t> udpReceivedBytes;
-extern std::atomic<std::size_t> tcpSentBytes;
-extern std::atomic<std::size_t> tcpReceivedBytes;
+/// Per-transport-instance traffic counters. Updated atomically by handlers,
+/// read by EtherTransport::fetchStats().
+struct TransportCounters
+{
+  std::atomic<std::size_t> udpSentBytes {0};
+  std::atomic<std::size_t> udpReceivedBytes {0};
+  std::atomic<std::size_t> tcpSentBytes {0};
+  std::atomic<std::size_t> tcpReceivedBytes {0};
+};
 
 }  // namespace sen::components::ether
 

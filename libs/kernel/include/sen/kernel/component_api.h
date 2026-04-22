@@ -13,6 +13,7 @@
 #include "sen/core/base/duration.h"
 #include "sen/core/base/mutex_utils.h"
 #include "sen/core/base/result.h"
+#include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/meta/var.h"
@@ -82,17 +83,17 @@ void remoteProcessLost(RunApi& api, const ProcessInfo& processInfo);
 
 }  // namespace impl
 
-/// Monitoring information about components.
+/// Runtime monitoring information about a single component runner.
 struct ComponentMonitoringInfo
 {
-  ComponentInfo info;
-  ComponentConfig config;
+  std::string name;
+  uint32_t group = 0;
   bool requiresRealTime = false;
   std::optional<Duration> cycleTime;
   std::size_t objectCount = 0;
 };
 
-/// Kernel monitoring information.
+/// Kernel runtime monitoring information.
 struct KernelMonitoringInfo
 {
   RunMode runMode = RunMode::realTime;
@@ -291,6 +292,22 @@ public:
 
   /// Monitoring information.
   [[nodiscard]] KernelMonitoringInfo fetchMonitoringInfo() const;
+
+  /// Build information for all imported packages (from pipeline components).
+  /// The returned span references kernel-owned storage that is stable for the
+  /// lifetime of the kernel.
+  [[nodiscard]] Span<const ComponentInfo> getImportedPackages() const noexcept;
+
+  /// Build information for every component loaded into the kernel, excluding
+  /// pipeline components (which are built from imports and have no individual
+  /// build identity) and the internal kernel component. The returned span
+  /// references kernel-owned storage that is stable for the lifetime of the
+  /// kernel.
+  [[nodiscard]] Span<const ComponentInfo> getLoadedComponents() const noexcept;
+
+  /// Version of the currently installed transport protocol. Empty when no
+  /// transport is installed. Static for the lifetime of the kernel.
+  [[nodiscard]] std::optional<uint32_t> getTransportProtocolVersion() const noexcept;
 
   /// Create a scoped zone used for tracing runtime performance.
   [[nodiscard]] Tracer& getTracer() const noexcept;

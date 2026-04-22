@@ -17,6 +17,7 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/var.h"
 #include "sen/kernel/kernel.h"
@@ -32,10 +33,13 @@
 #include <spdlog_config.h>
 
 // std
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -201,6 +205,7 @@ void KernelImpl::configure()
   {
     auto pluginInfo = pluginManager_.plug(elem.path);
     pluginInfo.component.config = elem.config;
+    loadedComponents_.push_back(pluginInfo.component.info);
     runners_.push_back(std::make_unique<Runner>(*this, *os_, pluginInfo.component, elem.config.group, elem.params));
   }
 
@@ -208,18 +213,18 @@ void KernelImpl::configure()
   for (auto elem: config_.getComponentsToLoad())
   {
     elem.component.config = elem.config;
+    loadedComponents_.push_back(elem.component.info);
     runners_.push_back(std::make_unique<Runner>(*this, *os_, elem.component, elem.config.group, elem.params));
   }
 
   // create the requested pipelines
   for (const auto& elem: config_.getPipelinesToLoad())
   {
-    pipelines_.push_back(std::make_unique<PipelineComponent>(elem));
+    pipelines_.push_back(std::make_unique<PipelineComponent>(elem, *this));
     ComponentContext context;
     context.instance = pipelines_.back().get();
     context.config = elem.config;
     context.info.name = elem.name;
-    context.info.buildInfo = Kernel::getBuildInfo();
 
     runners_.push_back(std::make_unique<Runner>(*this, *os_, context, elem.config.group, elem.params));
   }
@@ -228,8 +233,6 @@ void KernelImpl::configure()
   kernelComponent_ = std::make_unique<KernelComponent>(this);
   {
     ComponentContext context;
-    context.info.buildInfo = Kernel::getBuildInfo();
-    context.info.description = "kernel internal component";
     context.info.name = "kernel";
     context.config.group = 1U;
     context.config.priority = Priority::nominalMin;
@@ -283,6 +286,31 @@ std::shared_ptr<spdlog::logger> KernelImpl::getKernelLogger()
 std::unique_ptr<Tracer> KernelImpl::makeTracer(std::string_view contextName) { return tracerFactory_(contextName); }
 
 void KernelImpl::installTracerFactory(TracerFactory&& factory) { tracerFactory_ = std::move(factory); }
+
+Span<const ComponentInfo> KernelImpl::getImportedPackages() const noexcept { return importedPackages_; }
+
+Span<const ComponentInfo> KernelImpl::getLoadedComponents() const noexcept { return loadedComponents_; }
+
+std::optional<uint32_t> KernelImpl::getTransportProtocolVersion() const noexcept
+{
+  return sessionManager_.getTransportVersion();
+}
+
+void KernelImpl::registerImportedPackages(Span<const ComponentInfo> packages)
+{
+  // Deduplicate by name on insertion.
+  for (const auto& pkg: packages)
+  {
+    const auto alreadyRegistered =
+      std::any_of(importedPackages_.begin(),
+                  importedPackages_.end(),
+                  [&pkg](const ComponentInfo& existing) { return existing.name == pkg.name; });
+    if (!alreadyRegistered)
+    {
+      importedPackages_.push_back(pkg);
+    }
+  }
+}
 
 }  // namespace sen::kernel::impl
 

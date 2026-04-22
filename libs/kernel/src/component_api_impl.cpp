@@ -13,6 +13,7 @@
 #include "sen/core/base/assert.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/mutex_utils.h"
+#include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/type_registry.h"
@@ -238,6 +239,15 @@ TimeStamp RunApi::getTime() const noexcept { return timePoint_; }
 std::optional<Duration> RunApi::getTargetCycleTime() const noexcept { return runner_->getCycleTime(); }
 
 KernelMonitoringInfo RunApi::fetchMonitoringInfo() const { return kernelImpl_.fetchMonitoringInfo(); }
+
+Span<const ComponentInfo> RunApi::getImportedPackages() const noexcept { return kernelImpl_.getImportedPackages(); }
+
+Span<const ComponentInfo> RunApi::getLoadedComponents() const noexcept { return kernelImpl_.getLoadedComponents(); }
+
+std::optional<uint32_t> RunApi::getTransportProtocolVersion() const noexcept
+{
+  return kernelImpl_.getTransportProtocolVersion();
+}
 
 Tracer& RunApi::getTracer() const noexcept { return runner_->getTracer(); }
 

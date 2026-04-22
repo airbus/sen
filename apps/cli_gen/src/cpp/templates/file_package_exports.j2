@@ -7,6 +7,7 @@
 // sen
 #include "sen/core/obj/native_object.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/kernel/component.h"
 
 ## if length(packageIds) != 0
 //--------------------------------------------------------------------------------------------------------------
@@ -89,6 +90,27 @@ extern "C" SEN_EXPORT void get{{packageId}}Types(::sen::ExportedTypesList& types
 extern "C" SEN_EXPORT void getAllTypes(sen::ExportedTypesList& types)
 {
   get{{packageId}}Types(types);
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// Package build information
+//--------------------------------------------------------------------------------------------------------------
+
+extern "C" SEN_EXPORT const sen::kernel::ComponentInfo* getPackageInfo()
+{
+  static sen::kernel::ComponentInfo info {};
+  info.name = SEN_TARGET_NAME;
+  info.description = SEN_TARGET_DESCRIPTION;
+  info.buildInfo.maintainer = SEN_TARGET_MAINTAINER;
+  info.buildInfo.version = SEN_TARGET_VERSION;
+  info.buildInfo.compiler = SEN_COMPILER_STRING;
+  info.buildInfo.debugMode = sen::kernel::getDebugEnabled();
+  info.buildInfo.wordSize = sen::kernel::getWordSize();
+  info.buildInfo.buildTime = std::string(__DATE__) + " " + __TIME__;
+  info.buildInfo.gitRef = sen::kernel::getGitRef();
+  info.buildInfo.gitHash = sen::kernel::getGitHash();
+  info.buildInfo.gitStatus = sen::kernel::getGitStatus();
+  return &info;
 }
 
 // NOLINTEND
