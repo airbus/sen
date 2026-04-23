@@ -191,16 +191,23 @@ inline void RemoteInterestsManager::sendEvents(const std::list<::sen::impl::Seri
     aRemoteParticipant_->sendEventsMulticast(std::move(multicastBuffers), ownerId);
   }
 
+  std::unordered_set<ProcessId> used;
+  used.reserve(remoteDataMap.size());
   for (auto& [participant, data]: remoteDataMap)
   {
-    if (!data.unicastBuffers.empty())
+    if (auto proc = participant->getAddress().proc; used.find(proc) == used.end())
     {
-      participant->sendEventsUnicast(std::move(data.unicastBuffers), ownerId);
-    }
+      if (!data.unicastBuffers.empty())
+      {
+        participant->sendEventsUnicast(std::move(data.unicastBuffers), ownerId);
+      }
 
-    if (!data.confirmedBuffer->empty())
-    {
-      participant->sendEventsConfirmed(data.confirmedBuffer, ownerId);
+      if (!data.confirmedBuffer->empty())
+      {
+        participant->sendEventsConfirmed(data.confirmedBuffer, ownerId);
+      }
+
+      used.insert(proc);
     }
   }
 }
