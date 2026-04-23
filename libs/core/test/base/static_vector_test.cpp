@@ -55,7 +55,7 @@ void checkTermination(std::function<void()> func)
 
   EXPECT_EQ(callCount, prevCallCount + 1);
 
-  oldHandler = sen::impl::setFailedCheckHandler(testAssertHandler);
+  std::ignore = sen::impl::setFailedCheckHandler(oldHandler);
 }
 
 template <typename V, std::size_t size>
