@@ -507,7 +507,7 @@ void LocalParticipant::localParticipantRemoved(LocalParticipant* other, bool not
 
 void LocalParticipant::remoteParticipantAdded(RemoteParticipant* other, bool notifyAboutExisting)
 {
-  for (const auto& proxyManager: interestsOnOthers_)
+  for (const auto& proxyManager: makeLockedRange<std::shared_lock>(interestsOnOthers_, interestsOnOthersMutex_))
   {
     proxyManager->startListeningToParticipant(other, notifyAboutExisting);
   }
