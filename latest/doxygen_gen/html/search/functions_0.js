@@ -30,5 +30,6 @@ var searchData=
   ['asvoidtype_27',['asVoidType',['../classsen_1_1_void_type.html#acbccf562f96ebeda4665d4a32c6ec144',1,'sen::VoidType']]],
   ['at_28',['at',['../classsen_1_1db_1_1_input.html#aae7ce286d22776756298b8a489569406',1,'sen::db::Input']]],
   ['atbegining_29',['atBegining',['../classsen_1_1db_1_1_cursor.html#afcafdb6c30fe2092ed6aa4b788a0217e',1,'sen::db::Cursor']]],
-  ['atend_30',['atEnd',['../classsen_1_1_input_stream_base.html#a321ec4ff7cd199d0a5397016078ccf43',1,'sen::InputStreamBase::atEnd()'],['../classsen_1_1db_1_1_cursor.html#a5dfcfeaf621a6e90a9e2cea3ff1331f4',1,'sen::db::Cursor::atEnd()']]]
+  ['atend_30',['atEnd',['../classsen_1_1_input_stream_base.html#a321ec4ff7cd199d0a5397016078ccf43',1,'sen::InputStreamBase::atEnd()'],['../classsen_1_1db_1_1_cursor.html#a5dfcfeaf621a6e90a9e2cea3ff1331f4',1,'sen::db::Cursor::atEnd()']]],
+  ['attachto_31',['attachTo',['../group__obj.html#ga3c058c27058b6d43819f8355a81e1bef',1,'sen::Subscription']]]
 ];

@@ -1375,27 +1375,27 @@
 <h2 id="to-build-a-package">To build a package<a class="headerlink" href="#to-build-a-package" title="Permanent link">¶</a></h2>
 <p>To build a Sen package, use the <code>add_sen_package</code> function:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
-</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;target&gt;</span>
-</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="s">[MAINTAINER</span><span class="w"> </span><span class="s">&lt;maintainer&gt;]</span>
-</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="s">[DESCRIPTION</span><span class="w"> </span><span class="s">&lt;description&gt;]</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="s">[MAINTAINER</span><span class="w"> </span><span class="s">&lt;name&gt;]</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="s">[DESCRIPTION</span><span class="w"> </span><span class="s">&lt;text&gt;]</span>
 </span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="s">[VERSION</span><span class="w"> </span><span class="s">&lt;version&gt;]</span>
-</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">base_path]</span>
-</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="s">[EXPORT_NAME</span><span class="w"> </span><span class="s">name</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">Sen</span><span class="w"> </span><span class="s">package</span><span class="w"> </span><span class="s">exported,</span><span class="w"> </span><span class="s">defaults</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">target's</span><span class="w"> </span><span class="s">name</span><span class="w"> </span><span class="s">if</span><span class="w"> </span><span class="s">not</span><span class="w"> </span><span class="s">set]</span>
-</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="s">[SCHEMA_PATH</span><span class="w"> </span><span class="s">path]</span>
-</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="s">[GEN_HDR_FILES</span><span class="w"> </span><span class="s">variable]</span>
-</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="s">[CODEGEN_SETTINGS</span><span class="w"> </span><span class="s">file]</span>
-</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="s">[HLA_OUTPUT_DIR</span><span class="w"> </span><span class="s">path]</span>
-</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">  </span><span class="s">[SOURCES</span><span class="w"> </span><span class="s">[files...]]</span>
-</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">  </span><span class="s">[DEPS</span><span class="w"> </span><span class="s">[dependencies...]]</span>
-</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="s">[PRIVATE_DEPS</span><span class="w"> </span><span class="s">[dependencies...]]</span>
-</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">  </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">[files...]]</span>
-</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">  </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">[dirs...]]</span>
-</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">  </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">[files...]]</span>
-</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="s">[EXPORTED_CLASSES</span><span class="w"> </span><span class="s">name</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">classes</span><span class="w"> </span><span class="s">exported</span><span class="w"> </span><span class="s">by</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">package</span><span class="w"> </span><span class="p">(</span><span class="s">if</span><span class="w"> </span><span class="s">null,</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">exported</span><span class="w"> </span><span class="s">classes</span><span class="w"> </span><span class="s">are</span><span class="w"> </span><span class="s">parsed</span><span class="w"> </span><span class="s">automatically</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">source</span><span class="w"> </span><span class="s">files</span><span class="p">)</span><span class="s">]</span>
-</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="s">[IS_COMPONENT</span><span class="w"> </span><span class="s">flag</span><span class="w"> </span><span class="s">used</span><span class="w"> </span><span class="s">if</span><span class="w"> </span><span class="s">we</span><span class="w"> </span><span class="s">want</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">implement</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">custom</span><span class="w"> </span><span class="s">Sen</span><span class="w"> </span><span class="s">component]</span>
-</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">  </span><span class="s">[NO_SCHEMA</span><span class="w"> </span><span class="s">flag</span><span class="w"> </span><span class="s">used</span><span class="w"> </span><span class="s">when</span><span class="w"> </span><span class="s">we</span><span class="w"> </span><span class="s">dont</span><span class="w"> </span><span class="s">want</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">generate</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">JSON</span><span class="w"> </span><span class="s">schema</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">YAML</span><span class="w"> </span><span class="s">configuration</span><span class="w"> </span><span class="s">files</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">package]</span>
-</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">  </span><span class="s">[PUBLIC_SYMBOLS</span><span class="w"> </span><span class="s">flag</span><span class="w"> </span><span class="s">used</span><span class="w"> </span><span class="s">when</span><span class="w"> </span><span class="s">we</span><span class="w"> </span><span class="s">want</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">mark</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">symbols</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">generated</span><span class="w"> </span><span class="s">code</span><span class="w"> </span><span class="s">as</span><span class="w"> </span><span class="s">visible]</span>
-</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">  </span><span class="s">[TEST_TARGET</span><span class="w"> </span><span class="s">name]</span><span class="w"> </span><span class="s">if</span><span class="w"> </span><span class="s">provided,</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="p">(</span><span class="s">static</span><span class="p">)</span><span class="w"> </span><span class="s">test</span><span class="w"> </span><span class="s">target</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">created</span><span class="w"> </span><span class="p">(</span><span class="s">it</span><span class="w"> </span><span class="s">exposes</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">internal</span><span class="w"> </span><span class="s">package</span><span class="w"> </span><span class="s">symbols</span><span class="p">)</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="s">[EXPORT_NAME</span><span class="w"> </span><span class="s">&lt;name&gt;]</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="s">[SCHEMA_PATH</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="s">[GEN_HDR_FILES</span><span class="w"> </span><span class="s">&lt;variable&gt;]</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="s">[CODEGEN_SETTINGS</span><span class="w"> </span><span class="s">&lt;file&gt;]</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="s">[HLA_OUTPUT_DIR</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">  </span><span class="s">[SOURCES</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">  </span><span class="s">[DEPS</span><span class="w"> </span><span class="s">&lt;targets...&gt;]</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="s">[PRIVATE_DEPS</span><span class="w"> </span><span class="s">&lt;targets...&gt;]</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">  </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">  </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">&lt;dirs...&gt;]</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">  </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="s">[EXPORTED_CLASSES</span><span class="w"> </span><span class="s">&lt;names...&gt;]</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="s">[IS_COMPONENT]</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">  </span><span class="s">[NO_SCHEMA]</span>
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">  </span><span class="s">[PUBLIC_SYMBOLS]</span>
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">  </span><span class="s">[TEST_TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;]</span>
 </span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>It takes the following parameters:</p>
@@ -1413,127 +1413,127 @@
 <td><code>TARGET</code></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
 <td></td>
-<td>Name of the target that will be created for this component.</td>
+<td>Name of the CMake target to create.</td>
 </tr>
 <tr>
 <td><code>MAINTAINER</code></td>
 <td></td>
 <td></td>
-<td>Name of the maintainer/author.</td>
+<td>Person or team responsible for this package. Defaults to <code>"unknown"</code>. Note: <code>AUTHOR</code> is a deprecated alias.</td>
 </tr>
 <tr>
 <td><code>DESCRIPTION</code></td>
 <td></td>
 <td></td>
-<td>Textual description of the implemented function.</td>
+<td>Human-readable description embedded in the package metadata.</td>
 </tr>
 <tr>
 <td><code>VERSION</code></td>
 <td></td>
 <td></td>
-<td>Semantic versioning for the generated binary.</td>
+<td>Package version string. Defaults to the CMake project version.</td>
 </tr>
 <tr>
 <td><code>BASE_PATH</code></td>
 <td></td>
 <td></td>
-<td>Import path for Sen files and the one to be used by its dependencies.</td>
+<td>Root directory used to compute relative paths for generated files and interface resolution. Defaults to <code>CMAKE_CURRENT_SOURCE_DIR</code>.</td>
 </tr>
 <tr>
 <td><code>EXPORT_NAME</code></td>
 <td></td>
 <td></td>
-<td>Name of the exported Sen package. Defaults to the target's name if not set.</td>
+<td>Name under which the package is registered with the Sen runtime. Defaults to <code>TARGET</code>.</td>
 </tr>
 <tr>
 <td><code>SCHEMA_PATH</code></td>
 <td></td>
 <td></td>
-<td>Path where you want to have the data model schema.</td>
+<td>Directory where the JSON schema describing the package's YAML configuration will be written. Defaults to <code>${PROJECT_SOURCE_DIR}/schemas</code>.</td>
 </tr>
 <tr>
 <td><code>GEN_HDR_FILES</code></td>
 <td></td>
 <td></td>
-<td>Variable containing generated header files.</td>
+<td><strong>Output variable.</strong> Receives the list of header files produced by code generation, useful for adding them to IDE source groups.</td>
 </tr>
 <tr>
 <td><code>CODEGEN_SETTINGS</code></td>
 <td></td>
 <td></td>
-<td>Path to the JSON file containing the settings for the code generator.</td>
+<td>Path to a settings file forwarded to the code generator (<code>cli_gen</code>).</td>
 </tr>
 <tr>
 <td><code>HLA_OUTPUT_DIR</code></td>
 <td></td>
 <td></td>
-<td>Path where HLA output files will be placed.</td>
+<td>Subdirectory within the generated output directory for HLA-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
 </tr>
 <tr>
 <td><code>SOURCES</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>List of source files (relative to this file).</td>
+<td>C++ source files implementing the package logic.</td>
 </tr>
 <tr>
 <td><code>DEPS</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>List of libraries that the component will publicly link to.</td>
+<td>Public dependencies. Linked with <code>PUBLIC</code> linkage; their exported Sen types are re-exported by this package.</td>
 </tr>
 <tr>
 <td><code>PRIVATE_DEPS</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>List of libraries that the component will privately link to.</td>
+<td>Private dependencies. Linked with <code>PRIVATE</code> linkage; not visible to consumers.</td>
 </tr>
 <tr>
 <td><code>STL_FILES</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>List of STL files to process from which the Sen package will generate code.</td>
+<td>Sen Type Language (<code>.stl</code>) files from which C++ code is generated. Mutually exclusive with <code>HLA_FOM_DIRS</code>.</td>
 </tr>
 <tr>
 <td><code>HLA_FOM_DIRS</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>Directories containing HLA FOM files.</td>
+<td>Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
 </tr>
 <tr>
 <td><code>HLA_MAPPINGS_FILE</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>Files containing HLA mappings.</td>
+<td>HLA mapping files that customise FOM-to-C++ translation. Requires <code>HLA_FOM_DIRS</code>.</td>
 </tr>
 <tr>
 <td><code>EXPORTED_CLASSES</code></td>
 <td></td>
-<td></td>
-<td>Name of the classes exported by the package (if null, the exported classes are parsed automatically from the source files).</td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Explicit list of class names to register with the Sen runtime. If omitted, derived automatically by scanning <code>SOURCES</code> for <code>SEN_EXPORT_CLASS()</code> macros.</td>
 </tr>
 <tr>
 <td><code>IS_COMPONENT</code></td>
 <td></td>
 <td></td>
-<td>If present, a sen component is generated.</td>
-</tr>
-<tr>
-<td><code>PUBLIC_SYMBOLS</code></td>
-<td></td>
-<td></td>
-<td>If present, all symbols of the generated code are visible.</td>
+<td>Marks this package as a Sen component. Enables component-specific code generation (e.g. embedding the component name in the schema).</td>
 </tr>
 <tr>
 <td><code>NO_SCHEMA</code></td>
 <td></td>
 <td></td>
-<td>If present, no schema is generated for the data model.</td>
+<td>Skip JSON schema generation. Use this when the package has no YAML configuration interface or when schema generation is handled elsewhere.</td>
+</tr>
+<tr>
+<td><code>PUBLIC_SYMBOLS</code></td>
+<td></td>
+<td></td>
+<td>Export generated code symbols with public visibility. Required when the generated headers are consumed by Python bindings or other shared libraries.</td>
 </tr>
 <tr>
 <td><code>TEST_TARGET</code></td>
 <td></td>
 <td></td>
-<td>If used, a (static) test target is created exposing internal package symbols.</td>
+<td>If set, also creates a <code>STATIC</code> library with this name exposing internal symbols, making them accessible from unit tests without needing a shared-library boundary.</td>
 </tr>
 </tbody>
 </table>
@@ -1684,16 +1684,107 @@ add a Sen component:</p>
 </span></code></pre></div>
 <h2 id="other-utilities">Other utilities<a class="headerlink" href="#other-utilities" title="Permanent link">¶</a></h2>
 <h3 id="direct-code-generation">Direct code generation<a class="headerlink" href="#direct-code-generation" title="Permanent link">¶</a></h3>
+<p><code>sen_generate_cpp</code> generates C++ code from STL or HLA FOM files and adds the result to an existing
+CMake target. For the common case of building a full Sen package, prefer <code>add_sen_package()</code> instead.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">sen_generate_cpp</span><span class="p">(</span>
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;target&gt;</span>
-</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">base_path]</span>
-</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">[files...]]</span>
-</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">[directories...]]</span>
-</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">file]</span>
-</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">    </span><span class="s">[GEN_HDR_FILES</span><span class="w"> </span><span class="s">variable]</span>
-</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">    </span><span class="s">[CODEGEN_SETTINGS</span><span class="w"> </span><span class="s">file]</span>
-</span><span id="__span-5-9"><a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="p">)</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="s">[OUTPUT_DIR</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="s">[CODEGEN_SETTINGS</span><span class="w"> </span><span class="s">&lt;file&gt;]</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="s">[GEN_HDR_FILES</span><span class="w"> </span><span class="s">&lt;variable&gt;]</span>
+</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">    </span><span class="s">[SCHEMA_FILE</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">    </span><span class="s">[SCHEMA_COMPONENT_NAME</span><span class="w"> </span><span class="s">&lt;name&gt;]</span>
+</span><span id="__span-5-9"><a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="w">    </span><span class="s">[HLA_OUTPUT_DIR</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-5-10"><a href="#__codelineno-5-10" id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="w">    </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-5-11"><a href="#__codelineno-5-11" id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="w">    </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">&lt;dirs...&gt;]</span>
+</span><span id="__span-5-12"><a href="#__codelineno-5-12" id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="w">    </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-5-13"><a href="#__codelineno-5-13" id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="w">    </span><span class="s">[VISIBLE_CLASSES</span><span class="w"> </span><span class="s">&lt;YES|NO&gt;]</span>
+</span><span id="__span-5-14"><a href="#__codelineno-5-14" id="__codelineno-5-14" name="__codelineno-5-14"></a><span class="p">)</span>
 </span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Mandatory</th>
+<th>Multiple</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TARGET</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>An already-created CMake target to which generated sources will be added.</td>
+</tr>
+<tr>
+<td><code>OUTPUT_DIR</code></td>
+<td></td>
+<td></td>
+<td>Directory where generated files are written. Defaults to <code>${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_generated</code>.</td>
+</tr>
+<tr>
+<td><code>BASE_PATH</code></td>
+<td></td>
+<td></td>
+<td>Root directory for import resolution and relative-path computation. Defaults to <code>CMAKE_CURRENT_SOURCE_DIR</code>.</td>
+</tr>
+<tr>
+<td><code>CODEGEN_SETTINGS</code></td>
+<td></td>
+<td></td>
+<td>Path to a settings file forwarded to the code generator (<code>cli_gen</code>).</td>
+</tr>
+<tr>
+<td><code>GEN_HDR_FILES</code></td>
+<td></td>
+<td></td>
+<td><strong>Output variable.</strong> Receives the list of generated header files, useful for adding them to IDE source groups.</td>
+</tr>
+<tr>
+<td><code>SCHEMA_FILE</code></td>
+<td></td>
+<td></td>
+<td>If set, triggers JSON schema generation and writes the schema to this path.</td>
+</tr>
+<tr>
+<td><code>SCHEMA_COMPONENT_NAME</code></td>
+<td></td>
+<td></td>
+<td>When set alongside <code>SCHEMA_FILE</code>, the schema is generated as a component schema with this name embedded.</td>
+</tr>
+<tr>
+<td><code>HLA_OUTPUT_DIR</code></td>
+<td></td>
+<td></td>
+<td>Subdirectory within <code>OUTPUT_DIR</code> for HLA-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
+</tr>
+<tr>
+<td><code>STL_FILES</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Sen Type Language (<code>.stl</code>) files from which C++ code is generated. Mutually exclusive with <code>HLA_FOM_DIRS</code>.</td>
+</tr>
+<tr>
+<td><code>HLA_FOM_DIRS</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
+</tr>
+<tr>
+<td><code>HLA_MAPPINGS_FILE</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>HLA mapping files that customise FOM-to-C++ translation. Requires <code>HLA_FOM_DIRS</code>.</td>
+</tr>
+<tr>
+<td><code>VISIBLE_CLASSES</code></td>
+<td></td>
+<td></td>
+<td>Whether generated class symbols are exported with public visibility (<code>YES</code> or <code>NO</code>). Required when consumed across shared-library boundaries.</td>
+</tr>
+</tbody>
+</table>
 <p>For example,</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nb">sen_generate_cpp</span><span class="p">(</span>
 </span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">    </span><span class="s">TARGET</span>
@@ -1720,14 +1811,83 @@ add a Sen component:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nb">sen_enable_static_analysis</span><span class="p">(</span><span class="s">ether</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="uml-diagrams">UML diagrams<a class="headerlink" href="#uml-diagrams" title="Permanent link">¶</a></h3>
-<p>Sen can generate PlantUML diagrams.</p>
+<p>Sen can generate PlantUML diagrams from STL or HLA FOM files.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nb">sen_generate_uml</span><span class="p">(</span>
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">    </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">base_path]</span>
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">[files...]]</span><span class="w"> </span><span class="s">|</span><span class="w"> </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">[directories...]]</span>
-</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">    </span><span class="s">[CLASSES_ONLY</span><span class="w"> </span><span class="s">|</span><span class="w"> </span><span class="s">TYPES_ONLY</span><span class="w"> </span><span class="s">|</span><span class="w"> </span><span class="s">TYPES_ONLY_NO_ENUMS]</span>
-</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">    </span><span class="s">OUT</span><span class="w"> </span><span class="s">output_file</span>
-</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="p">)</span>
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="s">OUT</span><span class="w"> </span><span class="s">&lt;file&gt;</span>
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">    </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">    </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="w">    </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">&lt;dirs...&gt;]</span>
+</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="w">    </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="w">    </span><span class="s">[CLASSES_ONLY</span><span class="w"> </span><span class="s">|</span><span class="w"> </span><span class="s">TYPES_ONLY</span><span class="w"> </span><span class="s">|</span><span class="w"> </span><span class="s">TYPES_ONLY_NO_ENUMS]</span>
+</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="p">)</span>
 </span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Mandatory</th>
+<th>Multiple</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TARGET</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>Name of the custom CMake target that triggers diagram generation.</td>
+</tr>
+<tr>
+<td><code>OUT</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>Path to the output <code>.puml</code> file to be written.</td>
+</tr>
+<tr>
+<td><code>BASE_PATH</code></td>
+<td></td>
+<td></td>
+<td>Root directory for import resolution. Defaults to <code>CMAKE_CURRENT_SOURCE_DIR</code>.</td>
+</tr>
+<tr>
+<td><code>STL_FILES</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Sen Type Language (<code>.stl</code>) files to diagram. Mutually exclusive with <code>HLA_FOM_DIRS</code>.</td>
+</tr>
+<tr>
+<td><code>HLA_FOM_DIRS</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Directories containing HLA FOM XML files to diagram. Mutually exclusive with <code>STL_FILES</code>.</td>
+</tr>
+<tr>
+<td><code>HLA_MAPPINGS_FILE</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>HLA mapping files forwarded to the diagram generator. Requires <code>HLA_FOM_DIRS</code>.</td>
+</tr>
+<tr>
+<td><code>CLASSES_ONLY</code></td>
+<td></td>
+<td></td>
+<td>Include only class and interface definitions. Omits primitive types, structs, and enumerations.</td>
+</tr>
+<tr>
+<td><code>TYPES_ONLY</code></td>
+<td></td>
+<td></td>
+<td>Include only type definitions (structs, enums, aliases). Omits class and interface diagrams.</td>
+</tr>
+<tr>
+<td><code>TYPES_ONLY_NO_ENUMS</code></td>
+<td></td>
+<td></td>
+<td>Like <code>TYPES_ONLY</code> but also omits individual enumerator values, showing only the enum names.</td>
+</tr>
+</tbody>
+</table>
 <p>For example:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="nb">sen_generate_uml</span><span class="p">(</span>
 </span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">    </span><span class="s">TARGET</span>
@@ -1764,25 +1924,63 @@ YAML files. To help you in this task, Sen provides means for generating Python c
 <p>Once you have your generated Python code, you will want to write the configuration Python file(s).
 There is another CMake function that helps you in generating the final YAML file:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="nb">sen_generate_yaml</span><span class="p">(</span>
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;target&gt;</span>
-</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">    </span><span class="s">SCRIPT</span><span class="w"> </span><span class="s">python_script</span>
-</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">    </span><span class="s">OUTPUT</span><span class="w"> </span><span class="s">output_file</span>
-</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="w">    </span><span class="s">[DEPS</span><span class="w"> </span><span class="s">[dependencies...]]</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
+</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">    </span><span class="s">SCRIPT</span><span class="w"> </span><span class="s">&lt;file&gt;</span>
+</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">    </span><span class="s">OUTPUT</span><span class="w"> </span><span class="s">&lt;file&gt;</span>
+</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="w">    </span><span class="s">[DEPS</span><span class="w"> </span><span class="s">&lt;targets...&gt;]</span>
 </span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="p">)</span>
 </span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Mandatory</th>
+<th>Multiple</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TARGET</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>Name of the custom CMake target that triggers YAML generation.</td>
+</tr>
+<tr>
+<td><code>SCRIPT</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>Path to the Python script that produces the YAML. Called as <code>python script.py &lt;output_file&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>OUTPUT</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>Path where the generated YAML file will be written.</td>
+</tr>
+<tr>
+<td><code>DEPS</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Targets this script depends on. Python-language targets (created with <code>sen_generate_python</code>) have their generated directory automatically prepended to <code>PYTHONPATH</code>.</td>
+</tr>
+</tbody>
+</table>
 <p>In the <code>DEPS</code> argument you need to set all the dependencies, and be sure to add the target that you
 used to generate the Python code. This way, this function will automatically configure the
 <code>PYTHONPATH</code> with the folders that host the generated code.</p>
+<p>If <a href="https://mypy-lang.org/">mypy</a> is found, this function also creates a <code>&lt;TARGET&gt;_check</code> target
+that type-checks the script, and makes <code>TARGET</code> depend on it so type checking runs before YAML
+generation.</p>
 <p>Keep in mind that the generated Python code and the generated YAML file are not meant to be kept
 under version control. The idea is to have a single source of truth: your config script for the
 data, and the STL (or HLA) files for the types.</p>
-<p>If <a href="https://mypy-lang.org/">mypy</a> is found, this function will run the checks on the script.</p>
 <h3 id="obtaining-external-interfaces-information">Obtaining external interfaces information<a class="headerlink" href="#obtaining-external-interfaces-information" title="Permanent link">¶</a></h3>
 <p>Sen provides the necessary functionality to obtain interfaces files (such as <code>stls</code> or HLA FOM
 <code>xmls</code>) when consuming packages from outside your project.</p>
 <p>The following CMake utility obtains interface-related properties from a target such as <code>STL_FILES</code>,
 <code>BASE_PATH</code> or <code>HLA_FOM_DIRS</code>.</p>
-<div class="language-cmake highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="nb">sen_generate_python</span><span class="p">(</span>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="nb">get_external_interfaces</span><span class="p">(</span>
 </span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;targetName&gt;</span>
 </span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="s">INSTALLATION_DIR</span><span class="w"> </span><span class="s">&lt;directory&gt;</span>
 </span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="p">)</span>
@@ -1821,7 +2019,7 @@ guide.</p></div>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 26, 2026 16:46:57 UTC">February 26, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 15, 2026 07:24:44 UTC">April 15, 2026</span>
 </span>
 </aside>
 </article>

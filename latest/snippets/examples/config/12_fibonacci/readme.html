@@ -1098,6 +1098,15 @@
     </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing-package-internals-with-test_target">
+<span class="md-ellipsis">
+      
+        Testing package internals with TEST_TARGET
+      
+    </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -1301,6 +1310,7 @@ well.</p>
 <h2 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">¶</a></h2>
 <p>To mark methods as deferred, we need to tell the Sen code generator that we don't want to (or can't) provide
 a result straight away. To do so, we specify our code generation settings:</p>
+<p>The <code>codegen_settings.json</code> file is passed to the Sen code generator via the <code>CODEGEN_SETTINGS</code> option in <code>add_sen_package</code>. It is a JSON object whose keys are method names and whose values are modifier objects.</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="p">{</span>
 </span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">"classes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="nt">"fibonacci.Worker"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -1409,13 +1419,27 @@ while crosschecking that the workload is constantly being distributed and simult
 by the different workers without delaying the workload distribution.</p>
 <p>You ask the <code>Worker</code> for computing <em>n</em> Fibonacci number by:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>my.tutorial.fibWorker.computeFibonacci 8
-</span></code></pre></div></div>
+</span></code></pre></div>
+<h2 id="testing-package-internals-with-test_target">Testing package internals with <code>TEST_TARGET</code><a class="headerlink" href="#testing-package-internals-with-test_target" title="Permanent link">¶</a></h2>
+<p>By default, Sen packages compile with hidden symbol visibility, so unit tests cannot link directly against the package and call internal functions. The <code>TEST_TARGET</code> option creates an additional STATIC library with all symbols exposed, which you can link your test executables against.</p>
+<p>The fibonacci package uses this to expose and test the pure <code>computeFibonacci</code> algorithm independently of the runtime. In the package's <code>CMakeLists.txt</code>:</p>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">fibonacci</span>
+</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="s">...</span>
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">  </span><span class="s">TEST_TARGET</span><span class="w"> </span><span class="s">fibonacci_test</span><span class="w">    </span><span class="c"># Creates a static lib with all symbols visible</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="p">)</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="c"># The test executable links against the static library, not the shared one</span>
+</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="nb">add_executable</span><span class="p">(</span><span class="s">fibonacci_algorithm_test</span><span class="w"> </span><span class="s">test/fibonacci_algorithm_test.cpp</span><span class="p">)</span>
+</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">fibonacci_algorithm_test</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">fibonacci_test</span><span class="w"> </span><span class="s">GTest::GTest</span><span class="w"> </span><span class="s">GTest::Main</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Any modifications to the target (e.g. <code>target_include_directories</code>) must be applied to <code>fibonacci_obj</code>, the intermediate OBJECT target, not to <code>fibonacci</code> or <code>fibonacci_test</code> directly (see the <a href="../../users_guide/cmake.md">CMake documentation</a> for details).</p></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 16, 2026 11:25:09 UTC">April 16, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 24, 2026 19:56:02 UTC">April 24, 2026</span>
 </span>
 </aside>
 </article>

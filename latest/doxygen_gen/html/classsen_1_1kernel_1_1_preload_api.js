@@ -13,6 +13,8 @@ var classsen_1_1kernel_1_1_preload_api =
     [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_preload_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
     [ "getAppName", "classsen_1_1kernel_1_1_preload_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
     [ "getWorkQueue", "classsen_1_1kernel_1_1_preload_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
-    [ "selectAllFrom", "classsen_1_1kernel_1_1_preload_api.html#a28d4fe464b2672619354c55208360335", null ],
+    [ "selectAllFrom", "classsen_1_1kernel_1_1_preload_api.html#af75a3b9ae703e6809b71802a85aee6bf", null ],
+    [ "selectAllFrom", "classsen_1_1kernel_1_1_preload_api.html#a4256a44d2b6734fb44282892215c1553", null ],
+    [ "selectFrom", "classsen_1_1kernel_1_1_preload_api.html#a215bea2badcf94c9236dd769697c463e", null ],
     [ "getConfigFilePath", "classsen_1_1kernel_1_1_preload_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
 ];

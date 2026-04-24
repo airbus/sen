@@ -296,8 +296,8 @@ $(function(){initNavTree('result_8h_source.html','',''); });
 <div class="foldopen" id="foldopen00273" data-start="{" data-end="}">
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno"><a class="line" href="classsen_1_1_result.html#a1059c62c83e86d0dc1d24eaf0a97eaa2">  273</a></span>  [[nodiscard]] <span class="keyword">const</span> impl::NonVoidT&lt;U&gt;&amp; <a class="code hl_function" href="classsen_1_1_result.html#a1059c62c83e86d0dc1d24eaf0a97eaa2">expect</a>(std::string_view errorMsg = {}) <span class="keyword">const</span> <span class="keyword">noexcept</span></div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>  {</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    std::ignore = errorMsg;  <span class="comment">// &lt;-- inspect this variable to check the error</span></div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">return</span> getValue();</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    impl::resultExpect(isOk(), errorMsg);</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">return</span> std::get&lt;T&gt;(value_);</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>  }</div>
 </div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>

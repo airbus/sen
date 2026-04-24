@@ -137,7 +137,7 @@ var hierarchy =
       [ "sen::IsVariantMember< T, Var >", "structsen_1_1_is_variant_member_3_01_t_00_01_var_01_4.html", null ]
     ] ],
     [ "sen::util::IteratorRange&lt; IteratorType &gt;", "structsen_1_1util_1_1_iterator_range.html", null ],
-    [ "sen::ObjectList&lt; T &gt;::Iterators", "classsen_1_1_object_list.html#structsen_1_1_object_list_1_1_iterators", null ],
+    [ "sen::ObjectList&lt; T &gt;::Iterators", "structsen_1_1_object_list_1_1_iterators.html", null ],
     [ "sen::kernel::Kernel", "classsen_1_1kernel_1_1_kernel.html", null ],
     [ "sen::kernel::KernelApi", "classsen_1_1kernel_1_1_kernel_api.html", [
       [ "sen::kernel::InitApi", "classsen_1_1kernel_1_1_init_api.html", null ],
@@ -278,7 +278,7 @@ var hierarchy =
     [ "sen::lang::StlSequenceStatement", "group__lang.html#structsen_1_1lang_1_1_stl_sequence_statement", null ],
     [ "sen::lang::StlStructFieldStatement", "group__lang.html#structsen_1_1lang_1_1_stl_struct_field_statement", null ],
     [ "sen::lang::StlStructStatement", "group__lang.html#structsen_1_1lang_1_1_stl_struct_statement", null ],
-    [ "sen::lang::StlToken", "structsen_1_1lang_1_1_stl_token.html", null ],
+    [ "sen::lang::StlToken", "classsen_1_1lang_1_1_stl_token.html", null ],
     [ "sen::lang::StlTypeAliasStatement", "group__lang.html#structsen_1_1lang_1_1_stl_type_alias_statement", null ],
     [ "sen::lang::StlTypeNameStatement", "group__lang.html#structsen_1_1lang_1_1_stl_type_name_statement", null ],
     [ "sen::lang::StlUnaryExpr", "group__lang.html#structsen_1_1lang_1_1_stl_unary_expr", null ],

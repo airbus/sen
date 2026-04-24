@@ -19,5 +19,5 @@ var searchData=
   ['isvariantmember_3c_20t_2c_20var_3a_3avaluetype_20_3e_16',['IsVariantMember&lt; T, Var::ValueType &gt;',['../group__templates.html',1,'sen']]],
   ['iteratorrange_17',['IteratorRange',['../structsen_1_1util_1_1_iterator_range.html',1,'sen::util']]],
   ['iteratorrange_3c_20util_3a_3asmartptriteratoradapter_3c_20unitstorage_3a_3aconst_5fiterator_20_3e_20_3e_18',['IteratorRange&lt; util::SmartPtrIteratorAdapter&lt; UnitStorage::const_iterator &gt; &gt;',['../structsen_1_1util_1_1_iterator_range.html',1,'sen::util']]],
-  ['iterators_19',['Iterators',['../classsen_1_1_object_list.html#structsen_1_1_object_list_1_1_iterators',1,'sen::ObjectList']]]
+  ['iterators_19',['Iterators',['../structsen_1_1_object_list_1_1_iterators.html',1,'sen::ObjectList']]]
 ];

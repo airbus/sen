@@ -462,6 +462,15 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#aliases">
+<span class="md-ellipsis">
+      
+        Aliases
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#classes">
 <span class="md-ellipsis">
       
@@ -1567,7 +1576,7 @@ add or remove elements.</p>
 <p>The storage type must be an integral (<code>u8</code>,<code>u16</code>,<code>i16</code>,<code>u32</code>,<code>i32</code>, <code>u64</code> or <code>i64</code>).</p>
 <h2 id="structures">Structures<a class="headerlink" href="#structures" title="Permanent link">¶</a></h2>
 <p>You can group values with structs. They are defined like this:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>struct &lt;type_name&gt;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>struct &lt;type_name&gt; [: &lt;parent_struct&gt;]
 </span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>{
 </span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a>  &lt;field_name&gt; : &lt;field_type&gt;,
 </span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a>  ...
@@ -1594,6 +1603,24 @@ add or remove elements.</p>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">SaveCursorPosition</span><span class="p">;</span>
 </span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">RestoreCursorPosition</span><span class="p">;</span>
 </span></code></pre></div>
+<p>Furthermore, structs may have a parent struct to avoid code duplication. For example,</p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ParentStruct</span>
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="p">{</span>
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">  </span><span class="n">familyName</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span>
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">  </span><span class="n">hairColor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span>
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">  </span><span class="n">badHabits</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">sequence</span><span class="o">&lt;</span><span class="n">BadHabit</span><span class="o">&gt;</span>
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="p">}</span>
+</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a>
+</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ChildStruct</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">ParentStruct</span>
+</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a><span class="p">{</span>
+</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span>
+</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="w">  </span><span class="n">age</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span><span class="p">,</span>
+</span><span id="__span-10-12"><a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><em>Note:</em> structs that specify a parent always declare a <code>is-a</code> relationship to their parent.
+That is, as structs do not have any invariants all data members from the parent will be available to every user of the derived class.
+Furthermore, a struct with a parent is a class that requires run-time polymorphism and should, therefore, also be treated as such in code.
+We currently strongly discourage the polymorphic usage of structs as parent structs do have a virtual constructor.</p>
 <h2 id="variants">Variants<a class="headerlink" href="#variants" title="Permanent link">¶</a></h2>
 <p>The variant type represents a type-safe union. An instance of variant at any given time either holds
 a value of one of its alternative types, or in the case of error - no value. As with unions, if a
@@ -1601,93 +1628,105 @@ variant holds a value of some object type T, the object representation of T is a
 within the object representation of the variant itself. Variant is not allowed to allocate
 additional (dynamic) memory. A variant is <em>not</em> permitted to hold the same type more than once.</p>
 <p>They are defined as follows:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>variant &lt;name&gt;
-</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>{
-</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>  &lt;type&gt;,
-</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>  ...
-</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>}
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>variant &lt;name&gt;
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>{
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>  &lt;type&gt;,
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>  ...
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>}
 </span></code></pre></div>
 <p>Types must be unique within the variant.</p>
 <p>For example,</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="n">variant</span><span class="w"> </span><span class="n">CustomTypeData</span>
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="p">{</span>
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="n">EnumTypeSpec</span><span class="p">,</span>
-</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">  </span><span class="n">QuantityTypeSpec</span><span class="p">,</span>
-</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">  </span><span class="n">SequenceTypeSpec</span><span class="p">,</span>
-</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">  </span><span class="n">StructTypeSpec</span><span class="p">,</span>
-</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">  </span><span class="n">VariantTypeSpec</span><span class="p">,</span>
-</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">  </span><span class="n">AliasTypeSpec</span><span class="p">,</span>
-</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="w">  </span><span class="n">ClassTypeSpec</span>
-</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="n">variant</span><span class="w"> </span><span class="n">CustomTypeData</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="p">{</span>
+</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">  </span><span class="n">EnumTypeSpec</span><span class="p">,</span>
+</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">  </span><span class="n">QuantityTypeSpec</span><span class="p">,</span>
+</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="w">  </span><span class="n">SequenceTypeSpec</span><span class="p">,</span>
+</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">  </span><span class="n">StructTypeSpec</span><span class="p">,</span>
+</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">  </span><span class="n">VariantTypeSpec</span><span class="p">,</span>
+</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">  </span><span class="n">AliasTypeSpec</span><span class="p">,</span>
+</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="w">  </span><span class="n">ClassTypeSpec</span>
+</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Note that variants can be used as "enumerations with state". For example:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">HideCursor</span><span class="p">;</span>
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ShowCursor</span><span class="p">;</span>
-</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="k">struct</span><span class="w"> </span><span class="nc">SaveCursorPosition</span><span class="p">;</span>
-</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="k">struct</span><span class="w"> </span><span class="nc">RestoreCursorPosition</span><span class="p">;</span>
-</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorLeft</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorRight</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorUp</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorDown</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Print</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a>
-</span><span id="__span-12-11"><a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">CPrint</span>
-</span><span id="__span-12-12"><a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a><span class="p">{</span>
-</span><span id="__span-12-13"><a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">  </span><span class="n">flags</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">,</span>
-</span><span id="__span-12-14"><a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="w">  </span><span class="n">color</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">,</span>
-</span><span id="__span-12-15"><a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="w">  </span><span class="n">text</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span>
-</span><span id="__span-12-16"><a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a><span class="p">}</span>
-</span><span id="__span-12-17"><a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a>
-</span><span id="__span-12-18"><a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a><span class="n">variant</span><span class="w"> </span><span class="n">TerminalCommand</span>
-</span><span id="__span-12-19"><a href="#__codelineno-12-19" id="__codelineno-12-19" name="__codelineno-12-19"></a><span class="p">{</span>
-</span><span id="__span-12-20"><a href="#__codelineno-12-20" id="__codelineno-12-20" name="__codelineno-12-20"></a><span class="w">  </span><span class="n">HideCursor</span><span class="p">,</span>
-</span><span id="__span-12-21"><a href="#__codelineno-12-21" id="__codelineno-12-21" name="__codelineno-12-21"></a><span class="w">  </span><span class="n">ShowCursor</span><span class="p">,</span>
-</span><span id="__span-12-22"><a href="#__codelineno-12-22" id="__codelineno-12-22" name="__codelineno-12-22"></a><span class="w">  </span><span class="n">SaveCursorPosition</span><span class="p">,</span>
-</span><span id="__span-12-23"><a href="#__codelineno-12-23" id="__codelineno-12-23" name="__codelineno-12-23"></a><span class="w">  </span><span class="n">RestoreCursorPosition</span><span class="p">,</span>
-</span><span id="__span-12-24"><a href="#__codelineno-12-24" id="__codelineno-12-24" name="__codelineno-12-24"></a><span class="w">  </span><span class="n">MoveCursorLeft</span><span class="p">,</span>
-</span><span id="__span-12-25"><a href="#__codelineno-12-25" id="__codelineno-12-25" name="__codelineno-12-25"></a><span class="w">  </span><span class="n">MoveCursorRight</span><span class="p">,</span>
-</span><span id="__span-12-26"><a href="#__codelineno-12-26" id="__codelineno-12-26" name="__codelineno-12-26"></a><span class="w">  </span><span class="n">MoveCursorUp</span><span class="p">,</span>
-</span><span id="__span-12-27"><a href="#__codelineno-12-27" id="__codelineno-12-27" name="__codelineno-12-27"></a><span class="w">  </span><span class="n">MoveCursorDown</span><span class="p">,</span>
-</span><span id="__span-12-28"><a href="#__codelineno-12-28" id="__codelineno-12-28" name="__codelineno-12-28"></a><span class="w">  </span><span class="n">Print</span><span class="p">,</span>
-</span><span id="__span-12-29"><a href="#__codelineno-12-29" id="__codelineno-12-29" name="__codelineno-12-29"></a><span class="w">  </span><span class="n">CPrint</span>
-</span><span id="__span-12-30"><a href="#__codelineno-12-30" id="__codelineno-12-30" name="__codelineno-12-30"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">HideCursor</span><span class="p">;</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ShowCursor</span><span class="p">;</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="k">struct</span><span class="w"> </span><span class="nc">SaveCursorPosition</span><span class="p">;</span>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="k">struct</span><span class="w"> </span><span class="nc">RestoreCursorPosition</span><span class="p">;</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorLeft</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorRight</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorUp</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MoveCursorDown</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cells</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Print</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-13-10"><a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a>
+</span><span id="__span-13-11"><a href="#__codelineno-13-11" id="__codelineno-13-11" name="__codelineno-13-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">CPrint</span>
+</span><span id="__span-13-12"><a href="#__codelineno-13-12" id="__codelineno-13-12" name="__codelineno-13-12"></a><span class="p">{</span>
+</span><span id="__span-13-13"><a href="#__codelineno-13-13" id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="w">  </span><span class="n">flags</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">,</span>
+</span><span id="__span-13-14"><a href="#__codelineno-13-14" id="__codelineno-13-14" name="__codelineno-13-14"></a><span class="w">  </span><span class="n">color</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">,</span>
+</span><span id="__span-13-15"><a href="#__codelineno-13-15" id="__codelineno-13-15" name="__codelineno-13-15"></a><span class="w">  </span><span class="n">text</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span>
+</span><span id="__span-13-16"><a href="#__codelineno-13-16" id="__codelineno-13-16" name="__codelineno-13-16"></a><span class="p">}</span>
+</span><span id="__span-13-17"><a href="#__codelineno-13-17" id="__codelineno-13-17" name="__codelineno-13-17"></a>
+</span><span id="__span-13-18"><a href="#__codelineno-13-18" id="__codelineno-13-18" name="__codelineno-13-18"></a><span class="n">variant</span><span class="w"> </span><span class="n">TerminalCommand</span>
+</span><span id="__span-13-19"><a href="#__codelineno-13-19" id="__codelineno-13-19" name="__codelineno-13-19"></a><span class="p">{</span>
+</span><span id="__span-13-20"><a href="#__codelineno-13-20" id="__codelineno-13-20" name="__codelineno-13-20"></a><span class="w">  </span><span class="n">HideCursor</span><span class="p">,</span>
+</span><span id="__span-13-21"><a href="#__codelineno-13-21" id="__codelineno-13-21" name="__codelineno-13-21"></a><span class="w">  </span><span class="n">ShowCursor</span><span class="p">,</span>
+</span><span id="__span-13-22"><a href="#__codelineno-13-22" id="__codelineno-13-22" name="__codelineno-13-22"></a><span class="w">  </span><span class="n">SaveCursorPosition</span><span class="p">,</span>
+</span><span id="__span-13-23"><a href="#__codelineno-13-23" id="__codelineno-13-23" name="__codelineno-13-23"></a><span class="w">  </span><span class="n">RestoreCursorPosition</span><span class="p">,</span>
+</span><span id="__span-13-24"><a href="#__codelineno-13-24" id="__codelineno-13-24" name="__codelineno-13-24"></a><span class="w">  </span><span class="n">MoveCursorLeft</span><span class="p">,</span>
+</span><span id="__span-13-25"><a href="#__codelineno-13-25" id="__codelineno-13-25" name="__codelineno-13-25"></a><span class="w">  </span><span class="n">MoveCursorRight</span><span class="p">,</span>
+</span><span id="__span-13-26"><a href="#__codelineno-13-26" id="__codelineno-13-26" name="__codelineno-13-26"></a><span class="w">  </span><span class="n">MoveCursorUp</span><span class="p">,</span>
+</span><span id="__span-13-27"><a href="#__codelineno-13-27" id="__codelineno-13-27" name="__codelineno-13-27"></a><span class="w">  </span><span class="n">MoveCursorDown</span><span class="p">,</span>
+</span><span id="__span-13-28"><a href="#__codelineno-13-28" id="__codelineno-13-28" name="__codelineno-13-28"></a><span class="w">  </span><span class="n">Print</span><span class="p">,</span>
+</span><span id="__span-13-29"><a href="#__codelineno-13-29" id="__codelineno-13-29" name="__codelineno-13-29"></a><span class="w">  </span><span class="n">CPrint</span>
+</span><span id="__span-13-30"><a href="#__codelineno-13-30" id="__codelineno-13-30" name="__codelineno-13-30"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>In C++, variants are rendered as <code>std::variant&lt;...&gt;</code>.</p>
 <h2 id="quantities">Quantities<a class="headerlink" href="#quantities" title="Permanent link">¶</a></h2>
 <p>You can use strongly-defined quantity types, with units and optional ranges. For example,</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>quantity&lt;f64, deg&gt; Lat [min: -90.0,  max: 90.0];
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>quantity&lt;f64, deg&gt; Lon [min: -180.0, max: 180.0];
-</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>
-</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>quantity&lt;f32, m_per_s&gt; Speed;
-</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>quantity&lt;f32, rad&gt; Angle;
-</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a>quantity&lt;f32, m&gt; Meters;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>quantity&lt;f64, deg&gt; Lat [min: -90.0,  max: 90.0];
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>quantity&lt;f64, deg&gt; Lon [min: -180.0, max: 180.0];
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a>quantity&lt;f32, m_per_s&gt; Speed;
+</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a>quantity&lt;f32, rad&gt; Angle;
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a>quantity&lt;f32, m&gt; Meters;
 </span></code></pre></div>
 <h2 id="optional-values">Optional values<a class="headerlink" href="#optional-values" title="Permanent link">¶</a></h2>
 <p>You can define types that might optionally hold a value (of any given type). For example,</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>optional&lt;f64&gt; MaybeFloat64;
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>optional&lt;Error&gt; MaybeError;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>optional&lt;f64&gt; MaybeFloat64;
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>optional&lt;Error&gt; MaybeError;
+</span></code></pre></div>
+<h2 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">¶</a></h2>
+<p>You can define alternative names for types. For example,</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a>alias StringAlias string;
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>alias MyInt u8;
+</span></code></pre></div>
+<p>From this point you can use your custom names in other places. For example,</p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyStuct</span>
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="p">{</span>
+</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="n">field1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">StringAlias</span><span class="p">,</span><span class="w"> </span><span class="c1">// same as string</span>
+</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">  </span><span class="n">field2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">MyInt</span><span class="w">        </span><span class="c1">// same as u8</span>
+</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">¶</a></h2>
 <p>You can define classes as follows:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>[abstract] class &lt;name&gt; [: extends &lt;parent_class&gt;]
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>{
-</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a>   &lt;members&gt;...
-</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a>}
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a>[abstract] class &lt;name&gt; [: extends &lt;parent_class&gt;]
+</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a>{
+</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a>   &lt;members&gt;...
+</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a>}
 </span></code></pre></div>
 <p>For example:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="n">class</span><span class="w"> </span><span class="n">MyClass</span>
-</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="p">{</span>
-</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="p">}</span>
-</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a>
-</span><span id="__span-16-5"><a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="n">class</span><span class="w"> </span><span class="n">MySubClass</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">MyClass</span>
-</span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="p">{</span>
-</span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="n">class</span><span class="w"> </span><span class="n">MyClass</span>
+</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="p">{</span>
+</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="p">}</span>
+</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a>
+</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="n">class</span><span class="w"> </span><span class="n">MySubClass</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">MyClass</span>
+</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="p">{</span>
+</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>If a class is marked as "abstract" it means that we demand an implementation for it. The Sen kernel
 will refuse to instantiate an abstract class without an implementation.</p>
 <p>There are 3 kinds of members that a class can have: properties, methods and events.</p>
 <p>Methods are defined as follows:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="k">fn</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">([</span><span class="o">&lt;</span><span class="n">arg_name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">arg_type</span><span class="o">&gt;</span><span class="p">]</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">return_type</span><span class="p">]]</span><span class="w"> </span><span class="p">[</span><span class="o">&lt;</span><span class="n">attribute</span><span class="o">&gt;..</span><span class="p">.];</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="k">fn</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">([</span><span class="o">&lt;</span><span class="n">arg_name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">arg_type</span><span class="o">&gt;</span><span class="p">]</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">return_type</span><span class="p">]]</span><span class="w"> </span><span class="p">[</span><span class="o">&lt;</span><span class="n">attribute</span><span class="o">&gt;..</span><span class="p">.];</span>
 </span></code></pre></div>
 <p>You can decorate methods with the following attributes:</p>
 <ul>
@@ -1697,21 +1736,21 @@ will refuse to instantiate an abstract class without an implementation.</p>
 <li><em>local</em>: The method can only be called within its component context.</li>
 </ul>
 <p>For example,</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Example</span>
-</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="p">{</span>
-</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="c1">// a method with no arguments (that doesn't return)</span>
-</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">methodWithoutArgs</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">,</span><span class="w"> </span><span class="n">bestEffort</span><span class="p">];</span>
-</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a>
-</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">  </span><span class="c1">// a method that returns a string</span>
-</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">methodThatReturns</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
-</span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a>
-</span><span id="__span-18-9"><a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="w">  </span><span class="c1">// adds two integrals</span>
-</span><span id="__span-18-10"><a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">leftHandSide</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">,</span><span class="w"> </span><span class="n">rightHandSide</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
-</span><span id="__span-18-11"><a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Example</span>
+</span><span id="__span-21-2"><a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="p">{</span>
+</span><span id="__span-21-3"><a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">  </span><span class="c1">// a method with no arguments (that doesn't return)</span>
+</span><span id="__span-21-4"><a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">methodWithoutArgs</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">,</span><span class="w"> </span><span class="n">bestEffort</span><span class="p">];</span>
+</span><span id="__span-21-5"><a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a>
+</span><span id="__span-21-6"><a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="w">  </span><span class="c1">// a method that returns a string</span>
+</span><span id="__span-21-7"><a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">methodThatReturns</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-21-8"><a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a>
+</span><span id="__span-21-9"><a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="w">  </span><span class="c1">// adds two integrals</span>
+</span><span id="__span-21-10"><a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">leftHandSide</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">,</span><span class="w"> </span><span class="n">rightHandSide</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
+</span><span id="__span-21-11"><a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>For example:</p>
 <p>Events are defined as follows:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="n">event</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">([</span><span class="o">&lt;</span><span class="n">arg_name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">arg_type</span><span class="o">&gt;</span><span class="p">]</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">[</span><span class="o">&lt;</span><span class="n">attribute</span><span class="o">&gt;..</span><span class="p">.];</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="n">event</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">([</span><span class="o">&lt;</span><span class="n">arg_name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">arg_type</span><span class="o">&gt;</span><span class="p">]</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">[</span><span class="o">&lt;</span><span class="n">attribute</span><span class="o">&gt;..</span><span class="p">.];</span>
 </span></code></pre></div>
 <p>You can decorate events with the following attributes:</p>
 <ul>
@@ -1719,17 +1758,17 @@ will refuse to instantiate an abstract class without an implementation.</p>
 <li><em>bestEffort</em>: Means that the transport is done using best-effort mechanisms.</li>
 </ul>
 <p>For example,</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Example</span>
-</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="p">{</span>
-</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">  </span><span class="c1">// an event without arguments</span>
-</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">somethingHappened</span><span class="p">();</span>
-</span><span id="__span-20-5"><a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a>
-</span><span id="__span-20-6"><a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">  </span><span class="c1">// an event with arguments</span>
-</span><span id="__span-20-7"><a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">somethingElseHappened</span><span class="p">(</span><span class="n">what</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span>
-</span><span id="__span-20-8"><a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-23-1"><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Example</span>
+</span><span id="__span-23-2"><a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="p">{</span>
+</span><span id="__span-23-3"><a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="w">  </span><span class="c1">// an event without arguments</span>
+</span><span id="__span-23-4"><a href="#__codelineno-23-4" id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">somethingHappened</span><span class="p">();</span>
+</span><span id="__span-23-5"><a href="#__codelineno-23-5" id="__codelineno-23-5" name="__codelineno-23-5"></a>
+</span><span id="__span-23-6"><a href="#__codelineno-23-6" id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="w">  </span><span class="c1">// an event with arguments</span>
+</span><span id="__span-23-7"><a href="#__codelineno-23-7" id="__codelineno-23-7" name="__codelineno-23-7"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">somethingElseHappened</span><span class="p">(</span><span class="n">what</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span>
+</span><span id="__span-23-8"><a href="#__codelineno-23-8" id="__codelineno-23-8" name="__codelineno-23-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Properties are defined as follows:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="n">var</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="k">type</span><span class="o">&gt;</span><span class="w"> </span><span class="p">[</span><span class="o">&lt;</span><span class="n">attribute</span><span class="o">&gt;..</span><span class="p">.];</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-24-1"><a href="#__codelineno-24-1" id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="n">var</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="k">type</span><span class="o">&gt;</span><span class="w"> </span><span class="p">[</span><span class="o">&lt;</span><span class="n">attribute</span><span class="o">&gt;..</span><span class="p">.];</span>
 </span></code></pre></div>
 <p>You can decorate properties with the following attributes:</p>
 <ul>
@@ -1742,15 +1781,15 @@ will refuse to instantiate an abstract class without an implementation.</p>
 <li><em>tag: your_tag</em>: This can be done multiple times. You can inspect tags at runtime.</li>
 </ul>
 <p>For example,</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Person</span>
-</span><span id="__span-22-2"><a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="p">{</span>
-</span><span id="__span-22-3"><a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">firstName</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
-</span><span id="__span-22-4"><a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">surName</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
-</span><span id="__span-22-5"><a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">kind</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="n">static_no_config</span><span class="p">];</span>
-</span><span id="__span-22-6"><a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">stressLevel</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="w">    </span><span class="p">[</span><span class="n">writable</span><span class="p">];</span>
-</span><span id="__span-22-7"><a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">temperature</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="w">    </span><span class="p">[</span><span class="n">writable</span><span class="p">];</span>
-</span><span id="__span-22-8"><a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">brainActivity</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span>
-</span><span id="__span-22-9"><a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Person</span>
+</span><span id="__span-25-2"><a href="#__codelineno-25-2" id="__codelineno-25-2" name="__codelineno-25-2"></a><span class="p">{</span>
+</span><span id="__span-25-3"><a href="#__codelineno-25-3" id="__codelineno-25-3" name="__codelineno-25-3"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">firstName</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-25-4"><a href="#__codelineno-25-4" id="__codelineno-25-4" name="__codelineno-25-4"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">surName</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-25-5"><a href="#__codelineno-25-5" id="__codelineno-25-5" name="__codelineno-25-5"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">kind</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="n">static_no_config</span><span class="p">];</span>
+</span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">stressLevel</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="w">    </span><span class="p">[</span><span class="n">writable</span><span class="p">];</span>
+</span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">temperature</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="w">    </span><span class="p">[</span><span class="n">writable</span><span class="p">];</span>
+</span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">brainActivity</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span>
+</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>NOTE: Classes cannot be used for properties, arguments, function returns, struct fields, etc. This
 is because they are not considered to be "value" types. Value types are those that can only contain
@@ -1770,19 +1809,19 @@ needed).</p>
   decide.</li>
 </ul>
 <p>To generate the code in this way, you use a JSON file that may look as follows:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-23-1"><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="p">{</span>
-</span><span id="__span-23-2"><a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="w">  </span><span class="nt">"classes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-23-3"><a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="w">    </span><span class="nt">"my_package.MyClass"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-23-4"><a href="#__codelineno-23-4" id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="w">      </span><span class="nt">"deferredMethods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-23-5"><a href="#__codelineno-23-5" id="__codelineno-23-5" name="__codelineno-23-5"></a><span class="w">        </span><span class="s2">"doingSomethingDeferred"</span><span class="p">,</span>
-</span><span id="__span-23-6"><a href="#__codelineno-23-6" id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="w">        </span><span class="s2">"doingSomethingDeferredWithoutReturning"</span>
-</span><span id="__span-23-7"><a href="#__codelineno-23-7" id="__codelineno-23-7" name="__codelineno-23-7"></a><span class="w">      </span><span class="p">],</span>
-</span><span id="__span-23-8"><a href="#__codelineno-23-8" id="__codelineno-23-8" name="__codelineno-23-8"></a><span class="w">      </span><span class="nt">"checkedProperties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-23-9"><a href="#__codelineno-23-9" id="__codelineno-23-9" name="__codelineno-23-9"></a><span class="w">        </span><span class="s2">"prop7"</span>
-</span><span id="__span-23-10"><a href="#__codelineno-23-10" id="__codelineno-23-10" name="__codelineno-23-10"></a><span class="w">      </span><span class="p">]</span>
-</span><span id="__span-23-11"><a href="#__codelineno-23-11" id="__codelineno-23-11" name="__codelineno-23-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-23-12"><a href="#__codelineno-23-12" id="__codelineno-23-12" name="__codelineno-23-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-23-13"><a href="#__codelineno-23-13" id="__codelineno-23-13" name="__codelineno-23-13"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-26-1"><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="p">{</span>
+</span><span id="__span-26-2"><a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="w">  </span><span class="nt">"classes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-3"><a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="w">    </span><span class="nt">"my_package.MyClass"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-4"><a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="w">      </span><span class="nt">"deferredMethods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-26-5"><a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="w">        </span><span class="s2">"doingSomethingDeferred"</span><span class="p">,</span>
+</span><span id="__span-26-6"><a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="w">        </span><span class="s2">"doingSomethingDeferredWithoutReturning"</span>
+</span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="w">      </span><span class="p">],</span>
+</span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="w">      </span><span class="nt">"checkedProperties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-26-9"><a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">        </span><span class="s2">"prop7"</span>
+</span><span id="__span-26-10"><a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">      </span><span class="p">]</span>
+</span><span id="__span-26-11"><a href="#__codelineno-26-11" id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-26-12"><a href="#__codelineno-26-12" id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-26-13"><a href="#__codelineno-26-13" id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>NOTE: In the past, we used STL to annotate deferred methods and checked properties, but this led to
 a situation where implementation-related customizations were triggering interface updates, even when
@@ -1790,36 +1829,36 @@ there was no effect to the client.</p>
 <h2 id="importing-hla-fom-defined-types">Importing HLA-FOM-defined types<a class="headerlink" href="#importing-hla-fom-defined-types" title="Permanent link">¶</a></h2>
 <p>Sometimes it is convenient to reuse HLA-defined types in your STL. You can include HLA FOM XMLs from
 STL files:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-24-1"><a href="#__codelineno-24-1" id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="n">package</span><span class="w"> </span><span class="n">se</span><span class="p">;</span>
-</span><span id="__span-24-2"><a href="#__codelineno-24-2" id="__codelineno-24-2" name="__codelineno-24-2"></a>
-</span><span id="__span-24-3"><a href="#__codelineno-24-3" id="__codelineno-24-3" name="__codelineno-24-3"></a><span class="n">import</span><span class="w"> </span><span class="s">"fom/rpr/RPR-Physical_v2.0.xml"</span>
-</span><span id="__span-24-4"><a href="#__codelineno-24-4" id="__codelineno-24-4" name="__codelineno-24-4"></a>
-</span><span id="__span-24-5"><a href="#__codelineno-24-5" id="__codelineno-24-5" name="__codelineno-24-5"></a><span class="c1">// An Entity model.</span>
-</span><span id="__span-24-6"><a href="#__codelineno-24-6" id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">EntityModel</span>
-</span><span id="__span-24-7"><a href="#__codelineno-24-7" id="__codelineno-24-7" name="__codelineno-24-7"></a><span class="p">{</span>
-</span><span id="__span-24-8"><a href="#__codelineno-24-8" id="__codelineno-24-8" name="__codelineno-24-8"></a><span class="w">  </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">               </span><span class="c1">// Name of this model.</span>
-</span><span id="__span-24-9"><a href="#__codelineno-24-9" id="__codelineno-24-9" name="__codelineno-24-9"></a><span class="w">  </span><span class="k">type</span><span class="p">:</span><span class="w"> </span><span class="nc">rpr</span><span class="p">.</span><span class="n">EntityTypeStruct</span><span class="w">  </span><span class="c1">// Type of entity represented by this model.</span>
-</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="n">package</span><span class="w"> </span><span class="n">se</span><span class="p">;</span>
+</span><span id="__span-27-2"><a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a>
+</span><span id="__span-27-3"><a href="#__codelineno-27-3" id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="n">import</span><span class="w"> </span><span class="s">"fom/rpr/RPR-Physical_v2.0.xml"</span>
+</span><span id="__span-27-4"><a href="#__codelineno-27-4" id="__codelineno-27-4" name="__codelineno-27-4"></a>
+</span><span id="__span-27-5"><a href="#__codelineno-27-5" id="__codelineno-27-5" name="__codelineno-27-5"></a><span class="c1">// An Entity model.</span>
+</span><span id="__span-27-6"><a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">EntityModel</span>
+</span><span id="__span-27-7"><a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a><span class="p">{</span>
+</span><span id="__span-27-8"><a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a><span class="w">  </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">               </span><span class="c1">// Name of this model.</span>
+</span><span id="__span-27-9"><a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a><span class="w">  </span><span class="k">type</span><span class="p">:</span><span class="w"> </span><span class="nc">rpr</span><span class="p">.</span><span class="n">EntityTypeStruct</span><span class="w">  </span><span class="c1">// Type of entity represented by this model.</span>
+</span><span id="__span-27-10"><a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>You can see that the <code>rpr.EntityTypeStruct</code> is available. The same happens with all the other types
 in the XML.</p>
 <p>Keep in mind that Sen (the STL parser) expects the HLA XML files to follow a certain file layout.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a>- root
-</span><span id="__span-25-2"><a href="#__codelineno-25-2" id="__codelineno-25-2" name="__codelineno-25-2"></a>  - module_1
-</span><span id="__span-25-3"><a href="#__codelineno-25-3" id="__codelineno-25-3" name="__codelineno-25-3"></a>    - file_1.xml
-</span><span id="__span-25-4"><a href="#__codelineno-25-4" id="__codelineno-25-4" name="__codelineno-25-4"></a>    - file_2.xml
-</span><span id="__span-25-5"><a href="#__codelineno-25-5" id="__codelineno-25-5" name="__codelineno-25-5"></a>  - module_2
-</span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a>    - file_3.xml
-</span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a>    - file_4.xml
-</span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a>  ...
-</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a>  - module_n
-</span><span id="__span-25-10"><a href="#__codelineno-25-10" id="__codelineno-25-10" name="__codelineno-25-10"></a>    - file_5.xml
-</span><span id="__span-25-11"><a href="#__codelineno-25-11" id="__codelineno-25-11" name="__codelineno-25-11"></a>    - file_6.xml
-</span><span id="__span-25-12"><a href="#__codelineno-25-12" id="__codelineno-25-12" name="__codelineno-25-12"></a>
-</span><span id="__span-25-13"><a href="#__codelineno-25-13" id="__codelineno-25-13" name="__codelineno-25-13"></a>  - mapping_1.xml
-</span><span id="__span-25-14"><a href="#__codelineno-25-14" id="__codelineno-25-14" name="__codelineno-25-14"></a>  - mapping_2.xml
-</span><span id="__span-25-15"><a href="#__codelineno-25-15" id="__codelineno-25-15" name="__codelineno-25-15"></a>  - ...
-</span><span id="__span-25-16"><a href="#__codelineno-25-16" id="__codelineno-25-16" name="__codelineno-25-16"></a>  - mapping_n.xml
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a>- root
+</span><span id="__span-28-2"><a href="#__codelineno-28-2" id="__codelineno-28-2" name="__codelineno-28-2"></a>  - module_1
+</span><span id="__span-28-3"><a href="#__codelineno-28-3" id="__codelineno-28-3" name="__codelineno-28-3"></a>    - file_1.xml
+</span><span id="__span-28-4"><a href="#__codelineno-28-4" id="__codelineno-28-4" name="__codelineno-28-4"></a>    - file_2.xml
+</span><span id="__span-28-5"><a href="#__codelineno-28-5" id="__codelineno-28-5" name="__codelineno-28-5"></a>  - module_2
+</span><span id="__span-28-6"><a href="#__codelineno-28-6" id="__codelineno-28-6" name="__codelineno-28-6"></a>    - file_3.xml
+</span><span id="__span-28-7"><a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a>    - file_4.xml
+</span><span id="__span-28-8"><a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a>  ...
+</span><span id="__span-28-9"><a href="#__codelineno-28-9" id="__codelineno-28-9" name="__codelineno-28-9"></a>  - module_n
+</span><span id="__span-28-10"><a href="#__codelineno-28-10" id="__codelineno-28-10" name="__codelineno-28-10"></a>    - file_5.xml
+</span><span id="__span-28-11"><a href="#__codelineno-28-11" id="__codelineno-28-11" name="__codelineno-28-11"></a>    - file_6.xml
+</span><span id="__span-28-12"><a href="#__codelineno-28-12" id="__codelineno-28-12" name="__codelineno-28-12"></a>
+</span><span id="__span-28-13"><a href="#__codelineno-28-13" id="__codelineno-28-13" name="__codelineno-28-13"></a>  - mapping_1.xml
+</span><span id="__span-28-14"><a href="#__codelineno-28-14" id="__codelineno-28-14" name="__codelineno-28-14"></a>  - mapping_2.xml
+</span><span id="__span-28-15"><a href="#__codelineno-28-15" id="__codelineno-28-15" name="__codelineno-28-15"></a>  - ...
+</span><span id="__span-28-16"><a href="#__codelineno-28-16" id="__codelineno-28-16" name="__codelineno-28-16"></a>  - mapping_n.xml
 </span></code></pre></div>
 <p>This is needed because the XML files may depend on each other, and Sen needs to be able to find
 them.</p>
@@ -1842,140 +1881,142 @@ comments in two main ways:</p>
 <p><code>sequences</code>, <code>optional</code> and <code>quantities</code> → support <strong>before and inline comments</strong>.</p>
 </li>
 </ul>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-26-1"><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="c1">// A structure to represent a point in 2D space</span>
-</span><span id="__span-26-2"><a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span>
-</span><span id="__span-26-3"><a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="p">{</span>
-</span><span id="__span-26-4"><a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="w">  </span><span class="c1">// The X coordinate</span>
-</span><span id="__span-26-5"><a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="w">  </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="c1">// horizontal axis</span>
-</span><span id="__span-26-6"><a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="w">  </span><span class="c1">// The Y coordinate</span>
-</span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="w">  </span><span class="n">y</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="c1">// vertical axis</span>
-</span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-29-1"><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="c1">// A structure to represent a point in 2D space</span>
+</span><span id="__span-29-2"><a href="#__codelineno-29-2" id="__codelineno-29-2" name="__codelineno-29-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span>
+</span><span id="__span-29-3"><a href="#__codelineno-29-3" id="__codelineno-29-3" name="__codelineno-29-3"></a><span class="p">{</span>
+</span><span id="__span-29-4"><a href="#__codelineno-29-4" id="__codelineno-29-4" name="__codelineno-29-4"></a><span class="w">  </span><span class="c1">// The X coordinate</span>
+</span><span id="__span-29-5"><a href="#__codelineno-29-5" id="__codelineno-29-5" name="__codelineno-29-5"></a><span class="w">  </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">,</span>
+</span><span id="__span-29-6"><a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a>
+</span><span id="__span-29-7"><a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">  </span><span class="n">y</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="c1">// The Y coordinate</span>
+</span><span id="__span-29-8"><a href="#__codelineno-29-8" id="__codelineno-29-8" name="__codelineno-29-8"></a><span class="p">}</span>
 </span></code></pre></div>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="c1">// A temperature in Celsius</span>
-</span><span id="__span-27-2"><a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="n">quantity</span><span class="w"> </span><span class="n">Temperature</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span><span class="w"> </span><span class="c1">// float type</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-30-1"><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a><span class="c1">// An angle in radians</span>
+</span><span id="__span-30-2"><a href="#__codelineno-30-2" id="__codelineno-30-2" name="__codelineno-30-2"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">rad</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Angle</span><span class="p">;</span>
+</span><span id="__span-30-3"><a href="#__codelineno-30-3" id="__codelineno-30-3" name="__codelineno-30-3"></a>
+</span><span id="__span-30-4"><a href="#__codelineno-30-4" id="__codelineno-30-4" name="__codelineno-30-4"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">rad</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Angle</span><span class="p">;</span><span class="w"> </span><span class="c1">// An angle in radians</span>
 </span></code></pre></div>
 <h3 id="classes_1">Classes<a class="headerlink" href="#classes_1" title="Permanent link">¶</a></h3>
 <p>In addition to the general documentation rules, classes have additional special documentation for
 methods and events.</p>
 <p>As mentioned in the general rules, they both can have a comment block before their declaration.
 Within this block, and after the description, the parameters can be documented:</p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="c1">// @param &lt;name&gt; [comment]→ describes a parameter.</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-31-1"><a href="#__codelineno-31-1" id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="c1">// @param &lt;name&gt; [comment]→ describes a parameter.</span>
 </span></code></pre></div>
 <p>You can add multiple lines of comments, but only one @param per parameter.</p>
 <p><strong>Class Example:</strong></p>
-<div class="language-rust highlight"><pre><span></span><code><span id="__span-29-1"><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="c1">// Example class demonstrating documentation</span>
-</span><span id="__span-29-2"><a href="#__codelineno-29-2" id="__codelineno-29-2" name="__codelineno-29-2"></a><span class="n">class</span><span class="w"> </span><span class="n">Example</span>
-</span><span id="__span-29-3"><a href="#__codelineno-29-3" id="__codelineno-29-3" name="__codelineno-29-3"></a><span class="p">{</span>
-</span><span id="__span-29-4"><a href="#__codelineno-29-4" id="__codelineno-29-4" name="__codelineno-29-4"></a><span class="w">  </span><span class="c1">// Stores the first name</span>
-</span><span id="__span-29-5"><a href="#__codelineno-29-5" id="__codelineno-29-5" name="__codelineno-29-5"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">firstName</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span><span class="w"> </span><span class="c1">// A string property</span>
-</span><span id="__span-29-6"><a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a>
-</span><span id="__span-29-7"><a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">  </span><span class="c1">// Stores the surname</span>
-</span><span id="__span-29-8"><a href="#__codelineno-29-8" id="__codelineno-29-8" name="__codelineno-29-8"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">surName</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
-</span><span id="__span-29-9"><a href="#__codelineno-29-9" id="__codelineno-29-9" name="__codelineno-29-9"></a>
-</span><span id="__span-29-10"><a href="#__codelineno-29-10" id="__codelineno-29-10" name="__codelineno-29-10"></a><span class="w">  </span><span class="c1">// An event triggered when something happens</span>
-</span><span id="__span-29-11"><a href="#__codelineno-29-11" id="__codelineno-29-11" name="__codelineno-29-11"></a><span class="w">  </span><span class="c1">// @param what A description of what happened</span>
-</span><span id="__span-29-12"><a href="#__codelineno-29-12" id="__codelineno-29-12" name="__codelineno-29-12"></a><span class="w">  </span><span class="c1">// @param count Number of times it occurred</span>
-</span><span id="__span-29-13"><a href="#__codelineno-29-13" id="__codelineno-29-13" name="__codelineno-29-13"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">somethingElseHappened</span><span class="p">(</span><span class="n">what</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span><span class="w"> </span><span class="c1">// Example event</span>
-</span><span id="__span-29-14"><a href="#__codelineno-29-14" id="__codelineno-29-14" name="__codelineno-29-14"></a>
-</span><span id="__span-29-15"><a href="#__codelineno-29-15" id="__codelineno-29-15" name="__codelineno-29-15"></a><span class="w">  </span><span class="c1">// This is just an example method</span>
-</span><span id="__span-29-16"><a href="#__codelineno-29-16" id="__codelineno-29-16" name="__codelineno-29-16"></a><span class="w">  </span><span class="c1">// @param example1 This parameter is a string</span>
-</span><span id="__span-29-17"><a href="#__codelineno-29-17" id="__codelineno-29-17" name="__codelineno-29-17"></a><span class="w">  </span><span class="c1">// You can add more description here of the parameter, but do not repeat @param example1</span>
-</span><span id="__span-29-18"><a href="#__codelineno-29-18" id="__codelineno-29-18" name="__codelineno-29-18"></a><span class="w">  </span><span class="c1">// @param example2: This parameter is also a string</span>
-</span><span id="__span-29-19"><a href="#__codelineno-29-19" id="__codelineno-29-19" name="__codelineno-29-19"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">exampleMethod</span><span class="p">(</span><span class="n">example1</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">example2</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">string</span><span class="p">;</span>
-</span><span id="__span-29-20"><a href="#__codelineno-29-20" id="__codelineno-29-20" name="__codelineno-29-20"></a><span class="p">}</span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-32-1"><a href="#__codelineno-32-1" id="__codelineno-32-1" name="__codelineno-32-1"></a><span class="c1">// Example class demonstrating documentation</span>
+</span><span id="__span-32-2"><a href="#__codelineno-32-2" id="__codelineno-32-2" name="__codelineno-32-2"></a><span class="n">class</span><span class="w"> </span><span class="n">Example</span>
+</span><span id="__span-32-3"><a href="#__codelineno-32-3" id="__codelineno-32-3" name="__codelineno-32-3"></a><span class="p">{</span>
+</span><span id="__span-32-4"><a href="#__codelineno-32-4" id="__codelineno-32-4" name="__codelineno-32-4"></a><span class="w">  </span><span class="c1">// Stores the first name</span>
+</span><span id="__span-32-5"><a href="#__codelineno-32-5" id="__codelineno-32-5" name="__codelineno-32-5"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">firstName</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-32-6"><a href="#__codelineno-32-6" id="__codelineno-32-6" name="__codelineno-32-6"></a>
+</span><span id="__span-32-7"><a href="#__codelineno-32-7" id="__codelineno-32-7" name="__codelineno-32-7"></a><span class="w">  </span><span class="c1">// Stores the surname</span>
+</span><span id="__span-32-8"><a href="#__codelineno-32-8" id="__codelineno-32-8" name="__codelineno-32-8"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">surName</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-32-9"><a href="#__codelineno-32-9" id="__codelineno-32-9" name="__codelineno-32-9"></a>
+</span><span id="__span-32-10"><a href="#__codelineno-32-10" id="__codelineno-32-10" name="__codelineno-32-10"></a><span class="w">  </span><span class="c1">// An event triggered when something happens</span>
+</span><span id="__span-32-11"><a href="#__codelineno-32-11" id="__codelineno-32-11" name="__codelineno-32-11"></a><span class="w">  </span><span class="c1">// @param what A description of what happened</span>
+</span><span id="__span-32-12"><a href="#__codelineno-32-12" id="__codelineno-32-12" name="__codelineno-32-12"></a><span class="w">  </span><span class="c1">// @param count Number of times it occurred</span>
+</span><span id="__span-32-13"><a href="#__codelineno-32-13" id="__codelineno-32-13" name="__codelineno-32-13"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">somethingElseHappened</span><span class="p">(</span><span class="n">what</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span><span class="w"> </span><span class="c1">// Example event</span>
+</span><span id="__span-32-14"><a href="#__codelineno-32-14" id="__codelineno-32-14" name="__codelineno-32-14"></a>
+</span><span id="__span-32-15"><a href="#__codelineno-32-15" id="__codelineno-32-15" name="__codelineno-32-15"></a><span class="w">  </span><span class="c1">// This is just an example method</span>
+</span><span id="__span-32-16"><a href="#__codelineno-32-16" id="__codelineno-32-16" name="__codelineno-32-16"></a><span class="w">  </span><span class="c1">// @param example1 This parameter is a string</span>
+</span><span id="__span-32-17"><a href="#__codelineno-32-17" id="__codelineno-32-17" name="__codelineno-32-17"></a><span class="w">  </span><span class="c1">// You can add more description here of the parameter, but do not repeat @param example1</span>
+</span><span id="__span-32-18"><a href="#__codelineno-32-18" id="__codelineno-32-18" name="__codelineno-32-18"></a><span class="w">  </span><span class="c1">// @param example2: This parameter is also a string</span>
+</span><span id="__span-32-19"><a href="#__codelineno-32-19" id="__codelineno-32-19" name="__codelineno-32-19"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">exampleMethod</span><span class="p">(</span><span class="n">example1</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">example2</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">string</span><span class="p">;</span>
+</span><span id="__span-32-20"><a href="#__codelineno-32-20" id="__codelineno-32-20" name="__codelineno-32-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h2>
-<div class="language-rust highlight"><span class="filename">teacher.stl</span><pre><span></span><code><span id="__span-30-1"><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a><span class="n">import</span><span class="w"> </span><span class="s">"stl/school/person.stl"</span>
-</span><span id="__span-30-2"><a href="#__codelineno-30-2" id="__codelineno-30-2" name="__codelineno-30-2"></a>
-</span><span id="__span-30-3"><a href="#__codelineno-30-3" id="__codelineno-30-3" name="__codelineno-30-3"></a><span class="n">package</span><span class="w"> </span><span class="n">school</span><span class="p">;</span>
-</span><span id="__span-30-4"><a href="#__codelineno-30-4" id="__codelineno-30-4" name="__codelineno-30-4"></a>
-</span><span id="__span-30-5"><a href="#__codelineno-30-5" id="__codelineno-30-5" name="__codelineno-30-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ImpartingClass</span>
-</span><span id="__span-30-6"><a href="#__codelineno-30-6" id="__codelineno-30-6" name="__codelineno-30-6"></a><span class="p">{</span>
-</span><span id="__span-30-7"><a href="#__codelineno-30-7" id="__codelineno-30-7" name="__codelineno-30-7"></a><span class="w">  </span><span class="n">since</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span><span class="p">,</span>
-</span><span id="__span-30-8"><a href="#__codelineno-30-8" id="__codelineno-30-8" name="__codelineno-30-8"></a><span class="w">  </span><span class="n">className</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span>
-</span><span id="__span-30-9"><a href="#__codelineno-30-9" id="__codelineno-30-9" name="__codelineno-30-9"></a><span class="p">}</span>
-</span><span id="__span-30-10"><a href="#__codelineno-30-10" id="__codelineno-30-10" name="__codelineno-30-10"></a>
-</span><span id="__span-30-11"><a href="#__codelineno-30-11" id="__codelineno-30-11" name="__codelineno-30-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">WaitingForStudents</span>
-</span><span id="__span-30-12"><a href="#__codelineno-30-12" id="__codelineno-30-12" name="__codelineno-30-12"></a><span class="p">{</span>
-</span><span id="__span-30-13"><a href="#__codelineno-30-13" id="__codelineno-30-13" name="__codelineno-30-13"></a><span class="w">  </span><span class="n">since</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span>
-</span><span id="__span-30-14"><a href="#__codelineno-30-14" id="__codelineno-30-14" name="__codelineno-30-14"></a><span class="p">}</span>
-</span><span id="__span-30-15"><a href="#__codelineno-30-15" id="__codelineno-30-15" name="__codelineno-30-15"></a>
-</span><span id="__span-30-16"><a href="#__codelineno-30-16" id="__codelineno-30-16" name="__codelineno-30-16"></a><span class="n">variant</span><span class="w"> </span><span class="n">TeacherStatus</span>
-</span><span id="__span-30-17"><a href="#__codelineno-30-17" id="__codelineno-30-17" name="__codelineno-30-17"></a><span class="p">{</span>
-</span><span id="__span-30-18"><a href="#__codelineno-30-18" id="__codelineno-30-18" name="__codelineno-30-18"></a><span class="w">  </span><span class="n">WaitingForStudents</span><span class="p">,</span>
-</span><span id="__span-30-19"><a href="#__codelineno-30-19" id="__codelineno-30-19" name="__codelineno-30-19"></a><span class="w">  </span><span class="n">ImpartingClass</span>
-</span><span id="__span-30-20"><a href="#__codelineno-30-20" id="__codelineno-30-20" name="__codelineno-30-20"></a><span class="p">}</span>
-</span><span id="__span-30-21"><a href="#__codelineno-30-21" id="__codelineno-30-21" name="__codelineno-30-21"></a>
-</span><span id="__span-30-22"><a href="#__codelineno-30-22" id="__codelineno-30-22" name="__codelineno-30-22"></a><span class="n">class</span><span class="w"> </span><span class="n">Teacher</span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">Person</span>
-</span><span id="__span-30-23"><a href="#__codelineno-30-23" id="__codelineno-30-23" name="__codelineno-30-23"></a><span class="p">{</span>
-</span><span id="__span-30-24"><a href="#__codelineno-30-24" id="__codelineno-30-24" name="__codelineno-30-24"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">status</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">TeacherStatus</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
-</span><span id="__span-30-25"><a href="#__codelineno-30-25" id="__codelineno-30-25" name="__codelineno-30-25"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">stressLevel</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span>
-</span><span id="__span-30-26"><a href="#__codelineno-30-26" id="__codelineno-30-26" name="__codelineno-30-26"></a>
-</span><span id="__span-30-27"><a href="#__codelineno-30-27" id="__codelineno-30-27" name="__codelineno-30-27"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">assignTasks</span><span class="p">();</span>
-</span><span id="__span-30-28"><a href="#__codelineno-30-28" id="__codelineno-30-28" name="__codelineno-30-28"></a>
-</span><span id="__span-30-29"><a href="#__codelineno-30-29" id="__codelineno-30-29" name="__codelineno-30-29"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">stressLevelPeaked</span><span class="p">(</span><span class="n">level</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">);</span>
-</span><span id="__span-30-30"><a href="#__codelineno-30-30" id="__codelineno-30-30" name="__codelineno-30-30"></a><span class="p">}</span>
+<div class="language-rust highlight"><span class="filename">teacher.stl</span><pre><span></span><code><span id="__span-33-1"><a href="#__codelineno-33-1" id="__codelineno-33-1" name="__codelineno-33-1"></a><span class="n">import</span><span class="w"> </span><span class="s">"stl/school/person.stl"</span>
+</span><span id="__span-33-2"><a href="#__codelineno-33-2" id="__codelineno-33-2" name="__codelineno-33-2"></a>
+</span><span id="__span-33-3"><a href="#__codelineno-33-3" id="__codelineno-33-3" name="__codelineno-33-3"></a><span class="n">package</span><span class="w"> </span><span class="n">school</span><span class="p">;</span>
+</span><span id="__span-33-4"><a href="#__codelineno-33-4" id="__codelineno-33-4" name="__codelineno-33-4"></a>
+</span><span id="__span-33-5"><a href="#__codelineno-33-5" id="__codelineno-33-5" name="__codelineno-33-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ImpartingClass</span>
+</span><span id="__span-33-6"><a href="#__codelineno-33-6" id="__codelineno-33-6" name="__codelineno-33-6"></a><span class="p">{</span>
+</span><span id="__span-33-7"><a href="#__codelineno-33-7" id="__codelineno-33-7" name="__codelineno-33-7"></a><span class="w">  </span><span class="n">since</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span><span class="p">,</span>
+</span><span id="__span-33-8"><a href="#__codelineno-33-8" id="__codelineno-33-8" name="__codelineno-33-8"></a><span class="w">  </span><span class="n">className</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span>
+</span><span id="__span-33-9"><a href="#__codelineno-33-9" id="__codelineno-33-9" name="__codelineno-33-9"></a><span class="p">}</span>
+</span><span id="__span-33-10"><a href="#__codelineno-33-10" id="__codelineno-33-10" name="__codelineno-33-10"></a>
+</span><span id="__span-33-11"><a href="#__codelineno-33-11" id="__codelineno-33-11" name="__codelineno-33-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">WaitingForStudents</span>
+</span><span id="__span-33-12"><a href="#__codelineno-33-12" id="__codelineno-33-12" name="__codelineno-33-12"></a><span class="p">{</span>
+</span><span id="__span-33-13"><a href="#__codelineno-33-13" id="__codelineno-33-13" name="__codelineno-33-13"></a><span class="w">  </span><span class="n">since</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span>
+</span><span id="__span-33-14"><a href="#__codelineno-33-14" id="__codelineno-33-14" name="__codelineno-33-14"></a><span class="p">}</span>
+</span><span id="__span-33-15"><a href="#__codelineno-33-15" id="__codelineno-33-15" name="__codelineno-33-15"></a>
+</span><span id="__span-33-16"><a href="#__codelineno-33-16" id="__codelineno-33-16" name="__codelineno-33-16"></a><span class="n">variant</span><span class="w"> </span><span class="n">TeacherStatus</span>
+</span><span id="__span-33-17"><a href="#__codelineno-33-17" id="__codelineno-33-17" name="__codelineno-33-17"></a><span class="p">{</span>
+</span><span id="__span-33-18"><a href="#__codelineno-33-18" id="__codelineno-33-18" name="__codelineno-33-18"></a><span class="w">  </span><span class="n">WaitingForStudents</span><span class="p">,</span>
+</span><span id="__span-33-19"><a href="#__codelineno-33-19" id="__codelineno-33-19" name="__codelineno-33-19"></a><span class="w">  </span><span class="n">ImpartingClass</span>
+</span><span id="__span-33-20"><a href="#__codelineno-33-20" id="__codelineno-33-20" name="__codelineno-33-20"></a><span class="p">}</span>
+</span><span id="__span-33-21"><a href="#__codelineno-33-21" id="__codelineno-33-21" name="__codelineno-33-21"></a>
+</span><span id="__span-33-22"><a href="#__codelineno-33-22" id="__codelineno-33-22" name="__codelineno-33-22"></a><span class="n">class</span><span class="w"> </span><span class="n">Teacher</span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">Person</span>
+</span><span id="__span-33-23"><a href="#__codelineno-33-23" id="__codelineno-33-23" name="__codelineno-33-23"></a><span class="p">{</span>
+</span><span id="__span-33-24"><a href="#__codelineno-33-24" id="__codelineno-33-24" name="__codelineno-33-24"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">status</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">TeacherStatus</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
+</span><span id="__span-33-25"><a href="#__codelineno-33-25" id="__codelineno-33-25" name="__codelineno-33-25"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">stressLevel</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span>
+</span><span id="__span-33-26"><a href="#__codelineno-33-26" id="__codelineno-33-26" name="__codelineno-33-26"></a>
+</span><span id="__span-33-27"><a href="#__codelineno-33-27" id="__codelineno-33-27" name="__codelineno-33-27"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">assignTasks</span><span class="p">();</span>
+</span><span id="__span-33-28"><a href="#__codelineno-33-28" id="__codelineno-33-28" name="__codelineno-33-28"></a>
+</span><span id="__span-33-29"><a href="#__codelineno-33-29" id="__codelineno-33-29" name="__codelineno-33-29"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">stressLevelPeaked</span><span class="p">(</span><span class="n">level</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">);</span>
+</span><span id="__span-33-30"><a href="#__codelineno-33-30" id="__codelineno-33-30" name="__codelineno-33-30"></a><span class="p">}</span>
 </span></code></pre></div>
-<div class="language-rust highlight"><span class="filename">student.stl</span><pre><span></span><code><span id="__span-31-1"><a href="#__codelineno-31-1" id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="n">import</span><span class="w"> </span><span class="s">"stl/school/person.stl"</span>
-</span><span id="__span-31-2"><a href="#__codelineno-31-2" id="__codelineno-31-2" name="__codelineno-31-2"></a>
-</span><span id="__span-31-3"><a href="#__codelineno-31-3" id="__codelineno-31-3" name="__codelineno-31-3"></a><span class="n">package</span><span class="w"> </span><span class="n">school</span><span class="p">;</span>
-</span><span id="__span-31-4"><a href="#__codelineno-31-4" id="__codelineno-31-4" name="__codelineno-31-4"></a>
-</span><span id="__span-31-5"><a href="#__codelineno-31-5" id="__codelineno-31-5" name="__codelineno-31-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Sleeping</span>
-</span><span id="__span-31-6"><a href="#__codelineno-31-6" id="__codelineno-31-6" name="__codelineno-31-6"></a><span class="p">{</span>
-</span><span id="__span-31-7"><a href="#__codelineno-31-7" id="__codelineno-31-7" name="__codelineno-31-7"></a><span class="w">  </span><span class="n">since</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span><span class="p">,</span>
-</span><span id="__span-31-8"><a href="#__codelineno-31-8" id="__codelineno-31-8" name="__codelineno-31-8"></a><span class="w">  </span><span class="n">snortingVolume</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span>
-</span><span id="__span-31-9"><a href="#__codelineno-31-9" id="__codelineno-31-9" name="__codelineno-31-9"></a><span class="p">}</span>
-</span><span id="__span-31-10"><a href="#__codelineno-31-10" id="__codelineno-31-10" name="__codelineno-31-10"></a>
-</span><span id="__span-31-11"><a href="#__codelineno-31-11" id="__codelineno-31-11" name="__codelineno-31-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DoingSomething</span>
-</span><span id="__span-31-12"><a href="#__codelineno-31-12" id="__codelineno-31-12" name="__codelineno-31-12"></a><span class="p">{</span>
-</span><span id="__span-31-13"><a href="#__codelineno-31-13" id="__codelineno-31-13" name="__codelineno-31-13"></a><span class="w">  </span><span class="n">since</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span><span class="p">,</span>
-</span><span id="__span-31-14"><a href="#__codelineno-31-14" id="__codelineno-31-14" name="__codelineno-31-14"></a><span class="w">  </span><span class="n">taskName</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span>
-</span><span id="__span-31-15"><a href="#__codelineno-31-15" id="__codelineno-31-15" name="__codelineno-31-15"></a><span class="w">  </span><span class="n">difficulty</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
-</span><span id="__span-31-16"><a href="#__codelineno-31-16" id="__codelineno-31-16" name="__codelineno-31-16"></a><span class="w">  </span><span class="n">progress</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span>
-</span><span id="__span-31-17"><a href="#__codelineno-31-17" id="__codelineno-31-17" name="__codelineno-31-17"></a><span class="p">}</span>
-</span><span id="__span-31-18"><a href="#__codelineno-31-18" id="__codelineno-31-18" name="__codelineno-31-18"></a>
-</span><span id="__span-31-19"><a href="#__codelineno-31-19" id="__codelineno-31-19" name="__codelineno-31-19"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DoingNothing</span>
-</span><span id="__span-31-20"><a href="#__codelineno-31-20" id="__codelineno-31-20" name="__codelineno-31-20"></a><span class="p">{</span>
-</span><span id="__span-31-21"><a href="#__codelineno-31-21" id="__codelineno-31-21" name="__codelineno-31-21"></a><span class="w">  </span><span class="n">since</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span>
-</span><span id="__span-31-22"><a href="#__codelineno-31-22" id="__codelineno-31-22" name="__codelineno-31-22"></a><span class="p">}</span>
-</span><span id="__span-31-23"><a href="#__codelineno-31-23" id="__codelineno-31-23" name="__codelineno-31-23"></a>
-</span><span id="__span-31-24"><a href="#__codelineno-31-24" id="__codelineno-31-24" name="__codelineno-31-24"></a><span class="n">variant</span><span class="w"> </span><span class="n">StudentStatus</span>
-</span><span id="__span-31-25"><a href="#__codelineno-31-25" id="__codelineno-31-25" name="__codelineno-31-25"></a><span class="p">{</span>
-</span><span id="__span-31-26"><a href="#__codelineno-31-26" id="__codelineno-31-26" name="__codelineno-31-26"></a><span class="w">  </span><span class="n">DoingNothing</span><span class="p">,</span>
-</span><span id="__span-31-27"><a href="#__codelineno-31-27" id="__codelineno-31-27" name="__codelineno-31-27"></a><span class="w">  </span><span class="n">DoingSomething</span><span class="p">,</span>
-</span><span id="__span-31-28"><a href="#__codelineno-31-28" id="__codelineno-31-28" name="__codelineno-31-28"></a><span class="w">  </span><span class="n">Sleeping</span>
-</span><span id="__span-31-29"><a href="#__codelineno-31-29" id="__codelineno-31-29" name="__codelineno-31-29"></a><span class="p">}</span>
-</span><span id="__span-31-30"><a href="#__codelineno-31-30" id="__codelineno-31-30" name="__codelineno-31-30"></a>
-</span><span id="__span-31-31"><a href="#__codelineno-31-31" id="__codelineno-31-31" name="__codelineno-31-31"></a><span class="n">class</span><span class="w"> </span><span class="n">Student</span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">Person</span>
-</span><span id="__span-31-32"><a href="#__codelineno-31-32" id="__codelineno-31-32" name="__codelineno-31-32"></a><span class="p">{</span>
-</span><span id="__span-31-33"><a href="#__codelineno-31-33" id="__codelineno-31-33" name="__codelineno-31-33"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">status</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">StudentStatus</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
-</span><span id="__span-31-34"><a href="#__codelineno-31-34" id="__codelineno-31-34" name="__codelineno-31-34"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">focusLevel</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span>
-</span><span id="__span-31-35"><a href="#__codelineno-31-35" id="__codelineno-31-35" name="__codelineno-31-35"></a>
-</span><span id="__span-31-36"><a href="#__codelineno-31-36" id="__codelineno-31-36" name="__codelineno-31-36"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">startDoingTask</span><span class="p">(</span><span class="n">taskName</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">difficulty</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="p">;</span>
-</span><span id="__span-31-37"><a href="#__codelineno-31-37" id="__codelineno-31-37" name="__codelineno-31-37"></a>
-</span><span id="__span-31-38"><a href="#__codelineno-31-38" id="__codelineno-31-38" name="__codelineno-31-38"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">madeSomeNoise</span><span class="p">(</span><span class="n">noise</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">);</span>
-</span><span id="__span-31-39"><a href="#__codelineno-31-39" id="__codelineno-31-39" name="__codelineno-31-39"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">gotDistracted</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
-</span><span id="__span-31-40"><a href="#__codelineno-31-40" id="__codelineno-31-40" name="__codelineno-31-40"></a><span class="p">}</span>
+<div class="language-rust highlight"><span class="filename">student.stl</span><pre><span></span><code><span id="__span-34-1"><a href="#__codelineno-34-1" id="__codelineno-34-1" name="__codelineno-34-1"></a><span class="n">import</span><span class="w"> </span><span class="s">"stl/school/person.stl"</span>
+</span><span id="__span-34-2"><a href="#__codelineno-34-2" id="__codelineno-34-2" name="__codelineno-34-2"></a>
+</span><span id="__span-34-3"><a href="#__codelineno-34-3" id="__codelineno-34-3" name="__codelineno-34-3"></a><span class="n">package</span><span class="w"> </span><span class="n">school</span><span class="p">;</span>
+</span><span id="__span-34-4"><a href="#__codelineno-34-4" id="__codelineno-34-4" name="__codelineno-34-4"></a>
+</span><span id="__span-34-5"><a href="#__codelineno-34-5" id="__codelineno-34-5" name="__codelineno-34-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Sleeping</span>
+</span><span id="__span-34-6"><a href="#__codelineno-34-6" id="__codelineno-34-6" name="__codelineno-34-6"></a><span class="p">{</span>
+</span><span id="__span-34-7"><a href="#__codelineno-34-7" id="__codelineno-34-7" name="__codelineno-34-7"></a><span class="w">  </span><span class="n">since</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span><span class="p">,</span>
+</span><span id="__span-34-8"><a href="#__codelineno-34-8" id="__codelineno-34-8" name="__codelineno-34-8"></a><span class="w">  </span><span class="n">snortingVolume</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span>
+</span><span id="__span-34-9"><a href="#__codelineno-34-9" id="__codelineno-34-9" name="__codelineno-34-9"></a><span class="p">}</span>
+</span><span id="__span-34-10"><a href="#__codelineno-34-10" id="__codelineno-34-10" name="__codelineno-34-10"></a>
+</span><span id="__span-34-11"><a href="#__codelineno-34-11" id="__codelineno-34-11" name="__codelineno-34-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DoingSomething</span>
+</span><span id="__span-34-12"><a href="#__codelineno-34-12" id="__codelineno-34-12" name="__codelineno-34-12"></a><span class="p">{</span>
+</span><span id="__span-34-13"><a href="#__codelineno-34-13" id="__codelineno-34-13" name="__codelineno-34-13"></a><span class="w">  </span><span class="n">since</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span><span class="p">,</span>
+</span><span id="__span-34-14"><a href="#__codelineno-34-14" id="__codelineno-34-14" name="__codelineno-34-14"></a><span class="w">  </span><span class="n">taskName</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span>
+</span><span id="__span-34-15"><a href="#__codelineno-34-15" id="__codelineno-34-15" name="__codelineno-34-15"></a><span class="w">  </span><span class="n">difficulty</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
+</span><span id="__span-34-16"><a href="#__codelineno-34-16" id="__codelineno-34-16" name="__codelineno-34-16"></a><span class="w">  </span><span class="n">progress</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span>
+</span><span id="__span-34-17"><a href="#__codelineno-34-17" id="__codelineno-34-17" name="__codelineno-34-17"></a><span class="p">}</span>
+</span><span id="__span-34-18"><a href="#__codelineno-34-18" id="__codelineno-34-18" name="__codelineno-34-18"></a>
+</span><span id="__span-34-19"><a href="#__codelineno-34-19" id="__codelineno-34-19" name="__codelineno-34-19"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DoingNothing</span>
+</span><span id="__span-34-20"><a href="#__codelineno-34-20" id="__codelineno-34-20" name="__codelineno-34-20"></a><span class="p">{</span>
+</span><span id="__span-34-21"><a href="#__codelineno-34-21" id="__codelineno-34-21" name="__codelineno-34-21"></a><span class="w">  </span><span class="n">since</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStamp</span>
+</span><span id="__span-34-22"><a href="#__codelineno-34-22" id="__codelineno-34-22" name="__codelineno-34-22"></a><span class="p">}</span>
+</span><span id="__span-34-23"><a href="#__codelineno-34-23" id="__codelineno-34-23" name="__codelineno-34-23"></a>
+</span><span id="__span-34-24"><a href="#__codelineno-34-24" id="__codelineno-34-24" name="__codelineno-34-24"></a><span class="n">variant</span><span class="w"> </span><span class="n">StudentStatus</span>
+</span><span id="__span-34-25"><a href="#__codelineno-34-25" id="__codelineno-34-25" name="__codelineno-34-25"></a><span class="p">{</span>
+</span><span id="__span-34-26"><a href="#__codelineno-34-26" id="__codelineno-34-26" name="__codelineno-34-26"></a><span class="w">  </span><span class="n">DoingNothing</span><span class="p">,</span>
+</span><span id="__span-34-27"><a href="#__codelineno-34-27" id="__codelineno-34-27" name="__codelineno-34-27"></a><span class="w">  </span><span class="n">DoingSomething</span><span class="p">,</span>
+</span><span id="__span-34-28"><a href="#__codelineno-34-28" id="__codelineno-34-28" name="__codelineno-34-28"></a><span class="w">  </span><span class="n">Sleeping</span>
+</span><span id="__span-34-29"><a href="#__codelineno-34-29" id="__codelineno-34-29" name="__codelineno-34-29"></a><span class="p">}</span>
+</span><span id="__span-34-30"><a href="#__codelineno-34-30" id="__codelineno-34-30" name="__codelineno-34-30"></a>
+</span><span id="__span-34-31"><a href="#__codelineno-34-31" id="__codelineno-34-31" name="__codelineno-34-31"></a><span class="n">class</span><span class="w"> </span><span class="n">Student</span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">Person</span>
+</span><span id="__span-34-32"><a href="#__codelineno-34-32" id="__codelineno-34-32" name="__codelineno-34-32"></a><span class="p">{</span>
+</span><span id="__span-34-33"><a href="#__codelineno-34-33" id="__codelineno-34-33" name="__codelineno-34-33"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">status</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">StudentStatus</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
+</span><span id="__span-34-34"><a href="#__codelineno-34-34" id="__codelineno-34-34" name="__codelineno-34-34"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">focusLevel</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">;</span>
+</span><span id="__span-34-35"><a href="#__codelineno-34-35" id="__codelineno-34-35" name="__codelineno-34-35"></a>
+</span><span id="__span-34-36"><a href="#__codelineno-34-36" id="__codelineno-34-36" name="__codelineno-34-36"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">startDoingTask</span><span class="p">(</span><span class="n">taskName</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">difficulty</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="p">;</span>
+</span><span id="__span-34-37"><a href="#__codelineno-34-37" id="__codelineno-34-37" name="__codelineno-34-37"></a>
+</span><span id="__span-34-38"><a href="#__codelineno-34-38" id="__codelineno-34-38" name="__codelineno-34-38"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">madeSomeNoise</span><span class="p">(</span><span class="n">noise</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">);</span>
+</span><span id="__span-34-39"><a href="#__codelineno-34-39" id="__codelineno-34-39" name="__codelineno-34-39"></a><span class="w">  </span><span class="n">event</span><span class="w"> </span><span class="n">gotDistracted</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
+</span><span id="__span-34-40"><a href="#__codelineno-34-40" id="__codelineno-34-40" name="__codelineno-34-40"></a><span class="p">}</span>
 </span></code></pre></div>
-<div class="language-rust highlight"><span class="filename">class_room.stl</span><pre><span></span><code><span id="__span-32-1"><a href="#__codelineno-32-1" id="__codelineno-32-1" name="__codelineno-32-1"></a><span class="n">package</span><span class="w"> </span><span class="n">school</span><span class="p">;</span>
-</span><span id="__span-32-2"><a href="#__codelineno-32-2" id="__codelineno-32-2" name="__codelineno-32-2"></a>
-</span><span id="__span-32-3"><a href="#__codelineno-32-3" id="__codelineno-32-3" name="__codelineno-32-3"></a><span class="n">class</span><span class="w"> </span><span class="n">ClassRoom</span>
-</span><span id="__span-32-4"><a href="#__codelineno-32-4" id="__codelineno-32-4" name="__codelineno-32-4"></a><span class="p">{</span>
-</span><span id="__span-32-5"><a href="#__codelineno-32-5" id="__codelineno-32-5" name="__codelineno-32-5"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">createTeacher</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
-</span><span id="__span-32-6"><a href="#__codelineno-32-6" id="__codelineno-32-6" name="__codelineno-32-6"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">defaultSize</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w">    </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
-</span><span id="__span-32-7"><a href="#__codelineno-32-7" id="__codelineno-32-7" name="__codelineno-32-7"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">studentsBus</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
-</span><span id="__span-32-8"><a href="#__codelineno-32-8" id="__codelineno-32-8" name="__codelineno-32-8"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">teacherName</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
-</span><span id="__span-32-9"><a href="#__codelineno-32-9" id="__codelineno-32-9" name="__codelineno-32-9"></a>
-</span><span id="__span-32-10"><a href="#__codelineno-32-10" id="__codelineno-32-10" name="__codelineno-32-10"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">addStudents</span><span class="p">(</span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span>
-</span><span id="__span-32-11"><a href="#__codelineno-32-11" id="__codelineno-32-11" name="__codelineno-32-11"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">removeStudents</span><span class="p">(</span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span>
-</span><span id="__span-32-12"><a href="#__codelineno-32-12" id="__codelineno-32-12" name="__codelineno-32-12"></a><span class="p">}</span>
+<div class="language-rust highlight"><span class="filename">class_room.stl</span><pre><span></span><code><span id="__span-35-1"><a href="#__codelineno-35-1" id="__codelineno-35-1" name="__codelineno-35-1"></a><span class="n">package</span><span class="w"> </span><span class="n">school</span><span class="p">;</span>
+</span><span id="__span-35-2"><a href="#__codelineno-35-2" id="__codelineno-35-2" name="__codelineno-35-2"></a>
+</span><span id="__span-35-3"><a href="#__codelineno-35-3" id="__codelineno-35-3" name="__codelineno-35-3"></a><span class="n">class</span><span class="w"> </span><span class="n">ClassRoom</span>
+</span><span id="__span-35-4"><a href="#__codelineno-35-4" id="__codelineno-35-4" name="__codelineno-35-4"></a><span class="p">{</span>
+</span><span id="__span-35-5"><a href="#__codelineno-35-5" id="__codelineno-35-5" name="__codelineno-35-5"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">createTeacher</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-35-6"><a href="#__codelineno-35-6" id="__codelineno-35-6" name="__codelineno-35-6"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">defaultSize</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w">    </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-35-7"><a href="#__codelineno-35-7" id="__codelineno-35-7" name="__codelineno-35-7"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">studentsBus</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="k">static</span><span class="p">];</span>
+</span><span id="__span-35-8"><a href="#__codelineno-35-8" id="__codelineno-35-8" name="__codelineno-35-8"></a><span class="w">  </span><span class="n">var</span><span class="w"> </span><span class="n">teacherName</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w"> </span><span class="p">[</span><span class="n">confirmed</span><span class="p">];</span>
+</span><span id="__span-35-9"><a href="#__codelineno-35-9" id="__codelineno-35-9" name="__codelineno-35-9"></a>
+</span><span id="__span-35-10"><a href="#__codelineno-35-10" id="__codelineno-35-10" name="__codelineno-35-10"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">addStudents</span><span class="p">(</span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span>
+</span><span id="__span-35-11"><a href="#__codelineno-35-11" id="__codelineno-35-11" name="__codelineno-35-11"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">removeStudents</span><span class="p">(</span><span class="n">count</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">);</span>
+</span><span id="__span-35-12"><a href="#__codelineno-35-12" id="__codelineno-35-12" name="__codelineno-35-12"></a><span class="p">}</span>
 </span></code></pre></div></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 27, 2026 11:04:07 UTC">February 27, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 15:06:32 UTC">April 21, 2026</span>
 </span>
 </aside>
 </article>

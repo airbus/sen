@@ -122,9 +122,9 @@ Classes</h2></td></tr>
 <tr class="memitem:Component" id="r_Component"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_component.html">Component</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for implementing sen kernel components.  <a href="classsen_1_1kernel_1_1_component.html#details">More...</a><br /></td></tr>
 <tr class="memitem:ComponentMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fcomponent_5Fmonitoring_5Finfo" id="r_ComponentMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fcomponent_5Fmonitoring_5Finfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1kernel_1_1_component_monitoring_info">ComponentMonitoringInfo</a></td></tr>
-<tr class="memdesc:structsen_1_1kernel_1_1_component_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoring information about components.  <a href="#structsen_1_1kernel_1_1_component_monitoring_info">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1kernel_1_1_component_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime monitoring information about a single component runner.  <a href="#structsen_1_1kernel_1_1_component_monitoring_info">More...</a><br /></td></tr>
 <tr class="memitem:KernelMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fkernel_5Fmonitoring_5Finfo" id="r_KernelMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fkernel_5Fmonitoring_5Finfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1kernel_1_1_kernel_monitoring_info">KernelMonitoringInfo</a></td></tr>
-<tr class="memdesc:structsen_1_1kernel_1_1_kernel_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> monitoring information.  <a href="#structsen_1_1kernel_1_1_kernel_monitoring_info">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1kernel_1_1_kernel_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> runtime monitoring information.  <a href="#structsen_1_1kernel_1_1_kernel_monitoring_info">More...</a><br /></td></tr>
 <tr class="memitem:KernelApi" id="r_KernelApi"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html">KernelApi</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">User-facing kernel functions.  <a href="classsen_1_1kernel_1_1_kernel_api.html#details">More...</a><br /></td></tr>
 <tr class="memitem:ConfigGetter" id="r_ConfigGetter"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_config_getter.html">ConfigGetter</a></td></tr>
@@ -255,19 +255,19 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>Monitoring information about components. </p>
+<div class="textblock"><p>Runtime monitoring information about a single component runner. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
-<a id="af9a78a3710ba30ccc329d482e0f4b524" name="af9a78a3710ba30ccc329d482e0f4b524"></a>ComponentInfo</td>
+<a id="a7123066122ebd78720c832dd68cacdeb" name="a7123066122ebd78720c832dd68cacdeb"></a>string</td>
 <td class="fieldname">
-info</td>
+name</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
-<a id="a5f5e02f69bdc2f8365dd6c74d81af2ec" name="a5f5e02f69bdc2f8365dd6c74d81af2ec"></a>ComponentConfig</td>
+<a id="a2bc0806de82c7fee11de03f1bf8125ba" name="a2bc0806de82c7fee11de03f1bf8125ba"></a>uint32_t</td>
 <td class="fieldname">
-config</td>
+group = 0</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
@@ -303,7 +303,7 @@ objectCount = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> monitoring information. </p>
+<div class="textblock"><p><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> runtime monitoring information. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">

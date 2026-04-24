@@ -70,7 +70,7 @@ var searchData=
   ['stlsequencestatement_67',['StlSequenceStatement',['../group__lang.html#structsen_1_1lang_1_1_stl_sequence_statement',1,'sen::lang']]],
   ['stlstructfieldstatement_68',['StlStructFieldStatement',['../group__lang.html#structsen_1_1lang_1_1_stl_struct_field_statement',1,'sen::lang']]],
   ['stlstructstatement_69',['StlStructStatement',['../group__lang.html#structsen_1_1lang_1_1_stl_struct_statement',1,'sen::lang']]],
-  ['stltoken_70',['StlToken',['../structsen_1_1lang_1_1_stl_token.html',1,'sen::lang']]],
+  ['stltoken_70',['StlToken',['../classsen_1_1lang_1_1_stl_token.html',1,'sen::lang']]],
   ['stltypealiasstatement_71',['StlTypeAliasStatement',['../group__lang.html#structsen_1_1lang_1_1_stl_type_alias_statement',1,'sen::lang']]],
   ['stltypenamestatement_72',['StlTypeNameStatement',['../group__lang.html#structsen_1_1lang_1_1_stl_type_name_statement',1,'sen::lang']]],
   ['stlunaryexpr_73',['StlUnaryExpr',['../group__lang.html#structsen_1_1lang_1_1_stl_unary_expr',1,'sen::lang']]],

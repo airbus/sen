@@ -226,6 +226,10 @@ Functions</h2></td></tr>
 <tr class="memitem:gad9c629f4c794a98665d23d0c3cb902e0" id="r_gad9c629f4c794a98665d23d0c3cb902e0"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#gad9c629f4c794a98665d23d0c3cb902e0">sen::Subscription&lt; T &gt;::Subscription</a> (Subscription &amp;&amp;other) noexcept</td></tr>
 <tr class="memitem:ga44c91a0dd79ef94d8ecc16b94585439f" id="r_ga44c91a0dd79ef94d8ecc16b94585439f"><td class="memItemLeft"><a class="el" href="#gad9c629f4c794a98665d23d0c3cb902e0">Subscription</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ga44c91a0dd79ef94d8ecc16b94585439f">sen::Subscription&lt; T &gt;::operator=</a> (<a class="el" href="#gad9c629f4c794a98665d23d0c3cb902e0">Subscription</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="memitem:gacbf1d25d00a5c4b2fee2b5b334c307e4" id="r_gacbf1d25d00a5c4b2fee2b5b334c307e4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#gacbf1d25d00a5c4b2fee2b5b334c307e4">sen::Subscription&lt; T &gt;::~Subscription</a> ()</td></tr>
+<tr class="memitem:ga3c058c27058b6d43819f8355a81e1bef" id="r_ga3c058c27058b6d43819f8355a81e1bef"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ga3c058c27058b6d43819f8355a81e1bef">sen::Subscription&lt; T &gt;::attachTo</a> (std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_source.html">ObjectSource</a> &gt; src, std::shared_ptr&lt; <a class="el" href="classsen_1_1_interest.html">Interest</a> &gt; interest, bool notifyAboutExisting)</td></tr>
+<tr class="memdesc:ga3c058c27058b6d43819f8355a81e1bef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches this subscription to a source and registers the given interest. Objects matching the interest will start populating the list.  <br /></td></tr>
+<tr class="memitem:gaa747193302895a7d3a4745651a9e6129" id="r_gaa747193302895a7d3a4745651a9e6129"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#gaa747193302895a7d3a4745651a9e6129">sen::Subscription&lt; T &gt;::release</a> (bool notifyAboutExisting=true)</td></tr>
+<tr class="memdesc:gaa747193302895a7d3a4745651a9e6129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detaches from the source, unregistering the list as a subscriber. Called automatically on destruction. Pass notifyAboutExisting=false to suppress removal callbacks during explicit teardown.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Manipulation of objects. </p>
@@ -919,6 +923,73 @@ template&lt;typename T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga3c058c27058b6d43819f8355a81e1bef" name="ga3c058c27058b6d43819f8355a81e1bef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3c058c27058b6d43819f8355a81e1bef">&#9670;&#160;</a></span>attachTo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structsen_1_1_subscription.html">sen::Subscription</a>&lt; T &gt;::attachTo </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_source.html">ObjectSource</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>src</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classsen_1_1_interest.html">Interest</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>interest</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>notifyAboutExisting</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Attaches this subscription to a source and registers the given interest. Objects matching the interest will start populating the list. </p>
+
+</div>
+</div>
+<a id="gaa747193302895a7d3a4745651a9e6129" name="gaa747193302895a7d3a4745651a9e6129"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa747193302895a7d3a4745651a9e6129">&#9670;&#160;</a></span>release()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structsen_1_1_subscription.html">sen::Subscription</a>&lt; T &gt;::release </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>notifyAboutExisting</em></span><span class="paramdefsep"> = </span><span class="paramdefval">true</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detaches from the source, unregistering the list as a subscriber. Called automatically on destruction. Pass notifyAboutExisting=false to suppress removal callbacks during explicit teardown. </p>
 
 </div>
 </div>

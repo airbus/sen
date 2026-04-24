@@ -238,7 +238,8 @@ var namespacesen =
       [ "velocity", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9aac1a453d0cdc1f19d9479ccfaa8b082c", null ],
       [ "angularVelocity", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9af32d2726680cf3b3a70d2871c6fa11bd", null ],
       [ "acceleration", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9ad3879b8802412d8dc066fd9f1a6dd2b4", null ],
-      [ "angularAcceleration", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9a11e4bc0c83e3e74239c33423d09768b8", null ]
+      [ "angularAcceleration", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9a11e4bc0c83e3e74239c33423d09768b8", null ],
+      [ "torque", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9ae9ee2651c12f09e358eb1da8545952a7", null ]
     ] ],
     [ "Emit", "group__obj.html#ga3e6163dd3ea61144d97f1927d2fb4617", [
       [ "now", "group__obj.html#gga3e6163dd3ea61144d97f1927d2fb4617a97bc592b27a9ada2d9a4bb418ed0ebed", null ],
@@ -253,7 +254,7 @@ var namespacesen =
     [ "crc32", "group__hash.html#ga0a9ce6a4a9139dffb2a6acfdda42ec59", null ],
     [ "hashCombine", "group__hash.html#ga9f2e7e20ea6542ac9fa8421c6f75c55b", null ],
     [ "platformDependentHashCombine", "group__hash.html#ga6bf79d75ad81a1ce4c862dbb7a78f9e9", null ],
-    [ "decompressSymbol", "group__hash.html#gaca596e42b09b524dac45a0ee89a9267d", null ],
+    [ "decompressSymbol", "group__hash.html#gab67a1e60a7e9ad468ef805050fb9e87e", null ],
     [ "decompressSymbolToString", "group__hash.html#ga3a102c7cafd8f392fb3fc5a3852d3f44", null ],
     [ "fileToCompressedArrayFile", "group__hash.html#gafe6d5e0b16f001842c0baf42d625eb6d", null ],
     [ "platformDependentHashCombine", "namespacesen.html#a9d28fd7ab6b033e8af70dcbaf24aa17a", null ],

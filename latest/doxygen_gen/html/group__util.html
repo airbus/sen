@@ -161,10 +161,6 @@ Macros</h2></td></tr>
 <tr class="memitem:ga9e68c647656ea5857ccff35011444225" id="r_ga9e68c647656ea5857ccff35011444225"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga9e68c647656ea5857ccff35011444225">SEN_PRETTY_FUNCTION_NAME</a>&#160;&#160;&#160;__PRETTY_FUNCTION__</td></tr>
 <tr class="memitem:ga67f9d625678e6053a67e1111ab985477" id="r_ga67f9d625678e6053a67e1111ab985477"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a>()</td></tr>
 <tr class="memdesc:ga67f9d625678e6053a67e1111ab985477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience macro including the source location info. NOLINTNEXTLINE(cppcoreguidelines-macro-usage).  <br /></td></tr>
-<tr class="memitem:ga8bfaa66eb525bfc04faa5e38affd0ada" id="r_ga8bfaa66eb525bfc04faa5e38affd0ada"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga8bfaa66eb525bfc04faa5e38affd0ada">SEN_VERSION_STRING</a>&#160;&#160;&#160;&quot;b857ac19a\0&quot;</td></tr>
-<tr class="memitem:gafee6b1459d1ae3519be37ada49c62ed1" id="r_gafee6b1459d1ae3519be37ada49c62ed1"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#gafee6b1459d1ae3519be37ada49c62ed1">SEN_VERSION_MAJOR</a>&#160;&#160;&#160;0</td></tr>
-<tr class="memitem:gaaf2e0cf5e133c015f1fb88a289110fa5" id="r_gaaf2e0cf5e133c015f1fb88a289110fa5"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#gaaf2e0cf5e133c015f1fb88a289110fa5">SEN_VERSION_MINOR</a>&#160;&#160;&#160;0</td></tr>
-<tr class="memitem:ga5ba12b28bf7e6f554ccbbccb05b8c70c" id="r_ga5ba12b28bf7e6f554ccbbccb05b8c70c"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#ga5ba12b28bf7e6f554ccbbccb05b8c70c">SEN_VERSION_PATCH</a>&#160;&#160;&#160;0</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -456,67 +452,11 @@ functionName {&quot;function name not set&quot;}</td>
 <div class="line">  std::string_view {&amp;__FILE__[<a class="code hl_define" href="source__location_8h.html#a65b00fa0e500936d4f4e045233ac9844">SEN_SL_CONSTEXPR_VAL</a>(::sen::impl::getFilenameOffset(__FILE__))]}, __LINE__,            \</div>
 <div class="line">    std::string_view(<a class="code hl_define" href="#ga9e68c647656ea5857ccff35011444225">SEN_PRETTY_FUNCTION_NAME</a>)                                                                       \</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__util_html_ga9e68c647656ea5857ccff35011444225"><div class="ttname"><a href="#ga9e68c647656ea5857ccff35011444225">SEN_PRETTY_FUNCTION_NAME</a></div><div class="ttdeci">#define SEN_PRETTY_FUNCTION_NAME</div><div class="ttdef"><b>Definition</b> source_location.h:63</div></div>
-<div class="ttc" id="agroup__util_html_structsen_1_1_source_location"><div class="ttname"><a href="#structsen_1_1_source_location">sen::SourceLocation</a></div><div class="ttdoc">Represents a location in source code.</div><div class="ttdef"><b>Definition</b> source_location.h:54</div></div>
-<div class="ttc" id="asource__location_8h_html_a65b00fa0e500936d4f4e045233ac9844"><div class="ttname"><a href="source__location_8h.html#a65b00fa0e500936d4f4e045233ac9844">SEN_SL_CONSTEXPR_VAL</a></div><div class="ttdeci">#define SEN_SL_CONSTEXPR_VAL(exp)</div><div class="ttdoc">To force compile-time evaluation of exp. NOLINTNEXTLINE.</div><div class="ttdef"><b>Definition</b> source_location.h:42</div></div>
+<div class="ttc" id="agroup__util_html_ga9e68c647656ea5857ccff35011444225"><div class="ttname"><a href="#ga9e68c647656ea5857ccff35011444225">SEN_PRETTY_FUNCTION_NAME</a></div><div class="ttdeci">#define SEN_PRETTY_FUNCTION_NAME</div><div class="ttdef"><b>Definition</b> source_location.h:56</div></div>
+<div class="ttc" id="agroup__util_html_structsen_1_1_source_location"><div class="ttname"><a href="#structsen_1_1_source_location">sen::SourceLocation</a></div><div class="ttdoc">Represents a location in source code.</div><div class="ttdef"><b>Definition</b> source_location.h:47</div></div>
+<div class="ttc" id="asource__location_8h_html_a65b00fa0e500936d4f4e045233ac9844"><div class="ttname"><a href="source__location_8h.html#a65b00fa0e500936d4f4e045233ac9844">SEN_SL_CONSTEXPR_VAL</a></div><div class="ttdeci">#define SEN_SL_CONSTEXPR_VAL(exp)</div><div class="ttdoc">To force compile-time evaluation of exp. NOLINTNEXTLINE.</div><div class="ttdef"><b>Definition</b> source_location.h:35</div></div>
 </div><!-- fragment -->
 <p>Convenience macro including the source location info. NOLINTNEXTLINE(cppcoreguidelines-macro-usage). </p>
-
-</div>
-</div>
-<a id="ga8bfaa66eb525bfc04faa5e38affd0ada" name="ga8bfaa66eb525bfc04faa5e38affd0ada"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga8bfaa66eb525bfc04faa5e38affd0ada">&#9670;&#160;</a></span>SEN_VERSION_STRING</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SEN_VERSION_STRING&#160;&#160;&#160;&quot;b857ac19a\0&quot;</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="gafee6b1459d1ae3519be37ada49c62ed1" name="gafee6b1459d1ae3519be37ada49c62ed1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gafee6b1459d1ae3519be37ada49c62ed1">&#9670;&#160;</a></span>SEN_VERSION_MAJOR</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SEN_VERSION_MAJOR&#160;&#160;&#160;0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="gaaf2e0cf5e133c015f1fb88a289110fa5" name="gaaf2e0cf5e133c015f1fb88a289110fa5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaaf2e0cf5e133c015f1fb88a289110fa5">&#9670;&#160;</a></span>SEN_VERSION_MINOR</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SEN_VERSION_MINOR&#160;&#160;&#160;0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ga5ba12b28bf7e6f554ccbbccb05b8c70c" name="ga5ba12b28bf7e6f554ccbbccb05b8c70c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5ba12b28bf7e6f554ccbbccb05b8c70c">&#9670;&#160;</a></span>SEN_VERSION_PATCH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SEN_VERSION_PATCH&#160;&#160;&#160;0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
 
 </div>
 </div>

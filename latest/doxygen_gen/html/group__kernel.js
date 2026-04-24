@@ -25,7 +25,9 @@ var group__kernel =
       [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_kernel_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
       [ "getAppName", "classsen_1_1kernel_1_1_kernel_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
       [ "getWorkQueue", "classsen_1_1kernel_1_1_kernel_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
-      [ "selectAllFrom", "classsen_1_1kernel_1_1_kernel_api.html#a28d4fe464b2672619354c55208360335", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_kernel_api.html#af75a3b9ae703e6809b71802a85aee6bf", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_kernel_api.html#a4256a44d2b6734fb44282892215c1553", null ],
+      [ "selectFrom", "classsen_1_1kernel_1_1_kernel_api.html#a215bea2badcf94c9236dd769697c463e", null ],
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_kernel_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
     ] ],
     [ "sen::kernel::ConfigGetter", "classsen_1_1kernel_1_1_config_getter.html", [
@@ -44,7 +46,9 @@ var group__kernel =
       [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_registration_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
       [ "getAppName", "classsen_1_1kernel_1_1_registration_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
       [ "getWorkQueue", "classsen_1_1kernel_1_1_registration_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
-      [ "selectAllFrom", "classsen_1_1kernel_1_1_registration_api.html#a28d4fe464b2672619354c55208360335", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_registration_api.html#af75a3b9ae703e6809b71802a85aee6bf", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_registration_api.html#a4256a44d2b6734fb44282892215c1553", null ],
+      [ "selectFrom", "classsen_1_1kernel_1_1_registration_api.html#a215bea2badcf94c9236dd769697c463e", null ],
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_registration_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
     ] ],
     [ "sen::kernel::InitApi", "classsen_1_1kernel_1_1_init_api.html", [
@@ -59,7 +63,9 @@ var group__kernel =
       [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_init_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
       [ "getAppName", "classsen_1_1kernel_1_1_init_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
       [ "getWorkQueue", "classsen_1_1kernel_1_1_init_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
-      [ "selectAllFrom", "classsen_1_1kernel_1_1_init_api.html#a28d4fe464b2672619354c55208360335", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_init_api.html#af75a3b9ae703e6809b71802a85aee6bf", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_init_api.html#a4256a44d2b6734fb44282892215c1553", null ],
+      [ "selectFrom", "classsen_1_1kernel_1_1_init_api.html#a215bea2badcf94c9236dd769697c463e", null ],
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_init_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
     ] ],
     [ "sen::kernel::RunApi", "classsen_1_1kernel_1_1_run_api.html", [
@@ -74,6 +80,9 @@ var group__kernel =
       [ "getTime", "classsen_1_1kernel_1_1_run_api.html#af88ecc473e1a083867eb7365b28ce39c", null ],
       [ "getTargetCycleTime", "classsen_1_1kernel_1_1_run_api.html#a7f33c2a56c647d13dc36a8a2f0dd0c68", null ],
       [ "fetchMonitoringInfo", "classsen_1_1kernel_1_1_run_api.html#aa1af91117136c21134b1f78974e4d748", null ],
+      [ "getImportedPackages", "classsen_1_1kernel_1_1_run_api.html#a07ccd2f2f02b6a462ab4646f47ddf354", null ],
+      [ "getLoadedComponents", "classsen_1_1kernel_1_1_run_api.html#a04fd5437525eecb68fa9dc6f450da659", null ],
+      [ "getTransportProtocolVersion", "classsen_1_1kernel_1_1_run_api.html#a8fe5204e535993948ec160fd9808cd89", null ],
       [ "getTracer", "classsen_1_1kernel_1_1_run_api.html#a0b9f68c58972303049e76fc539dcc560", null ],
       [ "getConfig", "classsen_1_1kernel_1_1_run_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],
       [ "getTypes", "classsen_1_1kernel_1_1_run_api.html#a7ba20735f5cad05911fb5c525d220561", null ],
@@ -84,7 +93,9 @@ var group__kernel =
       [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_run_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
       [ "getAppName", "classsen_1_1kernel_1_1_run_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
       [ "getWorkQueue", "classsen_1_1kernel_1_1_run_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
-      [ "selectAllFrom", "classsen_1_1kernel_1_1_run_api.html#a28d4fe464b2672619354c55208360335", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_run_api.html#af75a3b9ae703e6809b71802a85aee6bf", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_run_api.html#a4256a44d2b6734fb44282892215c1553", null ],
+      [ "selectFrom", "classsen_1_1kernel_1_1_run_api.html#a215bea2badcf94c9236dd769697c463e", null ],
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_run_api.html#a6be66d4510a6e2935671d79d2f147132", null ],
       [ "impl::remoteProcessDetected", "classsen_1_1kernel_1_1_run_api.html#ae86e18ad27a7dd28b06ac8826bd985c9", null ],
       [ "impl::remoteProcessLost", "classsen_1_1kernel_1_1_run_api.html#ab0180c422233f43193b0a865918730ad", null ]
@@ -101,7 +112,9 @@ var group__kernel =
       [ "fetchOwnerInfo", "classsen_1_1kernel_1_1_unload_api.html#a966965b6760115b7ed38c8f4d8de8754", null ],
       [ "getAppName", "classsen_1_1kernel_1_1_unload_api.html#a97a00c770b6dc3b7482becb52027a442", null ],
       [ "getWorkQueue", "classsen_1_1kernel_1_1_unload_api.html#a0caf9e63c9e12af2c9f30864816dad08", null ],
-      [ "selectAllFrom", "classsen_1_1kernel_1_1_unload_api.html#a28d4fe464b2672619354c55208360335", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_unload_api.html#af75a3b9ae703e6809b71802a85aee6bf", null ],
+      [ "selectAllFrom", "classsen_1_1kernel_1_1_unload_api.html#a4256a44d2b6734fb44282892215c1553", null ],
+      [ "selectFrom", "classsen_1_1kernel_1_1_unload_api.html#a215bea2badcf94c9236dd769697c463e", null ],
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_unload_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
     ] ],
     [ "sen::kernel::Kernel", "classsen_1_1kernel_1_1_kernel.html", [

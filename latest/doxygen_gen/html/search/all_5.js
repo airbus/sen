@@ -44,7 +44,7 @@ var searchData=
   ['fromrprorientation_41',['fromRprOrientation',['../group__dr.html#gae280a4366ce6e2fc30b13928a636e238',1,'sen::util::impl']]],
   ['fromrprvelocity_42',['fromRprVelocity',['../group__dr.html#ga3e0efbe94df543dc1aee07d079b345a1',1,'sen::util::impl']]],
   ['fromsi_43',['fromSI',['../classsen_1_1_unit.html#afb03a3cfe55a76578652c14c40a07206',1,'sen::Unit']]],
-  ['fromstring_44',['fromString',['../group__util.html#ga6887699b9e58d3d52b290355fff38da9',1,'sen::Uuid::fromString()'],['../classsen_1_1_unit.html#a1330ceb614a3c816a67bc9ff4abc4850',1,'sen::Unit::fromString()']]],
+  ['fromstring_44',['fromString',['../group__util.html#ga6887699b9e58d3d52b290355fff38da9',1,'sen::Uuid::fromString()'],['../classsen_1_1_unit.html#a1330ceb614a3c816a67bc9ff4abc4850',1,'sen::Unit::fromString()'],['../group__lang.html#ga143a0c8db9c3a56c891299a6b9b40d3e',1,'sen::lang::fromString()']]],
   ['fromu8string_45',['fromU8string',['../namespacesen_1_1std__util.html#a59c4e1a815d15859a987394b358f8a01',1,'sen::std_util::fromU8string(const std::string &amp;s)'],['../namespacesen_1_1std__util.html#ae1e18ffcc1a8c5b68832114d3f3c9543',1,'sen::std_util::fromU8string(std::string &amp;&amp;s)']]],
   ['fromubjson_46',['fromUbjson',['../group__type__utils.html#ga3d00fab0e84df12f574da55720b6cc87',1,'sen']]],
   ['fromvelocity_47',['fromVelocity',['../namespacesen_1_1util.html#a22909816564a02dd0b2750e88a2ead6f',1,'sen::util']]],

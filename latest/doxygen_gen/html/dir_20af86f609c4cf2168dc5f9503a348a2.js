@@ -25,6 +25,5 @@ var dir_20af86f609c4cf2168dc5f9503a348a2 =
     [ "timestamp.h", "timestamp_8h.html", null ],
     [ "type_traits_extra.h", "type__traits__extra_8h.html", "type__traits__extra_8h" ],
     [ "u8string_util.h", "u8string__util_8h.html", "u8string__util_8h" ],
-    [ "uuid.h", "uuid_8h.html", "uuid_8h" ],
-    [ "version.h", "version_8h.html", "version_8h" ]
+    [ "uuid.h", "uuid_8h.html", "uuid_8h" ]
 ];

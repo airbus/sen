@@ -125,7 +125,7 @@ $(function(){initNavTree('classsen_1_1_object_list.html','','classsen_1_1_object
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:Iterators_5Fstructsen_5F1_5F1_5Fobject_5Flist_5F1_5F1_5Fiterators" id="r_Iterators_5Fstructsen_5F1_5F1_5Fobject_5Flist_5F1_5F1_5Fiterators"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1_object_list_1_1_iterators">Iterators</a></td></tr>
+<tr class="memitem:Iterators" id="r_Iterators"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structsen_1_1_object_list_1_1_iterators.html">Iterators</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
@@ -135,7 +135,7 @@ Public Types</h2></td></tr>
 <tr class="memdesc:a276f396d6f187606fc4e7820d0249652"><td class="mdescLeft">&#160;</td><td class="mdescRight">How to search for objects.  <a href="#a276f396d6f187606fc4e7820d0249652">More...</a><br /></td></tr>
 <tr class="memitem:a1d389a0f60020341f80d2b502dbf474d" id="r_a1d389a0f60020341f80d2b502dbf474d"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a1d389a0f60020341f80d2b502dbf474d">TypedObjectList</a> = std::list&lt;T*&gt;</td></tr>
 <tr class="memitem:a7e0e7406e8863eae9136a6f7f5c8acf5" id="r_a7e0e7406e8863eae9136a6f7f5c8acf5"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a7e0e7406e8863eae9136a6f7f5c8acf5">UntypedObjectList</a> = std::list&lt;std::shared_ptr&lt;<a class="el" href="classsen_1_1_object.html">Object</a>&gt;&gt;</td></tr>
-<tr class="memitem:aa0126582d6fc3b893f05d455ed29d48f" id="r_aa0126582d6fc3b893f05d455ed29d48f"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#aa0126582d6fc3b893f05d455ed29d48f">Callback</a> = std::function&lt;void(const <a class="el" href="#structsen_1_1_object_list_1_1_iterators">Iterators</a>&amp; iterators)&gt;</td></tr>
+<tr class="memitem:aa0126582d6fc3b893f05d455ed29d48f" id="r_aa0126582d6fc3b893f05d455ed29d48f"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#aa0126582d6fc3b893f05d455ed29d48f">Callback</a> = std::function&lt;void(const <a class="el" href="structsen_1_1_object_list_1_1_iterators.html">Iterators</a>&amp; iterators)&gt;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -169,50 +169,7 @@ Protected Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
 class sen::ObjectList&lt; T &gt;</div><p>A list of objects that is managed by some source based on user-expressed interests. </p>
-</div><hr/><h2 id="header-inline_5Fclasses" class="groupheader">Class Documentation</h2>
-<a name="structsen_1_1_object_list_1_1_iterators" id="structsen_1_1_object_list_1_1_iterators"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#structsen_1_1_object_list_1_1_iterators">&#9670;&#160;</a></span>sen::ObjectList::Iterators</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct sen::ObjectList::Iterators</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
-struct sen::ObjectList&lt; T &gt;::Iterators</div></div><table class="fieldtable">
-<tr><th colspan="3">Class Members</th></tr>
-<tr><td class="fieldtype">
-<a id="a08e900e63ad80b22ee23a00305b7e42b" name="a08e900e63ad80b22ee23a00305b7e42b"></a>iterator</td>
-<td class="fieldname">
-typedBegin</td>
-<td class="fielddoc">
-</td></tr>
-<tr><td class="fieldtype">
-<a id="af8301965395e27bce0348467e076308a" name="af8301965395e27bce0348467e076308a"></a>iterator</td>
-<td class="fieldname">
-typedEnd</td>
-<td class="fielddoc">
-</td></tr>
-<tr><td class="fieldtype">
-<a id="ad43b20250cc4ddc2373d3a3277abd00c" name="ad43b20250cc4ddc2373d3a3277abd00c"></a>iterator</td>
-<td class="fieldname">
-untypedBegin</td>
-<td class="fielddoc">
-</td></tr>
-<tr><td class="fieldtype">
-<a id="a76cbcb11dc614b21797fc46fe4bec48c" name="a76cbcb11dc614b21797fc46fe4bec48c"></a>iterator</td>
-<td class="fieldname">
-untypedEnd</td>
-<td class="fielddoc">
-</td></tr>
-</table>
-
-</div>
-</div>
-<a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Member Typedef Documentation</h2>
+</div><a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Member Typedef Documentation</h2>
 <a id="a1d389a0f60020341f80d2b502dbf474d" name="a1d389a0f60020341f80d2b502dbf474d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1d389a0f60020341f80d2b502dbf474d">&#9670;&#160;</a></span>TypedObjectList</h2>
 
@@ -254,7 +211,7 @@ template&lt;typename T&gt; </div>
 template&lt;typename T&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;::Callback = std::function&lt;void(const <a class="el" href="#structsen_1_1_object_list_1_1_iterators">Iterators</a>&amp; iterators)&gt;</td>
+          <td class="memname">using <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;::Callback = std::function&lt;void(const <a class="el" href="structsen_1_1_object_list_1_1_iterators.html">Iterators</a>&amp; iterators)&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">

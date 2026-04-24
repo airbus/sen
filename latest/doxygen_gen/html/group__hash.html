@@ -139,8 +139,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ga6bf79d75ad81a1ce4c862dbb7a78f9e9" id="r_ga6bf79d75ad81a1ce4c862dbb7a78f9e9"><td class="memTemplParams" colspan="2">template&lt;typename... Types&gt; </td></tr>
 <tr class="memitem:ga6bf79d75ad81a1ce4c862dbb7a78f9e9 template"><td class="memItemLeft">uint_fast32_t&#160;</td><td class="memItemRight"><a class="el" href="#ga6bf79d75ad81a1ce4c862dbb7a78f9e9">sen::platformDependentHashCombine</a> (uint_fast32_t seed, const Types &amp;... args) noexcept</td></tr>
 <tr class="memdesc:ga6bf79d75ad81a1ce4c862dbb7a78f9e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Old version of the hashCombine method. The current one replaced this implementation to allow sen processes to discover and connect themselves between platforms (Windows and Linux). We keep this old implementation to enable replaying Sen recordings generated with the old hashes.  <br /></td></tr>
-<tr class="memitem:gaca596e42b09b524dac45a0ee89a9267d" id="r_gaca596e42b09b524dac45a0ee89a9267d"><td class="memItemLeft">unsigned char *&#160;</td><td class="memItemRight"><a class="el" href="#gaca596e42b09b524dac45a0ee89a9267d">sen::decompressSymbol</a> (const void *compressedData)</td></tr>
-<tr class="memdesc:gaca596e42b09b524dac45a0ee89a9267d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompresses a blob into its original shape.  <br /></td></tr>
+<tr class="memitem:gab67a1e60a7e9ad468ef805050fb9e87e" id="r_gab67a1e60a7e9ad468ef805050fb9e87e"><td class="memItemLeft">std::unique_ptr&lt; unsigned char[]&gt;&#160;</td><td class="memItemRight"><a class="el" href="#gab67a1e60a7e9ad468ef805050fb9e87e">sen::decompressSymbol</a> (const void *compressedData)</td></tr>
+<tr class="memdesc:gab67a1e60a7e9ad468ef805050fb9e87e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompresses a blob into its original shape.  <br /></td></tr>
 <tr class="memitem:ga3a102c7cafd8f392fb3fc5a3852d3f44" id="r_ga3a102c7cafd8f392fb3fc5a3852d3f44"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ga3a102c7cafd8f392fb3fc5a3852d3f44">sen::decompressSymbolToString</a> (const void *compressedData, unsigned int originalSize)</td></tr>
 <tr class="memdesc:ga3a102c7cafd8f392fb3fc5a3852d3f44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompresses a blob into a string.  <br /></td></tr>
 <tr class="memitem:gafe6d5e0b16f001842c0baf42d625eb6d" id="r_gafe6d5e0b16f001842c0baf42d625eb6d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#gafe6d5e0b16f001842c0baf42d625eb6d">sen::fileToCompressedArrayFile</a> (const std::filesystem::path &amp;inputFile, std::string_view symbolName, const std::filesystem::path &amp;outputFile)</td></tr>
@@ -285,19 +285,27 @@ template&lt;typename... Types&gt; </div>
 
 </div>
 </div>
-<a id="gaca596e42b09b524dac45a0ee89a9267d" name="gaca596e42b09b524dac45a0ee89a9267d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaca596e42b09b524dac45a0ee89a9267d">&#9670;&#160;</a></span>decompressSymbol()</h2>
+<a id="gab67a1e60a7e9ad468ef805050fb9e87e" name="gab67a1e60a7e9ad468ef805050fb9e87e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab67a1e60a7e9ad468ef805050fb9e87e">&#9670;&#160;</a></span>decompressSymbol()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned char * sen::decompressSymbol </td>
+          <td class="memname">std::unique_ptr&lt; unsigned char[]&gt; sen::decompressSymbol </td>
           <td>(</td>
           <td class="paramtype">const void *</td>          <td class="paramname"><span class="paramname"><em>compressedData</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Decompresses a blob into its original shape. </p>

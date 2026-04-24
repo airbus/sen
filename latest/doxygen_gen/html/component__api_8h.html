@@ -115,12 +115,14 @@ $(function(){initNavTree('component__api_8h.html','',''); });
 <code>#include &quot;<a class="el" href="duration_8h_source.html">sen/core/base/duration.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="mutex__utils_8h_source.html">sen/core/base/mutex_utils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="result_8h_source.html">sen/core/base/result.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="span_8h_source.html">sen/core/base/span.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="timestamp_8h_source.html">sen/core/base/timestamp.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="type__registry_8h_source.html">sen/core/meta/type_registry.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="var_8h_source.html">sen/core/meta/var.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="work__queue_8h_source.html">sen/core/obj/detail/work_queue.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="interest_8h_source.html">sen/core/obj/interest.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="object_8h_source.html">sen/core/obj/object.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="object__list_8h_source.html">sen/core/obj/object_list.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="object__source_8h_source.html">sen/core/obj/object_source.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="subscription_8h_source.html">sen/core/obj/subscription.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="kernel_8h_source.html">sen/kernel/kernel.h</a>&quot;</code><br />
@@ -137,6 +139,7 @@ $(function(){initNavTree('component__api_8h.html','',''); });
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 </div>
 <p><a href="component__api_8h_source.html">Go to the source code of this file.</a></p>
@@ -144,9 +147,9 @@ $(function(){initNavTree('component__api_8h.html','',''); });
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:sen_3A_3Akernel_3A_3AComponentMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fcomponent_5Fmonitoring_5Finfo" id="r_sen_3A_3Akernel_3A_3AComponentMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fcomponent_5Fmonitoring_5Finfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">sen::kernel::ComponentMonitoringInfo</a></td></tr>
-<tr class="memdesc:structsen_1_1kernel_1_1_component_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoring information about components.  <a href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1kernel_1_1_component_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime monitoring information about a single component runner.  <a href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Akernel_3A_3AKernelMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fkernel_5Fmonitoring_5Finfo" id="r_sen_3A_3Akernel_3A_3AKernelMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fkernel_5Fmonitoring_5Finfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info">sen::kernel::KernelMonitoringInfo</a></td></tr>
-<tr class="memdesc:structsen_1_1kernel_1_1_kernel_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> monitoring information.  <a href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1kernel_1_1_kernel_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> runtime monitoring information.  <a href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Akernel_3A_3AKernelApi" id="r_sen_3A_3Akernel_3A_3AKernelApi"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html">sen::kernel::KernelApi</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">User-facing kernel functions.  <a href="classsen_1_1kernel_1_1_kernel_api.html#details">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Akernel_3A_3AConfigGetter" id="r_sen_3A_3Akernel_3A_3AConfigGetter"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_config_getter.html">sen::kernel::ConfigGetter</a></td></tr>
@@ -189,19 +192,19 @@ Typedefs</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>Monitoring information about components. </p>
+<div class="textblock"><p>Runtime monitoring information about a single component runner. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
-<a id="af9a78a3710ba30ccc329d482e0f4b524" name="af9a78a3710ba30ccc329d482e0f4b524"></a>ComponentInfo</td>
+<a id="a7123066122ebd78720c832dd68cacdeb" name="a7123066122ebd78720c832dd68cacdeb"></a>string</td>
 <td class="fieldname">
-info</td>
+name</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
-<a id="a5f5e02f69bdc2f8365dd6c74d81af2ec" name="a5f5e02f69bdc2f8365dd6c74d81af2ec"></a>ComponentConfig</td>
+<a id="a2bc0806de82c7fee11de03f1bf8125ba" name="a2bc0806de82c7fee11de03f1bf8125ba"></a>uint32_t</td>
 <td class="fieldname">
-config</td>
+group = 0</td>
 <td class="fielddoc">
 </td></tr>
 <tr><td class="fieldtype">
@@ -237,7 +240,7 @@ objectCount = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> monitoring information. </p>
+<div class="textblock"><p><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a> runtime monitoring information. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">

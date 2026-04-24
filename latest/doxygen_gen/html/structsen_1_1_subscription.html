@@ -123,11 +123,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ga44c91a0dd79ef94d8ecc16b94585439f" id="r_ga44c91a0dd79ef94d8ecc16b94585439f"><td class="memItemLeft"><a class="el" href="group__obj.html#gad9c629f4c794a98665d23d0c3cb902e0">Subscription</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="group__obj.html#ga44c91a0dd79ef94d8ecc16b94585439f">operator=</a> (<a class="el" href="group__obj.html#gad9c629f4c794a98665d23d0c3cb902e0">Subscription</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="memitem:a0f8a64d4a7537bfd72a90346c2da1417" id="r_a0f8a64d4a7537bfd72a90346c2da1417"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a0f8a64d4a7537bfd72a90346c2da1417">Subscription</a> ()=default</td></tr>
 <tr class="memitem:gacbf1d25d00a5c4b2fee2b5b334c307e4" id="r_gacbf1d25d00a5c4b2fee2b5b334c307e4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="group__obj.html#gacbf1d25d00a5c4b2fee2b5b334c307e4">~Subscription</a> ()</td></tr>
+<tr class="memitem:ga3c058c27058b6d43819f8355a81e1bef" id="r_ga3c058c27058b6d43819f8355a81e1bef"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="group__obj.html#ga3c058c27058b6d43819f8355a81e1bef">attachTo</a> (std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_source.html">ObjectSource</a> &gt; src, std::shared_ptr&lt; <a class="el" href="classsen_1_1_interest.html">Interest</a> &gt; interest, bool notifyAboutExisting)</td></tr>
+<tr class="memdesc:ga3c058c27058b6d43819f8355a81e1bef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches this subscription to a source and registers the given interest. Objects matching the interest will start populating the list.  <br /></td></tr>
+<tr class="memitem:gaa747193302895a7d3a4745651a9e6129" id="r_gaa747193302895a7d3a4745651a9e6129"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="group__obj.html#gaa747193302895a7d3a4745651a9e6129">release</a> (bool notifyAboutExisting=true)</td></tr>
+<tr class="memdesc:gaa747193302895a7d3a4745651a9e6129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detaches from the source, unregistering the list as a subscriber. Called automatically on destruction. Pass notifyAboutExisting=false to suppress removal callbacks during explicit teardown.  <br /></td></tr>
+<tr class="memitem:a9ed3fc0eedba9a8fb4c2a39231367889" id="r_a9ed3fc0eedba9a8fb4c2a39231367889"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_source.html">ObjectSource</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a9ed3fc0eedba9a8fb4c2a39231367889">getSource</a> () const</td></tr>
+<tr class="memdesc:a9ed3fc0eedba9a8fb4c2a39231367889"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the source currently attached to this subscription, or nullptr if none.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a4cf03a561c26b52e6374b3e7e7fb4aca" id="r_a4cf03a561c26b52e6374b3e7e7fb4aca"><td class="memItemLeft"><a class="el" href="classsen_1_1_object_list.html">ObjectList</a>&lt; T &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a4cf03a561c26b52e6374b3e7e7fb4aca">list</a></td></tr>
-<tr class="memitem:a1a9360a24f6ef187e8db2a64041dc9be" id="r_a1a9360a24f6ef187e8db2a64041dc9be"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_source.html">ObjectSource</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a1a9360a24f6ef187e8db2a64041dc9be">source</a></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
@@ -160,6 +165,36 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="a9ed3fc0eedba9a8fb4c2a39231367889" name="a9ed3fc0eedba9a8fb4c2a39231367889"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ed3fc0eedba9a8fb4c2a39231367889">&#9670;&#160;</a></span>getSource()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_source.html">ObjectSource</a> &gt; <a class="el" href="structsen_1_1_subscription.html">sen::Subscription</a>&lt; T &gt;::getSource </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the source currently attached to this subscription, or nullptr if none. </p>
+
+</div>
+</div>
 <a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a4cf03a561c26b52e6374b3e7e7fb4aca" name="a4cf03a561c26b52e6374b3e7e7fb4aca"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4cf03a561c26b52e6374b3e7e7fb4aca">&#9670;&#160;</a></span>list</h2>
@@ -171,22 +206,6 @@ template&lt;typename T&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classsen_1_1_object_list.html">ObjectList</a>&lt;T&gt; <a class="el" href="structsen_1_1_subscription.html">sen::Subscription</a>&lt; T &gt;::list</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a1a9360a24f6ef187e8db2a64041dc9be" name="a1a9360a24f6ef187e8db2a64041dc9be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a9360a24f6ef187e8db2a64041dc9be">&#9670;&#160;</a></span>source</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::shared_ptr&lt;<a class="el" href="classsen_1_1_object_source.html">ObjectSource</a>&gt; <a class="el" href="structsen_1_1_subscription.html">sen::Subscription</a>&lt; T &gt;::source</td>
         </tr>
       </table>
 </div><div class="memdoc">

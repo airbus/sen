@@ -857,6 +857,28 @@
       
     </span>
 </a>
+<nav aria-label="Configuration of our BASE_PATH" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stl-example">
+<span class="md-ellipsis">
+      
+        STL Example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hla-fom-example">
+<span class="md-ellipsis">
+      
+        HLA FOM Example
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -1352,26 +1374,41 @@ have <code>stl</code> files with the same name.</dd>
 </dl>
 <h3 id="configuration-of-our-base_path">Configuration of our <code>BASE_PATH</code><a class="headerlink" href="#configuration-of-our-base_path" title="Permanent link">¶</a></h3>
 <p>When generating code from <code>xml</code> or <code>stl</code> files, Sen offers the possibility of adding a <code>BASE_PATH</code>.
-The <code>BASE_PATH</code> facilitates the importing of these files, allowing to set a common path for the
-files that will be generated.</p>
-<p>If we follow the directory organization set above, we <strong>need</strong> to set the base path when generating
-our targets to the <strong>root of the component</strong>. This means setting the BASE_PATH so that when we
-include files, the path to include is the one we added to the directory.</p>
+The <code>BASE_PATH</code> parameter defines the root of the directory hierarchy so that generated files maintain common
+inclusion paths.</p>
+<p><strong>Important:</strong> Its behavior differs significantly depending on the file type:</p>
+<ul>
+<li><strong>For STL files:</strong> The <code>BASE_PATH</code> is strictly respected. It determines the relative path used in code inclusions.</li>
+<li><strong>For HLA FOM files (.xml):</strong> The <code>BASE_PATH</code> is <strong>ignored</strong> by the code generator.
+Sen enforces a strict directory layout for HLA and always uses the <strong>immediate parent directory</strong> of the XML file
+to build the inclusion paths.</li>
+</ul>
+<h4 id="stl-example">STL Example<a class="headerlink" href="#stl-example" title="Permanent link">¶</a></h4>
+<p>To ensure correct resolution, the <code>BASE_PATH</code> should be set to the <strong>root of the component</strong>.</p>
 <p>Let's follow the Sen school example. If we start from the root of the project, the original <code>stl</code>
 files resided on <code>components/recorder/stl/school.stl</code> but now, they are at
 <code>components/recorder/stl/sen/components/recorder/school.stl</code>. This means that if we want our
-importing path to be <code>import stl/sen/components/recorder/school.stl</code>, we need to set our base path
+importing path to be <code>import stl/sen/components/recorder/school.stl</code>, we need to set our <code>BASE_PATH</code>
 to <code>components/recorder</code>.</p>
+<h4 id="hla-fom-example">HLA FOM Example<a class="headerlink" href="#hla-fom-example" title="Permanent link">¶</a></h4>
+<p>For FOM files, the inclusion path is derived automatically from the physical location of the XML file,
+regardless of any <code>BASE_PATH</code> provided in CMake. Sen expects a <code>Grandparent/Parent/File.xml</code> structure.</p>
+<p><strong>Example:</strong>
+- Physical path: <code>fom/rpr/RPR-Base.xml</code>
+- Sen detects <code>rpr</code> as the immediate parent.
+- Any file importing/including this FOM will use the path: <code>"rpr/RPR-Base.xml.h"</code></p>
+<p>To ensure a consistent structure, organize your FOM directories so that the immediate parent directory matches
+your intended include prefix (e.g., <code>rpr/</code>, <code>netn/</code>).</p>
 <hr/>
 <blockquote>
-<p>What happens if the <code>BASE_PATH</code> argument is ignored or set to a different value?</p>
+<p>What happens if the <code>BASE_PATH</code> argument is ignored or set to a different value for STL files?</p>
 </blockquote>
 <dl>
-<dd>Using a different <code>BASE_PATH</code> would make your project way more vulnerable to issues when both
+<dd>Using a different <code>BASE_PATH</code> for STL files makes your project much more vulnerable to issues when both
 exporting and consuming its interfaces. Sen code generator expects the files to be organized in a
 certain way. Not adding the <code>BASE_PATH</code> can lead to issues such as import and include errors when
-generating code from the interfaces, both in this project and in the project that will consume the
-interfaces. Using a different <code>BASE_PATH</code> will require you to adapt not only your CMake, code and
+generating code from the interfaces, both in the current project and in any project that consumes the
+interfaces. Using an incorrect <code>BASE_PATH</code> will require you to adapt not only your CMake, code, and
 repository structure, but also the one of the developer that consumes your project as a package.
 Promoving a standard way of operating is the best way to ensure that compatibility is maintained
 across the large number of developers that will export and consume Sen-based packages.</dd>
@@ -1452,7 +1489,7 @@ your project is, and is required in the <a href="consuming_interfaces.html">cons
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 26, 2026 20:24:42 UTC">February 26, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 16, 2026 09:19:36 UTC">April 16, 2026</span>
 </span>
 </aside>
 </article>

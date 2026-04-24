@@ -9,7 +9,7 @@ var searchData=
   ['includepaths_6',['includePaths',['../group__lang.html#a86ca8ab951ae8dcfca176a5eff92e7ec',1,'sen::lang::ResolverContext']]],
   ['indexesfilename_7',['indexesFileName',['../namespacesen_1_1db.html#a2d591d27b9814e450bf501b89240e5d4',1,'sen::db']]],
   ['indexid_8',['indexId',['../group__db.html#af42f071b8fd80f96d21a9232a556c8ea',1,'sen::db::ObjectIndexDef']]],
-  ['info_9',['info',['../namespacesen_1_1kernel.html#af9a78a3710ba30ccc329d482e0f4b524',1,'sen::kernel::ComponentMonitoringInfo::info'],['../group__kernel.html#afd8ec4ef0a925a4915f63be59992bbc7',1,'sen::kernel::ComponentContext::info']]],
+  ['info_9',['info',['../group__kernel.html#afd8ec4ef0a925a4915f63be59992bbc7',1,'sen::kernel::ComponentContext']]],
   ['instance_10',['instance',['../group__obj.html#a0e1192d94e59f470b5eb712a3a927cb7',1,'sen::ObjectInstanceDiscovery::instance'],['../group__db.html#a11ac8e87864c5550eb2260809399f71b',1,'sen::db::ObjectInfo::instance'],['../group__kernel.html#a9aa3e0cc3d7ed69414fd9d45a4e1e293',1,'sen::kernel::ComponentContext::instance']]],
   ['interestid_11',['interestId',['../group__obj.html#af5854487660180179a61f52fbde2db3b',1,'sen::ObjectInstanceDiscovery::interestId'],['../structsen_1_1_remote_object_discovery.html#ad2218d5b214aee72100cd1723cf0588c',1,'sen::RemoteObjectDiscovery::interestId'],['../group__obj.html#ae690fb3d6dddb2ed2a2f0b52d5ffe03f',1,'sen::ObjectRemoval::interestId']]],
   ['is_5fmove_5fonly_5ffunction_5fv_12',['is_move_only_function_v',['../namespacesen_1_1std__util_1_1detail.html#a3c3554aee4e573391de23e7ea870fb30',1,'sen::std_util::detail']]],

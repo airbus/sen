@@ -120,7 +120,7 @@ $(function(){initNavTree('classsen_1_1kernel_1_1_run_api.html','','classsen_1_1k
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_run_api__inherit__graph.svg" width="398" height="610"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_run_api__inherit__graph.svg" width="398" height="710"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -145,6 +145,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a7f33c2a56c647d13dc36a8a2f0dd0c68"><td class="mdescLeft">&#160;</td><td class="mdescRight">If present, it returns the configured cycle time for iterations.  <br /></td></tr>
 <tr class="memitem:aa1af91117136c21134b1f78974e4d748" id="r_aa1af91117136c21134b1f78974e4d748"><td class="memItemLeft"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info">KernelMonitoringInfo</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa1af91117136c21134b1f78974e4d748">fetchMonitoringInfo</a> () const</td></tr>
 <tr class="memdesc:aa1af91117136c21134b1f78974e4d748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoring information.  <br /></td></tr>
+<tr class="memitem:a07ccd2f2f02b6a462ab4646f47ddf354" id="r_a07ccd2f2f02b6a462ab4646f47ddf354"><td class="memItemLeft"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const ComponentInfo &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a07ccd2f2f02b6a462ab4646f47ddf354">getImportedPackages</a> () const noexcept</td></tr>
+<tr class="memdesc:a07ccd2f2f02b6a462ab4646f47ddf354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build information for all imported packages (from pipeline components). The returned span references kernel-owned storage that is stable for the lifetime of the kernel.  <br /></td></tr>
+<tr class="memitem:a04fd5437525eecb68fa9dc6f450da659" id="r_a04fd5437525eecb68fa9dc6f450da659"><td class="memItemLeft"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const ComponentInfo &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a04fd5437525eecb68fa9dc6f450da659">getLoadedComponents</a> () const noexcept</td></tr>
+<tr class="memdesc:a04fd5437525eecb68fa9dc6f450da659"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build information for every component loaded into the kernel, excluding pipeline components (which are built from imports and have no individual build identity) and the internal kernel component. The returned span references kernel-owned storage that is stable for the lifetime of the kernel.  <br /></td></tr>
+<tr class="memitem:a8fe5204e535993948ec160fd9808cd89" id="r_a8fe5204e535993948ec160fd9808cd89"><td class="memItemLeft">std::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a8fe5204e535993948ec160fd9808cd89">getTransportProtocolVersion</a> () const noexcept</td></tr>
+<tr class="memdesc:a8fe5204e535993948ec160fd9808cd89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version of the currently installed transport protocol. Empty when no transport is installed. Static for the lifetime of the kernel.  <br /></td></tr>
 <tr class="memitem:a0b9f68c58972303049e76fc539dcc560" id="r_a0b9f68c58972303049e76fc539dcc560"><td class="memItemLeft"><a class="el" href="classsen_1_1kernel_1_1_tracer.html">Tracer</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a0b9f68c58972303049e76fc539dcc560">getTracer</a> () const noexcept</td></tr>
 <tr class="memdesc:a0b9f68c58972303049e76fc539dcc560"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a scoped zone used for tracing runtime performance.  <br /></td></tr>
 <tr class="memitem:a75812a18d2d0c81dee6aacc2705bc3f0" id="r_a75812a18d2d0c81dee6aacc2705bc3f0"><td class="memItemLeft">const <a class="el" href="group__type__utils.html#ga3ae50544ad34402f50a10a392ba495a2">VarMap</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_config_getter.html#a75812a18d2d0c81dee6aacc2705bc3f0">getConfig</a> () const noexcept</td></tr>
@@ -165,8 +171,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a97a00c770b6dc3b7482becb52027a442"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the (optional) application name passed to the kernel as a configuration parameter.  <br /></td></tr>
 <tr class="memitem:a0caf9e63c9e12af2c9f30864816dad08" id="r_a0caf9e63c9e12af2c9f30864816dad08"><td class="memItemLeft">::sen::impl::WorkQueue *&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a0caf9e63c9e12af2c9f30864816dad08">getWorkQueue</a> () const noexcept</td></tr>
 <tr class="memdesc:a0caf9e63c9e12af2c9f30864816dad08"><td class="mdescLeft">&#160;</td><td class="mdescRight">The work queue of this runner.  <br /></td></tr>
-<tr class="memitem:a28d4fe464b2672619354c55208360335" id="r_a28d4fe464b2672619354c55208360335"><td class="memTemplParams" colspan="2">template&lt;typename T, typename B&gt; </td></tr>
-<tr class="memitem:a28d4fe464b2672619354c55208360335 template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a28d4fe464b2672619354c55208360335">selectAllFrom</a> (const B &amp;bus)</td></tr>
+<tr class="memitem:af75a3b9ae703e6809b71802a85aee6bf" id="r_af75a3b9ae703e6809b71802a85aee6bf"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
+<tr class="memitem:af75a3b9ae703e6809b71802a85aee6bf template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#af75a3b9ae703e6809b71802a85aee6bf">selectAllFrom</a> (const Bus &amp;bus)</td></tr>
+<tr class="memitem:a4256a44d2b6734fb44282892215c1553" id="r_a4256a44d2b6734fb44282892215c1553"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
+<tr class="memitem:a4256a44d2b6734fb44282892215c1553 template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a4256a44d2b6734fb44282892215c1553">selectAllFrom</a> (const Bus &amp;bus, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onAdded, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onRemoved=nullptr)</td></tr>
+<tr class="memdesc:a4256a44d2b6734fb44282892215c1553"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overload of selectAllFrom that installs addition and removal callbacks before subscribing, so they fire for objects already present at subscription time. Pass nullptr for either callback to skip it.  <br /></td></tr>
+<tr class="memitem:a215bea2badcf94c9236dd769697c463e" id="r_a215bea2badcf94c9236dd769697c463e"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
+<tr class="memitem:a215bea2badcf94c9236dd769697c463e template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a215bea2badcf94c9236dd769697c463e">selectFrom</a> (const Bus &amp;bus, const std::string &amp;query, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onAdded=nullptr, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onRemoved=nullptr)</td></tr>
+<tr class="memdesc:a215bea2badcf94c9236dd769697c463e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a subscription for objects matching the given Sen query string. Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions. Example: selectFrom&lt;Shape&gt;(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")"). It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.  <br /></td></tr>
 <tr class="memitem:a6be66d4510a6e2935671d79d2f147132" id="r_a6be66d4510a6e2935671d79d2f147132"><td class="memItemLeft">std::filesystem::path&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a6be66d4510a6e2935671d79d2f147132">getConfigFilePath</a> () const noexcept</td></tr>
 <tr class="memdesc:a6be66d4510a6e2935671d79d2f147132"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the path to the configuration file used to construct the kernel. It might be empty if the kernel is programmatically configured.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -481,6 +493,87 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a07ccd2f2f02b6a462ab4646f47ddf354" name="a07ccd2f2f02b6a462ab4646f47ddf354"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07ccd2f2f02b6a462ab4646f47ddf354">&#9670;&#160;</a></span>getImportedPackages()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const ComponentInfo &gt; sen::kernel::RunApi::getImportedPackages </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build information for all imported packages (from pipeline components). The returned span references kernel-owned storage that is stable for the lifetime of the kernel. </p>
+
+</div>
+</div>
+<a id="a04fd5437525eecb68fa9dc6f450da659" name="a04fd5437525eecb68fa9dc6f450da659"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04fd5437525eecb68fa9dc6f450da659">&#9670;&#160;</a></span>getLoadedComponents()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const ComponentInfo &gt; sen::kernel::RunApi::getLoadedComponents </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build information for every component loaded into the kernel, excluding pipeline components (which are built from imports and have no individual build identity) and the internal kernel component. The returned span references kernel-owned storage that is stable for the lifetime of the kernel. </p>
+
+</div>
+</div>
+<a id="a8fe5204e535993948ec160fd9808cd89" name="a8fe5204e535993948ec160fd9808cd89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fe5204e535993948ec160fd9808cd89">&#9670;&#160;</a></span>getTransportProtocolVersion()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt; uint32_t &gt; sen::kernel::RunApi::getTransportProtocolVersion </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Version of the currently installed transport protocol. Empty when no transport is installed. Static for the lifetime of the kernel. </p>
+
+</div>
+</div>
 <a id="a0b9f68c58972303049e76fc539dcc560" name="a0b9f68c58972303049e76fc539dcc560"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0b9f68c58972303049e76fc539dcc560">&#9670;&#160;</a></span>getTracer()</h2>
 
@@ -751,13 +844,13 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a28d4fe464b2672619354c55208360335" name="a28d4fe464b2672619354c55208360335"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28d4fe464b2672619354c55208360335">&#9670;&#160;</a></span>selectAllFrom()</h2>
+<a id="af75a3b9ae703e6809b71802a85aee6bf" name="af75a3b9ae703e6809b71802a85aee6bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af75a3b9ae703e6809b71802a85aee6bf">&#9670;&#160;</a></span>selectAllFrom() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename B&gt; </div>
+template&lt;typename T, typename Bus&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -765,7 +858,7 @@ template&lt;typename T, typename B&gt; </div>
         <tr>
           <td class="memname">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt; sen::kernel::KernelApi::selectAllFrom </td>
           <td>(</td>
-          <td class="paramtype">const B &amp;</td>          <td class="paramname"><span class="paramname"><em>bus</em></span></td><td>)</td>
+          <td class="paramtype">const Bus &amp;</td>          <td class="paramname"><span class="paramname"><em>bus</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -775,6 +868,87 @@ template&lt;typename T, typename B&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4256a44d2b6734fb44282892215c1553" name="a4256a44d2b6734fb44282892215c1553"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4256a44d2b6734fb44282892215c1553">&#9670;&#160;</a></span>selectAllFrom() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename Bus&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt; sen::kernel::KernelApi::selectAllFrom </td>
+          <td>(</td>
+          <td class="paramtype">const Bus &amp;</td>          <td class="paramname"><span class="paramname"><em>bus</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a></td>          <td class="paramname"><span class="paramname"><em>onAdded</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a></td>          <td class="paramname"><span class="paramname"><em>onRemoved</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Overload of selectAllFrom that installs addition and removal callbacks before subscribing, so they fire for objects already present at subscription time. Pass nullptr for either callback to skip it. </p>
+
+</div>
+</div>
+<a id="a215bea2badcf94c9236dd769697c463e" name="a215bea2badcf94c9236dd769697c463e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a215bea2badcf94c9236dd769697c463e">&#9670;&#160;</a></span>selectFrom()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename Bus&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt; sen::kernel::KernelApi::selectFrom </td>
+          <td>(</td>
+          <td class="paramtype">const Bus &amp;</td>          <td class="paramname"><span class="paramname"><em>bus</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>query</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a></td>          <td class="paramname"><span class="paramname"><em>onAdded</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a></td>          <td class="paramname"><span class="paramname"><em>onRemoved</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Creates a subscription for objects matching the given Sen query string. Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions. Example: selectFrom&lt;Shape&gt;(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")"). It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it. </p>
 
 </div>
 </div>

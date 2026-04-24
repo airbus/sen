@@ -111,7 +111,8 @@ $(function(){initNavTree('gen_8h.html','',''); });
   <div class="headertitle"><div class="title">gen.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="compiler__macros_8h_source.html">sen/core/base/compiler_macros.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="assert_8h_source.html">sen/core/base/assert.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="compiler__macros_8h_source.html">sen/core/base/compiler_macros.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="numbers_8h_source.html">sen/core/base/numbers.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="quantity_8h_source.html">sen/core/base/quantity.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="span_8h_source.html">sen/core/base/span.h</a>&quot;</code><br />
@@ -138,6 +139,8 @@ $(function(){initNavTree('gen_8h.html','',''); });
 <code>#include &quot;<a class="el" href="property__flags_8h_source.html">sen/core/obj/detail/property_flags.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="remote__object_8h_source.html">sen/core/obj/detail/remote_object.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="native__object_8h_source.html">sen/core/obj/native_object.h</a>&quot;</code><br />
+<code>#include &lt;initializer_list&gt;</code><br />
+<code>#include &lt;iterator&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 </div>
@@ -250,7 +253,7 @@ Macros</h2></td></tr>
 <div class="line">  [[nodiscard]] static inline ::<a class="code hl_namespace" href="namespacesen.html">sen</a>::ConstTypeHandle&lt;::<a class="code hl_namespace" href="namespacesen.html">sen</a>::ClassType&gt; meta() noexcept;                                \</div>
 <div class="line">                                                                                                                       \</div>
 <div class="line">private:</div>
-<div class="ttc" id="agen_8h_html_a06c414c49ba27d06e4948218b4985706"><div class="ttname"><a href="#a06c414c49ba27d06e4948218b4985706">SEN_IMPL_GEN_NATIVE_MEMBERS</a></div><div class="ttdeci">#define SEN_IMPL_GEN_NATIVE_MEMBERS</div><div class="ttdef"><b>Definition</b> gen.h:44</div></div>
+<div class="ttc" id="agen_8h_html_a06c414c49ba27d06e4948218b4985706"><div class="ttname"><a href="#a06c414c49ba27d06e4948218b4985706">SEN_IMPL_GEN_NATIVE_MEMBERS</a></div><div class="ttdeci">#define SEN_IMPL_GEN_NATIVE_MEMBERS</div><div class="ttdef"><b>Definition</b> gen.h:47</div></div>
 <div class="ttc" id="anamespacesen_html"><div class="ttname"><a href="namespacesen.html">sen</a></div><div class="ttdef"><b>Definition</b> assert.h:17</div></div>
 </div><!-- fragment -->
 <p>Used by the generated code for simplicity NOLINTNEXTLINE. </p>
@@ -383,7 +386,7 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>Parent::Parent;                                                                                              \</div>
 <div class="line">  <span class="keyword">using </span>Parent::operator=;                                                                                           \</div>
 <div class="line">};</div>
-<div class="ttc" id="aclasssen_1_1_static_vector_html"><div class="ttname"><a href="classsen_1_1_static_vector.html">sen::StaticVector</a></div><div class="ttdoc">Stack-based, exception-free and resizable vector with fixed-capacity.</div><div class="ttdef"><b>Definition</b> static_vector.h:571</div></div>
+<div class="ttc" id="aclasssen_1_1_static_vector_html"><div class="ttname"><a href="classsen_1_1_static_vector.html">sen::StaticVector</a></div><div class="ttdoc">Stack-based, exception-free and resizable vector with fixed-capacity.</div><div class="ttdef"><b>Definition</b> static_vector.h:572</div></div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 
@@ -579,11 +582,12 @@ Macros</h2></td></tr>
 <div class="line"><span class="keyword">struct </span>SEN_MAYBE_EXPORT(doExport) StringConversionTraits&lt;classname&gt;                                                  \</div>
 <div class="line">{                                                                                                                    \</div>
 <div class="line">  [[nodiscard]] <span class="keyword">static</span> std::string_view <a class="code hl_function" href="group__lang.html#ga0a44153d268ffa532e1547d714ddbc1c">toString</a>(classname val);                                                     \</div>
-<div class="line">  [[nodiscard]] <span class="keyword">static</span> classname fromString(std::string_view val);                                                   \</div>
+<div class="line">  [[nodiscard]] <span class="keyword">static</span> classname <a class="code hl_function" href="group__lang.html#ga143a0c8db9c3a56c891299a6b9b40d3e">fromString</a>(std::string_view val);                                                   \</div>
 <div class="line">};                                                                                                                   \</div>
 <div class="line">                                                                                                                     \</div>
 <div class="line">[[nodiscard]] SEN_MAYBE_EXPORT(doExport) std::string_view <a class="code hl_function" href="group__lang.html#ga0a44153d268ffa532e1547d714ddbc1c">toString</a>(classname value);</div>
 <div class="ttc" id="agroup__lang_html_ga0a44153d268ffa532e1547d714ddbc1c"><div class="ttname"><a href="group__lang.html#ga0a44153d268ffa532e1547d714ddbc1c">sen::lang::toString</a></div><div class="ttdeci">std::string toString(const StlToken &amp;token)</div></div>
+<div class="ttc" id="agroup__lang_html_ga143a0c8db9c3a56c891299a6b9b40d3e"><div class="ttname"><a href="group__lang.html#ga143a0c8db9c3a56c891299a6b9b40d3e">sen::lang::fromString</a></div><div class="ttdeci">StlTokenType fromString(const std::string &amp;stlTokenType)</div></div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 

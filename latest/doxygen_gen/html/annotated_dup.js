@@ -89,7 +89,7 @@ var annotated_dup =
         [ "StlClassStatement", "group__lang.html#structsen_1_1lang_1_1_stl_class_statement", "group__lang_structsen_1_1lang_1_1_stl_class_statement" ],
         [ "BusNameStatement", "group__lang.html#structsen_1_1lang_1_1_bus_name_statement", "group__lang_structsen_1_1lang_1_1_bus_name_statement" ],
         [ "QueryStatement", "group__lang.html#structsen_1_1lang_1_1_query_statement", "group__lang_structsen_1_1lang_1_1_query_statement" ],
-        [ "StlToken", "structsen_1_1lang_1_1_stl_token.html", "structsen_1_1lang_1_1_stl_token" ],
+        [ "StlToken", "classsen_1_1lang_1_1_stl_token.html", "classsen_1_1lang_1_1_stl_token" ],
         [ "VariantAccessError", "group__lang.html#structsen_1_1lang_1_1_variant_access_error", null ],
         [ "Chunk", "classsen_1_1lang_1_1_chunk.html", "classsen_1_1lang_1_1_chunk" ],
         [ "VM", "classsen_1_1lang_1_1_v_m.html", "classsen_1_1lang_1_1_v_m" ],

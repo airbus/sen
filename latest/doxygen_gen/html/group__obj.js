@@ -168,11 +168,15 @@ var group__obj =
       [ "impl::FilteredProvider", "classsen_1_1_object_filter.html#afd461b56d319a3709a6893cc1587e60d", null ]
     ] ],
     [ "sen::ObjectList&lt; T &gt;", "classsen_1_1_object_list.html", [
-      [ "Iterators", "classsen_1_1_object_list.html#structsen_1_1_object_list_1_1_iterators", [
-        [ "typedBegin", "classsen_1_1_object_list.html#a08e900e63ad80b22ee23a00305b7e42b", null ],
-        [ "typedEnd", "classsen_1_1_object_list.html#af8301965395e27bce0348467e076308a", null ],
-        [ "untypedBegin", "classsen_1_1_object_list.html#ad43b20250cc4ddc2373d3a3277abd00c", null ],
-        [ "untypedEnd", "classsen_1_1_object_list.html#a76cbcb11dc614b21797fc46fe4bec48c", null ]
+      [ "Iterators", "structsen_1_1_object_list_1_1_iterators.html", [
+        [ "begin", "structsen_1_1_object_list_1_1_iterators.html#aa24b009bfb450aa9833469b426b4a063", null ],
+        [ "end", "structsen_1_1_object_list_1_1_iterators.html#af57a167d4612912553d836918e80ca08", null ],
+        [ "untyped", "structsen_1_1_object_list_1_1_iterators.html#a84cef9a81f3312953d16af9ff4d6f8e7", null ],
+        [ "typed", "structsen_1_1_object_list_1_1_iterators.html#afb9c4b8507296a132b5f70483d5111fc", null ],
+        [ "typedBegin", "structsen_1_1_object_list_1_1_iterators.html#a08e900e63ad80b22ee23a00305b7e42b", null ],
+        [ "typedEnd", "structsen_1_1_object_list_1_1_iterators.html#af8301965395e27bce0348467e076308a", null ],
+        [ "untypedBegin", "structsen_1_1_object_list_1_1_iterators.html#ad43b20250cc4ddc2373d3a3277abd00c", null ],
+        [ "untypedEnd", "structsen_1_1_object_list_1_1_iterators.html#a76cbcb11dc614b21797fc46fe4bec48c", null ]
       ] ],
       [ "TypedObjectList", "classsen_1_1_object_list.html#a1d389a0f60020341f80d2b502dbf474d", null ],
       [ "UntypedObjectList", "classsen_1_1_object_list.html#a7e0e7406e8863eae9136a6f7f5c8acf5", null ],
@@ -332,8 +336,10 @@ var group__obj =
       [ "Subscription", "structsen_1_1_subscription.html#a0f8a64d4a7537bfd72a90346c2da1417", null ],
       [ "~Subscription", "group__obj.html#gacbf1d25d00a5c4b2fee2b5b334c307e4", null ],
       [ "operator=", "group__obj.html#ga44c91a0dd79ef94d8ecc16b94585439f", null ],
-      [ "list", "structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca", null ],
-      [ "source", "structsen_1_1_subscription.html#a1a9360a24f6ef187e8db2a64041dc9be", null ]
+      [ "attachTo", "group__obj.html#ga3c058c27058b6d43819f8355a81e1bef", null ],
+      [ "release", "group__obj.html#gaa747193302895a7d3a4745651a9e6129", null ],
+      [ "getSource", "structsen_1_1_subscription.html#a9ed3fc0eedba9a8fb4c2a39231367889", null ],
+      [ "list", "structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca", null ]
     ] ],
     [ "sen::MethodResult", "group__obj.html#ga5013886b1e3330ff6f1f77e633279c9f", null ],
     [ "sen::EventCallback", "group__obj.html#gaf7b45261a4a37f75b3ef13178e6380ef", null ],
@@ -362,5 +368,7 @@ var group__obj =
     [ "sen::makeRemoval", "group__obj.html#gae4610935fb3280ed2e4f15b3c7b68802", null ],
     [ "sen::Subscription::Subscription", "group__obj.html#gad9c629f4c794a98665d23d0c3cb902e0", null ],
     [ "sen::Subscription::operator=", "group__obj.html#ga44c91a0dd79ef94d8ecc16b94585439f", null ],
-    [ "sen::Subscription::~Subscription", "group__obj.html#gacbf1d25d00a5c4b2fee2b5b334c307e4", null ]
+    [ "sen::Subscription::~Subscription", "group__obj.html#gacbf1d25d00a5c4b2fee2b5b334c307e4", null ],
+    [ "sen::Subscription::attachTo", "group__obj.html#ga3c058c27058b6d43819f8355a81e1bef", null ],
+    [ "sen::Subscription::release", "group__obj.html#gaa747193302895a7d3a4745651a9e6129", null ]
 ];

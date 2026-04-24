@@ -14,13 +14,18 @@
 // sen
 #include "sen/core/base/numbers.h"
 
+// std
+#include <random>
+
 namespace weather_server  // NOLINT
 {
 
 template <typename T = float32_t>
 [[nodiscard]] T getRand(T low, T high) noexcept
 {
-  return low + static_cast<T>(rand()) / (static_cast<T>(static_cast<T>(RAND_MAX) / (high - low)));  // NOLINT
+  static std::mt19937 rng {std::random_device {}()};
+  std::uniform_real_distribution<T> dist {low, high};
+  return dist(rng);
 }
 
 template <typename T>

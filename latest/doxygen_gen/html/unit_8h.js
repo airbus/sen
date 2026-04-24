@@ -15,6 +15,7 @@ var unit_8h =
       [ "sen::UnitCategory::velocity", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9aac1a453d0cdc1f19d9479ccfaa8b082c", null ],
       [ "sen::UnitCategory::angularVelocity", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9af32d2726680cf3b3a70d2871c6fa11bd", null ],
       [ "sen::UnitCategory::acceleration", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9ad3879b8802412d8dc066fd9f1a6dd2b4", null ],
-      [ "sen::UnitCategory::angularAcceleration", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9a11e4bc0c83e3e74239c33423d09768b8", null ]
+      [ "sen::UnitCategory::angularAcceleration", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9a11e4bc0c83e3e74239c33423d09768b8", null ],
+      [ "sen::UnitCategory::torque", "group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9ae9ee2651c12f09e358eb1da8545952a7", null ]
     ] ]
 ];

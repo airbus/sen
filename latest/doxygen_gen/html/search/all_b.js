@@ -70,7 +70,7 @@ var searchData=
   ['methodspec_67',['MethodSpec',['../structsen_1_1_method_spec.html',1,'sen::MethodSpec'],['../structsen_1_1_method_spec.html#abd049e72287d054faa0a617f7cb31f6c',1,'sen::MethodSpec::MethodSpec()']]],
   ['microsoft_68',['microsoft',['../group__util.html#gga889714e61e56253694a19c232e46c675a5f532a3fc4f1ea403f37070f59a7a53a',1,'sen']]],
   ['min_69',['min',['../group__lang.html#a6207bc5c2ac150284b5c90458082b453',1,'sen::lang::StlBetweenExpr']]],
-  ['minus_70',['minus',['../group__lang.html#ggaee813470fafe0a4febd39e9b592f188cadabe6e597b70e5760826aea1dcc564f7',1,'sen::lang']]],
+  ['minus_70',['minus',['../group__lang.html#gga93b0800803a4979d176a9470893ab868adabe6e597b70e5760826aea1dcc564f7',1,'sen::lang']]],
   ['minvalue_71',['minValue',['../structsen_1_1_quantity_spec.html#a12b1956aa26550ca198e42f888ef22c7',1,'sen::QuantitySpec']]],
   ['missing_72',['missing',['../group__type__utils.html#ggafd213372bab1c5f96f95eba9eaf17a15aea21841da70e6405af19fabc4ff8bdd9',1,'sen']]],
   ['mod_73',['mod',['../structsen_1_1_has_operator.html#a2cdaa9c08b1777118b55eb09d72ef05a',1,'sen::HasOperator']]],

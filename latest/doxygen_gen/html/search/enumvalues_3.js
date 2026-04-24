@@ -5,7 +5,7 @@ var searchData=
   ['divide_2',['divide',['../group__lang.html#gga2f282d2524541d36339abfa3b4b25782a95bd4d656164278daf3f83b7099a8529',1,'sen::lang']]],
   ['doblock_3',['doBlock',['../namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8da80e806a34f2ee6147a30d0771987893b',1,'sen::kernel']]],
   ['donotblock_4',['doNotBlock',['../namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8da73df83b54d1c4d88882052d9e700e0be',1,'sen::kernel']]],
-  ['dot_5',['dot',['../group__lang.html#ggaee813470fafe0a4febd39e9b592f188ca69eb76c88557a8211cbfc9beda5fc062',1,'sen::lang']]],
+  ['dot_5',['dot',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a69eb76c88557a8211cbfc9beda5fc062',1,'sen::lang']]],
   ['drfpb_6',['drFPB',['../group__dr.html#ggae590e1953e07eedfe043f716be48ef74a2e138f7ecd7403b0180fbd09aee586a6',1,'sen::util']]],
   ['drfpw_7',['drFPW',['../group__dr.html#ggae590e1953e07eedfe043f716be48ef74a149d60b49741aa83959b29925db1b59c',1,'sen::util']]],
   ['drfvb_8',['drFVB',['../group__dr.html#ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62',1,'sen::util']]],
