@@ -25,8 +25,14 @@ if(${CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
 endif()
 
+if(CMAKE_MAJOR_VERSION GREATER_EQUAL 4)
+  set(CTEST_PARALLEL_ARGS "--parallel")
+else()
+  set(CTEST_PARALLEL_ARGS "--parallel" 0)
+endif()
+
 set(CMAKE_CTEST_ARGUMENTS
-    "--parallel"
+    ${CTEST_PARALLEL_ARGS}
     "--output-junit"
     "ctestParallelReport.xml"
     ${CMAKE_COMMON_CTEST_ARGUMENTS}
