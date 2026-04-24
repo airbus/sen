@@ -18,8 +18,12 @@
 
 // sen
 #include "sen/core/base/class_helpers.h"
+#include "sen/core/base/span.h"
 #include "sen/kernel/kernel.h"
 #include "sen/kernel/kernel_config.h"
+
+// generated
+#include "stl/sen/kernel/basic_types.stl.h"
 
 // spdlog
 #include <spdlog/fwd.h>
@@ -27,9 +31,11 @@
 // std
 #include <atomic>
 #include <condition_variable>
+#include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 namespace sen::kernel::impl
@@ -91,6 +97,24 @@ public:
   /// Monitoring information
   KernelMonitoringInfo fetchMonitoringInfo() const;
 
+  /// Build information for all imported packages (from pipeline components).
+  /// The span references the kernel-owned cache populated during preload,
+  /// and is stable for the lifetime of the kernel.
+  [[nodiscard]] Span<const ComponentInfo> getImportedPackages() const noexcept;
+
+  /// Registers a batch of imported packages. Called by pipeline components
+  /// once they have opened their shared libraries during preload.
+  void registerImportedPackages(Span<const ComponentInfo> packages);
+
+  /// Build information for every non-pipeline, non-kernel component loaded
+  /// by the kernel (shared-library plugins and programmatic components).
+  /// The span references kernel-owned storage populated during configure()
+  /// and stable for the lifetime of the kernel.
+  [[nodiscard]] Span<const ComponentInfo> getLoadedComponents() const noexcept;
+
+  /// Version of the currently installed transport protocol, if any.
+  [[nodiscard]] std::optional<uint32_t> getTransportProtocolVersion() const noexcept;
+
   /// Tracer creation
   [[nodiscard]] std::unique_ptr<Tracer> makeTracer(std::string_view contextName);
 
@@ -144,6 +168,8 @@ private:
   CustomTypeRegistry types_;
   SessionManager sessionManager_;
   std::function<std::unique_ptr<Tracer>(std::string_view)> tracerFactory_;
+  std::vector<ComponentInfo> importedPackages_;
+  std::vector<ComponentInfo> loadedComponents_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -220,10 +246,12 @@ inline KernelMonitoringInfo KernelImpl::fetchMonitoringInfo() const
 
   for (const auto& runner: runners_)
   {
+    const auto& context = runner->getComponentContext();
+
     ComponentMonitoringInfo monitoringInfo;
-    monitoringInfo.config = runner->getComponentContext().config;
-    monitoringInfo.info = runner->getComponentContext().info;
-    monitoringInfo.requiresRealTime = runner->getComponentContext().instance->isRealTimeOnly();
+    monitoringInfo.name = context.info.name;
+    monitoringInfo.group = context.config.group;
+    monitoringInfo.requiresRealTime = context.instance->isRealTimeOnly();
     monitoringInfo.objectCount = runner->getObjectCount();
     monitoringInfo.cycleTime = runner->getCycleTime();
 

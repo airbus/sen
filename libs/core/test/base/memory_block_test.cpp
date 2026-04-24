@@ -7,6 +7,7 @@
 
 // sen
 #include "sen/core/base/memory_block.h"
+#include "sen/core/base/span.h"
 #include "sen/core/io/buffer_writer.h"
 #include "sen/core/io/output_stream.h"
 
@@ -17,6 +18,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
 
 /// @test
@@ -60,7 +62,7 @@ TEST(MemoryBlock, FixedMemoryBlockPoolPreAlloc)
   const auto blockPool = FixedMemoryPool::make(30, 20);
 
   // Ensure pre-allocated blocks exist but are empty
-  auto fixedBlock = blockPool->getBlockPtr();
+  const auto fixedBlock = blockPool->getBlockPtr();
   EXPECT_NE(fixedBlock, nullptr);
   EXPECT_TRUE(fixedBlock->empty());
   EXPECT_EQ(fixedBlock->size(), 0);
@@ -75,9 +77,24 @@ TEST(MemoryBlock, FixedMemoryBlockPoolPreAlloc)
   EXPECT_EQ(fixedBlock->size(), 5);
 
   // ensure resize fails if new size is greater than block size
-  auto badSize = sizeof(void*) + 1;
+  constexpr auto badSize = sizeof(void*) + 1;
   EXPECT_ANY_THROW(fixedBlock->resize(badSize));
   EXPECT_NO_THROW(fixedBlock->resize(badSize - 1));
+}
+
+/// @test
+/// Check reserve operations and exceptions in fixed memory pools
+/// @requirements(SEN-908)
+TEST(MemoryBlock, FixedMemoryBlockPoolReserve)
+{
+  using FixedMemoryPool = sen::FixedMemoryBlockPool<sizeof(void*)>;
+  const auto blockPool = FixedMemoryPool::make(10, 5);
+  const auto fixedBlock = blockPool->getBlockPtr();
+
+  EXPECT_NO_THROW(fixedBlock->reserve(sizeof(void*)));
+
+  constexpr auto badSize = sizeof(void*) + 1;
+  EXPECT_ANY_THROW(fixedBlock->reserve(badSize));
 }
 
 /// @test
@@ -107,6 +124,23 @@ TEST(MemoryBlock, FixedMemoryBlockPoolNoPreAlloc)
 }
 
 /// @test
+/// Check bucket capacity expansion inside fixed memory block pools
+/// @requirements(SEN-908)
+TEST(MemoryBlock, FixedMemoryBlockPoolBucketExpansion)
+{
+  using FixedMemoryPool = sen::FixedMemoryBlockPool<sizeof(void*)>;
+  const auto blockPool = FixedMemoryPool::make(2, 1);
+
+  const auto block1 = blockPool->getBlockPtr();
+  const auto block2 = blockPool->getBlockPtr();
+  const auto block3 = blockPool->getBlockPtr();
+
+  EXPECT_NE(block1, nullptr);
+  EXPECT_NE(block2, nullptr);
+  EXPECT_NE(block3, nullptr);
+}
+
+/// @test
 /// Check Span method of fixed memory blocks
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockSpan)
@@ -132,6 +166,46 @@ TEST(MemoryBlock, FixedMemoryBlockSpan)
 
   EXPECT_EQ(fixedBlock->getSpan().data(), fixedBlock->data());
   EXPECT_EQ(fixedBlock->getConstSpan().data(), fixedBlock->data());
+
+  const sen::Span<uint8_t> implicitSpan = *fixedBlock;
+  EXPECT_EQ(implicitSpan.size(), 6);
+  EXPECT_EQ(implicitSpan.data(), fixedBlock->data());
+
+  const sen::MemoryBlock& constBlock = *fixedBlock;
+  const sen::Span<const uint8_t> implicitConstSpan = constBlock;
+  EXPECT_EQ(implicitConstSpan.size(), 6);
+  EXPECT_EQ(implicitConstSpan.data(), fixedBlock->data());
+}
+
+/// @test
+/// Check move assignment and move construction in fixed memory blocks
+/// @requirements(SEN-908)
+TEST(MemoryBlock, FixedMemoryBlockMoveSemantics)
+{
+  using FixedMemoryPool = sen::FixedMemoryBlockPool<sizeof(void*)>;
+  const auto blockPool = FixedMemoryPool::make(4, 4);
+  const auto fixedBlock1 = blockPool->getBlockPtr();
+  const auto fixedBlock2 = blockPool->getBlockPtr();
+
+  fixedBlock1->resize(4);
+
+  auto* originalData1 = fixedBlock1->data();
+  auto* originalData2 = fixedBlock2->data();
+  *fixedBlock2 = std::move(*fixedBlock1);
+
+  EXPECT_EQ(fixedBlock2->size(), 4);
+  EXPECT_EQ(fixedBlock2->data(), originalData1);
+
+  EXPECT_EQ(fixedBlock1->size(), 0);
+  EXPECT_EQ(fixedBlock1->data(), originalData2);
+
+  sen::FixedMemoryBlock fixedBlock3(std::move(*fixedBlock2));
+
+  EXPECT_EQ(fixedBlock3.size(), 4);
+  EXPECT_EQ(fixedBlock3.data(), originalData1);
+
+  EXPECT_EQ(fixedBlock2->size(), 0);
+  EXPECT_EQ(fixedBlock2->data(), nullptr);
 }
 
 /// @test
@@ -193,7 +267,6 @@ TEST(MemoryBlock, ResizableHeapBuffer)
 TEST(MemoryBlock, SequentialResizableHeap)
 {
   static constexpr uint16_t numOperations = 6000;
-  uint16_t outputSize = 0U;
 
   auto inputBuffer = sen::ResizableHeapBlock();
   auto outputBuffer = sen::ResizableHeapBlock();
@@ -217,7 +290,7 @@ TEST(MemoryBlock, SequentialResizableHeap)
 }
 
 /// @test
-/// Check fixed buffer list with sequantial operations
+/// Check fixed buffer list with sequential operations
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedBufferList)
 {

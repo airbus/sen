@@ -7,6 +7,7 @@
 
 set(base_tests
     base/assert_test.cpp
+    base/checked_conversions_test.cpp
     base/bits_test.cpp
     base/duration_test.cpp
     base/hash32_test.cpp
@@ -23,6 +24,8 @@ set(base_tests
     base/fixed_string_test.cpp
     base/static_vector_test.cpp
     base/timestamp_test.cpp
+    base/u8string_util_test.cpp
+    base/uuid_test.cpp
 )
 
 set(meta_tests
@@ -63,7 +66,12 @@ set(io_tests
     io/buffer_writer_test.cpp
 )
 
-set(lang_tests lang/parser_test.cpp lang/compiler_test.cpp lang/resolver_test.cpp)
+set(lang_tests
+    lang/parser_test.cpp
+    lang/compiler_test.cpp
+    lang/stl_resolver_test.cpp
+    lang/stl_token_test.cpp
+)
 
 set(obj_tests
     obj/callback_test.cpp
@@ -116,12 +124,20 @@ add_sen_unit_test_suite(
   LINK_DEPS
   sen::core
   sen::kernel
+  sen::util
   PRIVATE
   cpptrace::cpptrace
   core_test_io_generated
   core_test_meta_generated
   core_test_obj_generated
 )
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+    target_compile_options(core_test PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
+    )
+  endif()
+endif()
 
 set_target_properties(
   core_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
@@ -134,3 +150,8 @@ source_group("io" FILES ${io_tests})
 source_group("obj" FILES ${obj_tests})
 
 target_compile_definitions(core_test PRIVATE ABS_FILE="${CMAKE_CURRENT_SOURCE_DIR}/base/hash32_test.cpp")
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/complex_stl_file.stl
+  ${CMAKE_CURRENT_BINARY_DIR}/bin/lang/stl/stl_resolver_test/complex_stl_file.stl COPYONLY
+)

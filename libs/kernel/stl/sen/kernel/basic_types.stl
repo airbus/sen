@@ -259,7 +259,8 @@ enum UnitCat: u8
   density,
   pressure,
   area,
-  force
+  force,
+  torque
 }
 
 // Describes a unit

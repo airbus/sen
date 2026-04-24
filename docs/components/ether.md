@@ -35,13 +35,12 @@ the `SEN_ETHER_DISCOVERY_PORT` environment variable.
 
 ## Working with containers
 
-Sen uses the process PID and host name to identify participants in the network. If running a
-container, remember to:
+Sen uses the host name to identify participants in the network. If running a container, remember to
+set a host name so that Sen gets the right picture about where things are running (you can do it with
+the `--hostname` option).
 
-- Mount your host `/etc/hostname` into the container's `/etc/hostname`
-- Use the `--pid=host` command line flag (or the `pid: "host"` in your Docker Compose configuration)
-- Consider using the `--network=host` command line flag (or `network: host` in your Docker Compose
-  configuration)
+If you are using the TCP Discovery mechanism in a bridged network, remember to set the hub host address
+to the IP/alias of the container hosting the hub.
 
 ## Network interfaces
 

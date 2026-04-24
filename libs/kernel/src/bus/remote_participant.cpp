@@ -871,7 +871,7 @@ void RemoteParticipant::rcvMethodCall(TransportMode mode, InputStream& in)
       // we need to copy the args out of the buffer, as this call will be executed by a runner
 
       localObject->addWorkToQueue(
-        [this,
+        [us = shared_from_this(),
          responseAddress,
          localObject,
          objectId,
@@ -880,8 +880,15 @@ void RemoteParticipant::rcvMethodCall(TransportMode mode, InputStream& in)
          mode,
          argsBuffer = std::make_shared<Buffer>(arguments.begin(), arguments.end())]() mutable
         {
-          auto callForwarder = [this, mode, responseAddress, objectId, ticketId](StreamCall&& call) mutable
+          auto callForwarder =
+            [us = std::move(us), mode, responseAddress, objectId, ticketId](StreamCall&& call) mutable
           {
+            // if the remote participant is marked as removed, this queued call is invalid
+            if (us->removed_)
+            {
+              return;
+            }
+
             // we use a resizable buffer writer because we expect this buffer to
             // contain 0 or 1 value, therefore only one allocation is expected.
             auto returnBuffer = std::make_shared<ResizableHeapBlock>();
@@ -899,22 +906,22 @@ void RemoteParticipant::rcvMethodCall(TransportMode mode, InputStream& in)
               const auto returnBufferSize = static_cast<uint32_t>(returnBuffer->size());
 
               // send back the result
-              sendToBus(responseAddress,
-                        mode,
-                        makeMethodResponseHeader(objectId, ticketId, returnBufferSize),
-                        std::move(returnBuffer));
+              us->sendToBus(responseAddress,
+                            mode,
+                            us->makeMethodResponseHeader(objectId, ticketId, returnBufferSize),
+                            std::move(returnBuffer));
             }
             catch (const std::logic_error& err)
             {
-              sendToBus(responseAddress, mode, makeLogicErrorResponseHeader(objectId, ticketId, err.what()));
+              us->sendToBus(responseAddress, mode, makeLogicErrorResponseHeader(objectId, ticketId, err.what()));
             }
             catch (const std::exception& err)
             {
-              sendToBus(responseAddress, mode, makeRuntimeErrorResponseHeader(objectId, ticketId, err.what()));
+              us->sendToBus(responseAddress, mode, makeRuntimeErrorResponseHeader(objectId, ticketId, err.what()));
             }
             catch (...)
             {
-              sendToBus(responseAddress, mode, makeUnknownErrorResponseHeader(objectId, ticketId));
+              us->sendToBus(responseAddress, mode, us->makeUnknownErrorResponseHeader(objectId, ticketId));
             }
           };
 
@@ -1896,7 +1903,7 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
     auto mapItr = trackedProxies_.find(id);
     if (mapItr == trackedProxies_.end())
     {
-      // stop monitoring the objet in case the proxy has not been tracked yet
+      // stop monitoring the object in case the proxy has not been tracked yet
       monitoredObjects_.stopMonitoring(id, session_->getTransport());
       return;
     }

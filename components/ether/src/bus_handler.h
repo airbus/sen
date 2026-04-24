@@ -8,6 +8,7 @@
 #ifndef SEN_COMPONENTS_ETHER_SRC_BUS_HANDLER_H
 #define SEN_COMPONENTS_ETHER_SRC_BUS_HANDLER_H
 
+#include "stats.h"
 #include "util.h"
 
 // component
@@ -36,7 +37,8 @@ public:
                                                         uint16_t discoveryPort,
                                                         asio::io_context& io,
                                                         const Configuration& config,
-                                                        sen::kernel::Tracer& tracer);
+                                                        sen::kernel::Tracer& tracer,
+                                                        TransportCounters& counters);
 
   ~BusHandler();
 
@@ -60,7 +62,8 @@ private:
              uint16_t discoveryPort,
              asio::io_context& io,
              const Configuration& config,
-             sen::kernel::Tracer& tracer);
+             sen::kernel::Tracer& tracer,
+             TransportCounters& counters);
 
 private:
   void readMessage();
@@ -88,6 +91,7 @@ private:
   OutputQueue<OutMessage> outQueue_;
   asio::io_context& io_;
   std::array<OutMessage, bulkBufferSize> bulkBuffer_ {};
+  TransportCounters& counters_;
 };
 
 }  // namespace sen::components::ether

@@ -127,7 +127,7 @@ TEST(ObjectList, TracksAndInvokesOnAdded)
     [&](const auto& iterators)
     {
       addedTriggered = true;
-      EXPECT_NE(iterators.typedBegin, iterators.typedEnd);
+      EXPECT_NE(iterators.begin(), iterators.end());
       EXPECT_NE(iterators.untypedBegin, iterators.untypedEnd);
     });
 
@@ -152,7 +152,7 @@ TEST(ObjectList, TracksAndInvokesOnAdded_GenericObject)
     [&](const auto& iterators)
     {
       addedTriggered = true;
-      EXPECT_NE(iterators.typedBegin, iterators.typedEnd);
+      EXPECT_NE(iterators.begin(), iterators.end());
       EXPECT_NE(iterators.untypedBegin, iterators.untypedEnd);
     });
 
@@ -180,7 +180,7 @@ TEST(ObjectList, InstallsCallbackAndTriggersForExisting)
     [&](const auto& iterators)
     {
       triggered = true;
-      EXPECT_NE(iterators.typedBegin, iterators.typedEnd);
+      EXPECT_NE(iterators.begin(), iterators.end());
     });
 
   EXPECT_TRUE(triggered);
@@ -202,7 +202,7 @@ TEST(ObjectList, InstallsCallbackAndTriggersForExisting_GenericObject)
     [&](const auto& iterators)
     {
       triggered = true;
-      EXPECT_NE(iterators.typedBegin, iterators.typedEnd);
+      EXPECT_NE(iterators.begin(), iterators.end());
     });
 
   EXPECT_TRUE(triggered);
@@ -221,7 +221,7 @@ TEST(ObjectList, TracksAndInvokesOnRemoved)
     [&](const auto& iterators)
     {
       removedTriggered = true;
-      EXPECT_NE(iterators.typedBegin, iterators.typedEnd);
+      EXPECT_NE(iterators.begin(), iterators.end());
     });
 
   const auto obj1 = std::make_shared<DummyOwner>("Obj1");
@@ -249,7 +249,7 @@ TEST(ObjectList, TracksAndInvokesOnRemoved_GenericObject)
     [&](const auto& iterators)
     {
       removedTriggered = true;
-      EXPECT_NE(iterators.typedBegin, iterators.typedEnd);
+      EXPECT_NE(iterators.begin(), iterators.end());
     });
 
   const auto obj1 = std::make_shared<DummyOwner>("Obj1");

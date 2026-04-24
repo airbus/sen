@@ -10,6 +10,7 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/numbers.h"
+#include "sen/core/base/version.h"  // NOLINT(misc-include-cleaner)
 #include "sen/core/io/util.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/var.h"

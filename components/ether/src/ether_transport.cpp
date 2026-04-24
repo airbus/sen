@@ -55,11 +55,6 @@
 namespace sen::components::ether
 {
 
-std::atomic<std::size_t> udpSentBytes = 0;
-std::atomic<std::size_t> udpReceivedBytes = 0;
-std::atomic<std::size_t> tcpSentBytes = 0;
-std::atomic<std::size_t> tcpReceivedBytes = 0;
-
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
 //--------------------------------------------------------------------------------------------------------------
@@ -214,10 +209,10 @@ void EtherTransport::stop() noexcept
 kernel::TransportStats EtherTransport::fetchStats() const
 {
   kernel::TransportStats result;
-  result.udpSentBytes = udpSentBytes;
-  result.udpReceivedBytes = udpReceivedBytes;
-  result.tcpSentBytes = tcpSentBytes;
-  result.tcpReceivedBytes = tcpReceivedBytes;
+  result.udpSentBytes = counters_.udpSentBytes;
+  result.udpReceivedBytes = counters_.udpReceivedBytes;
+  result.tcpSentBytes = counters_.tcpSentBytes;
+  result.tcpReceivedBytes = counters_.tcpReceivedBytes;
   return result;
 }
 
@@ -466,7 +461,8 @@ void EtherTransport::localParticipantJoinedBus(ObjectOwnerId participant, kernel
       port = std::get<MulticastDiscovery>(config_.discovery).port;
     }
 
-    auto handler = BusHandler::make(sessionId_, bus, busName, procId, listener_, port, *io_, config_, *tracer_);
+    auto handler =
+      BusHandler::make(sessionId_, bus, busName, procId, listener_, port, *io_, config_, *tracer_, counters_);
     handler->startReading();
 
     auto [itr, done] = busMap_.try_emplace(bus, std::move(handler));

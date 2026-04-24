@@ -67,28 +67,46 @@ have `stl` files with the same name.
 ### Configuration of our `BASE_PATH`
 
 When generating code from `xml` or `stl` files, Sen offers the possibility of adding a `BASE_PATH`.
-The `BASE_PATH` facilitates the importing of these files, allowing to set a common path for the
-files that will be generated.
+The `BASE_PATH` parameter defines the root of the directory hierarchy so that generated files maintain common
+inclusion paths.
 
-If we follow the directory organization set above, we **need** to set the base path when generating
-our targets to the **root of the component**. This means setting the BASE_PATH so that when we
-include files, the path to include is the one we added to the directory.
+**Important:** Its behavior differs significantly depending on the file type:
+
+- **For STL files:** The `BASE_PATH` is strictly respected. It determines the relative path used in code inclusions.
+- **For HLA FOM files (.xml):** The `BASE_PATH` is **ignored** by the code generator.
+Sen enforces a strict directory layout for HLA and always uses the **immediate parent directory** of the XML file
+to build the inclusion paths.
+
+#### STL Example
+To ensure correct resolution, the `BASE_PATH` should be set to the **root of the component**.
 
 Let's follow the Sen school example. If we start from the root of the project, the original `stl`
 files resided on `components/recorder/stl/school.stl` but now, they are at
 `components/recorder/stl/sen/components/recorder/school.stl`. This means that if we want our
-importing path to be `import stl/sen/components/recorder/school.stl`, we need to set our base path
+importing path to be `import stl/sen/components/recorder/school.stl`, we need to set our `BASE_PATH`
 to `components/recorder`.
+
+#### HLA FOM Example
+For FOM files, the inclusion path is derived automatically from the physical location of the XML file,
+regardless of any `BASE_PATH` provided in CMake. Sen expects a `Grandparent/Parent/File.xml` structure.
+
+**Example:**
+- Physical path: `fom/rpr/RPR-Base.xml`
+- Sen detects `rpr` as the immediate parent.
+- Any file importing/including this FOM will use the path: `"rpr/RPR-Base.xml.h"`
+
+To ensure a consistent structure, organize your FOM directories so that the immediate parent directory matches
+your intended include prefix (e.g., `rpr/`, `netn/`).
 
 ______________________________________________________________________
 
-> What happens if the `BASE_PATH` argument is ignored or set to a different value?
+> What happens if the `BASE_PATH` argument is ignored or set to a different value for STL files?
 
-: Using a different `BASE_PATH` would make your project way more vulnerable to issues when both
+: Using a different `BASE_PATH` for STL files makes your project much more vulnerable to issues when both
 exporting and consuming its interfaces. Sen code generator expects the files to be organized in a
 certain way. Not adding the `BASE_PATH` can lead to issues such as import and include errors when
-generating code from the interfaces, both in this project and in the project that will consume the
-interfaces. Using a different `BASE_PATH` will require you to adapt not only your CMake, code and
+generating code from the interfaces, both in the current project and in any project that consumes the
+interfaces. Using an incorrect `BASE_PATH` will require you to adapt not only your CMake, code, and
 repository structure, but also the one of the developer that consumes your project as a package.
 Promoving a standard way of operating is the best way to ensure that compatibility is maintained
 across the large number of developers that will export and consume Sen-based packages.

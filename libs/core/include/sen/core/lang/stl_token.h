@@ -9,12 +9,13 @@
 #define SEN_CORE_LANG_STL_TOKEN_H
 
 // sen
-#include "sen/core/base/class_helpers.h"
 #include "sen/core/lang/code_location.h"
 #include "sen/core/meta/var.h"
 
 // std
+#include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace sen::lang
@@ -24,7 +25,7 @@ namespace sen::lang
 /// @{
 
 /// Supported tokens.
-enum class StlTokenType
+enum class StlTokenType : uint8_t
 {
   // single characters
   leftParen,
@@ -92,31 +93,41 @@ enum class StlTokenType
   // others
   comment,
   endOfFile,
+
+  // in case of error
+  unknown,
 };
 
-struct StlToken
+class StlToken
 {
-  SEN_COPY_CONSTRUCT(StlToken) = default;
-  SEN_COPY_ASSIGN(StlToken) = default;
-  SEN_MOVE_CONSTRUCT(StlToken) = default;
-  SEN_MOVE_ASSIGN(StlToken) = default;
-
+public:
   StlToken() = default;
-  StlToken(StlTokenType type, std::string lexeme, Var value, CodeLocation loc)
-    : type(std::move(type)), lexeme(std::move(lexeme)), value(std::move(value)), loc(std::move(loc))
+  StlToken(const StlTokenType type, std::string lexeme, Var value, CodeLocation codeLocation)
+    : type_ {type}, lexeme_ {std::move(lexeme)}, value_ {std::move(value)}, codeLocation_ {std::move(codeLocation)}
   {
   }
-  ~StlToken() = default;
 
-  StlTokenType type = {};   // NOLINT(misc-non-private-member-variables-in-classes)
-  std::string lexeme = {};  // NOLINT(misc-non-private-member-variables-in-classes)
-  Var value = {};           // NOLINT(misc-non-private-member-variables-in-classes)
-  CodeLocation loc = {};    // NOLINT(misc-non-private-member-variables-in-classes)
+public:
+  [[nodiscard]] StlTokenType type() const { return type_; }
+
+  [[nodiscard]] std::string lexeme() const { return lexeme_; }
+
+  [[nodiscard]] Var value() const { return value_; }
+
+  [[nodiscard]] CodeLocation codeLocation() const { return codeLocation_; }
+
+private:
+  StlTokenType type_ {StlTokenType::unknown};
+  std::string lexeme_;
+  Var value_;
+  CodeLocation codeLocation_ {};
 };
 
 std::string toString(const StlToken& token);
 
 std::string toString(StlTokenType type);
+
+StlTokenType fromString(const std::string& stlTokenType);
 
 using StlTokenList = std::vector<StlToken>;
 

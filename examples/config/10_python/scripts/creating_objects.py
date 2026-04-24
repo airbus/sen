@@ -35,6 +35,9 @@ def run():
     testBus = sen.api.getBus("my.tutorial")
     testBus.add(myObject)
 
+    # setting the speed property to 150
+    myObject.speed = 150
+
 def update():
     print(myObject)
 

@@ -101,11 +101,13 @@ Result<TimeStamp, std::string> TimeStamp::make(const std::string_view iso8601Tim
     return Err(reason);
   }
 
-#ifdef __linux__
-  return Ok(TimeStamp(Duration(std::chrono::system_clock::from_time_t(std::mktime(&t) - timezone).time_since_epoch())));
-#else
-  return Ok(TimeStamp(Duration(std::chrono::system_clock::from_time_t(std::mktime(&t)).time_since_epoch())));
+#ifdef _WIN32
+  _tzset();
+  long timezone {0};
+  _get_timezone(&timezone);
 #endif
+
+  return Ok(TimeStamp(Duration(std::chrono::system_clock::from_time_t(std::mktime(&t) - timezone).time_since_epoch())));
 }
 
 }  // namespace sen

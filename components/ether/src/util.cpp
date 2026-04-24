@@ -217,6 +217,8 @@ void configureTcpSocket(asio::ip::tcp::socket& socket, const Configuration& conf
     {
       throw std::runtime_error(std::string("could not bind tcp socket to ").append(config.networkDevice.value()));
     }
+#else
+    std::ignore = socket;
 #endif
   }
 }

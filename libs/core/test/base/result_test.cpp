@@ -389,7 +389,7 @@ TEST(Result, void_void_payload_error_1)
 }
 
 /// @test
-/// Check comparison between different void void type results
+/// Check comparison between different void type results
 /// @requirements(SEN-1049)
 TEST(Result, void_void_payload_comparison)
 {
@@ -440,4 +440,39 @@ TEST(Result, floating_values)
   EXPECT_EQ(result2.getError(), ErrorCode::specialValue);
   EXPECT_EQ(result3.getError(), ErrorCode::specialValue);
   EXPECT_EQ(result2.getError(), result3.getError());
+}
+
+/// @test
+/// Check that calling getValue on an error result terminates the program
+/// @requirements(SEN-1049)
+TEST(Result, get_value_on_error_terminates)
+{
+  const auto result = add100(-5);
+  EXPECT_DEATH(std::ignore = result.getValue(), "Result error: ");
+}
+
+/// @test
+/// Check that calling getValue on an error result terminates the program
+/// @requirements(SEN-1049)
+TEST(Result, rvalue_get_value_on_error_terminates)
+{
+  EXPECT_DEATH(std::ignore = add100(-5).getValue(), "Result error: ");
+}
+
+/// @test
+/// Check that calling getError on an ok result terminates the program
+/// @requirements(SEN-1049)
+TEST(Result, get_error_on_ok_terminates)
+{
+  const auto result = add100(5);
+  EXPECT_DEATH(std::ignore = result.getError(), "Result error: ");
+}
+
+/// @test
+/// Check that expect on an error result prints the custom message and terminates
+/// @requirements(SEN-1049)
+TEST(Result, expect_on_error_terminates_with_message)
+{
+  const auto result = add100(-5);
+  EXPECT_DEATH(std::ignore = result.expect("Custom failure message"), "Result error: Custom failure message");
 }

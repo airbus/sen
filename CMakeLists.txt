@@ -57,17 +57,35 @@ if(MSVC)
   add_compile_options(/bigobj)
 endif()
 
-# configure coverage
-if(${SEN_COVERAGE_ENABLE})
+# configure coverage as an interface target so flags apply only to sen targets,
+# not to every target in the directory tree (e.g. third-party add_subdirectory targets).
+add_library(sen_coverage_flags INTERFACE)
+if(SEN_COVERAGE_ENABLE)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-g -O0 -fno-inline)
-    add_compile_options(--coverage)
-    add_link_options(--coverage)
+    target_compile_options(
+      sen_coverage_flags
+      INTERFACE -g
+                -O0
+                -fno-inline
+                --coverage
+    )
+    target_link_options(sen_coverage_flags INTERFACE --coverage)
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-g -O0 -fno-inline)
     file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_data/coverage-%m.profraw" SEN_COVERAGE_DATA_DIR)
-    add_compile_options(-fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR} -fcoverage-mapping)
-    add_link_options(-fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR} -fcoverage-mapping)
+    target_compile_options(
+      sen_coverage_flags
+      INTERFACE -g
+                -O0
+                -fno-inline
+                -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
+                -fcoverage-mapping
+    )
+    target_link_options(
+      sen_coverage_flags
+      INTERFACE
+      -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
+      -fcoverage-mapping
+    )
   endif()
 endif()
 

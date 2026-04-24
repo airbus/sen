@@ -149,6 +149,12 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   try
   {
     auto bootloader = makeBootloader(args, app);
+
+    // install the termination handler
+    if (!bootloader->getConfig().getParams().crashReportDisabled)
+    {
+      sen::kernel::Kernel::registerTerminationHandler();
+    }
     sen::kernel::Kernel kernel(bootloader->getConfig());
     exitCode = kernel.run();
   }
@@ -232,7 +238,6 @@ int runApp(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-  sen::kernel::Kernel::registerTerminationHandler();
   try
   {
     return runApp(argc, argv);

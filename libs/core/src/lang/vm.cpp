@@ -91,13 +91,13 @@ public:
                                 [this](float64_t val) { emitConstant(val); },
                                 [this](bool val) { emitConstant(val); },
                                 [this](const std::string& val) { emitConstant(val); },
-                                [this, &expr](const std::monostate& /*val*/) { emitConstant(expr.value.lexeme); },
+                                [this, &expr](const std::monostate& /*val*/) { emitConstant(expr.value.lexeme()); },
                                 [](const sen::Duration& /*val*/) { sen::throwRuntimeError("invalid literal value"); },
                                 [](const sen::TimeStamp& /*val*/) { sen::throwRuntimeError("invalid literal value"); },
                                 [](const sen::VarList& /*val*/) { sen::throwRuntimeError("invalid literal value"); },
                                 [](const sen::VarMap& /*val*/) { sen::throwRuntimeError("invalid literal value"); },
                                 [](const sen::KeyedVar& /*val*/) { sen::throwRuntimeError("invalid literal value"); }},
-               static_cast<const Var::ValueType&>(expr.value.value));
+               static_cast<const Var::ValueType&>(expr.value.value()));
   }
 
   void operator()(const StlUnaryExpr& expr)

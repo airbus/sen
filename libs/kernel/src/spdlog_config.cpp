@@ -176,10 +176,16 @@ SinkMap createSinks(const log::Config& config, const spdlog::details::registry& 
                       elem.identity, elem.option, syslogFacility, elem.enableFormatting);
 #else
                     std::ignore = elem;
+                    std::ignore = sinkConfig;
                     return std::make_shared<::spdlog::sinks::null_sink_st>();
 #endif
                   }},
       sinkConfig.config);
+
+    if (!sinkConfig.pattern.empty())
+    {
+      sink->set_pattern(sinkConfig.pattern);
+    }
 
     sink->set_level(mapLogLevel(sinkConfig.level));
     result.try_emplace(sinkConfig.name, sink);

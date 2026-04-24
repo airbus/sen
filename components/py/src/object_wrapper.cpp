@@ -100,7 +100,7 @@ void ObjectWrapper::definePythonApi(pybind11::module_& args)
   theClass.def("__str__", &ObjectWrapper::str);
   theClass.def("__hash__", &ObjectWrapper::hash);
   theClass.def("__getattribute__", &ObjectWrapper::getAttribute, pybind11::return_value_policy::take_ownership);
-  theClass.def("__setattribute__", &ObjectWrapper::setAttribute);
+  theClass.def("__setattr__", &ObjectWrapper::setAttribute);
 }
 
 pybind11::object ObjectWrapper::getAttribute(const std::string& name)
@@ -128,7 +128,7 @@ pybind11::object ObjectWrapper::getAttribute(const std::string& name)
 
   const auto* meta = obj_->getClass().type();
 
-  // check if we are accessing a property getter (setters are handled by the __setattribute__ mechanism).
+  // check if we are accessing a property getter (setters are handled by the __setattr__ mechanism).
   if (const auto* prop = meta->searchPropertyByName(name))
   {
     return toPython(obj_->getPropertyUntyped(prop));

@@ -14,6 +14,12 @@ We model a `Timer` that holds two writable properties. One is called `program` a
 
 This property called `program` is "checked". We only accept sets to `program` when `state`is `off`.
 
+The `codegen_settings.json` file tells the Sen code generator to mark the `program` property as **checked**. A checked property requires the object to implement `programAcceptsSet()`, which is called before any external set is applied. If it returns `false`, the new value is rejected. This lets you enforce invariants (for example: a running timer cannot have its program swapped out).
+
+```json
+--8<-- "snippets/examples/packages/timer/src/codegen_settings.json"
+```
+
 ## Implementation
 
 We mark the `program` property as "checked" using the code generation settings:

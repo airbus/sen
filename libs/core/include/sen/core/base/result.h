@@ -272,8 +272,8 @@ public:  // access
   template <typename U = T>
   [[nodiscard]] const impl::NonVoidT<U>& expect(std::string_view errorMsg = {}) const noexcept
   {
-    std::ignore = errorMsg;  // <-- inspect this variable to check the error
-    return getValue();
+    impl::resultExpect(isOk(), errorMsg);
+    return std::get<T>(value_);
   }
 
 private:

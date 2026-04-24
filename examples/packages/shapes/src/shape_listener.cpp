@@ -14,7 +14,6 @@
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/obj/connection_guard.h"
-#include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_list.h"
 #include "sen/core/obj/subscription.h"
@@ -51,30 +50,27 @@ protected:
                                    const MaybeInterval& xRange,
                                    const MaybeInterval& yRange) override
   {
-    const auto query = makeQueryName();                                // create a name for our query
-    auto sub = std::make_shared<sen::Subscription<ShapeInterface>>();  // create up a subscription
-    sub->source = api_->getSource(bus);                                // get the bus
+    const auto queryName = makeQueryName();  // create a name for our query
 
-    // install the callbacks
-    std::ignore = sub->list.onAdded([query, this](const auto& iterators) { shapesDetected(query, iterators); });
-    std::ignore = sub->list.onRemoved([query, this](const auto& iterators) { shapesGone(query, iterators); });
-
-    auto interest = makeInterest(query, bus, color, xRange, yRange);  // build the interest.
-    sub->source->addSubscriber(interest, &sub->list, true);           // connect the list.
-    subscriptions_.emplace(query, std::move(sub));                    // save the subscription.
+    // build and log the query string, then create the subscription
+    subscriptions_.emplace(queryName,
+                           api_->selectFrom<ShapeInterface>(
+                             bus,
+                             buildQuery(queryName, bus, color, xRange, yRange),
+                             [queryName, this](const auto& addedObjects) { shapesDetected(queryName, addedObjects); },
+                             [queryName, this](const auto& removedObjects) { shapesGone(queryName, removedObjects); }));
 
     // update the query count
     setNextQueryCount(
       sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyIgnore>(subscriptions_.size()));
-    return query;
+    return queryName;
   }
 
   void stopListeningToImpl(const std::string& queryName) override
   {
     if (auto itr = subscriptions_.find(queryName); itr != subscriptions_.end())
     {
-      itr->second->source->removeSubscriber(&itr->second->list, true);          // remove all subscriptions.
-      subscriptions_.erase(itr);                                                // erase the entry.
+      subscriptions_.erase(itr);  // erase the entry (Subscription dtor unsubscribes).
       std::cout << getName() << ": [" << queryName << "] Stopped listening\n";  // print a log.
       setNextQueryCount(sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyLog>(
         subscriptions_.size()));  // update the query count.
@@ -110,22 +106,22 @@ private:
   {
     const std::string ourName = getName();
 
-    for (auto shape = shapes.typedBegin; shape != shapes.typedEnd; ++shape)  // go over all the detected shapes
+    for (auto* shape: shapes)  // go over all the detected shapes
     {
-      auto& shapeAsObject = (*shape)->asObject();             // get the raw object
+      auto& shapeAsObject = shape->asObject();                // get the raw object
       const std::string shapeName = shapeAsObject.getName();  // extract the name
 
-      std::cout << ourName << ": [" << query << "] Got a " << (*shape)->getColor() << " "
-                << getGeometryName((*shape)->getGeometry()) << " named " << shapeName << " at\n"
-                << (*shape)->getPosition() << "\n";
+      std::cout << ourName << ": [" << query << "] Got a " << shape->getColor() << " "
+                << getGeometryName(shape->getGeometry()) << " named " << shapeName << " at\n"
+                << shape->getPosition() << "\n";
 
       // print some info when we detect a collision
       auto handler = [=](auto wall)
       { std::cout << ourName << ": [" << query << "] " << shapeName << " hit the " << wall << "\n"; };
 
-      auto guard = (*shape)->onCollidedWithWall({this, std::move(handler)});  // install the callback.
-      shapeGuards_[shapeAsObject.getId()].push_back(std::move(guard));        // save the guard.
-      totalShapesCount_++;                                                    // update our total shapes count.
+      auto guard = shape->onCollidedWithWall({this, std::move(handler)});  // install the callback.
+      shapeGuards_[shapeAsObject.getId()].push_back(std::move(guard));     // save the guard.
+      totalShapesCount_++;                                                 // update our total shapes count.
     }
 
     setNextDetectedShapesCount(totalShapesCount_);
@@ -134,14 +130,14 @@ private:
   void shapesGone(std::string_view query, const sen::ObjectList<ShapeInterface>::Iterators& shapes)
   {
     // go over all the now gone shapes
-    for (auto shape = shapes.typedBegin; shape != shapes.typedEnd; ++shape)
+    for (auto* shape: shapes)
     {
-      auto& shapeAsObject = (*shape)->asObject();
+      auto& shapeAsObject = shape->asObject();
 
       // print a log
-      std::cout << getName() << ": [" << query << "] Lost a " << (*shape)->getColor() << " "
-                << getGeometryName((*shape)->getGeometry()) << " named " << shapeAsObject.getName() << " at\n"
-                << (*shape)->getPosition() << "\n";
+      std::cout << getName() << ": [" << query << "] Lost a " << shape->getColor() << " "
+                << getGeometryName(shape->getGeometry()) << " named " << shapeAsObject.getName() << " at\n"
+                << shape->getPosition() << "\n";
 
       shapeGuards_.erase(shapeAsObject.getId());  // delete the guards.
       totalShapesCount_--;                        // update our total shapes count.
@@ -159,11 +155,11 @@ private:
   }
 
 private:
-  std::shared_ptr<sen::Interest> makeInterest(std::string_view queryName,
-                                              const std::string& bus,
-                                              const MaybeColor& color,
-                                              const MaybeInterval& xRange,
-                                              const MaybeInterval& yRange)
+  std::string buildQuery(std::string_view queryName,
+                         const std::string& bus,
+                         const MaybeColor& color,
+                         const MaybeInterval& xRange,
+                         const MaybeInterval& yRange)
   {
     // we build a string encoding our interest using the Sen Query Language
     std::string query("SELECT ");  // NOLINTNEXTLINE(misc-include-cleaner)
@@ -175,7 +171,7 @@ private:
     addRangeCondition("position.y", yRange, whereWritten, query);
 
     std::cout << getName() << ": " << queryName << " = '" << query << "'\n";  // log the query that we create.
-    return sen::Interest::make(query, api_->getTypes());                      // make the interest.
+    return query;
   }
 
   std::string makeQueryName() { return std::string("query_").append(std::to_string(nextQueryId_++)); }

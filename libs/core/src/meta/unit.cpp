@@ -111,6 +111,8 @@ std::string_view Unit::getCategoryString(UnitCategory category) noexcept
       return "acceleration";
     case UnitCategory::angularAcceleration:
       return "angular acceleration";
+    case UnitCategory::torque:
+      return "torque";
     default:
       return "unknown";
       SEN_UNREACHABLE();

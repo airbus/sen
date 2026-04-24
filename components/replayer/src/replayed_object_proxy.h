@@ -35,7 +35,6 @@ protected:  // implements NativeObject
 private:
   std::shared_ptr<Object> guard_;
   ReplayedObject* owner_;
-  std::unordered_map<MemberHash, Var> varCache_;
   std::unordered_map<MemberHash, TimeStamp> timeCache_;
 };
 

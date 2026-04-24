@@ -1115,7 +1115,6 @@ void Printer::printWelcome(Terminal* terminal)
   {
     terminal->newLine();
   }
-  terminal->saveCursorPosition();
 
   terminal->moveCursorUp(3);
   terminal->moveCursorAllLeft();
@@ -1141,13 +1140,11 @@ void Printer::printWelcome(Terminal* terminal)
   terminal->moveCursorUp(3);
   printLogo(terminal, bannerLength, getPallete());
 
-  terminal->restoreCursorPosition();
   terminal->showCursor();
 }
 
 void Printer::printError(const char* fmt, ...) const  // NOLINT
 {
-  terminal_->newLine();
   terminal_->print("  ");
   terminal_->cprint(errorStyle, "Error:");
   terminal_->print(" ");
@@ -1168,6 +1165,11 @@ void Printer::printMethodCallResult(const MethodResult<Var>& var, const Method* 
 
   if (var.isOk())
   {
+    if (type->isVoidType() || (var.getValue().isEmpty() && type->isStringType()))
+    {
+      return;
+    }
+
     terminal_->newLine();
     printValue(var.getValue(), type->isSequenceType() ? 1U : 0U, type.type());
     terminal_->newLine();
@@ -1187,6 +1189,11 @@ void Printer::printMethodCallResult(const MethodResult<Var>& var, const Method* 
 
 void Printer::printValue(const Var& value, size_t level, const Type* type) const
 {
+  if (value.isEmpty() && level == 0)
+  {
+    return;
+  }
+
   TypeWriter writer(value, level, terminal_, bufferStyle_, timeStyle_);
   type->accept(writer);
 }
@@ -1293,9 +1300,9 @@ void Printer::printDescription(const ClassType& owner, const Method* method) con
     terminal_->newLine();
   }
 
-  terminal_->newLine();
   printTitle("RETURN VALUE");
   terminal_->cprintf(typenameStyle, " (%s)\n", method->getReturnType()->getName().data());  // NOLINT
+  terminal_->newLine();
 }
 
 void Printer::printDescription(const Object& instance) const
@@ -1468,7 +1475,7 @@ std::string Printer::formatTextForWidth(const std::string& text, size_t width, s
   auto words = ::sen::impl::split(text, ' ');
   for (const auto& word: words)
   {
-    if (currentLine.length() + word.length() > width)
+    if (!currentLine.empty() && currentLine.length() + word.length() > width)
     {
       trimRight(currentLine);
 

@@ -637,17 +637,24 @@ private:
     {
       if (auto fieldItr = map.find(field.name); fieldItr == map.end())
       {
-        std::string err;
-        err.append("missing field ");
-        err.append(field.name);
-        err.append(" of type ");
-        err.append(field.type->getName());
-        err.append(" while adapting struct to type ");
-        err.append(type.getQualifiedName());
+        if (field.type->asOptionalType())
+        {
+          map[field.name] = std::monostate();
+        }
+        else
+        {
+          std::string err;
+          err.append("missing field ");
+          err.append(field.name);
+          err.append(" of type ");
+          err.append(field.type->getName());
+          err.append(" while adapting struct to type ");
+          err.append(type.getQualifiedName());
 
-        getLogger()->warn(err);
-        result_ = Err(std::move(err));
-        return;
+          getLogger()->warn(err);
+          result_ = Err(std::move(err));
+          return;
+        }
       }
 
       auto fieldResult = adaptVariant(*field.type, map[field.name], std::nullopt, useStrings_);

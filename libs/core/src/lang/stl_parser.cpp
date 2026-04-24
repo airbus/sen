@@ -154,13 +154,13 @@ StlTypeNameStatement StlParser::typeNameStatement(const std::vector<std::string>
   StlTypeNameStatement statement;
 
   statement.path.push_back(consume(StlTokenType::identifier, messages));
-  statement.qualifiedName.append(statement.path.back().lexeme);
+  statement.qualifiedName.append(statement.path.back().lexeme());
 
   while (match({StlTokenType::dot}))
   {
     statement.path.push_back(consume(StlTokenType::identifier, messages));
     statement.qualifiedName.append(".");
-    statement.qualifiedName.append(statement.path.back().lexeme);
+    statement.qualifiedName.append(statement.path.back().lexeme());
   }
 
   return statement;
@@ -176,7 +176,7 @@ StlStructStatement StlParser::structDeclaration()
   statement.identifier = consume(StlTokenType::identifier, {"Expected struct name"});
   checkNotReserved(statement.identifier);
 
-  const auto& typeName = statement.identifier.lexeme;
+  const auto& typeName = statement.identifier.lexeme();
 
   std::optional<StlToken> parentStructName;
   if (match({StlTokenType::colon}))
@@ -217,12 +217,12 @@ StlStructFieldStatement StlParser::structFieldStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected struct field name"});
   checkNotReserved(statement.identifier);
 
-  std::ignore = consume(StlTokenType::colon, {"Expected : after struct field ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::colon, {"Expected : after struct field ", statement.identifier.lexeme()});
   statement.typeName = typeNameStatement({"Expected struct field type"});
 
   // If next one is a comment and not a comma, we should be at the end of the structure
   if (const auto& prev = previous();
-      check(StlTokenType::comment) && !containsNewLine(prev.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(prev.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
 
@@ -241,11 +241,11 @@ StlStructFieldStatement StlParser::structFieldStatement()
   }
 
   // otherwise we would expect a comma
-  std::ignore = consume(StlTokenType::comma, {"Expected , after struct field ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::comma, {"Expected , after struct field ", statement.identifier.lexeme()});
 
   // and maybe a comment (in the same line)
   if (const auto& comma = previous();
-      check(StlTokenType::comment) && !containsNewLine(comma.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(comma.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -262,7 +262,7 @@ StlEnumStatement StlParser::enumDeclaration()
   statement.identifier = consume(StlTokenType::identifier, {"Expected enum name"});
   checkNotReserved(statement.identifier);
 
-  const auto& typeName = statement.identifier.lexeme;
+  const auto& typeName = statement.identifier.lexeme();
 
   std::ignore = consume(StlTokenType::colon, {"Expected ':' after enum name for ", typeName});
   statement.storageTypeName = typeNameStatement({"Expected enum storage type name for ", typeName});
@@ -274,7 +274,7 @@ StlEnumStatement StlParser::enumDeclaration()
 
     // If next one is a comment and not a comma, we should be at the end of the enumeration
     if (const auto& prev = previous();
-        check(StlTokenType::comment) && !containsNewLine(prev.loc.offset, peek().loc.offset))
+        check(StlTokenType::comment) && !containsNewLine(prev.codeLocation().offset, peek().codeLocation().offset))
     {
       statement.enumerators.back().description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
       break;
@@ -291,7 +291,7 @@ StlEnumStatement StlParser::enumDeclaration()
 
     // and maybe a comment (in the same line)
     if (const auto& comma = previous();
-        check(StlTokenType::comment) && !containsNewLine(comma.loc.offset, peek().loc.offset))
+        check(StlTokenType::comment) && !containsNewLine(comma.codeLocation().offset, peek().codeLocation().offset))
     {
       statement.enumerators.back().description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
     }
@@ -431,7 +431,7 @@ void StlParser::checkNotReserved(const StlToken& token)
                                                      "replaceable_if_eligible",
                                                      "_Pragma"};
 
-  if (reservedWords.count(token.lexeme) != 0)
+  if (reservedWords.count(token.lexeme()) != 0)
   {
     throw error(token, "usage of reserved word");
   }
@@ -444,7 +444,7 @@ StlVariantStatement StlParser::variantDeclaration()
   StlVariantStatement statement;
   statement.description = previousComment_;
   statement.identifier = consume(StlTokenType::identifier, {"Expected variant name"});
-  const auto& typeName = statement.identifier.lexeme;
+  const auto& typeName = statement.identifier.lexeme();
 
   std::ignore = consume(StlTokenType::leftBrace, {"Expected '{' before variant body for ", typeName});
 
@@ -476,7 +476,7 @@ StlVariantElement StlParser::variantElementDeclaration()
 
   // If next one is a comment and not a comma, we should be at the end of the variant
   if (const auto& prev = previous();
-      check(StlTokenType::comment) && !containsNewLine(prev.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(prev.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
 
@@ -499,7 +499,7 @@ StlVariantElement StlParser::variantElementDeclaration()
 
   // and maybe a comment (in the same line)
   if (const auto& comma = previous();
-      check(StlTokenType::comment) && !containsNewLine(comma.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(comma.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -526,12 +526,12 @@ StlSequenceStatement StlParser::sequenceStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected type name"});
   checkNotReserved(statement.identifier);
 
-  statement.attributes = maybeAttributeList(statement.identifier.lexeme);
+  statement.attributes = maybeAttributeList(statement.identifier.lexeme());
 
   std::ignore = consume(StlTokenType::semicolon, {"Expected ; after sequence statement"});
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -557,12 +557,12 @@ StlArrayStatement StlParser::arrayStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected type name"});
   checkNotReserved(statement.identifier);
 
-  statement.attributes = maybeAttributeList(statement.identifier.lexeme);
+  statement.attributes = maybeAttributeList(statement.identifier.lexeme());
 
   std::ignore = consume(StlTokenType::semicolon, {"Expected ; after array statement"});
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -586,12 +586,12 @@ StlQuantityStatement StlParser::quantityStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected type name"});
   checkNotReserved(statement.identifier);
 
-  statement.attributes = maybeAttributeList(statement.identifier.lexeme);
+  statement.attributes = maybeAttributeList(statement.identifier.lexeme());
 
   std::ignore = consume(StlTokenType::semicolon, {"Expected ; after quantity statement"});
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -612,7 +612,7 @@ StlTypeAliasStatement StlParser::aliasStatement()
   std::ignore = consume(StlTokenType::semicolon, {"Expected ; after alias statement"});
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -636,7 +636,7 @@ StlOptionalTypeStatement StlParser::optionalTypeStatement()
   std::ignore = consume(StlTokenType::semicolon, {"Expected ; after optional statement"});
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -655,7 +655,7 @@ StlInterfaceStatement StlParser::interfaceStatement()
 
   statement.description = previousComment_;
 
-  const auto& className = statement.identifier.lexeme;
+  const auto& className = statement.identifier.lexeme();
   checkNotReserved(statement.identifier);
 
   std::ignore = consume(StlTokenType::leftBrace, {"Expected '{' before interface body for ", className});
@@ -676,7 +676,7 @@ StlClassStatement StlParser::classStatement(bool isAbstract)
   statement.members.identifier = consume(StlTokenType::identifier, {"Expected type name"});
   statement.members.description = previousComment_;
 
-  const auto& className = statement.members.identifier.lexeme;
+  const auto& className = statement.members.identifier.lexeme();
   classParents(statement);
 
   std::ignore = consume(StlTokenType::leftBrace, {"Expected '{' before class body for ", className});
@@ -696,7 +696,7 @@ void StlParser::classParents(StlClassStatement& statement)
     return;
   }
 
-  const auto& className = statement.members.identifier.lexeme;
+  const auto& className = statement.members.identifier.lexeme();
 
   while (!isAtEnd() && !check(StlTokenType::leftBrace))
   {
@@ -770,7 +770,7 @@ StlVarStatement StlParser::varStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected var name"});
   checkNotReserved(statement.identifier);
 
-  std::ignore = consume(StlTokenType::colon, {"Expected : after var ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::colon, {"Expected : after var ", statement.identifier.lexeme()});
   statement.typeName = typeNameStatement({"Expected var type"});
 
   if (check(StlTokenType::equal))
@@ -779,17 +779,17 @@ StlVarStatement StlParser::varStatement()
     statement.defaultValue = literal();  // or identifier for enums
   }
 
-  if (auto attributes = maybeAttributeList(statement.identifier.lexeme); attributes)
+  if (auto attributes = maybeAttributeList(statement.identifier.lexeme()); attributes)
   {
     statement.attributes = attributes.value();
   }
 
-  std::ignore = consume(StlTokenType::semicolon, {"Expected ; after var ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::semicolon, {"Expected ; after var ", statement.identifier.lexeme()});
 
   statement.description = previousComment_;
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -808,7 +808,7 @@ StlFunctionStatement StlParser::functionStatement()
   checkNotReserved(statement.identifier);
 
   std::ignore =
-    consume(StlTokenType::leftParen, {"Expected ( to start args for function ", statement.identifier.lexeme});
+    consume(StlTokenType::leftParen, {"Expected ( to start args for function ", statement.identifier.lexeme()});
 
   // arguments
   while (!check(StlTokenType::rightParen) && !isAtEnd())
@@ -822,12 +822,12 @@ StlFunctionStatement StlParser::functionStatement()
   }
 
   std::ignore =
-    consume(StlTokenType::rightParen, {"Expected ) to close args for function ", statement.identifier.lexeme});
+    consume(StlTokenType::rightParen, {"Expected ) to close args for function ", statement.identifier.lexeme()});
 
   if (match({StlTokenType::minus}))
   {
     std::ignore =
-      consume(StlTokenType::greater, {"expecting -> for return type of function ", statement.identifier.lexeme});
+      consume(StlTokenType::greater, {"expecting -> for return type of function ", statement.identifier.lexeme()});
 
     statement.returnTypeName = typeNameStatement({"Expected function return type"});
   }
@@ -837,19 +837,19 @@ StlFunctionStatement StlParser::functionStatement()
     statement.returnTypeName.path.clear();
   }
 
-  if (auto attributes = maybeAttributeList(statement.identifier.lexeme); attributes.has_value())
+  if (auto attributes = maybeAttributeList(statement.identifier.lexeme()); attributes.has_value())
   {
     statement.attributes = *attributes;
   }
 
-  std::ignore = consume(StlTokenType::semicolon, {"Expected ; after function ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::semicolon, {"Expected ; after function ", statement.identifier.lexeme()});
 
   validateComments(statement.identifier, statement.arguments);
 
   statement.description = previousComment_;
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -867,7 +867,8 @@ StlEventStatement StlParser::eventStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected event name"});
   checkNotReserved(statement.identifier);
 
-  std::ignore = consume(StlTokenType::leftParen, {"Expected ( to start args for event ", statement.identifier.lexeme});
+  std::ignore =
+    consume(StlTokenType::leftParen, {"Expected ( to start args for event ", statement.identifier.lexeme()});
 
   // arguments
   while (!check(StlTokenType::rightParen) && !isAtEnd())
@@ -880,21 +881,22 @@ StlEventStatement StlParser::eventStatement()
     }
   }
 
-  std::ignore = consume(StlTokenType::rightParen, {"Expected ) to close args for event ", statement.identifier.lexeme});
+  std::ignore =
+    consume(StlTokenType::rightParen, {"Expected ) to close args for event ", statement.identifier.lexeme()});
 
-  if (auto attributes = maybeAttributeList(statement.identifier.lexeme); attributes)
+  if (auto attributes = maybeAttributeList(statement.identifier.lexeme()); attributes)
   {
     statement.attributes = attributes.value();
   }
 
-  std::ignore = consume(StlTokenType::semicolon, {"Expected ; after event ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::semicolon, {"Expected ; after event ", statement.identifier.lexeme()});
 
   validateComments(statement.identifier, statement.arguments);
 
   statement.description = previousComment_;
 
   if (const auto& semicolon = previous();
-      check(StlTokenType::comment) && !containsNewLine(semicolon.loc.offset, peek().loc.offset))
+      check(StlTokenType::comment) && !containsNewLine(semicolon.codeLocation().offset, peek().codeLocation().offset))
   {
     statement.description.push_back(consume(StlTokenType::comment, {"Expecting inline comment."}));
   }
@@ -910,7 +912,7 @@ StlArgStatement StlParser::argStatement()
   statement.identifier = consume(StlTokenType::identifier, {"Expected argument name"});
   checkNotReserved(statement.identifier);
 
-  std::ignore = consume(StlTokenType::colon, {"Expected ':' after argument ", statement.identifier.lexeme});
+  std::ignore = consume(StlTokenType::colon, {"Expected ':' after argument ", statement.identifier.lexeme()});
   statement.typeName = typeNameStatement({"Expected argument type"});
 
   // accept comments after args
@@ -925,7 +927,7 @@ StlArgStatement StlParser::argStatement()
 
 std::optional<StlAttributeList> StlParser::maybeAttributeList(const std::string& subjectName)
 {
-  if (peek().type == StlTokenType::leftBracket)
+  if (peek().type() == StlTokenType::leftBracket)
   {
     return attributeList(subjectName);
   }
@@ -947,7 +949,7 @@ StlAttributeList StlParser::attributeList(const std::string& subjectName)
 
     if (check(StlTokenType::colon))
     {
-      std::ignore = consume(StlTokenType::colon, {"Expected ':' after attribute name ", attr.name.lexeme});
+      std::ignore = consume(StlTokenType::colon, {"Expected ':' after attribute name ", attr.name.lexeme()});
 
       if (check(StlTokenType::identifier))
       {
@@ -1063,7 +1065,7 @@ std::shared_ptr<StlExpr> StlParser::equality()
 
   while (match({StlTokenType::bangEqual, StlTokenType::equal}))
   {
-    auto op = previous().type == StlTokenType::equal ? StlBinaryOperator::eq : StlBinaryOperator::ne;
+    auto op = previous().type() == StlTokenType::equal ? StlBinaryOperator::eq : StlBinaryOperator::ne;
     auto rhs = comparison();
     expr = std::make_shared<StlExpr>(StlExpr {StlExprVal {StlBinaryExpr {expr, op, rhs}}});
   }
@@ -1077,8 +1079,8 @@ std::shared_ptr<StlExpr> StlParser::comparison()
 
   // handle possible NOT before 'BETWEEN' or 'IN' expressions
   bool isNotInBetween = false;
-  if (peek().type == StlTokenType::keywordNot &&
-      (peekNext().type == StlTokenType::keywordBetween || peekNext().type == StlTokenType::keywordIn))
+  if (peek().type() == StlTokenType::keywordNot &&
+      (peekNext().type() == StlTokenType::keywordBetween || peekNext().type() == StlTokenType::keywordIn))
   {
     std::ignore = advance();
     isNotInBetween = true;
@@ -1097,15 +1099,15 @@ std::shared_ptr<StlExpr> StlParser::comparison()
       auto& maxValue = std::get<StlLiteralExpr>(max->value);
 
       // if min and max are numbers, check that 'min' value is not greater than 'max' value
-      if ((minValue.value.type == StlTokenType::real || minValue.value.type == StlTokenType::integral) &&
-          (maxValue.value.type == StlTokenType::real || maxValue.value.type == StlTokenType::integral))
+      if ((minValue.value.type() == StlTokenType::real || minValue.value.type() == StlTokenType::integral) &&
+          (maxValue.value.type() == StlTokenType::real || maxValue.value.type() == StlTokenType::integral))
       {
-        if (std::stod(minValue.value.lexeme) > std::stod(maxValue.value.lexeme))
+        if (std::stod(minValue.value.lexeme()) > std::stod(maxValue.value.lexeme()))
         {
           std::string err("'BETWEEN' statement requires min value '");
-          err.append(minValue.value.lexeme);
+          err.append(minValue.value.lexeme());
           err.append("' to be less or equal than max value '");
-          err.append(maxValue.value.lexeme);
+          err.append(maxValue.value.lexeme());
           err.append("'");
           throw error(peek(), err);
         }
@@ -1138,7 +1140,7 @@ std::shared_ptr<StlExpr> StlParser::comparison()
     {
       StlBinaryOperator op = {};
 
-      switch (previous().type)
+      switch (previous().type())
       {
         case StlTokenType::greater:
           op = StlBinaryOperator::gt;
@@ -1174,7 +1176,7 @@ std::shared_ptr<StlExpr> StlParser::term()
 
   while (match({StlTokenType::minus, StlTokenType::plus}))
   {
-    auto op = previous().type == StlTokenType::minus ? StlBinaryOperator::subtract : StlBinaryOperator::add;
+    auto op = previous().type() == StlTokenType::minus ? StlBinaryOperator::subtract : StlBinaryOperator::add;
     auto rhs = factor();
     expr = std::make_shared<StlExpr>(StlExpr {StlExprVal {StlBinaryExpr {expr, op, rhs}}});
   }
@@ -1188,7 +1190,7 @@ std::shared_ptr<StlExpr> StlParser::factor()
 
   while (match({StlTokenType::slash, StlTokenType::star}))
   {
-    auto op = previous().type == StlTokenType::slash ? StlBinaryOperator::divide : StlBinaryOperator::multiply;
+    auto op = previous().type() == StlTokenType::slash ? StlBinaryOperator::divide : StlBinaryOperator::multiply;
     auto rhs = unary();
     expr = std::make_shared<StlExpr>(StlExpr {StlExprVal {StlBinaryExpr {expr, op, rhs}}});
   }
@@ -1200,7 +1202,7 @@ std::shared_ptr<StlExpr> StlParser::unary()
 {
   if (match({StlTokenType::bang, StlTokenType::minus, StlTokenType::keywordNot}))
   {
-    auto op = previous().type == StlTokenType::minus ? StlUnaryOperator::negate : StlUnaryOperator::logicalNot;
+    auto op = previous().type() == StlTokenType::minus ? StlUnaryOperator::negate : StlUnaryOperator::logicalNot;
     auto rhs = unary();
     return std::make_shared<StlExpr>(StlExpr {StlExprVal {StlUnaryExpr {op, rhs}}});
   }
@@ -1241,13 +1243,13 @@ std::shared_ptr<StlExpr> StlParser::variable()
   StlVariableExpr expr = {};
 
   expr.path.push_back(consume(StlTokenType::identifier, {"Expecting identifier for variable name"}));
-  expr.name.append(expr.path.back().lexeme);
+  expr.name.append(expr.path.back().lexeme());
 
   while (match({StlTokenType::dot}))
   {
     expr.path.push_back(consume(StlTokenType::identifier, {"Expecting identifier for variable name"}));
     expr.name.append(".");
-    expr.name.append(expr.path.back().lexeme);
+    expr.name.append(expr.path.back().lexeme());
   }
 
   return std::make_shared<StlExpr>(StlExpr {StlExprVal {expr}});
@@ -1274,7 +1276,7 @@ bool StlParser::check(StlTokenType type) const
     return false;
   }
 
-  return peek().type == type;
+  return peek().type() == type;
 }
 
 const StlToken& StlParser::peek() const { return tokens_.at(current_); }
@@ -1291,7 +1293,7 @@ StlToken StlParser::peekNext() const
 
 const StlToken& StlParser::previous() const { return tokens_.at(current_ - 1U); }
 
-bool StlParser::isAtEnd() const noexcept { return peek().type == StlTokenType::endOfFile; }
+bool StlParser::isAtEnd() const noexcept { return peek().type() == StlTokenType::endOfFile; }
 
 const StlToken& StlParser::advance()
 {
@@ -1321,7 +1323,7 @@ const StlToken& StlParser::consume(StlTokenType type, const std::vector<std::str
 
 StlParser::ParseError StlParser::error(const StlToken& token, const std::string& message) const
 {
-  ErrorReporter::report(token.loc, message, token.lexeme.size());
+  ErrorReporter::report(token.codeLocation(), message, token.lexeme().size());
   return ParseError(message);
 }
 
@@ -1332,7 +1334,7 @@ void StlParser::validateComments(const StlToken& functionOrEventIdentifier,
 
   for (const auto& arg: arguments)
   {
-    argsNames.insert(arg.identifier.lexeme);
+    argsNames.insert(arg.identifier.lexeme());
   }
 
   std::vector<StlToken> filteredComments;
@@ -1341,7 +1343,7 @@ void StlParser::validateComments(const StlToken& functionOrEventIdentifier,
 
   for (const auto& commentToken: previousComment_)
   {
-    std::string commentText = std::string(commentToken.lexeme);
+    std::string commentText = std::string(commentToken.lexeme());
 
     std::regex paramRegex("@param\\s+([a-zA-Z_][a-zA-z0-9_]*)");
 
@@ -1381,7 +1383,7 @@ void StlParser::validateComments(const StlToken& functionOrEventIdentifier,
 
 bool StlParser::containsNewLine(size_t startOffset, size_t endOffset) const
 {
-  std::string_view source = std::string_view(peek().loc.src).substr(startOffset, endOffset - startOffset);
+  std::string_view source = std::string_view(peek().codeLocation().src).substr(startOffset, endOffset - startOffset);
   return std::any_of(source.begin(), source.end(), [](char c) { return c == '\n'; });
 }
 

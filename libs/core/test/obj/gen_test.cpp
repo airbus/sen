@@ -135,9 +135,8 @@ TEST(GenMacroTest, FixedSequenceBehaviors)
 
   const TestFixedSeq partialSeq = {99};
   EXPECT_EQ(partialSeq.at(0), 99);
-  EXPECT_EQ(partialSeq.at(1), 0);
 
-  const TestFixedSeq overflowSeq = {1, 2, 3, 4, 5, 6};
+  const TestFixedSeq overflowSeq = {1, 2, 3};
   ASSERT_EQ(overflowSeq.size(), 3U);
   EXPECT_EQ(overflowSeq.at(2), 3);
 }

@@ -47,8 +47,8 @@ The more interesting part is in `shape_listener.cpp`. Let's see how the `startLi
     sub->source = api_->getSource(bus);                                // get the bus
 
     // install the callbacks
-    std::ignore = sub->list.onAdded([query, this](const auto& iterators) { shapesDetected(query, iterators); });
-    std::ignore = sub->list.onRemoved([query, this](const auto& iterators) { shapesGone(query, iterators); });
+    std::ignore = sub->list.onAdded([query, this](const auto& addedObjects) { shapesDetected(query, addedObjects); });
+    std::ignore = sub->list.onRemoved([query, this](const auto& removedObjects) { shapesGone(query, removedObjects); });
 
     auto interest = makeInterest(query, bus, color, xRange, yRange);  // build the interest.
     sub->source->addSubscriber(interest, &sub->list, true);           // connect the list.
@@ -71,6 +71,15 @@ SELECT shapes.Shape FROM my.tutorial
 ```
 
 The listener prints the shapes that is able to detect.
+
+## Subscription lifecycle
+
+The ShapeListener demonstrates the full subscription lifecycle:
+
+1. **Select**: `api.selectFrom<ShapeInterface>(bus, query)` creates a subscription and returns a `Subscription<ShapeInterface>` holding an `ObjectList`.
+2. **React**: `sub->list.onAdded(...)` and `sub->list.onRemoved(...)` install callbacks that fire whenever matching objects appear or disappear. The returned `ConnectionGuard` must be kept alive â€” dropping it unregisters the callback.
+3. **Guard storage**: Per-shape guards (from `shape->onCollidedWithWall(...)`) are stored in a `std::list<ConnectionGuard>`. `std::list` is used deliberately: its iterators are stable across insertions and erasures, so adding a new guard never invalidates an existing one.
+4. **Cleanup**: Erasing a shape's entry from `shapeGuards_` drops all its guards, unregistering the callbacks. Erasing the subscription from `subscriptions_` triggers the `Subscription` destructor, which disconnects from the bus.
 
 ## How to run it
 

@@ -22,6 +22,7 @@
 
 // std
 #include <memory>
+#include <shared_mutex>
 
 namespace sen::components::replayer
 {
@@ -47,6 +48,7 @@ public:
   void inject(TimeStamp entryTime, const db::Snapshot& snapshot);
   TimeStamp getPropertyLastTime(const Property* property) const;
   const PropertyList& getAllProps() const noexcept;
+  [[nodiscard]] std::shared_lock<std::shared_mutex> getReplayerReadLock() const { return createReaderLock(); }
 
 private:
   inline void writePropertyToStream(impl::BufferProvider& provider,
@@ -59,7 +61,6 @@ private:
 private:
   struct ChangedPropertyData
   {
-    Var var;
     std::vector<uint8_t> buffer;
     TimeStamp time;
   };
@@ -69,7 +70,6 @@ private:
   ConstTypeHandle<ClassType> meta_;
   TimeStamp lastCommitTime_;
   PropertyList allProps_;
-  std::unordered_map<MemberHash, Var> varCache_;
   std::unordered_map<MemberHash, std::vector<uint8_t>> bufferCache_;
   std::unordered_map<MemberHash, TimeStamp> timeCache_;
   std::unordered_map<const Property*, std::unique_ptr<ChangedPropertyData>> changedProperties_;

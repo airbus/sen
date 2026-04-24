@@ -136,7 +136,7 @@ The storage type must be an integral (`u8`,`u16`,`i16`,`u32`,`i32`, `u64` or `i6
 You can group values with structs. They are defined like this:
 
 ```
-struct <type_name>
+struct <type_name> [: <parent_struct>]
 {
   <field_name> : <field_type>,
   ...
@@ -171,6 +171,28 @@ If your struct does not have any field, you can omit the `{` `}`. For example,
 struct SaveCursorPosition;
 struct RestoreCursorPosition;
 ```
+
+Furthermore, structs may have a parent struct to avoid code duplication. For example,
+
+```rust
+struct ParentStruct
+{
+  familyName : string,
+  hairColor : string,
+  badHabits : sequence<BadHabit>
+}
+
+struct ChildStruct : ParentStruct
+{
+  name : string,
+  age : u8,
+}
+```
+
+*Note:* structs that specify a parent always declare a `is-a` relationship to their parent.
+That is, as structs do not have any invariants all data members from the parent will be available to every user of the derived class.
+Furthermore, a struct with a parent is a class that requires run-time polymorphism and should, therefore, also be treated as such in code.
+We currently strongly discourage the polymorphic usage of structs as parent structs do have a virtual constructor.
 
 ## Variants
 
@@ -264,6 +286,25 @@ You can define types that might optionally hold a value (of any given type). For
 ```
 optional<f64> MaybeFloat64;
 optional<Error> MaybeError;
+```
+
+## Aliases
+
+You can define alternative names for types. For example,
+
+```
+alias StringAlias string;
+alias MyInt u8;
+```
+
+From this point you can use your custom names in other places. For example,
+
+```rust
+struct MyStuct
+{
+  field1 : StringAlias, // same as string
+  field2 : MyInt        // same as u8
+}
 ```
 
 ## Classes
@@ -488,15 +529,17 @@ comments in two main ways:
 struct Point
 {
   // The X coordinate
-  x: i32; // horizontal axis
-  // The Y coordinate
-  y: i32; // vertical axis
+  x: i32,
+
+  y: i32 // The Y coordinate
 }
 ```
 
 ```rust
-// A temperature in Celsius
-quantity Temperature: f32; // float type
+// An angle in radians
+quantity<f32, rad> Angle;
+
+quantity<f32, rad> Angle; // An angle in radians
 ```
 
 ### Classes
@@ -520,7 +563,7 @@ You can add multiple lines of comments, but only one @param per parameter.
 class Example
 {
   // Stores the first name
-  var firstName : string [static]; // A string property
+  var firstName : string [static];
 
   // Stores the surname
   var surName   : string [static];

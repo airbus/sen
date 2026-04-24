@@ -12,6 +12,7 @@
 #include "bus_handler.h"
 #include "discovery.h"
 #include "process_handler.h"
+#include "stats.h"
 #include "util.h"
 
 // sen
@@ -60,6 +61,9 @@ public:  // implements Transport
               MemBlockPtr data2) override;
   void stop() noexcept override;
   kernel::TransportStats fetchStats() const override;
+
+  /// Per-instance traffic counters, accessed by handlers.
+  [[nodiscard]] TransportCounters& getCounters() noexcept { return counters_; }
 
   [[nodiscard]] TimerId startTimer(std::chrono::steady_clock::duration timeout,
                                    std::function<void()>&& timeoutCallback) override;
@@ -120,6 +124,7 @@ private:
   std::shared_ptr<spdlog::logger> logger_;
   std::unique_ptr<sen::kernel::Tracer> tracer_;
   std::mutex ioMutex_;
+  TransportCounters counters_;
 
   // timers
   std::unordered_map<TimerId, TimerData> timers_;

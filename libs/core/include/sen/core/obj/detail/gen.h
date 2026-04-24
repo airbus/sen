@@ -9,6 +9,7 @@
 #define SEN_CORE_OBJ_DETAIL_GEN_H
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/base/quantity.h"
@@ -38,6 +39,8 @@
 #include "sen/core/obj/native_object.h"
 
 // std
+#include <initializer_list>  // NOLINT(misc-include-cleaner): used by not visible due to macros
+#include <iterator>          // NOLINT(misc-include-cleaner): used by not visible due to macros
 #include <optional>
 #include <type_traits>
 
@@ -215,7 +218,14 @@ private:
     template <typename Y, typename = std::enable_if_t<std::is_convertible_v<Y, element>, int>>                         \
     constexpr classname(std::initializer_list<Y> elems): Parent()                                                      \
     {                                                                                                                  \
-      std::move(std::begin(elems), std::end(elems), std::begin(*this));                                                \
+      using DifferenceType =                                                                                           \
+        typename std::iterator_traits<typename std::initializer_list<Y>::iterator>::difference_type;                   \
+      SEN_ASSERT(std::distance(std::begin(elems), std::end(elems)) <= static_cast<DifferenceType>(num_elements));      \
+      std::move(std::begin(elems),                                                                                     \
+                std::next(std::begin(elems),                                                                           \
+                          std::min(std::distance(std::begin(elems), std::end(elems)),                                  \
+                                   static_cast<DifferenceType>(num_elements))),                                        \
+                std::begin(*this));                                                                                    \
     }                                                                                                                  \
                                                                                                                        \
     constexpr const Parent& asArray() const& noexcept { return *this; }                                                \

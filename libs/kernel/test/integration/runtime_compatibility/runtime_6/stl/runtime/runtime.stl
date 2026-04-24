@@ -46,7 +46,6 @@ variant TestVariant
   TestStruct,
   string,
   EmptyStruct,
-  TestStruct
 }
 
 optional<string> MaybeString;

@@ -1,14 +1,15 @@
 package sen.kernel.log;
 
+// Severity/importance of a log message.
 enum LogLevel: u8
 {
-  warn,
-  err,
-  critical,
-  trace,
-  debug,
-  info,
-  off
+  warn,     // Unexpected behavior or potential issues that do not stop functionality but warrant monitoring.
+  err,      // Significant issues that prevent specific functionality from working.
+  critical, // Catastrophic failures. The system or a critical element is crashing or unusable.
+  trace,    // Extremely detailed, granular information used for debugging, such as function entry/exit points.
+  debug,    // Detailed information intended for developers to diagnose problems during development or troubleshooting.
+  info,     // Highlights the normal, successful operational path of the application.
+  off       // No logs.
 }
 
 // stdout sink
@@ -17,13 +18,13 @@ struct Stdout {}
 // stderr sink
 struct Stderr {}
 
-// colored stdout sink
+// Colored stdout sink
 struct ColorStdout {}
 
-// colored stderr sink
+// Colored stderr sink
 struct ColorStderr {}
 
-// basic file sink
+// Basic file sink
 struct BasicFile
 {
   fileName        : string,  // file to log to
@@ -31,7 +32,7 @@ struct BasicFile
   createParentDir : bool     // true if we should create the parent dir first
 }
 
-// rotating file sink
+// Rotating file sink
 struct RotatingFile
 {
   baseFileName : string,
@@ -39,10 +40,10 @@ struct RotatingFile
   maxFiles     : u32      // 0 means use defaults
 }
 
-// single-threaded null sink
+// Single-threaded null sink
 struct Null {}
 
-// syslog sink (only in linux)
+// Syslog sink (only in linux)
 struct Syslog
 {
   identity         : string,
@@ -50,6 +51,7 @@ struct Syslog
   enableFormatting : bool
 }
 
+// The type-specific configuration of the used spdlog Sink.
 variant SinkType
 {
   ColorStdout,
@@ -62,22 +64,35 @@ variant SinkType
   Syslog
 }
 
+// Configuration used for a given spdlog Sink.
 struct SinkConfig
 {
-  name           : string,
-  singleThreaded : bool,
-  level          : LogLevel,
-  config         : SinkType
+  name           : string,    // name of the sink
+  singleThreaded : bool,      // if true, single-threaded (defaults to false)
+  pattern        : string,    // the pattern used for the formatting (empty means default).
+  level          : LogLevel,  // default log level for this sink
+  config         : SinkType   // the type-specific configuration parameters
 }
 
 sequence<string> SinkNameList;
 
+// Configuration used for a given spdlog logger.
 struct LoggerConfig
 {
-  name    : string,
-  sinks   : SinkNameList,
+  // name of the logger
+  name : string,
+
+  // name of the sinks to connect the logger to
+  sinks : SinkNameList,
+
+  // default log level for this logger
+  level : LogLevel,
+
+  // Formatting for the sinks in this logger. Does nothing if empty.
+  // Note that this replaces the format of the associated sinks, and this
+  // could affect other loggers using those sinks. The config is applied
+  // following the order of the Config.loggers field.
   pattern : string,
-  level   : LogLevel
 }
 
 sequence<SinkConfig> SinkConfigList;

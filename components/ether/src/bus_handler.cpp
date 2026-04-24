@@ -42,6 +42,7 @@
 
 // std
 #include <algorithm>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -116,10 +117,11 @@ std::shared_ptr<BusHandler> BusHandler::make(uint32_t sessionId,
                                              uint16_t discoveryPort,
                                              asio::io_context& io,
                                              const Configuration& config,
-                                             sen::kernel::Tracer& tracer)
+                                             sen::kernel::Tracer& tracer,
+                                             TransportCounters& counters)
 {
   return std::shared_ptr<BusHandler>(
-    new BusHandler(sessionId, busId, name, procId, listener, discoveryPort, io, config, tracer));
+    new BusHandler(sessionId, busId, name, procId, listener, discoveryPort, io, config, tracer, counters));
 }
 
 BusHandler::BusHandler(uint32_t sessionId,
@@ -130,7 +132,8 @@ BusHandler::BusHandler(uint32_t sessionId,
                        uint16_t discoveryPort,
                        asio::io_context& io,
                        const Configuration& config,
-                       sen::kernel::Tracer& tracer)
+                       sen::kernel::Tracer& tracer,
+                       TransportCounters& counters)
   : busId_(busId)
   , procId_(procId)
   , name_(std::move(name))
@@ -141,6 +144,7 @@ BusHandler::BusHandler(uint32_t sessionId,
   , logger_(getLogger())
   , outQueue_(config.busOutQueue)
   , io_(io)
+  , counters_(counters)
 {
   const auto group = computeMulticastAddress(sessionId, busId.get(), discoveryPort, config.busConfig.multicastRange);
 
@@ -254,7 +258,7 @@ void BusHandler::readMessage()
       // do not process messages sent by us
       if (processId != us->procId_.get())
       {
-        udpReceivedBytes.fetch_add(payloadSize);
+        us->counters_.udpReceivedBytes.fetch_add(payloadSize, std::memory_order_relaxed);
 
         auto span = makeConstSpan(in.advance(payloadSize), payloadSize);
         us->listener_->remoteBroadcastMessageReceived(us->busId_, span, std::move(buffer));

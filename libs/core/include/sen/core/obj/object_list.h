@@ -10,6 +10,7 @@
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/iterator_adapters.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/obj/object_provider.h"
 
@@ -49,6 +50,16 @@ public:  // types
     typename TypedObjectList::iterator typedEnd;
     typename UntypedObjectList::iterator untypedBegin;
     typename UntypedObjectList::iterator untypedEnd;
+
+    /// Range-for support iterates over typed objects.
+    [[nodiscard]] typename TypedObjectList::iterator begin() const { return typedBegin; }
+    [[nodiscard]] typename TypedObjectList::iterator end() const { return typedEnd; }
+
+    /// Range-for support iterates over untyped objects.
+    [[nodiscard]] auto untyped() const { return sen::util::makeRange(untypedBegin, untypedEnd); }
+
+    /// Range-for support iterates over untype objects (here for simmetry with untyped()).
+    [[nodiscard]] auto typed() const { return sen::util::makeRange(typedBegin, typedEnd); }
   };
 
   using Callback = std::function<void(const Iterators& iterators)>;

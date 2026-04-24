@@ -10,7 +10,9 @@ add_sen_package(
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
   DESCRIPTION "Allows the creation of class rooms"
-  SOURCES src/person.h
+  SOURCES src/names.h
+          src/names.cpp
+          src/person.h
           src/teacher.h
           src/teacher.cpp
           src/student.h

@@ -57,7 +57,8 @@ Result<BusLocator, LocatorError> BusLocator::build(const Interest& interest) noe
   {
     lang::StlParser parser(tokens);
     auto busStatement = parser.parseQuery().bus;
-    return BusLocator::build(busStatement.session.value.get<std::string>(), busStatement.bus.value.get<std::string>());
+    return BusLocator::build(busStatement.session.value().get<std::string>(),
+                             busStatement.bus.value().get<std::string>());
   }
   catch (sen::lang::StlParser::ParseError& error)
   {

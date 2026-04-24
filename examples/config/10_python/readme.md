@@ -19,6 +19,8 @@ For fish:
 set -xa PYTHONPATH $(pwd)/config/10_python/scripts
 ```
 
+**PYTHONPATH setup**: The Python scripts import `sen` (the Sen Python binding) and optionally generated type modules. Before running these scripts standalone, ensure `PYTHONPATH` includes the directory containing the `sen` module and any generated Python packages. When using `sen run`, Sen automatically extends `PYTHONPATH` with the paths of Python targets listed in `DEPS` inside `sen_generate_yaml`.
+
 ## Hello Python
 
 In this example we just show how to get a Python interpreter running inside a Sen component.

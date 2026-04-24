@@ -13,12 +13,14 @@
 #include "sen/core/base/duration.h"
 #include "sen/core/base/mutex_utils.h"
 #include "sen/core/base/result.h"
+#include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
+#include "sen/core/obj/object_list.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/core/obj/subscription.h"
 
@@ -41,6 +43,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace sen::kernel
@@ -80,17 +83,17 @@ void remoteProcessLost(RunApi& api, const ProcessInfo& processInfo);
 
 }  // namespace impl
 
-/// Monitoring information about components.
+/// Runtime monitoring information about a single component runner.
 struct ComponentMonitoringInfo
 {
-  ComponentInfo info;
-  ComponentConfig config;
+  std::string name;
+  uint32_t group = 0;
   bool requiresRealTime = false;
   std::optional<Duration> cycleTime;
   std::size_t objectCount = 0;
 };
 
-/// Kernel monitoring information.
+/// Kernel runtime monitoring information.
 struct KernelMonitoringInfo
 {
   RunMode runMode = RunMode::realTime;
@@ -132,8 +135,27 @@ public:
   /// The work queue of this runner
   [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue() const noexcept;
 
-  template <typename T, typename B>
-  [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const B& bus);
+  template <typename T, typename Bus>
+  [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const Bus& bus);
+
+  /// Overload of selectAllFrom that installs addition and removal callbacks before subscribing,
+  /// so they fire for objects already present at subscription time.
+  /// Pass nullptr for either callback to skip it.
+  template <typename T, typename Bus>
+  [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(
+    const Bus& bus,
+    typename sen::ObjectList<T>::Callback onAdded,
+    typename sen::ObjectList<T>::Callback onRemoved = nullptr);
+
+  /// Creates a subscription for objects matching the given Sen query string.
+  /// Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions.
+  /// Example: selectFrom<Shape>(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")").
+  /// It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.
+  template <typename T, typename Bus>
+  [[nodiscard]] std::shared_ptr<Subscription<T>> selectFrom(const Bus& bus,
+                                                            const std::string& query,
+                                                            typename sen::ObjectList<T>::Callback onAdded = nullptr,
+                                                            typename sen::ObjectList<T>::Callback onRemoved = nullptr);
 
   /// Gets the path to the configuration file used to construct the kernel.
   /// It might be empty if the kernel is programmatically configured.
@@ -271,6 +293,22 @@ public:
   /// Monitoring information.
   [[nodiscard]] KernelMonitoringInfo fetchMonitoringInfo() const;
 
+  /// Build information for all imported packages (from pipeline components).
+  /// The returned span references kernel-owned storage that is stable for the
+  /// lifetime of the kernel.
+  [[nodiscard]] Span<const ComponentInfo> getImportedPackages() const noexcept;
+
+  /// Build information for every component loaded into the kernel, excluding
+  /// pipeline components (which are built from imports and have no individual
+  /// build identity) and the internal kernel component. The returned span
+  /// references kernel-owned storage that is stable for the lifetime of the
+  /// kernel.
+  [[nodiscard]] Span<const ComponentInfo> getLoadedComponents() const noexcept;
+
+  /// Version of the currently installed transport protocol. Empty when no
+  /// transport is installed. Static for the lifetime of the kernel.
+  [[nodiscard]] std::optional<uint32_t> getTransportProtocolVersion() const noexcept;
+
   /// Create a scoped zone used for tracing runtime performance.
   [[nodiscard]] Tracer& getTracer() const noexcept;
 
@@ -300,12 +338,51 @@ public:
 // Inline implementation
 //----------------------------------------------------------------------------------------------------------------------
 
-template <typename T, typename B>
-inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const B& bus)
+template <typename T, typename Bus>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const Bus& bus)
 {
   auto sub = std::make_shared<Subscription<T>>();
-  sub->source = getSource(bus);
-  sub->source->addSubscriber(Interest::make(buildQuery<T>(bus), getTypes()), &sub->list, true);
+  sub->attachTo(getSource(bus), Interest::make(buildQuery<T>(bus), getTypes()), true);
+  return sub;
+}
+
+template <typename T, typename Bus>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectAllFrom(const Bus& bus,
+                                                                 typename ObjectList<T>::Callback onAdded,
+                                                                 typename ObjectList<T>::Callback onRemoved)
+{
+  auto sub = std::make_shared<Subscription<T>>();
+  // Install callbacks before subscribing so they fire for objects already present.
+  if (onAdded)
+  {
+    std::ignore = sub->list.onAdded(std::move(onAdded));
+  }
+  if (onRemoved)
+  {
+    std::ignore = sub->list.onRemoved(std::move(onRemoved));
+  }
+  sub->attachTo(getSource(bus), Interest::make(buildQuery<T>(bus), getTypes()), true);
+  return sub;
+}
+
+template <typename T, typename Bus>
+inline std::shared_ptr<Subscription<T>> KernelApi::selectFrom(const Bus& bus,
+                                                              const std::string& query,
+                                                              typename sen::ObjectList<T>::Callback onAdded,
+                                                              typename sen::ObjectList<T>::Callback onRemoved)
+{
+  auto sub = std::make_shared<Subscription<T>>();
+
+  // Install callbacks before subscribing so they fire for objects already present.
+  if (onAdded)
+  {
+    std::ignore = sub->list.onAdded(std::move(onAdded));
+  }
+  if (onRemoved)
+  {
+    std::ignore = sub->list.onRemoved(std::move(onRemoved));
+  }
+  sub->attachTo(getSource(bus), Interest::make(query, getTypes()), true);
   return sub;
 }
 

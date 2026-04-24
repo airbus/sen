@@ -10,7 +10,6 @@
 // component
 #include "ether_transport.h"
 #include "shared_buffer_sequence.h"
-#include "stats.h"
 #include "util.h"
 
 // sen
@@ -467,7 +466,7 @@ void ProcessHandler::maybeSendUdp()
       auto& bufferSeq = udpBulkBuffer_[i];  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
       for (const auto& block: bufferSeq)
       {
-        udpSentBytes.fetch_add(block.size());
+        transport_->getCounters().udpSentBytes.fetch_add(block.size());
       }
 
       try
@@ -528,7 +527,7 @@ void ProcessHandler::sendTcp(TcpBufferItr begin, TcpBufferItr end)
                       {
                         if (!ec)
                         {
-                          tcpSentBytes.fetch_add(length);
+                          us->transport_->getCounters().tcpSentBytes.fetch_add(length);
                           us->sendTcp(std::next(begin), end);
                         }
                         else
@@ -565,7 +564,7 @@ void ProcessHandler::readTcpHeader()
     in.readUInt32(size);
 
     std::ignore = bytesReceived;
-    tcpReceivedBytes.fetch_add(5);
+    us->transport_->getCounters().tcpReceivedBytes.fetch_add(5);
 
     us->readTcpPayload(category, size);
   };
@@ -589,7 +588,7 @@ void ProcessHandler::readTcpPayload(uint8_t category, uint32_t payloadSize)
       return;
     }
 
-    tcpReceivedBytes.fetch_add(buffer->size());
+    us->transport_->getCounters().tcpReceivedBytes.fetch_add(buffer->size());
 
     if (category == static_cast<uint8_t>(MessageCategory::controlMessage))
     {
@@ -626,7 +625,7 @@ void ProcessHandler::readUdpMessage()
 
     if (bytesReceived != 0)
     {
-      udpReceivedBytes.fetch_add(bytesReceived);
+      us->transport_->getCounters().udpReceivedBytes.fetch_add(bytesReceived);
 
       auto span = makeConstSpan(buffer->data(), bytesReceived);
       us->busMessageReceived(span, std::move(buffer), /*ensureNotDropped=*/false);

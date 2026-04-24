@@ -293,7 +293,19 @@ private:
   void editClearScreen(Line& l)
   {
     term_->clearScreen();
-    writePrompt();
+    lastLine_ = 0;
+    lastCursorPos_ = 0;
+
+    // Save the current cursor position within the prompt
+    size_t p = l.getPos();
+
+    // Force prevPos_ to reset to 0 since clearScreen() forces the cursor to (0,0)
+    // This prevents refreshLine from incorrectly moving the cursor up
+    l.setPos(0);
+
+    // Restore the actual cursor editing position
+    l.setPos(p);
+
     refreshLine(l);
   }
 
@@ -434,6 +446,9 @@ private:
     term_->newLine();
     l.reset();
 
+    lastLine_ = 0;
+    lastCursorPos_ = 0;
+
     if (result.empty())
     {
       refreshLine(curLine_);
@@ -529,72 +544,71 @@ private:
     uint32_t cols = 80;
     term_->getSize(rows, cols);
 
-    auto absLength = static_cast<uint32_t>(promptLength_ + l.getBuffer().length());
-    auto absCurrPos = static_cast<uint32_t>(promptLength_ + l.getPos());
-    auto absPrevPos = static_cast<uint32_t>(promptLength_ + l.getPreviousPos());
+    uint32_t absLength = promptLength_ + l.getBuffer().length();
+    uint32_t absCurrPos = promptLength_ + l.getPos();
+    uint32_t absPhysicalPos = promptLength_ + lastCursorPos_;
 
     // 0 based index
-    auto currLine = static_cast<uint32_t>(floorf(static_cast<float>(absCurrPos) / static_cast<float>(cols)));
-    auto prevLine = static_cast<uint32_t>(floorf(static_cast<float>(absPrevPos) / static_cast<float>(cols)));
+    auto getRow = [cols](uint32_t pos) -> uint32_t { return pos / cols; };
+    auto getCol = [cols](uint32_t pos) -> uint32_t { return pos % cols; };
 
-    // count of used lines
-    auto usedLines = static_cast<uint32_t>(ceilf(static_cast<float>(absLength) / static_cast<float>(cols)));
+    uint32_t physicalLine = getRow(absPhysicalPos);
+    uint32_t totalLines = getRow(absLength);
+    uint32_t currLine = getRow(absCurrPos);
 
-    if (currLine != prevLine)
+    // move cursor back to the start of the prompt
+    if (physicalLine > 0)
     {
-      if (currLine < prevLine)
-      {
-        if ((absCurrPos + 1) % cols == 0U)
-        {
-          term_->moveCursorUp();
-          term_->moveCursorRight(cols);
-        }
-      }
-      else
-      {
-        if (absCurrPos % cols == 0U)
-        {
-          term_->newLine();
-          term_->moveCursorDown();
-          term_->moveCursorAllLeft();
-        }
-      }
-    }
-
-    // go to the initial line
-    if (currLine != 0U)
-    {
-      term_->moveCursorUp(currLine);
+      term_->moveCursorUp(physicalLine);
     }
 
     term_->moveCursorAllLeft();
 
-    // write prompt
+    // write prompt and buffer
     printPromptText();
-
-    // write the current buffer content
+    if (highlight)
     {
-      if (highlight)
-      {
-        term_->cprint(highlightBufferStyle, l.getBuffer());
-      }
-      else
-      {
-        term_->cprint(defaultBufferStyle, l.getBuffer());
-      }
+      term_->cprint(highlightBufferStyle, l.getBuffer());
+    }
+    else
+    {
+      term_->cprint(defaultBufferStyle, l.getBuffer());
+    }
+
+    // force terminal wrap if cursor is exactly at the right edge
+    if (absLength > 0 && getCol(absLength) == 0)
+    {
+      term_->newLine();
     }
 
     term_->clearRemainingCurrentLine();
 
-    // position the cursor
+    // clear any leftover lines below if the buffer shrank
+    if (lastLine_ > totalLines)
     {
-      if (currLine != usedLines)
+      for (uint32_t i = totalLines; i < lastLine_; ++i)
       {
-        term_->moveCursorUp(usedLines - currLine - 1);
+        term_->moveCursorDown(1);
+        term_->clearCurrentLine();
       }
+      term_->moveCursorUp(lastLine_ - totalLines);
+    }
 
-      term_->moveCursorAllLeft();
-      term_->moveCursorRight(absCurrPos % cols);
+    // update state trackers
+    lastLine_ = totalLines;
+    lastCursorPos_ = l.getPos();
+
+    // move cursor back to the user's actual editing position
+    if (totalLines > currLine)
+    {
+      term_->moveCursorUp(totalLines - currLine);
+    }
+    term_->moveCursorAllLeft();
+
+    uint32_t targetCol = getCol(absCurrPos);
+    if (targetCol > 0)
+    {
+      term_->moveCursorRight(targetCol);
     }
 
     // make the cursor visible again
@@ -829,6 +843,8 @@ private:
   Line curLine_;
   kernel::RunApi& api_;
   SourcesFetcher availableSourcesFetcher_;
+  uint32_t lastLine_ = 0;
+  uint32_t lastCursorPos_ = 0U;
 };
 
 //--------------------------------------------------------------------------------------------------------------

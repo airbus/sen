@@ -101,6 +101,9 @@ constexpr UnitCat toCat(UnitCategory category) noexcept
     case UnitCategory::force:
       return UnitCat::force;
 
+    case UnitCategory::torque:
+      return UnitCat::torque;
+
     default:
       SEN_UNREACHABLE();
       return UnitCat::length;

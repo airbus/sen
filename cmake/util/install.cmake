@@ -13,6 +13,13 @@
 add_library(sen INTERFACE)
 target_link_libraries(sen INTERFACE core db kernel)
 
+# sen_coverage_flags must be part of the export set because sen_configure_target
+# links every internal target against it. CMake requires that all dependencies of
+# exported targets are themselves exported or are known imported targets.
+# When installed without coverage enabled this target is an empty INTERFACE library
+# and is harmless to downstream consumers.
+install(TARGETS sen_coverage_flags EXPORT sen_targets)
+
 # -------------------------------------------------------------------------------------------------------------
 # configuration of install directories
 # -------------------------------------------------------------------------------------------------------------
@@ -76,8 +83,8 @@ install(
 install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt DESTINATION .)
 
 # FOSS licenses
-if(EXISTS "${PROJECT_SOURCE_DIR}/build/foss_licenses")
-  install(DIRECTORY "${PROJECT_SOURCE_DIR}/build/foss_licenses" DESTINATION .)
+if(EXISTS "${CMAKE_BINARY_DIR}/foss_licenses")
+  install(DIRECTORY "${CMAKE_BINARY_DIR}/foss_licenses" DESTINATION .)
 endif()
 
 # -------------------------------------------------------------------------------------------------------------

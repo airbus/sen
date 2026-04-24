@@ -35,8 +35,6 @@ class SenConan(ConanFile):
         self.requires("asio/1.36.0", visible=False)
         self.requires("cli11/2.3.2", visible=False)
         self.requires("concurrentqueue/1.0.4", visible=False)
-        self.requires("implot/0.16", visible=False)
-        self.requires("imgui/1.90.5-docking", override=True, visible=False)
         self.requires("inja/3.5.0", visible=False)
         self.requires("lz4/1.9.4", visible=False)
         self.requires("nlohmann_json/3.11.3", visible=False)
@@ -46,21 +44,31 @@ class SenConan(ConanFile):
         self.requires("llhttp/9.1.3", visible=False)
         self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)
 
+        # Custom version of implot that uses imgui/1.90.5-docking.
+        # imgui is overridden to pin the docking branch required by implot.
+        # Without this, Conan would resolve imgui to the non-docking variant.
+        self.requires("implot/0.16", visible=False)
+        self.requires("imgui/1.90.5-docking", override=True, visible=False)
+
+        # visible dependencies
+        self.requires("pybind11/2.11.1", visible=True)
+        self.requires("spdlog/1.17.0", visible=True)
+
         # our usage of imgui in Linux has an implicit dependency on SDL.
         # SDL has a missing dependency on libext-dev, so we need to install it.
+        if self.settings.os == "Linux":
+            self.requires("sdl/2.24.0",
+                          options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
+                          visible=False)
+
+    def system_requirements(self):
+        # our usage of imgui on Linux has an implicit dependency on SDL,
+        # which itself requires libXext. Install it via the system package manager.
         if self.settings.os == "Linux":
             Apt(self).install(["libxext-dev"], update=True)  # ubuntu, debian, ...
             Yum(self).install(["libXext-devel"], update=True)  # almalinux, rockylinux, ...
             Dnf(self).install(["libXext-devel"], update=True)  # fedora, rhel, centos, ...
             Zypper(self).install(["libxext-devel"], update=True)  # opensuse, sles, ...
-
-            self.requires("sdl/2.24.0",
-                          options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
-                          visible=False)
-
-        # visible dependencies
-        self.requires("pybind11/2.11.1", visible=True)
-        self.requires("spdlog/1.17.0", visible=True)
 
     def export_sources(self):
         # Sources are located in the same place as this recipe, copy them to the recipe
@@ -114,7 +122,7 @@ class SenConan(ConanFile):
         # directory for the generated documentation
         site_dir = getenv("MKDOCS_SITE_DIR")
         if site_dir:
-            tc.variables["MKDOCS_SITE_DIR"] = site_dir
+            tc.cache_variables["MKDOCS_SITE_DIR"] = site_dir
 
         # fetch licenses of our dependencies
         tps_lic_path = join(self.build_folder, "foss_licenses")
@@ -150,17 +158,8 @@ class SenConan(ConanFile):
         elif self.settings.os == "Linux":
             self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "bin"))
 
+        # Windows: PATH is already prepended above; no additional loader path needed.
 
-def env_var_to_bool(env_var_name) -> bool:
-    """
-    Loads the value of an environment variable and converts it to bool.
-
-    If no variable is found, `false` is returned.
-    """
-    maybe_env_var_value = getenv(env_var_name, None)
-    if maybe_env_var_value:
-        env_var_value = maybe_env_var_value.lower()
-        if env_var_value in ("true", "on", "1", "yes"):
-            return True
-
-    return False
+def env_var_to_bool(env_var_name):
+    """Returns True if the environment variable is set to a truthy value, False otherwise."""
+    return getenv(env_var_name, "").lower() in ("true", "on", "1", "yes")

@@ -54,4 +54,8 @@ if(Python3_Development_FOUND)
 
   sen_internal_install(py)
 
+  if(SEN_BUILD_TESTS)
+    add_subdirectory(test)
+  endif()
+
 endif()

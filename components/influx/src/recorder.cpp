@@ -82,20 +82,20 @@ Recorder::Recorder(std::unique_ptr<Database> database,
   // listen to additions and removals
   trackedObjects_ = std::make_unique<ObjectList<Object>>();
   std::ignore = trackedObjects_->onAdded(
-    [this](const auto& iterators)
+    [this](const auto& addedObjects)
     {
-      for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+      for (auto obj: addedObjects)
       {
-        objectAdded((*itr).get());
+        objectAdded(obj);
       }
     });
 
   std::ignore = trackedObjects_->onRemoved(
-    [this](const auto& iterators)
+    [this](const auto& removedObjects)
     {
-      for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+      for (auto obj: removedObjects)
       {
-        objectRemoved((*itr).get());
+        objectRemoved(obj);
       };
     });
 

@@ -14,6 +14,7 @@
 
 // sen
 #include "sen/core/base/class_helpers.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/meta/var.h"
@@ -33,13 +34,21 @@
 
 namespace sen::kernel
 {
+// Forward declarations
+namespace impl
+{
+class KernelImpl;
+}
 
+/// A component built by the kernel on behalf of the user.
+/// It deals with all the details of preparing the execution context,
+/// and managing the life-time of the associated kernel resources.
 class PipelineComponent final: public Component
 {
   SEN_NOCOPY_NOMOVE(PipelineComponent)
 
 public:
-  explicit PipelineComponent(KernelConfig::PipelineToLoad config);
+  PipelineComponent(KernelConfig::PipelineToLoad config, impl::KernelImpl& kernelImpl);
   ~PipelineComponent() override;
 
 public:
@@ -48,6 +57,7 @@ public:
   [[nodiscard]] FuncResult run(RunApi& api) override;
   [[nodiscard]] FuncResult unload(UnloadApi&& api) override;
   [[nodiscard]] bool isRealTimeOnly() const noexcept override;
+  [[nodiscard]] Span<const ComponentInfo> getImportedPackages() const noexcept;
 
 private:
   void openLibs(CustomTypeRegistry& reg);
@@ -66,17 +76,19 @@ private:
 private:
   using TypeGetterFunc = const Type* (*)();
   using AllTypesGetterFunc = void (*)(ExportedTypesList&);
+  using PackageInfoGetterFunc = const ComponentInfo* (*)();
 
 private:
   KernelConfig::PipelineToLoad config_;
+  impl::KernelImpl& kernelImpl_;
   std::vector<SharedLibrary> libs_;
+  std::vector<ComponentInfo> importedPackages_;
   std::vector<std::shared_ptr<NativeObject>> objects_;
   std::unordered_map<std::string, std::shared_ptr<ObjectSource>> connections_;
   std::unordered_map<const Type*, InstanceMakerFunc> instanceMakers_;
   std::unordered_map<const NativeObject*, const KernelConfig::ObjectConfig*> objectConfigs_;
   std::shared_ptr<OperatingSystem> os_;
 };
-
 }  // namespace sen::kernel
 
 #endif  // SEN_LIBS_KERNEL_SRC_PIPELINE_COMPONENT_H

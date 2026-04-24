@@ -19,6 +19,7 @@
 #include "stl/school/person.stl.h"
 
 // std
+#include <random>
 #include <string>
 #include <utility>
 
@@ -33,7 +34,7 @@ public:
   PersonImpl(std::string name, std::string surName, std::string firstName)
     : PersonBase(std::move(name), std::move(surName), std::move(firstName))
   {
-    noise_.seed(sen::hashCombine(sen::crc32("brainActivity"), sen::crc32(name), rand()));  // NOLINT
+    noise_.seed(sen::hashCombine(sen::crc32("brainActivity"), sen::crc32(getName()), std::random_device {}()));
   }
 
   ~PersonImpl() override = default;

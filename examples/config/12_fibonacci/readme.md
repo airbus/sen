@@ -19,6 +19,8 @@ well.
 To mark methods as deferred, we need to tell the Sen code generator that we don't want to (or can't) provide
 a result straight away. To do so, we specify our code generation settings:
 
+The `codegen_settings.json` file is passed to the Sen code generator via the `CODEGEN_SETTINGS` option in `add_sen_package`. It is a JSON object whose keys are method names and whose values are modifier objects.
+
 ```json
 --8<-- "snippets/examples/packages/fibonacci/src/codegen_settings.json"
 ```
@@ -90,3 +92,23 @@ You ask the `Worker` for computing _n_ Fibonacci number by:
 ```
 my.tutorial.fibWorker.computeFibonacci 8
 ```
+
+## Testing package internals with `TEST_TARGET`
+
+By default, Sen packages compile with hidden symbol visibility, so unit tests cannot link directly against the package and call internal functions. The `TEST_TARGET` option creates an additional STATIC library with all symbols exposed, which you can link your test executables against.
+
+The fibonacci package uses this to expose and test the pure `computeFibonacci` algorithm independently of the runtime. In the package's `CMakeLists.txt`:
+
+```cmake
+add_sen_package(
+  TARGET fibonacci
+  ...
+  TEST_TARGET fibonacci_test    # Creates a static lib with all symbols visible
+)
+
+# The test executable links against the static library, not the shared one
+add_executable(fibonacci_algorithm_test test/fibonacci_algorithm_test.cpp)
+target_link_libraries(fibonacci_algorithm_test PRIVATE fibonacci_test GTest::GTest GTest::Main)
+```
+
+Any modifications to the target (e.g. `target_include_directories`) must be applied to `fibonacci_obj`, the intermediate OBJECT target, not to `fibonacci` or `fibonacci_test` directly (see the [CMake documentation](../../users_guide/cmake.md) for details).
