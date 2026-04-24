@@ -479,7 +479,6 @@ function(copy_target_properties to_target from_target)
   copy_target_property(${to_target} ${from_target} BASE_PATH)
   copy_target_property(${to_target} ${from_target} SEN_IMPORT_DIRS)
   copy_target_property(${to_target} ${from_target} STL_FILES)
-  copy_target_property(${to_target} ${from_target} STL_FILES)
   copy_target_property(${to_target} ${from_target} HLA_FOM_DIRS)
   copy_target_property(${to_target} ${from_target} EXPORT_FILES)
   copy_target_property(${to_target} ${from_target} SEN_EXPORTS_TYPES)
@@ -537,15 +536,13 @@ function(sen_configure_target target_name)
 
   target_compile_definitions(${target_name} PRIVATE "$<$<CONFIG:Debug>:DEBUG>" "$<$<CONFIG:Release>:NDEBUG>")
 
-  # compile features (sometimes not really respected, see below)
+  # propagate C++17 requirement to consumers and enforce it on the target itself
   target_compile_features(${target_name} PUBLIC cxx_std_17)
 
-  # pic, no extensions and cxx-std
   set_target_properties(
     ${target_name}
     PROPERTIES POSITION_INDEPENDENT_CODE ON
                INTERFACE_POSITION_INDEPENDENT_CODE ON
-               CXX_STANDARD 17
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
   )
@@ -591,44 +588,45 @@ function(sen_configure_target target_name)
 
     # disable manifest generation
     target_link_options(${target_name} PRIVATE /MANIFEST:NO)
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(
-      ${target_name}
-      PRIVATE -Wall
-              -Werror # warnings are errors
-              -Wextra # reasonable and standard
-              -Wextra-semi # semicolon after in-class function definition
-              -Wcast-align # warn for performance problem casts
-              -Wunused # warn on anything being unused
-              -Wnon-virtual-dtor # virtual destructor if virtual functions present
-              -Wno-shadow # variable declarations shadows one of a parent context
-              -Wno-overloaded-virtual # warn if you overload (not override) a virtual function
-              -Wpedantic # warn if non-standard C++ is used
-              -Wdouble-promotion # warn if float is implicitly promoted to double
-              -Wimplicit-fallthrough # warn on statements that fallthrough without an explicit annotation
-              -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
-              -Wno-missing-braces
-              -Wno-noexcept-type
-              -Wno-empty-body
-              -Wno-strict-aliasing
-              -Wno-deprecated-copy
-              -Wno-variadic-macros
-              -Wno-stringop-overread # workaround for gcc bug
-              -Wno-array-bounds # workaround for gcc bug
-              -fsigned-char
-              -fexceptions
-              -ftls-model=global-dynamic
-              -fPIC
-              "$<$<CONFIG:Debug>:-O0;-g>"
-              "$<$<CONFIG:Release>:-O3>"
+  else()
+
+    set(common_clang_gcc_options_
+        -Wall
+        -Werror # warnings are errors
+        -Wextra # reasonable and standard
+        -Wextra-semi # semicolon after in-class function definition
+        -Wcast-align # warn for performance problem casts
+        -Wunused # warn on anything being unused
+        -Wnon-virtual-dtor # virtual destructor if virtual functions present
+        -Wno-shadow # variable declarations shadows one of a parent context
+        -Wno-overloaded-virtual # warn if you overload (not override) a virtual function
+        -Wpedantic # warn if non-standard C++ is used
+        -Wdouble-promotion # warn if float is implicitly promoted to double
+        -Wimplicit-fallthrough # warn on statements that fallthrough without an explicit annotation
+        -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
+        -Wno-missing-braces
+        -Wno-noexcept-type
+        -Wno-empty-body
+        -Wno-strict-aliasing
+        -Wno-deprecated-copy
+        -Wno-variadic-macros
+        -fsigned-char
+        -fexceptions
+        -ftls-model=global-dynamic
+        -fPIC
+        "$<$<CONFIG:Debug>:-O0;-g>"
+        "$<$<CONFIG:Release>:-O3>"
     )
 
-    target_link_options(
-      ${target_name}
-      PRIVATE
-      -Wno-undef
-      LINKER:--exclude-libs,ALL
-    )
+    set(common_linker_options_ -Wno-undef LINKER:--exclude-libs,ALL)
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
+      target_link_options(${target_name} PRIVATE ${common_linker_options_})
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
+      target_link_options(${target_name} PRIVATE ${common_linker_options_})
+    endif()
   endif()
 
   set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
@@ -637,4 +635,9 @@ function(sen_configure_target target_name)
   )# .so and .dylib
   set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
   )# .a and .lib
+
+  # link coverage flags if coverage was enabled (interface target created in root CMakeLists.txt)
+  if(TARGET sen_coverage_flags)
+    target_link_libraries(${target_name} PRIVATE sen_coverage_flags)
+  endif()
 endfunction()

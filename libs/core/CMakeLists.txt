@@ -13,7 +13,7 @@ include(tps/pugixml)
 
 get_version_from_git_raw(SEN_VERSION_STRING)
 configure_file(
-  src/base/version.h.in ${CMAKE_CURRENT_LIST_DIR}/include/sen/core/base/version.h @ONLY NEWLINE_STYLE UNIX
+  src/base/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/sen/core/base/version.h @ONLY NEWLINE_STYLE UNIX
 )
 
 # -------------------------------------------------------------------------------------------------------------
@@ -46,7 +46,6 @@ set(base_public_headers
     include/sen/core/base/type_traits_extra.h
     include/sen/core/base/u8string_util.h
     include/sen/core/base/uuid.h
-    include/sen/core/base/version.h
 )
 
 set(base_detail_headers include/sen/core/base/detail/assert_impl.h
@@ -229,8 +228,6 @@ set(lang_sources
 # library
 # -------------------------------------------------------------------------------------------------------------
 
-find_package(Threads REQUIRED)
-
 add_library(
   core SHARED
   ${base_public_headers}
@@ -260,13 +257,14 @@ endif()
 target_include_directories(
   core
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/libs/core/include>"
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
   PUBLIC "$<INSTALL_INTERFACE:libs/core/include>"
   PRIVATE src
 )
 
 target_link_libraries(
   core
-  PUBLIC ${CMAKE_THREAD_LIBS_INIT}
+  PRIVATE ${CMAKE_THREAD_LIBS_INIT}
   PRIVATE nlohmann_json::nlohmann_json
   PRIVATE spdlog::spdlog
   PRIVATE concurrentqueue::concurrentqueue
@@ -303,6 +301,9 @@ source_group("lang\\sources" FILES ${lang_sources})
 # -------------------------------------------------------------------------------------------------------------
 
 install(FILES ${base_public_headers} DESTINATION libs/core/include/sen/core/base)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/sen/core/base/version.h
+        DESTINATION libs/core/include/sen/core/base
+)
 install(FILES ${base_detail_headers} DESTINATION libs/core/include/sen/core/base/detail)
 
 install(FILES ${obj_public_headers} DESTINATION libs/core/include/sen/core/obj)

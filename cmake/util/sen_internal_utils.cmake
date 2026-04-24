@@ -62,8 +62,6 @@ endfunction()
 
 # Helper to add a bunch of files to a target as private sources
 function(sen_internal_add_resources)
-  include(CMakeParseArguments)
-
   set(_options)
   set(_one_value_args TARGET GROUP)
   set(_multi_value_args RESOURCE_FILES)
@@ -81,8 +79,6 @@ function(sen_internal_add_resources)
 endfunction()
 
 function(sen_internal_generate_template_headers)
-
-  include(CMakeParseArguments)
 
   set(_options)
   set(_one_value_args OUTDIR GEN_FILE_LIST)
@@ -212,3 +208,6 @@ if(SEN_ENABLE_CMAKE_TARGET_GRAPH)
     COMMENT "Generating graph: sen.svg"
   )
 endif()
+
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads)

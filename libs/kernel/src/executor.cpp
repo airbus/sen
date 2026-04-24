@@ -104,6 +104,8 @@ void Executor::startUp(bool tryToLockPages)
         logger->warn("could not call mlockall (use setcap cap_ipc_lock,cap_sys_nice=+eip <path_to_cli_run>)");
       }
     }
+#else
+    std::ignore = tryToLockPages;
 #endif
 
     startupFinished_ = true;
