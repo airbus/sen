@@ -15,12 +15,15 @@
 namespace sen::impl
 {
 
-void resultExpect(bool value, std::string_view errorMsg) noexcept
+void resultExpect(const bool value, const std::string_view errorMsg) noexcept
 {
   if (!value)
   {
-    fputs("Result error:", stderr);
-    fputs(errorMsg.data(), stderr);
+    fputs("Result error: ", stderr);
+    if (!errorMsg.empty() && errorMsg.data() != nullptr)
+    {
+      fwrite(errorMsg.data(), sizeof(char), errorMsg.size(), stderr);
+    }
     fflush(stderr);
   }
 

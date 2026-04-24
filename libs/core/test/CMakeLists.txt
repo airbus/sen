@@ -7,6 +7,7 @@
 
 set(base_tests
     base/assert_test.cpp
+    base/checked_conversions_test.cpp
     base/bits_test.cpp
     base/duration_test.cpp
     base/hash32_test.cpp
@@ -22,6 +23,8 @@ set(base_tests
     base/span_test.cpp
     base/static_vector_test.cpp
     base/timestamp_test.cpp
+    base/u8string_util_test.cpp
+    base/uuid_test.cpp
 )
 
 set(meta_tests
@@ -120,6 +123,7 @@ add_sen_unit_test_suite(
   LINK_DEPS
   sen::core
   sen::kernel
+  sen::util
   PRIVATE
   cpptrace::cpptrace
   core_test_io_generated

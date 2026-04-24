@@ -21,8 +21,11 @@
 #include <initializer_list>
 #include <limits>
 #include <random>
+#include <string>
 #include <tuple>
 #include <type_traits>
+#include <utility>
+#include <variant>
 #include <vector>
 
 using sen::StaticVector;
@@ -2117,6 +2120,191 @@ TEST_F(BasicVectorTest, emplace_back)
   EXPECT_TRUE(vector.full());
   EXPECT_EQ(vector, Vec({'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'}));
   EXPECT_FALSE(vector.emplace_back('k'));
+}
+
+/// @test
+/// Checks the default resize method
+/// @requirements(SEN-355)
+TYPED_TEST(VectorTestTemplate, resizeDefault)
+{
+  using Vec = typename TypeParam::Vec;
+  using T = typename TypeParam::ValueType;
+  static constexpr auto s = TypeParam::s;
+
+  Vec vector;
+  EXPECT_TRUE(vector.resize(s / 2));
+  EXPECT_EQ(vector.size(), s / 2);
+  for (const auto& item: vector)
+  {
+    EXPECT_EQ(item, T {});
+  }
+
+  EXPECT_TRUE(vector.resize(s / 2));
+  EXPECT_TRUE(vector.resize(s / 4));
+  EXPECT_EQ(vector.size(), s / 4);
+  EXPECT_TRUE(vector.resize(vector.size()));
+  this->checkResultError(vector.resize(s + 1), StaticVectorError::full);
+}
+
+/// @test
+/// Checks range erase branches
+/// @requirements(SEN-355)
+TYPED_TEST(VectorTestTemplate, eraseRangeComprehensive)
+{
+  using Vec = typename TypeParam::Vec;
+  Vec vector;
+  this->populate(vector);
+
+  this->checkResultError(vector.erase(vector.end(), vector.begin()), StaticVectorError::badRange);
+
+  auto it = vector.erase(vector.begin(), vector.end());
+  EXPECT_TRUE(it);
+  EXPECT_TRUE(vector.empty());
+
+  this->populate(vector);
+  EXPECT_TRUE(vector.erase(vector.begin() + 1, vector.begin() + 1));
+  EXPECT_EQ(vector.size(), TypeParam::s);
+
+  EXPECT_TRUE(vector.erase(vector.begin(), vector.begin() + 1));
+  EXPECT_EQ(vector.size(), TypeParam::s - 1);
+}
+
+/// @test
+/// Checks internal error propagation for SEN_VECTOR_TRY
+/// @requirements(SEN-355)
+TYPED_TEST(VectorTestTemplate, internalErrorPropagation)
+{
+  using Vec = typename TypeParam::Vec;
+  using T = typename TypeParam::ValueType;
+  Vec vector;
+
+  this->checkResultError(vector.insert(vector.begin() - 1, T {}), StaticVectorError::badRange);
+  this->checkResultError(vector.insert(vector.begin(), vector.end() + 1, vector.begin()), StaticVectorError::badRange);
+}
+
+/// @test
+/// Checks push_back and emplace_back when full for specific coverage
+/// @requirements(SEN-355)
+TYPED_TEST(VectorTestTemplate, fullCapacityErrors)
+{
+  using Vec = typename TypeParam::Vec;
+  using T = typename TypeParam::ValueType;
+  Vec vector;
+  this->populate(vector);
+
+  this->checkResultError(vector.push_back(T {}), StaticVectorError::full);
+  T val {};
+  this->checkResultError(vector.push_back(val), StaticVectorError::full);
+  this->checkResultError(vector.emplace_back(), StaticVectorError::full);
+  this->checkResultError(vector.push_back(), StaticVectorError::full);
+}
+
+/// @test
+/// Checks that emplace at the end of a non-full vector works correctly
+/// @requirements(SEN-355)
+TEST(StaticVectorLogicTest, EmplaceAtEnd)
+{
+  StaticVector<int, 5> v;
+  v.push_back(1);
+  auto res = v.emplace(v.end(), 42);
+
+  EXPECT_TRUE(res.isOk());
+  EXPECT_EQ(v.back(), 42);
+}
+
+/// @test
+/// Checks that erasing an empty range at the end is a valid operation
+/// @requirements(SEN-355)
+TEST(StaticVectorLogicTest, EraseEmptyRangeAtEnd)
+{
+  StaticVector<int, 5> v = {1, 2, 3};
+  auto res = v.erase(v.end(), v.end());
+
+  EXPECT_TRUE(res.isOk());
+  EXPECT_EQ(v.size(), 3);
+}
+
+/// @test
+/// Checks emplace when the argument is a reference to an element inside the vector
+/// @requirements(SEN-355)
+TEST(StaticVectorLogicTest, EmplaceSelfReference)
+{
+  StaticVector<int, 5> v;
+  v.push_back(10);
+  std::ignore = v.emplace(v.begin(), v[0]);
+
+  EXPECT_EQ(v[0], 10);
+  EXPECT_EQ(v[1], 10);
+}
+
+/// @test
+/// Cheks error paths and macro expansions for complex instantiations
+/// @requirements(SEN-355)
+TEST(StaticVectorCoverageExtra, ComplexInstantiation)
+{
+  // std::string instantiation check
+  {
+    StaticVector<std::string, 2> v;
+    EXPECT_TRUE(v.push_back("A"));
+    EXPECT_TRUE(v.emplace_back("B"));
+    EXPECT_TRUE(v.full());
+
+    std::string s = "C";
+    EXPECT_TRUE(v.push_back(s).isError());
+    EXPECT_TRUE(v.push_back(std::move(s)).isError());
+    EXPECT_TRUE(v.emplace_back("C").isError());
+
+    std::vector<std::string> arr = {"X", "Y"};
+    EXPECT_TRUE(v.move_insert(v.begin(), arr.begin(), arr.end()).isError());
+
+    EXPECT_TRUE(v.emplace(v.end() + 1, "Z").isError());
+    EXPECT_TRUE(v.erase(v.end(), v.begin()).isError());
+    EXPECT_TRUE(v.erase(v.end() + 1).isError());
+
+    v.clear();
+    EXPECT_TRUE(v.empty());
+    EXPECT_TRUE(v.pop_back().isError());
+
+    EXPECT_TRUE(v.resize(0).isOk());
+    EXPECT_TRUE(v.resize(3).isError());
+    EXPECT_TRUE(v.resize(2).isOk());
+    EXPECT_TRUE(v.resize(1).isOk());
+    EXPECT_TRUE(v.resize(1).isOk());
+  }
+
+  // std::variant instantiation check
+  {
+    using TestVariant = std::variant<int, double, std::string>;
+    StaticVector<TestVariant, 2> v;
+
+    TestVariant val1 = 10;
+    TestVariant val2 = 20.5;
+    EXPECT_TRUE(v.push_back(val1));
+    EXPECT_TRUE(v.push_back(std::move(val2)));
+    EXPECT_TRUE(v.full());
+
+    TestVariant val3 = "full";
+    EXPECT_TRUE(v.push_back(val3).isError());
+    EXPECT_TRUE(v.push_back(TestVariant {30}).isError());
+    EXPECT_TRUE(v.emplace_back(40).isError());
+
+    std::vector<TestVariant> arr = {1, 2};
+    EXPECT_TRUE(v.move_insert(v.begin(), arr.begin(), arr.end()).isError());
+
+    EXPECT_TRUE(v.emplace(v.end() + 1, 50).isError());
+    EXPECT_TRUE(v.erase(v.end(), v.begin()).isError());
+    EXPECT_TRUE(v.erase(v.end() + 1).isError());
+
+    v.clear();
+    EXPECT_TRUE(v.empty());
+    EXPECT_TRUE(v.pop_back().isError());
+
+    EXPECT_TRUE(v.resize(0).isOk());
+    EXPECT_TRUE(v.resize(3).isError());
+    EXPECT_TRUE(v.resize(2).isOk());
+    EXPECT_TRUE(v.resize(1).isOk());
+    EXPECT_TRUE(v.resize(1).isOk());
+  }
 }
 
 // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)

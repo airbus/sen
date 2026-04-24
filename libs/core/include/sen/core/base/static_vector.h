@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <utility>
 
 namespace sen
 {
@@ -795,7 +796,7 @@ inline typename StaticVectorBase<T>::MaybeIterator StaticVectorBase<T>::emplace(
 
   if (position == end())
   {
-    std::ignore = emplace_back(std::forward<Args...>(args...));  // not full
+    std::ignore = emplace_back(std::forward<Args>(args)...);  // not full
     return Ok(position);
   }
 
@@ -1168,9 +1169,13 @@ inline typename StaticVectorBase<T>::MaybeIterator StaticVectorBase<T>::erase(
   StaticVectorBase::iterator first,
   StaticVectorBase::iterator last) noexcept(nothrowDes)
 {
-  if (first == end())  // early exit
+  SEN_VECTOR_TRY(checkIteratorPair(first, last))
+  SEN_VECTOR_TRY(checkIteratorRange(first))
+  SEN_VECTOR_TRY(checkIteratorRange(last))
+
+  if (first == last)
   {
-    return Err(StaticVectorError::badRange);
+    return Ok(first);
   }
 
   if (first == begin() && last == end())
@@ -1179,10 +1184,6 @@ inline typename StaticVectorBase<T>::MaybeIterator StaticVectorBase<T>::erase(
   }
   else
   {
-    SEN_VECTOR_TRY(checkIteratorPair(first, last))
-    SEN_VECTOR_TRY(checkIteratorRange(first))
-    SEN_VECTOR_TRY(checkIteratorRange(last))
-
     // move the remaining elements on top of the erased range
     std::move(last, end(), first);
 

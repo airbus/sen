@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -48,12 +49,6 @@ constexpr std::size_t crc32LookupTableSize = 256;
 constexpr int stbWindowConst = 0x40000;  // 256K
 constexpr uint stbHashSizeConst = 32768;
 constexpr uint64_t adlerMod = 65521;
-
-// Decompression
-unsigned char* stbBarrierOutE;
-unsigned char* stbBarrierOutB;
-const unsigned char* stbBarrierInB;
-unsigned char* stbDOut;
 
 // Compression
 uchar* stbOutPtr;
@@ -93,93 +88,6 @@ unsigned int stbRunningAdler;
 unsigned int stbDecompressLength(const unsigned char* input)
 {
   return (input[8] << 24) + (input[9] << 16) + (input[10] << 8) + input[11];  // NOLINT
-}
-
-void stbMatch(const unsigned char* data, unsigned int length)
-{
-  // INVERSE of memmove... write each byte before copying the next...
-  assert(stbDOut + length <= stbBarrierOutE);  // NOLINT
-
-  if (stbDOut + length > stbBarrierOutE)  // NOLINT
-  {
-    stbDOut += length;  // NOLINT
-    return;
-  }
-  if (data < stbBarrierOutB)
-  {
-    stbDOut = stbBarrierOutE + 1;  // NOLINT
-    return;
-  }
-  while (length--)  // NOLINT
-  {
-    *stbDOut++ = *data++;  // NOLINT
-  }
-}
-
-void stbLit(const unsigned char* data, unsigned int length)
-{
-  assert(stbDOut + length <= stbBarrierOutE);  // NOLINT
-
-  if (stbDOut + length > stbBarrierOutE)  // NOLINT
-  {
-    stbDOut += length;  // NOLINT
-    return;
-  }
-  if (data < stbBarrierInB)
-  {
-    stbDOut = stbBarrierOutE + 1;  // NOLINT
-    return;
-  }
-  memcpy(stbDOut, data, length);
-  stbDOut += length;  // NOLINT
-}
-
-const unsigned char* stbDecompressToken(const unsigned char* i)
-{
-  if (*i >= 0x20)    // NOLINT
-  {                  // use fewer if's for cases that expand small
-    if (*i >= 0x80)  // NOLINT
-    {
-      stbMatch(stbDOut - i[1] - 1, i[0] - 0x80 + 1), i += 2;  // NOLINT
-    }
-    else if (*i >= 0x40)  // NOLINT
-    {
-      stbMatch(stbDOut - (STB_IN2(0) - 0x4000 + 1), i[2] + 1), i += 3;  // NOLINT
-    }
-    else /* *i >= 0x20 */
-    {
-      stbLit(i + 1, i[0] - 0x20 + 1), i += 1 + (i[0] - 0x20 + 1);  // NOLINT
-    }
-  }
-  else
-  {                  // more ifs for cases that expand large, since overhead is amortized
-    if (*i >= 0x18)  // NOLINT
-    {
-      stbMatch(stbDOut - (STB_IN3(0) - 0x180000 + 1), i[3] + 1), i += 4;  // NOLINT
-    }
-    else if (*i >= 0x10)  // NOLINT
-    {
-      stbMatch(stbDOut - (STB_IN3(0) - 0x100000 + 1), STB_IN2(3) + 1), i += 5;  // NOLINT
-    }
-    else if (*i >= 0x08)  // NOLINT
-    {
-
-      stbLit(i + 2, STB_IN2(0) - 0x0800 + 1), i += 2 + (STB_IN2(0) - 0x0800 + 1);  // NOLINT
-    }
-    else if (*i == 0x07)  // NOLINT
-    {
-      stbLit(i + 3, STB_IN2(1) + 1), i += 3 + (STB_IN2(1) + 1);  // NOLINT
-    }
-    else if (*i == 0x06)  // NOLINT
-    {
-      stbMatch(stbDOut - (STB_IN3(1) + 1), i[4] + 1), i += 5;  // NOLINT
-    }
-    else if (*i == 0x04)
-    {
-      stbMatch(stbDOut - (STB_IN3(1) + 1), STB_IN2(4) + 1), i += 6;  // NOLINT
-    }
-  }
-  return i;
 }
 
 unsigned int stbAdler32(unsigned int adler32, unsigned char* buffer, unsigned int buflen)  // NOLINT
@@ -226,55 +134,164 @@ unsigned int stbAdler32(unsigned int adler32, unsigned char* buffer, unsigned in
   return (unsigned int)(s2 << 16) + (unsigned int)s1;  // NOLINT
 }
 
-unsigned int stbDecompress(unsigned char* output, const unsigned char* i)
+// Encapsulated Decompression State
+struct StbDecompressor
 {
-  if (STB_IN4(0) != 0x57bC0000)  // NOLINT
-  {
-    return 0;
-  }
-  if (STB_IN4(4) != 0)
-  {
-    return 0;  // error! stream is > 4GB
-  }
 
-  const unsigned int olen = stbDecompressLength(i);
+private:
+  unsigned char* stbBarrierOutE_ = nullptr;
+  unsigned char* stbBarrierOutB_ = nullptr;
+  const unsigned char* stbBarrierInB_ = nullptr;
+  unsigned char* stbDOut_ = nullptr;
 
-  stbBarrierInB = i;
-  stbBarrierOutE = output + olen;  // NOLINT
-  stbBarrierOutB = output;
-  i += 16;  // NOLINT
-
-  stbDOut = output;
-  for (;;)
+public:
+  void stbMatch(const unsigned char* data, unsigned int length)
   {
-    const unsigned char* oldI = i;
-    i = stbDecompressToken(i);
-    if (i == oldI)
+    // INVERSE of memmove... write each byte before copying the next...
+    assert(stbDOut_ + length <= stbBarrierOutE_);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    if (stbDOut_ + length > stbBarrierOutE_)  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     {
-      if (*i == 0x05 && i[1] == 0xfa)  // NOLINT
-      {
-        assert(stbDOut == output + olen);  // NOLINT
-        if (stbDOut != output + olen)      // NOLINT
-        {
-          return 0;
-        }
-        if (stbAdler32(1, output, olen) != (unsigned int)STB_IN4(2))  // NOLINT
-        {
-          return 0;
-        }
-        return olen;
-      }
-
-      assert(0);
-      SEN_UNREACHABLE();
+      stbDOut_ += length;  // NOLINT
+      return;
     }
-    assert(stbDOut <= output + olen);  // NOLINT
-    if (stbDOut > output + olen)       // NOLINT
+    if (data < stbBarrierOutB_)
+    {
+      stbDOut_ = stbBarrierOutE_ + 1;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      return;
+    }
+    while (length--)  // NOLINT(readability-implicit-bool-conversion)
+    {
+      *stbDOut_++ = *data++;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    }
+  }
+
+  void stbLit(const unsigned char* data, unsigned int length)
+  {
+    assert(stbDOut_ + length <= stbBarrierOutE_);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    if (stbDOut_ + length > stbBarrierOutE_)  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    {
+      stbDOut_ += length;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      return;
+    }
+    if (data < stbBarrierInB_)
+    {
+      stbDOut_ = stbBarrierOutE_ + 1;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      return;
+    }
+    memcpy(stbDOut_, data, length);
+    stbDOut_ += length;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  }
+
+  const unsigned char* stbDecompressToken(const unsigned char* i)
+  {
+    if (*i >= 0x20)
+    {  // use fewer if's for cases that expand small
+      if (*i >= 0x80)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbMatch(stbDOut_ - i[1] - 1, i[0] - 0x80 + 1), i += 2;
+      }
+      else if (*i >= 0x40)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbMatch(stbDOut_ - (STB_IN2(0) - 0x4000 + 1), i[2] + 1), i += 3;
+      }
+      else /* *i >= 0x20 */
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbLit(i + 1, i[0] - 0x20 + 1), i += 1 + (i[0] - 0x20 + 1);
+      }
+    }
+    else
+    {  // more ifs for cases that expand large, since overhead is amortized
+      if (*i >= 0x18)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbMatch(stbDOut_ - (STB_IN3(0) - 0x180000 + 1), i[3] + 1), i += 4;
+      }
+      else if (*i >= 0x10)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbMatch(stbDOut_ - (STB_IN3(0) - 0x100000 + 1), STB_IN2(3) + 1), i += 5;
+      }
+      else if (*i >= 0x08)  // NOLINT
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbLit(i + 2, STB_IN2(0) - 0x0800 + 1), i += 2 + (STB_IN2(0) - 0x0800 + 1);
+      }
+      else if (*i == 0x07)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbLit(i + 3, STB_IN2(1) + 1), i += 3 + (STB_IN2(1) + 1);
+      }
+      else if (*i == 0x06)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbMatch(stbDOut_ - (STB_IN3(1) + 1), i[4] + 1), i += 5;
+      }
+      else if (*i == 0x04)
+      {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        stbMatch(stbDOut_ - (STB_IN3(1) + 1), STB_IN2(4) + 1), i += 6;
+      }
+    }
+    return i;
+  }
+
+  unsigned int stbDecompress(unsigned char* output, const unsigned char* i)
+  {
+    if (STB_IN4(0) != 0x57bC0000)
     {
       return 0;
     }
+    if (STB_IN4(4) != 0)
+    {
+      return 0;  // error! stream is > 4GB
+    }
+
+    const unsigned int olen = stbDecompressLength(i);
+
+    stbBarrierInB_ = i;
+    stbBarrierOutE_ = output + olen;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    stbBarrierOutB_ = output;
+    i += 16;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    stbDOut_ = output;
+    for (;;)
+    {
+      const unsigned char* oldI = i;
+      i = stbDecompressToken(i);
+      if (i == oldI)
+      {
+        if (*i == 0x05 && i[1] == 0xfa)  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        {
+          assert(stbDOut_ == output + olen);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          if (stbDOut_ != output + olen)      // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          {
+            return 0;
+          }
+          if (stbAdler32(1, output, olen) != static_cast<unsigned int>(STB_IN4(2)))
+          {
+            return 0;
+          }
+          return olen;
+        }
+
+        assert(0);
+        SEN_UNREACHABLE();
+      }
+      assert(stbDOut_ <= output + olen);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      if (stbDOut_ > output + olen)       // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      {
+        return 0;
+      }
+    }
+
+    SEN_UNREACHABLE();
   }
-}
+};
 
 //-----------------------------------------------------------------------------------------------//
 // Compression
@@ -576,23 +593,36 @@ uint stbCompress(uchar* out, uchar* input, uint length)
 
 }  // namespace
 
-unsigned char* decompressSymbol(const void* compressedData)
+std::unique_ptr<unsigned char[]> decompressSymbol(const void* compressedData)
 {
-  const unsigned int decompressedSize = stbDecompressLength((const unsigned char*)compressedData);  // NOLINT
-  auto* decompressedData = static_cast<unsigned char*>(malloc(decompressedSize));                   // NOLINT
-  memset(decompressedData, 0, decompressedSize);
-  stbDecompress(decompressedData, (const unsigned char*)compressedData);  // NOLINT
+  const unsigned int decompressedSize = stbDecompressLength(static_cast<const unsigned char*>(compressedData));
+  if (decompressedSize == 0)
+  {
+    return nullptr;
+  }
+
+  auto decompressedData = std::make_unique<unsigned char[]>(decompressedSize);
+  StbDecompressor decompressor;
+
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, readability-implicit-bool-conversion)
+  if (!decompressor.stbDecompress(decompressedData.get(), reinterpret_cast<const unsigned char*>(compressedData)))
+  {
+    return nullptr;
+  }
+
   return decompressedData;
 }
 
 std::string decompressSymbolToString(const void* compressedData, unsigned originalSize)
 {
-  auto* decompressedData = sen::decompressSymbol(compressedData);
+  auto decompressedData = decompressSymbol(compressedData);
+  if (!decompressedData)
+  {
+    return {};
+  }
 
-  std::string result;
-  result.assign(reinterpret_cast<const char*>(decompressedData), originalSize);  // NOLINT NOSONAR
-  free(decompressedData);                                                        // NOLINT NOSONAR
-  return result;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  return {reinterpret_cast<const char*>(decompressedData.get()), originalSize};
 }
 
 bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,

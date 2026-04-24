@@ -8,26 +8,19 @@
 #ifndef SEN_CORE_BASE_SOURCE_LOCATION_H
 #define SEN_CORE_BASE_SOURCE_LOCATION_H
 
+// std
+#include <cstddef>
 #include <string_view>
-#include <tuple>  // for std::ignore
 
 namespace sen::impl
 {
 
 /// Returns the index of the char following the last '/' or '\'.
 /// This is meant to be only used at compile-time.
-template <typename T, size_t s>
-constexpr size_t getFilenameOffset(const T (&str)[s], size_t i = s - 1) noexcept
+constexpr size_t getFilenameOffset(const std::string_view str) noexcept
 {
-  return (str[i] == '/' || str[i] == '\\') ? i + 1 : i > 0 ? getFilenameOffset(str, i - 1) : 0;
-}
-
-/// Base case, for strings of 1 character.
-template <typename T>
-constexpr size_t getFilenameOffset(T (&str)[1]) noexcept
-{
-  std::ignore = str;
-  return 0;
+  const size_t pos = str.find_last_of("/\\");
+  return pos == std::string_view::npos ? 0 : pos + 1;
 }
 
 /// Workaround to force compile-time evaluation in all platforms.

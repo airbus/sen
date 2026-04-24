@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <memory>
 #include <numeric>
 #include <string>
 #include <string_view>
@@ -57,7 +58,7 @@ template <typename... Types>
 [[nodiscard]] uint_fast32_t platformDependentHashCombine(uint_fast32_t seed, const Types&... args) noexcept;
 
 /// Decompresses a blob into its original shape.
-unsigned char* decompressSymbol(const void* compressedData);
+[[nodiscard]] std::unique_ptr<unsigned char[]> decompressSymbol(const void* compressedData);
 
 /// Decompresses a blob into a string.
 [[nodiscard]] std::string decompressSymbolToString(const void* compressedData, unsigned int originalSize);

@@ -28,9 +28,9 @@ namespace sen::std_util
 
 struct ReportPolicyAssertion
 {
-  static void report(std::string message)
+  static void report(const std::string_view message)
   {
-    std::cerr << message.c_str() << std::endl;
+    std::cerr << message.data() << std::endl;
     SEN_ASSERT(false);
   }
 };
