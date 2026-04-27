@@ -40,6 +40,7 @@ set(base_public_headers
     include/sen/core/base/scope_guard.h
     include/sen/core/base/source_location.h
     include/sen/core/base/span.h
+    include/sen/core/base/fixed_string.h
     include/sen/core/base/static_vector.h
     include/sen/core/base/strong_type.h
     include/sen/core/base/timestamp.h

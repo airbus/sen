@@ -21,6 +21,7 @@ set(base_tests
     base/scope_guard_test.cpp
     base/source_location_test.cpp
     base/span_test.cpp
+    base/fixed_string_test.cpp
     base/static_vector_test.cpp
     base/timestamp_test.cpp
     base/u8string_util_test.cpp
