@@ -260,7 +260,7 @@ function(sen_file_to_cpp)
   add_custom_command(
     OUTPUT ${sen_file_to_cpp_OUT}
     COMMAND_EXPAND_LISTS VERBATIM
-    COMMAND sen::cli_sen fileToArray -i ${_abs_in_file} -o ${_abs_out_file} -v ${sen_file_to_cpp_VARNAME}
+    COMMAND sen::cli_sen file-to-array -i ${_abs_in_file} -o ${_abs_out_file} -v ${sen_file_to_cpp_VARNAME}
     DEPENDS ${_abs_in_file} sen::cli_sen
     COMMENT "generating ${_abs_in_file} into ${_abs_out_file}"
   )

@@ -298,58 +298,72 @@ build:
 
 ## Code generator
 
-```title="sen gen"
---8<-- "snippets/sen_gen.sh"
+```title="sen generate"
+--8<-- "snippets/sen_generate.sh"
 ```
 
 ### C++
 
-```title="sen gen cpp"
---8<-- "snippets/sen_gen_cpp.sh"
+```title="sen generate cpp"
+--8<-- "snippets/sen_generate_cpp.sh"
 ```
 
 #### C++ from STL
 
-```title="sen gen cpp stl"
---8<-- "snippets/sen_gen_cpp_stl.sh"
+```title="sen generate cpp stl"
+--8<-- "snippets/sen_generate_cpp_stl.sh"
 ```
 
 #### C++ from HLA FOMs
 
-```title="sen gen cpp fom"
---8<-- "snippets/sen_gen_cpp_fom.sh"
+```title="sen generate cpp fom"
+--8<-- "snippets/sen_generate_cpp_fom.sh"
+```
+
+#### C++ exports
+
+```title="sen generate cpp exports"
+--8<-- "snippets/sen_generate_cpp_exports.sh"
 ```
 
 ### UML
 
-Works the same way as C++, but with sightly different options.
+Works the same way as C++, but with slightly different options.
+
+```title="sen generate uml"
+--8<-- "snippets/sen_generate_uml.sh"
+```
 
 #### UML from STL
 
-```title="sen gen uml stl"
---8<-- "snippets/sen_gen_uml_stl.sh"
+```title="sen generate uml stl"
+--8<-- "snippets/sen_generate_uml_stl.sh"
 ```
 
 #### UML from HLA FOMs
 
-```title="sen gen uml fom"
---8<-- "snippets/sen_gen_uml_fom.sh"
+```title="sen generate uml fom"
+--8<-- "snippets/sen_generate_uml_fom.sh"
 ```
 
 ### MKDocs markdown
 
-Works the same way as C++, but with sightly different options.
+Works the same way as C++, but with slightly different options.
+
+```title="sen generate mkdocs"
+--8<-- "snippets/sen_generate_mkdocs.sh"
+```
 
 #### MKDocs from STL
 
-```title="sen gen uml stl"
---8<-- "snippets/sen_gen_mkdocs_stl.sh"
+```title="sen generate mkdocs stl"
+--8<-- "snippets/sen_generate_mkdocs_stl.sh"
 ```
 
 #### MKDocs from HLA FOMs
 
-```title="sen gen uml fom"
---8<-- "snippets/sen_gen_mkdocs_fom.sh"
+```title="sen generate mkdocs fom"
+--8<-- "snippets/sen_generate_mkdocs_fom.sh"
 ```
 
 ### JSON schemas
@@ -359,31 +373,31 @@ Generates json schemas from a Sen data model.
 #### JSON schemas for Sen components from STL
 
 ```
---8<-- "snippets/sen_gen_json_component_stl.sh"
+--8<-- "snippets/sen_generate_json_component_stl.sh"
 ```
 
 #### JSON schemas for Sen components from HLA FOMs
 
 ```
---8<-- "snippets/sen_gen_json_component_fom.sh"
+--8<-- "snippets/sen_generate_json_component_fom.sh"
 ```
 
 #### JSON schemas for Sen packages from STL
 
 ```
---8<-- "snippets/sen_gen_json_package_stl.sh"
+--8<-- "snippets/sen_generate_json_package_stl.sh"
 ```
 
 #### JSON schemas for Sen packages from HLA FOMs
 
 ```
---8<-- "snippets/sen_gen_json_package_fom.sh"
+--8<-- "snippets/sen_generate_json_package_fom.sh"
 ```
 
 #### Combine multiple JSON schemas to create a kernel configuration schema
 
 ```
---8<-- "snippets/sen_gen_json_schema.sh"
+--8<-- "snippets/sen_generate_json_schema.sh"
 ```
 
 ## Archiving Utility
@@ -426,6 +440,6 @@ Helps you interact with archives.
 
 ## File to array utility
 
-```title="sen fileToArray"
---8<-- "snippets/sen_fileToArray.sh"
+```title="sen file-to-array"
+--8<-- "snippets/sen_file_to_array.sh"
 ```

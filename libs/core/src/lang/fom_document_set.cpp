@@ -9,6 +9,7 @@
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/string_case.h"
 #include "sen/core/io/util.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
@@ -97,31 +98,6 @@ void collectInteractionNodes(pugi::xml_node node, std::vector<pugi::xml_node>& r
 {
   return !s.empty() &&
          std::find_if(s.begin(), s.end(), [](unsigned char c) { return std::isdigit(c) == 0; }) == s.end();
-}
-
-[[nodiscard]] std::string toUpperCamelCase(const std::string& str)
-{
-  if (str.empty())
-  {
-    return str;
-  }
-
-  std::string result;
-  result.reserve(str.size());
-
-  for (const auto& elem: str)
-  {
-    if (elem != '-' && elem != '_')
-    {
-      result.append(1U, elem);
-    }
-  }
-
-  if (!result.empty())
-  {
-    result.front() = static_cast<char>(std::toupper(result.front()));
-  }
-  return result;
 }
 
 std::vector<std::string_view> splitString(const std::string_view input, const std::string_view delimiters)

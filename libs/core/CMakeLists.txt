@@ -41,6 +41,7 @@ set(base_public_headers
     include/sen/core/base/source_location.h
     include/sen/core/base/span.h
     include/sen/core/base/static_vector.h
+    include/sen/core/base/string_case.h
     include/sen/core/base/strong_type.h
     include/sen/core/base/timestamp.h
     include/sen/core/base/type_traits_extra.h
@@ -56,10 +57,11 @@ set(base_sources
     src/base/assert.cpp
     src/base/checked_conversions.cpp
     src/base/hash32.cpp
-    src/base/result_impl.cpp
-    src/base/uuid.cpp
     src/base/memory_block.cpp
+    src/base/result_impl.cpp
+    src/base/string_case.cpp
     src/base/timestamp.cpp
+    src/base/uuid.cpp
 )
 
 # -------------------------------------------------------------------------------------------------------------

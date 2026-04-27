@@ -30,10 +30,10 @@ int runApp(int argc, char* argv[])
   };
   auto args = std::make_shared<ProgramArgs>();
 
-  CLI::App app {"Connects to a remote sen shell\n"};
+  CLI::App app {"Connect to a remote sen shell\n"};
   app.name("sen rshell");
   app.get_formatter()->column_width(35);  // NOLINT
-  app.add_option("address", args->address, "Address of the sen process (format <host>[:<port>]")->required();
+  app.add_option("address", args->address, "Address of the sen process (format <host>[:<port>])")->required();
 
   app.callback(
     [args]()

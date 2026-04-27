@@ -13,6 +13,9 @@
 #include "templates/package/config_yaml.h"
 #include "util.h"
 
+// sen
+#include "sen/core/base/string_case.h"
+
 // cli11
 #include <CLI/App.hpp>
 
@@ -43,15 +46,15 @@ struct Args
 
 std::filesystem::path getClassSTLFileRelPath(const Args& args, const std::string& className)
 {
-  return (args.stlFilesRelPath / toSnakeCase(className)).replace_extension(".stl");
+  return (args.stlFilesRelPath / sen::toSnakeCase(className)).replace_extension(".stl");
 }
 
 std::filesystem::path getClassCppFileRelPath(const Args& args, const std::string& className)
 {
-  return (args.srcFilesRelPath / toSnakeCase(className)).replace_extension(".cpp");
+  return (args.srcFilesRelPath / sen::toSnakeCase(className)).replace_extension(".cpp");
 }
 
-std::filesystem::path getClassHFile(const std::string& className) { return toSnakeCase(className) + ".h"; }
+std::filesystem::path getClassHFile(const std::string& className) { return sen::toSnakeCase(className) + ".h"; }
 
 std::filesystem::path getClassHFileRelPath(const Args& args, const std::string& className)
 {
@@ -85,7 +88,7 @@ inja::json getPackageData(const Args& args)
 void writePackage(Args& args)
 {
   // use snake case for package names and folders
-  args.packageName = toSnakeCase(args.path.filename().string());
+  args.packageName = sen::toSnakeCase(args.path.filename().string());
   args.stlFilesRelPath = std::filesystem::path("stl") / args.packageName;
   args.srcFilesRelPath = "src";
 
@@ -121,18 +124,20 @@ void writePackage(Args& args)
   writeFile(args.path / sourceFile, basic_class_source, basic_class_sourceSize, classData);
   writeFile(args.path / "config.yaml", config_yaml, config_yamlSize, classData);
 
-  printf("To compile:\n");                                         // NOLINT
-  printf("        cd %s\n", args.path.string().c_str());           // NOLINT
-  printf("        cmake -S . -B build && cmake --build build\n");  // NOLINT
-  printf("\n");                                                    // NOLINT
-  printf("To set-up (bash):\n");                                   // NOLINT
-  printf("        export LD_LIBRARY_PATH+=$(pwd)/build/bin\n");    // NOLINT
-  printf("\n");                                                    // NOLINT
-  printf("To set-up (fish):\n");                                   // NOLINT
-  printf("        set -xa LD_LIBRARY_PATH $(pwd)/build/bin\n");    // NOLINT
-  printf("\n");                                                    // NOLINT
-  printf("To run:\n");                                             // NOLINT
-  printf("        sen run config.yaml\n");                         // NOLINT
+  printf("To compile:\n");                                                           // NOLINT(hicpp-vararg)
+  printf("        cd %s\n", args.path.string().c_str());                             // NOLINT(hicpp-vararg)
+  printf("        cmake -S . -B build && cmake --build build\n");                    // NOLINT(hicpp-vararg)
+  printf("\n");                                                                      // NOLINT(hicpp-vararg)
+  printf("To set up the library path:\n");                                           // NOLINT(hicpp-vararg)
+  printf("  bash / zsh:\n");                                                         // NOLINT(hicpp-vararg)
+  printf("        export LD_LIBRARY_PATH=\"$(pwd)/build/bin:$LD_LIBRARY_PATH\"\n");  // NOLINT(hicpp-vararg)
+  printf("  fish:\n");                                                               // NOLINT(hicpp-vararg)
+  printf("        set -xa LD_LIBRARY_PATH $(pwd)/build/bin\n");                      // NOLINT(hicpp-vararg)
+  printf("  PowerShell (Windows):\n");                                               // NOLINT(hicpp-vararg)
+  printf("        $env:PATH = \"$PWD\\build\\bin;$env:PATH\"\n");                    // NOLINT(hicpp-vararg)
+  printf("\n");                                                                      // NOLINT(hicpp-vararg)
+  printf("To run:\n");                                                               // NOLINT(hicpp-vararg)
+  printf("        sen run config.yaml\n");                                           // NOLINT(hicpp-vararg)
 }
 
 }  // namespace
