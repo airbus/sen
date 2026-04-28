@@ -61,6 +61,9 @@ private:
   /// Returns all the available Sen sessions.
   JsonResponse getSessionsHandler(HttpSession& httpSession, const UrlParams& urlParams) const;
 
+  /// Returns the Sen version
+  JsonResponse getVersionHandler(HttpSession& httpSession, const UrlParams& urlParams) const;
+
   /// Returns all the available objects for a given interest.
   JsonResponse getObjectsHandler(ClientSession& clientSession,
                                  HttpSession& httpSession,

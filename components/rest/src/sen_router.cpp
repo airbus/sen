@@ -26,9 +26,9 @@
 
 // sen
 #include "sen/core/base/result.h"
+#include "sen/core/base/version.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/callable.h"
-#include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/var.h"
@@ -44,14 +44,12 @@
 
 // std
 #include <algorithm>
-#include <atomic>
 #include <exception>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <thread>
 #include <utility>
 #include <variant>
 
@@ -322,6 +320,7 @@ std::optional<std::shared_ptr<ClientSession>> SenRouter::getClientSessionFromTok
 SenRouter::SenRouter(kernel::RunApi& api): api_(api)
 {
   addRoute(HttpMethod::httpPost, "/api/auth", bindRouteCallback(this, &SenRouter::clientAuthSessionHandler));
+  addRoute(HttpMethod::httpGet, "/api/version", bindRouteCallback(this, &SenRouter::getVersionHandler));
 
   // sen session endpoint
   addRoute(HttpMethod::httpGet, "/api/sessions", bindRouteCallback(this, &SenRouter::getSessionsHandler));
@@ -431,6 +430,12 @@ HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& h
   {
     return JsonResponse(httpBadRequestError, Error {"client auth failed. error: " + std::string(e.what())});
   }
+}
+
+JsonResponse SenRouter::getVersionHandler([[maybe_unused]] HttpSession& httpSession,
+                                          [[maybe_unused]] const UrlParams& urlParams) const
+{
+  return JsonResponse {httpSuccess, Version {SEN_VERSION_STRING}};
 }
 
 JsonResponse SenRouter::getSessionsHandler([[maybe_unused]] HttpSession& httpSession,
