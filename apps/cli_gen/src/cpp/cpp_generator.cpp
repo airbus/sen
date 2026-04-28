@@ -118,6 +118,21 @@ private:
   std::string result_;
 };
 
+void configureExportsCommand(CLI::App* cmd)
+{
+  auto args = std::make_shared<Args>();
+  cmd->add_option("-p, --package", args->packageName, "Name of the package to create the exports for");
+  cmd->add_option("-f, --file", args->stlFiles, "Name of the STL file containing types");
+  cmd->add_option("-d, --depends", args->dependentPackages, "Names of the packages we depend on");
+  cmd->add_option("-i, --implements", args->userTypes, "Names of types implemented in this package");
+  cmd->callback(
+    [args]()
+    {
+      CppGenerator::generatePackageExportsFile(
+        args->packageName, args->stlFiles, args->dependentPackages, args->userTypes);
+    });
+}
+
 }  // namespace
 
 class CppGenerator::Impl
@@ -383,12 +398,12 @@ void CppGenerator::setup(CLI::App& app)
 {
   auto cppExtraArgs = std::make_shared<CppExtraArgs>();
 
-  auto cpp = app.add_subcommand("cpp", "Generates C++ code");
+  auto cpp = app.add_subcommand("cpp", "Generate C++ code");
   cpp->allow_extras();
   cpp->require_subcommand();
 
-  cpp->add_option("-r, --recursive", cppExtraArgs->recursive, "recursively generate imported packages");
-  cpp->add_flag("--public-symbols", cppExtraArgs->publicSymbols, "make generated classes public");
+  cpp->add_option("-r, --recursive", cppExtraArgs->recursive, "Recursively generate imported packages");
+  cpp->add_flag("--public-symbols", cppExtraArgs->publicSymbols, "Make generated classes public");
 
   auto stl = setupStlInput(*cpp,
                            [cppExtraArgs](auto args)
@@ -419,21 +434,19 @@ void CppGenerator::setup(CLI::App& app)
                              }
                            });
 
+  // Canonical location for the exports command is under 'cpp', next to 'stl' and 'fom'.
+  auto exports = cpp->add_subcommand("exports", "Generate the export symbols file for a sen STL package");
+  configureExportsCommand(exports);
+
   stl->excludes(fom);
 }
 
 void CppGenerator::exportsSetup(CLI::App& app)
 {
-  auto args = std::make_shared<Args>();
-  auto exp = app.add_subcommand("exp_package", "generates exports symbols for a sen STL package");
-  exp->add_option("-p, --package", args->packageName, "name of the package to create the exports");
-  exp->add_option("-f, --file", args->stlFiles, "name of the stl file containing types");
-  exp->add_option("-d, --depends", args->dependentPackages, "name of the packages we depend on");
-  exp->add_option("-i, --implements", args->userTypes, "name of types implemented in this package");
-  exp->callback(
-    [args]()
-    {
-      CppGenerator::generatePackageExportsFile(
-        args->packageName, args->stlFiles, args->dependentPackages, args->userTypes);
-    });
+  // Hidden backward-compat alias for 'generate cpp exports'. Kept so existing CMake tooling
+  // that invokes 'cli_gen exp_package ...' continues to work. The empty group hides it from
+  // --help.
+  auto exp = app.add_subcommand("exp_package", "Alias for 'generate cpp exports'");
+  exp->group("");
+  configureExportsCommand(exp);
 }

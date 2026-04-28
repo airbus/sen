@@ -32,12 +32,12 @@
 int runApp(int argc, char* argv[])
 {
   CLI::App app {"sen code generator\n"};
-  app.name("sen gen");
+  app.name("sen generate");
   app.get_formatter()->column_width(35);  // NOLINT
   app.require_subcommand();
 
   bool expectFailure = false;
-  app.add_flag("--expect-failure", expectFailure, "expects a failure in the generation process (for testing purposes)");
+  app.add_flag("--expect-failure", expectFailure, "Expect a failure in the generation process (for testing purposes)");
 
   try
   {
@@ -48,7 +48,7 @@ int runApp(int argc, char* argv[])
     MkDocsGenerator::setup(app);
     JsonGenerator::setup(app);
 
-    app.footer("For help on specific commands run 'sen gen <command> --help'");
+    app.footer("For help on specific commands run 'sen generate <command> --help'");
 
     CLI11_PARSE(app, argc, argv)
 
