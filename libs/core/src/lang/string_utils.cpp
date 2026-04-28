@@ -49,10 +49,9 @@ std::string snakeCaseToPascalCase(std::string_view str)
       capitalizeNext = true;
       continue;
     }
-    const auto c = static_cast<unsigned char>(ch);
     if (capitalizeNext)
     {
-      result.push_back(std_util::checkedConversion<char>(std::toupper(c)));
+      result.push_back(std_util::checkedConversion<char>(std::toupper(static_cast<unsigned char>(ch))));
       capitalizeNext = false;
     }
     else
