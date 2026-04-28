@@ -104,7 +104,16 @@ ID property that is "neutral" or "friendly". We call that query "friendly_fire":
 You can now see that the shell automatically opened the se.env bus and created a query named
 se.env.friendly_fire.
 
-To close/delete a query, use te `close` command and pass the name of the query.
+As soon as the query is active, Sen automatically evaluates the objects on the bus. The shell will:
+
+* Notify you of discovered objects that meet the query conditions. Once an object has been discovered, you can interact with it as usual.
+* Notify you when an object no longer meets the query conditions (or is destroyed), meaning it has been removed from your view.
+
+You can always run the `ls` command to see the objects currently matching your active queries.
+
+Note: Currently, you cannot see which object on a bus belongs to a specific query.
+
+To close/delete a query, use the `close` command and pass the name of the query.
 
 If you want the shell to automatically open some predefined queries, do as follows:
 
