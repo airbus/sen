@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "sen/core/base/string_case.h"
+#include "sen/core/lang/string_utils.h"
 
 // sen
 #include "sen/core/base/checked_conversions.h"
@@ -19,7 +19,7 @@
 namespace sen
 {
 
-std::string toUpperCamelCase(std::string_view str)
+std::string capitalizeAndRemoveSeparators(std::string_view str)
 {
   std::string result;
   result.reserve(str.size());
@@ -32,13 +32,12 @@ std::string toUpperCamelCase(std::string_view str)
   }
   if (!result.empty())
   {
-    result.front() =
-      std_util::checkedConversion<char>(std::toupper(static_cast<unsigned char>(result.front())));
+    result.front() = std_util::checkedConversion<char>(std::toupper(static_cast<unsigned char>(result.front())));
   }
   return result;
 }
 
-std::string toPascalCase(std::string_view str)
+std::string snakeCaseToPascalCase(std::string_view str)
 {
   std::string result;
   result.reserve(str.size());
@@ -64,7 +63,7 @@ std::string toPascalCase(std::string_view str)
   return result;
 }
 
-std::string toSnakeCase(std::string_view str)
+std::string pascalCaseToSnakeCase(std::string_view str)
 {
   std::string result;
   result.reserve(str.size() * 2U);
@@ -87,7 +86,7 @@ std::string toSnakeCase(std::string_view str)
   return result;
 }
 
-bool isUpperCamelCase(std::string_view str)
+bool isCapitalizedAndNoSeparators(std::string_view str)
 {
   if (str.empty())
   {

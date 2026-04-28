@@ -9,9 +9,9 @@
 
 // sen
 #include "sen/core/base/assert.h"
-#include "sen/core/base/string_case.h"
 #include "sen/core/io/util.h"
 #include "sen/core/lang/stl_resolver.h"
+#include "sen/core/lang/string_utils.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/class_type.h"
@@ -538,7 +538,7 @@ void FomDocumentSet::createRootTypeSet()
     {
       continue;
     }
-    std::string senTypeNameUnequal = std::string("Maybe") + toUpperCamelCase(std::string(elem->getName()));
+    std::string senTypeNameUnequal = std::string("Maybe") + capitalizeAndRemoveSeparators(std::string(elem->getName()));
 
     OptionalSpec spec(senTypeNameUnequal, std::string("hla.") + senTypeNameUnequal, "" /* not present in HLA */, elem);
 
@@ -1186,7 +1186,7 @@ ConstTypeHandle<> FomDocumentSet::enumeration(const pugi::xpath_node& node, cons
 ConstTypeHandle<> FomDocumentSet::getOptionalPropertyType(const std::string fomElementTypeName, ParsedDoc* doc)
 {
   auto senTypeNameUnequal =
-    std::string("Maybe") + toUpperCamelCase(fomTypeNameToSenTypeNameUnequal(fomElementTypeName));
+    std::string("Maybe") + capitalizeAndRemoveSeparators(fomTypeNameToSenTypeNameUnequal(fomElementTypeName));
 
   if (auto typeLookup = searchTypeFromFomName(senTypeNameUnequal, doc))
   {
@@ -1213,7 +1213,7 @@ ConstTypeHandle<> FomDocumentSet::getOptionalPropertyType(const std::string fomE
         }
       }
 
-      senTypeNameUnequal = std::string("Maybe") + toUpperCamelCase(std::string(elementType->getName()));
+      senTypeNameUnequal = std::string("Maybe") + capitalizeAndRemoveSeparators(std::string(elementType->getName()));
       for (const auto& rootType: rootTypeSet_->types)
       {
         if (rootType->getName() == senTypeNameUnequal)
@@ -1555,7 +1555,7 @@ std::string FomDocumentSet::fomTypeNameToSenTypeNameUnequal(const std::string& f
     return std::string(StringType::get()->getName());
   }
 
-  return toUpperCamelCase(fomTypeName);
+  return capitalizeAndRemoveSeparators(fomTypeName);
 }
 
 std::string FomDocumentSet::fomTypeNameToSenTypeNameQual(const FomDocument* doc, const std::string& fomTypeName) const
@@ -1591,7 +1591,7 @@ ConstTypeHandle<> FomDocumentSet::getOrMakeStructFromInteraction(const pugi::xpa
                                                                  ParsedDoc* doc,
                                                                  const std::vector<std::string>& ignoredParams)
 {
-  std::string name = toUpperCamelCase(node.node().child_value("name"));
+  std::string name = capitalizeAndRemoveSeparators(node.node().child_value("name"));
 
   // check if the struct was already created
   if (auto typeLookup = searchTypeFromFomName(name, doc))
@@ -1619,8 +1619,8 @@ ConstTypeHandle<> FomDocumentSet::getOrMakeStructFromInteraction(const pugi::xpa
 
     auto matches = [this, &otherDoc, &targetQName](const auto& otherInteractionNode) -> bool
     {
-      const std::string otherQName =
-        fomTypeNameToSenTypeNameQual(otherDoc.get(), toUpperCamelCase(otherInteractionNode.child_value("name")));
+      const std::string otherQName = fomTypeNameToSenTypeNameQual(
+        otherDoc.get(), capitalizeAndRemoveSeparators(otherInteractionNode.child_value("name")));
       return targetQName == otherQName;
     };
 

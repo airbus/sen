@@ -14,7 +14,7 @@
 #include "util.h"
 
 // sen
-#include "sen/core/base/string_case.h"
+#include "sen/core/lang/string_utils.h"
 
 // cli11
 #include <CLI/App.hpp>
@@ -46,15 +46,18 @@ struct Args
 
 std::filesystem::path getClassSTLFileRelPath(const Args& args, const std::string& className)
 {
-  return (args.stlFilesRelPath / sen::toSnakeCase(className)).replace_extension(".stl");
+  return (args.stlFilesRelPath / sen::pascalCaseToSnakeCase(className)).replace_extension(".stl");
 }
 
 std::filesystem::path getClassCppFileRelPath(const Args& args, const std::string& className)
 {
-  return (args.srcFilesRelPath / sen::toSnakeCase(className)).replace_extension(".cpp");
+  return (args.srcFilesRelPath / sen::pascalCaseToSnakeCase(className)).replace_extension(".cpp");
 }
 
-std::filesystem::path getClassHFile(const std::string& className) { return sen::toSnakeCase(className) + ".h"; }
+std::filesystem::path getClassHFile(const std::string& className)
+{
+  return sen::pascalCaseToSnakeCase(className) + ".h";
+}
 
 std::filesystem::path getClassHFileRelPath(const Args& args, const std::string& className)
 {
@@ -88,7 +91,7 @@ inja::json getPackageData(const Args& args)
 void writePackage(Args& args)
 {
   // use snake case for package names and folders
-  args.packageName = sen::toSnakeCase(args.path.filename().string());
+  args.packageName = sen::pascalCaseToSnakeCase(args.path.filename().string());
   args.stlFilesRelPath = std::filesystem::path("stl") / args.packageName;
   args.srcFilesRelPath = "src";
 

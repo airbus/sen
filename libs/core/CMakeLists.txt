@@ -41,7 +41,6 @@ set(base_public_headers
     include/sen/core/base/source_location.h
     include/sen/core/base/span.h
     include/sen/core/base/static_vector.h
-    include/sen/core/base/string_case.h
     include/sen/core/base/strong_type.h
     include/sen/core/base/timestamp.h
     include/sen/core/base/type_traits_extra.h
@@ -59,7 +58,6 @@ set(base_sources
     src/base/hash32.cpp
     src/base/memory_block.cpp
     src/base/result_impl.cpp
-    src/base/string_case.cpp
     src/base/timestamp.cpp
     src/base/uuid.cpp
 )
@@ -208,6 +206,7 @@ set(lang_public_headers
     include/sen/core/lang/stl_parser.h
     include/sen/core/lang/stl_resolver.h
     include/sen/core/lang/stl_scanner.h
+    include/sen/core/lang/string_utils.h
     include/sen/core/lang/stl_statement.h
     include/sen/core/lang/vm.h
     include/sen/core/lang/stl_token.h
@@ -219,6 +218,7 @@ set(lang_sources
     src/lang/stl_parser.cpp
     src/lang/stl_resolver.cpp
     src/lang/stl_scanner.cpp
+    src/lang/string_utils.cpp
     src/lang/vm.cpp
     src/lang/stl_token.cpp
     src/lang/fom_document_set.cpp

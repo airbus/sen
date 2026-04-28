@@ -13,7 +13,7 @@
 #include "util.h"
 
 // sen
-#include "sen/core/base/string_case.h"
+#include "sen/core/lang/string_utils.h"
 
 // cli11
 #include <CLI/App.hpp>
@@ -73,13 +73,13 @@ void writeComponent(Args& args)
   // use snake case for the target name names and the component folder
   args.componentName = args.path.filename().generic_string();
 
-  if (!sen::isUpperCamelCase(args.componentName))
+  if (!sen::isCapitalizedAndNoSeparators(args.componentName))
   {
     std::cerr << "component names must be upper camel cased\n";
     exit(1);
   }
 
-  args.targetName = sen::toSnakeCase(args.componentName);
+  args.targetName = sen::pascalCaseToSnakeCase(args.componentName);
   args.path.replace_filename(args.targetName);
   args.stlFilesRelPath = std::filesystem::path("stl") / args.targetName;
   args.srcFilesRelPath = "src";
