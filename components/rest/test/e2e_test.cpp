@@ -9,6 +9,7 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/version.h"
 #include "sen/kernel/test_kernel.h"
 
 // google test
@@ -104,6 +105,21 @@ TEST(Rest, e2e_sessions)
   auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions");
   ASSERT_EQ(ret.statusCode, 200);
   ASSERT_EQ(Json::parse(ret.body).dump(), R"(["local"])");
+}
+
+/// @test
+/// End-to-end test for the version endpoint
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_version)
+{
+  Server server;
+
+  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/version");
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_TRUE(response.contains("version"));
+  ASSERT_EQ(response["version"].get<std::string>(), SEN_VERSION_STRING);
 }
 
 /// @test

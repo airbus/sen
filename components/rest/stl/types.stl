@@ -156,3 +156,8 @@ struct ClientAuth
 {
   id : string
 }
+
+struct Version
+{
+  version : string
+}

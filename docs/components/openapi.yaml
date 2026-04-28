@@ -68,6 +68,22 @@ paths:
                 items:
                   type: string
                 example: ["local"]
+  /api/version:
+    get:
+      summary: Get Sen version
+      description: Returns the Sen version
+      security: []
+      responses:
+        '200':
+          description: Sen version
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    description: Version
   /api/interests:
     get:
       summary: List all interests
