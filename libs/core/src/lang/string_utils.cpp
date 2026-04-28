@@ -68,8 +68,7 @@ std::string pascalCaseToSnakeCase(std::string_view str)
   result.reserve(str.size() * 2U);
   for (std::size_t i = 0; i < str.size(); ++i)
   {
-    const auto c = static_cast<unsigned char>(str[i]);
-    if (std::isupper(c) != 0)
+    if (const auto c = static_cast<unsigned char>(str[i]); std::isupper(c) != 0)
     {
       if (i != 0)
       {
