@@ -23,6 +23,7 @@ add_sen_package(
   STL_FILES ${_recorder_stl_files}
   DEPS sen::db
   PRIVATE_DEPS spdlog::spdlog
+  TEST_TARGET recorder_for_testing
   IS_COMPONENT
 )
 
