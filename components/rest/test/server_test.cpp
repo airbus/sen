@@ -32,7 +32,7 @@ constexpr std::string_view configString = R"(
 /// @requirements(SEN-1061)
 TEST(Rest, server_allocation)
 {
-  std::atomic<bool> stop;
+  std::atomic<bool> stop {false};
   std::thread testThread(
     [&stop]
     {
