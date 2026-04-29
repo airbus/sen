@@ -43,7 +43,7 @@
 namespace sen::components::rest
 {
 
-constexpr auto defaultRestAPIUpdateFreq = Duration::fromHertz(10.0);
+RestAPIComponent::RestAPIComponent(): updateFreq_(defaultRestAPIUpdateFreq) {}
 
 kernel::FuncResult RestAPIComponent::preload(kernel::PreloadApi&& api)
 {
@@ -88,14 +88,16 @@ kernel::FuncResult RestAPIComponent::unload(kernel::UnloadApi&& api)
   lastUpdateTime_ = api.getTime();
 
   return api.execLoop(
-    defaultRestAPIUpdateFreq,
-    [this]() { ctx_.run_until(std::chrono::steady_clock::now() + defaultRestAPIUpdateFreq.toChrono()); },
+    getUpdateFreq(),
+    [this]() { ctx_.run_until(std::chrono::steady_clock::now() + getUpdateFreq().toChrono()); },
     false);
 }
 
 [[nodiscard]] uint16_t RestAPIComponent::getListenPort() const { return config_.port; }
 
 [[nodiscard]] const std::string& RestAPIComponent::getListenAddress() const { return config_.address; }
+
+[[nodiscard]] const Duration& RestAPIComponent::getUpdateFreq() const { return updateFreq_; }
 
 sen::kernel::FuncResult RestAPIComponent::readConfig(const sen::VarMap& params)
 {
@@ -107,6 +109,11 @@ sen::kernel::FuncResult RestAPIComponent::readConfig(const sen::VarMap& params)
   if (ec)
   {
     return sen::Err(sen::kernel::ExecError {sen::kernel::ErrorCategory::expectationsNotMet, ec.message()});
+  }
+
+  if (config_.freqHz.has_value())
+  {
+    updateFreq_ = Duration::fromHertz(*config_.freqHz);
   }
 
   return sen::kernel::done();
