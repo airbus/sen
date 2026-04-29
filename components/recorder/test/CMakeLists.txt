@@ -5,7 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-set(recorder_tests recorder_crash_test.cpp)
+set(recorder_tests recorder_crash_test.cpp recorder_test.cpp)
 
 add_sen_unit_test_suite(
   recorder_test
@@ -14,6 +14,14 @@ add_sen_unit_test_suite(
   sen::core
   sen::kernel
   sen::db
+  recorder_for_testing
+  spdlog::spdlog
+)
+
+sen_generate_cpp(
+  TARGET recorder_test
+  STL_FILES stl/recorder_test_class.stl
+  GEN_HDR_FILES public_generated_files
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -27,7 +35,7 @@ endif()
 target_include_directories(
   recorder_test SYSTEM
   INTERFACE
-  PRIVATE ${CMAKE_SOURCE_DIR}/components/recorder/src
+  PRIVATE ${CMAKE_SOURCE_DIR}/components/recorder/src ${CMAKE_SOURCE_DIR}/components/recorder/test
 )
 
 target_compile_definitions(recorder_test PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
