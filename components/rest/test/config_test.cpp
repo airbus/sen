@@ -8,6 +8,7 @@
 #include "component.h"
 
 // sen
+#include "sen/core/base/duration.h"
 #include "sen/kernel/test_kernel.h"
 
 // google test
@@ -77,4 +78,49 @@ TEST(Rest, invalid_config_address)
 
   // NOLINTNEXTLINE(hicpp-vararg, hicpp-avoid-goto)
   EXPECT_DEATH(sen::kernel::TestKernel::fromYamlString(configString), "");
+}
+
+/// @test
+/// Check REST API runs with default update frequency
+/// @requirements(SEN-1061)
+TEST(Rest, config_default_update_freq)
+{
+  std::string configString = R"(
+    load:
+    - name: rest
+      group: 3
+      address: "127.0.0.1"
+      port: 12345
+  )";
+
+  auto kernel = sen::kernel::TestKernel::fromYamlString(configString);
+  auto context = kernel.getComponentContext("rest");
+  ASSERT_TRUE(context.has_value());
+
+  auto component = dynamic_cast<const sen::components::rest::RestAPIComponent*>(context.value()->instance);
+
+  ASSERT_EQ(component->getUpdateFreq(), sen::components::rest::defaultRestAPIUpdateFreq);
+}
+
+/// @test
+/// Check REST API runs with a configured update frequency
+/// @requirements(SEN-1061)
+TEST(Rest, config_custom_update_freq)
+{
+  std::string configString = R"(
+    load:
+    - name: rest
+      group: 3
+      address: "127.0.0.1"
+      port: 12345
+      freqHz: 60.0
+  )";
+
+  auto kernel = sen::kernel::TestKernel::fromYamlString(configString);
+  auto context = kernel.getComponentContext("rest");
+  ASSERT_TRUE(context.has_value());
+
+  auto component = dynamic_cast<const sen::components::rest::RestAPIComponent*>(context.value()->instance);
+
+  ASSERT_FLOAT_EQ(component->getUpdateFreq().toSeconds(), sen::Duration::fromHertz(60.0).toSeconds());
 }

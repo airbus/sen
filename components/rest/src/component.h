@@ -16,6 +16,7 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/duration.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/meta/var.h"
 
@@ -34,13 +35,15 @@
 namespace sen::components::rest
 {
 
+constexpr auto defaultRestAPIUpdateFreq = Duration::fromHertz(10.0);
+
 /// Sen component that allows clients to manage Sen resources using a HTTP REST API
 class RestAPIComponent: public kernel::Component
 {
   SEN_NOCOPY_NOMOVE(RestAPIComponent)
 
 public:
-  RestAPIComponent() = default;
+  RestAPIComponent();
   ~RestAPIComponent() override = default;
 
   kernel::FuncResult preload(kernel::PreloadApi&& api) override;
@@ -48,6 +51,7 @@ public:
   [[nodiscard]] kernel::FuncResult run(kernel::RunApi& api) override;
   [[nodiscard]] uint16_t getListenPort() const;
   [[nodiscard]] const std::string& getListenAddress() const;
+  [[nodiscard]] const Duration& getUpdateFreq() const;
 
 private:
   sen::kernel::FuncResult readConfig(const sen::VarMap& params);
@@ -58,6 +62,7 @@ private:
   Configuration config_;
   TimeStamp lastUpdateTime_;
   bool initialized_;
+  Duration updateFreq_;
 };
 
 }  // namespace sen::components::rest
