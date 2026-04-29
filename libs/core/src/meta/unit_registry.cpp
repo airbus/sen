@@ -160,6 +160,11 @@ const UnitRegistry& UnitRegistry::get()
 
 UnitRegistry::UnitRegistry()
 {
+  //--------------------------------------------------------------------------------------------------------------
+  // IMPORTANT: If you edit this table, please ensure that docs/users_guide/stl_grammar.md is in sync.
+  //            This needs to be done until we have a solution for SEN-1621 (TODO).
+  //--------------------------------------------------------------------------------------------------------------
+
   // clang-format off
 
   // basic SI units

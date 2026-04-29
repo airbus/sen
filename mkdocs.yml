@@ -149,7 +149,9 @@ nav:
       - Mental Model: users_guide/mental_model.md
       - Workflow: users_guide/workflow.md
       - Execution Model: users_guide/execution_model.md
-      - The Sen Type Language: users_guide/stl.md
+      - The Sen Type Language:
+          - Description: users_guide/stl.md
+          - STL Grammar: users_guide/stl_grammar.md
       - The Sen Query Language: users_guide/sql.md
       - Using HLA FOMs: users_guide/hla.md
       - Command Line Tools: users_guide/command_line.md
