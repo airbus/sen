@@ -1,4 +1,4 @@
-This is the sen kernel runner
+Run a sen kernel
 
 Usage: sen run [OPTIONS] [config]
 
@@ -9,5 +9,5 @@ Options:
   -h,--help                        Print this help message and exit
   --preset TEXT:{shell,explorer,replay}
                                    Preset name
-  --start-stop                     Stops execution after all components are running
+  --start-stop                     Stop execution after all components are running
   --print-config                   Print the configuration that will be used

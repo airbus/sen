@@ -1,5 +1,5 @@
-simple utility to convert a file to a C++ array
-Usage: sen fileToArray [OPTIONS]
+Simple utility to convert a file to a C++ array
+Usage: sen file-to-array [OPTIONS]
 
 Options:
   -h,--help    Print this help message and exit

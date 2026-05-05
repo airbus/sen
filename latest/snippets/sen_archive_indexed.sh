@@ -1,4 +1,4 @@
-prints basic info about the indexed objects
+Print basic info about the indexed objects
 Usage: sen archive indexed [OPTIONS] archive_path
 
 Positionals:

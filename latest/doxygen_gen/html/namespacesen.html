@@ -637,6 +637,14 @@ Functions</h2></td></tr>
 <tr class="memitem:ga904518bc1c074dd9b48963b092174ac1 template"><td class="memItemLeft">T&#160;</td><td class="memItemRight"><a class="el" href="group__io.html#ga904518bc1c074dd9b48963b092174ac1">toValue</a> (const <a class="el" href="structsen_1_1_var.html">Var</a> &amp;var)</td></tr>
 <tr class="memitem:ga49a70fc4199a3f4966c25250c973c647" id="r_ga49a70fc4199a3f4966c25250c973c647"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:ga49a70fc4199a3f4966c25250c973c647 template"><td class="memItemLeft"><a class="el" href="structsen_1_1_var.html">Var</a>&#160;</td><td class="memItemRight"><a class="el" href="group__io.html#ga49a70fc4199a3f4966c25250c973c647">toVariant</a> (const T &amp;val)</td></tr>
+<tr class="memitem:a92e7995b1258eff32db2f01fabfb98bd" id="r_a92e7995b1258eff32db2f01fabfb98bd"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a92e7995b1258eff32db2f01fabfb98bd">capitalizeAndRemoveSeparators</a> (std::string_view str)</td></tr>
+<tr class="memdesc:a92e7995b1258eff32db2f01fabfb98bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drops '-' and '_', and uppercases the first character (example: "foo_bar" -&gt; "Foobar").  <br /></td></tr>
+<tr class="memitem:aad4d93d53354ecd9e91e48a9a99d6432" id="r_aad4d93d53354ecd9e91e48a9a99d6432"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#aad4d93d53354ecd9e91e48a9a99d6432">snakeCaseToPascalCase</a> (std::string_view str)</td></tr>
+<tr class="memdesc:aad4d93d53354ecd9e91e48a9a99d6432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Splits on underscores and capitalizes (example: "foo_bar" -&gt; "FooBar").  <br /></td></tr>
+<tr class="memitem:a9608869550666199934a1d8b7739ddf3" id="r_a9608869550666199934a1d8b7739ddf3"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a9608869550666199934a1d8b7739ddf3">pascalCaseToSnakeCase</a> (std::string_view str)</td></tr>
+<tr class="memdesc:a9608869550666199934a1d8b7739ddf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts PascalCase to snake_case.  <br /></td></tr>
+<tr class="memitem:ab5cfdd92b11f99e31eff94660ec1f227" id="r_ab5cfdd92b11f99e31eff94660ec1f227"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ab5cfdd92b11f99e31eff94660ec1f227">isCapitalizedAndNoSeparators</a> (std::string_view str)</td></tr>
+<tr class="memdesc:ab5cfdd92b11f99e31eff94660ec1f227"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when str starts with uppercase and contains no whitespace or underscores.  <br /></td></tr>
 <tr class="memitem:ga00d033b3f23f5d1d6ed7f09c06a9315d" id="r_ga00d033b3f23f5d1d6ed7f09c06a9315d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="group__types.html#ga00d033b3f23f5d1d6ed7f09c06a9315d">operator==</a> (const <a class="el" href="group__types.html#structsen_1_1_event_spec">EventSpec</a> &amp;lhs, const <a class="el" href="group__types.html#structsen_1_1_event_spec">EventSpec</a> &amp;rhs) noexcept</td></tr>
 <tr class="memitem:ga12f37560c5de0f2d8592753b17055f4b" id="r_ga12f37560c5de0f2d8592753b17055f4b"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="group__types.html#ga12f37560c5de0f2d8592753b17055f4b">operator!=</a> (const <a class="el" href="group__types.html#structsen_1_1_event_spec">EventSpec</a> &amp;lhs, const <a class="el" href="group__types.html#structsen_1_1_event_spec">EventSpec</a> &amp;rhs) noexcept</td></tr>
 <tr class="memitem:gab88c961f46ce3349d933b79a6833430c" id="r_gab88c961f46ce3349d933b79a6833430c"><td class="memItemLeft">const <a class="el" href="classsen_1_1_span.html">Span</a>&lt; <a class="el" href="group__types.html#gae73ad15e959c56c8e8bf9c693da6dab2">ConstTypeHandle</a>&lt;&gt; const &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="group__types.html#gab88c961f46ce3349d933b79a6833430c">getNativeTypes</a> ()</td></tr>
@@ -846,6 +854,114 @@ template&lt;typename InputF&gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a92e7995b1258eff32db2f01fabfb98bd" name="a92e7995b1258eff32db2f01fabfb98bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92e7995b1258eff32db2f01fabfb98bd">&#9670;&#160;</a></span>capitalizeAndRemoveSeparators()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::capitalizeAndRemoveSeparators </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>str</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Drops '-' and '_', and uppercases the first character (example: "foo_bar" -&gt; "Foobar"). </p>
+
+</div>
+</div>
+<a id="aad4d93d53354ecd9e91e48a9a99d6432" name="aad4d93d53354ecd9e91e48a9a99d6432"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad4d93d53354ecd9e91e48a9a99d6432">&#9670;&#160;</a></span>snakeCaseToPascalCase()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::snakeCaseToPascalCase </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>str</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Splits on underscores and capitalizes (example: "foo_bar" -&gt; "FooBar"). </p>
+
+</div>
+</div>
+<a id="a9608869550666199934a1d8b7739ddf3" name="a9608869550666199934a1d8b7739ddf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9608869550666199934a1d8b7739ddf3">&#9670;&#160;</a></span>pascalCaseToSnakeCase()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::pascalCaseToSnakeCase </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>str</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts PascalCase to snake_case. </p>
+
+</div>
+</div>
+<a id="ab5cfdd92b11f99e31eff94660ec1f227" name="ab5cfdd92b11f99e31eff94660ec1f227"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5cfdd92b11f99e31eff94660ec1f227">&#9670;&#160;</a></span>isCapitalizedAndNoSeparators()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool sen::isCapitalizedAndNoSeparators </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>str</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>True when str starts with uppercase and contains no whitespace or underscores. </p>
 
 </div>
 </div>

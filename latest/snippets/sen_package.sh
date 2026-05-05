@@ -1,4 +1,4 @@
-This is the sen package helper
+Create or manipulate sen packages
 
 Usage: sen package [OPTIONS] [SUBCOMMAND]
 

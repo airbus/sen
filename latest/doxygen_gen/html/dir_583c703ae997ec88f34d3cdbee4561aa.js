@@ -9,5 +9,6 @@ var dir_583c703ae997ec88f34d3cdbee4561aa =
     [ "stl_scanner.h", "stl__scanner_8h.html", null ],
     [ "stl_statement.h", "stl__statement_8h.html", "stl__statement_8h" ],
     [ "stl_token.h", "stl__token_8h.html", "stl__token_8h" ],
+    [ "string_utils.h", "string__utils_8h.html", "string__utils_8h" ],
     [ "vm.h", "vm_8h.html", "vm_8h" ]
 ];

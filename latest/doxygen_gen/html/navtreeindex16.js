@@ -1,5 +1,11 @@
 var NAVTREEINDEX16 =
 {
+"structsen_1_1_variant_spec.html#a49e66f97e245e0838b2efaf1cd00c6a2":[0,0,2,1,38,1],
+"structsen_1_1_variant_spec.html#a65dd891391977f7570b2f6c021b43486":[0,0,2,1,38,0],
+"structsen_1_1_variant_spec.html#a7fd0115a4b9a7ef96fa93c024ffb5c1a":[0,0,2,1,38,2],
+"structsen_1_1_variant_spec.html#aeea1ba2310f1fefa09fa66b45a02b1c5":[0,0,2,1,38,5],
+"structsen_1_1_variant_traits_3_01_duration_01_4.html":[1,0,1,88],
+"structsen_1_1_variant_traits_3_01_duration_01_4.html":[2,0,1,88],
 "structsen_1_1_variant_traits_3_01_time_stamp_01_4.html":[1,0,1,91],
 "structsen_1_1_variant_traits_3_01_time_stamp_01_4.html":[2,0,1,91],
 "structsen_1_1_variant_traits_base.html":[0,0,2,0,20],
@@ -185,8 +191,8 @@ var NAVTREEINDEX16 =
 "variant__type_8h_source.html":[3,0,1,0,0,0,0,3,31],
 "vec3_8h.html":[3,0,1,3,1,0,4],
 "vec3_8h_source.html":[3,0,1,3,1,0,4],
-"vm_8h.html":[3,0,1,0,0,0,0,2,9],
-"vm_8h_source.html":[3,0,1,0,0,0,0,2,9],
+"vm_8h.html":[3,0,1,0,0,0,0,2,10],
+"vm_8h_source.html":[3,0,1,0,0,0,0,2,10],
 "work__queue_8h.html":[3,0,1,0,0,0,0,4,0,7],
 "work__queue_8h_source.html":[3,0,1,0,0,0,0,4,0,7]
 };

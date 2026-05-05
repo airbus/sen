@@ -10,7 +10,7 @@
     <meta property="og:title" content="Sen" />
     <meta property="og:description" content="Sen API Documentation." />
     <!-- END opengraph metadata -->
-    <title>Sen API: Namespace Members</title>
+    <title>Sen API: string_utils.h File Reference</title>
     <link href="tabs.css" rel="stylesheet" type="text/css"/>
     <link rel="icon" type="image/svg+xml" href="logo.drawio.svg">
     <script type="text/javascript" src="jquery.js"></script>
@@ -82,7 +82,7 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(function(){initNavTree('namespacemembers_i.html','',''); });
+$(function(){initNavTree('string__utils_8h.html','',''); });
 </script>
 <div id="container">
 <div id="doc-content">
@@ -107,31 +107,44 @@ $(function(){initNavTree('namespacemembers_i.html','',''); });
 </div>
 </div>
 
+<div class="header">
+  <div class="headertitle"><div class="title">string_utils.h File Reference</div></div>
+</div><!--header-->
 <div class="contents">
-<div class="textblock">Here is a list of all namespace members with links to the namespace documentation for each member:</div>
-
-<h3 class="doxsection"><a id="index_i" name="index_i"></a>- i -</h3><ul>
-<li>ignoredLossyConversion()&#160;:&#160;<a class="el" href="namespacesen_1_1std__util.html#a19530ff98aeb4ed478e0b2ab033a4023">sen::std_util</a></li>
-<li>indexesFileName&#160;:&#160;<a class="el" href="namespacesen_1_1db.html#a2d591d27b9814e450bf501b89240e5d4">sen::db</a></li>
-<li>InputStream&#160;:&#160;<a class="el" href="group__io.html#ga11425923616d100c72a9fcada84143e8">sen</a></li>
-<li>invoke_r()&#160;:&#160;<a class="el" href="namespacesen_1_1std__util_1_1detail.html#aacb4214807eb3ae51bd40c7b86f3719e">sen::std_util::detail</a></li>
-<li>is_move_only_function_v&#160;:&#160;<a class="el" href="namespacesen_1_1std__util_1_1detail.html#a3c3554aee4e573391de23e7ea870fb30">sen::std_util::detail</a></li>
-<li>is_move_only_function_v&lt; MoveOnlyFunctionImpl&lt; FunctionType &gt; &gt;&#160;:&#160;<a class="el" href="namespacesen_1_1std__util_1_1detail.html#aa362fd6dc2701718f357563630b5f099">sen::std_util::detail</a></li>
-<li>isAccelerating()&#160;:&#160;<a class="el" href="group__dr.html#gace02b77012422072ca06eb09f135c7f9">sen::util::impl</a></li>
-<li>isCapitalizedAndNoSeparators()&#160;:&#160;<a class="el" href="namespacesen.html#ab5cfdd92b11f99e31eff94660ec1f227">sen</a></li>
-<li>isInstantiationOfV&#160;:&#160;<a class="el" href="namespacesen_1_1std__util.html#a01e2c1b2918ceca8f060d00d4bc1098f">sen::std_util</a></li>
-<li>isMoving()&#160;:&#160;<a class="el" href="group__dr.html#ga8af1abb8bdb5619962e509fcafa5a755">sen::util::impl</a></li>
-<li>isRotating()&#160;:&#160;<a class="el" href="group__dr.html#ga700dc5434e2a5d13bb90cd2f8d633e9a">sen::util::impl</a></li>
-<li>isSenBaseTypeTemplateV&#160;:&#160;<a class="el" href="group__traits.html#ga778561fcbbf5cb38dfa58e8ae8b84b91">sen</a></li>
-<li>isVarTypeMemberV&#160;:&#160;<a class="el" href="group__type__utils.html#gac8ac09df01a58da2e54a28e5663e777e">sen</a></li>
-<li>iterateOverDependentTypes()&#160;:&#160;<a class="el" href="group__type__utils.html#ga7021bc8a8c092788dc332f6f8d1db534">sen</a></li>
-</ul>
+<div class="textblock"><code>#include &lt;string&gt;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
+</div>
+<p><a href="string__utils_8h_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:sen" id="r_sen"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html">sen</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a92e7995b1258eff32db2f01fabfb98bd" id="r_a92e7995b1258eff32db2f01fabfb98bd"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html#a92e7995b1258eff32db2f01fabfb98bd">sen::capitalizeAndRemoveSeparators</a> (std::string_view str)</td></tr>
+<tr class="memdesc:a92e7995b1258eff32db2f01fabfb98bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drops '-' and '_', and uppercases the first character (example: "foo_bar" -&gt; "Foobar").  <br /></td></tr>
+<tr class="memitem:aad4d93d53354ecd9e91e48a9a99d6432" id="r_aad4d93d53354ecd9e91e48a9a99d6432"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html#aad4d93d53354ecd9e91e48a9a99d6432">sen::snakeCaseToPascalCase</a> (std::string_view str)</td></tr>
+<tr class="memdesc:aad4d93d53354ecd9e91e48a9a99d6432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Splits on underscores and capitalizes (example: "foo_bar" -&gt; "FooBar").  <br /></td></tr>
+<tr class="memitem:a9608869550666199934a1d8b7739ddf3" id="r_a9608869550666199934a1d8b7739ddf3"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html#a9608869550666199934a1d8b7739ddf3">sen::pascalCaseToSnakeCase</a> (std::string_view str)</td></tr>
+<tr class="memdesc:a9608869550666199934a1d8b7739ddf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts PascalCase to snake_case.  <br /></td></tr>
+<tr class="memitem:ab5cfdd92b11f99e31eff94660ec1f227" id="r_ab5cfdd92b11f99e31eff94660ec1f227"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html#ab5cfdd92b11f99e31eff94660ec1f227">sen::isCapitalizedAndNoSeparators</a> (std::string_view str)</td></tr>
+<tr class="memdesc:ab5cfdd92b11f99e31eff94660ec1f227"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when str starts with uppercase and contains no whitespace or underscores.  <br /></td></tr>
+</table>
 </div><!-- contents -->
 </div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
 </div><!-- container -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a href="dir_6719ab1f1f7655efc2fa43f7eb574fd1.html">libs</a></li><li class="navelem"><a href="dir_6f77a39b07c019ccd7492ea87272f732.html">core</a></li><li class="navelem"><a href="dir_25de89a49d1da2858ac6330785c12b40.html">include</a></li><li class="navelem"><a href="dir_1bc063e313940a88473d6142dafd0137.html">sen</a></li><li class="navelem"><a href="dir_9dc9337431256335b86692bb6d7f28e7.html">core</a></li><li class="navelem"><a href="dir_583c703ae997ec88f34d3cdbee4561aa.html">lang</a></li><li class="navelem"><a href="string__utils_8h.html">string_utils.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.16.1 </li>
   </ul>
 </div>

@@ -1,4 +1,4 @@
-prints basic information about an archive
+Print basic information about an archive
 Usage: sen archive info [OPTIONS] archive_path
 
 Positionals:

@@ -17,8 +17,9 @@ var searchData=
   ['stl_5fscanner_2eh_14',['stl_scanner.h',['../stl__scanner_8h.html',1,'']]],
   ['stl_5fstatement_2eh_15',['stl_statement.h',['../stl__statement_8h.html',1,'']]],
   ['stl_5ftoken_2eh_16',['stl_token.h',['../stl__token_8h.html',1,'']]],
-  ['strong_5ftype_2eh_17',['strong_type.h',['../strong__type_8h.html',1,'']]],
-  ['struct_5ftraits_2eh_18',['struct_traits.h',['../struct__traits_8h.html',1,'']]],
-  ['struct_5ftype_2eh_19',['struct_type.h',['../struct__type_8h.html',1,'']]],
-  ['subscription_2eh_20',['subscription.h',['../subscription_8h.html',1,'']]]
+  ['string_5futils_2eh_17',['string_utils.h',['../string__utils_8h.html',1,'']]],
+  ['strong_5ftype_2eh_18',['strong_type.h',['../strong__type_8h.html',1,'']]],
+  ['struct_5ftraits_2eh_19',['struct_traits.h',['../struct__traits_8h.html',1,'']]],
+  ['struct_5ftype_2eh_20',['struct_type.h',['../struct__type_8h.html',1,'']]],
+  ['subscription_2eh_21',['subscription.h',['../subscription_8h.html',1,'']]]
 ];
