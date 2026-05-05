@@ -5,6 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+// sen
 #include "sen/core/base/hash32.h"
 #include "sen/core/base/version.h"
 
@@ -78,12 +79,12 @@ std::filesystem::path getExePath()
 #endif
 }
 
-void configureSubcommand(CLI::App& app,
-                         const char* name,
-                         const char* description,
-                         const char* binPath,
-                         int argc,
-                         char* argv[])
+CLI::App* configureSubcommand(CLI::App& app,
+                              const char* name,
+                              const char* description,
+                              const char* binPath,
+                              int argc,
+                              char* argv[])
 {
   auto cmd = app.add_subcommand(name, description);
   cmd->allow_extras();
@@ -95,6 +96,7 @@ void configureSubcommand(CLI::App& app,
       auto bin = getExePath().parent_path() / binPath;
       runChildProcess(bin.generic_string().c_str(), argc, argv);
     });
+  return cmd;
 }
 
 void configureFileToArray(CLI::App& app)
@@ -107,26 +109,31 @@ void configureFileToArray(CLI::App& app)
   };
   std::shared_ptr<Args> args = std::make_shared<Args>();
 
-  auto cmd = app.add_subcommand("fileToArray", "simple utility to convert a file to a C++ array");
-
-  cmd->add_option("-i", args->inputFile, "File to read")->required()->check(CLI::ExistingFile);
-  cmd->add_option("-o", args->outputFile, "File to write")->required();
-  cmd->add_option("-v", args->varName, "Name of the variable that will hold the data")->required();
-  cmd->callback(
-    [args]()
-    {
-      if (!sen::fileToCompressedArrayFile(args->inputFile, args->varName, args->outputFile))
+  auto configure = [args](CLI::App* cmd)
+  {
+    cmd->add_option("-i", args->inputFile, "File to read")->required()->check(CLI::ExistingFile);
+    cmd->add_option("-o", args->outputFile, "File to write")->required();
+    cmd->add_option("-v", args->varName, "Name of the variable that will hold the data")->required();
+    cmd->callback(
+      [args]()
       {
-        std::cerr << "error compressing data\n";
-        exit(1);
-      }
-    });
+        if (!sen::fileToCompressedArrayFile(args->inputFile, args->varName, args->outputFile))
+        {
+          std::cerr << "error compressing data\n";
+          exit(1);
+        }
+      });
+  };
+
+  configure(app.add_subcommand("file-to-array", "Simple utility to convert a file to a C++ array"));
+  // Hidden alias; kept for backward compatibility with existing CMake scripts.
+  configure(app.add_subcommand("fileToArray", "Alias for 'file-to-array'")->group(""));
 }
 
 void configureShortcut(CLI::App& app, const char* preset, int argc, char* argv[])
 {
   std::string description;
-  description.append("shortcut to run the sen ");
+  description.append("Shortcut to run the sen ");
   description.append(preset);
   description.append(" stand-alone");
 
@@ -165,7 +172,7 @@ void configureShortcuts(CLI::App& app, int argc, char* argv[])
 
   // remote shell
   {
-    std::string description = "shortcut to connect to a remote sen shell";
+    std::string description = "Shortcut to connect to a remote sen shell";
 
     auto cmd = app.add_subcommand("rshell", description);
     cmd->allow_extras();
@@ -201,12 +208,15 @@ int runApp(int argc, char* argv[])
     app.set_version_flag("--version", SEN_VERSION_STRING);
     app.get_formatter()->column_width(15);  // NOLINT
 
-    configureSubcommand(app, "run", "runs a sen kernel", "cli_run", argc, argv);
-    configureSubcommand(app, "gen", "generates code (mainly used by build systems)", "cli_gen", argc, argv);
-    configureSubcommand(app, "archive", "allows inspecting archives", "cli_archive", argc, argv);
-    configureSubcommand(app, "package", "creates or manipulates sen packages", "cli_package", argc, argv);
+    configureSubcommand(app, "run", "Run a sen kernel", "cli_run", argc, argv);
+    configureSubcommand(app, "generate", "Generate code (mainly used by build systems)", "cli_gen", argc, argv);
+    configureSubcommand(app, "archive", "Inspect archives", "cli_archive", argc, argv);
+    configureSubcommand(app, "package", "Create or manipulate sen packages", "cli_package", argc, argv);
     configureFileToArray(app);
     configureShortcuts(app, argc, argv);
+
+    // Hidden alias for the renamed subcommand. ->group("") hides it from --help.
+    configureSubcommand(app, "gen", "Alias for 'generate'", "cli_gen", argc, argv)->group("");
 
     app.footer("For help on specific commands run 'sen <command> --help'");
 

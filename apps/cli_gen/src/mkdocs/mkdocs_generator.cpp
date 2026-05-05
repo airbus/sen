@@ -570,8 +570,8 @@ void append(const std::vector<T>& src, std::vector<T>& target)
 
 void setupMKDocsArgs(CLI::App& app, MKDocsArgs& args)
 {
-  app.add_option("-o, --output", args.outputFile, "output file");
-  app.add_option("-t, --title", args.title, "document title");
+  app.add_option("-o, --output", args.outputFile, "Output file");
+  app.add_option("-t, --title", args.title, "Document title");
 }
 
 }  // namespace
@@ -611,7 +611,7 @@ void MkDocsGenerator::write(const std::filesystem::path& outputFile, const std::
 void MkDocsGenerator::setup(CLI::App& app)
 {
   auto mkdocsArgs = std::make_shared<MKDocsArgs>();
-  auto mkdocs = app.add_subcommand("mkdocs", "generates MKDocs documentation");
+  auto mkdocs = app.add_subcommand("mkdocs", "Generate MkDocs documentation");
   mkdocs->allow_extras();
   mkdocs->require_subcommand();
 

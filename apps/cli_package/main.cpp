@@ -17,7 +17,7 @@
 
 int runApp(int argc, char* argv[])
 {
-  CLI::App app {"This is the sen package helper\n"};
+  CLI::App app {"Create or manipulate sen packages\n"};
   app.name("sen package");
   app.get_formatter()->column_width(35);  // NOLINT
 

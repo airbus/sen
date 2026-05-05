@@ -36,28 +36,29 @@ if(mkdocs_exec)
 ${sen_exec} --help > ${snippets_dir}/sen.sh\n\
 \n\
 ${sen_exec} run --help > ${snippets_dir}/sen_run.sh\n\
-${sen_exec} fileToArray --help > ${snippets_dir}/sen_fileToArray.sh\n\
-${sen_exec} gen --help > ${snippets_dir}/sen_gen.sh\n\
+${sen_exec} file-to-array --help > ${snippets_dir}/sen_file_to_array.sh\n\
+${sen_exec} generate --help > ${snippets_dir}/sen_generate.sh\n\
 \n\
-${sen_exec} gen cpp --help > ${snippets_dir}/sen_gen_cpp.sh\n\
-${sen_exec} gen cpp stl --help > ${snippets_dir}/sen_gen_cpp_stl.sh\n\
-${sen_exec} gen cpp fom --help > ${snippets_dir}/sen_gen_cpp_fom.sh\n\
+${sen_exec} generate cpp --help > ${snippets_dir}/sen_generate_cpp.sh\n\
+${sen_exec} generate cpp stl --help > ${snippets_dir}/sen_generate_cpp_stl.sh\n\
+${sen_exec} generate cpp fom --help > ${snippets_dir}/sen_generate_cpp_fom.sh\n\
+${sen_exec} generate cpp exports --help > ${snippets_dir}/sen_generate_cpp_exports.sh\n\
 \n\
-${sen_exec} gen uml --help > ${snippets_dir}/sen_gen_uml.sh\n\
-${sen_exec} gen uml stl --help > ${snippets_dir}/sen_gen_uml_stl.sh\n\
-${sen_exec} gen uml fom --help > ${snippets_dir}/sen_gen_uml_fom.sh\n\
+${sen_exec} generate uml --help > ${snippets_dir}/sen_generate_uml.sh\n\
+${sen_exec} generate uml stl --help > ${snippets_dir}/sen_generate_uml_stl.sh\n\
+${sen_exec} generate uml fom --help > ${snippets_dir}/sen_generate_uml_fom.sh\n\
 \n\
-${sen_exec} gen mkdocs --help > ${snippets_dir}/sen_gen_mkdocs.sh\n\
-${sen_exec} gen mkdocs stl --help > ${snippets_dir}/sen_gen_mkdocs_stl.sh\n\
-${sen_exec} gen mkdocs fom --help > ${snippets_dir}/sen_gen_mkdocs_fom.sh\n\
+${sen_exec} generate mkdocs --help > ${snippets_dir}/sen_generate_mkdocs.sh\n\
+${sen_exec} generate mkdocs stl --help > ${snippets_dir}/sen_generate_mkdocs_stl.sh\n\
+${sen_exec} generate mkdocs fom --help > ${snippets_dir}/sen_generate_mkdocs_fom.sh\n\
 \n\
-${sen_exec} gen json package stl --help > ${snippets_dir}/sen_gen_json_package_stl.sh\n\
-${sen_exec} gen json package fom --help > ${snippets_dir}/sen_gen_json_package_fom.sh\n\
+${sen_exec} generate json package stl --help > ${snippets_dir}/sen_generate_json_package_stl.sh\n\
+${sen_exec} generate json package fom --help > ${snippets_dir}/sen_generate_json_package_fom.sh\n\
 \n\
-${sen_exec} gen json component stl --help > ${snippets_dir}/sen_gen_json_component_stl.sh\n\
-${sen_exec} gen json component fom --help > ${snippets_dir}/sen_gen_json_component_fom.sh\n\
+${sen_exec} generate json component stl --help > ${snippets_dir}/sen_generate_json_component_stl.sh\n\
+${sen_exec} generate json component fom --help > ${snippets_dir}/sen_generate_json_component_fom.sh\n\
 \n\
-${sen_exec} gen json schema --help > ${snippets_dir}/sen_gen_json_schema.sh\n\
+${sen_exec} generate json schema --help > ${snippets_dir}/sen_generate_json_schema.sh\n\
 \n\
 ${sen_exec} archive --help > ${snippets_dir}/sen_archive.sh\n\
 ${sen_exec} archive indexed --help > ${snippets_dir}/sen_archive_indexed.sh\n\
@@ -67,7 +68,7 @@ ${sen_exec} package --help > ${snippets_dir}/sen_package.sh\n\
 ${sen_exec} package init --help > ${snippets_dir}/sen_package_init.sh\n\
 ${sen_exec} package init-component --help > ${snippets_dir}/sen_package_init-component.sh\n\
 \n\
-${sen_exec} gen mkdocs fom --directories ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16 -t \"Generated RPR, NETN & L16 Docs\" -o ${snippets_dir}/fom.md\n\
+${sen_exec} generate mkdocs fom --directories ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16 -t \"Generated RPR, NETN & L16 Docs\" -o ${snippets_dir}/fom.md\n\
 exit 0"
       FILE_PERMISSIONS
       OWNER_READ
@@ -93,21 +94,30 @@ exit 0"
   set(snippets
       ${snippets_dir}/sen.sh
       ${snippets_dir}/LICENSE.txt
+      ${snippets_dir}/sen_run.sh
+      ${snippets_dir}/sen_file_to_array.sh
+      ${snippets_dir}/sen_generate.sh
+      ${snippets_dir}/sen_generate_cpp.sh
+      ${snippets_dir}/sen_generate_cpp_stl.sh
+      ${snippets_dir}/sen_generate_cpp_fom.sh
+      ${snippets_dir}/sen_generate_cpp_exports.sh
+      ${snippets_dir}/sen_generate_uml.sh
+      ${snippets_dir}/sen_generate_uml_stl.sh
+      ${snippets_dir}/sen_generate_uml_fom.sh
+      ${snippets_dir}/sen_generate_mkdocs.sh
+      ${snippets_dir}/sen_generate_mkdocs_stl.sh
+      ${snippets_dir}/sen_generate_mkdocs_fom.sh
+      ${snippets_dir}/sen_generate_json_package_stl.sh
+      ${snippets_dir}/sen_generate_json_package_fom.sh
+      ${snippets_dir}/sen_generate_json_component_stl.sh
+      ${snippets_dir}/sen_generate_json_component_fom.sh
+      ${snippets_dir}/sen_generate_json_schema.sh
       ${snippets_dir}/sen_archive.sh
       ${snippets_dir}/sen_archive_indexed.sh
       ${snippets_dir}/sen_archive_info.sh
-      ${snippets_dir}/sen_run.sh
-      ${snippets_dir}/sen_gen.sh
-      ${snippets_dir}/sen_gen_cpp.sh
-      ${snippets_dir}/sen_gen_cpp_fom.sh
-      ${snippets_dir}/sen_gen_cpp_stl.sh
-      ${snippets_dir}/sen_gen_uml.sh
-      ${snippets_dir}/sen_gen_uml_fom.sh
-      ${snippets_dir}/sen_gen_uml_stl.sh
       ${snippets_dir}/sen_package.sh
       ${snippets_dir}/sen_package_init.sh
       ${snippets_dir}/sen_package_init-component.sh
-      ${snippets_dir}/sen_fileToArray.sh
       ${fom_doc_example_file}
   )
 
