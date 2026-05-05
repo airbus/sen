@@ -64,7 +64,7 @@ inline void OptionalTraitsBase<T>::read(InputStream& in, T& val)
 
   if (hasValue)
   {
-    typename T::value_type content;
+    typename T::value_type content {};
     SerializationTraits<typename T::value_type>::read(in, content);
     val = T(content);
   }
@@ -111,7 +111,7 @@ inline void OptionalTraitsBase<T>::variantToValue(const Var& var, T& val)
   }
   else
   {
-    typename T::value_type content;
+    typename T::value_type content {};
     VariantTraits<typename T::value_type>::variantToValue(var, content);
     val = T(content);
   }
