@@ -138,6 +138,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/docs")
 endif()
 
 if(SEN_BUILD_TESTS)
+  add_subdirectory(resources/installer/test)
   add_subdirectory(test/util/chaos_monkeys)
   add_subdirectory(test/util/cmake_packages)
   add_subdirectory(test/util/dummy_entities)

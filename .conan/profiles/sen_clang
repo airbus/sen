@@ -1,6 +1,6 @@
 [settings]
 os=Linux
-arch=x86_64
+arch={{ detect_api.detect_arch() }}
 compiler=clang
 compiler.cppstd=17
 compiler.version=20

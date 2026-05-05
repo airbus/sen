@@ -153,9 +153,7 @@ class SenConan(ConanFile):
 
         # runenv library paths
         self.runenv_info.prepend_path("PATH", join(self.package_folder, "bin"))
-        if self.settings.os == "Macos":
-            self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "bin"))
-        elif self.settings.os == "Linux":
+        if self.settings.os == "Linux":
             self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "bin"))
 
         # Windows: PATH is already prepended above; no additional loader path needed.

@@ -3,20 +3,140 @@
 
 # Getting Sen
 
-## Using Conan
+There are three ways to get Sen, depending on what you want to do:
 
-Sen releases are hosted on Conan-Center. To get it:
+- **Try Sen quickly** on Linux without setting up Conan: use the [quick installer](#quick-install-linux).
+- **Use Sen as a dependency in your project**: use the [Conan package](#using-sen-in-your-project-conan).
+- **Install Sen on a machine without an internet-facing toolchain** (Windows, air-gapped Linux): use the
+  [release zip packages](#manual-release-packages).
 
-1. Create Conan configuration file (either _conanfile.txt_ or _conanfile.py_) in your project's
-   top-level directory and add **Sen** as a dependency of your project.
+If you want to compile Sen yourself, see [Building Sen from source](../howto_guides/building_from_source.md).
 
-2. Download, build, and install Conan dependencies before running the CMake configuration step:
+## Quick install (Linux)
+
+A single POSIX `sh` script. No Conan, no `sudo`, no system files touched.
+
+**1. Install:**
 
 ```shell
-conan build . --profile <your_conan_profile> --build=missing
+curl -sSf https://raw.githubusercontent.com/airbus/sen/main/resources/installer/install.sh | sh -s -- 0.5.2
 ```
 
-??? info "Conan Set-Up"
+**2. Activate** (and append the same line to your shell rc to load Sen on every new shell):
+
+```shell
+. ~/.sen/current/activate          # bash / zsh
+source ~/.sen/current/activate.fish # fish
+```
+
+**3. Check:**
+
+```shell
+sen --version
+```
+
+??? note "What the installer prints"
+
+    ```text
+      Sen Installer  v0.2.0
+      ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+      Configuration
+        Version    0.5.2
+        Toolchain  gcc 12.4.0
+        Arch / OS  x86_64-linux
+        Prefix     /home/alice/.sen/0.5.2-x86_64-linux-gcc-12.4.0
+
+      ✓ Downloaded sen-0.5.2-x86_64-linux-gcc-12.4.0-release.tar.gz (42M)
+      ✓ Verified sha256 checksum
+      ✓ Extracted into /home/alice/.sen/0.5.2-x86_64-linux-gcc-12.4.0
+      ✓ Cached CLI completions  (bash, zsh, fish)
+      ✓ Wrote integrity manifest
+      ✓ Wrote activate scripts
+      ✓ Refreshed cached installer
+      ✓ Updated 'current' to  0.5.2-x86_64-linux-gcc-12.4.0
+
+      ──────────────────────────────────────────────────────────────────────
+
+      ✓ Sen 0.5.2-x86_64-linux-gcc-12.4.0 installed.
+
+      Activate this build:
+        bash/zsh   . /home/alice/.sen/current/activate
+        fish       source /home/alice/.sen/current/activate.fish
+    ```
+
+??? note "Different versions, toolchains, non-interactive"
+
+    Run with no arguments to list the available releases:
+
+    ```shell
+    curl -sSf .../install.sh | sh
+    ```
+
+    A release with multiple toolchains (gcc, clang, ...) opens an interactive menu. Skip it by pinning a
+    toolchain explicitly, or run fully non-interactively:
+
+    ```shell
+    sh install.sh 0.5.2 --compiler gcc-12.4.0
+    sh install.sh 0.5.2 --yes
+    ```
+
+??? note "Switching versions and pinning a specific build"
+
+    `~/.sen/current` is a symlink to the most recently installed build. Running `sh install.sh <other-version>`
+    flips the symlink, even if that version was already installed.
+
+    To pin a specific build, source the per-build path directly instead of `current/`:
+
+    ```shell
+    . ~/.sen/0.5.2-x86_64-linux-gcc-12.4.0/activate
+    ```
+
+    The activate scripts strip any prior `~/.sen/`-rooted entries from `PATH` and friends, so re-sourcing or
+    switching is idempotent.
+
+??? note "What activate sets, and how to uninstall"
+
+    Sourcing the activate file exports `SEN_PREFIX`, prepends the build's `bin/` to `PATH` and to
+    `LD_LIBRARY_PATH`, and points `CMAKE_PREFIX_PATH` at the prefix so `find_package(sen)` works.
+
+    To uninstall:
+
+    ```shell
+    rm -rf ~/.sen/<build-id>     # one build
+    rm -rf ~/.sen                # everything
+    ```
+
+    Then drop the `source ...activate` line from your shell rc.
+
+For environment variables, the security model, and the full set of options, see
+[`resources/installer/architecture.md`](https://github.com/airbus/sen/blob/main/resources/installer/architecture.md).
+
+## Using Sen in your project (Conan)
+
+Sen ships as a Conan package. Publication on Conan-Center is on the roadmap; in the meantime the package is
+consumed from the project's repository.
+
+The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does not generate a synthetic
+`senConfig.cmake` for downstream consumers. Instead, your build picks up Sen's own
+`<prefix>/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates: `find_package(sen)`
+"just works" once the toolchain file is loaded.
+
+1. Add a Conan configuration file (`conanfile.txt` or `conanfile.py`) at the top level of your project and list
+   **Sen** as a dependency.
+2. Make sure you have a Conan profile that matches your host. If this is your first time using Conan, run
+   `conan profile detect` once: it inspects your installed compiler, OS, and architecture and writes
+   `~/.conan2/profiles/default`. Without a profile, the next step errors with `Profile 'default' doesn't exist`.
+3. Resolve, build, and install the dependencies before running CMake:
+
+   ```shell
+   conan build . --profile <your_conan_profile> --build=missing
+   ```
+
+   Always pass `--build=missing`. Without it, Conan refuses to build any dependency that doesn't already have a
+   matching binary in its cache, which is rarely what you want on a fresh checkout.
+
+??? info "Conan set-up"
 
     Install or upgrade Conan with:
 
@@ -24,7 +144,7 @@ conan build . --profile <your_conan_profile> --build=missing
     pip install -U conan
     ```
 
-    Then create a profile for your environment in `<HOME>/.conan2/profiles`. Example:
+    Create a profile for your environment in `<HOME>/.conan2/profiles`:
 
     ```ini title="~/.conan2/profiles/gcc15"
     [settings]
@@ -40,26 +160,34 @@ conan build . --profile <your_conan_profile> --build=missing
     tools.build:compiler_executables={"c": "gcc-15", "cpp": "g++-15"}
     ```
 
-    As generator, we recommend Ninja. You can set it in `<HOME>/.conan2/global.conf`:
+    Sen recommends Ninja Multi-Config as the CMake generator. Set it once in `<HOME>/.conan2/global.conf`:
 
     ```text title="~/.conan2/global.conf"
     tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
     ```
 
-    You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be
-    installed by running:
+    The Sen repository ships ready-to-use profiles in `.conan/profiles` (`sen_gcc`, `sen_clang`, `sen_msvc`,
+    `sen_build_docs`). They target Sen's CI baseline (Linux x86_64, gcc 12 / clang): useful if you need to
+    reproduce a CI build, less so as a default. Install one with:
 
     ```shell
     conan config install -tf profiles .conan/profiles/<profile>
     ```
 
-??? note "Example Conanfile"
+    For different compiler versions, prefer `conan profile detect` over the bundled profiles. See
+    [Building Sen from source](../howto_guides/building_from_source.md) for the full walk-through.
+
+??? note "Example conanfile"
+
+    Replace `x.y.z` with the Sen version you want. The recipe derives its version from `git describe --tags`, so
+    a tagged release reads as `0.5.2` while an in-between commit reads as `0.5.2-5-gc6625265` (5 commits past tag
+    `0.5.2`, at hash `c6625265`).
 
     === "_conanfile.txt_"
 
         ```ini
         [requires]
-        sen/1.0.0
+        sen/x.y.z
 
         [layout]
         cmake_layout
@@ -91,101 +219,43 @@ conan build . --profile <your_conan_profile> --build=missing
                 cmake.build()
         ```
 
-## Using Release Packages
+## Manual release packages
 
-We provide binary releases in zip packages that you can download. You can extract the files into a
-folder (called `<sen_path>` in the next examples).
-
-To ensure your system is able to find all the paths, you can do as follows:
+For Windows or environments where the quick installer is not an option, download the release archive for your
+platform from the [Releases page](https://github.com/airbus/sen/releases) and extract it anywhere. The extracted
+directory is `<sen_path>` in the snippets below.
 
 === "Linux"
 
     ```shell
-    export SEN_PATH=<sen_path>
+    export SEN_PREFIX=<sen_path>
 
-    # Make the Sen binaries available
-    export PATH=$SEN_PATH/bin:$PATH
-
-    # Make the Sen libraries available
-    export LD_LIBRARY_PATH=$SEN_PATH/bin:$LD_LIBRARY_PATH
-    export DYLD_LIBRARY_PATH=$SEN_PATH/bin:$DYLD_LIBRARY_PATH
+    # Sen binaries on PATH. Sen installs binaries, shared libraries, and archives all under <prefix>/bin
+    # (CMAKE_INSTALL_BINDIR), so the same directory goes on LD_LIBRARY_PATH.
+    export PATH="$SEN_PREFIX/bin:$PATH"
+    export LD_LIBRARY_PATH="$SEN_PREFIX/bin:$LD_LIBRARY_PATH"
     ```
 
 === "Windows"
 
-    ```shell
-    set SEN_PATH=<sen_path>
+    ```bat
+    set SEN_PREFIX=<sen_path>
 
-    # Make the Sen binaries available
-    set PATH=%SEN_PATH%/bin;%PATH%
+    rem Sen binaries and DLLs on PATH
+    set PATH=%SEN_PREFIX%\bin;%PATH%
     ```
 
-In your CMakeLists.txt file, you would then set the path so that it can find Sen.
+In your project's `CMakeLists.txt`, point CMake at the prefix and pull Sen in with `find_package`:
 
 ```cmake
-list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PATH}/cmake")
-
+list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}")
 find_package(sen REQUIRED)
 ```
 
-??? note "Helper script"
+Sen installs its CMake config under `<prefix>/cmake/sen/sen-config.cmake`, which CMake's standard search picks up
+from `<prefix>` directly (no `/cmake` suffix needed).
 
-    For Linux, we offer a script that automates the Sen installation (needs wget and curl).
+## Building from source
 
-    Paste this in your shell:
-
-    ```shell
-    wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
-    ```
-
-    ??? note "Example"
-
-        The process should look more or less like this:
-
-        ```sh
-        $ wget -qO- https://github.com/airbus/sen/releases/download/x.y.z/setup.sh | sh
-
-        Sen installer script
-
-        Configuration
-        > Version:    x.y.z
-        > Platform:   linux-x86_64
-        > Directory:  /home/<user name>/.sen
-        > Build:      release
-        > Compiler:   All
-
-        ? Install Sen x.y.z to /home/<user name>/.sen? [y/N] y
-
-        Installation
-        ✓ Downloaded sen-x.y.z-x86_64-linux-gnu-a.b.c-release.
-        ✓ Unpacked.
-
-        > Setup your fish environment with:
-          source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
-        ```
-
-        The installation will create a script that you can use to set up your environment.
-        For example:
-
-        ```sh
-        $ source /home/<user name>/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
-        > environment configured for sen-x.y.z-x86_64-linux-gnu-a.b.c-release
-        ```
-
-        You should be able to do this now:
-
-        ```text
-        $ sen --version
-        x.y.z
-        ```
-
-## Building Sen
-
-**Sen** requires at least C++17.
-
-Use Conan to fetch the third-party dependencies `conan install . --profile=sen_gcc --build=missing`
-(you can replace 'sen_gcc' with the preset of your choice).
-
-To build, use `conan build . --profile=sen_gcc`. Alternatively, use
-`cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build` (you can replace 'sen_gcc'
-with the preset of your choice).
+If you want to compile Sen yourself (to track `main`, patch the code, or run on a platform without a release
+artifact), see [Building Sen from source](../howto_guides/building_from_source.md).
