@@ -20,12 +20,6 @@
 void setupInitPackage(CLI::App& app);
 void setupInitComponent(CLI::App& app);
 
-// TODO SEN-1032: Add to common cli_gen utils
-std::string toSnakeCase(const std::string& str);
-
-// TODO SEN-1032: Add to common cli_gen utils
-bool isUpperCamelCase(const std::string& str);
-
 void writeFile(std::filesystem::path path,
                const unsigned* templateData,
                unsigned templateDataSize,

@@ -47,7 +47,7 @@ void setupInfo(CLI::App& app)
 
   auto args = std::make_shared<Args>();
 
-  auto cmd = app.add_subcommand("info", "prints basic information about an archive");
+  auto cmd = app.add_subcommand("info", "Print basic information about an archive");
   cmd->add_option("archive_path", args->archivePath, "Archive path")->required()->check(CLI::ExistingDirectory);
   cmd->callback(
     [args]()
@@ -85,7 +85,7 @@ void setupIndexed(CLI::App& app)
   };
   auto args = std::make_shared<Args>();
 
-  auto cmd = app.add_subcommand("indexed", "prints basic info about the indexed objects");
+  auto cmd = app.add_subcommand("indexed", "Print basic info about the indexed objects");
   cmd->add_option("archive_path", args->archivePath, "Archive path")->required()->check(CLI::ExistingDirectory);
   cmd->callback(
     [args]()

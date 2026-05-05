@@ -185,11 +185,13 @@ CLI::App* setupStlInput(CLI::App& app, std::function<void(std::shared_ptr<impl::
 {
   auto args = std::make_shared<impl::StlArgs>();
 
-  auto stl = app.add_subcommand("stl", "process STL files");
+  auto stl = app.add_subcommand("stl", "Process STL files");
   stl->add_option("stl_files", args->inputs, "STL files")->required()->check(CLI::ExistingFile);
   stl->add_option("-i, --import", args->includePaths, "Paths where other STL files can be found");
-  stl->add_option("-b, --base_path", args->basePath, "base path for including generated files");
-  stl->add_option("-s, --settings", args->codegenOptionsFile, "code generation settings file")
+  // '--base_path' (snake_case) kept as a hidden alias for backward compatibility; new code
+  // should use '--base-path'. CLI11 accepts either form and writes to the same target.
+  stl->add_option("-b,--base-path,--base_path", args->basePath, "Base path for including generated files");
+  stl->add_option("-s, --settings", args->codegenOptionsFile, "Code generation settings file")
     ->check(CLI::ExistingFile);
   stl->callback([args, act = std::move(action)]() { act(args); });
   return stl;
@@ -199,17 +201,17 @@ CLI::App* setupFomInput(CLI::App& app, std::function<void(std::shared_ptr<impl::
 {
   auto args = std::make_shared<impl::FomArgs>();
 
-  auto fom = app.add_subcommand("fom", "process HLA FOM files");
+  auto fom = app.add_subcommand("fom", "Process HLA FOM files");
 
-  fom->add_option("-m, --mappings", args->mappingFiles, "XML defining custom mappings between sen and hla")
+  fom->add_option("-m, --mappings", args->mappingFiles, "XML defining custom mappings between sen and HLA")
     ->delimiter(',')
     ->check(CLI::ExistingFile);
 
-  fom->add_option("-d, --directories", args->paths, "directories containing FOM XML files")
+  fom->add_option("-d, --directories", args->paths, "Directories containing FOM XML files")
     ->check(CLI::ExistingDirectory)
     ->required();
 
-  fom->add_option("-s, --settings", args->codegenOptionsFile, "code generation settings file")
+  fom->add_option("-s, --settings", args->codegenOptionsFile, "Code generation settings file")
     ->check(CLI::ExistingFile);
 
   fom->callback([args, act = std::move(action)]() { act(args); });

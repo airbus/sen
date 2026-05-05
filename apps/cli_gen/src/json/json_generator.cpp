@@ -137,14 +137,14 @@ private:
 
 void setupJsonPackageArgs(CLI::App& app, JsonPackageArgs& args)
 {
-  app.add_option("-o, --output", args.outFile, "output file");
+  app.add_option("-o, --output", args.outFile, "Output file");
   app.add_option("-c, --class", args.classes, "Classes implemented by the user");
 }
 
 void setupJsonComponentArgs(CLI::App& app, JsonComponentArgs& args)
 {
-  app.add_option("-o, --output", args.outFile, "output file");
-  app.add_option("-n, --name", args.componentName, "name of the component");
+  app.add_option("-o, --output", args.outFile, "Output file");
+  app.add_option("-n, --name", args.componentName, "Name of the component");
 }
 
 }  // namespace
@@ -507,7 +507,7 @@ void JsonGenerator::writeCombination(const std::string& outFile, const std::vect
 void JsonGenerator::setupGenJsonPackage(CLI::App& app)
 {
   auto jsonPackageArgs = std::make_shared<JsonPackageArgs>();
-  auto jsonPackage = app.add_subcommand("package", "generates JSON schemas for packages");
+  auto jsonPackage = app.add_subcommand("package", "Generate JSON schemas for packages");
   jsonPackage->allow_extras();
   jsonPackage->require_subcommand();
 
@@ -544,7 +544,7 @@ void JsonGenerator::setupGenJsonPackage(CLI::App& app)
 void JsonGenerator::setupGenJsonComponent(CLI::App& app)
 {
   auto jsonComponentArgs = std::make_shared<JsonComponentArgs>();
-  auto jsonComponent = app.add_subcommand("component", "generates JSON schemas for components");
+  auto jsonComponent = app.add_subcommand("component", "Generate JSON schemas for components");
   jsonComponent->allow_extras();
   jsonComponent->require_subcommand();
 
@@ -582,14 +582,14 @@ void JsonGenerator::setupGenJsonComponent(CLI::App& app)
 void JsonGenerator::setupGenJsonSchemaArgs(CLI::App& app)
 {
   auto jsonSchemaArgs = std::make_shared<JsonSchemaArgs>();
-  auto jsonSchema = app.add_subcommand("schema", "generates JSON schemas for sen configurations");
+  auto jsonSchema = app.add_subcommand("schema", "Generate JSON schemas for sen configurations");
   jsonSchema->allow_extras();
 
   jsonSchema->add_option("schema_files", jsonSchemaArgs->schemas, "JSON schema files")
     ->required()
     ->check(CLI::ExistingFile);
 
-  jsonSchema->add_option("-o, --output", jsonSchemaArgs->outFile, "output file");
+  jsonSchema->add_option("-o, --output", jsonSchemaArgs->outFile, "Output file");
 
   jsonSchema->callback(
     [jsonSchemaArgs]()
@@ -601,7 +601,7 @@ void JsonGenerator::setupGenJsonSchemaArgs(CLI::App& app)
 
 void JsonGenerator::setup(CLI::App& app)
 {
-  auto json = app.add_subcommand("json", "generates JSON schemas");
+  auto json = app.add_subcommand("json", "Generate JSON schemas");
   json->allow_extras();
   json->require_subcommand();
 

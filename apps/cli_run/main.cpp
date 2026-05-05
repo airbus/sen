@@ -13,7 +13,6 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/hash32.h"
-#include "sen/core/meta/enum_type.h"
 #include "sen/kernel/bootloader.h"
 #include "sen/kernel/kernel.h"
 
@@ -41,18 +40,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-
-std::vector<std::string> getEnumerators(const sen::EnumType& type)
-{
-  std::vector<std::string> result;
-  result.reserve(type.getEnums().size());
-  for (const auto& elem: type.getEnums())
-  {
-    result.push_back(elem.name);
-  }
-
-  return result;
-}
 
 [[nodiscard]] bool replace(std::string& str, const std::string& from, const std::string& to)
 {
@@ -221,14 +208,14 @@ int runApp(int argc, char* argv[])
 {
   auto args = std::make_shared<RunArgs>();
 
-  CLI::App app {"This is the sen kernel runner\n"};
+  CLI::App app {"Run a sen kernel\n"};
   app.name("sen run");
   app.allow_extras();
   app.get_formatter()->column_width(35);
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
   app.add_option("--preset", args->preset, "Preset name")->check(CLI::IsMember({"shell", "explorer", "replay"}));
-  app.add_flag("--start-stop", args->startStop, "Stops execution after all components are running");
+  app.add_flag("--start-stop", args->startStop, "Stop execution after all components are running");
   app.add_flag("--print-config", args->printConfig, "Print the configuration that will be used");
 
   CLI11_PARSE(app, argc, argv)

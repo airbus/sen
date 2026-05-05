@@ -293,7 +293,7 @@ function(add_sen_package)
     add_custom_command(
       OUTPUT ${_exports_file}
       COMMAND_EXPAND_LISTS VERBATIM
-      COMMAND sen::cli_gen exp_package ${_export_args}
+      COMMAND sen::cli_gen cpp exports ${_export_args}
       DEPENDS ${_gen_files} sen::cli_gen
       WORKING_DIRECTORY ${_output_dir}
       COMMENT "Generating exports sen code for ${_arg_TARGET}"

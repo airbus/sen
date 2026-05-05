@@ -204,10 +204,10 @@ std::string generateFile(inja::Environment& env,
 
 void setupUmlArgs(CLI::App& app, UmlArgs& args)
 {
-  app.add_option("-o, --output", args.outputFile, "output plantuml file");
-  auto onlyClasses = app.add_flag("--only-classes", args.onlyClasses, "only generate class diagrams");
-  auto onlyTypes = app.add_flag("--only-types", args.onlyTypes, "only generate diagrams for basic types");
-  auto noEnumerators = app.add_flag("--no-enumerators", args.noEnumerators, "do not generate enumerations");
+  app.add_option("-o, --output", args.outputFile, "Output PlantUML file");
+  auto onlyClasses = app.add_flag("--only-classes", args.onlyClasses, "Only generate class diagrams");
+  auto onlyTypes = app.add_flag("--only-types", args.onlyTypes, "Only generate diagrams for basic types");
+  auto noEnumerators = app.add_flag("--no-enumerators", args.noEnumerators, "Do not generate enumerations");
 
   onlyClasses->excludes(onlyTypes);
   onlyClasses->excludes(noEnumerators);
@@ -266,7 +266,7 @@ void PlantUMLGenerator::write(const std::filesystem::path& outputFile,
 void PlantUMLGenerator::setup(CLI::App& app)
 {
   auto umlArgs = std::make_shared<UmlArgs>();
-  auto uml = app.add_subcommand("uml", "generates UML diagrams");
+  auto uml = app.add_subcommand("uml", "Generate UML diagrams");
   uml->allow_extras();
   uml->require_subcommand();
 

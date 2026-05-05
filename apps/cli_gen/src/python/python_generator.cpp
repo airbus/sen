@@ -239,7 +239,7 @@ void PythonGenerator::write(const std::filesystem::path& inputFile)
 
 void PythonGenerator::setup(CLI::App& app)
 {
-  auto py = app.add_subcommand("py", "generates Python dataclasses");
+  auto py = app.add_subcommand("py", "Generate Python dataclasses");
   py->allow_extras();
   py->require_subcommand();
 
