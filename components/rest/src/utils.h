@@ -37,7 +37,9 @@ using ArgsError = std::optional<std::string>;
 
 [[nodiscard]] JsonResponse getErrorLocatorParams(const LocatorError& error);
 
-[[nodiscard]] const JsonResponse& getErrorInvalidParams();
+[[nodiscard]] const JsonResponse& getErrorInvalidUrlParams();
+
+[[nodiscard]] const JsonResponse& getErrorInvalidQueryParams();
 
 [[nodiscard]] const JsonResponse& getErrorNotFound();
 
