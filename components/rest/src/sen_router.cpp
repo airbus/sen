@@ -98,29 +98,32 @@ inline std::variant<AuthResult, JsonResponse> validateAuth(SenRouter* obj, HttpS
 template <typename MemberFn>
 RouteCallback bindAuthRouteCallback(SenRouter* obj, MemberFn memberFn)
 {
-  return [obj, memberFn](HttpSession& httpSession, const UrlParams& params)
+  return [obj, memberFn](HttpSession& httpSession, const UrlParams& urlParams, const QueryParams& queryParams)
   {
     auto result = validateAuth(obj, httpSession);
     if (auto* error = std::get_if<JsonResponse>(&result))
     {
       return *error;
     }
-    return (obj->*memberFn)(std::get<AuthResult>(result).session, httpSession, params);
+    return (obj->*memberFn)(std::get<AuthResult>(result).session, httpSession, urlParams, queryParams);
   };
 }
 
 template <typename MemberFn>
 StreamRouteCallback bindAuthStreamRouteCallback(SenRouter* obj, MemberFn memberFn)
 {
-  return
-    [obj, memberFn](std::shared_ptr<HttpSession> httpSession, const UrlParams& params, asio::ip::tcp::socket socket)
+  return [obj, memberFn](std::shared_ptr<HttpSession> httpSession,
+                         const UrlParams& urlParams,
+                         const QueryParams& queryParams,
+                         asio::ip::tcp::socket socket)
   {
     auto result = validateAuth(obj, *httpSession);
     if (auto* error = std::get_if<JsonResponse>(&result))
     {
       return *error;
     }
-    return (obj->*memberFn)(std::get<AuthResult>(result).session, httpSession, params, std::move(socket));
+    return (obj->*memberFn)(
+      std::get<AuthResult>(result).session, httpSession, urlParams, queryParams, std::move(socket));
   };
 }
 
@@ -402,7 +405,8 @@ void SenRouter::releaseAll()
 }
 
 HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& httpSession,
-                                                 [[maybe_unused]] const UrlParams& urlParams)
+                                                 [[maybe_unused]] const UrlParams& urlParams,
+                                                 [[maybe_unused]] const QueryParams& queryParams)
 {
   try
   {
@@ -433,13 +437,15 @@ HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& h
 }
 
 JsonResponse SenRouter::getVersionHandler([[maybe_unused]] HttpSession& httpSession,
-                                          [[maybe_unused]] const UrlParams& urlParams) const
+                                          [[maybe_unused]] const UrlParams& urlParams,
+                                          [[maybe_unused]] const QueryParams& queryParams) const
 {
   return JsonResponse {httpSuccess, Version {SEN_VERSION_STRING}};
 }
 
 JsonResponse SenRouter::getSessionsHandler([[maybe_unused]] HttpSession& httpSession,
-                                           [[maybe_unused]] const UrlParams& urlParams) const
+                                           [[maybe_unused]] const UrlParams& urlParams,
+                                           [[maybe_unused]] const QueryParams& queryParams) const
 {
   Sessions sessions;
   for (const auto& source: api_.getSessionsDiscoverer().getDetectedSources())
@@ -451,13 +457,14 @@ JsonResponse SenRouter::getSessionsHandler([[maybe_unused]] HttpSession& httpSes
 
 JsonResponse SenRouter::getInterestHandler(ClientSession& clientSession,
                                            [[maybe_unused]] HttpSession& httpSession,
-                                           const UrlParams& urlParams) const
+                                           const UrlParams& urlParams,
+                                           [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getInterest");
 
   if (urlParams.size() != 1)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestOpt = clientSession.interestsManager().getInterestSummary(urlParams[0]);
@@ -471,7 +478,8 @@ JsonResponse SenRouter::getInterestHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getInterestsHandler(ClientSession& clientSession,
                                             [[maybe_unused]] HttpSession& httpSession,
-                                            [[maybe_unused]] const UrlParams& urlParams) const
+                                            [[maybe_unused]] const UrlParams& urlParams,
+                                            [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getInterests");
 
@@ -481,7 +489,8 @@ JsonResponse SenRouter::getInterestsHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
                                               [[maybe_unused]] HttpSession& httpSession,
-                                              [[maybe_unused]] const UrlParams& urlParams) const
+                                              [[maybe_unused]] const UrlParams& urlParams,
+                                              [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "createInterest");
 
@@ -530,13 +539,14 @@ JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::removeInterestHandler(ClientSession& clientSession,
                                               [[maybe_unused]] HttpSession& httpSession,
-                                              const UrlParams& urlParams) const
+                                              const UrlParams& urlParams,
+                                              [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "removeInterest");
 
   if (urlParams.size() != 1)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   if (!clientSession.interestsManager().removeInterest(urlParams[0]))
@@ -549,13 +559,14 @@ JsonResponse SenRouter::removeInterestHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getObjectsHandler(ClientSession& clientSession,
                                           HttpSession& httpSession,
-                                          const UrlParams& urlParams) const
+                                          const UrlParams& urlParams,
+                                          [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getObjects");
 
   if (urlParams.size() != 1)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -586,13 +597,14 @@ JsonResponse SenRouter::getObjectsHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getObjectHandler(ClientSession& clientSession,
                                          HttpSession& httpSession,
-                                         const UrlParams& urlParams) const
+                                         const UrlParams& urlParams,
+                                         [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getObject");
 
   if (urlParams.size() != 2)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -613,13 +625,14 @@ JsonResponse SenRouter::getObjectHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getPropertyHandler(ClientSession& clientSession,
                                            [[maybe_unused]] HttpSession& httpSession,
-                                           const UrlParams& urlParams) const
+                                           const UrlParams& urlParams,
+                                           [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getProperty");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -654,13 +667,14 @@ JsonResponse SenRouter::getPropertyHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::subscribePropertyUpdateHandler(ClientSession& clientSession,
                                                        [[maybe_unused]] HttpSession& httpSession,
-                                                       const UrlParams& urlParams) const
+                                                       const UrlParams& urlParams,
+                                                       [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "subscribePropertyChange");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -715,13 +729,14 @@ JsonResponse SenRouter::subscribePropertyUpdateHandler(ClientSession& clientSess
 
 JsonResponse SenRouter::unsubscribePropertyUpdateHandler(ClientSession& clientSession,
                                                          [[maybe_unused]] HttpSession& httpSession,
-                                                         const UrlParams& urlParams) const
+                                                         const UrlParams& urlParams,
+                                                         [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "unsubscribePropertyChange");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -761,13 +776,14 @@ JsonResponse SenRouter::unsubscribePropertyUpdateHandler(ClientSession& clientSe
 
 JsonResponse SenRouter::getMethodDefinitionHandler(ClientSession& clientSession,
                                                    [[maybe_unused]] HttpSession& httpSession,
-                                                   const UrlParams& urlParams) const
+                                                   const UrlParams& urlParams,
+                                                   [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getMethodDefinition");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -796,13 +812,14 @@ JsonResponse SenRouter::getMethodDefinitionHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
                                             [[maybe_unused]] HttpSession& httpSession,
-                                            const UrlParams& urlParams) const
+                                            const UrlParams& urlParams,
+                                            [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "invokeMethod");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -877,13 +894,14 @@ JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getEventDefinitionHandler(ClientSession& clientSession,
                                                   [[maybe_unused]] HttpSession& httpSession,
-                                                  const UrlParams& urlParams) const
+                                                  const UrlParams& urlParams,
+                                                  [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getEventDefinition");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -912,13 +930,14 @@ JsonResponse SenRouter::getEventDefinitionHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::subscribeEventHandler(ClientSession& clientSession,
                                               [[maybe_unused]] HttpSession& httpSession,
-                                              [[maybe_unused]] const UrlParams& urlParams) const
+                                              [[maybe_unused]] const UrlParams& urlParams,
+                                              [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "subscribeEvent");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -959,13 +978,14 @@ JsonResponse SenRouter::subscribeEventHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::unsubscribeEventHandler(ClientSession& clientSession,
                                                 [[maybe_unused]] HttpSession& httpSession,
-                                                [[maybe_unused]] const UrlParams& urlParams) const
+                                                [[maybe_unused]] const UrlParams& urlParams,
+                                                [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "unsubscribeEvent");
 
   if (urlParams.size() != 3)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
@@ -1006,13 +1026,14 @@ JsonResponse SenRouter::unsubscribeEventHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getInvokeMethodStatusHandler(ClientSession& clientSession,
                                                      [[maybe_unused]] HttpSession& httpSession,
-                                                     const UrlParams& urlParams) const
+                                                     const UrlParams& urlParams,
+                                                     [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getInvokeMethodStatus");
 
   if (urlParams.size() != 4)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   try
@@ -1035,6 +1056,7 @@ JsonResponse SenRouter::getInvokeMethodStatusHandler(ClientSession& clientSessio
 JsonResponse SenRouter::getNotificationsHandler(ClientSession& clientSession,
                                                 std::shared_ptr<HttpSession> httpSession,
                                                 [[maybe_unused]] const UrlParams& urlParams,
+                                                [[maybe_unused]] const QueryParams& queryParams,
                                                 asio::ip::tcp::socket socket) const
 {
   logClientSession(clientSession, "getNotificationsSSE");
@@ -1061,13 +1083,14 @@ JsonResponse SenRouter::getNotificationsHandler(ClientSession& clientSession,
 
 JsonResponse SenRouter::getTypeIntrospection([[maybe_unused]] const ClientSession& clientSession,
                                              [[maybe_unused]] HttpSession& httpSession,
-                                             const UrlParams& urlParams) const
+                                             const UrlParams& urlParams,
+                                             [[maybe_unused]] const QueryParams& queryParams) const
 {
   logClientSession(clientSession, "getTypeIntrospection");
 
   if (urlParams.size() != 1)
   {
-    return getErrorInvalidParams();
+    return getErrorInvalidUrlParams();
   }
 
   const auto& typeName = urlParams[0];

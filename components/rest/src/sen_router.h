@@ -56,105 +56,128 @@ public:
 private:
   /// Authorize and returns a new client session token for the requesting client.
   /// Token is returned as a cookie and also as the response body.
-  HttpResponse clientAuthSessionHandler(HttpSession& httpSession, const UrlParams& urlParams);
+  HttpResponse clientAuthSessionHandler(HttpSession& httpSession,
+                                        const UrlParams& urlParams,
+                                        const QueryParams& queryParams);
 
   /// Returns all the available Sen sessions.
-  JsonResponse getSessionsHandler(HttpSession& httpSession, const UrlParams& urlParams) const;
+  JsonResponse getSessionsHandler(HttpSession& httpSession,
+                                  const UrlParams& urlParams,
+                                  const QueryParams& queryParams) const;
 
   /// Returns the Sen version
-  JsonResponse getVersionHandler(HttpSession& httpSession, const UrlParams& urlParams) const;
+  JsonResponse getVersionHandler(HttpSession& httpSession,
+                                 const UrlParams& urlParams,
+                                 const QueryParams& queryParams) const;
 
   /// Returns all the available objects for a given interest.
   JsonResponse getObjectsHandler(ClientSession& clientSession,
                                  HttpSession& httpSession,
-                                 const UrlParams& urlParams) const;
+                                 const UrlParams& urlParams,
+                                 const QueryParams& queryParams) const;
 
   /// Returns all the information of a given object for a given interest.
   /// It also returns all the links to other resources such as URL for methods and properties.
   JsonResponse getObjectHandler(ClientSession& clientSession,
                                 HttpSession& httpSession,
-                                const UrlParams& urlParams) const;
+                                const UrlParams& urlParams,
+                                const QueryParams& queryParams) const;
 
   /// Returns all the information of a Sen object property for a given interest.
   JsonResponse getPropertyHandler(ClientSession& clientSession,
                                   HttpSession& httpSession,
-                                  const UrlParams& urlParams) const;
+                                  const UrlParams& urlParams,
+                                  const QueryParams& queryParams) const;
 
   /// Subscribe to property updates of a Sen object for a given interest.
   /// Notifications related to the subscription will be returned as SSE (server-sent-events) on the notifications
   /// endpoint.
   JsonResponse subscribePropertyUpdateHandler(ClientSession& clientSession,
                                               HttpSession& httpSession,
-                                              const UrlParams& urlParams) const;
+                                              const UrlParams& urlParams,
+                                              const QueryParams& queryParams) const;
 
   /// Unsubscribe from property updates of a Sen object for a given interest.
   JsonResponse unsubscribePropertyUpdateHandler(ClientSession& clientSession,
                                                 HttpSession& httpSession,
-                                                const UrlParams& urlParams) const;
+                                                const UrlParams& urlParams,
+                                                const QueryParams& queryParams) const;
 
   /// Returns the definition of a Sen object method for a given interest.
   JsonResponse getMethodDefinitionHandler(ClientSession& clientSession,
                                           HttpSession& httpSession,
-                                          const UrlParams& urlParams) const;
+                                          const UrlParams& urlParams,
+                                          const QueryParams& queryParams) const;
 
   /// Invokes a Sen object method. It will return the invocation result if it is a setter or a getter,
   /// or asynchronously as a SSE notification otherwise.
   JsonResponse invokeMethodHandler(ClientSession& clientSession,
                                    HttpSession& httpSession,
-                                   const UrlParams& urlParams) const;
+                                   const UrlParams& urlParams,
+                                   const QueryParams& queryParams) const;
 
   /// Returns the status of a Sen object method invocation.
   JsonResponse getInvokeMethodStatusHandler(ClientSession& clientSession,
                                             HttpSession& httpSession,
-                                            const UrlParams& urlParams) const;
+                                            const UrlParams& urlParams,
+                                            const QueryParams& queryParams) const;
 
   /// Returns the definition of a Sen object event for a given interest.
   JsonResponse getEventDefinitionHandler(ClientSession& clientSession,
                                          HttpSession& httpSession,
-                                         const UrlParams& urlParams) const;
+                                         const UrlParams& urlParams,
+                                         const QueryParams& queryParams) const;
 
   /// Subscribe to events updates of a Sen object for a given interest.
   /// Notifications related to the subscription will be returned as SSE (server-sent-events) on the notifications
   /// endpoint.
   JsonResponse subscribeEventHandler(ClientSession& clientSession,
                                      HttpSession& httpSession,
-                                     const UrlParams& urlParams) const;
+                                     const UrlParams& urlParams,
+                                     const QueryParams& queryParams) const;
 
   /// Unsubscribe from event updates of a Sen object for a given interest.
   JsonResponse unsubscribeEventHandler(ClientSession& clientSession,
                                        HttpSession& httpSession,
-                                       const UrlParams& urlParams) const;
+                                       const UrlParams& urlParams,
+                                       const QueryParams& queryParams) const;
 
   /// Returns information related to a previously created interest.
   JsonResponse getInterestHandler(ClientSession& clientSession,
                                   HttpSession& httpSession,
-                                  const UrlParams& urlParams) const;
+                                  const UrlParams& urlParams,
+                                  const QueryParams& queryParams) const;
 
   /// Returns all the current interests.
   JsonResponse getInterestsHandler(ClientSession& clientSession,
                                    HttpSession& httpSession,
-                                   const UrlParams& urlParams) const;
+                                   const UrlParams& urlParams,
+                                   const QueryParams& queryParams) const;
 
   /// Creates a new interest using a SQL query and an unique interest name.
   JsonResponse createInterestHandler(ClientSession& clientSession,
                                      HttpSession& httpSession,
-                                     const UrlParams& urlParams) const;
+                                     const UrlParams& urlParams,
+                                     const QueryParams& queryParams) const;
 
   /// Removes a given interest
   JsonResponse removeInterestHandler(ClientSession& clientSession,
                                      HttpSession& httpSession,
-                                     const UrlParams& urlParams) const;
+                                     const UrlParams& urlParams,
+                                     const QueryParams& queryParams) const;
 
   /// Blocking handler returning server-sent-events notifications for a client session.
   JsonResponse getNotificationsHandler(ClientSession& clientSession,
                                        std::shared_ptr<HttpSession> httpSession,
                                        const UrlParams& urlParams,
+                                       const QueryParams& queryParams,
                                        asio::ip::tcp::socket socket) const;
 
   /// Returns type introspection
   JsonResponse getTypeIntrospection(const ClientSession& clientSession,
                                     HttpSession& httpSession,
-                                    const UrlParams& urlParams) const;
+                                    const UrlParams& urlParams,
+                                    const QueryParams& queryParams) const;
 
 private:
   // Helpers

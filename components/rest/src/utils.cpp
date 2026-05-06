@@ -93,10 +93,16 @@ std::shared_ptr<spdlog::logger> getLogger()
   }
 }
 
-[[nodiscard]] const JsonResponse& getErrorInvalidParams()
+[[nodiscard]] const JsonResponse& getErrorInvalidUrlParams()
 {
-  static const JsonResponse errorInvalidParams(httpBadRequestError, Error {"Invalid params"});
-  return errorInvalidParams;
+  static const JsonResponse errorInvalidUrlParams(httpBadRequestError, Error {"Invalid url params"});
+  return errorInvalidUrlParams;
+}
+
+[[nodiscard]] const JsonResponse& getErrorInvalidQueryParams()
+{
+  static const JsonResponse errorInvalidQueryParams(httpBadRequestError, Error {"Invalid query params"});
+  return errorInvalidQueryParams;
 }
 
 [[nodiscard]] const JsonResponse& getErrorNotFound()

@@ -119,17 +119,26 @@ int HttpSession::onMessageComplete(llhttp_t* parser)
   }
 
   HttpResponse response;
-  auto route = session->router_->matchPath(method.value(), session->request_.path_);
-  if (route.has_value())
+  if (const auto resultRoute = session->router_->matchPath(method.value(), session->request_.path_); resultRoute.isOk())
   {
-    if (std::holds_alternative<RouteCallback>(route->callback))
+    auto& route = resultRoute.getValue();
+    if (route.has_value())
     {
-      response = std::get<RouteCallback>(route->callback)(*session, route.value().params);
+      if (std::holds_alternative<RouteCallback>(route->callback))
+      {
+        response =
+          std::get<RouteCallback>(route->callback)(*session, route.value().urlParams, route.value().queryParams);
+      }
+      else if (std::holds_alternative<StreamRouteCallback>(route->callback))
+      {
+        response = std::get<StreamRouteCallback>(route->callback)(
+          session, route.value().urlParams, route.value().queryParams, session->takeSocket());
+      }
     }
-    else if (std::holds_alternative<StreamRouteCallback>(route->callback))
-    {
-      response = std::get<StreamRouteCallback>(route->callback)(session, route.value().params, session->takeSocket());
-    }
+  }
+  else
+  {
+    response = getErrorInvalidQueryParams();
   }
 
   if (session->socket_.is_open())
