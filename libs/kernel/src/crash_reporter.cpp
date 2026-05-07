@@ -33,6 +33,7 @@
 #include "stl/sen/kernel/kernel_objects.stl.h"
 
 // cpptrace
+#include "cpptrace/basic.hpp"
 #include "cpptrace/cpptrace.hpp"
 
 // linux
@@ -328,6 +329,7 @@ UncaughtException CrashReporter::makeExceptionData(std::string_view message, Exc
 
 void CrashReporter::collectExceptionData()
 {
+  bool hasOwnTrace = false;
   if (auto currentException = std::current_exception(); currentException != nullptr)
   {
     try
@@ -338,6 +340,7 @@ void CrashReporter::collectExceptionData()
     {
       report_.errorData.exceptionData = makeExceptionData(e.message(), ExceptionKind::runtime);
       collectStackTrace(e.trace());
+      hasOwnTrace = true;
     }
     catch (const std::logic_error& e)
     {
@@ -358,8 +361,12 @@ void CrashReporter::collectExceptionData()
   }
   else
   {
-    collectStackTrace(cpptrace::generate_trace());
     report_.errorData.errorMessage.push_back("Terminate called without an active exception");
+  }
+
+  if (!hasOwnTrace)
+  {
+    collectStackTrace(cpptrace::generate_trace());
   }
 }
 

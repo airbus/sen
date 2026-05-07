@@ -1,0 +1,5 @@
+package sen.test.crash_report;
+
+class CrashMaker
+{
+}

@@ -1,0 +1,7 @@
+build:
+  - name: crash_runner
+    group: 1
+    imports: [crash_report]
+    objects:
+      - name: crasher
+        class: sen.test.crash_report.CrashMakerImpl
