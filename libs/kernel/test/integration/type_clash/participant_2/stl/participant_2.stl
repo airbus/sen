@@ -1,0 +1,11 @@
+package sen.test.type_clash;
+
+class ClashType
+{
+  var val : u32 [writable];
+}
+
+class App2Class
+{
+  fn shutdownKernel();
+}
