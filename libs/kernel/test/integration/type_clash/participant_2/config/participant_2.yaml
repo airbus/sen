@@ -1,0 +1,24 @@
+load:
+  - name: ether
+    group: 10
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65454
+
+build:
+  - name: app_2
+    freqHz: 100
+    group: 2
+    imports: [type_clash_participant_2]
+    objects:
+      - name: obj_app_2
+        class: sen.test.type_clash.App2ClassImpl
+        bus: session.bus
+      - name: obj_clash
+        class: sen.test.type_clash.ClashTypeImpl
+        bus: session.bus

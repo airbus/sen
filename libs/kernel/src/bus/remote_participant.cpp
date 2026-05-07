@@ -103,7 +103,8 @@ template <typename T>
 [[nodiscard]] inline MaybeConstTypeHandle<ClassType> findClosestParent(ConstTypeHandle<ClassType> meta,
                                                                        const CustomTypeRegistry& localRegistry)
 {
-  if (localRegistry.get(meta->getQualifiedName().data()))
+  if (auto localType = localRegistry.get(meta->getQualifiedName().data());
+      localType && localType.value()->isClassType())
   {
     return meta;
   }
@@ -1349,7 +1350,18 @@ void RemoteParticipant::typesInfoResponse(const TypesInfoResponse& msg)
         [this](const NonClassSpecResponse& response)
         {
           logger_->debug("RP {}: received type {}", getDebugName(), response.spec.qualifiedName);
-          registerRemoteType(response.spec);
+          try
+          {
+            registerRemoteType(response.spec);
+          }
+          catch (const std::exception& err)
+          {
+            logger_->warn("RP {}: failed to register remote type '{}' from participant {}: {}",
+                          getDebugName(),
+                          response.spec.qualifiedName,
+                          ownerAddress_.id.get(),
+                          err.what());
+          }
         }},
       type);
   }
@@ -1538,9 +1550,22 @@ bool RemoteParticipant::tryResolvePendingClasses()
     if (!anyDependencyMissing)
     {
       resolvedAnything = true;
-      logger_->debug("RP {}: remote class {} resolved", getDebugName(), spec.qualifiedName);
 
-      registerRemoteType(spec);
+      try
+      {
+        registerRemoteType(spec);
+        logger_->debug("RP {}: remote class {} resolved", getDebugName(), spec.qualifiedName);
+      }
+      catch (const std::exception& err)
+      {
+        logger_->warn("RP {}: failed to register remote type '{}' from participant {}: {}",
+                      getDebugName(),
+                      spec.qualifiedName,
+                      ownerAddress_.id.get(),
+                      err.what());
+        incompatibleClassHashes_.insert(classHash);
+      }
+
       resolvedClassHashes.push_back(classHash);
       addOrRejectObjectsOfClass(classHash);
     }
