@@ -1,0 +1,16 @@
+package query_test;
+
+enum Status : u8
+{
+  idle,
+  active,
+  error
+}
+
+optional<Status> MaybeStatus;
+
+class QueryTestClass
+{
+  var currentStatus : Status [writable];
+  var targetStatus  : MaybeStatus [writable];
+}
