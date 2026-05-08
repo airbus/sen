@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/lang/vm.h"
 
@@ -14,6 +15,7 @@
 
 // std
 #include <csignal>
+#include <cstdint>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -943,5 +945,85 @@ TEST(Compiler, operations)
     std::string program = R"(SELECT se.Aircraft FROM se.env WHERE 20.40 +* 43.3)";
 
     checkCompilationFailure(program);
+  }
+}
+
+/// @test
+/// Checks comparison against optional types and user defined types
+/// @requirements(SEN-363)
+TEST(Compiler, userDefinedTypesAndOptionals)
+{
+  // User defined type correctly matching
+  {
+    std::string program = R"(SELECT rpr.PhysicalEntity FROM se.env WHERE currentStatus = Status.active)";
+
+    VM vm;
+    auto result = vm.compile(vm.parse(program));
+    EXPECT_TRUE(result.isOk());
+    auto chunk = std::move(result).getValue();
+
+    std::vector<sen::lang::ValueGetter> environment = {
+      []() -> sen::lang::Value { return sen::std_util::checkedConversion<uint8_t>(1); },
+      []() -> sen::lang::Value { return sen::std_util::checkedConversion<uint8_t>(1); }};
+
+    auto codeResult = vm.interpret(chunk, environment);
+    EXPECT_TRUE(codeResult.isOk());
+    EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
+    EXPECT_TRUE(std::get<bool>(codeResult.getValue()));
+  }
+
+  // User defined type failing the match
+  {
+    std::string program = R"(SELECT rpr.PhysicalEntity FROM se.env WHERE currentStatus = Status.error)";
+
+    VM vm;
+    auto result = vm.compile(vm.parse(program));
+    EXPECT_TRUE(result.isOk());
+    auto chunk = std::move(result).getValue();
+
+    std::vector<sen::lang::ValueGetter> environment = {
+      []() -> sen::lang::Value { return sen::std_util::checkedConversion<uint8_t>(1); },
+      []() -> sen::lang::Value { return sen::std_util::checkedConversion<uint8_t>(2); }};
+
+    auto codeResult = vm.interpret(chunk, environment);
+    EXPECT_TRUE(codeResult.isOk());
+    EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
+    EXPECT_FALSE(std::get<bool>(codeResult.getValue()));
+  }
+
+  // Optional type with a valid value
+  {
+    std::string program = R"(SELECT rpr.PhysicalEntity FROM se.env WHERE targetStatus = 10)";
+
+    VM vm;
+    auto result = vm.compile(vm.parse(program));
+    EXPECT_TRUE(result.isOk());
+    auto chunk = std::move(result).getValue();
+
+    std::vector<sen::lang::ValueGetter> environment = {[]() -> sen::lang::Value
+                                                       { return sen::std_util::checkedConversion<uint8_t>(10); }};
+
+    auto codeResult = vm.interpret(chunk, environment);
+    EXPECT_TRUE(codeResult.isOk());
+    EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
+    EXPECT_TRUE(std::get<bool>(codeResult.getValue()));
+  }
+
+  // Empty optional type
+  {
+    std::string program = R"(SELECT rpr.PhysicalEntity FROM se.env WHERE targetStatus = 10)";
+
+    VM vm;
+    auto result = vm.compile(vm.parse(program));
+    EXPECT_TRUE(result.isOk());
+    auto chunk = std::move(result).getValue();
+
+    std::vector<sen::lang::ValueGetter> environment = {[]() -> sen::lang::Value
+                                                       { return sen::lang::VariantAccessError {}; }};
+
+    auto codeResult = vm.interpret(chunk, environment);
+    EXPECT_TRUE(codeResult.isOk());
+    EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
+    EXPECT_FALSE(std::get<bool>(codeResult.getValue()));
   }
 }

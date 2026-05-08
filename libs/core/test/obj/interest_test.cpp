@@ -8,6 +8,7 @@
 // sen
 #include "sen/core/base/hash32.h"
 #include "sen/core/lang/vm.h"
+#include "sen/core/meta/class_type.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/native_types.h"
@@ -17,6 +18,9 @@
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/meta/variant_type.h"
 #include "sen/core/obj/interest.h"
+
+// generated code
+#include "stl/query_test.stl.h"
 
 // google test
 #include <gtest/gtest.h>
@@ -635,5 +639,63 @@ TEST(Interest, getVarInfoList)
                                    sen::CustomTypeRegistry());
 
     EXPECT_ANY_THROW(std::ignore = interest->getOrComputeVarInfoList(type.type()));
+  }
+}
+
+/// @test
+/// Checks query evaluation against an object holding custom enums and optionals
+/// @requirements(SEN-363)
+TEST(Interest, QueriesAgainstRealObjectWithCustomTypes)
+{
+  sen::CustomTypeRegistry registry;
+  registry.add(query_test::QueryTestClassInterface::meta());
+
+  auto classType = registry.get("query_test.QueryTestClass").value();
+
+  // Try against enum
+  {
+    auto interest =
+      Interest::make(R"(SELECT query_test.QueryTestClass FROM se.env WHERE currentStatus = "error")", registry);
+
+    auto varList = interest->getOrComputeVarInfoList(classType->asClassType());
+    EXPECT_FALSE(varList.empty());
+    EXPECT_EQ(varList.front().property->getName(), "currentStatus");
+
+    sen::lang::VM vm;
+    std::vector<sen::lang::ValueGetter> env = {[]() -> sen::lang::Value { return std::string("error"); }};
+
+    auto result = vm.interpret(interest->getQueryCode(), env);
+    ASSERT_TRUE(result.isOk());
+    EXPECT_TRUE(sen::lang::extract<bool>(result.getValue()));
+  }
+
+  // Optional containing a matching value
+  {
+    auto interest =
+      Interest::make(R"(SELECT query_custom_types.QueryTestClass FROM se.env WHERE targetStatus = "active")", registry);
+
+    auto varList = interest->getOrComputeVarInfoList(classType->asClassType());
+    EXPECT_FALSE(varList.empty());
+    EXPECT_EQ(varList.front().property->getName(), "targetStatus");
+
+    sen::lang::VM vm;
+    std::vector<sen::lang::ValueGetter> env = {[]() -> sen::lang::Value { return std::string("active"); }};
+
+    auto result = vm.interpret(interest->getQueryCode(), env);
+    ASSERT_TRUE(result.isOk());
+    EXPECT_TRUE(sen::lang::extract<bool>(result.getValue()));
+  }
+
+  // Empty optional
+  {
+    auto interest =
+      Interest::make(R"(SELECT query_test.QueryTestClass FROM se.env WHERE targetStatus = "active")", registry);
+
+    sen::lang::VM vm;
+    std::vector<sen::lang::ValueGetter> env = {[]() -> sen::lang::Value { return sen::lang::VariantAccessError {}; }};
+
+    auto result = vm.interpret(interest->getQueryCode(), env);
+    ASSERT_TRUE(result.isOk());
+    EXPECT_FALSE(sen::lang::extract<bool>(result.getValue()));
   }
 }

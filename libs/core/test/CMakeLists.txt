@@ -111,6 +111,7 @@ add_library(core_test_obj_generated OBJECT)
 sen_generate_cpp(
   TARGET core_test_obj_generated
   STL_FILES obj/stl/example_class.stl
+  STL_FILES obj/stl/query_test.stl
   BASE_PATH obj
 )
 
