@@ -525,7 +525,7 @@ void NativeObject::senImplProduceEvent(impl::EventBuffer<T...>& eventBuffer,
                       transportMode,
                       addToTransportQueue,
                       outputEventQueue_.load(),
-                      workQueue_.load(),
+                      &postCommitEvents_,
                       this,
                       args...);
 }

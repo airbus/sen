@@ -8,6 +8,7 @@
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/timestamp.h"
+#include "sen/core/obj/object_source.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
@@ -59,6 +60,7 @@ TEST(TestKernel, oneComponent)
   // to track the evolution of the test
   int32_t counter = 0;
   int32_t eventCount = 0;
+  int32_t propCount = 0;
   sen::TimeStamp lastTime;
 
   // the object that we will stimulate
@@ -68,24 +70,36 @@ TEST(TestKernel, oneComponent)
   sen::kernel::TestComponent component;
 
   // on init we register the object and set a callback to track event counts
+  std::shared_ptr<sen::ObjectSource> source;
   component.onInit(
     [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
     {
-      auto source = api.getSource("local.test");
+      source = api.getSource("local.test");
       source->add(object);
-      object->onSomethingHappened({api.getWorkQueue(), [&]() { ++eventCount; }}).keep();
       return sen::kernel::done();
     });
 
   // on each iteration we track the count and last simulation time
+  bool emitEvent = true;
+  bool emitProp = true;
   component.onRun(
     [&](auto& api)
     {
+      object->onSomethingHappened({api.getWorkQueue(), [&]() { ++eventCount; }}).keep();
+      object->onPropChanged({api.getWorkQueue(), [&]() { ++propCount; }}).keep();
       return api.execLoop(std::chrono::seconds(1),
                           [&]()
                           {
                             ++counter;
                             lastTime = api.getTime();
+                            if (emitEvent)
+                            {
+                              object->somethingHappened();
+                            }
+                            if (emitProp)
+                            {
+                              object->setNextProp(object->getProp() + 1);
+                            }
                           });
     });
 
@@ -93,52 +107,72 @@ TEST(TestKernel, oneComponent)
   sen::kernel::TestKernel kernel(&component);
 
   // iteration 0, time is 0
+  emitEvent = false;
+  emitProp = false;
   kernel.step();
   EXPECT_EQ(1, counter);
   EXPECT_EQ(0, eventCount);
+  EXPECT_EQ(0, object->getProp());
+  EXPECT_EQ(0, propCount);
   EXPECT_EQ(std::chrono::seconds(0), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(1), kernel.getTime().sinceEpoch().toChrono());
 
-  // emit the event in iteration 1
-  object->somethingHappened();
-
   // iteration 1, sim time was 1s, we have executed 2s, we emit the event
+  emitEvent = true;
+  emitProp = true;
   kernel.step();
   EXPECT_EQ(2, counter);
   EXPECT_EQ(0, eventCount);
+  EXPECT_EQ(1, object->getProp());
+  EXPECT_EQ(0, propCount);
   EXPECT_EQ(std::chrono::seconds(1), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(2), kernel.getTime().sinceEpoch().toChrono());
 
   // iteration 2, sim time was 2s, we have executed 3s, we received the event
+  emitEvent = false;
+  emitProp = false;
   kernel.step();
   EXPECT_EQ(3, counter);
   EXPECT_EQ(1, eventCount);
+  EXPECT_EQ(1, object->getProp());
+  EXPECT_EQ(1, propCount);
   EXPECT_EQ(std::chrono::seconds(2), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(3), kernel.getTime().sinceEpoch().toChrono());
 
   for (std::size_t i = counter; i < 10; ++i)
   {
+    emitEvent = false;
+    emitProp = false;
     kernel.step();
     EXPECT_EQ(i + 1, counter);
     EXPECT_EQ(1, eventCount);
+    EXPECT_EQ(1, object->getProp());
+    EXPECT_EQ(1, propCount);
     EXPECT_EQ(std::chrono::seconds(counter - 1), lastTime.sinceEpoch().toChrono());
     EXPECT_EQ(std::chrono::seconds(counter), kernel.getTime().sinceEpoch().toChrono());
   }
 
-  // emit the event in iteration n
-  object->somethingHappened();
-
   // iteration n
+  emitEvent = true;
+  emitProp = true;
   kernel.step();
   EXPECT_EQ(1, eventCount);
+  EXPECT_EQ(2, object->getProp());
+  EXPECT_EQ(1, propCount);
   EXPECT_EQ(std::chrono::seconds(counter - 1), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(counter), kernel.getTime().sinceEpoch().toChrono());
 
   // iteration n+1 we should receive the event
+  emitEvent = false;
+  emitProp = false;
   kernel.step();
   EXPECT_EQ(2, eventCount);
+  EXPECT_EQ(2, object->getProp());
+  EXPECT_EQ(2, propCount);
   EXPECT_EQ(std::chrono::seconds(counter - 1), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(counter), kernel.getTime().sinceEpoch().toChrono());
+
+  source.reset();
 }
 
 /// @test
