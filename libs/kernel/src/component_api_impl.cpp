@@ -29,6 +29,12 @@
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
 
+// spdlog
+#include <spdlog/details/registry.h>
+#include <spdlog/logger.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+
 // std
 #include <atomic>
 #include <cstdint>
@@ -98,6 +104,17 @@ FuncResult execLoop(Runner* runner, Duration cycleTime, std::function<void()>&& 
 
 ::sen::impl::WorkQueue* getWorkQueue(Runner* runner) { return runner->getWorkQueue(); }
 
+std::shared_ptr<spdlog::logger> getOrCreateLogger(const std::string& loggerName)
+{
+  auto logger = spdlog::get(loggerName);
+  return logger ? logger : spdlog::stdout_color_mt(loggerName);
+}
+
+void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func)
+{
+  spdlog::details::registry::instance().apply_all(std::move(func));
+}
+
 }  // namespace impl
 
 //--------------------------------------------------------------------------------------------------------------
@@ -140,6 +157,16 @@ const ProcessInfo* KernelApi::fetchOwnerInfo(const Object* object) const noexcep
 const std::string& KernelApi::getAppName() const noexcept { return kernel_.getConfig().getParams().appName; }
 
 ::sen::impl::WorkQueue* KernelApi::getWorkQueue() const noexcept { return impl::getWorkQueue(runner_); }
+
+std::shared_ptr<spdlog::logger> KernelApi::getOrCreateLogger(const std::string& loggerName)
+{
+  return impl::getOrCreateLogger(loggerName);
+}
+
+void KernelApi::applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func)
+{
+  impl::applyToAllLoggers(std::move(func));
+}
 
 //--------------------------------------------------------------------------------------------------------------
 // ConfigGetter

@@ -55,29 +55,19 @@ build:
         prop1: some value
 ```
 
-To get the logger, we need to fetch it from the `spdlog` registry. To make it easy, we define a
-function that looks for a logger named `my_logger`. If not present, this means that it was not
-configured. If so, we create a fallback logger to stdout, and we can already use the just-created
-logger to notify about it.
+To get the logger, we need to fetch it from the `spdlog` registry. To make it easy, we made the
+registration of the logger accessible automatically via the `sen::kernel::KernelApi` using the
+static method called `getOrCreateLogger`:
 
 ```c++ title="getLogger function" linenums="1"
 [[nodiscard]] std::shared_ptr<spdlog::logger> getLogger()
 {
-  constexpr auto loggerName = "my_logger";
-  static auto logger = spdlog::get(loggerName);
-  if (!logger)
-  {
-    logger = spdlog::stdout_color_st(loggerName);
-    logger->set_level(spdlog::level::debug);
-    logger->warn("Logger was not pre-configured -> logging to stdout");
-  }
-  return logger;
+  return sen::kernel::KernelApi::getOrCreateLogger("my_logger");
 }
 ```
 
 We can now use our logger in the component's `run()` function. We can flush the logger's buffer to
-ensure that the logs are written to file immediately. Alternatively, we can set
-`spdlog::flush_every(std::chrono::seconds(5));`.
+ensure that the logs are written to file immediately.
 
 You will normally use the syntax `logger->info(..)` (or `trace` etc.), but be aware that this won't
 output the file and line number. This is only included when using macros such as

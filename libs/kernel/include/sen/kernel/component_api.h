@@ -33,6 +33,9 @@
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
 
+// spdlog
+#include <spdlog/logger.h>
+
 // std
 #include <atomic>
 #include <cstdint>
@@ -80,6 +83,10 @@ void remoteProcessLost(RunApi& api, const ProcessInfo& processInfo);
 [[nodiscard]] const ProcessInfo* fetchOwnerInfo(const Object* object);
 
 [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue(Runner* runner);
+
+[[nodiscard]] std::shared_ptr<spdlog::logger> getOrCreateLogger(const std::string& loggerName);
+
+void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func);
 
 }  // namespace impl
 
@@ -160,6 +167,13 @@ public:
   /// Gets the path to the configuration file used to construct the kernel.
   /// It might be empty if the kernel is programmatically configured.
   [[nodiscard]] std::filesystem::path getConfigFilePath() const noexcept { return kernel_.getConfigPath(); }
+
+  /// Registers a new logger in the kernel if it does not exist, or returns the existing one by name. Used to propagate
+  /// the logger configuration to other packages/components that use it
+  [[nodiscard]] static std::shared_ptr<spdlog::logger> getOrCreateLogger(const std::string& loggerName);
+
+  /// Applies the input function to all loggers kept in the logger registry. Used by the logmaster component.
+  static void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func);
 
 private:
   template <typename T>

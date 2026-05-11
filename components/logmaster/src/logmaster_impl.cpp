@@ -15,7 +15,6 @@
 #include "stl/sen/kernel/log.stl.h"
 
 // spdlog
-#include <spdlog/details/registry.h>
 #include <spdlog/logger.h>
 
 // std
@@ -110,9 +109,7 @@ void LogMasterImpl::setLevelImpl(const ::sen::kernel::log::LogLevel& level)
 
 void LogMasterImpl::checkForLoggers()
 {
-  auto& reg = spdlog::details::registry::instance();
-
-  reg.apply_all(
+  kernel::KernelApi::applyToAllLoggers(
     [this](auto logger)
     {
       const auto name = getLoggerName(logger);

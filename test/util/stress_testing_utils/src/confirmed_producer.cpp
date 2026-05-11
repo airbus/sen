@@ -15,9 +15,11 @@
 // generated code
 #include "stl/stress_testing_utils/confirmed_producer.stl.h"
 
+// kernel
+#include "sen/kernel/component_api.h"
+
 // spdlog
 #include <spdlog/logger.h>
-#include <spdlog/spdlog.h>
 
 // std
 #include <cstdint>
@@ -105,7 +107,7 @@ private:
   }
 
 private:
-  std::shared_ptr<spdlog::logger> logger_ = spdlog::get("my_logger");
+  std::shared_ptr<spdlog::logger> logger_ = sen::kernel::KernelApi::getOrCreateLogger("my_logger");
   sen::UuidRandomGenerator uuidGen_;
 };
 

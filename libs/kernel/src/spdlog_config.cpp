@@ -47,6 +47,7 @@
 #include <filesystem>
 #include <set>
 #include <string>
+#include <utility>
 
 namespace sen::kernel::impl
 {
@@ -198,6 +199,7 @@ void registerLoggers(const log::Config& config, const SinkMap& sinkMap, spdlog::
 {
   for (const auto& loggerConfig: config.loggers)
   {
+    // collect sinks from the configuration
     std::vector<std::shared_ptr<::spdlog::sinks::sink>> sinks;
     sinks.reserve(loggerConfig.sinks.size());
     for (auto& sinkName: loggerConfig.sinks)
@@ -208,16 +210,23 @@ void registerLoggers(const log::Config& config, const SinkMap& sinkMap, spdlog::
     auto logger = ::spdlog::get(loggerConfig.name);
     if (!logger)
     {
+      // create and register a new logger
       logger = std::make_shared<::spdlog::logger>(loggerConfig.name, sinks.begin(), sinks.end());
+      registry.register_logger(logger);
+    }
+    else
+    {
+      // update sinks on already existing logger
+      logger->sinks() = std::move(sinks);
     }
 
+    // apply log level config and pattern
     if (!loggerConfig.pattern.empty())
     {
       logger->set_pattern(loggerConfig.pattern);
     }
 
     logger->set_level(mapLogLevel(loggerConfig.level));
-    registry.register_logger(logger);
   }
 }
 
@@ -227,6 +236,7 @@ void validate(const log::Config& config)
   for (const auto& sinkConfig: config.sinks)
   {
     if (sinkConfig.name.empty())
+
     {
       throwRuntimeError("empty sink name");
     }
