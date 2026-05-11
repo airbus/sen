@@ -27,3 +27,16 @@ race:sen::impl::WorkQueueImpl::push
 
 # TODO(SEN-1501): spdlog + pybind11 interaction
 race:pybind11::scoped_interpreter::scoped_interpreter
+
+# TODO(SEN-1608): signal handling thread safety / reentrance
+signal:sen::impl::defaultCheckHandler
+signal:sen::impl::terminateHandler
+
+# TODO(SEN-1608): race during rnd number generation
+race:std::mersenne_twister_engine
+
+# TODO(SEN-1612): race in asio is_open
+race:asio::detail::reactive_socket_service_base::is_open
+
+# TODO(SEN-1613): heap-use-after-free
+race:moodycamel::ConcurrentQueue<std::unique_ptr<std::vector<unsigned char, std::allocator<unsigned char>>, std::default_delete<std::vector<unsigned char, std::allocator<unsigned char>>>>, moodycamel::ConcurrentQueueDefaultTraits>::try_get_block_from_initial_pool
