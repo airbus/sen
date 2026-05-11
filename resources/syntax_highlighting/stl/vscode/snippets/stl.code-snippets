@@ -1,0 +1,159 @@
+{
+  "Package header": {
+    "prefix": "package",
+    "body": [
+      "package ${1:my.package};",
+      ""
+    ],
+    "description": "Package declaration"
+  },
+  "Import statement": {
+    "prefix": "import",
+    "body": [
+      "import \"${1:stl/sen/kernel/basic_types.stl}\""
+    ],
+    "description": "Import another STL file"
+  },
+  "Struct": {
+    "prefix": "struct",
+    "body": [
+      "struct ${1:Name}",
+      "{",
+      "  ${2:field} : ${3:type}",
+      "}"
+    ],
+    "description": "Struct declaration"
+  },
+  "Empty struct": {
+    "prefix": "structempty",
+    "body": [
+      "struct ${1:Name};"
+    ],
+    "description": "Empty struct (no fields)"
+  },
+  "Class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:Name}",
+      "{",
+      "  $0",
+      "}"
+    ],
+    "description": "Class declaration"
+  },
+  "Class with parent": {
+    "prefix": "classext",
+    "body": [
+      "class ${1:Name} : extends ${2:Parent}",
+      "{",
+      "  $0",
+      "}"
+    ],
+    "description": "Class that extends a parent class"
+  },
+  "Abstract class": {
+    "prefix": "classabs",
+    "body": [
+      "abstract class ${1:Name}",
+      "{",
+      "  $0",
+      "}"
+    ],
+    "description": "Abstract class declaration"
+  },
+  "Interface": {
+    "prefix": "interface",
+    "body": [
+      "interface ${1:IName}",
+      "{",
+      "  $0",
+      "}"
+    ],
+    "description": "Interface declaration"
+  },
+  "Enum": {
+    "prefix": "enum",
+    "body": [
+      "enum ${1:Name}: ${2:u8}",
+      "{",
+      "  ${3:variant1},",
+      "  ${4:variant2}",
+      "}"
+    ],
+    "description": "Enum declaration"
+  },
+  "Variant": {
+    "prefix": "variant",
+    "body": [
+      "variant ${1:Name}",
+      "{",
+      "  ${2:TypeA},",
+      "  ${3:TypeB}",
+      "}"
+    ],
+    "description": "Variant (tagged-union) declaration"
+  },
+  "Alias": {
+    "prefix": "alias",
+    "body": [
+      "alias ${1:Name} ${2:type};"
+    ],
+    "description": "Alias declaration (no '=' sign)"
+  },
+  "Quantity": {
+    "prefix": "quantity",
+    "body": [
+      "quantity<${1:f32}, ${2:m}> ${3:Name}${4: [min: ${5:0.0}, max: ${6:100.0}]};"
+    ],
+    "description": "Quantity declaration (unit is the abbreviation: m, rad, deg, kph, degC, ...)"
+  },
+  "Sequence": {
+    "prefix": "sequence",
+    "body": [
+      "sequence<${1:type}> ${2:Name};"
+    ],
+    "description": "Unbounded sequence declaration"
+  },
+  "Bounded sequence": {
+    "prefix": "sequenceN",
+    "body": [
+      "sequence<${1:type}, ${2:100}> ${3:Name};"
+    ],
+    "description": "Bounded sequence declaration"
+  },
+  "Array": {
+    "prefix": "array",
+    "body": [
+      "array<${1:type}, ${2:4}> ${3:Name};"
+    ],
+    "description": "Fixed-size array declaration"
+  },
+  "Optional": {
+    "prefix": "optional",
+    "body": [
+      "optional<${1:type}> ${2:Name};"
+    ],
+    "description": "Optional declaration"
+  },
+  "Property": {
+    "prefix": "var",
+    "body": [
+      "var ${1:name} : ${2:type}${3: [${4:static}]};"
+    ],
+    "description": "Class property"
+  },
+  "Method": {
+    "prefix": "fn",
+    "body": [
+      "fn ${1:name}(${2}) -> ${3:type}${4: [${5:const}]};"
+    ],
+    "description": "Class method"
+  },
+  "Event": {
+    "prefix": "event",
+    "body": [
+      "event ${1:name}(${2})${3: [${4:confirmed}]};"
+    ],
+    "description": "Class event"
+  }
+}

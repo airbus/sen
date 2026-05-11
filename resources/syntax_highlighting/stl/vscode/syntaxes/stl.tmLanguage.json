@@ -1,0 +1,310 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Sen STL",
+  "scopeName": "source.stl",
+  "fileTypes": ["stl"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#import" },
+    { "include": "#package" },
+    { "include": "#class-decl" },
+    { "include": "#struct-decl" },
+    { "include": "#enum-decl" },
+    { "include": "#variant-decl" },
+    { "include": "#interface-decl" },
+    { "include": "#quantity-decl" },
+    { "include": "#sequence-decl" },
+    { "include": "#array-decl" },
+    { "include": "#optional-decl" },
+    { "include": "#alias-decl" },
+    { "include": "#member-var" },
+    { "include": "#member-fn" },
+    { "include": "#member-event" },
+    { "include": "#attributes" },
+    { "include": "#types" },
+    { "include": "#keywords" },
+    { "include": "#literals" },
+    { "include": "#strings" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.stl",
+          "begin": "//",
+          "end": "$",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.comment.stl" }
+          },
+          "patterns": [
+            {
+              "match": "@param\\b\\s+([A-Za-z_][A-Za-z0-9_]*)",
+              "captures": {
+                "0": { "name": "storage.type.class.doc.stl" },
+                "1": { "name": "variable.parameter.stl" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "import": {
+      "match": "\\b(import)\\b\\s*(\"[^\"]*\"|'[^']*')",
+      "captures": {
+        "1": { "name": "keyword.control.import.stl" },
+        "2": { "name": "string.quoted.stl" }
+      }
+    },
+    "package": {
+      "match": "\\b(package)\\b\\s+([A-Za-z_][A-Za-z0-9_.]*)?",
+      "captures": {
+        "1": { "name": "keyword.control.package.stl" },
+        "2": { "name": "entity.name.namespace.stl" }
+      }
+    },
+    "class-decl": {
+      "begin": "\\b(?:(abstract)\\s+)?(class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "end": "(?=[{;])",
+      "beginCaptures": {
+        "1": { "name": "storage.modifier.stl" },
+        "2": { "name": "storage.type.class.stl" },
+        "3": { "name": "entity.name.type.class.stl" }
+      },
+      "patterns": [
+        { "match": "\\b(extends|implements)\\b", "name": "keyword.control.inheritance.stl" },
+        { "match": "[A-Za-z_][A-Za-z0-9_.]*", "name": "entity.other.inherited-class.stl" },
+        { "match": ":|,", "name": "punctuation.separator.stl" },
+        { "include": "#comments" }
+      ]
+    },
+    "struct-decl": {
+      "begin": "\\b(struct)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "end": "(?=[{;])",
+      "beginCaptures": {
+        "1": { "name": "storage.type.struct.stl" },
+        "2": { "name": "entity.name.type.struct.stl" }
+      },
+      "patterns": [
+        { "match": ":", "name": "punctuation.separator.stl" },
+        { "match": "[A-Za-z_][A-Za-z0-9_.]*", "name": "entity.other.inherited-class.stl" },
+        { "include": "#comments" }
+      ]
+    },
+    "enum-decl": {
+      "begin": "\\b(enum)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "end": "(?=\\{)",
+      "beginCaptures": {
+        "1": { "name": "storage.type.enum.stl" },
+        "2": { "name": "entity.name.type.enum.stl" }
+      },
+      "patterns": [
+        { "match": ":", "name": "punctuation.separator.stl" },
+        { "include": "#types" }
+      ]
+    },
+    "variant-decl": {
+      "match": "\\b(variant)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "storage.type.variant.stl" },
+        "2": { "name": "entity.name.type.variant.stl" }
+      }
+    },
+    "interface-decl": {
+      "match": "\\b(interface)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "storage.type.interface.stl" },
+        "2": { "name": "entity.name.type.interface.stl" }
+      }
+    },
+    "quantity-decl": {
+      "begin": "\\b(quantity)\\s*<",
+      "end": ">\\s*([A-Za-z_][A-Za-z0-9_]*)?",
+      "beginCaptures": {
+        "1": { "name": "storage.type.quantity.stl" }
+      },
+      "endCaptures": {
+        "1": { "name": "entity.name.type.quantity.stl" }
+      },
+      "patterns": [
+        { "include": "#types" },
+        {
+          "match": "[A-Za-z_][A-Za-z0-9_]*",
+          "name": "support.constant.unit.stl"
+        },
+        { "match": ",", "name": "punctuation.separator.stl" }
+      ]
+    },
+    "sequence-decl": {
+      "begin": "\\b(sequence)\\s*<",
+      "end": ">\\s*([A-Za-z_][A-Za-z0-9_]*)?",
+      "beginCaptures": {
+        "1": { "name": "storage.type.sequence.stl" }
+      },
+      "endCaptures": {
+        "1": { "name": "entity.name.type.sequence.stl" }
+      },
+      "patterns": [
+        { "include": "#types" },
+        { "include": "#literals" },
+        { "match": ",", "name": "punctuation.separator.stl" }
+      ]
+    },
+    "array-decl": {
+      "begin": "\\b(array)\\s*<",
+      "end": ">\\s*([A-Za-z_][A-Za-z0-9_]*)?",
+      "beginCaptures": {
+        "1": { "name": "storage.type.array.stl" }
+      },
+      "endCaptures": {
+        "1": { "name": "entity.name.type.array.stl" }
+      },
+      "patterns": [
+        { "include": "#types" },
+        { "include": "#literals" },
+        { "match": ",", "name": "punctuation.separator.stl" }
+      ]
+    },
+    "optional-decl": {
+      "begin": "\\b(optional)\\s*<",
+      "end": ">\\s*([A-Za-z_][A-Za-z0-9_]*)?",
+      "beginCaptures": {
+        "1": { "name": "storage.type.optional.stl" }
+      },
+      "endCaptures": {
+        "1": { "name": "entity.name.type.optional.stl" }
+      },
+      "patterns": [
+        { "include": "#types" }
+      ]
+    },
+    "alias-decl": {
+      "match": "\\b(alias)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "storage.type.alias.stl" },
+        "2": { "name": "entity.name.type.alias.stl" }
+      }
+    },
+    "member-var": {
+      "match": "\\b(var)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.member.stl" },
+        "2": { "name": "variable.other.property.stl" }
+      }
+    },
+    "member-fn": {
+      "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.member.stl" },
+        "2": { "name": "entity.name.function.stl" }
+      }
+    },
+    "member-event": {
+      "match": "\\b(event)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.member.stl" },
+        "2": { "name": "entity.name.function.event.stl" }
+      }
+    },
+    "attributes": {
+      "begin": "\\[",
+      "end": "\\]",
+      "beginCaptures": {
+        "0": { "name": "punctuation.section.brackets.begin.stl" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.section.brackets.end.stl" }
+      },
+      "patterns": [
+        {
+          "match": "\\b(static|static_no_config|writable|confirmed|bestEffort|const|local|abstract|tag|min|max)\\b",
+          "name": "storage.modifier.attribute.stl"
+        },
+        { "include": "#literals" },
+        { "include": "#strings" },
+        { "match": ":", "name": "punctuation.separator.key-value.stl" },
+        { "match": ",", "name": "punctuation.separator.stl" },
+        {
+          "match": "[A-Za-z_][A-Za-z0-9_]*",
+          "name": "variable.other.attribute.stl"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "match": "\\b(u8|u16|u32|u64|i16|i32|i64|f32|f64|bool|string|TimeStamp|Duration)\\b",
+          "name": "support.type.primitive.stl"
+        },
+        {
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(?=\\s*\\.)",
+          "name": "entity.name.namespace.stl"
+        },
+        {
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b",
+          "name": "entity.name.type.stl"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "match": "\\b(class|struct|enum|variant|interface|sequence|array|optional|quantity|alias)\\b",
+          "name": "storage.type.stl"
+        },
+        {
+          "match": "\\b(var|fn|event)\\b",
+          "name": "keyword.other.member.stl"
+        },
+        {
+          "match": "\\b(package|import|extends|implements|abstract)\\b",
+          "name": "keyword.control.stl"
+        },
+        {
+          "match": "\\b(SELECT|FROM|WHERE|BETWEEN|IN|NOT|AND|OR)\\b",
+          "name": "keyword.other.sql.stl"
+        }
+      ]
+    },
+    "literals": {
+      "patterns": [
+        {
+          "match": "\\b(true|false)\\b",
+          "name": "constant.language.boolean.stl"
+        },
+        {
+          "match": "-?\\b[0-9]+\\.[0-9]+\\b",
+          "name": "constant.numeric.float.stl"
+        },
+        {
+          "match": "-?\\b[0-9]+\\b",
+          "name": "constant.numeric.integer.stl"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.stl",
+          "begin": "\"",
+          "end": "\""
+        },
+        {
+          "name": "string.quoted.single.stl",
+          "begin": "'",
+          "end": "'"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        { "match": "->", "name": "keyword.operator.arrow.stl" },
+        { "match": "=", "name": "keyword.operator.assignment.stl" },
+        { "match": "\\.", "name": "punctuation.accessor.stl" },
+        { "match": ";", "name": "punctuation.terminator.statement.stl" },
+        { "match": ",", "name": "punctuation.separator.stl" },
+        { "match": ":", "name": "punctuation.separator.type.stl" }
+      ]
+    }
+  }
+}

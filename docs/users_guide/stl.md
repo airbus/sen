@@ -581,6 +581,10 @@ class Example
 }
 ```
 
+## Syntax highlighting
+
+Please have a look at the `resources/syntax_highlighting/stl` folder in the Sen repo.
+
 ## Examples
 
 ```rust title="teacher.stl"
