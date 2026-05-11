@@ -8,10 +8,11 @@
 // component
 #include "util.h"
 
+// sen
+#include "sen/kernel/component_api.h"
+
 // spdlog
 #include <spdlog/logger.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 // std
 #include <memory>
@@ -19,16 +20,6 @@
 namespace sen::components::influx
 {
 
-std::shared_ptr<spdlog::logger> getLogger()
-{
-  constexpr auto* loggerName = "influx";
-  static auto logger = spdlog::get(loggerName);
-  if (!logger)
-  {
-    logger = spdlog::stdout_color_mt(loggerName);
-  }
-
-  return logger;
-}
+std::shared_ptr<spdlog::logger> getLogger() { return kernel::KernelApi::getOrCreateLogger("influx"); }
 
 }  // namespace sen::components::influx

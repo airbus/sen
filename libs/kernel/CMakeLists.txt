@@ -175,8 +175,8 @@ target_link_libraries(
   PUBLIC sen::core
   PUBLIC ${CMAKE_DL_LIBS}
   PUBLIC ${CMAKE_THREAD_LIBS_INIT}
+  PUBLIC spdlog::spdlog
   PRIVATE ryml::ryml
-  PRIVATE spdlog::spdlog
   PRIVATE concurrentqueue::concurrentqueue
   PRIVATE cpptrace::cpptrace
 )

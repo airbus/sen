@@ -20,11 +20,10 @@
 #include "sen/core/base/span.h"
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/var.h"
+#include "sen/kernel/component_api.h"
 
 // spdlog
 #include <spdlog/logger.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 // json
 #include "nlohmann/json.hpp"
@@ -57,17 +56,7 @@ constexpr std::string_view ssePropertyUpdate = "event: property\n";
 // Functions
 //--------------------------------------------------------------------------------------------------------------
 
-std::shared_ptr<spdlog::logger> getLogger()
-{
-  constexpr auto* loggerName = "rest";
-  static auto logger = spdlog::get(loggerName);
-  if (!logger)
-  {
-    logger = spdlog::stdout_color_mt(loggerName);
-  }
-
-  return logger;
-}
+std::shared_ptr<spdlog::logger> getLogger() { return kernel::KernelApi::getOrCreateLogger("rest"); }
 
 [[nodiscard]] JsonResponse getErrorLocatorParams(const LocatorError& error)
 {

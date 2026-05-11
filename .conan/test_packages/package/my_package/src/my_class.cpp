@@ -10,7 +10,6 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/numbers.h"
-#include "sen/core/base/version.h"  // NOLINT(misc-include-cleaner)
 #include "sen/core/io/util.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/var.h"
@@ -21,10 +20,6 @@
 #include "stl/my_package/basic_types.stl.h"
 #include "stl/my_package/config.stl.h"
 #include "stl/my_package/my_class.stl.h"
-
-// spdlog
-#include <spdlog/logger.h>
-#include <spdlog/spdlog.h>
 
 // std
 #include <cstdint>
@@ -39,11 +34,7 @@ namespace my_package
 
 MyClassImpl::MyClassImpl(const std::string& name, const sen::VarMap& args): MyClassBase(name, args)
 {
-  logger_ = spdlog::get("my_logger");
-  if (!logger_)
-  {
-    logger_ = std::make_shared<spdlog::logger>("my_logger");
-  }
+  logger_ = sen::kernel::KernelApi::getOrCreateLogger("my_logger");
 
   logger_->info("MyClassImpl with name \"" + name + "\" created");
 

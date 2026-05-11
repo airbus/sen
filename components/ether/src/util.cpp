@@ -10,6 +10,9 @@
 // generated code
 #include "stl/configuration.stl.h"
 
+// sen
+#include "sen/kernel/component_api.h"
+
 // asio
 #include <asio/error_code.hpp>
 #include <asio/ip/address_v4.hpp>
@@ -19,8 +22,6 @@
 
 // spdlog
 #include <spdlog/logger.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 // std
 #include <stdexcept>
@@ -36,16 +37,7 @@
 namespace sen::components::ether
 {
 
-std::shared_ptr<spdlog::logger> getLogger()
-{
-  constexpr auto* loggerName = "ether";
-  static auto logger = spdlog::get(loggerName);
-  if (!logger)
-  {
-    logger = spdlog::stdout_color_mt(loggerName);
-  }
-  return logger;
-}
+std::shared_ptr<spdlog::logger> getLogger() { return kernel::KernelApi::getOrCreateLogger("ether"); }
 
 void configureMulticastSocket(asio::ip::udp::socket& socket,
                               asio::ip::udp::endpoint multicastEndpoint,
