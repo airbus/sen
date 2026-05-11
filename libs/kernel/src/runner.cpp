@@ -387,10 +387,7 @@ void Runner::signalThreadToStop()
   state_.store(ComponentState::stopping);
   stopFlag_.store(true);
 
-  bool needsVirtualTime = kernel_.getConfig().getParams().runMode == RunMode::virtualTime ||
-                          kernel_.getConfig().getParams().runMode == RunMode::virtualTimeRunning;
-
-  if (needsVirtualTime && !component_.instance->isRealTimeOnly())
+  if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
   {
     try
     {
@@ -440,6 +437,9 @@ void Runner::doRun()
 
   FuncResult runResult = ::sen::Ok();
 
+  // We need to initialize time before starting to execute, to ensure everything, even initialize published objects see
+  // the correct starting time.
+  initializeTime();
   // NOLINTNEXTLINE
   EXCEPTION_WRAP_BLOCK(runResult = component_.instance->run(runApi_);)
   serializableEvents_.clear();
@@ -522,10 +522,7 @@ FuncResult Runner::execLoop(Duration cycleTime, std::function<void()>&& workFunc
 {
   cycleTime_ = cycleTime;
 
-  bool needsVirtualTime = kernel_.getConfig().getParams().runMode == RunMode::virtualTime ||
-                          kernel_.getConfig().getParams().runMode == RunMode::virtualTimeRunning;
-
-  if (needsVirtualTime && !component_.instance->isRealTimeOnly())
+  if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
   {
     virtualTimeExecLoop(std::move(workFunction));
   }
@@ -539,9 +536,6 @@ FuncResult Runner::execLoop(Duration cycleTime, std::function<void()>&& workFunc
 
 void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 {
-  // set the time values
-  time_ = TimeStamp {};
-  startTime_ = {};
   const auto cycleTime = cycleTime_.value();
 
   bool updated = false;
@@ -604,6 +598,23 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
   }
 }
 
+void Runner::initializeTime()
+{
+  if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
+  {
+    time_ = TimeStamp {};
+    startTime_ = {};
+  }
+  else
+  {
+    WallClock wallClock {getComponentContext().config.sleepPolicy};
+    const auto startOfSchedule = wallClock.highResNow();
+
+    time_ = TimeStamp(startOfSchedule);
+    startTime_ = TimeStamp(startOfSchedule);
+  }
+}
+
 void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOverruns)
 {
   auto logger = KernelImpl::getKernelLogger();
@@ -612,16 +623,13 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
 
   PrecisionSleeper sleeper {wallClock, component_.info.name};
 
-  const auto startOfSchedule = wallClock.highResNow();
   const auto period = NanoSecs(cycleTime_.value().getNanoseconds());
   const auto halfPeriod = period / 2;
 
+  const auto startOfSchedule = time_->sinceEpoch().toChrono();
   auto nextCalibrationTime = startOfSchedule + wallClock.getCalibrateIntervalNs();
 
-  // set the time values
   auto time64 = startOfSchedule;
-  time_ = TimeStamp(time64);
-  startTime_ = TimeStamp(startOfSchedule);
 
   const bool isKernel = (name_ == "kernel");
   std::string nameToUse;
@@ -708,6 +716,12 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
     time_ = TimeStamp(time64);
     tracer_->frameEnd(nameToUse);
   }
+}
+
+bool Runner::needsVirtualTime() const
+{
+  return kernel_.getConfig().getParams().runMode == RunMode::virtualTime ||
+         kernel_.getConfig().getParams().runMode == RunMode::virtualTimeRunning;
 }
 
 std::shared_ptr<SessionInfoProvider> Runner::makeSessionInfoProvider(const std::string& sessionName)

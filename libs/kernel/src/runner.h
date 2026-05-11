@@ -187,8 +187,11 @@ private:
 
 private:
   void exec(std::function<void()>& workFunction);
+  void initializeTime();
   void realTimeExecLoop(std::function<void()>&& workFunction, bool logOverruns);
   void virtualTimeExecLoop(std::function<void()>&& workFunction);
+
+  [[nodiscard]] bool needsVirtualTime() const;
 
 private:
   enum class WorkerCommand
