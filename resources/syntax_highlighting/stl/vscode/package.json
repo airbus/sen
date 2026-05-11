@@ -1,0 +1,47 @@
+{
+  "name": "sen-stl",
+  "displayName": "Sen STL",
+  "description": "Syntax highlighting, indentation, bracket matching, and snippets for Sen STL (Sen Type Language) interface definition files.",
+  "version": "0.1.0",
+  "publisher": "Airbus",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/airbus/sen"
+  },
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "stl",
+        "aliases": [
+          "Sen STL",
+          "stl"
+        ],
+        "extensions": [
+          ".stl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "stl",
+        "scopeName": "source.stl",
+        "path": "./syntaxes/stl.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "stl",
+        "path": "./snippets/stl.code-snippets"
+      }
+    ]
+  }
+}
