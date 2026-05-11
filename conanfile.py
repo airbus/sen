@@ -118,6 +118,7 @@ class SenConan(ConanFile):
         tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if env_var_to_bool("ENABLE_COVERAGE") else "OFF"
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if env_var_to_bool("ENABLE_EXAMPLES") else "OFF"
         tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if env_var_to_bool("ENABLE_TESTS") else "OFF"
+        tc.cache_variables["SEN_USE_SANITIZER"] = select_sanitizer()
 
         # directory for the generated documentation
         site_dir = getenv("MKDOCS_SITE_DIR")
@@ -163,3 +164,14 @@ class SenConan(ConanFile):
 def env_var_to_bool(env_var_name):
     """Returns True if the environment variable is set to a truthy value, False otherwise."""
     return getenv(env_var_name, "").lower() in ("true", "on", "1", "yes")
+
+def select_sanitizer() -> str:
+    if env_var_to_bool("ENABLE_ASAN"):
+        print("Configuring address and undefined-behavior sanitizers...")
+        return "ASanUBSan"
+
+    if env_var_to_bool("ENABLE_TSAN"):
+        print("Configuring thread sanitizer...")
+        return "Thread"
+
+    return "None"
