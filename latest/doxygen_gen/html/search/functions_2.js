@@ -44,12 +44,13 @@ var searchData=
   ['converttocompletetypesetcontext_41',['convertToCompleteTypeSetContext',['../classsen_1_1lang_1_1_fom_parser.html#a91cda9559d60b62107475b0d8e1ea405',1,'sen::lang::FomParser']]],
   ['copy_42',['copy',['../group__util.html#ga250b2ed944e555fffd1679d8096441f5',1,'sen::Uuid::copy(std::array&lt; uint8_t, byteCount &gt; &amp;arr) const'],['../group__util.html#gaed70ae2790d4eb70c856738b31da3271',1,'sen::Uuid::copy(StaticVector&lt; uint8_t, byteCount &gt; &amp;vec) const']]],
   ['count_43',['count',['../classsen_1_1lang_1_1_chunk.html#aeeda05abc158ca97f5d30db88a6d0066',1,'sen::lang::Chunk']]],
-  ['crc32_44',['crc32',['../group__hash.html#ga37760a601189897dfdd37193b095146b',1,'sen::crc32(InputIterator first, InputIterator last) noexcept'],['../group__hash.html#ga0a9ce6a4a9139dffb2a6acfdda42ec59',1,'sen::crc32(std::string_view str) noexcept']]],
-  ['createaccesstoken_45',['createAccessToken',['../structsen_1_1_guarded.html#abd81ffc4274ba7ae6df73c6ca9f194de',1,'sen::Guarded']]],
-  ['createnewtypeset_46',['createNewTypeSet',['../classsen_1_1lang_1_1_type_set_context.html#aeeec8dff6766f90f60ee3503cde0c6cd',1,'sen::lang::TypeSetContext']]],
-  ['createreaderlock_47',['createReaderLock',['../classsen_1_1_native_object.html#a36cf7f935b7d764fa393e1639dcee987',1,'sen::NativeObject']]],
-  ['createwriterlock_48',['createWriterLock',['../classsen_1_1_native_object.html#a7f7fdbf57f3bb3eba1540e1691bba679',1,'sen::NativeObject']]],
-  ['creation_49',['creation',['../classsen_1_1db_1_1_output.html#a4f85dd585624dfd7e141977ac5df904b',1,'sen::db::Output']]],
-  ['customtype_50',['CustomType',['../classsen_1_1_custom_type.html#a13ede1de6cb24f387abc92212e9549d2',1,'sen::CustomType']]],
-  ['customtyperegistry_51',['CustomTypeRegistry',['../classsen_1_1_custom_type_registry.html#a5eb245294f9c00a31bf89bf718e0e75c',1,'sen::CustomTypeRegistry']]]
+  ['crashmakerimpl_44',['CrashMakerImpl',['../classsen_1_1test_1_1crash__report_1_1_crash_maker_impl.html#a9479e621646ab3c080e1e5c047d8858d',1,'sen::test::crash_report::CrashMakerImpl']]],
+  ['crc32_45',['crc32',['../group__hash.html#ga37760a601189897dfdd37193b095146b',1,'sen::crc32(InputIterator first, InputIterator last) noexcept'],['../group__hash.html#ga0a9ce6a4a9139dffb2a6acfdda42ec59',1,'sen::crc32(std::string_view str) noexcept']]],
+  ['createaccesstoken_46',['createAccessToken',['../structsen_1_1_guarded.html#abd81ffc4274ba7ae6df73c6ca9f194de',1,'sen::Guarded']]],
+  ['createnewtypeset_47',['createNewTypeSet',['../classsen_1_1lang_1_1_type_set_context.html#aeeec8dff6766f90f60ee3503cde0c6cd',1,'sen::lang::TypeSetContext']]],
+  ['createreaderlock_48',['createReaderLock',['../classsen_1_1_native_object.html#a36cf7f935b7d764fa393e1639dcee987',1,'sen::NativeObject']]],
+  ['createwriterlock_49',['createWriterLock',['../classsen_1_1_native_object.html#a7f7fdbf57f3bb3eba1540e1691bba679',1,'sen::NativeObject']]],
+  ['creation_50',['creation',['../classsen_1_1db_1_1_output.html#a4f85dd585624dfd7e141977ac5df904b',1,'sen::db::Output']]],
+  ['customtype_51',['CustomType',['../classsen_1_1_custom_type.html#a13ede1de6cb24f387abc92212e9549d2',1,'sen::CustomType']]],
+  ['customtyperegistry_52',['CustomTypeRegistry',['../classsen_1_1_custom_type_registry.html#a5eb245294f9c00a31bf89bf718e0e75c',1,'sen::CustomTypeRegistry']]]
 ];

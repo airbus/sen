@@ -1,15 +1,15 @@
 <map id="sen::kernel::KernelApi" name="sen::kernel::KernelApi">
-<area shape="rect" id="Node000001" title="User&#45;facing kernel functions." alt="" coords="439,5,626,311"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="5,489,140,574"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="427,196,360,224,287,260,216,306,153,360,130,391,111,424,86,490,81,488,106,422,125,388,149,357,213,301,285,255,358,219,425,191"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="164,489,309,574"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="431,245,374,300,323,360,283,427,254,490,250,487,278,424,319,357,371,296,427,241"/>
-<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="333,469,519,594"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="488,325,446,469,441,468,483,323"/>
-<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="543,489,736,574"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="583,323,630,488,625,489,578,325"/>
-<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="761,359,982,704"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="639,246,696,299,751,357,763,371,759,374,747,360,692,303,635,250"/>
-<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="1006,489,1166,574"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="641,181,725,207,818,244,912,294,955,323,996,357,1023,387,1045,421,1075,487,1070,489,1040,424,1019,390,992,361,952,328,909,298,816,249,723,212,639,186"/>
+<area shape="rect" id="Node000001" title="User&#45;facing kernel functions." alt="" coords="439,5,626,351"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="5,529,140,614"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="428,222,360,253,287,293,216,343,153,400,130,431,112,465,86,530,81,528,107,462,126,428,149,397,213,338,285,289,358,248,425,217"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="164,529,309,614"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="431,275,375,335,323,400,284,467,255,530,250,527,279,464,318,397,371,331,427,271"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="333,509,519,634"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="485,365,445,509,440,508,480,363"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="543,529,736,614"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="586,363,631,528,625,529,580,364"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="761,399,982,744"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="638,276,695,335,751,397,762,411,758,415,747,400,691,338,634,280"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="1006,529,1166,614"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="640,206,724,236,818,277,911,331,955,362,996,397,1022,427,1044,462,1075,528,1070,530,1040,464,1018,431,992,401,952,366,909,335,815,282,722,241,638,211"/>
 </map>

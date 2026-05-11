@@ -10,8 +10,10 @@ var searchData=
   ['sen_3a_3astd_5futil_3a_3adetail_7',['detail',['../namespacesen_1_1std__util_1_1detail.html',1,'sen::std_util']]],
   ['sen_3a_3astd_5futil_3a_3aimpl_8',['impl',['../namespacesen_1_1std__util_1_1impl.html',1,'sen::std_util']]],
   ['sen_3a_3atest_9',['test',['../namespacesen_1_1test.html',1,'sen']]],
-  ['sen_3a_3atest_3a_3aruntime_10',['runtime',['../namespacesen_1_1test_1_1runtime.html',1,'sen::test']]],
-  ['sen_3a_3autil_11',['util',['../namespacesen_1_1util.html',1,'sen']]],
-  ['sen_3a_3autil_3a_3aimpl_12',['impl',['../namespacesen_1_1util_1_1impl.html',1,'sen::util']]],
-  ['std_13',['std',['../namespacestd.html',1,'']]]
+  ['sen_3a_3atest_3a_3acrash_5freport_10',['crash_report',['../namespacesen_1_1test_1_1crash__report.html',1,'sen::test']]],
+  ['sen_3a_3atest_3a_3aruntime_11',['runtime',['../namespacesen_1_1test_1_1runtime.html',1,'sen::test']]],
+  ['sen_3a_3atest_3a_3atype_5fclash_12',['type_clash',['../namespacesen_1_1test_1_1type__clash.html',1,'sen::test']]],
+  ['sen_3a_3autil_13',['util',['../namespacesen_1_1util.html',1,'sen']]],
+  ['sen_3a_3autil_3a_3aimpl_14',['impl',['../namespacesen_1_1util_1_1impl.html',1,'sen::util']]],
+  ['std_15',['std',['../namespacestd.html',1,'']]]
 ];

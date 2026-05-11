@@ -1,0 +1,6 @@
+<map id="sen::test::type_clash::ClashTypeImpl" name="sen::test::type_clash::ClashTypeImpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,153,219"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="23,5,135,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,84,73,119,68,119,68,84"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="91,84,91,119,85,119,85,84"/>
+</map>

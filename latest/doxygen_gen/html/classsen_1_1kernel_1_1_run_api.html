@@ -120,7 +120,7 @@ $(function(){initNavTree('classsen_1_1kernel_1_1_run_api.html','','classsen_1_1k
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_run_api__inherit__graph.svg" width="398" height="710"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_run_api__inherit__graph.svg" width="398" height="750"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -181,6 +181,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a215bea2badcf94c9236dd769697c463e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a subscription for objects matching the given Sen query string. Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions. Example: selectFrom&lt;Shape&gt;(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")"). It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.  <br /></td></tr>
 <tr class="memitem:a6be66d4510a6e2935671d79d2f147132" id="r_a6be66d4510a6e2935671d79d2f147132"><td class="memItemLeft">std::filesystem::path&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a6be66d4510a6e2935671d79d2f147132">getConfigFilePath</a> () const noexcept</td></tr>
 <tr class="memdesc:a6be66d4510a6e2935671d79d2f147132"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the path to the configuration file used to construct the kernel. It might be empty if the kernel is programmatically configured.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a8be47df4b5ee2f0ba42886777fcbfce5" id="r_a8be47df4b5ee2f0ba42886777fcbfce5"><td class="memItemLeft">static std::shared_ptr&lt; spdlog::logger &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a8be47df4b5ee2f0ba42886777fcbfce5">getOrCreateLogger</a> (const std::string &amp;loggerName)</td></tr>
+<tr class="memdesc:a8be47df4b5ee2f0ba42886777fcbfce5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a new logger in the kernel if it does not exist, or returns the existing one by name. Used to propagate the logger configuration to other packages/components that use it.  <br /></td></tr>
+<tr class="memitem:abc0b551d43222b27ebee354c2e1ca647" id="r_abc0b551d43222b27ebee354c2e1ca647"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#abc0b551d43222b27ebee354c2e1ca647">applyToAllLoggers</a> (std::function&lt; void(std::shared_ptr&lt; spdlog::logger &gt;)&gt; &amp;&amp;func)</td></tr>
+<tr class="memdesc:abc0b551d43222b27ebee354c2e1ca647"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the input function to all loggers kept in the logger registry. Used by the logmaster component.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-friends" class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -976,6 +983,60 @@ template&lt;typename T, typename Bus&gt; </div>
 </div><div class="memdoc">
 
 <p>Gets the path to the configuration file used to construct the kernel. It might be empty if the kernel is programmatically configured. </p>
+
+</div>
+</div>
+<a id="a8be47df4b5ee2f0ba42886777fcbfce5" name="a8be47df4b5ee2f0ba42886777fcbfce5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8be47df4b5ee2f0ba42886777fcbfce5">&#9670;&#160;</a></span>getOrCreateLogger()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; spdlog::logger &gt; sen::kernel::KernelApi::getOrCreateLogger </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>loggerName</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Registers a new logger in the kernel if it does not exist, or returns the existing one by name. Used to propagate the logger configuration to other packages/components that use it. </p>
+
+</div>
+</div>
+<a id="abc0b551d43222b27ebee354c2e1ca647" name="abc0b551d43222b27ebee354c2e1ca647"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc0b551d43222b27ebee354c2e1ca647">&#9670;&#160;</a></span>applyToAllLoggers()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::kernel::KernelApi::applyToAllLoggers </td>
+          <td>(</td>
+          <td class="paramtype">std::function&lt; void(std::shared_ptr&lt; spdlog::logger &gt;)&gt; &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>func</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Applies the input function to all loggers kept in the logger registry. Used by the logmaster component. </p>
 
 </div>
 </div>

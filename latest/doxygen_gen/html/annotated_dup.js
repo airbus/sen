@@ -132,9 +132,18 @@ var annotated_dup =
         [ "Transport", "classsen_1_1kernel_1_1_transport.html", "classsen_1_1kernel_1_1_transport" ]
       ] ],
       [ "test", "namespacesen_1_1test.html", [
+        [ "crash_report", "namespacesen_1_1test_1_1crash__report.html", [
+          [ "CrashMakerImpl", "classsen_1_1test_1_1crash__report_1_1_crash_maker_impl.html", "classsen_1_1test_1_1crash__report_1_1_crash_maker_impl" ]
+        ] ],
         [ "runtime", "namespacesen_1_1test_1_1runtime.html", [
           [ "TestClassImpl", "classsen_1_1test_1_1runtime_1_1_test_class_impl.html", "classsen_1_1test_1_1runtime_1_1_test_class_impl" ],
           [ "TesterImpl", "classsen_1_1test_1_1runtime_1_1_tester_impl.html", "classsen_1_1test_1_1runtime_1_1_tester_impl" ]
+        ] ],
+        [ "type_clash", "namespacesen_1_1test_1_1type__clash.html", [
+          [ "App1ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app1_class_impl.html", "classsen_1_1test_1_1type__clash_1_1_app1_class_impl" ],
+          [ "ClashTypeImpl", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl.html", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl" ],
+          [ "App2ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app2_class_impl.html", "classsen_1_1test_1_1type__clash_1_1_app2_class_impl" ],
+          [ "App3ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app3_class_impl.html", "classsen_1_1test_1_1type__clash_1_1_app3_class_impl" ]
         ] ],
         [ "TestWriter", "classsen_1_1test_1_1_test_writer.html", "classsen_1_1test_1_1_test_writer" ],
         [ "TestReader", "classsen_1_1test_1_1_test_reader.html", "classsen_1_1test_1_1_test_reader" ],

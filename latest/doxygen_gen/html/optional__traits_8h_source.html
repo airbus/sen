@@ -178,7 +178,7 @@ $(function(){initNavTree('optional__traits_8h_source.html','',''); });
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  <span class="keywordflow">if</span> (hasValue)</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  {</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keyword">typename</span> T::value_type content;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keyword">typename</span> T::value_type content {};</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <a class="code hl_struct" href="group__traits.html#structsen_1_1_serialization_traits">SerializationTraits&lt;typename T::value_type&gt;::read</a>(in, content);</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    val = T(content);</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  }</div>
@@ -231,7 +231,7 @@ $(function(){initNavTree('optional__traits_8h_source.html','',''); });
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  }</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  {</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">typename</span> T::value_type content;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">typename</span> T::value_type content {};</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <a class="code hl_struct" href="group__traits.html#structsen_1_1_variant_traits">VariantTraits&lt;typename T::value_type&gt;::variantToValue</a>(var, content);</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    val = T(content);</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  }</div>

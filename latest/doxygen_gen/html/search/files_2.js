@@ -13,7 +13,8 @@ var searchData=
   ['core_2finclude_2fsen_2fcore_2fio_2futil_2eh_10',['util.h',['../core_2include_2sen_2core_2io_2util_8h.html',1,'']]],
   ['core_2finclude_2fsen_2fcore_2fmeta_2fevent_2eh_11',['event.h',['../core_2include_2sen_2core_2meta_2event_8h.html',1,'']]],
   ['core_2fsrc_2fmeta_2futils_2eh_12',['utils.h',['../core_2src_2meta_2utils_8h.html',1,'']]],
-  ['creation_2eh_13',['creation.h',['../creation_8h.html',1,'']]],
-  ['cursor_2eh_14',['cursor.h',['../cursor_8h.html',1,'']]],
-  ['custom_5ftype_2eh_15',['custom_type.h',['../custom__type_8h.html',1,'']]]
+  ['crash_5freport_2eh_13',['crash_report.h',['../crash__report_8h.html',1,'']]],
+  ['creation_2eh_14',['creation.h',['../creation_8h.html',1,'']]],
+  ['cursor_2eh_15',['cursor.h',['../cursor_8h.html',1,'']]],
+  ['custom_5ftype_2eh_16',['custom_type.h',['../custom__type_8h.html',1,'']]]
 ];

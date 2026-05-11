@@ -1,7 +1,7 @@
 <map id="sen::kernel::InitApi" name="sen::kernel::InitApi">
-<area shape="rect" id="Node000001" title="What can be done when initializing a component." alt="" coords="128,359,263,444"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_config_getter.html" title="Allows for fetching configuration parameters." alt="" coords="5,115,180,201"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,212,180,357,175,359,113,214"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_kernel_api.html" title="User&#45;facing kernel functions." alt="" coords="205,5,391,311"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,324,216,359,211,357,226,322"/>
+<area shape="rect" id="Node000001" title="What can be done when initializing a component." alt="" coords="128,399,263,484"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_config_getter.html" title="Allows for fetching configuration parameters." alt="" coords="5,135,180,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,233,182,398,177,400,112,235"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_kernel_api.html" title="User&#45;facing kernel functions." alt="" coords="205,5,391,351"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,365,214,399,209,397,223,363"/>
 </map>

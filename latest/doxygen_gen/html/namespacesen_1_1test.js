@@ -1,6 +1,8 @@
 var namespacesen_1_1test =
 [
+    [ "crash_report", "namespacesen_1_1test_1_1crash__report.html", "namespacesen_1_1test_1_1crash__report" ],
     [ "runtime", "namespacesen_1_1test_1_1runtime.html", "namespacesen_1_1test_1_1runtime" ],
+    [ "type_clash", "namespacesen_1_1test_1_1type__clash.html", "namespacesen_1_1test_1_1type__clash" ],
     [ "TestWriter", "classsen_1_1test_1_1_test_writer.html", "classsen_1_1test_1_1_test_writer" ],
     [ "TestReader", "classsen_1_1test_1_1_test_reader.html", "classsen_1_1test_1_1_test_reader" ],
     [ "BufferedTestReader", "classsen_1_1test_1_1_buffered_test_reader.html", "classsen_1_1test_1_1_buffered_test_reader" ],

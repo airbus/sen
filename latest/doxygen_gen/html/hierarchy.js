@@ -5,6 +5,15 @@ var hierarchy =
     [ "sen::util::AngularAcceleration", "group__dr.html#structsen_1_1util_1_1_angular_acceleration", null ],
     [ "sen::util::AngularVelocity", "group__dr.html#structsen_1_1util_1_1_angular_velocity", null ],
     [ "sen::db::Annotation", "classsen_1_1db_1_1_annotation.html", null ],
+    [ "App1ClassBase", null, [
+      [ "sen::test::type_clash::App1ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app1_class_impl.html", null ]
+    ] ],
+    [ "App2ClassBase", null, [
+      [ "sen::test::type_clash::App2ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app2_class_impl.html", null ]
+    ] ],
+    [ "App3ClassBase", null, [
+      [ "sen::test::type_clash::App3ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app3_class_impl.html", null ]
+    ] ],
     [ "sen::Arg", "structsen_1_1_arg.html", null ],
     [ "sen::ArrayTraitsBase&lt; T &gt;", "structsen_1_1_array_traits_base.html", null ],
     [ "sen::BasicTraits&lt; T &gt;", "structsen_1_1_basic_traits.html", null ],
@@ -18,6 +27,10 @@ var hierarchy =
     ] ],
     [ "sen::CallableSpec", "structsen_1_1_callable_spec.html", null ],
     [ "sen::lang::Chunk", "classsen_1_1lang_1_1_chunk.html", null ],
+    [ "ClashTypeBase", null, [
+      [ "sen::test::type_clash::ClashTypeImpl", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl.html", null ],
+      [ "sen::test::type_clash::ClashTypeImpl", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl.html", null ]
+    ] ],
     [ "sen::lang::ClassAnnotations", "group__lang.html#structsen_1_1lang_1_1_class_annotations", null ],
     [ "sen::lang::CodeLocation", "group__lang.html#structsen_1_1lang_1_1_code_location", null ],
     [ "sen::lang::VM::CompileError", "classsen_1_1lang_1_1_v_m.html#structsen_1_1lang_1_1_v_m_1_1_compile_error", null ],
@@ -39,6 +52,9 @@ var hierarchy =
     [ "sen::ConnectionGuard", "classsen_1_1_connection_guard.html", null ],
     [ "std::vector&lt; std::unique_ptr&lt; TypeSet &gt; &gt;::const_iterator", null, [
       [ "sen::lang::TypeSetContext::TypeSetIterator", "classsen_1_1lang_1_1_type_set_context_1_1_type_set_iterator.html", null ]
+    ] ],
+    [ "CrashMakerBase", null, [
+      [ "sen::test::crash_report::CrashMakerImpl", "classsen_1_1test_1_1crash__report_1_1_crash_maker_impl.html", null ]
     ] ],
     [ "sen::db::Creation", "classsen_1_1db_1_1_creation.html", null ],
     [ "sen::db::Cursor&lt; End, T &gt;", "classsen_1_1db_1_1_cursor.html", null ],
