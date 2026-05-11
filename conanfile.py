@@ -73,7 +73,7 @@ class SenConan(ConanFile):
     def export_sources(self):
         # Sources are located in the same place as this recipe, copy them to the recipe
         include_patterns = ["apps/*", "cmake/*", "components/*", "examples/*", "libs/*", "test/*",
-                           "CMakeLists.txt", ".clang-tidy", ".clang-format", "LICENSE.txt", "util/*"]
+                           "CMakeLists.txt", ".clang-tidy", ".clang-format", "LICENSE.txt", "util/*", "resources/*"]
 
         exclude_patterns = ["*/__pycache__/*", "*/.mypy_cache/*", "doc/*", "*/schema.json"]
 
