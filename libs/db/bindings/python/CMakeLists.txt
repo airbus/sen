@@ -27,6 +27,15 @@ sen_internal_configure_lib(sen_db_python)
 sen_enable_static_analysis(sen_db_python)
 sen_internal_install(sen_db_python)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # For some gcc version, we need to disable array-bounds checking as they
+  # overidentiy issue inside pybind.
+
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14.0 AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 12.0)
+    target_compile_options(sen_db_python PRIVATE -Wno-array-bounds -Wno-stringop-overread)
+  endif()
+endif()
+
 # -------------------------------------------------------------------------------------------------------------
 # IDE grouping
 # -------------------------------------------------------------------------------------------------------------

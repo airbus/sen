@@ -52,6 +52,16 @@ if(Python3_Development_FOUND)
     PRIVATE $<BUILD_INTERFACE:spdlog::spdlog>
   )
 
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # For some gcc version, we need to disable array-bounds checking as they
+    # overidentiy issue inside pybind.
+
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14.0 AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 12.0)
+      target_compile_options(py_interface PRIVATE -Wno-array-bounds -Wno-stringop-overread)
+      target_compile_options(py PRIVATE -Wno-array-bounds -Wno-stringop-overread)
+    endif()
+  endif()
+
   sen_internal_install(py)
 
   if(SEN_BUILD_TESTS)

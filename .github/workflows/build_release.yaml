@@ -17,6 +17,26 @@ permissions:
   contents: write
 
 jobs:
+  generate_changelog:
+    name: "Generate changelog"
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.compute-jobs.outputs.jobs }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Compute changelog
+        run: |
+          python .github/scripts/createChangeLog.py > ${{ github.workspace }}-CHANGELOG.txt
+
+      - name: Archive generated release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: ${{ github.workspace }}-CHANGELOG.txt
+
   compute-matrix-jobs:
     name: "Generate build matrix"
     runs-on: ubuntu-latest
@@ -96,7 +116,9 @@ jobs:
   attach_release_artifacts:
     name: "Create Release Draft"
     runs-on: ubuntu-latest
-    needs: create_release_with_artifacts
+    needs:
+      - create_release_with_artifacts
+      - generate_changelog
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v5
@@ -104,12 +126,14 @@ jobs:
       - name: Print context
         run: |
           sudo apt-get install -y file
-          ls -rlisa
+          ls -Rlisa
+          cat changelog/sen-CHANGELOG.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
+          body_path: changelog/sen-CHANGELOG.txt
           files: |
             release-*/*
           preserve_order: true
