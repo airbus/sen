@@ -1,0 +1,59 @@
+package replayer_test;
+
+struct NestedStruct
+{
+  val : i32
+}
+
+struct TestStruct
+{
+  f1 : i32,
+  f2 : NestedStruct
+}
+
+variant TestVariant
+{
+  i32,
+  string
+}
+
+enum TestEnum: u8
+{
+  e0,
+  e1
+}
+
+quantity<f32, m> TestDistance;
+sequence<i32> IntSequence;
+
+struct EmptyStruct {}
+
+// Dummy class to inject properties
+class DummyReplayObj
+{
+  var testProp : f64 [confirmed];
+  var bProp : bool;
+  var u8Prop : u8;
+  var i16Prop : i16;
+  var u16Prop : u16;
+  var i32Prop : i32;
+  var u32Prop : u32;
+  var i64Prop : i64;
+  var u64Prop : u64;
+  var f32Prop : f32;
+  var strProp : string [confirmed];
+  var durProp : Duration;
+  var timeProp : TimeStamp;
+  var enumProp : TestEnum [confirmed];
+  var distProp : TestDistance [confirmed];
+  var seqProp : IntSequence [confirmed];
+  var emptyStructProp : EmptyStruct [confirmed];
+
+  var structProp : TestStruct;
+  var variantProp : TestVariant [confirmed];
+
+  var uniProp : i32 [bestEffort];
+  var multiProp : i32;
+
+  event testEvent(v1: i32, v2: string) [confirmed];
+}

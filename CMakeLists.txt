@@ -147,6 +147,7 @@ if(SEN_BUILD_TESTS)
   add_subdirectory(test/util/calls_on_removal)
   add_subdirectory(test/util/publish_types_manually)
   add_subdirectory(test/util/query_test)
+  add_subdirectory(test/support)
 endif()
 
 # coverage

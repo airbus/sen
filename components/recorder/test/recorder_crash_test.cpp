@@ -5,6 +5,9 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+// shared test helpers
+#include "archive_test_helpers.h"
+
 // sen
 #include "sen/core/base/numbers.h"
 #include "sen/core/meta/property.h"
@@ -20,7 +23,6 @@
 
 // std
 #include <cstdint>
-#include <ctime>
 #include <filesystem>
 #include <string>
 #include <utility>
@@ -33,20 +35,6 @@ namespace
 class RecorderCrashResilienceTest: public ::testing::Test
 {
 protected:
-  void SetUp() override
-  {
-    testDir_ = std::filesystem::temp_directory_path() / ("recorder_test_" + std::to_string(std::time(nullptr)));
-    std::filesystem::create_directories(testDir_);
-  }
-
-  void TearDown() override
-  {
-    if (std::filesystem::exists(testDir_))
-    {
-      std::filesystem::remove_all(testDir_);
-    }
-  }
-
   static void truncateFile(const std::filesystem::path& path, std::uintmax_t newSize)
   {
     std::filesystem::resize_file(path, newSize);
@@ -54,10 +42,10 @@ protected:
 
   static std::uintmax_t getFileSize(const std::filesystem::path& path) { return std::filesystem::file_size(path); }
 
-  [[nodiscard]] const std::filesystem::path& getTestDir() const { return testDir_; }
+  [[nodiscard]] const std::filesystem::path& getTestDir() const { return tempDir_.path(); }
 
 private:
-  std::filesystem::path testDir_;
+  sen::test::TempDir tempDir_ {"recorder_test_"};
 };
 
 /// @test
@@ -66,12 +54,8 @@ TEST_F(RecorderCrashResilienceTest, RecordingCreatesValidArchive)
 {
   auto kernel = sen::kernel::TestKernel::fromYamlString("");
 
-  sen::db::OutSettings settings;
-  settings.name = "test_recording";
-  settings.folder = getTestDir().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = getTestDir() / settings.name;
+  auto settings = sen::test::makeArchiveSettings("test_recording", getTestDir());
+  const auto archivePath = sen::test::makeArchivePath("test_recording", getTestDir());
 
   {
     sen::db::Output output(std::move(settings), []() {});
@@ -95,12 +79,8 @@ TEST_F(RecorderCrashResilienceTest, TruncatedRecording_CanStillBeOpened)
 {
   auto kernel = sen::kernel::TestKernel::fromYamlString("");
 
-  sen::db::OutSettings settings;
-  settings.name = "test_recording";
-  settings.folder = getTestDir().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = getTestDir() / settings.name;
+  auto settings = sen::test::makeArchiveSettings("test_recording", getTestDir());
+  const auto archivePath = sen::test::makeArchivePath("test_recording", getTestDir());
   const auto runtimePath = archivePath / "runtime";
 
   {
@@ -137,12 +117,8 @@ TEST_F(RecorderCrashResilienceTest, TypesFileCreatedWithArchive)
 {
   auto kernel = sen::kernel::TestKernel::fromYamlString("");
 
-  sen::db::OutSettings settings;
-  settings.name = "test_recording";
-  settings.folder = getTestDir().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = getTestDir() / settings.name;
+  auto settings = sen::test::makeArchiveSettings("test_recording", getTestDir());
+  const auto archivePath = sen::test::makeArchivePath("test_recording", getTestDir());
 
   {
     sen::db::Output output(std::move(settings), []() {});

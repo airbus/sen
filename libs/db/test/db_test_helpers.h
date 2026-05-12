@@ -10,56 +10,33 @@
 #ifndef SEN_DB_TEST_HELPERS_H
 #define SEN_DB_TEST_HELPERS_H
 
-#include "stl/db_test_class.stl.h"
+// shared test helpers
+#include "archive_test_helpers.h"
 
 // sen
 #include "sen/core/base/compiler_macros.h"
-#include "sen/core/base/uuid.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
 
+// generated code
+#include "stl/db_test_class.stl.h"
+
 // std
 #include <chrono>
-#include <filesystem>
 #include <memory>
 #include <string>
 
 namespace sen::db::test
 {
 
-class TempDir
-{
-public:
-  TempDir(): path_(std::filesystem::temp_directory_path() / ("db_test_" + getRandomPathPostFix()))
-  {
-    std::filesystem::create_directories(path_);
-  }
-
-  // prevent object copy and movable type
-  TempDir(const TempDir&) = delete;
-  TempDir& operator=(const TempDir&) = delete;
-
-  TempDir(TempDir&&) = delete;
-  TempDir& operator=(TempDir&&) = delete;
-
-  ~TempDir()
-  {
-    if (std::filesystem::exists(path_))
-    {
-      std::filesystem::remove_all(path_);
-    }
-  }
-
-  [[nodiscard]] const std::filesystem::path& path() const { return path_; }
-
-private:
-  /// Returns a random post fix for temporary files paths.
-  static std::string getRandomPathPostFix() { return sen::UuidRandomGenerator()().toString(); }
-
-private:
-  std::filesystem::path path_;
-};
+using sen::test::firstEventId;
+using sen::test::firstPropertyId;
+using sen::test::makeArchivePath;
+using sen::test::makeArchiveSettings;
+using sen::test::makeObjectInfo;
+using sen::test::makeTime;
+using sen::test::TempDir;
 
 class TestObjImpl: public db_test::TestObjBase
 {

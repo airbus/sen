@@ -5,41 +5,33 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-set(db_tests
-    annotation_test.cpp
-    creation_test.cpp
-    deletion_test.cpp
-    event_test.cpp
-    input_test.cpp
-    keyframe_test.cpp
-    output_test.cpp
-    property_change_test.cpp
-    snapshot_test.cpp
-    util_test.cpp
-)
+set(replayer_tests replayer_test.cpp replay_test.cpp replayed_object_test.cpp)
 
 add_sen_unit_test_suite(
-  db_test
-  ${db_tests}
+  replayer_test
+  ${replayer_tests}
   LINK_DEPS
   sen::core
   sen::kernel
   sen::db
+  replayer_for_testing
   archive_test_helpers
 )
 
 sen_generate_cpp(
-  TARGET db_test
-  STL_FILES stl/db_test_class.stl
+  TARGET replayer_test
+  STL_FILES stl/replay_test_class.stl
   GEN_HDR_FILES public_generated_files
 )
 
 target_include_directories(
-  db_test SYSTEM
+  replayer_test SYSTEM
   INTERFACE
-  PRIVATE ${CMAKE_SOURCE_DIR}/libs/db/include ${CMAKE_SOURCE_DIR}/libs/db/src
+  PRIVATE ${CMAKE_SOURCE_DIR}/components/replayer/src
 )
 
+target_compile_definitions(replayer_test PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
+
 set_target_properties(
-  db_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+  replayer_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )
