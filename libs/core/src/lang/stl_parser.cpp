@@ -194,6 +194,17 @@ StlStructStatement StlParser::structDeclaration()
 
   while (!check(StlTokenType::rightBrace) && !isAtEnd())
   {
+    previousComment_ = {};
+    while (check(StlTokenType::comment))
+    {
+      previousComment_.push_back(consume(StlTokenType::comment, {"expecting comment"}));
+    }
+
+    if (!previousComment_.empty() && (check(StlTokenType::rightBrace) || isAtEnd()))
+    {
+      break;
+    }
+
     statement.fields.push_back(structFieldStatement());
   }
 
@@ -206,6 +217,9 @@ StlStructFieldStatement StlParser::structFieldStatement()
   // struct_field -> identifier: identifier ',' [comment]
 
   StlStructFieldStatement statement;
+
+  statement.description = previousComment_;
+  previousComment_.clear();
 
   // maybe we have a comment before the field
   while (check(StlTokenType::comment))
@@ -270,6 +284,17 @@ StlEnumStatement StlParser::enumDeclaration()
 
   while (!check(StlTokenType::rightBrace) && !isAtEnd())
   {
+    previousComment_ = {};
+    while (check(StlTokenType::comment))
+    {
+      previousComment_.push_back(consume(StlTokenType::comment, {"expecting comment"}));
+    }
+
+    if (!previousComment_.empty() && (check(StlTokenType::rightBrace) || isAtEnd()))
+    {
+      break;
+    }
+
     statement.enumerators.push_back(enumeratorDeclaration());
 
     // If next one is a comment and not a comma, we should be at the end of the enumeration
@@ -306,6 +331,9 @@ StlEnumeratorStatement StlParser::enumeratorDeclaration()
   // enumerator -> identifier
 
   StlEnumeratorStatement statement;
+
+  statement.description = previousComment_;
+  previousComment_.clear();
 
   // maybe we have a comment before the enumerator
   while (check(StlTokenType::comment))
@@ -450,6 +478,17 @@ StlVariantStatement StlParser::variantDeclaration()
 
   while (!check(StlTokenType::rightBrace) && !isAtEnd())
   {
+    previousComment_ = {};
+    while (check(StlTokenType::comment))
+    {
+      previousComment_.push_back(consume(StlTokenType::comment, {"expecting comment"}));
+    }
+
+    if (!previousComment_.empty() && (check(StlTokenType::rightBrace) || isAtEnd()))
+    {
+      break;
+    }
+
     statement.elements.push_back(variantElementDeclaration());
   }
 
@@ -463,6 +502,9 @@ StlVariantElement StlParser::variantElementDeclaration()
   // variant_element -> identifier ',' [comment]
 
   StlVariantElement statement;
+
+  statement.description = previousComment_;
+  previousComment_.clear();
 
   // maybe we have a comment before the variant element
   while (check(StlTokenType::comment))
