@@ -400,3 +400,40 @@ TEST(Property, setter)
     EXPECT_EQ(result, "setNextEventSetter");
   }
 }
+
+/// @test
+/// Checks rejection of void type property
+/// @requirements(SEN-355)
+TEST(Property, voidTypeProperty)
+{
+  auto spec = getValidSpec();
+  spec.type = sen::VoidType::get();
+  EXPECT_THROW(std::ignore = Property::make(spec), std::exception);
+}
+
+/// @test
+/// Checks the internal structure, arguments, and return types of the generated getter, setter, and event
+/// @requirements(SEN-355)
+TEST(Property, internalGenerators)
+{
+  const auto& spec = getValidSpec();
+  const auto instance = Property::make(spec);
+
+  const auto& getter = instance->getGetterMethod();
+  EXPECT_TRUE(getter.getArgs().empty());
+  EXPECT_EQ(getter.getConstness(), Constness::constant);
+  EXPECT_FALSE(getter.getReturnType()->isVoidType());
+  EXPECT_EQ(getter.getReturnType(), spec.type);
+  EXPECT_EQ(getter.getName(), Property::makeGetterMethodName(spec));
+
+  const auto& setter = instance->getSetterMethod();
+  EXPECT_EQ(setter.getArgs().size(), 1U);
+  EXPECT_EQ(setter.getConstness(), Constness::nonConstant);
+  EXPECT_TRUE(setter.getReturnType()->isVoidType());
+  EXPECT_EQ(setter.getArgs()[0U].type, spec.type);
+  EXPECT_EQ(setter.getName(), Property::makeSetterMethodName(spec));
+
+  const auto& changeEvent = instance->getChangeEvent();
+  EXPECT_TRUE(changeEvent.getArgs().empty());
+  EXPECT_EQ(changeEvent.getName(), Property::makeChangeNotificationEventName(spec));
+}
