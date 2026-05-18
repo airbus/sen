@@ -227,6 +227,12 @@ paths:
         required: true
         schema:
           type: string
+      - in: query
+        name: includeValues
+        description: Whether to include property values
+        required: false
+        schema:
+          type: string
     get:
       summary: Get object details
       description: Returns information about a specific object including available
@@ -783,6 +789,9 @@ components:
           items:
             $ref: '#/components/schemas/Link'
           description: Links to available methods, properties, and events
+        properties:
+          type: object
+          description: Properties with its values
       required:
         - objectId
         - name

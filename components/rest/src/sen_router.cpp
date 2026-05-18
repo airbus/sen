@@ -17,6 +17,7 @@
 #include "locators.h"
 #include "notification_loop.h"
 #include "object_interests_manager.h"
+#include "response_adapter.h"
 #include "types.h"
 #include "utils.h"
 
@@ -156,18 +157,9 @@ std::shared_ptr<sen::Object> SenRouter::getObject(const InterestSubscription& in
   return *objectIt;
 }
 
-std::optional<Object> SenRouter::getObjectDefinition(const InterestSubscription& interestSubscription,
-                                                     const std::string& urlPath,
-                                                     const std::string& objectName) const
+Object SenRouter::getObjectDefinition(const std::string& urlPath, const sen::Object& object) const
 {
-  auto object = getObject(interestSubscription, objectName);
-  if (!object)
-  {
-    return std::nullopt;
-  }
-
-  auto objectClass = object->getClass();
-
+  auto objectClass = object.getClass();
   Links links;
   for (const auto& method: objectClass->getMethods(sen::ClassType::SearchMode::includeParents))
   {
@@ -202,10 +194,10 @@ std::optional<Object> SenRouter::getObjectDefinition(const InterestSubscription&
   }
 
   return Object {
-    object->getId().get(),
-    object->getName(),
+    object.getId().get(),
+    object.getName(),
     std::string(objectClass->getQualifiedName()),
-    object->getLocalName(),
+    object.getLocalName(),
     std::string(objectClass->getDescription()),
     links,
   };
@@ -381,7 +373,7 @@ SenRouter::SenRouter(kernel::RunApi& api): api_(api)
   addStreamRoute(
     HttpMethod::httpGet, "/api/sse", bindAuthStreamRouteCallback(this, &SenRouter::getNotificationsHandler));
 
-  // types instrospection
+  // types introspection
   addRoute(HttpMethod::httpGet, "/api/types/:type", bindAuthRouteCallback(this, &SenRouter::getTypeIntrospection));
 }
 
@@ -614,13 +606,32 @@ JsonResponse SenRouter::getObjectHandler(ClientSession& clientSession,
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
-  auto object = getObjectDefinition(interestSubscription, httpSession.getRequest().path(), urlParams[1]);
-  if (!object)
+  auto objectReference = getObject(interestSubscription, urlParams[1]);
+
+  if (!objectReference)
   {
     return getErrorNotFound();
   }
 
-  return JsonResponse {httpSuccess, *object};
+  auto object = getObjectDefinition(httpSession.getRequest().path(), *objectReference);
+  auto var = sen::toVariant(object);
+  adaptForJsonResponse(var, sen::MetaTypeTrait<Object>::meta().type());
+  auto jsonObject = nlohmann::json::parse(toJson(var));
+
+  if (!queryParams.empty() && queryParams.find("includeValues")->second == "true")
+  {
+    nlohmann::json values;
+
+    for (const auto& prop: objectReference->getClass()->getProperties(sen::ClassType::SearchMode::includeParents))
+    {
+      auto value = objectReference->getPropertyUntyped(prop.get());
+      values[prop->getName()] = nlohmann::json::parse(toJson(value));
+    }
+
+    jsonObject["properties"] = values;
+  }
+
+  return JsonResponse {httpSuccess, jsonObject.dump()};
 }
 
 JsonResponse SenRouter::getPropertyHandler(ClientSession& clientSession,

@@ -432,7 +432,7 @@ TEST(Rest, e2e_get_existing_object)
 }
 
 /// @test
-/// End-to-end test for getting an non-existing object
+/// End-to-end test for getting a non-existing object
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_non_existing_object)
 {
@@ -459,6 +459,77 @@ TEST(Rest, e2e_get_non_existing_object)
                      Json(),
                      token.value());
   ASSERT_EQ(ret.statusCode, 404);
+}
+
+/// @test
+/// End-to-end test getting existing object with its properties when optional query param is true
+TEST(Rest, e2e_get_existing_object_including_properties)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Try to get an object properties
+  auto ret = request(HttpMethod::httpGet,
+                     "127.0.0.1",
+                     "12345",
+                     "/api/interests/test_interest/objects/api?includeValues=true",
+                     Json(),
+                     token.value());
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto interests = Json::parse(ret.body);
+  ASSERT_TRUE(interests.is_object());
+  ASSERT_TRUE(interests.contains("properties"));
+  ASSERT_TRUE(interests["properties"].is_object());
+}
+
+/// @test
+/// End-to-end test getting existing object without its properties when optional query param is not true
+TEST(Rest, e2e_get_existing_object_not_including_properties)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Try to not get an object properties
+  auto ret = request(HttpMethod::httpGet,
+                     "127.0.0.1",
+                     "12345",
+                     "/api/interests/test_interest/objects/api?includeValues=false",
+                     Json(),
+                     token.value());
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto interests = Json::parse(ret.body);
+  ASSERT_TRUE(interests.is_object());
+  ASSERT_FALSE(interests.contains("properties"));
 }
 
 /// @test
