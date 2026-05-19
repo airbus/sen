@@ -24,7 +24,6 @@ add_sen_package(
 sen_enable_static_analysis(runtime_1)
 
 set_target_properties(runtime_1 PROPERTIES FOLDER "test")
-set_target_properties(runtime_1 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_package(
   TARGET runtime_2
@@ -42,7 +41,6 @@ add_sen_package(
 sen_enable_static_analysis(runtime_2)
 
 set_target_properties(runtime_2 PROPERTIES FOLDER "test")
-set_target_properties(runtime_2 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Generate the needed packages
 add_sen_package(
@@ -61,7 +59,6 @@ add_sen_package(
 sen_enable_static_analysis(runtime_3)
 
 set_target_properties(runtime_3 PROPERTIES FOLDER "test")
-set_target_properties(runtime_3 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_package(
   TARGET runtime_4
@@ -79,7 +76,6 @@ add_sen_package(
 sen_enable_static_analysis(runtime_4)
 
 set_target_properties(runtime_4 PROPERTIES FOLDER "test")
-set_target_properties(runtime_4 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_package(
   TARGET runtime_5
@@ -97,7 +93,6 @@ add_sen_package(
 sen_enable_static_analysis(runtime_5)
 
 set_target_properties(runtime_5 PROPERTIES FOLDER "test")
-set_target_properties(runtime_5 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_package(
   TARGET runtime_6
@@ -115,7 +110,6 @@ add_sen_package(
 sen_enable_static_analysis(runtime_6)
 
 set_target_properties(runtime_6 PROPERTIES FOLDER "test")
-set_target_properties(runtime_6 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # runtime compatibility tests
 #
@@ -133,7 +127,7 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime_1/config/runtime_1.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime_2/config/runtime_2.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/../tester.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_COMPONENTS ether py REQ_DEPS runtime_1 runtime_2
 )
 
@@ -151,7 +145,7 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime_3/config/runtime_3.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime_4/config/runtime_4.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/../tester.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_COMPONENTS ether py REQ_DEPS runtime_3 runtime_4
 )
 
@@ -169,7 +163,7 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime_5/config/runtime_5.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime_6/config/runtime_6.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/../tester.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_COMPONENTS ether py REQ_DEPS runtime_5 runtime_6
 )
 

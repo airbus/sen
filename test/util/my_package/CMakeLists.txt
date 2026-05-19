@@ -26,7 +26,6 @@ add_sen_package(
 )
 
 set_target_properties(my_package PROPERTIES FOLDER "examples/basic")
-set_target_properties(my_package PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # smoke tests
 add_sen_run_smoke_test(my_package_abstract_smoke CONFIG_FILE config/my_package_abstract.yaml WILL_FAIL)

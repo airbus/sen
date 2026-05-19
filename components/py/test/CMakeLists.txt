@@ -16,7 +16,7 @@ add_sen_integration_test(
   COMMAND
   ./cli_run
   ${CMAKE_CURRENT_SOURCE_DIR}/config/modify_objects.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_DEPS cli_run
 )
 

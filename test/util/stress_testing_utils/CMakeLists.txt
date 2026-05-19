@@ -17,4 +17,3 @@ add_sen_package(
 )
 
 target_link_libraries(stress_testing_utils PRIVATE $<BUILD_INTERFACE:spdlog::spdlog>)
-set_target_properties(stress_testing_utils PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

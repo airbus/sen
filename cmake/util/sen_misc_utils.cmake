@@ -639,12 +639,20 @@ function(sen_configure_target target_name)
     endif()
   endif()
 
-  set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-  )# .exe and .dll
-  set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-  )# .so and .dylib
-  set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
-  )# .a and .lib
+  if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+    set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+    )# .exe and .dll
+  endif()
+
+  if(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+    )# .so and .dylib
+  endif()
+
+  if(NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+    set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+    )# .a and .lib
+  endif()
 
   # link coverage flags if coverage was enabled (interface target created in root CMakeLists.txt)
   if(TARGET sen_coverage_flags)

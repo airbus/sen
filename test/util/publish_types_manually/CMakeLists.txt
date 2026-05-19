@@ -17,6 +17,4 @@ add_sen_package(
 )
 sen_enable_static_analysis(publish_types_manually)
 
-set_target_properties(publish_types_manually PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 add_sen_run_smoke_test(publish_types_manually CONFIG_FILE config/component.yaml)

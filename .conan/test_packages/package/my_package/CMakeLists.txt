@@ -24,7 +24,6 @@ add_sen_package(
 target_sources(my_package PRIVATE ${_combined_schema})
 target_link_libraries(my_package PRIVATE $<BUILD_INTERFACE:spdlog::spdlog>)
 set_target_properties(my_package PROPERTIES FOLDER "examples/basic")
-set_target_properties(my_package PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # TODO(SEN-1185): enable tests when possible
 configure_file(config/my_package.yaml ${CMAKE_BINARY_DIR}/test_configs/my_package.yaml COPYONLY)

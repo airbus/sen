@@ -6,7 +6,7 @@
 # ======================================================================================================================
 
 set(hla_fom_gen_test_sources ${CMAKE_CURRENT_SOURCE_DIR})
-set(working_dir ${CMAKE_BINARY_DIR}/bin)
+set(working_dir $<TARGET_FILE_DIR:sen::cli_gen>)
 
 # Test case 1
 #

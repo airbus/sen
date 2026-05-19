@@ -25,7 +25,6 @@ add_sen_package(
 )
 
 set_target_properties(transport_1 PROPERTIES FOLDER "test")
-set_target_properties(transport_1 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_package(
   TARGET transport_2
@@ -42,7 +41,6 @@ add_sen_package(
 )
 
 set_target_properties(transport_2 PROPERTIES FOLDER "test")
-set_target_properties(transport_2 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # transport tests
 #
@@ -60,7 +58,7 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/transport_1/config/transport_1.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/transport_2/config/transport_2.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/../tester.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_COMPONENTS ether py REQ_DEPS transport_1 transport_2
 )
 

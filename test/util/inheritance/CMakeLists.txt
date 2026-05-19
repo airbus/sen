@@ -24,6 +24,5 @@ add_sen_package(
 )
 
 set_target_properties(inheritance PROPERTIES FOLDER "examples/basic")
-set_target_properties(inheritance PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_run_smoke_test(inheritance_smoke CONFIG_FILE config/inheritance.yaml)

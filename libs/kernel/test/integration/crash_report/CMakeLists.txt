@@ -19,14 +19,13 @@ add_sen_package(
 )
 
 set_target_properties(crash_report PROPERTIES FOLDER "test")
-set_target_properties(crash_report PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_sen_integration_test(
   kernel_crash_report_stacktrace_test
   COMMAND
   ${PYTEST_EXEC}
   ${CMAKE_CURRENT_SOURCE_DIR}/crash_report_tester.py
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_DEPS crash_report
 )
 
