@@ -486,10 +486,10 @@ JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
 {
   logClientSession(clientSession, "createInterest");
 
-  const auto payload = Json::parse(httpSession.getRequest().body());
-
   try
   {
+    const auto payload = Json::parse(httpSession.getRequest().body());
+
     Interest interest;
     interest.query = payload.at("query").get<std::string>();
     interest.name = payload.at("name").get<std::string>();

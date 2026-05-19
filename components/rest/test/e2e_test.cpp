@@ -234,6 +234,20 @@ TEST(Rest, e2e_create_interest_invalid_query)
 }
 
 /// @test
+/// End-to-end test for malformed request to create interest
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_create_interest_malformed_request)
+{
+  Server server;
+
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  auto ret = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/interests", std::nullopt, token.value());
+  ASSERT_EQ(ret.statusCode, 400);
+}
+
+/// @test
 /// End-to-end test for getting an existing interest
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_interest_success)

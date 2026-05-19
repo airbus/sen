@@ -31,7 +31,7 @@ HttpResponse request(const HttpMethod& method,
                      const std::string& host,
                      const std::string& port,
                      const std::string& path,
-                     const Json& data = Json(),
+                     const std::optional<Json> data = Json(),
                      const std::string& token = "",
                      bool isSSE = false);
 

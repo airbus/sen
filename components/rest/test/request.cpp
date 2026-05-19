@@ -41,12 +41,11 @@ HttpResponse request(const HttpMethod& method,
                      const std::string& host,
                      const std::string& port,
                      const std::string& path,
-                     const Json& data,
+                     const std::optional<Json> data,
                      const std::string& token,
                      bool isSSE)
 {
   HttpResponse result {0, ""};
-
   asio::io_context context;
   asio::ip::tcp::resolver resolver(context);
   asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
@@ -61,8 +60,11 @@ HttpResponse request(const HttpMethod& method,
   {
     case HttpMethod::httpPost:
       request = "POST";
-      payload = data.dump();
-      payloadSize = payload.size();
+      if (data.has_value())
+      {
+        payload = data->dump();
+        payloadSize = payload.size();
+      }
       break;
     case HttpMethod::httpDelete:
       request = "DELETE";
