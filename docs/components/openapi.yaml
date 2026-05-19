@@ -820,8 +820,8 @@ components:
         method:
           type: string
           enum:
-            - httpGet
-            - httpPost
+            - get
+            - post
           description: HTTP method to use
       required:
         - rel
@@ -836,7 +836,7 @@ components:
         description:
           type: string
           description: Method description
-        ret_type:
+        retType:
           type: string
           description: Return type name
         args:
@@ -847,7 +847,7 @@ components:
       required:
         - name
         - description
-        - ret_type
+        - retType
         - args
     Argument:
       type: object
@@ -906,10 +906,10 @@ components:
           type: string
           enum:
             - evt
-            - property
             - invoke
-            - objectAdded
-            - objectRemoved
+            - property
+            - object_added
+            - object_removed
           description: Notification type
         data:
           type: object

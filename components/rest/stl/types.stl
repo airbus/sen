@@ -86,8 +86,8 @@ struct ObjectSummary
 {
   objectId  : u32,
   name      : string,
-  classname : string,
-  localname : string,
+  className : string,
+  localName : string,
   link      : Link
 }
 
@@ -127,8 +127,8 @@ struct Object
 {
   objectId    : u32,
   name        : string,
-  classname   : string,
-  localname   : string,
+  className   : string,
+  localName   : string,
   description : string,
   links       : Links
 }

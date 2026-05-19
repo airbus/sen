@@ -428,7 +428,7 @@ TEST(Rest, e2e_get_existing_object)
 
   auto interests = Json::parse(ret.body);
   ASSERT_TRUE(interests.is_object());
-  ASSERT_EQ(interests["localname"], "rest.local.kernel.api");
+  ASSERT_EQ(interests["localName"], "rest.local.kernel.api");
 }
 
 /// @test
