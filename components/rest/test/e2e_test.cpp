@@ -585,6 +585,51 @@ TEST(Rest, e2e_get_method_definition)
 }
 
 /// @test
+/// End-to-end test to verify all returned definition links are accessible
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_get_all_method_definitions)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  // Retrieve object definition
+  HttpResponse ret = retryUntil(
+    200,
+    [&token]()
+    {
+      return request(
+        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects/api", Json(), token.value());
+    });
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto res = Json::parse(ret.body);
+  ASSERT_TRUE(res.is_object());
+
+  // Walk all definition links
+  for (const auto& link: res["links"])
+  {
+    if (link["rel"] != "def")
+    {
+      continue;
+    }
+    auto defRet = request(HttpMethod::httpGet, "127.0.0.1", "12345", link["href"], Json(), token.value());
+    ASSERT_EQ(defRet.statusCode, 200);
+  }
+}
+
+/// @test
 /// End-to-end test for getting property definition
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_property_definition)

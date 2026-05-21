@@ -32,6 +32,7 @@
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
+#include "sen/core/meta/property.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/callback.h"
 #include "sen/core/obj/object.h"
@@ -171,13 +172,18 @@ Object SenRouter::getObjectDefinition(const std::string& urlPath, const sen::Obj
   for (const auto& prop: objectClass->getProperties(sen::ClassType::SearchMode::includeParents))
   {
     // prop getters
-    const std::string getterRelUrl = urlPath + "/methods/" + std::string(prop->getGetterMethod().getName());
+    const auto& getter = prop->getGetterMethod();
+    std::string getterRelUrl = urlPath + "/methods/" + std::string(getter.getName());
     links.emplace_back(Link {RelType::getter, getterRelUrl + "/invoke", HttpMethod::httpPost});
+    links.emplace_back(Link {RelType::def, std::move(getterRelUrl), HttpMethod::httpGet});
 
     // prop setters
-    const std::string setterRelUrl = urlPath + "/methods/" + std::string(prop->getSetterMethod().getName());
-    links.emplace_back(Link {RelType::setter, setterRelUrl + "/invoke", HttpMethod::httpPost});
-    links.emplace_back(Link {RelType::def, setterRelUrl, HttpMethod::httpGet});
+    if (const auto& setter = prop->getSetterMethod(); prop->getCategory() == PropertyCategory::dynamicRW)
+    {
+      std::string setterRelUrl = urlPath + "/methods/" + std::string(setter.getName());
+      links.emplace_back(Link {RelType::setter, setterRelUrl + "/invoke", HttpMethod::httpPost});
+      links.emplace_back(Link {RelType::def, std::move(setterRelUrl), HttpMethod::httpGet});
+    }
 
     // prop change subscription
     const std::string propRelUrlEvent = urlPath + "/properties/" + std::string(prop->getName());
@@ -214,17 +220,8 @@ std::optional<ObjectMethod> SenRouter::getMethodDefinition(const InterestSubscri
 
   auto objectClass = object->getClass();
 
-  const auto& methods = objectClass->getMethods(sen::ClassType::SearchMode::includeParents);
-  const auto methodIt = std::find_if(methods.cbegin(),
-                                     methods.cend(),
-                                     [&methodLocator](const std::shared_ptr<const Method> methodPtr)
-                                     { return methodPtr && methodPtr->getName() == methodLocator.method(); });
-  if (methodIt == methods.cend())
-  {
-    return std::nullopt;
-  }
-
-  auto method = methodIt->get();
+  const auto method =
+    objectClass->searchMethodByName(methodLocator.method(), sen::ClassType::SearchMode::includeParents);
   if (!method)
   {
     return std::nullopt;
@@ -854,7 +851,8 @@ JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
     return getErrorNotFound();
   }
 
-  const sen::Method* method = object->getClass()->searchMethodByName(locator.method());
+  const sen::Method* method =
+    object->getClass()->searchMethodByName(locator.method(), sen::ClassType::SearchMode::includeParents);
   if (!method)
   {
     return JsonResponse(httpNotFoundError, Error {"method not found"});
