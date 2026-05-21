@@ -32,6 +32,13 @@ TEST(FixedString, stringInitialized)
   EXPECT_EQ(str, data);
 }
 
+TEST(ConstexprFixedString, stringInitialized)
+{
+  constexpr const char* data = "Foobar";
+  constexpr FixedString<6> str(data);
+  static_assert(str == "Foobar", "Failed: fixed string was not constexpr constructable");
+}
+
 TEST(FixedString, stringViewInitialized)
 {
   const char* data = "Foobar";
@@ -41,6 +48,13 @@ TEST(FixedString, stringViewInitialized)
   EXPECT_EQ(str.capacity(), 6);
 
   EXPECT_EQ(str, data);
+}
+
+TEST(ConstexprFixedString, stringViewInitialized)
+{
+  constexpr const char* data = "Foobar";
+  constexpr FixedString<6> str(std::string_view {data});
+  static_assert(str == "Foobar", "Failed: fixed string was not constexpr constructable");
 }
 
 TEST(FixedString, stringInitializedWithMoreBuffer)
@@ -90,6 +104,26 @@ TEST(FixedString, compareAgainstStringView)
 
 //===----------------------------------------------------------------------===//
 // Operators
+
+TEST(FixedString, assignmentOperatorCStringView)
+{
+  FixedString<6> str;
+  std::string_view newContent = "Foobar";
+
+  str = newContent;
+
+  EXPECT_EQ(str, newContent);
+}
+
+TEST(FixedString, assignmentOperatorCharPtr)
+{
+  FixedString<6> str;
+  const char* newContent = "Foobar";
+
+  str = newContent;
+
+  EXPECT_EQ(str, newContent);
+}
 
 TEST(FixedString, assignCStringRef)
 {
@@ -304,6 +338,59 @@ TEST(FixedString, clear)
   str.clear();
 
   EXPECT_TRUE(str.empty());
+}
+
+TEST(FixedString, insertIdxCharPtr)
+{
+  FixedString<6> str("Foobar");
+
+  str.insert(3, "BAR");
+
+  EXPECT_EQ(str, "FooBAR");
+}
+
+TEST(FixedString, insertPosCh)
+{
+  FixedString<7> str("Foobar");
+
+  str.insert(std::next(str.begin(), 3), 'X');
+
+  EXPECT_EQ(str, "FooXbar");
+}
+
+TEST(FixedString, insertPosChFull)
+{
+  FixedString<6> str("Foobar");
+
+  str.insert(std::next(str.begin(), 3), 'X');
+
+  EXPECT_EQ(str, "FooXba");
+}
+
+TEST(FixedString, swap)
+{
+  FixedString<6> str("Foobar");
+  FixedString<6> str2("Barfoo");
+
+  str.swap(str2);
+
+  EXPECT_EQ(str, "Barfoo");
+  EXPECT_EQ(str2, "Foobar");
+}
+
+TEST(ConstexprFixedString, swap)
+{
+  static_assert(
+    []()
+      {
+        FixedString<6> str("Foobar");
+        FixedString<6> str2("Barfoo");
+
+        str.swap(str2);
+
+        return str;
+      }() == "Barfoo",
+    "Failed: fixed strings where not constexpr swapable");
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
@@ -552,5 +639,85 @@ TEST(FixedString, comparisions)
   EXPECT_TRUE(otherCharPtr != baseString);
   EXPECT_FALSE(sameCharPtr != baseString);
 }
+
+#ifdef __cpp_lib_starts_ends_with
+TEST(FixedString, startsWith)
+{
+  FixedString<6> str("Foobar");
+
+  EXPECT_TRUE(str.starts_with(std::string_view {"Foo"}));
+  EXPECT_TRUE(str.starts_with('F'));
+  EXPECT_TRUE(str.starts_with("Foo"));
+
+  EXPECT_FALSE(str.starts_with(std::string_view {"Bar"}));
+  EXPECT_FALSE(str.starts_with('B'));
+  EXPECT_FALSE(str.starts_with("Bar"));
+}
+
+TEST(FixedString, endsWith)
+{
+  FixedString<6> str("Foobar");
+
+  EXPECT_TRUE(str.ends_with(std::string_view {"bar"}));
+  EXPECT_TRUE(str.ends_with('r'));
+  EXPECT_TRUE(str.ends_with("bar"));
+
+  EXPECT_FALSE(str.ends_with(std::string_view {"Foo"}));
+  EXPECT_FALSE(str.ends_with('F'));
+  EXPECT_FALSE(str.ends_with("Foo"));
+}
+TEST(ConstexprFixedString, startsWith)
+{
+  constexpr FixedString<6> str("Foobar");
+
+  static_assert(str.starts_with(std::string_view {"Foo"}), "Failed: starts_with failed during constexpr");
+  static_assert(str.starts_with('F'), "Failed: starts_with failed during constexpr");
+  static_assert(str.starts_with("Foo"), "Failed: starts_with failed during constexpr");
+
+  static_assert(!str.starts_with(std::string_view {"Bar"}), "Failed: starts_with failed during constexpr");
+  static_assert(!str.starts_with('B'), "Failed: starts_with failed during constexpr");
+  static_assert(!str.starts_with("Bar"), "Failed: starts_with failed during constexpr");
+}
+
+TEST(ConstexprFixedString, endsWith)
+{
+  constexpr FixedString<6> str("Foobar");
+
+  static_assert(str.ends_with(std::string_view {"bar"}), "Failed: starts_with failed during constexpr");
+  static_assert(str.ends_with('r'), "Failed: starts_with failed during constexpr");
+  static_assert(str.ends_with("bar"), "Failed: starts_with failed during constexpr");
+
+  static_assert(!str.ends_with(std::string_view {"Foo"}), "Failed: starts_with failed during constexpr");
+  static_assert(!str.ends_with('F'), "Failed: starts_with failed during constexpr");
+  static_assert(!str.ends_with("Foo"), "Failed: starts_with failed during constexpr");
+}
+#endif
+
+#ifdef __cpp_lib_string_contains
+TEST(FixedString, contains)
+{
+  FixedString<6> str("Foobar");
+
+  EXPECT_TRUE(str.contains(std::string_view {"Foo"}));
+  EXPECT_TRUE(str.contains('F'));
+  EXPECT_TRUE(str.contains("Foo"));
+
+  EXPECT_FALSE(str.contains(std::string_view {"Bar"}));
+  EXPECT_FALSE(str.contains('B'));
+  EXPECT_FALSE(str.contains("Bar"));
+}
+TEST(ConstexprFixedString, contains)
+{
+  constexpr FixedString<6> str("Foobar");
+
+  static_assert(str.contains(std::string_view {"Foo"}), "Failed: starts_with failed during constexpr");
+  static_assert(str.contains('F'), "Failed: starts_with failed during constexpr");
+  static_assert(str.contains("Foo"), "Failed: starts_with failed during constexpr");
+
+  static_assert(!str.contains(std::string_view {"Bar"}), "Failed: starts_with failed during constexpr");
+  static_assert(!str.contains('B'), "Failed: starts_with failed during constexpr");
+  static_assert(!str.contains("Bar"), "Failed: starts_with failed during constexpr");
+}
+#endif
 
 }  // namespace

@@ -23,11 +23,11 @@ namespace sen::util
 template <typename IteratorType>
 struct IteratorRange
 {
-  IteratorRange(IteratorType begin, IteratorType end): begin_(std::move(begin)), end_(std::move(end)) {}
+  constexpr IteratorRange(IteratorType begin, IteratorType end): begin_(std::move(begin)), end_(std::move(end)) {}
 
-  [[nodiscard]] IteratorType begin() const { return begin_; }
-  [[nodiscard]] IteratorType end() const { return end_; }
-  [[nodiscard]] bool empty() const { return begin_ == end_; }
+  [[nodiscard]] constexpr IteratorType begin() const { return begin_; }
+  [[nodiscard]] constexpr IteratorType end() const { return end_; }
+  [[nodiscard]] constexpr bool empty() const { return begin_ == end_; }
 
 private:
   IteratorType begin_;
@@ -49,7 +49,7 @@ private:
 ///   };
 /// @endcode
 template <typename IteratorType>
-IteratorRange<IteratorType> makeRange(IteratorType begin, IteratorType end)
+constexpr IteratorRange<IteratorType> makeRange(IteratorType begin, IteratorType end)
 {
   return {std::move(begin), std::move(end)};
 }
@@ -68,7 +68,13 @@ IteratorRange<IteratorType> makeRange(IteratorType begin, IteratorType end)
 ///   };
 /// @endcode
 template <typename ContainerType>
-auto makeRange(ContainerType& container)
+constexpr auto makeRange(ContainerType& container)
+{
+  return makeRange(std::begin(container), std::end(container));
+}
+
+template <typename ContainerType>
+constexpr auto makeRange(const ContainerType& container)
 {
   return makeRange(std::begin(container), std::end(container));
 }

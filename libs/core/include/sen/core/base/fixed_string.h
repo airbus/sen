@@ -31,24 +31,25 @@ public:
   using traits_type = Traits;
   using value_type = CharT;
   using size_type = size_t;
-  // difference_type
+  using difference_type = std::ptrdiff_t;
   using reference = value_type&;
   using const_reference = const value_type&;
-  // pointer
-  // const_pointer
-  // iterator
-  // const_iterator
-  // reverse_iterator
-  // const_reverse_iterator
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
+
+  using iterator = pointer;
+  using const_iterator = const_pointer;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
   static constexpr size_type npos {std::numeric_limits<size_type>::max()};
 
 public:
-  FixedStringBase() = default;
-  explicit FixedStringBase(const CharT* s): FixedStringBase(std::string_view(s)) {}
-  explicit FixedStringBase(const std::string& s): FixedStringBase(std::string_view(s)) {};
-  explicit FixedStringBase(std::string_view s) { assignRange(util::makeRange(s.begin(), s.end())); };
+  constexpr FixedStringBase() = default;
+  explicit constexpr FixedStringBase(const CharT* s): FixedStringBase(std::string_view(s)) {}
+  explicit constexpr FixedStringBase(const std::string& s): FixedStringBase(std::string_view(s)) {};
+  explicit constexpr FixedStringBase(std::string_view s) { assignRange(util::makeRange(s.begin(), s.end())); };
 
   //------------------------------------------------------------------------------------------------------------------//
   // Basic member functions
@@ -60,7 +61,20 @@ public:
     return *this;
   }
 
-  // TODO insert other operator=s
+  FixedStringBase& operator=(const CharT* s)
+  {
+    FixedStringBase::operator=(std::string_view {s});
+    return *this;
+  }
+
+  template <class SV>
+  FixedStringBase& operator=(const SV& t)
+  {
+    assignRange(util::makeRange(t.begin(), t.end()));
+    return *this;
+  }
+
+  FixedStringBase& operator=(std::nullptr_t) = delete;
 
   FixedStringBase& assign(const std::string& s)
   {
@@ -95,11 +109,8 @@ public:
   {
     if (idx >= usedSize_)
     {
-      throw std::out_of_range("FixedString::at: ");
-      // TODO insert data
-      // basic_string::at: __n "
-      // "(which is %zu) >= this->size() "
-      // "(which is %zu)"
+      throw std::out_of_range("FixedString::at: " + std::to_string(idx) + " is out of range for size " +
+                              std::to_string(usedSize_));
     }
     return operator[](idx);
   }
@@ -108,11 +119,8 @@ public:
   {
     if (idx >= usedSize_)
     {
-      throw std::out_of_range("FixedString::at: ");
-      // TODO insert data
-      // basic_string::at: __n "
-      // "(which is %zu) >= this->size() "
-      // "(which is %zu)"
+      throw std::out_of_range("FixedString::at: " + std::to_string(idx) + " is out of range for size " +
+                              std::to_string(usedSize_));
     }
     return operator[](idx);
   }
@@ -156,27 +164,26 @@ public:
   [[nodiscard]] CharT* data() noexcept { return data_.data(); }
   [[nodiscard]] const CharT* data() const noexcept { return data_.data(); }
 
-  // NOLINTNEXTLINE(readability-identifier-naming)
   [[nodiscard]] const CharT* c_str() const noexcept { return data(); }
 
   //------------------------------------------------------------------------------------------------------------------//
   // Iterators
 
-  auto begin() { return data_.begin(); }
-  auto begin() const { return data_.cbegin(); }
-  auto cbegin() const noexcept { return data_.cbegin(); }
+  iterator begin() { return data_.begin(); }
+  const_iterator begin() const { return data_.cbegin(); }
+  const_iterator cbegin() const noexcept { return data_.cbegin(); }
 
-  auto end() { return std::next(data_.begin(), usedSize_); }
-  auto end() const { return std::next(data_.cbegin(), usedSize_); }
-  auto cend() const noexcept { return std::next(data_.cbegin(), usedSize_); }
+  iterator end() { return std::next(data_.begin(), usedSize_); }
+  const_iterator end() const { return std::next(data_.cbegin(), usedSize_); }
+  const_iterator cend() const noexcept { return std::next(data_.cbegin(), usedSize_); }
 
-  auto rbegin() { return std::next(data_.rbegin(), 1); }
-  auto rbegin() const { return std::next(data_.crbegin(), 1); }
-  auto crbegin() const noexcept { return std::next(data_.crbegin(), 1); }
+  reverse_iterator rbegin() { return std::next(data_.rbegin(), 1); }
+  const_reverse_iterator rbegin() const { return std::next(data_.crbegin(), 1); }
+  const_reverse_iterator crbegin() const noexcept { return std::next(data_.crbegin(), 1); }
 
-  auto rend() { return data_.rend(); }
-  auto rend() const { return data_.crend(); }
-  auto crend() const noexcept { return data_.crend(); }
+  reverse_iterator rend() { return data_.rend(); }
+  const_reverse_iterator rend() const { return data_.crend(); }
+  const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
   //------------------------------------------------------------------------------------------------------------------//
   // Capacity
@@ -190,12 +197,59 @@ public:
   // Modifiers
 
   void clear() { usedSize_ = 0; }
+
   // TODO: insert
+  FixedStringBase& insert(size_type idx, size_type count, CharT ch)
+  {
+    // TODO;
+  }
+
+  FixedStringBase& insert(size_type idx, const CharT* s)
+  {
+    assignRange(util::makeRange(std::string_view {s}), idx);
+    return *this;
+  }
+
+  FixedStringBase& insert(size_type idx, const CharT* s, size_type count)
+  {
+    assignRange(util::makeRange(std::string_view {s, count}), idx);
+    return *this;
+  }
+
+  FixedStringBase& insert(size_type idx, const std::string& s)
+  {
+    assignRange(util::makeRange(s), idx);
+    return *this;
+  }
+
+  FixedStringBase& insert(size_type idx, const std::string& s, size_type sIdx, size_type count = npos)
+  {
+    assignRange(util::makeRange(std::string_view {s}.substr(sIdx, count)), idx);
+    return *this;
+  }
+
+  FixedStringBase& insert(const_iterator pos, CharT ch)
+  {
+    bool wasFull = size() == capacity();
+
+    std::move_backward(pos, cend(), end() + 1);
+    data_[std::distance(cbegin(), pos)] = ch;
+    if (wasFull)
+    {
+      // override overfull character
+      data_[capacity()] = '\n';
+    }
+    else
+    {
+      usedSize_++;
+    }
+    return *this;
+  }
+
   FixedStringBase& erase(size_t index = 0, size_t count = npos) {}
   // TODO: erase
-  // NOLINTNEXTLINE(readability-identifier-naming)
+
   constexpr void push_back(CharT ch) { append(1, ch); }
-  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr void pop_back()
   {
     SEN_DEBUG_ASSERT(!empty());
@@ -222,8 +276,16 @@ public:
     std::copy_n(std::next(begin(), pos), count, dest);
   }
 
-  // TODO: swap
-  // void swap(FixedStringBase& other)
+  constexpr void swap(FixedStringBase& other)
+  {
+    StorageType tmpData = data_;
+    data_ = other.data_;
+    other.data_ = tmpData;
+
+    size_t tmpSize = usedSize_;
+    usedSize_ = other.usedSize_;
+    other.usedSize_ = tmpSize;
+  }
 
   //------------------------------------------------------------------------------------------------------------------//
   // Search
@@ -312,7 +374,6 @@ public:
   int compare(const FixedStringBase& str) const { return view().compare(str.view()); }
 
 #ifdef __cpp_lib_starts_ends_with
-  // TODO: write tests
   constexpr bool starts_with(std::basic_string_view<CharT, Traits> sv) const noexcept { return view().starts_with(sv); }
   constexpr bool starts_with(CharT ch) const noexcept { return view().starts_with(ch); }
   constexpr bool starts_with(const CharT* s) const { return view().starts_with(s); }
@@ -323,7 +384,6 @@ public:
 #endif
 
 #ifdef __cpp_lib_string_contains
-  // TODO: write tests
   constexpr bool contains(std::basic_string_view<CharT, Traits> sv) const noexcept { return view().contains(sv); }
   constexpr bool contains(CharT ch) const noexcept { return view().contains(ch); }
   constexpr bool contains(const CharT* s) const { return view().contains(s); }
@@ -334,51 +394,49 @@ public:
   // NOLINTNEXTLINE(hicpp-explicit-conversions)
   constexpr operator std::basic_string_view<CharT>() const noexcept { return view(); }
 
-  friend bool operator==(const FixedStringBase& lhs, const FixedStringBase& rhs)
+  friend constexpr bool operator==(const FixedStringBase& lhs, const FixedStringBase& rhs)
   {
     return lhs.size() == rhs.size() && !Traits::compare(lhs.data_.data(), rhs.data_.data(), lhs.usedSize_);
   }
-  friend bool operator==(const FixedStringBase& lhs, std::string_view rhs)
+  friend constexpr bool operator==(const FixedStringBase& lhs, std::string_view rhs)
   {
     return lhs.size() == rhs.size() && !Traits::compare(lhs.data_.data(), rhs.data(), lhs.usedSize_);
   }
-  friend bool operator==(std::string_view lhs, const FixedStringBase& rhs)
+  friend constexpr bool operator==(std::string_view lhs, const FixedStringBase& rhs)
   {
     return lhs.size() == rhs.size() && !Traits::compare(lhs.data(), rhs.data_.data(), rhs.usedSize_);
   }
-  friend bool operator==(const FixedStringBase& lhs, const CharT* rhs)
+  friend constexpr bool operator==(const FixedStringBase& lhs, const CharT* rhs)
   {
     return lhs.size() == Traits::length(rhs) && !Traits::compare(lhs.data_.data(), rhs, lhs.usedSize_);
   }
-  friend bool operator==(const CharT* lhs, const FixedStringBase& rhs)
+  friend constexpr bool operator==(const CharT* lhs, const FixedStringBase& rhs)
   {
     return Traits::length(lhs) == rhs.size() && !Traits::compare(lhs, rhs.data_.data(), Traits::length(lhs));
   }
 
-  friend bool operator!=(const FixedStringBase& lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
-  friend bool operator!=(const FixedStringBase& lhs, std::string_view rhs) { return !(lhs == rhs); }
-  friend bool operator!=(std::string_view lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
-  friend bool operator!=(const FixedStringBase& lhs, const CharT* rhs) { return !(lhs == rhs); }
-  friend bool operator!=(const CharT* lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
+  friend constexpr bool operator!=(const FixedStringBase& lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
+  friend constexpr bool operator!=(const FixedStringBase& lhs, std::string_view rhs) { return !(lhs == rhs); }
+  friend constexpr bool operator!=(std::string_view lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
+  friend constexpr bool operator!=(const FixedStringBase& lhs, const CharT* rhs) { return !(lhs == rhs); }
+  friend constexpr bool operator!=(const CharT* lhs, const FixedStringBase& rhs) { return !(lhs == rhs); }
 
 private:
   using StorageType = std::array<CharT, maxCapacity + 1>;
   using IteratorType = typename StorageType::iterator;
   using ConstIteratorType = typename StorageType::const_iterator;
 
-  // void assignRange(ConstIteratorType begin, ConstIteratorType end) { return assignRange({begin, end}); }
   template <typename T>
-  void assignRange(sen::util::IteratorRange<T> charRange)
+  constexpr void assignRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
   {
-    size_t idx {0};
     for (CharT c: charRange)
     {
-      data_[idx] = c;
-      idx++;
       if (isNotWithinCapacity(idx))
       {
         break;
       }
+      data_[idx] = c;
+      idx++;
     }
     SEN_DEBUG_ASSERT(idx < maxCapacity + 1);
     usedSize_ = idx;
