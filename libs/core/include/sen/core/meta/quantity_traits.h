@@ -8,8 +8,17 @@
 #ifndef SEN_CORE_META_QUANTITY_TRAITS_H
 #define SEN_CORE_META_QUANTITY_TRAITS_H
 
+// sen
+#include "sen/core/io/input_stream.h"
+#include "sen/core/io/output_stream.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/quantity_type.h"
+#include "sen/core/meta/type_traits.h"
+#include "sen/core/meta/var.h"
+
+// std
+#include <cstdint>
+#include <string>
 
 namespace sen
 {
@@ -34,6 +43,19 @@ struct QuantityTraitsBase
   [[nodiscard]] static uint32_t serializedSize(const T& val) noexcept
   {
     return SerializationTraits<ValueType>::serializedSize(val.get());
+  }
+
+  static std::string toJsonString(T val)
+  {
+    Var var;
+    valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, T& val)
+  {
+    const Var var = fromJson(str);
+    variantToValue(var, val);
   }
 };
 
