@@ -632,7 +632,7 @@ void {{localProxyName}}::{{ method.name }}({{ argList(method.args, true) }}::sen
 ## if prop.writeAllowed
 void {{localProxyName}}::{{ prop.setter.name }}({{ passedType(prop) }} val)
 {
-  sendWork([=](){ ptr{{ iface.interfaceName }}_->{{ prop.setter.name }}(val); }, {{ prop.confirmed }});
+  sendWork([=, this](){ ptr{{ iface.interfaceName }}_->{{ prop.setter.name }}(val); }, {{ prop.confirmed }});
 }
 
 ## endif
