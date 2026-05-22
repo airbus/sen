@@ -8,7 +8,16 @@
 include(tps/cli11)
 include(tps/spdlog)
 
-set(builtin_configs builtin_configs/shell.yaml builtin_configs/explorer.yaml builtin_configs/replay.yaml)
+set(builtin_configs)
+if(SEN_BUILD_SHELL)
+  list(APPEND builtin_configs builtin_configs/shell.yaml)
+endif()
+if(SEN_BUILD_REPLAYER)
+  list(APPEND builtin_configs builtin_configs/replay.yaml)
+endif()
+if(SEN_BUILD_EXPLORER)
+  list(APPEND builtin_configs builtin_configs/explorer.yaml)
+endif()
 
 set(builtin_configs_headers)
 foreach(_config_file ${builtin_configs})
@@ -37,6 +46,16 @@ target_link_libraries(
   PUBLIC sen::core sen::kernel
   PRIVATE $<BUILD_INTERFACE:CLI11::CLI11> $<BUILD_INTERFACE:spdlog::spdlog>
 )
+
+if(SEN_BUILD_SHELL)
+  target_compile_definitions(cli_run PRIVATE SEN_CLI_RUN_HAS_SHELL_PRESET)
+endif()
+if(SEN_BUILD_REPLAYER)
+  target_compile_definitions(cli_run PRIVATE SEN_CLI_RUN_HAS_REPLAY_PRESET)
+endif()
+if(SEN_BUILD_EXPLORER)
+  target_compile_definitions(cli_run PRIVATE SEN_CLI_RUN_HAS_EXPLORER_PRESET)
+endif()
 
 add_executable(sen::cli_run ALIAS cli_run)
 sen_internal_configure_app(cli_run)

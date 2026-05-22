@@ -200,6 +200,12 @@ endfunction()
 #   [WILL_FAIL]
 # )
 function(add_sen_run_smoke_test test_name)
+  # Nearly all bundled configs include the shell component. With the shell component disabled the
+  # configs fail to load. So in that case we skip registration so barebones builds don't pile up false failures.
+  if(NOT SEN_BUILD_SHELL)
+    return()
+  endif()
+
   set(_options NO_START_STOP WILL_FAIL FLAKY)
   set(_one_value_args WORKING_DIRECTORY CONFIG_FILE)
   set(_multi_value_args)

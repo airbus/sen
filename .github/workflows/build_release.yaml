@@ -73,12 +73,6 @@ jobs:
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
           conan profile show -pr default
 
-      - name: Install system dependencies
-        if: matrix.compiler.name != 'msvc'
-        shell: bash
-        # need for clang compat with sdl2 2.24.0
-        run: sudo apt-get install -y libxext-dev
-
       - name: Generate release package
         run: |
           conan install . --build=missing

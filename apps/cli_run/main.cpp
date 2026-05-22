@@ -6,9 +6,15 @@
 // =====================================================================================================================
 
 // generated
-#include "builtin_configs/explorer.h"
-#include "builtin_configs/replay.h"
-#include "builtin_configs/shell.h"
+#ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
+#  include "builtin_configs/shell.h"
+#endif
+#ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+#  include "builtin_configs/replay.h"
+#endif
+#ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
+#  include "builtin_configs/explorer.h"
+#endif
 
 // sen
 #include "sen/core/base/assert.h"
@@ -70,7 +76,8 @@ void applyCustomConfiguration(sen::kernel::Bootloader* bootloader, const std::sh
   }
 }
 
-std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<RunArgs>& args, CLI::App& app)
+std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<RunArgs>& args,
+                                                        [[maybe_unused]] CLI::App& app)
 {
   if (args->preset.empty())
   {
@@ -90,15 +97,23 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   }
 
   std::string presetContents;
+  bool presetMatched = false;
+#ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
   if (args->preset == "shell")
   {
     presetContents = sen::decompressSymbolToString(shell, shellSize);
+    presetMatched = true;
   }
-  else if (args->preset == "explorer")
+#endif
+#ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
+  if (!presetMatched && args->preset == "explorer")
   {
     presetContents = sen::decompressSymbolToString(explorer, explorerSize);
+    presetMatched = true;
   }
-  else if (args->preset == "replay")
+#endif
+#ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+  if (!presetMatched && args->preset == "replay")
   {
     bool autoPlay = true;
     std::string autoOpen = args->configFile.string();
@@ -115,8 +130,10 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
     presetContents = sen::decompressSymbolToString(replay, replaySize);
     std::ignore = replace(presetContents, "$autoOpen", autoOpen);
     std::ignore = replace(presetContents, "$autoPlay", autoPlay ? "true" : "false");
+    presetMatched = true;
   }
-  else
+#endif
+  if (!presetMatched)
   {
     std::string err;
     err.append("invalid preset '");
@@ -214,7 +231,21 @@ int runApp(int argc, char* argv[])
   app.get_formatter()->column_width(35);
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
-  app.add_option("--preset", args->preset, "Preset name")->check(CLI::IsMember({"shell", "explorer", "replay"}));
+#if defined(SEN_CLI_RUN_HAS_SHELL_PRESET) || defined(SEN_CLI_RUN_HAS_REPLAY_PRESET) ||                                 \
+  defined(SEN_CLI_RUN_HAS_EXPLORER_PRESET)
+  app.add_option("--preset", args->preset, "Preset name")
+    ->check(CLI::IsMember({
+#  ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
+      "shell",
+#  endif
+#  ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+      "replay",
+#  endif
+#  ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
+      "explorer",
+#  endif
+    }));
+#endif
   app.add_flag("--start-stop", args->startStop, "Stop execution after all components are running");
   app.add_flag("--print-config", args->printConfig, "Print the configuration that will be used");
 

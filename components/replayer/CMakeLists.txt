@@ -5,6 +5,8 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+sen_internal_component_guard(NAME replayer)
+
 include(tps/spdlog)
 
 set(_replayer_stl_files stl/sen/components/replayer/configuration.stl stl/sen/components/replayer/replayer.stl)

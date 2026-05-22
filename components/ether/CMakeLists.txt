@@ -5,6 +5,8 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+sen_internal_component_guard(NAME ether)
+
 include(tps/spdlog)
 include(tps/asio)
 include(tps/concurrentqueue)

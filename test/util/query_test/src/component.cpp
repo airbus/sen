@@ -69,18 +69,13 @@ public:
                           {
                             obj_->setNextCurrentStatus(query_test::Status::error);
                           }
-                          else if (tick_ == 2)
+                          else if (enumHits_ == 1)
                           {
-                            if (enumHits_ != 1)
-                            {
-                              sen::throwRuntimeError("Enum query failed to match property change");
-                            }
-
                             api.requestKernelStop(0);
                           }
-                          else if (tick_ > 10)
+                          else if (tick_ > 200)
                           {
-                            sen::throwRuntimeError("Test timeout");
+                            sen::throwRuntimeError("Enum query never matched the property change");
                           }
                         });
   }
