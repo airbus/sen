@@ -5,6 +5,13 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+sen_internal_component_guard(
+  NAME
+  py
+  DESCRIPTION
+  "Build Python integration (components/py and libs/db Python bindings)"
+)
+
 include(tps/pybind11)
 include(tps/spdlog)
 

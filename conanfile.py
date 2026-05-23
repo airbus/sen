@@ -10,8 +10,14 @@ from conan.tools.cmake import CMakeDeps, CMakeToolchain, CMake, cmake_layout
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
 from conan.tools.system.package_manager import Apt, Yum, Dnf, Zypper
-from os.path import isdir, join
 from os import getenv
+from os.path import isdir, join
+from pathlib import Path
+
+COMPONENTS = tuple(sorted(
+    p.parent.name
+    for p in (Path(__file__).parent / "components").glob("*/CMakeLists.txt")
+))
 
 class SenConan(ConanFile):
     name = "sen"
@@ -25,13 +31,46 @@ class SenConan(ConanFile):
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
 
+    # Allow component discovery from the recipe folder.
+    exports = "components/*/CMakeLists.txt"
+
+    options = {
+        **{f"with_{c}": ["auto", True, False] for c in COMPONENTS},
+        "mode": ["barebones", "basic", "full"], # barebones: no components, basic: shell + ether
+        "with_examples": [True, False],
+        "with_tests": [True, False],
+        "with_clang_tidy": [True, False],
+        "with_coverage": [True, False],
+        "with_docs": [True, False],
+        "sanitizer": ["none", "address", "thread"],
+    }
+    default_options = {
+        **{f"with_{c}": "auto" for c in COMPONENTS},
+        "mode": "full",
+        "with_examples": False,
+        "with_tests": False,
+        "with_clang_tidy": False,
+        "with_coverage": False,
+        "with_docs": False,
+        "sanitizer": "none",
+    }
+
+    def _is_component_enabled(self, name):
+        """Effective on/off for `with_<name>`, folding the `mode` default when the option is 'auto'."""
+        val = str(getattr(self.options, f"with_{name}"))
+        if val != "auto":
+            return val == "True"
+        mode = str(self.options.mode)
+        return mode == "full" or (mode == "basic" and name in {"shell", "ether"})
+
     def build_requirements(self):
         self.tool_requires("cmake/3.28.1")
         self.tool_requires("ninja/1.13.2")
         self.test_requires("gtest/1.17.0")
+        if self.options.with_docs:
+            self.tool_requires("doxygen/[>=1.15.0]")
 
     def requirements(self):
-        # non-visible dependencies
         self.requires("asio/1.36.0", visible=False)
         self.requires("cli11/2.3.2", visible=False)
         self.requires("concurrentqueue/1.0.4", visible=False)
@@ -41,30 +80,34 @@ class SenConan(ConanFile):
         self.requires("pugixml/1.14", visible=False)
         self.requires("rapidyaml/0.5.0", visible=False)
         self.requires("cpptrace/1.0.4", visible=False)
-        self.requires("llhttp/9.1.3", visible=False)
-        self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)
-
-        # Custom version of implot that uses imgui/1.90.5-docking.
-        # imgui is overridden to pin the docking branch required by implot.
-        # Without this, Conan would resolve imgui to the non-docking variant.
-        self.requires("implot/0.16", visible=False)
-        self.requires("imgui/1.90.5-docking", override=True, visible=False)
-
-        # visible dependencies
-        self.requires("pybind11/2.11.1", visible=True)
         self.requires("spdlog/1.17.0", visible=True)
 
-        # our usage of imgui in Linux has an implicit dependency on SDL.
-        # SDL has a missing dependency on libext-dev, so we need to install it.
-        if self.settings.os == "Linux":
-            self.requires("sdl/2.24.0",
-                          options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
-                          visible=False)
+        # explorer-only: ImGui + ImPlot + SDL.
+        # ImGui is overridden to pin the docking branch required by ImPlot.
+        # Conan would resolve imgui to the non-docking variant otherwise.
+        if self._is_component_enabled("explorer"):
+            self.requires("implot/0.16", visible=False)
+            self.requires("imgui/1.90.5-docking", override=True, visible=False)
+            if self.settings.os == "Linux":
+                self.requires("sdl/2.24.0",
+                              options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
+                              visible=False)
+
+        # py-only (Python integration)
+        if self._is_component_enabled("py"):
+            self.requires("pybind11/2.11.1", visible=True)
+
+        # rest-only
+        if self._is_component_enabled("rest"):
+            self.requires("llhttp/9.1.3", visible=False)
+
+        # tracy-only
+        if self._is_component_enabled("tracy"):
+            self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)
 
     def system_requirements(self):
-        # our usage of imgui on Linux has an implicit dependency on SDL,
-        # which itself requires libXext. Install it via the system package manager.
-        if self.settings.os == "Linux":
+        # SDL (pulled in by the explorer on Linux) requires libXext at the system level.
+        if self.settings.os == "Linux" and self._is_component_enabled("explorer"):
             Apt(self).install(["libxext-dev"], update=True)  # ubuntu, debian, ...
             Yum(self).install(["libXext-devel"], update=True)  # almalinux, rockylinux, ...
             Dnf(self).install(["libXext-devel"], update=True)  # fedora, rhel, centos, ...
@@ -114,11 +157,20 @@ class SenConan(ConanFile):
         deps.generate()
 
         tc = CMakeToolchain(self)
-        tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if env_var_to_bool("ENABLE_CT") else "ON"
-        tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if env_var_to_bool("ENABLE_COVERAGE") else "OFF"
-        tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if env_var_to_bool("ENABLE_EXAMPLES") else "OFF"
-        tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if env_var_to_bool("ENABLE_TESTS") else "OFF"
-        tc.cache_variables["SEN_USE_SANITIZER"] = select_sanitizer()
+        tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if self.options.with_clang_tidy else "ON"
+        tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if self.options.with_coverage else "OFF"
+        tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if self.options.with_examples else "OFF"
+        tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if self.options.with_tests else "OFF"
+        tc.cache_variables["SEN_BUILD_DOCS"] = "ON" if self.options.with_docs else "OFF"
+        tc.cache_variables["SEN_USE_SANITIZER"] = {
+            "none": "None",
+            "address": "ASanUBSan",
+            "thread": "Thread",
+        }[str(self.options.sanitizer)]
+
+        for component in COMPONENTS:
+            is_on = self._is_component_enabled(component)
+            tc.cache_variables[f"SEN_BUILD_{component.upper()}"] = "ON" if is_on else "OFF"
 
         # directory for the generated documentation
         site_dir = getenv("MKDOCS_SITE_DIR")
@@ -160,18 +212,3 @@ class SenConan(ConanFile):
             self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "bin"))
 
         # Windows: PATH is already prepended above; no additional loader path needed.
-
-def env_var_to_bool(env_var_name):
-    """Returns True if the environment variable is set to a truthy value, False otherwise."""
-    return getenv(env_var_name, "").lower() in ("true", "on", "1", "yes")
-
-def select_sanitizer() -> str:
-    if env_var_to_bool("ENABLE_ASAN"):
-        print("Configuring address and undefined-behavior sanitizers...")
-        return "ASanUBSan"
-
-    if env_var_to_bool("ENABLE_TSAN"):
-        print("Configuring thread sanitizer...")
-        return "Thread"
-
-    return "None"

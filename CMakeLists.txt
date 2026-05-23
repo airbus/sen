@@ -16,7 +16,6 @@ option(SEN_BUILD_EXAMPLES "Build examples" ON)
 option(SEN_BUILD_TESTS "Build tests" ON)
 option(SEN_BUILD_DOCS "Build documentation" ON)
 option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
-option(SEN_DISABLE_EXTRA_COMPONENTS "Disable non-critical components" OFF)
 option(SEN_COVERAGE_ENABLE "Enable coverage generation" OFF)
 option(SEN_ENABLE_CMAKE_TARGET_GRAPH "Enable the generation of a graphviz with the targets" ON)
 set(SEN_USE_SANITIZER
@@ -48,47 +47,6 @@ project(
 )
 
 include(util/sen_internal_utils)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.2.1)
-  message(FATAL_ERROR "GCC ${CMAKE_CXX_COMPILER_VERSION} is not supported.")
-endif()
-
-if(MSVC)
-  add_compile_options(/bigobj)
-endif()
-
-# configure coverage as an interface target so flags apply only to sen targets,
-# not to every target in the directory tree (e.g. third-party add_subdirectory targets).
-add_library(sen_coverage_flags INTERFACE)
-if(SEN_COVERAGE_ENABLE)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(
-      sen_coverage_flags
-      INTERFACE -g
-                -O0
-                -fno-inline
-                --coverage
-    )
-    target_link_options(sen_coverage_flags INTERFACE --coverage)
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_data/coverage-%m.profraw" SEN_COVERAGE_DATA_DIR)
-    target_compile_options(
-      sen_coverage_flags
-      INTERFACE -g
-                -O0
-                -fno-inline
-                -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
-                -fcoverage-mapping
-    )
-    target_link_options(
-      sen_coverage_flags
-      INTERFACE
-      -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
-      -fcoverage-mapping
-    )
-  endif()
-endif()
-
 include(util/sanitizers)
 include(util/test)
 
@@ -96,8 +54,24 @@ include(util/test)
 add_subdirectory(libs/core)
 add_subdirectory(libs/kernel)
 add_subdirectory(libs/db)
-add_subdirectory(libs/db/bindings/python)
 add_subdirectory(libs/util)
+
+# components
+add_subdirectory(components/shell)
+add_subdirectory(components/ether)
+add_subdirectory(components/recorder)
+add_subdirectory(components/replayer)
+add_subdirectory(components/explorer)
+add_subdirectory(components/py)
+add_subdirectory(components/influx)
+add_subdirectory(components/logmaster)
+add_subdirectory(components/rest)
+add_subdirectory(components/tracy)
+
+# Python bindings under libs/db
+if(SEN_BUILD_PY)
+  add_subdirectory(libs/db/bindings/python)
+endif()
 
 # apps
 add_subdirectory(apps/cli_sen)
@@ -107,29 +81,12 @@ add_subdirectory(apps/cli_archive)
 add_subdirectory(apps/cli_package)
 add_subdirectory(apps/cli_remote_shell)
 
-# critical components
-add_subdirectory(components/shell)
-add_subdirectory(components/ether)
-
-# non-critical components
-if(NOT SEN_DISABLE_EXTRA_COMPONENTS)
-  add_subdirectory(components/recorder)
-  add_subdirectory(components/replayer)
-  add_subdirectory(components/explorer)
-  add_subdirectory(components/py)
-  add_subdirectory(components/influx)
-  add_subdirectory(components/logmaster)
-  add_subdirectory(components/rest)
-  add_subdirectory(components/tracy)
-endif()
-
 # examples
 if(SEN_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
 # documentation
-# Docs are not present when building with only the conan export_sources
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/docs")
   if(SEN_BUILD_DOCS)
     add_subdirectory(docs)

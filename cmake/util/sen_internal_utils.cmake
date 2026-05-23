@@ -11,6 +11,10 @@ include_guard()
 # global configuration
 # ===================================================================================================================
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.2.1)
+  message(FATAL_ERROR "GCC ${CMAKE_CXX_COMPILER_VERSION} is not supported.")
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_LIBDIR lib)
 set(CMAKE_LINK_WHAT_YOU_USE OFF "Enable this to get feedback about the linkage")
@@ -120,6 +124,43 @@ function(sen_internal_generate_template_headers)
 
 endfunction()
 
+# Guard the rest of a Sen component's CMakeLists. Place at the top, above any
+# include(tps/<dep>) — declares the SEN_BUILD_<NAME> cache option (default ON, idempotent),
+# and returns from the calling file if the option is OFF so no Conan deps get pulled in.
+#
+# Must be a macro (not a function) for return() to exit the calling CMakeLists file.
+#
+# Arguments:
+#   NAME        — component name (lower case). Used to derive SEN_BUILD_<NAME>.
+#   DESCRIPTION — (optional) human-readable description for the option cache entry.
+macro(sen_internal_component_guard)
+  set(_one_value_args NAME DESCRIPTION)
+  cmake_parse_arguments(
+    _guard
+    ""
+    "${_one_value_args}"
+    ""
+    ${ARGN}
+  )
+
+  if(NOT _guard_NAME)
+    message(FATAL_ERROR "sen_internal_component_guard: NAME is required")
+  endif()
+
+  string(TOUPPER "${_guard_NAME}" _guard_upper)
+  set(_guard_option_name "SEN_BUILD_${_guard_upper}")
+
+  if(NOT _guard_DESCRIPTION)
+    set(_guard_DESCRIPTION "Build the ${_guard_NAME} component")
+  endif()
+
+  option(${_guard_option_name} "${_guard_DESCRIPTION}" ON)
+
+  if(NOT ${_guard_option_name})
+    return()
+  endif()
+endmacro()
+
 function(sen_internal_install target_name)
   if(UNIX AND NOT APPLE)
     set_property(TARGET ${target_name} PROPERTY INSTALL_RPATH "$ORIGIN")
@@ -198,15 +239,50 @@ if(SEN_ENABLE_CMAKE_TARGET_GRAPH)
   find_program(dot_executable dot)
   if(NOT dot_executable)
     message(WARNING "'dot' executable not found. Dependency graph cannot be generated.")
-    return()
+  else()
+    add_custom_command(
+      TARGET cmake_target_graph
+      POST_BUILD
+      COMMAND ${dot_executable} -Tsvg ${CMAKE_BINARY_DIR}/${_post_file} -o ${CMAKE_SOURCE_DIR}/sen.svg
+      COMMENT "Generating graph: sen.svg"
+    )
   endif()
+endif()
 
-  add_custom_command(
-    TARGET cmake_target_graph
-    POST_BUILD
-    COMMAND ${dot_executable} -Tsvg ${CMAKE_BINARY_DIR}/${_post_file} -o ${CMAKE_SOURCE_DIR}/sen.svg
-    COMMENT "Generating graph: sen.svg"
-  )
+# configure coverage as an interface target so flags apply only to sen targets,
+# not to every target in the directory tree (e.g. third-party add_subdirectory targets).
+add_library(sen_coverage_flags INTERFACE)
+if(SEN_COVERAGE_ENABLE)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(
+      sen_coverage_flags
+      INTERFACE -g
+                -O0
+                -fno-inline
+                --coverage
+    )
+    target_link_options(sen_coverage_flags INTERFACE --coverage)
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_data/coverage-%m.profraw" SEN_COVERAGE_DATA_DIR)
+    target_compile_options(
+      sen_coverage_flags
+      INTERFACE -g
+                -O0
+                -fno-inline
+                -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
+                -fcoverage-mapping
+    )
+    target_link_options(
+      sen_coverage_flags
+      INTERFACE
+      -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
+      -fcoverage-mapping
+    )
+  endif()
+endif()
+
+if(MSVC)
+  add_compile_options(/bigobj)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)

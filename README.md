@@ -174,6 +174,10 @@ cmake --build build/gcc/Release                   # Build Sen
 If you would like to set up the full development environment for Sen (incl. testing, docs, etc...),
 you would need to install the `pytest`, `graphviz` and `plantuml` packages using your package manager.
 
+Sen exposes a Conan option per component (`with_<name>`), a coarse `mode` switch
+(`barebones`/`basic`/`full`), and a handful of developer-facing flags. See the
+[Building Sen](docs/getting_started/install.md#build-options) page for the pattern and examples.
+
 <a name="limitations"></a>
 ## ⚠️ Limitations
 
