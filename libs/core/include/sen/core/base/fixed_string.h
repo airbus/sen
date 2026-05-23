@@ -60,20 +60,17 @@ public:
     assignRange(util::makeRange(other.begin(), other.end()));
     return *this;
   }
-
   FixedStringBase& operator=(const CharT* s)
   {
     FixedStringBase::operator=(std::string_view {s});
     return *this;
   }
-
   template <class SV>
   FixedStringBase& operator=(const SV& t)
   {
     assignRange(util::makeRange(t.begin(), t.end()));
     return *this;
   }
-
   FixedStringBase& operator=(std::nullptr_t) = delete;
 
   FixedStringBase& assign(const std::string& s)
@@ -81,21 +78,18 @@ public:
     assignRange(util::makeRange(s.begin(), s.end()));
     return *this;
   }
-
   template <typename SV>
   FixedStringBase& assign(const SV& s)
   {
     assignRange(util::makeRange(s.begin(), s.end()));
     return *this;
   }
-
   template <typename InputIt>
   FixedStringBase& assign(InputIt first, InputIt last)
   {
     assignRange(util::makeRange(first, last));
     return *this;
   }
-
   FixedStringBase& assign(std::initializer_list<CharT> initList)
   {
     assignRange(util::makeRange(initList.begin(), initList.end()));
@@ -114,7 +108,6 @@ public:
     }
     return operator[](idx);
   }
-
   [[nodiscard]] const CharT& at(size_t idx) const
   {
     if (idx >= usedSize_)
@@ -124,13 +117,11 @@ public:
     }
     return operator[](idx);
   }
-
   [[nodiscard]] CharT& operator[](size_t idx)
   {
     SEN_DEBUG_ASSERT(isWithinCapacity(idx));
     return data_[idx];
   }
-
   [[nodiscard]] const CharT& operator[](size_t idx) const
   {
     SEN_DEBUG_ASSERT(isWithinCapacity(idx));
@@ -142,7 +133,6 @@ public:
     SEN_DEBUG_ASSERT(!empty());
     return operator[](0);
   }
-
   [[nodiscard]] const CharT& front() const
   {
     SEN_DEBUG_ASSERT(!empty());
@@ -154,7 +144,6 @@ public:
     SEN_DEBUG_ASSERT(!empty());
     return operator[](capacity() - 1);
   }
-
   [[nodiscard]] const CharT& back() const
   {
     SEN_DEBUG_ASSERT(!empty());
@@ -198,65 +187,96 @@ public:
 
   void clear() { usedSize_ = 0; }
 
-  // TODO: insert
   FixedStringBase& insert(size_type idx, size_type count, CharT ch)
   {
-    // TODO;
+    return insert(convertToIterator(idx), count, ch);
   }
-
-  FixedStringBase& insert(size_type idx, const CharT* s)
-  {
-    assignRange(util::makeRange(std::string_view {s}), idx);
-    return *this;
-  }
-
+  FixedStringBase& insert(size_type idx, const CharT* s) { return insert(idx, std::string_view {s}); }
   FixedStringBase& insert(size_type idx, const CharT* s, size_type count)
   {
-    assignRange(util::makeRange(std::string_view {s, count}), idx);
-    return *this;
+    return insert(idx, std::string_view {s, count});
   }
-
-  FixedStringBase& insert(size_type idx, const std::string& s)
+  FixedStringBase& insert(const_iterator pos, CharT ch) { return insert(pos, size_type {1}, ch); }
+  FixedStringBase& insert(const_iterator pos, size_type count, CharT ch)
   {
-    assignRange(util::makeRange(s), idx);
+    makeGap(pos, count);
+    std::fill_n(std::next(begin(), convertToIndex(pos)), count, ch);
     return *this;
   }
-
-  FixedStringBase& insert(size_type idx, const std::string& s, size_type sIdx, size_type count = npos)
+  template <typename InputIt>
+  FixedStringBase& insert(const_iterator pos, InputIt first, InputIt last)
   {
-    assignRange(util::makeRange(std::string_view {s}.substr(sIdx, count)), idx);
-    return *this;
+    return insert(convertToIndex(pos), std::string_view {first, last});
   }
-
-  FixedStringBase& insert(const_iterator pos, CharT ch)
+  FixedStringBase& insert(const_iterator pos, std::initializer_list<CharT> initList)
   {
-    bool wasFull = size() == capacity();
-
-    std::move_backward(pos, cend(), end() + 1);
-    data_[std::distance(cbegin(), pos)] = ch;
-    if (wasFull)
-    {
-      // override overfull character
-      data_[capacity()] = '\n';
-    }
-    else
-    {
-      usedSize_++;
-    }
+    return insert(convertToIndex(pos), std::string_view {initList.begin(), initList.end()});
+  }
+  template <typename StringViewLike>
+  FixedStringBase& insert(size_type idx, const StringViewLike& sv)
+  {
+    makeGap(idx, sv.length());
+    insertRange(util::makeRange(sv), idx);
     return *this;
   }
+  template <typename StringViewLike>
+  FixedStringBase& insert(size_type idx, const StringViewLike& sv, size_type svIdx, size_type count = npos)
+  {
+    return insert(idx, std::string_view {sv}.substr(svIdx, count));
+  }
 
-  FixedStringBase& erase(size_t index = 0, size_t count = npos) {}
-  // TODO: erase
+  FixedStringBase& erase(size_t index = 0, size_t count = npos)
+  {
+    // TODO
+  }
+  FixedStringBase& erase(const_iterator position)
+  {
+    // TODO
+  }
+  FixedStringBase& erase(const_iterator first, const_iterator last)
+  {
+    // TODO
+  }
 
   constexpr void push_back(CharT ch) { append(1, ch); }
+
   constexpr void pop_back()
   {
     SEN_DEBUG_ASSERT(!empty());
     usedSize_--;
   }
-  FixedStringBase& append(size_type count, CharT ch);
-  // TODO: append
+
+  FixedStringBase& append(size_type count, CharT ch)
+  {
+    // TODO
+  }
+  FixedStringBase& append(const CharT* s, size_type count)
+  {
+    // TODO
+  }
+  FixedStringBase& append(const CharT* s)
+  {
+    // TODO
+  }
+  template <typename StringViewLike>
+  FixedStringBase& append(const StringViewLike& t)
+  {
+    // TODO
+  }
+  template <typename StringViewLike>
+  FixedStringBase& append(const StringViewLike& t, size_type pos, size_type count = npos)
+  {
+    // TODO
+  }
+  template <typename InputIt>
+  FixedStringBase& append(InputIt first, InputIt last)
+  {
+    // TODO
+  }
+  FixedStringBase& append(std::initializer_list<CharT> initList)
+  {
+    // TODO
+  }
 
   FixedStringBase& operator+=(const FixedStringBase& str) { return append(str); }
   FixedStringBase& operator+=(CharT ch) { return append(1, ch); }
@@ -268,8 +288,35 @@ public:
     return append(t);
   }
 
-  FixedStringBase& replace(size_type pos, size_type count, const FixedStringBase& str);  // TODO
-  // TODO: replace
+  FixedStringBase& replace(size_type pos, size_type count, const CharT* cstr, size_type count2) { /* TODO */ }
+  FixedStringBase& replace(const_iterator first, const_iterator last, const CharT* cstr, size_type count2) { /* TODO */
+  }
+  FixedStringBase& replace(size_type pos, size_type count, const CharT* cstr) { /* TODO */ }
+  FixedStringBase& replace(const_iterator first, const_iterator last, const CharT* cstr) { /* TODO */ }
+  FixedStringBase& replace(size_type pos, size_type count, size_type count2, CharT ch) { /* TODO */ }
+  FixedStringBase& replace(const_iterator first, const_iterator last, size_type count2, CharT ch) { /* TODO */ }
+  template <typename InputIt>
+  FixedStringBase& replace(const_iterator first, const_iterator last, InputIt first2, InputIt last2)
+  { /* TODO */
+  }
+  FixedStringBase& replace(const_iterator first, const_iterator last, std::initializer_list<CharT> initList)
+  { /* TODO */ }
+  template <typename StringViewLike>
+  FixedStringBase& replace(size_type pos, size_type count, const StringViewLike& t)
+  { /* TODO */
+  }
+  template <typename StringViewLike>
+  FixedStringBase& replace(const_iterator first, const_iterator last, const StringViewLike& t)
+  { /* TODO */
+  }
+  template <typename StringViewLike>
+  FixedStringBase& replace(size_type pos,
+                           size_type count,
+                           const StringViewLike& t,
+                           size_type pos2,
+                           size_type count2 = npos)
+  { /* TODO */
+  }
 
   size_type copy(CharT* dest, size_type count, size_t pos = 0) const
   {
@@ -427,7 +474,7 @@ private:
   using ConstIteratorType = typename StorageType::const_iterator;
 
   template <typename T>
-  constexpr void assignRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
+  constexpr size_t makeInsertionRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
   {
     for (CharT c: charRange)
     {
@@ -439,14 +486,45 @@ private:
       idx++;
     }
     SEN_DEBUG_ASSERT(idx < maxCapacity + 1);
+    return idx;
+  }
+
+  template <typename T>
+  constexpr void insertRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
+  {
+    idx = makeInsertionRange(charRange, idx);
+    usedSize_ = std::max(idx, usedSize_);
+    data_[usedSize_] = '\0';
+  }
+
+  template <typename T>
+  constexpr void assignRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
+  {
+    idx = makeInsertionRange(charRange, idx);
     usedSize_ = idx;
-    data_[idx] = '\n';
+    data_[usedSize_] = '\0';
+  }
+  constexpr void makeGap(size_type idx, size_type amount) { makeGap(convertToIterator(idx), amount); }
+  constexpr void makeGap(const_iterator pos, size_type amount)
+  {
+    if (amount + size() > capacity())
+    {
+      throw std::length_error("Number of inserted characters exceeds capacity");
+    }
+    std::move_backward(pos, cend(), std::next(end(), amount));
+    usedSize_ += amount;
   }
 
   [[nodiscard]] constexpr std::basic_string_view<CharT> view() const noexcept { return {data_.data(), usedSize_}; }
 
   [[nodiscard]] constexpr bool isWithinCapacity(size_t idx) const noexcept { return idx < capacity(); }
   [[nodiscard]] constexpr bool isNotWithinCapacity(size_t idx) const noexcept { return !isWithinCapacity(idx); }
+  [[nodiscard]] constexpr iterator convertToIterator(size_type idx) noexcept { return std::next(begin(), idx); }
+  [[nodiscard]] constexpr size_type convertToIndex(const_iterator iter) const noexcept
+  {
+    SEN_DEBUG_ASSERT(cbegin() <= iter && iter < cend() && "Iterator was out-of-bounds.");
+    return std::distance(cbegin(), iter);
+  }
 
   StorageType data_ {'\0'};
   size_type usedSize_ {0};

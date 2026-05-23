@@ -11,10 +11,13 @@
 // google test
 #include <gtest/gtest.h>
 
+// std
 #include <string>
+#include <string_view>
 #include <tuple>
 
 using sen::FixedString;
+using std::operator""sv;
 
 namespace
 {
@@ -340,13 +343,63 @@ TEST(FixedString, clear)
   EXPECT_TRUE(str.empty());
 }
 
-TEST(FixedString, insertIdxCharPtr)
+TEST(FixedString, insertIdxCCh)
+{
+  FixedString<7> str("Foobar");
+
+  str.insert(decltype(str)::size_type {3}, decltype(str)::size_type {1}, 'X');
+
+  EXPECT_EQ(str, "FooXbar");
+}
+
+TEST(FixedString, insertIdxCChFull)
 {
   FixedString<6> str("Foobar");
 
+  EXPECT_THROW(str.insert(decltype(str)::size_type {3}, decltype(str)::size_type {1}, 'X'), std::length_error);
+}
+
+TEST(FixedString, insertIdxCharPtr)
+{
+  FixedString<9> str("Fooooo");
+
   str.insert(3, "BAR");
 
-  EXPECT_EQ(str, "FooBAR");
+  EXPECT_EQ(str, "FooBARooo");
+}
+
+TEST(FixedString, insertIdxCharPTrCount)
+{
+  FixedString<9> str("Fooooo");
+
+  str.insert(3, "BARxyz", 3);
+
+  EXPECT_EQ(str, "FooBARooo");
+}
+
+TEST(FixedString, insertIdxSV)
+{
+  FixedString<9> str("Fooooo");
+
+  str.insert(3, "BAR"sv);
+
+  EXPECT_EQ(str, "FooBARooo");
+}
+
+TEST(FixedString, insertIdxSVIdxCount)
+{
+  FixedString<9> str("Fooooo");
+
+  str.insert(3, "xBARy"sv, 1, 3);
+
+  EXPECT_EQ(str, "FooBARooo");
+}
+
+TEST(FixedString, insertIdxSVFull)
+{
+  FixedString<6> str("Fooooo");
+
+  EXPECT_THROW(str.insert(3, "BAR"sv), std::length_error);
 }
 
 TEST(FixedString, insertPosCh)
@@ -362,9 +415,48 @@ TEST(FixedString, insertPosChFull)
 {
   FixedString<6> str("Foobar");
 
-  str.insert(std::next(str.begin(), 3), 'X');
+  EXPECT_THROW(str.insert(std::next(str.begin(), 3), 'X'), std::length_error);
+}
 
-  EXPECT_EQ(str, "FooXba");
+TEST(FixedString, insertPosCountCh)
+{
+  FixedString<9> str("Foobar");
+
+  str.insert(std::next(str.begin(), 3), 3, 'X');
+
+  EXPECT_EQ(str, "FooXXXbar");
+}
+
+TEST(FixedString, insertPosCountChFull)
+{
+  FixedString<6> str("Foobar");
+
+  EXPECT_THROW(str.insert(std::next(str.begin(), 2), 3, 'X'), std::length_error);
+}
+
+TEST(FixedString, insertPosCountChCountExceeds)
+{
+  FixedString<6> str("Foobar");
+
+  EXPECT_THROW(str.insert(std::next(str.begin(), 3), 5, 'X'), std::length_error);
+}
+
+TEST(FixedString, insertPosIter)
+{
+  FixedString<9> str("Fooooo");
+  std::string s("BAR");
+  str.insert(std::next(str.begin(), 3), s.begin(), s.end());
+
+  EXPECT_EQ(str, "FooBARooo");
+}
+
+TEST(FixedString, insertPosInitList)
+{
+  FixedString<9> str("Fooooo");
+
+  str.insert(std::next(str.begin(), 3), {'B', 'A', 'R'});
+
+  EXPECT_EQ(str, "FooBARooo");
 }
 
 TEST(FixedString, swap)
