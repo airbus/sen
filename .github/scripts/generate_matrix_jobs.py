@@ -62,16 +62,26 @@ class JobSpecification:
         return convert_dataclass_to_json(self)
 
 
+@dataclass(frozen=True, order=True)
+class JobSelector:
+    """Selector specification that defines when to add a job."""
+
+    job_spec: JobSpecification
+    include_in_release_workflow: bool
+    include_in_conan_workflow: bool
+    include_in_standard_test_workflow: bool
+    include_in_standard_test_workflow_also_main: bool
+
+
 def compute_jobs(
     release: bool, conan: bool, standard_test: bool, target_main: bool
 ) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
-    jobs = []
 
-    if standard_test or conan:
-        # TEST
-        jobs.append(
-            JobSpecification(
+    specified_jobs = [
+        # Add gcc jobs
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic GCC",
                 "ubuntu-22.04",
                 "self-hosted",
@@ -79,26 +89,14 @@ def compute_jobs(
                 Compiler("gcc", 12, "gcc-12", "g++-12"),
                 17,
                 "Debug",
-            )
-        )
-        return jobs
-
-    # Add gcc jobs
-    if not release:
-        jobs.append(
-            JobSpecification(
-                "Basic GCC",
-                "ubuntu-22.04",
-                "self-hosted",
-                None,
-                Compiler("gcc", 12, "gcc-12", "g++-12"),
-                17,
-                "Debug",
-            )
-        )
-    else:
-        jobs.append(
-            JobSpecification(
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic GCC",
                 "ubuntu-22.04",
                 "self-hosted",
@@ -106,13 +104,15 @@ def compute_jobs(
                 Compiler("gcc", 12, "gcc-12", "g++-12"),
                 17,
                 "Release",
-            )
-        )
-
-    # Add clang jobs
-    if not release:
-        jobs.append(
-            JobSpecification(
+            ),
+            include_in_release_workflow=True,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        # Add clang jobs
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic Clang",
                 "ubuntu-24.04",
                 "self-hosted",
@@ -120,14 +120,16 @@ def compute_jobs(
                 Compiler("clang", 20, "clang-20", "clang++-20"),
                 17,
                 "Debug",
-                enable_coverage=True
-            )
-        )
-
-    # Add msvc jobs
-    if release:
-        jobs.append(
-            JobSpecification(
+                enable_coverage=True,
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=True,
+        ),
+        # Add msvc jobs
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic Windows",
                 "windows",
                 "windows-2022",
@@ -135,11 +137,14 @@ def compute_jobs(
                 Compiler("msvc", 194, "cl", "cl"),
                 17,
                 "Release",
-            )
-        )
-    else:
-        jobs.append(
-            JobSpecification(
+            ),
+            include_in_release_workflow=True,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic Windows",
                 "windows",
                 "windows-2022",
@@ -147,13 +152,15 @@ def compute_jobs(
                 Compiler("msvc", 194, "cl", "cl"),
                 17,
                 "Debug",
-            )
-        )
-
-    # Add amd64 jobs
-    if not release:
-        jobs.append(
-            JobSpecification(
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=False,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        # Add amd64 jobs
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic Ubuntu arm",
                 "ubuntu-24.04",
                 "ubuntu-24.04-arm",
@@ -161,13 +168,47 @@ def compute_jobs(
                 Compiler("gcc_arm64", 12, "gcc-14", "g++-14"),
                 17,
                 "Debug",
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=False,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+    ]
+
+    def include_job(job_selector: JobSelector) -> bool:
+        if release:
+            return job_selector.include_in_release_workflow
+
+        if conan:
+            return job_selector.include_in_conan_workflow
+
+        if standard_test and target_main:
+            return (
+                job_selector.include_in_standard_test_workflow
+                and job_selector.include_in_standard_test_workflow_also_main
             )
+
+        if standard_test:
+            return job_selector.include_in_standard_test_workflow
+
+        print(
+            f"Warning: could not correctly determine selection for job {job_selector}"
         )
+        return False  # by default, we skip jobs
 
-    return sorted(jobs)
+    return sorted(
+        [
+            job_selector.job_spec
+            for job_selector in specified_jobs
+            if include_job(job_selector)
+        ]
+    )
 
 
-def generate_jobs_file(release: bool, conan: bool, standard_test: bool, target_main: bool) -> None:
+def generate_jobs_file(
+    release: bool, conan: bool, standard_test: bool, target_main: bool
+) -> None:
     """Generates the jobs file at GITHUB_OUTPUT."""
     jobs = compute_jobs(release, conan, standard_test, target_main)
 
@@ -208,7 +249,10 @@ def main() -> None:
     args = parser.parse_args()
 
     generate_jobs_file(
-        release=args.release, conan=args.conan, standard_test=args.standard_test, target_main=args.target_main
+        release=args.release,
+        conan=args.conan,
+        standard_test=args.standard_test,
+        target_main=args.target_main,
     )
 
 

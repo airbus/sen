@@ -19,7 +19,7 @@ jobs:
   standard-tests:
     uses: ./.github/workflows/standard_test.yaml
     with:
-      building-main: ${{ github.ref != 'refs/heads/main' }}
+      building-main: ${{ github.ref == 'refs/heads/main' }}
 
   conan-packaging:
     uses: ./.github/workflows/conan.yaml
