@@ -9,6 +9,10 @@ name: Standard PR Tests
 
 on:
   workflow_call:
+    inputs:
+      building-main:
+        required: true
+        type: boolean
 
 permissions:
   contents: read
@@ -27,7 +31,7 @@ jobs:
         with:
           python-version: 3.x
       - id: compute-jobs
-        run: python .github/scripts/generate_matrix_jobs.py --standard-pr-test
+        run: python .github/scripts/generate_matrix_jobs.py --standard-test ${{ inputs.building-main == true && '--target-main' || '' }}
   build:
     name: "Standard Test Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
@@ -83,6 +87,8 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           # export ENABLE_EXAMPLES=true
           export ENABLE_TESTS=true
+          export ENABLE_COVERAGE=${{ matrix.enable_coverage }}
+
           conan install . -s:a build_type=${{ matrix.build_type }} --build=missing
           conan build . -s:a build_type=${{ matrix.build_type }}
 
@@ -91,6 +97,14 @@ jobs:
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
+
+      # Connect App to Airbus Org.
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     files: coverage_reports/coverage.lcov
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Remove unwanted parts from conan cache before backup
         shell: bash

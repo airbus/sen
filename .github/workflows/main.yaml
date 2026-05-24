@@ -16,12 +16,11 @@ jobs:
   initial-pre-commit-checks:
     uses: ./.github/workflows/pre-commit.yaml
 
-  standard-pr-tests:
+  standard-tests:
     uses: ./.github/workflows/standard_test.yaml
-    if: github.event_name == 'pull_request'
+    with:
+      building-main: ${{ github.ref != 'refs/heads/main' }}
 
   conan-packaging:
     uses: ./.github/workflows/conan.yaml
-    needs: standard-pr-tests
-    # Run conan packaging after standard-pr-tests.
-    if: always() && (needs.standard-pr-tests.result == 'success' || needs.standard-pr-tests.result == 'skipped')
+    needs: standard-tests
