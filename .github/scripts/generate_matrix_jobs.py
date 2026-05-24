@@ -95,8 +95,8 @@ def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:
         jobs.append(
             JobSpecification("Basic Ubuntu arm", "ubuntu-24.04",
                              "ubuntu-24.04-arm", None,
-                             Compiler("gcc_arm64", 14, "gcc-14",
-                                      "gcc-14"), 17, "Debug"))
+                             Compiler("gcc_arm64", 12, "gcc-12",
+                                      "g++-12"), 17, "Debug"))
 
     return sorted(jobs)
 

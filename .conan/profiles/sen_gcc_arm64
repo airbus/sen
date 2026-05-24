@@ -1,6 +1,12 @@
-include(sen_gcc)
-
 [settings]
 arch=armv8
 
+os=Linux
+compiler=gcc
+compiler.cppstd=17
+compiler.version=12
+compiler.libcxx=libstdc++11
+build_type=Release
+
 [conf]
+tools.cmake.cmake_layout:build_folder_vars=['settings.compiler']
