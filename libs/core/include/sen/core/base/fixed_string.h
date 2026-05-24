@@ -65,8 +65,9 @@ public:
     FixedStringBase::operator=(std::string_view {s});
     return *this;
   }
-  template <class SV>
-  FixedStringBase& operator=(const SV& t)
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
+  FixedStringBase& operator=(const StringViewLike& t)
   {
     assignRange(util::makeRange(t.begin(), t.end()));
     return *this;
@@ -78,8 +79,9 @@ public:
     assignRange(util::makeRange(s.begin(), s.end()));
     return *this;
   }
-  template <typename SV>
-  FixedStringBase& assign(const SV& s)
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
+  FixedStringBase& assign(const StringViewLike& s)
   {
     assignRange(util::makeRange(s.begin(), s.end()));
     return *this;
@@ -101,19 +103,19 @@ public:
 
   [[nodiscard]] CharT& at(size_t idx)
   {
-    if (idx >= usedSize_)
+    if (idx >= size())
     {
       throw std::out_of_range("FixedString::at: " + std::to_string(idx) + " is out of range for size " +
-                              std::to_string(usedSize_));
+                              std::to_string(size()));
     }
     return operator[](idx);
   }
   [[nodiscard]] const CharT& at(size_t idx) const
   {
-    if (idx >= usedSize_)
+    if (idx >= size())
     {
       throw std::out_of_range("FixedString::at: " + std::to_string(idx) + " is out of range for size " +
-                              std::to_string(usedSize_));
+                              std::to_string(size()));
     }
     return operator[](idx);
   }
@@ -212,14 +214,16 @@ public:
   {
     return insert(convertToIndex(pos), std::string_view {initList.begin(), initList.end()});
   }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& insert(size_type idx, const StringViewLike& sv)
   {
     makeGap(idx, sv.length());
     insertRange(util::makeRange(sv), idx);
     return *this;
   }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& insert(size_type idx, const StringViewLike& sv, size_type svIdx, size_type count = npos)
   {
     return insert(idx, std::string_view {sv}.substr(svIdx, count));
@@ -249,10 +253,12 @@ public:
     usedSize_--;
   }
 
+  // TODO: fix
   FixedStringBase& append(size_type count, CharT ch) { return insert(usedSize_, count, ch); }
   FixedStringBase& append(const CharT* s, size_type count) { return insert(usedSize_, std::string_view {s, count}); }
   FixedStringBase& append(const CharT* s) { return insert(usedSize_, s); }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& append(const StringViewLike& t)
   {
     return insert(usedSize_, t);
@@ -273,48 +279,76 @@ public:
   FixedStringBase& operator+=(CharT ch) { return append(1, ch); }
   FixedStringBase& operator+=(const CharT* s) { return append(s); }
   FixedStringBase& operator+=(std::initializer_list<CharT> initList) { return append(std::move(initList)); }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& operator+=(const StringViewLike& t)
   {
     return append(t);
   }
 
-  FixedStringBase& replace(size_type pos, size_type count, const CharT* cstr, size_type count2) { /* TODO */ }
-  FixedStringBase& replace(const_iterator first, const_iterator last, const CharT* cstr, size_type count2) { /* TODO */
+  FixedStringBase& replace(size_type pos, size_type count, const CharT* cstr, size_type count2)
+  {
+    return replace(pos, count, std::string_view {cstr, count2});
   }
-  FixedStringBase& replace(size_type pos, size_type count, const CharT* cstr) { /* TODO */ }
-  FixedStringBase& replace(const_iterator first, const_iterator last, const CharT* cstr) { /* TODO */ }
-  FixedStringBase& replace(size_type pos, size_type count, size_type count2, CharT ch) { /* TODO */ }
-  FixedStringBase& replace(const_iterator first, const_iterator last, size_type count2, CharT ch) { /* TODO */ }
+  FixedStringBase& replace(const_iterator first, const_iterator last, const CharT* cstr, size_type count2)
+  {
+    return replace(first, last, std::string_view {cstr, count2});
+  }
+  FixedStringBase& replace(size_type pos, size_type count, const CharT* cstr)
+  {
+    return replace(convertToIterator(pos), convertToIterator(pos + count), std::string_view {cstr});
+  }
+  FixedStringBase& replace(const_iterator first, const_iterator last, const CharT* cstr)
+  {
+    return replace(first, last, std::string_view {cstr});
+  }
+  FixedStringBase& replace(size_type pos, size_type count, size_type count2, CharT ch)
+  {
+    throwWhenPositionOutOfRange(pos);
+    std::fill_n(std::next(begin(), pos), std::min(count, count2), ch);
+    return *this;
+  }
+  FixedStringBase& replace(const_iterator first, const_iterator last, size_type count2, CharT ch)
+  {
+    return replace(convertToIndex(first), convertToIndex(last) - convertToIndex(first), count2, ch);
+  }
   template <typename InputIt>
   FixedStringBase& replace(const_iterator first, const_iterator last, InputIt first2, InputIt last2)
-  { /* TODO */
+  {
+    return replace(first, last, std::string_view {first2, last2});
   }
   FixedStringBase& replace(const_iterator first, const_iterator last, std::initializer_list<CharT> initList)
-  { /* TODO */ }
-  template <typename StringViewLike>
+  {
+    return replace(first, last, std::string_view {initList.begin(), initList.end()});
+  }
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& replace(size_type pos, size_type count, const StringViewLike& t)
-  { /* TODO */
+  {
+    throwWhenPositionOutOfRange(pos);
+    makeInsertion(util::makeRange(t.begin(), std::next(t.begin(), std::min(count, t.size()))), pos);
+    return *this;
   }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& replace(const_iterator first, const_iterator last, const StringViewLike& t)
-  { /* TODO */
+  {
+    return replace(convertToIndex(first), convertToIndex(last), t);
   }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& replace(size_type pos,
                            size_type count,
                            const StringViewLike& t,
                            size_type pos2,
                            size_type count2 = npos)
-  { /* TODO */
+  {
+    return replace(pos, count, t.substr(pos2, count2));
   }
 
   size_type copy(CharT* dest, size_type count, size_t pos = 0) const
   {
-    if (pos > size())
-    {
-      throw std::out_of_range("Pos (" + std::to_string(pos) + ") was out of range");
-    }
+    throwWhenPositionOutOfRange(pos);
     size_type numCharsToCopy = std::min(count - pos, size());
     std::copy_n(std::next(begin(), pos), numCharsToCopy, dest);
     return numCharsToCopy;
@@ -339,7 +373,8 @@ public:
   size_type find(const CharT* s, size_type pos, size_type count) const noexcept { return view().find(s, pos, count); }
   size_type find(const CharT* s, size_type pos = 0) const noexcept { return view().find(s, pos); }
   size_type find(CharT ch, size_type pos = 0) const noexcept { return view().find(ch, pos); };
-  template <class StringViewLike>
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   size_type find(const StringViewLike& t, size_type pos = 0) const noexcept
   {
     return view().find(t, pos);
@@ -348,7 +383,8 @@ public:
   size_type rfind(const CharT* s, size_type pos, size_type count) const noexcept { return view().rfind(s, pos, count); }
   size_type rfind(const CharT* s, size_type pos = npos) const noexcept { return view().rfind(s, pos); }
   size_type rfind(CharT ch, size_type pos = npos) const noexcept { return view().rfind(ch, pos); };
-  template <class StringViewLike>
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   size_type rfind(const StringViewLike& t, size_type pos = npos) const noexcept
   {
     return view().rfind(t, pos);
@@ -360,7 +396,8 @@ public:
   }
   size_type find_first_of(const CharT* s, size_type pos = 0) const noexcept { return view().find_first_of(s, pos); }
   size_type find_first_of(CharT ch, size_type pos = 0) const noexcept { return view().find_first_of(ch, pos); }
-  template <class StringViewLike>
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   size_type find_first_of(const StringViewLike& t, size_type pos = 0) const noexcept
   {
 
@@ -376,7 +413,8 @@ public:
     return view().find_first_not_of(s, pos);
   }
   size_type find_first_not_of(CharT ch, size_type pos = 0) const noexcept { return view().find_first_not_of(ch, pos); }
-  template <class StringViewLike>
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   size_type find_first_not_of(const StringViewLike& t, size_type pos = 0) const noexcept
   {
 
@@ -389,7 +427,8 @@ public:
   }
   size_type find_last_of(const CharT* s, size_type pos = npos) const noexcept { return view().find_last_of(s, pos); }
   size_type find_last_of(CharT ch, size_type pos = npos) const noexcept { return view().find_last_of(ch, pos); }
-  template <class StringViewLike>
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   size_type find_last_of(const StringViewLike& t, size_type pos = npos) const noexcept
   {
 
@@ -405,7 +444,8 @@ public:
     return view().find_last_not_of(s, pos);
   }
   size_type find_last_not_of(CharT ch, size_type pos = npos) const noexcept { return view().find_last_not_of(ch, pos); }
-  template <class StringViewLike>
+  template <class StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   size_type find_last_not_of(const StringViewLike& t, size_type pos = npos) const noexcept
   {
 
@@ -494,6 +534,14 @@ private:
   [[nodiscard]] constexpr size_type convertToIndex(const_iterator iter) const noexcept
   {
     return std::distance(cbegin(), iter);
+  }
+
+  void throwWhenPositionOutOfRange(size_t pos) const
+  {
+    if (pos > size())
+    {
+      throw std::out_of_range("Pos (" + std::to_string(pos) + ") was out of range.");
+    }
   }
 
   //===------------------------------------------------------------------------------------------------------------===//

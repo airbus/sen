@@ -711,7 +711,150 @@ TEST(FixedString, operatorAdditionAssignmentSV)
   EXPECT_EQ(str, "Foobar");
 }
 
-// replace
+TEST(FixedString, replacePosCountCharPtrCount)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  const char* insertData = "obaYY";
+
+  str.replace(2, 3, insertData, 3);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replaceRangeCharPtrCount)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  const char* insertData = "obaYY";
+
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto firstX = std::next(str.begin(), str.find_first_of('X'));
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto afterLastX = std::next(str.begin(), str.find_last_of('X') + 1);
+
+  str.replace(firstX, afterLastX, insertData, 3);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replacePosCountCharPtr)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  const char* insertData = "oba";
+
+  str.replace(2, 3, insertData);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replaceRangeCharPtr)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  const char* insertData = "oba";
+
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto firstX = std::next(str.begin(), str.find_first_of('X'));
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto afterLastX = std::next(str.begin(), str.find_last_of('X') + 1);
+
+  str.replace(firstX, afterLastX, insertData);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replacePosCountCountCh)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  str.replace(2, 3, 3, 'Y');
+
+  EXPECT_EQ(str, "FoYYYr");
+}
+
+TEST(FixedString, replaceRangeCountCh)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto firstX = std::next(str.begin(), str.find_first_of('X'));
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto afterLastX = std::next(str.begin(), str.find_last_of('X') + 1);
+
+  str.replace(firstX, afterLastX, 3, 'Y');
+
+  EXPECT_EQ(str, "FoYYYr");
+}
+
+TEST(FixedString, replaceRangeFromRange)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  std::string_view insertData {"oba"};
+
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto firstX = std::next(str.begin(), str.find_first_of('X'));
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto afterLastX = std::next(str.begin(), str.find_last_of('X') + 1);
+
+  str.replace(firstX, afterLastX, insertData.begin(), insertData.end());
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replaceRangeInitList)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto firstX = std::next(str.begin(), str.find_first_of('X'));
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto afterLastX = std::next(str.begin(), str.find_last_of('X') + 1);
+
+  str.replace(firstX, afterLastX, {'o', 'b', 'a'});
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replacePosCountSV)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  std::string_view insertData {"oba"};
+
+  str.replace(2, 3, insertData);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replaceRangeStringView)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  std::string_view insertData {"oba"};
+
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto firstX = std::next(str.begin(), str.find_first_of('X'));
+  // NOLINTNEXTLINE(bugprone-narrowing-conversions): num not later that 6
+  auto afterLastX = std::next(str.begin(), str.find_last_of('X') + 1);
+
+  str.replace(firstX, afterLastX, insertData);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, replacePosCountSVPosCount)
+{
+  FixedString<6> str {"FoXXXr"};
+
+  std::string_view insertData {"YYobaZZ"};
+
+  str.replace(2, 3, insertData, 2, 3);
+
+  EXPECT_EQ(str, "Foobar");
+}
 
 TEST(FixedString, copy)
 {
