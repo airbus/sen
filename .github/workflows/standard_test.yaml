@@ -1,19 +1,14 @@
-# === conan.yaml =======================================================================================================
+# === standard_test.yaml ===============================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-name: Conan CI
+name: Standard PR Tests
 
 on:
   workflow_call:
-    inputs:
-      push_artifacts:
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -32,9 +27,9 @@ jobs:
         with:
           python-version: 3.x
       - id: compute-jobs
-        run: python .github/scripts/generate_matrix_jobs.py --conan
+        run: python .github/scripts/generate_matrix_jobs.py --standard-pr-test
   build:
-    name: "Conan Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
+    name: "Standard Test Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -78,21 +73,26 @@ jobs:
           compiler-name: ${{ matrix.compiler.name }}
           compiler-version: ${{ matrix.compiler.version }}
 
-      - name: Create conan package
+      - name: Install additional python dependencies
+        shell: bash
+        run: pip install -U junitparser
+
+      - name: Compile base libraries
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          conan create . --user airbus --channel dev --lockfile-out=package.lock \
-              --test-folder .conan/test_packages/package \
-              --build=missing -s:a build_type=${{ matrix.build_type }}
+          # export ENABLE_EXAMPLES=true
+          export ENABLE_TESTS=true
+          conan install . -s:a build_type=${{ matrix.build_type }} --build=missing
+          conan build . -s:a build_type=${{ matrix.build_type }}
 
-      - name: Push conan packages
-        if: ${{ inputs.push_artifacts }}
+      - name: Run tests
         shell: bash
-        run: echo "Pushing package (fake entry)"
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
 
       - name: Remove unwanted parts from conan cache before backup
         shell: bash
         run: |
-          conan remove sen --confirm
           conan cache clean "*" -s -b -d

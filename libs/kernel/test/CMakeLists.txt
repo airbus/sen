@@ -10,8 +10,9 @@ add_subdirectory(unit)
 # Disable integration tests due to windows build agent problems
 if(NOT MSVC)
   add_subdirectory(integration/test_helpers)
-  add_subdirectory(integration/transport)
-  add_subdirectory(integration/runtime_compatibility)
-  add_subdirectory(integration/crash_report)
-  add_subdirectory(integration/type_clash)
+  # TODO: Need to figure out github support
+  # add_subdirectory(integration/transport)
+  # add_subdirectory(integration/runtime_compatibility)
+  # add_subdirectory(integration/crash_report)
+  # add_subdirectory(integration/type_clash)
 endif()

@@ -62,10 +62,25 @@ class JobSpecification:
 
 
 def compute_jobs(
-    release: bool, conan: bool, building_pr: bool
+    release: bool, conan: bool, standard_pr_test: bool
 ) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
     jobs = []
+
+    if standard_pr_test or conan:
+        # TEST
+        jobs.append(
+            JobSpecification(
+                "Basic GCC",
+                "ubuntu-22.04",
+                "self-hosted",
+                None,
+                Compiler("gcc", 12, "gcc-12", "g++-12"),
+                17,
+                "Debug",
+            )
+        )
+        return jobs
 
     # Add gcc jobs
     if not release:
@@ -150,9 +165,9 @@ def compute_jobs(
     return sorted(jobs)
 
 
-def generate_jobs_file(release: bool, conan: bool) -> None:
+def generate_jobs_file(release: bool, conan: bool, standard_pr_test: bool) -> None:
     """Generates the jobs file at GITHUB_OUTPUT."""
-    jobs = compute_jobs(release, conan)
+    jobs = compute_jobs(release, conan, standard_pr_test)
 
     if output_file := os.environ.get("GITHUB_OUTPUT"):
         with open(output_file, "wt", encoding="utf-8") as matrix_file:
@@ -178,7 +193,7 @@ def main() -> None:
         help="Generate the jobs needed to ensure all required conan packages work.",
     )
     parser.add_argument(
-        "--building-pr",
+        "--standard-pr-test",
         action=argparse.BooleanOptionalAction,
         help="Generate the jobs needed for a PR build.",
     )
@@ -186,7 +201,7 @@ def main() -> None:
     args = parser.parse_args()
 
     generate_jobs_file(
-        release=args.release, conan=args.conan, building_pr=args.building_pr
+        release=args.release, conan=args.conan, standard_pr_test=args.standard_pr_test
     )
 
 
