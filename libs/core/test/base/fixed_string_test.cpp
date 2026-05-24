@@ -712,7 +712,55 @@ TEST(FixedString, operatorAdditionAssignmentSV)
 }
 
 // replace
-// copy
+
+TEST(FixedString, copy)
+{
+  FixedString<6> str {"Foobar"};
+
+  char output[10] {'\0'};
+  auto numCopyied = str.copy(output, 6);
+
+  EXPECT_EQ(numCopyied, 6);
+  EXPECT_STREQ(output, "Foobar");
+}
+
+TEST(FixedString, copyMore)
+{
+  FixedString<6> str {"Foobar"};
+
+  char output[10] {'\0'};
+  auto numCopyied = str.copy(output, sizeof output - 1);
+
+  EXPECT_EQ(numCopyied, 6);
+  EXPECT_STREQ(output, "Foobar");
+}
+
+TEST(FixedString, copyPos)
+{
+  FixedString<6> str {"Foobar"};
+
+  char output[10] {'\0'};
+  auto numCopyied = str.copy(output, 6, 3);
+
+  EXPECT_EQ(numCopyied, 3);
+  EXPECT_STREQ(output, "bar");
+}
+
+TEST(FixedString, copyPosOOB)
+{
+  FixedString<6> str {"Foo"};
+
+  char output[10] {'\0'};
+  EXPECT_THROW(str.copy(output, 3, 4), std::out_of_range);
+}
+
+TEST(FixedString, copyPosOOBStorage)
+{
+  FixedString<6> str {"Foobar"};
+
+  char output[10] {'\0'};
+  EXPECT_THROW(str.copy(output, 3, 7), std::out_of_range);
+}
 
 TEST(FixedString, swap)
 {

@@ -311,7 +311,13 @@ public:
 
   size_type copy(CharT* dest, size_type count, size_t pos = 0) const
   {
-    std::copy_n(std::next(begin(), pos), count, dest);
+    if (pos > size())
+    {
+      throw std::out_of_range("Pos (" + std::to_string(pos) + ") was out of range");
+    }
+    size_type numCharsToCopy = std::min(count - pos, size());
+    std::copy_n(std::next(begin(), pos), numCharsToCopy, dest);
+    return numCharsToCopy;
   }
 
   constexpr void swap(FixedStringBase& other)
