@@ -55,20 +55,6 @@ jobs:
         with:
           compiler: ${{ matrix.compiler }}
 
-        # start
-
-      - name: Setup conan profile
-        shell: bash
-        run: |
-          rm -f ~/.conan2/profiles/default
-          conan profile detect --force -vquiet
-          cp .conan/profiles/sen_${{ matrix.compiler.name }} ~/.conan2/profiles/default
-          echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
-          echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-          conan profile show -pr default
-
-        # stop
-
       - name: Generate release package
         run: |
           conan install . --build=missing

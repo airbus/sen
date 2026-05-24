@@ -75,32 +75,6 @@ jobs:
           compiler-name: ${{ matrix.compiler.name }}
           compiler-version: ${{ matrix.compiler.version }}
 
-        # start
-
-      - name: Install clang-${{ matrix.compiler.version }}
-        if: matrix.compiler.name == 'clang'
-        shell: bash
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh ${{ matrix.compiler.version }}
-          sudo apt install -y clang-tools-${{ matrix.compiler.version }}
-
-      - name: Setup conan profile
-        shell: bash
-        run: |
-          rm -f ~/.conan2/profiles/default
-          conan profile detect --force -vquiet
-          conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
-          cp .conan/profiles/sen_$COMPILER ~/.conan2/profiles/default
-          echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
-          echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-          conan profile show -pr default
-        env:
-          COMPILER: ${{ matrix.compiler.name }}
-
-        # stop
-
       - name: Create conan package
         shell: bash
         run: |
