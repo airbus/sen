@@ -171,7 +171,7 @@ def compute_jobs(
                 "ubuntu-24.04",
                 "ubuntu-24.04-arm",
                 None,
-                Compiler("gcc", 12, "gcc-14", "g++-14"),
+                Compiler("gcc", 14, "gcc-14", "g++-14"),
                 "arm",
                 17,
                 "Debug",
@@ -181,19 +181,6 @@ def compute_jobs(
             include_in_standard_test_workflow=True,
             include_in_standard_test_workflow_also_main=False,
         ),
-    ]
-
-    return [
-            JobSpecification(
-                "Basic Ubuntu arm",
-                "ubuntu-24.04",
-                "ubuntu-24.04-arm",
-                None,
-                Compiler("gcc", 12, "gcc-14", "g++-14"),
-                "arm",
-                17,
-                "Debug",
-            ),
     ]
 
     def include_job(job_selector: JobSelector) -> bool:

@@ -34,7 +34,7 @@ jobs:
       - id: compute-jobs
         run: python .github/scripts/generate_matrix_jobs.py --conan
   build:
-    name: "Conan Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
+    name: "Conan Job: ${{ matrix.compiler.name }}-${{ matrix.arch }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
     strategy:
