@@ -119,34 +119,34 @@ public:
   }
   [[nodiscard]] CharT& operator[](size_t idx)
   {
-    SEN_DEBUG_ASSERT(isWithinCapacity(idx));
+    checkIdxInRange(idx);
     return data_[idx];
   }
   [[nodiscard]] const CharT& operator[](size_t idx) const
   {
-    SEN_DEBUG_ASSERT(isWithinCapacity(idx));
+    checkIdxInRange(idx);
     return data_[idx];
   }
 
   [[nodiscard]] CharT& front()
   {
-    SEN_DEBUG_ASSERT(!empty());
+    checkIdxInRange(0);
     return operator[](0);
   }
   [[nodiscard]] const CharT& front() const
   {
-    SEN_DEBUG_ASSERT(!empty());
+    checkIdxInRange(0);
     return operator[](0);
   }
 
   [[nodiscard]] CharT& back()
   {
-    SEN_DEBUG_ASSERT(!empty());
+    checkIdxInRange(0);
     return operator[](capacity() - 1);
   }
   [[nodiscard]] const CharT& back() const
   {
-    SEN_DEBUG_ASSERT(!empty());
+    checkIdxInRange(0);
     return operator[](capacity() - 1);
   }
 
@@ -227,17 +227,17 @@ public:
 
   FixedStringBase& erase(size_t idx = 0, size_t count = npos)
   {
-    destructiveMoveLeft(convertToIterator(idx), count != npos ? count : size() - idx);
+    makeDestructiveMoveLeft(convertToIterator(idx), count != npos ? count : size() - idx);
     return *this;
   }
   FixedStringBase& erase(const_iterator pos)
   {
-    destructiveMoveLeft(pos, 1);
+    makeDestructiveMoveLeft(pos, 1);
     return *this;
   }
   FixedStringBase& erase(const_iterator first, const_iterator last)
   {
-    destructiveMoveLeft(first, std::distance(first, last));
+    makeDestructiveMoveLeft(first, std::distance(first, last));
     return *this;
   }
 
@@ -249,39 +249,27 @@ public:
     usedSize_--;
   }
 
-  FixedStringBase& append(size_type count, CharT ch)
-  {
-    // TODO
-  }
-  FixedStringBase& append(const CharT* s, size_type count)
-  {
-    // TODO
-  }
-  FixedStringBase& append(const CharT* s)
-  {
-    // TODO
-  }
+  FixedStringBase& append(size_type count, CharT ch) { return insert(usedSize_, count, ch); }
+  FixedStringBase& append(const CharT* s, size_type count) { return insert(usedSize_, std::string_view {s, count}); }
+  FixedStringBase& append(const CharT* s) { return insert(usedSize_, s); }
   template <typename StringViewLike>
   FixedStringBase& append(const StringViewLike& t)
   {
-    // TODO
+    return insert(usedSize_, t);
   }
-  template <typename StringViewLike>
+  template <typename StringViewLike,
+            std::enable_if_t<std::is_convertible_v<StringViewLike, std::string_view>, bool> = true>
   FixedStringBase& append(const StringViewLike& t, size_type pos, size_type count = npos)
   {
-    // TODO
+    return insert(usedSize_, t, pos, count);
   }
   template <typename InputIt>
   FixedStringBase& append(InputIt first, InputIt last)
   {
-    // TODO
+    return insert(end(), first, last);
   }
-  FixedStringBase& append(std::initializer_list<CharT> initList)
-  {
-    // TODO
-  }
+  FixedStringBase& append(std::initializer_list<CharT> initList) { return insert(end(), std::move(initList)); }
 
-  FixedStringBase& operator+=(const FixedStringBase& str) { return append(str); }
   FixedStringBase& operator+=(CharT ch) { return append(1, ch); }
   FixedStringBase& operator+=(const CharT* s) { return append(s); }
   FixedStringBase& operator+=(std::initializer_list<CharT> initList) { return append(std::move(initList)); }
@@ -477,56 +465,19 @@ private:
   using ConstIteratorType = typename StorageType::const_iterator;
 
   template <typename T>
-  constexpr size_t makeInsertionRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
-  {
-    for (CharT c: charRange)
-    {
-      if (isNotWithinCapacity(idx))
-      {
-        break;
-      }
-      data_[idx] = c;
-      idx++;
-    }
-    SEN_DEBUG_ASSERT(idx < maxCapacity + 1);
-    return idx;
-  }
-
-  template <typename T>
   constexpr void insertRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
   {
-    idx = makeInsertionRange(charRange, idx);
-    usedSize_ = std::max(idx, usedSize_);
+    size_type idxAfterInsertion = makeInsertion(charRange, idx);
+    usedSize_ = std::max(idxAfterInsertion, usedSize_);
     data_[usedSize_] = '\0';
   }
 
   template <typename T>
   constexpr void assignRange(sen::util::IteratorRange<T> charRange, size_type idx = 0)
   {
-    idx = makeInsertionRange(charRange, idx);
-    usedSize_ = idx;
+    size_type idxAfterInsertion = makeInsertion(charRange, idx);
+    usedSize_ = idxAfterInsertion;
     data_[usedSize_] = '\0';
-  }
-
-  constexpr void makeGap(size_type idx, size_type amount) { makeGap(convertToIterator(idx), amount); }
-  constexpr void makeGap(const_iterator pos, size_type amount)
-  {
-    if (amount + size() > capacity())
-    {
-      throw std::length_error("Number of inserted characters exceeds capacity");
-    }
-    std::move_backward(pos, cend(), std::next(end(), amount));
-    usedSize_ += amount;
-  }
-
-  constexpr void destructiveMoveLeft(const_iterator pos, size_type count)
-  {
-    destructiveMoveLeft(convertToIndex(pos), count);
-  }
-  constexpr void destructiveMoveLeft(size_type idx, size_type count)
-  {
-    std::move(std::next(convertToIterator(idx), count), end(), convertToIterator(idx));
-    usedSize_ -= count;
   }
 
   [[nodiscard]] constexpr std::basic_string_view<CharT> view() const noexcept { return {data_.data(), usedSize_}; }
@@ -536,10 +487,73 @@ private:
   [[nodiscard]] constexpr iterator convertToIterator(size_type idx) noexcept { return std::next(begin(), idx); }
   [[nodiscard]] constexpr size_type convertToIndex(const_iterator iter) const noexcept
   {
-    SEN_DEBUG_ASSERT(cbegin() <= iter && iter < cend() && "Iterator was out-of-bounds.");
     return std::distance(cbegin(), iter);
   }
 
+  //===------------------------------------------------------------------------------------------------------------===//
+  // user input based mutating functions: ensure that every make* functions validates it's input
+  constexpr void checkIdxInRange(size_type idx) const noexcept
+  {
+    SEN_DEBUG_ASSERT(idx >= 0 && usedSize_ <= idx && "Index was out-of-bounds.");
+    std::ignore = idx;
+  }
+  constexpr void checkIteratorRange(const_iterator iter) const noexcept
+  {
+    SEN_DEBUG_ASSERT(cbegin() <= iter && iter < cend() && "Iterator was out-of-bounds.");
+    std::ignore = iter;
+  }
+
+  template <typename T>
+  constexpr size_t makeInsertion(sen::util::IteratorRange<T> charRange, size_type idx = 0)
+  {
+    // Precondition checks
+    checkIdxInRange(idx);
+    SEN_DEBUG_ASSERT(idx + std::distance(charRange.begin(), charRange.end()) < maxCapacity + 1);
+
+    for (CharT c: charRange)
+    {
+      if (isNotWithinCapacity(idx))  // ensures that even in release builds, we don't write out of bounds
+      {
+        break;
+      }
+      data_[idx] = c;
+      idx++;
+    }
+    return idx;
+  }
+
+  constexpr void makeGap(size_type idx, size_type amount) { makeGap(convertToIterator(idx), amount); }
+  constexpr void makeGap(const_iterator pos, size_type amount)
+  {
+    // Required pre checks
+    if (amount + size() > capacity())
+    {
+      throw std::length_error("Number of inserted characters exceeds capacity");
+    }
+
+    // Precondition checks
+    checkIteratorRange(pos);
+    checkIteratorRange(std::next(end(), amount));
+
+    std::move_backward(pos, cend(), std::next(end(), amount));
+    usedSize_ += amount;
+  }
+
+  constexpr void makeDestructiveMoveLeft(size_type idx, size_type count)
+  {
+    // Precondition checks
+    checkIdxInRange(idx);
+
+    std::move(std::next(convertToIterator(idx), count), end(), convertToIterator(idx));
+    usedSize_ -= count;
+  }
+  constexpr void makeDestructiveMoveLeft(const_iterator pos, size_type count)
+  {
+    makeDestructiveMoveLeft(convertToIndex(pos), count);
+  }
+
+  //===------------------------------------------------------------------------------------------------------------===//
+  // Data
   StorageType data_ {'\0'};
   size_type usedSize_ {0};
 };

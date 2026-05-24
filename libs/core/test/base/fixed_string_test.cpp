@@ -504,6 +504,216 @@ TEST(FixedString, eraseRange)
   EXPECT_EQ(str, "Foobar");
 }
 
+TEST(FixedString, pushBack)
+{
+  FixedString<6> str("Foo");
+
+  str.push_back('b');
+  EXPECT_EQ(str, "Foob");
+
+  str.push_back('a');
+  EXPECT_EQ(str, "Fooba");
+
+  str.push_back('r');
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, popBack)
+{
+  FixedString<6> str("Foobar");
+
+  str.pop_back();
+  EXPECT_EQ(str, "Fooba");
+
+  str.pop_back();
+  EXPECT_EQ(str, "Foob");
+
+  str.pop_back();
+  EXPECT_EQ(str, "Foo");
+
+  str.pop_back();
+  EXPECT_EQ(str, "Fo");
+
+  str.pop_back();
+  EXPECT_EQ(str, "F");
+
+  str.pop_back();
+  EXPECT_EQ(str, "");
+}
+
+TEST(FixedString, appendCChar)
+{
+  FixedString<6> str;
+
+  str.append(1, 'F');
+  EXPECT_EQ(str, "F");
+
+  str.append(2, 'o');
+  EXPECT_EQ(str, "Foo");
+
+  str.append(1, 'b');
+  EXPECT_EQ(str, "Foob");
+}
+
+TEST(FixedString, appendCharPtr)
+{
+  FixedString<6> str;
+
+  str.append("Foo");
+  EXPECT_EQ(str, "Foo");
+
+  str.append("bar");
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, appendCharPtrCount)
+{
+  FixedString<6> str;
+
+  str.append("Foo", 3);
+  EXPECT_EQ(str, "Foo");
+
+  str.append("bar", 2);
+  EXPECT_EQ(str, "Fooba");
+}
+
+TEST(FixedString, appendStringView)
+{
+  FixedString<6> str;
+
+  str.append("Foo"sv);
+  EXPECT_EQ(str, "Foo");
+
+  str.append("bar"sv);
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, appendStringViewPos)
+{
+  FixedString<6> str;
+
+  std::string_view part1 {"xxFoo"};
+  std::string_view part2 {"bar"};
+
+  str.append(part1, 2);
+  EXPECT_EQ(str, "Foo");
+
+  str.append(part2, 0);
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, appendStringViewPosCount)
+{
+  FixedString<6> str;
+
+  std::string_view part1 {"xxFooyy"};
+  std::string_view part2 {"barXX"};
+
+  str.append(part1, 2, 3);
+  EXPECT_EQ(str, "Foo");
+
+  str.append(part2, 0, 3);
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, appendIterators)
+{
+  FixedString<6> str;
+
+  std::string part1 {"Foo"};
+  std::string part2 {"bar"};
+
+  str.append(part1.begin(), part1.end());
+  EXPECT_EQ(str, "Foo");
+
+  str.append(std::begin(part2), std::end(part2));
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, appendInitList)
+{
+  FixedString<6> str;
+
+  str.append({'F', 'o', 'o'});
+  EXPECT_EQ(str, "Foo");
+
+  str.append({'b', 'a', 'r'});
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, operatorAdditionAssignmentFixedString)
+{
+  FixedString<6> str;
+
+  FixedString<3> part1 {"Foo"};
+  FixedString<2> part2 {"ba"};
+
+  str += part1;
+  EXPECT_EQ(str, "Foo");
+
+  str += part2;
+  EXPECT_EQ(str, "Fooba");
+}
+
+TEST(FixedString, operatorAdditionAssignmentChar)
+{
+  FixedString<6> str;
+
+  str += 'F';
+  EXPECT_EQ(str, "F");
+
+  str += 'o';
+  EXPECT_EQ(str, "Fo");
+
+  str += 'o';
+  EXPECT_EQ(str, "Foo");
+
+  str += 'b';
+  EXPECT_EQ(str, "Foob");
+
+  str += 'a';
+  EXPECT_EQ(str, "Fooba");
+
+  str += 'r';
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, operatorAdditionAssignmentCharPtr)
+{
+  FixedString<6> str;
+
+  str += "Foo";
+  EXPECT_EQ(str, "Foo");
+
+  str += "bar";
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, operatorAdditionAssignmentInitList)
+{
+  FixedString<6> str;
+
+  str += {'F', 'o', 'o'};
+  EXPECT_EQ(str, "Foo");
+
+  str += {'b', 'a', 'r'};
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, operatorAdditionAssignmentSV)
+{
+  FixedString<6> str;
+
+  str += "Foo"sv;
+  EXPECT_EQ(str, "Foo");
+
+  str += "bar"sv;
+  EXPECT_EQ(str, "Foobar");
+}
+
+// replace
+// copy
+
 TEST(FixedString, swap)
 {
   FixedString<6> str("Foobar");
