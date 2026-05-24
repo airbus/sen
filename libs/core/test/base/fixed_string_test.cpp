@@ -459,6 +459,51 @@ TEST(FixedString, insertPosInitList)
   EXPECT_EQ(str, "FooBARooo");
 }
 
+TEST(FixedString, eraseIdxCount)
+{
+  FixedString<9> str("FooXXXbar");
+
+  str.erase(3, 3);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, eraseIdxCountCountNPos)
+{
+  FixedString<9> str("FooXXXbar");
+
+  str.erase(3);
+
+  EXPECT_EQ(str, "Foo");
+}
+
+TEST(FixedString, erasePos)
+{
+  FixedString<9> str("FooXbar");
+
+  str.erase(std::next(str.begin(), 3));
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, erasePosFind)
+{
+  FixedString<9> str("FooXbar");
+
+  str.erase(str.find('X'), 1);
+
+  EXPECT_EQ(str, "Foobar");
+}
+
+TEST(FixedString, eraseRange)
+{
+  FixedString<9> str("FooXXXbar");
+
+  str.erase(std::next(str.begin(), 3), std::next(str.begin(), 6));
+
+  EXPECT_EQ(str, "Foobar");
+}
+
 TEST(FixedString, swap)
 {
   FixedString<6> str("Foobar");

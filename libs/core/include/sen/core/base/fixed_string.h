@@ -225,17 +225,20 @@ public:
     return insert(idx, std::string_view {sv}.substr(svIdx, count));
   }
 
-  FixedStringBase& erase(size_t index = 0, size_t count = npos)
+  FixedStringBase& erase(size_t idx = 0, size_t count = npos)
   {
-    // TODO
+    destructiveMoveLeft(convertToIterator(idx), count != npos ? count : size() - idx);
+    return *this;
   }
-  FixedStringBase& erase(const_iterator position)
+  FixedStringBase& erase(const_iterator pos)
   {
-    // TODO
+    destructiveMoveLeft(pos, 1);
+    return *this;
   }
   FixedStringBase& erase(const_iterator first, const_iterator last)
   {
-    // TODO
+    destructiveMoveLeft(first, std::distance(first, last));
+    return *this;
   }
 
   constexpr void push_back(CharT ch) { append(1, ch); }
@@ -504,6 +507,7 @@ private:
     usedSize_ = idx;
     data_[usedSize_] = '\0';
   }
+
   constexpr void makeGap(size_type idx, size_type amount) { makeGap(convertToIterator(idx), amount); }
   constexpr void makeGap(const_iterator pos, size_type amount)
   {
@@ -513,6 +517,16 @@ private:
     }
     std::move_backward(pos, cend(), std::next(end(), amount));
     usedSize_ += amount;
+  }
+
+  constexpr void destructiveMoveLeft(const_iterator pos, size_type count)
+  {
+    destructiveMoveLeft(convertToIndex(pos), count);
+  }
+  constexpr void destructiveMoveLeft(size_type idx, size_type count)
+  {
+    std::move(std::next(convertToIterator(idx), count), end(), convertToIterator(idx));
+    usedSize_ -= count;
   }
 
   [[nodiscard]] constexpr std::basic_string_view<CharT> view() const noexcept { return {data_.data(), usedSize_}; }
