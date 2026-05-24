@@ -118,6 +118,10 @@ function(add_sen_unit_test_suite test_name)
 
   target_link_libraries(${test_name} PRIVATE GTest::gmock_main ${_arg_LINK_DEPS})
 
+  if(TARGET sen_coverage_flags)
+    target_link_libraries(${test_name} PRIVATE sen_coverage_flags)
+  endif()
+
   set(labels "unit")
   if(${_arg_FLAKY})
     list(APPEND labels "LABELS;flaky")
