@@ -628,7 +628,15 @@ function(sen_configure_target target_name)
       target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
       target_link_options(${target_name} PRIVATE ${common_linker_options_})
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
+      set(suppress_gcc_broken_analysis_options
+          # std::variant
+          -Wno-maybe-uninitialized
+          # pybind11
+          -Wno-array-bounds -Wno-stringop-overread
+      )
+      target_compile_options(
+        ${target_name} PRIVATE ${common_clang_gcc_options_} ${suppress_gcc_broken_analysis_options}
+      )
       target_link_options(${target_name} PRIVATE ${common_linker_options_})
     endif()
 

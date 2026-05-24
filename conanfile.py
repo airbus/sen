@@ -51,7 +51,7 @@ class SenConan(ConanFile):
         self.requires("imgui/1.90.5-docking", override=True, visible=False)
 
         # visible dependencies
-        self.requires("pybind11/2.11.1", visible=True)
+        self.requires("pybind11/2.13.6", visible=True)
         self.requires("spdlog/1.17.0", visible=True)
 
         # our usage of imgui in Linux has an implicit dependency on SDL.

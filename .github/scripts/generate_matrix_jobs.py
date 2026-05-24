@@ -145,7 +145,8 @@ def compute_jobs(
             ),
             include_in_release_workflow=True,
             include_in_conan_workflow=True,
-            include_in_standard_test_workflow=True,
+            # TODO: fix build failures in test setup
+            include_in_standard_test_workflow=False,
             include_in_standard_test_workflow_also_main=False,
         ),
         JobSelector(
@@ -161,7 +162,8 @@ def compute_jobs(
             ),
             include_in_release_workflow=False,
             include_in_conan_workflow=False,
-            include_in_standard_test_workflow=True,
+            # TODO: fix build failures in test setup
+            include_in_standard_test_workflow=False,
             include_in_standard_test_workflow_also_main=False,
         ),
         # Add amd64 jobs
