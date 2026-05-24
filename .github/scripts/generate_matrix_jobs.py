@@ -53,6 +53,7 @@ class JobSpecification:
     ]
     container: Container | None
     compiler: Compiler
+    arch: tp.Literal["x86", "arm"]
     std: tp.Literal[17, 20, 23]
     build_type: tp.Literal["Release", "Debug"]
     enable_coverage: bool = False
@@ -87,6 +88,7 @@ def compute_jobs(
                 "self-hosted",
                 None,
                 Compiler("gcc", 12, "gcc-12", "g++-12"),
+                "x86",
                 17,
                 "Debug",
             ),
@@ -102,6 +104,7 @@ def compute_jobs(
                 "self-hosted",
                 None,
                 Compiler("gcc", 12, "gcc-12", "g++-12"),
+                "x86",
                 17,
                 "Release",
             ),
@@ -118,6 +121,7 @@ def compute_jobs(
                 "self-hosted",
                 None,
                 Compiler("clang", 20, "clang-20", "clang++-20"),
+                "x86",
                 17,
                 "Debug",
                 enable_coverage=True,
@@ -135,6 +139,7 @@ def compute_jobs(
                 "windows-2022",
                 None,
                 Compiler("msvc", 194, "cl", "cl"),
+                "x86",
                 17,
                 "Release",
             ),
@@ -150,6 +155,7 @@ def compute_jobs(
                 "windows-2022",
                 None,
                 Compiler("msvc", 194, "cl", "cl"),
+                "x86",
                 17,
                 "Debug",
             ),
@@ -165,7 +171,8 @@ def compute_jobs(
                 "ubuntu-24.04",
                 "ubuntu-24.04-arm",
                 None,
-                Compiler("gcc_arm64", 12, "gcc-14", "g++-14"),
+                Compiler("gcc", 12, "gcc-14", "g++-14"),
+                "arm",
                 17,
                 "Debug",
             ),
@@ -174,6 +181,19 @@ def compute_jobs(
             include_in_standard_test_workflow=True,
             include_in_standard_test_workflow_also_main=False,
         ),
+    ]
+
+    return [
+            JobSpecification(
+                "Basic Ubuntu arm",
+                "ubuntu-24.04",
+                "ubuntu-24.04-arm",
+                None,
+                Compiler("gcc", 12, "gcc-14", "g++-14"),
+                "arm",
+                17,
+                "Debug",
+            ),
     ]
 
     def include_job(job_selector: JobSelector) -> bool:

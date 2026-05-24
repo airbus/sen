@@ -76,6 +76,7 @@ jobs:
         with:
           compiler-name: ${{ matrix.compiler.name }}
           compiler-version: ${{ matrix.compiler.version }}
+          arch: ${{ matrix.arch }}
 
       - name: Install additional python dependencies
         shell: bash

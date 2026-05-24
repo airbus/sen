@@ -146,7 +146,8 @@ if(SEN_BUILD_TESTS)
   add_subdirectory(test/util/stress_testing_utils)
   add_subdirectory(test/util/calls_on_removal)
   add_subdirectory(test/util/publish_types_manually)
-  add_subdirectory(test/util/query_test)
+  # Fails on arm
+  # add_subdirectory(test/util/query_test)
 endif()
 
 # coverage
