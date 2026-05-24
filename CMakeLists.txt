@@ -71,7 +71,7 @@ if(SEN_COVERAGE_ENABLE)
     )
     target_link_options(sen_coverage_flags INTERFACE --coverage)
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_data/coverage-%m.profraw" SEN_COVERAGE_DATA_DIR)
+    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_data/coverage-%p-%m.profraw" SEN_COVERAGE_DATA_DIR)
     target_compile_options(
       sen_coverage_flags
       INTERFACE -g
