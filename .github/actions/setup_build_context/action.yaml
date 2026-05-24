@@ -1,0 +1,12 @@
+name: "Setup basic build context with dependencies."
+description: "Setup the default build context: installing compilers, testing frameworks, and other dependencies."
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@v6
+      with:
+        python-version: 3.x
+    - name: Install python dependencies
+      shell: bash
+      run: pip install -U conan pytest

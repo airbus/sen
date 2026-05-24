@@ -129,6 +129,10 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         help=
         "Generate the jobs needed to ensure all required conan packages work.")
+    parser.add_argument(
+        "--pr",
+        action=argparse.BooleanOptionalAction,
+        help= "Generate the jobs needed for a PR build.")
 
     args = parser.parse_args()
 

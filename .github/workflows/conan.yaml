@@ -69,6 +69,11 @@ jobs:
           max-size: 250M
           verbose: 1
 
+      - name: Setup build context
+        uses: ./.github/actions/setup_build_context
+
+        # start
+
       - name: Install gcc-${{ matrix.compiler.version }}
         if: matrix.compiler.name == 'gcc'
         shell: bash
@@ -82,14 +87,6 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh ${{ matrix.compiler.version }}
           sudo apt install -y clang-tools-${{ matrix.compiler.version }}
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-
-      - name: Install python dependencies
-        shell: bash
-        run: pip install -U conan pytest
 
       - name: Setup conan profile
         shell: bash
@@ -109,6 +106,8 @@ jobs:
         shell: bash
         # need for clang compat with sdl2 2.24.0
         run: sudo apt-get install -y libxext-dev
+
+        # stop
 
       - name: Create conan package
         shell: bash
