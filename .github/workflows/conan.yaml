@@ -96,6 +96,7 @@ jobs:
         run: |
           rm -f ~/.conan2/profiles/default
           conan profile detect --force -vquiet
+          conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
           cp .conan/profiles/sen_$COMPILER ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default

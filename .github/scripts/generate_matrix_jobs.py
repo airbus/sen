@@ -45,7 +45,7 @@ class JobSpecification:
     """Pipeline job specification that defines the configuration options."""
     name: str
     os: str
-    runner: tp.Literal["ubuntu-latest", "windows-2022", "self-hosted"]
+    runner: tp.Literal["ubuntu-latest", "windows-2022", "self-hosted", "ubuntu-24.04-arm"]
     container: Container | None
     compiler: Compiler
     std: tp.Literal[17, 20, 23]
@@ -89,6 +89,14 @@ def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:
         jobs.append(
             JobSpecification("Basic Windows", "windows", "windows-2022", None,
                              Compiler("msvc", 194, "cl", "cl"), 17, "Debug"))
+
+    # Add amd64 jobs
+    if not release:
+        jobs.append(
+            JobSpecification("Basic Ubuntu arm", "ubuntu-24.04",
+                             "ubuntu-24.04-arm", None,
+                             Compiler("gcc_arm64", 12, "gcc-14",
+                                      "g++-14"), 17, "Debug"))
 
     return sorted(jobs)
 
