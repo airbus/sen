@@ -60,43 +60,43 @@ def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
     jobs = []
 
-#     # Add gcc jobs
-#     if not release:
-#         jobs.append(
-#             JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
-#                              Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
-#                              "Debug"))
-#     else:
-#         jobs.append(
-#             JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
-#                              Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
-#                              "Release"))
-#
-#     # Add clang jobs
-#     if not release:
-#         jobs.append(
-#             JobSpecification("Basic Clang", "ubuntu-24.04", "self-hosted",
-#                              None,
-#                              Compiler("clang", 20, "clang-20",
-#                                       "clang++-20"), 17, "Debug"))
-#
-#     # Add msvc jobs
-#     if release:
-#         jobs.append(
-#             JobSpecification("Basic Windows", "windows", "windows-2022", None,
-#                              Compiler("msvc", 194, "cl", "cl"), 17, "Release"))
-#     else:
-#         jobs.append(
-#             JobSpecification("Basic Windows", "windows", "windows-2022", None,
-#                              Compiler("msvc", 194, "cl", "cl"), 17, "Debug"))
-#
+    # Add gcc jobs
+    if not release:
+        jobs.append(
+            JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
+                             Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
+                             "Debug"))
+    else:
+        jobs.append(
+            JobSpecification("Basic GCC", "ubuntu-22.04", "self-hosted", None,
+                             Compiler("gcc", 12, "gcc-12", "g++-12"), 17,
+                             "Release"))
+
+    # Add clang jobs
+    if not release:
+        jobs.append(
+            JobSpecification("Basic Clang", "ubuntu-24.04", "self-hosted",
+                             None,
+                             Compiler("clang", 20, "clang-20",
+                                      "clang++-20"), 17, "Debug"))
+
+    # Add msvc jobs
+    if release:
+        jobs.append(
+            JobSpecification("Basic Windows", "windows", "windows-2022", None,
+                             Compiler("msvc", 194, "cl", "cl"), 17, "Release"))
+    else:
+        jobs.append(
+            JobSpecification("Basic Windows", "windows", "windows-2022", None,
+                             Compiler("msvc", 194, "cl", "cl"), 17, "Debug"))
+
     # Add amd64 jobs
     if not release:
         jobs.append(
             JobSpecification("Basic Ubuntu arm", "ubuntu-24.04",
                              "ubuntu-24.04-arm", None,
-                             Compiler("gcc_arm64", 12, "gcc-12",
-                                      "g++-12"), 17, "Debug"))
+                             Compiler("gcc_arm64", 12, "gcc-14",
+                                      "g++-14"), 17, "Debug"))
 
     return sorted(jobs)
 
