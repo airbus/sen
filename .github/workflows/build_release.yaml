@@ -52,13 +52,10 @@ jobs:
 
       - name: Setup build context
         uses: ./.github/actions/setup_build_context
+        with:
+          compiler: ${{ matrix.compiler }}
 
         # start
-
-      - name: Install gcc-${{ matrix.compiler.version }}
-        if: matrix.compiler.name == 'gcc'
-        shell: bash
-        run: sudo apt-get install -y g++-${{ matrix.compiler.version }}
 
       - name: Setup conan profile
         shell: bash
@@ -69,12 +66,6 @@ jobs:
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
           conan profile show -pr default
-
-      - name: Install system dependencies
-        if: matrix.compiler.name != 'msvc'
-        shell: bash
-        # need for clang compat with sdl2 2.24.0
-        run: sudo apt-get install -y libxext-dev
 
         # stop
 
