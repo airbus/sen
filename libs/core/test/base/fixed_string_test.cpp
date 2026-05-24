@@ -352,6 +352,15 @@ TEST(FixedString, insertIdxCCh)
   EXPECT_EQ(str, "FooXbar");
 }
 
+TEST(FixedString, insertIdxCChMultiple)
+{
+  FixedString<9> str("Foobar");
+
+  str.insert(decltype(str)::size_type {3}, decltype(str)::size_type {3}, 'X');
+
+  EXPECT_EQ(str, "FooXXXbar");
+}
+
 TEST(FixedString, insertIdxCChFull)
 {
   FixedString<6> str("Foobar");

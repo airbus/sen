@@ -253,7 +253,6 @@ public:
     usedSize_--;
   }
 
-  // TODO: fix
   FixedStringBase& append(size_type count, CharT ch) { return insert(usedSize_, count, ch); }
   FixedStringBase& append(const CharT* s, size_type count) { return insert(usedSize_, std::string_view {s, count}); }
   FixedStringBase& append(const CharT* s) { return insert(usedSize_, s); }
@@ -367,9 +366,6 @@ public:
 
   //------------------------------------------------------------------------------------------------------------------//
   // Search
-
-  // TODO: review all constexpr
-
   size_type find(const CharT* s, size_type pos, size_type count) const noexcept { return view().find(s, pos, count); }
   size_type find(const CharT* s, size_type pos = 0) const noexcept { return view().find(s, pos); }
   size_type find(CharT ch, size_type pos = 0) const noexcept { return view().find(ch, pos); };
