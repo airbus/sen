@@ -149,8 +149,7 @@ class SenConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "none")
         self.cpp_info.builddirs = [join("cmake", "sen")]
-        for component in ["core", "kernel", "db", "util"]:
-            self.cpp_info.components[component].set_property("cmake_target_name", f"sen::{component}")
+        self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 
         # runenv library paths
         self.runenv_info.prepend_path("PATH", join(self.package_folder, "bin"))
