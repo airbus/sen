@@ -160,7 +160,7 @@ endfunction()
 #   [REQ_DEPS <deps>]
 # )
 function(add_sen_integration_test test_name)
-  set(_options)
+  set(_options FLAKY)
   set(_one_value_args)
   set(_multi_value_args REQ_COMPONENTS REQ_DEPS)
 

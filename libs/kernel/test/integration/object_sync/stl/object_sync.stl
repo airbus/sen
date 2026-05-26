@@ -1,0 +1,63 @@
+package object_sync;
+
+enum ListenerState : u8
+{
+  connecting,
+  ready,
+  inSync,
+  finished
+}
+
+class Publisher
+{
+  var numOfListeners    : u32   [static];
+  var listenersReady    : bool;
+}
+
+class Listener
+{
+  var query : string        [static, confirmed];
+  var state : ListenerState [confirmed];
+}
+
+struct TestStruct
+{
+  field1 : u32,
+  field2 : string,
+  field3 : f32
+}
+
+enum TestEnum : u8
+{
+  first,
+  second,
+  third
+}
+
+// Type used to evaluate correctness of writable properties through the network. Id is incremented and it is used to generate the value (which is then checked when reading )
+struct WritablePropType
+{
+  id    : u32,
+  value : u64
+}
+
+class TestObject
+{
+  var staticProp                                  : u8               [static];
+  var staticNoConfigProp                          : TestEnum         [static_no_config];
+  var updateId                                    : u32              [confirmed];  // used to verify the synchronization of dynamic properties
+  var bestEffortProp                              : f64              [bestEffort];
+  var confirmedProp                               : TestStruct       [confirmed];
+  var writableProp                                : WritablePropType [writable];
+
+  event bestEffortEvent(id: u32, arg: TestStruct)                    [bestEffort];
+  event confirmedEvent(id: u32, arg: string)                         [confirmed];
+
+  fn constMethod(arg: TestEnum)                   -> u32             [const];
+  fn confirmedMethod(arg: u64)                    -> u8              [confirmed];
+  fn bestEffortMethod(arg: string)                -> bool            [bestEffort];
+  fn localMethod()                                -> u16             [local];
+
+  // method to command the object updates to start
+  fn doUpdate()                                                        [confirmed];
+}

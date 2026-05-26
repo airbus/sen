@@ -1,0 +1,52 @@
+kernel:
+  crashReportDisabled: true
+
+load:
+  - name: ether
+    group: 10
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 100 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: sen-hub
+          port: 65454
+
+build:
+  - name: listenerComp1
+    group: 1
+    freqHz: 60
+    imports: [object_sync]
+    objects:
+      - name: listener1
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus
+        bus: session.bus
+  - name: listenerComp2
+    group: 1
+    freqHz: 60
+    imports: [object_sync]
+    objects:
+      - name: listener2
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus
+        bus: session.bus
+  - name: listenerComp3
+    group: 1
+    freqHz: 60
+    imports: [object_sync]
+    objects:
+      - name: listener3
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus WHERE name = "testObject"
+        bus: session.bus
+  - name: listenerComp4
+    group: 1
+    freqHz: 60
+    imports: [object_sync]
+    objects:
+      - name: listener4
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus WHERE staticProp = 15
+        bus: session.bus
