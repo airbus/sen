@@ -9,7 +9,7 @@
 #define SEN_COMPONENTS_REPLAYER_TEST_REPLAYER_TEST_HELPERS_H
 
 // shared test helpers
-#include "archive_test_helpers.h"
+#include "sen/test_support/archive_test_helpers.h"
 
 // generated code
 #include "stl/replay_test_class.stl.h"

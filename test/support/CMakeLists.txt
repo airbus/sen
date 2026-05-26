@@ -5,24 +5,35 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-set(archive_sources src/archive_test_helpers.h src/archive_test_helpers.cpp)
+set(public_headers include/sen/test_support/archive_test_helpers.h)
 
 # -------------------------------------------------------------------------------------------------------------
 # library
 # -------------------------------------------------------------------------------------------------------------
 
-add_library(archive_test_helpers STATIC ${archive_sources})
+add_library(archive_test_helpers INTERFACE)
+target_sources(
+  archive_test_helpers
+  INTERFACE FILE_SET
+            HEADERS
+            BASE_DIRS
+            include/
+            FILES
+            ${public_headers}
+)
 
 sen_enable_static_analysis(archive_test_helpers)
 
-target_include_directories(archive_test_helpers PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>")
+target_include_directories(
+  archive_test_helpers INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+)
 
-target_link_libraries(archive_test_helpers PUBLIC sen::core sen::db)
+target_link_libraries(archive_test_helpers INTERFACE sen::core sen::db)
 
 # -------------------------------------------------------------------------------------------------------------
 # IDE grouping
 # -------------------------------------------------------------------------------------------------------------
 
-source_group("sources" FILES ${archive_sources})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/ FILES ${public_headers})
 
 set_target_properties(archive_test_helpers PROPERTIES FOLDER "test/support")

@@ -148,7 +148,7 @@ if(SEN_BUILD_TESTS)
   add_subdirectory(test/util/publish_types_manually)
   # TODO: Fix test that fails on arm
   # add_subdirectory(test/util/query_test)
-  # add_subdirectory(test/support)
+  add_subdirectory(test/support)
 endif()
 
 # coverage
