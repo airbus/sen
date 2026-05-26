@@ -324,7 +324,6 @@ var hierarchy =
     [ "sen::StructSpec", "structsen_1_1_struct_spec.html", null ],
     [ "sen::StructTraitsBase", "structsen_1_1_struct_traits_base.html", null ],
     [ "sen::Subscription&lt; T &gt;", "structsen_1_1_subscription.html", null ],
-    [ "sen::db::test::TempDir", "classsen_1_1db_1_1test_1_1_temp_dir.html", null ],
     [ "sen::detail::TemplatedBaseTypeDispatcher&lt; T, BaseClassType, baseIsTemplate &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher", null ],
     [ "sen::detail::TemplatedBaseTypeDispatcher&lt; T, BaseClassType, true &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher_3_01_t_00_01_base_class_type_00_01true_01_4", null ],
     [ "sen::Guarded&lt; T, MutexType &gt;::TemporaryAccessToken", "structsen_1_1_guarded_1_1_temporary_access_token.html", null ],

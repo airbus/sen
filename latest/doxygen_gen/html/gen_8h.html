@@ -536,6 +536,8 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>OptionalTraitsBase&lt;classname&gt;::write;                                                                        \</div>
 <div class="line">  <span class="keyword">using </span>OptionalTraitsBase&lt;classname&gt;::read;                                                                         \</div>
 <div class="line">  <span class="keyword">using </span>OptionalTraitsBase&lt;classname&gt;::serializedSize;                                                               \</div>
+<div class="line">  <span class="keyword">using </span>OptionalTraitsBase&lt;classname&gt;::toJsonString;                                                                 \</div>
+<div class="line">  <span class="keyword">using </span>OptionalTraitsBase&lt;classname&gt;::fromJsonString;                                                               \</div>
 <div class="line">};</div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
@@ -577,6 +579,8 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>EnumTraitsBase&lt;classname&gt;::write;                                                                            \</div>
 <div class="line">  <span class="keyword">using </span>EnumTraitsBase&lt;classname&gt;::read;                                                                             \</div>
 <div class="line">  <span class="keyword">using </span>EnumTraitsBase&lt;classname&gt;::serializedSize;                                                                   \</div>
+<div class="line">  <span class="keyword">using </span>EnumTraitsBase&lt;classname&gt;::toJsonString;                                                                     \</div>
+<div class="line">  <span class="keyword">using </span>EnumTraitsBase&lt;classname&gt;::fromJsonString;                                                                   \</div>
 <div class="line">};                                                                                                                   \</div>
 <div class="line"><span class="keyword">template</span> &lt;&gt;                                                                                                          \</div>
 <div class="line"><span class="keyword">struct </span>SEN_MAYBE_EXPORT(doExport) StringConversionTraits&lt;classname&gt;                                                  \</div>
@@ -628,6 +632,8 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>SequenceTraitsBase&lt;classname&gt;::write;                                                                        \</div>
 <div class="line">  <span class="keyword">using </span>SequenceTraitsBase&lt;classname&gt;::read;                                                                         \</div>
 <div class="line">  <span class="keyword">using </span>SequenceTraitsBase&lt;classname&gt;::serializedSize;                                                               \</div>
+<div class="line">  <span class="keyword">using </span>SequenceTraitsBase&lt;classname&gt;::toJsonString;                                                                 \</div>
+<div class="line">  <span class="keyword">using </span>SequenceTraitsBase&lt;classname&gt;::fromJsonString;                                                               \</div>
 <div class="line">};</div>
 <div class="ttc" id="agroup__types_html_gae73ad15e959c56c8e8bf9c693da6dab2"><div class="ttname"><a href="group__types.html#gae73ad15e959c56c8e8bf9c693da6dab2">sen::ConstTypeHandle</a></div><div class="ttdeci">TypeHandle&lt; const T &gt; ConstTypeHandle</div><div class="ttdef"><b>Definition</b> type.h:319</div></div>
 </div><!-- fragment -->
@@ -670,6 +676,8 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>ArrayTraitsBase&lt;classname&gt;::write;                                                                           \</div>
 <div class="line">  <span class="keyword">using </span>ArrayTraitsBase&lt;classname&gt;::read;                                                                            \</div>
 <div class="line">  <span class="keyword">using </span>ArrayTraitsBase&lt;classname&gt;::serializedSize;                                                                  \</div>
+<div class="line">  <span class="keyword">using </span>ArrayTraitsBase&lt;classname&gt;::toJsonString;                                                                    \</div>
+<div class="line">  <span class="keyword">using </span>ArrayTraitsBase&lt;classname&gt;::fromJsonString;                                                                  \</div>
 <div class="line">};</div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
@@ -712,6 +720,8 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacesen_1_1db.html#a8d1f0d80a3b341f507970f84023cfc3b">write</a>(OutputStream&amp; out, <span class="keyword">const</span> classname&amp; val);                                                        \</div>
 <div class="line">  <span class="keyword">static</span> <span class="keywordtype">void</span> read(InputStream&amp; in, classname&amp; val);                                                                 \</div>
 <div class="line">  [[nodiscard]] <span class="keyword">static</span> uint32_t serializedSize(<span class="keyword">const</span> classname&amp; val) <span class="keyword">noexcept</span>;                                       \</div>
+<div class="line">  <span class="keyword">static</span> std::string toJsonString(<span class="keyword">const</span> classname&amp; val);                                                             \</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">void</span> fromJsonString(<span class="keyword">const</span> std::string&amp; str, classname&amp; val);                                                \</div>
 <div class="line">};</div>
 <div class="ttc" id="anamespacesen_1_1db_html_a8d1f0d80a3b341f507970f84023cfc3b"><div class="ttname"><a href="namespacesen_1_1db.html#a8d1f0d80a3b341f507970f84023cfc3b">sen::db::write</a></div><div class="ttdeci">void write(T &amp;&amp;data, FILE *file)</div><div class="ttdef"><b>Definition</b> db/src/util.h:71</div></div>
 </div><!-- fragment -->
@@ -756,6 +766,8 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacesen_1_1db.html#a8d1f0d80a3b341f507970f84023cfc3b">write</a>(OutputStream&amp; out, <span class="keyword">const</span> classname&amp; val);                                                        \</div>
 <div class="line">  <span class="keyword">static</span> <span class="keywordtype">void</span> read(InputStream&amp; in, classname&amp; val);                                                                 \</div>
 <div class="line">  [[nodiscard]] <span class="keyword">static</span> uint32_t serializedSize(<span class="keyword">const</span> classname&amp; val) <span class="keyword">noexcept</span>;                                       \</div>
+<div class="line">  <span class="keyword">static</span> std::string toJsonString(<span class="keyword">const</span> classname&amp; val);                                                             \</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">void</span> fromJsonString(<span class="keyword">const</span> std::string&amp; str, classname&amp; val);                                                \</div>
 <div class="line">};</div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
@@ -884,36 +896,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">template</span> &lt;&gt;                                                                                                          \</div>
-<div class="line"><span class="keyword">struct </span>MetaTypeTrait&lt;classname&gt;                                                                                      \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  [[nodiscard]] SEN_MAYBE_EXPORT(doExport) <span class="keyword">static</span> ConstTypeHandle&lt;QuantityType&gt; meta();                              \</div>
-<div class="line">};                                                                                                                   \</div>
-<div class="line"><span class="keyword">template</span> &lt;&gt;                                                                                                          \</div>
-<div class="line"><span class="keyword">struct </span>SEN_MAYBE_EXPORT(doExport) VariantTraits&lt;classname&gt;: <span class="keyword">private</span> QuantityTraitsBase&lt;classname&gt;                    \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  <span class="keyword">using </span>QuantityTraitsBase&lt;classname&gt;::valueToVariant;                                                               \</div>
-<div class="line">  <span class="keyword">using </span>QuantityTraitsBase&lt;classname&gt;::variantToValue;                                                               \</div>
-<div class="line">};                                                                                                                   \</div>
-<div class="line"><span class="keyword">template</span> &lt;&gt;                                                                                                          \</div>
-<div class="line"><span class="keyword">struct </span>SEN_MAYBE_EXPORT(doExport) SerializationTraits&lt;classname&gt;: <span class="keyword">private</span> QuantityTraitsBase&lt;classname&gt;              \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  <span class="keyword">using </span>QuantityTraitsBase&lt;classname&gt;::write;                                                                        \</div>
-<div class="line">  <span class="keyword">using </span>QuantityTraitsBase&lt;classname&gt;::read;                                                                         \</div>
-<div class="line">  <span class="keyword">using </span>QuantityTraitsBase&lt;classname&gt;::serializedSize;                                                               \</div>
-<div class="line">};                                                                                                                   \</div>
-<div class="line"><span class="keyword">template</span> &lt;&gt;                                                                                                          \</div>
-<div class="line"><span class="keyword">struct </span>SEN_MAYBE_EXPORT(doExport) QuantityTraits&lt;classname&gt;                                                          \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  <span class="keyword">using </span>ValueType = <span class="keyword">typename</span> classname::ValueType;                                                                   \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">static</span> <span class="keyword">constexpr</span> ValueType max = maxVal;                                                                           \</div>
-<div class="line">  <span class="keyword">static</span> <span class="keyword">constexpr</span> ValueType min = minVal;                                                                           \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  [[nodiscard]] static ::std::optional&lt;const sen::Unit*&gt; unit() noexcept;                                            \</div>
-<div class="line">  [[nodiscard]] static const sen::Unit&amp; unit(sen::Unit::EnsureTag);                                                  \</div>
-<div class="line">};</div>
-</div><!-- fragment -->
+
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 
 </div>

@@ -124,6 +124,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a3c53bfe3db1e6465d27ac555c4444a23" id="r_a3c53bfe3db1e6465d27ac555c4444a23"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#a3c53bfe3db1e6465d27ac555c4444a23">valueToVariant</a> (const T &amp;val, <a class="el" href="structsen_1_1_var.html">Var</a> &amp;var)</td></tr>
 <tr class="memitem:a997139a78596cd82545e8a8753d8cb8e" id="r_a997139a78596cd82545e8a8753d8cb8e"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#a997139a78596cd82545e8a8753d8cb8e">variantToValue</a> (const <a class="el" href="structsen_1_1_var.html">Var</a> &amp;var, T &amp;val)</td></tr>
 <tr class="memitem:af2b5c99887a2ff7a0fc84f763ba0d387" id="r_af2b5c99887a2ff7a0fc84f763ba0d387"><td class="memItemLeft">static uint32_t&#160;</td><td class="memItemRight"><a class="el" href="#af2b5c99887a2ff7a0fc84f763ba0d387">serializedSize</a> (const T &amp;val) noexcept</td></tr>
+<tr class="memitem:a7bfc531d858eb52b1fb1dcf8ef04a621" id="r_a7bfc531d858eb52b1fb1dcf8ef04a621"><td class="memItemLeft">static std::string&#160;</td><td class="memItemRight"><a class="el" href="#a7bfc531d858eb52b1fb1dcf8ef04a621">toJsonString</a> (const T &amp;val)</td></tr>
+<tr class="memitem:ab731c18ad11f77eaf2eba232bf94115e" id="r_ab731c18ad11f77eaf2eba232bf94115e"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#ab731c18ad11f77eaf2eba232bf94115e">fromJsonString</a> (const std::string &amp;str, T &amp;val)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-static-attribs" class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -278,6 +280,64 @@ template&lt;typename T&gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7bfc531d858eb52b1fb1dcf8ef04a621" name="a7bfc531d858eb52b1fb1dcf8ef04a621"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bfc531d858eb52b1fb1dcf8ef04a621">&#9670;&#160;</a></span>toJsonString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string <a class="el" href="structsen_1_1_sequence_traits_base.html">sen::SequenceTraitsBase</a>&lt; T &gt;::toJsonString </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>val</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab731c18ad11f77eaf2eba232bf94115e" name="ab731c18ad11f77eaf2eba232bf94115e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab731c18ad11f77eaf2eba232bf94115e">&#9670;&#160;</a></span>fromJsonString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structsen_1_1_sequence_traits_base.html">sen::SequenceTraitsBase</a>&lt; T &gt;::fromJsonString </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>str</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T &amp;</td>          <td class="paramname"><span class="paramname"><em>val</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

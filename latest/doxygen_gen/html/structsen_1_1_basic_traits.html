@@ -122,6 +122,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a481ce9044bc17d8367cddd07cd627b83" id="r_a481ce9044bc17d8367cddd07cd627b83"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#a481ce9044bc17d8367cddd07cd627b83">variantToValue</a> (const <a class="el" href="structsen_1_1_var.html">Var</a> &amp;var, T &amp;val)</td></tr>
 <tr class="memitem:afc2ba2aab0d98f7821faab9b5529b332" id="r_afc2ba2aab0d98f7821faab9b5529b332"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#afc2ba2aab0d98f7821faab9b5529b332">valueToVariant</a> (T val, <a class="el" href="structsen_1_1_var.html">Var</a> &amp;var)</td></tr>
 <tr class="memitem:a13f655f22c5f254787e7afdce143755d" id="r_a13f655f22c5f254787e7afdce143755d"><td class="memItemLeft">static constexpr uint32_t&#160;</td><td class="memItemRight"><a class="el" href="#a13f655f22c5f254787e7afdce143755d">serializedSize</a> (T val) noexcept</td></tr>
+<tr class="memitem:a38bad2ff78248d14332148fc9ce9ff42" id="r_a38bad2ff78248d14332148fc9ce9ff42"><td class="memItemLeft">static std::string&#160;</td><td class="memItemRight"><a class="el" href="#a38bad2ff78248d14332148fc9ce9ff42">toJsonString</a> (const T &amp;val)</td></tr>
+<tr class="memitem:abc2ec4ac62093aa4de1308086d3b264c" id="r_abc2ec4ac62093aa4de1308086d3b264c"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#abc2ec4ac62093aa4de1308086d3b264c">fromJsonString</a> (const std::string &amp;str, T &amp;val)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-static-attribs" class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -132,7 +134,7 @@ Static Public Attributes</h2></td></tr>
 struct sen::BasicTraits&lt; T &gt;</div><p>Helper class that traits classes can inherit from when the type at hand is basic (native or trivial). </p>
 <p>The idea is to use it as follows: </p><div class="fragment"><div class="line"><span class="keyword">template</span> &lt;&gt;</div>
 <div class="line"><span class="keyword">struct </span>*Traits&lt;MyType&gt;: <span class="keyword">public</span> <a class="code hl_struct" href="structsen_1_1_basic_traits.html">BasicTraits&lt;MyType&gt;</a></div>
-<div class="ttc" id="astructsen_1_1_basic_traits_html"><div class="ttname"><a href="structsen_1_1_basic_traits.html">sen::BasicTraits</a></div><div class="ttdoc">Helper class that traits classes can inherit from when the type at hand is basic (native or trivial).</div><div class="ttdef"><b>Definition</b> basic_traits.h:35</div></div>
+<div class="ttc" id="astructsen_1_1_basic_traits_html"><div class="ttname"><a href="structsen_1_1_basic_traits.html">sen::BasicTraits</a></div><div class="ttdoc">Helper class that traits classes can inherit from when the type at hand is basic (native or trivial).</div><div class="ttdef"><b>Definition</b> basic_traits.h:39</div></div>
 </div><!-- fragment --> </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
 <a id="a481ce9044bc17d8367cddd07cd627b83" name="a481ce9044bc17d8367cddd07cd627b83"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a481ce9044bc17d8367cddd07cd627b83">&#9670;&#160;</a></span>variantToValue()</h2>
@@ -217,6 +219,64 @@ template&lt;typename T&gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span><span class="mlabel constexpr">constexpr</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a38bad2ff78248d14332148fc9ce9ff42" name="a38bad2ff78248d14332148fc9ce9ff42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38bad2ff78248d14332148fc9ce9ff42">&#9670;&#160;</a></span>toJsonString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string <a class="el" href="structsen_1_1_basic_traits.html">sen::BasicTraits</a>&lt; T &gt;::toJsonString </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;</td>          <td class="paramname"><span class="paramname"><em>val</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abc2ec4ac62093aa4de1308086d3b264c" name="abc2ec4ac62093aa4de1308086d3b264c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2ec4ac62093aa4de1308086d3b264c">&#9670;&#160;</a></span>fromJsonString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structsen_1_1_basic_traits.html">sen::BasicTraits</a>&lt; T &gt;::fromJsonString </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>str</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T &amp;</td>          <td class="paramname"><span class="paramname"><em>val</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
