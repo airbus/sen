@@ -17,25 +17,35 @@ compile it, and run it under a Sen kernel.
 
 The [examples](../examples/index.md) are numbered and ordered by complexity. Follow them in sequence:
 
-| # | Example | What you learn |
-|---|---------|---------------|
-| 1 | [Calculators](../../examples/config/1_calculators/readme.md) | Basic package, multiple implementations, shell interaction |
-| 2 | [Inheritance](../../examples/config/2_inheritance/readme.md) | STL inheritance, template injection |
-| 3 | [Aircraft](../../examples/config/3_aircraft/readme.md) | HLA FOMs, `update()` loop, virtual time |
-| 4 | [School](../../examples/config/4_school/readme.md) | Object discovery, events, multi-component |
-| 6 | [Recorder](../../examples/config/6_recorder/readme.md) | Recording, Python post-processing |
-| 7 | [Replayer](../../examples/config/7_replayer/readme.md) | Replay with real-time and stepped execution |
-| 8 | [InfluxDB](../../examples/config/8_influx/readme.md) | Grafana visualisation |
-| 9 | [HLA Servers](../../examples/config/9_hla_servers/readme.md) | Request/response servers |
-| 10 | [Python](../../examples/config/10_python/readme.md) | Embedded Python scripting |
-| 11 | [Shapes](../../examples/config/11_shapes/readme.md) | Interest management, Sen Query Language |
-| 12 | [Fibonacci](../../examples/config/12_fibonacci/readme.md) | Deferred methods, load balancing |
-| 13 | [Timer](../../examples/config/13_timer/readme.md) | Checked properties, state validation |
+| #   | Example                                                      | What you learn                                             |
+| --- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| 1   | [Calculators](../../examples/config/1_calculators/readme.md) | Basic package, multiple implementations, shell interaction |
+| 2   | [Inheritance](../../examples/config/2_inheritance/readme.md) | STL inheritance, template injection                        |
+| 3   | [Aircraft](../../examples/config/3_aircraft/readme.md)       | HLA FOMs, `update()` loop, virtual time                    |
+| 4   | [School](../../examples/config/4_school/readme.md)           | Object discovery, events, multi-component                  |
+| 6   | [Recorder](../../examples/config/6_recorder/readme.md)       | Recording, Python post-processing                          |
+| 7   | [Replayer](../../examples/config/7_replayer/readme.md)       | Replay with real-time and stepped execution                |
+| 8   | [InfluxDB](../../examples/config/8_influx/readme.md)         | Grafana visualisation                                      |
+| 9   | [HLA Servers](../../examples/config/9_hla_servers/readme.md) | Request/response servers                                   |
+| 10  | [Python](../../examples/config/10_python/readme.md)          | Embedded Python scripting                                  |
+| 11  | [Shapes](../../examples/config/11_shapes/readme.md)          | Interest management, Sen Query Language                    |
+| 12  | [Fibonacci](../../examples/config/12_fibonacci/readme.md)    | Deferred methods, load balancing                           |
+| 13  | [Timer](../../examples/config/13_timer/readme.md)            | Checked properties, state validation                       |
 
 ### 4. Go deeper with the how-to guides
 
 Once you are comfortable with the examples, the [How-To Guides](../howto_guides/objects.md) cover
 specific topics in depth: working with objects, generated code, logging, dead reckoning, and more.
+
+## Example applications
+
+Included in the same [examples](../examples/) directory, you can find a set of example applications:
+
+| Application                                                    | Description                              |
+| -------------------------------------------------------------- | ---------------------------------------- |
+| [Web explorer](../../examples/apps/web_explorer/readme.md)     | Basic Sen explorer for the web browser   |
+| [REST Python](../../examples/apps/rest_python/readme.md)       | Python client for the Sen REST component |
+| [Recording inspector](../../examples/apps/recording_inspector) |                                          |
 
 ## Reference material
 

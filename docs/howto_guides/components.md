@@ -545,3 +545,7 @@ We just need to be aware of the following:
 
 Object names must be unique within the bus in which they are published. Otherwise, an exception will
 be raised.
+
+### Object's naming convention
+
+Sen supports the use of all special characters for published object naming, with the only exception of literal space characters (" "), which are restricted.

@@ -344,6 +344,133 @@ function(add_sen_package)
 
 endfunction()
 
+# Creates a Sen package: an INTERFACE library that contains STL or HLA FOM files.
+#
+# add_sen_interface_package(
+#   TARGET <name>
+#     Name of the CMake target to create.
+#
+#   [MAINTAINER <name>]
+#     Person or team responsible for this package. Defaults to "unknown".
+#     Note: AUTHOR is a deprecated alias for MAINTAINER.
+#
+#   [DESCRIPTION <text>]
+#     Human-readable description embedded in the package metadata.
+#
+#   [VERSION <version>]
+#     Package version string. Defaults to the CMake project version.
+#
+#   [BASE_PATH <path>]
+#     Root directory used to compute relative paths for generated files and
+#     interface resolution. Defaults to CMAKE_CURRENT_SOURCE_DIR.
+#
+#   [DEPS <targets...>]
+#     Public dependencies. Linked with PUBLIC linkage; their exported Sen types
+#     are re-exported by this package.
+#
+#   [STL_FILES <files...>]
+#     Sen Type Language (.stl) files from which C++ code is generated.
+#     Mutually exclusive with HLA_FOM_DIRS.
+#
+#   [HLA_FOM_DIRS <dirs...>]
+#     Directories containing HLA FOM XML files from which C++ code is generated.
+#     Mutually exclusive with STL_FILES.
+#
+#   [HLA_MAPPINGS_FILE <files...>]
+#     HLA mapping files that customise FOM-to-C++ translation.
+#     Requires HLA_FOM_DIRS.
+#
+function(add_sen_interface_package)
+
+  set(_one_value_args
+      TARGET
+      MAINTAINER
+      DESCRIPTION
+      VERSION
+      BASE_PATH
+  )
+
+  set(_multi_value_args
+      DEPS
+      STL_FILES
+      HLA_FOM_DIRS
+      HLA_MAPPINGS_FILE
+  )
+
+  cmake_parse_arguments(
+    _arg
+    "${_options}"
+    "${_one_value_args}"
+    "${_multi_value_args}"
+    ${ARGN}
+  )
+
+  if(NOT _arg_TARGET)
+    message(FATAL_ERROR "add_sen_interface_package: no TARGET set")
+  endif()
+
+  if(NOT _arg_MAINTAINER AND NOT _arg_AUTHOR)
+    set(_arg_MAINTAINER "unknown")
+  endif()
+
+  if(NOT _arg_VERSION)
+    set(_arg_VERSION ${CMAKE_PROJECT_VERSION})
+  endif()
+
+  if(_arg_BASE_PATH)
+    get_filename_component(_abs_base_path ${_arg_BASE_PATH} ABSOLUTE)
+  else()
+    set(_abs_base_path ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  add_library(${_arg_TARGET} INTERFACE)
+
+  get_git_head_revision(git_ref_spec git_hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
+  git_local_changes(git_status_str)
+  target_compile_definitions(
+    ${_arg_TARGET}
+    INTERFACE SEN_TARGET_NAME="${_arg_TARGET}"
+              SEN_TARGET_MAINTAINER="${_arg_MAINTAINER}"
+              SEN_TARGET_DESCRIPTION="${_arg_DESCRIPTION}"
+              SEN_TARGET_VERSION="${_arg_VERSION}"
+              GIT_REF_SPEC="${git_ref_spec}"
+              GIT_HASH="${git_hash}"
+              GIT_STATUS="${git_status_str}"
+  )
+
+  # Copy dependency import paths
+  if(_arg_DEPS)
+    foreach(_item ${_arg_DEPS})
+      copy_target_property(${_arg_TARGET} ${_item} SEN_IMPORT_DIRS)
+    endforeach()
+  endif()
+
+  # generate code if needed
+  if(_arg_STL_FILES OR _arg_HLA_FOM_DIRS)
+    if(_arg_STL_FILES)
+      sen_generate_interface_package(
+        TARGET
+        ${_arg_TARGET}
+        BASE_PATH
+        ${_arg_BASE_PATH}
+        STL_FILES
+        ${_arg_STL_FILES}
+      )
+    else()
+      sen_generate_interface_package(
+        TARGET
+        ${_arg_TARGET}
+        BASE_PATH
+        ${_arg_BASE_PATH}
+        HLA_FOM_DIRS
+        ${_arg_HLA_FOM_DIRS}
+        HLA_MAPPINGS_FILE
+        ${_arg_HLA_MAPPINGS_FILE}
+      )
+    endif()
+  endif()
+endfunction()
+
 # Deprecated wrapper for add_sen_package(... PUBLIC_SYMBOLS).
 # Kept for backwards compatibility â€” prefer add_sen_package() with PUBLIC_SYMBOLS directly.
 macro(sen_generate_package)

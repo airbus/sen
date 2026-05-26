@@ -185,9 +185,7 @@ private:
 
   [[nodiscard]] std::shared_ptr<sen::Object> getObject(const InterestSubscription& interestSubscription,
                                                        const std::string& objectName) const;
-  [[nodiscard]] std::optional<Object> getObjectDefinition(const InterestSubscription& interestSubscription,
-                                                          const std::string& urlPath,
-                                                          const std::string& objectName) const;
+  [[nodiscard]] Object getObjectDefinition(const std::string& urlPath, const sen::Object& object) const;
   [[nodiscard]] std::optional<ObjectMethod> getMethodDefinition(const InterestSubscription& interestSubscription,
                                                                 const MethodLocator& methodLocator) const;
   [[nodiscard]] std::optional<ObjectEvent> getEventDefinition(const InterestSubscription& interestSubscription,

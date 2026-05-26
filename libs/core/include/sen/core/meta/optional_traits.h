@@ -14,9 +14,12 @@
 #include "sen/core/io/output_stream.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/optional_type.h"
+#include "sen/core/meta/var.h"
 
 // std
+#include <cstdint>
 #include <optional>
+#include <string>
 
 namespace sen
 {
@@ -37,6 +40,19 @@ struct OptionalTraitsBase
   static void valueToVariant(const T& val, Var& var);
   static void variantToValue(const Var& var, T& val);
   [[nodiscard]] static uint32_t serializedSize(T val) noexcept;
+
+  static std::string toJsonString(const T& val)
+  {
+    Var var;
+    valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, T& val)
+  {
+    const Var var = fromJson(str);
+    variantToValue(var, val);
+  }
 };
 
 /// @}

@@ -4,16 +4,21 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Module to define how to setup conan packages for Sen."""
+
+from os import getenv
+from os.path import isdir, join
 
 from conan import ConanFile
-from conan.tools.cmake import CMakeDeps, CMakeToolchain, CMake, cmake_layout
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
-from conan.tools.system.package_manager import Apt, Yum, Dnf, Zypper
-from os.path import isdir, join
-from os import getenv
+from conan.tools.system.package_manager import Apt, Dnf, Yum, Zypper
+
 
 class SenConan(ConanFile):
+    """Conan file that specifies how Sen can be build and packaged with conan."""
+
     name = "sen"
     author = "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"  # Main PoC
     url = "https://github.com/airbus/sen"
@@ -26,11 +31,13 @@ class SenConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
     def build_requirements(self):
+        """Defines the dependencies only need for building of Sen."""
         self.tool_requires("cmake/3.28.1")
         self.tool_requires("ninja/1.13.2")
         self.test_requires("gtest/1.17.0")
 
     def requirements(self):
+        """Defines the dependencies of Sen."""
         # non-visible dependencies
         self.requires("asio/1.36.0", visible=False)
         self.requires("cli11/2.3.2", visible=False)
@@ -57,11 +64,14 @@ class SenConan(ConanFile):
         # our usage of imgui in Linux has an implicit dependency on SDL.
         # SDL has a missing dependency on libext-dev, so we need to install it.
         if self.settings.os == "Linux":
-            self.requires("sdl/2.24.0",
-                          options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
-                          visible=False)
+            self.requires(
+                "sdl/2.24.0",
+                options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
+                visible=False,
+            )
 
     def system_requirements(self):
+        """Defines the system requirements of Sen."""
         # our usage of imgui on Linux has an implicit dependency on SDL,
         # which itself requires libXext. Install it via the system package manager.
         if self.settings.os == "Linux":
@@ -71,9 +81,22 @@ class SenConan(ConanFile):
             Zypper(self).install(["libxext-devel"], update=True)  # opensuse, sles, ...
 
     def export_sources(self):
+        """Defines the set of files that should be exported for building Sen."""
         # Sources are located in the same place as this recipe, copy them to the recipe
-        include_patterns = ["apps/*", "cmake/*", "components/*", "examples/*", "libs/*", "test/*",
-                           "CMakeLists.txt", ".clang-tidy", ".clang-format", "LICENSE.txt", "util/*", "resources/*"]
+        include_patterns = [
+            "apps/*",
+            "cmake/*",
+            "components/*",
+            "examples/*",
+            "libs/*",
+            "test/*",
+            "CMakeLists.txt",
+            ".clang-tidy",
+            ".clang-format",
+            "LICENSE.txt",
+            "util/*",
+            "resources/*",
+        ]
 
         exclude_patterns = ["*/__pycache__/*", "*/.mypy_cache/*", "doc/*", "*/schema.json"]
 
@@ -84,7 +107,8 @@ class SenConan(ConanFile):
     no_copy_source = True
 
     def set_version(self):
-        if isdir(join(self.recipe_folder, '.git')):
+        """Defines the version number that should be used."""
+        if isdir(join(self.recipe_folder, ".git")):
             # sets project version either to the current tag or the
             # last tag with with the diff-commit addition.
             # For example:
@@ -107,9 +131,11 @@ class SenConan(ConanFile):
             self.version = fictive_version
 
     def layout(self):
+        """Define the folder layout for building Sen."""
         cmake_layout(self)
 
     def generate(self):
+        """Generate the cmake dependency and toolchain files."""
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -138,15 +164,18 @@ class SenConan(ConanFile):
         tc.generate()
 
     def build(self):
+        """Configure and build Sen."""
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        """Package Sen into a conan package."""
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
+        """Calculate the conan package info."""
         self.cpp_info.set_property("cmake_find_mode", "none")
         self.cpp_info.builddirs = [join("cmake", "sen")]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
@@ -160,11 +189,14 @@ class SenConan(ConanFile):
 
         # Windows: PATH is already prepended above; no additional loader path needed.
 
+
 def env_var_to_bool(env_var_name):
     """Returns True if the environment variable is set to a truthy value, False otherwise."""
     return getenv(env_var_name, "").lower() in ("true", "on", "1", "yes")
 
+
 def select_sanitizer() -> str:
+    """Determine which sanitizer should be enabled."""
     if env_var_to_bool("ENABLE_ASAN"):
         print("Configuring address and undefined-behavior sanitizers...")
         return "ASanUBSan"

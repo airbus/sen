@@ -437,3 +437,131 @@ class Person
     EXPECT_ANY_THROW(auto statements = parser.parse());
   }
 }
+
+/// @test
+/// Checks that the last field of structs, enums and variants can end with a comma.
+/// It also checks that they can have a comment line before the closing brace
+/// @requirements(SEN-903)
+TEST(Parser, trailingCommasAndFloatingComments)
+{
+  const std::string program =
+    R"(
+// A struct whose last field has a comma, and which has a line containing a comment before the closing brace
+struct CPrint
+{
+  flags : u32,
+  color : u32,
+  text  : string, // last element ends with a coma
+
+  // extra : string
+}
+
+// An enum whose last enumerator has a comma, and which has a line containing a comment before the closing brace
+enum OsKind : u8
+{
+  windowsOs, // Microsoft Windows
+  linuxOs,   // Linux
+  androidOs, // Android Linux
+  appleOs,   // Apple OS (iOS, tvOS, etc..)
+  unixOs,    // all unices not caught above
+  posixOs,   // Posix
+  otherOs,    // other, unknown
+  // myFirstOs
+  // mySecondOs
+}
+
+// A variant whose last element has a comma, and which has a line containing a comment before the closing brace
+variant TerminalCommand
+{
+  HideCursor,
+  ShowCursor,
+  SaveCursorPosition,
+  RestoreCursorPosition,
+  MoveCursorLeft,
+  MoveCursorRight,
+  MoveCursorUp,
+  MoveCursorDown,
+  Print,
+  CPrint,  // last element ends with a coma and its description should not include 'customCommand' next comment
+
+// customCommand
+}
+
+    )";
+
+  StlScanner scanner(program);
+  const auto tokens = scanner.scanTokens();
+  EXPECT_FALSE(tokens.empty());
+
+  StlParser parser(tokens);
+  const auto statements = parser.parse();
+
+  ASSERT_EQ(3U, statements.size());
+
+  // Struct
+  ASSERT_TRUE(std::holds_alternative<sen::lang::StlStructStatement>(statements[0]));
+  const auto& structure = std::get<sen::lang::StlStructStatement>(statements[0]);
+  ASSERT_EQ(3U, structure.fields.size());
+  EXPECT_EQ("flags", structure.fields[0].identifier.lexeme());
+  EXPECT_EQ("text", structure.fields[2].identifier.lexeme());
+  ASSERT_EQ(0U, structure.fields[1].description.size());
+  EXPECT_EQ("last element ends with a coma", structure.fields[2].description[0].lexeme());
+
+  // Enum
+  ASSERT_TRUE(std::holds_alternative<sen::lang::StlEnumStatement>(statements[1]));
+  const auto& enumeration = std::get<sen::lang::StlEnumStatement>(statements[1]);
+  ASSERT_EQ(7U, enumeration.enumerators.size());
+  EXPECT_EQ("windowsOs", enumeration.enumerators[0].identifier.lexeme());
+  EXPECT_EQ("linuxOs", enumeration.enumerators[1].identifier.lexeme());
+  EXPECT_EQ("otherOs", enumeration.enumerators[6].identifier.lexeme());
+
+  // Variant
+  ASSERT_TRUE(std::holds_alternative<sen::lang::StlVariantStatement>(statements[2]));
+  const auto& variant = std::get<sen::lang::StlVariantStatement>(statements[2]);
+  ASSERT_EQ(10U, variant.elements.size());
+  EXPECT_EQ("last element ends with a coma and its description should not include 'customCommand' next comment",
+            variant.elements[9].description[0].lexeme());
+}
+
+/// @test
+/// Checks that structures, enums and variants can be empty with only a comment inside
+/// @requirements(SEN-903)
+TEST(Parser, emptyBlocksWithFloatingComments)
+{
+  const std::string program =
+    R"(
+struct EmptyStruct {
+  // Test comment
+}
+
+enum EmptyEnum : u8 {
+  // Test comment
+}
+
+variant EmptyVariant {
+  // Test comment
+}
+
+    )";
+
+  StlScanner scanner(program);
+  const auto tokens = scanner.scanTokens();
+  EXPECT_FALSE(tokens.empty());
+
+  StlParser parser(tokens);
+  const auto statements = parser.parse();
+
+  ASSERT_EQ(3U, statements.size());
+
+  // Struct
+  ASSERT_TRUE(std::holds_alternative<sen::lang::StlStructStatement>(statements[0]));
+  EXPECT_EQ(0U, std::get<sen::lang::StlStructStatement>(statements[0]).fields.size());
+
+  // Enum
+  ASSERT_TRUE(std::holds_alternative<sen::lang::StlEnumStatement>(statements[1]));
+  EXPECT_EQ(0U, std::get<sen::lang::StlEnumStatement>(statements[1]).enumerators.size());
+
+  // Variant
+  ASSERT_TRUE(std::holds_alternative<sen::lang::StlVariantStatement>(statements[2]));
+  EXPECT_EQ(0U, std::get<sen::lang::StlVariantStatement>(statements[2]).elements.size());
+}

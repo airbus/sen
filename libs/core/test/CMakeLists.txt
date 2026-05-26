@@ -128,6 +128,7 @@ add_sen_unit_test_suite(
   sen::util
   PRIVATE
   cpptrace::cpptrace
+  nlohmann_json::nlohmann_json
   core_test_io_generated
   core_test_meta_generated
   core_test_obj_generated

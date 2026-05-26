@@ -313,6 +313,7 @@ function(get_external_interfaces)
 
   get_target_property(_build_stl_files ${_arg_TARGET} STL_FILES)
   get_target_property(_build_hla_fom_dirs ${_arg_TARGET} HLA_FOM_DIRS)
+  get_target_property(_build_hla_mappings ${_arg_TARGET} HLA_MAPPINGS)
   get_target_property(_build_base_path ${_arg_TARGET} BASE_PATH)
   string(
     REGEX MATCH
@@ -325,6 +326,12 @@ function(get_external_interfaces)
           NOTFOUND
           _hla_fom_dirs_present
           ${_build_hla_fom_dirs}
+  )
+  string(
+    REGEX MATCH
+          NOTFOUND
+          _hla_mappings_present
+          ${_build_hla_mappings}
   )
 
   # set base_path that should be common to all interfaces
@@ -382,7 +389,7 @@ function(get_external_interfaces)
       if(NOT EXISTS ${installation_fom_dir})
         message(
           FATAL_ERROR
-            "get_external_interfaces: Could not obtain external interfaces for TARGET ${_arg_TARGET}: Directory ${installation_stl} could not be found on system.\
+            "get_external_interfaces: Could not obtain external interfaces for TARGET ${_arg_TARGET}: Directory ${installation_fom_dir} could not be found on system.\
             Please, contact with the maintainers of the target. \n\
             Possible reasons of the failure: \n\
             \tWrongly inputted BASE_PATH on original package generation.\n\
@@ -390,8 +397,8 @@ function(get_external_interfaces)
             \tINSTALL directory not compliant with the BASE_PATH. \n\
 
             Report this information to the developer when suggesting a fix: \n\
-            \tFile was originally built in ${stl_file}\n\
-            \tFile was expected to be in ${_abs_install_dir}/${relative_stl_path}\
+            \tFOM folder ${fom_dir}\n\
+            \tFolder was expected to be in ${_abs_install_dir}/${relative_fom_dir_path}\
 
             Please check the interfaces consumption guide on Sen's official documentation for further information.
                 "
@@ -401,6 +408,43 @@ function(get_external_interfaces)
           TARGET ${_arg_TARGET}
           APPEND
           PROPERTY INSTALL_HLA_FOM_DIRS ${installation_fom_dir}
+        )
+      endif()
+    endforeach()
+  endif()
+  # set hla mappings if found
+  if(_build_hla_mappings)
+    foreach(mappings_file ${_build_hla_mappings})
+      string(
+        REPLACE ${_build_base_path}
+                ""
+                relative_mappings_file_path
+                ${mappings_file}
+      )
+      set(installation_mappings_file "${_abs_install_dir}/${relative_mappings_file_path}")
+
+      if(NOT EXISTS ${installation_mappings_file})
+        message(
+          FATAL_ERROR
+            "get_external_interfaces: Could not obtain external interfaces for TARGET ${_arg_TARGET}: Directory ${installation_mappings_file} could not be found on system.\
+            Please, contact with the maintainers of the target. \n\
+            Possible reasons of the failure: \n\
+            \tWrongly inputted BASE_PATH on original package generation.\n\
+            \tNo INSTALL directive on the FOM directories.\n\
+            \tINSTALL directory not compliant with the BASE_PATH. \n\
+
+            Report this information to the developer when suggesting a fix: \n\
+            \tMappings file was originally built in ${mappings_file}\n\
+            \tFile was expected to be in ${_abs_install_dir}/${relative_mappings_file_path}\
+
+            Please check the interfaces consumption guide on Sen's official documentation for further information.
+                "
+        )
+      else()
+        set_property(
+          TARGET ${_arg_TARGET}
+          APPEND
+          PROPERTY INSTALL_HLA_MAPPINGS ${installation_mappings_file}
         )
       endif()
     endforeach()
@@ -480,6 +524,7 @@ function(copy_target_properties to_target from_target)
   copy_target_property(${to_target} ${from_target} SEN_IMPORT_DIRS)
   copy_target_property(${to_target} ${from_target} STL_FILES)
   copy_target_property(${to_target} ${from_target} HLA_FOM_DIRS)
+  copy_target_property(${to_target} ${from_target} HLA_MAPPINGS)
   copy_target_property(${to_target} ${from_target} EXPORT_FILES)
   copy_target_property(${to_target} ${from_target} SEN_EXPORTS_TYPES)
   copy_target_property(${to_target} ${from_target} SEN_IS_PYTHON)
@@ -647,12 +692,20 @@ function(sen_configure_target target_name)
     endif()
   endif()
 
-  set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-  )# .exe and .dll
-  set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-  )# .so and .dylib
-  set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
-  )# .a and .lib
+  if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+    set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+    )# .exe and .dll
+  endif()
+
+  if(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+    )# .so and .dylib
+  endif()
+
+  if(NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+    set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+    )# .a and .lib
+  endif()
 
   # link coverage flags if coverage was enabled (interface target created in root CMakeLists.txt)
   if(TARGET sen_coverage_flags)

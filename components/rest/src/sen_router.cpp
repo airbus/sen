@@ -17,6 +17,7 @@
 #include "locators.h"
 #include "notification_loop.h"
 #include "object_interests_manager.h"
+#include "response_adapter.h"
 #include "types.h"
 #include "utils.h"
 
@@ -31,6 +32,7 @@
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
+#include "sen/core/meta/property.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/callback.h"
 #include "sen/core/obj/object.h"
@@ -156,18 +158,9 @@ std::shared_ptr<sen::Object> SenRouter::getObject(const InterestSubscription& in
   return *objectIt;
 }
 
-std::optional<Object> SenRouter::getObjectDefinition(const InterestSubscription& interestSubscription,
-                                                     const std::string& urlPath,
-                                                     const std::string& objectName) const
+Object SenRouter::getObjectDefinition(const std::string& urlPath, const sen::Object& object) const
 {
-  auto object = getObject(interestSubscription, objectName);
-  if (!object)
-  {
-    return std::nullopt;
-  }
-
-  auto objectClass = object->getClass();
-
+  auto objectClass = object.getClass();
   Links links;
   for (const auto& method: objectClass->getMethods(sen::ClassType::SearchMode::includeParents))
   {
@@ -179,13 +172,18 @@ std::optional<Object> SenRouter::getObjectDefinition(const InterestSubscription&
   for (const auto& prop: objectClass->getProperties(sen::ClassType::SearchMode::includeParents))
   {
     // prop getters
-    const std::string getterRelUrl = urlPath + "/methods/" + std::string(prop->getGetterMethod().getName());
+    const auto& getter = prop->getGetterMethod();
+    std::string getterRelUrl = urlPath + "/methods/" + std::string(getter.getName());
     links.emplace_back(Link {RelType::getter, getterRelUrl + "/invoke", HttpMethod::httpPost});
+    links.emplace_back(Link {RelType::def, std::move(getterRelUrl), HttpMethod::httpGet});
 
     // prop setters
-    const std::string setterRelUrl = urlPath + "/methods/" + std::string(prop->getSetterMethod().getName());
-    links.emplace_back(Link {RelType::setter, setterRelUrl + "/invoke", HttpMethod::httpPost});
-    links.emplace_back(Link {RelType::def, setterRelUrl, HttpMethod::httpGet});
+    if (const auto& setter = prop->getSetterMethod(); prop->getCategory() == PropertyCategory::dynamicRW)
+    {
+      std::string setterRelUrl = urlPath + "/methods/" + std::string(setter.getName());
+      links.emplace_back(Link {RelType::setter, setterRelUrl + "/invoke", HttpMethod::httpPost});
+      links.emplace_back(Link {RelType::def, std::move(setterRelUrl), HttpMethod::httpGet});
+    }
 
     // prop change subscription
     const std::string propRelUrlEvent = urlPath + "/properties/" + std::string(prop->getName());
@@ -202,10 +200,10 @@ std::optional<Object> SenRouter::getObjectDefinition(const InterestSubscription&
   }
 
   return Object {
-    object->getId().get(),
-    object->getName(),
+    object.getId().get(),
+    object.getName(),
     std::string(objectClass->getQualifiedName()),
-    object->getLocalName(),
+    object.getLocalName(),
     std::string(objectClass->getDescription()),
     links,
   };
@@ -222,17 +220,8 @@ std::optional<ObjectMethod> SenRouter::getMethodDefinition(const InterestSubscri
 
   auto objectClass = object->getClass();
 
-  const auto& methods = objectClass->getMethods(sen::ClassType::SearchMode::includeParents);
-  const auto methodIt = std::find_if(methods.cbegin(),
-                                     methods.cend(),
-                                     [&methodLocator](const std::shared_ptr<const Method> methodPtr)
-                                     { return methodPtr && methodPtr->getName() == methodLocator.method(); });
-  if (methodIt == methods.cend())
-  {
-    return std::nullopt;
-  }
-
-  auto method = methodIt->get();
+  const auto method =
+    objectClass->searchMethodByName(methodLocator.method(), sen::ClassType::SearchMode::includeParents);
   if (!method)
   {
     return std::nullopt;
@@ -381,7 +370,7 @@ SenRouter::SenRouter(kernel::RunApi& api): api_(api)
   addStreamRoute(
     HttpMethod::httpGet, "/api/sse", bindAuthStreamRouteCallback(this, &SenRouter::getNotificationsHandler));
 
-  // types instrospection
+  // types introspection
   addRoute(HttpMethod::httpGet, "/api/types/:type", bindAuthRouteCallback(this, &SenRouter::getTypeIntrospection));
 }
 
@@ -494,10 +483,10 @@ JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
 {
   logClientSession(clientSession, "createInterest");
 
-  const auto payload = Json::parse(httpSession.getRequest().body());
-
   try
   {
+    const auto payload = Json::parse(httpSession.getRequest().body());
+
     Interest interest;
     interest.query = payload.at("query").get<std::string>();
     interest.name = payload.at("name").get<std::string>();
@@ -614,13 +603,32 @@ JsonResponse SenRouter::getObjectHandler(ClientSession& clientSession,
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
-  auto object = getObjectDefinition(interestSubscription, httpSession.getRequest().path(), urlParams[1]);
-  if (!object)
+  auto objectReference = getObject(interestSubscription, urlParams[1]);
+
+  if (!objectReference)
   {
     return getErrorNotFound();
   }
 
-  return JsonResponse {httpSuccess, *object};
+  auto object = getObjectDefinition(httpSession.getRequest().path(), *objectReference);
+  auto var = sen::toVariant(object);
+  adaptForJsonResponse(var, sen::MetaTypeTrait<Object>::meta().type());
+  auto jsonObject = nlohmann::json::parse(toJson(var));
+
+  if (!queryParams.empty() && queryParams.find("includeValues")->second == "true")
+  {
+    nlohmann::json values;
+
+    for (const auto& prop: objectReference->getClass()->getProperties(sen::ClassType::SearchMode::includeParents))
+    {
+      auto value = objectReference->getPropertyUntyped(prop.get());
+      values[prop->getName()] = nlohmann::json::parse(toJson(value));
+    }
+
+    jsonObject["properties"] = values;
+  }
+
+  return JsonResponse {httpSuccess, jsonObject.dump()};
 }
 
 JsonResponse SenRouter::getPropertyHandler(ClientSession& clientSession,
@@ -843,7 +851,8 @@ JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
     return getErrorNotFound();
   }
 
-  const sen::Method* method = object->getClass()->searchMethodByName(locator.method());
+  const sen::Method* method =
+    object->getClass()->searchMethodByName(locator.method(), sen::ClassType::SearchMode::includeParents);
   if (!method)
   {
     return JsonResponse(httpNotFoundError, Error {"method not found"});

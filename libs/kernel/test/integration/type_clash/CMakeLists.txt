@@ -19,9 +19,7 @@ add_sen_package(
   NO_SCHEMA
 )
 sen_enable_static_analysis(type_clash_participant_1)
-set_target_properties(
-  type_clash_participant_1 PROPERTIES FOLDER "test" LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
+set_target_properties(type_clash_participant_1 PROPERTIES FOLDER "test")
 
 add_sen_package(
   TARGET type_clash_participant_2
@@ -35,9 +33,7 @@ add_sen_package(
   NO_SCHEMA
 )
 sen_enable_static_analysis(type_clash_participant_2)
-set_target_properties(
-  type_clash_participant_2 PROPERTIES FOLDER "test" LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
+set_target_properties(type_clash_participant_2 PROPERTIES FOLDER "test")
 
 add_sen_package(
   TARGET type_clash_participant_3
@@ -51,9 +47,7 @@ add_sen_package(
   NO_SCHEMA
 )
 sen_enable_static_analysis(type_clash_participant_3)
-set_target_properties(
-  type_clash_participant_3 PROPERTIES FOLDER "test" LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
+set_target_properties(type_clash_participant_3 PROPERTIES FOLDER "test")
 
 add_sen_integration_test(
   kernel_type_clash_test_1
@@ -63,7 +57,7 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/participant_1/config/participant_1.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/participant_2/config/participant_2.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/type_clash_tester.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_COMPONENTS ether py REQ_DEPS type_clash_participant_1 type_clash_participant_2
 )
 
@@ -85,7 +79,7 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/participant_1/config/participant_1.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/participant_3/config/participant_3.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/type_clash_tester.yaml
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
   REQ_COMPONENTS ether py REQ_DEPS type_clash_participant_1 type_clash_participant_3
 )
 

@@ -29,8 +29,8 @@ Prepare the Python environment
 
 ```bash
 python3 -m venv .env
-source env/bin/activate
-pip install -r requirements
+source .env/bin/activate
+pip install -r requirements.txt
 ```
 
 Now run the client example:
@@ -38,3 +38,6 @@ Now run the client example:
 ```bash
 python sen_client.py
 ```
+
+This example works as a simple python client for the Sen REST component. It instantiates a SenClient object that starts
+a session, enable notifications and does some basic operations to exemplify how it can be used.

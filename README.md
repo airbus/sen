@@ -110,7 +110,7 @@ class MyProjectConan(ConanFile):
         self.requires("sen/[>=1.0]")
 ```
 
-2. Run `conan install . --profile <your_conan_profile> --build=missing` to download Sen before running CMake.
+1. Run `conan install . --profile <your_conan_profile> --build=missing` to download Sen before running CMake.
 
 To ensure your system is able to find all paths, add the `bin` folder to your `PATH` environment variable (in Linux also
 add it to the `LD_LIBRARY_PATH`). Check that everything works by running `sen shell`. You can play with the objects in the `local` session.

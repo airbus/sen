@@ -227,6 +227,12 @@ paths:
         required: true
         schema:
           type: string
+      - in: query
+        name: includeValues
+        description: Whether to include property values
+        required: false
+        schema:
+          type: string
     get:
       summary: Get object details
       description: Returns information about a specific object including available
@@ -783,6 +789,9 @@ components:
           items:
             $ref: '#/components/schemas/Link'
           description: Links to available methods, properties, and events
+        properties:
+          type: object
+          description: Properties with its values
       required:
         - objectId
         - name
@@ -811,8 +820,8 @@ components:
         method:
           type: string
           enum:
-            - httpGet
-            - httpPost
+            - get
+            - post
           description: HTTP method to use
       required:
         - rel
@@ -827,7 +836,7 @@ components:
         description:
           type: string
           description: Method description
-        ret_type:
+        retType:
           type: string
           description: Return type name
         args:
@@ -838,7 +847,7 @@ components:
       required:
         - name
         - description
-        - ret_type
+        - retType
         - args
     Argument:
       type: object
@@ -897,10 +906,10 @@ components:
           type: string
           enum:
             - evt
-            - property
             - invoke
-            - objectAdded
-            - objectRemoved
+            - property
+            - object_added
+            - object_removed
           description: Notification type
         data:
           type: object

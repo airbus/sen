@@ -83,7 +83,7 @@ void adaptForJsonResponse(sen::Var& var, const sen::Type* type)
           switch (var_.getCopyAs<u8>())
           {
             case 0:
-              var_ = "event";
+              var_ = "evt";
               break;
 
             case 1:

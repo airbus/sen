@@ -191,6 +191,11 @@ void ReplayImpl::seekImpl(TimeStamp time)
   applyCursor();
   setNextPlaybackTime(cursor_.get().time);
   flushObjectsActivity();
+
+  if (auto diff = time - cursor_.get().time; diff.get() > 0)
+  {
+    advanceCursor(diff);
+  }
 }
 
 void ReplayImpl::applyCursor()

@@ -160,7 +160,7 @@ endfunction()
 #   [REQ_DEPS <deps>]
 # )
 function(add_sen_integration_test test_name)
-  set(_options)
+  set(_options FLAKY)
   set(_one_value_args)
   set(_multi_value_args REQ_COMPONENTS REQ_DEPS)
 
@@ -220,18 +220,19 @@ function(add_sen_run_smoke_test test_name)
     message(FATAL_ERROR "add_sen_run_smoke_test: no CONFIG_FILE set")
   endif()
 
-  if(NOT
-     CMAKE_GENERATOR
-     STREQUAL
-     "Ninja"
+  if(_arg_WORKING_DIRECTORY)
+    set(_working_dir ${_arg_WORKING_DIRECTORY})
+  elseif(DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(_working_dir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+  elseif(
+    NOT
+    CMAKE_GENERATOR
+    STREQUAL
+    "Ninja"
   )
     set(_working_dir ${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
   else()
     set(_working_dir ${PROJECT_BINARY_DIR}/bin)
-  endif()
-
-  if(_arg_WORKING_DIRECTORY)
-    set(_working_dir ${_arg_WORKING_DIRECTORY})
   endif()
 
   get_filename_component(_abs_config ${_arg_CONFIG_FILE} ABSOLUTE)
@@ -343,7 +344,7 @@ function(add_sen_cli_gen_smoke_test test_name)
   )
 endfunction()
 
-# add_sen_cli_gen_smoke_test(
+# append_test_env_modification(
 #   <test_target_name>
 #   [list of modifications]
 # )

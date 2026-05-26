@@ -426,6 +426,12 @@ function(sen_generate_code)
         _all_mappings
       )
       set(_mapping_opt "--mappings=${_all_mappings}")
+      set_property(
+        TARGET ${_arg_TARGET}
+        APPEND
+        PROPERTY HLA_MAPPINGS ${_abs_mappings}
+      )
+
     endif()
 
     target_sources(${_arg_TARGET} PRIVATE ${_xml_files})
@@ -471,6 +477,121 @@ function(sen_generate_code)
         ${_gen_hdr_files}
         PARENT_SCOPE
     )
+  endif()
+
+endfunction()
+
+# Takes a target and adds Sen properties to it with the fom/stl files.
+#
+# sen_generate_interface_package(
+#  TARGET <target>
+#  [BASE_PATH base_path]
+#  [HLA_OUTPUT_DIR path]
+#  [STL_FILES [files...]]
+#  [HLA_FOM_DIRS [dirs...]]
+#  [HLA_MAPPINGS_FILE [files...]]
+function(sen_generate_interface_package)
+
+  set(_one_value_args TARGET BASE_PATH)
+  set(_multi_value_args STL_FILES HLA_FOM_DIRS HLA_MAPPINGS_FILE)
+
+  cmake_parse_arguments(
+    _arg
+    "${_options}"
+    "${_one_value_args}"
+    "${_multi_value_args}"
+    ${ARGN}
+  )
+
+  if(NOT _arg_TARGET)
+    message(FATAL_ERROR "  sen_generate_interface_package: no TARGET set")
+  endif()
+
+  if(NOT TARGET ${_arg_TARGET})
+    message(
+      FATAL_ERROR
+        "  sen_generate_interface_package: specified TARGET has not been created. Define the target before calling this function"
+    )
+  endif()
+
+  if(_arg_STL_FILES AND _arg_HLA_FOM_DIRS)
+    message(
+      FATAL_ERROR
+        "  sen_generate_interface_package: STL_FILES and HLA_FOM_DIRS cannot be present at the same time"
+    )
+  endif()
+
+  if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(
+      FATAL_ERROR
+        "  sen_generate_interface_package: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified"
+    )
+  endif()
+
+  # get the absolute base path
+  if(DEFINED _arg_BASE_PATH AND NOT (_arg_BASE_PATH STREQUAL ""))
+    get_filename_component(_abs_base_path ${_arg_BASE_PATH} ABSOLUTE)
+  else()
+    set(_abs_base_path ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  set_property(TARGET ${_arg_TARGET} PROPERTY BASE_PATH ${_abs_base_path})
+
+  # set the include path as extra options for the code generation
+  set_property(
+    TARGET ${_arg_TARGET}
+    APPEND
+    PROPERTY SEN_IMPORT_DIRS -i ${_abs_base_path}
+  )
+
+  if(_arg_STL_FILES)
+    foreach(_stl_file ${_arg_STL_FILES})
+      # get the absolute path to the sen file
+      get_filename_component(_abs_stl_file ${_stl_file} ABSOLUTE)
+      get_filename_component(_stl_file_name ${_stl_file} NAME)
+      set_property(
+        TARGET ${_arg_TARGET}
+        APPEND
+        PROPERTY STL_FILES ${_abs_stl_file}
+      )
+    endforeach()
+  endif(_arg_STL_FILES)
+
+  # generate from HLA FOM XMLs
+  if(_arg_HLA_FOM_DIRS)
+    set(_abs_fom_dirs)
+    set(_fom_generated_files)
+
+    foreach(_fom_dir ${_arg_HLA_FOM_DIRS})
+      get_filename_component(_abs_fom_dir ${_fom_dir} ABSOLUTE)
+      list(APPEND _abs_fom_dirs ${_abs_fom_dir})
+      set_property(
+        TARGET ${_arg_TARGET}
+        APPEND
+        PROPERTY HLA_FOM_DIRS ${_abs_fom_dir}
+      )
+
+      # get the xml files
+      file(
+        GLOB _xml_files
+        LIST_DIRECTORIES false
+        "${_fom_dir}/*.xml"
+      )
+    endforeach()
+
+    if(_arg_HLA_MAPPINGS_FILE)
+      set(_abs_mappings)
+      foreach(_mappings_file ${_arg_HLA_MAPPINGS_FILE})
+        get_filename_component(_abs_mapping_file ${_mappings_file} ABSOLUTE)
+        list(APPEND _abs_mappings ${_abs_mapping_file})
+      endforeach()
+
+      set_property(
+        TARGET ${_arg_TARGET}
+        APPEND
+        PROPERTY HLA_MAPPINGS ${_abs_mappings}
+      )
+    endif()
   endif()
 
 endfunction()

@@ -9,6 +9,7 @@
 #define SEN_WEATHER_SERVER_RANDOMIZE_H
 
 // generated code
+#include "hla_fom/hla.stl.h"
 #include "netn/netn-metoc.xml.h"
 
 // sen
@@ -32,17 +33,26 @@ template <typename T>
 void randomizeData(T& result, const netn::GeoReferenceVariant& ref)
 {
   result.geoReference = ref;
-  result.barometricPressure = getRand(0.0f, 50.0f);
-  result.humidity = getRand(0.0f, 100.0f);
+  result.barometricPressure = hla::MaybeF32(getRand(0.0f, 50.0f));
+  result.humidity = hla::MaybeF32(getRand(0.0f, 100.0f));
   result.temperature = getRand(-40.0f, 40.0f);
   result.visibilityRange = getRand(0.0f, 50000.0f);
-  result.haze.density = getRand(0.0f, 1.0f);
-  result.haze.type = netn::HazeTypeEnum32::fog;
-  result.precipitation.intensity = getRand(0.0f, 1.0f);
-  result.precipitation.type = netn::PrecipitationTypeEnum32::rain;
-  result.wind.direction = getRand(0.0f, 360.0f);
-  result.wind.horizontalSpeed = getRand(0.0f, 500.0f);
-  result.wind.verticalSpeed = getRand(0.0f, 500.0f);
+
+  netn::HazeStruct haze;
+  haze.density = getRand(0.0f, 1.0f);
+  haze.type = netn::HazeTypeEnum32::fog;
+  result.haze = haze;
+
+  netn::PrecipitationStruct precipitation;
+  precipitation.intensity = getRand(0.0f, 1.0f);
+  precipitation.type = netn::PrecipitationTypeEnum32::rain;
+  result.precipitation = precipitation;
+
+  netn::WindStruct wind;
+  wind.direction = getRand(0.0f, 360.0f);
+  wind.horizontalSpeed = getRand(0.0f, 500.0f);
+  wind.verticalSpeed = getRand(0.0f, 500.0f);
+  result.wind = wind;
 }
 
 template <typename T>
@@ -68,9 +78,13 @@ struct MakeRandom<netn::TroposphereLayerCondition>
   {
     netn::TroposphereLayerCondition elem {};
     randomizeData(elem, ref);
-    elem.cloud.coverage = getRand(0.0f, 1.0f);
-    elem.cloud.density = getRand(0.0f, 1.0f);
-    elem.cloud.type = netn::CloudTypeEnum32::cirrostratus;
+
+    netn::CloudStruct cloud;
+    cloud.coverage = getRand(0.0f, 1.0f);
+    cloud.density = getRand(0.0f, 1.0f);
+    cloud.type = netn::CloudTypeEnum32::cirrostratus;
+    elem.cloud = cloud;
+
     return elem;
   }
 };
@@ -82,12 +96,19 @@ struct MakeRandom<netn::WaterSurfaceCondition>
   {
     netn::WaterSurfaceCondition elem {};
     randomizeData(elem, ref);
-    elem.ice.coverage = getRand(0.0f, 100.0f);
-    elem.ice.thickness = getRand(0.0f, 3000.0f);
-    elem.ice.type = netn::IceTypeEnum16::ice;
-    elem.current.direction = getRand(0.0f, 360.0f);
-    elem.current.speed = getRand(0.0f, 50.0f);
-    elem.salinity = getRand(0.0f, 20.0f);
+
+    netn::IceStruct ice;
+    ice.coverage = getRand(0.0f, 100.0f);
+    ice.thickness = getRand(0.0f, 3000.0f);
+    ice.type = netn::IceTypeEnum16::ice;
+    elem.ice = ice;
+
+    netn::CurrentStruct current;
+    current.direction = getRand(0.0f, 360.0f);
+    current.speed = getRand(0.0f, 50.0f);
+    elem.current = current;
+
+    elem.salinity = hla::MaybeF32(getRand(0.0f, 20.0f));
     return elem;
   }
 };
@@ -99,11 +120,15 @@ struct MakeRandom<netn::SubsurfaceLayerCondition>
   {
     netn::SubsurfaceLayerCondition elem {};
     elem.geoReference = ref;
-    elem.current.direction = getRand(0.0f, 360.0f);
-    elem.current.speed = getRand(0.0f, 50.0f);
-    elem.salinity = getRand(0.0f, 20.0f);
+
+    netn::CurrentStruct current;
+    current.direction = getRand(0.0f, 360.0f);
+    current.speed = getRand(0.0f, 50.0f);
+    elem.current = current;
+
+    elem.salinity = hla::MaybeF32(getRand(0.0f, 20.0f));
     elem.temperature = getRand(-20.0f, 400.0f);
-    elem.bottomType = netn::SedimentTypeEnum32::mud;
+    elem.bottomType = netn::MaybeSedimentTypeEnum32(netn::SedimentTypeEnum32::mud);
     return elem;
   }
 };
@@ -115,8 +140,8 @@ struct MakeRandom<netn::LandSurfaceCondition>
   {
     netn::LandSurfaceCondition elem {};
     randomizeData(elem, ref);
-    elem.moisture = netn::SurfaceMoistureEnum16::wet;
-    elem.iceCondition = netn::RoadIceConditionEnum16::patches;
+    elem.moisture = netn::MaybeSurfaceMoistureEnum16(netn::SurfaceMoistureEnum16::wet);
+    elem.iceCondition = netn::MaybeRoadIceConditionEnum16(netn::RoadIceConditionEnum16::patches);
     return elem;
   }
 };

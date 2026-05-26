@@ -234,6 +234,20 @@ TEST(Rest, e2e_create_interest_invalid_query)
 }
 
 /// @test
+/// End-to-end test for malformed request to create interest
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_create_interest_malformed_request)
+{
+  Server server;
+
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  auto ret = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/interests", std::nullopt, token.value());
+  ASSERT_EQ(ret.statusCode, 400);
+}
+
+/// @test
 /// End-to-end test for getting an existing interest
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_interest_success)
@@ -428,11 +442,11 @@ TEST(Rest, e2e_get_existing_object)
 
   auto interests = Json::parse(ret.body);
   ASSERT_TRUE(interests.is_object());
-  ASSERT_EQ(interests["localname"], "rest.local.kernel.api");
+  ASSERT_EQ(interests["localName"], "rest.local.kernel.api");
 }
 
 /// @test
-/// End-to-end test for getting an non-existing object
+/// End-to-end test for getting a non-existing object
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_non_existing_object)
 {
@@ -459,6 +473,77 @@ TEST(Rest, e2e_get_non_existing_object)
                      Json(),
                      token.value());
   ASSERT_EQ(ret.statusCode, 404);
+}
+
+/// @test
+/// End-to-end test getting existing object with its properties when optional query param is true
+TEST(Rest, e2e_get_existing_object_including_properties)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Try to get an object properties
+  auto ret = request(HttpMethod::httpGet,
+                     "127.0.0.1",
+                     "12345",
+                     "/api/interests/test_interest/objects/api?includeValues=true",
+                     Json(),
+                     token.value());
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto interests = Json::parse(ret.body);
+  ASSERT_TRUE(interests.is_object());
+  ASSERT_TRUE(interests.contains("properties"));
+  ASSERT_TRUE(interests["properties"].is_object());
+}
+
+/// @test
+/// End-to-end test getting existing object without its properties when optional query param is not true
+TEST(Rest, e2e_get_existing_object_not_including_properties)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Try to not get an object properties
+  auto ret = request(HttpMethod::httpGet,
+                     "127.0.0.1",
+                     "12345",
+                     "/api/interests/test_interest/objects/api?includeValues=false",
+                     Json(),
+                     token.value());
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto interests = Json::parse(ret.body);
+  ASSERT_TRUE(interests.is_object());
+  ASSERT_FALSE(interests.contains("properties"));
 }
 
 /// @test
@@ -497,6 +582,51 @@ TEST(Rest, e2e_get_method_definition)
   auto res = Json::parse(ret.body);
   ASSERT_TRUE(res.is_object());
   ASSERT_EQ(res["name"], "shutdown");
+}
+
+/// @test
+/// End-to-end test to verify all returned definition links are accessible
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_get_all_method_definitions)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  // Retrieve object definition
+  HttpResponse ret = retryUntil(
+    200,
+    [&token]()
+    {
+      return request(
+        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects/api", Json(), token.value());
+    });
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto res = Json::parse(ret.body);
+  ASSERT_TRUE(res.is_object());
+
+  // Walk all definition links
+  for (const auto& link: res["links"])
+  {
+    if (link["rel"] != "def")
+    {
+      continue;
+    }
+    auto defRet = request(HttpMethod::httpGet, "127.0.0.1", "12345", link["href"], Json(), token.value());
+    ASSERT_EQ(defRet.statusCode, 200);
+  }
 }
 
 /// @test

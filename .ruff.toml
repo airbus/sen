@@ -1,0 +1,34 @@
+line-length = 120
+indent-width = 4
+include = ["*.py"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[lint]
+select = [
+  "ARG",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "I",
+  "I",
+  "PLC",
+  "PLE",
+  "PLW",
+  "UP",
+  "W",
+]
+ignore = [
+  "D105", # The meaning of special member functions can be found in the python documentation
+  "D203", # Conflicts with D211(blank-line-before-class)
+  "D212",  # Conflicts with D213(multi-line-summary-second-line)
+]
+preview = true
+
+[lint.pydocstyle]
+convention = "google"

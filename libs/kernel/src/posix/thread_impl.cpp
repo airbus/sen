@@ -16,11 +16,6 @@
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
 
-// system
-#ifdef __linux__
-#  include <bits/types/struct_sched_param.h>
-#endif
-
 // other posix
 #include <sched.h>
 

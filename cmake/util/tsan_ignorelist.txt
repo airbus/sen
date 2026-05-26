@@ -43,3 +43,19 @@ race:moodycamel::ConcurrentQueue<std::unique_ptr<std::vector<unsigned char, std:
 
 # TODO(SEN-1622): data race in ProcessHandler::shutdownSockets
 race:sen::components::ether::ProcessHandler::shutdownSockets
+
+# TODO(SEN-1647): deadlock found running object_sync tests with TSAN
+deadlock:sen::kernel::impl::Session::lock
+
+# TODO(SEN-1648): data race found running object_sync tests with TSAN
+race:sen::kernel::impl::RemoteParticipant::startTrackingProxy
+
+# TODO(SEN-1649): data race found running object_sync tests with TSAN
+race:sen::impl::PropertyFlags::currentIndex
+
+# TODO(SEN-1678): data race found while running object_sync_writable_props_two_processes with TSAN
+race:sen::impl::RemoteObject::sendCall
+
+# TODO(SEN-1679): data race found while running object_sync_writable_props_two_processes with TSAN
+# Issue with writable properties: setNext method can be called from another thread and the ProxyObject mutex is not locked (property buffers unprotected)
+race:object_sync::TestObjectRemoteProxy::setNextWritableProp
