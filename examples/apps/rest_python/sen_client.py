@@ -4,18 +4,18 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
-
-"""This program contains an example of how users can interact with the REST API using Python.
+"""
+This program contains an example of how users can interact with the REST API using Python.
 
 It shows how to sign in, create interests, display details and interact with remote objects.
 """
 
-import requests
 import json
-import sseclient
+import threading
 import time
 
-from typing import List, Dict, Any
+import requests
+import sseclient
 
 
 class SenClient:
@@ -30,6 +30,12 @@ class SenClient:
     """
 
     def __init__(self, base_url="http://localhost"):
+        """
+        Initialize SenClient.
+
+        Args:
+            base_url: base url to use (defaults to localhost)
+        """
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.sse_event_types = [
@@ -143,8 +149,8 @@ class SenClient:
 
         if args_str:
             args = []
-            for v in args_str.split(","):
-                v = v.strip()
+            for raw_v in args_str.split(","):
+                v = raw_v.strip()
                 try:
                     args.append(int(v))
                 except ValueError:
@@ -157,7 +163,6 @@ class SenClient:
 
     def enable_notifications(self):
         """Enable notifications that are displayed on standard output."""
-        import threading
 
         def listen_sse():
             """Tries to enable notifications and displays them on the standard output.
@@ -179,7 +184,7 @@ class SenClient:
         print("Notifications enabled")
 
     def disable_notifications(self):
-        """Disable notifications if they are enabled"""
+        """Disable notifications if they are enabled."""
         if self.sse_thread:
             self.sse_thread = None
         print("SSE disabled")
@@ -300,7 +305,7 @@ class SenClient:
         """Display all the objects contained on an interest on standard output.
 
         Args:
-            interests (list[dict]): List containing all the objects.
+            objects (list[dict]): List containing all the objects.
         """
         print("\n=== Objects ===")
         for obj in objects:
@@ -309,13 +314,16 @@ class SenClient:
         print()
 
     def get_object(self, interest_name, object_name):
-        """Get all the object details.
+        """
+        Get all the object details.
 
         Args:
+            interest_name: Name of the interest
             object_name (str): Name of the object.
 
         Returns:
-            dict: Dictionary with all the object with its class name, description, links, local name, name and object id.
+            dict: Dictionary with all the object associated with its class name, description, links,
+                  local name, name and object id.
 
         Raises:
             requests.RequestException: If there is any error in the request.
@@ -324,7 +332,8 @@ class SenClient:
         return data
 
     def print_object(self, data):
-        """Display all the object details.
+        """
+        Display all the object details.
 
         Args:
             data (dict): Dictionary containing all the object details.
@@ -350,19 +359,13 @@ class SenClient:
 
         print("\n=== Object Details ===")
         if methods:
-            print("\nMethods:")
-            for method in methods:
-                print(f"   {method}")
+            print("\nMethods:" + "\n".join(f"   {method}" for method in methods))
 
         if properties:
-            print("\nProperties:")
-            for prop in properties:
-                print(f"   {prop}")
+            print("\nProperties:" + "\n".join(f"   {prop}" for prop in properties))
 
         if events:
-            print("\nEvents:")
-            for event in events:
-                print(f"   {event}")
+            print("\nEvents:" + "\n".join(f"   {event}" for event in events))
         print()
 
     def get_method_info(self, interest_name, object_name, method):

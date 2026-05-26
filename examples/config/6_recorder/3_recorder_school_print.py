@@ -4,9 +4,11 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Example module that demonstrates how to handle recording."""
+
+from datetime import datetime
 
 import sen_db_python as sen
-from datetime import datetime
 
 epoch = datetime(1970, 1, 1)
 

@@ -4,11 +4,12 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Config file that specifies how cmake-format should behave."""
 
 # ----------------------------------
 # Options affecting listfile parsing
 # ----------------------------------
-with section("parse"):
+with section("parse"):  # noqa: F821
     # Specify structure for custom cmake functions
     additional_commands = {
         "add_sen_integration_test": {
@@ -173,7 +174,7 @@ with section("parse"):
 # -----------------------------
 # Options affecting formatting.
 # -----------------------------
-with section("format"):
+with section("format"):  # noqa: F821
     # Disable formatting entirely, making cmake-format a no-op
     disable = False
 
@@ -270,7 +271,7 @@ with section("format"):
 # ------------------------------------------------
 # Options affecting comment reflow and formatting.
 # ------------------------------------------------
-with section("markup"):
+with section("markup"):  # noqa: F821
     # What character to use for bulleted lists
     bullet_char = "-"
 
@@ -313,7 +314,7 @@ with section("markup"):
 # ----------------------------
 # Options affecting the linter
 # ----------------------------
-with section("lint"):
+with section("lint"):  # noqa: F821
     # a list of lint codes to disable
     disabled_codes = []
 
@@ -369,7 +370,7 @@ with section("lint"):
 # -------------------------------
 # Options affecting file encoding
 # -------------------------------
-with section("encode"):
+with section("encode"):  # noqa: F821
     # If true, emit the unicode byte-order mark (BOM) at the start of the file
     emit_byteorder_mark = False
 
@@ -383,7 +384,7 @@ with section("encode"):
 # -------------------------------------
 # Miscellaneous configurations options.
 # -------------------------------------
-with section("misc"):
+with section("misc"):  # noqa: F821
     # A dictionary containing any per-command configuration overrides. Currently
     # only `command_case` is supported.
     per_command = {}

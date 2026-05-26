@@ -4,25 +4,25 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Module to run the type clash tests as a Sen component."""
 
 import sen
 from tester import TesterBase
 
 
 class TypeClashTester(TesterBase):
+    """Tester class to execute the type clash tests."""
+
     def set_tests(self):
+        """Registers the test functions."""
+
         def test_condition():
             return self.get_test_elapsed_seconds() > 2.5
 
         def test_body():
-            global object_list
-
             for obj in object_list:
                 if "obj_app_" in obj.name:
-                    try:
-                        obj.shutdownKernel()
-                    except:
-                        pass
+                    obj.shutdownKernel()
 
             sen.api.requestKernelStop(0)
 
@@ -34,12 +34,14 @@ object_list = None
 
 
 def run():
-    global tester, object_list
+    """Sen run: to setup the initial component state."""
+    # TODO (SEN-1689): clean up global state dependence
+    global tester, object_list  # noqa: PLW0603
     object_list = sen.api.open("SELECT * FROM session.bus")
     tester = TypeClashTester("type_clash_tester", sen.api)
     tester.set_tests()
 
 
 def update():
-    global tester
+    """Sen update: triggers test execution."""
     tester.run_tests()

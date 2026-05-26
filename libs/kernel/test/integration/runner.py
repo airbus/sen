@@ -4,21 +4,28 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Module to orchestrate multiple sen processes to run the test setup."""
 
+import os
 import subprocess
 import sys
-import os
-from time import sleep
 
 
-def run_sen_command(arg):
+def run_sen_command(args):
+    """
+    Do a sen run with the given arguments.
+
+    Args:
+        args: passed to sen
+    """
     if os.name == "nt":  # Windows
-        subprocess.Popen(["sen", "run", arg], start_new_session=True, env=os.environ.copy())
+        subprocess.Popen(["sen", "run", args], start_new_session=True, env=os.environ.copy())
     else:  # Unix-like
-        subprocess.Popen(["./sen", "run", arg], start_new_session=True)
+        subprocess.Popen(["./sen", "run", args], start_new_session=True)
 
 
 def main():
+    """Run the test setup."""
     if len(sys.argv) != 4:
         print("Usage: python runner.py <arg1> <arg2> <arg3>")
         sys.exit(1)

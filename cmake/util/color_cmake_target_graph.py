@@ -4,11 +4,10 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Script to generate a colored cmake target graph."""
 
 import re
 import sys
-
-input_path, output_path = sys.argv[1], sys.argv[2]
 
 COLORS_DATA = {
     "egg": {"outline": "#f9a825", "fill": "#fbc02d"},  # executables
@@ -20,24 +19,40 @@ COLORS_DATA = {
     "box": {"outline": "#66bb6a", "fill": "#a5d6a7"},  # custom target
 }
 
-shape_re = re.compile(r"(shape\s*=\s*\"?([a-zA-z0-9_]+)\"?)")
+SHAPE_REGEX = re.compile(r"(shape\s*=\s*\"?([a-zA-z0-9_]+)\"?)")
 
-with open(input_path, "r", encoding="utf-8") as f:
-    lines = f.readlines()
 
-out_lines = []
+def main() -> None:
+    """
+    Defines the core logic of the script.
 
-for line in lines:
-    if "[" in line and "shape" in line and "]" in line:
-        m = shape_re.search(line)
-        if m:
-            shape = m.group(2)
-            data = COLORS_DATA.get(shape)
-            if data:
-                color = data.get("outline")
-                fillcolor = data.get("fill")
-                line = line.replace("]", f', color="{color}", fillcolor="{fillcolor}"]', 1)
-    out_lines.append(line)
+    1. read inputs from cmake
+    2. match shapes and color them
+    3. write out the resulting graph
+    """
+    input_path, output_path = sys.argv[1], sys.argv[2]
 
-with open(output_path, "w", encoding="utf-8") as f:
-    f.writelines(out_lines)
+    with open(input_path, encoding="utf-8") as f:
+        lines = f.readlines()
+
+    out_lines = []
+
+    for raw_line in lines:
+        line = raw_line
+        if "[" in line and "shape" in line and "]" in line:
+            m = SHAPE_REGEX.search(line)
+            if m:
+                shape = m.group(2)
+                data = COLORS_DATA.get(shape)
+                if data:
+                    color = data.get("outline")
+                    fillcolor = data.get("fill")
+                    line = line.replace("]", f', color="{color}", fillcolor="{fillcolor}"]', 1)
+        out_lines.append(line)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.writelines(out_lines)
+
+
+if __name__ == "__main__":
+    main()

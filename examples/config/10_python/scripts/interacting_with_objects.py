@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Example module that demonstrates how to interact with objects."""
 
 import sen
 
@@ -12,12 +13,13 @@ obj = None
 
 
 def run():
-    global obj  # refer to the global variable defined above
+    """Sen run: to setup the initial component state."""
+    global obj  # refer to the global variable defined above  # noqa: PLW0603
     obj = sen.api.open('SELECT * FROM local.shell WHERE name = "shell_impl"')
 
 
 def update():
-    global obj  # refer to the global variable defined above
+    """Sen update: triggers test execution."""
     print("Python: update")
 
     # if the object is present, do something with it

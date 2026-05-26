@@ -4,10 +4,12 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Module to generate crash records."""
+
+import os
+import signal
 
 import sen
-import signal
-import os
 
 # to store the object
 obj = None
@@ -15,13 +17,14 @@ execution_counter = 0
 
 
 def run():
-    global obj  # refer to the global variable defined above
+    """Sen run: to setup the initial component state."""
+    global obj  # refer to the global variable defined above  # noqa: PLW0603
     obj = sen.api.open("SELECT * FROM my.tutorial")
 
 
 def update():
-    global obj  # refer to the global variable defined above
-    global execution_counter
+    """Sen update: triggers test execution."""
+    global execution_counter  # refer to the global variable defined above  # noqa: PLW0603
     execution_counter += 1
 
     # if the object is present

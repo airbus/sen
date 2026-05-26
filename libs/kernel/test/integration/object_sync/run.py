@@ -4,22 +4,20 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Module that implements the container test harness runner."""
 
 # std
 import os
-import re
 import sys
 import time
-import docker
-import getpass
-import subprocess
 from pathlib import Path
 from threading import Thread
-from docker.models.containers import Container as WrappedContainer
+
+import docker
+from testcontainers.core.container import DockerContainer
 
 # testcontainers
 from testcontainers.core.network import Network
-from testcontainers.core.container import DockerContainer
 
 # constants
 # TODO (SEN-1681) replace with a lighter runtime image
@@ -28,7 +26,7 @@ TIMEOUT = 5
 
 
 def stream_logs(cont: DockerContainer) -> None:
-    """formats and streams logs from the containers"""
+    """Formats and streams logs from the containers."""
     w = cont.get_wrapped_container()
     for line in w.logs(stream=True, follow=True):
         if line:
@@ -36,17 +34,17 @@ def stream_logs(cont: DockerContainer) -> None:
 
 
 def is_container() -> bool:
-    """checks whether the script is running inside a container"""
+    """Checks whether the script is running inside a container."""
     try:
         return os.path.exists("/.dockerenv") or any(
-            k in open("/proc/self/cgroup", "rt").read() for k in ("docker", "containerd")
+            k in open("/proc/self/cgroup", encoding="utf-8").read() for k in ("docker", "containerd")
         )
     except (FileNotFoundError, PermissionError):
         return False
 
 
 def get_repo_root(start_path: Path) -> Path:
-    """returns the repo root path from a given path"""
+    """Returns the repo root path from a given path."""
     for p in [start_path] + list(start_path.parents):
         if (p / ".git").exists():
             return p
@@ -54,7 +52,7 @@ def get_repo_root(start_path: Path) -> Path:
 
 
 def find_host_mount(container_path: Path) -> Path | None:
-    """finds the directory in the host where a certain container path is mounted"""
+    """Finds the directory in the host where a certain container path is mounted."""
     if not (mount_file := Path("/proc/self/mountinfo")).exists():
         raise FileNotFoundError("Could not access /proc/self/mountinfo. Host might not be a docker")
 
@@ -63,7 +61,7 @@ def find_host_mount(container_path: Path) -> Path | None:
     mounts = list(
         {
             Path(ws if ws else parts[3])
-            for line in open(mount_file, "r")
+            for line in open(mount_file, encoding="utf-8")
             if str(container_path) in line and (parts := line.split())
         }
     )
@@ -74,20 +72,25 @@ def find_host_mount(container_path: Path) -> Path | None:
 
 
 def check_image_availability(image: str) -> None:
-    """reports an error if the container image is not found in the docker cache"""
+    """Reports an error if the container image is not found in the docker cache."""
     try:
         client = docker.from_env()
         client.images.get(image)
-    except docker.errors.ImageNotFound:
-        raise RuntimeError("Container Image not found in the local cache. Please pull the image first.")
+    except docker.errors.ImageNotFound as err:
+        raise RuntimeError("Container Image not found in the local cache. Please pull the image first.") from err
     except docker.errors.DockerException as e:
-        raise RuntimeError(f"Could not connect to the local Docker daemon: {e}")
+        raise RuntimeError("Could not connect to the local Docker daemon.") from e
 
 
 def abort(container_list: list[DockerContainer], thread_list: list[Thread]) -> None:
-    """stops containers and joins log threads before aborting with error"""
-    list(map(lambda elem: elem.stop(), container_list))
-    list(map(Thread.join, [t for t in thread_list if isinstance(t, Thread)]))
+    """Stops containers and joins log threads before aborting with error."""
+    for container in container_list:
+        container.stop()
+
+    for t in thread_list:
+        if isinstance(t, Thread):
+            t.join()
+
     sys.exit(1)
 
 
@@ -137,7 +140,8 @@ if __name__ == "__main__":
         deadline = time.time() + TIMEOUT
         while time.time() < deadline:
             wrapped = [c.get_wrapped_container() for c in containers]
-            list(map(lambda w: w.reload(), wrapped))
+            for w in wrapped:
+                w.reload()
 
             # abort if any of the processes has exited with error
             if any(w.status == "exited" and w.wait()["StatusCode"] != 0 for w in wrapped):

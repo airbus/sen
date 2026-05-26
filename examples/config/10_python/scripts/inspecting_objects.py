@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Example module that demonstrates how to inspect objects."""
 
 import sen
 
@@ -12,7 +13,8 @@ list = None
 
 
 def run():
-    global list  # refer to the global variable defined above
+    """Sen run: to setup the initial component state."""
+    global list  # refer to the global variable defined above  # noqa: PLW0603
 
     list = sen.api.open("SELECT * FROM local.kernel")  # open it
 
@@ -22,9 +24,7 @@ def run():
 
 
 def update():
-    # refer to the global variable defined above
-    global list
-
+    """Sen update: triggers test execution."""
     print(f"Python: printing the list at: {sen.api.time})")
     print(list)
 

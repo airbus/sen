@@ -4,15 +4,17 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Module to specify the crash reporter test cases."""
 
-import subprocess
 import json
 import os
-import re
 import platform
+import re
+import subprocess
 
 
 def test_crash_reporter_generates_stacktrace():
+    """Test to ensure that the crash reporter generates a stacktrace on failure."""
     config_path = os.path.join(os.path.dirname(__file__), "config", "config.yaml")
     sen_executable = "sen" if platform.system() == "Windows" else "./sen"
 
@@ -28,7 +30,7 @@ def test_crash_reporter_generates_stacktrace():
     assert os.path.exists(report_path), f"Crash report file does not exist: {report_path}"
 
     try:
-        with open(report_path, "r") as f:
+        with open(report_path, encoding="utf-8") as f:
             data = json.load(f)
 
         error_data = data.get("errorData", {})

@@ -46,10 +46,10 @@ repos:
       args: [--config, .pymarkdown.yaml, fix]
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.15.14
+  rev: v0.4.8
   hooks:
-    # - id: ruff
-    #   args: [--fix]
+    - id: ruff
+      args: [--fix]
     - id: ruff-format
 
 # Global Configuration

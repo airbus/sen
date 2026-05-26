@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""Example module that demonstrates how to create objects."""
 
 import sen
 
@@ -11,7 +12,8 @@ myObject = testBus = None
 
 
 def run():
-    global myObject, testBus  # refer to the globals defined above
+    """Sen run: to setup the initial component state."""
+    global myObject, testBus  # refer to the globals defined above  # noqa: PLW0603
 
     type = {
         "entityKind": 1,
@@ -25,7 +27,7 @@ def run():
 
     id = {"entityNumber": 1, "federateIdentifier": {"siteID": 1, "applicationID": 1}}
 
-    print(f"Python: creating and publishing the object")
+    print("Python: creating and publishing the object")
     myObject = sen.api.make(
         "aircrafts.DummyAircraft", "myAircraft", entityType=type, alternateEntityType=type, entityIdentifier=id
     )
@@ -37,11 +39,13 @@ def run():
 
 
 def update():
+    """Sen update: triggers test execution."""
     print(myObject)
 
 
 def stop():
-    global testBus, myObject  # refer to the globals defined above
+    """Sen stop: trigger that the execution stops."""
+    global testBus, myObject  # refer to the globals defined above  # noqa: PLW0603
 
     print("Python: deleting the object")
     testBus.remove(myObject)

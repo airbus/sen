@@ -9,7 +9,6 @@
 
 """Script for generating llvm-cov based coverage reports."""
 
-import typing as tp
 import argparse
 import glob
 import os
@@ -17,7 +16,7 @@ import subprocess
 
 
 def merge_coverage_profiles(llvm_profdata, profile_data_dir):
-    """Merge separate coverage prof data into one merged profile with `llvm-profdata merge`"""
+    """Merge separate coverage prof data into one merged profile with `llvm-profdata merge`."""
     print(" ├ Merging raw profiles...")
 
     raw_profiles = glob.glob(os.path.join(profile_data_dir, "*.profraw"))
@@ -25,7 +24,7 @@ def merge_coverage_profiles(llvm_profdata, profile_data_dir):
     input_files = os.path.join(profile_data_dir, "profile_input_files")
     profdata_path = os.path.join(profile_data_dir, "merged_coverage.profdata")
 
-    with open(input_files, "w") as manifest:
+    with open(input_files, "w", encoding="utf-8") as manifest:
         manifest.write("\n".join(raw_profiles))
 
     cmd = [llvm_profdata, "merge"]
@@ -42,7 +41,7 @@ def merge_coverage_profiles(llvm_profdata, profile_data_dir):
     return profdata_path
 
 
-def transform_to_binary_args(binaries) -> tp.List[str]:
+def transform_to_binary_args(binaries) -> list[str]:
     """Expands the binaries into a arg list that the llvm tools expect."""
     binary_cmd_line = [binaries[0]]
     for binary in binaries[1:]:
@@ -52,7 +51,7 @@ def transform_to_binary_args(binaries) -> tp.List[str]:
     return binary_cmd_line
 
 
-def generate_html_report(llvm_cov, profile, report_dir, binaries, ignore_regex: tp.Optional[str]):
+def generate_html_report(llvm_cov, profile, report_dir, binaries, ignore_regex: str | None):
     """Generates a html report for the given coverage data."""
     print(" ├ Generating html report files...")
 
@@ -71,7 +70,7 @@ def generate_html_report(llvm_cov, profile, report_dir, binaries, ignore_regex: 
     subprocess.check_call(cmd)
 
 
-def generate_coverage_report(llvm_cov, profile, report_dir, binaries, ignore_regex: tp.Optional[str]):
+def generate_coverage_report(llvm_cov, profile, report_dir, binaries, ignore_regex: str | None):
     """Generates a coverage report for the given coverage data."""
     print(" ├ Generating coverage report...")
 
@@ -89,7 +88,7 @@ def generate_coverage_report(llvm_cov, profile, report_dir, binaries, ignore_reg
         )
 
 
-def generate_coverage_summary(llvm_cov, profile, report_dir, binaries, ignore_regex: tp.Optional[str]):
+def generate_coverage_summary(llvm_cov, profile, report_dir, binaries, ignore_regex: str | None):
     """Generates a coverage summary for the given coverage data."""
     print(" ├ Generating coverage summary...")
 
