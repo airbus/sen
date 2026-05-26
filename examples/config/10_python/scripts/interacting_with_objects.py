@@ -13,7 +13,7 @@ obj = None
 
 def run():
     global obj  # refer to the global variable defined above
-    obj = sen.api.open("SELECT * FROM local.shell WHERE name = \"shell_impl\"")
+    obj = sen.api.open('SELECT * FROM local.shell WHERE name = "shell_impl"')
 
 
 def update():

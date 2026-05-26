@@ -11,20 +11,13 @@ import os
 
 # integration test to check that the codegen settings work well in FOM code generation
 if __name__ == "__main__":
-
     # input arguments
     exe_path = "./cli_gen"
     source_dir = os.path.dirname(os.path.abspath(__file__))
     output_file = os.path.join(os.getcwd(), "fom", "modulea-19.xml.h")
     target_word = "moduleAIntAcceptsSet"
 
-    cmd = [
-        exe_path,
-        "cpp",
-        "fom",
-        f"--directories={source_dir}/fom",
-        f"--settings={source_dir}/codegen_settings.json"
-    ]
+    cmd = [exe_path, "cpp", "fom", f"--directories={source_dir}/fom", f"--settings={source_dir}/codegen_settings.json"]
 
     print(f"Executing: {' '.join(cmd)}")
 
@@ -40,7 +33,7 @@ if __name__ == "__main__":
         print(f"Error: Generated file NOT FOUND at {output_file}")
         sys.exit(1)
 
-    with open(output_file, 'r') as f:
+    with open(output_file, "r") as f:
         if target_word in f.read():
             # the test passes if the skeleton method for the checked property is present
             print(f"Success: Found '{target_word}' in {output_file}")

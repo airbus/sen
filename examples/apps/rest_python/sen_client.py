@@ -17,6 +17,7 @@ import time
 
 from typing import List, Dict, Any
 
+
 class SenClient:
     """
     Represents the client for the Sen REST component.
@@ -29,7 +30,7 @@ class SenClient:
     """
 
     def __init__(self, base_url="http://localhost"):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.sse_event_types = [
             "object_added",
@@ -46,7 +47,9 @@ class SenClient:
         Args:
             is_sse (bool): Whether notifications are enabled.
         """
-        header = {"Content-Type": "application/json", }
+        header = {
+            "Content-Type": "application/json",
+        }
         if is_sse:
             header["Accept"] = "text/event-stream"
         else:
@@ -69,11 +72,8 @@ class SenClient:
             requests.RequestException: If there is any error in the request.
         """
         try:
-            url = href if href.startswith('http') else f"{self.base_url}{href}"
-            response = self.session.get(
-                url,
-                headers=self.get_headers()
-            )
+            url = href if href.startswith("http") else f"{self.base_url}{href}"
+            response = self.session.get(url, headers=self.get_headers())
             response.raise_for_status()
             return response.json()
 
@@ -94,11 +94,8 @@ class SenClient:
             requests.RequestException: If there is any error in the request.
         """
         try:
-            url = href if href.startswith('http') else f"{self.base_url}{href}"
-            response = self.session.post(
-                url,
-                headers=self.get_headers()
-            )
+            url = href if href.startswith("http") else f"{self.base_url}{href}"
+            response = self.session.post(url, headers=self.get_headers())
             response.raise_for_status()
             return response.json()
 
@@ -120,12 +117,8 @@ class SenClient:
             requests.RequestException: If there is any error in the request.
         """
         try:
-            url = href if href.startswith('http') else f"{self.base_url}{href}"
-            response = self.session.post(
-                url,
-                headers=self.get_headers(),
-                json=body
-            )
+            url = href if href.startswith("http") else f"{self.base_url}{href}"
+            response = self.session.post(url, headers=self.get_headers(), json=body)
             response.raise_for_status()
             return response.json()
 
@@ -150,7 +143,7 @@ class SenClient:
 
         if args_str:
             args = []
-            for v in args_str.split(','):
+            for v in args_str.split(","):
                 v = v.strip()
                 try:
                     args.append(int(v))
@@ -340,19 +333,19 @@ class SenClient:
         properties = []
         events = []
 
-        for link in data.get('links', []):
-            rel = link.get('rel')
-            href = link.get('href')
+        for link in data.get("links", []):
+            rel = link.get("rel")
+            href = link.get("href")
 
-            if rel == 'method':
+            if rel == "method":
                 methods.append(href)
-            elif rel == 'def':
+            elif rel == "def":
                 methods.append(f"{href} (definition)")
-            elif rel == 'property':
+            elif rel == "property":
                 properties.append(href)
-            elif rel == 'property_subscribe':
+            elif rel == "property_subscribe":
                 properties.append(f"{href} (subscribe)")
-            elif rel == 'property_unsubscribe':
+            elif rel == "property_unsubscribe":
                 properties.append(f"{href} (unsubscribe)")
 
         print("\n=== Object Details ===")

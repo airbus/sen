@@ -1,4 +1,3 @@
-
 # === conanfile.py =====================================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
@@ -11,6 +10,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake
 from conan.tools.build import cross_building
+
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"

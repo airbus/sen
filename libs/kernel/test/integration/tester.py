@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 import sen
 from datetime import datetime
 
+
 class TesterBase(ABC):
     def __init__(self, name, sen_api):
         """
@@ -58,8 +59,9 @@ class TesterBase(ABC):
         Execute a given test if it hasn't been run already and its condition has been met.
         Store test result inside the test dictionary and manage the assertion error in case the test fails.
         """
-        if (not self.__have_tests_run.get(test_name) and
-                self.__test_conditions[test_name]()):  # Test hasn't been run and its condition is met
+        if (
+            not self.__have_tests_run.get(test_name) and self.__test_conditions[test_name]()
+        ):  # Test hasn't been run and its condition is met
             try:
                 self.__tests[test_name]()  # Execute the test function
                 self.__have_tests_run[test_name] = True  # Mark as executed
@@ -77,11 +79,11 @@ class TesterBase(ABC):
             if self.__have_tests_failed[test_name]:
                 self.mark_as_failed()
 
+
 class KernelTransportTester(TesterBase):
     def set_tests(self):
-
         def test_condition():
-            " Check that both tester objects are ready prior to executing the test"
+            "Check that both tester objects are ready prior to executing the test"
             global object_list, tester1, tester2
 
             expected_names = {"tester1", "tester2", "obj1", "obj2"}
@@ -90,7 +92,9 @@ class KernelTransportTester(TesterBase):
             tester2 = next((obj for obj in object_list if obj.name == "tester2"), None)
             testers_ready = tester1 is not None and tester2 is not None and tester1.ready and tester2.ready
 
-            print(f"[tester] checking test condition: objects_present: {objects_present} , testers_ready {testers_ready}")
+            print(
+                f"[tester] checking test condition: objects_present: {objects_present} , testers_ready {testers_ready}"
+            )
 
             if objects_present and not testers_ready:
                 print(f"tester1: {tester1.ready}")
@@ -135,7 +139,7 @@ class KernelTransportTester(TesterBase):
             tester2.checkLocalState(lambda args: check_test_2(args))
 
         def test_body():
-            """ Check setting of remote properties between two kernel instances """
+            """Check setting of remote properties between two kernel instances"""
             global tester1
 
             # test setting remote properties in the forward direction
@@ -150,6 +154,7 @@ tester = None
 object_list = None
 tester1 = None
 tester2 = None
+
 
 def run():
     global tester, object_list

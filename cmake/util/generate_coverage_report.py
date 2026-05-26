@@ -88,6 +88,7 @@ def generate_coverage_report(llvm_cov, profile, report_dir, binaries, ignore_reg
             stdout=output_file,
         )
 
+
 def generate_coverage_summary(llvm_cov, profile, report_dir, binaries, ignore_regex: tp.Optional[str]):
     """Generates a coverage summary for the given coverage data."""
     print(" ├ Generating coverage summary...")

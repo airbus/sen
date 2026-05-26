@@ -9,6 +9,7 @@ import sen
 
 myObject = testBus = None
 
+
 def run():
     global myObject, testBus  # refer to the globals defined above
 
@@ -19,27 +20,25 @@ def run():
         "category": 1,
         "subcategory": 3,
         "specific": 0,
-        "extra": 0
+        "extra": 0,
     }
 
-    id = {
-        "entityNumber": 1,
-        "federateIdentifier": {
-            "siteID": 1,
-            "applicationID": 1
-        }
-    }
+    id = {"entityNumber": 1, "federateIdentifier": {"siteID": 1, "applicationID": 1}}
 
     print(f"Python: creating and publishing the object")
-    myObject = sen.api.make("aircrafts.DummyAircraft", "myAircraft", entityType=type, alternateEntityType=type, entityIdentifier = id)
+    myObject = sen.api.make(
+        "aircrafts.DummyAircraft", "myAircraft", entityType=type, alternateEntityType=type, entityIdentifier=id
+    )
     testBus = sen.api.getBus("my.tutorial")
     testBus.add(myObject)
 
     # setting the speed property to 150
     myObject.speed = 150
 
+
 def update():
     print(myObject)
+
 
 def stop():
     global testBus, myObject  # refer to the globals defined above

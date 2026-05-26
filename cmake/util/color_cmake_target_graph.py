@@ -17,10 +17,10 @@ COLORS_DATA = {
     "hexagon": {"outline": "#e57373", "fill": "#ef9a9a"},  # object libs
     "tripleoctagon": {"outline": "#fb8c00", "fill": "#ffcc80"},  # module libs
     "pentagon": {"outline": "#4caf50", "fill": "#81c784"},  # interface libs
-    "box": {"outline": "#66bb6a", "fill": "#a5d6a7"}  # custom target
+    "box": {"outline": "#66bb6a", "fill": "#a5d6a7"},  # custom target
 }
 
-shape_re = re.compile(r'(shape\s*=\s*\"?([a-zA-z0-9_]+)\"?)')
+shape_re = re.compile(r"(shape\s*=\s*\"?([a-zA-z0-9_]+)\"?)")
 
 with open(input_path, "r", encoding="utf-8") as f:
     lines = f.readlines()
@@ -36,7 +36,7 @@ for line in lines:
             if data:
                 color = data.get("outline")
                 fillcolor = data.get("fill")
-                line = line.replace(']', f', color="{color}", fillcolor="{fillcolor}"]', 1)
+                line = line.replace("]", f', color="{color}", fillcolor="{fillcolor}"]', 1)
     out_lines.append(line)
 
 with open(output_path, "w", encoding="utf-8") as f:

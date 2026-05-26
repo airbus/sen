@@ -8,6 +8,7 @@
 import sen
 from tester import TesterBase
 
+
 class TypeClashTester(TesterBase):
     def set_tests(self):
         def test_condition():
@@ -27,14 +28,17 @@ class TypeClashTester(TesterBase):
 
         self.set_test("clash_test", test_body, test_condition)
 
+
 tester = None
 object_list = None
+
 
 def run():
     global tester, object_list
     object_list = sen.api.open("SELECT * FROM session.bus")
     tester = TypeClashTester("type_clash_tester", sen.api)
     tester.set_tests()
+
 
 def update():
     global tester

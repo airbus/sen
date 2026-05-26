@@ -11,7 +11,6 @@ import os
 
 # integration test to check that the FOM generator creates Maybe types for optional parameters
 if __name__ == "__main__":
-
     # input arguments
     exe_path = "./cli_gen"
     source_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,12 +19,7 @@ if __name__ == "__main__":
     target_optional = "MaybeI32 myOptionalParam"
     target_required = "IntModuleA myRequiredParam"
 
-    cmd = [
-        exe_path,
-        "cpp",
-        "fom",
-        f"--directories={source_dir}/fom"
-    ]
+    cmd = [exe_path, "cpp", "fom", f"--directories={source_dir}/fom"]
 
     print(f"Executing: {' '.join(cmd)}")
 
@@ -41,15 +35,19 @@ if __name__ == "__main__":
         print(f"Error: Generated file NOT FOUND at {output_file}")
         sys.exit(1)
 
-    with open(output_file, 'r') as f:
+    with open(output_file, "r") as f:
         content = f.read()
 
         if target_optional not in content:
-            print(f"Failure: Optional parameter generation failed. '{target_optional}' not found in the file {output_file}.")
+            print(
+                f"Failure: Optional parameter generation failed. '{target_optional}' not found in the file {output_file}."
+            )
             sys.exit(1)
 
         if target_required not in content:
-            print(f"Failure: Required parameter generation failed. '{target_required}' not found in the file {output_file}.")
+            print(
+                f"Failure: Required parameter generation failed. '{target_required}' not found in the file {output_file}."
+            )
             sys.exit(1)
 
         print(f"Success: Found correctly generated parameters in {output_file}")

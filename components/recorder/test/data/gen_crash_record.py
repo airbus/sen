@@ -13,6 +13,7 @@ import os
 obj = None
 execution_counter = 0
 
+
 def run():
     global obj  # refer to the global variable defined above
     obj = sen.api.open("SELECT * FROM my.tutorial")

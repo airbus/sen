@@ -17,8 +17,8 @@ def run():
     list = sen.api.open("SELECT * FROM local.kernel")  # open it
 
     # register some callbacks to show changes in the list
-    list.onAdded(lambda obj: print(f'Python: object added {obj}'))
-    list.onRemoved(lambda obj: print(f'Python: object removed {obj}'))
+    list.onAdded(lambda obj: print(f"Python: object added {obj}"))
+    list.onRemoved(lambda obj: print(f"Python: object removed {obj}"))
 
 
 def update():

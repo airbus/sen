@@ -7,6 +7,7 @@
 
 import sen
 
+
 # this is executed only once (at the start of the component execution)
 def run():
     print(f"Python: run")
@@ -17,6 +18,7 @@ def run():
 # this is executed every cycle
 def update():
     print(f"Python: update (current time: {sen.api.time})")
+
 
 # this is executed only once (at the end of the component execution)
 def stop():

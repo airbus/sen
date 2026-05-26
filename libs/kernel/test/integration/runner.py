@@ -10,11 +10,12 @@ import sys
 import os
 from time import sleep
 
+
 def run_sen_command(arg):
-    if os.name == 'nt':  # Windows
-        subprocess.Popen(['sen', 'run', arg], start_new_session=True, env=os.environ.copy())
+    if os.name == "nt":  # Windows
+        subprocess.Popen(["sen", "run", arg], start_new_session=True, env=os.environ.copy())
     else:  # Unix-like
-        subprocess.Popen(['./sen', 'run', arg], start_new_session=True)
+        subprocess.Popen(["./sen", "run", arg], start_new_session=True)
 
 
 def main():
@@ -31,7 +32,7 @@ def main():
     run_sen_command(arg2)
 
     # Run the main instance for the smoke test
-    os.execv(os.path.join(os.curdir, "sen"), ['sen', 'run', arg3])
+    os.execv(os.path.join(os.curdir, "sen"), ["sen", "run", arg3])
 
 
 if __name__ == "__main__":
