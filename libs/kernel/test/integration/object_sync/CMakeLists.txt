@@ -204,8 +204,60 @@ add_sen_integration_test(
 # link them so the checker only runs if the generator succeeds
 append_test_env_modification(object_sync_confirmed_props_two_processes ${COMMON_TEST_ENV})
 
+set(LISTENER_TYPE ListenerMulticastProps)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/4_multicast_props)
+
+add_sen_integration_test(
+  object_sync_multicast_props_local
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/run.py
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/4_multicast_props/single_component.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+)
+
+# link them so the checker only runs if the generator succeeds
+append_test_env_modification(object_sync_multicast_props_local ${COMMON_TEST_ENV})
+
+add_sen_integration_test(
+  object_sync_multicast_props_single_process
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/run.py
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/4_multicast_props/single_process.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+)
+
+# link them so the checker only runs if the generator succeeds
+append_test_env_modification(object_sync_multicast_props_single_process ${COMMON_TEST_ENV})
+
+add_sen_integration_test(
+  object_sync_multicast_props_two_processes
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/run.py
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/4_multicast_props/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/4_multicast_props/listener.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+)
+
+# link them so the checker only runs if the generator succeeds
+append_test_env_modification(object_sync_multicast_props_two_processes ${COMMON_TEST_ENV})
+
 set(LISTENER_TYPE ListenerWritableProps)
-generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/4_writable_props)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/5_writable_props)
 
 add_sen_integration_test(
   object_sync_writable_props_local
@@ -213,7 +265,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/4_writable_props/single_component.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/5_writable_props/single_component.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -229,7 +281,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/4_writable_props/single_process.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/5_writable_props/single_process.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -245,8 +297,8 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/4_writable_props/publisher.yaml
-  ${CMAKE_CURRENT_BINARY_DIR}/4_writable_props/listener.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/5_writable_props/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/5_writable_props/listener.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -257,7 +309,7 @@ add_sen_integration_test(
 append_test_env_modification(object_sync_writable_props_two_processes ${COMMON_TEST_ENV})
 
 set(LISTENER_TYPE ListenerBestEffortEvent)
-generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/5_best_effort_events)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/6_best_effort_events)
 
 add_sen_integration_test(
   object_sync_best_effort_events_local
@@ -265,7 +317,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/5_best_effort_events/single_component.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/6_best_effort_events/single_component.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -281,7 +333,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/5_best_effort_events/single_process.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/6_best_effort_events/single_process.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -297,8 +349,8 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/5_best_effort_events/publisher.yaml
-  ${CMAKE_CURRENT_BINARY_DIR}/5_best_effort_events/listener.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/6_best_effort_events/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/6_best_effort_events/listener.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -309,7 +361,7 @@ add_sen_integration_test(
 append_test_env_modification(object_sync_best_effort_events_two_processes ${COMMON_TEST_ENV})
 
 set(LISTENER_TYPE ListenerConfirmedEvent)
-generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/6_confirmed_events)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/7_confirmed_events)
 
 add_sen_integration_test(
   object_sync_confirmed_events_local
@@ -317,7 +369,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/6_confirmed_events/single_component.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/7_confirmed_events/single_component.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -333,7 +385,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/6_confirmed_events/single_process.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/7_confirmed_events/single_process.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -349,8 +401,8 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/6_confirmed_events/publisher.yaml
-  ${CMAKE_CURRENT_BINARY_DIR}/6_confirmed_events/listener.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/7_confirmed_events/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/7_confirmed_events/listener.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -360,8 +412,61 @@ add_sen_integration_test(
 # link them so the checker only runs if the generator succeeds
 append_test_env_modification(object_sync_confirmed_events_two_processes ${COMMON_TEST_ENV})
 
+set(LISTENER_TYPE ListenerMulticastEvent)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events)
+
+add_sen_integration_test(
+  object_sync_multicast_events_local
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/run.py
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/listener.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+)
+
+# link them so the checker only runs if the generator succeeds
+append_test_env_modification(object_sync_multicast_events_local ${COMMON_TEST_ENV})
+
+add_sen_integration_test(
+  object_sync_multicast_events_single_process
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/run.py
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/single_process.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+)
+
+# link them so the checker only runs if the generator succeeds
+append_test_env_modification(object_sync_multicast_events_single_process ${COMMON_TEST_ENV})
+
+add_sen_integration_test(
+  object_sync_multicast_events_two_processes
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/run.py
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/listener.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+)
+
+# link them so the checker only runs if the generator succeeds
+append_test_env_modification(object_sync_multicast_events_two_processes ${COMMON_TEST_ENV})
+
 configure_file(
-  config/single_component.yaml.in ${CMAKE_CURRENT_BINARY_DIR}/7_local_method/single_component.yaml @ONLY
+  config/single_component.yaml.in ${CMAKE_CURRENT_BINARY_DIR}/9_local_method/single_component.yaml @ONLY
 )
 
 add_sen_integration_test(
@@ -370,7 +475,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/7_local_method/single_component.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/9_local_method/single_component.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -381,7 +486,7 @@ add_sen_integration_test(
 append_test_env_modification(object_sync_local_method ${COMMON_TEST_ENV})
 
 set(LISTENER_TYPE ListenerConstMethod)
-generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/8_const_method)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/10_const_method)
 
 add_sen_integration_test(
   object_sync_const_method_local
@@ -389,7 +494,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/8_const_method/single_component.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/10_const_method/single_component.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -405,7 +510,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/8_const_method/single_process.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/10_const_method/single_process.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -421,8 +526,8 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/run.py
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/8_const_method/publisher.yaml
-  ${CMAKE_CURRENT_BINARY_DIR}/8_const_method/listener.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/10_const_method/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/10_const_method/listener.yaml
   REQ_DEPS
     object_sync py ether
     kernel
