@@ -134,6 +134,9 @@ class SenConan(ConanFile):
         """Define the folder layout for building Sen."""
         cmake_layout(self)
 
+        # used in the conan editable package mode
+        self.cpp.build.builddirs = ["."]
+
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
         deps = CMakeDeps(self)
