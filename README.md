@@ -95,7 +95,16 @@ independence while providing low-overhead, full introspection and an extensible 
 <a name="quick-start"></a>
 ## ⚡ Quick start
 
-We provide binary releases and Conan packages. To use Conan:
+The fastest way to try Sen on Linux: no Conan setup required:
+
+```shell
+curl -sSf https://raw.githubusercontent.com/airbus/sen/main/resources/installer/install.sh | sh
+```
+
+The installer downloads a release into `~/.sen/<build-id>/` and writes activate scripts you source from your shell.
+See the [install guide](https://airbus.github.io/sen/latest/getting_started/install/) for details.
+
+To use Sen as a Conan dependency in your own project:
 
 1. Create a `conanfile.py` in your project's top-level directory and add **Sen** as a dependency:
 
@@ -153,22 +162,21 @@ You need [Conan](https://conan.io/) and a C++17 compiler (GCC, Clang, Visual Stu
 
 To install conan, do `pip install conan`.
 
-You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be
-installed by running `conan config install -tf profiles .conan/profiles/<profile>`. Here we use 'sen_gcc'
-but you can use the profile of your choice.
+You can find some commonly-used Conan profiles in the `.conan/profiles` folder. Install one with
+`conan config install -tf profiles .conan/profiles/<profile>` (we use `sen_gcc` below). For other hosts, run
+`conan profile detect` to auto-create a profile that matches your machine.
 
 ```shell
 conan install . --profile=sen_gcc --build=missing # Fetch third-party dependencies (only needed once)
 conan build   . --profile=sen_gcc                 # Build Sen
 ```
 
-Alternatively, if you want to control the CMake usage, you can do:
+Alternatively, if you want to drive CMake yourself:
 
 ```shell
 conan install . --profile=sen_gcc --build=missing # Fetch third-party dependencies (only needed once)
-source build/gcc/Release/generators/conanbuild.sh # Make all the required tools available
 cmake --preset conan-gcc-release                  # Generate the build system
-cmake --build build/gcc/Release                   # Build Sen
+cmake --build --preset conan-gcc-release          # Build Sen
 ```
 
 If you would like to set up the full development environment for Sen (incl. testing, docs, etc...),
@@ -179,7 +187,7 @@ you would need to install the `pytest`, `graphviz` and `plantuml` packages using
 
 Sen is under active development. Expect potential bugs and breaking changes between releases.
 
-- The public API is not yet stable — check the release notes before upgrading.
+- The public API is not yet stable: check the release notes before upgrading.
 - Some features may be undocumented or partially implemented.
 - Windows support is available but less battle-tested than Linux.
 
