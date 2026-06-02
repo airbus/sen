@@ -97,18 +97,6 @@ HttpResponse retryUntil(int statusCode, std::function<HttpResponse()> callback)
 }
 
 /// @test
-/// End-to-end test for sessions retrieval
-/// @requirements(SEN-1061)
-TEST(Rest, e2e_sessions)
-{
-  Server server;
-
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions");
-  ASSERT_EQ(ret.statusCode, 200);
-  ASSERT_EQ(Json::parse(ret.body).dump(), R"(["local"])");
-}
-
-/// @test
 /// End-to-end test for the version endpoint
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_version)
@@ -137,6 +125,26 @@ TEST(Rest, e2e_auth)
   auto jwt = sen::components::rest::decodeJWT(response["token"].get<std::string>());
   ASSERT_TRUE(jwt.valid);
   ASSERT_EQ(jwt.error, sen::components::rest::JWTError::noError);
+}
+
+/// @test
+/// End-to-end test for sessions retrieval
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_sessions)
+{
+  Server server;
+
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions", Json(), token.value());
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_TRUE(response.is_array());
+
+  auto sessionIt = std::find(response.begin(), response.end(), "local");
+  ASSERT_NE(sessionIt, response.end());
 }
 
 /// @test
@@ -340,6 +348,84 @@ TEST(Rest, e2e_remove_interest)
   auto interests = Json::parse(ret.body);
   ASSERT_TRUE(interests.is_array());
   ASSERT_EQ(interests.size(), 0);
+}
+
+/// @test
+/// End-to-end test for getting session details when client has not created any interest on session's buses
+TEST(Rest, e2e_get_session_no_buses)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Get session
+  auto ret = retryUntil(
+    200,
+    [token]()
+    { return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions/local", Json(), token.value()); });
+
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_TRUE(response.contains("name"));
+  ASSERT_EQ(response["name"].get<std::string>(), "local");
+  ASSERT_TRUE(response.contains("buses"));
+  ASSERT_TRUE(response["buses"].is_array());
+  ASSERT_TRUE(response["buses"].empty());
+}
+
+/// @test
+/// End-to-end test for getting session details when client has created an interest on session's bus
+TEST(Rest, e2e_get_session_with_buses)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create an interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  // Get session
+  auto ret = retryUntil(
+    200,
+    [token]()
+    { return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions/local", Json(), token.value()); });
+
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_TRUE(response.contains("name"));
+  ASSERT_EQ(response["name"].get<std::string>(), "local");
+  ASSERT_TRUE(response.contains("buses"));
+  ASSERT_TRUE(response["buses"].is_array());
+
+  auto busIt = std::find(response["buses"].begin(), response["buses"].end(), "kernel");
+  ASSERT_NE(busIt, response["buses"].end());
+}
+
+/// @test
+/// End-to-end test for getting non-existing session
+TEST(Rest, e2e_get_non_existing_session)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  auto ret =
+    request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/sessions/nonExistingSession", Json(), token.value());
+  ASSERT_EQ(ret.statusCode, 404);
 }
 
 /// @test

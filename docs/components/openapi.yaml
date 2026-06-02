@@ -14,6 +14,22 @@ security:
   - BearerAuth: []
 
 paths:
+  /api/version:
+    get:
+      summary: Get Sen version
+      description: Returns the Sen version
+      security: []
+      responses:
+        '200':
+          description: Sen version
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    description: Version
   /api/auth:
     post:
       summary: Authenticate client
@@ -57,7 +73,6 @@ paths:
     get:
       summary: List all sessions
       description: Returns a list of all available Sen sessions
-      security: []
       responses:
         '200':
           description: A list of session identifiers
@@ -68,22 +83,34 @@ paths:
                 items:
                   type: string
                 example: ["local"]
-  /api/version:
+  /api/sessions/{session}:
+    parameters:
+      - in: path
+        name: session
+        description: Session name
+        required: true
+        schema:
+          type: string
     get:
-      summary: Get Sen version
-      description: Returns the Sen version
-      security: []
+      summary: Get session details
+      description: Returns details about a specific session
       responses:
         '200':
-          description: Sen version
+          description: Session details
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  version:
-                    type: string
-                    description: Version
+                $ref: '#/components/schemas/SessionSummary'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   /api/interests:
     get:
       summary: List all interests
@@ -1005,6 +1032,21 @@ components:
       required:
         - name
         - description
+    SessionSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Session name
+        buses:
+          type: array
+          items:
+            type: string
+          description: Names of the buses in the session the client is subscribed
+            to
+      required:
+        - name
+        - buses
     ObjectSubscription:
       type: object
       properties:

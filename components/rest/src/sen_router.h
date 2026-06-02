@@ -64,9 +64,16 @@ private:
                                         const QueryParams& queryParams);
 
   /// Returns all the available Sen sessions.
-  JsonResponse getSessionsHandler(HttpSession& httpSession,
+  JsonResponse getSessionsHandler(ClientSession& clientSession,
+                                  HttpSession& httpSession,
                                   const UrlParams& urlParams,
                                   const QueryParams& queryParams) const;
+
+  /// Returns all the information of a given session.
+  JsonResponse getSessionHandler(ClientSession& clientSession,
+                                 HttpSession& httpSession,
+                                 const UrlParams& urlParams,
+                                 const QueryParams& queryParams) const;
 
   /// Returns the Sen version
   JsonResponse getVersionHandler(HttpSession& httpSession,

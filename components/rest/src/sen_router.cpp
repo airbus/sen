@@ -49,6 +49,7 @@
 #include <exception>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -449,7 +450,8 @@ SenRouter::SenRouter(kernel::RunApi& api): api_(api)
   addRoute(HttpMethod::httpGet, "/api/version", bindRouteCallback(this, &SenRouter::getVersionHandler));
 
   // sen session endpoint
-  addRoute(HttpMethod::httpGet, "/api/sessions", bindRouteCallback(this, &SenRouter::getSessionsHandler));
+  addRoute(HttpMethod::httpGet, "/api/sessions", bindAuthRouteCallback(this, &SenRouter::getSessionsHandler));
+  addRoute(HttpMethod::httpGet, "/api/sessions/:session", bindAuthRouteCallback(this, &SenRouter::getSessionHandler));
 
   // interests endpoints
   addRoute(HttpMethod::httpGet, "/api/interests", bindAuthRouteCallback(this, &SenRouter::getInterestsHandler));
@@ -572,7 +574,8 @@ JsonResponse SenRouter::getVersionHandler([[maybe_unused]] HttpSession& httpSess
   return JsonResponse {httpSuccess, Version {SEN_VERSION_STRING}};
 }
 
-JsonResponse SenRouter::getSessionsHandler([[maybe_unused]] HttpSession& httpSession,
+JsonResponse SenRouter::getSessionsHandler([[maybe_unused]] ClientSession& clientSession,
+                                           [[maybe_unused]] HttpSession& httpSession,
                                            [[maybe_unused]] const UrlParams& urlParams,
                                            [[maybe_unused]] const QueryParams& queryParams) const
 {
@@ -582,6 +585,36 @@ JsonResponse SenRouter::getSessionsHandler([[maybe_unused]] HttpSession& httpSes
     sessions.emplace_back(source);
   }
   return JsonResponse {httpSuccess, sessions};
+}
+
+JsonResponse SenRouter::getSessionHandler(ClientSession& clientSession,
+                                          [[maybe_unused]] HttpSession& httpSession,
+                                          const UrlParams& urlParams,
+                                          [[maybe_unused]] const QueryParams& queryParams) const
+{
+  if (urlParams.size() != 1)
+  {
+    return getErrorInvalidUrlParams();
+  }
+
+  auto sessions = api_.getSessionsDiscoverer().getDetectedSources();
+  if (find(sessions.begin(), sessions.end(), urlParams[0]) == sessions.end())
+  {
+    return getErrorNotFound();
+  }
+
+  std::set<std::string> buses;
+  const auto& interests = clientSession.interestsManager().getAllInterestsSummary();
+
+  for (const auto& [_, session, bus]: interests)
+  {
+    if (session == urlParams[0])
+    {
+      buses.emplace(bus);
+    }
+  }
+
+  return JsonResponse {httpSuccess, SessionSummary {urlParams[0], {buses.begin(), buses.end()}}};
 }
 
 JsonResponse SenRouter::getInterestHandler(ClientSession& clientSession,
