@@ -39,6 +39,9 @@
 namespace sen::components::rest
 {
 
+using PropertyLocatorMap = std::unordered_map<std::string, PropertyLocator>;
+using EventLocatorMap = std::unordered_map<std::string, EventLocator>;
+
 /// SenRouter class is a specialized router for handling
 /// HTTP requests and exposing Sen resources to clients
 class SenRouter: public BaseRouter
@@ -89,7 +92,19 @@ private:
                                   const UrlParams& urlParams,
                                   const QueryParams& queryParams) const;
 
-  /// Subscribe to property updates of a Sen object for a given interest.
+  /// Updates property and event subscriptions of a Sen object for a given interest.
+  JsonResponse updateSubscriptionsHandler(ClientSession& clientSession,
+                                          HttpSession& httpSession,
+                                          const UrlParams& urlParams,
+                                          const QueryParams& queryParams) const;
+
+  /// Returns property and events subscriptions of a Sen object for a given interest
+  JsonResponse getSubscriptionsHandler(ClientSession& clientSession,
+                                       HttpSession& httpSession,
+                                       const UrlParams& urlParams,
+                                       const QueryParams& queryParams) const;
+
+  /// Subscribes to property updates of a Sen object for a given interest.
   /// Notifications related to the subscription will be returned as SSE (server-sent-events) on the notifications
   /// endpoint.
   JsonResponse subscribePropertyUpdateHandler(ClientSession& clientSession,
@@ -97,7 +112,7 @@ private:
                                               const UrlParams& urlParams,
                                               const QueryParams& queryParams) const;
 
-  /// Unsubscribe from property updates of a Sen object for a given interest.
+  /// Unsubscribes from property updates of a Sen object for a given interest.
   JsonResponse unsubscribePropertyUpdateHandler(ClientSession& clientSession,
                                                 HttpSession& httpSession,
                                                 const UrlParams& urlParams,
@@ -128,7 +143,7 @@ private:
                                          const UrlParams& urlParams,
                                          const QueryParams& queryParams) const;
 
-  /// Subscribe to events updates of a Sen object for a given interest.
+  /// Subscribes to events updates of a Sen object for a given interest.
   /// Notifications related to the subscription will be returned as SSE (server-sent-events) on the notifications
   /// endpoint.
   JsonResponse subscribeEventHandler(ClientSession& clientSession,
@@ -136,7 +151,7 @@ private:
                                      const UrlParams& urlParams,
                                      const QueryParams& queryParams) const;
 
-  /// Unsubscribe from event updates of a Sen object for a given interest.
+  /// Unsubscribes from event updates of a Sen object for a given interest.
   JsonResponse unsubscribeEventHandler(ClientSession& clientSession,
                                        HttpSession& httpSession,
                                        const UrlParams& urlParams,
@@ -193,6 +208,28 @@ private:
   [[nodiscard]] Result<InterestSubscription, std::string> interestSubscriptionFromName(
     ClientSession& clientSession,
     const std::string& interestName) const;
+  [[nodiscard]] Result<PropertyLocatorMap, JsonResponse> createPropertyLocators(
+    const InterestSubscription& interestSubscription,
+    const std::shared_ptr<sen::Object> object,
+    const Properties& properties) const;
+  [[nodiscard]] Result<EventLocatorMap, JsonResponse> createEventLocators(
+    const InterestSubscription& interestSubscription,
+    const std::shared_ptr<sen::Object> object,
+    const Events& events) const;
+  void bulkUnsubscribeProperties(ClientSession& clientSession,
+                                 const std::shared_ptr<sen::Object> object,
+                                 PropertyLocatorMap& propertyLocators) const;
+  void bulkUnsubscribeEvents(ClientSession& clientSession,
+                             const std::shared_ptr<sen::Object> object,
+                             EventLocatorMap& eventLocators) const;
+  [[nodiscard]] JsonResponse bulkSubscribeProperties(ClientSession& clientSession,
+                                                     const InterestSubscription& interestSubscription,
+                                                     const std::shared_ptr<sen::Object> object,
+                                                     const PropertyLocatorMap& propertyLocators) const;
+  [[nodiscard]] JsonResponse bulkSubscribeEvents(ClientSession& clientSession,
+                                                 const InterestSubscription& interestSubscription,
+                                                 const std::shared_ptr<sen::Object> object,
+                                                 const EventLocatorMap& eventLocators) const;
 
   kernel::RunApi& api_;
   std::unordered_map<std::string, std::shared_ptr<ClientSession>> clientSessions_;

@@ -39,6 +39,7 @@
 #include <string_view>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 using Json = nlohmann::json;
 
@@ -85,8 +86,8 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
        lastUpdate = info.creationTime;
 
-       const auto objectIt = members_.find(objectId);
-       if (objectIt == members_.cend())
+       const auto objectIt = properties_.find(objectId);
+       if (objectIt == properties_.cend())
        {
          SPDLOG_LOGGER_ERROR(getLogger(), "Unexpected condition: object properties not found on property callback");
          return;
@@ -111,7 +112,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
      }});
 
-  members_[objectId].emplace(memberId, std::move(guard));
+  properties_[objectId].emplace(memberId, std::move(guard));
 
   return true;
 }
@@ -128,22 +129,22 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
     return false;
   }
 
-  auto memberId = event->getId();
+  auto eventId = event->getId();
   auto objectId = object->getId();
 
   auto guard = object->onEventUntyped(
     event,
     {kernelApi.getWorkQueue(),
-     [this, object, objectId, interest, memberId](const sen::EventInfo& info, const sen::VarList& value)
+     [this, object, objectId, interest, eventId](const sen::EventInfo& info, const sen::VarList& value)
      {
-       const auto objectIt = members_.find(objectId);
-       if (objectIt == members_.cend())
+       const auto objectIt = events_.find(objectId);
+       if (objectIt == events_.cend())
        {
          SPDLOG_LOGGER_ERROR(getLogger(), "Unexpected condition: object events not found on event callback");
          return;
        }
 
-       const auto eventIt = objectIt->second.find(memberId);
+       const auto eventIt = objectIt->second.find(eventId);
        if (eventIt != objectIt->second.cend())
        {
 
@@ -155,31 +156,89 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
        }
      }});
 
-  members_[objectId].emplace(memberId, std::move(guard));
+  events_[objectId].emplace(eventId, std::move(guard));
 
   return true;
 }
 
-bool ObjectMembersManager::unsubscribe(const sen::ObjectId& objectId, const sen::MemberHash& memberId)
+bool ObjectMembersManager::unsubscribeProperty(const sen::ObjectId& objectId, const MemberHash& propertyId)
 {
-  const auto objectIt = members_.find(objectId);
-  if (objectIt == members_.cend())
+  const auto objectIt = properties_.find(objectId);
+  if (objectIt == properties_.cend())
   {
     return false;
   }
 
-  return objectIt->second.erase(memberId) > 0;
+  return objectIt->second.erase(propertyId) > 0;
 }
 
-bool ObjectMembersManager::unsubscribeAll(const sen::ObjectId& objectId)
+bool ObjectMembersManager::unsubscribeEvent(const sen::ObjectId& objectId, const MemberHash& eventId)
 {
-  const auto objectIt = members_.find(objectId);
-  if (objectIt == members_.cend())
+  const auto objectIt = events_.find(objectId);
+  if (objectIt == properties_.cend())
   {
     return false;
   }
 
-  return members_.erase(objectId) > 0;
+  return objectIt->second.erase(eventId) > 0;
+}
+
+void ObjectMembersManager::unsubscribeAll(const sen::ObjectId& objectId)
+{
+  if (const auto objectPropertyIt = properties_.find(objectId); objectPropertyIt != properties_.cend())
+  {
+    properties_.erase(objectId);
+  }
+
+  if (const auto objectEventIt = events_.find(objectId); objectEventIt != events_.cend())
+  {
+    events_.erase(objectId);
+  }
+}
+
+bool ObjectMembersManager::isSubscribedTo(const sen::ObjectId& objectId, const MemberHash& memberId)
+{
+  const auto objectPropertyIt = properties_.find(objectId);
+  const auto objectEventIt = events_.find(objectId);
+
+  bool isFoundInProperties = objectPropertyIt != properties_.cend() &&
+                             objectPropertyIt->second.find(memberId) != objectPropertyIt->second.cend();
+  bool isFoundInEvents =
+    objectEventIt != events_.cend() && objectEventIt->second.find(memberId) != objectEventIt->second.cend();
+
+  return isFoundInProperties || isFoundInEvents;
+}
+
+std::vector<sen::MemberHash> ObjectMembersManager::getPropertyIds(const sen::ObjectId& objectId)
+{
+  std::vector<sen::MemberHash> propertyIds;
+  const auto objectIt = properties_.find(objectId);
+
+  if (objectIt != properties_.cend())
+  {
+    for (const auto& prop: objectIt->second)
+    {
+      propertyIds.push_back(prop.first);
+    }
+  }
+
+  return propertyIds;
+}
+
+std::vector<sen::MemberHash> ObjectMembersManager::getEventIds(const sen::ObjectId& objectId)
+{
+  std::vector<sen::MemberHash> eventIds;
+  const auto objectIt = events_.find(objectId);
+
+  if (objectIt != events_.cend())
+  {
+    for (const auto& event: objectIt->second)
+    {
+      eventIds.push_back(event.first);
+    }
+  }
+
+  return eventIds;
 }
 
 }  // namespace sen::components::rest

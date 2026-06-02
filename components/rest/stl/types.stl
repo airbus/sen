@@ -161,3 +161,13 @@ struct Version
 {
   version : string
 }
+
+sequence<string> Properties;
+
+sequence<string> Events;
+
+struct Subscriptions
+{
+  properties : Properties,
+  events     : Events
+}

@@ -20,6 +20,7 @@
 #include <nlohmann/json.hpp>
 
 // std
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <functional>
@@ -473,6 +474,191 @@ TEST(Rest, e2e_get_non_existing_object)
                      Json(),
                      token.value());
   ASSERT_EQ(ret.statusCode, 404);
+}
+
+/// @test
+/// End-to-end test for getting an object property and event subscriptions
+TEST(Rest, e2e_get_subcriptions)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Get object subscriptions
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpGet,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/subscription",
+                                         Json(),
+                                         token.value());
+                        });
+
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_TRUE(response.contains("properties"));
+  ASSERT_TRUE(response.contains("events"));
+  ASSERT_TRUE(response["properties"].is_array());
+  ASSERT_TRUE(response["events"].is_array());
+}
+
+/// @test
+/// End-to-end test for updating object subscriptions when body is empty
+TEST(Rest, e2e_update_subscriptions_empty)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Update object subscriptions
+  auto updateRet = retryUntil(200,
+                              [token]()
+                              {
+                                return request(HttpMethod::httpPut,
+                                               "127.0.0.1",
+                                               "12345",
+                                               "/api/interests/test_interest/objects/api/subscription",
+                                               Json(),
+                                               token.value());
+                              });
+
+  ASSERT_EQ(updateRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Get object subscriptions
+  auto getRet = retryUntil(200,
+                           [token]()
+                           {
+                             return request(HttpMethod::httpGet,
+                                            "127.0.0.1",
+                                            "12345",
+                                            "/api/interests/test_interest/objects/api/subscription",
+                                            Json(),
+                                            token.value());
+                           });
+
+  ASSERT_EQ(getRet.statusCode, 200);
+
+  auto response = Json::parse(getRet.body);
+  ASSERT_TRUE(response["properties"].empty());
+  ASSERT_TRUE(response["events"].empty());
+}
+
+/// @test
+/// End-to-end test for updating object property subscriptions
+TEST(Rest, e2e_update_subscriptions_property)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Update object subscriptions
+  auto updateRet = retryUntil(200,
+                              [token]()
+                              {
+                                return request(HttpMethod::httpPut,
+                                               "127.0.0.1",
+                                               "12345",
+                                               "/api/interests/test_interest/objects/api/subscription",
+                                               Json {{"properties", {"buildInfo"}}},
+                                               token.value());
+                              });
+
+  ASSERT_EQ(updateRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Get object subscriptions
+  auto getRet = retryUntil(200,
+                           [token]()
+                           {
+                             return request(HttpMethod::httpGet,
+                                            "127.0.0.1",
+                                            "12345",
+                                            "/api/interests/test_interest/objects/api/subscription",
+                                            Json(),
+                                            token.value());
+                           });
+
+  ASSERT_EQ(getRet.statusCode, 200);
+
+  auto response = Json::parse(getRet.body);
+  auto propIt = find(response["properties"].begin(), response["properties"].end(), "buildInfo");
+  ASSERT_NE(propIt, response["properties"].end());
+  ASSERT_TRUE(response["events"].empty());
+}
+
+/// @test
+/// End-to-end test for updating object subscriptions of non-existing members
+TEST(Rest, e2e_update_subscriptions_non_existing_members)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  auto updateRet = request(HttpMethod::httpPut,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests/test_interest/objects/api/subscription",
+                           Json {{"properties", {"nonExistingProperty"}}},
+                           token.value());
+  ASSERT_EQ(updateRet.statusCode, 404);
 }
 
 /// @test

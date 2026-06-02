@@ -58,6 +58,14 @@ HttpResponse request(const HttpMethod& method,
   std::string request;
   switch (method)
   {
+    case HttpMethod::httpPut:
+      request = "PUT";
+      if (data.has_value())
+      {
+        payload = data->dump();
+        payloadSize = payload.size();
+      }
+      break;
     case HttpMethod::httpPost:
       request = "POST";
       if (data.has_value())
@@ -87,13 +95,13 @@ HttpResponse request(const HttpMethod& method,
     request.append("\r\nAuthorization: Bearer ");
     request.append(token);
   }
-  if (method == HttpMethod::httpPost)
+  if (method == HttpMethod::httpPost || method == HttpMethod::httpPut)
   {
     request.append("\r\nContent-Length: ");
     request.append(std::to_string(payloadSize));
   }
   request.append("\r\n\r\n");
-  if (method == HttpMethod::httpPost)
+  if (method == HttpMethod::httpPost || method == HttpMethod::httpPut)
   {
     request.append(payload);
   }

@@ -34,7 +34,7 @@ namespace sen::components::rest
 ClientSession::~ClientSession()
 {
   getLogger()->trace("Destroying ClientSession");
-  interests_.releaseAllInterests();
+  interestsManager_.releaseAllInterests();
   getLogger()->trace("ClientSession destroyed");
 }
 
@@ -53,15 +53,16 @@ Result<InterestName, InterestError> ClientSession::createInterest(sen::kernel::R
                                                                   const InterestName& interestName,
                                                                   const std::string& query)
 {
-  return interests_.createInterest(runApi,
-                                   busLocator,
-                                   interestName,
-                                   query,
-                                   [this]([[maybe_unused]] const InterestName& interestName, sen::ObjectId objectId)
-                                   {
-                                     // Clean up internal object resources
-                                     members_.unsubscribeAll(objectId);
-                                   });
+  return interestsManager_.createInterest(
+    runApi,
+    busLocator,
+    interestName,
+    query,
+    [this]([[maybe_unused]] const InterestName& interestName, sen::ObjectId objectId)
+    {
+      // Clean up internal object resources
+      membersManager_.unsubscribeAll(objectId);
+    });
 }
 
 ObserverGuard ClientSession::getObserverGuard(NotifierType guardType)
@@ -69,12 +70,12 @@ ObserverGuard ClientSession::getObserverGuard(NotifierType guardType)
   switch (guardType)
   {
     case NotifierType::interestsNotifier:
-      return interests_.getObserverGuard();
+      return interestsManager_.getObserverGuard();
     case NotifierType::membersNotifier:
-      return members_.getObserverGuard();
+      return membersManager_.getObserverGuard();
     case NotifierType::invokesNotifier:
     default:
-      return invokes_.getObserverGuard();
+      return invokesManager_.getObserverGuard();
   }
 }
 

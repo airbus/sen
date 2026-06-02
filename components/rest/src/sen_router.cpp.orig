@@ -52,7 +52,6 @@
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <unordered_map>
 #include <utility>
 #include <variant>
 
@@ -306,139 +305,6 @@ std::optional<std::shared_ptr<ClientSession>> SenRouter::getClientSessionFromTok
   }
 }
 
-Result<PropertyLocatorMap, JsonResponse> SenRouter::createPropertyLocators(
-  const InterestSubscription& interestSubscription,
-  const std::shared_ptr<sen::Object> object,
-  const Properties& properties) const
-{
-  std::unordered_map<std::string, PropertyLocator> locators;
-
-  for (const auto& prop: properties)
-  {
-    auto propertyLocatorRes = PropertyLocator::build(interestSubscription.busLocator, object->getName(), prop);
-    if (propertyLocatorRes.isError())
-    {
-      return Err(getErrorLocatorParams(propertyLocatorRes.getError()));
-    }
-
-    const auto& locator = propertyLocatorRes.getValue();
-
-    auto subProp = object->getClass()->searchPropertyByName(locator.property());
-    if (!subProp)
-    {
-      return Err(JsonResponse(httpNotFoundError, Error {"Property " + prop + " not found"}));
-    }
-
-    locators.emplace(prop, locator);
-  }
-
-  return Ok(std::move(locators));
-}
-
-Result<EventLocatorMap, JsonResponse> SenRouter::createEventLocators(const InterestSubscription& interestSubscription,
-                                                                     const std::shared_ptr<sen::Object> object,
-                                                                     const Events& events) const
-{
-  std::unordered_map<std::string, EventLocator> locators;
-
-  for (const auto& event: events)
-  {
-    auto eventLocatorRes = EventLocator::build(interestSubscription.busLocator, object->getName(), event);
-    if (eventLocatorRes.isError())
-    {
-      return Err(getErrorLocatorParams(eventLocatorRes.getError()));
-    }
-
-    const auto& locator = eventLocatorRes.getValue();
-    if (const auto subEvent = object->getClass()->searchEventByName(locator.event()); !subEvent)
-    {
-      return Err(JsonResponse(httpNotFoundError, Error {"Event " + event + " not found"}));
-    }
-
-    locators.emplace(event, locator);
-  }
-
-  return Ok(std::move(locators));
-}
-
-void SenRouter::bulkUnsubscribeProperties(ClientSession& clientSession,
-                                          const std::shared_ptr<sen::Object> object,
-                                          PropertyLocatorMap& propertyLocators) const
-{
-  for (const auto& prop: object->getClass()->getProperties(sen::ClassType::SearchMode::includeParents))
-  {
-    if (clientSession.membersManager().isSubscribedTo(object->getId(), prop->getId()))
-    {
-      if (const auto propIt = propertyLocators.find(std::string(prop->getName())); propIt == propertyLocators.end())
-      {
-        clientSession.membersManager().unsubscribeProperty(object->getId(), prop->getId());
-      }
-      else
-      {
-        propertyLocators.erase(propIt);
-      }
-    }
-  }
-}
-
-void SenRouter::bulkUnsubscribeEvents(ClientSession& clientSession,
-                                      const std::shared_ptr<sen::Object> object,
-                                      EventLocatorMap& eventLocators) const
-{
-  for (const auto& event: object->getClass()->getEvents(sen::ClassType::SearchMode::includeParents))
-  {
-    if (clientSession.membersManager().isSubscribedTo(object->getId(), event->getId()))
-    {
-      if (const auto eventIt = eventLocators.find(std::string(event->getName())); eventIt == eventLocators.end())
-      {
-        clientSession.membersManager().unsubscribeEvent(object->getId(), event->getId());
-      }
-      else
-      {
-        eventLocators.erase(eventIt);
-      }
-    }
-  }
-}
-
-JsonResponse SenRouter::bulkSubscribeProperties(ClientSession& clientSession,
-                                                const InterestSubscription& interestSubscription,
-                                                const std::shared_ptr<sen::Object> object,
-                                                const PropertyLocatorMap& propertyLocators) const
-{
-  for (const auto& [_, locator]: propertyLocators)
-  {
-    SubscriptionOptions opts;
-    if (bool hasSubscribed = clientSession.membersManager().subscribeProperty(
-          api_, interestSubscription.interest->getQueryString(), object, locator, opts);
-        !hasSubscribed)
-    {
-      return JsonResponse(httpInternalServerError,
-                          Error {"Property " + locator.property() + " update subscription failed"});
-    }
-  }
-
-  return JsonResponse(httpSuccess, Success {"Property subscriptions updated"});
-}
-
-JsonResponse SenRouter::bulkSubscribeEvents(ClientSession& clientSession,
-                                            const InterestSubscription& interestSubscription,
-                                            const std::shared_ptr<sen::Object> object,
-                                            const EventLocatorMap& eventLocators) const
-{
-  for (const auto& [_, locator]: eventLocators)
-  {
-    if (bool hasSubscribed = clientSession.membersManager().subscribeEvent(
-          api_, interestSubscription.interest->getQueryString(), object, locator);
-        !hasSubscribed)
-    {
-      return JsonResponse(httpInternalServerError, Error {"Event " + locator.event() + " update subscription failed"});
-    }
-  }
-
-  return JsonResponse(httpSuccess, Success {"Event subscriptions updated"});
-}
-
 //--------------------------------------------------------------------------------------------------------------
 // SenRouter
 //--------------------------------------------------------------------------------------------------------------
@@ -469,9 +335,6 @@ SenRouter::SenRouter(kernel::RunApi& api): api_(api)
   addRoute(HttpMethod::httpPut,
            "/api/interests/:interest/objects/:object/subscription",
            bindAuthRouteCallback(this, &SenRouter::updateSubscriptionsHandler));
-  addRoute(HttpMethod::httpGet,
-           "/api/interests/:interest/objects/:object/subscription",
-           bindAuthRouteCallback(this, &SenRouter::getSubscriptionsHandler));
 
   // object property endpoints
   addRoute(HttpMethod::httpGet,
@@ -793,61 +656,105 @@ JsonResponse SenRouter::updateSubscriptionsHandler(ClientSession& clientSession,
       return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
     }
 
-    const auto& interestSubscription = interestSubscriptionRes.getValue();
-    const auto object = getObject(interestSubscriptionRes.getValue(), urlParams[1]);
-    if (!object)
+    auto objectReference = getObject(interestSubscriptionRes.getValue(), urlParams[1]);
+    if (!objectReference)
     {
       return getErrorNotFound();
     }
 
-    Result<PropertyLocatorMap, JsonResponse> propertyLocatorsRes =
-      Err(JsonResponse {httpInternalServerError, Error {"unexpected condition"}});
-    Result<EventLocatorMap, JsonResponse> eventLocatorRes =
-      Err(JsonResponse {httpInternalServerError, Error {"unexpected condition"}});
-
     if (payload.contains("properties"))
     {
-      auto subProperties = payload.at("properties").get<Properties>();
-      propertyLocatorsRes = createPropertyLocators(interestSubscription, object, subProperties);
-      if (propertyLocatorsRes.isError())
+      auto subProperties = payload.at("properties").get<std::vector<std::string>>();
+
+      for (const auto& prop: objectReference->getClass()->getProperties(sen::ClassType::SearchMode::includeParents))
       {
-        return propertyLocatorsRes.getError();
+        if (clientSession.membersManager().isSubscribedTo(objectReference->getId(), prop->getId()))
+        {
+          auto propIt = std::find(subProperties.begin(), subProperties.end(), prop->getName());
+
+          if (propIt == subProperties.end())
+          {
+            clientSession.membersManager().unsubscribe(objectReference->getId(), prop->getId());
+          }
+
+          else
+          {
+            subProperties.erase(propIt);
+          }
+        }
+      }
+
+      for (const auto& prop: subProperties)
+      {
+        auto propertyLocatorOpt =
+          PropertyLocator::build(interestSubscriptionRes.getValue().busLocator, urlParams[1], prop);
+        if (propertyLocatorOpt.isError())
+        {
+          return getErrorLocatorParams(propertyLocatorOpt.getError());
+        }
+
+        const PropertyLocator& locator = propertyLocatorOpt.getValue();
+
+        auto subProp = objectReference->getClass()->searchPropertyByName(locator.property(), sen::ClassType::SearchMode::includeParents);
+        if (!subProp)
+        {
+          return JsonResponse(httpNotFoundError, Error {"property not found"});
+        }
+
+        SubscriptionOptions opts;
+
+        bool hasSubscribed = clientSession.membersManager().subscribeProperty(api_, urlParams[0], objectReference, locator, opts);
+        if (!hasSubscribed)
+        {
+          return JsonResponse(httpBadRequestError, Error {"property change subscription failed"});
+        }
       }
     }
 
     if (payload.contains("events"))
     {
-      auto subEvents = payload.at("events").get<Events>();
-      eventLocatorRes = createEventLocators(interestSubscription, object, subEvents);
-      if (eventLocatorRes.isError())
+      auto subEvents = payload.at("events").get<std::vector<std::string>>();
+
+      for (const auto& event: objectReference->getClass()->getEvents(sen::ClassType::SearchMode::includeParents))
       {
-        return eventLocatorRes.getError();
+        if (clientSession.membersManager().isSubscribedTo(objectReference->getId(), event->getId()))
+        {
+          auto eventIt = std::find(subEvents.begin(), subEvents.end(), event->getName());
+
+          if (eventIt == subEvents.end())
+          {
+            clientSession.membersManager().unsubscribe(objectReference->getId(), event->getId());
+          }
+
+          else
+          {
+            subEvents.erase(eventIt);
+          }
+        }
       }
-    }
 
-    if (payload.contains("properties"))
-    {
-      auto locators = propertyLocatorsRes.getValue();
-
-      bulkUnsubscribeProperties(clientSession, object, locators);
-
-      auto propertiesResponse = bulkSubscribeProperties(clientSession, interestSubscription, object, locators);
-      if (propertiesResponse.getStatusCode() != httpSuccess)
+      for (const auto& event: subEvents)
       {
-        return propertiesResponse;
-      }
-    }
+        auto eventLocatorOpt =
+          EventLocator::build(interestSubscriptionRes.getValue().busLocator, urlParams[1], event);
+        if (eventLocatorOpt.isError())
+        {
+          return getErrorLocatorParams(eventLocatorOpt.getError());
+        }
 
-    if (payload.contains("events"))
-    {
-      auto locators = eventLocatorRes.getValue();
+        const EventLocator& locator = eventLocatorOpt.getValue();
 
-      bulkUnsubscribeEvents(clientSession, object, locators);
+        const auto subEvent = objectReference->getClass()->searchEventByName(locator.event());
+        if (!subEvent)
+        {
+          return JsonResponse(httpNotFoundError, Error {"event not found"});
+        }
 
-      auto eventsResponse = bulkSubscribeEvents(clientSession, interestSubscription, object, locators);
-      if (eventsResponse.getStatusCode() != httpSuccess)
-      {
-        return eventsResponse;
+        bool hasSubscribed = clientSession.membersManager().subscribeEvent(api_, urlParams[0], objectReference, locator);
+        if (!hasSubscribed)
+        {
+          return JsonResponse(httpBadRequestError, Error {"event subscription failed"});
+        }
       }
     }
 
@@ -857,51 +764,6 @@ JsonResponse SenRouter::updateSubscriptionsHandler(ClientSession& clientSession,
   {
     return JsonResponse(httpBadRequestError, Error {"update subscriptions failed. error: " + std::string(e.what())});
   }
-}
-
-JsonResponse SenRouter::getSubscriptionsHandler(ClientSession& clientSession,
-                                                [[maybe_unused]] HttpSession& httpSession,
-                                                const UrlParams& urlParams,
-                                                [[maybe_unused]] const QueryParams& queryParams) const
-{
-  logClientSession(clientSession, "getSubscriptions");
-
-  if (urlParams.size() != 2)
-  {
-    return getErrorInvalidUrlParams();
-  }
-
-  auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
-  if (interestSubscriptionRes.isError())
-  {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
-  }
-
-  const auto object = getObject(interestSubscriptionRes.getValue(), urlParams[1]);
-  if (!object)
-  {
-    return getErrorNotFound();
-  }
-
-  const auto propertyIds = clientSession.membersManager().getPropertyIds(object->getId());
-  Properties propertyNames;
-
-  for (const auto& propId: propertyIds)
-  {
-    auto propName = object->getClass()->searchPropertyById(propId)->getName();
-    propertyNames.emplace_back(propName);
-  }
-
-  const auto eventIds = clientSession.membersManager().getEventIds(object->getId());
-  Events eventNames;
-
-  for (const auto& eventId: eventIds)
-  {
-    auto eventName = object->getClass()->searchEventById(eventId)->getName();
-    eventNames.emplace_back(eventName);
-  }
-
-  return JsonResponse {httpSuccess, Subscriptions {propertyNames, eventNames}};
 }
 
 JsonResponse SenRouter::getPropertyHandler(ClientSession& clientSession,
@@ -1046,7 +908,7 @@ JsonResponse SenRouter::unsubscribePropertyUpdateHandler(ClientSession& clientSe
     return JsonResponse(httpNotFoundError, Error {"property not found"});
   }
 
-  bool hasUnsubscribed = clientSession.membersManager().unsubscribeProperty(object->getId(), prop->getId());
+  bool hasUnsubscribed = clientSession.membersManager().unsubscribe(object->getId(), prop->getId());
   if (hasUnsubscribed)
   {
     return JsonResponse(httpSuccess, Success {"property change unsubscription succeeded"});
@@ -1297,7 +1159,7 @@ JsonResponse SenRouter::unsubscribeEventHandler(ClientSession& clientSession,
     return JsonResponse(httpNotFoundError, Error {"event not found"});
   }
 
-  bool hasUnsubscribed = clientSession.membersManager().unsubscribeEvent(object->getId(), event->getId());
+  bool hasUnsubscribed = clientSession.membersManager().unsubscribe(object->getId(), event->getId());
   if (hasUnsubscribed)
   {
     return JsonResponse(httpSuccess, Success {"event unsubscription succeeded"});

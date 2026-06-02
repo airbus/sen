@@ -58,9 +58,9 @@ public:
 
   ~ClientSession();
 
-  inline ObjectInterestsManager& interestsManager() { return interests_; }
-  inline ObjectInvokesManager& invokesManager() { return invokes_; }
-  inline ObjectMembersManager& membersManager() { return members_; }
+  inline ObjectInterestsManager& interestsManager() { return interestsManager_; }
+  inline ObjectInvokesManager& invokesManager() { return invokesManager_; }
+  inline ObjectMembersManager& membersManager() { return membersManager_; }
 
 private:
   friend class SenRouter;
@@ -84,9 +84,9 @@ private:
 private:
   std::string clientId_;
 
-  ObjectInterestsManager interests_;
-  ObjectInvokesManager invokes_;
-  ObjectMembersManager members_;
+  ObjectInterestsManager interestsManager_;
+  ObjectInvokesManager invokesManager_;
+  ObjectMembersManager membersManager_;
 };
 
 }  // namespace sen::components::rest
