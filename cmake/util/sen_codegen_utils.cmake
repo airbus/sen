@@ -479,6 +479,17 @@ function(sen_generate_code)
     )
   endif()
 
+  # add target properties that are relevant externally to the export set (<project>-targets.cmake will set them when
+  # targets are imported from other projects)
+  add_properties_to_export_set(
+    ${_arg_TARGET}
+    BASE_PATH
+    STL_FILES
+    HLA_MAPPINGS
+    HLA_FOM_DIRS
+    SEN_IMPORT_DIRS
+    SEN_EXPORTS_TYPES
+  )
 endfunction()
 
 # Takes a target and adds Sen properties to it with the fom/stl files.

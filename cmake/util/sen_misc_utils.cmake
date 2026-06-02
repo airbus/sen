@@ -180,6 +180,29 @@ function(
   endif()
 endfunction()
 
+# Adds a property to the export set for it to be present when the target is consumed externally
+function(add_properties_to_export_set target)
+  foreach(property_name IN LISTS ARGN)
+    get_property(
+      _val
+      TARGET ${target}
+      PROPERTY ${property_name}
+    )
+
+    if(NOT
+       "${_val}"
+       STREQUAL
+       "_val-NOTFOUND"
+    )
+      set_property(
+        TARGET ${target}
+        APPEND
+        PROPERTY EXPORT_PROPERTIES ${property_name}
+      )
+    endif()
+  endforeach()
+endfunction()
+
 # Links a Sen dependency to a target, exporting Sen types if needed
 function(
   sen_add_dependency
@@ -530,6 +553,7 @@ function(copy_target_properties to_target from_target)
   copy_target_property(${to_target} ${from_target} SEN_IS_PYTHON)
   copy_target_property(${to_target} ${from_target} SEN_GEN_DIR)
   copy_target_property(${to_target} ${from_target} SCHEMA)
+  copy_target_property(${to_target} ${from_target} EXPORT_PROPERTIES)
   target_include_directories(
     ${to_target} PUBLIC $<TARGET_PROPERTY:${from_target},INTERFACE_INCLUDE_DIRECTORIES>
   )
