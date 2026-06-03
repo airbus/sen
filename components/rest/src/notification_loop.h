@@ -34,7 +34,9 @@ class NotificationLoop: public std::enable_shared_from_this<NotificationLoop>
 public:
   NotificationLoop(std::shared_ptr<HttpSession> httpSession,
                    std::shared_ptr<asio::ip::tcp::socket> socket,
-                   class ClientSession& clientSession);
+                   ObserverGuard membersObserverGuard,
+                   ObserverGuard invokesObserverGuard,
+                   ObserverGuard interestsObserverGuard);
   ~NotificationLoop();
 
 public:
@@ -43,7 +45,7 @@ public:
 
 private:
   void post();
-  void run();
+  bool run();
 
   std::shared_ptr<HttpSession> httpSession_;
   std::shared_ptr<asio::ip::tcp::socket> sharedSocket_;

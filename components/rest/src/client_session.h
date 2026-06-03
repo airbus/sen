@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_REST_SRC_CLIENT_SESSION_H
 
 // component
+#include "http_session.h"
 #include "locators.h"
 #include "notification_loop.h"
 #include "notifications.h"
@@ -30,11 +31,15 @@
 #include "sen/core/obj/object.h"
 #include "sen/kernel/component_api.h"
 
+// asio
+#include <asio/ip/tcp.hpp>
+
 // std
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace sen::components::rest
 {
@@ -55,12 +60,14 @@ class ClientSession final
 
 public:
   explicit ClientSession(std::string clientId): clientId_(std::move(clientId)) {}
-
   ~ClientSession();
 
   inline ObjectInterestsManager& interestsManager() { return interestsManager_; }
   inline ObjectInvokesManager& invokesManager() { return invokesManager_; }
   inline ObjectMembersManager& membersManager() { return membersManager_; }
+
+  [[nodiscard]] std::shared_ptr<NotificationLoop> buildNotificationLoop(std::shared_ptr<HttpSession> httpSession,
+                                                                        std::shared_ptr<asio::ip::tcp::socket> socket);
 
 private:
   friend class SenRouter;
@@ -78,11 +85,9 @@ private:
                                                           const InterestName& interestName,
                                                           const std::string& query);
 
-  /// Returns a observer guard for a given notifier type
-  [[nodiscard]] ObserverGuard getObserverGuard(NotifierType guardType);
-
 private:
   std::string clientId_;
+  std::vector<std::shared_ptr<NotificationLoop>> activeNotificationLoops_;
 
   ObjectInterestsManager interestsManager_;
   ObjectInvokesManager invokesManager_;

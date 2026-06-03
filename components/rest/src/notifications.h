@@ -42,8 +42,10 @@ public:
 
 private:
   friend class Notifier;
+  friend class NotificationLoop;
 
   ObserverGuard(std::shared_ptr<class NotificationsManager> mgr, Notifier* notifier);
+  void unregister();
 
   std::queue<Notification> notifications_;
   std::shared_ptr<class NotificationsManager> mgr_;

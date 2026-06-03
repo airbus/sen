@@ -23,6 +23,7 @@
 #include "sen/core/base/assert.h"
 
 // std
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -75,10 +76,19 @@ void HttpServer::stop()
     getLogger()->error("Error on acceptor::close: " + ec.message());
   }
 
-  router_->releaseAll();
   context_.stop();
+  while (!context_.stopped())
+  {
+  }
+
+  router_->releaseAll();
 
   getLogger()->trace("HttpServer stopped");
+}
+
+void HttpServer::runUntil(const std::chrono::nanoseconds& relTime)
+{
+  context_.run_until(std::chrono::steady_clock::now() + relTime);
 }
 
 void HttpServer::accept(std::shared_ptr<BaseRouter> router)

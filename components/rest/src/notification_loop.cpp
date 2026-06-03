@@ -10,6 +10,7 @@
 // component
 #include "client_session.h"
 #include "http_session.h"
+#include "notifications.h"
 #include "utils.h"
 
 // generated code
@@ -33,12 +34,14 @@ namespace sen::components::rest
 
 NotificationLoop::NotificationLoop(std::shared_ptr<HttpSession> httpSession,
                                    std::shared_ptr<asio::ip::tcp::socket> socket,
-                                   ClientSession& clientSession)
+                                   ObserverGuard membersObserverGuard,
+                                   ObserverGuard invokesObserverGuard,
+                                   ObserverGuard interestsObserverGuard)
   : httpSession_(std::move(httpSession))
   , sharedSocket_(std::move(socket))
-  , membersObserver_(clientSession.getObserverGuard(NotifierType::membersNotifier))
-  , invokesObserver_(clientSession.getObserverGuard(NotifierType::invokesNotifier))
-  , interestsObserver_(clientSession.getObserverGuard(NotifierType::interestsNotifier))
+  , membersObserver_(std::move(membersObserverGuard))
+  , invokesObserver_(std::move(invokesObserverGuard))
+  , interestsObserver_(std::move(interestsObserverGuard))
 {
 }
 
@@ -48,11 +51,17 @@ void NotificationLoop::start() { post(); }
 
 void NotificationLoop::post()
 {
-  auto self = shared_from_this();
-  asio::post(httpSession_->getIOContext(), [self]() { self->run(); });
+  asio::post(httpSession_->getIOContext(),
+             [self = weak_from_this()]()
+             {
+               if (auto lockedSelf = self.lock(); lockedSelf && lockedSelf->run())
+               {
+                 lockedSelf->post();
+               }
+             });
 }
 
-void NotificationLoop::run()
+bool NotificationLoop::run()
 {
   std::optional<Notification> notification = std::nullopt;
   switch (notificationType_)
@@ -77,14 +86,15 @@ void NotificationLoop::run()
     asio::write(*sharedSocket_, asio::buffer(sse), ec);  // NOLINT(misc-include-cleaner)
     if (ec)
     {
-      return;
+      // Broken connection, exists notification
+      return false;
     }
   }
 
   int next = (static_cast<int>(notificationType_) + 1) % static_cast<int>(NotificationType::count);
   notificationType_ = static_cast<NotificationType>(next);
 
-  post();
+  return true;
 }
 
 }  // namespace sen::components::rest

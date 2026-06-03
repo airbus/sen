@@ -1043,8 +1043,6 @@ TEST(Rest, e2e_invoke_method)
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_notification_subscription)
 {
-  // TODO(SEN-1496): heap-use-after-free
-  GTEST_SKIP();
   Server server;
 
   // Authenticate

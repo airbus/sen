@@ -8,6 +8,7 @@
 #include "client_session.h"
 
 // component
+#include "http_session.h"
 #include "jwt.h"
 #include "locators.h"
 #include "notifications.h"
@@ -25,8 +26,13 @@
 #include "sen/core/obj/object.h"
 #include "sen/kernel/component_api.h"
 
+// asio
+#include <asio/ip/tcp.hpp>
+
 // std
+#include <memory>
 #include <string>
+#include <utility>
 
 namespace sen::components::rest
 {
@@ -34,8 +40,23 @@ namespace sen::components::rest
 ClientSession::~ClientSession()
 {
   getLogger()->trace("Destroying ClientSession");
+
+  activeNotificationLoops_.clear();
   interestsManager_.releaseAllInterests();
+
   getLogger()->trace("ClientSession destroyed");
+}
+
+[[nodiscard]] std::shared_ptr<NotificationLoop> ClientSession::buildNotificationLoop(
+  std::shared_ptr<HttpSession> httpSession,
+  std::shared_ptr<asio::ip::tcp::socket> socket)
+{
+  return activeNotificationLoops_.emplace_back(
+    std::make_shared<NotificationLoop>(std::move(httpSession),
+                                       std::move(socket),
+                                       membersManager_.getObserverGuard(),
+                                       invokesManager_.getObserverGuard(),
+                                       interestsManager_.getObserverGuard()));
 }
 
 [[nodiscard]] std::string ClientSession::encodeToken() const
@@ -63,20 +84,6 @@ Result<InterestName, InterestError> ClientSession::createInterest(sen::kernel::R
       // Clean up internal object resources
       membersManager_.unsubscribeAll(objectId);
     });
-}
-
-ObserverGuard ClientSession::getObserverGuard(NotifierType guardType)
-{
-  switch (guardType)
-  {
-    case NotifierType::interestsNotifier:
-      return interestsManager_.getObserverGuard();
-    case NotifierType::membersNotifier:
-      return membersManager_.getObserverGuard();
-    case NotifierType::invokesNotifier:
-    default:
-      return invokesManager_.getObserverGuard();
-  }
 }
 
 }  // namespace sen::components::rest

@@ -1390,7 +1390,7 @@ JsonResponse SenRouter::getNotificationsHandler(ClientSession& clientSession,
   }
 
   auto sharedSocket = std::make_shared<asio::ip::tcp::socket>(std::move(socket));
-  auto notificationLoop = std::make_shared<NotificationLoop>(httpSession, sharedSocket, clientSession);
+  auto notificationLoop = clientSession.buildNotificationLoop(httpSession, sharedSocket);
   notificationLoop->start();
 
   return JsonResponse(httpSuccess);
