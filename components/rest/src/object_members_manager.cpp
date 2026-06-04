@@ -98,8 +98,8 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        {
          try
          {
-           auto propertyData = toJson(*object, propertyLocator);
-           notify(Notification {NotificationType::property, interest, info.creationTime, propertyData});
+           notify(
+             Notification {NotificationType::property, interest, info.creationTime, toJson(*object, propertyLocator)});
          }
          catch (std::exception& e)
          {
@@ -135,7 +135,7 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
   auto guard = object->onEventUntyped(
     event,
     {kernelApi.getWorkQueue(),
-     [this, object, objectId, interest, eventId](const sen::EventInfo& info, const sen::VarList& value)
+     [this, object, objectId, interest, eventId, eventLocator](const sen::EventInfo& info, const sen::VarList& value)
      {
        const auto objectIt = events_.find(objectId);
        if (objectIt == events_.cend())
@@ -147,8 +147,8 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
        const auto eventIt = objectIt->second.find(eventId);
        if (eventIt != objectIt->second.cend())
        {
-
-         notify(Notification {NotificationType::evt, interest, info.creationTime, toJson(*object, value)});
+         notify(
+           Notification {NotificationType::evt, interest, info.creationTime, toJson(*object, value, eventLocator)});
        }
        else
        {
