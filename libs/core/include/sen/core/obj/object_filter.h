@@ -54,8 +54,11 @@ public:
                                 ObjectProviderListener* listener,
                                 bool notifyAboutExisting) = 0;
 
-  // Removes all the instances of the listener.
+  /// Removes all the instances of the listener.
   virtual void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) = 0;
+
+  /// Replaces an existing subscriber with a new one.
+  virtual void replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener) = 0;
 };
 
 /// Allows the discovery of objects based on different criteria.
@@ -85,6 +88,7 @@ public:  // implements ObjectFilterBase
                         ObjectProviderListener* listener,
                         bool notifyAboutExisting) override;
   void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) override;
+  void replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener) override;
 
 public:
   /// Creates a uniquely named provider for objects determined on a given interest.

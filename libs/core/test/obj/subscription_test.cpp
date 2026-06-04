@@ -93,8 +93,6 @@ TEST(SubscriptionTest, ReleaseDetachesSource)
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, MoveConstructor)
 {
-  // TODO(SEN-1610): fix stack-use-after-scope
-  GTEST_SKIP();
   const auto source = std::make_shared<MockObjectSource>(getTestOwnerId());
   sen::Subscription<sen::Object> sub1;
   sub1.attachTo(source, makeTestInterest(), false);
@@ -129,8 +127,6 @@ TEST(SubscriptionTest, MoveAssignmentSelfAndEmpty)
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, MoveAssignmentOverwritesExistingSource)
 {
-  // TODO(SEN-1610): fix stack-use-after-scope
-  GTEST_SKIP();
   const auto source1 = std::make_shared<MockObjectSource>(getTestOwnerId());
   const auto source2 = std::make_shared<MockObjectSource>(getTestOwnerId());
 

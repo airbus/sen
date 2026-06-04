@@ -63,8 +63,16 @@ private:
 
 template <typename T>
 inline Subscription<T>::Subscription(Subscription&& other) noexcept
-  : list(std::move(other.list)), source_(std::move(other.source_))
 {
+  release(true);
+
+  list = std::move(other.list);
+  source_ = std::move(other.source_);
+
+  if (source_)
+  {
+    source_->replaceSubscriber(&other.list, &list);
+  }
 }
 
 template <typename T>
@@ -73,8 +81,14 @@ inline Subscription<T>& Subscription<T>::operator=(Subscription<T>&& other) noex
   if (this != &other)
   {
     release(true);
+
     list = std::move(other.list);
     source_ = std::move(other.source_);
+
+    if (source_)
+    {
+      source_->replaceSubscriber(&other.list, &list);
+    }
   }
 
   return *this;
