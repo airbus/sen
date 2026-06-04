@@ -59,3 +59,6 @@ race:sen::impl::RemoteObject::sendCall
 # TODO(SEN-1679): data race found while running object_sync_writable_props_two_processes with TSAN
 # Issue with writable properties: setNext method can be called from another thread and the ProxyObject mutex is not locked (property buffers unprotected)
 race:object_sync::TestObjectRemoteProxy::setNextWritableProp
+
+# TODO(SEN-SEN-1706): data race found while running object_sync_confirmed_events_single_process with TSAN
+race:sen::impl::EventBuffer::addConnection

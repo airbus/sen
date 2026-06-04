@@ -874,23 +874,47 @@ void EditablePrinterMaker::apply(const sen::VariantType& type)
 void EditablePrinterMaker::apply(const sen::SequenceType& type)
 {
   std::map<ImGuiID, EditablePrinterFunc> printerMap;
-  EditablePrinterFunc f;
   func_ = [&type, printers = std::move(printerMap), this](
             sen::Var& var, const std::string& prefix, sen::Object* object) mutable
   {
-    if (var.isEmpty())
+    if (!var.holds<sen::VarList>())
     {
-      ImGui::TextColored(Value::getStringColor(), "<empty>");  // NOLINT(hicpp-vararg)
-      return false;
+      var = sen::VarList {};
     }
 
-    if (auto theList = var.get<sen::VarList>(); !theList.empty())
+    auto& theList = var.get<sen::VarList>();
+
+    ImGui::PushID("sequenceOperations");
+    if (ImGui::Button("Add"))
+    {
+      VarInitializer init;
+      type.getElementType()->accept(init);
+      theList.push_back(init.getResult());
+
+      ImGui::PopID();
+      return true;
+    }
+
+    if (!theList.empty())
+    {
+      ImGui::SameLine();
+      if (ImGui::Button("Clear"))
+      {
+        theList.clear();
+        ImGui::PopID();
+        return true;
+      }
+    }
+    ImGui::PopID();
+
+    if (!theList.empty())
     {
       ImGui::PushID(ImGui::TableGetRowIndex());
       ImGui::Indent();
       int temp = 0;
-      for (auto& item: theList)
+      for (auto it = theList.begin(); it != theList.end(); ++it)
       {
+        auto& item = *it;
         ImGui::PushID(++temp);
         if (!printers[temp])
         {
@@ -898,13 +922,23 @@ void EditablePrinterMaker::apply(const sen::SequenceType& type)
           type.getElementType()->accept(v);
           printers[temp] = v.getRawImGuiField();
         }
+
+        if (ImGui::Button("Delete"))
+        {
+          theList.erase(it);
+          ImGui::PopID();
+          ImGui::Unindent();
+          ImGui::PopID();
+          return true;
+        }
+        ImGui::SameLine();
+
         if (!item.isEmpty())
         {
           if (printers[temp](item, prefix, object))
           {
-            var = theList;
-            ImGui::Unindent();
             ImGui::PopID();
+            ImGui::Unindent();
             ImGui::PopID();
             return true;
           }
@@ -914,6 +948,12 @@ void EditablePrinterMaker::apply(const sen::SequenceType& type)
       ImGui::Unindent();
       ImGui::PopID();
     }
+    else
+    {
+      ImGui::SameLine();
+      ImGui::TextColored(Value::getStringColor(), "<empty>");  // NOLINT(hicpp-vararg)
+    }
+
     return false;
   };
 }
