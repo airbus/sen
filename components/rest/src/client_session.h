@@ -83,7 +83,9 @@ private:
   sen::Result<InterestName, InterestError> createInterest(sen::kernel::RunApi& runApi,
                                                           const BusLocator& busLocator,
                                                           const InterestName& interestName,
-                                                          const std::string& query);
+                                                          const std::string& query,
+                                                          bool autoSubscribeProperties,
+                                                          bool autoSubscribeEvents);
 
 private:
   std::string clientId_;

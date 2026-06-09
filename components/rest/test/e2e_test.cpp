@@ -819,6 +819,111 @@ TEST(Rest, e2e_get_existing_object_not_including_properties)
 }
 
 /// @test
+/// End-to-end test for successful interest creation including auto-subscription
+TEST(Rest, e2e_create_interest_autosubscription)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(
+    HttpMethod::httpPost,
+    "127.0.0.1",
+    "12345",
+    "/api/interests",
+    Json {
+      {"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}, {"autoSubscribe", {{"properties", true}}}},
+    token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Get object subscriptions
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpGet,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/subscription",
+                                         Json(),
+                                         token.value());
+                        });
+
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_FALSE(response["properties"].empty());
+}
+
+/// @test
+/// End-to-end test for successful interest creation without auto-subscription
+TEST(Rest, e2e_create_interest_no_autosubscription)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"},
+                                 {"query", "SELECT * FROM local.kernel"},
+                                 {"autoSubscribe", {{"properties", false}, {"events", false}}}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Get object subscriptions
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpGet,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/subscription",
+                                         Json(),
+                                         token.value());
+                        });
+
+  ASSERT_EQ(ret.statusCode, 200);
+
+  auto response = Json::parse(ret.body);
+  ASSERT_TRUE(response["properties"].empty());
+  ASSERT_TRUE(response["events"].empty());
+}
+
+/// @test
+/// End-to-end test for malformed request to create interest with auto-subscription
+TEST(Rest, e2e_create_interest_malformed_request_autosubscribe)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"},
+                                 {"query", "SELECT * FROM local.kernel"},
+                                 {"autoSubscribe", {{"properties", "nonValidRequest"}}}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 400);
+}
+
+/// @test
 /// End-to-end test for getting a method definition
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_get_method_definition)

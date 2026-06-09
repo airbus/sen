@@ -62,7 +62,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
     return false;
   }
 
-  auto memberId = property->getId();
+  auto propertyId = property->getId();
   auto objectId = object->getId();
 
   auto guard = object->onPropertyChangedUntyped(
@@ -73,7 +73,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
       interest,
       propertyLocator,
       objectId,
-      memberId,
+      propertyId,
       maxUpdateTime = options.maxUpdateTime,
       lastUpdate = TimeStamp(0)](const sen::EventInfo& info, const sen::VarList& args) mutable
      {
@@ -93,7 +93,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
          return;
        }
 
-       const auto propertyIt = objectIt->second.find(memberId);
+       const auto propertyIt = objectIt->second.find(propertyId);
        if (propertyIt != objectIt->second.cend())
        {
          try
@@ -112,7 +112,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
      }});
 
-  properties_[objectId].emplace(memberId, std::move(guard));
+  properties_[objectId].emplace(propertyId, std::move(guard));
 
   return true;
 }
@@ -239,6 +239,72 @@ std::vector<sen::MemberHash> ObjectMembersManager::getEventIds(const sen::Object
   }
 
   return eventIds;
+}
+
+bool ObjectMembersManager::subscribeAllProperties(const sen::kernel::KernelApi& kernelApi,
+                                                  const InterestName& interest,
+                                                  sen::Object& object,
+                                                  const BusLocator& busLocator)
+{
+  for (auto const& property: object.getClass()->getProperties(sen::ClassType::SearchMode::includeParents))
+  {
+    auto propertyId = property->getId();
+    auto objectId = object.getId();
+
+    auto propertyLocatorOpt = PropertyLocator::build(busLocator, object.getName(), std::string(property->getName()));
+    if (propertyLocatorOpt.isError())
+    {
+      return false;
+    }
+
+    const auto& propertyLocator = propertyLocatorOpt.getValue();
+
+    auto guard = object.onPropertyChangedUntyped(
+      property.get(),
+      {kernelApi.getWorkQueue(),
+       [this, &object, interest, propertyLocator](const sen::EventInfo& info,
+                                                  [[maybe_unused]] const sen::VarList& args) mutable
+       {
+         notify(
+           Notification {NotificationType::property, interest, info.creationTime, toJson(object, propertyLocator)});
+       }});
+
+    properties_[objectId].emplace(propertyId, std::move(guard));
+  }
+
+  return true;
+}
+
+bool ObjectMembersManager::subscribeAllEvents(const sen::kernel::KernelApi& kernelApi,
+                                              const InterestName& interest,
+                                              sen::Object& object,
+                                              const BusLocator& busLocator)
+{
+  for (const auto& event: object.getClass()->getEvents(sen::ClassType::SearchMode::includeParents))
+  {
+    auto eventId = event->getId();
+    auto objectId = object.getId();
+
+    auto eventLocatorOpt = EventLocator::build(busLocator, object.getName(), std::string(event->getName()));
+    if (eventLocatorOpt.isError())
+    {
+      return false;
+    }
+
+    const auto& eventLocator = eventLocatorOpt.getValue();
+
+    auto guard = object.onEventUntyped(
+      event.get(),
+      {kernelApi.getWorkQueue(),
+       [this, &object, interest, eventLocator](const sen::EventInfo& info, const sen::VarList& value)
+       {
+         notify(Notification {NotificationType::evt, interest, info.creationTime, toJson(object, value, eventLocator)});
+       }});
+
+    events_[objectId].emplace(eventId, std::move(guard));
+  }
+
+  return true;
 }
 
 }  // namespace sen::components::rest

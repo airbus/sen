@@ -72,13 +72,21 @@ ClientSession::~ClientSession()
 Result<InterestName, InterestError> ClientSession::createInterest(sen::kernel::RunApi& runApi,
                                                                   const BusLocator& busLocator,
                                                                   const InterestName& interestName,
-                                                                  const std::string& query)
+                                                                  const std::string& query,
+                                                                  bool autoSubscribeProperties,
+                                                                  bool autoSubscribeEvents)
 {
   return interestsManager_.createInterest(
     runApi,
     busLocator,
     interestName,
     query,
+    [this, &runApi, interestName, busLocator, autoSubscribeProperties, autoSubscribeEvents](sen::Object* object)
+    {
+      return (!autoSubscribeProperties ||
+              membersManager_.subscribeAllProperties(runApi, interestName, *object, busLocator)) &&
+             (!autoSubscribeEvents || membersManager_.subscribeAllEvents(runApi, interestName, *object, busLocator));
+    },
     [this]([[maybe_unused]] const InterestName& interestName, sen::ObjectId objectId)
     {
       // Clean up internal object resources

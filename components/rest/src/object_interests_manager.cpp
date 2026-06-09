@@ -45,6 +45,7 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
                                                                                 const BusLocator& busLocator,
                                                                                 const InterestName& interestName,
                                                                                 const std::string& query,
+                                                                                AutoSubscribeCallback&& onObjectAdded,
                                                                                 InterestCallback&& onObjectRemoved)
 {
   // Check interest name uniqueness
@@ -63,7 +64,7 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
   auto subscription = std::make_shared<sen::Subscription<sen::Object>>();
 
   std::ignore = subscription->list.onAdded(
-    [this, busLocator, interestName](const auto& addedObjects)
+    [this, busLocator, onObjectAdded = std::move(onObjectAdded), interestName](const auto& addedObjects)
     {
       for (auto obj: addedObjects)
       {
@@ -73,10 +74,16 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
           sen::TimeStamp {std::chrono::system_clock::now().time_since_epoch()},
           toJson(*obj, busLocator),
         });
+
+        if (!onObjectAdded(obj))
+        {
+          getLogger()->error("Couldn't subscribe to event or property");
+        }
       }
     });
   std::ignore = subscription->list.onRemoved(
-    [this, busLocator, onObjectRemoved, interestName = interestName](const auto& removedObjects)
+    [this, busLocator, onObjectRemoved = std::move(onObjectRemoved), interestName = interestName](
+      const auto& removedObjects)
     {
       for (auto obj: removedObjects)
       {

@@ -682,7 +682,24 @@ JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
       return JsonResponse(httpBadRequestError, Error {"source not open"});
     }
 
-    auto interestName = clientSession.createInterest(api_, busLocator, interest.name, interest.query);
+    bool autoSubscribeProperties = false;
+    bool autoSubscribeEvents = false;
+
+    if (payload.contains("autoSubscribe"))
+    {
+      if (payload["autoSubscribe"].contains("properties"))
+      {
+        autoSubscribeProperties = payload["autoSubscribe"].at("properties").get<bool>();
+      }
+
+      if (payload["autoSubscribe"].contains("events"))
+      {
+        autoSubscribeEvents = payload["autoSubscribe"].at("events").get<bool>();
+      }
+    }
+
+    auto interestName = clientSession.createInterest(
+      api_, busLocator, interest.name, interest.query, autoSubscribeProperties, autoSubscribeEvents);
     if (interestName.isError())
     {
       return JsonResponse(

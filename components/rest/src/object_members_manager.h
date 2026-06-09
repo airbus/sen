@@ -64,7 +64,7 @@ public:
   /// Unsubscribes from event updates of a Sen object.
   bool unsubscribeEvent(const sen::ObjectId& objectId, const MemberHash& eventId);
 
-  /// Unsubscribes from all events of an object.
+  /// Unsubscribes from all members of an object.
   /// Members can be properties or events.
   void unsubscribeAll(const sen::ObjectId& objectId);
 
@@ -77,6 +77,18 @@ public:
 
   /// Returns a list of object event ids the client is subscribed to
   std::vector<sen::MemberHash> getEventIds(const sen::ObjectId& objectId);
+
+  /// Subscribes to all property updates of a given Sen object.
+  bool subscribeAllProperties(const sen::kernel::KernelApi& kernelApi,
+                              const InterestName& interest,
+                              sen::Object& object,
+                              const BusLocator& busLocator);
+
+  /// Subscribes to all event updates of a given Sen object.
+  bool subscribeAllEvents(const sen::kernel::KernelApi& kernelApi,
+                          const InterestName& interest,
+                          sen::Object& object,
+                          const BusLocator& busLocator);
 
 private:
   std::unordered_map<ObjectId, std::unordered_map<sen::MemberHash, ConnectionGuard>> properties_;

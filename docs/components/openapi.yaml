@@ -144,6 +144,15 @@ paths:
                 query:
                   type: string
                   description: Sen query to select objects
+                autoSubscribe:
+                  type: object
+                  properties:
+                    properties:
+                      type: boolean
+                      description: Whether to automatically subscribe to properties
+                    events:
+                      type: boolean
+                      description: Whether to automatically subscribe to events
               required:
                 - name
                 - query
