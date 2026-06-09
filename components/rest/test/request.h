@@ -15,6 +15,8 @@
 #include <nlohmann/json.hpp>
 
 // std
+#include <atomic>
+#include <functional>
 #include <optional>
 #include <string>
 
@@ -32,9 +34,13 @@ HttpResponse request(const HttpMethod& method,
                      const std::string& port,
                      const std::string& path,
                      const std::optional<Json> data = Json(),
-                     const std::string& token = "",
-                     bool isSSE = false);
-
+                     const std::string& token = "");
+bool requestSSE(const std::string& host,
+                const std::string& port,
+                const std::string& path,
+                const std::string& token,
+                std::atomic<bool>& cancelToken,
+                std::function<bool(std::string)> onNotification);
 std::optional<std::string> authenticate();
 
 #endif  // SEN_COMPONENTS_REST_TEST_REQUEST_H

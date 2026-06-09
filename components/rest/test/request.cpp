@@ -24,8 +24,10 @@
 #include <nlohmann/json.hpp>
 
 // std
+#include <atomic>
 #include <cstddef>
 #include <cstring>
+#include <functional>
 #include <iostream>  //NOLINT
 #include <optional>
 #include <sstream>
@@ -37,25 +39,17 @@ using sen::components::rest::HttpMethod;
 
 constexpr std::string_view eventHeader = "event: ";
 
-HttpResponse request(const HttpMethod& method,
-                     const std::string& host,
-                     const std::string& port,
-                     const std::string& path,
-                     const std::optional<Json> data,
-                     const std::string& token,
-                     bool isSSE)
+std::string buildHTTPRequest(const HttpMethod& method,
+                             const std::string& host,
+                             const std::string& port,
+                             const std::string& path,
+                             const std::optional<Json> data,
+                             const std::string& token)
 {
-  HttpResponse result {0, ""};
-  asio::io_context context;
-  asio::ip::tcp::resolver resolver(context);
-  asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
-
-  asio::ip::tcp::socket socket(context);
-  asio::connect(socket, endpoints);  // NOLINT
-
+  std::string request;
   std::string payload;
   size_t payloadSize = 0;
-  std::string request;
+
   switch (method)
   {
     case HttpMethod::httpPut:
@@ -106,7 +100,27 @@ HttpResponse request(const HttpMethod& method,
     request.append(payload);
   }
 
+  return request;
+}
+
+HttpResponse request(const HttpMethod& method,
+                     const std::string& host,
+                     const std::string& port,
+                     const std::string& path,
+                     const std::optional<Json> data,
+                     const std::string& token)
+{
+  HttpResponse result {0, ""};
+  asio::io_context context;
+  asio::ip::tcp::resolver resolver(context);
+  asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
+
+  asio::ip::tcp::socket socket(context);
+  asio::connect(socket, endpoints);  // NOLINT
+
+  std::string request = buildHTTPRequest(method, host, port, path, data, token);
   asio::write(socket, asio::buffer(request));  // NOLINT
+
   std::string response;
   asio::error_code error;
   while (true)
@@ -125,11 +139,6 @@ HttpResponse request(const HttpMethod& method,
     }
 
     response.append(buf, len);
-    if (isSSE && len >= eventHeader.size() && memcmp(buf, eventHeader.data(), eventHeader.size()) == 0)
-    {
-      std::cout << buf << std::endl;
-      return HttpResponse {200, response};
-    }
   }
 
   size_t lineEnd = response.find("\r\n");
@@ -149,6 +158,54 @@ HttpResponse request(const HttpMethod& method,
   }
 
   return result;
+}
+
+bool requestSSE(const std::string& host,
+                const std::string& port,
+                const std::string& path,
+                const std::string& token,
+                std::atomic<bool>& cancelToken,
+                std::function<bool(std::string)> onNotification)
+{
+  asio::io_context context;
+  asio::ip::tcp::resolver resolver(context);
+  asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
+
+  asio::ip::tcp::socket socket(context);
+  asio::connect(socket, endpoints);  // NOLINT
+  socket.non_blocking(true);
+
+  std::string payload;
+  size_t payloadSize = 0;
+  std::string request = buildHTTPRequest(HttpMethod::httpGet, host, port, path, std::nullopt, token);
+  asio::write(socket, asio::buffer(request));  // NOLINT
+
+  std::string response;
+  asio::error_code error;
+  bool shallContinue = true;
+  while (shallContinue && !cancelToken.load())
+  {
+    char buf[1024];
+    size_t len = socket.read_some(asio::buffer(buf), error);
+
+    if (error == asio::error::eof)
+    {
+      response.append(buf, len);
+      return false;
+    }
+    if (error && error != asio::error::basic_errors::try_again && error != asio::error::would_block)
+    {
+      return false;
+    }
+
+    response.append(buf, len);
+    if (len >= eventHeader.size() && memcmp(buf, eventHeader.data(), eventHeader.size()) == 0)
+    {
+      shallContinue = onNotification(buf);
+    }
+  }
+
+  return true;
 }
 
 std::optional<std::string> authenticate()

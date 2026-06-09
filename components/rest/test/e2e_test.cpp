@@ -9,6 +9,8 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/duration.h"
+#include "sen/core/base/timestamp.h"
 #include "sen/core/base/version.h"
 #include "sen/kernel/test_kernel.h"
 
@@ -24,6 +26,7 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
+#include <future>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -1089,6 +1092,60 @@ TEST(Rest, e2e_property_subscription)
 }
 
 /// @test
+/// Notification immediately received with current value after creating a property subscription
+/// @requirements(SEN-1061)
+TEST(Rest, e2e_property_subscription_notification)
+{
+  Server server;
+
+  // Authenticate
+  auto token = authenticate();
+  ASSERT_TRUE(token.has_value());
+
+  std::atomic<sen::TimeStamp> timestamp = sen::TimeStamp(std::chrono::system_clock::now().time_since_epoch());
+  std::atomic<bool> cancelToken = false;
+
+  // Query notifications from a different thread
+  auto future = std::async(std::launch::async,
+                           [token, &cancelToken, &timestamp]()
+                           {
+                             auto retVal = requestSSE("127.0.0.1",
+                                                      "12345",
+                                                      "/api/sse",
+                                                      token.value(),
+                                                      cancelToken,
+                                                      [&timestamp](std::string value)
+                                                      { return value.rfind("event: property", 0); });
+                             ASSERT_TRUE(retVal);
+                           });
+
+  // Create interest
+  auto createRet = request(HttpMethod::httpPost,
+                           "127.0.0.1",
+                           "12345",
+                           "/api/interests",
+                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
+                           token.value());
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  timestamp = sen::TimeStamp(std::chrono::system_clock::now().time_since_epoch());
+  auto ret = retryUntil(200,
+                        [token]()
+                        {
+                          return request(HttpMethod::httpPost,
+                                         "127.0.0.1",
+                                         "12345",
+                                         "/api/interests/test_interest/objects/api/properties/buildInfo/subscribe",
+                                         Json(),
+                                         token.value());
+                        });
+  ASSERT_TRUE(ret.statusCode == 200);
+
+  EXPECT_EQ(future.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+  cancelToken = true;
+}
+
+/// @test
 /// End-to-end test for invoking a method
 /// @requirements(SEN-1061)
 TEST(Rest, e2e_invoke_method)
@@ -1164,12 +1221,15 @@ TEST(Rest, e2e_notification_subscription)
   ASSERT_EQ(ret.statusCode, 200);
 
   // Query notifications from a different thread
-  std::thread t(
-    [token]()
-    {
-      auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sse", Json(), token.value(), true);
-      ASSERT_EQ(ret.statusCode, 200);
-    });
+  std::atomic<bool> cancelToken = false;
+  auto future =
+    std::async(std::launch::async,
+               [token, &cancelToken]()
+               {
+                 auto retVal = requestSSE(
+                   "127.0.0.1", "12345", "/api/sse", token.value(), cancelToken, [](std::string) { return false; });
+                 ASSERT_TRUE(retVal);
+               });
 
   // Invoke a method
   ret = retryUntil(200,
@@ -1184,5 +1244,6 @@ TEST(Rest, e2e_notification_subscription)
                    });
   ASSERT_EQ(ret.statusCode, 200);
 
-  t.join();
+  EXPECT_EQ(future.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+  cancelToken = true;
 }

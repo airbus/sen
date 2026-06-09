@@ -33,6 +33,7 @@
 #include <spdlog/spdlog.h>
 
 // std
+#include <chrono>
 #include <exception>
 #include <memory>
 #include <string>
@@ -113,6 +114,10 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
      }});
 
   properties_[objectId].emplace(propertyId, std::move(guard));
+
+  auto propertyData = toJson(*object, propertyLocator);
+  auto timestamp = TimeStamp(std::chrono::system_clock::now().time_since_epoch());
+  notify(Notification {NotificationType::property, interest, std::move(timestamp), std::move(propertyData)});
 
   return true;
 }
