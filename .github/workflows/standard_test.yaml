@@ -99,7 +99,7 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
 
-      # Connect App to Airbus Org.
+      # TODO(SEN-1726): Connect App to Airbus Org.
       # - name: Upload coverage to Codecov
       #   uses: codecov/codecov-action@v4
       #   with:

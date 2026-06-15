@@ -136,7 +136,7 @@ def compute_jobs(release: bool, conan: bool, standard_test: bool, target_main: b
             ),
             include_in_release_workflow=True,
             include_in_conan_workflow=True,
-            # TODO: fix build failures in test setup
+            # TODO(SEN-1725): fix build failures in test setup
             include_in_standard_test_workflow=False,
             include_in_standard_test_workflow_also_main=False,
         ),
