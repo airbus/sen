@@ -15,6 +15,7 @@
 // std
 #include <algorithm>
 #include <cstddef>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -549,18 +550,31 @@ private:
   {
     // Precondition checks
     checkIdxInRange(idx);
-    SEN_DEBUG_ASSERT(idx + std::distance(charRange.begin(), charRange.end()) < maxCapacity + 1);
 
-    for (CharT c: charRange)
+    size_type elementsToCopy = std::distance(charRange.begin(), charRange.end());
+    SEN_DEBUG_ASSERT(idx + elementsToCopy < maxCapacity + 1);
+    elementsToCopy = std::min(elementsToCopy, maxCapacity);
+
+#ifdef __cpp_lib_is_constant_evaluated
+    if (std::is_constant_evaluated())
     {
-      if (isNotWithinCapacity(idx))  // ensures that even in release builds, we don't write out of bounds
+      for (CharT c: charRange)
       {
-        break;
+        if (isNotWithinCapacity(idx))  // ensures that even in release builds, we don't write out of bounds
+        {
+          break;
+        }
+        data_[idx] = c;
+        idx++;
       }
-      data_[idx] = c;
-      idx++;
+
+      return idx;
     }
-    return idx;
+#endif
+
+    std::memcpy(&data_[idx], &(*charRange.begin()), elementsToCopy);
+
+    return idx + elementsToCopy;
   }
 
   constexpr void makeGap(size_type idx, size_type amount) { makeGap(convertToIterator(idx), amount); }
