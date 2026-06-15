@@ -24,6 +24,8 @@ namespace sen
 
 // NOLINTBEGIN(readability-identifier-naming)
 
+/// FixedString class that implements a std::string / std::string_view compatible interface.
+/// For detailed documentation checkout the interface documentation of one of those classes.
 template <typename CharT, size_t maxCapacity, typename Traits = std::char_traits<CharT>>
 class FixedStringBase
 {
@@ -51,9 +53,7 @@ public:
   explicit constexpr FixedStringBase(const std::string& s): FixedStringBase(std::string_view(s)) {};
   explicit constexpr FixedStringBase(std::string_view s) { assignRange(util::makeRange(s.begin(), s.end())); };
 
-  //------------------------------------------------------------------------------------------------------------------//
-  // Basic member functions
-
+public:  // Basic member functions
   template <typename CharT2 = CharT, size_t capacity2>
   FixedStringBase& operator=(const FixedStringBase<CharT2, capacity2>& other)
   {
@@ -98,9 +98,7 @@ public:
     return *this;
   }
 
-  //------------------------------------------------------------------------------------------------------------------//
-  // Element access
-
+public:  // Element access
   [[nodiscard]] CharT& at(size_t idx)
   {
     if (idx >= size())
@@ -157,9 +155,7 @@ public:
 
   [[nodiscard]] const CharT* c_str() const noexcept { return data(); }
 
-  //------------------------------------------------------------------------------------------------------------------//
-  // Iterators
-
+public:  // Iterators
   iterator begin() { return data_.begin(); }
   const_iterator begin() const { return data_.cbegin(); }
   const_iterator cbegin() const noexcept { return data_.cbegin(); }
@@ -176,9 +172,7 @@ public:
   const_reverse_iterator rend() const { return data_.crend(); }
   const_reverse_iterator crend() const noexcept { return data_.crend(); }
 
-  //------------------------------------------------------------------------------------------------------------------//
-  // Capacity
-
+public:  // Capacity
   [[nodiscard]] constexpr bool empty() const noexcept { return usedSize_ == 0U; }
   [[nodiscard]] constexpr size_t size() const noexcept { return usedSize_; }
   [[nodiscard]] constexpr size_t length() const noexcept { return usedSize_; }
@@ -364,8 +358,7 @@ public:
     other.usedSize_ = tmpSize;
   }
 
-  //------------------------------------------------------------------------------------------------------------------//
-  // Search
+public:  // Search
   size_type find(const CharT* s, size_type pos, size_type count) const noexcept { return view().find(s, pos, count); }
   size_type find(const CharT* s, size_type pos = 0) const noexcept { return view().find(s, pos); }
   size_type find(CharT ch, size_type pos = 0) const noexcept { return view().find(ch, pos); };
@@ -448,9 +441,7 @@ public:
     return view().find_last_not_of(t, pos);
   }
 
-  //------------------------------------------------------------------------------------------------------------------//
-  // Operations
-
+public:  // Operations
   int compare(const FixedStringBase& str) const { return view().compare(str.view()); }
 
 #ifdef __cpp_lib_starts_ends_with
@@ -602,8 +593,7 @@ private:
     makeDestructiveMoveLeft(convertToIndex(pos), count);
   }
 
-  //===------------------------------------------------------------------------------------------------------------===//
-  // Data
+private:  // Data members
   StorageType data_ {'\0'};
   size_type usedSize_ {0};
 };
