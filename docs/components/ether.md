@@ -94,7 +94,8 @@ The Take into account that:
 ### Setting multicast ranges
 
 The `busConfig.multicastRange` configuration parameter defines the ranges for possible multicast
-groups to be used by the buses. The default range of addresses is 224.0.0.0 to 239.255.255.255. In
+groups to be used by the buses. The default range of addresses is `239.192.0.0` to
+`239.195.255.255`, which follows the Organization-Local scope defined in RFC 2365. In
 order for this to work, you need to ensure that all the related Sen applications are using the same
 range.
 
