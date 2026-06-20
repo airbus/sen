@@ -1,0 +1,44 @@
+package sen.components.jsonrpc;
+
+optional<f64>    MaybeUpdateFreqHz;
+optional<u16>    MaybeIdleTimeoutSeconds;
+optional<u32>    MaybeMaxPayloadBytes;
+optional<u32>    MaybeMaxBackpressureBytes;
+optional<u32>    MaybeHighBackpressureBytes;
+optional<string> MaybeControlBusName;
+
+// Per-connection buffer / timeout knobs consulted on the uWS thread for the lifetime of the
+// server. Every field is optional; unset fields fall back to the defaults resolved inside
+// ws_server.cpp at the use site.
+struct ConnectionLimits
+{
+  idleTimeoutSeconds    : MaybeIdleTimeoutSeconds,    // uWS idle close timeout; defaults to 120
+  maxPayloadBytes       : MaybeMaxPayloadBytes,       // Max inbound frame size; defaults to 16 KiB
+  maxBackpressureBytes  : MaybeMaxBackpressureBytes,  // uWS hard outbound buffer ceiling; defaults to 64 KiB
+  highBackpressureBytes : MaybeHighBackpressureBytes  // Soft trigger for the BackpressureUpdate signal; defaults to 32 KiB
+}
+
+optional<ConnectionLimits> MaybeConnectionLimits;
+
+// TLS materials. The schema is reserved so configs stay forward-compatible, but the component
+// fails to start if `tls` is set; full TLS support is not yet wired through the uWebSockets SSL
+// backend.
+struct TlsConfig
+{
+  certPath : string,  // PEM-encoded server certificate
+  keyPath  : string   // PEM-encoded server private key
+}
+
+optional<TlsConfig> MaybeTlsConfig;
+
+// JSON-RPC over WebSocket component configuration. Only `address` and `port` are required;
+// every other field falls back to a documented default.
+struct Configuration
+{
+  address          : string,                 // The IP address or hostname the server will bind to
+  port             : u16,                    // The port number the server will listen on
+  updateFreqHz     : MaybeUpdateFreqHz,      // Run-loop frequency in Hz; defaults to 60
+  connectionLimits : MaybeConnectionLimits,  // Per-connection uWS buffer / timeout knobs
+  tls              : MaybeTlsConfig,         // schema placeholder; setting this fails component start
+  controlBusName   : MaybeControlBusName     // Control-plane bus on `local`; defaults to "jsonrpc_control"
+}

@@ -99,6 +99,10 @@ private:  // others
   void classParents(StlClassStatement& statement);
   void validateComments(const StlToken& functionOrEventIdentifier, const std::vector<StlArgStatement>& arguments);
   [[nodiscard]] bool containsNewLine(size_t startOffset, size_t endOffset) const;
+  [[nodiscard]] bool containsBlankLine(size_t startOffset, size_t endOffset) const;
+  /// Collects consecutive `comment` tokens into `bucket`, resetting it on every blank-line
+  /// separation so paragraphs from a previous group don't leak into the next declaration.
+  void collectAttachedComments(std::vector<StlToken>& bucket);
 
 private:
   const StlTokenList& tokens_;

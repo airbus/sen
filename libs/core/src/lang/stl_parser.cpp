@@ -48,10 +48,7 @@ StlStatement StlParser::declaration()
   // allow comments before declarations
   // and use them as descriptions.
   previousComment_ = {};
-  while (check(StlTokenType::comment))
-  {
-    previousComment_.push_back(consume(StlTokenType::comment, {"expecting comment"}));
-  }
+  collectAttachedComments(previousComment_);
 
   if (match({StlTokenType::keywordImport}))
   {
@@ -222,11 +219,7 @@ StlStructFieldStatement StlParser::structFieldStatement()
   previousComment_.clear();
 
   // maybe we have a comment before the field
-  while (check(StlTokenType::comment))
-  {
-    auto description = consume(StlTokenType::comment, {"expecting comment"});
-    statement.description.push_back(description);
-  }
+  collectAttachedComments(statement.description);
 
   statement.identifier = consume(StlTokenType::identifier, {"Expected struct field name"});
   checkNotReserved(statement.identifier);
@@ -336,11 +329,7 @@ StlEnumeratorStatement StlParser::enumeratorDeclaration()
   previousComment_.clear();
 
   // maybe we have a comment before the enumerator
-  while (check(StlTokenType::comment))
-  {
-    auto description = consume(StlTokenType::comment, {"expecting comment"});
-    statement.description.push_back(description);
-  }
+  collectAttachedComments(statement.description);
 
   statement.identifier = consume(StlTokenType::identifier, {"Expected enum name"});
 
@@ -507,11 +496,7 @@ StlVariantElement StlParser::variantElementDeclaration()
   previousComment_.clear();
 
   // maybe we have a comment before the variant element
-  while (check(StlTokenType::comment))
-  {
-    auto description = consume(StlTokenType::comment, {"expecting comment"});
-    statement.description.push_back(description);
-  }
+  collectAttachedComments(statement.description);
 
   statement.typeName = typeNameStatement({"Expected type name for variant"});
   const auto& qualName = statement.typeName.qualifiedName;
@@ -774,10 +759,7 @@ void StlParser::classOrInterfaceMembers(StlInterfaceStatement& statement)
     // allow comments before members
     // and use them as descriptions.
     previousComment_ = {};
-    while (check(StlTokenType::comment))
-    {
-      previousComment_.push_back(consume(StlTokenType::comment, {"expecting comment"}));
-    }
+    collectAttachedComments(previousComment_);
 
     // allow finishing by only setting the previous comment
     if (!previousComment_.empty() && (check(StlTokenType::rightBrace) || isAtEnd()))
@@ -1427,6 +1409,25 @@ bool StlParser::containsNewLine(size_t startOffset, size_t endOffset) const
 {
   std::string_view source = std::string_view(peek().codeLocation().src).substr(startOffset, endOffset - startOffset);
   return std::any_of(source.begin(), source.end(), [](char c) { return c == '\n'; });
+}
+
+bool StlParser::containsBlankLine(size_t startOffset, size_t endOffset) const
+{
+  std::string_view source = std::string_view(peek().codeLocation().src).substr(startOffset, endOffset - startOffset);
+  return std::count(source.begin(), source.end(), '\n') > 1;
+}
+
+void StlParser::collectAttachedComments(std::vector<StlToken>& bucket)
+{
+  while (check(StlTokenType::comment))
+  {
+    const auto& next = consume(StlTokenType::comment, {"expecting comment"});
+    if (!bucket.empty() && containsBlankLine(bucket.back().codeLocation().offset, next.codeLocation().offset))
+    {
+      bucket.clear();
+    }
+    bucket.push_back(next);
+  }
 }
 
 }  // namespace sen::lang

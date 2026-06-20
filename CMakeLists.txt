@@ -69,6 +69,7 @@ add_subdirectory(components/py)
 add_subdirectory(components/influx)
 add_subdirectory(components/logmaster)
 add_subdirectory(components/rest)
+add_subdirectory(components/jsonrpc)
 add_subdirectory(components/tracy)
 
 # Python bindings under libs/db
