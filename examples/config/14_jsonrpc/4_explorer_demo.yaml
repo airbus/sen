@@ -1,0 +1,178 @@
+# $schema: ../base/schema.json
+#
+# Web-explorer showcase config. Loads jsonrpc + the web_explorer backend, and stands up a
+# heterogeneous object graph across four packages on five buses, picked to exercise the
+# features the new explorer surfaces:
+#
+#   - school     — varied class hierarchy (Classroom / Teacher / Student) with dynamic
+#                  floats, variants, methods, and events. Two classrooms on two buses
+#                  to drive the cross-bus interest beat.
+#   - aircrafts  — the typical "real" data model people show up with; one writable speed
+#                  property each and three instances for the fleet feel.
+#   - shapes     — writable bool (frozen) + writable enum (color) + variant geometry +
+#                  collision events. A ShapeListener with a multi-arg method.
+#   - fibonacci  — Manager + Workers; `computeFibonacci(n)` is the slow-method beat
+#                  (large n takes seconds to return).
+#
+# Run from the build directory (inside sen-dev):
+#
+#     ./bin/sen run ../../examples/config/14_jsonrpc/4_explorer_demo.yaml
+#
+# Then open http://127.0.0.1:8080/explorer/ in a browser.
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+  - name: webexplorer
+
+build:
+  # ---------------------------------------------------------------------------------------
+  # School: two classrooms on two buses. Each Classroom auto-creates one Teacher and
+  # `defaultSize` Students on `studentsBus`. Gives the Overview a populated section
+  # of Students plus a smaller Teacher / Classroom mix.
+  # ---------------------------------------------------------------------------------------
+  - name: schoolComponent
+    group: 3
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 6
+        createTeacher: true
+      - name: secondGrade
+        class: school.ClassroomImpl
+        studentsBus: school.secondary
+        bus: school.secondary
+        defaultSize: 8
+        createTeacher: true
+
+  # ---------------------------------------------------------------------------------------
+  # Aircrafts: three DummyAircraft on world.fleet with different starting speeds. The
+  # rpr.Aircraft base carries entityType / alternateEntityType / entityIdentifier; one
+  # entityType is anchored so the second / third instances stay readable.
+  # ---------------------------------------------------------------------------------------
+  - name: fleetComponent
+    group: 3
+    freqHz: 30
+    imports: [aircrafts]
+    objects:
+      - class: aircrafts.DummyAircraftImpl
+        name: alpha
+        bus: world.fleet
+        speed: 180
+        entityType: &fleetType
+          entityKind: 1
+          domain: 2
+          countryCode: 198
+          category: 1
+          subcategory: 3
+          specific: 0
+          extra: 0
+        alternateEntityType: *fleetType
+        entityIdentifier:
+          entityNumber: 1
+          federateIdentifier:
+            siteID: 1
+            applicationID: 1
+      - class: aircrafts.DummyAircraftImpl
+        name: bravo
+        bus: world.fleet
+        speed: 240
+        entityType: *fleetType
+        alternateEntityType: *fleetType
+        entityIdentifier:
+          entityNumber: 2
+          federateIdentifier:
+            siteID: 1
+            applicationID: 1
+      - class: aircrafts.DummyAircraftImpl
+        name: charlie
+        bus: world.fleet
+        speed: 310
+        entityType: *fleetType
+        alternateEntityType: *fleetType
+        entityIdentifier:
+          entityNumber: 3
+          federateIdentifier:
+            siteID: 1
+            applicationID: 1
+
+  # ---------------------------------------------------------------------------------------
+  # Shapes: three Shapes (one of each geometry, three colors) plus a ShapeListener. The
+  # Shape impl moves the position and emits `collidedWithWall` events; `frozen` and
+  # `color` are writable so the editor / method-call beats have meaningful targets.
+  # ---------------------------------------------------------------------------------------
+  - name: shapesComponent
+    group: 3
+    freqHz: 5
+    imports: [shapes]
+    objects:
+      - class: shapes.ShapeImpl
+        name: blueCircle
+        bus: world.shapes
+        color: blue
+        x: 50.0
+        y: 50.0
+        geometry:
+          type: Circle
+          value:
+            radius: 10
+      - class: shapes.ShapeImpl
+        name: redTriangle
+        bus: world.shapes
+        color: red
+        x: 15.0
+        y: 22.0
+        geometry:
+          type: Triangle
+          value:
+            side: 4
+      - class: shapes.ShapeImpl
+        name: greenRectangle
+        bus: world.shapes
+        color: green
+        x: 40.0
+        y: 40.0
+        geometry:
+          type: Rectangle
+          value:
+            width: 20
+            height: 10
+      - class: shapes.ShapeListenerImpl
+        name: listener
+        bus: world.shapes
+
+  # ---------------------------------------------------------------------------------------
+  # Fibonacci: Manager + two Workers on compute.fib. `computeFibonacci(n)` is the
+  # slow-method showcase — large `n` takes seconds to return, which is the only beat
+  # in the script that needs a method call you can visibly wait on.
+  # ---------------------------------------------------------------------------------------
+  - name: managerComponent
+    group: 3
+    freqHz: 30
+    imports: [fibonacci]
+    objects:
+      - class: fibonacci.FibonacciManager
+        name: fibManager
+        workersBus: compute.fib
+        bus: compute.fib
+  - name: workerComponentA
+    group: 3
+    freqHz: 30
+    imports: [fibonacci]
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: compute.fib
+  - name: workerComponentB
+    group: 3
+    freqHz: 30
+    imports: [fibonacci]
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: compute.fib

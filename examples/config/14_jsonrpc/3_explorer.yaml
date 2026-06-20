@@ -1,0 +1,17 @@
+# $schema: ../base/schema.json
+#
+# Minimal config that loads the jsonrpc component side-by-side with the web_explorer backend
+# component. The backend subscribes to local.jsonrpc_control, finds the StaticFileServer,
+# and registers a placeholder HTML bundle at /explorer (real frontend bundle is wired in a
+# later pass). Smoke test:
+#
+#   sen run examples/config/14_jsonrpc/3_explorer.yaml &
+#   curl -s http://127.0.0.1:8080/explorer/ | head
+#
+# Should print the placeholder "<!doctype html><html>..." page.
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+  - name: webexplorer

@@ -23,6 +23,10 @@
 #ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
 #  include "builtin_configs/explorer.h"
 #endif
+#ifdef SEN_CLI_RUN_HAS_WEB_EXPLORER_PRESET
+#  include "browser_open.h"
+#  include "builtin_configs/web_explorer.h"
+#endif
 
 // cli11
 #include <CLI/App.hpp>
@@ -30,6 +34,7 @@
 #include <CLI/Validators.hpp>
 
 // std
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
@@ -37,6 +42,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <tuple>
 
 namespace
@@ -50,7 +56,13 @@ struct RunArgs
   bool startStop = false;
   std::string preset;
   bool printConfig = false;
+  bool noBrowser = false;
 };
+
+constexpr auto webExplorerUrl = "http://127.0.0.1:8080/explorer/";
+constexpr auto webExplorerHost = "127.0.0.1";
+constexpr int webExplorerPort = 8080;
+constexpr auto webExplorerReadyTimeout = std::chrono::seconds(15);
 
 [[nodiscard]] bool replace(std::string& str, std::string_view from, std::string_view to)
 {
@@ -99,6 +111,13 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   if (!presetMatched && args->preset == "explorer")
   {
     presetContents = sen::decompressSymbolToString(explorer, explorerSize);
+    presetMatched = true;
+  }
+#endif
+#ifdef SEN_CLI_RUN_HAS_WEB_EXPLORER_PRESET
+  if (!presetMatched && args->preset == "web-explorer")
+  {
+    presetContents = sen::decompressSymbolToString(web_explorer, web_explorerSize);
     presetMatched = true;
   }
 #endif
@@ -160,6 +179,30 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
       sen::kernel::Kernel::registerTerminationHandler();
     }
     sen::kernel::Kernel kernel(bootloader->getConfig());
+
+#ifdef SEN_CLI_RUN_HAS_WEB_EXPLORER_PRESET
+    // Detached helper for the web-explorer preset: wait for the jsonrpc listener to come
+    // up, then hand the URL to the user's default browser. Print the URL unconditionally
+    // so a headless user (no display, --no-browser, or launcher failure) still sees it.
+    if (args->preset == "web-explorer")
+    {
+      printf("Web Explorer at %s\n", webExplorerUrl);
+      fflush(stdout);
+      if (!args->noBrowser)
+      {
+        std::thread(
+          []
+          {
+            if (sen::cli_run::waitForTcpListening(webExplorerHost, webExplorerPort, webExplorerReadyTimeout))
+            {
+              sen::cli_run::openInBrowser(webExplorerUrl);
+            }
+          })
+          .detach();
+      }
+    }
+#endif
+
     exitCode = kernel.run();
   }
   catch (const std::runtime_error& err)
@@ -217,7 +260,7 @@ int runApp(int argc, char* argv[])
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
 #if defined(SEN_CLI_RUN_HAS_SHELL_PRESET) || defined(SEN_CLI_RUN_HAS_REPLAY_PRESET) ||                                 \
-  defined(SEN_CLI_RUN_HAS_EXPLORER_PRESET)
+  defined(SEN_CLI_RUN_HAS_EXPLORER_PRESET) || defined(SEN_CLI_RUN_HAS_WEB_EXPLORER_PRESET)
   app.add_option("--preset", args->preset, "Preset name")
     ->check(CLI::IsMember({
 #  ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
@@ -229,9 +272,15 @@ int runApp(int argc, char* argv[])
 #  ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
       "explorer",
 #  endif
+#  ifdef SEN_CLI_RUN_HAS_WEB_EXPLORER_PRESET
+      "web-explorer",
+#  endif
     }));
 #endif
   app.add_flag("--start-stop", args->startStop, "Stop execution after all components are running");
+#ifdef SEN_CLI_RUN_HAS_WEB_EXPLORER_PRESET
+  app.add_flag("--no-browser", args->noBrowser, "With --preset web-explorer: don't auto-open the URL in a browser");
+#endif
   app.add_flag("--print-config", args->printConfig, "Print the configuration that will be used");
 
   CLI11_PARSE(app, argc, argv)

@@ -168,6 +168,7 @@ nav:
   - Components:
       - components/index.md
       - Explorer: components/explorer.md
+      - Web Explorer: components/web_explorer.md
       - Shell: components/shell.md
       - Influx: components/influx.md
       - Python: components/py.md

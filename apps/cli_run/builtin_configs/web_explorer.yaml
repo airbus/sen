@@ -1,0 +1,9 @@
+load:
+  - name: ether
+    group: 1
+  - name: jsonrpc
+    group: 2
+    address: "0.0.0.0"
+    port: 8080
+  - name: webexplorer
+    group: 2

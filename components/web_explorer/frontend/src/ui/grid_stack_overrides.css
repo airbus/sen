@@ -1,0 +1,8 @@
+/* Default placeholder is rgba(0,0,0,.1) which is invisible on dark surfaces.
+ * !important is needed because gridstack's rule has the same specificity but loads first. */
+.grid-stack-placeholder > .placeholder-content {
+  background-color: color-mix(in oklch, var(--accent) 22%, transparent) !important;
+  border: 2px dashed color-mix(in oklch, var(--accent) 70%, transparent) !important;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+}

@@ -79,8 +79,10 @@ independence while providing low-overhead, full introspection and an extensible 
 - *Shell* for CLI interaction, with auto-completion, introspection, and remote connectivity.
 - *[Grafana](https://grafana.com/) visualization* via the [InfluxDB](https://www.influxdata.com/) component.
 - *Tracer* based on the excellent [Tracy](https://github.com/wolfpld/tracy) frame-based profiler.
-- *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots).
-- *REST API Server* for interfacing external (non-Sen) systems.
+- *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots),
+  available as either a native desktop window or a browser-based Web Explorer.
+- *REST API Server* or *JSON-RPC over WebSocket* for interfacing external (non-Sen) systems,
+  with an in-tree TypeScript client (`@sen/client`) for browser / Node.js consumers.
 
 **💻 Implementation**
 

@@ -190,33 +190,60 @@ exit 0"
   file(APPEND ${_lic_page} "original authors:\n")
   file(APPEND ${_lic_page} "\n")
 
-  set(licenses_dir ${PROJECT_SOURCE_DIR}/build/foss_licenses)
+  # foss_licenses layout: top level is the consumer component slug (mcp_gateway, web_explorer, ...),
+  # the per-component subdir holds one dir per third-party dep with its LICENSE files. The
+  # `sen_internal_bake_npm_licenses` helper writes here; install.cmake ships the same tree.
+  set(licenses_dir ${CMAKE_BINARY_DIR}/foss_licenses)
 
   if(EXISTS "${licenses_dir}")
     file(
-      GLOB sources_list
+      GLOB component_dirs
       LIST_DIRECTORIES true
       ${licenses_dir}/*
     )
-    foreach(dir ${sources_list})
-      if(IS_DIRECTORY ${dir})
-        get_filename_component(dep_name ${dir} NAME)
-        file(APPEND ${_lic_page} "## ${dep_name}\n")
-
+    foreach(component_dir ${component_dirs})
+      if(IS_DIRECTORY ${component_dir})
         file(
-          GLOB_RECURSE licenses_list
-          LIST_DIRECTORIES false
-          ${dir}/*
+          GLOB dep_dirs
+          LIST_DIRECTORIES true
+          ${component_dir}/*
         )
-        foreach(license ${licenses_list})
-          get_filename_component(lic_name ${license} NAME)
-          file(READ ${license} lic_content)
+        # Skip empty component dirs so the page doesn't get a header with no body underneath.
+        set(_has_deps FALSE)
+        foreach(dep_dir ${dep_dirs})
+          if(IS_DIRECTORY ${dep_dir})
+            set(_has_deps TRUE)
+            break()
+          endif()
+        endforeach()
+        if(NOT _has_deps)
+          continue()
+        endif()
 
-          file(APPEND ${_lic_page} "\n")
-          file(APPEND ${_lic_page} "```text title=\"${lic_name}\"\n")
-          file(APPEND ${_lic_page} "${lic_content}\n")
-          file(APPEND ${_lic_page} "```\n")
-          file(APPEND ${_lic_page} "\n")
+        get_filename_component(component_name ${component_dir} NAME)
+        file(APPEND ${_lic_page} "## ${component_name}\n\n")
+
+        foreach(dep_dir ${dep_dirs})
+          if(IS_DIRECTORY ${dep_dir})
+            get_filename_component(dep_name ${dep_dir} NAME)
+            file(APPEND ${_lic_page} "### ${dep_name}\n")
+
+            file(
+              GLOB_RECURSE licenses_list
+              LIST_DIRECTORIES false
+              ${dep_dir}/*
+            )
+            foreach(license ${licenses_list})
+              get_filename_component(lic_name ${license} NAME)
+              file(READ ${license} lic_content)
+
+              file(APPEND ${_lic_page} "\n")
+              file(APPEND ${_lic_page} "```text title=\"${lic_name}\"\n")
+              file(APPEND ${_lic_page} "${lic_content}\n")
+              file(APPEND ${_lic_page} "```\n")
+              file(APPEND ${_lic_page} "\n")
+            endforeach()
+          endif()
         endforeach()
       endif()
     endforeach()
