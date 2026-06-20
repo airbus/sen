@@ -25,8 +25,8 @@ by default.
 The `sen::db` API uses a cursor model: open the recording, seek to a position, and iterate forward
 or backward. The replayer component wraps this with real-time clock synchronisation.
 
-For scripted post-processing, Sen ships Python bindings that expose the same cursor API - see the
-[Recorder example](../../examples/config/6_recorder/readme.md) for a working script.
+For scripted post-processing, Sen ships [Python bindings](db_python_bindings.md) that expose the
+same cursor API.
 
 ## Writing a recording
 
