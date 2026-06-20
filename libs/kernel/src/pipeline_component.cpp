@@ -18,6 +18,7 @@
 #include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_registry.h"
+#include "sen/core/obj/native_object.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/kernel_config.h"
@@ -259,6 +260,23 @@ void PipelineComponent::validateConfig(const CustomTypeRegistry& reg) const
 
   for (const auto& obj: config_.objects)
   {
+    // Both names set (bus-published) or both empty (not bus-published). A half-empty
+    // address would otherwise be silently dropped at connection time.
+    const bool hasSession = !obj.bus.sessionName.empty();
+    const bool hasBus = !obj.bus.busName.empty();
+    if (hasSession != hasBus)
+    {
+      std::string err;
+      err.append("object '");
+      err.append(obj.name);
+      err.append("' has an incomplete bus address (sessionName='");
+      err.append(obj.bus.sessionName);
+      err.append("', busName='");
+      err.append(obj.bus.busName);
+      err.append("'); both must be set, or both omitted");
+      throw std::runtime_error(err);
+    }
+
     auto basicType = reg.get(obj.className);
     if (!basicType)
     {

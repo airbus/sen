@@ -319,3 +319,41 @@ TEST(NativeObjectProxy, RemoveTypedConnectionFallback)
 
   EXPECT_TRUE(ownerTriggered);
 }
+
+/// @test
+/// Removing a property-change connection while a work item is still queued must not crash
+/// and must not deliver the callback on drain.
+TEST(NativeObjectProxy, RemoveDuringEmitNoCrashAndCallbackInvalidated)
+{
+  const ProxyTestFixture fixture;
+  const auto* metaClass = example_class::ExampleClassInterface::meta().type();
+  const auto* propertyInfo = metaClass->searchPropertyByName("prop1");
+
+  bool callbackTriggered = false;
+  {
+    auto guard = fixture.proxy->onPropertyChangedUntyped(
+      propertyInfo,
+      EventCallback<VarList>(fixture.getQueue(), [&](const auto&, const auto&) { callbackTriggered = true; }));
+
+    // Positive control. Without it the assertion below also passes for a connection that
+    // was never wired up, or a property lookup that returned the wrong member.
+    fixture.owner->setNextProp1("control_emit");
+    fixture.owner->commit(TimeStamp {100});
+    fixture.proxy->drainInputs();
+    while (fixture.getQueue()->executeAll())
+    {
+    }
+    ASSERT_TRUE(callbackTriggered);
+    callbackTriggered = false;
+
+    fixture.owner->setNextProp1("first_emit");
+    fixture.owner->commit(TimeStamp {200});
+    fixture.proxy->drainInputs();
+  }  // guard destructs -> remove runs while the work item is still queued
+
+  while (fixture.getQueue()->executeAll())
+  {
+  }
+
+  EXPECT_FALSE(callbackTriggered);
+}
