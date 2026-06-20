@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+coverage/
+src/generated/
