@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>@sen/client browser smoke</title>
+  <style>
+    body { font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 720px; margin: 2em auto; padding: 0 1em; }
+    h1 { font-size: 16px; }
+    pre { background: #f4f4f4; padding: 1em; border-radius: 4px; overflow: auto; }
+    .err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>@sen/client browser smoke</h1>
+  <p>
+    The same hello-world from the README, loaded in a browser via the built
+    <code>dist/index.js</code>. Run a Sen with the co-located
+    <code>animals.yaml</code> on <code>ws://127.0.0.1:8080</code> before opening this page.
+    See <a href="./README.md">README</a> for the full setup.
+  </p>
+  <pre id="log"></pre>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@sen/client": "../../dist/index.js"
+      }
+    }
+  </script>
+  <script type="module">
+    import { connect } from "@sen/client";
+
+    const logEl = document.getElementById("log");
+    const log = (msg, cls) => {
+      const line = document.createElement("span");
+      if (cls) line.className = cls;
+      line.textContent = msg + "\n";
+      logEl.appendChild(line);
+    };
+
+    try {
+      log("connecting to ws://127.0.0.1:8080...");
+      const client = await connect({ url: "ws://127.0.0.1:8080" });
+      log("connected.");
+
+      const interest = await client.declareInterest({
+        name: "cats",
+        query: "SELECT animals.Cat FROM my.tutorial",
+      });
+
+      interest.onObjectAdded(async (cat) => {
+        log(`got ${cat.className} named ${cat.name}`);
+        cat.onPropertyChanged("position", (pos) => {
+          log(`position: x=${pos.x.value} ${pos.x.unit.abbreviation}, y=${pos.y.value} ${pos.y.unit.abbreviation}`);
+        });
+        await cat.invoke("jumpToLocation", { x: 42, y: 17 });
+      });
+
+      // Hold for a few seconds so subscribed updates arrive, then clean up.
+      await new Promise((r) => setTimeout(r, 3_000));
+      await interest.release();
+      client.close();
+      log("done.");
+    } catch (err) {
+      log("ERROR: " + (err?.message ?? String(err)), "err");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Sen YAML config for the reconnect integration test. Minimal surface is enough to verify
+# that an interest re-establishes after the server is bounced: one `inheritance.MyClass`
+# instance on `test.primary`.
+#
+# Port 8081 so it can run alongside the suite-wide Sen on 8080 without colliding (the
+# reconnect test owns its own subprocess; the globalSetup Sen stays up the whole time).
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8081
+
+build:
+  - name: primaryComponent
+    group: 3
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - name: instance1
+        class: my_package.MyClassImpl
+        prop1: instance1-static
+        bus: test.primary

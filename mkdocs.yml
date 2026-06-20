@@ -176,6 +176,7 @@ nav:
       - Log Master: components/logmaster.md
       - REST: components/rest.md
       - JSON-RPC: components/jsonrpc.md
+      - JSON-RPC TypeScript Client: components/jsonrpc_ts_client.md
       - Tracy: components/tracy.md
   - Guides:
       - Working with objects: howto_guides/objects.md
