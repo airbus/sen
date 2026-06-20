@@ -1,0 +1,406 @@
+import "stl/sen/kernel/type_specs.stl"
+
+package sen.components.jsonrpc;
+
+// -- property-value pair (STL has no map<>; clients re-key on receipt) --
+
+// Per-property changed value. The value type is decided by the addressed kernel object,
+// not by JSON-RPC, so STL can't statically describe it.
+struct PropertyValuePair
+{
+  propertyName : string,  // property member name
+  value        : string   // JSON-encoded SenValue
+}
+sequence<PropertyValuePair> PropertyValueList;
+
+// -- interest creation --
+
+// Wildcard arm of MemberSelector: matches every member of the relevant kind.
+// Wire shape: `{type: "WildcardSelection", value: {}}`.
+struct WildcardSelection
+{
+}
+
+// Named arm of MemberSelector: matches only the listed members.
+// Wire shape: `{type: "NamedSelection", value: {memberNames: [...]}}`.
+struct NamedSelection
+{
+  memberNames : sen.kernel.StringList  // member names to match
+}
+
+// Selector for properties or events in a SubscribeBlock. Absent = no auto-subscribe;
+// WildcardSelection = "*"; NamedSelection = explicit list.
+variant MemberSelector
+{
+  WildcardSelection,
+  NamedSelection
+}
+
+optional<MemberSelector> MaybeMemberSelector;
+optional<f64>            MaybeRateHz;
+optional<bool>           MaybeFlag;
+
+// Pre-subscription block bundled into createInterest. Wires the listed property /
+// event subscriptions on every matched object -- including ones that arrive later.
+//
+// Wire shape mirrors the typed STL representation exactly: each `MaybeMemberSelector`
+// is either omitted (no auto-subscribe), `null`, or one of the typed variant arms
+// (`{type: "WildcardSelection", value: {}}` or `{type: "NamedSelection", value: {memberNames:
+// [...]}}`); `maxRateHz` is an optional positive number. Strict alignment with the typed
+// surface lets the dispatcher's uniform meta-dispatch path consume the wire directly via
+// `fromJson`, without a per-method translation step.
+struct SubscribeBlock
+{
+  properties : MaybeMemberSelector,  // which properties to auto-subscribe to (or none)
+  events     : MaybeMemberSelector,  // which events to auto-subscribe to (or none)
+  maxRateHz  : MaybeRateHz           // optional throttle cap shared across the wired subscriptions
+}
+
+optional<SubscribeBlock> MaybeSubscribeBlock;
+
+// -- added-object entry for interestUpdate notifications --
+
+// One object newly entering an interest's match set.
+struct AddedObjectEntry
+{
+  objectName         : string,             // name of the newly-matched object
+  qualifiedClassName : string,             // package-qualified class name of the object
+  currentValues      : PropertyValueList   // initial values of pre-subscribed properties (empty if none wired)
+}
+sequence<AddedObjectEntry> AddedObjectList;
+
+// -- listObjects result --
+
+// One entry of listObjects' result.
+struct ObjectInfo
+{
+  objectName         : string,  // object name within the interest's match set
+  qualifiedClassName : string   // package-qualified class name of the object
+}
+sequence<ObjectInfo> ObjectInfos;
+
+// -- getObjectsBatchState result --
+
+// Optional list of object names. Absent on the wire (or `null`) selects every object currently
+// in the addressed interest's match set; present limits the read to the listed names.
+optional<sen.kernel.StringList> MaybeStringList;
+
+// Per-property read error. Used when the caller-supplied `propertyNames` includes a name that
+// doesn't exist on a given object's class, or when the accessor itself throws. Carried in a
+// separate list from successful reads so a property literally named `error` can never collide
+// with the failure envelope.
+struct PropertyError
+{
+  propertyName : string,  // name from the caller's `propertyNames` list that could not be read
+  error        : string   // human-readable reason (e.g. "unknown property")
+}
+sequence<PropertyError> PropertyErrorList;
+
+// Per-object snapshot returned by `getObjectsBatchState`. `properties` carries successful reads
+// (one entry per property name resolved against the object's class hierarchy); `errors` is
+// empty when nothing failed for this object.
+struct ObjectState
+{
+  objectName         : string,             // object name within the interest's match set
+  qualifiedClassName : string,             // package-qualified class name at read time
+  properties         : PropertyValueList,  // resolved property values; empty when caller's filter matched nothing
+  errors             : PropertyErrorList   // per-property failures; empty when none occurred
+}
+sequence<ObjectState> ObjectStateList;
+
+// -- topology (sessions + their buses) --
+
+// One discovered session and the buses currently detected inside it. Names are opaque
+// strings from the kernel's session-discovery surface.
+struct SessionInfo
+{
+  name  : string,                  // session name
+  buses : sen.kernel.StringList    // bus names currently detected in this session
+}
+sequence<SessionInfo> SessionInfoList;
+
+// -- identity (per-connection) --
+
+// Identity of the connected client. Set once on connect by the dispatcher from the
+// WebSocket upgrade authenticator. Read-only externally. Other components / admin tools
+// can SELECT * FROM local.jsonrpc to enumerate currently-connected clients.
+struct Identity
+{
+  subject : string  // authenticated subject identifier (e.g. user / service principal)
+}
+
+// -- type lookup result --
+
+// Bundled return of getType: always the CustomTypeSpec, plus the JSON-Schema fragment
+// when the caller opted in. `schema` is empty when not requested.
+struct TypeLookupResult
+{
+  spec   : sen.kernel.CustomTypeSpec,
+  schema : string                       // JSON-encoded schema fragment; "" when withSchema=false
+}
+
+// JsonRpcServer -- the JSON-RPC over WebSocket external API, expressed as a Sen class.
+// One instance per connected client lives on `local.jsonrpc`. Methods are the RPC surface;
+// events are the server-pushed notifications. Wire framing (envelope, id, error mapping)
+// is the dispatcher's job, not this class's.
+//
+// Wire-shape convention: JSON-RPC named params (`"params": { ... }`) use the same field
+// names as the STL method's argument list. The dispatcher treats every method's params
+// object as `{ <argName>: <value>, ... }` and walks `method->getArgs()` to build the
+// VarList in declaration order. That lets the inbound dispatch path go through Sen's
+// meta machinery with no per-method translation.
+class JsonRpcServer
+{
+  // Identity of the connected client.
+  var identity : Identity [static_no_config];
+
+  // -- health + introspection -- `[const]` so the kernel knows these don't mutate.
+
+  // Liveness probe.
+  //
+  // @return the literal string "pong".
+  fn ping() -> string [const];
+
+  // -- topology (sessions + their buses) --
+
+  // Snapshot of the currently-detected sessions, each with the buses currently detected
+  // inside it. The kernel's discovery surface is asynchronous; this returns whatever was
+  // visible at the moment of the call. Use `subscribeTopology` for live updates.
+  //
+  // @return one SessionInfo per known session.
+  fn listTopology() -> SessionInfoList [const];
+
+  // Sticky subscription to topology changes. Idempotent per connection. Wires a
+  // `topologyChanged` push immediately with the current full snapshot, then again on every
+  // session or bus add/remove. Cancel with `unsubscribeTopology`; the subscription is also
+  // torn down automatically when the connection closes.
+  fn subscribeTopology();
+
+  // Cancel the topology subscription created by `subscribeTopology`. Idempotent.
+  fn unsubscribeTopology();
+
+  // Returns the qualified names of every custom type registered with the kernel. Catalog only --
+  // pair with `getType` to fetch a chosen spec. The bundled-with-objects path on
+  // `interestUpdate.types` remains the primary way clients learn about types they observe.
+  //
+  // @return list of package-qualified type names.
+  fn getTypes() -> sen.kernel.StringList [const];
+
+  // Look up one type by qualified name. Returns the CustomTypeSpec; when `withSchema` is
+  // true, also returns the JSON-Schema fragment for the type (empty string otherwise).
+  // Dependency chasing is the client's job: each schema fragment carries `$ref` strings
+  // keyed by qualified name, resolved against whatever schema cache the client maintains.
+  //
+  // @param qualifiedName the package-qualified type name to look up.
+  // @param withSchema    when true (default false), `result.schema` carries the rendered fragment.
+  // @return spec + optional schema fragment.
+  fn getType(qualifiedName : string, withSchema : MaybeFlag) -> TypeLookupResult [const];
+
+  // -- interests --
+
+  // Register a sticky interest defined by an STL query. Optional `subscribe` block
+  // pre-subscribes to properties/events on every matched object, including ones that
+  // arrive later. When `withSchemas` is true, every subsequent `interestUpdate` for this
+  // interest carries the JSON-Schema fragment for each previously-unseen type alongside
+  // the existing `CustomTypeSpec`. Re-registering the same name = invalidParams.
+  //
+  // Wire-ordering contract: the initial `interestUpdate.added` for the current match set
+  // is emitted *before* this RPC's response lands on the wire. Clients must accept pushes
+  // for an interest whose response has not yet been observed.
+  //
+  // @param interestName unique per-connection name for the new interest.
+  // @param query        STL query defining the match set.
+  // @param subscribe    optional pre-subscription block.
+  // @param withSchemas  when true (default false), populates `interestUpdate.typeSchemas`.
+  fn createInterest(interestName : string,
+                    query        : string,
+                    subscribe    : MaybeSubscribeBlock,
+                    withSchemas  : MaybeFlag);
+
+  // Drop an interest and every subscription living under it.
+  //
+  // @param interestName the interest to release.
+  fn releaseInterest(interestName : string);
+
+  // List the names and classes of objects currently in an interest's match set.
+  //
+  // @param interestName the interest whose match set to enumerate.
+  // @return one ObjectInfo per matched object.
+  fn listObjects(interestName : string) -> ObjectInfos [const];
+
+  // -- read / write (Var-typed; JSON-encoded SenValue as a string) --
+
+  // Read a property's current value, synchronously.
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param propertyName property member name on that object.
+  // @return JSON-encoded SenValue as string.
+  fn getProperty(interestName : string, objectName : string, propertyName : string) -> string [const];
+
+  // Batched per-object snapshot. Walks the interest's match set in one pass instead of forcing
+  // the caller to issue N*M `getProperty` round-trips. Omitting `objectNames` reads every object
+  // currently matched; omitting `propertyNames` reads every property of each object (the class
+  // hierarchy is walked, so inherited members are included).
+  //
+  // Names from `objectNames` that aren't currently in the match set are silently skipped -- the
+  // caller compares its requested list against the returned `objectName`s to detect omissions.
+  // Names from `propertyNames` that don't exist on a given object's class are recorded per-object
+  // under `errors`, so a heterogeneous batch still returns useful partial results.
+  //
+  // Bounded: the call rejects with `invalidParams` when the resolved object set exceeds 512
+  // entries (either via an explicit `objectNames` list of that length, or via an implicit walk
+  // over a match set that has grown that large). Page the request by passing `objectNames`.
+  //
+  // @param interestName  owning interest.
+  // @param objectNames   optional subset of object names to read; absent = every matched object.
+  // @param propertyNames optional subset of property names to read; absent = every property of
+  //                      each object's class hierarchy.
+  // @return one `ObjectState` per resolved object, in the order they appear in the match set
+  //         (or the order of `objectNames` when provided, with missing names elided).
+  fn getObjectsBatchState(interestName  : string,
+                          objectNames   : MaybeStringList,
+                          propertyNames : MaybeStringList) -> ObjectStateList [const];
+
+  // Write a property's value (sugar over invoking the generated setter). Hand-routed in
+  // `Dispatcher::handleSetProperty`: the dispatcher issues `invokeUntyped` against the
+  // property's setter and wires the response through the kernel callback in a single tick.
+  // The typed `setPropertyImpl` override in the C++ `Server` exists only to satisfy the
+  // codegen-generated abstract base and is unreachable at runtime. See `architecture.md`
+  // "Method dispatch" for why this method (and `invoke`) bypass the generic meta path.
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param propertyName property member name on that object.
+  // @param value        JSON-encoded SenValue as string.
+  fn setProperty(interestName : string, objectName : string, propertyName : string, value : string);
+
+  // -- sticky subscriptions --
+
+  // Subscribe to propertyChanged notifications for one (interest, object, property).
+  // Sticky: persists across object churn; auto-rewires when the named object (re)enters
+  // the match set. Snapshot of the current value is delivered immediately after wiring.
+  //
+  // The throttle is per-object, shared across every property/event subscribed for the same object.
+  // An explicit `maxRateHz` overrides the current rate for the object; omitting it preserves
+  // whatever rate is already in effect (so adding a per-property sub doesn't accidentally retune
+  // existing subs back to unlimited).
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param propertyName property member name on that object.
+  // @param maxRateHz    optional throttle cap; absent = preserve current per-object rate.
+  fn subscribeProperty(interestName : string,
+                       objectName   : string,
+                       propertyName : string,
+                       maxRateHz    : MaybeRateHz);
+
+  // Cancel a property subscription previously created with subscribeProperty.
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param propertyName property member name on that object.
+  fn unsubscribeProperty(interestName : string, objectName : string, propertyName : string);
+
+  // Subscribe to eventTriggered notifications for one (interest, object, event).
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param eventName    event member name on that object.
+  fn subscribeEvent(interestName : string, objectName : string, eventName : string);
+
+  // Cancel an event subscription previously created with subscribeEvent.
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param eventName    event member name on that object.
+  fn unsubscribeEvent(interestName : string, objectName : string, eventName : string);
+
+  // Subscribe to every property and every event of one named object. Wildcard expansion
+  // against the object's actual class (including parent classes). Object must currently
+  // be in the match set; absent objects are invalidParams.
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param maxRateHz    optional throttle cap; absent = preserve current per-object rate.
+  fn subscribeAll(interestName : string, objectName : string, maxRateHz : MaybeRateHz);
+
+  // Cancel an all-members subscription previously created with subscribeAll.
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  fn unsubscribeAll(interestName : string, objectName : string);
+
+  // -- meta-invoke (positional JSON args, JSON result) --
+
+  // Call a method on a kernel object and await its return value. Hand-routed in
+  // `Dispatcher::handleInvoke`: validates the args, issues `invokeUntyped`, and wires the
+  // response through the kernel callback in a single tick. The typed `invokeImpl` override
+  // in the C++ `Server` exists only to satisfy the codegen-generated abstract base and is
+  // unreachable at runtime. See `architecture.md` "Method dispatch".
+  //
+  // @param interestName owning interest.
+  // @param objectName   object name within the interest's match set.
+  // @param methodName   method member name on that object.
+  // @param argsJson     JSON array as string (positional arguments). Named `argsJson` rather
+  //                     than `args` to dodge a codegen-emitted `auto args = ...` local that
+  //                     would shadow the parameter and produce a use-before-deduction error.
+  // @return JSON-encoded SenValue as string (the method's return value).
+  fn invoke(interestName : string,
+            objectName   : string,
+            methodName   : string,
+            argsJson     : string) -> string;
+
+  // -- notifications (emit::now from the dispatcher when the kernel-side guards fire) --
+
+  // Bundled per-object snapshot of changed properties. Per-object bundling, not
+  // per-property: any property change on one object lands in a single envelope.
+  //
+  // @param interestName the interest under which the object lives.
+  // @param objectName the object whose properties changed.
+  // @param values one entry per changed property in this delivery.
+  // @param timestamp source object's getLastCommitTime() at the moment of bundling.
+  event propertyChanged(interestName : string,
+                        objectName   : string,
+                        values       : PropertyValueList,
+                        timestamp    : TimeStamp);
+
+  // An event fired on one object in one interest. The event signature is decided by
+  // the source object's class, not by JSON-RPC.
+  //
+  // @param interestName the interest under which the source object lives.
+  // @param objectName the object that emitted the event.
+  // @param eventName the event member name.
+  // @param args JSON array as string (positional event arguments).
+  // @param timestamp source's emission time (EventInfo.creationTime).
+  event eventTriggered(interestName : string,
+                       objectName   : string,
+                       eventName    : string,
+                       args         : string,
+                       timestamp    : TimeStamp);
+
+  // Match-set delta for one interest. The dispatcher tracks knownTypes / knownSchemas per
+  // connection and only re-sends specs / schemas new to the client.
+  //
+  // @param interestName the interest whose match set changed.
+  // @param added objects newly entering the match set; `currentValues` is populated when
+  //              the originating createInterest `subscribe` block wired property subscriptions.
+  // @param removed names of objects newly leaving the match set.
+  // @param types CustomTypeSpec for every previously-unseen class in the delta.
+  // @param typeSchemas JSON-encoded object `{qualifiedName: schemaFragment, ...}` for every
+  //              previously-unseen-schema type. Empty string when the interest's
+  //              `withSchemas` flag is false.
+  event interestUpdate(interestName : string,
+                       added        : AddedObjectList,
+                       removed      : sen.kernel.StringList,
+                       types        : sen.kernel.CustomTypeSpecList,
+                       typeSchemas  : string);
+
+  // Full snapshot of the topology after a session or bus add/remove. Pushed once on
+  // `subscribeTopology` (with the current state) and again on every change. Snapshot form
+  // rather than deltas: topology changes are rare, and the snapshot keeps client logic
+  // trivial and idempotent.
+  //
+  // @param sessions every currently-detected session with its currently-detected buses.
+  event topologyChanged(sessions : SessionInfoList);
+}

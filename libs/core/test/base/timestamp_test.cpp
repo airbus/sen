@@ -175,6 +175,49 @@ TEST(Timestamp, to_local_string)
 }
 
 /// @test
+/// Check toUtcStringNs format mapping (RFC-3339, ns precision).
+TEST(Timestamp, to_utc_string_ns_epoch_and_post_epoch)
+{
+  const TimeStamp ts;
+  EXPECT_EQ(ts.toUtcStringNs(), "1970-01-01T00:00:00.000000000Z");
+
+  const TimeStamp ts2(Duration(std::chrono::nanoseconds(int64_t {1500000001})));
+  EXPECT_EQ(ts2.toUtcStringNs(), "1970-01-01T00:00:01.500000001Z");
+}
+
+/// @test
+/// Pre-epoch timestamps must format with a non-negative sub-second component and the correct
+/// whole-second boundary. Pre-fix this printed e.g. "...59.-500000000Z" or skipped seconds.
+TEST(Timestamp, to_utc_string_ns_pre_epoch_floor_divides_correctly)
+{
+  // -1.5s from epoch = 1969-12-31T23:59:58.500000000Z
+  const TimeStamp ts(Duration(std::chrono::nanoseconds(int64_t {-1500000000})));
+  EXPECT_EQ(ts.toUtcStringNs(), "1969-12-31T23:59:58.500000000Z");
+
+  // -1ns from epoch = 1969-12-31T23:59:59.999999999Z
+  const TimeStamp ts2(Duration(std::chrono::nanoseconds(int64_t {-1})));
+  EXPECT_EQ(ts2.toUtcStringNs(), "1969-12-31T23:59:59.999999999Z");
+}
+
+/// @test
+/// Sub-microsecond precision must survive the round-trip through the new ns formatter.
+TEST(Timestamp, to_utc_string_ns_sub_microsecond_precision)
+{
+  // 123 ns past epoch.
+  const TimeStamp ts(Duration(std::chrono::nanoseconds(int64_t {123})));
+  EXPECT_EQ(ts.toUtcStringNs(), "1970-01-01T00:00:00.000000123Z");
+}
+
+/// @test
+/// toUtcString pre-epoch should also produce a valid whole-second + fraction pair.
+TEST(Timestamp, to_utc_string_pre_epoch)
+{
+  // -1.5s -> 1969-12-31 23:59:58 500000
+  const TimeStamp ts(Duration(std::chrono::microseconds(int64_t {-1500000})));
+  EXPECT_EQ(ts.toUtcString(), "1969-12-31 23:59:58 500000");
+}
+
+/// @test
 /// Check make factory rejects malformed string inputs
 /// @requirements(SEN-1050)
 TEST(Timestamp, make_invalid)

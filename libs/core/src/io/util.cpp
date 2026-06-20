@@ -369,7 +369,28 @@ public:
         return;
       }
 
+      // KeyedVar's inner Var is held via shared_ptr; outer copies share the storage
+      // (Var copy is shallow over KeyedVar), so we must adapt in place - moving out
+      // would empty the inner for every other holder of the same outer KeyedVar.
       result_ = adaptVariant(*variantField->type, *std::get<1>(keyedVar), std::nullopt, useStrings_);
+      if (result_.isError())
+      {
+        return;
+      }
+
+      if (useStrings_)
+      {
+        // JSON wire form: `{type: "<qualifiedName>", value: <encoded>}`. Qualified name
+        // keeps tags unique across packages. Inner is copied (shared-pointee, as above).
+        const auto* custom = variantField->type->asCustomType();
+        std::string typeTag =
+          custom != nullptr ? std::string {custom->getQualifiedName()} : std::string {variantField->type->getName()};
+        VarMap map;
+        map.try_emplace("type", std::move(typeTag));
+        map.try_emplace("value", *std::get<1>(keyedVar));
+        var_ = std::move(map);
+      }
+      // Binary path: KeyedVar already adapted in place; no rewrap needed.
       return;
     }
 

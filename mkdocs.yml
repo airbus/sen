@@ -175,6 +175,7 @@ nav:
       - Ether: components/ether.md
       - Log Master: components/logmaster.md
       - REST: components/rest.md
+      - JSON-RPC: components/jsonrpc.md
       - Tracy: components/tracy.md
   - Guides:
       - Working with objects: howto_guides/objects.md

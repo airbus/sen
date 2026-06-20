@@ -49,6 +49,9 @@ class SenConan(ConanFile):
         "with_clang_tidy": [True, False],
         "with_coverage": [True, False],
         "with_docs": [True, False],
+        # TS-client build/test toolchain (node+npm via Conan); resolves to True in full mode iff
+        # jsonrpc itself is enabled. Off in basic/barebones unless explicitly turned on.
+        "with_jsonrpc_ts_client": ["auto", True, False],
         "sanitizer": ["none", "address", "thread"],
     }
     default_options = {
@@ -58,6 +61,7 @@ class SenConan(ConanFile):
         "with_clang_tidy": False,
         "with_coverage": False,
         "with_docs": False,
+        "with_jsonrpc_ts_client": "auto",
         "sanitizer": "none",
     }
 
@@ -72,6 +76,13 @@ class SenConan(ConanFile):
             return name in _BASIC_COMPONENTS
         return False  # barebones
 
+    def _is_jsonrpc_ts_client_enabled(self):
+        """Effective on/off for `with_jsonrpc_ts_client`. Auto resolves to: full mode AND jsonrpc enabled."""
+        val = str(self.options.with_jsonrpc_ts_client)
+        if val != "auto":
+            return val == "True"
+        return str(self.options.mode) == "full" and self._is_component_enabled("jsonrpc")
+
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
         self.tool_requires("cmake/3.28.1")
@@ -79,6 +90,11 @@ class SenConan(ConanFile):
         self.test_requires("gtest/1.17.0")
         if self.options.with_docs:
             self.tool_requires("doxygen/[>=1.15.0]")
+        if self._is_jsonrpc_ts_client_enabled():
+            # node+npm for the @sen/client toolchain (vite, vitest, tsc, integration tests
+            # against a spawned Sen subprocess). The C++ jsonrpc component does not need node;
+            # this dep is opt-in for people building or testing the TS client from source.
+            self.tool_requires("nodejs/22.20.0")
 
     def requirements(self):
         """Defines the dependencies of Sen."""
@@ -117,6 +133,10 @@ class SenConan(ConanFile):
         # tracy-only
         if self._is_component_enabled("tracy"):
             self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)
+
+        # jsonrpc-only (WebSocket transport)
+        if self._is_component_enabled("jsonrpc"):
+            self.requires("uwebsockets/20.71.0", options={"with_zlib": False, "with_libdeflate": False}, visible=False)
 
     def system_requirements(self):
         """SDL (pulled in by the explorer on Linux) requires libXext at the system level."""
