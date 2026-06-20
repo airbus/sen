@@ -650,3 +650,47 @@ TEST(ObjectFilter, Subscriber_RemoveWithInterestHandlesExpiredProvider)
 
   EXPECT_EQ(listener.providerToDrop, nullptr);
 }
+
+/// @test
+/// addSubscriber(..., notifyAboutExisting=true) seeds a newly-created provider's listener
+/// with the filter's current match set.
+TEST(ObjectFilter, Subscriber_NotifyAboutExistingTrueSeedsNewProvider)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  const auto interest = createEmptyInterest();
+
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  TestObjectFilter::ObjectSet set;
+  set.newObjects[obj->getId()] = obj;
+  set.currentObjects[obj->getId()] = obj;
+  filter.evaluate(set);
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, true);
+
+  ASSERT_EQ(listener.added.size(), 1U);
+  EXPECT_EQ(listener.added[0], obj->getId());
+
+  filter.removeSubscriber(interest, &listener, false);
+}
+
+/// @test
+/// addSubscriber(..., notifyAboutExisting=false) does not broadcast existing matches.
+TEST(ObjectFilter, Subscriber_NotifyAboutExistingFalseStaysSilent)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  const auto interest = createEmptyInterest();
+
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  TestObjectFilter::ObjectSet set;
+  set.newObjects[obj->getId()] = obj;
+  set.currentObjects[obj->getId()] = obj;
+  filter.evaluate(set);
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, false);
+
+  EXPECT_TRUE(listener.added.empty());
+
+  filter.removeSubscriber(interest, &listener, false);
+}

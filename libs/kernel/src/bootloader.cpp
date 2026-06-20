@@ -625,7 +625,11 @@ void Bootloader::pipeline(std::string_view name, const Var& data)
 
   KernelConfig::PipelineToLoad pipelineConfig;
   pipelineConfig.name = name;
-  pipelineConfig.imports = findElementAs<StringList>(map, "imports", "missing imports");
+  // A pipeline that does not declare imports simply imports nothing.
+  if (auto importsItr = map.find("imports"); importsItr != map.end())
+  {
+    pipelineConfig.imports = getCopyAs<StringList>(importsItr->second);
+  }
 
   fetchPipelineObjects(pipelineConfig, map);
   fetchPipelineExecPeriod(pipelineConfig, map);
