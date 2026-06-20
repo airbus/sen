@@ -5,11 +5,6 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-// generated
-#include "builtin_configs/explorer.h"
-#include "builtin_configs/replay.h"
-#include "builtin_configs/shell.h"
-
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/hash32.h"
@@ -19,38 +14,35 @@
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
 
+#ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
+#  include "builtin_configs/shell.h"
+#endif
+#ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+#  include "builtin_configs/replay.h"
+#endif
+#ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
+#  include "builtin_configs/explorer.h"
+#endif
+
 // cli11
 #include <CLI/App.hpp>
 #include <CLI/CLI.hpp>  // NOLINT (misc-include-cleaner): to correctly link
 #include <CLI/Validators.hpp>
 
-// os
-#ifdef WIN32
-#  include <windows.h>
-#endif
-
 // std
-#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <memory>
-#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <tuple>
-#include <vector>
 
-[[nodiscard]] bool replace(std::string& str, const std::string& from, const std::string& to)
+namespace
 {
-  size_t startPos = str.find(from);
-  if (startPos == std::string::npos)
-  {
-    return false;
-  }
-  str.replace(startPos, from.length(), to);
-  return true;
-}
+
+constexpr std::string_view happyFace = "☺";  // U+263A WHITE SMILING FACE
 
 struct RunArgs
 {
@@ -60,23 +52,24 @@ struct RunArgs
   bool printConfig = false;
 };
 
-void applyCustomConfiguration(sen::kernel::Bootloader* bootloader, const std::shared_ptr<RunArgs>& args)
+[[nodiscard]] bool replace(std::string& str, std::string_view from, std::string_view to)
 {
-  if (args->startStop)
+  const auto startPos = str.find(from);
+  if (startPos == std::string::npos)
   {
-    auto params = bootloader->getConfig().getParams();
-    params.runMode = sen::kernel::RunMode::startAndStop;
-    bootloader->getConfig().setParams(params);
+    return false;
   }
+  str.replace(startPos, from.length(), to);
+  return true;
 }
 
-std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<RunArgs>& args, CLI::App& app)
+std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<RunArgs>& args,
+                                                        [[maybe_unused]] CLI::App& app)
 {
   if (args->preset.empty())
   {
     auto bootloader = sen::kernel::Bootloader::fromYamlFile(args->configFile, args->printConfig);
 
-    // use the config file name as application name, if not specified
     if (bootloader->getConfig().getParams().appName.empty())
     {
       auto params = bootloader->getConfig().getParams();
@@ -84,27 +77,38 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
       bootloader->getConfig().setParams(params);
     }
 
-    applyCustomConfiguration(bootloader.get(), args);
-
+    if (args->startStop)
+    {
+      auto params = bootloader->getConfig().getParams();
+      params.runMode = sen::kernel::RunMode::startAndStop;
+      bootloader->getConfig().setParams(params);
+    }
     return bootloader;
   }
 
   std::string presetContents;
+  bool presetMatched = false;
+#ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
   if (args->preset == "shell")
   {
     presetContents = sen::decompressSymbolToString(shell, shellSize);
+    presetMatched = true;
   }
-  else if (args->preset == "explorer")
+#endif
+#ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
+  if (!presetMatched && args->preset == "explorer")
   {
     presetContents = sen::decompressSymbolToString(explorer, explorerSize);
+    presetMatched = true;
   }
-  else if (args->preset == "replay")
+#endif
+#ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+  if (!presetMatched && args->preset == "replay")
   {
     bool autoPlay = true;
-    std::string autoOpen = args->configFile.string();
+    const auto autoOpen = args->configFile.string();
 
-    auto remaining = app.remaining();
-    for (const auto& elem: remaining)
+    for (const auto& elem: app.remaining())
     {
       if (elem == "--stopped")
       {
@@ -115,8 +119,10 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
     presetContents = sen::decompressSymbolToString(replay, replaySize);
     std::ignore = replace(presetContents, "$autoOpen", autoOpen);
     std::ignore = replace(presetContents, "$autoPlay", autoPlay ? "true" : "false");
+    presetMatched = true;
   }
-  else
+#endif
+  if (!presetMatched)
   {
     std::string err;
     err.append("invalid preset '");
@@ -126,10 +132,22 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   }
 
   auto bootloader = sen::kernel::Bootloader::fromYamlString(presetContents, args->printConfig);
-  applyCustomConfiguration(bootloader.get(), args);
+  if (args->startStop)
+  {
+    auto params = bootloader->getConfig().getParams();
+    params.runMode = sen::kernel::RunMode::startAndStop;
+    bootloader->getConfig().setParams(params);
+  }
   return bootloader;
 }
 
+// Exit codes:
+//   0       success
+//   1       std::runtime_error escaped from the kernel
+//   2       std::logic_error escaped from the kernel
+//   3       other std::exception escaped from the kernel
+//   4       unknown exception escaped from the kernel
+//   other   kernel.run() returned a non-zero exit code (kernel-defined)
 [[nodiscard]] int runKernel(const std::shared_ptr<RunArgs>& args, CLI::App& app)
 {
   int exitCode = EXIT_FAILURE;
@@ -137,7 +155,6 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   {
     auto bootloader = makeBootloader(args, app);
 
-    // install the termination handler
     if (!bootloader->getConfig().getParams().crashReportDisabled)
     {
       sen::kernel::Kernel::registerTerminationHandler();
@@ -184,23 +201,8 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   }
 
   fputs("bye ", stdout);
-#if _WIN32
-  auto oldOutCp = GetConsoleOutputCP();
-  SetConsoleOutputCP(CP_UTF8);
-
-  auto oldCp = GetConsoleCP();
-  SetConsoleCP(CP_UTF8);
-
-  std::string happy = u8"\u263A";
-  fwrite(happy.data(), 1U, happy.length(), stdout);
-
-  SetConsoleCP(oldCp);
-  SetConsoleOutputCP(oldOutCp);
-#else
-  std::string happy = "\u263A";
-  fwrite(happy.data(), 1U, happy.length(), stdout);
-#endif
-  fputs("\n", stdout);
+  fwrite(happyFace.data(), 1U, happyFace.size(), stdout);
+  fputc('\n', stdout);
   return 0;
 }
 
@@ -214,7 +216,21 @@ int runApp(int argc, char* argv[])
   app.get_formatter()->column_width(35);
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
-  app.add_option("--preset", args->preset, "Preset name")->check(CLI::IsMember({"shell", "explorer", "replay"}));
+#if defined(SEN_CLI_RUN_HAS_SHELL_PRESET) || defined(SEN_CLI_RUN_HAS_REPLAY_PRESET) ||                                 \
+  defined(SEN_CLI_RUN_HAS_EXPLORER_PRESET)
+  app.add_option("--preset", args->preset, "Preset name")
+    ->check(CLI::IsMember({
+#  ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
+      "shell",
+#  endif
+#  ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+      "replay",
+#  endif
+#  ifdef SEN_CLI_RUN_HAS_EXPLORER_PRESET
+      "explorer",
+#  endif
+    }));
+#endif
   app.add_flag("--start-stop", args->startStop, "Stop execution after all components are running");
   app.add_flag("--print-config", args->printConfig, "Print the configuration that will be used");
 
@@ -222,6 +238,8 @@ int runApp(int argc, char* argv[])
 
   return runKernel(args, app);
 }
+
+}  // namespace
 
 int main(int argc, char* argv[])
 {

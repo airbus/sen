@@ -86,11 +86,11 @@ jobs:
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          # export ENABLE_EXAMPLES=true
-          export ENABLE_TESTS=true
-          export ENABLE_COVERAGE=${{ matrix.enable_coverage }}
-
-          conan install . -s:a build_type=${{ matrix.build_type }} --build=missing
+          # Test/coverage switches are Conan options (the ENABLE_* env vars were retired
+          # by the mode-driven build-configuration change).
+          conan install . -s:a build_type=${{ matrix.build_type }} --build=missing \
+            -o "sen/*:with_tests=True" \
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
           conan build . -s:a build_type=${{ matrix.build_type }}
 
       - name: Run tests
