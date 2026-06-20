@@ -105,23 +105,6 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
   return (name.find_first_of(packagePathSeparator) != std::string::npos);
 }
 
-[[nodiscard]] std::string computePackagePrefix(const std::vector<std::string>& path)
-{
-  std::string result;
-
-  for (const auto& item: path)
-  {
-    if (!result.empty())
-    {
-      result.append(packagePathSeparator);
-    }
-
-    result.append(item);
-  }
-
-  return result;
-}
-
 [[nodiscard]] std::optional<ConstTypeHandle<>> findQualifiedType(const std::string& name,
                                                                  const TypeSetContext& globalTypeSetContext) noexcept
 {
@@ -153,6 +136,14 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
 
 [[nodiscard]] bool isSingleWordAttribute(const StlAttribute& elem) { return elem.value.lexeme().empty(); }
 
+// `@param`/`@return`/`@throws` lines are dropped from the joined description; per-arg `@param`
+// text is captured by validateComments() before this stage runs.
+[[nodiscard]] bool isDocAnnotation(std::string_view lexeme)
+{
+  const auto firstNonSpace = lexeme.find_first_not_of(" \t");
+  return firstNonSpace != std::string_view::npos && lexeme[firstNonSpace] == '@';
+}
+
 [[nodiscard]] std::string generateDescription(const std::vector<StlToken>& tokens)
 {
   // early exit
@@ -169,6 +160,11 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
       continue;
     }
 
+    if (isDocAnnotation(token.lexeme()))
+    {
+      continue;
+    }
+
     if (!result.empty() && result.back() != ' ' && token.lexeme().front() != ' ')
     {
       result.append(" ");
@@ -176,7 +172,33 @@ void readFile(const std::filesystem::path& fileName, std::string& contents)
 
     result.append(token.lexeme());
   }
-  return result;
+
+  // Collapse internal whitespace runs to single spaces and trim trailing whitespace, so all
+  // generators see a normalized one-line description regardless of source spacing.
+  std::string normalized;
+  normalized.reserve(result.size());
+  bool inSpace = false;
+  for (char c: result)
+  {
+    if (c == ' ' || c == '\t')
+    {
+      if (!inSpace && !normalized.empty())
+      {
+        normalized.push_back(' ');
+        inSpace = true;
+      }
+    }
+    else
+    {
+      normalized.push_back(c);
+      inSpace = false;
+    }
+  }
+  if (!normalized.empty() && normalized.back() == ' ')
+  {
+    normalized.pop_back();
+  }
+  return normalized;
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -1275,6 +1297,20 @@ const TypeSet* StlResolver::resolve(const TypeSettings& settings)
   }
 
   return doReadTypesFile(fileName, fileNameToUse.string(), includePaths, globalTypeSetContext, settings);
+}
+
+std::string computePackagePrefix(const std::vector<std::string>& path)
+{
+  std::string result;
+  for (const auto& item: path)
+  {
+    if (!result.empty())
+    {
+      result.append(".");
+    }
+    result.append(item);
+  }
+  return result;
 }
 
 }  // namespace sen::lang

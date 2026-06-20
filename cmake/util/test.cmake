@@ -110,11 +110,16 @@ add_custom_command(
 # add_sen_unit_test_suite(
 #   ... test_args ...
 #   [LINK_DEPS <deps>]
+#   [EXTRA_PROPERTIES <prop1> <val1> [<prop2> <val2> ...]]
 # )
+#
+# EXTRA_PROPERTIES are forwarded to gtest_discover_tests' PROPERTIES list,
+# applied to every discovered test in this suite. Use it for ctest properties
+# like RESOURCE_LOCK, RUN_SERIAL, TIMEOUT.
 function(add_sen_unit_test_suite test_name)
   set(_options FLAKY)
   set(_one_value_args)
-  set(_multi_value_args LINK_DEPS)
+  set(_multi_value_args LINK_DEPS EXTRA_PROPERTIES)
 
   cmake_parse_arguments(
     _arg
@@ -164,13 +169,23 @@ function(add_sen_unit_test_suite test_name)
     list(APPEND environment "TSAN_OPTIONS=suppressions=${TSAN_SUPPRESSION_FILE}")
   endif()
 
-  gtest_discover_tests(
-    ${test_name} DISCOVERY_MODE PRE_TEST
-    PROPERTIES LABELS
-               "${labels}"
-               ENVIRONMENT
-               "${environment}"
-  )
+  # Build the PROPERTIES key/value list explicitly. Passing empty ENVIRONMENT inline would let
+  # list expansion eat the next args (e.g. EXTRA_PROPERTIES would silently land as ENVIRONMENT's
+  # value), so only append a property when it has a value.
+  set(_test_props LABELS ${labels})
+  if(environment)
+    list(
+      APPEND
+      _test_props
+      ENVIRONMENT
+      ${environment}
+    )
+  endif()
+  if(_arg_EXTRA_PROPERTIES)
+    list(APPEND _test_props ${_arg_EXTRA_PROPERTIES})
+  endif()
+
+  gtest_discover_tests(${test_name} DISCOVERY_MODE PRE_TEST PROPERTIES ${_test_props})
 
   add_dependencies(run_unit_tests ${test_name})
   add_dependencies(run_tests ${test_name})
