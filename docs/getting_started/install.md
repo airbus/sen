@@ -189,3 +189,73 @@ Use Conan to fetch the third-party dependencies `conan install . --profile=sen_g
 To build, use `conan build . --profile=sen_gcc`. Alternatively, use
 `cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build` (you can replace 'sen_gcc'
 with the preset of your choice).
+
+??? note "Build options"
+
+    **Component selection**
+
+     `mode` is the Conan-level switch. It picks which components compile and which deps Conan fetches.
+
+     | Mode        | Components enabled                                                                |
+     | ----------- | --------------------------------------------------------------------------------- |
+     | `barebones` | none - libs only, for embedding Sen as a library                                  |
+     | `basic`     | `shell`, `ether` (minimum interactive set)                                        |
+     | `full`      | every component (default)                                                         |
+
+     ```shell
+     conan install . --profile=sen_gcc -o sen/*:mode=barebones --build=missing
+     conan install . --profile=sen_gcc -o sen/*:mode=basic --build=missing
+     ```
+
+     If in your local build you want to disable or enable specific components, use the CMake
+     override `-DSEN_BUILD_<component>=OFF` or `-DSEN_BUILD_<component>=ON`. You can also use
+     ccmake to set these flags.
+
+     ```shell
+     conan install . --profile=sen_gcc --build=missing
+     cmake --preset conan-gcc-release -DSEN_BUILD_TRACY=OFF -DSEN_BUILD_EXPLORER=OFF
+     ```
+
+     The CMake override doesn't change what Conan fetched. Components beyond `mode`
+     can't be enabled this way (their deps weren't fetched).
+
+     **Developer-facing flags**
+
+     Everything about *how* the tree is compiled is a CMake flag, applied at the configure step
+     on top of the Conan-generated preset. All default to off.
+
+     | Flag                           | Effect                            |
+     | ------------------------------ | --------------------------------- |
+     | `-DSEN_BUILD_EXAMPLES=ON`      | compile the examples              |
+     | `-DSEN_BUILD_TESTS=ON`         | compile the test suite            |
+     | `-DSEN_DISABLE_CLANG_TIDY=OFF` | run clang-tidy while compiling    |
+     | `-DSEN_COVERAGE_ENABLE=ON`     | instrument for coverage           |
+     | `-DSEN_USE_SANITIZER=<x>`      | `None`, `ASanUBSan`, or `Thread`  |
+
+     ```shell
+     # Configure a build that compiles the test suite with the address sanitizer
+     conan install . --profile=sen_gcc --build=missing
+     cmake --preset conan-gcc-release -DSEN_BUILD_TESTS=ON -DSEN_USE_SANITIZER=ASanUBSan
+     cmake --build build/gcc/Release
+     ```
+
+     The flags override the preset defaults for your build tree. Note that explicitly re-running
+     `cmake --preset ...` re-applies the preset defaults, so pass your `-D` flags again then
+     (automatic re-configures during incremental builds keep them).
+
+     Sanitized and instrumented builds are working-tree builds: `conan create` never passes
+     `-D` flags, so a packaged Sen is always a plain build of its `mode`.
+
+     **Building the docs**
+
+     Docs need `doxygen`, which is a Conan-level concern (a tool requirement). It needs a
+     `user.sen:build_docs` conf rather than an option, and `doxygen` itself needs `compiler.cppstd=20`
+     per-dep, which must come from a profile. Sen ships the `sen_build_docs` profile that sets both, so
+     the one-liner for docs is:
+
+     ```shell
+     conan install . --profile=sen_build_docs --build=missing
+     ```
+
+     `mkdocs` and `graphviz` are not Conan-managed - install them via `pip install -r docs/requirements.txt`
+     and your platform package manager.

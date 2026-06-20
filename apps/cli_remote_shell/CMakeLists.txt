@@ -5,6 +5,10 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+if(NOT SEN_BUILD_SHELL)
+  return()
+endif()
+
 include(tps/cli11)
 
 add_executable(cli_remote_shell main.cpp)

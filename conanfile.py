@@ -8,12 +8,30 @@
 
 from os import getenv
 from os.path import isdir, join
+from pathlib import Path
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
 from conan.tools.system.package_manager import Apt, Dnf, Yum, Zypper
+
+COMPONENTS = tuple(sorted(p.parent.name for p in (Path(__file__).parent / "components").glob("*/CMakeLists.txt")))
+
+# Components enabled by `mode=basic`. `mode=full` enables every COMPONENT;
+# `mode=barebones` enables none.
+_BASIC_COMPONENTS = frozenset({"shell", "ether"})
+
+# Build toggles that used to be environment variables (we now complain when they are used).
+_RETIRED_ENV_VARS = {
+    "ENABLE_TESTS": "-DSEN_BUILD_TESTS=ON",
+    "ENABLE_EXAMPLES": "-DSEN_BUILD_EXAMPLES=ON",
+    "ENABLE_CT": "-DSEN_DISABLE_CLANG_TIDY=OFF",
+    "ENABLE_COVERAGE": "-DSEN_COVERAGE_ENABLE=ON",
+    "ENABLE_ASAN": "-DSEN_USE_SANITIZER=ASanUBSan",
+    "ENABLE_TSAN": "-DSEN_USE_SANITIZER=Thread",
+}
 
 
 class SenConan(ConanFile):
@@ -30,15 +48,49 @@ class SenConan(ConanFile):
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
 
+    # Allow component discovery from the recipe folder.
+    exports = "components/*/CMakeLists.txt"
+
+    # Conan decides which components exist and therefore which dependencies get fetched with the `mode` option.
+    options = {
+        "mode": ["barebones", "basic", "full"],
+    }
+    default_options = {
+        "mode": "full",
+    }
+
+    def _is_component_enabled(self, name):
+        """Whether component `name` is enabled for the active `mode`."""
+        if name not in COMPONENTS:
+            raise ValueError(f"unknown component '{name}'; valid: {sorted(COMPONENTS)}")
+        mode = str(self.options.mode)
+        if mode == "full":
+            return True
+        if mode == "basic":
+            return name in _BASIC_COMPONENTS
+        return False  # barebones
+
+    def _wants_docs(self):
+        """Whether the docs toolchain is requested (profile conf, see the sen_build_docs profile)."""
+        return bool(self.conf.get("user.sen:build_docs", default=False, check_type=bool))
+
+    def validate(self):
+        """Rejects the retired environment toggles, pointing at the CMake flag that replaced each."""
+        stale = [(var, flag) for var, flag in _RETIRED_ENV_VARS.items() if getenv(var) is not None]
+        if stale:
+            hints = ", ".join(f"{var} (use {flag} at the cmake step)" for var, flag in stale)
+            raise ConanInvalidConfiguration(f"retired environment variables set: {hints}")
+
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
         self.tool_requires("cmake/3.28.1")
         self.tool_requires("ninja/1.13.2")
         self.test_requires("gtest/1.17.0")
+        if self._wants_docs():
+            self.tool_requires("doxygen/[>=1.15.0]")
 
     def requirements(self):
         """Defines the dependencies of Sen."""
-        # non-visible dependencies
         self.requires("asio/1.36.0", visible=False)
         self.requires("cli11/2.3.2", visible=False)
         self.requires("concurrentqueue/1.0.4", visible=False)
@@ -48,33 +100,35 @@ class SenConan(ConanFile):
         self.requires("pugixml/1.14", visible=False)
         self.requires("rapidyaml/0.5.0", visible=False)
         self.requires("cpptrace/1.0.4", visible=False)
-        self.requires("llhttp/9.1.3", visible=False)
-        self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)
-
-        # Custom version of implot that uses imgui/1.90.5-docking.
-        # imgui is overridden to pin the docking branch required by implot.
-        # Without this, Conan would resolve imgui to the non-docking variant.
-        self.requires("implot/0.16", visible=False)
-        self.requires("imgui/1.90.5-docking", override=True, visible=False)
-
-        # visible dependencies
-        self.requires("pybind11/2.13.6", visible=True)
         self.requires("spdlog/1.17.0", visible=True)
 
-        # our usage of imgui in Linux has an implicit dependency on SDL.
-        # SDL has a missing dependency on libext-dev, so we need to install it.
-        if self.settings.os == "Linux":
-            self.requires(
-                "sdl/2.24.0",
-                options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
-                visible=False,
-            )
+        # explorer-only: ImGui + ImPlot + SDL.
+        # ImGui is overridden use the docking branch for ImPlot (Conan would use the non-docking variant otherwise).
+        if self._is_component_enabled("explorer"):
+            self.requires("implot/0.16", visible=False)
+            self.requires("imgui/1.90.5-docking", override=True, visible=False)
+            if self.settings.os == "Linux":
+                self.requires(
+                    "sdl/2.24.0",
+                    options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
+                    visible=False,
+                )
+
+        # py-only (Python integration)
+        if self._is_component_enabled("py"):
+            self.requires("pybind11/2.13.6", visible=True)
+
+        # rest-only
+        if self._is_component_enabled("rest"):
+            self.requires("llhttp/9.1.3", visible=False)
+
+        # tracy-only
+        if self._is_component_enabled("tracy"):
+            self.requires("tracy/0.12.1", options={"delayed_init": True, "manual_lifetime": True}, visible=False)
 
     def system_requirements(self):
-        """Defines the system requirements of Sen."""
-        # our usage of imgui on Linux has an implicit dependency on SDL,
-        # which itself requires libXext. Install it via the system package manager.
-        if self.settings.os == "Linux":
+        """SDL (pulled in by the explorer on Linux) requires libXext at the system level."""
+        if self.settings.os == "Linux" and self._is_component_enabled("explorer"):
             Apt(self).install(["libxext-dev"], update=True)  # ubuntu, debian, ...
             Yum(self).install(["libXext-devel"], update=True)  # almalinux, rockylinux, ...
             Dnf(self).install(["libXext-devel"], update=True)  # fedora, rhel, centos, ...
@@ -143,11 +197,18 @@ class SenConan(ConanFile):
         deps.generate()
 
         tc = CMakeToolchain(self)
-        tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if env_var_to_bool("ENABLE_CT") else "ON"
-        tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if env_var_to_bool("ENABLE_COVERAGE") else "OFF"
-        tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if env_var_to_bool("ENABLE_EXAMPLES") else "OFF"
-        tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if env_var_to_bool("ENABLE_TESTS") else "OFF"
-        tc.cache_variables["SEN_USE_SANITIZER"] = select_sanitizer()
+
+        # Default CMake build options.
+        tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "ON"
+        tc.cache_variables["SEN_COVERAGE_ENABLE"] = "OFF"
+        tc.cache_variables["SEN_BUILD_EXAMPLES"] = "OFF"
+        tc.cache_variables["SEN_BUILD_TESTS"] = "OFF"
+        tc.cache_variables["SEN_BUILD_DOCS"] = "ON" if self._wants_docs() else "OFF"
+        tc.cache_variables["SEN_USE_SANITIZER"] = "None"
+
+        for component in COMPONENTS:
+            is_on = self._is_component_enabled(component)
+            tc.cache_variables[f"SEN_BUILD_{component.upper()}"] = "ON" if is_on else "OFF"
 
         # directory for the generated documentation
         site_dir = getenv("MKDOCS_SITE_DIR")
@@ -191,21 +252,3 @@ class SenConan(ConanFile):
             self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "bin"))
 
         # Windows: PATH is already prepended above; no additional loader path needed.
-
-
-def env_var_to_bool(env_var_name):
-    """Returns True if the environment variable is set to a truthy value, False otherwise."""
-    return getenv(env_var_name, "").lower() in ("true", "on", "1", "yes")
-
-
-def select_sanitizer() -> str:
-    """Determine which sanitizer should be enabled."""
-    if env_var_to_bool("ENABLE_ASAN"):
-        print("Configuring address and undefined-behavior sanitizers...")
-        return "ASanUBSan"
-
-    if env_var_to_bool("ENABLE_TSAN"):
-        print("Configuring thread sanitizer...")
-        return "Thread"
-
-    return "None"

@@ -86,12 +86,14 @@ jobs:
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          # export ENABLE_EXAMPLES=true
-          export ENABLE_TESTS=true
-          export ENABLE_COVERAGE=${{ matrix.enable_coverage }}
+          COVERAGE=$([ "${{ matrix.enable_coverage }}" = "true" ] && echo ON || echo OFF)
+          BUILD_TYPE_LC=$(echo "${{ matrix.build_type }}" | tr "[:upper:]" "[:lower:]")
 
           conan install . -s:a build_type=${{ matrix.build_type }} --build=missing
-          conan build . -s:a build_type=${{ matrix.build_type }}
+          # tests/coverage are cmake-level switches on top of the conan-generated preset
+          cmake --preset conan-${{ matrix.compiler.name }}-$BUILD_TYPE_LC \
+              -DSEN_BUILD_TESTS=ON -DSEN_COVERAGE_ENABLE=$COVERAGE
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 
       - name: Run tests
         shell: bash

@@ -33,12 +33,6 @@ runs:
         sudo ./llvm.sh ${{ inputs.compiler-version }}
         sudo apt install -y clang-tools-${{ inputs.compiler-version }}
 
-    - name: Install system dependencies
-      if: ${{ inputs.compiler-name != 'msvc' }}
-      shell: bash
-      # need for clang compat with sdl2 2.24.0
-      run: sudo apt-get install -y libxext-dev
-
     - name: Setup conan profile
       shell: bash
       run: |

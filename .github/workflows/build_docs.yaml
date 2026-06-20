@@ -55,15 +55,9 @@ jobs:
           conan profile detect --force -vquiet
           cp .conan/profiles/sen_gcc ~/.conan2/profiles/sen_gcc
           cp .conan/profiles/sen_build_docs ~/.conan2/profiles/default
-          echo [conf] >> ~/.conan2/profiles/default
           echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
           echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
           conan profile show -pr default
-
-      - name: Install system dependencies
-        # need for clang compat with sdl2 2.24.0
-        shell: bash
-        run: sudo apt-get install -y libxext-dev
 
       - name: Auto generate docs
         run: |
