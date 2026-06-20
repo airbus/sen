@@ -1,0 +1,9 @@
+## if exists("parent")
+export interface {{ name }} extends {{ tsParentAnnotationType }} {
+## else
+export interface {{ name }} {
+## endif
+## for field in fields
+  {{ field.name }}: {{ field.tsAnnotationType }};
+## endfor
+}

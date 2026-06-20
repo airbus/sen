@@ -298,6 +298,10 @@ build:
 
 ## Code generator
 
+`sen generate` is a thin command-line front-end over the
+[`sen::gen`](gen_library.md) library, which implements the underlying
+generators.
+
 ```title="sen generate"
 --8<-- "snippets/sen_generate.sh"
 ```
@@ -398,6 +402,39 @@ Generates json schemas from a Sen data model.
 
 ```
 --8<-- "snippets/sen_generate_json_schema.sh"
+```
+
+### Python
+
+```title="sen generate py"
+--8<-- "snippets/sen_generate_py.sh"
+```
+
+#### Python from STL
+
+```title="sen generate py stl"
+--8<-- "snippets/sen_generate_py_stl.sh"
+```
+
+#### Python from HLA FOMs
+
+```title="sen generate py fom"
+--8<-- "snippets/sen_generate_py_fom.sh"
+```
+
+### TypeScript
+
+TypeScript generation reads STL only; there is no FOM subcommand today
+(no HLA model targets TS).
+
+```title="sen generate ts"
+--8<-- "snippets/sen_generate_ts.sh"
+```
+
+#### TypeScript from STL
+
+```title="sen generate ts stl"
+--8<-- "snippets/sen_generate_ts_stl.sh"
 ```
 
 ## Archiving Utility

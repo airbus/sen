@@ -5,13 +5,6 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-// app
-#include "cpp/cpp_generator.h"
-#include "json/json_generator.h"
-#include "mkdocs/mkdocs_generator.h"
-#include "plantuml/plantuml_generator.h"
-#include "python/python_generator.h"
-
 // sen
 #include "sen/core/base/assert.h"
 
@@ -24,6 +17,20 @@
 #include <exception>
 #include <memory>
 #include <string>
+
+//--------------------------------------------------------------------------------------------------------------
+// Per-topic CLI setup functions.
+//--------------------------------------------------------------------------------------------------------------
+
+namespace sen::cli_gen
+{
+void setupCppCli(CLI::App& app);
+void setupJsonCli(CLI::App& app);
+void setupMkDocsCli(CLI::App& app);
+void setupPlantUMLCli(CLI::App& app);
+void setupPythonCli(CLI::App& app);
+void setupTypeScriptCli(CLI::App& app);
+}  // namespace sen::cli_gen
 
 //--------------------------------------------------------------------------------------------------------------
 // Main application logic
@@ -41,12 +48,13 @@ int runApp(int argc, char* argv[])
 
   try
   {
-    CppGenerator::setup(app);
-    PlantUMLGenerator::setup(app);
-    CppGenerator::exportsSetup(app);
-    PythonGenerator::setup(app);
-    MkDocsGenerator::setup(app);
-    JsonGenerator::setup(app);
+    using namespace sen::cli_gen;  // NOLINT (google-build-using-namespace): scoped to runApp
+    setupCppCli(app);
+    setupPlantUMLCli(app);
+    setupPythonCli(app);
+    setupMkDocsCli(app);
+    setupJsonCli(app);
+    setupTypeScriptCli(app);
 
     app.footer("For help on specific commands run 'sen generate <command> --help'");
 

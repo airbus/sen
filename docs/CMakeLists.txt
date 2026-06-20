@@ -60,6 +60,13 @@ ${sen_exec} generate json component fom --help > ${snippets_dir}/sen_generate_js
 \n\
 ${sen_exec} generate json schema --help > ${snippets_dir}/sen_generate_json_schema.sh\n\
 \n\
+${sen_exec} generate py --help > ${snippets_dir}/sen_generate_py.sh\n\
+${sen_exec} generate py stl --help > ${snippets_dir}/sen_generate_py_stl.sh\n\
+${sen_exec} generate py fom --help > ${snippets_dir}/sen_generate_py_fom.sh\n\
+\n\
+${sen_exec} generate ts --help > ${snippets_dir}/sen_generate_ts.sh\n\
+${sen_exec} generate ts stl --help > ${snippets_dir}/sen_generate_ts_stl.sh\n\
+\n\
 ${sen_exec} archive --help > ${snippets_dir}/sen_archive.sh\n\
 ${sen_exec} archive indexed --help > ${snippets_dir}/sen_archive_indexed.sh\n\
 ${sen_exec} archive info --help > ${snippets_dir}/sen_archive_info.sh\n\
@@ -112,6 +119,11 @@ exit 0"
       ${snippets_dir}/sen_generate_json_component_stl.sh
       ${snippets_dir}/sen_generate_json_component_fom.sh
       ${snippets_dir}/sen_generate_json_schema.sh
+      ${snippets_dir}/sen_generate_py.sh
+      ${snippets_dir}/sen_generate_py_stl.sh
+      ${snippets_dir}/sen_generate_py_fom.sh
+      ${snippets_dir}/sen_generate_ts.sh
+      ${snippets_dir}/sen_generate_ts_stl.sh
       ${snippets_dir}/sen_archive.sh
       ${snippets_dir}/sen_archive_indexed.sh
       ${snippets_dir}/sen_archive_info.sh

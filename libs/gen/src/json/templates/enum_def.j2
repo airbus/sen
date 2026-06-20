@@ -1,0 +1,14 @@
+    "{{ senQual }}": {
+      "$id": "{{ senQual }}",{% if description != "" %}
+      "description": "{{ description }}",{% endif %}
+      "enum": [
+## for enum in enums
+        "{{ enum.name }}"{%if not loop.is_last %},{% endif %}
+## endfor
+      ],
+      "x-enum": {
+## for enum in enums
+        "{{ enum.name }}": {{ enum.key }}{%if not loop.is_last %},{% endif %}
+## endfor
+      }
+    }
