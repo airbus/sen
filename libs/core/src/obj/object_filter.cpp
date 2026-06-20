@@ -122,6 +122,14 @@ public:
     }
   }
 
+  /// Track and evaluate the snapshot. Must be atomic: splitting them leaves
+  /// notifyAddedOnExistingObjects with an empty currentAdditions_.
+  void seedFromExistingObjects(const std::unordered_map<ObjectId, std::shared_ptr<Object>>& objects)
+  {
+    startTracking(objects);
+    evaluateTrackedObjects();
+  }
+
   void evaluateTrackedObjects()
   {
     // clear it because we will recompute this here
@@ -440,8 +448,7 @@ std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std
   providers_.push_back(ptr);
 
   ptr->setName(name);
-  ptr->startTracking(lastPresentObjects_);
-  ptr->evaluateTrackedObjects();
+  ptr->seedFromExistingObjects(lastPresentObjects_);
 
   return ptr;
 }
@@ -502,13 +509,13 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
   ownedProviders_.push_back(std::make_shared<impl::FilteredProvider>(this, interest));
   providers_.push_back(ownedProviders_.back());
   const auto provider = providers_.back().lock();
-  provider->addListener(listener, notifyAboutExisting);
 
+  // Seed before the listener registers; notifyAddedOnExistingObjects bails on empty.
   if (notifyAboutExisting)
   {
-    provider->startTracking(lastPresentObjects_);
-    provider->evaluateTrackedObjects();
+    provider->seedFromExistingObjects(lastPresentObjects_);
   }
+  provider->addListener(listener, notifyAboutExisting);
 }
 
 void ObjectFilter::removeSubscriber(std::shared_ptr<Interest> interest,
