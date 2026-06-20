@@ -70,7 +70,9 @@ add_subdirectory(components/rest)
 add_subdirectory(components/jsonrpc)
 add_subdirectory(components/tracy)
 
-# Python bindings under libs/db
+# Python bindings under libs/db. Not a Sen "component" (no conanfile.py COMPONENTS entry,
+# no sen_internal_component_guard). Just a Python module that exposes sen::db; piggybacks
+# on the existing SEN_BUILD_PY toggle rather than declaring its own option.
 if(SEN_BUILD_PY)
   add_subdirectory(libs/db/bindings/python)
 endif()
