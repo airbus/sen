@@ -38,11 +38,16 @@
 
 // spdlog
 #include <spdlog/common.h>
+#include <spdlog/details/log_msg.h>
+#include <spdlog/details/log_msg_buffer.h>
+#include <spdlog/logger.h>
+#include <spdlog/sinks/base_sink.h>
 
 // std
 #include <cstddef>
 #include <exception>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -82,6 +87,47 @@ Object* getObjectByLocalName(std::string_view objectName, const ObjectList<Objec
 }
 
 constexpr long tooManyLimit = 50U;  // NOLINT(google-runtime-int)
+
+class WrappedSink: public spdlog::sinks::base_sink<std::mutex>
+{
+public:
+  explicit WrappedSink(std::shared_ptr<spdlog::sinks::sink> original): originalSink_(std::move(original)) {}
+
+  void sink_it_(const spdlog::details::log_msg& msg) override { queue_.emplace_back(msg); }
+
+  void flush_() override
+  {
+    drainAndLogUnlocked();
+    originalSink_->flush();
+  }
+
+  bool hasLogs()
+  {
+    std::lock_guard<std::mutex> lock(this->mutex_);
+    return !queue_.empty();
+  }
+
+  void drainAndLog()
+  {
+    std::lock_guard<std::mutex> lock(this->mutex_);
+    drainAndLogUnlocked();
+  }
+
+  [[nodiscard]] std::shared_ptr<spdlog::sinks::sink> getOriginalSink() const noexcept { return originalSink_; }
+
+private:
+  void drainAndLogUnlocked()
+  {
+    for (auto& msg: queue_)
+    {
+      originalSink_->log(msg);
+    }
+    queue_.clear();
+  }
+
+  std::shared_ptr<spdlog::sinks::sink> originalSink_;
+  std::vector<spdlog::details::log_msg_buffer> queue_;
+};
 
 }  // namespace
 
@@ -236,6 +282,9 @@ ShellImpl::ShellImpl(const std::string& name,
   , term_(term)
   , printer_(term_, config.bufferStyle, config.timeStyle)
 {
+  sen::kernel::KernelApi::applyToAllLoggers([this](std::shared_ptr<spdlog::logger> logger)
+                                            { setInterceptorState(std::move(logger), true); });
+
   objects_ = std::make_unique<ObjectList<Object>>(mux_, 10U);  // NOLINT readability-magic-numbers
 
   std::ignore = objects_->onAdded(
@@ -243,6 +292,7 @@ ShellImpl::ShellImpl(const std::string& name,
     {
       if (printDetectedObjects_)
       {
+        lineEdit_->suspendPrompt();
         auto objectCount = std::distance(addedObjects.untypedBegin, addedObjects.untypedEnd);
         if (objectCount > tooManyLimit)
         {
@@ -257,6 +307,7 @@ ShellImpl::ShellImpl(const std::string& name,
             term_->newLine();
           }
         }
+        lineEdit_->resumePrompt();
       }
     });
 
@@ -265,6 +316,7 @@ ShellImpl::ShellImpl(const std::string& name,
     {
       if (printDetectedObjects_)
       {
+        lineEdit_->suspendPrompt();
         auto objectCount = std::distance(removedObjects.untypedBegin, removedObjects.untypedEnd);
         if (objectCount > tooManyLimit)
         {
@@ -279,6 +331,7 @@ ShellImpl::ShellImpl(const std::string& name,
             term_->newLine();
           }
         }
+        lineEdit_->resumePrompt();
       }
     });
 
@@ -341,6 +394,8 @@ ShellImpl::ShellImpl(const std::string& name,
                                          api,
                                          [this]() { return fetchCurrentSources(); });
 
+  drainAndPrintLogs(false);
+
   lineEdit_->setPrompt(getConfig().prompt);
   lineEdit_->setWindowTitle(api_.getAppName());
   lineEdit_->refresh();
@@ -362,7 +417,95 @@ ShellImpl::ShellImpl(const std::string& name,
   }
 }
 
-void ShellImpl::update(kernel::RunApi& runApi) { lineEdit_->processEvents(runApi); }
+ShellImpl::~ShellImpl()
+{
+  drainAndPrintLogs(false);
+
+  sen::kernel::KernelApi::applyToAllLoggers([this](std::shared_ptr<spdlog::logger> logger)
+                                            { setInterceptorState(std::move(logger), false); });
+}
+
+void ShellImpl::setInterceptorState(std::shared_ptr<spdlog::logger> logger, bool enable)
+{
+  auto sinks = logger->sinks();
+  bool changed = false;
+
+  for (auto& sink: sinks)
+  {
+    auto wrapped = std::dynamic_pointer_cast<WrappedSink>(sink);
+    if (enable && !wrapped)
+    {
+      sink = std::make_shared<WrappedSink>(sink);
+      changed = true;
+    }
+    else if (!enable && wrapped)
+    {
+      sink = wrapped->getOriginalSink();
+      changed = true;
+    }
+  }
+
+  if (changed)
+  {
+    logger->sinks() = std::move(sinks);
+  }
+}
+
+void ShellImpl::drainAndPrintLogs(const bool suspendPromptActive)
+{
+  bool hasLogs = false;
+
+  sen::kernel::KernelApi::applyToAllLoggers(
+    [&hasLogs](std::shared_ptr<spdlog::logger> logger)
+    {
+      for (const auto& sink: logger->sinks())
+      {
+        if (auto wrapped = std::dynamic_pointer_cast<WrappedSink>(sink))
+        {
+          if (wrapped->hasLogs())
+          {
+            hasLogs = true;
+          }
+        }
+      }
+    });
+
+  if (!hasLogs)
+  {
+    return;
+  }
+
+  if (suspendPromptActive)
+  {
+    lineEdit_->suspendPrompt();
+  }
+
+  sen::kernel::KernelApi::applyToAllLoggers(
+    [](std::shared_ptr<spdlog::logger> logger)
+    {
+      for (const auto& sink: logger->sinks())
+      {
+        if (auto wrapped = std::dynamic_pointer_cast<WrappedSink>(sink))
+        {
+          wrapped->drainAndLog();
+        }
+      }
+    });
+
+  if (suspendPromptActive)
+  {
+    lineEdit_->resumePrompt();
+  }
+}
+
+void ShellImpl::update(kernel::RunApi& runApi)
+{
+  sen::kernel::KernelApi::applyToAllLoggers([this](std::shared_ptr<spdlog::logger> logger)
+                                            { setInterceptorState(std::move(logger), true); });
+
+  drainAndPrintLogs(true);
+  lineEdit_->processEvents(runApi);
+}
 
 void ShellImpl::onInput(std::string_view input, kernel::RunApi& api)
 {
@@ -1104,7 +1247,7 @@ void ShellImpl::closeImpl(const std::string& source)
 
 void ShellImpl::shutdownImpl() const
 {
-  term_->cprint(informationStyle, "shutting down... ");
+  term_->cprint(informationStyle, "shutting down...\n");
   api_.requestKernelStop(0);
 }
 

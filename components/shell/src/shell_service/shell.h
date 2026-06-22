@@ -8,6 +8,7 @@
 #ifndef SEN_COMPONENTS_SHELL_SRC_SHELL_SERVICE_SHELL_H
 #define SEN_COMPONENTS_SHELL_SRC_SHELL_SERVICE_SHELL_H
 
+// component
 #include "line_edit.h"
 #include "printer.h"
 #include "terminal.h"
@@ -17,6 +18,7 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/obj/object_list.h"
 #include "sen/core/obj/object_mux.h"
+#include "sen/core/obj/subscription.h"
 
 // generated code
 #include "stl/shell.stl.h"
@@ -26,10 +28,13 @@
 
 // spdlog
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
 
 // std
 #include <atomic>
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 namespace sen::components::shell
 {
@@ -45,7 +50,7 @@ public:  // special members
             CustomTypeRegistry& types,
             const Configuration& config,
             Terminal* term);
-  ~ShellImpl() override = default;
+  ~ShellImpl() override;
 
 public:
   void update(kernel::RunApi& runApi) override;
@@ -100,6 +105,8 @@ private:
   void doQuery(std::string_view name, std::string_view selection);
   [[nodiscard]] SourceData& getOrOpenSource(const kernel::BusAddress& address);
   [[nodiscard]] static MaybeConstTypeHandle<ClassType> getWriterSchema(const Object* object) noexcept;
+  void setInterceptorState(std::shared_ptr<spdlog::logger> logger, bool enable);
+  void drainAndPrintLogs(bool suspendPromptActive);
 
 private:
   kernel::RunApi& api_;
