@@ -15,6 +15,7 @@
 // sen
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/obj/object_list.h"
 #include "sen/core/obj/object_mux.h"
 
 // generated code
@@ -22,6 +23,13 @@
 
 // kernel
 #include "stl/sen/kernel/basic_types.stl.h"
+
+// spdlog
+#include <spdlog/common.h>
+
+// std
+#include <atomic>
+#include <memory>
 
 namespace sen::components::shell
 {
@@ -105,6 +113,8 @@ private:
   std::unordered_map<std::string, SourceData> openSources_;
   std::atomic_bool printDetectedObjects_ = false;
   ::sen::Subscription<::sen::Object> logMasterSub_;
+  bool localLoggersMuted_ = false;
+  std::unordered_map<std::string, spdlog::level::level_enum> savedLogLevels_;
 };
 
 }  // namespace sen::components::shell

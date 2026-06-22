@@ -36,6 +36,9 @@
 #include "stl/sen/kernel/basic_types.stl.h"
 #include "stl/shell.stl.h"
 
+// spdlog
+#include <spdlog/common.h>
+
 // std
 #include <cstddef>
 #include <exception>
@@ -290,6 +293,31 @@ ShellImpl::ShellImpl(const std::string& name,
     {
       auto obj = objects.front();
       obj->invokeUntyped(obj->getClass()->searchMethodByName("toggleMuteAll"), {});
+    }
+    else
+    {
+      if (!localLoggersMuted_)
+      {
+        kernel::KernelApi::applyToAllLoggers(
+          [this](const auto& logger)
+          {
+            savedLogLevels_[logger->name()] = logger->level();
+            logger->set_level(spdlog::level::off);
+          });
+        localLoggersMuted_ = true;
+      }
+      else
+      {
+        kernel::KernelApi::applyToAllLoggers(
+          [this](const auto& logger)
+          {
+            if (const auto it = savedLogLevels_.find(logger->name()); it != savedLogLevels_.end())
+            {
+              logger->set_level(it->second);
+            }
+          });
+        localLoggersMuted_ = false;
+      }
     }
   };
 
