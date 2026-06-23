@@ -53,6 +53,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <variant>
@@ -104,12 +105,21 @@ RouteCallback bindAuthRouteCallback(SenRouter* obj, MemberFn memberFn)
 {
   return [obj, memberFn](HttpSession& httpSession, const UrlParams& urlParams, const QueryParams& queryParams)
   {
-    auto result = validateAuth(obj, httpSession);
-    if (auto* error = std::get_if<JsonResponse>(&result))
-    {
-      return *error;
-    }
-    return (obj->*memberFn)(std::get<AuthResult>(result).session, httpSession, urlParams, queryParams);
+    return std::visit(
+      [&](auto&& res)
+      {
+        using T = std::decay_t<decltype(res)>;
+
+        if constexpr (std::is_same_v<T, JsonResponse>)
+        {
+          return res;
+        }
+        else
+        {
+          return (obj->*memberFn)(res.session, httpSession, urlParams, queryParams);
+        }
+      },
+      validateAuth(obj, httpSession));
   };
 }
 
@@ -121,13 +131,21 @@ StreamRouteCallback bindAuthStreamRouteCallback(SenRouter* obj, MemberFn memberF
                          const QueryParams& queryParams,
                          asio::ip::tcp::socket socket)
   {
-    auto result = validateAuth(obj, *httpSession);
-    if (auto* error = std::get_if<JsonResponse>(&result))
-    {
-      return *error;
-    }
-    return (obj->*memberFn)(
-      std::get<AuthResult>(result).session, httpSession, urlParams, queryParams, std::move(socket));
+    return std::visit(
+      [&](auto&& res)
+      {
+        using T = std::decay_t<decltype(res)>;
+
+        if constexpr (std::is_same_v<T, JsonResponse>)
+        {
+          return res;
+        }
+        else
+        {
+          return (obj->*memberFn)(res.session, httpSession, urlParams, queryParams, std::move(socket));
+        }
+      },
+      validateAuth(obj, *httpSession));
   };
 }
 
