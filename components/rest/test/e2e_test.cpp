@@ -27,6 +27,7 @@
 #include <chrono>
 #include <functional>
 #include <future>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -54,14 +55,25 @@ public:
       [this]()
       {
         auto kernel = sen::kernel::TestKernel::fromYamlString(std::string(configString));
+
+        {
+          std::lock_guard lock(mutex_);
+
+          kernel.step();
+
+          serverStarted_ = true;
+          cv_.notify_all();
+        }
+
         while (!cancelFlag_)
         {
           kernel.step();
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
       });
-    // TODO(SEN-1493): ensure correct server startup before allowing users to send requests
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    std::unique_lock lock(mutex_);
+    cv_.wait_for(lock, std::chrono::milliseconds(500), [this] { return serverStarted_; });
   }
 
   ~Server()
@@ -80,8 +92,12 @@ public:
   }
 
 private:
-  std::atomic<bool> cancelFlag_;
   std::thread th_;
+  bool serverStarted_ {false};
+
+  std::atomic<bool> cancelFlag_;
+  std::mutex mutex_;
+  std::condition_variable cv_;
 };
 
 HttpResponse retryUntil(int statusCode, std::function<HttpResponse()> callback)
