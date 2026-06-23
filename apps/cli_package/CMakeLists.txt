@@ -98,3 +98,30 @@ sen_internal_add_resources(
 )
 
 sen_enable_static_analysis(cli_package)
+
+if(SEN_BUILD_TESTS)
+  add_library(
+    cli_package_for_testing STATIC
+    ${template_dumps_component}
+    ${template_dumps_package}
+    init_component.cpp
+    init_package.cpp
+    util.cpp
+  )
+  sen_configure_target(cli_package_for_testing)
+  target_link_libraries(
+    cli_package_for_testing
+    PRIVATE sen::core
+    PRIVATE $<BUILD_INTERFACE:CLI11::CLI11>
+    PRIVATE $<BUILD_INTERFACE:nlohmann_json::nlohmann_json>
+    PRIVATE $<BUILD_INTERFACE:pantor::inja>
+  )
+  target_include_directories(
+    cli_package_for_testing
+    PRIVATE CLI11::CLI11
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/cli_package
+  )
+  add_subdirectory(test)
+endif()
