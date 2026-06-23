@@ -113,6 +113,7 @@ public:
       for (auto& call: callBuffer_)
       {
         call();
+        call = Call();
         ++i;
 
         if (i >= callCount)
@@ -129,6 +130,7 @@ public:
   SEN_ALWAYS_INLINE void clear()  // NOSONAR
   {
     queue_ = BlockingQueue();
+    callBuffer_.clear();
   }
 
   SEN_ALWAYS_INLINE void waitExecuteOne()  // NOSONAR
@@ -149,6 +151,7 @@ public:
       for (auto& call: calls)
       {
         call();
+        call = Call();
         ++i;
 
         if (i >= callCount)
