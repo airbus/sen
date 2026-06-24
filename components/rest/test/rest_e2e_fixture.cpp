@@ -1,11 +1,11 @@
-// === request.cpp =====================================================================================================
+// === rest_e2e_fixture.cpp ============================================================================================
 //                                               Sen Infrastructure
 //                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 //                                    See the LICENSE.txt file for more information.
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "request.h"
+#include "rest_e2e_fixture.h"
 
 // auto-generated code
 #include "stl/types.stl.h"
@@ -23,9 +23,11 @@
 // json
 #include <nlohmann/json.hpp>
 
+// google test
+#include <gtest/gtest.h>
+
 // std
 #include <atomic>
-#include <cstddef>
 #include <cstring>
 #include <functional>
 #include <iostream>  //NOLINT
@@ -103,22 +105,14 @@ std::string buildHTTPRequest(const HttpMethod& method,
   return request;
 }
 
-HttpResponse request(const HttpMethod& method,
-                     const std::string& host,
-                     const std::string& port,
-                     const std::string& path,
-                     const std::optional<Json> data,
-                     const std::string& token)
+HttpResponse RestE2EFixture::request(const HttpMethod& method, const std::string& path, const std::optional<Json>& data)
 {
   HttpResponse result {0, ""};
-  asio::io_context context;
-  asio::ip::tcp::resolver resolver(context);
-  asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
 
-  asio::ip::tcp::socket socket(context);
-  asio::connect(socket, endpoints);  // NOLINT
+  asio::ip::tcp::socket socket(context_);
+  asio::connect(socket, endpoints_);  // NOLINT
 
-  std::string request = buildHTTPRequest(method, host, port, path, data, token);
+  std::string request = buildHTTPRequest(method, "127.0.0.1", "12345", path, data, token_.value());
   asio::write(socket, asio::buffer(request));  // NOLINT
 
   std::string response;
@@ -160,24 +154,16 @@ HttpResponse request(const HttpMethod& method,
   return result;
 }
 
-bool requestSSE(const std::string& host,
-                const std::string& port,
-                const std::string& path,
-                const std::string& token,
-                std::atomic<bool>& cancelToken,
-                std::function<bool(std::string)> onNotification)
+bool RestE2EFixture::requestSSE(const std::string& path,
+                                const std::atomic<bool>& cancelToken,
+                                const std::function<bool(std::string)>& onNotification)
 {
-  asio::io_context context;
-  asio::ip::tcp::resolver resolver(context);
-  asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
-
-  asio::ip::tcp::socket socket(context);
-  asio::connect(socket, endpoints);  // NOLINT
+  asio::ip::tcp::socket socket(context_);
+  asio::connect(socket, endpoints_);  // NOLINT
   socket.non_blocking(true);
 
   std::string payload;
-  size_t payloadSize = 0;
-  std::string request = buildHTTPRequest(HttpMethod::httpGet, host, port, path, std::nullopt, token);
+  std::string request = buildHTTPRequest(HttpMethod::httpGet, "127.0.0.1", "12345", path, std::nullopt, token_.value());
   asio::write(socket, asio::buffer(request));  // NOLINT
 
   std::string response;
@@ -208,14 +194,16 @@ bool requestSSE(const std::string& host,
   return true;
 }
 
-std::optional<std::string> authenticate()
+void RestE2EFixture::authenticate()
 {
-  auto authRet = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/auth", Json {{"id", "admin"}});
+  auto authRet = request(HttpMethod::httpPost, "/api/auth", Json {{"id", "admin"}});
   if (authRet.statusCode != 200)
   {
-    return std::nullopt;
+    token_ = std::nullopt;
   }
 
   auto authResponse = Json::parse(authRet.body);
-  return authResponse["token"].get<std::string>();
+  token_ = authResponse["token"].get<std::string>();
+
+  ASSERT_TRUE(token_.has_value());
 }

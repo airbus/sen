@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "request.h"
+#include "rest_e2e_fixture.h"
 
 // sen
 #include "sen/core/base/compiler_macros.h"
@@ -118,11 +118,11 @@ HttpResponse retryUntil(int statusCode, std::function<HttpResponse()> callback)
 /// @test
 /// End-to-end test for the version endpoint
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_version)
+TEST_F(RestE2EFixture, version)
 {
   Server server;
 
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/version");
+  auto ret = request(HttpMethod::httpGet, "/api/version");
   ASSERT_EQ(ret.statusCode, 200);
 
   auto response = Json::parse(ret.body);
@@ -133,11 +133,11 @@ TEST(Rest, e2e_version)
 /// @test
 /// End-to-end test for client authentication
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_auth)
+TEST_F(RestE2EFixture, auth)
 {
   Server server;
 
-  auto ret = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/auth", Json {{"id", "admin"}});
+  auto ret = request(HttpMethod::httpPost, "/api/auth", Json {{"id", "admin"}});
   ASSERT_EQ(ret.statusCode, 200);
 
   auto response = Json::parse(ret.body);
@@ -149,14 +149,13 @@ TEST(Rest, e2e_auth)
 /// @test
 /// End-to-end test for sessions retrieval
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_sessions)
+TEST_F(RestE2EFixture, sessions)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions", Json(), token.value());
+  auto ret = request(HttpMethod::httpGet, "/api/sessions", Json());
   ASSERT_EQ(ret.statusCode, 200);
 
   auto response = Json::parse(ret.body);
@@ -169,17 +168,13 @@ TEST(Rest, e2e_sessions)
 /// @test
 /// End-to-end test for type introspection endpoint
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_type_introspection)
+TEST_F(RestE2EFixture, type_introspection)
 {
   Server server;
 
-  auto authRet = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/auth", Json {{"id", "admin"}});
-  ASSERT_EQ(authRet.statusCode, 200);
+  authenticate();
 
-  auto authResponse = Json::parse(authRet.body);
-  auto token = authResponse["token"].get<std::string>();
-
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/types/string", Json(), token);
+  auto ret = request(HttpMethod::httpGet, "/api/types/string", Json());
   ASSERT_EQ(ret.statusCode, 200);
 
   auto typeInfo = Json::parse(ret.body);
@@ -188,14 +183,13 @@ TEST(Rest, e2e_type_introspection)
 
 /// End-to-end test for interests retrieval (empty list)
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_interests)
+TEST_F(RestE2EFixture, get_interests)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests", Json(), token.value());
+  auto ret = request(HttpMethod::httpGet, "/api/interests", Json());
 
   ASSERT_EQ(ret.statusCode, 200);
   auto interests = Json::parse(ret.body);
@@ -206,12 +200,11 @@ TEST(Rest, e2e_get_interests)
 /// @test
 /// End-to-end test for successful interest creation
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_create_interest)
+TEST_F(RestE2EFixture, create_interest)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   std::vector<std::string> interestNames = {
     "abcd",
@@ -227,12 +220,8 @@ TEST(Rest, e2e_create_interest)
 
   for (const auto& interestName: interestNames)
   {
-    auto ret = request(HttpMethod::httpPost,
-                       "127.0.0.1",
-                       "12345",
-                       "/api/interests",
-                       Json {{"name", interestName}, {"query", "SELECT * FROM local.kernel"}},
-                       token.value());
+    auto ret = request(
+      HttpMethod::httpPost, "/api/interests", Json {{"name", interestName}, {"query", "SELECT * FROM local.kernel"}});
 
     ASSERT_EQ(ret.statusCode, 200);
     auto response = Json::parse(ret.body);
@@ -244,19 +233,14 @@ TEST(Rest, e2e_create_interest)
 /// @test
 /// End-to-end test for invalid query on interest creation
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_create_interest_invalid_query)
+TEST_F(RestE2EFixture, create_interest_invalid_query)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto ret = request(HttpMethod::httpPost,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests",
-                     Json {{"name", "test_interest"}, {"query", "INVALID QUERY"}},
-                     token.value());
+  auto ret =
+    request(HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "INVALID QUERY"}});
 
   ASSERT_EQ(ret.statusCode, 400);
 }
@@ -264,41 +248,30 @@ TEST(Rest, e2e_create_interest_invalid_query)
 /// @test
 /// End-to-end test for malformed request to create interest
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_create_interest_malformed_request)
+TEST_F(RestE2EFixture, create_interest_malformed_request)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto ret = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/interests", std::nullopt, token.value());
+  auto ret = request(HttpMethod::httpPost, "/api/interests", std::nullopt);
   ASSERT_EQ(ret.statusCode, 400);
 }
 
 /// @test
 /// End-to-end test for getting an existing interest
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_interest_success)
+TEST_F(RestE2EFixture, get_interest_success)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
-  auto ret = retryUntil(
-    200,
-    [token]()
-    {
-      return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
-    });
+  auto ret = retryUntil(200, [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -310,44 +283,32 @@ TEST(Rest, e2e_get_interest_success)
 /// @test
 /// End-to-end test for getting an unknown interest
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_interest_unknown_interest)
+TEST_F(RestE2EFixture, get_interest_unknown_interest)
 {
   Server server;
 
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto ret = request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
+  auto ret = request(HttpMethod::httpGet, "/api/interests/test_interest", Json());
   ASSERT_EQ(ret.statusCode, 404);
 }
 
 /// @test
 /// End-to-end test for removing an interest
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_remove_interest)
+TEST_F(RestE2EFixture, remove_interest)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create an interest
-  auto ret = request(HttpMethod::httpPost,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests",
-                     Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                     token.value());
+  auto ret = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(ret.statusCode, 200);
 
   // Check interest was created
-  ret = retryUntil(
-    200,
-    [token]()
-    {
-      return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
-    });
+  ret = retryUntil(200, [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
   auto response = Json::parse(ret.body);
@@ -355,13 +316,11 @@ TEST(Rest, e2e_remove_interest)
   ASSERT_EQ(response["name"].get<std::string>(), "test_interest");
 
   // Delete the interest
-  ret = request(HttpMethod::httpDelete, "127.0.0.1", "12345", "/api/interests/test_interest", Json(), token.value());
+  ret = request(HttpMethod::httpDelete, "/api/interests/test_interest", Json());
   ASSERT_EQ(ret.statusCode, 200);
 
   // Check there is no active interests
-  ret = retryUntil(
-    200,
-    [token]() { return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests", Json(), token.value()); });
+  ret = retryUntil(200, [this]() { return request(HttpMethod::httpGet, "/api/interests", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
   auto interests = Json::parse(ret.body);
@@ -371,19 +330,14 @@ TEST(Rest, e2e_remove_interest)
 
 /// @test
 /// End-to-end test for getting session details when client has not created any interest on session's buses
-TEST(Rest, e2e_get_session_no_buses)
+TEST_F(RestE2EFixture, get_session_no_buses)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Get session
-  auto ret = retryUntil(
-    200,
-    [token]()
-    { return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions/local", Json(), token.value()); });
+  auto ret = retryUntil(200, [this]() { return request(HttpMethod::httpGet, "/api/sessions/local", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -397,28 +351,19 @@ TEST(Rest, e2e_get_session_no_buses)
 
 /// @test
 /// End-to-end test for getting session details when client has created an interest on session's bus
-TEST(Rest, e2e_get_session_with_buses)
+TEST_F(RestE2EFixture, get_session_with_buses)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create an interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   // Get session
-  auto ret = retryUntil(
-    200,
-    [token]()
-    { return request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/sessions/local", Json(), token.value()); });
+  auto ret = retryUntil(200, [this]() { return request(HttpMethod::httpGet, "/api/sessions/local", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -434,42 +379,32 @@ TEST(Rest, e2e_get_session_with_buses)
 
 /// @test
 /// End-to-end test for getting non-existing session
-TEST(Rest, e2e_get_non_existing_session)
+TEST_F(RestE2EFixture, get_non_existing_session)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
-  auto ret =
-    request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/sessions/nonExistingSession", Json(), token.value());
+  auto ret = request(HttpMethod::httpPost, "/api/sessions/nonExistingSession", Json());
   ASSERT_EQ(ret.statusCode, 404);
 }
 
 /// @test
 /// End-to-end test for getting objects in an interest
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_objects)
+TEST_F(RestE2EFixture, get_objects)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   // Get objects
-  auto ret =
-    request(HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects", Json(), token.value());
+  auto ret = request(HttpMethod::httpGet, "/api/interests/test_interest/objects", Json());
   ASSERT_EQ(ret.statusCode, 200);
 
   auto response = Json::parse(ret.body);
@@ -479,33 +414,22 @@ TEST(Rest, e2e_get_objects)
 /// @test
 /// End-to-end test for getting existing objects
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_existing_objects)
+TEST_F(RestE2EFixture, get_existing_objects)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get objects
-  auto ret = retryUntil(
-    200,
-    [token]()
-    {
-      return request(
-        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects", Json(), token.value());
-    });
+  auto ret =
+    retryUntil(200, [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects", Json()); });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto interests = Json::parse(ret.body);
@@ -516,33 +440,22 @@ TEST(Rest, e2e_get_existing_objects)
 /// @test
 /// End-to-end test for getting existing object
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_existing_object)
+TEST_F(RestE2EFixture, get_existing_object)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object
   auto ret = retryUntil(
-    200,
-    [token]()
-    {
-      return request(
-        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects/api", Json(), token.value());
-    });
+    200, [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -554,65 +467,41 @@ TEST(Rest, e2e_get_existing_object)
 /// @test
 /// End-to-end test for getting a non-existing object
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_non_existing_object)
+TEST_F(RestE2EFixture, get_non_existing_object)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
-  // Try to get an non-existent object
-  auto ret = request(HttpMethod::httpGet,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests/test_interest/objects/test_object",
-                     Json(),
-                     token.value());
+  // Try to get a non-existent object
+  auto ret = request(HttpMethod::httpGet, "/api/interests/test_interest/objects/test_object", Json());
   ASSERT_EQ(ret.statusCode, 404);
 }
 
 /// @test
 /// End-to-end test for getting an object property and event subscriptions
-TEST(Rest, e2e_get_subcriptions)
+TEST_F(RestE2EFixture, get_subcriptions)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object subscriptions
-  auto ret = retryUntil(200,
-                        [token]()
-                        {
-                          return request(HttpMethod::httpGet,
-                                         "127.0.0.1",
-                                         "12345",
-                                         "/api/interests/test_interest/objects/api/subscription",
-                                         Json(),
-                                         token.value());
-                        });
+  auto ret = retryUntil(
+    200,
+    [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/subscription", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -625,52 +514,32 @@ TEST(Rest, e2e_get_subcriptions)
 
 /// @test
 /// End-to-end test for updating object subscriptions when body is empty
-TEST(Rest, e2e_update_subscriptions_empty)
+TEST_F(RestE2EFixture, update_subscriptions_empty)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Update object subscriptions
-  auto updateRet = retryUntil(200,
-                              [token]()
-                              {
-                                return request(HttpMethod::httpPut,
-                                               "127.0.0.1",
-                                               "12345",
-                                               "/api/interests/test_interest/objects/api/subscription",
-                                               Json(),
-                                               token.value());
-                              });
+  auto updateRet = retryUntil(
+    200,
+    [this]() { return request(HttpMethod::httpPut, "/api/interests/test_interest/objects/api/subscription", Json()); });
 
   ASSERT_EQ(updateRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object subscriptions
-  auto getRet = retryUntil(200,
-                           [token]()
-                           {
-                             return request(HttpMethod::httpGet,
-                                            "127.0.0.1",
-                                            "12345",
-                                            "/api/interests/test_interest/objects/api/subscription",
-                                            Json(),
-                                            token.value());
-                           });
+  auto getRet = retryUntil(
+    200,
+    [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/subscription", Json()); });
 
   ASSERT_EQ(getRet.statusCode, 200);
 
@@ -681,35 +550,26 @@ TEST(Rest, e2e_update_subscriptions_empty)
 
 /// @test
 /// End-to-end test for updating object property subscriptions
-TEST(Rest, e2e_update_subscriptions_property)
+TEST_F(RestE2EFixture, update_subscriptions_property)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Update object subscriptions
   auto updateRet = retryUntil(200,
-                              [token]()
+                              [this]()
                               {
                                 return request(HttpMethod::httpPut,
-                                               "127.0.0.1",
-                                               "12345",
                                                "/api/interests/test_interest/objects/api/subscription",
-                                               Json {{"properties", {"buildInfo"}}},
-                                               token.value());
+                                               Json {{"properties", {"buildInfo"}}});
                               });
 
   ASSERT_EQ(updateRet.statusCode, 200);
@@ -717,16 +577,9 @@ TEST(Rest, e2e_update_subscriptions_property)
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object subscriptions
-  auto getRet = retryUntil(200,
-                           [token]()
-                           {
-                             return request(HttpMethod::httpGet,
-                                            "127.0.0.1",
-                                            "12345",
-                                            "/api/interests/test_interest/objects/api/subscription",
-                                            Json(),
-                                            token.value());
-                           });
+  auto getRet = retryUntil(
+    200,
+    [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/subscription", Json()); });
 
   ASSERT_EQ(getRet.statusCode, 200);
 
@@ -738,62 +591,42 @@ TEST(Rest, e2e_update_subscriptions_property)
 
 /// @test
 /// End-to-end test for updating object subscriptions of non-existing members
-TEST(Rest, e2e_update_subscriptions_non_existing_members)
+TEST_F(RestE2EFixture, update_subscriptions_non_existing_members)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   auto updateRet = request(HttpMethod::httpPut,
-                           "127.0.0.1",
-                           "12345",
                            "/api/interests/test_interest/objects/api/subscription",
-                           Json {{"properties", {"nonExistingProperty"}}},
-                           token.value());
+                           Json {{"properties", {"nonExistingProperty"}}});
   ASSERT_EQ(updateRet.statusCode, 404);
 }
 
 /// @test
 /// End-to-end test getting existing object with its properties when optional query param is true
-TEST(Rest, e2e_get_existing_object_including_properties)
+TEST_F(RestE2EFixture, get_existing_object_including_properties)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Try to get an object properties
-  auto ret = request(HttpMethod::httpGet,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests/test_interest/objects/api?includeValues=true",
-                     Json(),
-                     token.value());
+  auto ret = request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api?includeValues=true", Json());
   ASSERT_EQ(ret.statusCode, 200);
 
   auto interests = Json::parse(ret.body);
@@ -804,32 +637,21 @@ TEST(Rest, e2e_get_existing_object_including_properties)
 
 /// @test
 /// End-to-end test getting existing object without its properties when optional query param is not true
-TEST(Rest, e2e_get_existing_object_not_including_properties)
+TEST_F(RestE2EFixture, get_existing_object_not_including_properties)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Try to not get an object properties
-  auto ret = request(HttpMethod::httpGet,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests/test_interest/objects/api?includeValues=false",
-                     Json(),
-                     token.value());
+  auto ret = request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api?includeValues=false", Json());
   ASSERT_EQ(ret.statusCode, 200);
 
   auto interests = Json::parse(ret.body);
@@ -839,38 +661,26 @@ TEST(Rest, e2e_get_existing_object_not_including_properties)
 
 /// @test
 /// End-to-end test for successful interest creation including auto-subscription
-TEST(Rest, e2e_create_interest_autosubscription)
+TEST_F(RestE2EFixture, create_interest_autosubscription)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
   auto createRet = request(
     HttpMethod::httpPost,
-    "127.0.0.1",
-    "12345",
     "/api/interests",
     Json {
-      {"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}, {"autoSubscribe", {{"properties", true}}}},
-    token.value());
+      {"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}, {"autoSubscribe", {{"properties", true}}}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object subscriptions
-  auto ret = retryUntil(200,
-                        [token]()
-                        {
-                          return request(HttpMethod::httpGet,
-                                         "127.0.0.1",
-                                         "12345",
-                                         "/api/interests/test_interest/objects/api/subscription",
-                                         Json(),
-                                         token.value());
-                        });
+  auto ret = retryUntil(
+    200,
+    [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/subscription", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -880,38 +690,26 @@ TEST(Rest, e2e_create_interest_autosubscription)
 
 /// @test
 /// End-to-end test for successful interest creation without auto-subscription
-TEST(Rest, e2e_create_interest_no_autosubscription)
+TEST_F(RestE2EFixture, create_interest_no_autosubscription)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
   auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
                            "/api/interests",
                            Json {{"name", "test_interest"},
                                  {"query", "SELECT * FROM local.kernel"},
-                                 {"autoSubscribe", {{"properties", false}, {"events", false}}}},
-                           token.value());
+                                 {"autoSubscribe", {{"properties", false}, {"events", false}}}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Get object subscriptions
-  auto ret = retryUntil(200,
-                        [token]()
-                        {
-                          return request(HttpMethod::httpGet,
-                                         "127.0.0.1",
-                                         "12345",
-                                         "/api/interests/test_interest/objects/api/subscription",
-                                         Json(),
-                                         token.value());
-                        });
+  auto ret = retryUntil(
+    200,
+    [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/subscription", Json()); });
 
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -922,57 +720,40 @@ TEST(Rest, e2e_create_interest_no_autosubscription)
 
 /// @test
 /// End-to-end test for malformed request to create interest with auto-subscription
-TEST(Rest, e2e_create_interest_malformed_request_autosubscribe)
+TEST_F(RestE2EFixture, create_interest_malformed_request_autosubscribe)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
   auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
                            "/api/interests",
                            Json {{"name", "test_interest"},
                                  {"query", "SELECT * FROM local.kernel"},
-                                 {"autoSubscribe", {{"properties", "nonValidRequest"}}}},
-                           token.value());
+                                 {"autoSubscribe", {{"properties", "nonValidRequest"}}}});
   ASSERT_EQ(createRet.statusCode, 400);
 }
 
 /// @test
 /// End-to-end test for getting a method definition
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_method_definition)
+TEST_F(RestE2EFixture, get_method_definition)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   // Get method definition
-  HttpResponse ret = retryUntil(200,
-                                [&token]()
-                                {
-                                  return request(HttpMethod::httpGet,
-                                                 "127.0.0.1",
-                                                 "12345",
-                                                 "/api/interests/test_interest/objects/api/methods/shutdown",
-                                                 Json(),
-                                                 token.value());
-                                });
+  HttpResponse ret = retryUntil(
+    200,
+    [this]()
+    { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/methods/shutdown", Json()); });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto res = Json::parse(ret.body);
@@ -983,31 +764,20 @@ TEST(Rest, e2e_get_method_definition)
 /// @test
 /// End-to-end test to verify all returned definition links are accessible
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_all_method_definitions)
+TEST_F(RestE2EFixture, get_all_method_definitions)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   // Retrieve object definition
   HttpResponse ret = retryUntil(
-    200,
-    [&token]()
-    {
-      return request(
-        HttpMethod::httpGet, "127.0.0.1", "12345", "/api/interests/test_interest/objects/api", Json(), token.value());
-    });
+    200, [this]() { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api", Json()); });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto res = Json::parse(ret.body);
@@ -1020,7 +790,7 @@ TEST(Rest, e2e_get_all_method_definitions)
     {
       continue;
     }
-    auto defRet = request(HttpMethod::httpGet, "127.0.0.1", "12345", link["href"], Json(), token.value());
+    auto defRet = request(HttpMethod::httpGet, link["href"], Json());
     ASSERT_EQ(defRet.statusCode, 200);
   }
 }
@@ -1028,34 +798,22 @@ TEST(Rest, e2e_get_all_method_definitions)
 /// @test
 /// End-to-end test for getting property definition
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_get_property_definition)
+TEST_F(RestE2EFixture, get_property_definition)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   // Get method definition
-  auto ret = retryUntil(200,
-                        [token]()
-                        {
-                          return request(HttpMethod::httpGet,
-                                         "127.0.0.1",
-                                         "12345",
-                                         "/api/interests/test_interest/objects/api/properties/buildInfo",
-                                         Json(),
-                                         token.value());
-                        });
+  auto ret = retryUntil(
+    200,
+    [this]()
+    { return request(HttpMethod::httpGet, "/api/interests/test_interest/objects/api/properties/buildInfo", Json()); });
   ASSERT_EQ(ret.statusCode, 200);
 
   auto res = Json::parse(ret.body);
@@ -1065,44 +823,32 @@ TEST(Rest, e2e_get_property_definition)
 /// @test
 /// End-to-end test for subscribing and unsubscribing to property updates
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_property_subscription)
+TEST_F(RestE2EFixture, property_subscription)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   auto ret = retryUntil(200,
-                        [token]()
+                        [this]()
                         {
                           return request(HttpMethod::httpPost,
-                                         "127.0.0.1",
-                                         "12345",
                                          "/api/interests/test_interest/objects/api/properties/buildInfo/subscribe",
-                                         Json(),
-                                         token.value());
+                                         Json());
                         });
   ASSERT_TRUE(ret.statusCode == 200);
 
   ret = retryUntil(200,
-                   [token]()
+                   [this]()
                    {
                      return request(HttpMethod::httpPost,
-                                    "127.0.0.1",
-                                    "12345",
                                     "/api/interests/test_interest/objects/api/properties/buildInfo/unsubscribe",
-                                    Json(),
-                                    token.value());
+                                    Json());
                    });
   ASSERT_TRUE(ret.statusCode == 200);
 }
@@ -1110,50 +856,37 @@ TEST(Rest, e2e_property_subscription)
 /// @test
 /// Notification immediately received with current value after creating a property subscription
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_property_subscription_notification)
+TEST_F(RestE2EFixture, property_subscription_notification)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   std::atomic<sen::TimeStamp> timestamp = sen::TimeStamp(std::chrono::system_clock::now().time_since_epoch());
   std::atomic<bool> cancelToken = false;
 
   // Query notifications from a different thread
-  auto future = std::async(std::launch::async,
-                           [token, &cancelToken, &timestamp]()
-                           {
-                             auto retVal = requestSSE("127.0.0.1",
-                                                      "12345",
-                                                      "/api/sse",
-                                                      token.value(),
-                                                      cancelToken,
-                                                      [&timestamp](std::string value)
-                                                      { return value.rfind("event: property", 0); });
-                             ASSERT_TRUE(retVal);
-                           });
+  auto future = std::async(
+    std::launch::async,
+    [this, &cancelToken, &timestamp]()
+    {
+      auto retVal = requestSSE(
+        "/api/sse", cancelToken, [&timestamp](std::string value) { return value.rfind("event: property", 0); });
+      ASSERT_TRUE(retVal);
+    });
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   timestamp = sen::TimeStamp(std::chrono::system_clock::now().time_since_epoch());
   auto ret = retryUntil(200,
-                        [token]()
+                        [this]()
                         {
                           return request(HttpMethod::httpPost,
-                                         "127.0.0.1",
-                                         "12345",
                                          "/api/interests/test_interest/objects/api/properties/buildInfo/subscribe",
-                                         Json(),
-                                         token.value());
+                                         Json());
                         });
   ASSERT_TRUE(ret.statusCode == 200);
 
@@ -1164,33 +897,24 @@ TEST(Rest, e2e_property_subscription_notification)
 /// @test
 /// End-to-end test for invoking a method
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_invoke_method)
+TEST_F(RestE2EFixture, invoke_method)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto createRet = request(HttpMethod::httpPost,
-                           "127.0.0.1",
-                           "12345",
-                           "/api/interests",
-                           Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                           token.value());
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(createRet.statusCode, 200);
 
   // Invoke method
   auto ret = retryUntil(200,
-                        [token]()
+                        [this]()
                         {
                           return request(HttpMethod::httpPost,
-                                         "127.0.0.1",
-                                         "12345",
                                          "/api/interests/test_interest/objects/api/methods/getUnits/invoke",
-                                         Json::array(),
-                                         token.value());
+                                         Json::array());
                         });
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -1200,14 +924,11 @@ TEST(Rest, e2e_invoke_method)
 
   ret =
     retryUntil(200,
-               [token, &res]()
+               [this, &res]()
                {
                  return request(HttpMethod::httpGet,
-                                "127.0.0.1",
-                                "12345",
                                 "/api/interests/test_interest/objects/api/methods/getUnits/invoke/" + res["id"].dump(),
-                                Json(),
-                                token.value());
+                                Json());
                });
   ASSERT_EQ(ret.statusCode, 200);
 
@@ -1219,44 +940,33 @@ TEST(Rest, e2e_invoke_method)
 /// @test
 /// End-to-end test for notification subscription
 /// @requirements(SEN-1061)
-TEST(Rest, e2e_notification_subscription)
+TEST_F(RestE2EFixture, notification_subscription)
 {
   Server server;
 
-  // Authenticate
-  auto token = authenticate();
-  ASSERT_TRUE(token.has_value());
+  authenticate();
 
   // Create interest
-  auto ret = request(HttpMethod::httpPost,
-                     "127.0.0.1",
-                     "12345",
-                     "/api/interests",
-                     Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}},
-                     token.value());
+  auto ret = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
   ASSERT_EQ(ret.statusCode, 200);
 
   // Query notifications from a different thread
   std::atomic<bool> cancelToken = false;
-  auto future =
-    std::async(std::launch::async,
-               [token, &cancelToken]()
-               {
-                 auto retVal = requestSSE(
-                   "127.0.0.1", "12345", "/api/sse", token.value(), cancelToken, [](std::string) { return false; });
-                 ASSERT_TRUE(retVal);
-               });
+  auto future = std::async(std::launch::async,
+                           [this, &cancelToken]()
+                           {
+                             auto retVal = requestSSE("/api/sse", cancelToken, [](std::string) { return false; });
+                             ASSERT_TRUE(retVal);
+                           });
 
   // Invoke a method
   ret = retryUntil(200,
-                   [token]()
+                   [this]()
                    {
                      return request(HttpMethod::httpPost,
-                                    "127.0.0.1",
-                                    "12345",
                                     "/api/interests/test_interest/objects/api/methods/getUnits/invoke",
-                                    Json::array(),
-                                    token.value());
+                                    Json::array());
                    });
   ASSERT_EQ(ret.statusCode, 200);
 
