@@ -19,6 +19,7 @@
 #include "sen/core/obj/detail/proxy_object.h"
 
 // std
+#include <memory>
 #include <mutex>
 
 namespace sen
@@ -72,7 +73,7 @@ private:
   struct EventCallbackData
   {
     uint32_t id;
-    EventCallback<VarList> callback;
+    std::shared_ptr<EventCallback<VarList>> callback;
   };
 
   using EventCallbackList = std::vector<EventCallbackData>;

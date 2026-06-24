@@ -98,7 +98,7 @@ sen::Result<InterestName, InterestError> ObjectInterestsManager::createInterest(
       }
     });
 
-  subscription->attachTo(std::move(source), interest, false);
+  subscription->attachTo(std::move(source), interest, true);
   interests_.emplace(interestName, InterestSubscription {interest, subscription, busLocator});
 
   return sen::Ok(interestName);

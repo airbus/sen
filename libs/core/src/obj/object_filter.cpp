@@ -501,8 +501,8 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
   // create the provider
   ownedProviders_.push_back(std::make_shared<impl::FilteredProvider>(this, interest));
   providers_.push_back(ownedProviders_.back());
-  auto provider = providers_.back().lock();
-  provider->addListener(listener, true);
+  const auto provider = providers_.back().lock();
+  provider->addListener(listener, notifyAboutExisting);
 
   if (notifyAboutExisting)
   {
