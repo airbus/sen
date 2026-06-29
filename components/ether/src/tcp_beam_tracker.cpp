@@ -24,18 +24,20 @@
 #include <asio/error_code.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
-#include <asio/read.hpp>
 #include <asio/socket_base.hpp>
 
 // std
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
+#include <exception>
 #include <functional>
 #include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 namespace sen::components::ether
 {
@@ -139,6 +141,12 @@ void TcpBeamTracker::connect()
   {
     if (err)
     {
+      getLogger()->info("could not connect to discovery hub {}:{} : {} ({})",
+                        us->endpoint_.address().to_string(),
+                        us->endpoint_.port(),
+                        err.message(),
+                        err.value());
+
       us->timer_.cancel();
       us->timer_.expires_after(reconnectTimeout);
       us->timer_.async_wait(
@@ -176,28 +184,60 @@ void TcpBeamTracker::receive()
 {
   auto receive = [us = shared_from_this()](std::error_code ec, std::size_t length)
   {
-    std::ignore = length;
     if (ec)
     {
-      us->socket_.close();
-      getLogger()->info(
-        "lost connection to discovery hub {}:{}", us->endpoint_.address().to_string(), us->endpoint_.port());
+      asio::error_code closeError;
+      us->socket_.close(closeError);  // NOLINT(bugprone-unused-return-value)
+      getLogger()->info("lost connection to discovery hub {}:{} : {} ({})",
+                        us->endpoint_.address().to_string(),
+                        us->endpoint_.port(),
+                        ec.message(),
+                        ec.value());
 
       if (us->onDisconnected_)
       {
-        us->onDisconnected_();
+        try
+        {
+          us->onDisconnected_();
+        }
+        catch (const std::exception& error)
+        {
+          getLogger()->error("discovery hub disconnect callback failed: {}", error.what());
+          throw;
+        }
+        catch (...)
+        {
+          getLogger()->error("discovery hub disconnect callback failed");
+          throw;
+        }
       }
 
       us->connect();
     }
     else
     {
-      us->beamReceived(*us->api_, readFromBuffer<SessionPresenceBeam>(us->buffer_));
+      try
+      {
+        const std::vector<uint8_t> beamData(us->buffer_.begin(),
+                                            us->buffer_.begin() + static_cast<std::ptrdiff_t>(length));
+        us->beamReceived(*us->api_, readFromBuffer<SessionPresenceBeam>(beamData));
+      }
+      catch (const std::exception& error)
+      {
+        getLogger()->error("could not process discovery beam from hub: {}", error.what());
+        throw;
+      }
+      catch (...)
+      {
+        getLogger()->error("could not process discovery beam from hub");
+        throw;
+      }
+
       us->receive();
     }
   };
 
-  asio::async_read(socket_, asio::buffer(buffer_), std::move(receive));
+  socket_.async_receive(asio::buffer(buffer_), std::move(receive));
 }
 
 }  // namespace sen::components::ether

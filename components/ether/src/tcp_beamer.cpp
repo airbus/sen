@@ -22,6 +22,7 @@
 #include <asio/buffer.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
+#include <asio/write.hpp>
 
 // std
 #include <cstdint>
@@ -48,7 +49,15 @@ void TcpBeamer::sendBeam(const std::vector<uint8_t>& beam)
 {
   if (connected_)
   {
-    socket_.async_send(asio::buffer(beam), [](std::error_code /*ec*/, auto /* unused */) {});
+    asio::async_write(socket_,
+                      asio::buffer(beam),
+                      [](std::error_code ec, auto /* unused */)
+                      {
+                        if (ec)
+                        {
+                          getLogger()->info("could not send discovery beam to hub: {} ({})", ec.message(), ec.value());
+                        }
+                      });
   }
 }
 
