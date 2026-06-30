@@ -1,0 +1,26 @@
+# === main.yaml ========================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+name: Orchestrator Workflow
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  initial-pre-commit-checks:
+    uses: ./.github/workflows/pre-commit.yaml
+
+  standard-tests:
+    uses: ./.github/workflows/standard_test.yaml
+    with:
+      building-main: ${{ github.ref == 'refs/heads/main' }}
+
+  conan-packaging:
+    uses: ./.github/workflows/conan.yaml
+    needs: standard-tests

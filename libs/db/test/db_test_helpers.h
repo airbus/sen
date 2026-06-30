@@ -11,7 +11,7 @@
 #define SEN_DB_TEST_HELPERS_H
 
 // shared test helpers
-#include "archive_test_helpers.h"
+#include "sen/test_support/archive_test_helpers.h"
 
 // sen
 #include "sen/core/base/compiler_macros.h"

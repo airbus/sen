@@ -10,13 +10,14 @@ add_subdirectory(unit)
 # Disable integration tests due to windows build agent problems
 if(NOT MSVC)
   add_subdirectory(integration/test_helpers)
-  add_subdirectory(integration/transport)
-  add_subdirectory(integration/runtime_compatibility)
-  add_subdirectory(integration/crash_report)
-  add_subdirectory(integration/type_clash)
-
+  # TODO(SEN-1725): Need to figure out github support
+  # add_subdirectory(integration/transport)
+  # add_subdirectory(integration/runtime_compatibility)
+  # add_subdirectory(integration/crash_report)
+  # add_subdirectory(integration/type_clash)
+  #
   # integration tests that use containers (only available in Linux)
-  if(LINUX)
-    add_subdirectory(integration/object_sync)
-  endif()
+  # if(LINUX)
+  #   add_subdirectory(integration/object_sync)
+  # endif()
 endif()

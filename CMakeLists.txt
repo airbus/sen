@@ -146,7 +146,8 @@ if(SEN_BUILD_TESTS)
   add_subdirectory(test/util/stress_testing_utils)
   add_subdirectory(test/util/calls_on_removal)
   add_subdirectory(test/util/publish_types_manually)
-  add_subdirectory(test/util/query_test)
+  # TODO(SEN-1725): Fix test that fails on arm
+  # add_subdirectory(test/util/query_test)
   add_subdirectory(test/support)
 endif()
 

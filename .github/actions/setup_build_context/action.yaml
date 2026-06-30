@@ -1,0 +1,54 @@
+name: "Setup basic build context with dependencies."
+description: "Setup the default build context: installing compilers, testing frameworks, and other dependencies."
+inputs:
+  compiler-name:
+    required: true
+  compiler-version:
+    required: true
+  arch:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@v6
+      with:
+        python-version: 3.x
+
+    - name: Install python dependencies
+      shell: bash
+      run: pip install -U conan pytest
+
+    - name: Install gcc-${{ inputs.compiler-version }}
+      if: ${{ inputs.compiler-name == 'gcc' }}
+      shell: bash
+      run: sudo apt-get install -y g++-${{ inputs.compiler-version }}
+
+    - name: Install clang-${{ inputs.compiler-version }}
+      if: ${{ inputs.compiler-name == 'clang' }}
+      shell: bash
+      run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh ${{ inputs.compiler-version }}
+        sudo apt install -y clang-tools-${{ inputs.compiler-version }}
+
+    - name: Install system dependencies
+      if: ${{ inputs.compiler-name != 'msvc' }}
+      shell: bash
+      # need for clang compat with sdl2 2.24.0
+      run: sudo apt-get install -y libxext-dev
+
+    - name: Setup conan profile
+      shell: bash
+      run: |
+        rm -f ~/.conan2/profiles/default
+        conan profile detect --force -vquiet
+        conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
+        cp .conan/profiles/sen_${COMPILER}_${ARCH} ~/.conan2/profiles/default
+        echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
+        echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
+        conan profile show -pr default
+      env:
+        COMPILER: ${{ inputs.compiler-name }}
+        ARCH: ${{ inputs.arch }}

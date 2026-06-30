@@ -1,18 +1,17 @@
-# === conan.yaml =======================================================================================================
+# === standard_test.yaml ===============================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-name: Conan CI
+name: Standard PR Tests
 
 on:
   workflow_call:
     inputs:
-      push_artifacts:
-        required: false
-        default: false
+      building-main:
+        required: true
         type: boolean
 
 permissions:
@@ -32,9 +31,9 @@ jobs:
         with:
           python-version: 3.x
       - id: compute-jobs
-        run: python .github/scripts/generate_matrix_jobs.py --conan
+        run: python .github/scripts/generate_matrix_jobs.py --standard-test ${{ inputs.building-main == true && '--target-main' || '' }}
   build:
-    name: "Conan Job: ${{ matrix.compiler.name }}-${{ matrix.arch }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
+    name: "Standard Test Job: ${{ matrix.compiler.name }}-${{ matrix.arch }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -79,21 +78,36 @@ jobs:
           compiler-version: ${{ matrix.compiler.version }}
           arch: ${{ matrix.arch }}
 
-      - name: Create conan package
+      - name: Install additional python dependencies
+        shell: bash
+        run: pip install -U junitparser
+
+      - name: Compile base libraries
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          conan create . --user airbus --channel dev --lockfile-out=package.lock \
-              --test-folder .conan/test_packages/package \
-              --build=missing -s:a build_type=${{ matrix.build_type }}
+          # export ENABLE_EXAMPLES=true
+          export ENABLE_TESTS=true
+          export ENABLE_COVERAGE=${{ matrix.enable_coverage }}
 
-      - name: Push conan packages
-        if: ${{ inputs.push_artifacts }}
+          conan install . -s:a build_type=${{ matrix.build_type }} --build=missing
+          conan build . -s:a build_type=${{ matrix.build_type }}
+
+      - name: Run tests
         shell: bash
-        run: echo "Pushing package (fake entry)"
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
+
+      # TODO(SEN-1726): Connect App to Airbus Org.
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     files: coverage_reports/coverage.lcov
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Remove unwanted parts from conan cache before backup
         shell: bash
         run: |
-          conan remove sen --confirm
           conan cache clean "*" -s -b -d

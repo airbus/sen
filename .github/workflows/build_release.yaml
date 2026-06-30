@@ -50,34 +50,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
+      - name: Setup build context
+        uses: ./.github/actions/setup_build_context
         with:
-          python-version: 3.x
-
-      - name: Install gcc-${{ matrix.compiler.version }}
-        if: matrix.compiler.name == 'gcc'
-        shell: bash
-        run: sudo apt-get install -y g++-${{ matrix.compiler.version }}
-
-      - name: Install pip dependencies
-        run: |
-          pip install conan pytest
-
-      - name: Setup conan profile
-        shell: bash
-        run: |
-          rm -f ~/.conan2/profiles/default
-          conan profile detect --force -vquiet
-          cp .conan/profiles/sen_${{ matrix.compiler.name }} ~/.conan2/profiles/default
-          echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
-          echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-          conan profile show -pr default
-
-      - name: Install system dependencies
-        if: matrix.compiler.name != 'msvc'
-        shell: bash
-        # need for clang compat with sdl2 2.24.0
-        run: sudo apt-get install -y libxext-dev
+          compiler: ${{ matrix.compiler }}
 
       - name: Generate release package
         run: |

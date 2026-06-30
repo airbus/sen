@@ -47,80 +47,160 @@ class JobSpecification:
     runner: tp.Literal["ubuntu-latest", "windows-2022", "self-hosted", "ubuntu-24.04-arm"]
     container: Container | None
     compiler: Compiler
+    arch: tp.Literal["x86", "arm"]
     std: tp.Literal[17, 20, 23]
     build_type: tp.Literal["Release", "Debug"]
+    enable_coverage: bool = False
 
     def as_json(self) -> dict:
         """Converts the job spec into json."""
         return convert_dataclass_to_json(self)
 
 
-def compute_jobs(release: bool, conan: bool) -> list[JobSpecification]:  # noqa: ARG001
+@dataclass(frozen=True, order=True)
+class JobSelector:
+    """Selector specification that defines when to add a job."""
+
+    job_spec: JobSpecification
+    include_in_release_workflow: bool
+    include_in_conan_workflow: bool
+    include_in_standard_test_workflow: bool
+    include_in_standard_test_workflow_also_main: bool
+
+
+def compute_jobs(release: bool, conan: bool, standard_test: bool, target_main: bool) -> list[JobSpecification]:
     """Computes the list of pipeline jobs that should run."""
-    jobs = []
-
-    # Add gcc jobs
-    if not release:
-        jobs.append(
-            JobSpecification(
-                "Basic GCC", "ubuntu-22.04", "self-hosted", None, Compiler("gcc", 12, "gcc-12", "g++-12"), 17, "Debug"
-            )
-        )
-    else:
-        jobs.append(
-            JobSpecification(
-                "Basic GCC", "ubuntu-22.04", "self-hosted", None, Compiler("gcc", 12, "gcc-12", "g++-12"), 17, "Release"
-            )
-        )
-
-    # Add clang jobs
-    if not release:
-        jobs.append(
-            JobSpecification(
+    specified_jobs = [
+        # Add gcc jobs
+        JobSelector(
+            job_spec=JobSpecification(
+                "Basic GCC",
+                "ubuntu-22.04",
+                "self-hosted",
+                None,
+                Compiler("gcc", 12, "gcc-12", "g++-12"),
+                "x86",
+                17,
+                "Debug",
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        JobSelector(
+            job_spec=JobSpecification(
+                "Basic GCC",
+                "ubuntu-22.04",
+                "self-hosted",
+                None,
+                Compiler("gcc", 12, "gcc-12", "g++-12"),
+                "x86",
+                17,
+                "Release",
+            ),
+            include_in_release_workflow=True,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        # Add clang jobs
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic Clang",
                 "ubuntu-24.04",
                 "self-hosted",
                 None,
                 Compiler("clang", 20, "clang-20", "clang++-20"),
+                "x86",
                 17,
                 "Debug",
-            )
-        )
-
-    # Add msvc jobs
-    if release:
-        jobs.append(
-            JobSpecification(
-                "Basic Windows", "windows", "windows-2022", None, Compiler("msvc", 194, "cl", "cl"), 17, "Release"
-            )
-        )
-    else:
-        jobs.append(
-            JobSpecification(
-                "Basic Windows", "windows", "windows-2022", None, Compiler("msvc", 194, "cl", "cl"), 17, "Debug"
-            )
-        )
-
-    # Add amd64 jobs
-    if not release:
-        jobs.append(
-            JobSpecification(
+                enable_coverage=True,
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=True,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=True,
+        ),
+        # Add msvc jobs
+        JobSelector(
+            job_spec=JobSpecification(
+                "Basic Windows",
+                "windows",
+                "windows-2022",
+                None,
+                Compiler("msvc", 194, "cl", "cl"),
+                "x86",
+                17,
+                "Release",
+            ),
+            include_in_release_workflow=True,
+            include_in_conan_workflow=True,
+            # TODO(SEN-1725): fix build failures in test setup
+            include_in_standard_test_workflow=False,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        JobSelector(
+            job_spec=JobSpecification(
+                "Basic Windows",
+                "windows",
+                "windows-2022",
+                None,
+                Compiler("msvc", 194, "cl", "cl"),
+                "x86",
+                17,
+                "Debug",
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=False,
+            # TODO: fix build failures in test setup
+            include_in_standard_test_workflow=False,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+        # Add amd64 jobs
+        JobSelector(
+            job_spec=JobSpecification(
                 "Basic Ubuntu arm",
                 "ubuntu-24.04",
                 "ubuntu-24.04-arm",
                 None,
-                Compiler("gcc_arm64", 12, "gcc-14", "g++-14"),
+                Compiler("gcc", 14, "gcc-14", "g++-14"),
+                "arm",
                 17,
                 "Debug",
+            ),
+            include_in_release_workflow=False,
+            include_in_conan_workflow=False,
+            include_in_standard_test_workflow=True,
+            include_in_standard_test_workflow_also_main=False,
+        ),
+    ]
+
+    def include_job(job_selector: JobSelector) -> bool:
+        if release:
+            return job_selector.include_in_release_workflow
+
+        if conan:
+            return job_selector.include_in_conan_workflow
+
+        if standard_test and target_main:
+            return (
+                job_selector.include_in_standard_test_workflow
+                and job_selector.include_in_standard_test_workflow_also_main
             )
-        )
 
-    return sorted(jobs)
+        if standard_test:
+            return job_selector.include_in_standard_test_workflow
+
+        print(f"Warning: could not correctly determine selection for job {job_selector}")
+        return False  # by default, we skip jobs
+
+    return sorted([job_selector.job_spec for job_selector in specified_jobs if include_job(job_selector)])
 
 
-def generate_jobs_file(release: bool, conan: bool) -> None:
+def generate_jobs_file(release: bool, conan: bool, standard_test: bool, target_main: bool) -> None:
     """Generates the jobs file at GITHUB_OUTPUT."""
-    jobs = compute_jobs(release, conan)
+    jobs = compute_jobs(release, conan, standard_test, target_main)
 
     if output_file := os.environ.get("GITHUB_OUTPUT"):
         with open(output_file, "w", encoding="utf-8") as matrix_file:
@@ -145,10 +225,25 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         help="Generate the jobs needed to ensure all required conan packages work.",
     )
+    parser.add_argument(
+        "--standard-test",
+        action=argparse.BooleanOptionalAction,
+        help="Generate test jobs to ensure everything works correctly.",
+    )
+    parser.add_argument(
+        "--target-main",
+        action=argparse.BooleanOptionalAction,
+        help="Specifies that we are explicitly building for the main branch.",
+    )
 
     args = parser.parse_args()
 
-    generate_jobs_file(release=args.release, conan=args.conan)
+    generate_jobs_file(
+        release=args.release,
+        conan=args.conan,
+        standard_test=args.standard_test,
+        target_main=args.target_main,
+    )
 
 
 if __name__ == "__main__":
