@@ -8,3 +8,29 @@
 include_guard()
 
 find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+
+if(TARGET spdlog::spdlog)
+  get_target_property(SPDLOG_INCLUDES spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
+  string(
+    REGEX
+    REPLACE "\\$<\\$<CONFIG:[^>]+>:(.*)>"
+            "\\1"
+            SPDLOG_INCLUDES
+            "${SPDLOG_INCLUDES}"
+  )
+
+  get_target_property(FMT_INCLUDES fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
+  string(
+    REGEX
+    REPLACE "\\$<\\$<CONFIG:[^>]+>:(.*)>"
+            "\\1"
+            FMT_INCLUDES
+            "${FMT_INCLUDES}"
+  )
+
+  if(SPDLOG_INCLUDES AND FMT_INCLUDES)
+    install(DIRECTORY "${SPDLOG_INCLUDES}/spdlog" DESTINATION include)
+    install(DIRECTORY "${FMT_INCLUDES}/fmt" DESTINATION include)
+  endif()
+endif()

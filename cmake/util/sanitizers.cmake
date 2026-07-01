@@ -13,6 +13,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
     get_filename_component(LSAN_SUPPRESSION_FILE cmake/util/lsan_ignorelist.txt ABSOLUTE)
     get_filename_component(ASAN_SUPPRESSION_FILE cmake/util/asan_ignorelist.txt ABSOLUTE)
+    get_filename_component(UBSAN_SUPPRESSION_FILE cmake/util/ubsan_ignorelist.txt ABSOLUTE)
 
     add_compile_options(-fsanitize=address,undefined)
     add_link_options(-fsanitize=address,undefined)

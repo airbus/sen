@@ -11,7 +11,6 @@ enum ListenerState : u8
 class Publisher
 {
   var numOfListeners    : u32   [static];
-  var listenersReady    : bool;
 }
 
 class Listener
@@ -26,6 +25,8 @@ struct TestStruct
   field2 : string,
   field3 : f32
 }
+
+optional<f32> OptF32;
 
 enum TestEnum : u8
 {
@@ -48,10 +49,12 @@ class TestObject
   var updateId                                    : u32              [confirmed];  // used to verify the synchronization of dynamic properties
   var bestEffortProp                              : f64              [bestEffort];
   var confirmedProp                               : TestStruct       [confirmed];
+  var multicastProp                               : OptF32;
   var writableProp                                : WritablePropType [writable];
 
   event bestEffortEvent(id: u32, arg: TestStruct)                    [bestEffort];
   event confirmedEvent(id: u32, arg: string)                         [confirmed];
+  event multicastEvent(id: u32, arg: OptF32);
 
   fn constMethod(arg: TestEnum)                   -> u32             [const];
   fn confirmedMethod(arg: u64)                    -> u8              [confirmed];

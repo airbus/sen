@@ -1,0 +1,90 @@
+kernel:
+  crashReportDisabled: true
+
+load:
+  - name: ether
+    group: 10
+    runDiscoveryHub: 65454
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 100 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: sen-hub
+          port: 65454
+
+build:
+  - name: terminatorComponent1
+    group: 3
+    freqHz: 30
+    imports: [test_helpers, high_churn_subs]
+    objects:
+      - name: terminator1
+        class: sen.test.ProcessTerminatorImpl
+        bus: session.bus
+  - name: prodComp1
+    group: 3
+    freqHz: 1000
+    imports: [test_helpers, high_churn_subs]
+    objects:
+      - name: producer1
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+      - name: producer2
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+      - name: producer3
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+  - name: prodComp2
+    group: 3
+    freqHz: 1000
+    imports: [test_helpers, high_churn_subs]
+    objects:
+      - name: producer4
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+      - name: producer5
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+  - name: prodComp3
+    group: 3
+    freqHz: 1000
+    imports: [test_helpers, high_churn_subs]
+    objects:
+      - name: producer6
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+  - name: prodComp4
+    group: 3
+    freqHz: 1000
+    imports: [test_helpers, high_churn_subs]
+    objects:
+      - name: producer7
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+  - name: prodComp5
+    group: 3
+    freqHz: 1000
+    imports: [test_helpers, high_churn_subs]
+    objects:
+      - name: producer8
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+      - name: producer9
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus
+      - name: producer10
+        class: high_churn_subs.Producer
+        numOfListeners: 20
+        bus: session.bus

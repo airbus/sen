@@ -22,7 +22,7 @@ from testcontainers.core.network import Network
 # constants
 # TODO (SEN-1681) replace with a lighter runtime image
 IMAGE_NAME = "sim-csr-docker.pforgeipt-docker.intra.airbusds.corp/sen-build-debian12:0.1.0-31-ge5dd492"
-TIMEOUT = 5
+TIMEOUT = 30
 
 
 def stream_logs(cont: DockerContainer) -> None:

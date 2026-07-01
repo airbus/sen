@@ -10,6 +10,7 @@
 
 // component
 #include "bus_window.h"
+#include "event_explorer.h"
 #include "plotter.h"
 #include "util.h"
 
@@ -18,6 +19,7 @@
 
 // sen
 #include "sen/kernel/component.h"
+#include "sen/kernel/component_api.h"
 
 // std
 #include <filesystem>
@@ -27,7 +29,17 @@ class MainBar
   SEN_NOCOPY_NOMOVE(MainBar)
 
 public:
-  MainBar(sen::kernel::RunApi& api, EventExplorer* eventExplorer);
+  struct ViewSettings
+  {
+    static constexpr float minScale = 0.25f;
+    static constexpr float maxScale = 5.0f;
+
+    float currentScale = 1.0f;
+    float targetScale = 1.0f;
+  };
+
+public:
+  MainBar(sen::kernel::RunApi& api, EventExplorer* eventExplorer, ViewSettings& viewSettings);
   ~MainBar() = default;
 
 public:
@@ -42,6 +54,7 @@ private:
   void drawModals();
   void mainWindow();
   void layoutsMenu();
+  void viewMenu();
   void scanLayoutFiles();
   bool loadLayout(const std::filesystem::path& path);
   bool saveLayout(const std::filesystem::path& path);
@@ -73,6 +86,7 @@ private:
 private:
   sen::kernel::RunApi& api_;
   EventExplorer* eventExplorer_;
+  ViewSettings& viewSettings_;
   std::string newLayoutName_;
   std::filesystem::path activeLayoutPath_;
   std::string searchLayoutInput_;

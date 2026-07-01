@@ -160,7 +160,7 @@ endfunction()
 #   [REQ_DEPS <deps>]
 # )
 function(add_sen_integration_test test_name)
-  set(_options FLAKY)
+  set(_options FLAKY USE_TESTCONTAINERS)
   set(_one_value_args)
   set(_multi_value_args REQ_COMPONENTS REQ_DEPS)
 
@@ -180,16 +180,46 @@ function(add_sen_integration_test test_name)
   endif()
   set_tests_properties(${test_name} PROPERTIES LABELS ${labels})
 
+  # disable log buffering in integration tests that use python
+  append_test_env_modification(${test_name} "PYTHONUNBUFFERED=set:1")
+
+  set(_lsan_suppressions ${LSAN_SUPPRESSION_FILE})
+  set(_asan_suppressions ${ASAN_SUPPRESSION_FILE})
+  set(_ubsan_suppressions ${UBSAN_SUPPRESSION_FILE})
+  set(_tsan_suppressions ${TSAN_SUPPRESSION_FILE})
+
+  # the USE_TESTCONTAINERS argument indicates that the integration test will use python testcontainers
+  if(${_arg_USE_TESTCONTAINERS})
+    # ryuk image to clean docker resources used in integration tests that use testcontainers
+    append_test_env_modification(
+      ${test_name}
+      "RYUK_CONTAINER_IMAGE=set:docker-proxy.pforgeipt-docker.intra.airbusds.corp/testcontainers/ryuk:0.8.1"
+    )
+    set(_lsan_suppressions /home/builder/sen/cmake/util/lsan_ignorelist.txt)
+    set(_asan_suppressions /home/builder/sen/cmake/util/asan_ignorelist.txt)
+    set(_ubsan_suppressions /home/builder/sen/cmake/util/ubsan_ignorelist.txt)
+    set(_tsan_suppressions /home/builder/sen/cmake/util/tsan_ignorelist.txt)
+  endif()
+
   if(LSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "LSAN_OPTIONS=set:suppressions=${LSAN_SUPPRESSION_FILE}")
+    append_test_env_modification(
+      ${test_name} "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1"
+    )
   endif()
 
   if(ASAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "ASAN_OPTIONS=set:suppressions=${ASAN_SUPPRESSION_FILE}")
+    append_test_env_modification(
+      ${test_name}
+      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100"
+    )
+  endif()
+
+  if(UBSAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:suppressions=${_ubsan_suppressions}")
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "TSAN_OPTIONS=set:suppressions=${TSAN_SUPPRESSION_FILE}")
+    append_test_env_modification(${test_name} "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}")
   endif()
 
   add_dependencies(run_integration_tests ${_arg_REQ_COMPONENTS} ${_arg_REQ_DEPS})

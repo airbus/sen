@@ -58,7 +58,6 @@ private:
 
 private:
   std::unique_ptr<HttpServer> server_;
-  asio::io_context ctx_;
   Configuration config_;
   TimeStamp lastUpdateTime_;
   bool initialized_;

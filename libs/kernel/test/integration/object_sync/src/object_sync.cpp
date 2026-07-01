@@ -116,6 +116,11 @@ public:
     gen_.discard(updateCounter_);
     setNextConfirmedProp(generateStruct(gen_));
 
+    // update multicast prop
+    gen_.seed(generatorSeed);
+    gen_.discard(updateCounter_);
+    setNextMulticastProp(std::uniform_real_distribution()(gen_));
+
     // best effort event
     gen_.seed(generatorSeed);
     gen_.discard(updateCounter_);
@@ -125,6 +130,11 @@ public:
     gen_.seed(generatorSeed);
     gen_.discard(updateCounter_);
     confirmedEvent(updateCounter_, generateString(gen_));
+
+    // update multicast prop
+    gen_.seed(generatorSeed);
+    gen_.discard(updateCounter_);
+    multicastEvent(updateCounter_, std::uniform_real_distribution()(gen_));
   }
 
 protected:
@@ -167,14 +177,6 @@ public:
   void registered(sen::kernel::RegistrationApi& api) override
   {
     listenerStates_.reserve(getNumOfListeners());
-
-    // publish the test object once all listeners have been detected
-    guards_.emplace_back(onListenersReadyChanged({this,
-                                                  [this]()
-                                                  {
-                                                    // publish the test object
-                                                    object_->doUpdate();
-                                                  }}));
 
     // detect listeners (used for test shutdown)
     listenerSub_ = api.selectAllFrom<ListenerInterface>(
@@ -219,7 +221,8 @@ public:
 
                                         if (allListenersWithState(ListenerState::ready))
                                         {
-                                          setNextListenersReady(true);
+                                          // start updating the object with all listeners are ready
+                                          object_->doUpdate();
                                           logger_->info("listeners ready");
                                         }
                                       }}));
@@ -268,11 +271,13 @@ struct ListenedData
   // dynamic props
   std::vector<float64_t> bestEffortPropUpdates;
   std::vector<TestStruct> confirmedPropUpdates;
+  std::vector<OptF32> multicastPropUpdates;
   std::vector<WritablePropType> writablePropUpdates;
 
   // events
   std::unordered_map<uint32_t, TestStruct> bestEffortEventData;
   std::unordered_map<uint32_t, std::string> confirmedEventData;
+  std::unordered_map<uint32_t, OptF32> multicastEventData;
 };
 
 /// Detects changes in the TestObject members (from the same, or a different component or process)
@@ -335,6 +340,16 @@ public:
                  data_.confirmedPropUpdates.push_back(testObject_->getConfirmedProp());
                }
              }}));
+          objGuards_.emplace_back(testObject_->onMulticastPropChanged(
+            {this,
+             [this]()
+             {
+               doSync(testObject_->getUpdateId());
+               if (data_.multicastPropUpdates.size() < numOfChecks)
+               {
+                 data_.multicastPropUpdates.push_back(testObject_->getMulticastProp());
+               }
+             }}));
           objGuards_.emplace_back(
             testObject_->onWritablePropChanged({this,
                                                 [this]()
@@ -367,6 +382,20 @@ public:
                                              if (data_.confirmedEventData.size() < numOfChecks)
                                              {
                                                if (!data_.confirmedEventData.insert({id, arg}).second)
+                                               {
+                                                 // Key was repeated; result.first points to the existing
+                                                 // element
+                                                 repeatedEventsReceived_ = true;
+                                               }
+                                             }
+                                           }}));
+          objGuards_.emplace_back(
+            testObject_->onMulticastEvent({this,
+                                           [this](const uint32_t id, const OptF32& arg)
+                                           {
+                                             if (data_.multicastEventData.size() < numOfChecks)
+                                             {
+                                               if (!data_.multicastEventData.insert({id, arg}).second)
                                                {
                                                  // Key was repeated; result.first points to the existing
                                                  // element
@@ -556,6 +585,49 @@ private:  // implements ListenerImpl
 
 SEN_EXPORT_CLASS(ListenerConfirmedProps)
 
+/// Listener that checks if multicast props are synchronized correctly
+class ListenerMulticastProps final: public ListenerImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(ListenerMulticastProps)
+
+public:
+  using ListenerImpl::ListenerImpl;
+  ~ListenerMulticastProps() override = default;
+
+private:  // implements ListenerImpl
+  void doSync(uint32_t updateId) override
+  {
+    ListenerImpl::doSync(updateId);
+
+    if (getData().multicastPropUpdates.size() == numOfChecks)
+    {
+      setNextState(ListenerState::inSync);
+    }
+  }
+
+  void doChecks() override
+  {
+    const auto& data = getData();
+    SEN_ASSERT(data.multicastPropUpdates.size() == numOfChecks);
+
+    // generator for the updates
+    for (uint32_t i = 0; i < numOfChecks; ++i)
+    {
+      std::mt19937 gen(generatorSeed);
+      gen.discard(getFirstUpdateId() + i);
+      SEN_ASSERT(data.multicastPropUpdates[i].asOptional().has_value());
+      if (data.multicastPropUpdates[i].asOptional().has_value())
+      {
+        SEN_ASSERT(data.multicastPropUpdates[i].asOptional().value() ==
+                   static_cast<float32_t>(std::uniform_real_distribution()(gen)));
+      }
+    }
+  }
+};
+
+SEN_EXPORT_CLASS(ListenerMulticastProps)
+
 /// Listener that checks if writable props are synchronized . We just send the update ID in the writable prop directly
 class ListenerWritableProps final: public ListenerImpl
 {
@@ -567,7 +639,6 @@ public:
     : ListenerImpl(std::move(name), args), gen_(generatorSeed)
   {
   }
-
   ~ListenerWritableProps() override = default;
 
 public:
@@ -625,7 +696,6 @@ public:
     : ListenerImpl(std::move(name), args), gen_(generatorSeed)
   {
   }
-
   ~ListenerBestEffortEvent() override = default;
 
 private:  // implements ListenerImpl
@@ -671,7 +741,6 @@ public:
     : ListenerImpl(std::move(name), args), gen_(generatorSeed)
   {
   }
-
   ~ListenerConfirmedEvent() override = default;
 
 private:  // implements ListenerImpl
@@ -706,6 +775,56 @@ private:
 };
 
 SEN_EXPORT_CLASS(ListenerConfirmedEvent)
+
+/// Listener that checks if multicast events are transmitted correctly
+class ListenerMulticastEvent final: public ListenerImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(ListenerMulticastEvent)
+
+public:
+  ListenerMulticastEvent(std::string name, const sen::VarMap& args)
+    : ListenerImpl(std::move(name), args), gen_(generatorSeed)
+  {
+  }
+  ~ListenerMulticastEvent() override = default;
+
+private:  // implements ListenerImpl
+  void doSync(uint32_t updateId) override
+  {
+    std::ignore = updateId;
+    if (getData().multicastEventData.size() == numOfChecks)
+    {
+      setNextState(ListenerState::inSync);
+    }
+  }
+
+  void doChecks() override
+  {
+    const auto& data = getData();
+    SEN_ASSERT(data.multicastEventData.size() == numOfChecks);
+
+    // generator for the updates
+    for (const auto& [id, value]: data.multicastEventData)
+    {
+      gen_.seed(generatorSeed);
+      gen_.discard(id);
+      SEN_ASSERT(value.asOptional().has_value());
+      if (value.asOptional().has_value())
+      {
+        SEN_ASSERT(value.asOptional().value() == static_cast<float32_t>(std::uniform_real_distribution()(gen_)));
+      }
+    }
+
+    // check that the event was not received multiple times
+    SEN_ASSERT(!getRepeatedEventsReceived());
+  }
+
+private:
+  std::mt19937 gen_;
+};
+
+SEN_EXPORT_CLASS(ListenerMulticastEvent)
 
 /// Listener that checks if confirmed events are transmitted correctly
 class ListenerLocalMethod final: public ListenerImpl
@@ -766,7 +885,6 @@ public:
   {
     returnValues_.reserve(numOfChecks);
   }
-
   ~ListenerConstMethod() override = default;
 
 public:
@@ -819,7 +937,6 @@ public:
   {
     returnValues_.reserve(numOfChecks);
   }
-
   ~ListenerConfirmedMethod() override = default;
 
 public:

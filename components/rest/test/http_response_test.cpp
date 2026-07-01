@@ -33,7 +33,8 @@ TEST(Rest, default_response)
   HttpResponse response;
   ASSERT_EQ(response.getStatusCode(), 404);
   ASSERT_EQ(response.getReasonPhrase(), "Not Found");
-  ASSERT_EQ(response.toBuffer(), "HTTP/1.1 404 Not Found\r\n" + getAllowCorsHeaders() + "Content-Length: 0\r\n\r\n");
+  ASSERT_EQ(response.toBuffer(),
+            "HTTP/1.1 404 Not Found\r\n" + getAllowCorsHeaders() + "Content-Length: 0\r\nConnection: close\r\n\r\n");
 }
 
 /// @test
@@ -65,14 +66,15 @@ TEST(Rest, serialization_headers)
 {
   {
     HttpResponse response(200);
-    ASSERT_EQ(response.toBuffer(), "HTTP/1.1 200 OK\r\n" + getAllowCorsHeaders() + "Content-Length: 0\r\n\r\n");
+    ASSERT_EQ(response.toBuffer(),
+              "HTTP/1.1 200 OK\r\n" + getAllowCorsHeaders() + "Content-Length: 0\r\nConnection: close\r\n\r\n");
   }
   {
     HttpResponse response(200, std::vector<HttpHeader> {{"Content-Type", "text/javascript; charset=utf-8"}});
     ASSERT_EQ(response.toBuffer(),
               "HTTP/1.1 200 OK\r\n"
               "Content-Type: text/javascript; charset=utf-8\r\n" +
-                getAllowCorsHeaders() + "Content-Length: 0\r\n\r\n");
+                getAllowCorsHeaders() + "Content-Length: 0\r\nConnection: close\r\n\r\n");
   }
   {
     HttpResponse response(200,
@@ -82,7 +84,7 @@ TEST(Rest, serialization_headers)
               "HTTP/1.1 200 OK\r\n"
               "Cache-Control: max-age=604800\r\nContent-Type: text/javascript; "
               "charset=utf-8\r\n" +
-                getAllowCorsHeaders() + "Content-Length: 0\r\n\r\n");
+                getAllowCorsHeaders() + "Content-Length: 0\r\nConnection: close\r\n\r\n");
   }
 }
 
@@ -96,7 +98,8 @@ TEST(Rest, body)
   ASSERT_EQ(response.toBuffer(),
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain; charset=utf-8\r\n" +
-              getAllowCorsHeaders() + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body);
+              getAllowCorsHeaders() + "Content-Length: " + std::to_string(body.length()) +
+              "\r\nConnection: close\r\n\r\n" + body);
 }
 
 /// @test
@@ -107,5 +110,5 @@ TEST(Rest, no_cors_headers)
   HttpResponse response(200, {}, "", false);
   ASSERT_EQ(response.toBuffer(),
             "HTTP/1.1 200 OK\r\n"
-            "Content-Length: 0\r\n\r\n");
+            "Content-Length: 0\r\nConnection: close\r\n\r\n");
 }

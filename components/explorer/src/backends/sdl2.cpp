@@ -164,4 +164,10 @@ void backendClose()
   SDL_Quit();
 }
 
+void backendReloadFonts()
+{
+  ImGui_ImplOpenGL3_DestroyFontsTexture();
+  ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
 // NOLINTEND

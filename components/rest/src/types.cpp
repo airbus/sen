@@ -118,7 +118,7 @@ std::string toJson(const sen::Object& object, const PropertyLocator& propertyLoc
     .dump();
 }
 
-std::string toJson(const sen::Object& object, const sen::VarList& value)
+std::string toJson(const sen::Object& object, const sen::VarList& value, const EventLocator& eventLocator)
 {
   auto objectClass = object.getClass();
   auto dataJsonString = toJson(value);
@@ -126,6 +126,9 @@ std::string toJson(const sen::Object& object, const sen::VarList& value)
     {"name", object.getName()},
     {"classname", objectClass->getQualifiedName()},
     {"localname", object.getLocalName()},
+    {"session", eventLocator.session()},
+    {"bus", eventLocator.bus()},
+    {"event", eventLocator.event()},
     {"value", Json::parse(dataJsonString)},
   }
     .dump();

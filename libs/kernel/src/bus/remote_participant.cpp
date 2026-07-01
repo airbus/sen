@@ -290,6 +290,14 @@ void RemoteObjectFilter::removeSubscriber(ObjectProviderListener* listener, bool
   }
 }
 
+void RemoteObjectFilter::replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener)
+{
+  for (const auto& [id, provider]: providers_)
+  {
+    provider->replaceListener(oldListener, newListener);
+  }
+}
+
 void RemoteObjectFilter::remoteObjectsAdded(InterestId interestId, const ObjectAdditionList& additions)
 {
   if (const auto itr = providers_.find(interestId); itr != providers_.end())

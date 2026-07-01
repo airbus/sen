@@ -8,6 +8,7 @@
 #include "client_session.h"
 
 // component
+#include "http_session.h"
 #include "jwt.h"
 #include "locators.h"
 #include "notifications.h"
@@ -25,8 +26,13 @@
 #include "sen/core/obj/object.h"
 #include "sen/kernel/component_api.h"
 
+// asio
+#include <asio/ip/tcp.hpp>
+
 // std
+#include <memory>
 #include <string>
+#include <utility>
 
 namespace sen::components::rest
 {
@@ -34,8 +40,23 @@ namespace sen::components::rest
 ClientSession::~ClientSession()
 {
   getLogger()->trace("Destroying ClientSession");
-  interests_.releaseAllInterests();
+
+  activeNotificationLoops_.clear();
+  interestsManager_.releaseAllInterests();
+
   getLogger()->trace("ClientSession destroyed");
+}
+
+[[nodiscard]] std::shared_ptr<NotificationLoop> ClientSession::buildNotificationLoop(
+  std::shared_ptr<HttpSession> httpSession,
+  std::shared_ptr<asio::ip::tcp::socket> socket)
+{
+  return activeNotificationLoops_.emplace_back(
+    std::make_shared<NotificationLoop>(std::move(httpSession),
+                                       std::move(socket),
+                                       membersManager_.getObserverGuard(),
+                                       invokesManager_.getObserverGuard(),
+                                       interestsManager_.getObserverGuard()));
 }
 
 [[nodiscard]] std::string ClientSession::encodeToken() const
@@ -51,31 +72,26 @@ ClientSession::~ClientSession()
 Result<InterestName, InterestError> ClientSession::createInterest(sen::kernel::RunApi& runApi,
                                                                   const BusLocator& busLocator,
                                                                   const InterestName& interestName,
-                                                                  const std::string& query)
+                                                                  const std::string& query,
+                                                                  bool autoSubscribeProperties,
+                                                                  bool autoSubscribeEvents)
 {
-  return interests_.createInterest(runApi,
-                                   busLocator,
-                                   interestName,
-                                   query,
-                                   [this]([[maybe_unused]] const InterestName& interestName, sen::ObjectId objectId)
-                                   {
-                                     // Clean up internal object resources
-                                     members_.unsubscribeAll(objectId);
-                                   });
-}
-
-ObserverGuard ClientSession::getObserverGuard(NotifierType guardType)
-{
-  switch (guardType)
-  {
-    case NotifierType::interestsNotifier:
-      return interests_.getObserverGuard();
-    case NotifierType::membersNotifier:
-      return members_.getObserverGuard();
-    case NotifierType::invokesNotifier:
-    default:
-      return invokes_.getObserverGuard();
-  }
+  return interestsManager_.createInterest(
+    runApi,
+    busLocator,
+    interestName,
+    query,
+    [this, &runApi, interestName, busLocator, autoSubscribeProperties, autoSubscribeEvents](sen::Object* object)
+    {
+      return (!autoSubscribeProperties ||
+              membersManager_.subscribeAllProperties(runApi, interestName, *object, busLocator)) &&
+             (!autoSubscribeEvents || membersManager_.subscribeAllEvents(runApi, interestName, *object, busLocator));
+    },
+    [this]([[maybe_unused]] const InterestName& interestName, sen::ObjectId objectId)
+    {
+      // Clean up internal object resources
+      membersManager_.unsubscribeAll(objectId);
+    });
 }
 
 }  // namespace sen::components::rest

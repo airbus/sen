@@ -327,6 +327,15 @@ function(add_sen_package)
     )
     target_link_libraries(${_arg_TARGET} PUBLIC ${_arg_DEPS})
     target_link_libraries(${_arg_TARGET} PRIVATE ${_arg_PRIVATE_DEPS})
+    add_properties_to_export_set(
+      ${_arg_TARGET}
+      BASE_PATH
+      STL_FILES
+      HLA_MAPPINGS
+      HLA_FOM_DIRS
+      SEN_IMPORT_DIRS
+      SEN_EXPORTS_TYPES
+    )
   endif()
 
   # create final test target (static) if specified
@@ -340,6 +349,15 @@ function(add_sen_package)
     copy_target_properties(${_arg_TEST_TARGET} ${_arg_TARGET}_obj)
     target_link_libraries(${_arg_TEST_TARGET} PUBLIC ${_arg_DEPS})
     target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_PRIVATE_DEPS})
+    add_properties_to_export_set(
+      ${_arg_TEST_TARGET}
+      BASE_PATH
+      STL_FILES
+      HLA_MAPPINGS
+      HLA_FOM_DIRS
+      SEN_IMPORT_DIRS
+      SEN_EXPORTS_TYPES
+    )
   endif()
 
 endfunction()
@@ -469,6 +487,16 @@ function(add_sen_interface_package)
       )
     endif()
   endif()
+
+  add_properties_to_export_set(
+    ${_arg_TARGET}
+    BASE_PATH
+    STL_FILES
+    HLA_MAPPINGS
+    HLA_FOM_DIRS
+    SEN_IMPORT_DIRS
+    SEN_EXPORTS_TYPES
+  )
 endfunction()
 
 # Deprecated wrapper for add_sen_package(... PUBLIC_SYMBOLS).

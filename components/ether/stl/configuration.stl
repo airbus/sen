@@ -63,7 +63,8 @@ array<ByteRange, 4> MulticastRange;
 // Remember to set these to the same value in all related Sen instances
 struct BusConfig
 {
-  // Defaults to: [224-239], [0-255], [0-255], [0-255]
+  // Defaults to the Organization Local scope (RFC 2365):
+  // [239], [192-195], [0-255], [0-255]
   // Remember to keep a range wide enough for avoiding collisions if you have many buses.
   multicastRange : MulticastRange,
 

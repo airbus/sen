@@ -161,3 +161,21 @@ struct Version
 {
   version : string
 }
+
+sequence<string> BusNames;
+
+struct SessionSummary
+{
+  name  : string,
+  buses : BusNames
+}
+
+sequence<string> Properties;
+
+sequence<string> Events;
+
+struct Subscriptions
+{
+  properties : Properties,
+  events     : Events
+}

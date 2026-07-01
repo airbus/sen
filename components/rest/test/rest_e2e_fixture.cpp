@@ -1,11 +1,11 @@
-// === request.cpp =====================================================================================================
+// === rest_e2e_fixture.cpp ============================================================================================
 //                                               Sen Infrastructure
 //                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 //                                    See the LICENSE.txt file for more information.
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "request.h"
+#include "rest_e2e_fixture.h"
 
 // auto-generated code
 #include "stl/types.stl.h"
@@ -23,9 +23,13 @@
 // json
 #include <nlohmann/json.hpp>
 
+// google test
+#include <gtest/gtest.h>
+
 // std
-#include <cstddef>
+#include <atomic>
 #include <cstring>
+#include <functional>
 #include <iostream>  //NOLINT
 #include <optional>
 #include <sstream>
@@ -37,27 +41,27 @@ using sen::components::rest::HttpMethod;
 
 constexpr std::string_view eventHeader = "event: ";
 
-HttpResponse request(const HttpMethod& method,
-                     const std::string& host,
-                     const std::string& port,
-                     const std::string& path,
-                     const std::optional<Json> data,
-                     const std::string& token,
-                     bool isSSE)
+std::string buildHTTPRequest(const HttpMethod& method,
+                             const std::string& host,
+                             const std::string& port,
+                             const std::string& path,
+                             const std::optional<Json> data,
+                             const std::string& token)
 {
-  HttpResponse result {0, ""};
-  asio::io_context context;
-  asio::ip::tcp::resolver resolver(context);
-  asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
-
-  asio::ip::tcp::socket socket(context);
-  asio::connect(socket, endpoints);  // NOLINT
-
+  std::string request;
   std::string payload;
   size_t payloadSize = 0;
-  std::string request;
+
   switch (method)
   {
+    case HttpMethod::httpPut:
+      request = "PUT";
+      if (data.has_value())
+      {
+        payload = data->dump();
+        payloadSize = payload.size();
+      }
+      break;
     case HttpMethod::httpPost:
       request = "POST";
       if (data.has_value())
@@ -87,25 +91,36 @@ HttpResponse request(const HttpMethod& method,
     request.append("\r\nAuthorization: Bearer ");
     request.append(token);
   }
-  if (method == HttpMethod::httpPost)
+  if (method == HttpMethod::httpPost || method == HttpMethod::httpPut)
   {
     request.append("\r\nContent-Length: ");
     request.append(std::to_string(payloadSize));
   }
   request.append("\r\n\r\n");
-  if (method == HttpMethod::httpPost)
+  if (method == HttpMethod::httpPost || method == HttpMethod::httpPut)
   {
     request.append(payload);
   }
 
+  return request;
+}
+
+HttpResponse RestE2EFixture::request(const HttpMethod& method, const std::string& path, const std::optional<Json>& data)
+{
+  HttpResponse result {0, ""};
+
+  asio::ip::tcp::socket socket(context_);
+  asio::connect(socket, endpoints_);  // NOLINT
+
+  std::string request = buildHTTPRequest(method, "127.0.0.1", "12345", path, data, token_.value());
   asio::write(socket, asio::buffer(request));  // NOLINT
+
   std::string response;
   asio::error_code error;
   while (true)
   {
     char buf[1024];
     size_t len = socket.read_some(asio::buffer(buf), error);
-
     if (error == asio::error::eof)
     {
       response.append(buf, len);
@@ -117,11 +132,6 @@ HttpResponse request(const HttpMethod& method,
     }
 
     response.append(buf, len);
-    if (isSSE && len >= eventHeader.size() && memcmp(buf, eventHeader.data(), eventHeader.size()) == 0)
-    {
-      std::cout << buf << std::endl;
-      return HttpResponse {200, response};
-    }
   }
 
   size_t lineEnd = response.find("\r\n");
@@ -143,14 +153,56 @@ HttpResponse request(const HttpMethod& method,
   return result;
 }
 
-std::optional<std::string> authenticate()
+bool RestE2EFixture::requestSSE(const std::string& path,
+                                const std::atomic<bool>& cancelToken,
+                                const std::function<bool(std::string)>& onNotification)
 {
-  auto authRet = request(HttpMethod::httpPost, "127.0.0.1", "12345", "/api/auth", Json {{"id", "admin"}});
+  asio::ip::tcp::socket socket(context_);
+  asio::connect(socket, endpoints_);  // NOLINT
+  socket.non_blocking(true);
+
+  std::string payload;
+  std::string request = buildHTTPRequest(HttpMethod::httpGet, "127.0.0.1", "12345", path, std::nullopt, token_.value());
+  asio::write(socket, asio::buffer(request));  // NOLINT
+
+  std::string response;
+  asio::error_code error;
+  bool shallContinue = true;
+  while (shallContinue && !cancelToken.load())
+  {
+    char buf[1024];
+    size_t len = socket.read_some(asio::buffer(buf), error);
+
+    if (error == asio::error::eof)
+    {
+      response.append(buf, len);
+      return false;
+    }
+    if (error && error != asio::error::basic_errors::try_again && error != asio::error::would_block)
+    {
+      return false;
+    }
+
+    response.append(buf, len);
+    if (len >= eventHeader.size() && memcmp(buf, eventHeader.data(), eventHeader.size()) == 0)
+    {
+      shallContinue = onNotification(buf);
+    }
+  }
+
+  return true;
+}
+
+void RestE2EFixture::authenticate()
+{
+  auto authRet = request(HttpMethod::httpPost, "/api/auth", Json {{"id", "admin"}});
   if (authRet.statusCode != 200)
   {
-    return std::nullopt;
+    token_ = std::nullopt;
   }
 
   auto authResponse = Json::parse(authRet.body);
-  return authResponse["token"].get<std::string>();
+  token_ = authResponse["token"].get<std::string>();
+
+  ASSERT_TRUE(token_.has_value());
 }

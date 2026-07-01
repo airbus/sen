@@ -10,6 +10,7 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/iterator_adapters.h"
 #include "sen/core/lang/vm.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/property.h"
@@ -500,8 +501,8 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
   // create the provider
   ownedProviders_.push_back(std::make_shared<impl::FilteredProvider>(this, interest));
   providers_.push_back(ownedProviders_.back());
-  auto provider = providers_.back().lock();
-  provider->addListener(listener, true);
+  const auto provider = providers_.back().lock();
+  provider->addListener(listener, notifyAboutExisting);
 
   if (notifyAboutExisting)
   {
@@ -559,6 +560,17 @@ void ObjectFilter::removeSubscriber(ObjectProviderListener* listener, bool notif
     std::remove_if(
       ownedProviders_.begin(), ownedProviders_.end(), [](const auto& elem) -> bool { return !elem->hasListeners(); }),
     ownedProviders_.end());
+}
+
+void ObjectFilter::replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener)
+{
+  for (const auto& providerw: util::makeLockedRange<std::lock_guard>(providers_, usageMutex_))
+  {
+    if (auto provider = providerw.lock())
+    {
+      provider->replaceListener(oldListener, newListener);
+    }
+  }
 }
 
 void ObjectFilter::evaluate(const ObjectSet& objects)

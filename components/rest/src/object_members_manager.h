@@ -26,6 +26,7 @@
 // std
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 namespace sen::components::rest
 {
@@ -44,29 +45,54 @@ public:
   ~ObjectMembersManager() = default;
 
 public:
-  /// Subscribe to property updates of a given Sen object
+  /// Subscribes to property updates of a given Sen object.
   bool subscribeProperty(const sen::kernel::KernelApi& kernelApi,
                          const InterestName& interestName,
                          std::shared_ptr<sen::Object> object,
                          const PropertyLocator& propertyLocator,
                          const SubscriptionOptions& options);
 
-  /// Subscribe to eventupdates of a given Sen object
+  /// Subscribes to event updates of a given Sen object.
   bool subscribeEvent(const sen::kernel::KernelApi& kernelApi,
                       const InterestName& interestName,
                       std::shared_ptr<sen::Object> object,
                       const EventLocator& eventLocator);
 
-  /// Unsubscribes from member updates of a Sen object.
-  /// Members can be property or events
-  bool unsubscribe(const sen::ObjectId& objectId, const MemberHash& memberId);
+  /// Unsubscribes from property updates of a Sen object.
+  bool unsubscribeProperty(const sen::ObjectId& objectId, const MemberHash& propertyId);
 
-  /// Unsubscribes from all events of an object.
-  /// Members can be property or events
-  bool unsubscribeAll(const sen::ObjectId& objectId);
+  /// Unsubscribes from event updates of a Sen object.
+  bool unsubscribeEvent(const sen::ObjectId& objectId, const MemberHash& eventId);
+
+  /// Unsubscribes from all members of an object.
+  /// Members can be properties or events.
+  void unsubscribeAll(const sen::ObjectId& objectId);
+
+  /// Checks whether a client is subscribed to member updates of a Sen object.
+  /// Members can be properties or events.
+  bool isSubscribedTo(const sen::ObjectId& objectId, const MemberHash& memberId);
+
+  /// Returns a list of object property ids the client is subscribed to
+  std::vector<sen::MemberHash> getPropertyIds(const sen::ObjectId& objectId);
+
+  /// Returns a list of object event ids the client is subscribed to
+  std::vector<sen::MemberHash> getEventIds(const sen::ObjectId& objectId);
+
+  /// Subscribes to all property updates of a given Sen object.
+  bool subscribeAllProperties(const sen::kernel::KernelApi& kernelApi,
+                              const InterestName& interest,
+                              sen::Object& object,
+                              const BusLocator& busLocator);
+
+  /// Subscribes to all event updates of a given Sen object.
+  bool subscribeAllEvents(const sen::kernel::KernelApi& kernelApi,
+                          const InterestName& interest,
+                          sen::Object& object,
+                          const BusLocator& busLocator);
 
 private:
-  std::unordered_map<ObjectId, std::unordered_map<sen::MemberHash, ConnectionGuard>> members_;
+  std::unordered_map<ObjectId, std::unordered_map<sen::MemberHash, ConnectionGuard>> properties_;
+  std::unordered_map<ObjectId, std::unordered_map<sen::MemberHash, ConnectionGuard>> events_;
 };
 
 }  // namespace sen::components::rest

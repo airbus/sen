@@ -18,9 +18,9 @@ and rich communication.</h4>
 
 <div align="center">
 
-  <a href="">![License](https://img.shields.io/badge/License-Apache%202.0-blue)</a>
-  <a href="">![C++](https://img.shields.io/badge/C%2B%2B-17-blue?logo=c%2B%2B)</a>
-  <a href="">[![Documentation](https://github.com/airbus/sen/actions/workflows/build_docs.yaml/badge.svg)](https://github.com/airbus/sen/actions/workflows/build_docs.yaml)</a>
+<a href="">![License](https://img.shields.io/badge/License-Apache%202.0-blue)</a>
+<a href="">![C++](https://img.shields.io/badge/C%2B%2B-17-blue?logo=c%2B%2B)</a>
+<a href="">[![Documentation](https://github.com/airbus/sen/actions/workflows/build_docs.yaml/badge.svg)](https://github.com/airbus/sen/actions/workflows/build_docs.yaml)</a>
 
 </div>
 
@@ -173,6 +173,26 @@ cmake --build build/gcc/Release                   # Build Sen
 
 If you would like to set up the full development environment for Sen (incl. testing, docs, etc...),
 you would need to install the `pytest`, `graphviz` and `plantuml` packages using your package manager.
+
+<a name="local-workspace-setup"></a>
+## 📦 Local Workspace Setup (Conan Editable Mode)
+
+You can link consumer projects that have Sen as a dependency with a local compilation of Sen
+without running `conan create` by using conan editable mode. Just follow this steps:
+
+1. Configure the current Sen version in the editable mode list (this version needs to match the one
+   specified in the requirements section of the consumer project)
+   ```bash
+   conan_channel=$([ -n "$TAG_NAME" ] && echo "stable" || echo "devel")
+   conan editable add . --user=airbus --channel=$conan_channel
+   ```
+   You can also run `conan editable list` to check if the package was correctly added to the list.
+2. Run conan install in the consumer project and check that the Sen package used as dependency is
+   marked as `Editable`. In that case, the consumer package will be compiled with the local Sen.
+3. To remove Sen from the conan editable list, just run:
+     ```bash
+   conan editable remove .
+   ```
 
 <a name="limitations"></a>
 ## ⚠️ Limitations

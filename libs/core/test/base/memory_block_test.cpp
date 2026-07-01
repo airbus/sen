@@ -27,21 +27,13 @@
 TEST(MemoryBlock, FixedMemoryBlockPoolDefault)
 {
   using FixedMemoryPool = sen::FixedMemoryBlockPool<sizeof(void*)>;
-  const std::shared_ptr<FixedMemoryPool> blockPool;
+  const auto blockPool = FixedMemoryPool::make();
 
   EXPECT_EQ(blockPool->minBlockSize<10>(), 10);
   EXPECT_EQ(blockPool->minBlockSize<3>(), sizeof(void*));
   EXPECT_EQ(blockPool->minBlockSize<7>(), sizeof(void*));
   EXPECT_EQ(blockPool->minBlockSize<8>(), 8);
-
-#ifndef _WIN32
-#  ifdef __has_feature
-#    if __has_feature(thread_sanitizer) or __has_feature(address_sanitizer)
-  return;  // skip last check when running with TSAN
-#    endif
-#  endif
-  EXPECT_EXIT(std::ignore = blockPool->getBlockPtr(), ::testing::KilledBySignal(SIGSEGV), ".*");  // NOLINT
-#endif
+  EXPECT_NE(blockPool->getBlockPtr(), nullptr);
 }
 
 /// @test

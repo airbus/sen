@@ -47,6 +47,8 @@ public:
   void setWindowTitle(const std::string& windowTitle);
   void refresh() const;
   void clearScreen() const;
+  void suspendPrompt() const;
+  void resumePrompt() const;
 
 public:
   [[nodiscard]] History* getHistory() noexcept;

@@ -43,7 +43,7 @@ namespace sen::components::rest
 // Constants
 //--------------------------------------------------------------------------------------------------------------
 
-constexpr size_t maxPayloadSize = 1024;
+constexpr size_t maxPayloadSize = 8192;
 
 //--------------------------------------------------------------------------------------------------------------
 // HttpSession
@@ -67,13 +67,20 @@ HttpSession::~HttpSession() { getLogger()->trace("HttpSession destroyed"); }
 void HttpSession::start()
 {
   SEN_ASSERT(socket_.is_open());
+  read();
+}
 
+void HttpSession::read()
+{
   socket_.async_read_some(asio::buffer(data_, maxReadLength),
                           [self = shared_from_this()](std::error_code ec, std::size_t length)
                           {
                             if (ec)
                             {
-                              getLogger()->error("HttpSession error on read {} {}", ec.value(), ec.message());
+                              if (ec != asio::error::eof)
+                              {
+                                getLogger()->error("HttpSession error on read {} {}", ec.value(), ec.message());
+                              }
                               return;
                             }
 
@@ -81,8 +88,15 @@ void HttpSession::start()
                                        [self = std::move(self), length]() mutable
                                        {
                                          self->parser_.data = static_cast<void*>(&self);
-                                         llhttp_execute(&self->parser_, self->data_.data(), length);
-                                         self->parser_.data = nullptr;  // clean ptr into self
+
+                                         auto err = llhttp_execute(&self->parser_, self->data_.data(), length);
+                                         self->parser_.data = nullptr;
+
+                                         // Keep reading after succesfully parsed but message still not complete
+                                         if (err == HPE_OK && !self->messageComplete_ && self->socket_.is_open())
+                                         {
+                                           self->read();
+                                         }
                                        });
                           });
 }
@@ -112,6 +126,8 @@ int HttpSession::onMessageComplete(llhttp_t* parser)
   }
 
   auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
+  session->messageComplete_ = true;
+
   const auto method = fromString(session->request_.method_);
   if (!method.has_value())
   {
@@ -193,7 +209,7 @@ int HttpSession::onHeaderField([[maybe_unused]] llhttp_t* parser, const char* da
 
 int HttpSession::onHeaderValue([[maybe_unused]] llhttp_t* parser, const char* data, size_t nbytes)
 {
-  if (parser && parser->data && nbytes > 0 && nbytes < HttpHeader::maxHeaderValueLen)
+  if (parser && parser->data && nbytes < HttpHeader::maxHeaderValueLen)
   {
     auto session = *static_cast<std::shared_ptr<HttpSession>*>(parser->data);
 
@@ -202,8 +218,10 @@ int HttpSession::onHeaderValue([[maybe_unused]] llhttp_t* parser, const char* da
       return -1;
     }
 
-    std::string value(data, nbytes);
+    // Empty header values are RFC valid
+    std::string value = nbytes > 0 ? std::string(data, nbytes) : "";
     session->request_.headers_[session->currentHttpField_] = HttpHeader(session->currentHttpField_, value);
+
     return 0;
   }
   return -1;

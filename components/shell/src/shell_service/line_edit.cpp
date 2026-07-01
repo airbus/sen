@@ -170,6 +170,41 @@ public:
 
   void refresh() { refreshLine(curLine_); }
 
+  void suspendPrompt()
+  {
+    term_->hideCursor();
+    uint32_t rows = 80;
+    uint32_t cols = 80;
+    term_->getSize(rows, cols);
+    uint32_t absPhysicalPos = promptLength_ + lastCursorPos_;
+    uint32_t physicalLine = absPhysicalPos / cols;
+
+    if (physicalLine > 0)
+    {
+      term_->moveCursorUp(physicalLine);
+    }
+    term_->moveCursorAllLeft();
+    term_->clearRemainingCurrentLine();
+
+    if (lastLine_ > 0)
+    {
+      for (uint32_t i = 0; i < lastLine_; ++i)
+      {
+        term_->moveCursorDown(1);
+        term_->clearRemainingCurrentLine();
+      }
+      term_->moveCursorUp(lastLine_);
+    }
+    term_->showCursor();
+  }
+
+  void resumePrompt()
+  {
+    lastLine_ = 0;
+    lastCursorPos_ = 0;
+    refreshLine(curLine_);
+  }
+
 private:
   void processKey(Key key, char character, bool& done, kernel::RunApi&& api)
   {
@@ -883,5 +918,9 @@ void LineEdit::processEvents(kernel::RunApi& api) { pimpl_->processEvents(api); 
 void LineEdit::clearScreen() const { pimpl_->clearScreen(); }
 
 void LineEdit::refresh() const { pimpl_->refresh(); }
+
+void LineEdit::suspendPrompt() const { pimpl_->suspendPrompt(); }
+
+void LineEdit::resumePrompt() const { pimpl_->resumePrompt(); }
 
 }  // namespace sen::components::shell

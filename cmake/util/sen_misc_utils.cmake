@@ -9,13 +9,26 @@ include_guard()
 
 function(sen_enable_static_analysis target_name)
   if(NOT SEN_DISABLE_CLANG_TIDY)
+    set(_targets_to_analyze ${target_name})
+
+    if(TARGET ${target_name})
+      get_target_property(_internal_obj_lib ${target_name} OBJECT_LIBRARY)
+      if(_internal_obj_lib AND TARGET ${_internal_obj_lib})
+        list(APPEND _targets_to_analyze ${_internal_obj_lib})
+      endif()
+    endif()
+
     if(MSVC)
-      set_property(TARGET ${target_name} PROPERTY VS_GLOBAL_EnableClangTidyCodeAnalysis true)
+      foreach(_tgt IN LISTS _targets_to_analyze)
+        set_property(TARGET ${_tgt} PROPERTY VS_GLOBAL_EnableClangTidyCodeAnalysis true)
+      endforeach()
     else()
       if(NOT clang_tidy_path)
         message(WARNING "clang-tidy disabled for target ${target_name}")
       else()
-        set_property(TARGET ${target_name} PROPERTY CXX_CLANG_TIDY "${clang_tidy_path};-extra-arg=-std=c++17")
+        foreach(_tgt IN LISTS _targets_to_analyze)
+          set_property(TARGET ${_tgt} PROPERTY CXX_CLANG_TIDY "${clang_tidy_path};-extra-arg=-std=c++17")
+        endforeach()
       endif()
     endif()
   endif()
@@ -178,6 +191,29 @@ function(
       PROPERTY ${property_name} ${_val}
     )
   endif()
+endfunction()
+
+# Adds a property to the export set for it to be present when the target is consumed externally
+function(add_properties_to_export_set target)
+  foreach(property_name IN LISTS ARGN)
+    get_property(
+      _val
+      TARGET ${target}
+      PROPERTY ${property_name}
+    )
+
+    if(NOT
+       "${_val}"
+       STREQUAL
+       "_val-NOTFOUND"
+    )
+      set_property(
+        TARGET ${target}
+        APPEND
+        PROPERTY EXPORT_PROPERTIES ${property_name}
+      )
+    endif()
+  endforeach()
 endfunction()
 
 # Links a Sen dependency to a target, exporting Sen types if needed
@@ -530,6 +566,7 @@ function(copy_target_properties to_target from_target)
   copy_target_property(${to_target} ${from_target} SEN_IS_PYTHON)
   copy_target_property(${to_target} ${from_target} SEN_GEN_DIR)
   copy_target_property(${to_target} ${from_target} SCHEMA)
+  copy_target_property(${to_target} ${from_target} EXPORT_PROPERTIES)
   target_include_directories(
     ${to_target} PUBLIC $<TARGET_PROPERTY:${from_target},INTERFACE_INCLUDE_DIRECTORIES>
   )
