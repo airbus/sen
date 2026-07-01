@@ -84,6 +84,9 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake DESTINATION ${C
 # Install required sen utils cmake files
 install(FILES ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/util)
 
+# Install spdlog
+install(FILES ${PROJECT_SOURCE_DIR}/cmake/util/Findspdlog.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+
 # We need the sen utils cmake files in the binary dir when working in conan editable mode
 file(COPY ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/util)
 
