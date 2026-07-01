@@ -12,7 +12,7 @@
 #include "sen/kernel/component_api.h"
 #include "stl/runtime/runtime.stl.h"
 #include "stl/sen/kernel/kernel_objects.stl.h"
-#include "test_helpers/tester.stl.h"
+#include "test_helpers/test_helpers.stl.h"
 
 // std
 #include <bitset>

@@ -11,7 +11,6 @@ enum ListenerState : u8
 class Publisher
 {
   var numOfListeners    : u32   [static];
-  var listenersReady    : bool;
 }
 
 class Listener

@@ -1,0 +1,49 @@
+package sen.test;
+
+// Contains the result of a test. If the test fails, it contains the error log
+optional<string> TestResult;
+
+// Performs the test actions in the remote object
+class Tester
+{
+  var ready : bool [confirmed];
+
+  fn doTests()         -> TestResult; // performs the test and checks the changes in the remote object
+  fn checkLocalState() -> TestResult; // checks the changes in the local object modified by the test
+  fn shutdownKernel();                // commands a shutdown of the sen kernel
+}
+
+// A StatefulObject used in the integration tests can transition between these different states
+enum ConnectionState : u8
+{
+  starting,
+  ready,
+  step1,
+  step2,
+  step3,
+  step4,
+  finished
+}
+
+// All objects that transition between connection states
+class StatefulObject
+{
+  var state           : ConnectionState [confirmed];
+}
+
+// StateFulObject that performs actions in integration tests
+class Publisher : extends StatefulObject
+{
+  var numOfListeners  : u32 [static];
+}
+
+// StateFulObject that performs checks in integration tests
+class Listener : extends StatefulObject
+{
+}
+
+// Shuts down a process using the KernelApi when all stateful objects are in finished state. This allows the test to
+// end gracefully when all checks pass
+class ProcessTerminator
+{
+}

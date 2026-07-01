@@ -178,14 +178,6 @@ public:
   {
     listenerStates_.reserve(getNumOfListeners());
 
-    // publish the test object once all listeners have been detected
-    guards_.emplace_back(onListenersReadyChanged({this,
-                                                  [this]()
-                                                  {
-                                                    // publish the test object
-                                                    object_->doUpdate();
-                                                  }}));
-
     // detect listeners (used for test shutdown)
     listenerSub_ = api.selectAllFrom<ListenerInterface>(
       "session.bus",
@@ -229,7 +221,8 @@ public:
 
                                         if (allListenersWithState(ListenerState::ready))
                                         {
-                                          setNextListenersReady(true);
+                                          // start updating the object with all listeners are ready
+                                          object_->doUpdate();
                                           logger_->info("listeners ready");
                                         }
                                       }}));
