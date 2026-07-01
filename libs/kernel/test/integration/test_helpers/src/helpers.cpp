@@ -55,7 +55,7 @@ void ProcessTerminatorImpl::registered(sen::kernel::RegistrationApi& api)
                            obj->asObject().getName(),
                            StringConversionTraits<ConnectionState>::toString(obj->getState()));
 
-             logger_->info("{} current states:");
+             logger_->info("{} current states:", getName());
              for (const auto* objectElement: objectsSub_->list.getObjects())
              {
                logger_->info("{} : {}",
@@ -99,6 +99,8 @@ PublisherImpl::PublisherImpl(std::string name, const sen::VarMap& args): Publish
 
 void PublisherImpl::registered(sen::kernel::RegistrationApi& api)
 {
+  StateFulObjectImpl::registered(api);
+
   bus_ = api.getSource("session.bus");
 
   // detect listeners
@@ -238,6 +240,8 @@ void ListenerImpl::check4()
 
 void ListenerImpl::registered(sen::kernel::RegistrationApi& api)
 {
+  StateFulObjectImpl::registered(api);
+
   bus_ = api.getSource("session.bus");
   publisherSub_ = api.selectAllFrom<PublisherInterface>(
     "session.bus",

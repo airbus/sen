@@ -43,7 +43,6 @@ TEST(ARemoteInterestHandler, processANewRemoteSubscriptionWhenThereAreNoObjects)
   remoteInterestHandler.addSubscriber(InterestId(1), &remote, true);
 
   ASSERT_EQ(remoteInterestHandler.remotesUpdatesBMMap.size<RemoteParticipant*>(), 0);
-  ASSERT_EQ(remoteInterestHandler.remotesToInterestsUpdatesMap.size(), 0);
   ASSERT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(&remote));
 }
 
@@ -61,7 +60,7 @@ TEST(ARemoteInterestHandler, processANewObjectWhenASubscriberWasAdded)
 
   ASSERT_TRUE(remoteInterestHandler.interestsUpdatesBMMap.contains(InterestId(1)));
   ASSERT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.contains(&remote));
-  ASSERT_EQ(remoteInterestHandler.remotesToInterestsUpdatesMap.size(), 1);
+  ASSERT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(&remote));
 }
 
 /// @test
@@ -100,7 +99,7 @@ TEST(ARemoteInterestHandler, registersANewRemoteSubscriptionAfterObjectWasAdded)
   remoteInterestHandler.addSubscriber(InterestId(1), &remote);
 
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.contains(&remote));
-  EXPECT_TRUE(remoteInterestHandler.remotesToInterestsUpdatesMap.at(&remote).contains(InterestId(1)));
+  EXPECT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(InterestId(1)));
 }
 
 /// @test
@@ -118,7 +117,7 @@ TEST(ARemoteInterestHandler, registersTwoSubscriptionsAfterObjectWasAdded)
   remoteInterestHandler.addSubscriber(InterestId(1), &remote2);
 
   EXPECT_EQ(remoteInterestHandler.remotesUpdatesBMMap.size<RemoteParticipant*>(), 2);
-  EXPECT_EQ(remoteInterestHandler.remotesToInterestsUpdatesMap.size(), 2);
+  EXPECT_EQ(remoteInterestHandler.remotesInterestsBMMap.size<RemoteParticipant*>(), 2);
 }
 
 /// @test
@@ -135,7 +134,6 @@ TEST(ARemoteInterestHandler, removesSubscriptionWithUpdates)
   remoteInterestHandler.removeSubscriber(InterestId(1), &remote);
 
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.empty());
-  EXPECT_TRUE(remoteInterestHandler.remotesToInterestsUpdatesMap.empty());
 }
 
 /// @test
@@ -156,7 +154,7 @@ TEST(ARemoteInterestHandler, keepsTheObjectInterestWhenAInterestedSubscriptionRe
 
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.contains(&remote2));
   EXPECT_TRUE(!remoteInterestHandler.remotesUpdatesBMMap.contains(&remote1));
-  EXPECT_EQ(remoteInterestHandler.remotesToInterestsUpdatesMap.size(), 1);
+  EXPECT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(&remote2));
   EXPECT_TRUE(remoteInterestHandler.interestsUpdatesBMMap.contains(InterestId(1)));
 }
 
@@ -176,7 +174,6 @@ TEST(ARemoteInterestHandler, deregistersObjectAfterObjectRemoval)
   remoteInterestHandler.removeObject(&update);
 
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.empty());
-  EXPECT_TRUE(remoteInterestHandler.remotesToInterestsUpdatesMap.empty());
   EXPECT_TRUE(remoteInterestHandler.interestsUpdatesBMMap.empty());
 }
 
@@ -204,7 +201,7 @@ TEST(ARemoteInterestHandler, deregistersOneOfTwoObjectFromInterestedRemotes)
   remoteInterestHandler.removeObject(&update1);
 
   EXPECT_EQ(remoteInterestHandler.remotesUpdatesBMMap.size<RemoteParticipant*>(), 2);
-  EXPECT_EQ(remoteInterestHandler.remotesToInterestsUpdatesMap.size(), 2);
+  EXPECT_EQ(remoteInterestHandler.remotesInterestsBMMap.size<RemoteParticipant*>(), 2);
 
   {
     const auto* ptr = remoteInterestHandler.interestsUpdatesBMMap.tryGet(InterestId(1));
@@ -227,9 +224,9 @@ TEST(ARemoteInterestHandler, registerTwoInterestsToTheSameObject)
   remoteInterestHandler.addSubscriber(InterestId(1), &remote);
   remoteInterestHandler.addSubscriber(InterestId(2), &remote);
 
-  auto& registeredUpdateInterests = remoteInterestHandler.remotesToInterestsUpdatesMap.at(&remote);
-  EXPECT_TRUE(registeredUpdateInterests.contains(InterestId(1)));
-  EXPECT_TRUE(registeredUpdateInterests.contains(InterestId(2)));
+  EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.contains(&update));
+  EXPECT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(InterestId(1)));
+  EXPECT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(InterestId(2)));
 }
 
 /// @test
@@ -246,11 +243,9 @@ TEST(ARemoteInterestHandler, keepsObjectForRemoteWhenAInterestRemains)
   remoteInterestHandler.addSubscriber(InterestId(2), &remote);
   remoteInterestHandler.removeSubscriber(InterestId(1), &remote);
 
-  auto& registeredUpdateInterests = remoteInterestHandler.remotesToInterestsUpdatesMap.at(&remote);
-  EXPECT_TRUE(registeredUpdateInterests.contains(&update));
-  EXPECT_TRUE(registeredUpdateInterests.contains(InterestId(2)));
-  EXPECT_TRUE(!registeredUpdateInterests.contains(InterestId(1)));
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.contains(&update));
+  EXPECT_TRUE(remoteInterestHandler.remotesInterestsBMMap.contains(InterestId(2)));
+  EXPECT_TRUE(!remoteInterestHandler.remotesInterestsBMMap.contains(InterestId(1)));
 }
 
 /// @test
@@ -270,7 +265,6 @@ TEST(ARemoteInterestHandler, deregisterObjectForRemoteAfterNoInterestsRemain)
   remoteInterestHandler.removeSubscriber(InterestId(2), &remote);
 
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.empty());
-  EXPECT_TRUE(remoteInterestHandler.remotesToInterestsUpdatesMap.empty());
 }
 
 /// @test
@@ -291,7 +285,6 @@ TEST(ARemoteInterestHandler, deregistersRemoteAndItsReferencesWhenRemoved)
   remoteInterestHandler.removeSubscriber(&remote);
 
   EXPECT_TRUE(remoteInterestHandler.remotesUpdatesBMMap.empty());
-  EXPECT_TRUE(remoteInterestHandler.remotesToInterestsUpdatesMap.empty());
   EXPECT_TRUE(remoteInterestHandler.remotesInterestsBMMap.empty());
   EXPECT_FALSE(remoteInterestHandler.interestsUpdatesBMMap.empty());
 }
