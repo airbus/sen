@@ -65,6 +65,8 @@ public:
   inline asio::io_context& getIOContext() const { return ctx_; }
 
 private:
+  void read();
+
   static int onMethod(llhttp_t* parser, const char* path, size_t nbytes);
   static int onMessageComplete(llhttp_t* parser);
   static int onURL(llhttp_t* parser, const char* path, size_t nbytes);
@@ -81,6 +83,7 @@ private:
   llhttp_t parser_;
   llhttp_settings_t settings_;
   HttpRequest request_;
+  bool messageComplete_ = false;
   std::string currentHttpField_;
   std::shared_ptr<BaseRouter> router_;
   std::array<char, maxReadLength> data_ = {0};

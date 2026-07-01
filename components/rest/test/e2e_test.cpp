@@ -121,7 +121,6 @@ HttpResponse retryUntil(int statusCode, std::function<HttpResponse()> callback)
 TEST_F(RestE2EFixture, version)
 {
   Server server;
-
   auto ret = request(HttpMethod::httpGet, "/api/version");
   ASSERT_EQ(ret.statusCode, 200);
 

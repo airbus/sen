@@ -121,7 +121,6 @@ HttpResponse RestE2EFixture::request(const HttpMethod& method, const std::string
   {
     char buf[1024];
     size_t len = socket.read_some(asio::buffer(buf), error);
-
     if (error == asio::error::eof)
     {
       response.append(buf, len);

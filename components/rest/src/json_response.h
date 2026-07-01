@@ -13,12 +13,16 @@
 #include "http_response.h"
 #include "response_adapter.h"
 
+// generated code
+#include "stl/types.stl.h"
+
 // sen
 #include "sen/core/io/util.h"
 #include "sen/core/meta/type_traits.h"
 #include "sen/core/meta/var.h"
 
 // std
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -41,7 +45,14 @@ public:
       adaptForJsonResponse(var, metaTypePtr);
     }
 
-    setBody(sen::toJson(var));
+    try
+    {
+      setBody(sen::toJson(var));
+    }
+    catch (std::exception& e)
+    {
+      setBody(sen::toJson(sen::toVariant(Error {"error on invalid body"})));
+    }
   }
 
   explicit JsonResponse(int statusCode = httpInternalServerError, const std::string& data = "")
