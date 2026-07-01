@@ -27,6 +27,7 @@
 #include <spdlog/logger.h>
 
 // std
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <future>
