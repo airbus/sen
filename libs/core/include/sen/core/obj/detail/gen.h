@@ -189,6 +189,14 @@ private:
                                                                                                                        \
   public:                                                                                                              \
     using Parent::value_type;                                                                                          \
+    using Parent::reference;                                                                                           \
+    using Parent::const_reference;                                                                                     \
+    using Parent::pointer;                                                                                             \
+    using Parent::const_pointer;                                                                                       \
+    using Parent::iterator;                                                                                            \
+    using Parent::const_iterator;                                                                                      \
+    using Parent::reverse_iterator;                                                                                    \
+    using Parent::const_reverse_iterator;                                                                              \
                                                                                                                        \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \

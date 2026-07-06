@@ -874,7 +874,10 @@ JsonResponse SenRouter::updateSubscriptionsHandler(ClientSession& clientSession,
 
     if (payload.contains("properties"))
     {
-      auto subProperties = payload.at("properties").get<Properties>();
+      // Due to Sen wrapped property type, we cannot directly convert via nlohnman::json
+      auto&& tmpRawProperties = payload.at("properties").get<std::vector<std::string>>();
+      Properties subProperties {tmpRawProperties.begin(), tmpRawProperties.end()};
+
       propertyLocatorsRes = createPropertyLocators(interestSubscription, object, subProperties);
       if (propertyLocatorsRes.isError())
       {
@@ -884,7 +887,10 @@ JsonResponse SenRouter::updateSubscriptionsHandler(ClientSession& clientSession,
 
     if (payload.contains("events"))
     {
-      auto subEvents = payload.at("events").get<Events>();
+      // Due to Sen wrapped property type, we cannot directly convert via nlohnman::json
+      auto&& tmpRawEvents = payload.at("events").get<std::vector<std::string>>();
+      Events subEvents {tmpRawEvents.begin(), tmpRawEvents.end()};
+
       eventLocatorRes = createEventLocators(interestSubscription, object, subEvents);
       if (eventLocatorRes.isError())
       {

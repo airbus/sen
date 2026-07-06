@@ -80,7 +80,7 @@ jobs:
 
       - name: Install additional python dependencies
         shell: bash
-        run: pip install -U junitparser
+        run: pip install -U junitparser docker testcontainers
 
       - name: Compile base libraries
         shell: bash
