@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstring>
 
-ImFont* addIconsFont()
+ImFont* addIconsFont(const float scale)
 {
   static const char iconsCompressedDataBase85[9675 + 1] =
     "7])#######<>$3:'/"
@@ -177,8 +177,8 @@ ImFont* addIconsFont()
   config.OversampleH = 1;
   config.OversampleV = 1;
   config.PixelSnapH = true;
-  config.SizePixels = 16;
-  config.GlyphOffset.y = -4.0f;
+  config.SizePixels = 16.0f * scale;
+  config.GlyphOffset.y = -4.0f * scale;
   config.MergeMode = true;
 
   // copy font name manually to avoid warnings

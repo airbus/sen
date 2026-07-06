@@ -1,0 +1,29 @@
+kernel:
+  crashReportDisabled: true
+
+build:
+  - name: myComponent
+    group: 3
+    freqHz: 50
+    imports: [object_sync]
+    objects:
+      - name: publisher
+        class: object_sync.PublisherImpl
+        numOfListeners: 4
+        bus: session.bus
+      - name: listener1
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus
+        bus: session.bus
+      - name: listener2
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus
+        bus: session.bus
+      - name: listener3
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus WHERE name = "testObject"
+        bus: session.bus
+      - name: listener4
+        class: object_sync.@LISTENER_TYPE@
+        query: SELECT object_sync.TestObject FROM session.bus WHERE staticProp = 15
+        bus: session.bus

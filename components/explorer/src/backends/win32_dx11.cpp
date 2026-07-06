@@ -145,6 +145,12 @@ void backendClose()
   ::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
 }
 
+void backendReloadFonts()
+{
+  ImGui_ImplDX11_InvalidateDeviceObjects();
+  ImGui_ImplDX11_CreateDeviceObjects();
+}
+
 //--------------------------------------------------------------------------------------------------------------
 // Helper functions
 //--------------------------------------------------------------------------------------------------------------

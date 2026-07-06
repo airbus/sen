@@ -45,6 +45,6 @@
 #define ICON_PLUG               u8"\uf1e6"  // NOLINT
 #define ICON_HEXAGON            u8"\uf20e"  // NOLINT
 
-ImFont* addIconsFont();
+ImFont* addIconsFont(float scale = 1.0f);
 
 #endif  // SEN_COMPONENTS_EXPLORER_SRC_ICONS_FONT_H

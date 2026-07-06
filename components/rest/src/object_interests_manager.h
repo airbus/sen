@@ -77,6 +77,7 @@ public:
                                                      const BusLocator& busLocator,
                                                      const InterestName& interestName,
                                                      const std::string& query,
+                                                     AutoSubscribeCallback&& onObjectAdded,
                                                      InterestCallback&& onObjectRemoved);
 
   /// Removes an existing interest subscription by name.

@@ -189,6 +189,14 @@ private:
                                                                                                                        \
   public:                                                                                                              \
     using Parent::value_type;                                                                                          \
+    using Parent::reference;                                                                                           \
+    using Parent::const_reference;                                                                                     \
+    using Parent::pointer;                                                                                             \
+    using Parent::const_pointer;                                                                                       \
+    using Parent::iterator;                                                                                            \
+    using Parent::const_iterator;                                                                                      \
+    using Parent::reverse_iterator;                                                                                    \
+    using Parent::const_reverse_iterator;                                                                              \
                                                                                                                        \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \
@@ -293,6 +301,8 @@ private:
     using OptionalTraitsBase<classname>::write;                                                                        \
     using OptionalTraitsBase<classname>::read;                                                                         \
     using OptionalTraitsBase<classname>::serializedSize;                                                               \
+    using OptionalTraitsBase<classname>::toJsonString;                                                                 \
+    using OptionalTraitsBase<classname>::fromJsonString;                                                               \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -314,6 +324,8 @@ private:
     using EnumTraitsBase<classname>::write;                                                                            \
     using EnumTraitsBase<classname>::read;                                                                             \
     using EnumTraitsBase<classname>::serializedSize;                                                                   \
+    using EnumTraitsBase<classname>::toJsonString;                                                                     \
+    using EnumTraitsBase<classname>::fromJsonString;                                                                   \
   };                                                                                                                   \
   template <>                                                                                                          \
   struct SEN_MAYBE_EXPORT(doExport) StringConversionTraits<classname>                                                  \
@@ -343,6 +355,8 @@ private:
     using SequenceTraitsBase<classname>::write;                                                                        \
     using SequenceTraitsBase<classname>::read;                                                                         \
     using SequenceTraitsBase<classname>::serializedSize;                                                               \
+    using SequenceTraitsBase<classname>::toJsonString;                                                                 \
+    using SequenceTraitsBase<classname>::fromJsonString;                                                               \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -364,6 +378,8 @@ private:
     using ArrayTraitsBase<classname>::write;                                                                           \
     using ArrayTraitsBase<classname>::read;                                                                            \
     using ArrayTraitsBase<classname>::serializedSize;                                                                  \
+    using ArrayTraitsBase<classname>::toJsonString;                                                                    \
+    using ArrayTraitsBase<classname>::fromJsonString;                                                                  \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -386,6 +402,8 @@ private:
     static void write(OutputStream& out, const classname& val);                                                        \
     static void read(InputStream& in, classname& val);                                                                 \
     [[nodiscard]] static uint32_t serializedSize(const classname& val) noexcept;                                       \
+    static std::string toJsonString(const classname& val);                                                             \
+    static void fromJsonString(const std::string& str, classname& val);                                                \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -409,6 +427,8 @@ private:
     static void write(OutputStream& out, const classname& val);                                                        \
     static void read(InputStream& in, classname& val);                                                                 \
     [[nodiscard]] static uint32_t serializedSize(const classname& val) noexcept;                                       \
+    static std::string toJsonString(const classname& val);                                                             \
+    static void fromJsonString(const std::string& str, classname& val);                                                \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -520,6 +540,8 @@ private:
     using QuantityTraitsBase<classname>::write;                                                                        \
     using QuantityTraitsBase<classname>::read;                                                                         \
     using QuantityTraitsBase<classname>::serializedSize;                                                               \
+    using QuantityTraitsBase<classname>::toJsonString;                                                                 \
+    using QuantityTraitsBase<classname>::fromJsonString;                                                               \
   };                                                                                                                   \
   template <>                                                                                                          \
   struct SEN_MAYBE_EXPORT(doExport) QuantityTraits<classname>                                                          \

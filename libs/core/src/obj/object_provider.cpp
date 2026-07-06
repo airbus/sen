@@ -79,6 +79,17 @@ void ObjectProvider::notifyRemovedOnExistingObjectsForAllListeners()
   }
 }
 
+void ObjectProvider::replaceListener(ObjectProviderListener* oldListener, ObjectProviderListener* newListener)
+{
+  if (const auto itr = std::find(listeners_.begin(), listeners_.end(), oldListener); itr != listeners_.end())
+  {
+    *itr = newListener;
+
+    oldListener->removeProvider(this);
+    newListener->addProvider(this);
+  }
+}
+
 bool ObjectProvider::hasListener(ObjectProviderListener* listener) const noexcept
 {
   return std::find(listeners_.begin(), listeners_.end(), listener) != listeners_.end();

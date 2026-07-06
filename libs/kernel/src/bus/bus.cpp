@@ -206,20 +206,20 @@ void Bus::removeRemotesFromProcess(ProcessId processId)
 void Bus::remoteMessageReceived(ObjectOwnerId to, Span<const uint8_t> msg)
 {
   Lock lock(remotesMutex_);
-  if (auto remotesItr = remotes_.find(to); remotesItr != remotes_.end())
-  {
-    InputStream in(msg);
 
-    // read the header
-    uint8_t categoryVal = 0;
-    in.readUInt8(categoryVal);
+  InputStream in(msg);
 
-    sendMessageToParticipant(static_cast<MessageCategory>(categoryVal), in, *(*remotesItr).second);
-  }
-  else
+  // read the header
+  uint8_t categoryVal = 0;
+  in.readUInt8(categoryVal);
+
+  if (const auto remotesItr = remotes_.find(to); remotesItr != remotes_.end())
   {
-    logger_->debug("Bus {}.{}: remote message lost");
+    sendMessageToParticipant(static_cast<MessageCategory>(categoryVal), in, *remotesItr->second);
+    return;
   }
+
+  logger_->debug("Bus {}.{}: remote {} message lost.", address_.sessionName, address_.busName, categoryVal);
 }
 
 void Bus::remoteBroadcastMessageReceived(Span<const uint8_t> msg)

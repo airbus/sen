@@ -83,5 +83,5 @@ In this case you need to populate the parameters in a more involved manner due t
 data model:
 
 ```
-my.tutorial.weatherServer.reqWeather {"type": "GeodeticLocation", "value": { "lat": 0, "lon": 0}}, false
+my.tutorial.weatherServer.reqWeather {"type": "GeodeticLocation", "value": { "latitude": 0, "longitude": 0}}, false
 ```

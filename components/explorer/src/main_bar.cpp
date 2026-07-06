@@ -14,6 +14,7 @@
 #include "util.h"
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/u8string_util.h"
 #include "sen/core/io/util.h"
 #include "sen/core/obj/interest.h"
@@ -29,6 +30,8 @@
 
 // std
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <exception>
 #include <filesystem>
 #include <memory>
@@ -63,7 +66,8 @@ std::string addressToString(const sen::kernel::BusAddress& addr)
 // MainBar
 //--------------------------------------------------------------------------------------------------------------
 
-MainBar::MainBar(sen::kernel::RunApi& api, EventExplorer* eventExplorer): api_(api), eventExplorer_(eventExplorer)
+MainBar::MainBar(sen::kernel::RunApi& api, EventExplorer* eventExplorer, ViewSettings& viewSettings)
+  : api_(api), eventExplorer_(eventExplorer), viewSettings_(viewSettings)
 {
   if (const auto [layoutFile] = sen::toValue<sen::components::explorer::Configuration>(api_.getConfig());
       !layoutFile.empty())
@@ -372,6 +376,7 @@ void MainBar::mainWindow()
   if (ImGui::BeginMainMenuBar())
   {
     layoutsMenu();
+    viewMenu();
 
     if (ImGui::MenuItem("New Plot"))
     {
@@ -478,6 +483,69 @@ void MainBar::layoutsMenu()
     {
       openSaveAsPopup_ = true;
     }
+
+    ImGui::EndMenu();
+  }
+}
+
+void MainBar::viewMenu()
+{
+  if (ImGui::BeginMenu("View"))
+  {
+    ImGui::TextUnformatted("Scale:");
+    ImGui::SameLine();
+
+    if (ImGui::Button("-"))
+    {
+      viewSettings_.targetScale -= 0.25f;
+    }
+    ImGui::SameLine();
+
+    auto currentPercentage = sen::std_util::checkedConversion<int32_t>(std::round(viewSettings_.targetScale * 100.0f));
+
+    ImGui::PushItemWidth(55.0f * viewSettings_.currentScale);
+    if (ImGui::InputScalar("##scale_input",
+                           ImGuiDataType_S32,
+                           &currentPercentage,
+                           nullptr,
+                           nullptr,
+                           "%d%%",
+                           ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+      viewSettings_.targetScale = sen::std_util::checkedConversion<float>(currentPercentage) / 100.0f;
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::SameLine(0.0f, 0.0f);
+    ImGui::PushItemWidth(20.0f * viewSettings_.currentScale);
+    if (ImGui::BeginCombo("##scale_combo", "", ImGuiComboFlags_NoPreview))
+    {
+      constexpr int32_t predefinedScales[] = {75, 100, 125, 150, 175, 200};
+      for (const int32_t scaleOption: predefinedScales)
+      {
+        const bool isSelected = (currentPercentage == scaleOption);
+        std::string optionLabel = std::to_string(scaleOption) + "%";
+
+        if (ImGui::Selectable(optionLabel.c_str(), isSelected))
+        {
+          viewSettings_.targetScale = sen::std_util::checkedConversion<float>(scaleOption) / 100.0f;
+        }
+        if (isSelected)
+        {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+      ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::SameLine();
+    if (ImGui::Button("+"))
+    {
+      viewSettings_.targetScale += 0.25f;
+    }
+
+    viewSettings_.targetScale = std::clamp(viewSettings_.targetScale, ViewSettings::minScale, ViewSettings::maxScale);
 
     ImGui::EndMenu();
   }

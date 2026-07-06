@@ -25,6 +25,7 @@ add_sen_unit_test_suite(
   sen::core
   sen::kernel
   sen::db
+  archive_test_helpers
 )
 
 sen_generate_cpp(

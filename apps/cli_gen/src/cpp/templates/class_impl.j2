@@ -632,11 +632,7 @@ void {{localProxyName}}::{{ method.name }}({{ argList(method.args, true) }}::sen
 ## if prop.writeAllowed
 void {{localProxyName}}::{{ prop.setter.name }}({{ passedType(prop) }} val)
 {
-#if __cplusplus >= 202002L
-  sendWork([=, this](){ ptr{{ iface.interfaceName }}_->{{ prop.setter.name }}(val); }, {{ prop.confirmed }});
-#else
-  sendWork([=](){ ptr{{ iface.interfaceName }}_->{{ prop.setter.name }}(val); }, {{ prop.confirmed }});
-#endif
+  sendWork([ptr = ptr{{ iface.interfaceName }}_, val](){ ptr->{{ prop.setter.name }}(val); }, {{ prop.confirmed }});
 }
 
 ## endif

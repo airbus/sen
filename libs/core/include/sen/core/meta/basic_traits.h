@@ -8,11 +8,15 @@
 #ifndef SEN_CORE_META_BASIC_TRAITS_H
 #define SEN_CORE_META_BASIC_TRAITS_H
 
-#include "sen/core/base/duration.h"
-#include "sen/core/base/timestamp.h"
+// sen
 #include "sen/core/io/detail/serialization_traits.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/meta/var.h"
+
+// std
+#include <cstdint>
+#include <string>
 
 namespace sen
 {
@@ -38,6 +42,19 @@ struct BasicTraits
   static void variantToValue(const Var& var, T& val) { val = getCopyAs<T>(var); }
   static void valueToVariant(T val, Var& var) { var = val; }
   static constexpr uint32_t serializedSize(T val) noexcept { return impl::getSerializedSize(val); }
+
+  static std::string toJsonString(const T& val)
+  {
+    Var var;
+    valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, T& val)
+  {
+    const Var var = fromJson(str);
+    variantToValue(var, val);
+  }
 };
 
 /// @}

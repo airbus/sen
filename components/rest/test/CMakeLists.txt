@@ -30,7 +30,7 @@ add_sen_unit_test_suite(
   locators_test.cpp
   jwt_test.cpp
   server_test.cpp
-  request.cpp
+  rest_e2e_fixture.cpp
   LINK_DEPS
   ${rest_test_deps}
 )
@@ -51,7 +51,7 @@ target_include_directories(
 add_sen_unit_test_suite(
   rest_flaky_test
   e2e_test.cpp
-  request.cpp
+  rest_e2e_fixture.cpp
   LINK_DEPS
   ${rest_test_deps}
   FLAKY

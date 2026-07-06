@@ -55,8 +55,9 @@ constexpr uint16_t defaultDiscoveryPort = 60543;
 constexpr auto defaultBeamingPeriod = std::chrono::milliseconds(1000);
 constexpr uint64_t defaultBusWarningLevel = 100U;
 constexpr uint16_t defaultMulticastPort = 50985;
-constexpr uint8_t multicastMin = 224;
-constexpr uint8_t multicastMax = 239;
+constexpr uint8_t multicastByteZero = 239;
+constexpr uint8_t multicastByteOneMin = 192;
+constexpr uint8_t multicastByteOneMax = 195;
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -143,24 +144,19 @@ private:
     config_.busOutQueue.warningLevel = defaultBusWarningLevel;
     config_.busConfig.multicastDisabled = false;
     config_.busConfig.multicastPort = defaultMulticastPort;
-    config_.busConfig.multicastRange[0] = ByteRange {multicastMin, multicastMax};
-    config_.busConfig.multicastRange[1] = ByteRange {0, 255};
+    config_.busConfig.multicastRange[0] = ByteRange {multicastByteZero, multicastByteZero};
+    config_.busConfig.multicastRange[1] = ByteRange {multicastByteOneMin, multicastByteOneMax};
     config_.busConfig.multicastRange[2] = ByteRange {0, 255};
     config_.busConfig.multicastRange[3] = ByteRange {0, 255};
 
     // read values from config
     VariantTraits<Configuration>::variantToValue(params, config_);
 
-    if (config_.busConfig.multicastRange[0].min < multicastMin)
+    if ((config_.busConfig.multicastRange[0].min != multicastByteZero) ||
+        (config_.busConfig.multicastRange[0].max != multicastByteZero))
     {
       return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet,
-                                    "invalid multicast address range. First byte should be >= 224"});
-    }
-
-    if (config_.busConfig.multicastRange[0].max > multicastMax)
-    {
-      return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet,
-                                    "invalid multicast address range. First byte should be <= 239"});
+                                    "invalid multicast address range. First byte should be 239"});
     }
 
     for (const auto [min, max]: config_.busConfig.multicastRange)

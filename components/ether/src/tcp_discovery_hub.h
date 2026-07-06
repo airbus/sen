@@ -16,11 +16,16 @@
 #include <asio/ip/tcp.hpp>
 
 // std
+#include <cstddef>
+#include <cstdint>
 #include <list>
+#include <memory>
+#include <vector>
 
 namespace sen::components::ether
 {
 
+/// Broker for TCP discoveries between processes
 class TcpDiscoveryHub
 {
   SEN_NOCOPY_NOMOVE(TcpDiscoveryHub)
@@ -30,11 +35,15 @@ public:
   ~TcpDiscoveryHub();
 
 private:
+  class Client;
+
   void doAccept();
+  void broadcast(const std::shared_ptr<Client>& sender, const std::vector<uint8_t>& buffer, std::size_t length);
+  void disconnect(const std::shared_ptr<Client>& client);
 
 private:
   asio::ip::tcp::acceptor acceptor_;
-  std::list<asio::ip::tcp::socket> sockets_;
+  std::list<std::shared_ptr<Client>> clients_;
   Configuration config_;
 };
 

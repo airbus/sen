@@ -72,8 +72,8 @@
 #include <utility>
 
 // with Apple we need to explicitly declare this as an external symbol
-#ifdef __APPLE__
-extern "C" char** environ;
+#if defined(__APPLE__) || defined(__linux__)
+#  include <unistd.h>
 #endif
 
 namespace sen::kernel::impl

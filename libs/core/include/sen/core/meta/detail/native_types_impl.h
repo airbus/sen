@@ -108,6 +108,8 @@ public:
     static inline void write(OutputStream& out, native val) { out.writefunc(val); }                                    \
     static inline void read(InputStream& in, native& val) { in.readfunc(val); }                                        \
     using BasicTraits<native>::serializedSize;                                                                         \
+    using BasicTraits<native>::toJsonString;                                                                           \
+    using BasicTraits<native>::fromJsonString;                                                                         \
   }
 
 //--------------------------------------------------------------------------------------------------------------

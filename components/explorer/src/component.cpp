@@ -22,12 +22,16 @@
 
 // imgui
 #include "imgui.h"
+#include "imgui_internal.h"
 
 // implot
 #include "implot.h"
 
 // std
+#include <algorithm>
+#include <exception>
 #include <string>
+#include <string_view>
 #include <utility>
 
 //--------------------------------------------------------------------------------------------------------------
@@ -39,6 +43,7 @@ void backendSetup();
 bool backendPreUpdate();
 void backendPostUpdate(const ImVec4& clearColor);
 void backendClose();
+void backendReloadFonts();
 
 //--------------------------------------------------------------------------------------------------------------
 // Theme
@@ -129,6 +134,97 @@ void setTheme()
 }
 
 //--------------------------------------------------------------------------------------------------------------
+// Scale & Ini Settings Handlers
+//--------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+
+void scaleHandler(ImGuiContext* context, MainBar::ViewSettings& settings)
+{
+  ImGuiSettingsHandler iniHandler;
+  iniHandler.TypeName = "ExplorerScale";
+  iniHandler.TypeHash = ImHashStr("ExplorerScale");
+  iniHandler.UserData = static_cast<void*>(&settings);
+
+  iniHandler.ReadOpenFn = [](ImGuiContext*, ImGuiSettingsHandler* handler, const char*) -> void*
+  { return handler->UserData; };
+
+  iniHandler.ReadLineFn = [](ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line)
+  {
+    auto* currentSettings = static_cast<MainBar::ViewSettings*>(entry);
+
+    if (const std::string_view lineView(line); lineView.compare(0, 6, "Scale=") == 0)
+    {
+      try
+      {
+        const float scaleRead = std::stof(std::string(lineView.substr(6)));
+        currentSettings->targetScale =
+          std::clamp(scaleRead, MainBar::ViewSettings::minScale, MainBar::ViewSettings::maxScale);
+      }
+      catch (const std::exception&)
+      {
+      }
+    }
+  };
+
+  iniHandler.WriteAllFn = [](ImGuiContext*, ImGuiSettingsHandler* handler, ImGuiTextBuffer* outBuffer)
+  {
+    const auto* currentSettings = static_cast<MainBar::ViewSettings*>(handler->UserData);
+    outBuffer->append("[ExplorerScale][State]\n");
+    const std::string scaleLine = "Scale=" + std::to_string(currentSettings->targetScale) + "\n\n";
+    outBuffer->append(scaleLine.c_str());
+  };
+
+  context->SettingsHandlers.push_back(iniHandler);
+}
+
+void applyScale(MainBar::ViewSettings& settings)
+{
+  if (settings.targetScale != settings.currentScale)
+  {
+    settings.targetScale =
+      std::clamp(settings.targetScale, MainBar::ViewSettings::minScale, MainBar::ViewSettings::maxScale);
+
+    const float scaleRatio = settings.targetScale / settings.currentScale;
+
+    if (ImGuiContext* currentContext = ImGui::GetCurrentContext(); currentContext != nullptr)
+    {
+      for (int i = 0; i < currentContext->Windows.Size; i++)
+      {
+        ImGuiWindow* window = currentContext->Windows[i];
+        window->Pos.x *= scaleRatio;
+        window->Pos.y *= scaleRatio;
+        window->Size.x *= scaleRatio;
+        window->Size.y *= scaleRatio;
+        window->SizeFull.x *= scaleRatio;
+        window->SizeFull.y *= scaleRatio;
+      }
+    }
+
+    settings.currentScale = settings.targetScale;
+
+    ImGui::GetStyle() = ImGuiStyle();
+    setTheme();
+    ImGui::GetStyle().ScaleAllSizes(settings.currentScale);
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.FontGlobalScale = 1.0f;
+    io.Fonts->Clear();
+
+    addValueFont(settings.currentScale);
+    addIconsFont(settings.currentScale);
+
+    backendReloadFonts();
+
+    ImGui::MarkIniSettingsDirty();
+  }
+}
+
+}  // namespace
+
+//--------------------------------------------------------------------------------------------------------------
 // ExplorerComponent
 //--------------------------------------------------------------------------------------------------------------
 
@@ -143,8 +239,11 @@ struct ExplorerComponent: public sen::kernel::Component
 
     // context
     backendOpen();
-    ImGui::CreateContext();
+    ImGuiContext* context = ImGui::CreateContext();
     ImPlot::CreateContext();
+
+    MainBar::ViewSettings viewSettings;
+    scaleHandler(context, viewSettings);
 
     // general flags
     auto& io = ImGui::GetIO();
@@ -163,17 +262,29 @@ struct ExplorerComponent: public sen::kernel::Component
     }
 
     // setup
-    setTheme();
+    if (viewSettings.targetScale != 1.0f)
+    {
+      viewSettings.currentScale = viewSettings.targetScale;
+      ImGui::GetStyle() = ImGuiStyle();
+      setTheme();
+      ImGui::GetStyle().ScaleAllSizes(viewSettings.currentScale);
+      ImGui::GetIO().FontGlobalScale = 1.0f;
+    }
+    else
+    {
+      setTheme();
+    }
+
     backendSetup();
-    addValueFont();
-    addIconsFont();
+    addValueFont(viewSettings.currentScale);
+    addIconsFont(viewSettings.currentScale);
 
     sen::kernel::FuncResult result = done();
     {
       EventExplorer eventExplorer(api.getWorkQueue());
-      MainBar mainBar(api, &eventExplorer);
+      MainBar mainBar(api, &eventExplorer, viewSettings);
 
-      auto update = [&api, &mainBar, &eventExplorer, lastLayoutFile]
+      auto update = [&api, &mainBar, &eventExplorer, &viewSettings, lastLayoutFile]
       {
         static bool firstFrame = true;
 
@@ -182,10 +293,12 @@ struct ExplorerComponent: public sen::kernel::Component
           api.requestKernelStop();
         }
 
+        applyScale(viewSettings);
+
         ImGui::NewFrame();
         ImGui::DockSpaceOverViewport();
 
-        ImGui::SetNextWindowSize(ImVec2(150, 0), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(150.0f * viewSettings.currentScale, 0.0f), ImGuiCond_FirstUseEver);
         mainBar.update();
 
         if (firstFrame)

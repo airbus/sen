@@ -15,7 +15,10 @@
 #include "sen/core/obj/interest.h"
 
 // std
+#include <mutex>
+#include <shared_mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace sen::kernel::impl
@@ -51,22 +54,33 @@ private:
 
 struct RemoteInterestsHandler
 {
-  BiMultiMap<RemoteParticipant*, ObjectUpdate*> remotesUpdatesBMMap;                                           // NOLINT
-  std::mutex remotesUpdatesBMMapMutex_;                                                                        // NOLINT
-  std::unordered_map<RemoteParticipant*, BiMultiMap<InterestId, ObjectUpdate*>> remotesToInterestsUpdatesMap;  // NOLINT
-  BiMultiMap<RemoteParticipant*, InterestId> remotesInterestsBMMap;                                            // NOLINT
-  BiMultiMap<InterestId, ObjectUpdate*> interestsUpdatesBMMap;                                                 // NOLINT
+  mutable std::shared_mutex handlerMutex_;                            // NOLINT
+  BiMultiMap<RemoteParticipant*, ObjectUpdate*> remotesUpdatesBMMap;  // NOLINT
+  BiMultiMap<RemoteParticipant*, InterestId> remotesInterestsBMMap;   // NOLINT
+  BiMultiMap<InterestId, ObjectUpdate*> interestsUpdatesBMMap;        // NOLINT
 
   void addSubscriber(InterestId interestId, RemoteParticipant* remote, bool newInterest = false);
-  std::vector<InterestId>& removeSubscriber(InterestId interestId, RemoteParticipant* remote);
-  std::vector<InterestId>& removeSubscriber(RemoteParticipant* remote);
+  std::vector<InterestId> removeSubscriber(InterestId interestId, RemoteParticipant* remote);
+  std::vector<InterestId> removeSubscriber(RemoteParticipant* remote);
   void addObject(InterestId interestId, ObjectUpdate* update);
   void removeObject(ObjectUpdate* update);
+  std::vector<ObjectUpdate*> removeInterest(InterestId interestId);
+  void removeRejectedObject(RemoteParticipant* remote, ObjectUpdate* update);
+  [[nodiscard]] RemoteParticipant* getFirstRemoteParticipant();
+
+  template <typename Fn>
+  void forEachRemoteUpdate(Fn&& fun);
+
+  template <typename Fn>
+  void forEachRemoteWithUpdate(ObjectUpdate* update, Fn&& fun);
 
   /// Removes object updates associated to a certain interest. There can be more than one interest mapped to a certain
   /// update. Returns true if the update was completely removed from the interest handler
   [[nodiscard]] bool removeObjectUpdateByInterest(ObjectUpdate* update, InterestId interestId);
   void clear();
+
+private:
+  [[nodiscard]] bool remoteHasInterestInUpdate(RemoteParticipant* remote, ObjectUpdate* update) const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -101,6 +115,8 @@ inline void InterestsHandler::removeInterest(InterestId interestId)
 
 inline void RemoteInterestsHandler::addSubscriber(InterestId interestId, RemoteParticipant* remote, bool newInterest)
 {
+  std::unique_lock lock(handlerMutex_);
+
   remotesInterestsBMMap.add(interestId, remote);
 
   if (newInterest)
@@ -108,101 +124,150 @@ inline void RemoteInterestsHandler::addSubscriber(InterestId interestId, RemoteP
     return;
   }
 
-  auto& remoteUpdateInterests = remotesToInterestsUpdatesMap[remote];
   interestsUpdatesBMMap.forEach(interestId,
-                                [this, &remoteUpdateInterests, interestId, remote](ObjectUpdate* update)
-                                {
-                                  {
-                                    const std::lock_guard lock(remotesUpdatesBMMapMutex_);
-                                    remotesUpdatesBMMap.add(remote, update);
-                                  }
-                                  remoteUpdateInterests.add(update, interestId);
-                                });
+                                [this, remote](ObjectUpdate* update) { remotesUpdatesBMMap.add(remote, update); });
 }
 
-inline std::vector<InterestId>& RemoteInterestsHandler::removeSubscriber(InterestId interestId,
-                                                                         RemoteParticipant* remote)
+inline std::vector<InterestId> RemoteInterestsHandler::removeSubscriber(InterestId interestId,
+                                                                        RemoteParticipant* remote)
 {
+  std::unique_lock lock(handlerMutex_);
+
   auto [orphanRemotes, orphanInterests] = remotesInterestsBMMap.remove(remote, interestId);
   if (!orphanRemotes.empty())
   {
     remotesUpdatesBMMap.remove(remote);
-    remotesToInterestsUpdatesMap.erase(remote);
   }
   else
   {
-    auto& orphanUpdates = remotesToInterestsUpdatesMap[remote].remove(interestId).second;
-    for (auto* update: orphanUpdates)
+    if (const auto* updates = interestsUpdatesBMMap.tryGet(interestId))
     {
-      remotesUpdatesBMMap.remove(update);
+      for (auto* update: *updates)
+      {
+        if (!remoteHasInterestInUpdate(remote, update))
+        {
+          remotesUpdatesBMMap.remove(remote, update);
+        }
+      }
     }
   }
   return orphanInterests;
 }
 
-inline std::vector<InterestId>& RemoteInterestsHandler::removeSubscriber(RemoteParticipant* remote)
+inline std::vector<InterestId> RemoteInterestsHandler::removeSubscriber(RemoteParticipant* remote)
 {
+  std::unique_lock lock(handlerMutex_);
+
   auto& orphanInterests = remotesInterestsBMMap.remove(remote).second;
-  const std::lock_guard lock(remotesUpdatesBMMapMutex_);
   remotesUpdatesBMMap.remove(remote);
-  remotesToInterestsUpdatesMap.erase(remote);
   return orphanInterests;
 }
 
 inline void RemoteInterestsHandler::addObject(InterestId interestId, ObjectUpdate* update)
 {
+  std::unique_lock lock(handlerMutex_);
+
   interestsUpdatesBMMap.add(interestId, update);
   remotesInterestsBMMap.forEach(interestId,
-                                [this, interestId, update](RemoteParticipant* remote)
-                                {
-                                  const std::lock_guard lock(remotesUpdatesBMMapMutex_);
-                                  remotesUpdatesBMMap.add(remote, update);
-                                  remotesToInterestsUpdatesMap[remote].add(interestId, update);
-                                });
+                                [this, update](RemoteParticipant* remote) { remotesUpdatesBMMap.add(remote, update); });
 }
 
 inline void RemoteInterestsHandler::removeObject(ObjectUpdate* update)
 {
+  std::unique_lock lock(handlerMutex_);
+
   interestsUpdatesBMMap.remove(update);
-  remotesUpdatesBMMap.forEach(update,
-                              [this, update](RemoteParticipant* remote)
-                              {
-                                auto& remoteInterestsUpdates = remotesToInterestsUpdatesMap[remote];
-                                remoteInterestsUpdates.remove(update);
-                                if (remoteInterestsUpdates.empty())
-                                {
-                                  remotesToInterestsUpdatesMap.erase(remote);
-                                }
-                              });
   remotesUpdatesBMMap.remove(update);
+}
+
+inline std::vector<ObjectUpdate*> RemoteInterestsHandler::removeInterest(InterestId interestId)
+{
+  std::unique_lock lock(handlerMutex_);
+
+  // TODO(SEN-1737): review orphan management in the BiMultiMap
+  // Clear any orphans that may be left from previous removals (call to remove does not always clear them).
+  interestsUpdatesBMMap.clearOrphans();
+  return interestsUpdatesBMMap.remove(interestId).second;
+}
+
+inline void RemoteInterestsHandler::removeRejectedObject(RemoteParticipant* remote, ObjectUpdate* update)
+{
+  std::unique_lock lock(handlerMutex_);
+
+  remotesUpdatesBMMap.remove(remote, update);
+}
+
+inline RemoteParticipant* RemoteInterestsHandler::getFirstRemoteParticipant()
+{
+  std::shared_lock lock(handlerMutex_);
+
+  for (auto itr = remotesInterestsBMMap.begin<InterestId>();  // NOLINT(modernize-loop-convert) NOSONAR
+       itr != remotesInterestsBMMap.end<InterestId>();
+       ++itr)
+  {
+    if (!itr->second.empty())
+    {
+      return itr->second.front();
+    }
+  }
+
+  return nullptr;
+}
+
+template <typename Fn>
+inline void RemoteInterestsHandler::forEachRemoteUpdate(Fn&& fun)
+{
+  std::shared_lock lock(handlerMutex_);
+
+  remotesUpdatesBMMap.forEach(std::forward<Fn>(fun));
+}
+
+template <typename Fn>
+inline void RemoteInterestsHandler::forEachRemoteWithUpdate(ObjectUpdate* update, Fn&& fun)
+{
+  std::shared_lock lock(handlerMutex_);
+
+  remotesUpdatesBMMap.forEach(update, std::forward<Fn>(fun));
+}
+
+inline bool RemoteInterestsHandler::remoteHasInterestInUpdate(RemoteParticipant* remote, ObjectUpdate* update) const
+{
+  const auto* remoteInterests = remotesInterestsBMMap.tryGet(remote);
+  const auto* updateInterests = interestsUpdatesBMMap.tryGet(update);
+  if (remoteInterests == nullptr || updateInterests == nullptr)
+  {
+    return false;
+  }
+
+  for (const auto interestId: *remoteInterests)
+  {
+    if (updateInterests->contains(interestId))
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 inline bool RemoteInterestsHandler::removeObjectUpdateByInterest(ObjectUpdate* update, InterestId interestId)
 {
+  std::unique_lock lock(handlerMutex_);
+
   // remove the deleted interest/update link
   interestsUpdatesBMMap.remove(interestId, update);
 
   std::vector<RemoteParticipant*> remotesToRemove;
   remotesToRemove.reserve(10U);  // estimated reserve
   remotesUpdatesBMMap.forEach(update,
-                              [this, update, interestId, &remotesToRemove](RemoteParticipant* remote)
+                              [this, update, &remotesToRemove](RemoteParticipant* remote)
                               {
-                                auto& remoteInterestsUpdates = remotesToInterestsUpdatesMap[remote];
-
-                                // remove the deleted interest/update link
-                                remoteInterestsUpdates.remove(interestId, update);
-
-                                if (!remoteInterestsUpdates.contains(update))
+                                if (!remoteHasInterestInUpdate(remote, update))
                                 {
                                   // safe deletion of the update from the remote (if we still find the update in the
-                                  // remoteInterestsUpdates map, this means that this remote used another interest,
+                                  // derived remote interest set, this means that this remote used another interest,
                                   // therefore we should not remove the update from this remote)
                                   remotesToRemove.push_back(remote);
-                                }
-
-                                if (remoteInterestsUpdates.empty())
-                                {
-                                  remotesToInterestsUpdatesMap.erase(remote);
                                 }
                               });
 
@@ -219,8 +284,9 @@ inline bool RemoteInterestsHandler::removeObjectUpdateByInterest(ObjectUpdate* u
 
 inline void RemoteInterestsHandler::clear()
 {
+  std::unique_lock lock(handlerMutex_);
+
   remotesUpdatesBMMap.clear();
-  remotesToInterestsUpdatesMap.clear();
   remotesInterestsBMMap.clear();
   interestsUpdatesBMMap.clear();
 }

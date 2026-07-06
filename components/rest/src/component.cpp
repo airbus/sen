@@ -80,17 +80,14 @@ kernel::FuncResult RestAPIComponent::unload(kernel::UnloadApi&& api)
   if (!initialized_)
   {
     asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(config_.address), config_.port);
-    server_ = HttpServer::create<SenRouter>(ctx_, api);
+    server_ = HttpServer::create<SenRouter>(api);
     server_->start(endpoint);
 
     initialized_ = true;
   }
   lastUpdateTime_ = api.getTime();
 
-  return api.execLoop(
-    getUpdateFreq(),
-    [this]() { ctx_.run_until(std::chrono::steady_clock::now() + getUpdateFreq().toChrono()); },
-    false);
+  return api.execLoop(getUpdateFreq(), [this]() { server_->runUntil(getUpdateFreq().toChrono()); }, false);
 }
 
 [[nodiscard]] uint16_t RestAPIComponent::getListenPort() const { return config_.port; }

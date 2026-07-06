@@ -25,12 +25,15 @@
 #include <asio/ip/address_v4.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/socket_base.hpp>
+#include <asio/write.hpp>
 
 // std
-#include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <list>
 #include <memory>
+#include <string>
 #include <system_error>
 #include <utility>
 #include <vector>
@@ -38,19 +41,36 @@
 namespace sen::components::ether
 {
 
-//--------------------------------------------------------------------------------------------------------------
-// Helpers
-//--------------------------------------------------------------------------------------------------------------
-
 namespace
 {
 
-class Client: public std::enable_shared_from_this<Client>
+/// Retrieves the remote endpoint name from a TCP socket.
+std::string remoteEndpointName(asio::ip::tcp::socket& socket)
+{
+  asio::error_code ec;
+  const auto endpoint = socket.remote_endpoint(ec);
+  if (ec)
+  {
+    return std::string("<unknown: ").append(ec.message()).append(">");
+  }
+
+  return endpoint.address().to_string().append(":").append(std::to_string(endpoint.port()));
+}
+
+}  // namespace
+
+//--------------------------------------------------------------------------------------------------------------
+// Client
+//--------------------------------------------------------------------------------------------------------------
+
+/// Used by the TcpDiscoveryHub to relay messages to each of the processes connected to it
+class TcpDiscoveryHub::Client: public std::enable_shared_from_this<TcpDiscoveryHub::Client>
 {
   SEN_NOCOPY_NOMOVE(Client)
 
 public:
-  Client(std::list<asio::ip::tcp::socket>* sockets, asio::ip::tcp::socket& socket): sockets_(sockets), socket_(socket)
+  Client(TcpDiscoveryHub& hub, asio::ip::tcp::socket socket)
+    : hub_(hub), peerName_(remoteEndpointName(socket)), socket_(std::move(socket))
   {
     buffer_.resize(BeamerBase::maxBeamSize);
   }
@@ -59,50 +79,85 @@ public:
 
   void receive()
   {
-    socket_.async_receive(asio::buffer(buffer_),
-                          [us = shared_from_this(), ourSocketPtr = &socket_](auto ec, auto /*len*/)
-                          {
-                            if (!ec)
-                            {
-                              for (auto& sock: *us->sockets_)
-                              {
-                                if (&sock != ourSocketPtr)
-                                {
-                                  auto bufferCopy = std::make_shared<std::vector<uint8_t>>(us->buffer_);
-                                  sock.async_send(asio::buffer(*bufferCopy),
-                                                  [bufferCopy, us](auto ec, auto /*len*/)
-                                                  {
-                                                    if (ec)
-                                                    {
-                                                      us->disconnected();
-                                                    }
-                                                  });
-                                }
-                              }
-
-                              us->receive();
-                            }
-                            else
-                            {
-                              us->disconnected();
-                            }
-                          });
+    socket_.async_receive(
+      asio::buffer(buffer_),
+      [us = shared_from_this()](auto ec, auto length)
+      {
+        try
+        {
+          if (!ec)
+          {
+            us->hub_.broadcast(us, us->buffer_, length);
+            us->receive();
+          }
+          else
+          {
+            getLogger()->info("discovery hub client {} read failed: {} ({})", us->peerName_, ec.message(), ec.value());
+            us->hub_.disconnect(us);
+          }
+        }
+        catch (const std::exception& error)
+        {
+          getLogger()->error("discovery hub client {} read handler failed: {}", us->peerName_, error.what());
+          us->hub_.disconnect(us);
+          throw;
+        }
+        catch (...)
+        {
+          getLogger()->error("discovery hub client {} read handler failed", us->peerName_);
+          us->hub_.disconnect(us);
+          throw;
+        }
+      });
   }
 
-private:
-  void disconnected()
+  void send(std::shared_ptr<std::vector<uint8_t>> buffer)
   {
-    sockets_->erase(
-      std::find_if(sockets_->begin(), sockets_->end(), [this](auto& other) { return &socket_ == &other; }));
+    const auto data = asio::buffer(*buffer);
+    asio::async_write(
+      socket_,
+      data,
+      [buffer = std::move(buffer), us = shared_from_this()](auto ec, auto /*len*/)
+      {
+        (void)buffer;  // keep buffer alive until async_write completes
+        try
+        {
+          if (ec)
+          {
+            getLogger()->info("discovery hub client {} write failed: {} ({})", us->peerName_, ec.message(), ec.value());
+            us->hub_.disconnect(us);
+          }
+        }
+        catch (const std::exception& error)
+        {
+          getLogger()->error("discovery hub client {} write handler failed: {}", us->peerName_, error.what());
+          us->hub_.disconnect(us);
+          throw;
+        }
+        catch (...)
+        {
+          getLogger()->error("discovery hub client {} write handler failed", us->peerName_);
+          us->hub_.disconnect(us);
+          throw;
+        }
+      });
   }
 
-private:
-  std::list<asio::ip::tcp::socket>* sockets_;
-  std::vector<uint8_t> buffer_;
-  asio::ip::tcp::socket& socket_;
-};
+  void close()
+  {
+    asio::error_code ec;
+    socket_.shutdown(asio::socket_base::shutdown_both, ec);  // NOLINT(bugprone-unused-return-value)
+    socket_.close(ec);                                       // NOLINT(bugprone-unused-return-value)
+  }
 
-}  // namespace
+  [[nodiscard]] const std::string& peerName() const { return peerName_; }
+
+private:
+  TcpDiscoveryHub& hub_;
+  std::string peerName_;
+  std::vector<uint8_t> buffer_;
+  asio::ip::tcp::socket socket_;
+};
 
 //--------------------------------------------------------------------------------------------------------------
 // TcpDiscoveryHub
@@ -115,6 +170,7 @@ TcpDiscoveryHub::TcpDiscoveryHub(asio::io_context& io, Configuration config): ac
   acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
   acceptor_.bind(endpoint);
   acceptor_.listen();
+  getLogger()->info("discovery hub listening on {}:{}", endpoint.address().to_string(), endpoint.port());
   doAccept();
 }
 
@@ -130,20 +186,11 @@ TcpDiscoveryHub::~TcpDiscoveryHub()
     // swallow error
   }
 
-  for (auto& elem: sockets_)
+  for (auto& elem: clients_)
   {
-    try
-    {
-      asio::error_code ec;
-
-      elem.shutdown(asio::socket_base::shutdown_both, ec);  // NOLINT(bugprone-unused-return-value)
-      elem.close(ec);                                       // NOLINT(bugprone-unused-return-value)
-    }
-    catch (...)
-    {
-      // swallow error
-    }
+    elem->close();
   }
+  clients_.clear();
 }
 
 void TcpDiscoveryHub::doAccept()
@@ -151,16 +198,75 @@ void TcpDiscoveryHub::doAccept()
   acceptor_.async_accept(
     [this](std::error_code ec, asio::ip::tcp::socket socket)
     {
-      if (!ec)
+      try
       {
-        configureTcpSocket(socket, config_);
-        sockets_.push_back(std::move(socket));
+        if (!ec)
+        {
+          configureTcpSocket(socket, config_);
 
-        auto client = std::make_shared<Client>(&sockets_, sockets_.back());
-        client->receive();
+          auto client = std::make_shared<Client>(*this, std::move(socket));
+          getLogger()->info("discovery hub accepted client {}", client->peerName());
+          clients_.push_back(client);
+          client->receive();
+        }
+        else
+        {
+          if (acceptor_.is_open())
+          {
+            getLogger()->info("discovery hub accept failed: {} ({})", ec.message(), ec.value());
+          }
+        }
       }
-      doAccept();
+      catch (const std::exception& error)
+      {
+        getLogger()->error("discovery hub accept handler failed: {}", error.what());
+        throw;
+      }
+      catch (...)
+      {
+        getLogger()->error("discovery hub accept handler failed");
+        throw;
+      }
+
+      if (acceptor_.is_open())
+      {
+        doAccept();
+      }
     });
+}
+
+void TcpDiscoveryHub::broadcast(const std::shared_ptr<Client>& sender,
+                                const std::vector<uint8_t>& buffer,
+                                std::size_t length)
+{
+  for (const auto& client: clients_)
+  {
+    if (client != sender)
+    {
+      try
+      {
+        client->send(
+          std::make_shared<std::vector<uint8_t>>(buffer.begin(), buffer.begin() + static_cast<std::ptrdiff_t>(length)));
+      }
+      catch (const std::exception& error)
+      {
+        getLogger()->error("discovery hub client {} write initiation failed: {}", client->peerName(), error.what());
+        throw;
+      }
+      catch (...)
+      {
+        getLogger()->error("discovery hub client {} write initiation failed", client->peerName());
+        throw;
+      }
+    }
+  }
+}
+
+void TcpDiscoveryHub::disconnect(const std::shared_ptr<Client>& client)
+{
+  getLogger()->info("discovery hub disconnected client {}", client->peerName());
+  client->close();
+  clients_.remove(client);
 }
 
 }  // namespace sen::components::ether

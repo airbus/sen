@@ -10,6 +10,6 @@
 
 #include "imgui.h"
 
-ImFont* addValueFont();
+ImFont* addValueFont(float scale = 1.0f);
 
 #endif  // SEN_COMPONENTS_EXPLORER_SRC_VALUE_FONT_H

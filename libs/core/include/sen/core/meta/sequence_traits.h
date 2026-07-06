@@ -9,8 +9,15 @@
 #define SEN_CORE_META_SEQUENCE_TRAITS_H
 
 // sen
+#include "sen/core/io/input_stream.h"
+#include "sen/core/io/output_stream.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/sequence_type.h"
+#include "sen/core/meta/var.h"
+
+// std
+#include <cstdint>
+#include <string>
 
 namespace sen
 {
@@ -31,6 +38,19 @@ struct SequenceTraitsBase
   static void valueToVariant(const T& val, Var& var) { impl::sequenceToVariant<T>(val, var); }
   static void variantToValue(const Var& var, T& val) { impl::variantToSequence<T>(var, val); }
   [[nodiscard]] static uint32_t serializedSize(const T& val) noexcept { return impl::sequenceSerializedSize<T>(val); }
+
+  static std::string toJsonString(const T& val)
+  {
+    Var var;
+    valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, T& val)
+  {
+    const Var var = fromJson(str);
+    variantToValue(var, val);
+  }
 };
 
 /// Base class for sequence traits.
@@ -44,6 +64,19 @@ struct ArrayTraitsBase
   static void valueToVariant(const T& val, Var& var) { impl::arrayToVariant<T>(val, var); }
   static void variantToValue(const Var& var, T& val) { impl::variantToArray<T>(var, val); }
   [[nodiscard]] static uint32_t serializedSize(const T& val) noexcept { return impl::arraySerializedSize<T>(val); }
+
+  static std::string toJsonString(const T& val)
+  {
+    Var var;
+    valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, T& val)
+  {
+    const Var var = fromJson(str);
+    variantToValue(var, val);
+  }
 };
 
 /// @}

@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstring>
 
-ImFont* addValueFont()
+ImFont* addValueFont(const float scale)
 {
   static const char valueFontCompressedDataBase85[14165 + 1] =
     "7])#######p6:o*'/###[),##0rC$#Q6>##T@;*>7+[-*rFB`N9g>11gZn42MfO4H:.>>#I&g<6aNV=B^<g^/"
@@ -264,7 +264,7 @@ ImFont* addValueFont()
   config.OversampleH = 1;
   config.OversampleV = 1;
   config.PixelSnapH = true;
-  config.SizePixels = 16;
+  config.SizePixels = 16.0f * scale;
 
   // copy font name manually to avoid warnings
   const char* name = "Sweet16mono.ttf, 16px";

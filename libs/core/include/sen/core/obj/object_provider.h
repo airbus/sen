@@ -170,6 +170,14 @@ public:
   ///                                   for each existing object in the provider.
   virtual void removeListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects);
 
+  /// Replaces an existing listener with a new one without triggering notifications.
+  ///
+  /// Does nothing if the old listener is not found.
+  ///
+  /// @param oldListener the currently registered listener to be replaced.
+  /// @param newListener the new listener to take its place.
+  virtual void replaceListener(ObjectProviderListener* oldListener, ObjectProviderListener* newListener);
+
   /// Returns true if the listener has been added.
   [[nodiscard]] virtual bool hasListener(ObjectProviderListener* listener) const noexcept;
 

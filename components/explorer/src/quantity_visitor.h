@@ -179,11 +179,11 @@ EditablePrinterFunc QuantityVisitor::boundedScalarFieldWithUnit(const ImGuiDataT
       ScalarType actualMax =
         max.has_value() ? static_cast<ScalarType>(max.value()) : std::numeric_limits<ScalarType>::max();
 
-      if (var.get<ScalarType>() < actualMin)
+      if (var.getCopyAs<ScalarType>() < actualMin)
       {
         var = actualMin;
       }
-      else if (var.get<ScalarType>() > actualMax)
+      else if (var.getCopyAs<ScalarType>() > actualMax)
       {
         var = actualMax;
       }

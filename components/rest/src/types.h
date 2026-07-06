@@ -35,6 +35,7 @@ namespace sen::components::rest
 using InterestName = std::string;
 using InvokeId = uint32_t;
 using InterestCallback = std::function<void(const InterestName& interestName, sen::ObjectId objectId)>;
+using AutoSubscribeCallback = std::function<bool(sen::Object* object)>;
 
 /// Abstracts an invocation to a method of a Sen object
 struct Invoke
@@ -50,7 +51,9 @@ struct Invoke
 
 [[nodiscard]] std::string toJson(const sen::Object& object, const PropertyLocator& propertyLocator);
 
-[[nodiscard]] std::string toJson(const sen::Object& object, const sen::VarList& value);
+[[nodiscard]] std::string toJson(const sen::Object& object,
+                                 const sen::VarList& value,
+                                 const EventLocator& eventLocator);
 
 [[nodiscard]] Interest fromJson(const nlohmann::json& j);
 

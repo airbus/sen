@@ -136,6 +136,7 @@ std::string HttpResponse::toBuffer() const
     buffer.append("Content-Length: ");
     buffer.append(std::to_string(body_.size()));
     buffer.append("\r\n");
+    buffer.append("Connection: close\r\n");
   }
 
   buffer.append("\r\n");

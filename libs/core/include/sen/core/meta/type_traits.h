@@ -49,6 +49,8 @@ struct SerializationTraits
   // static void write(OutputStream& out, const T& val);
   // static void read(InputStream& in, T& val);
   // static uint32_t serializedSize(const T& val) noexcept;
+  // static std::string toJsonString(const T& val);
+  // static void fromJsonString(const std::string& str, T& val);
 
   static_assert(true, "SerializationTraits is not defined for type T.");
 };

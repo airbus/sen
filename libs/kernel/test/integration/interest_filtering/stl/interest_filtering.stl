@@ -1,0 +1,34 @@
+package interest_filtering;
+
+sequence<string> StringList;
+
+enum TestEnum : u8
+{
+  first,
+  second,
+  third
+}
+
+sequence<u64, 100> TestSequence;
+
+struct TestStruct
+{
+  member1 : string,
+  member2 : u32,
+  member3 : TestSequence
+}
+
+class TestObject
+{
+  // use to determine if the object is still alive and updating well
+  var heartbeat : u32;
+
+  // properties used to check interest queries
+  var floatProp : f64;
+  var enumProp  : TestEnum;
+  var boolProp  : bool;
+  var structProp : TestStruct [confirmed];
+
+  // performs known edition of the object properties
+  fn editObject();
+}

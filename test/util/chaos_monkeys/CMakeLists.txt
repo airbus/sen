@@ -23,7 +23,6 @@ add_sen_package(
 )
 
 set_target_properties(creator_monkeys PROPERTIES FOLDER "test/util/chaos_monkeys")
-set_target_properties(creator_monkeys PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # TODO(SEN-1165): investigate flaky results for these tests
 # # execute creator monkeys test with one type of object with a frequency of 10hz during 10 seconds

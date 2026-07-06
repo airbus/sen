@@ -8,10 +8,7 @@
 #include "./posix_api.h"
 
 // system
-#ifdef __linux__
-#  include <bits/pthreadtypes.h>
-#  include <bits/types/struct_sched_param.h>
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 #  include "mach/mach.h"
 #  include "mach/thread_act.h"
 #  include "mach/thread_policy.h"

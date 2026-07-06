@@ -18,6 +18,4 @@ add_sen_package(
 
 sen_enable_static_analysis(query_test)
 
-set_target_properties(query_test PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 add_sen_run_smoke_test(query_test CONFIG_FILE config/component.yaml)

@@ -11,11 +11,19 @@
 // sen
 #include "sen/core/base/duration.h"
 #include "sen/core/base/timestamp.h"
+#include "sen/core/io/detail/serialization_traits.h"
+#include "sen/core/io/input_stream.h"
 #include "sen/core/meta/basic_traits.h"
 #include "sen/core/meta/quantity_type.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/meta/type_traits.h"
 #include "sen/core/meta/unit.h"
 #include "sen/core/meta/unit_registry.h"
+#include "sen/core/meta/var.h"
+
+// std
+#include <cstdint>
+#include <string>
 
 namespace sen
 {
@@ -131,6 +139,19 @@ struct SerializationTraits<Duration>
   {
     return impl::getSerializedSize(val.get());
   }
+
+  static std::string toJsonString(const Duration val)
+  {
+    Var var;
+    VariantTraits<Duration>::valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, Duration& val)
+  {
+    const Var var = fromJson(str);
+    VariantTraits<Duration>::variantToValue(var, val);
+  }
 };
 
 std::ostream& operator<<(std::ostream& out, const Duration& val);
@@ -164,6 +185,19 @@ struct SerializationTraits<TimeStamp>
   [[nodiscard]] static constexpr uint32_t serializedSize(TimeStamp val) noexcept
   {
     return impl::getSerializedSize(val);
+  }
+
+  static std::string toJsonString(const TimeStamp val)
+  {
+    Var var;
+    VariantTraits<TimeStamp>::valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, TimeStamp& val)
+  {
+    const Var var = fromJson(str);
+    VariantTraits<TimeStamp>::variantToValue(var, val);
   }
 };
 

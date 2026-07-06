@@ -100,6 +100,11 @@ std::shared_ptr<spdlog::logger> getLogger() { return kernel::KernelApi::getOrCre
   return errorNotFound;
 }
 
+[[nodiscard]] JsonResponse getErrorNotFound(const std::string& missingParam)
+{
+  return JsonResponse(httpNotFoundError, Error {missingParam + " not found"});
+}
+
 [[nodiscard]] std::string urlSanitizeLocalName(std::string name)
 {
   size_t idx = name.find_last_of('.');

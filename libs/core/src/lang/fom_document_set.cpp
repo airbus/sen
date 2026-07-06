@@ -1670,9 +1670,20 @@ std::vector<Arg> FomDocumentSet::collectArgsFromInteractionNode(const pugi::xpat
         continue;
       }
 
-      nodeArgs.emplace_back(toLowerCamelCase(paramName),
-                            formatSemantics(param.node().child_value("semantics")),
-                            getOrCreateTypeFromFomName(param.node().child_value("dataType"), doc).first);
+      std::string semanticsString = param.node().child_value("semantics");
+
+      auto argType = [&]()
+      {
+        if (startsWith(semanticsString, "Optional.") || startsWith(semanticsString, "Optional (") ||
+            startsWith(semanticsString, "Optional:") || startsWith(semanticsString, "Optional,"))
+        {
+          return getOptionalPropertyType(param.node().child_value("dataType"), doc);
+        }
+
+        return getOrCreateTypeFromFomName(param.node().child_value("dataType"), doc).first;
+      }();
+
+      nodeArgs.emplace_back(toLowerCamelCase(paramName), formatSemantics(semanticsString), argType);
     }
     result = prependArgs(result, nodeArgs);
 

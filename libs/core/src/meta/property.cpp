@@ -13,7 +13,6 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/hash32.h"
-#include "sen/core/base/span.h"
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
@@ -49,90 +48,14 @@ std::string makeExplanation(const PropertySpec& spec, std::string_view message)
   sen::throwRuntimeError(makeExplanation(spec, message));
 }
 
-/// Throws if the property does not have all the required fields
-void checkRequiredFields(const PropertySpec& spec) { impl::checkMemberName(spec.name); }
-
-/// Throws if the getter method is not valid
-void checkGetterMethod(const PropertySpec& spec, const Method& getter)
+/// Throws if the property does not have all the required fields or has invalid types
+void checkRequiredFields(const PropertySpec& spec)
 {
-  // getters shall have no arguments
-  if (!getter.getArgs().empty())
-  {
-    throwError(spec, "getter method takes arguments");
-  }
+  impl::checkMemberName(spec.name);
 
-  // getters shall be constant
-  if (getter.getConstness() != Constness::constant)
+  if (spec.type->isVoidType())
   {
-    throwError(spec, "getter method is not constant");
-  }
-
-  // getters shall return something
-  if (getter.getReturnType()->isVoidType())
-  {
-    throwError(spec, "getter method does not return anything");
-  }
-
-  // getters shall return the same type as the property
-  if (getter.getReturnType() != spec.type)
-  {
-    throwError(spec, "getter method returns a different type");
-  }
-
-  // getters naming shall be consistent with our expectations
-  if (getter.getName() != Property::makeGetterMethodName(spec))
-  {
-    throwError(spec, "getter method has an invalid name");
-  }
-}
-
-/// Throws if the setter method is not valid
-void checkSetterMethod(const PropertySpec& spec, const Method& setter)
-{
-  // setters shall have only one argument
-  if (setter.getArgs().size() != 1U)
-  {
-    throwError(spec, "setter does not have one argument");
-  }
-
-  // setters shall be non-constant
-  if (setter.getConstness() == Constness::constant)
-  {
-    throwError(spec, "setter method is constant");
-  }
-
-  // setters shall not return
-  if (!setter.getReturnType()->isVoidType())
-  {
-    throwError(spec, "setter method returns something");
-  }
-
-  // setters shall take the same type as the property
-  if (setter.getArgs()[0U].type != spec.type)
-  {
-    throwError(spec, "setter method takes a different type");
-  }
-
-  // setters naming shall be consistent with our expectations
-  if (setter.getName() != Property::makeSetterMethodName(spec))
-  {
-    throwError(spec, "setter method has an invalid name");
-  }
-}
-
-/// Throws if the change notification event is not valid
-void checkChangeNotificationEvent(const PropertySpec& spec, const Event& changeEvent)
-{
-  // change events shall have no arguments
-  if (!changeEvent.getArgs().empty())
-  {
-    throwError(spec, "change event has arguments");
-  }
-
-  // event naming shall be consistent with our expectations
-  if (changeEvent.getName() != Property::makeChangeNotificationEventName(spec))
-  {
-    throwError(spec, "change event has an invalid name");
+    throwError(spec, "property cannot be of void type");
   }
 }
 
@@ -180,11 +103,6 @@ Property::Property(PropertySpec spec, Private /*priv*/)
     changeEventSpec.callableSpec.transportMode = spec_.transportMode;
     changeEvent_ = Event::make(changeEventSpec);
   }
-
-  // just to be safe
-  checkGetterMethod(spec_, *getterMethod_);            // check the getter method
-  checkSetterMethod(spec_, *setterMethod_);            // check the setter method
-  checkChangeNotificationEvent(spec_, *changeEvent_);  // check the event
 }
 
 std::shared_ptr<Property> Property::make(PropertySpec spec)

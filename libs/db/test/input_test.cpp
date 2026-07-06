@@ -38,12 +38,8 @@ namespace sen::db::test
 /// Helper function to create a valir archive with one keyframe for corruption tests
 static std::filesystem::path createValidArchive(const std::filesystem::path& baseDir, sen::kernel::TestKernel& kernel)
 {
-  OutSettings settings;
-  settings.name = "test";
-  settings.folder = baseDir.string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = baseDir / settings.name;
+  auto settings = makeArchiveSettings("test", baseDir);
+  const auto archivePath = makeArchivePath("test", baseDir);
 
   {
     Output output(std::move(settings), []() {});
@@ -103,17 +99,13 @@ TEST(InputTest, OpenRecordingWithOneKeyframe)
   const auto* propMeta = classType.type()->searchPropertyByName("speed");
   ASSERT_NE(propMeta, nullptr);
 
-  OutSettings settings;
-  settings.name = "test";
-  settings.folder = tempDir.path().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = tempDir.path() / settings.name;
+  auto settings = makeArchiveSettings("test", tempDir);
+  const auto archivePath = makeArchivePath("test", tempDir);
 
   {
     Output output(std::move(settings), []() {});
 
-    ObjectInfo info = {object.get(), "test_session", "test_bus"};
+    auto info = makeObjectInfo(object);
     output.creation(kernel.getTime(), info, true);
 
     ::sen::kernel::Buffer propBuf;

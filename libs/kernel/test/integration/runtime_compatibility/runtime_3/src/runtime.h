@@ -9,7 +9,7 @@
 #define SEN_LIBS_KERNEL_TEST_INTEGRATION_RUNTIME_COMPATIBILITY_RUNTIME_3_SRC_RUNTIME_H
 
 // test_helpers
-#include "test_helpers/tester.stl.h"
+#include "test_helpers/test_helpers.stl.h"
 
 // sen
 #include "sen/kernel/component_api.h"

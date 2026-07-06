@@ -21,6 +21,7 @@
 #include <asio/thread_pool.hpp>
 
 // std
+#include <chrono>
 #include <memory>
 
 namespace sen::components::rest
@@ -38,10 +39,10 @@ public:
 
 public:
   template <class Router>
-  static std::unique_ptr<HttpServer> create(asio::io_context& ctx, kernel::RunApi& runApi)
+  static std::unique_ptr<HttpServer> create(kernel::RunApi& runApi)
   {
     auto router = std::make_unique<Router>(runApi);
-    return std::unique_ptr<HttpServer>(new HttpServer(ctx, std::move(router)));
+    return std::unique_ptr<HttpServer>(new HttpServer(std::move(router)));
   }
 
   /// The `start` method initializes the server, binding it to the specified address and port.
@@ -51,10 +52,12 @@ public:
   /// Stops the HTTP server blocking until all workers have finished.
   void stop();
 
+  /// Run until the given relative time is reached.
+  void runUntil(const std::chrono::nanoseconds& relTime);
+
 private:
   template <class Router>
-  explicit HttpServer(asio::io_context& ctx, std::unique_ptr<Router> router)
-    : context_(ctx), router_(std::move(router)), acceptor_(ctx)
+  explicit HttpServer(std::unique_ptr<Router> router): router_(std::move(router)), acceptor_(context_)
   {
     // Left blank intentionally
   }
@@ -62,7 +65,7 @@ private:
   void accept(std::shared_ptr<BaseRouter> router);
 
 private:
-  asio::io_context& context_;
+  asio::io_context context_;
   std::shared_ptr<BaseRouter> router_;
   asio::ip::tcp::acceptor acceptor_;
 };

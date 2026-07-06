@@ -75,12 +75,7 @@ RemoteInterestsManager::RemoteInterestsManager(ObjectOwnerId ownerIdRef, LocalPa
     {
       owner_->getLogger().debug("Interest {} removed", interestId.get());
 
-      auto& interestsUpdatesBMMap = remoteInterestsHandler_.interestsUpdatesBMMap;
-
-      // clear any orphans that may be left from previous removals (call to remove does not always clear them)
-      interestsUpdatesBMMap.clearOrphans();
-
-      const auto orphanUpdates = interestsUpdatesBMMap.remove(interestId).second;
+      const auto orphanUpdates = remoteInterestsHandler_.removeInterest(interestId);
       for (auto* update: orphanUpdates)
       {
         update->applyToNativeObject([&](auto* localObject)
@@ -106,7 +101,7 @@ void RemoteInterestsManager::markObjectAsRejected(ObjectId objectId, ObjectProvi
 {
   if (auto* remote = listener->isRemoteParticipant(); remote != nullptr)
   {
-    remoteInterestsHandler_.remotesUpdatesBMMap.remove(remote, &*objectIdToUpdateItr_[objectId]);
+    remoteInterestsHandler_.removeRejectedObject(remote, &*objectIdToUpdateItr_[objectId]);
   }
 }
 
@@ -149,7 +144,7 @@ inline void RemoteInterestsManager::sendEvents(const std::list<::sen::impl::Seri
     // tackle direct communication
     if (element.transportMode == TransportMode::confirmed || element.transportMode == TransportMode::unicast)
     {
-      remoteInterestsHandler_.remotesUpdatesBMMap.forEach(
+      remoteInterestsHandler_.forEachRemoteWithUpdate(
         update,
         [this, &remoteDataMap, &element](RemoteParticipant* remote)
         {
@@ -232,8 +227,7 @@ void RemoteInterestsManager::sendObjectUpdates()
   }
 
   {
-    const std::lock_guard lock(remoteInterestsHandler_.remotesUpdatesBMMapMutex_);
-    remoteInterestsHandler_.remotesUpdatesBMMap.forEach(
+    remoteInterestsHandler_.forEachRemoteUpdate(
       [ownerId = getOwnerId()](ObjectUpdate* update, const List<RemoteParticipant*>& remotes)
       {
         std::unordered_set<ProcessId> used;
@@ -320,8 +314,7 @@ void RemoteInterestsManager::subscriberRemoved(ObjectProviderListener* listener,
 
   owner_->getLogger().debug("LP {}: remote participant {} unsubscribed", owner_->getDebugName(), remote->getId().get());
 
-  const auto& orphanInterests = remoteInterestsHandler_.removeSubscriber(remote);
-  for (auto interestId: orphanInterests)
+  for (const auto interestId: remoteInterestsHandler_.removeSubscriber(remote))
   {
     interestsHandler_.removeInterest(interestId);
   }
@@ -336,19 +329,7 @@ void RemoteInterestsManager::subscriberRemoved(ObjectProviderListener* listener,
 
 void RemoteInterestsManager::updateRemoteReference()
 {
-  const std::lock_guard lock(remoteInterestsHandler_.remotesUpdatesBMMapMutex_);
-  // try to find another
-  const auto& remotesInterestsBMMap = remoteInterestsHandler_.remotesInterestsBMMap;
-  for (auto itr = remotesInterestsBMMap.begin<InterestId>();  // NOLINT(modernize-loop-convert) NOSONAR
-       itr != remotesInterestsBMMap.end<InterestId>();
-       ++itr)
-  {
-    if (!itr->second.empty())
-    {
-      aRemoteParticipant_ = itr->second.front();
-      break;
-    }
-  }
+  aRemoteParticipant_ = remoteInterestsHandler_.getFirstRemoteParticipant();
 }
 
 void RemoteInterestsManager::objectsAdded(std::shared_ptr<Interest> interest, ObjectAdditionList additions)

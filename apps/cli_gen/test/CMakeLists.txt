@@ -6,7 +6,7 @@
 # ======================================================================================================================
 
 set(hla_fom_gen_test_sources ${CMAKE_CURRENT_SOURCE_DIR})
-set(working_dir ${CMAKE_BINARY_DIR}/bin)
+set(working_dir $<TARGET_FILE_DIR:sen::cli_gen>)
 
 # Test case 1
 #
@@ -272,3 +272,20 @@ add_sen_integration_test(
 
 # link them so the checker only runs if the generator succeeds
 set_tests_properties(hla_fom_gen_integration_test_19 PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
+
+# Test case 20
+#
+# ModuleA-20 defines interactions with optional and required parameters
+#
+# Tests that the cli_gen generates MaybeXX types for optional parameters and standard types for required parameters
+add_sen_integration_test(
+  hla_fom_gen_integration_test_20
+  COMMAND
+  ${Python3_EXECUTABLE}
+  ${hla_fom_gen_test_sources}/test20/test.py
+  WORKING_DIRECTORY ${working_dir}
+  REQ_DEPS cli_gen
+)
+
+# link them so the checker only runs if the generator succeeds
+set_tests_properties(hla_fom_gen_integration_test_20 PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")

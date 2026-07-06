@@ -8,7 +8,16 @@
 #ifndef SEN_CORE_META_ENUM_TRAITS_H
 #define SEN_CORE_META_ENUM_TRAITS_H
 
+// sen
+#include "sen/core/io/input_stream.h"
+#include "sen/core/io/output_stream.h"
 #include "sen/core/meta/enum_type.h"
+#include "sen/core/meta/var.h"
+
+// std
+#include <cstdint>
+#include <string>
+#include <type_traits>
 
 namespace sen
 {
@@ -30,6 +39,19 @@ struct EnumTraitsBase
   static void valueToVariant(const T& val, Var& var) { var = static_cast<StorageType>(val); }
   static void variantToValue(const Var& var, T& val) { impl::enumVariantToValue<T>(var, val); }
   [[nodiscard]] static uint32_t serializedSize(T val) noexcept { return impl::enumSerializedSize<T>(val); }
+
+  static std::string toJsonString(T val)
+  {
+    Var var;
+    valueToVariant(val, var);
+    return toJson(var);
+  }
+
+  static void fromJsonString(const std::string& str, T& val)
+  {
+    const Var var = fromJson(str);
+    variantToValue(var, val);
+  }
 };
 
 /// @}

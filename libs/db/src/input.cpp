@@ -315,6 +315,11 @@ public:
   {
     readIndexes();
 
+    if (keyframeIndexes_.empty())
+    {
+      return std::nullopt;
+    }
+
     auto iterGeq = std::lower_bound(keyframeIndexes_.begin(),
                                     keyframeIndexes_.end(),
                                     time,
@@ -323,6 +328,11 @@ public:
     if (iterGeq == keyframeIndexes_.begin())
     {
       return *iterGeq;
+    }
+
+    if (iterGeq == keyframeIndexes_.end())
+    {
+      return keyframeIndexes_.back();
     }
 
     const auto& prev = *(iterGeq - 1);

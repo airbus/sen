@@ -1,0 +1,6 @@
+package high_churn_subs;
+
+class TestObject
+{
+  var property : f64;
+}

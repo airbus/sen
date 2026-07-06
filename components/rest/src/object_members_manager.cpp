@@ -33,12 +33,14 @@
 #include <spdlog/spdlog.h>
 
 // std
+#include <chrono>
 #include <exception>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 using Json = nlohmann::json;
 
@@ -61,7 +63,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
     return false;
   }
 
-  auto memberId = property->getId();
+  auto propertyId = property->getId();
   auto objectId = object->getId();
 
   auto guard = object->onPropertyChangedUntyped(
@@ -72,7 +74,7 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
       interest,
       propertyLocator,
       objectId,
-      memberId,
+      propertyId,
       maxUpdateTime = options.maxUpdateTime,
       lastUpdate = TimeStamp(0)](const sen::EventInfo& info, const sen::VarList& args) mutable
      {
@@ -85,20 +87,20 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
        lastUpdate = info.creationTime;
 
-       const auto objectIt = members_.find(objectId);
-       if (objectIt == members_.cend())
+       const auto objectIt = properties_.find(objectId);
+       if (objectIt == properties_.cend())
        {
          SPDLOG_LOGGER_ERROR(getLogger(), "Unexpected condition: object properties not found on property callback");
          return;
        }
 
-       const auto propertyIt = objectIt->second.find(memberId);
+       const auto propertyIt = objectIt->second.find(propertyId);
        if (propertyIt != objectIt->second.cend())
        {
          try
          {
-           auto propertyData = toJson(*object, propertyLocator);
-           notify(Notification {NotificationType::property, interest, info.creationTime, propertyData});
+           notify(
+             Notification {NotificationType::property, interest, info.creationTime, toJson(*object, propertyLocator)});
          }
          catch (std::exception& e)
          {
@@ -111,7 +113,11 @@ bool ObjectMembersManager::subscribeProperty(const sen::kernel::KernelApi& kerne
        }
      }});
 
-  members_[objectId].emplace(memberId, std::move(guard));
+  properties_[objectId].emplace(propertyId, std::move(guard));
+
+  auto propertyData = toJson(*object, propertyLocator);
+  auto timestamp = TimeStamp(std::chrono::system_clock::now().time_since_epoch());
+  notify(Notification {NotificationType::property, interest, std::move(timestamp), std::move(propertyData)});
 
   return true;
 }
@@ -128,26 +134,26 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
     return false;
   }
 
-  auto memberId = event->getId();
+  auto eventId = event->getId();
   auto objectId = object->getId();
 
   auto guard = object->onEventUntyped(
     event,
     {kernelApi.getWorkQueue(),
-     [this, object, objectId, interest, memberId](const sen::EventInfo& info, const sen::VarList& value)
+     [this, object, objectId, interest, eventId, eventLocator](const sen::EventInfo& info, const sen::VarList& value)
      {
-       const auto objectIt = members_.find(objectId);
-       if (objectIt == members_.cend())
+       const auto objectIt = events_.find(objectId);
+       if (objectIt == events_.cend())
        {
          SPDLOG_LOGGER_ERROR(getLogger(), "Unexpected condition: object events not found on event callback");
          return;
        }
 
-       const auto eventIt = objectIt->second.find(memberId);
+       const auto eventIt = objectIt->second.find(eventId);
        if (eventIt != objectIt->second.cend())
        {
-
-         notify(Notification {NotificationType::evt, interest, info.creationTime, toJson(*object, value)});
+         notify(
+           Notification {NotificationType::evt, interest, info.creationTime, toJson(*object, value, eventLocator)});
        }
        else
        {
@@ -155,31 +161,155 @@ bool ObjectMembersManager::subscribeEvent(const sen::kernel::KernelApi& kernelAp
        }
      }});
 
-  members_[objectId].emplace(memberId, std::move(guard));
+  events_[objectId].emplace(eventId, std::move(guard));
 
   return true;
 }
 
-bool ObjectMembersManager::unsubscribe(const sen::ObjectId& objectId, const sen::MemberHash& memberId)
+bool ObjectMembersManager::unsubscribeProperty(const sen::ObjectId& objectId, const MemberHash& propertyId)
 {
-  const auto objectIt = members_.find(objectId);
-  if (objectIt == members_.cend())
+  const auto objectIt = properties_.find(objectId);
+  if (objectIt == properties_.cend())
   {
     return false;
   }
 
-  return objectIt->second.erase(memberId) > 0;
+  return objectIt->second.erase(propertyId) > 0;
 }
 
-bool ObjectMembersManager::unsubscribeAll(const sen::ObjectId& objectId)
+bool ObjectMembersManager::unsubscribeEvent(const sen::ObjectId& objectId, const MemberHash& eventId)
 {
-  const auto objectIt = members_.find(objectId);
-  if (objectIt == members_.cend())
+  const auto objectIt = events_.find(objectId);
+  if (objectIt == properties_.cend())
   {
     return false;
   }
 
-  return members_.erase(objectId) > 0;
+  return objectIt->second.erase(eventId) > 0;
+}
+
+void ObjectMembersManager::unsubscribeAll(const sen::ObjectId& objectId)
+{
+  if (const auto objectPropertyIt = properties_.find(objectId); objectPropertyIt != properties_.cend())
+  {
+    properties_.erase(objectId);
+  }
+
+  if (const auto objectEventIt = events_.find(objectId); objectEventIt != events_.cend())
+  {
+    events_.erase(objectId);
+  }
+}
+
+bool ObjectMembersManager::isSubscribedTo(const sen::ObjectId& objectId, const MemberHash& memberId)
+{
+  const auto objectPropertyIt = properties_.find(objectId);
+  const auto objectEventIt = events_.find(objectId);
+
+  bool isFoundInProperties = objectPropertyIt != properties_.cend() &&
+                             objectPropertyIt->second.find(memberId) != objectPropertyIt->second.cend();
+  bool isFoundInEvents =
+    objectEventIt != events_.cend() && objectEventIt->second.find(memberId) != objectEventIt->second.cend();
+
+  return isFoundInProperties || isFoundInEvents;
+}
+
+std::vector<sen::MemberHash> ObjectMembersManager::getPropertyIds(const sen::ObjectId& objectId)
+{
+  std::vector<sen::MemberHash> propertyIds;
+  const auto objectIt = properties_.find(objectId);
+
+  if (objectIt != properties_.cend())
+  {
+    for (const auto& prop: objectIt->second)
+    {
+      propertyIds.push_back(prop.first);
+    }
+  }
+
+  return propertyIds;
+}
+
+std::vector<sen::MemberHash> ObjectMembersManager::getEventIds(const sen::ObjectId& objectId)
+{
+  std::vector<sen::MemberHash> eventIds;
+  const auto objectIt = events_.find(objectId);
+
+  if (objectIt != events_.cend())
+  {
+    for (const auto& event: objectIt->second)
+    {
+      eventIds.push_back(event.first);
+    }
+  }
+
+  return eventIds;
+}
+
+bool ObjectMembersManager::subscribeAllProperties(const sen::kernel::KernelApi& kernelApi,
+                                                  const InterestName& interest,
+                                                  sen::Object& object,
+                                                  const BusLocator& busLocator)
+{
+  for (auto const& property: object.getClass()->getProperties(sen::ClassType::SearchMode::includeParents))
+  {
+    auto propertyId = property->getId();
+    auto objectId = object.getId();
+
+    auto propertyLocatorOpt = PropertyLocator::build(busLocator, object.getName(), std::string(property->getName()));
+    if (propertyLocatorOpt.isError())
+    {
+      return false;
+    }
+
+    const auto& propertyLocator = propertyLocatorOpt.getValue();
+
+    auto guard = object.onPropertyChangedUntyped(
+      property.get(),
+      {kernelApi.getWorkQueue(),
+       [this, &object, interest, propertyLocator](const sen::EventInfo& info,
+                                                  [[maybe_unused]] const sen::VarList& args) mutable
+       {
+         notify(
+           Notification {NotificationType::property, interest, info.creationTime, toJson(object, propertyLocator)});
+       }});
+
+    properties_[objectId].emplace(propertyId, std::move(guard));
+  }
+
+  return true;
+}
+
+bool ObjectMembersManager::subscribeAllEvents(const sen::kernel::KernelApi& kernelApi,
+                                              const InterestName& interest,
+                                              sen::Object& object,
+                                              const BusLocator& busLocator)
+{
+  for (const auto& event: object.getClass()->getEvents(sen::ClassType::SearchMode::includeParents))
+  {
+    auto eventId = event->getId();
+    auto objectId = object.getId();
+
+    auto eventLocatorOpt = EventLocator::build(busLocator, object.getName(), std::string(event->getName()));
+    if (eventLocatorOpt.isError())
+    {
+      return false;
+    }
+
+    const auto& eventLocator = eventLocatorOpt.getValue();
+
+    auto guard = object.onEventUntyped(
+      event.get(),
+      {kernelApi.getWorkQueue(),
+       [this, &object, interest, eventLocator](const sen::EventInfo& info, const sen::VarList& value)
+       {
+         notify(Notification {NotificationType::evt, interest, info.creationTime, toJson(object, value, eventLocator)});
+       }});
+
+    events_[objectId].emplace(eventId, std::move(guard));
+  }
+
+  return true;
 }
 
 }  // namespace sen::components::rest

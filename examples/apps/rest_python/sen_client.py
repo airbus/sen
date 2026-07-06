@@ -4,17 +4,39 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+"""
+This program contains an example of how users can interact with the REST API using Python.
 
-import requests
+It shows how to sign in, create interests, display details and interact with remote objects.
+"""
+
 import json
-import sseclient
+import threading
 import time
 
-from typing import List, Dict, Any
+import requests
+import sseclient
+
 
 class SenClient:
-    def __init__(self, base_url = "http://localhost"):
-        self.base_url = base_url.rstrip('/')
+    """
+    Represents the client for the Sen REST component.
+
+    Attributes:
+        base_url (str): URL of the Sen REST server.
+        session (requests.Session): Active HTTP session.
+        sse_event_types (list): List of notifiable event types.
+        token (str): Token needed for authentication.
+    """
+
+    def __init__(self, base_url="http://localhost"):
+        """
+        Initialize SenClient.
+
+        Args:
+            base_url: base url to use (defaults to localhost)
+        """
+        self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.sse_event_types = [
             "object_added",
@@ -25,8 +47,15 @@ class SenClient:
         ]
         self.token = None
 
-    def get_headers(self, is_sse = False):
-        header = {"Content-Type": "application/json", }
+    def get_headers(self, is_sse=False):
+        """Gets the headers needed for REST API requests.
+
+        Args:
+            is_sse (bool): Whether notifications are enabled.
+        """
+        header = {
+            "Content-Type": "application/json",
+        }
         if is_sse:
             header["Accept"] = "text/event-stream"
         else:
@@ -37,12 +66,20 @@ class SenClient:
         return header
 
     def get(self, href):
+        """Makes GET request to the REST API.
+
+        Args:
+            href (str): Endpoint route.
+
+        Returns:
+            dict: Response of the request.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         try:
-            url = href if href.startswith('http') else f"{self.base_url}{href}"
-            response = self.session.get(
-                url,
-                headers=self.get_headers()
-            )
+            url = href if href.startswith("http") else f"{self.base_url}{href}"
+            response = self.session.get(url, headers=self.get_headers())
             response.raise_for_status()
             return response.json()
 
@@ -51,12 +88,20 @@ class SenClient:
             raise
 
     def post(self, href):
+        """Makes POST request to the REST API.
+
+        Args:
+            href (str): Endpoint route.
+
+        Returns:
+            dict: Response of the request.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         try:
-            url = href if href.startswith('http') else f"{self.base_url}{href}"
-            response = self.session.post(
-                url,
-                headers=self.get_headers()
-            )
+            url = href if href.startswith("http") else f"{self.base_url}{href}"
+            response = self.session.post(url, headers=self.get_headers())
             response.raise_for_status()
             return response.json()
 
@@ -65,13 +110,21 @@ class SenClient:
             raise
 
     def post_json(self, href, body):
+        """Makes POST request to the REST API with a body attached.
+
+        Args:
+            href (str): Endpoint route.
+            body (str): Body of the request.
+
+        Returns:
+            dict: Response of the request.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         try:
-            url = href if href.startswith('http') else f"{self.base_url}{href}"
-            response = self.session.post(
-                url,
-                headers= self.get_headers(),
-                json=body
-            )
+            url = href if href.startswith("http") else f"{self.base_url}{href}"
+            response = self.session.post(url, headers=self.get_headers(), json=body)
             response.raise_for_status()
             return response.json()
 
@@ -80,12 +133,24 @@ class SenClient:
             raise
 
     def post_args(self, href, args_str):
+        """Makes POST request to the REST API when some arguments are needed.
+
+        Args:
+            href (str): Endpoint route.
+            args_str (str): Arguments sent to the endpoint.
+
+        Returns:
+            dict: Response of the request.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         args_str = args_str.strip()
 
         if args_str:
             args = []
-            for v in args_str.split(','):
-                v = v.strip()
+            for raw_v in args_str.split(","):
+                v = raw_v.strip()
                 try:
                     args.append(int(v))
                 except ValueError:
@@ -97,9 +162,14 @@ class SenClient:
         return data
 
     def enable_notifications(self):
-        import threading
+        """Enable notifications that are displayed on standard output."""
 
         def listen_sse():
+            """Tries to enable notifications and displays them on the standard output.
+
+            Raises:
+                Exception: If there is any error in the request.
+            """
             try:
                 notifications = sseclient.SSEClient(f"{self.base_url}/api/sse", headers=self.get_headers(True))
                 for notification in notifications:
@@ -114,17 +184,37 @@ class SenClient:
         print("Notifications enabled")
 
     def disable_notifications(self):
+        """Disable notifications if they are enabled."""
         if self.sse_thread:
             self.sse_thread = None
         print("SSE disabled")
 
     def signin(self, client_id):
+        """Sign in to the REST API to get an API token.
+
+        Args:
+            client_id (str): Client id.
+
+        Returns:
+            dict: Response containing the API token.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         data = self.post_json("/api/auth", {"id": client_id})
         print("Signed in successfully")
         self.token = data["token"]
         return data
 
     def start_client_session(self, client_id):
+        """Start a client session and get all the sessions if a client id is provided.
+
+        Args:
+            client_id (str): Client id.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         if not client_id:
             print("Client ID is required")
             return
@@ -134,34 +224,89 @@ class SenClient:
         self.get_sessions()
 
     def get_sessions(self):
+        """Get all the sessions.
+
+        Returns:
+            list: List containing all the sessions.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         data = self.get("/api/sessions")
         return data
 
     def print_sessions(self, sessions):
+        """Display all the sessions on standard output.
+
+        Args:
+            sessions (list): List with all the sessions.
+        """
         print("\n=== Sessions ===")
         for session in sessions:
             print(f"   {session}")
         print()
 
     def create_interest(self, name, query):
+        """Create an interest based on a query.
+
+        Args:
+            name (str): Name of the interest.
+            query (str): Query used to create the interest.
+
+        Returns:
+            dict: Dictionary containing the created interest name.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         data = self.post_json("/api/interests", {"name": name, "query": query})
         return data
 
     def reload_interests(self):
+        """Get all the interests created.
+
+        Returns:
+            list[dict]: List containing all the interests with their name, bus and session.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         interests = self.get("/api/interests")
         return interests
 
     def print_interests(self, interests):
+        """Display all the interests on standard output.
+
+        Args:
+            interests (list[dict]): List containing all the interests.
+        """
         print("\n=== Interests ===")
         for interest in interests:
             print(f"   {json.dumps(interest)}")
         print()
 
     def get_objects(self, interest_name):
+        """Get all the objects contained on an interest.
+
+        Args:
+            interest_name (str): Name of the interest.
+
+        Returns:
+            list[dict]: List containing all the objects with their class name, link, local name,
+                        name and object id.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         objects = self.get(f"/api/interests/{interest_name}/objects")
         return objects
 
     def print_objects(self, objects):
+        """Display all the objects contained on an interest on standard output.
+
+        Args:
+            objects (list[dict]): List containing all the objects.
+        """
         print("\n=== Objects ===")
         for obj in objects:
             print(f"   {obj.get('name')} [ {obj.get('localname')} ]")
@@ -169,54 +314,99 @@ class SenClient:
         print()
 
     def get_object(self, interest_name, object_name):
+        """
+        Get all the object details.
+
+        Args:
+            interest_name: Name of the interest
+            object_name (str): Name of the object.
+
+        Returns:
+            dict: Dictionary with all the object associated with its class name, description, links,
+                  local name, name and object id.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         data = self.get(f"/api/interests/{interest_name}/objects/{object_name}")
         return data
 
     def print_object(self, data):
+        """
+        Display all the object details.
+
+        Args:
+            data (dict): Dictionary containing all the object details.
+        """
         methods = []
         properties = []
         events = []
 
-        for link in data.get('links', []):
-            rel = link.get('rel')
-            href = link.get('href')
+        for link in data.get("links", []):
+            rel = link.get("rel")
+            href = link.get("href")
 
-            if rel == 'method':
+            if rel == "method":
                 methods.append(href)
-            elif rel == 'def':
+            elif rel == "def":
                 methods.append(f"{href} (definition)")
-            elif rel == 'property':
+            elif rel == "property":
                 properties.append(href)
-            elif rel == 'property_subscribe':
+            elif rel == "property_subscribe":
                 properties.append(f"{href} (subscribe)")
-            elif rel == 'property_unsubscribe':
+            elif rel == "property_unsubscribe":
                 properties.append(f"{href} (unsubscribe)")
 
         print("\n=== Object Details ===")
         if methods:
-            print("\nMethods:")
-            for method in methods:
-                print(f"   {method}")
+            print("\nMethods:" + "\n".join(f"   {method}" for method in methods))
 
         if properties:
-            print("\nProperties:")
-            for prop in properties:
-                print(f"   {prop}")
+            print("\nProperties:" + "\n".join(f"   {prop}" for prop in properties))
 
         if events:
-            print("\nEvents:")
-            for event in events:
-                print(f"   {event}")
+            print("\nEvents:" + "\n".join(f"   {event}" for event in events))
         print()
 
     def get_method_info(self, interest_name, object_name, method):
+        """Get all the method details.
+
+        Args:
+            interest_name (str): Name of the interest.
+            object_name (str): Name of the object.
+            method (str): Name of the method.
+
+        Returns:
+            dict: Dictionary containing all the method arguments, description, name and return type of the result.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         data = self.get(f"/api/interests/{interest_name}/objects/{object_name}/methods/{method}")
         return data
 
     def print_method_def(self, method_def):
+        """Display all the method details.
+
+        Args:
+            method_def (dict): Dictionary containing all the method details.
+        """
         print(f"Method definition: {method_def}")
 
     def invoke_method(self, interest_name, object_name, method):
+        """Invoke a method.
+
+        Args:
+            interest_name (str): Name of the interest.
+            object_name (str): Name of the object.
+            method (str): Name of the method.
+
+        Returns:
+            dict: Dictionary with the method invocation id and its state.
+
+        Raises:
+            requests.RequestException: If there is any error in the request.
+        """
         data = self.post_args(f"/api/interests/{interest_name}/objects/{object_name}/methods/{method}/invoke", "")
         return data
 

@@ -43,6 +43,8 @@ using ArgsError = std::optional<std::string>;
 
 [[nodiscard]] const JsonResponse& getErrorNotFound();
 
+[[nodiscard]] JsonResponse getErrorNotFound(const std::string& missingParam);
+
 [[nodiscard]] const JsonResponse& getErrorNotFoundOrOpen();
 
 [[nodiscard]] std::string urlSanitizeLocalName(std::string name);

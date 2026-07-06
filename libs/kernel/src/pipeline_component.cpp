@@ -60,7 +60,7 @@ namespace
 
 [[nodiscard]] inline bool isValid(const BusAddress& address) noexcept
 {
-  return !address.sessionName.empty() || !address.busName.empty();
+  return !address.sessionName.empty() && !address.busName.empty();
 }
 
 }  // namespace

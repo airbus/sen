@@ -33,6 +33,16 @@ set(CMAKE_INSTALL_CMAKEDIR
 
 mark_as_advanced(CMAKE_INSTALL_CMAKEDIR)
 
+# Sen utils cmake files provided with the Sen package
+set(CMAKE_UTILS_FILES
+    ${PROJECT_SOURCE_DIR}/cmake/util/sen_utils.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/util/sen_misc_utils.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/util/sen_codegen_utils.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/util/sen_package_utils.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake.in
+)
+
 # -------------------------------------------------------------------------------------------------------------
 # export
 # -------------------------------------------------------------------------------------------------------------
@@ -43,6 +53,13 @@ install(
   FILE sen_targets.cmake
   NAMESPACE sen::
   DESTINATION "${CMAKE_INSTALL_CMAKEDIR}"
+)
+
+# Export used when the package is being consumed in conan editable mode
+export(
+  EXPORT sen_targets
+  FILE "${CMAKE_BINARY_DIR}/sen_targets.cmake"
+  NAMESPACE sen::
 )
 
 # -------------------------------------------------------------------------------------------------------------
@@ -64,16 +81,14 @@ write_basic_package_version_file(
 # Install the configVersion package
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
 
-# Install required sen utils cmakefiles
-install(
-  FILES ${PROJECT_SOURCE_DIR}/cmake/util/sen_utils.cmake
-        ${PROJECT_SOURCE_DIR}/cmake/util/sen_misc_utils.cmake
-        ${PROJECT_SOURCE_DIR}/cmake/util/sen_codegen_utils.cmake
-        ${PROJECT_SOURCE_DIR}/cmake/util/sen_package_utils.cmake
-        ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake
-        ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake.in
-  DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/util
-)
+# Install required sen utils cmake files
+install(FILES ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/util)
+
+# Install spdlog
+install(FILES ${PROJECT_SOURCE_DIR}/cmake/util/Findspdlog.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+
+# We need the sen utils cmake files in the binary dir when working in conan editable mode
+file(COPY ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/util)
 
 # -------------------------------------------------------------------------------------------------------------
 # licenses

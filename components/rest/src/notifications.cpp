@@ -61,10 +61,12 @@ ObserverGuard::ObserverGuard(std::shared_ptr<NotificationsManager> mgr, Notifier
 ObserverGuard::~ObserverGuard()
 {
   getLogger()->trace("Destroying ObserverGuard");
-  notifier_->unregister(mgr_);
+  unregister();
 }
 
 std::optional<Notification> ObserverGuard::next() { return mgr_->next(); }
+
+void ObserverGuard::unregister() { notifier_->unregister(mgr_); }
 
 //--------------------------------------------------------------------------------------------------------------
 // Notifier

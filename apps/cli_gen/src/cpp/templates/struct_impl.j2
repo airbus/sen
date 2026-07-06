@@ -204,3 +204,16 @@ sen::ConstTypeHandle<::sen::StructType> sen::MetaTypeTrait<{{ qualType }}>::meta
   });
   return type;
 }
+
+std::string sen::SerializationTraits<{{ qualType }}>::toJsonString(const {{ qualType }}& val)
+{
+  ::sen::Var var;
+  ::sen::VariantTraits<{{ qualType }}>::valueToVariant(val, var);
+  return ::sen::toJson(var);
+}
+
+void sen::SerializationTraits<{{ qualType }}>::fromJsonString(const std::string& str, {{ qualType }}& val)
+{
+  const ::sen::Var var = ::sen::fromJson(str);
+  ::sen::VariantTraits<{{ qualType }}>::variantToValue(var, val);
+}

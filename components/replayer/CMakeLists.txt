@@ -29,6 +29,7 @@ add_sen_package(
   STL_FILES ${_replayer_stl_files}
   DEPS sen::db
   PRIVATE_DEPS spdlog::spdlog
+  TEST_TARGET replayer_for_testing
   IS_COMPONENT
 )
 
@@ -40,3 +41,8 @@ install(FILES ${_replayer_stl_files} DESTINATION interfaces/stl/sen/components/r
 sen_internal_install(replayer)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/replayer.json DESTINATION schemas)
+
+# tests
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

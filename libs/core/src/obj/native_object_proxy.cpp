@@ -83,7 +83,7 @@ ConnectionGuard NativeObjectProxy::onPropertyChangedUntyped(const Property* prop
     const auto memberHash = prop->getId();
 
     auto [itr, done] = eventCallbacks_->try_emplace(memberHash, EventData {{}, prop->getTransportMode()});
-    itr->second.list.push_back({connId.get(), std::move(callback)});
+    itr->second.list.push_back({connId.get(), std::make_shared<EventCallback<VarList>>(std::move(callback))});
 
     return senImplMakeConnectionGuard(connId, memberHash, false);
   }
@@ -120,9 +120,11 @@ void NativeObjectProxy::senImplEventEmitted(MemberHash id, std::function<VarList
       const auto args = argsGetter();
       for (const auto& elem: eventData.list)
       {
-        if (auto callbackLock = elem.callback.lock(); callbackLock.isValid())
+        if (auto callbackLock = elem.callback->lock(); callbackLock.isValid())
         {
-          callbackLock.pushAnswer([args, info, func = &elem.callback]() { func->invoke(info, args); },
+          // Capture the shared_ptr by value: the entry may be erased before the workQueue
+          // drains, and Callback::invoke is a no-op on an invalidated CallbackData.
+          callbackLock.pushAnswer([args, info, callback = elem.callback]() { callback->invoke(info, args); },
                                   impl::cannotBeDropped(eventData.transportMode));
         }
       }
@@ -143,10 +145,15 @@ void NativeObjectProxy::senImplRemoveUntypedConnection(ConnId id, MemberHash mem
     {
       auto& callbackList = itr->second.list;
 
-      callbackList.erase(
-        std::remove_if(
-          callbackList.begin(), callbackList.end(), [&](const auto& elem) -> bool { return elem.id == id.get(); }),
-        callbackList.end());
+      // Invalidate before erasing so already-queued Callback::invoke calls become no-ops
+      // instead of running user lambdas with dangling captures.
+      const auto removeStart = std::remove_if(
+        callbackList.begin(), callbackList.end(), [&](const auto& elem) -> bool { return elem.id == id.get(); });
+      for (auto it = removeStart; it != callbackList.end(); ++it)
+      {
+        it->callback->lock().invalidate();
+      }
+      callbackList.erase(removeStart, callbackList.end());
 
       // delete the entry for this member if empty
       if (callbackList.empty())

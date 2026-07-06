@@ -35,17 +35,13 @@ TEST(CreationTest, WriteAndReadCreationWithRealObject)
   TempDir tempDir;
   SingleClassSetup setup;
 
-  OutSettings settings;
-  settings.name = "test";
-  settings.folder = tempDir.path().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = tempDir.path() / settings.name;
+  auto settings = makeArchiveSettings("test", tempDir);
+  const auto archivePath = makeArchivePath("test", tempDir);
 
   {
     Output output(std::move(settings), []() {});
 
-    ObjectInfo info = {setup.object.get(), "test_session", "test_bus"};
+    auto info = makeObjectInfo(setup.object);
     output.creation(setup.kernel->getTime(), info, true);
 
     setup.kernel->step();
@@ -92,17 +88,13 @@ TEST(CreationTest, IndexedCreationAppearsInObjectIndex)
   TempDir tempDir;
   SingleClassSetup setup;
 
-  OutSettings settings;
-  settings.name = "test";
-  settings.folder = tempDir.path().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = tempDir.path() / settings.name;
+  auto settings = makeArchiveSettings("test", tempDir);
+  const auto archivePath = makeArchivePath("test", tempDir);
 
   {
     Output output(std::move(settings), []() {});
 
-    ObjectInfo info = {setup.object.get(), "test_session", "test_bus"};
+    auto info = makeObjectInfo(setup.object);
     output.creation(setup.kernel->getTime(), info, true);
 
     setup.kernel->step();
@@ -139,17 +131,13 @@ TEST(CreationTest, NonIndexedCreationNotInObjectIndex)
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
 
-  OutSettings settings;
-  settings.name = "test";
-  settings.folder = tempDir.path().string();
-  settings.indexKeyframes = true;
-
-  const auto archivePath = tempDir.path() / settings.name;
+  auto settings = makeArchiveSettings("test", tempDir);
+  const auto archivePath = makeArchivePath("test", tempDir);
 
   {
     Output output(std::move(settings), []() {});
 
-    ObjectInfo info = {object.get(), "test_session", "test_bus"};
+    auto info = makeObjectInfo(object);
     output.creation(kernel.getTime(), info, false);
     kernel.step();
     output.keyframe(kernel.getTime(), {});
