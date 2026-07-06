@@ -99,6 +99,35 @@ groups to be used by the buses. The default range of addresses is `239.192.0.0` 
 order for this to work, you need to ensure that all the related Sen applications are using the same
 range.
 
+Sen automatically excludes the relative-address blocks reserved by RFC 2365. Additional address
+ranges can be excluded with `busConfig.multicastExclusions`.
+
+```yaml
+load:
+  - name: ether
+    busConfig:
+      multicastExclusions:
+        - min: 239.192.0.0
+          max: 239.192.99.255
+        - min: 239.192.200.0
+          max: 239.192.255.255
+```
+
+### Excluding ports
+
+`portExclusions` lists inclusive port ranges this process must not use. Sen also asks the operating
+system which ports it has reserved and avoids those as well; where it cannot ask -- a container
+without `/proc/sys/net/ipv4/ip_local_port_range`, or Windows without WMI -- it logs a warning and
+continues with only the ranges configured here.
+
+```yaml
+load:
+  - name: ether
+    portExclusions:
+      - min: 8000
+        max: 8080
+```
+
 ### Disabling multicast for bus traffic
 
 You can force Sen to use TCP. The `busConfig.multicastDisabled` configuration parameter can be used

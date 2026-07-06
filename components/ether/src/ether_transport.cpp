@@ -10,6 +10,7 @@
 // component
 #include "bus_handler.h"
 #include "discovery.h"
+#include "network_exclusion.h"
 #include "process_handler.h"
 #include "stats.h"
 #include "util.h"
@@ -132,7 +133,8 @@ EtherTransport::EtherTransport(const Configuration& config,
                                std::string_view sessionName,
                                std::string_view appName,
                                std::shared_ptr<DiscoverySystem> discovery,
-                               std::unique_ptr<sen::kernel::Tracer> tracer)
+                               std::unique_ptr<sen::kernel::Tracer> tracer,
+                               const NetworkExclusions& exclusions)
   : kernel::Transport(sessionName)
   , config_(config)
   , sessionId_(crc32(sessionName))
@@ -140,6 +142,7 @@ EtherTransport::EtherTransport(const Configuration& config,
   , discovery_(std::move(discovery))
   , logger_(getLogger())
   , tracer_(std::move(tracer))
+  , exclusions_(exclusions)
 {
   ownInfo_.appName = appName;
 }
@@ -459,8 +462,8 @@ void EtherTransport::localParticipantJoinedBus(ObjectOwnerId participant, kernel
       port = std::get<MulticastDiscovery>(config_.discovery).port;
     }
 
-    auto handler =
-      BusHandler::make(sessionId_, bus, busName, procId, listener_, port, *io_, config_, *tracer_, counters_);
+    auto handler = BusHandler::make(
+      sessionId_, bus, busName, procId, listener_, port, *io_, config_, *tracer_, counters_, exclusions_.multicast);
     handler->startReading();
 
     auto [itr, done] = busMap_.try_emplace(bus, std::move(handler));
