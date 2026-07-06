@@ -45,19 +45,34 @@ add_sen_package(
           src/process_handler.cpp
           src/output_queue.h
           src/shared_buffer_sequence.h
+          src/network_exclusion.h
+          src/network_exclusion.cpp
   STL_FILES stl/discovery.stl stl/runtime.stl stl/configuration.stl
   PRIVATE_DEPS
     sen::kernel
     asio::asio
     spdlog::spdlog
     concurrentqueue::concurrentqueue
+  TEST_TARGET ether_for_testing
   IS_COMPONENT
 )
 
 sen_enable_static_analysis(ether)
+
+if(WIN32)
+  target_link_libraries(ether PRIVATE ole32 oleaut32 wbemuuid)
+  if(TARGET ether_for_testing)
+    target_link_libraries(ether_for_testing PRIVATE ole32 oleaut32 wbemuuid)
+  endif()
+endif()
 
 set_target_properties(ether PROPERTIES FOLDER "components/ether")
 
 sen_internal_install(ether)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/ether.json DESTINATION schemas)
+
+# tests
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

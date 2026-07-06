@@ -60,6 +60,24 @@ struct ByteRange
 // Range of values of a IPv4 multicast address
 array<ByteRange, 4> MulticastRange;
 
+// Inclusive IPv4 multicast address range
+struct MulticastAddressRange
+{
+  min : string,
+  max : string
+}
+
+sequence<MulticastAddressRange> MulticastAddressExclusions;
+
+// Inclusive port range
+struct PortRange
+{
+  min : u16,
+  max : u16
+}
+
+sequence<PortRange> PortExclusions;
+
 // Remember to set these to the same value in all related Sen instances
 struct BusConfig
 {
@@ -67,6 +85,9 @@ struct BusConfig
   // [239], [192-195], [0-255], [0-255]
   // Remember to keep a range wide enough for avoiding collisions if you have many buses.
   multicastRange : MulticastRange,
+
+  // Address ranges that must not be allocated
+  multicastExclusions : MulticastAddressExclusions,
 
   // Defaults to 50985
   // Change this in case you have limited control over the infrastructure.
@@ -87,6 +108,7 @@ struct Configuration
   processUdpOutQueue : QueueConfig,            // Queue for communicating with processes over UDP
   processTcpOutQueue : QueueConfig,            // Queue for communicating with processes over TCP
   busConfig          : BusConfig,              // Bus transport configuration
+  portExclusions     : PortExclusions,         // Port ranges that this process must not use
   runDiscoveryHub    : MaybeDiscoveryHubPort,  // If present, run the TCP discovery hub on this port
   networkDevice      : MaybeDeviceName         // If present, the network device to use
 }
