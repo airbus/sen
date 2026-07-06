@@ -8,6 +8,7 @@
 #ifndef SEN_COMPONENTS_ETHER_SRC_BUS_HANDLER_H
 #define SEN_COMPONENTS_ETHER_SRC_BUS_HANDLER_H
 
+#include "network_exclusion.h"
 #include "stats.h"
 #include "util.h"
 
@@ -38,7 +39,8 @@ public:
                                                         asio::io_context& io,
                                                         const Configuration& config,
                                                         sen::kernel::Tracer& tracer,
-                                                        TransportCounters& counters);
+                                                        TransportCounters& counters,
+                                                        const MulticastExclusions& exclusions);
 
   ~BusHandler();
 
@@ -63,7 +65,8 @@ private:
              asio::io_context& io,
              const Configuration& config,
              sen::kernel::Tracer& tracer,
-             TransportCounters& counters);
+             TransportCounters& counters,
+             const MulticastExclusions& exclusions);
 
 private:
   void readMessage();
