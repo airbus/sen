@@ -120,7 +120,7 @@ $(function(){initNavTree('classsen_1_1_object_filter.html','','classsen_1_1_obje
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_filter__inherit__graph.svg" width="230" height="823"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_filter__inherit__graph.svg" width="230" height="863"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -136,6 +136,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a64e2296d198340367bd8fb964322683d" id="r_a64e2296d198340367bd8fb964322683d"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a64e2296d198340367bd8fb964322683d">removeSubscriber</a> (std::shared_ptr&lt; <a class="el" href="classsen_1_1_interest.html">Interest</a> &gt; interest, <a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *listener, bool notifyAboutExisting) override</td></tr>
 <tr class="memdesc:a64e2296d198340367bd8fb964322683d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a previously-added subscriber on a specific interest.  <br /></td></tr>
 <tr class="memitem:a8a545b7e821fc0e418d095f098d43d41" id="r_a8a545b7e821fc0e418d095f098d43d41"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a8a545b7e821fc0e418d095f098d43d41">removeSubscriber</a> (<a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *listener, bool notifyAboutExisting) override</td></tr>
+<tr class="memdesc:a8a545b7e821fc0e418d095f098d43d41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all the instances of the listener.  <br /></td></tr>
+<tr class="memitem:a7b74bdca80ea72ca417e39bffd724c80" id="r_a7b74bdca80ea72ca417e39bffd724c80"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a7b74bdca80ea72ca417e39bffd724c80">replaceSubscriber</a> (<a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *oldListener, <a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *newListener) override</td></tr>
+<tr class="memdesc:a7b74bdca80ea72ca417e39bffd724c80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces an existing subscriber with a new one.  <br /></td></tr>
 <tr class="memitem:aa67a75421d2171728c9f9d387a63da7b" id="r_aa67a75421d2171728c9f9d387a63da7b"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="classsen_1_1_object_provider.html">ObjectProvider</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aa67a75421d2171728c9f9d387a63da7b">getOrCreateNamedProvider</a> (const std::string &amp;name, std::shared_ptr&lt; <a class="el" href="classsen_1_1_interest.html">Interest</a> &gt; interest)</td></tr>
 <tr class="memdesc:aa67a75421d2171728c9f9d387a63da7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a uniquely named provider for objects determined on a given interest. Returns any provider with the same name and interest.  <br /></td></tr>
 <tr class="memitem:ac62308d5aa2cab78b597c68872a69c8f" id="r_ac62308d5aa2cab78b597c68872a69c8f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac62308d5aa2cab78b597c68872a69c8f">removeNamedProvider</a> (std::string_view name)</td></tr>
@@ -313,7 +316,42 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Removes all the instances of the listener. </p>
+
 <p>Implements <a class="el" href="classsen_1_1_object_filter_base.html#a4da15a3b5458344ba74f270075b2f2e6">sen::ObjectFilterBase</a>.</p>
+
+</div>
+</div>
+<a id="a7b74bdca80ea72ca417e39bffd724c80" name="a7b74bdca80ea72ca417e39bffd724c80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b74bdca80ea72ca417e39bffd724c80">&#9670;&#160;</a></span>replaceSubscriber()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::ObjectFilter::replaceSubscriber </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *</td>          <td class="paramname"><span class="paramname"><em>oldListener</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *</td>          <td class="paramname"><span class="paramname"><em>newListener</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replaces an existing subscriber with a new one. </p>
+
+<p>Implements <a class="el" href="classsen_1_1_object_filter_base.html#a6913a530bd98002fd6ce6dd06526ecf0">sen::ObjectFilterBase</a>.</p>
 
 </div>
 </div>

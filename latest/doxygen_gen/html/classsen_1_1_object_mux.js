@@ -23,6 +23,7 @@ var classsen_1_1_object_mux =
     [ "onObjectsRemoved", "classsen_1_1_object_mux.html#afd61026fedd879b561f3d2bac822f8fc", null ],
     [ "isRemoteParticipant", "classsen_1_1_object_mux.html#a8a6692aebb6bcb5fda418532cb042ada", null ],
     [ "isLocalParticipant", "classsen_1_1_object_mux.html#aeae59a2acebe4bbd3dda012d9fb457b3", null ],
+    [ "replaceListener", "classsen_1_1_object_mux.html#a27ccf51d0b2b4f0ac1401608444b4e61", null ],
     [ "listenerAdded", "classsen_1_1_object_mux.html#a9b7145f29dd04b615b9d40ae32bc58d8", null ],
     [ "listenerRemoved", "classsen_1_1_object_mux.html#a62f5c99e74da6b077acc6f54cfeb2c29", null ],
     [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_mux.html#a23091bb757474423418652354cce723d", null ],

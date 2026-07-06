@@ -19,12 +19,14 @@ var searchData=
   ['premult_16',['preMult',['../classsen_1_1util_1_1_mat3.html#a639d2c788688342fe786ed88bbb4f107',1,'sen::util::Mat3::preMult(const Mat3 &amp;other)'],['../classsen_1_1util_1_1_mat3.html#afed76c13a8a8bfef41821ed489361dd2',1,'sen::util::Mat3::preMult(const Vec3&lt; T &gt; &amp;vec) const noexcept']]],
   ['prepend_17',['prepend',['../classsen_1_1lang_1_1_type_set_context.html#a1161e906dee21d181da05dab7ff018a2',1,'sen::lang::TypeSetContext']]],
   ['printvalue_18',['printValue',['../classsen_1_1lang_1_1_chunk.html#a68c57726da4aa7940a86409cf9d8075e',1,'sen::lang::Chunk']]],
-  ['prop5acceptsset_19',['prop5AcceptsSet',['../classsen_1_1test_1_1_test_class_impl.html#a871161dcc557749180ccf77d4ec6fcec',1,'sen::test::TestClassImpl']]],
-  ['prop7acceptsset_20',['prop7AcceptsSet',['../classsen_1_1test_1_1_test_class_impl.html#a80355e220eab9ca424161a61c3aaad98',1,'sen::test::TestClassImpl']]],
-  ['property_21',['Property',['../classsen_1_1_property.html#a68d39cc3b0aab9c53f60fe9276b12b2d',1,'sen::Property']]],
-  ['propertychange_22',['propertyChange',['../classsen_1_1db_1_1_output.html#a03ec317d952fe1f46e17d1363a56a539',1,'sen::db::Output']]],
-  ['propertyspec_23',['PropertySpec',['../structsen_1_1_property_spec.html#afa091e2cede3baaa3e6cd05cbd851265',1,'sen::PropertySpec']]],
-  ['ptr_24',['ptr',['../classsen_1_1util_1_1_vec3.html#aae8a6d94d6da709fbda182afc10dd0f8',1,'sen::util::Vec3::ptr() noexcept'],['../classsen_1_1util_1_1_vec3.html#ab19a4438e9d5b86bb92e24f0f7b468bd',1,'sen::util::Vec3::ptr() const noexcept']]],
-  ['push_5fback_25',['push_back',['../classsen_1_1_static_vector_base.html#ae29c0a2febf1336f80baa132bee0c5ed',1,'sen::StaticVectorBase::push_back(T &amp;&amp;value) noexcept(nothrowMoveCons)'],['../classsen_1_1_static_vector_base.html#ab18c4f7f2808e4ab98f33daa924ac569',1,'sen::StaticVectorBase::push_back(const T &amp;value) noexcept(nothrowCopyCons)'],['../classsen_1_1_static_vector_base.html#ac45909f5f4be3fd963a630669f370297',1,'sen::StaticVectorBase::push_back() noexcept(nothrowDefaultCons)']]],
-  ['pybind11_5ftype_5fcaster_26',['PYBIND11_TYPE_CASTER',['../structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4.html#a907cc9f651fbfe0ef685fc91166c97de',1,'pybind11::detail::type_caster&lt; sen::ObjectId &gt;']]]
+  ['processterminatorimpl_19',['ProcessTerminatorImpl',['../classsen_1_1test_1_1_process_terminator_impl.html#afb54df76a6284631b7a6fc6d7871bb61',1,'sen::test::ProcessTerminatorImpl']]],
+  ['prop5acceptsset_20',['prop5AcceptsSet',['../classsen_1_1test_1_1_test_class_impl.html#a871161dcc557749180ccf77d4ec6fcec',1,'sen::test::TestClassImpl']]],
+  ['prop7acceptsset_21',['prop7AcceptsSet',['../classsen_1_1test_1_1_test_class_impl.html#a80355e220eab9ca424161a61c3aaad98',1,'sen::test::TestClassImpl']]],
+  ['property_22',['Property',['../classsen_1_1_property.html#a68d39cc3b0aab9c53f60fe9276b12b2d',1,'sen::Property']]],
+  ['propertychange_23',['propertyChange',['../classsen_1_1db_1_1_output.html#a03ec317d952fe1f46e17d1363a56a539',1,'sen::db::Output']]],
+  ['propertyspec_24',['PropertySpec',['../structsen_1_1_property_spec.html#afa091e2cede3baaa3e6cd05cbd851265',1,'sen::PropertySpec']]],
+  ['ptr_25',['ptr',['../classsen_1_1util_1_1_vec3.html#aae8a6d94d6da709fbda182afc10dd0f8',1,'sen::util::Vec3::ptr() noexcept'],['../classsen_1_1util_1_1_vec3.html#ab19a4438e9d5b86bb92e24f0f7b468bd',1,'sen::util::Vec3::ptr() const noexcept']]],
+  ['publisherimpl_26',['PublisherImpl',['../classsen_1_1test_1_1_publisher_impl.html#ad0cf13f5d62afee47bdce9510cbbe5f1',1,'sen::test::PublisherImpl']]],
+  ['push_5fback_27',['push_back',['../classsen_1_1_static_vector_base.html#ae29c0a2febf1336f80baa132bee0c5ed',1,'sen::StaticVectorBase::push_back(T &amp;&amp;value) noexcept(nothrowMoveCons)'],['../classsen_1_1_static_vector_base.html#ab18c4f7f2808e4ab98f33daa924ac569',1,'sen::StaticVectorBase::push_back(const T &amp;value) noexcept(nothrowCopyCons)'],['../classsen_1_1_static_vector_base.html#ac45909f5f4be3fd963a630669f370297',1,'sen::StaticVectorBase::push_back() noexcept(nothrowDefaultCons)']]],
+  ['pybind11_5ftype_5fcaster_28',['PYBIND11_TYPE_CASTER',['../structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4.html#a907cc9f651fbfe0ef685fc91166c97de',1,'pybind11::detail::type_caster&lt; sen::ObjectId &gt;']]]
 ];

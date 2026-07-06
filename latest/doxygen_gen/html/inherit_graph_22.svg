@@ -11,9 +11,9 @@
 <!-- Node0 -->
 <g id="Node000000" class="node">
 <title>Node0</title>
-<g id="a_Node000000"><a xlink:href="classsen_1_1db_1_1_deletion.html" target="_top" xlink:title="Represents the deletion of an object.">
+<g id="a_Node000000"><a xlink:href="classsen_1_1db_1_1_creation.html" target="_top" xlink:title="Represents the creation of an object.">
 <polygon fill="white" stroke="#666666" points="99,-19 0,-19 0,0 99,0 99,-19"/>
-<text text-anchor="middle" x="49.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">sen::db::Deletion</text>
+<text text-anchor="middle" x="49.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">sen::db::Creation</text>
 </a>
 </g>
 </g>

@@ -143,7 +143,8 @@ var group__obj =
       [ "~ObjectFilterBase", "classsen_1_1_object_filter_base.html#aa3e72b744c5971969972e109bc651b10", null ],
       [ "addSubscriber", "classsen_1_1_object_filter_base.html#ab5491edd8a802582d0edd02d53dd6e20", null ],
       [ "removeSubscriber", "classsen_1_1_object_filter_base.html#aa9dbce1dc0f69cdbe62804eae5dadd93", null ],
-      [ "removeSubscriber", "classsen_1_1_object_filter_base.html#a4da15a3b5458344ba74f270075b2f2e6", null ]
+      [ "removeSubscriber", "classsen_1_1_object_filter_base.html#a4da15a3b5458344ba74f270075b2f2e6", null ],
+      [ "replaceSubscriber", "classsen_1_1_object_filter_base.html#a6913a530bd98002fd6ce6dd06526ecf0", null ]
     ] ],
     [ "sen::ObjectFilter", "classsen_1_1_object_filter.html", [
       [ "ObjectSet", "structsen_1_1_object_filter_1_1_object_set.html", [
@@ -156,6 +157,7 @@ var group__obj =
       [ "addSubscriber", "classsen_1_1_object_filter.html#afd11b52f75789d699ca16ba6e6a096aa", null ],
       [ "removeSubscriber", "classsen_1_1_object_filter.html#a64e2296d198340367bd8fb964322683d", null ],
       [ "removeSubscriber", "classsen_1_1_object_filter.html#a8a545b7e821fc0e418d095f098d43d41", null ],
+      [ "replaceSubscriber", "classsen_1_1_object_filter.html#a7b74bdca80ea72ca417e39bffd724c80", null ],
       [ "getOrCreateNamedProvider", "classsen_1_1_object_filter.html#aa67a75421d2171728c9f9d387a63da7b", null ],
       [ "removeNamedProvider", "classsen_1_1_object_filter.html#ac62308d5aa2cab78b597c68872a69c8f", null ],
       [ "evaluate", "classsen_1_1_object_filter.html#aed96eb19d3b7e3f3c03203dcb58f2d55", null ],
@@ -232,6 +234,7 @@ var group__obj =
       [ "onObjectsRemoved", "classsen_1_1_object_mux.html#afd61026fedd879b561f3d2bac822f8fc", null ],
       [ "isRemoteParticipant", "classsen_1_1_object_mux.html#a8a6692aebb6bcb5fda418532cb042ada", null ],
       [ "isLocalParticipant", "classsen_1_1_object_mux.html#aeae59a2acebe4bbd3dda012d9fb457b3", null ],
+      [ "replaceListener", "classsen_1_1_object_mux.html#a27ccf51d0b2b4f0ac1401608444b4e61", null ],
       [ "listenerAdded", "classsen_1_1_object_mux.html#a9b7145f29dd04b615b9d40ae32bc58d8", null ],
       [ "listenerRemoved", "classsen_1_1_object_mux.html#a62f5c99e74da6b077acc6f54cfeb2c29", null ],
       [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_mux.html#a23091bb757474423418652354cce723d", null ],
@@ -274,6 +277,7 @@ var group__obj =
       [ "~ObjectProvider", "classsen_1_1_object_provider.html#a4413fb7d1c2b497ca855f4474bad7a52", null ],
       [ "addListener", "classsen_1_1_object_provider.html#a0eae5fc4c1d9a44786fd4b11c398a40a", null ],
       [ "removeListener", "classsen_1_1_object_provider.html#a8a21f6632893a460a9e6cf6ccb505bf8", null ],
+      [ "replaceListener", "classsen_1_1_object_provider.html#a27ccf51d0b2b4f0ac1401608444b4e61", null ],
       [ "hasListener", "classsen_1_1_object_provider.html#a6abcc93c360d9553f2b28c34aaf27839", null ],
       [ "hasListeners", "classsen_1_1_object_provider.html#ad069e99d860bb03dd6e32ae0997cee70", null ],
       [ "notifyObjectsAdded", "classsen_1_1_object_provider.html#a1cd2a98ad57a2ded968630f519e810f5", null ],
@@ -320,6 +324,7 @@ var group__obj =
       [ "addSubscriber", "classsen_1_1_object_source.html#afd11b52f75789d699ca16ba6e6a096aa", null ],
       [ "removeSubscriber", "classsen_1_1_object_source.html#a64e2296d198340367bd8fb964322683d", null ],
       [ "removeSubscriber", "classsen_1_1_object_source.html#a8a545b7e821fc0e418d095f098d43d41", null ],
+      [ "replaceSubscriber", "classsen_1_1_object_source.html#a7b74bdca80ea72ca417e39bffd724c80", null ],
       [ "getOrCreateNamedProvider", "classsen_1_1_object_source.html#aa67a75421d2171728c9f9d387a63da7b", null ],
       [ "removeNamedProvider", "classsen_1_1_object_source.html#ac62308d5aa2cab78b597c68872a69c8f", null ],
       [ "evaluate", "classsen_1_1_object_source.html#aed96eb19d3b7e3f3c03203dcb58f2d55", null ],

@@ -14,6 +14,22 @@ security:
   - BearerAuth: []
 
 paths:
+  /api/version:
+    get:
+      summary: Get Sen version
+      description: Returns the Sen version
+      security: []
+      responses:
+        '200':
+          description: Sen version
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    description: Version
   /api/auth:
     post:
       summary: Authenticate client
@@ -57,7 +73,6 @@ paths:
     get:
       summary: List all sessions
       description: Returns a list of all available Sen sessions
-      security: []
       responses:
         '200':
           description: A list of session identifiers
@@ -68,22 +83,34 @@ paths:
                 items:
                   type: string
                 example: ["local"]
-  /api/version:
+  /api/sessions/{session}:
+    parameters:
+      - in: path
+        name: session
+        description: Session name
+        required: true
+        schema:
+          type: string
     get:
-      summary: Get Sen version
-      description: Returns the Sen version
-      security: []
+      summary: Get session details
+      description: Returns details about a specific session
       responses:
         '200':
-          description: Sen version
+          description: Session details
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  version:
-                    type: string
-                    description: Version
+                $ref: '#/components/schemas/SessionSummary'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   /api/interests:
     get:
       summary: List all interests
@@ -117,6 +144,15 @@ paths:
                 query:
                   type: string
                   description: Sen query to select objects
+                autoSubscribe:
+                  type: object
+                  properties:
+                    properties:
+                      type: boolean
+                      description: Whether to automatically subscribe to properties
+                    events:
+                      type: boolean
+                      description: Whether to automatically subscribe to events
               required:
                 - name
                 - query
@@ -244,6 +280,78 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Object'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/interests/{interest}/objects/{object}/subscription:
+    parameters:
+      - in: path
+        name: interest
+        description: Interest name
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: object
+        description: Object local name
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get object subscriptions
+      description: Retrieves object subscriptions differentiated between properties
+        and events
+      responses:
+        '200':
+          description: Subscriptions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectSubscription'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      summary: Update object subscriptions
+      description: Update subscriptions to properties and events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                properties:
+                  type: array
+                  items:
+                    type: string
+                  description: Properties to subscribe to
+                events:
+                  type: array
+                  items:
+                    type: string
+                  description: Events to subscribe to
+      responses:
+        '200':
+          description: Subscriptions updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
         '400':
           description: Bad request
           content:
@@ -933,3 +1041,34 @@ components:
       required:
         - name
         - description
+    SessionSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Session name
+        buses:
+          type: array
+          items:
+            type: string
+          description: Names of the buses in the session the client is subscribed
+            to
+      required:
+        - name
+        - buses
+    ObjectSubscription:
+      type: object
+      properties:
+        properties:
+          type: array
+          items:
+            type: string
+          description: Property subscriptions
+        events:
+          type: array
+          items:
+            type: string
+          description: Event subscriptions
+      required:
+        - properties
+        - events

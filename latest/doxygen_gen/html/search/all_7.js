@@ -25,9 +25,10 @@ var searchData=
   ['haversinedata_22',['HaversineData',['../namespacesen_1_1util.html#structsen_1_1util_1_1_haversine_data',1,'sen::util']]],
   ['heading_23',['heading',['../namespacesen_1_1util.html#a263277c3e5145dceb2e8211e60fd2878',1,'sen::util::HaversineData']]],
   ['helpers_2eh_24',['helpers.h',['../helpers_8h.html',1,'']]],
-  ['holds_25',['holds',['../structsen_1_1_var.html#ac229ef8ef8f940f87bae9396f6201a27',1,'sen::Var::holds()'],['../group__lang.html#ga107449ad443a6d4c56b8c1b6ce8e4bd3',1,'sen::lang::holds()']]],
-  ['holdsanyoff_26',['holdsAnyOff',['../structsen_1_1_var.html#a6af8b3ba12d0498da762e5619c99ff7c',1,'sen::Var']]],
-  ['holdsfloatingpointvalue_27',['holdsFloatingPointValue',['../structsen_1_1_var.html#a974b67d57f0c182e153d1bb75930c76e',1,'sen::Var']]],
-  ['holdsintegralvalue_28',['holdsIntegralValue',['../structsen_1_1_var.html#a13c7e2494eab0b28200296c364cc1938',1,'sen::Var']]],
-  ['hypot_29',['hypot',['../namespacesen_1_1util.html#a3550ae7467478d328c5fd631e30cda0f',1,'sen::util']]]
+  ['high_20churn_20subscriptions_20test_25',['High churn subscriptions test',['../dir_1aaae6101f9fe5e344e4118edc57e441.html#autotoc_md1',1,'']]],
+  ['holds_26',['holds',['../structsen_1_1_var.html#ac229ef8ef8f940f87bae9396f6201a27',1,'sen::Var::holds()'],['../group__lang.html#ga107449ad443a6d4c56b8c1b6ce8e4bd3',1,'sen::lang::holds()']]],
+  ['holdsanyoff_27',['holdsAnyOff',['../structsen_1_1_var.html#a6af8b3ba12d0498da762e5619c99ff7c',1,'sen::Var']]],
+  ['holdsfloatingpointvalue_28',['holdsFloatingPointValue',['../structsen_1_1_var.html#a974b67d57f0c182e153d1bb75930c76e',1,'sen::Var']]],
+  ['holdsintegralvalue_29',['holdsIntegralValue',['../structsen_1_1_var.html#a13c7e2494eab0b28200296c364cc1938',1,'sen::Var']]],
+  ['hypot_30',['hypot',['../namespacesen_1_1util.html#a3550ae7467478d328c5fd631e30cda0f',1,'sen::util']]]
 ];

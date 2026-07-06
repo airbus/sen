@@ -4,6 +4,7 @@ var classsen_1_1_object_provider =
     [ "~ObjectProvider", "classsen_1_1_object_provider.html#a4413fb7d1c2b497ca855f4474bad7a52", null ],
     [ "addListener", "classsen_1_1_object_provider.html#a0eae5fc4c1d9a44786fd4b11c398a40a", null ],
     [ "removeListener", "classsen_1_1_object_provider.html#a8a21f6632893a460a9e6cf6ccb505bf8", null ],
+    [ "replaceListener", "classsen_1_1_object_provider.html#a27ccf51d0b2b4f0ac1401608444b4e61", null ],
     [ "hasListener", "classsen_1_1_object_provider.html#a6abcc93c360d9553f2b28c34aaf27839", null ],
     [ "hasListeners", "classsen_1_1_object_provider.html#ad069e99d860bb03dd6e32ae0997cee70", null ],
     [ "notifyObjectsAdded", "classsen_1_1_object_provider.html#a1cd2a98ad57a2ded968630f519e810f5", null ],

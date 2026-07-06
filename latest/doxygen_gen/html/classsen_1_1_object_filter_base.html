@@ -120,7 +120,7 @@ $(function(){initNavTree('classsen_1_1_object_filter_base.html','','classsen_1_1
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_filter_base__inherit__graph.svg" width="230" height="823"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_filter_base__inherit__graph.svg" width="230" height="863"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -132,6 +132,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa9dbce1dc0f69cdbe62804eae5dadd93" id="r_aa9dbce1dc0f69cdbe62804eae5dadd93"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#aa9dbce1dc0f69cdbe62804eae5dadd93">removeSubscriber</a> (std::shared_ptr&lt; <a class="el" href="classsen_1_1_interest.html">Interest</a> &gt; interest, <a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *listener, bool notifyAboutExisting)=0</td></tr>
 <tr class="memdesc:aa9dbce1dc0f69cdbe62804eae5dadd93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a previously-added subscriber on a specific interest.  <br /></td></tr>
 <tr class="memitem:a4da15a3b5458344ba74f270075b2f2e6" id="r_a4da15a3b5458344ba74f270075b2f2e6"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a4da15a3b5458344ba74f270075b2f2e6">removeSubscriber</a> (<a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *listener, bool notifyAboutExisting)=0</td></tr>
+<tr class="memdesc:a4da15a3b5458344ba74f270075b2f2e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all the instances of the listener.  <br /></td></tr>
+<tr class="memitem:a6913a530bd98002fd6ce6dd06526ecf0" id="r_a6913a530bd98002fd6ce6dd06526ecf0"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a6913a530bd98002fd6ce6dd06526ecf0">replaceSubscriber</a> (<a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *oldListener, <a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *newListener)=0</td></tr>
+<tr class="memdesc:a6913a530bd98002fd6ce6dd06526ecf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces an existing subscriber with a new one.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Base class for object filters. </p>
@@ -290,7 +293,42 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Removes all the instances of the listener. </p>
+
 <p>Implemented in <a class="el" href="classsen_1_1_object_filter.html#a8a545b7e821fc0e418d095f098d43d41">sen::ObjectFilter</a>.</p>
+
+</div>
+</div>
+<a id="a6913a530bd98002fd6ce6dd06526ecf0" name="a6913a530bd98002fd6ce6dd06526ecf0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6913a530bd98002fd6ce6dd06526ecf0">&#9670;&#160;</a></span>replaceSubscriber()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void sen::ObjectFilterBase::replaceSubscriber </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *</td>          <td class="paramname"><span class="paramname"><em>oldListener</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *</td>          <td class="paramname"><span class="paramname"><em>newListener</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel pure-virtual">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replaces an existing subscriber with a new one. </p>
+
+<p>Implemented in <a class="el" href="classsen_1_1_object_filter.html#a7b74bdca80ea72ca417e39bffd724c80">sen::ObjectFilter</a>.</p>
 
 </div>
 </div>

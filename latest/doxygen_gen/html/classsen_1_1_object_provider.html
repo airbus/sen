@@ -120,7 +120,7 @@ $(function(){initNavTree('classsen_1_1_object_provider.html','','classsen_1_1_ob
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_provider__inherit__graph.svg" width="268" height="1062"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_provider__inherit__graph.svg" width="268" height="1082"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -131,6 +131,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a0eae5fc4c1d9a44786fd4b11c398a40a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an event listener.  <br /></td></tr>
 <tr class="memitem:a8a21f6632893a460a9e6cf6ccb505bf8" id="r_a8a21f6632893a460a9e6cf6ccb505bf8"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a8a21f6632893a460a9e6cf6ccb505bf8">removeListener</a> (ObjectProviderListener *listener, bool notifyAboutExistingObjects)</td></tr>
 <tr class="memdesc:a8a21f6632893a460a9e6cf6ccb505bf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Un-registers an event listener.  <br /></td></tr>
+<tr class="memitem:a27ccf51d0b2b4f0ac1401608444b4e61" id="r_a27ccf51d0b2b4f0ac1401608444b4e61"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a27ccf51d0b2b4f0ac1401608444b4e61">replaceListener</a> (ObjectProviderListener *oldListener, ObjectProviderListener *newListener)</td></tr>
+<tr class="memdesc:a27ccf51d0b2b4f0ac1401608444b4e61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces an existing listener with a new one without triggering notifications.  <br /></td></tr>
 <tr class="memitem:a6abcc93c360d9553f2b28c34aaf27839" id="r_a6abcc93c360d9553f2b28c34aaf27839"><td class="memItemLeft">virtual bool&#160;</td><td class="memItemRight"><a class="el" href="#a6abcc93c360d9553f2b28c34aaf27839">hasListener</a> (ObjectProviderListener *listener) const noexcept</td></tr>
 <tr class="memdesc:a6abcc93c360d9553f2b28c34aaf27839"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the listener has been added.  <br /></td></tr>
 <tr class="memitem:ad069e99d860bb03dd6e32ae0997cee70" id="r_ad069e99d860bb03dd6e32ae0997cee70"><td class="memItemLeft">virtual bool&#160;</td><td class="memItemRight"><a class="el" href="#ad069e99d860bb03dd6e32ae0997cee70">hasListeners</a> () const noexcept</td></tr>
@@ -295,6 +297,45 @@ Friends</h2></td></tr>
 </dl>
 
 <p>Reimplemented in <a class="el" href="classsen_1_1_object_mux.html#a8fddc9df22c666e5055068969e5071fa">sen::ObjectMux</a>.</p>
+
+</div>
+</div>
+<a id="a27ccf51d0b2b4f0ac1401608444b4e61" name="a27ccf51d0b2b4f0ac1401608444b4e61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27ccf51d0b2b4f0ac1401608444b4e61">&#9670;&#160;</a></span>replaceListener()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void sen::ObjectProvider::replaceListener </td>
+          <td>(</td>
+          <td class="paramtype">ObjectProviderListener *</td>          <td class="paramname"><span class="paramname"><em>oldListener</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ObjectProviderListener *</td>          <td class="paramname"><span class="paramname"><em>newListener</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replaces an existing listener with a new one without triggering notifications. </p>
+<p>Does nothing if the old listener is not found.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">oldListener</td><td>the currently registered listener to be replaced. </td></tr>
+    <tr><td class="paramname">newListener</td><td>the new listener to take its place. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

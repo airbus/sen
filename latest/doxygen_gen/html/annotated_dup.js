@@ -148,6 +148,10 @@ var annotated_dup =
         [ "TestWriter", "classsen_1_1test_1_1_test_writer.html", "classsen_1_1test_1_1_test_writer" ],
         [ "TestReader", "classsen_1_1test_1_1_test_reader.html", "classsen_1_1test_1_1_test_reader" ],
         [ "BufferedTestReader", "classsen_1_1test_1_1_buffered_test_reader.html", "classsen_1_1test_1_1_buffered_test_reader" ],
+        [ "ProcessTerminatorImpl", "classsen_1_1test_1_1_process_terminator_impl.html", "classsen_1_1test_1_1_process_terminator_impl" ],
+        [ "StateFulObjectImpl", "classsen_1_1test_1_1_state_ful_object_impl.html", "classsen_1_1test_1_1_state_ful_object_impl" ],
+        [ "PublisherImpl", "classsen_1_1test_1_1_publisher_impl.html", "classsen_1_1test_1_1_publisher_impl" ],
+        [ "ListenerImpl", "classsen_1_1test_1_1_listener_impl.html", "classsen_1_1test_1_1_listener_impl" ],
         [ "TestClassImpl", "classsen_1_1test_1_1_test_class_impl.html", "classsen_1_1test_1_1_test_class_impl" ],
         [ "TesterImpl", "classsen_1_1test_1_1_tester_impl.html", "classsen_1_1test_1_1_tester_impl" ]
       ] ],

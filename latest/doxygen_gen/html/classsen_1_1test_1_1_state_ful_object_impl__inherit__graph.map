@@ -1,0 +1,5 @@
+<map id="sen::test::StateFulObjectImpl" name="sen::test::StateFulObjectImpl">
+<area shape="rect" id="Node000001" title="Holds a connection state." alt="" coords="5,119,208,244"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="37,5,176,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,85,109,119,104,119,104,85"/>
+</map>

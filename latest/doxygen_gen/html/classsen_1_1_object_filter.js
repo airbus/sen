@@ -6,6 +6,7 @@ var classsen_1_1_object_filter =
     [ "addSubscriber", "classsen_1_1_object_filter.html#afd11b52f75789d699ca16ba6e6a096aa", null ],
     [ "removeSubscriber", "classsen_1_1_object_filter.html#a64e2296d198340367bd8fb964322683d", null ],
     [ "removeSubscriber", "classsen_1_1_object_filter.html#a8a545b7e821fc0e418d095f098d43d41", null ],
+    [ "replaceSubscriber", "classsen_1_1_object_filter.html#a7b74bdca80ea72ca417e39bffd724c80", null ],
     [ "getOrCreateNamedProvider", "classsen_1_1_object_filter.html#aa67a75421d2171728c9f9d387a63da7b", null ],
     [ "removeNamedProvider", "classsen_1_1_object_filter.html#ac62308d5aa2cab78b597c68872a69c8f", null ],
     [ "evaluate", "classsen_1_1_object_filter.html#aed96eb19d3b7e3f3c03203dcb58f2d55", null ],
