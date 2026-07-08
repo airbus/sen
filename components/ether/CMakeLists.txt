@@ -47,6 +47,8 @@ add_sen_package(
           src/shared_buffer_sequence.h
           src/network_exclusion.h
           src/network_exclusion.cpp
+          src/port_binding.h
+          src/port_binding.cpp
   STL_FILES stl/discovery.stl stl/runtime.stl stl/configuration.stl
   PRIVATE_DEPS
     sen::kernel

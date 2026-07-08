@@ -72,6 +72,41 @@ If you have other interfaces, use `eth0` (or your preferred interface) instead o
 
 Remember to also do it if you are inside a Docker container (use `--cap-add=NET_ADMIN` and `eth0`).
 
+## Configuring process ports
+
+By default, Sen asks the operating system to select the TCP and UDP ports. The optional
+`portConfig` parameter has one independent entry for each process port, and each entry can use any
+supported port binding mode:
+
+- `tcpAcceptor`: TCP listening port used to accept incoming process connections.
+- `tcpSource`: TCP source port used when initiating outgoing process connections.
+- `udpUnicast`: UDP unicast port used for per-peer best-effort traffic.
+
+Each entry accepts the same port binding modes:
+
+- `Ephemeral`: let the operating system select the port. This is the default.
+- `PinnedPort`: use one exact port.
+
+Pinned ports fail if the configured port cannot be used.
+This configuration is local to each process and does not need to match in other Sen applications.
+If `portConfig` is omitted, all process ports use `Ephemeral`.
+
+```yaml
+load:
+  - name: ether
+    portConfig:
+      tcpAcceptor:
+        type: PinnedPort
+        value:
+          port: 20000
+      udpUnicast:
+        type: Ephemeral
+      tcpSource:
+        type: PinnedPort
+        value:
+          port: 22000
+```
+
 ## Controlling Multicast
 
 Sen uses multicast to distribute information to multiple receivers with minimum overhead. The

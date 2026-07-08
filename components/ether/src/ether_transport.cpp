@@ -11,6 +11,7 @@
 #include "bus_handler.h"
 #include "discovery.h"
 #include "network_exclusion.h"
+#include "port_binding.h"
 #include "process_handler.h"
 #include "stats.h"
 #include "util.h"
@@ -47,6 +48,7 @@
 #include <string_view>
 #include <system_error>
 #include <thread>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -85,12 +87,20 @@ class Acceptor final
   SEN_NOCOPY_NOMOVE(Acceptor)
 
 public:
-  Acceptor(EtherTransport* transport, asio::io_context& io, uint16_t port): acceptor_(io), transport_(transport)
+  Acceptor(EtherTransport* transport, asio::io_context& io): acceptor_(io), transport_(transport)
   {
-    asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port);
+    asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), 0);
     acceptor_.open(endpoint.protocol());
     acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-    acceptor_.bind(endpoint);
+    bindConfiguredPort(transport_->config_,
+                       transport_->exclusions_.ports,
+                       PortKind::tcpAcceptor,
+                       [this](uint16_t port)
+                       {
+                         asio::error_code error;
+                         std::ignore = acceptor_.bind(asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port), error);
+                         return error;
+                       });
 
     getLogger()->debug("EtherTransport: accepting connections on {}", acceptor_.local_endpoint().port());
     acceptor_.listen();
@@ -223,7 +233,7 @@ void EtherTransport::start(kernel::TransportListener* listener)
     std::lock_guard lock(ioMutex_);
     io_ = std::make_unique<asio::io_context>();
   }
-  acceptor_ = std::make_unique<Acceptor>(this, *io_, 0);
+  acceptor_ = std::make_unique<Acceptor>(this, *io_);
   listener_ = listener;
   discovery_->addListener(this);
 
@@ -259,6 +269,8 @@ void EtherTransport::start(kernel::TransportListener* listener)
 }
 
 const Configuration& EtherTransport::getConfig() const noexcept { return config_; }
+
+const PortExclusionSources& EtherTransport::getPortExclusions() const noexcept { return exclusions_.ports; }
 
 const kernel::ProcessInfo& EtherTransport::getOwnInfo() const noexcept { return ownInfo_; }
 
