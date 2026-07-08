@@ -9,6 +9,7 @@
 
 // component
 #include "ether_transport.h"
+#include "port_binding.h"
 #include "shared_buffer_sequence.h"
 #include "util.h"
 
@@ -113,8 +114,6 @@ ProcessHandler::ProcessHandler(EtherTransport* transport,
   , udpOutQueue_(transport->getConfig().processUdpOutQueue)
   , tracer_(tracer)
 {
-  tcpSocket_.open(asio::ip::tcp::v4());
-  configureTcpSocket(tcpSocket_, transport->getConfig());
 }
 
 void ProcessHandler::startHandlingIncomingConnection()
@@ -124,6 +123,21 @@ void ProcessHandler::startHandlingIncomingConnection()
 
 void ProcessHandler::startConnection(std::vector<asio::ip::basic_endpoint<asio::ip::tcp>> endpoints)
 {
+  if (!tcpSocket_.is_open())
+  {
+    try
+    {
+      prepareTcpSourceSocket();
+    }
+    catch (const std::exception& error)
+    {
+      logger_->error("could not prepare TCP source socket: {}", error.what());
+      const auto keepAlive = shared_from_this();
+      keepAlive->onDisconnected(asio::error::operation_aborted);
+      return;
+    }
+  }
+
   auto endpoint = endpoints.back();
   endpoints.pop_back();
 
@@ -349,11 +363,57 @@ void ProcessHandler::busMessageReceived(Span<const uint8_t> receivedData,
 // Connection management
 //--------------------------------------------------------------------------------------------------------------
 
+void ProcessHandler::prepareTcpSourceSocket()
+{
+  tcpSocket_.open(asio::ip::tcp::v4());
+  configureTcpSocket(tcpSocket_, transport_->getConfig());
+
+  // One socket per peer, so a pinned source port is bound once per peer. TCP demultiplexes on the
+  // whole four-tuple, so several connections may share a local port as long as the remote ends
+  // differ, which is the case here; without this the second peer fails to bind and is dropped.
+  asio::error_code reuseError;
+  std::ignore = tcpSocket_.set_option(asio::ip::tcp::socket::reuse_address(true), reuseError);
+  if (reuseError)
+  {
+    logger_->warn("could not set reuse_address on the TCP source socket: {}", reuseError.message());
+  }
+
+  bindConfiguredPort(transport_->getConfig(),
+                     transport_->getPortExclusions(),
+                     PortKind::tcpSource,
+                     [this](uint16_t port)
+                     {
+                       asio::error_code error;
+                       std::ignore = tcpSocket_.bind(asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port), error);
+                       return error;
+                     });
+}
+
 void ProcessHandler::onConnected()
 {
   logger_->debug("ProcessHandler: onConnected()");
 
-  udpSocket_ = asio::ip::udp::socket(io_, asio::ip::udp::endpoint(asio::ip::address_v4::any(), 0));
+  try
+  {
+    udpSocket_.open(asio::ip::udp::v4());
+    bindConfiguredPort(transport_->getConfig(),
+                       transport_->getPortExclusions(),
+                       PortKind::udpUnicast,
+                       [this](uint16_t port)
+                       {
+                         asio::error_code error;
+                         std::ignore =
+                           udpSocket_.bind(asio::ip::udp::endpoint(asio::ip::address_v4::any(), port), error);
+                         return error;
+                       });
+  }
+  catch (const std::exception& error)
+  {
+    logger_->error("could not prepare UDP unicast socket: {}", error.what());
+    const auto keepAlive = shared_from_this();
+    keepAlive->onDisconnected(asio::error::operation_aborted);
+    return;
+  }
 
   Hello hello {};
   hello.info = transport_->getOwnInfo();

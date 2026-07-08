@@ -112,6 +112,19 @@ public:
       });
     }
 
+    // A pinned udpUnicast port cannot work with more than one peer, and the way it fails is
+    // silent: the sockets are per peer, and UDP has no four-tuple to demultiplex on, so with
+    // reuse_address the last one to bind receives everything and the others receive nothing.
+    // Refusing the configuration is better than starting and losing traffic.
+    if (config_.portConfig && std::holds_alternative<PinnedPort>(config_.portConfig->udpUnicast))
+    {
+      return Err(kernel::ExecError {
+        kernel::ErrorCategory::expectationsNotMet,
+        "udpUnicast cannot be pinned: the socket is per peer, so a second peer would either fail "
+        "to bind or silently take the first peer's traffic. Use Ephemeral for udpUnicast.",
+      });
+    }
+
     discovery_ = DiscoverySystem::make(config_, io_);
 
     // run the discovery hub if needed
