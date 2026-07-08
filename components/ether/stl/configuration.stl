@@ -78,6 +78,31 @@ struct PortRange
 
 sequence<PortRange> PortExclusions;
 
+// Let the operating system select an ephemeral port
+struct Ephemeral {}
+
+// Bind exactly this port, fail closed if taken
+struct PinnedPort
+{
+  port : u16
+}
+
+variant PortBinding
+{
+  Ephemeral,
+  PinnedPort,
+}
+
+// This configuration is per process and does not need to match across Sen instances.
+struct PortConfig
+{
+  tcpAcceptor : PortBinding,  // inbound TCP listener
+  udpUnicast  : PortBinding,  // per-peer UDP unicast
+  tcpSource   : PortBinding   // outbound TCP source port
+}
+
+optional<PortConfig> MaybePortConfig;
+
 // Remember to set these to the same value in all related Sen instances
 struct BusConfig
 {
@@ -109,6 +134,7 @@ struct Configuration
   processTcpOutQueue : QueueConfig,            // Queue for communicating with processes over TCP
   busConfig          : BusConfig,              // Bus transport configuration
   portExclusions     : PortExclusions,         // Port ranges that this process must not use
+  portConfig         : MaybePortConfig,        // If not present, all port bindings are Ephemeral
   runDiscoveryHub    : MaybeDiscoveryHubPort,  // If present, run the TCP discovery hub on this port
   networkDevice      : MaybeDeviceName         // If present, the network device to use
 }
