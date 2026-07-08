@@ -99,6 +99,7 @@ private:
                  sen::kernel::Tracer& tracer);
 
 private:
+  void prepareTcpSourceSocket();
   void onConnected();
   void onDisconnected(const asio::error_code& err);
 

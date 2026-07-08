@@ -72,6 +72,41 @@ If you have other interfaces, use `eth0` (or your preferred interface) instead o
 
 Remember to also do it if you are inside a Docker container (use `--cap-add=NET_ADMIN` and `eth0`).
 
+## Configuring process ports
+
+By default, Sen asks the operating system to select the TCP and UDP ports. The optional
+`portConfig` parameter has one independent entry for each process port, and each entry can use any
+supported port binding mode:
+
+- `tcpAcceptor`: TCP listening port used to accept incoming process connections.
+- `tcpSource`: TCP source port used when initiating outgoing process connections.
+- `udpUnicast`: UDP unicast port used for per-peer best-effort traffic.
+
+Each entry accepts the same port binding modes:
+
+- `Ephemeral`: let the operating system select the port. This is the default.
+- `PinnedPort`: use one exact port.
+
+Pinned ports fail if the configured port cannot be used.
+This configuration is local to each process and does not need to match in other Sen applications.
+If `portConfig` is omitted, all process ports use `Ephemeral`.
+
+```yaml
+load:
+  - name: ether
+    portConfig:
+      tcpAcceptor:
+        type: PinnedPort
+        value:
+          port: 20000
+      udpUnicast:
+        type: Ephemeral
+      tcpSource:
+        type: PinnedPort
+        value:
+          port: 22000
+```
+
 ## Controlling Multicast
 
 Sen uses multicast to distribute information to multiple receivers with minimum overhead. The
@@ -98,6 +133,20 @@ groups to be used by the buses. The default range of addresses is `239.192.0.0` 
 `239.195.255.255`, which follows the Organization-Local scope defined in RFC 2365. In
 order for this to work, you need to ensure that all the related Sen applications are using the same
 range.
+
+Sen automatically excludes the relative-address blocks reserved by RFC 2365. Additional address
+ranges can be excluded with `busConfig.multicastExclusions`.
+
+```yaml
+load:
+  - name: ether
+    busConfig:
+      multicastExclusions:
+        - min: 239.192.0.0
+          max: 239.192.99.255
+        - min: 239.192.200.0
+          max: 239.192.255.255
+```
 
 ### Disabling multicast for bus traffic
 
