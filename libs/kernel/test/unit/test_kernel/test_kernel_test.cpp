@@ -6,12 +6,14 @@
 // =====================================================================================================================
 
 // sen
+#include "message_dispatcher.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
+#include "sen/kernel/tracer.h"
 
 // generated code
 #include "test_kernel/stl/my_class.stl.h"
@@ -24,6 +26,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string_view>
+#include <utility>
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -200,4 +204,19 @@ TEST(TestKernel, repeatedNames)
 
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
+}
+
+/// @test
+/// Checks that MessageDispatcher correctly clears pending work before tearing down its internal ByteBufferManager
+/// @requirements(SEN-1613)
+TEST(TestKernel, SafeTeardownWithPendingWork)
+{
+  auto tracer = [](std::string_view) { return std::unique_ptr<sen::kernel::Tracer>(nullptr); };
+  auto dispatcher = std::make_unique<sen::kernel::impl::MessageDispatcher>(std::move(tracer));
+  auto buffer = dispatcher->getByteBufferManager().getBuffer(1024);
+
+  sen::kernel::impl::MessageDispatcher::WorkItem work([buf = std::move(buffer)]() mutable {}, true);
+  dispatcher->enqueueMessage(std::move(work));
+
+  EXPECT_NO_THROW(dispatcher.reset());
 }
