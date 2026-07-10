@@ -162,6 +162,11 @@ public:
         worker.join();
       }
     }
+
+    Work remainingWork;
+    while (workQueue_.try_dequeue(remainingWork))
+    {
+    }
   }
 
   /// Start the message dispatcher and the associated worker threads.
