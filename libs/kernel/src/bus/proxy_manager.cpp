@@ -15,6 +15,7 @@
 #include "sen/core/obj/detail/proxy_object.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/interest.h"
+#include "sen/core/obj/object.h"
 #include "sen/core/obj/object_provider.h"
 
 // std
@@ -92,10 +93,18 @@ ProxyManager::~ProxyManager()
   additionsToDelete_.clear();
 }
 
-std::shared_ptr<::sen::impl::ProxyObject> ProxyManager::createProxy(const ObjectAddition& discovery)
+std::shared_ptr<::sen::impl::ProxyObject> ProxyManager::getOrCreateProxy(const ObjectId id,
+                                                                         const ObjectAddition& discovery) const
 {
+  if (auto existing = owner_.lookUpProxyByObjectId(id))
+  {
+    return *existing;
+  }
+
   ProxyMaker maker(&workQueue_, proxiesPrefix_, owner_.getId());
-  return std::visit(maker, discovery);
+  auto proxy = std::visit(maker, discovery);
+  owner_.registerProxy(id, proxy);
+  return proxy;
 }
 
 void ProxyManager::notifyChangesToLocalListeners()
@@ -128,7 +137,7 @@ void ProxyManager::processPendingActions()
   recentlyDeletedObjects_.clear();
   recentlyDeletedObjects_.reserve(actions.size());
 
-  auto count = pendingActions_.try_dequeue_bulk(actions.begin(), actions.size());
+  const auto count = pendingActions_.try_dequeue_bulk(actions.begin(), actions.size());
 
   for (std::size_t i = 0U; i < count; ++i)
   {
@@ -136,13 +145,11 @@ void ProxyManager::processPendingActions()
       Overloaded {
         [this](const ObjectAddition& addition)
         {
-          const auto id = getObjectId(addition);
-
           // do not add repeated objects
-          if (presentProxiesList_.find(id) == presentProxiesList_.end())
+          if (const auto id = getObjectId(addition); presentProxiesList_.find(id) == presentProxiesList_.end())
           {
             // create and store the proxy
-            if (const auto proxy = createProxy(addition); proxy != nullptr)
+            if (auto proxy = getOrCreateProxy(id, addition); proxy != nullptr)
             {
               auto [proxyItr, done] = presentProxiesList_.try_emplace(id, std::move(proxy));
 
@@ -163,19 +170,11 @@ void ProxyManager::processPendingActions()
         [this](const ObjectRemoval& removal)
         {
           // try to find a proxy, and remove it if present
-          if (auto listItr = presentProxiesList_.find(removal.objectid); listItr != presentProxiesList_.end())
-          {
-            if (auto* remoteProxy = listItr->second->asRemoteObject(); remoteProxy != nullptr)
-            {
-              remoteProxy->invalidateTransport();
-            }
-
-            presentProxiesList_.erase(listItr);
-          }
+          presentProxiesList_.erase(removal.objectid);
 
           // remove it from presentObjects_
-          auto presentObjectsItr = presentObjects_.find(removal.objectid);
-          if (presentObjectsItr != presentObjects_.end())
+          if (const auto presentObjectsItr = presentObjects_.find(removal.objectid);
+              presentObjectsItr != presentObjects_.end())
           {
             additionsToDelete_.insert(*presentObjectsItr);
             presentObjects_.erase(presentObjectsItr);

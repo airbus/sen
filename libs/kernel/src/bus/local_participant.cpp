@@ -175,6 +175,37 @@ void LocalParticipant::removeSingleObject(Object* instance)
   localObjectNames_.erase(instance->getLocalName());
 }
 
+std::optional<std::shared_ptr<sen::impl::ProxyObject>> LocalParticipant::lookUpProxyByObjectId(ObjectId id) const
+{
+  if (const auto itr = objectIdToProxy_.find(id); itr != objectIdToProxy_.end())
+  {
+    return itr->second.lock();
+  }
+  return std::nullopt;
+}
+
+void LocalParticipant::registerProxy(const ObjectId id, std::shared_ptr<sen::impl::ProxyObject> proxy)
+{
+  if (proxy)
+  {
+    objectIdToProxy_.insert_or_assign(id, std::move(proxy));
+  }
+}
+
+void LocalParticipant::cleanupExpiredProxies()
+{
+  for (auto itr = objectIdToProxy_.begin(); itr != objectIdToProxy_.end();)
+  {
+    if (itr->second.expired())
+    {
+      itr = objectIdToProxy_.erase(itr);
+      continue;
+    }
+
+    ++itr;
+  }
+}
+
 bool LocalParticipant::handleRejectedPublications(const PublicationRejection& rejections, RemoteParticipant* whom)
 {
 
@@ -276,6 +307,9 @@ void LocalParticipant::drainInputs()
 
     proxyManager->notifyChangesToLocalListeners();
   }
+
+  // cleanup expired proxies from the cache
+  cleanupExpiredProxies();
 }
 
 void LocalParticipant::flushLocalAdditionsAndRemovals()

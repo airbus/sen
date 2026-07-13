@@ -12,6 +12,8 @@
 
 // sen
 #include "sen/core/obj/detail/native_object_proxy.h"
+#include "sen/core/obj/detail/proxy_object.h"
+#include "sen/core/obj/object.h"
 #include "sen/core/obj/object_filter.h"
 #include "sen/core/obj/object_provider.h"
 
@@ -19,6 +21,7 @@
 #include "moodycamel/concurrentqueue.h"
 
 // std
+#include <memory>
 #include <mutex>
 
 namespace sen::kernel::impl
@@ -71,7 +74,8 @@ protected:  // implements ObjectProviderListener
   void onObjectsRemoved(const ObjectRemovalList& removals) override;
 
 private:
-  [[nodiscard]] std::shared_ptr<::sen::impl::ProxyObject> createProxy(const ObjectAddition& discovery);
+  [[nodiscard]] std::shared_ptr<::sen::impl::ProxyObject> getOrCreateProxy(ObjectId id,
+                                                                           const ObjectAddition& discovery) const;
   void processPendingActions();
 
 private:

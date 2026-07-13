@@ -316,7 +316,7 @@ private:
   using Lock = std::scoped_lock<std::recursive_mutex>;
   static constexpr std::size_t smallBufferSize = 64U;
   using SmallPool = FixedMemoryBlockPool<smallBufferSize>;
-  using RemoteObjectListPtr = std::shared_ptr<std::vector<std::shared_ptr<::sen::impl::RemoteObject>>>;
+  using RemoteObjectListPtr = std::shared_ptr<std::vector<std::weak_ptr<::sen::impl::RemoteObject>>>;
   using InterestIdToObjectAdditionsMap = std::unordered_map<InterestId, ObjectAddedList>;
   using ParticipantIdToPendingAdditionsMap = std::unordered_map<ObjectOwnerId, InterestIdToObjectAdditionsMap>;
   using TypeHashToPendingParticipantsAdditionsMap = std::unordered_map<MemberHash, ParticipantIdToPendingAdditionsMap>;

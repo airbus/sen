@@ -23,8 +23,10 @@
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/span.h"
 #include "sen/core/obj/detail/native_object_impl.h"
+#include "sen/core/obj/detail/proxy_object.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/native_object.h"
+#include "sen/core/obj/object.h"
 #include "sen/core/obj/object_filter.h"
 #include "sen/core/obj/object_provider.h"
 #include "sen/core/obj/object_source.h"
@@ -35,6 +37,7 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <unordered_map>
 #include <vector>
 
 // spdlog
@@ -133,6 +136,18 @@ private:
   void flushLocalObjectsState(const std::list<::sen::impl::SerializableEvent>& events);
   void removeSingleObject(Object* instance);
 
+private:  // to be accessed from the ProxyManager to check the cache before constructing a proxy
+  friend class ProxyManager;
+
+  /// Looks up a cached proxy by its ID, returning an active shared_ptr or nullopt if expired.
+  [[nodiscard]] std::optional<std::shared_ptr<sen::impl::ProxyObject>> lookUpProxyByObjectId(ObjectId id) const;
+
+  /// Registers an active proxy into the cache, storing it internally as a non-owning weak_ptr.
+  void registerProxy(ObjectId id, std::shared_ptr<sen::impl::ProxyObject> proxy);
+
+  /// Performs a periodic cleanup of the proxy cache expired entries during drain
+  void cleanupExpiredProxies();
+
 private:
   impl::Runner* owner_;
   std::shared_ptr<Session> session_;
@@ -144,6 +159,7 @@ private:
   ::sen::impl::WorkQueue& workQueue_;
   std::shared_mutex interestsOnOthersMutex_;
   std::vector<std::shared_ptr<ProxyManager>> interestsOnOthers_;
+  std::unordered_map<ObjectId, std::weak_ptr<sen::impl::ProxyObject>> objectIdToProxy_;
   std::mutex participantsMutex_;
   std::vector<Participant*> participants_;
   std::string objectsNamePrefix_;

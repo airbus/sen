@@ -4,7 +4,6 @@ kernel:
 load:
   - name: ether
     group: 10
-    runDiscoveryHub: 65454
     discovery:
       type: TcpDiscovery
       value:
@@ -15,36 +14,27 @@ load:
           port: 65454
 
 build:
-  - name: terminatorComponent1
+  - name: terminatorComponent3
     group: 3
     freqHz: 50
     imports: [test_helpers, interest_filtering]
     objects:
-      - name: terminator1
+      - name: terminator3
         class: sen.test.ProcessTerminatorImpl
         bus: session.bus
-  - name: publisherComponent1
+  - name: listenerComponent4
     group: 3
     freqHz: 50
     imports: [test_helpers, interest_filtering]
     objects:
-      - name: publisher1
-        class: interest_filtering.TestObjectPublisher
-        numOfListeners: 7
+      - name: listener6
+        class: interest_filtering.MultipleSubscriptionListener
         bus: session.bus
-  - name: listenerComponent1
+  - name: listenerComponent5
     group: 3
     freqHz: 50
     imports: [test_helpers, interest_filtering]
     objects:
-      - name: listener1
-        class: interest_filtering.ListenerTestObjectAll
-        bus: session.bus
-  - name: listenerComponent2
-    group: 3
-    freqHz: 50
-    imports: [test_helpers, interest_filtering]
-    objects:
-      - name: listener2
-        class: interest_filtering.ListenerTestObjectQueryFloat
+      - name: listener7
+        class: interest_filtering.MultipleSubscriptionListener
         bus: session.bus

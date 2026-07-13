@@ -1,5 +1,7 @@
 kernel:
   crashReportDisabled: true
+  logConfig:
+    level: info
 
 load:
   - name: ether
@@ -14,27 +16,30 @@ load:
           port: 65454
 
 build:
-  - name: terminatorComponent3
+  - name: terminatorComponent2
     group: 3
     freqHz: 50
     imports: [test_helpers, interest_filtering]
     objects:
-      - name: terminator3
-        class: interest_filtering.ProcessTerminatorImpl
+      - name: terminator2
+        class: sen.test.ProcessTerminatorImpl
         bus: session.bus
-  - name: listenerComponent5
+  - name: listenerComponent3
     group: 3
     freqHz: 50
     imports: [test_helpers, interest_filtering]
     objects:
-      - name: listener6
+      - name: listener3
         class: interest_filtering.ListenerTestObjectAll
         bus: session.bus
-  - name: listenerComponent6
+      - name: listener4
+        class: interest_filtering.ListenerTestObjectQueryFloat
+        bus: session.bus
+  - name: listenerComponent4
     group: 3
     freqHz: 50
     imports: [test_helpers, interest_filtering]
     objects:
-      - name: listener7
+      - name: listener5
         class: interest_filtering.ListenerTestObjectQueryFloat
         bus: session.bus
