@@ -102,7 +102,7 @@ inline std::variant<AuthResult, JsonResponse> validateAuth(SenRouter* obj, HttpS
 template <typename MemberFn>
 RouteCallback bindAuthRouteCallback(SenRouter* obj, MemberFn memberFn)
 {
-  return [obj, memberFn](HttpSession& httpSession, const UrlParams& urlParams, const QueryParams& queryParams)
+  return [obj, memberFn](HttpSession& httpSession, const UrlParams& urlParams, const QueryParamsRes& queryParamsResult)
   {
     return std::visit(
       [&](auto&& res)
@@ -115,7 +115,12 @@ RouteCallback bindAuthRouteCallback(SenRouter* obj, MemberFn memberFn)
         }
         else
         {
-          return (obj->*memberFn)(res.session, httpSession, urlParams, queryParams);
+          if (queryParamsResult.isError())
+          {
+            return getErrorInvalidQueryParams();
+          }
+
+          return (obj->*memberFn)(res.session, httpSession, urlParams, queryParamsResult.getValue());
         }
       },
       validateAuth(obj, httpSession));
@@ -127,7 +132,7 @@ StreamRouteCallback bindAuthStreamRouteCallback(SenRouter* obj, MemberFn memberF
 {
   return [obj, memberFn](std::shared_ptr<HttpSession> httpSession,
                          const UrlParams& urlParams,
-                         const QueryParams& queryParams,
+                         const QueryParamsRes& queryParamsResult,
                          asio::ip::tcp::socket socket)
   {
     return std::visit(
@@ -141,7 +146,12 @@ StreamRouteCallback bindAuthStreamRouteCallback(SenRouter* obj, MemberFn memberF
         }
         else
         {
-          return (obj->*memberFn)(res.session, httpSession, urlParams, queryParams, std::move(socket));
+          if (queryParamsResult.isError())
+          {
+            return getErrorInvalidQueryParams();
+          }
+
+          return (obj->*memberFn)(res.session, httpSession, urlParams, queryParamsResult.getValue(), std::move(socket));
         }
       },
       validateAuth(obj, *httpSession));
@@ -183,39 +193,59 @@ Object SenRouter::getObjectDefinition(const std::string& urlPath, const sen::Obj
   Links links;
   for (const auto& method: objectClass->getMethods(sen::ClassType::SearchMode::includeParents))
   {
-    const std::string relUrlMethod = urlPath + "/methods/" + std::string(method->getName());
-    links.emplace_back(Link {RelType::method, relUrlMethod + "/invoke", HttpMethod::httpPost});
-    links.emplace_back(Link {RelType::def, relUrlMethod, HttpMethod::httpGet});
+    const std::string methodName {method->getName()};
+    std::string relUrlMethod = urlPath + "/methods/";
+    relUrlMethod.append(methodName);
+
+    links.emplace_back(Link {RelType::method, relUrlMethod + "/invoke", methodName, HttpMethod::httpPost});
+    links.emplace_back(Link {RelType::def, std::move(relUrlMethod), std::move(methodName), HttpMethod::httpGet});
   }
 
   for (const auto& prop: objectClass->getProperties(sen::ClassType::SearchMode::includeParents))
   {
     // prop getters
     const auto& getter = prop->getGetterMethod();
-    std::string getterRelUrl = urlPath + "/methods/" + std::string(getter.getName());
-    links.emplace_back(Link {RelType::getter, getterRelUrl + "/invoke", HttpMethod::httpPost});
-    links.emplace_back(Link {RelType::def, std::move(getterRelUrl), HttpMethod::httpGet});
+    const std::string getterName {getter.getName()};
+    std::string getterRelUrl = urlPath + "/methods/";
+    getterRelUrl.append(getterName);
+
+    links.emplace_back(Link {RelType::getter, getterRelUrl + "/invoke", getterName, HttpMethod::httpPost});
+    links.emplace_back(Link {RelType::def, std::move(getterRelUrl), std::move(getterName), HttpMethod::httpGet});
 
     // prop setters
     if (const auto& setter = prop->getSetterMethod(); prop->getCategory() == PropertyCategory::dynamicRW)
     {
-      std::string setterRelUrl = urlPath + "/methods/" + std::string(setter.getName());
-      links.emplace_back(Link {RelType::setter, setterRelUrl + "/invoke", HttpMethod::httpPost});
-      links.emplace_back(Link {RelType::def, std::move(setterRelUrl), HttpMethod::httpGet});
+      const std::string setterName {setter.getName()};
+      std::string setterRelUrl = urlPath + "/methods/";
+      setterRelUrl.append(setterName);
+
+      links.emplace_back(Link {RelType::setter, setterRelUrl + "/invoke", setterName, HttpMethod::httpPost});
+      links.emplace_back(Link {RelType::def, std::move(setterRelUrl), std::move(setterName), HttpMethod::httpGet});
     }
 
     // prop change subscription
-    const std::string propRelUrlEvent = urlPath + "/properties/" + std::string(prop->getName());
-    links.emplace_back(Link {RelType::property, propRelUrlEvent, HttpMethod::httpGet});
-    links.emplace_back(Link {RelType::propertySubscribe, propRelUrlEvent + "/subscribe", HttpMethod::httpPost});
-    links.emplace_back(Link {RelType::propertyUnsubscribe, propRelUrlEvent + "/unsubscribe", HttpMethod::httpPost});
+    const std::string propName {prop->getName()};
+
+    std::string propRelUrlEvent = urlPath + "/properties/";
+    propRelUrlEvent.append(propName);
+
+    links.emplace_back(Link {RelType::property, propRelUrlEvent, propName, HttpMethod::httpGet});
+    links.emplace_back(
+      Link {RelType::propertySubscribe, propRelUrlEvent + "/subscribe", propName, HttpMethod::httpPost});
+    links.emplace_back(Link {RelType::propertyUnsubscribe,
+                             std::move(propRelUrlEvent) + "/unsubscribe",
+                             std::move(propName),
+                             HttpMethod::httpPost});
   }
 
   for (const auto& event: objectClass->getEvents(sen::ClassType::SearchMode::includeParents))
   {
-    const std::string relUrlEvent = urlPath + "/events/" + std::string(event->getName());
-    links.emplace_back(Link {RelType::evt, relUrlEvent + "/subscribe", HttpMethod::httpPost});
-    links.emplace_back(Link {RelType::def, relUrlEvent, HttpMethod::httpGet});
+    const std::string eventName {event->getName()};
+    std::string relUrlEvent = urlPath + "/events/";
+    relUrlEvent.append(eventName);
+
+    links.emplace_back(Link {RelType::evt, relUrlEvent + "/subscribe", eventName, HttpMethod::httpPost});
+    links.emplace_back(Link {RelType::def, std::move(relUrlEvent), std::move(eventName), HttpMethod::httpGet});
   }
 
   return Object {
@@ -558,6 +588,12 @@ HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& h
   try
   {
     const auto payload = Json::parse(httpSession.getRequest().body());
+
+    if (!payload.contains("id") || !payload.at("id").is_string() || payload.size() > 1)
+    {
+      return JsonResponse {httpBadRequestError, Error {"Invalid params"}};
+    }
+
     auto clientAuth = sen::toValue<ClientAuth>(sen::fromJson(httpSession.getRequest().body()));
 
     if (clientSessions_.find(clientAuth.id) != clientSessions_.cend())
@@ -573,13 +609,14 @@ HttpResponse SenRouter::clientAuthSessionHandler([[maybe_unused]] HttpSession& h
       httpSuccess,
       {
         {"Set-Cookie", "token=" + token + "; Path=/; HttpOnly; Secure; SameSite=Lax"},
+        {"Content-Type", "application/json"},
       },
       body,
     };
   }
   catch (const std::exception& e)
   {
-    return JsonResponse(httpBadRequestError, Error {"client auth failed. error: " + std::string(e.what())});
+    return JsonResponse(httpBadRequestError, Error {"client auth failed. error: Invalid params"});
   }
 }
 
@@ -674,11 +711,49 @@ JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
 
   try
   {
-    const auto payload = Json::parse(httpSession.getRequest().body());
+    auto payload = Json::parse(httpSession.getRequest().body());
+
+    if (payload.size() > 3 || payload.size() < 2 || (payload.size() == 3 && !payload.contains("autoSubscribe")))
+    {
+      return JsonResponse {httpBadRequestError, Error {"Invalid params"}};
+    }
 
     Interest interest;
     interest.query = payload.at("query").get<std::string>();
     interest.name = payload.at("name").get<std::string>();
+
+    if (interest.name.empty())
+    {
+      return JsonResponse {httpBadRequestError, Error {"Invalid params"}};
+    }
+
+    bool autoSubscribeProperties = false;
+    bool autoSubscribeEvents = false;
+
+    if (payload.contains("autoSubscribe"))
+    {
+      if (!payload["autoSubscribe"].is_object() || payload["autoSubscribe"].size() > 2)
+      {
+        return JsonResponse {httpBadRequestError, Error {"Invalid params"}};
+      }
+
+      if (payload["autoSubscribe"].contains("properties"))
+      {
+        autoSubscribeProperties = payload["autoSubscribe"].at("properties").get<bool>();
+        payload["autoSubscribe"].erase("properties");
+      }
+
+      if (payload["autoSubscribe"].contains("events"))
+      {
+        autoSubscribeEvents = payload["autoSubscribe"].at("events").get<bool>();
+        payload["autoSubscribe"].erase("events");
+      }
+
+      if (!payload["autoSubscribe"].empty())
+      {
+        return JsonResponse {httpBadRequestError, Error {"Invalid params"}};
+      }
+    }
 
     auto busLocatorOpt = BusLocator::build(interest);
     if (busLocatorOpt.isError())
@@ -696,22 +771,6 @@ JsonResponse SenRouter::createInterestHandler(ClientSession& clientSession,
     if (!source)
     {
       return JsonResponse(httpBadRequestError, Error {"source not open"});
-    }
-
-    bool autoSubscribeProperties = false;
-    bool autoSubscribeEvents = false;
-
-    if (payload.contains("autoSubscribe"))
-    {
-      if (payload["autoSubscribe"].contains("properties"))
-      {
-        autoSubscribeProperties = payload["autoSubscribe"].at("properties").get<bool>();
-      }
-
-      if (payload["autoSubscribe"].contains("events"))
-      {
-        autoSubscribeEvents = payload["autoSubscribe"].at("events").get<bool>();
-      }
     }
 
     auto interestName = clientSession.createInterest(
@@ -746,7 +805,7 @@ JsonResponse SenRouter::removeInterestHandler(ClientSession& clientSession,
 
   if (!clientSession.interestsManager().removeInterest(urlParams[0]))
   {
-    return JsonResponse(httpBadRequestError, Error {"interest deletion failed"});
+    return getErrorNotFound("interest");
   }
 
   return JsonResponse(httpSuccess, Success {"interest deleted"});
@@ -767,7 +826,7 @@ JsonResponse SenRouter::getObjectsHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -783,7 +842,7 @@ JsonResponse SenRouter::getObjectsHandler(ClientSession& clientSession,
       object->getName(),
       std::string(objectClass->getName()),
       object->getLocalName(),
-      Link {RelType::def, objUrl, HttpMethod::httpGet},
+      Link {RelType::def, objUrl, object->getLocalName(), HttpMethod::httpGet},
     });
   }
 
@@ -805,7 +864,7 @@ JsonResponse SenRouter::getObjectHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -821,7 +880,26 @@ JsonResponse SenRouter::getObjectHandler(ClientSession& clientSession,
   adaptForJsonResponse(var, sen::MetaTypeTrait<Object>::meta().type());
   auto jsonObject = nlohmann::json::parse(toJson(var));
 
-  if (!queryParams.empty() && queryParams.find("includeValues")->second == "true")
+  auto includeValuesIt = queryParams.find("includeValues");
+  bool includeValues = false;
+
+  if (includeValuesIt != queryParams.end())
+  {
+    if (includeValuesIt->second == "true")
+    {
+      includeValues = true;
+    }
+    else if (includeValuesIt->second == "false")
+    {
+      includeValues = false;
+    }
+    else
+    {
+      return getErrorInvalidQueryParams();
+    }
+  }
+
+  if (includeValues)
   {
     nlohmann::json values;
 
@@ -856,7 +934,7 @@ JsonResponse SenRouter::updateSubscriptionsHandler(ClientSession& clientSession,
     auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
     if (interestSubscriptionRes.isError())
     {
-      return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+      return getErrorNotFound("interest");
     }
 
     const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -946,7 +1024,7 @@ JsonResponse SenRouter::getSubscriptionsHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto object = getObject(interestSubscriptionRes.getValue(), urlParams[1]);
@@ -991,7 +1069,7 @@ JsonResponse SenRouter::getPropertyHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   auto propertyLocatorOpt =
@@ -1034,7 +1112,7 @@ JsonResponse SenRouter::subscribePropertyUpdateHandler(ClientSession& clientSess
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   auto propertyLocatorOpt =
@@ -1096,7 +1174,7 @@ JsonResponse SenRouter::unsubscribePropertyUpdateHandler(ClientSession& clientSe
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   auto propertyLocatorOpt =
@@ -1143,7 +1221,7 @@ JsonResponse SenRouter::getMethodDefinitionHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -1179,7 +1257,7 @@ JsonResponse SenRouter::invokeMethodHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -1262,7 +1340,7 @@ JsonResponse SenRouter::getEventDefinitionHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -1298,7 +1376,7 @@ JsonResponse SenRouter::subscribeEventHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();
@@ -1346,7 +1424,7 @@ JsonResponse SenRouter::unsubscribeEventHandler(ClientSession& clientSession,
   auto interestSubscriptionRes = interestSubscriptionFromName(clientSession, urlParams[0]);
   if (interestSubscriptionRes.isError())
   {
-    return JsonResponse(httpBadRequestError, Error {interestSubscriptionRes.getError()});
+    return getErrorNotFound("interest");
   }
 
   const auto& interestSubscription = interestSubscriptionRes.getValue();

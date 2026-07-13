@@ -18,6 +18,7 @@
 #include "sen/core/lang/stl_statement.h"
 
 // std
+#include <exception>
 #include <string>
 #include <utility>
 
@@ -50,17 +51,17 @@ Result<BusLocator, LocatorError> BusLocator::build(std::string session, std::str
 
 Result<BusLocator, LocatorError> BusLocator::build(const Interest& interest) noexcept
 {
-  sen::lang::StlScanner scanner(interest.query);
-  const auto& tokens = scanner.scanTokens();
-
   try
   {
+    sen::lang::StlScanner scanner(interest.query);
+    const auto& tokens = scanner.scanTokens();
+
     lang::StlParser parser(tokens);
     auto busStatement = parser.parseQuery().bus;
     return BusLocator::build(busStatement.session.value().get<std::string>(),
                              busStatement.bus.value().get<std::string>());
   }
-  catch (sen::lang::StlParser::ParseError& error)
+  catch (const std::exception& error)
   {
     return sen::Err(LocatorError {LocatorErrorType::parseSQLError, error.what()});
   }

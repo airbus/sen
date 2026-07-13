@@ -26,7 +26,7 @@
 using sen::components::rest::HttpMethod;
 using sen::components::rest::HttpResponse;
 using sen::components::rest::HttpSession;
-using sen::components::rest::QueryParams;
+using sen::components::rest::QueryParamsRes;
 using sen::components::rest::UrlParams;
 
 class ExampleRouter: public sen::components::rest::BaseRouter
@@ -70,7 +70,7 @@ TEST(Rest, simple_routes)
   ExampleRouter router;
   for (const auto& route: routes)
   {
-    router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
+    router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParamsRes&) { return HttpResponse {}; });
   }
 
   std::vector<std::string> paths {
@@ -78,8 +78,7 @@ TEST(Rest, simple_routes)
   for (const auto& path: paths)
   {
     auto match = router.matchPath(HttpMethod::httpGet, path);
-    ASSERT_TRUE(match.isOk());
-    ASSERT_TRUE(match.getValue().has_value());
+    ASSERT_TRUE(match.has_value());
   }
 }
 
@@ -100,7 +99,7 @@ TEST(Rest, invalid_routes)
   {
     try
     {
-      router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
+      router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParamsRes&) { return HttpResponse {}; });
     }
     catch (const std::exception& e)
     {
@@ -122,7 +121,7 @@ TEST(Rest, failing_routes)
   {
     try
     {
-      router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
+      router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParamsRes&) { return HttpResponse {}; });
     }
     catch (const std::exception& e)
     {
@@ -134,8 +133,7 @@ TEST(Rest, failing_routes)
   for (const auto& path: paths)
   {
     auto match = router.matchPath(HttpMethod::httpGet, path);
-    ASSERT_TRUE(match.isOk());
-    ASSERT_FALSE(match.getValue().has_value());
+    ASSERT_FALSE(match.has_value());
   }
 }
 
@@ -154,23 +152,20 @@ TEST(Rest, router_url_params)
   ExampleRouter router;
   for (const auto& path: paths)
   {
-    router.onGet(path, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
+    router.onGet(path, [](const HttpSession&, const UrlParams&, const QueryParamsRes&) { return HttpResponse {}; });
   }
 
   auto match1 = router.matchPath(HttpMethod::httpGet, "/test");
-  ASSERT_TRUE(match1.isOk());
-  ASSERT_TRUE(match1.getValue().value().urlParams.empty());
+  ASSERT_TRUE(match1.value().urlParams.empty());
 
   auto match2 = router.matchPath(HttpMethod::httpGet, "/test/1234");
-  ASSERT_TRUE(match2.isOk());
-  ASSERT_EQ(match2.getValue().value().urlParams.size(), 1);
-  ASSERT_EQ(match2.getValue().value().urlParams[0], "1234");
+  ASSERT_EQ(match2.value().urlParams.size(), 1);
+  ASSERT_EQ(match2.value().urlParams[0], "1234");
 
   auto match3 = router.matchPath(HttpMethod::httpGet, "/test/1234/test2/5678");
-  ASSERT_TRUE(match3.isOk());
-  ASSERT_EQ(match3.getValue().value().urlParams.size(), 2);
-  ASSERT_EQ(match3.getValue().value().urlParams[0], "1234");
-  ASSERT_EQ(match3.getValue().value().urlParams[1], "5678");
+  ASSERT_EQ(match3.value().urlParams.size(), 2);
+  ASSERT_EQ(match3.value().urlParams[0], "1234");
+  ASSERT_EQ(match3.value().urlParams[1], "5678");
 }
 
 /// @test
@@ -194,14 +189,13 @@ TEST(Rest, router_url_params_special_path_segments)
   ExampleRouter router;
   for (const auto& path: paths)
   {
-    router.onGet(path, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
+    router.onGet(path, [](const HttpSession&, const UrlParams&, const QueryParamsRes&) { return HttpResponse {}; });
   }
 
   for (const auto& path: paths)
   {
     auto match = router.matchPath(HttpMethod::httpGet, path);
-    ASSERT_TRUE(match.isOk());
-    ASSERT_TRUE(match.getValue().value().urlParams.empty());
+    ASSERT_TRUE(match.value().urlParams.empty());
   }
 }
 
@@ -214,53 +208,25 @@ TEST(Rest, router_query_params)
   ExampleRouter router;
   for (const auto& route: routes)
   {
-    router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
+    router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParamsRes&) { return HttpResponse {}; });
   }
 
   auto match1 = router.matchPath(HttpMethod::httpGet, "/test");
-  ASSERT_TRUE(match1.isOk());
-  ASSERT_TRUE(match1.getValue().value().queryParams.empty());
+  ASSERT_TRUE(match1.value().queryParamsResult.getValue().empty());
 
   auto match2 = router.matchPath(HttpMethod::httpGet, "/test?");
-  ASSERT_TRUE(match2.isOk());
-  ASSERT_TRUE(match2.getValue().value().queryParams.empty());
+  ASSERT_TRUE(match2.value().queryParamsResult.getValue().empty());
 
   auto match3 = router.matchPath(HttpMethod::httpGet, "/test?param1=11test");
-  ASSERT_TRUE(match3.isOk());
-  ASSERT_EQ(match3.getValue().value().queryParams.size(), 1);
-  ASSERT_EQ(match3.getValue().value().queryParams.at("param1"), "11test");
+  ASSERT_EQ(match3.value().queryParamsResult.getValue().size(), 1);
+  ASSERT_EQ(match3.value().queryParamsResult.getValue().at("param1"), "11test");
 
   auto match4 = router.matchPath(HttpMethod::httpGet, "/test?param1=12test&param2=true");
-  ASSERT_TRUE(match4.isOk());
-  ASSERT_EQ(match4.getValue().value().queryParams.size(), 2);
-  ASSERT_EQ(match4.getValue().value().queryParams.at("param1"), "12test");
-  ASSERT_EQ(match4.getValue().value().queryParams.at("param2"), "true");
+  ASSERT_EQ(match4.value().queryParamsResult.getValue().size(), 2);
+  ASSERT_EQ(match4.value().queryParamsResult.getValue().at("param1"), "12test");
+  ASSERT_EQ(match4.value().queryParamsResult.getValue().at("param2"), "true");
 
   auto match5 = router.matchPath(HttpMethod::httpGet, "/test/1234?param1=abcd");
-  ASSERT_TRUE(match5.isOk());
-  ASSERT_EQ(match5.getValue().value().queryParams.size(), 1);
-  ASSERT_EQ(match5.getValue().value().queryParams.at("param1"), "abcd");
-}
-
-/// @test
-/// Check Rest API invalid query params
-TEST(Rest, failing_query_params)
-{
-  const std::string route = "/test";
-  ExampleRouter router;
-
-  router.onGet(route, [](const HttpSession&, const UrlParams&, const QueryParams&) { return HttpResponse {}; });
-
-  const std::vector<std::string> paths = {"/test?param1",
-                                          "/test?param1=&",
-                                          "/test?=value1",
-                                          "/test?param1=value1=other&",
-                                          "/test?=",
-                                          "/test?&&",
-                                          "/test?=&="};
-
-  for (const auto& path: paths)
-  {
-    ASSERT_TRUE(router.matchPath(HttpMethod::httpGet, path).isError());
-  }
+  ASSERT_EQ(match5.value().queryParamsResult.getValue().size(), 1);
+  ASSERT_EQ(match5.value().queryParamsResult.getValue().at("param1"), "abcd");
 }

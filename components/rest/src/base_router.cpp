@@ -34,7 +34,7 @@ namespace sen::components::rest
 //--------------------------------------------------------------------------------------------------------------
 
 constexpr std::string_view pathUrlParamRegex = ":[a-zA-Z0-9]+";
-constexpr std::string_view pathSegmentRegex = "[a-zA-Z0-9._~$@,;=-]+";
+constexpr std::string_view pathSegmentRegex = "[a-zA-Z0-9._~$@,;%=-]+";
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -45,7 +45,8 @@ std::optional<HttpMethod> fromString(std::string methodStr)
   static const std::unordered_map<std::string, HttpMethod> strToMethod = {{"GET", HttpMethod::httpGet},
                                                                           {"POST", HttpMethod::httpPost},
                                                                           {"PUT", HttpMethod::httpPut},
-                                                                          {"DELETE", HttpMethod::httpDelete}};
+                                                                          {"DELETE", HttpMethod::httpDelete},
+                                                                          {"TRACE", HttpMethod::httpTrace}};
 
   // in-place normalize method to upper case
   std::transform(methodStr.begin(), methodStr.end(), methodStr.begin(), [](auto c) { return std::toupper(c); });
@@ -122,27 +123,20 @@ Result<QueryParams, QueryParamsError> BaseRouter::getQueryParams(const std::stri
   return Ok(queryParams);
 }
 
-Result<std::optional<MatchedRoute>, QueryParamsError> BaseRouter::matchPath(HttpMethod method,
-                                                                            const std::string& path) const noexcept
+std::optional<MatchedRoute> BaseRouter::matchPath(HttpMethod method, const std::string& path) const noexcept
 {
   const auto routes = routes_.find(method);
   if (routes == routes_.cend())
   {
-    return Ok(std::optional<MatchedRoute>(std::nullopt));
+    return {std::nullopt};
   }
 
   const auto pathParamsSplit = impl::split(path, '?');
-  QueryParams queryParams;
 
+  QueryParamsRes queryParamsResult = Ok(QueryParams {});
   if (pathParamsSplit.size() == 2)
   {
-    const auto queryParamsResult = getQueryParams(pathParamsSplit[1]);
-    if (queryParamsResult.isError())
-    {
-      return Err(QueryParamsError {std::string("Invalid query params")});
-    }
-
-    queryParams = std::move(queryParamsResult).getValue();
+    queryParamsResult = getQueryParams(pathParamsSplit[1]);
   }
 
   std::smatch matches;
@@ -155,17 +149,17 @@ Result<std::optional<MatchedRoute>, QueryParamsError> BaseRouter::matchPath(Http
 
       if (std::holds_alternative<RouteCallback>(route.callback))
       {
-        return Ok(std::make_optional(MatchedRoute {urlParams, queryParams, std::get<RouteCallback>(route.callback)}));
+        return std::make_optional(MatchedRoute {urlParams, queryParamsResult, std::get<RouteCallback>(route.callback)});
       }
       if (std::holds_alternative<StreamRouteCallback>(route.callback))
       {
-        return Ok(
-          std::make_optional(MatchedRoute {urlParams, queryParams, std::get<StreamRouteCallback>(route.callback)}));
+        return std::make_optional(
+          MatchedRoute {urlParams, queryParamsResult, std::get<StreamRouteCallback>(route.callback)});
       }
     }
   }
 
-  return Ok(std::optional<MatchedRoute>(std::nullopt));
+  return {std::nullopt};
 }
 
 }  // namespace sen::components::rest

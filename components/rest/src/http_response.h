@@ -28,6 +28,7 @@ constexpr size_t maxHeaderSize = 4096;
 
 constexpr int32_t httpBadRequestError = 400;
 constexpr int32_t httpNotFoundError = 404;
+constexpr int32_t httpNotAllowed = 405;
 constexpr int32_t httpUnauthorizedError = 401;
 constexpr int32_t httpInternalServerError = 500;
 constexpr int32_t httpSuccess = 200;

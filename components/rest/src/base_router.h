@@ -38,18 +38,32 @@
 namespace sen::components::rest
 {
 
+struct QueryParamsError
+{
+  std::string error;
+};
+
 using UrlParams = std::vector<std::string>;
 using QueryParams = std::map<std::string, std::string>;
-using RouteCallback = std::function<HttpResponse(HttpSession&, const UrlParams&, const QueryParams&)>;
+using QueryParamsRes = Result<QueryParams, QueryParamsError>;
+using RouteCallback = std::function<HttpResponse(HttpSession&, const UrlParams&, const QueryParamsRes&)>;
 using StreamRouteCallback = std::function<
-  HttpResponse(std::shared_ptr<HttpSession>, const UrlParams&, const QueryParams&, asio::ip::tcp::socket)>;
+  HttpResponse(std::shared_ptr<HttpSession>, const UrlParams&, const QueryParamsRes&, asio::ip::tcp::socket)>;
 
 // Template helpers bind member functions instead lambdas
 template <typename T, typename MemberFn>
 RouteCallback bindRouteCallback(T* obj, MemberFn memberFn)
 {
-  return [obj, memberFn](HttpSession& session, const UrlParams& urlParams, const QueryParams& queryParams)
-  { return (obj->*memberFn)(session, urlParams, queryParams); };
+  return [obj, memberFn](
+           HttpSession& session, const UrlParams& urlParams, const QueryParamsRes& queryParamsResult) -> HttpResponse
+  {
+    if (queryParamsResult.isError())
+    {
+      return JsonResponse {httpBadRequestError, Error {"Invalid query params"}};
+    }
+
+    return (obj->*memberFn)(session, urlParams, queryParamsResult.getValue());
+  };
 }
 
 std::optional<HttpMethod> fromString(std::string methodStr);
@@ -77,13 +91,8 @@ struct Route
 struct MatchedRoute
 {
   UrlParams urlParams;
-  QueryParams queryParams;
+  QueryParamsRes queryParamsResult;
   std::variant<RouteCallback, StreamRouteCallback> callback;
-};
-
-struct QueryParamsError
-{
-  std::string error;
 };
 
 /// BaseRouter base class for routing HTTP requests to appropriate handlers.
@@ -97,8 +106,7 @@ public:
   virtual ~BaseRouter() = default;
 
   /// Returns a matching route callback for the given path and HTTP method.
-  [[nodiscard]] Result<std::optional<MatchedRoute>, QueryParamsError> matchPath(HttpMethod method,
-                                                                                const std::string& path) const noexcept;
+  [[nodiscard]] std::optional<MatchedRoute> matchPath(HttpMethod method, const std::string& path) const noexcept;
 
   /// Clean up
   virtual void releaseAll();
