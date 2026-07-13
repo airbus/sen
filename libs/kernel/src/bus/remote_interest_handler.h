@@ -15,6 +15,8 @@
 #include "sen/core/obj/interest.h"
 
 // std
+#include <functional>
+#include <memory>
 #include <mutex>
 #include <shared_mutex>
 #include <unordered_map>
@@ -38,16 +40,35 @@ public:
   ~InterestsHandler() = default;
 
 public:
-  void addInterest(InterestId interestId) { interestToCounterMap_[interestId]++; }
-  void removeInterest(InterestId interestId);
-  [[nodiscard]] bool isRegistered(InterestId interestId) const noexcept
+  void addInterest(const InterestId interestId)
+  {
+    std::lock_guard lock(*mutex_);
+    interestToCounterMap_[interestId]++;
+  }
+  void removeInterest(const InterestId interestId);
+
+  [[nodiscard]] bool isRegistered(const InterestId interestId) const noexcept
+  {
+    std::lock_guard lock(*mutex_);
+    return interestToCounterMap_.find(interestId) != interestToCounterMap_.end();
+  }
+
+  void onInterestRemoved(std::function<void(InterestId)>&& callback)
+  {
+    std::lock_guard lock(*mutex_);
+    onRemovedCallback_ = std::move(callback);
+  }
+
+private:
+  /// Unlocked version of the isRegistered method to be used in the implementation of removeInterest
+  [[nodiscard]] bool isRegisteredInternal(InterestId interestId) const noexcept
   {
     return interestToCounterMap_.find(interestId) != interestToCounterMap_.end();
   }
 
-  void onInterestRemoved(std::function<void(InterestId)>&& callback) { onRemovedCallback_ = std::move(callback); }
-
 private:
+  // wrap the mutex in a smart pointer so that it is movable and SEN_MOVE_ONLY can be used for the class
+  mutable std::unique_ptr<std::mutex> mutex_ = std::make_unique<std::mutex>();
   std::unordered_map<InterestId, u32> interestToCounterMap_;
   std::function<void(InterestId)> onRemovedCallback_;
 };
@@ -93,7 +114,9 @@ private:
 
 inline void InterestsHandler::removeInterest(InterestId interestId)
 {
-  if (!isRegistered(interestId))
+  std::lock_guard lock(*mutex_);
+
+  if (!isRegisteredInternal(interestId))
   {
     return;
   }
