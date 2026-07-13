@@ -35,6 +35,14 @@ enum class PortKind
 
 using BindPort = sen::std_util::move_only_function<asio::error_code(uint16_t) const>;
 
+/// Binds a port using the configured mode for the given port kind.
+///
+/// Throws if the configuration is invalid, the selected port is excluded or no port can be bound.
+///
+/// @param config: ether configuration with the port settings.
+/// @param exclusions: port exclusions that must not be used.
+/// @param kind: port type to bind.
+/// @param bind: function called with the port to bind, returning the bind result.
 void bindConfiguredPort(const Configuration& config,
                         const PortExclusionSources& exclusions,
                         PortKind kind,

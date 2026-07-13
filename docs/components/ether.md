@@ -86,7 +86,10 @@ Each entry accepts the same port binding modes:
 
 - `Ephemeral`: let the operating system select the port. This is the default.
 - `PinnedPort`: use one exact port.
+- `ProbePortRange`: try ports inside a configured range until one can be bound.
 
+When ProbePortRange is enabled, Sen starts from a random point in the range and scans forward with
+wrap-around and bind the first available port. It fails if no port in the range can be used.
 Pinned ports fail if the configured port cannot be used.
 This configuration is local to each process and does not need to match in other Sen applications.
 If `portConfig` is omitted, all process ports use `Ephemeral`.
@@ -102,9 +105,24 @@ load:
       udpUnicast:
         type: Ephemeral
       tcpSource:
-        type: PinnedPort
+        type: ProbePortRange
         value:
-          port: 22000
+          min: 21000
+          max: 25000
+```
+
+### Excluding process ports
+
+The `portExclusions` parameter declares port ranges that `PinnedPort` and `ProbePortRange` must not use.
+It does not affect to `Ephemeral`, where Sen asks the operating system to choose the port.
+Sen also avoids well-known ports (0-1023) and operating system ranges reported as dynamic/ephemeral.
+
+```yaml
+load:
+  - name: ether
+    portExclusions:
+      - min: 10000
+        max: 20000
 ```
 
 ## Controlling Multicast

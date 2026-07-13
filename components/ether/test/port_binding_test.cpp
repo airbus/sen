@@ -15,6 +15,7 @@
 #include "stl/configuration.stl.h"
 
 // asio
+#include <asio/error.hpp>
 #include <asio/error_code.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
@@ -26,6 +27,7 @@
 
 // std
 #include <cstdint>
+#include <exception>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -268,6 +270,42 @@ TEST(PortBinding, BindsPinnedPort)
 }
 
 /// @test
+/// Checks probe mode configuration
+/// @requirements(SEN-909)
+TEST(PortBinding, BindsProbePort)
+{
+  const auto portTcpSource = pickFreeTcpPort();
+  const auto portTcpAcceptor = pickFreeTcpPort();
+  const auto portUdpUnicast = pickFreeUdpPort();
+  const auto configTcpSource =
+    makeConfigurationWithPort(PortKind::tcpSource, ProbePortRange {portTcpSource, portTcpSource});
+  const auto configTcpAcceptor =
+    makeConfigurationWithPort(PortKind::tcpAcceptor, ProbePortRange {portTcpAcceptor, portTcpAcceptor});
+  const auto configUdpUnicast =
+    makeConfigurationWithPort(PortKind::udpUnicast, ProbePortRange {portUdpUnicast, portUdpUnicast});
+  PortExclusionSources exclusions;
+  asio::io_context ioTcpSource;
+  asio::io_context ioTcpAcceptor;
+  asio::io_context ioUdpUnicast;
+  asio::ip::tcp::socket socketSource(ioTcpSource);
+  asio::ip::tcp::acceptor socketAcceptor(ioTcpAcceptor);
+  asio::ip::udp::socket socketUdp(ioUdpUnicast);
+
+  bindConfiguredPort(
+    configTcpSource, exclusions, PortKind::tcpSource, [&](uint16_t port) { return bindTcpSocket(socketSource, port); });
+
+  bindConfiguredPort(configTcpAcceptor,
+                     exclusions,
+                     PortKind::tcpAcceptor,
+                     [&](uint16_t port) { return bindTcpAcceptor(socketAcceptor, port); });
+
+  bindConfiguredPort(
+    configUdpUnicast, exclusions, PortKind::udpUnicast, [&](uint16_t port) { return bindUdpSocket(socketUdp, port); });
+
+  EXPECT_EQ(socketSource.local_endpoint().port(), portTcpSource);
+}
+
+/// @test
 /// Makes a pin configuration for tcpAcceptor but check that udpUnicast is in ephemeral mode
 /// @requirements(SEN-909)
 TEST(PortBinding, UsesEphemeralForUnsetPorts)
@@ -314,12 +352,11 @@ TEST(PortBinding, RejectsExcludedPinnedPort)
                        });
     FAIL() << "Expected pinned port binding to fail";
   }
-  catch (const std::runtime_error& error)
+  catch (const std::exception& error)
   {
     const std::string message = error.what();
     EXPECT_NE(message.find("TCP source"), std::string::npos);
     EXPECT_NE(message.find("configured exclusions"), std::string::npos);
-    EXPECT_NE(message.find("No fallback"), std::string::npos);
   }
 
   EXPECT_FALSE(bindCalled);
@@ -345,10 +382,210 @@ TEST(PortBinding, FailsWhenPinnedPortIsTaken)
                                     attempts.push_back(port);
                                     return bindTcpAcceptor(acceptor, port);
                                   }),
-               std::runtime_error);
+               std::exception);
 
   ASSERT_EQ(attempts.size(), 1U);
   EXPECT_EQ(attempts.front(), reservedPort.port());
+}
+
+/// @test
+/// Checks that probe skips ports excluded by configuration
+/// @requirements(SEN-909)
+TEST(PortBinding, SkipsExcludedProbePort)
+{
+  const auto expectedPort = pickFreeTcpPort();
+  const auto excludedPort = static_cast<uint16_t>(expectedPort - 1U);
+  const auto config = makeConfigurationWithPort(PortKind::tcpAcceptor, ProbePortRange {excludedPort, expectedPort});
+  PortExclusionSources exclusions;
+  exclusions.configured.add(excludedPort, excludedPort);
+  asio::io_context io;
+  asio::ip::tcp::acceptor acceptor(io);
+
+  bindConfiguredPort(
+    config, exclusions, PortKind::tcpAcceptor, [&](uint16_t port) { return bindTcpAcceptor(acceptor, port); });
+
+  EXPECT_EQ(acceptor.local_endpoint().port(), expectedPort);
+}
+
+/// @test
+/// Checks that probe tries another port when a candidate is already in use
+/// @requirements(SEN-909)
+TEST(PortBinding, RetriesProbePort)
+{
+  const auto config = makeConfigurationWithPort(PortKind::tcpAcceptor, ProbePortRange {20000, 20002});
+  PortExclusionSources exclusions;
+  std::vector<uint16_t> attempts;
+
+  bindConfiguredPort(config,
+                     exclusions,
+                     PortKind::tcpAcceptor,
+                     [&](uint16_t port)
+                     {
+                       attempts.push_back(port);
+                       return port == 20001 ? asio::error_code {} : asio::error::address_in_use;
+                     });
+
+  ASSERT_FALSE(attempts.empty());
+  EXPECT_EQ(attempts.back(), 20001);
+  EXPECT_LE(attempts.size(), 3U);
+  for (const auto port: attempts)
+  {
+    EXPECT_GE(port, 20000);
+    EXPECT_LE(port, 20002);
+  }
+}
+
+/// @test
+/// Checks that probe fails when every candidate port is unavailabe
+/// @requirements(SEN-909)
+TEST(PortBinding, FailsProbeRange)
+{
+  const TcpPortReservation reservedPort;
+  const auto config =
+    makeConfigurationWithPort(PortKind::tcpAcceptor, ProbePortRange {reservedPort.port(), reservedPort.port()});
+  PortExclusionSources exclusions;
+  asio::io_context io;
+  asio::ip::tcp::acceptor acceptor(io);
+  std::vector<uint16_t> attempts;
+
+  EXPECT_THROW(bindConfiguredPort(config,
+                                  exclusions,
+                                  PortKind::tcpAcceptor,
+                                  [&](uint16_t port)
+                                  {
+                                    attempts.push_back(port);
+                                    return bindTcpAcceptor(acceptor, port);
+                                  }),
+               std::exception);
+
+  ASSERT_EQ(attempts.size(), 1U);
+  EXPECT_EQ(attempts.front(), reservedPort.port());
+}
+
+/// @test
+/// Checks that probe diagnostics explain excluded ranges
+/// @requirements(SEN-909)
+TEST(PortBinding, ReportsExcludedProbeRange)
+{
+  const auto config = makeConfigurationWithPort(PortKind::tcpAcceptor, ProbePortRange {20000, 20002});
+  PortExclusionSources exclusions;
+  exclusions.configured.add(20000, 20001);
+  exclusions.os.add(20002, 20002);
+  bool bindCalled = false;
+  std::string message;
+
+  try
+  {
+    bindConfiguredPort(config,
+                       exclusions,
+                       PortKind::tcpAcceptor,
+                       [&](uint16_t port)
+                       {
+                         std::ignore = port;
+                         bindCalled = true;
+                         return asio::error_code {};
+                       });
+    FAIL() << "Expected probe range binding to fail";
+  }
+  catch (const std::exception& error)
+  {
+    message = error.what();
+  }
+
+  EXPECT_FALSE(bindCalled);
+  EXPECT_NE(message.find("TCP acceptor"), std::string::npos);
+  EXPECT_NE(message.find("20000-20002"), std::string::npos);
+  EXPECT_NE(message.find("all ports are excluded"), std::string::npos);
+  EXPECT_NE(message.find("excluded ports: 3"), std::string::npos);
+  EXPECT_NE(message.find("configured: 20000-20001"), std::string::npos);
+  EXPECT_NE(message.find("OS: 20002"), std::string::npos);
+  EXPECT_NE(message.find("bind attempts: 0"), std::string::npos);
+}
+
+/// @test
+/// Checks that probe diagnostics explain exhausted bind attempts
+/// @requirements(SEN-909)
+TEST(PortBinding, ReportsUnavailableProbeRange)
+{
+  const auto config = makeConfigurationWithPort(PortKind::tcpAcceptor, ProbePortRange {20000, 20002});
+  PortExclusionSources exclusions;
+  exclusions.configured.add(20000, 20000);
+  std::vector<uint16_t> attempts;
+  std::string message;
+
+  try
+  {
+    bindConfiguredPort(config,
+                       exclusions,
+                       PortKind::tcpAcceptor,
+                       [&](uint16_t port)
+                       {
+                         attempts.push_back(port);
+                         return asio::error::address_in_use;
+                       });
+    FAIL() << "Expected probe range binding to fail";
+  }
+  catch (const std::exception& error)
+  {
+    message = error.what();
+  }
+
+  ASSERT_EQ(attempts.size(), 2U);
+  EXPECT_NE(message.find("TCP acceptor"), std::string::npos);
+  EXPECT_NE(message.find("20000-20002"), std::string::npos);
+  EXPECT_NE(message.find("no port was available"), std::string::npos);
+  EXPECT_NE(message.find("bind attempts: 2"), std::string::npos);
+  EXPECT_NE(message.find("excluded ports: 1"), std::string::npos);
+  EXPECT_NE(message.find("configured: 20000"), std::string::npos);
+  EXPECT_NE(message.find("last attempted port: " + std::to_string(attempts.back())), std::string::npos);
+  EXPECT_NE(message.find("last error:"), std::string::npos);
+}
+
+/// @test
+/// Checks that an invalid probe range fails before binding
+/// @requirements(SEN-909)
+TEST(PortBinding, RejectsInvalidProbeRange)
+{
+  const auto config = makeConfigurationWithPort(PortKind::tcpSource, ProbePortRange {20002, 20000});
+  PortExclusionSources exclusions;
+  asio::io_context io;
+  asio::ip::tcp::socket socket(io);
+  bool bindCalled = false;
+
+  EXPECT_THROW(bindConfiguredPort(config,
+                                  exclusions,
+                                  PortKind::tcpSource,
+                                  [&](uint16_t port)
+                                  {
+                                    bindCalled = true;
+                                    return bindTcpSocket(socket, port);
+                                  }),
+               std::invalid_argument);
+
+  EXPECT_FALSE(bindCalled);
+}
+
+/// @test
+/// Checks that probe stops on errors that are not caused by an occupied port
+/// @requirements(SEN-909)
+TEST(PortBinding, StopsProbeOnError)
+{
+  const auto config = makeConfigurationWithPort(PortKind::udpUnicast, ProbePortRange {20000, 20000});
+  PortExclusionSources exclusions;
+  std::vector<uint16_t> attempts;
+
+  EXPECT_THROW(bindConfiguredPort(config,
+                                  exclusions,
+                                  PortKind::udpUnicast,
+                                  [&](uint16_t port)
+                                  {
+                                    attempts.push_back(port);
+                                    return asio::error::operation_not_supported;
+                                  }),
+               std::exception);
+
+  ASSERT_EQ(attempts.size(), 1U);
+  EXPECT_EQ(attempts.front(), 20000);
 }
 
 }  // namespace sen::components::ether

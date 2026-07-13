@@ -87,10 +87,18 @@ struct PinnedPort
   port : u16
 }
 
+// Bind within [min,max], random start, walk forward
+struct ProbePortRange
+{
+  min : u16,
+  max : u16
+}
+
 variant PortBinding
 {
   Ephemeral,
   PinnedPort,
+  ProbePortRange
 }
 
 // This configuration is per process and does not need to match across Sen instances.

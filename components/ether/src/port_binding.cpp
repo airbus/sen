@@ -11,17 +11,26 @@
 #include "network_exclusion.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
 
 // generated code
 #include "stl/configuration.stl.h"
 
+// asio
+#include <asio/error.hpp>
+#include <asio/error_code.hpp>
+
 // std
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace sen::components::ether
 {
@@ -93,13 +102,36 @@ namespace
   return stream.str();
 }
 
+void validateProbeRange(PortKind kind, const ProbePortRange& config)
+{
+  if (config.min > config.max)
+  {
+    throw std::invalid_argument(std::string("Invalid probe port range for ") + toString(kind) + " (" +
+                                std::to_string(config.min) + "-" + std::to_string(config.max) +
+                                "): min is greater than max.");
+  }
+}
+
+[[nodiscard]] std::size_t pickProbeStartIndex(std::size_t candidateCount)
+{
+  SEN_ASSERT(candidateCount > 0U);
+
+  std::random_device randomDevice;
+  std::uniform_int_distribution<std::size_t> distribution(0U, candidateCount - 1U);
+  return distribution(randomDevice);
+}
+
+[[nodiscard]] std::string rangeToString(const ProbePortRange& config)
+{
+  return std::to_string(config.min) + "-" + std::to_string(config.max);
+}
+
 void bindEphemeral(PortKind kind, const BindPort& bind)
 {
   const auto error = bind(0);
   if (error)
   {
-    throw std::runtime_error(std::string("Failed to bind ephemeral port for ") + toString(kind) + ": " +
-                             error.message());
+    sen::throwRuntimeError(std::string("Failed to bind ephemeral port for ") + toString(kind) + ": " + error.message());
   }
 }
 
@@ -108,17 +140,164 @@ void bindPinned(PortKind kind, const PinnedPort& config, const PortExclusionSour
   const auto excludedBy = excludedByToString(config.port, exclusions);
   if (!excludedBy.empty())
   {
-    throw std::runtime_error(std::string("Cannot bind pinned port for ") + toString(kind) + " (" +
-                             std::to_string(config.port) + "): excluded by " + excludedBy +
-                             ". No fallback is allowed.");
+    sen::throwRuntimeError(std::string("Cannot bind pinned port for ") + toString(kind) + " (" +
+                           std::to_string(config.port) + "): excluded by " + excludedBy);
   }
 
   const auto error = bind(config.port);
   if (error)
   {
-    throw std::runtime_error(std::string("Failed to bind pinned port for ") + toString(kind) + " (" +
-                             std::to_string(config.port) + "): " + error.message() + ". No fallback is allowed.");
+    sen::throwRuntimeError(std::string("Failed to bind pinned port for ") + toString(kind) + " (" +
+                           std::to_string(config.port) + "): " + error.message());
   }
+}
+
+/// Returns every port between config.min and config.max that is not excluded
+[[nodiscard]] std::vector<uint16_t> getUsablePorts(const ProbePortRange& config, const PortExclusionSources& exclusions)
+{
+  std::vector<uint16_t> usablePorts;
+  usablePorts.reserve(static_cast<std::size_t>(config.max) - static_cast<std::size_t>(config.min) + 1U);
+
+  for (uint32_t port = config.min; port <= config.max; ++port)
+  {
+    const auto candidate = static_cast<uint16_t>(port);
+    if (!isPortExcluded(candidate, exclusions))
+    {
+      usablePorts.push_back(candidate);
+    }
+  }
+
+  return usablePorts;
+}
+
+/// Builds the diagnostic message fragment with the excluded port count and the exclusion source range
+[[nodiscard]] std::string getProbeExclusionDetails(const ProbePortRange& config,
+                                                   const PortExclusionSources& exclusions,
+                                                   std::size_t excludedPortCount)
+{
+  const auto portRangeToString = [](uint16_t min, uint16_t max)
+  {
+    if (min == max)
+    {
+      return std::to_string(min);
+    }
+    return std::to_string(min) + "-" + std::to_string(max);
+  };
+
+  std::ostringstream exclusionSources;
+  bool hasExclusionSource = false;
+  const auto appendExclusionSource = [&](const char* source, const auto& sourceExclusions)
+  {
+    std::ostringstream sourceRanges;
+    bool hasSourceRange = false;
+    for (const auto& range: sourceExclusions.ranges())
+    {
+      const auto min = std::max(config.min, range.min);
+      const auto max = std::min(config.max, range.max);
+      if (min > max)
+      {
+        continue;
+      }
+
+      if (hasSourceRange)
+      {
+        sourceRanges << ", ";
+      }
+      sourceRanges << portRangeToString(min, max);
+      hasSourceRange = true;
+    }
+
+    if (!hasSourceRange)
+    {
+      return;
+    }
+
+    if (hasExclusionSource)
+    {
+      exclusionSources << "; ";
+    }
+    exclusionSources << source << ": " << sourceRanges.str();
+    hasExclusionSource = true;
+  };
+
+  appendExclusionSource("built-in", exclusions.builtIn);
+  appendExclusionSource("configured", exclusions.configured);
+  appendExclusionSource("OS", exclusions.os);
+
+  std::string exclusionDetails = "excluded ports: " + std::to_string(excludedPortCount);
+  if (hasExclusionSource)
+  {
+    exclusionDetails += " (" + exclusionSources.str() + ")";
+  }
+
+  return exclusionDetails;
+}
+
+/// Attempts to bind for each usable port, starting at a random index and wrapping around the vector.
+/// If a port is already in use, the next usable port is tried.
+void bindUsableProbePorts(PortKind kind,
+                          const ProbePortRange& config,
+                          const std::vector<uint16_t>& usablePorts,
+                          const std::string& exclusionDetails,
+                          const BindPort& bind)
+{
+  SEN_ASSERT(!usablePorts.empty());
+  const auto startIndex = pickProbeStartIndex(usablePorts.size());
+  asio::error_code lastError;
+  uint16_t lastAttemptedPort = 0;
+
+  for (std::size_t attempt = 0; attempt < usablePorts.size(); ++attempt)
+  {
+    const auto index = (startIndex + attempt) % usablePorts.size();
+    const auto port = usablePorts.at(index);
+    lastAttemptedPort = port;
+    const auto error = bind(port);
+    if (!error)
+    {
+      return;
+    }
+
+    lastError = error;
+    if (error != asio::error::address_in_use)
+    {
+      sen::throwRuntimeError(std::string("Failed to bind probe port for ") + toString(kind) + " (" +
+                             std::to_string(port) + " in range " + rangeToString(config) + "): " + error.message() +
+                             "; bind attempts: " + std::to_string(attempt + 1U) + "; " + exclusionDetails);
+    }
+  }
+
+  std::string reason = "no port was available";
+  SEN_ASSERT(static_cast<bool>(lastError));
+  reason += "; bind attempts: " + std::to_string(usablePorts.size());
+  reason += "; " + exclusionDetails;
+  reason += "; last attempted port: " + std::to_string(lastAttemptedPort);
+  reason += "; last error: " + lastError.message();
+
+  sen::throwRuntimeError(std::string("Failed to bind probe range for ") + toString(kind) + " (" +
+                         rangeToString(config) + "): " + reason);
+}
+
+/// Validates the configured range, filters excluded ports and binds one usable port.
+void bindProbe(PortKind kind,
+               const ProbePortRange& config,
+               const PortExclusionSources& exclusions,
+               const BindPort& bind)
+{
+  validateProbeRange(kind, config);
+
+  const auto usablePorts = getUsablePorts(config, exclusions);
+  const auto portCount = static_cast<std::size_t>(config.max) - static_cast<std::size_t>(config.min) + 1U;
+  const auto excludedPortCount = portCount - usablePorts.size();
+  const auto exclusionDetails = getProbeExclusionDetails(config, exclusions, excludedPortCount);
+
+  if (usablePorts.empty())
+  {
+    sen::throwRuntimeError(std::string("Failed to bind probe range for ") + toString(kind) + " (" +
+                           rangeToString(config) + "): all ports are excluded; " + exclusionDetails +
+                           "; bind attempts: 0.");
+  }
+
+  bindUsableProbePorts(kind, config, usablePorts, exclusionDetails, bind);
 }
 
 }  // namespace
@@ -132,6 +311,7 @@ void bindConfiguredPort(const Configuration& config,
     ::sen::Overloaded {
       [&](const Ephemeral&) { bindEphemeral(kind, bind); },
       [&](const PinnedPort& pinnedPort) { bindPinned(kind, pinnedPort, exclusions, bind); },
+      [&](const ProbePortRange& probeRange) { bindProbe(kind, probeRange, exclusions, bind); },
     },
     getPortBinding(config, kind));
 }
