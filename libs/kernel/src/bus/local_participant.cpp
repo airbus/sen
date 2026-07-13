@@ -57,6 +57,14 @@ using sen::util::makeLockedRange;
 namespace sen::kernel::impl
 {
 
+namespace
+{
+
+/// Number of drains between expired proxy cleanups
+constexpr std::size_t proxyCleanupPeriod = 64U;
+
+}  // namespace
+
 LocalParticipant::LocalParticipant(ObjectOwnerId id,
                                    const BusAddress& busAddress,
                                    std::shared_ptr<impl::Session> session,
@@ -175,6 +183,43 @@ void LocalParticipant::removeSingleObject(Object* instance)
   localObjectNames_.erase(instance->getLocalName());
 }
 
+std::shared_ptr<sen::impl::ProxyObject> LocalParticipant::lookUpProxyByObjectId(ObjectId id) const
+{
+  if (const auto itr = objectIdToProxy_.find(id); itr != objectIdToProxy_.end())
+  {
+    if (auto proxy = itr->second.lock())
+    {
+      return proxy;
+    }
+
+    objectIdToProxy_.erase(itr);
+  }
+
+  return nullptr;
+}
+
+void LocalParticipant::registerProxy(const ObjectId id, std::shared_ptr<sen::impl::ProxyObject> proxy)
+{
+  if (proxy)
+  {
+    objectIdToProxy_.insert_or_assign(id, std::move(proxy));
+  }
+}
+
+void LocalParticipant::cleanupExpiredProxies()
+{
+  for (auto itr = objectIdToProxy_.begin(); itr != objectIdToProxy_.end();)
+  {
+    if (itr->second.expired())
+    {
+      itr = objectIdToProxy_.erase(itr);
+      continue;
+    }
+
+    ++itr;
+  }
+}
+
 bool LocalParticipant::handleRejectedPublications(const PublicationRejection& rejections, RemoteParticipant* whom)
 {
 
@@ -275,6 +320,13 @@ void LocalParticipant::drainInputs()
     }
 
     proxyManager->notifyChangesToLocalListeners();
+  }
+
+  // Avoid scanning the cache on every drain, lookups also remove expired entries
+  if (++drainsSinceProxyCleanup_ >= proxyCleanupPeriod)
+  {
+    cleanupExpiredProxies();
+    drainsSinceProxyCleanup_ = 0U;
   }
 }
 

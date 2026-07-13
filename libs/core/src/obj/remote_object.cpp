@@ -264,7 +264,7 @@ bool RemoteObject::responseReceived(MethodResponseData& response)
   PendingResponseContainerType::node_type pendingResponseHandle;
   {  // try to find a matching handle
     MutexLock pendingResponsesLock(pendingResponsesMutex_);
-    auto itr = pendingResponses_.find(response.callId);
+    const auto itr = pendingResponses_.find(response.callId);
     if (itr == pendingResponses_.end())
     {
       return false;

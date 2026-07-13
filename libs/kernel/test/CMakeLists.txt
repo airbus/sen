@@ -28,8 +28,6 @@ if(NOT MSVC)
     # so neither can be registered when the build leaves it out.
     if(SEN_INTEGRATION_TEST_IMAGE AND SEN_BUILD_ETHER)
       add_subdirectory(integration/object_sync)
-    endif()
-    if(SEN_BUILD_ETHER)
       add_subdirectory(integration/interest_filtering)
     endif()
     #   add_subdirectory(integration/stress_tests/high_churn_subs)

@@ -28,16 +28,11 @@ build:
     imports: [test_helpers, interest_filtering]
     objects:
       - name: listener3
-        class: interest_filtering.ListenerTestObjectAll
+        class: interest_filtering.MultipleSubscriptionListener
         bus: session.bus
       - name: listener4
-        class: interest_filtering.ListenerTestObjectQueryFloat
+        class: interest_filtering.MultipleSubscriptionListener
         bus: session.bus
-  - name: listenerComponent4
-    group: 3
-    freqHz: 50
-    imports: [test_helpers, interest_filtering]
-    objects:
       - name: listener5
-        class: interest_filtering.ListenerTestObjectAll
+        class: interest_filtering.MultipleSubscriptionListener
         bus: session.bus
