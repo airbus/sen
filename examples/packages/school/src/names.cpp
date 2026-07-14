@@ -10,6 +10,7 @@
 // std
 #include <cctype>  // std::tolower
 #include <cstddef>
+#include <mutex>
 #include <random>
 #include <string>
 #include <tuple>
@@ -176,17 +177,19 @@ constexpr const char* surNames[] = {
 // clang-format on
 
 // Shared RNG for name generation. Seeded once at startup.
-std::mt19937& getRng()
+std::tuple<std::mt19937&, std::mutex&> getRng()
 {
   static std::mt19937 rng {std::random_device {}()};
-  return rng;
+  static std::mutex rngMutex;
+  return {rng, rngMutex};
 }
 
 }  // namespace
 
 std::tuple<std::string, std::string, std::string> makeName()
 {
-  auto& rng = getRng();
+  auto [rng, rngMutex] = getRng();
+  std::lock_guard lockRng(rngMutex);
 
   constexpr std::size_t firstNameCount = sizeof(firstNames) / sizeof(firstNames[0]);
   constexpr std::size_t surNameCount = sizeof(surNames) / sizeof(surNames[0]);

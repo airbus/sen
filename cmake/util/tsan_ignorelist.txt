@@ -32,8 +32,8 @@ race:pybind11::scoped_interpreter::scoped_interpreter
 signal:sen::impl::defaultCheckHandler
 signal:sen::impl::terminateHandler
 
-# TODO(SEN-1608): race during rnd number generation
-race:std::mersenne_twister_engine
+# TODO(SEN-1758): race when adapting loggers
+race:sen::components::shell::ShellImpl::setInterceptorState
 
 # TODO(SEN-1612): race in asio is_open
 race:asio::detail::reactive_socket_service_base::is_open
