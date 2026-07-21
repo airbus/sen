@@ -30,7 +30,7 @@ class RecorderImpl: public sen::components::recorder::RecorderBase
 public:
   RecorderImpl(const std::string& name, const sen::VarMap& args);
   RecorderImpl(const sen::components::recorder::RecordingSettings& settings, sen::kernel::RunApi& api);
-  ~RecorderImpl() override = default;
+  ~RecorderImpl() override;
 
 protected:
   void startImpl() override;

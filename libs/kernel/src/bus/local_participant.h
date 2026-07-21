@@ -72,6 +72,7 @@ public:
 
 public:
   void connect();
+  void markTornDown() noexcept;
 
 public:  // implements Participant
   [[nodiscard]] ObjectFilterBase& getIncomingInterestManager() noexcept final { return remoteInterestsManager_; }
@@ -150,6 +151,8 @@ private:  // to be accessed from the ProxyManager to check the cache before cons
 
 private:
   impl::Runner* owner_;
+  std::recursive_mutex teardownMutex_;
+  bool tornDown_ {false};
   std::shared_ptr<Session> session_;
   Bus* bus_;
   ObjectOwnerId id_;

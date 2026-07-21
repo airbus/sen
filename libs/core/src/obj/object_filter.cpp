@@ -656,4 +656,21 @@ void ObjectFilter::objectsRemoved(std::shared_ptr<Interest> interest, ObjectRemo
 
 const ObjectOwnerId& ObjectFilter::getOwnerId() const noexcept { return ownerId_; }
 
+bool ObjectFilter::hasActiveListeners()
+{
+  std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
+
+  for (const auto& providerw: providers_)
+  {
+    if (const auto provider = providerw.lock(); provider)
+    {
+      if (provider->hasListeners())
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 }  // namespace sen

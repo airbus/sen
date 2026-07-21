@@ -14,7 +14,7 @@
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/interest.h"
-#include "sen/core/obj/object_list.h"
+#include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
 // generated code
@@ -54,11 +54,11 @@ public:
     const auto bus = api.getSource("se.env");
     bus->add(obj_);
 
-    std::ignore = enumList_.onAdded([this](const auto& /*iterators*/) { enumHits_++; });
+    std::ignore = enumSub_.list.onAdded([this](const auto& /*iterators*/) { enumHits_++; });
 
     const auto enumInterest = sen::Interest::make(
       R"(SELECT query_test.QueryTestClass FROM se.env WHERE currentStatus = "error")", api.getTypes());
-    bus->addSubscriber(enumInterest, &enumList_, true);
+    enumSub_.attachTo(bus, enumInterest, true);
 
     return api.execLoop(sen::Duration::fromHertz(100.0),
                         [this, &api]
@@ -76,6 +76,8 @@ public:
                               sen::throwRuntimeError("Enum query failed to match property change");
                             }
 
+                            enumSub_.release(false);
+
                             api.requestKernelStop(0);
                           }
                           else if (tick_ > 10)
@@ -87,7 +89,7 @@ public:
 
 private:
   std::shared_ptr<query_test::QueryTestClassImpl> obj_;
-  sen::ObjectList<query_test::QueryTestClassInterface> enumList_;
+  sen::Subscription<query_test::QueryTestClassInterface> enumSub_;
   int enumHits_ = 0;
   int tick_ = 0;
 };

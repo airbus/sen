@@ -417,6 +417,14 @@ void Runner::stopThread()
 
   state_.store(ComponentState::stopped);
 
+  for (auto& participant: localParticipants_)
+  {
+    if (auto p = participant.lock())
+    {
+      p->markTornDown();
+    }
+  }
+
   // clear local participants
   localParticipants_.clear();
 

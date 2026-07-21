@@ -106,6 +106,7 @@ public:
                         bool notifyAboutExisting) override;
   void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) override;
   void replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener) override;
+  [[nodiscard]] bool hasActiveListeners() override { return false; }
 
 public:
   void remoteObjectsAdded(InterestId interestId, const ObjectAdditionList& additions);

@@ -9,7 +9,11 @@
 #include "message_dispatcher.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/timestamp.h"
+#include "sen/core/obj/interest.h"
+#include "sen/core/obj/object.h"
+#include "sen/core/obj/object_list.h"
 #include "sen/core/obj/object_source.h"
+#include "sen/core/obj/subscription.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
@@ -27,6 +31,7 @@
 #include <cstdint>
 #include <memory>
 #include <string_view>
+#include <thread>
 #include <utility>
 
 //--------------------------------------------------------------------------------------------------------------
@@ -44,6 +49,12 @@ public:
   ~MyClassImpl() override = default;
   using MyClassBase::somethingHappened;
 };
+
+void runKernelStepAndDestroy(sen::kernel::TestComponent& component)
+{
+  sen::kernel::TestKernel kernel(&component);
+  kernel.step();
+}
 
 //--------------------------------------------------------------------------------------------------------------
 // Tests
@@ -219,4 +230,113 @@ TEST(TestKernel, SafeTeardownWithPendingWork)
   dispatcher->enqueueMessage(std::move(work));
 
   EXPECT_NO_THROW(dispatcher.reset());
+}
+
+/// @test
+/// Verifies that Subscriptions correctly cleaned up before component shutdown do not throw errors
+/// @requirements(SEN-362)
+TEST(TestKernel, SafeSubscriptionLifecycle)
+{
+  sen::kernel::TestComponent component;
+
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      auto source = api.getSource("local.test");
+      sen::Subscription<sen::Object> tempSub;
+      auto interest = sen::Interest::make("SELECT * FROM local.test", api.getTypes());
+      tempSub.attachTo(source, interest, false);
+      return sen::kernel::done();
+    });
+
+  component.onRun([&](auto& api) { return api.execLoop(std::chrono::seconds(1), [&]() {}); });
+
+  EXPECT_NO_THROW(runKernelStepAndDestroy(component));
+}
+
+/// @test
+/// Verifies that holding a Subscription past component shutdown triggers an assertion or ignores safely
+/// @requirements(SEN-362)
+TEST(TestKernel, LateSubscriptionDestructionLifecycle)
+{
+  sen::kernel::TestComponent component;
+  sen::ObjectList<sen::Object> leakedList;
+
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      auto source = api.getSource("local.test");
+      auto interest = sen::Interest::make("SELECT * FROM local.test", api.getTypes());
+      source->addSubscriber(interest, &leakedList, false);
+      return sen::kernel::done();
+    });
+
+  component.onRun([&](auto& api) { return api.execLoop(std::chrono::seconds(1), [&]() {}); });
+
+#if defined(DEBUG)
+  EXPECT_DEATH(runKernelStepAndDestroy(component), ".*");
+#else
+  EXPECT_NO_THROW(runKernelStepAndDestroy(component));
+#endif
+}
+
+/// @test
+/// Verifies that explicit release followed by destructor is a safe no-op
+/// @requirements(SEN-362)
+TEST(TestKernel, SubscriptionTornDownTwice)
+{
+  sen::kernel::TestComponent component;
+  auto sub = std::make_shared<sen::Subscription<sen::Object>>();
+
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      auto source = api.getSource("local.test");
+      auto interest = sen::Interest::make("SELECT * FROM local.test", api.getTypes());
+      sub->attachTo(source, interest, false);
+      return sen::kernel::done();
+    });
+
+  component.onRun([&](auto& api) { return api.execLoop(std::chrono::seconds(1), [&]() {}); });
+
+  runKernelStepAndDestroy(component);
+
+  EXPECT_NO_THROW(sub->release(true));
+}
+
+/// @test
+/// Verifies that destroying a subscription concurrently with component shutdown does not cause crashes or undefined
+/// behavior
+/// @requirements(SEN-362)
+TEST(TestKernel, ConcurrentSubscriptionDestruction)
+{
+  sen::kernel::TestComponent component;
+  auto sub = std::make_shared<sen::Subscription<sen::Object>>();
+
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      auto source = api.getSource("local.test");
+      auto interest = sen::Interest::make("SELECT * FROM local.test", api.getTypes());
+      sub->attachTo(source, interest, false);
+      return sen::kernel::done();
+    });
+
+  component.onRun([&](auto& api) { return api.execLoop(std::chrono::milliseconds(10), [&]() {}); });
+
+  auto kernel = std::make_unique<sen::kernel::TestKernel>(&component);
+  kernel->step();
+
+  std::thread destroyerThread(
+    [&sub]()
+    {
+      std::this_thread::yield();
+      sub->release(true);
+      sub.reset();
+    });
+
+  kernel.reset();
+  destroyerThread.join();
+
+  SUCCEED();
 }
