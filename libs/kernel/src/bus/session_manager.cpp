@@ -190,8 +190,8 @@ std::shared_ptr<Session> SessionManager::getOrOpenSession(const std::string& nam
     }
 
     // create the transport
-    auto transport = name == "local" || factory_ == nullptr ? std::make_unique<EmptyTransport>(name)
-                                                            : factory_(name, kernel_.makeTracer(name));
+    auto transport = name == localSessionName || factory_ == nullptr ? std::make_unique<EmptyTransport>(name)
+                                                                     : factory_(name, kernel_.makeTracer(name));
 
     // create the session
     sessionPtr = std::make_shared<Session>(this, name, std::move(transport), kernel_, messageDispatcher_);

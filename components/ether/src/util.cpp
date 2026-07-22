@@ -24,8 +24,10 @@
 #include <spdlog/logger.h>
 
 // std
+#include <cstdint>
 #include <stdexcept>
 #include <tuple>
+#include <variant>
 
 #ifdef __linux
 #  include <sys/socket.h>
@@ -38,6 +40,15 @@ namespace sen::components::ether
 {
 
 std::shared_ptr<spdlog::logger> getLogger() { return kernel::KernelApi::getOrCreateLogger("ether"); }
+
+uint16_t getBusDiscoveryPort(const Configuration& config) noexcept
+{
+  if (const auto* multicastConfig = std::get_if<MulticastDiscovery>(&config.discovery))
+  {
+    return multicastConfig->port;
+  }
+  return defaultDiscoveryPort;
+}
 
 void configureMulticastSocket(asio::ip::udp::socket& socket,
                               asio::ip::udp::endpoint multicastEndpoint,
