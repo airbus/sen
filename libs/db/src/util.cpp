@@ -21,6 +21,7 @@
 // spdlog
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 // lz4
 #include "lz4.h"
@@ -72,7 +73,12 @@ void doWrite(const Span<const uint8_t>& span, FILE* file)
 
 std::shared_ptr<spdlog::logger> getLogger()
 {
-  static auto logger = spdlog::stdout_color_mt("sen.db");
+  static auto logger = []
+  {
+    constexpr auto loggerName = "sen.db";
+    auto logger = spdlog::get(loggerName);
+    return logger ? logger : spdlog::stdout_color_mt(loggerName);
+  }();
   return logger;
 }
 

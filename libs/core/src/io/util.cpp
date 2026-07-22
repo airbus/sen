@@ -34,6 +34,8 @@
 
 // spdlog
 #include <spdlog/logger.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 // std
 #include <cstddef>
@@ -54,7 +56,12 @@ namespace
 
 std::shared_ptr<spdlog::logger> getLogger()
 {
-  static auto logger = std::make_shared<spdlog::logger>("io");
+  static auto logger = []
+  {
+    constexpr auto loggerName = "sen.io";
+    auto logger = spdlog::get(loggerName);
+    return logger ? logger : spdlog::stdout_color_mt(loggerName);
+  }();
   return logger;
 }
 

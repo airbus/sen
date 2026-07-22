@@ -48,7 +48,7 @@ namespace sen::components::py
 
 std::shared_ptr<spdlog::logger> getLogger()
 {
-  static auto logger = std::make_shared<spdlog::logger>("py");
+  static auto logger = kernel::KernelApi::getOrCreateLogger("py");
   return logger;
 }
 
