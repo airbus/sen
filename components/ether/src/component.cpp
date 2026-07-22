@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // component
+#include "bus_handler.h"
 #include "discovery.h"
 #include "ether_transport.h"
 #include "network_exclusion.h"
@@ -34,9 +35,9 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <tuple>
 #include <utility>
 #include <variant>
+#include <vector>
 
 // asio
 #include <asio/io_context.hpp>
@@ -52,13 +53,13 @@ namespace
 //--------------------------------------------------------------------------------------------------------------
 
 constexpr const char* defaultDiscoveryGroup = "239.255.0.44";
-constexpr uint16_t defaultDiscoveryPort = 60543;
 constexpr auto defaultBeamingPeriod = std::chrono::milliseconds(1000);
 constexpr uint64_t defaultBusWarningLevel = 100U;
 constexpr uint16_t defaultMulticastPort = 50985;
 constexpr uint8_t multicastByteZero = 239;
 constexpr uint8_t multicastByteOneMin = 192;
 constexpr uint8_t multicastByteOneMax = 195;
+constexpr double multicastCollisionProbabilityWarningThreshold = 0.05;
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -72,6 +73,37 @@ constexpr uint8_t multicastByteOneMax = 195;
 [[nodiscard]] bool isEqualsIgnoreCase(const std::string& a, const std::string& b) noexcept
 {
   return std::equal(a.begin(), a.end(), b.begin(), b.end(), charIsEqualsIgnoreCase);
+}
+
+[[nodiscard]] Result<void, std::string> validateConfiguredMulticastBuses(
+  const std::vector<kernel::BusAddress>& configuredBusAddresses,
+  const Configuration& config,
+  const MulticastExclusions& exclusions)
+{
+  auto analysisResult = analyzeConfiguredMulticastBuses(
+    configuredBusAddresses, getBusDiscoveryPort(config), config.busConfig.multicastRange, exclusions);
+  if (analysisResult.isError())
+  {
+    return Err(std::move(analysisResult).getError());
+  }
+
+  const auto& analysis = analysisResult.getValue();
+  if (!analysis.selfCollisions.empty())
+  {
+    return Err(formatMulticastSelfCollision(analysis.selfCollisions.front()));
+  }
+
+  if (analysis.collisionProbability >= multicastCollisionProbabilityWarningThreshold)
+  {
+    getLogger()->warn(
+      "multicast self-collision probability is high "
+      "(configured buses: {}, usable addresses: {}, probability: {:.2f}%)",
+      analysis.allocations.size(),
+      analysis.usableAddressCount,
+      analysis.collisionProbability * 100.0);
+  }
+
+  return Ok();
 }
 
 }  // namespace
@@ -103,13 +135,14 @@ public:
     }
     exclusions_ = std::move(exclusionsResult).getValue();
 
-    if (!config_.busConfig.multicastDisabled &&
-        !hasUsableMulticastAddress(config_.busConfig.multicastRange, exclusions_.multicast))
+    if (!config_.busConfig.multicastDisabled)
     {
-      return Err(kernel::ExecError {
-        kernel::ErrorCategory::expectationsNotMet,
-        "multicast address range has no usable addresses after applying exclusions",
-      });
+      if (auto collisionCheck =
+            validateConfiguredMulticastBuses(api.getConfiguredBusAddresses(), config_, exclusions_.multicast);
+          collisionCheck.isError())
+      {
+        return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, std::move(collisionCheck).getError()});
+      }
     }
 
     discovery_ = DiscoverySystem::make(config_, io_);

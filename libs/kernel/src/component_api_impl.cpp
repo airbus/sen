@@ -36,6 +36,7 @@
 #include <spdlog/spdlog.h>
 
 // std
+#include <algorithm>
 #include <atomic>
 #include <cstdint>
 #include <functional>
@@ -43,9 +44,52 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace sen::kernel
 {
+
+namespace
+{
+
+[[nodiscard]] bool isEtherBusAddress(const BusAddress& address) noexcept
+{
+  return !address.sessionName.empty() && !address.busName.empty() && address.sessionName != "local";
+}
+
+[[nodiscard]] std::optional<BusAddress> tryParseBusAddress(const std::string& address)
+{
+  const auto tokens = ::sen::impl::split(address, '.');
+  if (tokens.size() != 2U)
+  {
+    return std::nullopt;
+  }
+  return BusAddress {tokens.at(0U), tokens.at(1U)};
+}
+
+void addUniqueBusAddress(std::vector<BusAddress>& busAddresses, const BusAddress& address)
+{
+  if (!isEtherBusAddress(address))
+  {
+    return;
+  }
+
+  const auto alreadyAdded = std::find(busAddresses.begin(), busAddresses.end(), address) != busAddresses.end();
+  if (!alreadyAdded)
+  {
+    busAddresses.push_back(address);
+  }
+}
+
+void addUniqueBusAddress(std::vector<BusAddress>& busAddresses, const std::string& address)
+{
+  if (const auto parsedAddress = tryParseBusAddress(address))
+  {
+    addUniqueBusAddress(busAddresses, *parsedAddress);
+  }
+}
+
+}  // namespace
 
 namespace impl
 {
@@ -134,8 +178,8 @@ std::shared_ptr<ObjectSource> KernelApi::getSource(const BusAddress& address)
 
 std::shared_ptr<ObjectSource> KernelApi::getSource(const std::string& address)
 {
-  auto tokens = ::sen::impl::split(address, '.');
-  if (tokens.size() != 2U)
+  const auto parsedAddress = tryParseBusAddress(address);
+  if (!parsedAddress)
   {
     std::string err;
     err.append("invalid bus address '");
@@ -144,7 +188,7 @@ std::shared_ptr<ObjectSource> KernelApi::getSource(const std::string& address)
     throwRuntimeError(err);
   }
 
-  return getSource(BusAddress {tokens.at(0U), tokens.at(1U)});
+  return getSource(*parsedAddress);
 }
 
 SessionsDiscoverer& KernelApi::getSessionsDiscoverer() noexcept { return impl::getSessionsDiscoverer(runner_); }
@@ -155,6 +199,29 @@ const ProcessInfo* KernelApi::fetchOwnerInfo(const Object* object) const noexcep
 }
 
 const std::string& KernelApi::getAppName() const noexcept { return kernel_.getConfig().getParams().appName; }
+
+std::vector<BusAddress> KernelApi::getConfiguredBusAddresses() const
+{
+  std::vector<BusAddress> configuredBusAddresses;
+  const auto& config = kernel_.getConfig();
+
+  addUniqueBusAddress(configuredBusAddresses, config.getParams().bus);
+  const auto runMode = config.getParams().runMode;
+  if (runMode == RunMode::virtualTime || runMode == RunMode::virtualTimeRunning)
+  {
+    addUniqueBusAddress(configuredBusAddresses, config.getParams().clockBus);
+  }
+
+  for (const auto& pipeline: config.getPipelinesToLoad())
+  {
+    for (const auto& object: pipeline.objects)
+    {
+      addUniqueBusAddress(configuredBusAddresses, object.bus);
+    }
+  }
+
+  return configuredBusAddresses;
+}
 
 ::sen::impl::WorkQueue* KernelApi::getWorkQueue() const noexcept { return impl::getWorkQueue(runner_); }
 

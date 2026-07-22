@@ -8,6 +8,7 @@
 #include "network_exclusion.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/result.h"
 
@@ -33,6 +34,7 @@
 #endif
 
 // std
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -597,13 +599,127 @@ Result<NetworkExclusions, std::string> makeNetworkExclusions(const Configuration
 
 bool hasUsableMulticastAddress(const MulticastRange& range, const MulticastExclusions& exclusions)
 {
-  asio::ip::address_v4::bytes_type bytes {};
-  for (std::size_t index = 0; index < bytes.size(); ++index)
+  return usableMulticastAddressCount(range, exclusions) != 0U;
+}
+
+namespace
+{
+
+/// Counts all the addresses in the configured multicast range and including limit.
+[[nodiscard]] uint64_t countMulticastAddressesUpTo(const MulticastRange& range, uint32_t limit)
+{
+  const auto limitBytes = asio::ip::make_address_v4(limit).to_bytes();
+  uint64_t loosePrefixCount = 0;
+  uint64_t tightPrefixCount = 1;
+
+  for (std::size_t index = 0; index < range.size(); ++index)
   {
-    bytes.at(index) = range.at(index).min;
+    const auto& byteRange = range.at(index);
+    const auto limitByte = limitBytes.at(index);
+    const auto byteRangeSize = static_cast<uint64_t>(byteRange.max) - static_cast<uint64_t>(byteRange.min) + 1U;
+
+    uint64_t nextLoosePrefixCount = loosePrefixCount * byteRangeSize;
+    uint64_t nextTightPrefixCount = 0;
+
+    for (uint32_t byte = byteRange.min; byte <= byteRange.max; ++byte)
+    {
+      if (byte < limitByte)
+      {
+        nextLoosePrefixCount += tightPrefixCount;
+      }
+      else if (byte == limitByte)
+      {
+        nextTightPrefixCount += tightPrefixCount;
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    loosePrefixCount = nextLoosePrefixCount;
+    tightPrefixCount = nextTightPrefixCount;
   }
 
-  return getUsableMulticastAddress(asio::ip::address_v4(bytes), range, exclusions).has_value();
+  return loosePrefixCount + tightPrefixCount;
+}
+
+[[nodiscard]] uint64_t countMulticastRangeValuesInInterval(const MulticastRange& range, uint32_t min, uint32_t max)
+{
+  if (min > max)
+  {
+    return 0;
+  }
+
+  const auto valuesUpToMax = countMulticastAddressesUpTo(range, max);
+  if (min == 0)
+  {
+    return valuesUpToMax;
+  }
+
+  return valuesUpToMax - countMulticastAddressesUpTo(range, min - 1U);
+}
+
+/// Counts usable multicast range addresses after applying exclusions.
+[[nodiscard]] uint64_t countUsableMulticastAddressesUpTo(const MulticastRange& range,
+                                                         const MulticastExclusions& exclusions,
+                                                         uint32_t limit)
+{
+  auto usableAddressCount = countMulticastAddressesUpTo(range, limit);
+
+  for (const auto& exclusionRange: exclusions.ranges())
+  {
+    if (exclusionRange.min > limit)
+    {
+      break;
+    }
+
+    const auto excludedIntervalMax = std::min(exclusionRange.max, limit);
+    usableAddressCount -= countMulticastRangeValuesInInterval(range, exclusionRange.min, excludedIntervalMax);
+  }
+
+  return usableAddressCount;
+}
+
+}  // namespace
+
+uint64_t usableMulticastAddressCount(const MulticastRange& range, const MulticastExclusions& exclusions)
+{
+  return countUsableMulticastAddressesUpTo(range, exclusions, std::numeric_limits<uint32_t>::max());
+}
+
+std::optional<asio::ip::address_v4> getUsableMulticastAddressAtIndex(uint64_t usableIndex,
+                                                                     const MulticastRange& range,
+                                                                     const MulticastExclusions& exclusions)
+{
+  const auto usableAddressCount = usableMulticastAddressCount(range, exclusions);
+  if (usableIndex >= usableAddressCount)
+  {
+    return std::nullopt;
+  }
+
+  // the number of usable address up to each candidate never decreases
+  // use binary search to find the requested address
+  uint32_t lowerAddress = 0;
+  uint32_t upperAddress = std::numeric_limits<uint32_t>::max();
+  while (lowerAddress < upperAddress)
+  {
+    const auto addressDistance = upperAddress - lowerAddress;
+    const auto candidateAddress = lowerAddress + (addressDistance / 2U);
+    const auto candidateUsableCount = countUsableMulticastAddressesUpTo(range, exclusions, candidateAddress);
+
+    if (candidateUsableCount > usableIndex)
+    {
+      upperAddress = candidateAddress;
+    }
+    else
+    {
+      lowerAddress = candidateAddress + 1U;
+    }
+  }
+
+  SEN_ENSURE(!exclusions.isExcluded(lowerAddress));
+  return asio::ip::make_address_v4(lowerAddress);
 }
 
 [[nodiscard]] std::optional<asio::ip::address_v4> getUsableMulticastAddress(asio::ip::address_v4 candidate,

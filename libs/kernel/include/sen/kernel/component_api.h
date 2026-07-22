@@ -139,6 +139,9 @@ public:
   /// Gets the (optional) application name passed to the kernel as a configuration parameter
   [[nodiscard]] const std::string& getAppName() const noexcept;
 
+  /// Gets configured non-local bus addresses
+  [[nodiscard]] std::vector<BusAddress> getConfiguredBusAddresses() const;
+
   /// The work queue of this runner
   [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue() const noexcept;
 

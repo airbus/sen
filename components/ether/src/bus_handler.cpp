@@ -15,9 +15,11 @@
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/base/memory_block.h"
+#include "sen/core/base/result.h"
 #include "sen/core/base/span.h"
 #include "sen/core/io/buffer_writer.h"
 #include "sen/core/io/input_stream.h"
@@ -28,6 +30,7 @@
 
 // generated code
 #include "stl/configuration.stl.h"
+#include "stl/sen/kernel/basic_types.stl.h"
 
 // asio
 #include <asio/buffer.hpp>
@@ -42,13 +45,14 @@
 #include <asio/system_error.hpp>
 
 // std
-#include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -64,19 +68,28 @@ namespace
 
 constexpr uint32_t busHashSeed = 15071983;
 
-//--------------------------------------------------------------------------------------------------------------
-// Helpers
-//--------------------------------------------------------------------------------------------------------------
-
-uint8_t clamp(uint8_t val, const ByteRange& range) { return std::clamp(val, range.min, range.max); }
-
-uint8_t computeByte(const ByteRange& byteRange, uint8_t hash)
+[[nodiscard]] std::string formatBusAddress(const kernel::BusAddress& address)
 {
-  uint8_t minMulticastRange = byteRange.min;  // valid multicast addresses start here
-  uint8_t maxMulticastRange = byteRange.max;  // valid multicast addresses end here
-  uint8_t multicastRangeLen = maxMulticastRange - minMulticastRange;
-  return (multicastRangeLen != 0) ? minMulticastRange + (hash % multicastRangeLen) : minMulticastRange;
+  std::string formattedAddress = address.sessionName;
+  formattedAddress.push_back('.');
+  formattedAddress.append(address.busName);
+  return formattedAddress;
 }
+
+/// Estimates collision probability using the birthday problem
+[[nodiscard]] double computeBirthdayCollisionProbability(std::size_t busCount, uint64_t usableAddressCount) noexcept
+{
+  if (busCount < 2U || usableAddressCount == 0U)
+  {
+    return 0.0;
+  }
+
+  const auto n = sen::std_util::checkedConversion<double>(busCount);
+  const auto usableSpace = sen::std_util::checkedConversion<double>(usableAddressCount);
+  return 1.0 - std::exp(-(n * (n - 1.0)) / (2.0 * usableSpace));
+}
+
+}  // namespace
 
 asio::ip::address computeMulticastAddress(uint32_t sessionId,
                                           uint32_t busId,
@@ -85,33 +98,81 @@ asio::ip::address computeMulticastAddress(uint32_t sessionId,
                                           const MulticastExclusions& exclusions)
 {
   const auto hash = hashCombine(busHashSeed, sessionId, busId, discoveryPort);
-  const auto hashBytes = reinterpret_cast<const uint8_t*>(&hash);  // NOLINT
-
-  const uint8_t byte0 = computeByte(range[0], hashBytes[0]);  // NOLINT
-  const uint8_t byte1 = computeByte(range[1], hashBytes[1]);  // NOLINT
-  const uint8_t byte2 = computeByte(range[2], hashBytes[2]);  // NOLINT
-  const uint8_t byte3 = computeByte(range[3], hashBytes[3]);  // NOLINT
-
-  // NOLINTNEXTLINE
-  asio::ip::address_v4::bytes_type bytes = {byte0, byte1, byte2, byte3};
-
-  for (std::size_t i = 0; i < bytes.size(); ++i)
+  const auto usableAddressCount = usableMulticastAddressCount(range, exclusions);
+  if (usableAddressCount == 0U)
   {
-    bytes[i] = clamp(bytes[i], range[i]);  // NOLINT
+    throwRuntimeError("multicast address range has no usable addresses after applying exclusions");
   }
 
-  const auto address = getUsableMulticastAddress(asio::ip::address_v4(bytes), range, exclusions);
-
-  if (!address)
-  {
-    throwRuntimeError("multicast address range has no usable addresses after aplying exclusions");
-  }
-
+  const auto usableAddressIndex = hash % usableAddressCount;
+  const auto address = getUsableMulticastAddressAtIndex(usableAddressIndex, range, exclusions);
+  SEN_ENSURE(address.has_value());
   SEN_ENSURE(address->is_multicast());
   return *address;
 }
 
-}  // namespace
+Result<MulticastCollisionAnalysis, std::string> analyzeConfiguredMulticastBuses(
+  const std::vector<kernel::BusAddress>& configuredBusAddresses,
+  uint16_t discoveryPort,
+  const MulticastRange& range,
+  const MulticastExclusions& exclusions)
+{
+  MulticastCollisionAnalysis analysis;
+  analysis.usableAddressCount = usableMulticastAddressCount(range, exclusions);
+  if (analysis.usableAddressCount == 0U)
+  {
+    return Err(std::string("multicast address range has no usable addresses after applying exclusions"));
+  }
+
+  analysis.allocations.reserve(configuredBusAddresses.size());
+  std::unordered_map<uint32_t, std::size_t> allocationIndexByGroupAddress;
+  allocationIndexByGroupAddress.reserve(configuredBusAddresses.size());
+
+  for (const auto& busAddress: configuredBusAddresses)
+  {
+    const auto sessionId = crc32(busAddress.sessionName);
+    const auto busId = crc32(busAddress.busName);
+    const auto groupAddress = computeMulticastAddress(sessionId, busId, discoveryPort, range, exclusions).to_v4();
+    ConfiguredBusMulticastAllocation allocation {busAddress, sessionId, busId, groupAddress};
+
+    const auto [groupItr, inserted] =
+      allocationIndexByGroupAddress.try_emplace(groupAddress.to_uint(), analysis.allocations.size());
+    if (!inserted)
+    {
+      const auto& existingAllocation = analysis.allocations.at(groupItr->second);
+      if (existingAllocation.busAddress == busAddress)
+      {
+        continue;
+      }
+      analysis.selfCollisions.push_back(MulticastSelfCollision {existingAllocation, allocation});
+    }
+
+    analysis.allocations.push_back(std::move(allocation));
+  }
+
+  analysis.collisionProbability =
+    computeBirthdayCollisionProbability(analysis.allocations.size(), analysis.usableAddressCount);
+  return Ok(std::move(analysis));
+}
+
+std::string formatMulticastSelfCollision(const MulticastSelfCollision& collision)
+{
+  std::string error = "multicast self-collision: buses '";
+  error.append(formatBusAddress(collision.firstAllocation.busAddress));
+  error.append("' (sessionId=");
+  error.append(std::to_string(collision.firstAllocation.sessionId));
+  error.append(", busId=");
+  error.append(std::to_string(collision.firstAllocation.busId));
+  error.append(") and '");
+  error.append(formatBusAddress(collision.secondAllocation.busAddress));
+  error.append("' (sessionId=");
+  error.append(std::to_string(collision.secondAllocation.sessionId));
+  error.append(", busId=");
+  error.append(std::to_string(collision.secondAllocation.busId));
+  error.append(") both map to ");
+  error.append(collision.firstAllocation.groupAddress.to_string());
+  return error;
+}
 
 //--------------------------------------------------------------------------------------------------------------
 // BusHandler

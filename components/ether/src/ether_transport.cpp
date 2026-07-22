@@ -50,7 +50,6 @@
 #include <thread>
 #include <tuple>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace sen::components::ether
@@ -468,14 +467,17 @@ void EtherTransport::localParticipantJoinedBus(ObjectOwnerId participant, kernel
   {
     const auto procId = ownInfo_.processId;
 
-    uint16_t port = 60543;
-    if (std::holds_alternative<MulticastDiscovery>(config_.discovery))
-    {
-      port = std::get<MulticastDiscovery>(config_.discovery).port;
-    }
-
-    auto handler = BusHandler::make(
-      sessionId_, bus, busName, procId, listener_, port, *io_, config_, *tracer_, counters_, exclusions_.multicast);
+    auto handler = BusHandler::make(sessionId_,
+                                    bus,
+                                    busName,
+                                    procId,
+                                    listener_,
+                                    getBusDiscoveryPort(config_),
+                                    *io_,
+                                    config_,
+                                    *tracer_,
+                                    counters_,
+                                    exclusions_.multicast);
     handler->startReading();
 
     auto [itr, done] = busMap_.try_emplace(bus, std::move(handler));
