@@ -10,6 +10,7 @@
 #include "discovery.h"
 #include "ether_transport.h"
 #include "network_exclusion.h"
+#include "network_footprint.h"
 #include "tcp_discovery_hub.h"
 #include "util.h"
 
@@ -17,6 +18,7 @@
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/result.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/var.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
@@ -135,10 +137,11 @@ public:
     }
     exclusions_ = std::move(exclusionsResult).getValue();
 
+    auto configuredBusAddresses = api.getConfiguredBusAddresses();
     if (!config_.busConfig.multicastDisabled)
     {
       if (auto collisionCheck =
-            validateConfiguredMulticastBuses(api.getConfiguredBusAddresses(), config_, exclusions_.multicast);
+            validateConfiguredMulticastBuses(configuredBusAddresses, config_, exclusions_.multicast);
           collisionCheck.isError())
       {
         return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, std::move(collisionCheck).getError()});
@@ -160,6 +163,10 @@ public:
         return std::make_unique<EtherTransport>(config_, session, appName, discovery_, std::move(tracer), exclusions_);
       },
       etherProtocolVersion);
+    api.installFootprintReporter(
+      [this,
+       configuredBusAddresses = std::move(configuredBusAddresses)](Span<const kernel::BusAddress> suppliedBusAddresses)
+      { return makeNetworkFootprint(configuredBusAddresses, suppliedBusAddresses, config_, exclusions_); });
     return done();
   }
 

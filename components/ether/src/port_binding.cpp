@@ -52,27 +52,6 @@ namespace
   return "unknown";
 }
 
-[[nodiscard]] const PortBinding& getPortBinding(const Configuration& config, PortKind kind)
-{
-  static const PortBinding ephemeral = Ephemeral {};
-
-  if (!config.portConfig)
-  {
-    return ephemeral;
-  }
-
-  switch (kind)
-  {
-    case PortKind::tcpAcceptor:
-      return config.portConfig->tcpAcceptor;
-    case PortKind::udpUnicast:
-      return config.portConfig->udpUnicast;
-    case PortKind::tcpSource:
-      return config.portConfig->tcpSource;
-  }
-  return ephemeral;
-}
-
 [[nodiscard]] std::string excludedByToString(uint16_t port, const PortExclusionSources& exclusions)
 {
   std::ostringstream stream;
@@ -301,6 +280,27 @@ void bindProbe(PortKind kind,
 }
 
 }  // namespace
+
+[[nodiscard]] const PortBinding& getPortBinding(const Configuration& config, PortKind kind)
+{
+  static const PortBinding ephemeral = Ephemeral {};
+
+  if (!config.portConfig)
+  {
+    return ephemeral;
+  }
+
+  switch (kind)
+  {
+    case PortKind::tcpAcceptor:
+      return config.portConfig->tcpAcceptor;
+    case PortKind::udpUnicast:
+      return config.portConfig->udpUnicast;
+    case PortKind::tcpSource:
+      return config.portConfig->tcpSource;
+  }
+  return ephemeral;
+}
 
 void bindConfiguredPort(const Configuration& config,
                         const PortExclusionSources& exclusions,

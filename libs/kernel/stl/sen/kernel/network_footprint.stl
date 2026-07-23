@@ -1,0 +1,135 @@
+package sen.kernel;
+
+// Bus source
+enum NetworkFootprintBusSource : u8
+{
+  configured, // Read from process configuration
+  supplied,   // Added when requesting an offline report
+  runtime     // Discovered from the buses that are live in the process
+}
+
+// Names and IDs that identify a bus
+struct NetworkFootprintBusIdentity
+{
+  sessionName : string,
+  busName     : string,
+  sessionId   : u32,
+  busId       : u32
+}
+
+// Multicast endpoint allocated to a bus
+struct NetworkFootprintBus
+{
+  sessionName  : string,
+  busName      : string,
+  sessionId    : u32,
+  busId        : u32,
+  groupAddress : string,
+  source       : NetworkFootprintBusSource
+}
+
+// Buses included in a network footprint
+sequence<NetworkFootprintBus> NetworkFootprintBusList;
+
+// Inclusive IPv4 address range excluded from multicast allocation
+struct NetworkFootprintAddressRange
+{
+  min : string,
+  max : string
+}
+
+sequence<NetworkFootprintAddressRange> NetworkFootprintAddressRangeList;
+
+// Two buses allocated to the same multicast group
+struct NetworkFootprintSelfCollision
+{
+  firstBus     : NetworkFootprintBusIdentity,
+  secondBus    : NetworkFootprintBusIdentity,
+  groupAddress : string
+}
+
+// Multicast address conflicts found in the reported buses
+sequence<NetworkFootprintSelfCollision> NetworkFootprintSelfCollisionList;
+
+// Multicast allocation capacity and collision information
+struct NetworkFootprintCollision
+{
+  usableSpaceSize : u64,                               // Number of addresses available
+  busCount        : u64,                               // Number of reported buses
+  probability     : f64,                               // Estimated conflict from 0 to 1
+  selfCollisions  : NetworkFootprintSelfCollisionList  // Collisions in the reported buses
+}
+
+// Multicast information in the network footprint
+struct NetworkFootprintMulticast
+{
+  port       : u16,                               // Shared multicast port used by every bus
+  buses      : NetworkFootprintBusList,           // Multicast address used by each bus
+  exclusions : NetworkFootprintAddressRangeList,  // Addresses that cannot be used
+  collision  : NetworkFootprintCollision          // Available addresses and conflict information
+}
+
+optional<NetworkFootprintMulticast> MaybeNetworkFootprintMulticast;
+
+// Type of socket opened by the process
+enum NetworkFootprintPortKind : u8
+{
+  tcpAcceptor,
+  udpUnicast,
+  tcpSource
+}
+
+// Port allocation policy
+enum NetworkFootprintPortMode : u8
+{
+  ephemeral,
+  probe,
+  pinned
+}
+
+// Inclusive range from which a port may be selected
+struct NetworkFootprintPortRange
+{
+  min : u16,
+  max : u16
+}
+
+// Known port number or range
+variant NetworkFootprintPortValue
+{
+  u16,
+  NetworkFootprintPortRange
+}
+
+// The value is not present when the port number is not known
+optional<NetworkFootprintPortValue> MaybeNetworkFootprintPortValue;
+
+// Socket type, port selection mode and port value
+struct NetworkFootprintPort
+{
+  kind  : NetworkFootprintPortKind,
+  mode  : NetworkFootprintPortMode,
+  value : MaybeNetworkFootprintPortValue
+}
+
+// Ports used by the process
+sequence<NetworkFootprintPort> NetworkFootprintPortList;
+
+sequence<NetworkFootprintPortRange> NetworkFootprintPortRangeList;
+
+// Port ranges that cannot be used
+struct NetworkFootprintPortExclusions
+{
+  builtIn         : NetworkFootprintPortRangeList,
+  configured      : NetworkFootprintPortRangeList,
+  operatingSystem : NetworkFootprintPortRangeList
+}
+
+// Network endpoints predicted offline or observed at runtime for one process
+struct NetworkFootprint
+{
+  discoveryPort  : u16,                             // Discovery port used to calculate multicast addresses
+  multicast      : MaybeNetworkFootprintMulticast,  // Multicast allocation details
+  ports          : NetworkFootprintPortList,        // Port settings
+  portExclusions : NetworkFootprintPortExclusions   // Port ranges that cannot be used
+}

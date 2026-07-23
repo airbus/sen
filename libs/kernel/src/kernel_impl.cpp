@@ -17,15 +17,18 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/move_only_function.h"
 #include "sen/core/base/span.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/var.h"
+#include "sen/kernel/component_api.h"
 #include "sen/kernel/kernel.h"
 #include "sen/kernel/kernel_config.h"
 #include "sen/kernel/tracer.h"
 
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // spdlog
 #include <spdlog/logger.h>
@@ -287,6 +290,16 @@ std::unique_ptr<Tracer> KernelImpl::makeTracer(std::string_view contextName) { r
 
 void KernelImpl::installTracerFactory(TracerFactory&& factory) { tracerFactory_ = std::move(factory); }
 
+void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter)
+{
+  networkReport_ = std::move(reporter);
+}
+
+NetworkFootprint KernelImpl::getNetworkFootprint(Span<const BusAddress> busAddresses) const
+{
+  return networkReport_(busAddresses);
+}
+
 Span<const ComponentInfo> KernelImpl::getImportedPackages() const noexcept { return importedPackages_; }
 
 Span<const ComponentInfo> KernelImpl::getLoadedComponents() const noexcept { return loadedComponents_; }
@@ -317,10 +330,12 @@ void KernelImpl::registerImportedPackages(Span<const ComponentInfo> packages)
 extern "C" SEN_EXPORT void get0x2cfc8aa4Types(::sen::ExportedTypesList& types);  // basic_types.stl
 extern "C" SEN_EXPORT void get0xf7949d6aTypes(::sen::ExportedTypesList& types);  // log.stl
 extern "C" SEN_EXPORT void get0xc817451aTypes(::sen::ExportedTypesList& types);  // type_specs.stl
+extern "C" SEN_EXPORT void get0x982f88ecTypes(::sen::ExportedTypesList& types);  // network_footprint.stl
 
 extern "C" SEN_EXPORT void get0x5b269ebdTypes(::sen::ExportedTypesList& types)
 {
   get0x2cfc8aa4Types(types);
   get0xf7949d6aTypes(types);
   get0xc817451aTypes(types);
+  get0x982f88ecTypes(types);
 }
