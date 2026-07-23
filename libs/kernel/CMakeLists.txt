@@ -14,6 +14,7 @@ set(kernel_stl_files
     stl/sen/kernel/log.stl
     stl/sen/kernel/basic_types.stl
     stl/sen/kernel/kernel_objects.stl
+    stl/sen/kernel/network_footprint.stl
     stl/sen/kernel/type_specs.stl
 )
 
