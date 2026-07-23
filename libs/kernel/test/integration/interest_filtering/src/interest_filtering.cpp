@@ -343,4 +343,98 @@ private:
 
 SEN_EXPORT_CLASS(MultipleSubscriptionListener)
 
+// This listener does the following:
+// - check1: dynamically creates a subscription and detects the test object.
+// - check2: removes the first subscription and creates three new ones: two matches, one non match.
+//           Verifies that the object pointers match the one from the first subscription and that no match stays empty.
+class DynamicSubscriptionListener final: public sen::test::ListenerImpl
+{
+public:
+  using ListenerImpl::ListenerImpl;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    ListenerImpl::update(runApi);
+
+    // perform check1 once the first subscription detects the object
+    if (getState() == sen::test::ConnectionState::step1 && list1_.getObjects().size() == 1)
+    {
+      if (!ptr1_)
+      {
+        ptr1_ = *list1_.getObjects().begin();
+        ListenerImpl::check1();
+      }
+    }
+
+    // perform check2 once the dynamic subscriptions are resolved
+    if (getState() == sen::test::ConnectionState::step2 && listNoMatch_.getObjects().empty() &&
+        list2_.getObjects().size() == 1 && list3_.getObjects().size() == 1)
+    {
+      if (!ptr2_)
+      {
+        ptr2_ = *list2_.getObjects().begin();
+        ptr3_ = *list3_.getObjects().begin();
+
+        // Check that dynamically created subscriptions point to the exact same object proxy
+        SEN_ASSERT(ptr2_ == ptr3_);
+        SEN_ASSERT(ptr2_ == ptr1_);
+
+        ListenerImpl::check2();
+      }
+    }
+  }
+
+protected:
+  void check1() override
+  {
+    bus_ = getApi()->getSource("session.bus");
+
+    bus_->addSubscriber(
+      sen::Interest::make(
+        "SELECT interest_filtering.TestObject FROM session.bus WHERE name = \"publisher1_testObject\"",
+        getApi()->getTypes()),
+      &list1_,
+      true);
+  }
+
+  void check2() override
+  {
+    bus_->addSubscriber(
+      sen::Interest::make(
+        "SELECT interest_filtering.TestObject FROM session.bus WHERE name = \"publisher1_testObject\"",
+        getApi()->getTypes()),
+      &list2_,
+      true);
+
+    bus_->addSubscriber(
+      sen::Interest::make("SELECT interest_filtering.TestObject FROM session.bus WHERE boolProp = true",
+                          getApi()->getTypes()),
+      &list3_,
+      true);
+
+    bus_->addSubscriber(
+      sen::Interest::make("SELECT interest_filtering.TestObject FROM session.bus WHERE floatProp < 0.0",
+                          getApi()->getTypes()),
+      &listNoMatch_,
+      true);
+
+    // Remove the initial subscription
+    bus_->removeSubscriber(&list1_, true);
+  }
+
+private:
+  std::shared_ptr<sen::ObjectSource> bus_;
+  sen::ObjectList<TestObjectInterface> list1_;
+  sen::ObjectList<TestObjectInterface> listNoMatch_;
+  sen::ObjectList<TestObjectInterface> list2_;
+  sen::ObjectList<TestObjectInterface> list3_;
+
+  TestObjectInterface* ptr1_ = nullptr;
+  TestObjectInterface* ptr2_ = nullptr;
+  TestObjectInterface* ptr3_ = nullptr;
+};
+
+SEN_EXPORT_CLASS(DynamicSubscriptionListener)
+
 }  // namespace interest_filtering
