@@ -373,6 +373,12 @@ TEST(Var, timestamp)
   EXPECT_EQ(getCopyAs<Duration>(var), time.sinceEpoch());
   EXPECT_EQ(getCopyAs<TimeStamp>(var), time);
   EXPECT_EQ(sen::toJson(var), '\"' + getCopyAs<std::string>(var) + '\"');
+
+  const Var invalidVar1(std::string {"1783661760000000000"});
+  const Var invalidVar2(std::string {"invalid_timestamp_format"});
+
+  EXPECT_ANY_THROW(std::ignore = getCopyAs<TimeStamp>(invalidVar1));
+  EXPECT_ANY_THROW(std::ignore = getCopyAs<TimeStamp>(invalidVar2));
 }
 
 /// @test

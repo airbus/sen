@@ -280,7 +280,13 @@ struct Converter
     // timestamps
     if constexpr (std::is_same_v<TimeStamp, To>)
     {
-      return TimeStamp::make(str).getValue();  // NOLINT
+      auto res = TimeStamp::make(str);
+      if (res.isError())
+      {
+        throwRuntimeError(res.getError());
+      }
+
+      return res.getValue();
     }
 
     // integrals
