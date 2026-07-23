@@ -1008,3 +1008,51 @@ TEST(IOUtils, AdaptVariantOptionalStructFields)
   auto res2 = sen::impl::adaptVariant(*structType, var2);
   EXPECT_TRUE(res2.isError());
 }
+
+/// @test
+/// Check adaptVariant handles empty maps and lists for optional types and maps
+/// @requirements(SEN-1053)
+TEST(IOUtils, AdaptVariantOptionalEmpty)
+{
+  auto optIntType = sen::OptionalType::make({"OptInt", "OptInt", "", sen::Int32Type::get()});
+  sen::Var varMapInt = sen::VarMap {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*optIntType, varMapInt).isOk());
+  EXPECT_TRUE(varMapInt.isEmpty());
+
+  auto optStrType = sen::OptionalType::make({"OptStr", "OptStr", "", sen::StringType::get()});
+  sen::Var varListStr = sen::VarList {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*optStrType, varListStr).isOk());
+  EXPECT_TRUE(varListStr.isEmpty());
+
+  sen::StructSpec emptyStructSpec("EmptyStr", "EmptyStr", "", {});
+  auto emptyStructType = sen::StructType::make(emptyStructSpec);
+  auto optEmptyStruct = sen::OptionalType::make({"OptStrType", "OptStrType", "", emptyStructType});
+  sen::Var varStructMap = sen::VarMap {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*optEmptyStruct, varStructMap).isOk());
+  EXPECT_TRUE(varStructMap.holds<sen::VarMap>());
+
+  sen::SequenceSpec seqSpec("OptSeq", "OptSeq", "", sen::Float32Type::get());
+  auto seqType = sen::SequenceType::make(seqSpec);
+  auto optSeq = sen::OptionalType::make({"OptSeqType", "OptSeqType", "", seqType});
+  sen::Var varSeqList = sen::VarList {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*optSeq, varSeqList).isOk());
+  EXPECT_TRUE(varSeqList.holds<sen::VarList>());
+}
+
+/// @test
+/// Check fallback conversions for non-optional using empty map/list
+/// @requirements(SEN-1053)
+TEST(IOUtils, AdaptVariantFallback)
+{
+  sen::Var varMapInt = sen::VarMap {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*sen::Int32Type::get(), varMapInt).isOk());
+  EXPECT_EQ(varMapInt.getCopyAs<int32_t>(), 0);
+
+  sen::Var varMapStr = sen::VarMap {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*sen::StringType::get(), varMapStr).isOk());
+  EXPECT_EQ(varMapStr.getCopyAs<std::string>(), "{}");
+
+  sen::Var varListBool = sen::VarList {};
+  EXPECT_TRUE(sen::impl::adaptVariant(*sen::BoolType::get(), varListBool).isOk());
+  EXPECT_EQ(varListBool.getCopyAs<bool>(), false);
+}

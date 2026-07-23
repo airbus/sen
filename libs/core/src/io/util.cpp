@@ -40,6 +40,7 @@
 // std
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <memory>
 #include <optional>
 #include <string>
@@ -64,6 +65,18 @@ std::shared_ptr<spdlog::logger> getLogger()
   }();
   return logger;
 }
+
+constexpr std::string_view boolSuggestionMsg = "a boolean value.";
+constexpr std::string_view durationSuggestionMsg = R"(a duration string (e.g. "0s") or a number.)";
+constexpr std::string_view enumSuggestionMsg = "a valid enumerator.";
+constexpr std::string_view numericSuggestionMsg = "a valid numeric value.";
+constexpr std::string_view optionalSuggestionMsg = "'null' to leave the optional empty.";
+constexpr std::string_view sequenceSuggestionMsg = "a valid list '[]' with its corresponding elements.";
+constexpr std::string_view stringSuggestionMsg = "a valid string.";
+constexpr std::string_view structSuggestionMsg = "a valid object map '{}' with its corresponding fields.";
+constexpr std::string_view timestampSuggestionMsg =
+  R"(a valid timestamp string (e.g. "1970-01-01 00:00:00") or a number.)";
+constexpr std::string_view variantSuggestionMsg = R"(a valid variant object '{}' with "type" and "value" fields.)";
 
 //--------------------------------------------------------------------------------------------------------------
 // VariantAdapter
@@ -93,6 +106,8 @@ public:
 
   void apply(const EnumType& type) override
   {
+    checkDeprecatedInit(&type, enumSuggestionMsg);
+
     // handle possible enum inside an optional
     if (var_.holds<std::monostate>())
     {
@@ -171,11 +186,7 @@ public:
     }
   }
 
-  void apply(const BoolType& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<bool, /*checkedConversion=*/false>();
-  }
+  void apply(const BoolType& type) override { adaptNative<bool>(type, boolSuggestionMsg); }
 
   void apply(const NumericType& type) override
   {
@@ -230,7 +241,7 @@ public:
     }
     else
     {
-      SEN_ASSERT(false && "Could not match sized floating point type.");
+      SEN_ASSERT(false && "Could not match sized integral type.");
     }
   }
 
@@ -251,68 +262,23 @@ public:
     }
   }
 
-  void apply(const UInt8Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<uint8_t, /*checkedConversion=*/false>();
-  }
+  void apply(const UInt8Type& type) override { adaptNative<uint8_t>(type, numericSuggestionMsg); }
+  void apply(const Int16Type& type) override { adaptNative<int16_t>(type, numericSuggestionMsg); }
+  void apply(const UInt16Type& type) override { adaptNative<uint16_t>(type, numericSuggestionMsg); }
+  void apply(const Int32Type& type) override { adaptNative<int32_t>(type, numericSuggestionMsg); }
+  void apply(const UInt32Type& type) override { adaptNative<uint32_t>(type, numericSuggestionMsg); }
+  void apply(const Int64Type& type) override { adaptNative<int64_t>(type, numericSuggestionMsg); }
+  void apply(const UInt64Type& type) override { adaptNative<uint64_t>(type, numericSuggestionMsg); }
+  void apply(const Float32Type& type) override { adaptNative<float32_t>(type, numericSuggestionMsg); }
+  void apply(const Float64Type& type) override { adaptNative<float64_t>(type, numericSuggestionMsg); }
 
-  void apply(const Int16Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<int16_t, /*checkedConversion=*/false>();
-  }
+  void apply(const DurationType& type) override { adaptNative<Duration>(type, durationSuggestionMsg); }
 
-  void apply(const UInt16Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<uint16_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const Int32Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<int32_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const UInt32Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<uint32_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const Int64Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<int64_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const UInt64Type& type) override
-  {
-
-    std::ignore = type;
-    var_ = var_.getCopyAs<uint64_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const Float32Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<float32_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const Float64Type& type) override
-  {
-    std::ignore = type;
-    var_ = var_.getCopyAs<float64_t, /*checkedConversion=*/false>();
-  }
-
-  void apply(const DurationType& type) override { std::ignore = type; }
-
-  void apply(const TimestampType& type) override { std::ignore = type; }
+  void apply(const TimestampType& type) override { adaptNative<TimeStamp>(type, timestampSuggestionMsg); }
 
   void apply(const StringType& type) override
   {
-    std::ignore = type;
+    checkDeprecatedInit(&type, stringSuggestionMsg);
 
     // check if the origin type is an enum, in that case adapt to the name of the enumerator
     if (originType_ != nullptr)
@@ -330,6 +296,8 @@ public:
 
   void apply(const StructType& type) override
   {
+    checkDeprecatedInit(&type, structSuggestionMsg);
+
     // handle possible struct inside an optional
     if (var_.holds<std::monostate>())
     {
@@ -341,7 +309,6 @@ public:
       std::string err;
       err.append("Invalid format (not a map) for structure of type ");
       err.append(type.getQualifiedName());
-      getLogger()->warn(err);
 
       result_ = Err(std::move(err));
       return;
@@ -352,6 +319,8 @@ public:
 
   void apply(const VariantType& type) override
   {
+    checkDeprecatedInit(&type, variantSuggestionMsg);
+
     // handle possible variant inside an optional
     if (var_.holds<std::monostate>())
     {
@@ -505,6 +474,8 @@ public:
 
   void apply(const SequenceType& type) override
   {
+    checkDeprecatedInit(&type, sequenceSuggestionMsg);
+
     if (var_.isEmpty())
     {
       return;
@@ -571,6 +542,8 @@ public:
 
   void apply(const QuantityType& type) override
   {
+    checkDeprecatedInit(&type, numericSuggestionMsg);
+
     // durations are fine
     if (var_.holds<Duration>())
     {
@@ -650,10 +623,72 @@ public:
       return;
     }
 
+    sen::ConstTypeHandle<> baseType = type.getType();
+    while (const auto* alias = baseType->asAliasType())
+    {
+      baseType = alias->getAliasedType();
+    }
+
+    if (var_.holds<VarMap>() && var_.get<VarMap>().empty())
+    {
+      if (baseType->asStructType() == nullptr && baseType->asVariantType() == nullptr)
+      {
+        warnDeprecatedEmptyInit(&type, true, optionalSuggestionMsg);
+        var_ = std::monostate();
+        return;
+      }
+    }
+    else if (var_.holds<VarList>() && var_.get<VarList>().empty())
+    {
+      if (baseType->asSequenceType() == nullptr)
+      {
+        warnDeprecatedEmptyInit(&type, false, optionalSuggestionMsg);
+        var_ = std::monostate();
+        return;
+      }
+    }
+
     result_ = adaptVariant(*type.getType(), var_, std::nullopt, useStrings_);
   }
 
 private:
+  void warnDeprecatedEmptyInit(const Type* type, const bool isObject, std::string_view suggestion)
+  {
+    std::string warnMsg;
+    warnMsg.append("Warning: initializing '");
+    warnMsg.append(type->getName());
+    warnMsg.append("' with an empty ");
+    warnMsg.append(isObject ? "object {}" : "list []");
+    warnMsg.append(" is deprecated. Please use ");
+    warnMsg.append(suggestion);
+    getLogger()->warn(warnMsg);
+  }
+
+  void checkDeprecatedInit(const Type* type, std::string_view suggestion)
+  {
+    const Type* baseType = type;
+
+    while (const auto* alias = baseType->asAliasType())
+    {
+      baseType = alias->getAliasedType().operator->();
+    }
+
+    if (var_.holds<VarMap>() && var_.get<VarMap>().empty())
+    {
+      if (baseType->asStructType() == nullptr && baseType->asVariantType() == nullptr)
+      {
+        warnDeprecatedEmptyInit(type, true, suggestion);
+      }
+    }
+    else if (var_.holds<VarList>() && var_.get<VarList>().empty())
+    {
+      if (baseType->asSequenceType() == nullptr)
+      {
+        warnDeprecatedEmptyInit(type, false, suggestion);
+      }
+    }
+  }
+
   void adaptStruct(VarMap& map, const StructType& type)
   {
     if (auto parent = type.getParent())
@@ -690,6 +725,29 @@ private:
       {
         result_ = fieldResult;
       }
+    }
+  }
+
+  template <typename T>
+  void adaptNative(const Type& type, std::string_view suggestion)
+  {
+    checkDeprecatedInit(&type, suggestion);
+    try
+    {
+      var_ = var_.getCopyAs<T, /*checkedConversion=*/false>();
+    }
+    catch (const std::exception& e)
+    {
+      std::string err;
+      err.append("Invalid format. Cannot convert value to ");
+      err.append(type.getName());
+      err.append(". Reason: ");
+      err.append(e.what());
+      err.append(". Please use ");
+      err.append(suggestion);
+
+      getLogger()->warn(err);
+      result_ = Err(std::move(err));
     }
   }
 
