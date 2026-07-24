@@ -9,6 +9,7 @@
 #define SEN_CORE_OBJ_OBJECT_PROVIDER_H
 
 // sen
+#include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/obj/detail/proxy_object.h"
 #include "sen/core/obj/detail/work_queue.h"
@@ -16,6 +17,7 @@
 #include "sen/core/obj/object.h"
 
 // std
+#include <memory>
 #include <variant>
 
 namespace sen
@@ -107,11 +109,15 @@ using ObjectRemovalList = std::vector<ObjectRemoval>;
 /// It automatically unregisters itself from all the providers upon destruction.
 class ObjectProviderListener
 {
-  SEN_MOVE_ONLY(ObjectProviderListener)
-
 public:
-  ObjectProviderListener() = default;
+  ObjectProviderListener();
   virtual ~ObjectProviderListener();
+
+  // Force Move-Only behavior here (macro does not work because of the pimpl of the ConcurrentProviderList)
+  ObjectProviderListener(const ObjectProviderListener&) = delete;
+  ObjectProviderListener& operator=(const ObjectProviderListener&) = delete;
+  ObjectProviderListener(ObjectProviderListener&& other) noexcept;
+  ObjectProviderListener& operator=(ObjectProviderListener&& other) noexcept;
 
 public:  // implementation & optimization-related (they return nullptr by default)
   [[nodiscard]] virtual kernel::impl::RemoteParticipant* isRemoteParticipant() noexcept;
@@ -130,7 +136,10 @@ private:
   void removeProvider(ObjectProvider* provider);
 
 private:
-  std::vector<ObjectProvider*> providers_;
+  /// Forward declaration (Pimpl pattern) hiding the lock-free Harris-Michael list.
+  /// Ensures non-blocking, race-free provider lookups without exposing xenium dependencies.
+  struct ConcurrentProviderList;
+  std::unique_ptr<ConcurrentProviderList> providers_;
 };
 
 /// Base class for an entity that is able to produce objects.
@@ -139,7 +148,7 @@ class ObjectProvider: public std::enable_shared_from_this<ObjectProvider>
   SEN_NOCOPY_NOMOVE(ObjectProvider)
 
 public:
-  ObjectProvider() = default;
+  ObjectProvider();
   virtual ~ObjectProvider();
 
 public:
@@ -170,7 +179,8 @@ public:
   ///                                   for each existing object in the provider.
   virtual void removeListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects);
 
-  /// Replaces an existing listener with a new one without triggering notifications.
+  /// Replaces an existing listener with a new one without triggering notifications. Keep in mind that the links to the
+  /// providers in the listeners are not updated during this operation. Used in move constructors of the ObjectFilter.
   ///
   /// Does nothing if the old listener is not found.
   ///
@@ -212,14 +222,14 @@ protected:
 protected:  // helpers for subclasses
   void callOnObjectsAdded(ObjectProviderListener* listener, const ObjectAdditionList& additions) const;
   void callOnObjectsRemoved(ObjectProviderListener* listener, const ObjectRemovalList& removals) const;
-  [[nodiscard]] const std::vector<ObjectProviderListener*>& getListeners() const noexcept;
 
 private:
   friend ObjectProviderListener;
   void listenerDeleted(ObjectProviderListener* listener);
 
 private:
-  std::vector<ObjectProviderListener*> listeners_;
+  struct ConcurrentListenerList;
+  std::unique_ptr<ConcurrentListenerList> listeners_;
 };
 
 /// @}

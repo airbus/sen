@@ -120,9 +120,9 @@ public:
     // we add/remove subscriptions in batches of up to three elements
     constexpr size_t batchSize = 3U;
 
-    // terminate the test after 20 seconds
+    // terminate the test after 10 seconds
     if (getState() != sen::test::ConnectionState::starting &&
-        runApi.getTime() - runApi.getStartTime() > std::chrono::seconds(20U))
+        runApi.getTime() - runApi.getStartTime() > std::chrono::seconds(10U))
     {
       setNextState(sen::test::ConnectionState::finished);
       return;
