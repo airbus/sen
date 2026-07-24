@@ -44,31 +44,41 @@ void ProcessTerminatorImpl::registered(sen::kernel::RegistrationApi& api)
     "session.bus",
     [this, &api](const auto& objects)
     {
+      guardsMap_.reserve(std::distance(objects.begin(), objects.end()));
       for (auto* obj: objects)
       {
-        guards_.emplace_back(obj->onStateChanged(
-          {this,
-           [this, obj, &api]()
-           {
-             logger_->info("{} received state change {} : {}",
-                           getName(),
-                           obj->asObject().getName(),
-                           StringConversionTraits<ConnectionState>::toString(obj->getState()));
+        guardsMap_.emplace(
+          obj->asObject().getId(),
+          obj->onStateChanged({this,
+                               [this, obj, &api]()
+                               {
+                                 logger_->info("{} received state change {} : {}",
+                                               getName(),
+                                               obj->asObject().getName(),
+                                               StringConversionTraits<ConnectionState>::toString(obj->getState()));
 
-             logger_->info("{} current states:", getName());
-             for (const auto* objectElement: objectsSub_->list.getObjects())
-             {
-               logger_->info("{} : {}",
-                             objectElement->asObject().getName(),
-                             StringConversionTraits<ConnectionState>::toString(objectElement->getState()));
-             }
-             if (obj->getState() == ConnectionState::finished &&
-                 allObjectsWithState(objectsSub_->list.getObjects(), ConnectionState::finished))
-             {
-               logger_->info("{} stopping process", getName());
-               api.requestKernelStop();
-             }
-           }}));
+                                 logger_->info("{} current states:", getName());
+                                 for (const auto* objectElement: objectsSub_->list.getObjects())
+                                 {
+                                   logger_->info(
+                                     "{} : {}",
+                                     objectElement->asObject().getName(),
+                                     StringConversionTraits<ConnectionState>::toString(objectElement->getState()));
+                                 }
+                                 if (obj->getState() == ConnectionState::finished &&
+                                     allObjectsWithState(objectsSub_->list.getObjects(), ConnectionState::finished))
+                                 {
+                                   logger_->info("{} stopping process", getName());
+                                   api.requestKernelStop();
+                                 }
+                               }}));
+      }
+    },
+    [this](const auto& removedObjects)
+    {
+      for (auto* object: removedObjects)
+      {
+        guardsMap_.erase(object->asObject().getId());
       }
     });
 }
@@ -108,7 +118,7 @@ void PublisherImpl::registered(sen::kernel::RegistrationApi& api)
     "session.bus",
     [this](const auto& listeners)
     {
-      cbGuards_.reserve(std::distance(listeners.begin(), listeners.end()));
+      guardsMap_.reserve(std::distance(listeners.begin(), listeners.end()));
 
       for (auto* listener: listeners)
       {
@@ -117,38 +127,47 @@ void PublisherImpl::registered(sen::kernel::RegistrationApi& api)
                           listener->asObject().getName(),
                           StringConversionTraits<ConnectionState>::toString(listener->getState()));
 
-        cbGuards_.emplace_back(listener->onStateChanged(
-          {this,
-           [this, listener]()
-           {
-             constexpr std::array<ConnectionState, 5> actionStates {ConnectionState::step1,
-                                                                    ConnectionState::step2,
-                                                                    ConnectionState::step3,
-                                                                    ConnectionState::step4,
-                                                                    ConnectionState::finished};
-
-             getLogger()->info("{} detected : {} state changed to {}",
-                               getName(),
-                               listener->asObject().getName(),
-                               StringConversionTraits<ConnectionState>::toString(listener->getState()));
-
-             for (size_t i = 0; i < 5U; ++i)
+        guardsMap_.emplace(
+          listener->asObject().getId(),
+          listener->onStateChanged(
+            {this,
+             [this, listener]()
              {
-               if (allObjectsWithState(listenersSub_->list.getObjects(), actionStates.at(i)))
+               constexpr std::array<ConnectionState, 5> actionStates {ConnectionState::step1,
+                                                                      ConnectionState::step2,
+                                                                      ConnectionState::step3,
+                                                                      ConnectionState::step4,
+                                                                      ConnectionState::finished};
+
+               getLogger()->info("{} detected : {} state changed to {}",
+                                 getName(),
+                                 listener->asObject().getName(),
+                                 StringConversionTraits<ConnectionState>::toString(listener->getState()));
+
+               for (size_t i = 0; i < 5U; ++i)
                {
-                 getLogger()->info("{} detected all listeners with state {}",
-                                   getName(),
-                                   StringConversionTraits<ConnectionState>::toString(actionStates.at(i)));
-                 actionFlags_.at(i) = true;
+                 if (allObjectsWithState(listenersSub_->list.getObjects(), actionStates.at(i)))
+                 {
+                   getLogger()->info("{} detected all listeners with state {}",
+                                     getName(),
+                                     StringConversionTraits<ConnectionState>::toString(actionStates.at(i)));
+                   actionFlags_.at(i) = true;
+                 }
                }
-             }
-           }}));
+             }}));
       }
 
       if (getState() == ConnectionState::starting && listenersSub_->list.getObjects().size() == getNumOfListeners())
       {
         getLogger()->info("{} -> ready", getName());
         setNextState(ConnectionState::ready);
+      }
+    },
+    [this](const auto& removedListeners)
+    {
+      for (auto* listener: removedListeners)
+      {
+        guardsMap_.erase(listener->asObject().getId());
       }
     });
 }
@@ -157,7 +176,7 @@ void PublisherImpl::update(sen::kernel::RunApi& runApi)
 {
   std::ignore = runApi;
 
-  getLogger()->info(
+  getLogger()->debug(
     "{} updating with state {}", getName(), StringConversionTraits<ConnectionState>::toString(getState()));
 
   constexpr std::array<void (PublisherImpl::*)(), 4> actions = {
@@ -173,7 +192,7 @@ void PublisherImpl::update(sen::kernel::RunApi& runApi)
       }
       else
       {
-        getLogger()->info("{} -> finished", getName());
+        getLogger()->error("{} -> finished", getName());
         setNextState(ConnectionState::finished);
       }
 
@@ -247,7 +266,7 @@ void ListenerImpl::registered(sen::kernel::RegistrationApi& api)
     "session.bus",
     [this](const auto& publishers)
     {
-      cbGuards_.reserve(std::distance(publishers.begin(), publishers.end()));
+      guardsMap_.reserve(std::distance(publishers.begin(), publishers.end()));
       for (auto* publisher: publishers)
       {
         getLogger()->info("{} detected {} : {}",
@@ -255,37 +274,46 @@ void ListenerImpl::registered(sen::kernel::RegistrationApi& api)
                           publisher->asObject().getName(),
                           StringConversionTraits<ConnectionState>::toString(publisher->getState()));
 
-        cbGuards_.emplace_back(publisher->onStateChanged(
-          {this,
-           [this, publisher]()
-           {
-             constexpr std::array<ConnectionState, 5> checkStates {ConnectionState::ready,
-                                                                   ConnectionState::step1,
-                                                                   ConnectionState::step2,
-                                                                   ConnectionState::step3,
-                                                                   ConnectionState::step4};
-
-             getLogger()->info("{} detected : {} state changed to {}",
-                               getName(),
-                               publisher->asObject().getName(),
-                               StringConversionTraits<ConnectionState>::toString(publisher->getState()));
-             for (size_t i = 0; i < 5U; ++i)
+        guardsMap_.emplace(
+          publisher->asObject().getId(),
+          publisher->onStateChanged(
+            {this,
+             [this, publisher]()
              {
-               if (allObjectsWithState(publisherSub_->list.getObjects(), checkStates.at(i)))
+               constexpr std::array<ConnectionState, 5> checkStates {ConnectionState::ready,
+                                                                     ConnectionState::step1,
+                                                                     ConnectionState::step2,
+                                                                     ConnectionState::step3,
+                                                                     ConnectionState::step4};
+
+               getLogger()->info("{} detected : {} state changed to {}",
+                                 getName(),
+                                 publisher->asObject().getName(),
+                                 StringConversionTraits<ConnectionState>::toString(publisher->getState()));
+               for (size_t i = 0; i < 5U; ++i)
                {
-                 getLogger()->info("{} detected all publishers with state {}",
-                                   getName(),
-                                   StringConversionTraits<ConnectionState>::toString(checkStates.at(i)));
-                 checkFlags_.at(i) = true;
+                 if (allObjectsWithState(publisherSub_->list.getObjects(), checkStates.at(i)))
+                 {
+                   getLogger()->info("{} detected all publishers with state {}",
+                                     getName(),
+                                     StringConversionTraits<ConnectionState>::toString(checkStates.at(i)));
+                   checkFlags_.at(i) = true;
+                 }
                }
-             }
-           }}));
+             }}));
       }
 
       if (allObjectsWithState(publisherSub_->list.getObjects(), ConnectionState::ready))
       {
         getLogger()->info("{} -> step1", getName());
         setNextState(ConnectionState::step1);
+      }
+    },
+    [this](const auto& deletedPublishers)
+    {
+      for (auto* publisher: deletedPublishers)
+      {
+        guardsMap_.erase(publisher->asObject().getId());
       }
     });
 }
@@ -294,7 +322,7 @@ void ListenerImpl::update(sen::kernel::RunApi& runApi)
 {
   std::ignore = runApi;
 
-  getLogger()->info(
+  getLogger()->debug(
     "{} updating with state {}", getName(), StringConversionTraits<ConnectionState>::toString(getState()));
 
   constexpr std::array<void (ListenerImpl::*)(), 4> checks = {
