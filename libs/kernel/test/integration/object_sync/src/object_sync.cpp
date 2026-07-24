@@ -187,7 +187,7 @@ public:
         for (auto* listener: addedObjects)
         {
           listenerStates_[listener->asObject().getId()] = listener->getState();
-          guards_.emplace_back(
+          guards_[listener->asObject().getId()] =
             listener->onStateChanged({this,
                                       [this, &api, listener]()
                                       {
@@ -225,7 +225,7 @@ public:
                                           object_->doUpdate();
                                           logger_->info("listeners ready");
                                         }
-                                      }}));
+                                      }});
         }
 
         // publish the test object when all expected listeners have been detected
@@ -236,6 +236,15 @@ public:
           object_ = std::make_shared<TestObjectImpl>("testObject", staticPropValue);
           logger_->info("publishing test object");
           bus_->add(object_);
+        }
+      });
+
+    std::ignore = listenerSub_->list.onRemoved(
+      [this](const auto& removedObjects)
+      {
+        for (auto* listener: removedObjects)
+        {
+          guards_.erase(listener->asObject().getId());
         }
       });
   }
@@ -255,7 +264,7 @@ private:
   std::shared_ptr<TestObjectImpl> object_;
   std::shared_ptr<sen::Subscription<ListenerInterface>> listenerSub_;
   std::unordered_map<sen::ObjectId, ListenerState> listenerStates_;
-  std::vector<sen::ConnectionGuard> guards_;
+  std::unordered_map<sen::ObjectId, sen::ConnectionGuard> guards_;
   uint32_t detectedListeners_ = 0U;
 };
 

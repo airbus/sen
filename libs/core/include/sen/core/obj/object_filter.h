@@ -125,8 +125,10 @@ private:  // Interface towards FilteredProvider
 
 private:
   ObjectOwnerId ownerId_;
-  std::vector<std::weak_ptr<impl::FilteredProvider>> providers_;
-  std::vector<std::shared_ptr<impl::FilteredProvider>> ownedProviders_;
+  struct ConcurrentWeakProvidersList;
+  std::unique_ptr<ConcurrentWeakProvidersList> providers_;
+  struct ConcurrentOwnedProvidersList;
+  std::unique_ptr<ConcurrentOwnedProvidersList> ownedProviders_;
   std::unordered_map<ObjectId, std::shared_ptr<Object>> lastPresentObjects_;
   std::recursive_mutex usageMutex_;
 };

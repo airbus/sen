@@ -13,12 +13,14 @@
 #include "sen/core/base/timestamp.h"
 
 // generated code
+#include "sen/core/obj/object.h"
 #include "test_helpers/test_helpers.stl.h"
 
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/connection_guard.h"
+#include "sen/core/obj/object.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
@@ -35,6 +37,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace sen::test
@@ -112,7 +115,7 @@ public:
 
 private:
   std::shared_ptr<sen::Subscription<StatefulObjectInterface>> objectsSub_;
-  std::vector<sen::ConnectionGuard> guards_;
+  std::unordered_map<sen::ObjectId, sen::ConnectionGuard> guardsMap_;
   std::shared_ptr<spdlog::logger> logger_;
 };
 
@@ -153,7 +156,7 @@ protected:
 private:
   std::shared_ptr<sen::ObjectSource> bus_;
   std::shared_ptr<sen::Subscription<ListenerInterface>> listenersSub_;
-  std::vector<sen::ConnectionGuard> cbGuards_;
+  std::unordered_map<sen::ObjectId, sen::ConnectionGuard> guardsMap_;
   std::array<bool, 5U> actionFlags_ = {false, false, false, false, false};
 };
 
@@ -177,7 +180,7 @@ protected:
 private:
   std::shared_ptr<sen::ObjectSource> bus_;
   std::shared_ptr<sen::Subscription<PublisherInterface>> publisherSub_;
-  std::vector<sen::ConnectionGuard> cbGuards_;
+  std::unordered_map<sen::ObjectId, sen::ConnectionGuard> guardsMap_;
   std::array<bool, 5U> checkFlags_ = {false, false, false, false, false};
 };
 

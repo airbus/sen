@@ -9,6 +9,7 @@ include(tps/rapidyaml)
 include(tps/spdlog)
 include(tps/concurrentqueue)
 include(tps/cpptrace)
+include(tps/xenium)
 
 set(kernel_stl_files
     stl/sen/kernel/log.stl
@@ -180,6 +181,7 @@ target_link_libraries(
   PRIVATE ryml::ryml
   PRIVATE concurrentqueue::concurrentqueue
   PRIVATE cpptrace::cpptrace
+  PRIVATE xenium::xenium
 )
 
 # -------------------------------------------------------------------------------------------------------------
