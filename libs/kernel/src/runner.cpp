@@ -131,6 +131,7 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
 #  error "OS support not implemented"
 #endif
 }
+
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------------------
@@ -446,7 +447,11 @@ void Runner::stopThread()
   }
 
   // clear local participants
-  localParticipants_.clear();
+  for (auto it = localParticipants_.begin(); it != localParticipants_.end();)
+  {
+    localParticipants_.erase(it);
+    it = localParticipants_.begin();
+  }
 
   // clear objects
   objectsMap_.clear();
@@ -759,10 +764,7 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
       if (wakeUpTime - time64 > halfPeriod)
       {
         time64 += period;
-        // Re-enter the sleep phase without running the frame. This is the hot
-        // scheduling loop; turning the jump into a nested loop is a change to
-        // the timing path, not a lint fix, so the check is waived here.
-        goto doSleep;  // NOLINT(cppcoreguidelines-avoid-goto,hicpp-avoid-goto)
+        goto doSleep;  // NOLINT(cppcoreguidelines-avoid-goto, hicpp-avoid-goto)
       }
     }
 
@@ -794,7 +796,7 @@ std::shared_ptr<ObjectSource> Runner::getOrCreateLocalParticipant(const BusAddre
 
   auto session = kernel_.getSessionManager().getOrOpenSession(busAddress.sessionName);
   auto ptr = std::make_shared<LocalParticipant>(idGenerator_().getHash32(), busAddress, session, this, workQueue_);
-  localParticipants_.push_back(ptr->weak_from_this());
+  localParticipants_.emplace(ptr);
   ptr->connect();
 
   return ptr;
@@ -802,13 +804,34 @@ std::shared_ptr<ObjectSource> Runner::getOrCreateLocalParticipant(const BusAddre
 
 void Runner::localParticipantDeleted(LocalParticipant* participant)
 {
-  localParticipants_.erase(std::remove_if(localParticipants_.begin(),
-                                          localParticipants_.end(),
-                                          [participant](auto& elem)
-                                          {
-                                            auto p = elem.lock();
-                                            return !p or p.get() == participant;
-                                          }),
-                           localParticipants_.end());
+  for (auto it = localParticipants_.begin(); it != localParticipants_.end();)
+  {
+    bool shouldRemove = false;
+
+    if (auto p = it->lock())
+    {
+      // remove if the participant introduced as argument matches
+      if (p.get() == participant)
+      {
+        shouldRemove = true;
+      }
+    }
+    else
+    {
+      // remove expired local participants
+      shouldRemove = true;
+    }
+
+    if (shouldRemove)
+    {
+      const auto toRemove = *it;
+      ++it;
+      localParticipants_.erase(toRemove);
+      continue;
+    }
+
+    ++it;
+  }
 }
+
 }  // namespace sen::kernel::impl

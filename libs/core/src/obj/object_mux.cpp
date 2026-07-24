@@ -11,38 +11,43 @@
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_provider.h"
 
+// xenium
+#include <xenium/harris_michael_list_based_set.hpp>
+#include <xenium/policy.hpp>
+#include <xenium/reclamation/generic_epoch_based.hpp>
+
 // std
 #include <algorithm>
+#include <functional>
+#include <memory>
 #include <tuple>
 #include <vector>
 
 namespace sen
 {
 
+/// Lock-free Harris-Michael list using epoch-based reclamation.
+/// Inherits directly from xenium to eliminate wrapper boilerplate within the Pimpl idiom.
+struct MuxedProviderListener::ConcurrentMuxedProviderList
+  : xenium::harris_michael_list_based_set<ObjectMux*,
+                                          xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+                                          xenium::policy::compare<std::less<ObjectMux*>>>
+{
+};
+
+MuxedProviderListener::MuxedProviderListener(): muxedProviders_(std::make_unique<ConcurrentMuxedProviderList>()) {}
+
 MuxedProviderListener::~MuxedProviderListener()
 {
-  auto muxedProviders = muxedProviders_;  // explicit copy to prevent modifications
-  for (auto* provider: muxedProviders)
+  for (auto* provider: *muxedProviders_)
   {
     provider->muxedListenerDeleted(this);
   }
 }
 
-void MuxedProviderListener::addMuxedProvider(ObjectMux* provider)
-{
-  if (std::find(muxedProviders_.begin(), muxedProviders_.end(), provider) == muxedProviders_.end())
-  {
-    muxedProviders_.push_back(provider);
-  }
-}
+void MuxedProviderListener::addMuxedProvider(ObjectMux* provider) { muxedProviders_->emplace(provider); }
 
-void MuxedProviderListener::removeMuxedProvider(ObjectMux* provider)
-{
-  if (auto itr = std::find(muxedProviders_.begin(), muxedProviders_.end(), provider); itr != muxedProviders_.end())
-  {
-    muxedProviders_.erase(itr);
-  }
-}
+void MuxedProviderListener::removeMuxedProvider(ObjectMux* provider) { muxedProviders_->erase(provider); }
 
 void ObjectMux::addListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects)
 {
