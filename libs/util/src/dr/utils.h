@@ -102,6 +102,11 @@ namespace sen::util
                                            const Acceleration& acceleration,
                                            sen::Duration delta) noexcept;
 
+/// Extrapolates angular Velocities with constant angular Acceleration
+[[nodiscard]] AngularVelocity extrapolateAngularVelocity(const AngularVelocity& value,
+                                                         const AngularAcceleration& acceleration,
+                                                         sen::Duration delta) noexcept;
+
 /// Performs a linear extrapolation the orientation of an entity using quaternions given a delta of time and the
 /// angular velocity in world coordinates
 [[nodiscard]] Orientation extrapolateOrientation(const Orientation& value,
