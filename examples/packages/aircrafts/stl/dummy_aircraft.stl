@@ -2,10 +2,19 @@ import "rpr/RPR-Physical_v2.0.xml"
 
 package aircrafts;
 
+// speed quantity
 quantity<f64, m_per_s> Speed;
+
+// speed vector in NED coordinates
+struct NedSpeedStruct
+{
+  north : Speed,
+  east  : Speed,
+  down  : Speed
+}
 
 // A dummy implementation of an aircraft
 class DummyAircraft : extends rpr.Aircraft
 {
-  var speed : Speed [writable];
+  var speed : NedSpeedStruct [writable];
 }
