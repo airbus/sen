@@ -35,7 +35,7 @@ def run():
     testBus.add(myObject)
 
     # setting the speed property to 150
-    myObject.speed = 150
+    myObject.speed = {"north": 150, "east": 0, "down": 0}
 
 
 def update():

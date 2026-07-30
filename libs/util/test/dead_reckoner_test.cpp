@@ -334,4 +334,94 @@ TEST(DeadReckonerTest, geodeticSituationCacheInvalidatedOnUpdate)
   EXPECT_FALSE(dr.isGeodeticSituationCached(queryTime));
 }
 
+TEST(DeadReckonerTest, testSmoothingConvergenceWithLongDeltas)
+{
+  DeadReckonerBase deadReckoner {};
+
+  // initialize your baseline state at t=0
+  Situation situation;
+  situation.timeStamp = TimeStamp {std::chrono::seconds(0)};
+  situation.worldLocation = {0.0, 0.0, 0.0};
+  situation.velocityVector = {100.0, 0.0, 0.0};
+  situation.accelerationVector = {0.0, 0.0, 0.0};
+
+  // baseline orientation: facing forward (0 rad) spinning at 1.0 rad/s around Z-axis (Yaw)
+  situation.orientation = impl::nedToEcef(Orientation {0.0, 0.0, 0.0}, impl::toLla(situation.worldLocation));
+  situation.angularVelocity = toAngularVelocity({0.0, 0.0, 1.0});
+  situation.angularAcceleration = {0.0, 0.0, 0.0};
+
+  deadReckoner.updateSituation(situation);
+
+  // simulate an update at t=3 with adjustments in both position and orientation
+  Situation update;
+  update.timeStamp = TimeStamp {std::chrono::seconds(3)};
+  update.worldLocation = {300.56, 0.0, 0.0};  // Slid off-axis due to a sudden turn
+  update.velocityVector = {56.0, 0.0, 0.0};   // Now moving along Y axis
+  update.accelerationVector = {0.0, 0.0, 0.0};
+  update.orientation = impl::nedToEcef(Orientation {2.5, 0.2, 0.0}, impl::toLla(situation.worldLocation));
+  ;
+  update.angularVelocity = toAngularVelocity({0.0, 0.0, 0.5});
+  update.angularAcceleration = {0.0, 0.0, 0.0};
+
+  deadReckoner.updateSituation(update);
+
+  // verify convergence of the smooth situation
+  const auto currentSituation = deadReckoner.situation(TimeStamp {std::chrono::seconds(3)});
+  EXPECT_NEAR(currentSituation.worldLocation.x, update.worldLocation.x, 1e-4);
+  EXPECT_NEAR(currentSituation.worldLocation.y, update.worldLocation.y, 1e-4);
+  EXPECT_NEAR(currentSituation.velocityVector.x, update.velocityVector.x, 1e-4);
+  EXPECT_NEAR(currentSituation.velocityVector.y, update.velocityVector.y, 1e-4);
+  EXPECT_NEAR(currentSituation.accelerationVector.x, 0.0, 1e-4);
+  EXPECT_NEAR(currentSituation.accelerationVector.y, 0.0, 1e-4);
+  EXPECT_NEAR(currentSituation.accelerationVector.z, 0.0, 1e-4);
+
+  // compute the quaternion delta between the smooth orientation and the update orientation
+  const auto currentQ = fromOrientationToQuat(currentSituation.orientation);
+  const auto targetQ = fromOrientationToQuat(update.orientation);
+  const auto deltaQ = currentQ.inverse() * targetQ;
+
+  double errorAngle = 0.0;
+  Vec3d errorAxis {};
+  deltaQ.getRotate(errorAngle, errorAxis);
+
+  if (constexpr double pid = 3.14159265358979323846; errorAngle > pid)
+  {
+    errorAngle = 2.0 * pid - errorAngle;
+  }
+
+  EXPECT_NEAR(errorAngle, 0.0, 1e-4);
+  EXPECT_NEAR(currentSituation.angularVelocity.x, update.angularVelocity.x, 1e-4);
+  EXPECT_NEAR(currentSituation.angularVelocity.y, update.angularVelocity.y, 1e-4);
+  EXPECT_NEAR(currentSituation.angularVelocity.z, update.angularVelocity.z, 1e-4);
+  EXPECT_NEAR(currentSituation.angularAcceleration.x, 0.0, 1e-4);
+  EXPECT_NEAR(currentSituation.angularAcceleration.y, 0.0, 1e-4);
+  EXPECT_NEAR(currentSituation.angularAcceleration.z, 0.0, 1e-4);
+}
+
+TEST(DeadReckonerTest, testSubMicrosecondThresholdGuard)
+{
+  DeadReckonerBase deadReckoner {};
+
+  Situation situation;
+  situation.timeStamp = TimeStamp {std::chrono::nanoseconds(0)};
+  situation.worldLocation = {0.0, 0.0, 0.0};
+  deadReckoner.updateSituation(situation);
+
+  // Create an update exactly 0.5 microseconds ahead (500 nanoseconds)
+  // This is strictly LESS than your 1e-6 threshold guard.
+  Situation microUpdate = situation;
+  microUpdate.timeStamp = TimeStamp {std::chrono::nanoseconds(500)};
+  microUpdate.worldLocation = {1.0, 1.0, 1.0};  // Drastic change to check snap behavior
+
+  // The while loop will skip entirely.
+  // It will execute: situation.timeStamp = update.timeStamp;
+  deadReckoner.updateSituation(microUpdate);
+
+  auto result = deadReckoner.situation(microUpdate.timeStamp);
+  EXPECT_EQ(result.timeStamp, microUpdate.timeStamp);
+
+  // check that the situation does not update
+  EXPECT_NEAR(result.worldLocation.x, 0.0, 1e-4);
+}
+
 }  // namespace sen::util

@@ -36,9 +36,9 @@ AngularVelocity nedToBody(const AngularVelocity& value, const Orientation& nedOr
 
 bool maxDistanceExceeded(const Location& newPosition, const Location& extrapolatedPosition, float64_t threshold)
 {
-  return std::abs(newPosition.x - extrapolatedPosition.x) > threshold ||
-         std::abs(newPosition.y - extrapolatedPosition.y) > threshold ||
-         std::abs(newPosition.z - extrapolatedPosition.z) > threshold;
+  return std::abs(newPosition.x - extrapolatedPosition.x) >= threshold ||
+         std::abs(newPosition.y - extrapolatedPosition.y) >= threshold ||
+         std::abs(newPosition.z - extrapolatedPosition.z) >= threshold;
 }
 
 bool maxRotationExceeded(const Orientation& newOrientation,
