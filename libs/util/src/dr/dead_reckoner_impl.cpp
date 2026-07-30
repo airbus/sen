@@ -220,6 +220,9 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
   {
     const auto step = std::min(config.smoothingInterval, delta);
 
+    // negative duration to go until the final update situation
+    const auto timeFromUpdate = -delta + step;
+
     // update smoothed location
     {
       situation.worldLocation = extrapolateLocationWorld(situation, step);
@@ -227,8 +230,11 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
 
       const auto p0 = fromWorldLocation(situation.worldLocation);
       const auto v0 = fromVelocity(situation.velocityVector);
-      const auto p1 = fromWorldLocation(update.worldLocation);
-      const auto v1 = fromVelocity(update.velocityVector);
+
+      const auto p1 = fromWorldLocation(extrapolateLocationWorld(update, timeFromUpdate));
+      const auto v1 =
+        fromVelocity(extrapolateVelocity(update.velocityVector, update.accelerationVector, timeFromUpdate));
+      // NOTE: we assume constant acceleration here
       const auto a1 = fromAcceleration(update.accelerationVector);
 
       const auto t = config.positionConvergenceTime.toSeconds();
@@ -250,20 +256,22 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
       situation.orientation =
         extrapolateOrientation(situation.orientation, step, situation.angularVelocity, situation.angularAcceleration);
       situation.angularVelocity =
-        toAngularVelocity(fromAngularVelocity(situation.angularVelocity) +
-                          fromAngularAcceleration(situation.angularAcceleration) * step.toSeconds());
+        extrapolateAngularVelocity(situation.angularVelocity, situation.angularAcceleration, step);
 
       // compute the delta rotation in angle/axis format
       f64 rotationAngle = 0;
       Vec3d rotationAxis {};
       // worldToBody would rebuild this from the same angles, across a translation unit boundary.
       const auto fromSmoothed = fromOrientationToQuat(situation.orientation).inverse();
-      const auto q01 = fromSmoothed * fromOrientationToQuat(update.orientation);
+      const auto q01 =
+        fromSmoothed * fromOrientationToQuat(extrapolateOrientation(
+                         update.orientation, timeFromUpdate, update.angularVelocity, update.angularAcceleration));
       q01.getRotate(rotationAngle, rotationAxis);
 
       const auto deltaTheta = fromSmoothed * (rotationAxis * rotationAngle);
       const auto omega0 = fromAngularVelocity(situation.angularVelocity);
-      const auto omega1 = fromAngularVelocity(update.angularVelocity);
+      const auto omega1 = fromAngularVelocity(
+        extrapolateAngularVelocity(update.angularVelocity, update.angularAcceleration, timeFromUpdate));
 
       const auto t = config.orientationConvergenceTime.toSeconds();
 
@@ -271,6 +279,8 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
                                                             (omega1 - omega0) * config.orientationDamping);
     }
 
+    // Advance the internal situation timestamp so extrapolation sub-functions stay accurate
+    situation.timeStamp += step;
     delta -= step;
   }
 
