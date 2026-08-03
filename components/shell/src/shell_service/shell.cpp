@@ -916,6 +916,10 @@ void ShellImpl::lsImpl() const
     auto itr = openSessions_.find(sessionName);
     if (itr != openSessions_.end())
     {
+      // decorate the session node
+      auto* sNode = root.getOrCreateChild({sessionName}, sessionStyle);
+      sNode->setPostFix("[session]");
+
       auto buses = itr->second->getDetectedSources();
       for (const auto& busName: buses)
       {
@@ -923,15 +927,18 @@ void ShellImpl::lsImpl() const
         addr.append(".");
         addr.append(busName);
 
+        auto* node = root.getOrCreateChild({sessionName, busName});
+
         // check if we have an open bus
         if (openSources_.find(addr) == openSources_.end())
         {
-          auto* node = root.getOrCreateChild({sessionName, busName}, closedSourceStyle);
+          node->setStyle(closedSourceStyle);
           node->setPostFix("[~]");
         }
         else
         {
-          std::ignore = root.getOrCreateChild({sessionName, busName});
+          node->setStyle(busStyle);
+          node->setPostFix("[bus]");
         }
       }
     }
@@ -1039,7 +1046,6 @@ void ShellImpl::doOpen(std::string_view term)
     // open the session if not already open. We don't need to build a source
     if (openSessions_.find(sourceName) == openSessions_.end())
     {
-      term_->newLine();
       term_->cprint(informationStyle, " - shell opened ");
       term_->cprint(enumValueStyle, sourceName);
       term_->newLine();
