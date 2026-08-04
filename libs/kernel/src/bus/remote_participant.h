@@ -44,6 +44,7 @@
 #include "stl/sen/kernel/type_specs.stl.h"
 
 // std
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <cstring>
@@ -330,7 +331,7 @@ private:
   Bus* bus_;
   Session* session_;
   RemoteObjectFilter incomingInterestsManager_;
-  ::sen::impl::CallId nextCallId_ = 0U;
+  std::atomic<::sen::impl::CallId> nextCallId_ = 0U;
   std::unordered_map<InterestId, std::shared_ptr<Interest>> remoteInterests_;
   std::recursive_mutex usageMutex_;
   std::unordered_map<ObjectId, RemoteObjectListPtr> trackedProxies_;
