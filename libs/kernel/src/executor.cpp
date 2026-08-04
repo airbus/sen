@@ -80,6 +80,8 @@ Executor::Executor(std::vector<std::unique_ptr<Runner>>& runners)
 {
 }
 
+void Executor::preloadOnly() { preloadRunners(); }
+
 void Executor::startUp(bool tryToLockPages, bool tryToLimitCpuIdleLatency)
 {
   // early exit
