@@ -140,6 +140,8 @@ add_sen_package(
 
 set_target_properties(explorer PROPERTIES FOLDER "components/explorer")
 
+sen_internal_configure_component(explorer)
+
 sen_internal_install(explorer_imgui)
 sen_internal_install(explorer)
 

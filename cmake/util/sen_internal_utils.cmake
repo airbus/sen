@@ -64,6 +64,20 @@ function(sen_internal_configure_app target_name)
   endif()
 endfunction()
 
+# Internal function that sets the target version and folder to be a component
+function(sen_internal_configure_component target_name)
+  sen_configure_target(${target_name})
+  set_property(GLOBAL APPEND PROPERTY SEN_INTERNAL_COMPONENT_TARGETS ${target_name})
+  set_target_properties(
+    ${target_name}
+    PROPERTIES OUTPUT_NAME ${target_name}
+               VERSION ${sen_VERSION}
+               CLEAN_DIRECT_OUTPUT 1
+               FOLDER "components"
+  )
+
+endfunction()
+
 # Helper to add a bunch of files to a target as private sources
 function(sen_internal_add_resources)
   set(_options)

@@ -35,6 +35,8 @@ sen_enable_static_analysis(influx)
 
 set_target_properties(influx PROPERTIES FOLDER "components/influx")
 
+sen_internal_configure_component(influx)
+
 sen_internal_install(influx)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/influx.json DESTINATION schemas)

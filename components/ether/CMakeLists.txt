@@ -72,6 +72,8 @@ endif()
 
 set_target_properties(ether PROPERTIES FOLDER "components/ether")
 
+sen_internal_configure_component(ether)
+
 sen_internal_install(ether)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/ether.json DESTINATION schemas)
