@@ -22,6 +22,8 @@ add_sen_package(
 
 set_target_properties(tracy PROPERTIES FOLDER "components/tracy")
 
+sen_internal_configure_component(tracy)
+
 add_compile_definitions(TRACY_DELAYED_INIT TRACY_MANUAL_LIFETIME)
 
 sen_internal_install(tracy)
