@@ -36,7 +36,6 @@
 #include <condition_variable>
 #include <cstdint>
 #include <filesystem>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -128,8 +127,11 @@ public:
   /// Set the reporter used to build process network footprint
   void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter);
 
+  /// Configures and preloads the kernel, builds the offline network footprint, and performs final cleanup.
+  [[nodiscard]] NetworkFootprint generateOfflineNetworkFootprint(Span<const BusAddress> suppliedBusAddresses);
+
   /// Builds a network footprint for the supplied bus addresses
-  NetworkFootprint getNetworkFootprint(Span<const BusAddress> busAddresses) const;
+  [[nodiscard]] NetworkFootprint getNetworkFootprint(Span<const BusAddress> busAddresses) const;
 
 private:
   /// Implementation of run() depending on the run mode stated in the configuration.
