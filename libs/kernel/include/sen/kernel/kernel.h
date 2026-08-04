@@ -10,6 +10,7 @@
 
 // sen
 #include "sen/core/base/class_helpers.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/class_type.h"
 
 // kernel
@@ -17,6 +18,7 @@
 
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // std
 #include <filesystem>
@@ -53,6 +55,12 @@ public:
   /// Stops the execution and deallocates runtime resources.
   /// This method is thread-safe.
   void requestStop(int exitCode = 0);
+
+  /// Builds the process network footprint after preloading the configured components.
+  ///
+  /// Returns the generated network footprint.
+  /// @param suppliedBusAddresses: additional bus addresses to include in the footprint.
+  [[nodiscard]] NetworkFootprint getNetworkFootprint(Span<const BusAddress> suppliedBusAddresses);
 
   /// Gets the configuration used to construct the kernel.
   /// This method is thread-safe.

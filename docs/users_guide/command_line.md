@@ -296,6 +296,57 @@ build:
         bus: my.tutorial
 ```
 
+### Offline network footprint
+
+Use `--print-network-footprint` to inspect the network addresses and ports that one process is
+expected to use without running the application.
+Sen configures and preloads the components, builds the report and exits before starting the
+application.
+The configuration must load the [Ether component](../components/ether.md),
+which provides the report.
+
+```console
+sen run config.yaml --print-network-footprint
+```
+
+The report includes the non-local buses declared in the process configuration.
+Since Sen doesn't start the application when generating the offline report, it cannot discover
+buses that the application would create at runtime.
+To include one of these buses, specify its `session.bus` address using `--bus <session.bus>`:
+
+```console
+sen run config.yaml --print-network-footprint --bus session.one --bus session.two
+```
+
+As an alternative, you can declare the buses in a file and pass it with `--bus-file`.
+The file accepts one `session.bus` per line and `#` starts a comment.
+`--bus-file` can also be repeated to add more files.
+
+```text title="buses.txt"
+# Buses
+session.one
+session.two  # Inline comment
+```
+
+```console
+sen run config.yaml --print-network-footprint --bus-file buses.txt
+```
+
+Sen combines the buses found in the configuration with those supplied through `--bus` or
+`--bus-file` and removes duplicates.
+
+By default, Sen displays the report in a format designed to be read in the terminal.
+You can select a JSON output with `--format json` option and save it:
+
+```console
+sen run config.yaml --print-network-footprint --format json > footprint.json
+```
+
+When JSON output is selected, Sen writes only the JSON document to standard output, which is the
+stream redirected by `> footprint.json` in the example above.
+Diagnostic and error messages are written to standard error instead, so they do not make the saved
+JSON invalid.
+
 ## Code generator
 
 ```title="sen generate"

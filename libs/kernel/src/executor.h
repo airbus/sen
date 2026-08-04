@@ -35,6 +35,11 @@ public:
   /// The current group
   [[nodiscard]] uint32_t getGroup() const noexcept { return group_.load(); }
 
+  /// Preloads all runners without loading, initializing, or running them.
+  /// The caller is responsible for using shutDown() to perform final component cleanup.
+  /// Throws std::exception on failure.
+  void preloadOnly();
+
   /// Goes through each group, starting all runners.
   /// Throws std::exception on failure.
   void startUp(bool tryToLockPages);
