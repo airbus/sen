@@ -183,6 +183,12 @@ Developer-facing flags (`with_examples`, `with_tests`, `with_clang_tidy`, `with_
 `with_docs`, `sanitizer`) toggle the matching CMake flags. See the
 [Building Sen](docs/getting_started/install.md#build-options) page for examples.
 
+The first full-mode build fetches its toolchain (including Node.js for the browser UI) and all
+third-party packages from Conan Center and the npm registry — details and opt-outs in
+[what the build needs](docs/getting_started/install.md). To run the test suite, see
+[Running the Tests](docs/getting_started/testing.md); for a quick tour of a running system,
+try the [Web Explorer showcase](docs/components/web_explorer.md#try-it-standalone).
+
 <a name="local-workspace-setup"></a>
 ## 📦 Local Workspace Setup (Conan Editable Mode)
 

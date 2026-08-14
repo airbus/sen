@@ -36,7 +36,8 @@ endpoint), so deployment is "one Sen process, one URL".
 The Sen tree ships a self-contained showcase config that stands up `jsonrpc` +
 `webexplorer` alongside a small heterogeneous object graph (classrooms, aircraft fleet,
 shapes, fibonacci workers) picked to exercise every workspace in the UI. From a built
-Sen tree:
+Sen tree (see [Getting Sen](../getting_started/install.md) — a full-mode build bakes the
+frontend bundle into the `webexplorer` component automatically):
 
 ```bash
 sen run examples/config/14_jsonrpc/4_explorer_demo.yaml
