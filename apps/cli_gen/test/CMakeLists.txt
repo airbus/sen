@@ -377,3 +377,86 @@ add_sen_cli_gen_smoke_test(
   COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test27/fom
   WORKING_DIRECTORY ${working_dir}
 )
+
+# JSON-Schema render: one smoke renders the fixture; each follow-up cats the output and
+# asserts a sentinel pattern, together exercising every wire-relevant `CustomTypeSpec` field.
+
+add_sen_cli_gen_smoke_test(
+  json_schema_render
+  COMMAND ./cli_gen json package stl ${hla_fom_gen_test_sources}/json_schema_lossless/fixture.stl -o
+          lossless.json
+  WORKING_DIRECTORY ${working_dir}
+)
+
+function(_sen_add_json_schema_check name pattern)
+  add_sen_cli_gen_smoke_test(
+    ${name}
+    COMMAND ${CMAKE_COMMAND} -E cat lossless.json
+    WORKING_DIRECTORY ${working_dir}
+  )
+  set_tests_properties(
+    ${name}
+    PROPERTIES DEPENDS
+               json_schema_render
+               PASS_REGULAR_EXPRESSION
+               "${pattern}"
+  )
+endfunction()
+
+_sen_add_json_schema_check(json_schema_struct_inheritance "allOf.*schema_lossless\\.Base")
+_sen_add_json_schema_check(json_schema_class_methods "x-methods.*\"name\": \"ping\"")
+_sen_add_json_schema_check(json_schema_class_events "x-events.*\"name\": \"onTick\"")
+_sen_add_json_schema_check(json_schema_duration_integer "\"delay\".*\"type\": \"integer\"")
+_sen_add_json_schema_check(json_schema_timestamp_date_time "\"when\".*format.*date-time")
+_sen_add_json_schema_check(json_schema_static_in_required "required.*staticVersion")
+_sen_add_json_schema_check(json_schema_enum_int_values "x-enum.*idle.*: 0")
+_sen_add_json_schema_check(json_schema_quantity_unit "x-unit.*: \"m\"")
+_sen_add_json_schema_check(json_schema_absolute_id "\\$id.*schema_lossless\\.Status")
+_sen_add_json_schema_check(json_schema_class_is_interface "x-is-interface.*: false")
+_sen_add_json_schema_check(json_schema_property_metadata "counter.*x-category.*dynamicRW")
+_sen_add_json_schema_check(json_schema_method_property_relation "ping.*propertyRelation.*kind.*none")
+_sen_add_json_schema_check(json_schema_event_transport_mode "onTick.*transportMode")
+
+# TypeScript generator smoke tests.
+add_sen_cli_gen_smoke_test(
+  ts_gen_smoke_happy
+  COMMAND ./cli_gen ts stl ${hla_fom_gen_test_sources}/typescript/fixture.stl -d ts_smoke_happy
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# Failure path: omitting -d must error out, not silently produce nothing.
+# CLI11's `->required()` rejects parsing before runApp; we gate on the non-zero exit
+# via WILL_FAIL rather than the app's --expect-failure flag.
+add_sen_cli_gen_smoke_test(
+  ts_gen_smoke_missing_outdir
+  COMMAND ./cli_gen ts stl ${hla_fom_gen_test_sources}/typescript/fixture.stl
+  WORKING_DIRECTORY ${working_dir}
+)
+set_tests_properties(ts_gen_smoke_missing_outdir PROPERTIES WILL_FAIL TRUE)
+
+set(_ts_smoke_out "ts_smoke_happy/fixture.ts")
+
+function(_sen_add_ts_template_check name pattern)
+  add_sen_cli_gen_smoke_test(
+    ${name}
+    COMMAND ${CMAKE_COMMAND} -E cat ${_ts_smoke_out}
+    WORKING_DIRECTORY ${working_dir}
+  )
+  set_tests_properties(
+    ${name}
+    PROPERTIES DEPENDS
+               ts_gen_smoke_happy
+               PASS_REGULAR_EXPRESSION
+               "${pattern}"
+  )
+endfunction()
+
+_sen_add_ts_template_check(ts_gen_smoke_template_enum "export type Direction =")
+_sen_add_ts_template_check(ts_gen_smoke_template_struct "export interface Point ")
+_sen_add_ts_template_check(ts_gen_smoke_template_struct_inherit "Point3D extends Point")
+_sen_add_ts_template_check(ts_gen_smoke_template_sequence "Path = Point")
+_sen_add_ts_template_check(ts_gen_smoke_template_optional "MaybeDirection = Direction")
+_sen_add_ts_template_check(ts_gen_smoke_template_alias "ObjectId = number")
+_sen_add_ts_template_check(ts_gen_smoke_template_quantity "Altitude = number")
+_sen_add_ts_template_check(ts_gen_smoke_template_variant_tag "test\\.ts\\.Point\"")
+_sen_add_ts_template_check(ts_gen_smoke_template_class_event "export interface ReadingNotification")

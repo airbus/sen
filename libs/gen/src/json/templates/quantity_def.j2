@@ -1,0 +1,9 @@
+    "{{ senQual }}": {
+      "$id": "{{ senQual }}",{% if description != "" %}
+      "description": "{{ description }}",{% endif %}
+      "type": "number",
+      "x-element-type": { {{ jsonElementSchemaType }} }{% if hasUnit %},
+      "x-unit": "{{ unitAbbrev }}"{% endif %}{% if exists("min") %},
+      "minimum": {{ min }}{% endif %}{% if exists("max") %},
+      "maximum": {{ max }}{% endif %}
+    }

@@ -57,6 +57,7 @@ add_subdirectory(libs/core)
 add_subdirectory(libs/kernel)
 add_subdirectory(libs/db)
 add_subdirectory(libs/util)
+add_subdirectory(libs/gen)
 
 # components
 add_subdirectory(components/shell)
