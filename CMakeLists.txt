@@ -16,6 +16,10 @@ option(SEN_BUILD_EXAMPLES "Build examples" ON)
 option(SEN_BUILD_TESTS "Build tests" ON)
 option(SEN_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(SEN_BUILD_DOCS "Build documentation" ON)
+# Negative polarity is a wart vs the rest of the codebase (Conan `with_*` and
+# `SEN_<COMP>_ENABLE_CLANG_TIDY` are positive). Conan's `with_clang_tidy` already
+# normalizes this for most users; flipping at the CMake layer would break direct
+# `-DSEN_DISABLE_CLANG_TIDY=...` callers, so we live with it.
 option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
 option(SEN_COVERAGE_ENABLE "Enable coverage generation" OFF)
 option(SEN_ENABLE_CMAKE_TARGET_GRAPH "Enable the generation of a graphviz with the targets" ON)
@@ -71,6 +75,7 @@ add_subdirectory(components/logmaster)
 add_subdirectory(components/rest)
 add_subdirectory(components/jsonrpc)
 add_subdirectory(components/tracy)
+add_subdirectory(components/webexplorer)
 
 # Python bindings under libs/db. Not a Sen "component" (no conanfile.py COMPONENTS entry,
 # no sen_internal_component_guard). Just a Python module that exposes sen::db; piggybacks

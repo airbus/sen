@@ -1,0 +1,70 @@
+/* `!important` overrides the global `::-webkit-scrollbar` in theme/tokens.css; WebKit's
+ * scrollbar pseudo-element cascade is unreliable across versions. */
+
+.overview-card-property-strip::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+}
+
+.overview-card-property-strip::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.overview-card-property-strip::-webkit-scrollbar-thumb {
+  background: var(--fg-muted) !important;
+  border: none !important;
+  border-radius: 2px !important;
+}
+
+.overview-card-property-strip::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-subtle) !important;
+}
+
+/* Firefox-only path; @-moz-document keeps these rules from disabling WebKit's pseudo-
+ * element styling in Chrome (Chrome treats `scrollbar-width: thin` as definitive). */
+@-moz-document url-prefix() {
+  .overview-card-property-strip {
+    scrollbar-width: thin;
+    scrollbar-color: var(--fg-muted) transparent;
+  }
+}
+
+/* GridStack's default `grid-stack-item-content` wrapper is a square box with overflow:auto;
+ * round it to match the card and hide overflow so the corners read as one glass surface.
+ * Scoped to `.overview-card-grid` so other GridStackGrid hosts (Plots) keep their defaults. */
+.overview-card-grid > .grid-stack-item > .grid-stack-item-content {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  /* Re-paint the drop shadow on the wrapper; it renders OUTSIDE the box so overflow:hidden
+   * doesn't clip it (the inner article's own shadow IS clipped). */
+  box-shadow: var(--card-drop-shadow);
+}
+
+/* Hover-reveal for the row drag grip. */
+.overview-card-prop-row:hover .overview-card-prop-grip,
+.overview-card-prop-row:focus-within .overview-card-prop-grip {
+  opacity: 1 !important;
+}
+
+/* Pin-confirmation pulse. Pulse stays INSIDE the card bounds (an outline-emission would be
+ * clipped by the section container's overflow). */
+@keyframes pin-pulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+  15% {
+    transform: scale(1.05);
+    filter: brightness(1.25) saturate(1.4);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+/* `!important` overrides the inline at-rest `box-shadow` set in objectCardStyle. */
+.pin-pulse {
+  animation: pin-pulse 700ms ease-out;
+  box-shadow: inset 0 0 0 3px color-mix(in oklch, var(--accent) 95%, transparent) !important;
+}

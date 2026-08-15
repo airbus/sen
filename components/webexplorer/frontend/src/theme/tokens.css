@@ -1,0 +1,679 @@
+/*
+ * Sen Explorer: theme tokens.
+ *
+ * Two color schemes:
+ *
+ *   - Dark (default) - flat surfaces with a faint cool tilt. Blue channel sits a hair
+ *     above green so the cool feel reads without looking like a navy wash. Linear-like
+ *     in spirit. Activated implicitly: the `:root, [data-theme="dark"]` block below.
+ *   - Light - clean white surfaces with a slate-gray text ladder, inspired by Linear
+ *     and GitHub. Activated by toggling the `theme-light` class on `<html>`
+ *     (see `src/state/color_scheme.ts`).
+ *
+ * Every consumer reads through tokens (`--bg-*`, `--fg-*`, `--surface-*`, `--accent`,
+ * `--card-*` chrome, ...) so flipping the scheme is purely a token-block swap - no
+ * branching in components.
+ */
+
+/* Object Explorer property rows. Hover wash uses the cool blue so the highlight reads
+ * as "interactive"; the value-change flash uses the accent hue and is scoped to the
+ * value cell (`.value-cell`) so the change indication points to what actually moved
+ * rather than lighting up the whole row. Two different hues keep the two signals
+ * separable when they overlap. */
+.property-row {
+  transition: background 200ms ease-out;
+}
+/* Zebra stripe - a barely-there alternation that gives the eye a stable horizontal
+ * rhythm without competing with the hover wash. Token-driven so light mode picks up
+ * its own subtle alternation. */
+.property-row:nth-child(even) {
+  background: var(--surface-zebra);
+}
+.property-row:hover,
+.property-row:nth-child(even):hover {
+  background: var(--surface-row-hover);
+}
+
+/* Events drawer rows - same zebra rhythm as property rows. No hover wash here yet
+ * (events rows are not interactive at the row level), so the alternation is purely a
+ * reading aid for dense streams. */
+.events-row {
+  transition: background 200ms ease-out;
+}
+.events-row:nth-child(even) {
+  background: var(--surface-zebra);
+}
+/* `.value-cell` is the layout slot inside a row (sized by its parent flex/grid track);
+ * it intentionally has no visual treatment. Flash targets `.value-text` - the wrapper
+ * around the actually-rendered value - so neighbour action buttons (plot, watch) sit
+ * inside the cell for layout purposes but are excluded from the flash. */
+.value-cell {
+  border-radius: var(--radius-sm);
+}
+.value-text {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  border-radius: var(--radius-sm);
+  /* Fade-out path for the value-text--flash variant. Background-color transitions are
+   * GPU-composited in modern browsers, so a fading row tint costs near-zero per frame -
+   * vastly cheaper than the previous text-shadow approach, which re-rasterized every
+   * glyph at 60 fps for the duration of the fade. */
+  transition: background-color 300ms ease-out;
+}
+/* Background-color tint as the value-change cue. The tint snaps on (transition: none),
+ * then fades back to transparent over 300 ms via the base `.value-text` / `.property-row`
+ * transition rules. Two surfaces, one tint each - never both on the same element:
+ *   - `.property-row[data-flash]` tints the entire row (Object Explorer property rows).
+ *   - `.value-text[data-flash]` tints just the value span (Watches readout / leaf cards,
+ *     which have no surrounding `.property-row`). */
+.property-row[data-flash] {
+  background-color: var(--accent-flash-row);
+  transition: none;
+}
+.value-text[data-flash] {
+  background-color: var(--accent-flash-text);
+  transition: none;
+}
+/* `.flash-cascade` opts a card root into "flash all `.value-text` descendants when
+ *  my own `[data-flash]` is set." Used by `EventWatchCard` whose icon + name + timestamp
+ *  spans need to pulse together from one scheduler entry rather than three. */
+.flash-cascade[data-flash] .value-text {
+  background-color: var(--accent-flash-text);
+  transition: none;
+}
+
+/* Tree-connector lines for the Events drawer sidebar. Each indented item draws a
+ * vertical line at a fixed left offset that spans the FULL height of the row so
+ * adjacent rows connect without a gap. A horizontal stub at the vertical center
+ * reaches from the line to the label. The `--last` variant clips the vertical line at
+ * the corner so the tree closes off after the final sibling. */
+.events-sidebar-tree-item {
+  position: relative;
+}
+.events-sidebar-tree-item::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--border-default);
+}
+.events-sidebar-tree-item::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 8px;
+  border-top: 1px solid var(--border-default);
+}
+.events-sidebar-tree-item--last::before {
+  bottom: 50%;
+}
+
+/* Row-arrival highlight for the events log + per-type tables. The row consumer applies
+ * `.events-row--arrived` at first mount when the delivery is fresh; the CSS animation
+ * tints the row background with the accent wash then fades to transparent over 800ms. */
+@keyframes events-row-arrived {
+  0% { background-color: var(--accent-wash); }
+  100% { background-color: transparent; }
+}
+.events-row--arrived {
+  animation: events-row-arrived 800ms ease-out;
+}
+
+/* Vertical slide pair used by the object-explorer header when its selection changes -
+ * old name slides up and out, new name rises in from below. Matches both ways so the
+ * transition reads as forward motion (odometer / page-flip), not a confusing cross-fade. */
+@keyframes webex-slide-up-out {
+  0%   { transform: translateY(0);         opacity: 1; }
+  100% { transform: translateY(-100%);     opacity: 0; }
+}
+@keyframes webex-slide-up-in {
+  0%   { transform: translateY(100%);      opacity: 0; }
+  100% { transform: translateY(0);         opacity: 1; }
+}
+
+/* Slow pulse on the connection-status banner's dot while the library is reconnecting. */
+@keyframes webex-conn-pulse {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.45; }
+}
+
+/* Spinner glyph for in-flight method invocations on the Methods tab. Rendered inline as a
+ * 14px ring with a single accent-colored segment that rotates indefinitely. */
+@keyframes sen-invocation-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* `NumberInput` delegates its text-input portion to `rc-input-number` (the headless
+ * primitive behind Ant Design's InputNumber). Visual goals: match the existing
+ * `baseInputStyle` (mono font, accent-tinted border, input background) and remove the
+ * left/right borders so the input pill flows cleanly into the custom `−/+` spinner
+ * buttons rendered alongside. */
+.sen-number-input.rc-input-number {
+  display: inline-flex;
+  width: 100px;
+}
+.sen-number-input .rc-input-number-input {
+  width: 100%;
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  background: var(--bg-input);
+  color: var(--fg-base);
+  border-top: 1px solid var(--accent-border);
+  border-bottom: 1px solid var(--accent-border);
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+  outline: none;
+  text-align: right;
+  box-sizing: border-box;
+}
+.sen-number-input--invalid .rc-input-number-input {
+  border-top-color: var(--warn);
+  border-bottom-color: var(--warn);
+}
+
+/* Carved separator - applies a 2-tone hairline to the bottom of an element so it
+ * reads as an etched groove rather than a flat painted line. Light catches the top
+ * (a 1 px highlight just inside the bottom edge); shadow sits at the bottom (a 1 px
+ * border below it). Used on header rows that need a visible boundary to the body
+ * below them - under the Queries pane header, under the object name in the
+ * explorer header, etc.
+ *
+ * Light mode collapses the highlight to transparent so on white surfaces the rule
+ * gracefully degrades to a plain dark hairline - the carved-from-the-surface
+ * illusion only works against a darker surface in the first place. */
+.carved-bottom {
+  border-bottom: 1px solid var(--separator-shadow);
+  box-shadow: inset 0 -1px 0 var(--separator-highlight);
+}
+
+/* Pressable surface - buttons, pills, segmented-control segments, status chips. The
+ * "lit from above" treatment that gives interactive surfaces a 3D feel:
+ *   - Soft top-to-bottom gradient on the background
+ *   - 1 px inset highlight on the top edge ("light catching the lip")
+ *   - Small drop shadow below ("lifted off the page")
+ *   - Subtle border carries the boundary against neighbouring chrome
+ * Hover brightens the surface and intensifies the shadow; active inverts the highlight
+ * into an inset shadow so the button reads as "pressed in". All four cues come from
+ * tokens so light mode can flip them en masse without touching consumer code.
+ *
+ * `.pressable--accent` is the primary-CTA variant (the brand-blue Save button in the
+ * Add-query modal, "Connect Wallet" style accents) - same chrome, just tinted by the
+ * accent. */
+.pressable {
+  background-image: var(--pressable-gradient);
+  background-color: var(--pressable-bg);
+  border: 1px solid var(--pressable-border);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    inset 0 1px 0 var(--pressable-highlight),
+    0 1px 1px var(--pressable-shadow);
+  color: var(--fg-base);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.pressable:hover {
+  background-color: var(--pressable-bg-hover);
+  border-color: var(--pressable-border-hover);
+  box-shadow:
+    inset 0 1px 0 var(--pressable-highlight),
+    0 2px 3px var(--pressable-shadow);
+}
+.pressable:active,
+.pressable[data-pressed="true"] {
+  background-image: none;
+  background-color: var(--pressable-bg-active);
+  box-shadow: inset 0 1px 2px var(--pressable-shadow);
+}
+.pressable:disabled,
+.pressable[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+.pressable--accent {
+  background-color: var(--accent-wash);
+  border-color: var(--accent-border);
+  color: var(--accent-text-wash);
+}
+.pressable--accent:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+.pressable--danger {
+  color: var(--err);
+  border-color: var(--err-wash);
+}
+.pressable--danger:hover {
+  background-color: var(--err-wash);
+  border-color: var(--err);
+  color: var(--err);
+}
+
+/* App-wide object / property name links rendered by `<ObjectLink>` / `<PropertyLink>`.
+ * Plain text by default (color inherits from the surrounding label), with a subtle
+ * underline + accent tint on hover so the click affordance is discoverable without
+ * making every name in the UI look like a hyperlink. */
+.explorer-link {
+  transition: color 120ms ease, text-decoration-color 120ms ease;
+}
+.explorer-link:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-text-wash);
+  text-underline-offset: 2px;
+  color: var(--accent-text-wash);
+}
+
+:root,
+[data-theme="dark"] {
+  /* Modern flat dark surfaces with a faint cool tilt. Contrast pushed for the
+   * "floating panels on dark canvas" look - body is near-pure-black so panes lift
+   * noticeably above it. Each rung in the ladder is ~+18 luminance over the body so
+   * the eye reads sidebar / workspace / cards as discrete objects sitting on the
+   * page bg, not as coplanar surfaces with subtle dividing lines. Blue channel sits
+   * ~8 above green in each tint to keep the cool feel without sliding into navy. */
+  --bg-base: #06070b;
+  --bg-elevated: #1d1f26;
+  --bg-overlay: #2a2d36;
+  /* Editable surfaces (text inputs, dropdown triggers, spinner buttons). Sits a notch
+   * lighter than the surrounding pane so the field reads as "elevated / interactive"
+   * rather than disappearing into the background. */
+  --bg-input: rgba(150, 180, 235, 0.07);
+
+  /* Text ladder (cool gray, calibrated against the dark background). `--fg-strong` is
+   * reserved for primary KPI numerals and headline values that should "pop" against
+   * the surface - full white rather than the near-white base. */
+  --fg-strong: #ffffff;
+  --fg-base: #eef2f8;
+  --fg-muted: #a6b1c4;
+  --fg-subtle: #6f7a8d;
+  --fg-faint: #4a5468;
+
+  /* Hairline borders. */
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-emphasis: rgba(255, 255, 255, 0.18);
+  --surface-glass-highlight: rgba(255, 255, 255, 0.05);
+
+  /* Single accent. Azure. The wash + border variants are the canonical "selected"
+   * surface in this design system. */
+  --accent: #4f93ff;
+  --accent-gradient: linear-gradient(180deg, #6aa6ff 0%, #3e7fe6 100%);
+  --accent-hover: #6ea3ff;
+  --accent-fg: #0b1728;
+  /* Slightly bumped from the original 0.16 - the neutral grey panes don't pre-tint the
+   * underlying area cool the way translucent panes once did, so a touch more alpha is
+   * needed for the active segmented pill, watch/plot hover, and the favorited-row tint
+   * to read as the colourful "touch" they're meant to be. */
+  --accent-wash: rgba(79, 147, 255, 0.22);
+  --accent-border: rgba(79, 147, 255, 0.42);
+  --accent-text-wash: #cfe0ff;
+  /* Value-change flash tints (row + value-text). */
+  --accent-flash-row: rgba(79, 147, 255, 0.08);
+  --accent-flash-text: rgba(79, 147, 255, 0.12);
+
+  /* Row chrome shared by property/events tables - zebra alt and hover wash. The
+   * two zebra tokens form a stripe pair: every row gets `--surface-zebra` (faint),
+   * and odd-indexed rows get the slightly stronger `--surface-zebra-strong` on top,
+   * yielding visible alternation that doesn't disappear when only one row is shown
+   * (sticky lone-row case in the tree pane). */
+  --surface-zebra: rgba(255, 255, 255, 0.04);
+  --surface-zebra-strong: rgba(255, 255, 255, 0.08);
+  --surface-row-hover: rgba(150, 180, 235, 0.09);
+
+  /* Semantic. Saturated chip colors so the green / amber / red read as VIVID status
+   * marks (the "+12% / -4%" reference treatment), not as ambient tints - wash alpha
+   * pushed to 0.22 so the chip's surface visibly carries the hue. */
+  --ok: #4ade80;
+  --ok-wash: rgba(74, 222, 128, 0.22);
+  --warn: #fbbf24;
+  --warn-wash: rgba(251, 191, 36, 0.22);
+  --err: #ef4444;
+  --err-wash: rgba(239, 68, 68, 0.22);
+
+  /* Variant arm tag color (used by the type explorer + variant render). */
+  --variant: #9a8cff;
+
+  /* Value typography in the renderer. */
+  --val-num: #7dd3fc;
+  --val-str: #fda4af;
+  --val-bool: #5eead4;
+  --val-enum: #fbbf24;
+
+  /* Flat solid surfaces with a clear elevation ladder over `--bg-base` (#06070b):
+   *   - nav / workspace top-card: +20 lum (clearly lifted off the body)
+   *   - main pane: +18 lum (essentially the same elevation; reads as a sibling)
+   *   - card: +28 lum (visibly lifted off the pane it sits on)
+   * The deltas matter for the reference's "objects floating on the page" feel - when
+   * surface vs body contrast drops below ~15 lum the eye loses the depth cue and the
+   * panes look painted on instead of lifted. */
+  --surface-pane: #1c1f27;
+  --surface-pane-nav: #1c1f27;
+  --surface-bar: #1c1f27;
+  --surface-card: #25282f;
+  /* "Recessed" surface - used for the plot panel's chart area (the chart rectangle
+   * is visibly darker than the card around it, matching the reference dashboard's
+   * sunken-canvas treatment) AND as a backstop for the workspace canvas. Sits
+   * roughly halfway between body and surface-pane so the contrast against the
+   * cards is clear but the bg doesn't read as a dark void. */
+  --surface-recessed: #14171e;
+  --surface-header: rgba(255, 255, 255, 0.03);
+  --surface-list-header: rgba(0, 0, 0, 0.25);
+  --surface-modal: #1c2030;
+  --surface-blur: none;
+  --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --surface-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --surface-glass-top-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 30%);
+
+  /* Watches pane nesting ladder - three progressively brighter washes over the
+   * sidebar pane bg. Each level steps a small amount of white into the surface so
+   * the object -> property -> leaf containment reads as a soft elevation ladder
+   * (deeper levels feel slightly more "lit"), without ever shouting in the dark
+   * theme. Light mode redefines these as solid grey steps below. */
+  --watch-level-1: rgba(255, 255, 255, 0.02);
+  --watch-level-2: rgba(255, 255, 255, 0.035);
+  --watch-level-3: rgba(255, 255, 255, 0.05);
+
+  /* Card chrome tokens - surface ladder for rest/hover/selected states plus the top
+   * sheen + insets used by `objectCardStyle`. Held as tokens so light mode flips them
+   * en masse without component branching. */
+  --card-surface-rest: #1d1f26;
+  --card-surface-hover: #22242c;
+  --card-surface-selected: #2a2f3e;
+  --card-border-rest: rgba(255, 255, 255, 0.08);
+  --card-border-hover: rgba(255, 255, 255, 0.14);
+  --card-top-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 30%);
+  --card-top-highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --card-drop-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  /* Carved-separator pair. Dark line at the bottom catches the etched shadow, light
+   * pixel just above catches the etched highlight - together they read as a 2 px
+   * groove carved into the surface. See `.carved-bottom` rule above. */
+  --separator-shadow: rgba(0, 0, 0, 0.5);
+  --separator-highlight: rgba(255, 255, 255, 0.06);
+
+  /* Pressable-surface chrome. See the `.pressable` rule above for what each token
+   * does. Dark mode: surface picks up a faint white wash, top edge gets a low-alpha
+   * white inset, drop shadow is a near-black soft fall. */
+  --pressable-bg: rgba(255, 255, 255, 0.03);
+  --pressable-bg-hover: rgba(255, 255, 255, 0.06);
+  --pressable-bg-active: rgba(0, 0, 0, 0.20);
+  --pressable-border: rgba(255, 255, 255, 0.10);
+  --pressable-border-hover: rgba(255, 255, 255, 0.16);
+  --pressable-highlight: rgba(255, 255, 255, 0.08);
+  --pressable-shadow: rgba(0, 0, 0, 0.35);
+  --pressable-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 60%);
+
+  /* Per-palette IconToggle tokens. Each Watch / Plot / Favorite button reads one
+   * triple: a hover wash, a more-opaque pressed bg, and the icon text colour.
+   * In dark mode the text is a pale tint of the hue so it pops against the dark
+   * surface; in light mode it flips to the deep, saturated variant of the same hue
+   * so it stays legible against white. Same alpha math on both schemes (~0.18 wash,
+   * ~0.32 pressed in dark; toned down in light since white surfaces don't need as
+   * much chrome to read as "lit"). */
+  --palette-warm-wash: rgba(231, 185, 74, 0.18);
+  --palette-warm-pressed: rgba(231, 185, 74, 0.32);
+  --palette-warm-text: #f5d77a;
+  --palette-green-wash: rgba(16, 185, 129, 0.20);
+  --palette-green-pressed: rgba(16, 185, 129, 0.32);
+  --palette-green-text: #6ee7b7;
+  --palette-violet-wash: rgba(167, 139, 250, 0.20);
+  --palette-violet-pressed: rgba(167, 139, 250, 0.32);
+  --palette-violet-text: #ddd6fe;
+
+  /* Page-edge gutter for the top-level panes. Non-zero so the sidebar (and workspace)
+   * float as rounded cards on the page bg - matches the reference look. The same
+   * value is reused as the inter-card gap inside the sidebar so the spacing reads
+   * uniformly: cards are inset from the viewport edge AND from each other by the
+   * same amount. */
+  --pane-gutter-top: 14px;
+  --pane-gutter-side: 14px;
+
+  /* Height of the top sidebar identity card AND the workspace tab strip. Shared so
+   * they align horizontally - they sit at the same Y (`--pane-gutter-top` from the
+   * viewport) and are the same height, so their bottom edges meet. The number is
+   * tuned to comfortably hold an icon + label tab at `--fs-lg`. */
+  --topbar-height: 44px;
+
+  /* Radii - tight enough to read as architectural, loose enough on top-level panes
+   * to read as soft cards (the reference dashboard's sidebar has a clearly soft
+   * silhouette). `--radius-xl` is used by sidebar, workspace strip, and bottom
+   * drawer; `--radius-lg` by cards; `--radius-md/sm` by chips and small chrome. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Typography. Geist + Geist Mono self-hosted via @font-face in fonts.css; system
+   * fallback picks up if the woff2 fails to load. */
+  --font-ui: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  /* Font-size ladder. Six steps cover the actual range in the UI. */
+  --fs-2xs: 8px;
+  --fs-xs: 9px;
+  --fs-sm: 10px;
+  --fs-md: 11px;
+  --fs-lg: 12px;
+  --fs-xl: 13px;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  color: var(--fg-base);
+  font-family: var(--font-ui);
+  font-size: var(--fs-xl);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+body {
+  background: var(--bg-base);
+}
+
+/* Light theme - toggled by adding `theme-light` to `<html>`. Inspired by Linear's
+ * softer light mode: a warm off-white page bg with white panes layered on top, low
+ * contrast between the two so the eye reads "calmer document" rather than "high-
+ * contrast UI". Borders are subtle, accent washes are gentle. */
+:root.theme-light {
+  color-scheme: light;
+
+  /* Warm gray page bg with plain white panes layered on top. Body deepened so the
+   * white panes / cards visibly pop against it - matches the reference light theme
+   * where the sidebar and workspace cards are clearly discrete objects on a darker
+   * canvas, not "two whites side by side." */
+  --bg-base: #e4e7ec;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --bg-input: #ffffff;
+
+  /* Slate text ladder. `--fg-base` is a touch warmer than pure black so it reads as
+   * "text on paper" instead of "ink on screen". */
+  --fg-base: #26282f;
+  --fg-muted: #57606a;
+  --fg-subtle: #7d8590;
+  --fg-faint: #c2c7ce;
+
+  /* Subtle borders - softer than GitHub's `#d0d7de`, closer to Linear's hairlines. */
+  --border-default: #e1e4e8;
+  --border-strong: #cdd2d7;
+  --border-glass: rgba(0, 0, 0, 0.06);
+  --border-emphasis: rgba(0, 0, 0, 0.12);
+  --surface-glass-highlight: rgba(0, 0, 0, 0);
+
+  /* Accent - GitHub link blue, slightly toned washes so an active pill / hover row
+   * reads as "lit" rather than "blue tile". */
+  --accent: #0969da;
+  --accent-gradient: linear-gradient(180deg, #218bff 0%, #0969da 100%);
+  --accent-hover: #0860c7;
+  --accent-fg: #ffffff;
+  --accent-wash: rgba(9, 105, 218, 0.06);
+  --accent-border: rgba(9, 105, 218, 0.28);
+  --accent-text-wash: #0969da;
+  --accent-flash-row: rgba(9, 105, 218, 0.05);
+  --accent-flash-text: rgba(9, 105, 218, 0.08);
+
+  /* Row chrome - zebra pair and hover both gentle but perceptible. */
+  --surface-zebra: rgba(0, 0, 0, 0.03);
+  --surface-zebra-strong: rgba(0, 0, 0, 0.06);
+  --surface-row-hover: rgba(9, 105, 218, 0.05);
+
+  /* Semantic - luminance adjusted for light bg. */
+  --ok: #1a7f37;
+  --ok-wash: rgba(26, 127, 55, 0.08);
+  --warn: #9a6700;
+  --warn-wash: rgba(154, 103, 0, 0.08);
+  --err: #cf222e;
+  --err-wash: rgba(207, 34, 46, 0.08);
+
+  --variant: #6639ba;
+
+  /* Value renderer colors - darker, saturated for light bg. */
+  --val-num: #0550ae;
+  --val-str: #a40e26;
+  --val-bool: #0a7d40;
+  --val-enum: #9a6700;
+
+  /* Surfaces - panes and sidebar all pure white. The body's warm gray is what
+   * carries the "panes floating on page" cue; every floating card surface is the
+   * same white so they read as siblings. Header strips that sit INSIDE a pane
+   * (column-label bands, etc.) get a darker wash. */
+  --surface-pane: #ffffff;
+  --surface-pane-nav: #ffffff;
+  --surface-bar: #ffffff;
+  --surface-card: #ffffff;
+  /* "Recessed" surface - used for the workspace canvas behind the cards AND for the
+   * plot panel's chart area. Slightly darker than the white panes so cards / plots
+   * read as recessed below the surrounding card chrome. */
+  --surface-recessed: #ebedf0;
+  --surface-header: rgba(0, 0, 0, 0.04);
+  --surface-list-header: rgba(0, 0, 0, 0.06);
+  --surface-modal: #ffffff;
+  --surface-blur: none;
+  /* Soft drop shadow on a panel-vs-page contrast scheme - strong enough that a
+   * pane reads as lifted, light enough that it doesn't shout. */
+  /* Two-layer drop: a tight 1px contact line + a broader soft halo for depth. Matches
+   * the visual weight Linear / Notion give panel chrome on a light page bg. */
+  --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.07);
+  --surface-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --surface-glass-top-sheen: none;
+
+  /* Watches pane nesting ladder - three progressively darker shades for the three
+   * nested cards. The white sidebar pane is the backdrop; each nested level steps
+   * a few percent toward the page bg so the user can see object -> property -> leaf
+   * containment at a glance. */
+  --watch-level-1: #f1f4f8;
+  --watch-level-2: #e6eaef;
+  --watch-level-3: #d9dee5;
+
+  /* Card chrome - rest is white, hover and selected pull only slightly toward the
+   * page bg so the lift cue is subtle. Borders carry the state distinction more
+   * than the surface does. */
+  --card-surface-rest: #ffffff;
+  --card-surface-hover: #fafbfc;
+  --card-surface-selected: #f1f4f8;
+  --card-border-rest: #e1e4e8;
+  --card-border-hover: #c7ccd2;
+  --card-top-sheen: none;
+  --card-top-highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0);
+  /* Card lift on the light page bg: a 1px ground line plus a soft 8 px halo. Reads as
+   * a card resting on paper rather than a flat sticker. */
+  --card-drop-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  /* Carved separator - light variant. The "carved" effect doesn't translate to white
+   * surfaces (the highlight would be invisible against the bg), so the highlight
+   * collapses to transparent and `.carved-bottom` degrades to a plain dark hairline. */
+  --separator-shadow: rgba(0, 0, 0, 0.10);
+  --separator-highlight: rgba(255, 255, 255, 0);
+
+  /* Pressable-surface chrome - light variant. White surface, faint dark border, soft
+   * drop shadow; the "lit from above" cue comes from a near-white inset highlight on
+   * the top edge (which on a white surface reads as crisp definition rather than glow). */
+  --pressable-bg: #ffffff;
+  --pressable-bg-hover: #f6f8fa;
+  --pressable-bg-active: #eaeef2;
+  --pressable-border: rgba(0, 0, 0, 0.10);
+  --pressable-border-hover: rgba(0, 0, 0, 0.18);
+  --pressable-highlight: rgba(255, 255, 255, 0.6);
+  --pressable-shadow: rgba(0, 0, 0, 0.06);
+  --pressable-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.02) 100%);
+
+  /* IconToggle palettes - deep, saturated text colors that read against white. The
+   * washes pick up just enough hue so a pressed button is clearly tinted without
+   * shouting. */
+  --palette-warm-wash: rgba(184, 134, 11, 0.10);
+  --palette-warm-pressed: rgba(184, 134, 11, 0.20);
+  --palette-warm-text: #9a6700;
+  --palette-green-wash: rgba(26, 127, 55, 0.10);
+  --palette-green-pressed: rgba(26, 127, 55, 0.20);
+  --palette-green-text: #1a7f37;
+  --palette-violet-wash: rgba(102, 57, 186, 0.10);
+  --palette-violet-pressed: rgba(102, 57, 186, 0.20);
+  --palette-violet-text: #6639ba;
+}
+
+/* Cool-blue scrollbar that disappears against the panes. The inset `border: 2px
+ * transparent + background-clip: padding-box` trick gives a 5 px visible thumb inside
+ * a 9 px scroll gutter so the thumb doesn't crowd the content edge. */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:root,
+[data-theme="dark"] {
+  --scrollbar-thumb: rgba(150, 180, 235, 0.16);
+  --scrollbar-thumb-hover: rgba(150, 180, 235, 0.3);
+}
+:root.theme-light {
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+}
+
+/* Honor OS-level reduced-motion. Standard "near-instant duration" approach: animations
+ * and transitions still run but complete in 1ms, so slide-ins, pulses, value-flash
+ * fades, and the row-arrival highlight read as instant snap-on/off instead of motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
