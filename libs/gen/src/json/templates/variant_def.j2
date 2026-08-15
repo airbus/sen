@@ -1,0 +1,32 @@
+    "{{ senQual }}": {
+      "$id": "{{ senQual }}",{% if description != "" %}
+      "description": "{{ description }}",{% endif %}
+      "type": "object",
+      "properties": {
+        "type":  {
+          "enum": [
+## for field in fields
+            "{{ field.senType }}"{%if not loop.is_last %},{% endif %}
+## endfor
+          ]
+        }
+      },
+      "allOf": [
+## for field in fields
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "{{ field.senType }}" }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": { {{ field.jsonSchemaType }} }
+            },
+            "required": ["value"]
+          }
+        }{%if not loop.is_last %},{% endif %}
+## endfor
+      ],
+      "required": ["type"]
+    }

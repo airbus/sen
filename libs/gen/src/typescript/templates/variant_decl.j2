@@ -1,0 +1,5 @@
+export type {{ name }} =
+## for arm in fields
+  | { type: "{{ arm.senQual }}"; value: {{ arm.tsAnnotationType }} }
+## endfor
+;
