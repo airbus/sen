@@ -1,0 +1,436 @@
+# === nightly.yaml =====================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+#
+# Lanes that are too slow for the pull-request path. A failing lane files or
+# refreshes the tracking issue instead of failing silently overnight.
+#
+# Each lane checks out, calls .github/actions/prepare_build for the cache and
+# the toolchain, and then does its own work.
+#
+# The timeouts are generous on purpose: a cold cache builds every dependency
+# from source. They exist to cap a hang, not to police duration.
+
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sanitizers:
+    name: "${{ matrix.lane }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: "TSan"
+            sanitizer: thread
+          - lane: "ASan+UBSan"
+            sanitizer: address
+    env:
+      CC: clang-20
+      CXX: clang++-20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: clang
+          compiler-version: 20
+          runner-label: ubuntu-24.04
+
+      - name: Install additional python dependencies
+        shell: bash
+        run: pip install junitparser==5.0.1
+
+      # Debug also compiles the SEN_DEBUG_ASSERT invariant checks, which
+      # RelWithDebInfo builds leave out.
+      - name: Build with ${{ matrix.lane }}
+        shell: bash
+        run: |
+          conan install . -s "&:build_type=Debug" --build=missing \
+            -o "sen/*:with_tests=True" \
+            -o "sen/*:sanitizer=${{ matrix.sanitizer }}"
+          # conan build regenerates the toolchain, so it needs the same options.
+          conan build . -s "&:build_type=Debug" \
+            -o "sen/*:with_tests=True" \
+            -o "sen/*:sanitizer=${{ matrix.sanitizer }}"
+
+      - name: Run tests
+        shell: bash
+        run: cmake --build build/clang/Debug/ --target run_tests
+
+  clang-tidy:
+    name: "clang-tidy full tree"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      CC: clang-20
+      CXX: clang++-20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: clang
+          compiler-version: 20
+          runner-label: ubuntu-24.04
+
+      # SEN_DISABLE_CLANG_TIDY=OFF attaches clang-tidy to every target
+      # (CXX_CLANG_TIDY), so the full tree is checked as it compiles.
+      - name: Build with clang-tidy
+        shell: bash
+        run: |
+          conan install . -s "&:build_type=Release" --build=missing \
+            -o "sen/*:with_tests=True" -o "sen/*:with_clang_tidy=True"
+          conan build . -s "&:build_type=Release" \
+            -o "sen/*:with_tests=True" -o "sen/*:with_clang_tidy=True"
+
+  flake-hunt:
+    name: "Unit test repeat loop"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      CC: gcc-12
+      CXX: g++-12
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: gcc
+          compiler-version: 12
+          runner-label: ubuntu-22.04
+
+      - name: Install additional python dependencies
+        shell: bash
+        run: pip install junitparser==5.0.1
+
+      - name: Build
+        shell: bash
+        run: |
+          conan install . -s "&:build_type=Release" --build=missing -o "sen/*:with_tests=True"
+          conan build . -s "&:build_type=Release" -o "sen/*:with_tests=True"
+
+      # An intermittent test is a defect: this loop exists to catch it, not
+      # to retry it away.
+      - name: Repeat the unit suite until a failure
+        shell: bash
+        run: |
+          ctest --test-dir build/gcc/Release --parallel "$(nproc)" \
+              -L unit -LE flaky --repeat until-fail:5 --output-on-failure
+
+      - name: Archive test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: flake-hunt-logs
+          path: build/gcc/Release/Testing/
+
+  benchmarks:
+    name: "Benchmarks"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      CC: gcc-12
+      CXX: g++-12
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: gcc
+          compiler-version: 12
+          runner-label: ubuntu-22.04
+
+      - name: Build benchmarks
+        shell: bash
+        run: |
+          conan install . -s "&:build_type=Release" --build=missing
+          conan build . -s "&:build_type=Release"
+
+      - name: Run benchmarks
+        shell: bash
+        run: cmake --build build/gcc/Release/ --target run_benchmarks
+
+      # Result history lives in these artifacts until a baseline comparison
+      # exists to fail on.
+      - name: Archive benchmark results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: benchmark-results
+          # An empty archive would mean the benchmarks never ran, which is the
+          # kind of quiet nothing this pipeline is not supposed to allow.
+          if-no-files-found: error
+          path: build/gcc/Release/**/*_benchmark*.json
+
+  # Catches documentation breakage from paths the pull-request gate does not
+  # watch, for example doxygen comments in headers.
+  docs-build:
+    uses: ./.github/workflows/docs_check.yaml
+
+  # Every packaged configuration, which a pull request does not run: it builds
+  # only the configuration that ships.
+  packaging:
+    uses: ./.github/workflows/conan.yaml
+
+  # Sen promises consumers "at least C++17", and they compile its headers in
+  # their own dialect. Building Sen itself at C++20 compiles those headers the
+  # way a C++20 consumer would; the dependencies keep their own standard, so
+  # this costs one build and no dependency rebuild.
+  cppstd-20:
+    name: "Public headers under C++20"
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      CC: gcc-12
+      CXX: g++-12
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: gcc
+          compiler-version: 12
+          runner-label: ubuntu-22.04
+
+      - name: Build the package and its consumer with C++20 headers
+        shell: bash
+        run: |
+          conan create . --user airbus --channel dev \
+              --test-folder .conan/test_packages/package \
+              --build=missing -s "sen/*:compiler.cppstd=20"
+
+  # Pull requests build with gcc-12, the oldest compiler the project supports.
+  # A newer release rejects code the older one accepts and warns about more, so
+  # the whole tree, examples and tests included, is compiled once a day with the
+  # newest gcc available on a runner.
+  #
+  # The same lane then checks the promise the project makes to consumers: they
+  # get "at least C++17" and compile these headers in their own dialect. The
+  # package is created the way it is released, at C++17, and the small consumer
+  # under .conan/test_packages is then compiled against it once per newer
+  # standard. Only the consumer's standard changes, so nothing is rebuilt.
+  newest-compiler:
+    name: "Newest gcc and newer consumer standards"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: gcc
+          compiler-version: 14
+          runner-label: ubuntu-24.04
+
+      - name: Build the whole tree with the newest gcc
+        shell: bash
+        run: |
+          conan create . --user airbus --channel dev \
+              --test-folder .conan/test_packages/package \
+              --build=missing -s "sen/*:compiler.cppstd=17" \
+              -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
+
+      - name: Compile the consumer under newer standards
+        shell: bash
+        run: |
+          version=$(conan inspect . --format=json |
+              python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])')
+          for std in 20 23; do
+              echo "::group::consumer at C++$std"
+              # & is the consumer here, so sen and its dependencies keep the
+              # settings they were built with.
+              conan test .conan/test_packages/package "sen/$version@airbus/dev" \
+                  -s "&:compiler.cppstd=$std"
+              echo "::endgroup::"
+          done
+
+  # The pull-request pipeline measures coverage but keeps the report as a run
+  # artifact, which nobody looks at. The clang leg does not run on main, so
+  # measuring here once a day is what gives the report a stable home.
+  coverage:
+    name: "Coverage report"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      CC: clang-20
+      CXX: clang++-20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: clang
+          compiler-version: 20
+          runner-label: ubuntu-24.04
+
+      - name: Install additional python dependencies
+        shell: bash
+        run: pip install junitparser==5.0.1
+
+      # The report target runs the suite as it measures it.
+      - name: Build and measure
+        shell: bash
+        run: |
+          conan install . -s "&:build_type=Debug" -s "&:compiler.cppstd=17" --build=missing \
+            -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
+          conan build . -s "&:build_type=Debug" -s "&:compiler.cppstd=17" \
+            -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
+          cmake --build build/clang/Debug/ --target generate-coverage-report
+
+      - name: Publish the coverage report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: coverage-report
+          if-no-files-found: error
+          path: build/clang/Debug/coverage_reports/
+
+  # Kept apart from the job above so that the build never holds a token that
+  # can write to the repository.
+  publish-coverage:
+    name: "Publish the report to the documentation site"
+    needs: coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    # build_docs.yaml uses this group as well, so a deploy queues behind
+    # another instead of racing it; the loser of a race is rejected.
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Check the documentation site exists
+        id: site
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/branches/gh-pages" > /dev/null 2>&1; then
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::The documentation has never been published, so there is no site to publish the report into."
+          fi
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        if: steps.site.outputs.exists == 'true'
+        with:
+          ref: gh-pages
+          fetch-depth: 1
+
+      # Downloaded outside the checkout, so that replaying the change on top
+      # of a documentation deploy does not need the report to survive a reset.
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        if: steps.site.outputs.exists == 'true'
+        with:
+          name: coverage-report
+          path: ${{ runner.temp }}/incoming
+
+      # mike owns the versioned directories; this one sits beside them and it
+      # is served at <site>/coverage/.
+      - name: Replace the published report
+        if: steps.site.outputs.exists == 'true'
+        shell: bash
+        env:
+          REPORT: ${{ runner.temp }}/incoming
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          # A documentation deploy can land between the checkout and the push.
+          # Losing that race is normal, so take the site as it now stands and
+          # put the report back on top rather than merging histories: this
+          # branch is a published directory, not a line of development.
+          for attempt in 1 2 3; do
+              rm -rf coverage
+              mkdir coverage
+              cp -R "$REPORT"/. coverage/
+
+              git add --all coverage
+              if git diff --cached --quiet; then
+                  echo "the report has not changed"
+                  exit 0
+              fi
+              git commit --quiet --message "docs: refresh the coverage report"
+
+              if git push origin HEAD:gh-pages; then
+                  exit 0
+              fi
+              echo "gh-pages moved on, replaying the report (attempt $attempt)"
+              git fetch --depth 1 origin gh-pages
+              git reset --hard FETCH_HEAD
+          done
+          exit 1
+
+  report:
+    name: "File or refresh the tracking issue"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      [
+        sanitizers,
+        clang-tidy,
+        flake-hunt,
+        benchmarks,
+        docs-build,
+        packaging,
+        cppstd-20,
+        newest-compiler,
+        coverage,
+        publish-coverage,
+      ]
+    # A lane that was cancelled or hit its timeout never reaches failure().
+    if: failure() || cancelled()
+    permissions:
+      issues: write
+    steps:
+      - name: Update the nightly tracking issue
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Nightly lane failure"
+          body="Failed run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          number=$(gh issue list --repo "${{ github.repository }}" --state open \
+              --search "in:title \"$title\"" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+              gh issue comment "$number" --repo "${{ github.repository }}" --body "$body"
+          else
+              gh issue create --repo "${{ github.repository }}" --title "$title" --body "$body"
+          fi

@@ -1,0 +1,64 @@
+# === action.yaml ======================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+#
+# Everything a lane needs between checking out and building: the conan package
+# cache and the toolchain. The nightly lanes each run as their own job, so
+# without this the same four steps would be written once per lane and the cache
+# keys would drift apart.
+#
+# Checkout stays with the caller: a local action cannot be resolved before the
+# repository is on disk.
+
+name: Prepare a build
+description: Restores the conan package cache and installs the toolchain for one lane.
+
+inputs:
+  compiler-name:
+    description: gcc or clang
+    required: true
+  compiler-version:
+    description: Major version of the compiler
+    required: true
+  runner-label:
+    description: Runner label, which the cache key is built from (for example ubuntu-24.04)
+    required: true
+  arch:
+    description: x86 or arm
+    required: false
+    default: x86
+  std:
+    description: C++ standard the cache slice belongs to
+    required: false
+    default: "17"
+
+runs:
+  using: composite
+  steps:
+    # A daily key: dependencies are rebuilt at most once a day, and a restore
+    # key still finds yesterday's entry.
+    - name: Generate daily cache id
+      id: cache-id
+      shell: bash
+      run: echo "date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_OUTPUT"
+
+    # The key scheme matches standard_test.yaml, so a lane restores what the
+    # day's builds already populated. No ccache anywhere in the nightly lanes:
+    # sanitized and instrumented objects must not mix into the slices that the
+    # pull-request builds keep, and each lane compiles every file once anyway.
+    - name: Cache conan packages
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ~/.conan2/p
+        key: conanp-${{ inputs.runner-label }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-${{ inputs.std }}-${{ steps.cache-id.outputs.date }}
+        restore-keys: conanp-${{ inputs.runner-label }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-${{ inputs.std }}-
+
+    - name: Setup build context
+      uses: ./.github/actions/setup_build_context
+      with:
+        compiler-name: ${{ inputs.compiler-name }}
+        compiler-version: ${{ inputs.compiler-version }}
+        arch: ${{ inputs.arch }}

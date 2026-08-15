@@ -14,6 +14,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # build options
 option(SEN_BUILD_EXAMPLES "Build examples" ON)
 option(SEN_BUILD_TESTS "Build tests" ON)
+option(SEN_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(SEN_BUILD_DOCS "Build documentation" ON)
 option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
 option(SEN_COVERAGE_ENABLE "Enable coverage generation" OFF)
@@ -49,6 +50,7 @@ project(
 include(util/sen_internal_utils)
 include(util/sanitizers)
 include(util/test)
+include(util/benchmark)
 
 # libs
 add_subdirectory(libs/core)

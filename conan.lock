@@ -25,6 +25,7 @@
         "concurrentqueue/1.0.4#1e48e1c712bcfd892087c9c622a51502%1687274728.048",
         "cli11/2.3.2#2df6d985bb950b2babffcc4daca1e9ff%1730283383.142",
         "c4core/0.1.11#f4ab4857c7ade25213739379104e6717%1718607621.941",
+        "benchmark/1.9.5#b885dc73ad67b40a55d45684d1c88ad1%1774363287.434",
         "asio/1.36.0#75a50dae6e50af10cfb2150286b7df39%1756280309.023"
     ],
     "build_requires": [
