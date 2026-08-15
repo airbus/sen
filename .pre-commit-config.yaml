@@ -23,6 +23,8 @@ repos:
     - id: end-of-file-fixer
     - id: detect-private-key
     - id: check-json
+      # devcontainer.json is JSONC (comments allowed by its spec)
+      exclude: ^\.devcontainer/
     - id: check-added-large-files
     - id: check-toml
     - id: check-xml
