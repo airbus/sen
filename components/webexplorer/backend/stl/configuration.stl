@@ -1,0 +1,9 @@
+package sen.components.webexplorer;
+
+optional<string> MaybeControlBusName;
+
+struct Configuration
+{
+  // jsonrpc control bus name (just the bus name, as the session is always "local"). Defaults to "jsonrpc_control".
+  controlBusName : MaybeControlBusName
+}

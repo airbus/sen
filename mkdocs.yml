@@ -142,6 +142,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - Getting Sen: getting_started/install.md
+      - Running the Tests: getting_started/testing.md
       - Creating your first Package: getting_started/first_package.md
   - Manual:
       - users_guide/index.md
@@ -168,6 +169,7 @@ nav:
   - Components:
       - components/index.md
       - Explorer: components/explorer.md
+      - Web Explorer: components/webexplorer.md
       - Shell: components/shell.md
       - Influx: components/influx.md
       - Python: components/py.md

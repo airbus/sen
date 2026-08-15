@@ -7,7 +7,7 @@ React apps) drive a UI off the same data without writing your own subscription b
 
 It ships in-tree at
 [`components/jsonrpc/clients/typescript/`](https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript)
-and is the primary client for the [Sen Web Explorer](web_explorer.md) and for any custom
+and is the primary client for the [Sen Web Explorer](webexplorer.md) and for any custom
 operator UI built against Sen.
 
 ## When to use it
