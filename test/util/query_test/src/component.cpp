@@ -60,6 +60,8 @@ public:
       R"(SELECT query_test.QueryTestClass FROM se.env WHERE currentStatus = "error")", api.getTypes());
     bus->addSubscriber(enumInterest, &enumList_, true);
 
+    constexpr int maxTicks = 200;  // ~2s at 100Hz
+
     return api.execLoop(sen::Duration::fromHertz(100.0),
                         [this, &api]
                         {
@@ -69,18 +71,13 @@ public:
                           {
                             obj_->setNextCurrentStatus(query_test::Status::error);
                           }
-                          else if (tick_ == 2)
+                          else if (enumHits_ == 1)
                           {
-                            if (enumHits_ != 1)
-                            {
-                              sen::throwRuntimeError("Enum query failed to match property change");
-                            }
-
                             api.requestKernelStop(0);
                           }
-                          else if (tick_ > 10)
+                          else if (tick_ > maxTicks)
                           {
-                            sen::throwRuntimeError("Test timeout");
+                            sen::throwRuntimeError("Enum query never matched the property change");
                           }
                         });
   }

@@ -1,0 +1,47 @@
+package test.ts;
+
+// Exercises every value-type template the TS emitter implements (enum, struct + inheritance,
+// sequence, optional, variant) plus the class-event notification-payload pattern. Used by the
+// cli_gen smoke tests.
+
+enum Direction: u8
+{
+  north,
+  east,
+  south,
+  west
+}
+
+struct Point
+{
+  x : f64,  // east-west coordinate
+  y : f64   // north-south coordinate
+}
+
+struct Point3D : Point
+{
+  z : f64  // elevation
+}
+
+sequence<Point> Path;
+
+optional<Direction> MaybeDirection;
+
+alias ObjectId u32;
+
+quantity<f32, m> Altitude;
+
+variant Shape
+{
+  Point,
+  Point3D
+}
+
+// Class with events. Only the events become TS notification interfaces (`<Name>Notification`);
+// nothing else from the class is emitted.
+class Sensor
+{
+  event reading(value : f64);
+
+  event triggered(reason : string, severity : Direction);
+}

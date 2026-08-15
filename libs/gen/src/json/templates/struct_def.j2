@@ -1,0 +1,14 @@
+    "{{ senQual }}": {
+      "$id": "{{ senQual }}",{% if description != "" %}
+      "description": "{{ description }}",{% endif %}
+      "type": "object",
+      "properties": {
+## for field in fields
+        "{{ field.name }}": {
+          {% if field.description != "" %}"description": "{{ field.description }}",
+          {% endif %}{{ field.jsonSchemaType }}
+        }{%if not loop.is_last %},{% endif %}
+## endfor
+      }{% if exists("jsonParentSchemaType") %},
+      "allOf": [ { {{ jsonParentSchemaType }} } ]{% endif %}
+    }
