@@ -11,6 +11,7 @@ from os.path import isdir, join
 from pathlib import Path
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
@@ -49,9 +50,6 @@ class SenConan(ConanFile):
         "with_clang_tidy": [True, False],
         "with_coverage": [True, False],
         "with_docs": [True, False],
-        # TS-client build/test toolchain (node+npm via Conan); resolves to True in full mode iff
-        # jsonrpc itself is enabled. Off in basic/barebones unless explicitly turned on.
-        "with_jsonrpc_ts_client": ["auto", True, False],
         "sanitizer": ["none", "address", "thread"],
     }
     default_options = {
@@ -61,7 +59,6 @@ class SenConan(ConanFile):
         "with_clang_tidy": False,
         "with_coverage": False,
         "with_docs": False,
-        "with_jsonrpc_ts_client": "auto",
         "sanitizer": "none",
     }
 
@@ -76,12 +73,15 @@ class SenConan(ConanFile):
             return name in _BASIC_COMPONENTS
         return False  # barebones
 
-    def _is_jsonrpc_ts_client_enabled(self):
-        """Effective on/off for `with_jsonrpc_ts_client`. Auto resolves to: full mode AND jsonrpc enabled."""
-        val = str(self.options.with_jsonrpc_ts_client)
-        if val != "auto":
-            return val == "True"
-        return str(self.options.mode) == "full" and self._is_component_enabled("jsonrpc")
+    def validate(self):
+        """Reject inconsistent option combinations at `conan install` time."""
+        # Fail fast at `conan install` for inconsistent flag combos. Without this the
+        # break surfaces deep in CMake ("target 'jsonrpc' not found"), which doesn't
+        # point at the real flag.
+        if self._is_component_enabled("webexplorer") and not self._is_component_enabled("jsonrpc"):
+            raise ConanInvalidConfiguration(
+                "with_webexplorer requires with_jsonrpc (webexplorer/backend links against the jsonrpc component)."
+            )
 
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
@@ -93,10 +93,8 @@ class SenConan(ConanFile):
             self.test_requires("benchmark/1.9.5")
         if self.options.with_docs:
             self.tool_requires("doxygen/[>=1.15.0]")
-        if self._is_jsonrpc_ts_client_enabled():
-            # node+npm for the @sen/client toolchain (vite, vitest, tsc, integration tests
-            # against a spawned Sen subprocess). The C++ jsonrpc component does not need node;
-            # this dep is opt-in for people building or testing the TS client from source.
+        if self._is_component_enabled("jsonrpc"):
+            # node for @sen/client (built whenever jsonrpc is on). Skip via -DSEN_BUILD_JSONRPC_TS_CLIENT=OFF.
             self.tool_requires("nodejs/22.20.0")
 
     def requirements(self):
@@ -243,13 +241,15 @@ class SenConan(ConanFile):
         if site_dir:
             tc.cache_variables["MKDOCS_SITE_DIR"] = site_dir
 
-        # fetch licenses of our dependencies
-        tps_lic_path = join(self.build_folder, "foss_licenses")
-        for dep in self.dependencies.values():
+        # Runtime Conan dep licenses, grouped under the docs page section header. Skip
+        # tool/test requires -- they never ship.
+        tps_lic_path = join(self.build_folder, "foss_licenses", "C++ (Conan)")
+        for require, dep in self.dependencies.items():
+            if require.build or require.test:
+                continue
             if dep.package_folder is None:
                 self.output.warning(f"Dependency {dep.ref} has no package_folder, cannot infer licenses.")
                 continue
-
             target_path = join(tps_lic_path, dep.ref.name)
             copy(self, "licenses/*", dep.package_folder, target_path, keep_path=False)
 

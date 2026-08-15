@@ -1,0 +1,12 @@
+/* === watch.css ====================================================================================================== */
+/*                                              Sen Infrastructure                                                     */
+/*                  Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).                        */
+/*                                   See the LICENSE.txt file for more information.                                     */
+/*                  © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.                        */
+/* ==================================================================================================================== */
+
+/* Hover-reveal for the reorder grip; dnd-kit forces opacity:1 via inline style while dragging. */
+.watch-object-group:hover .watch-object-group-grip,
+.watch-object-group:focus-within .watch-object-group-grip {
+  opacity: 1 !important;
+}

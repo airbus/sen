@@ -122,8 +122,10 @@ foreach(config_file ${configs})
   endif()
 
   get_filename_component(config ${config_file} NAME_WE)
+  get_filename_component(config_dir ${config_file} DIRECTORY)
+  get_filename_component(config_dir_name ${config_dir} NAME)
 
-  set(test_name ${config}_smoke)
+  set(test_name ${config_dir_name}_${config}_smoke)
   add_sen_run_smoke_test(${test_name} CONFIG_FILE ${config_file})
 
   append_test_env_modification(

@@ -1,0 +1,108 @@
+/* === plot.css ====================================================================================================== */
+/*                                              Sen Infrastructure                                                     */
+/*                  Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).                       */
+/*                                   See the LICENSE.txt file for more information.                                    */
+/*                  © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.                       */
+/* =================================================================================================================== */
+
+/* uPlot's default `.u-select` brush is barely visible on dark; tint with accent + borders.
+   `box-sizing: border-box` keeps the side borders from leaving a 2px column when uPlot
+   collapses width to 0 after the brush completes. */
+.u-select {
+  box-sizing: border-box;
+  background: color-mix(in oklch, var(--accent) 18%, transparent);
+  border-left: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
+}
+
+/* PlotsView draws its own continuous crosshair across all panels + gaps; suppress uPlot's
+   per-panel dashed line. Cursor tracking still happens internally (sync/zoom/hover labels). */
+.u-cursor-x,
+.u-cursor-y {
+  display: none;
+}
+
+/* Themed time-range slider used by WindowControl. Logarithmic mapping happens in JS. */
+.webex-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 160px;
+  height: 14px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.webex-range-slider:focus {
+  outline: none;
+}
+
+/* `--fill` is set inline by React from the current slider ratio. */
+.webex-range-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0%,
+    var(--accent) var(--fill, 50%),
+    rgba(255, 255, 255, 0.1) var(--fill, 50%),
+    rgba(255, 255, 255, 0.1) 100%
+  );
+}
+
+.webex-range-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.webex-range-slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.webex-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--fg-base);
+  border: 2px solid var(--accent);
+  margin-top: -4px; /* centre the 12 px thumb on the 4 px track */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.webex-range-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--fg-base);
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.webex-range-slider:hover::-webkit-slider-thumb,
+.webex-range-slider:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+.webex-range-slider:hover::-moz-range-thumb,
+.webex-range-slider:active::-moz-range-thumb {
+  transform: scale(1.15);
+}
+
+.webex-range-slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.webex-range-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
