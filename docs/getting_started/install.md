@@ -183,12 +183,13 @@ find_package(sen REQUIRED)
 
 **Sen** requires at least C++17.
 
-Use Conan to fetch the third-party dependencies `conan install . --profile=sen_gcc --build=missing`
-(you can replace 'sen_gcc' with the preset of your choice).
+Install the profiles with `conan config install -tf profiles .conan/profiles/`, then fetch the
+third-party dependencies with `conan install . --profile=sen_gcc_x86 --build=missing`. Use
+`sen_gcc_arm` on arm hardware: the profiles pin the architecture, and the wrong one fails while
+installing system libraries.
 
-To build, use `conan build . --profile=sen_gcc`. Alternatively, use
-`cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build` (you can replace 'sen_gcc'
-with the preset of your choice).
+To build, use `conan build . --profile=sen_gcc_x86`. Alternatively drive CMake yourself with the
+preset Conan generated: `cmake --preset conan-gcc-release && cmake --build --preset conan-gcc-release`.
 
 ??? note "Build options"
 

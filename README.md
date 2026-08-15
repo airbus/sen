@@ -155,23 +155,50 @@ Take a look at the examples, but there's much more to Sen, so don't forget to re
 
 ## 🔨 How to Build
 
-You need [Conan](https://conan.io/) and a C++17 compiler (GCC, Clang, Visual Studio).
-
-To install conan, do `pip install conan`.
-
-You can find some commonly-used conan profiles in the `.conan/profiles` folder. Those can be
-installed by running `conan config install -tf profiles .conan/profiles/<profile>`. Here we use 'sen_gcc'
-but you can use the profile of your choice.
+You need [Conan](https://conan.io/), a C++17 compiler (GCC, Clang, Visual Studio), CMake and
+pkg-config; the last two are used by the third-party recipes when they build from source.
+On Debian/Ubuntu:
 
 ```shell
-conan install . --profile=sen_gcc --build=missing # Fetch third-party dependencies (only needed once)
-conan build   . --profile=sen_gcc                 # Build Sen
+sudo apt install build-essential g++-12 cmake pkg-config python3-pip
+pip install conan
+conan profile detect  # Once per machine: creates conan's default build profile
 ```
+
+The `.conan/profiles` folder holds the profiles this project builds with. Install the whole
+folder, because the per-architecture profiles include a shared base:
+
+```shell
+conan config install -tf profiles .conan/profiles/
+```
+
+Then build with the profile that matches your machine: `sen_gcc_x86` on Intel and AMD,
+`sen_gcc_arm` on arm hardware such as Apple Silicon. Both pin `gcc-12`, which has to exist on
+your machine. Picking the wrong one fails while installing system libraries, because Conan
+then looks for packages built for the other architecture.
+
+```shell
+conan install . --profile=sen_gcc_x86 --build=missing \
+    -c tools.system.package_manager:mode=install \
+    -c tools.system.package_manager:sudo=True    # Fetch third-party dependencies (only needed once)
+conan build   . --profile=sen_gcc_x86            # Build Sen
+```
+
+The package manager conf lets recipes install the system libraries they need (drop the sudo
+line when you already run as root, for example in a container). The first install compiles
+every third-party dependency and takes a while; later builds reuse them.
+
+To also build the examples, pass `-o "sen/*:with_examples=True"` to `conan install`, and see
+[examples/README.md](examples/README.md) for running them.
+
+Opening Sen in an editor: `conan install` writes `CMakeUserPresets.json` at the repository root,
+so VS Code, CLion and Visual Studio list the generated preset once you open the folder. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the details.
 
 Alternatively, if you want to control the CMake usage, you can do:
 
 ```shell
-conan install . --profile=sen_gcc --build=missing # Fetch third-party dependencies (only needed once)
+conan install . --profile=sen_gcc_x86 --build=missing # Fetch third-party dependencies (only needed once)
 source build/gcc/Release/generators/conanbuild.sh # Make all the required tools available
 cmake --preset conan-gcc-release                  # Generate the build system
 cmake --build build/gcc/Release                   # Build Sen
