@@ -19,6 +19,66 @@ During this initial publication phase, we are limiting external code contributio
 feature suggestions are welcome and will be evaluated. The contribution policy may be reviewed and updated
 at a later stage.
 
+## Building and Testing
+
+The [README](README.md) covers the build. For a contribution, build with the tests enabled and
+run them before opening the pull request:
+
+```shell
+conan install . --profile=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
+conan build . --profile=sen_gcc_x86                  # sen_gcc_arm on arm hardware
+pip install junitparser                                  # run_tests merges the ctest reports with it
+cmake --build build/gcc/Release --target run_tests
+```
+
+`run_tests` runs the suite in two passes: the ordinary tests, then the ones marked flaky, which
+are retried until they pass. While working on one library, `run_unit_tests` is quicker.
+
+If your editor supports devcontainers, the one under `.devcontainer/` already has the compilers,
+Conan and the test tools installed.
+
+## Editors
+
+`conan install` writes `CMakeUserPresets.json` at the repository root, pointing at the presets
+Conan generated for the build folder. Run it once, then open the repository folder in your
+editor and pick the preset it lists: `conan-gcc-release` for the profiles above, or
+`conan-msvc-release` when you build with `sen_msvc_x86` on Windows. VS Code reads presets
+through the CMake Tools extension; CLion and Visual Studio read them natively, pointed at the
+folder rather than at `CMakeLists.txt`.
+
+Two things decide what your editor shows you, and both are set before CMake ever runs:
+
+- `-o "sen/*:with_tests=True"` and `-o "sen/*:with_examples=True"` on the `conan install` line.
+  Without them the
+  project has no test or example targets at all, and the editor is not hiding them.
+- The environment you ran `conan install` in. The generated files hold absolute paths, so a
+  build folder belongs to the environment that configured it.
+
+### In a container
+
+The devcontainer is the least work: its image already carries the compilers, Conan and the
+editor tools, and its setup step installs the profiles and selects the one matching the
+container's architecture. In its terminal, the whole build is:
+
+```shell
+conan install . --build=missing -o "sen/*:with_tests=True"
+cmake --build --preset conan-gcc-release --target run_unit_tests
+```
+
+No package-manager settings are needed there, unlike on a bare machine: the image already has
+the system libraries, and inside the container you are not root.
+
+Editors mount the sources at different paths, `/workspaces/<name>` and `/IdeaProjects/<name>`
+among them, and Conan writes that path into the presets. So configure where you build. If you
+move between a container and your machine, delete `CMakeUserPresets.json` and re-run
+`conan install`: Conan keeps entries for build folders that no longer exist, and CMake then
+refuses to read the file at all. A build folder configured in a container also cannot be built
+on the host, and the other way round; the error names a directory that cannot be created.
+
+CLion builds the profile from the preset by itself, so there is no need to add one by hand. If
+its run widget stays empty after a reload, the project model is still loading; the commands
+above work from the terminal regardless.
+
 ## Commit Messages and Pull Requests
 
 Commit subjects follow the conventional format `type(scope): summary`:
