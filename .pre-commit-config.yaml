@@ -52,5 +52,14 @@ repos:
       args: [--fix]
     - id: ruff-format
 
+# Scoped to the CI scripts: repo-wide mypy is blocked by duplicate test
+# module names under apps/cli_gen; widen the scope when that is resolved.
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v2.3.1
+  hooks:
+    - id: mypy
+      files: ^\.github/scripts/
+      additional_dependencies: [types-PyYAML==6.0.12.20260815]
+
 # Global Configuration
 exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*|.*.svg|.*.excalidraw|stl.tmLanguage.json)

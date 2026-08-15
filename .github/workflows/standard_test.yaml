@@ -21,6 +21,7 @@ jobs:
   compute-matrix-jobs:
     name: "Generate build matrix"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       jobs: ${{ steps.compute-jobs.outputs.jobs }}
     steps:
@@ -36,6 +37,9 @@ jobs:
     name: "Standard Test Job: ${{ matrix.compiler.name }}-${{ matrix.arch }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
+      # Generous on purpose: a cold cache builds every dependency from
+      # source. The cap ends a hang, it does not police duration.
+    timeout-minutes: 120
     strategy:
       fail-fast: true
       matrix:
@@ -48,27 +52,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Disable for now on local runner
-      #
-      # - name: Generate daily cache id
-      #   shell: bash
-      #   run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
+      - name: Generate daily cache id
+        shell: bash
+        run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
 
-      # - name: Cache conan packages
-      #   uses: actions/cache@v5
-      #   if: always()
-      #   env:
-      #     cache-name: cache-conan-packages
-      #   with:
-      #     path: ~/.conan2/p
-      #     key: conanp-${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.build_type }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
-      #     restore-keys: conanp-${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.build_type }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
+      # Dependencies are always Release, so one slice serves the Debug and
+      # Release jobs of a compiler alike.
+      - name: Cache conan packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.conan2/p
+          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
+          restore-keys: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
 
       - uses: hendrikmuhs/ccache-action@v1.2
         if: runner.os == 'Linux'
         with:
-          key: ${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
-          max-size: 250M
+          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          max-size: 1G
           verbose: 1
 
       - name: Setup build context
@@ -80,24 +81,92 @@ jobs:
 
       - name: Install additional python dependencies
         shell: bash
-        run: pip install -U junitparser docker testcontainers
+        run: pip install junitparser==5.0.1
 
       - name: Compile base libraries
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          # export ENABLE_EXAMPLES=true
+          export ENABLE_EXAMPLES=${{ matrix.enable_examples }}
           export ENABLE_TESTS=true
           export ENABLE_COVERAGE=${{ matrix.enable_coverage }}
 
-          conan install . -s:a build_type=${{ matrix.build_type }} --build=missing
-          conan build . -s:a build_type=${{ matrix.build_type }}
+          # & applies build_type to the sen package only; dependencies stay at
+          # the profiles' Release default, which is what binary remotes serve.
+          conan install . -s "&:build_type=${{ matrix.build_type }}" \
+            -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing
+          conan build . -s "&:build_type=${{ matrix.build_type }}" \
+            -s "&:compiler.cppstd=${{ matrix.std }}"
 
       - name: Run tests
+        if: ${{ !matrix.enable_coverage }}
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
+
+      # The report target runs the suite itself, so this replaces the step above
+      # rather than following it. Without it the leg pays for instrumentation
+      # and produces no report.
+      - name: Run tests and report coverage
+        if: matrix.enable_coverage
+        shell: bash
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
+            --target generate-coverage-report
+
+      - name: Publish the coverage report
+        if: matrix.enable_coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          if-no-files-found: error
+          path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/
+
+      # The floor is a few points below what the suite measured on
+      # 2026-08-18 (66.74% of lines), so ordinary movement does not fail a
+      # pull request while a real drop does. Raise it when coverage rises.
+      - name: Show the coverage total and hold the floor
+        if: matrix.enable_coverage
+        shell: bash
+        env:
+          MINIMUM_LINE_COVERAGE: "63"
+        run: |
+          summary="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt"
+          {
+            echo "### Coverage"
+            echo '```'
+            tail -2 "$summary"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # llvm-cov's TOTAL row: regions, then functions, then lines, then
+          # branches, each as count, missed and percentage.
+          lines=$(awk '$1 == "TOTAL" { gsub("%", "", $10); print $10 }' "$summary")
+          case "$lines" in
+            "" | *[!0-9.]*)
+              echo "Could not read the line coverage from $summary; the report format changed."
+              exit 1
+              ;;
+          esac
+          echo "line coverage: $lines% (floor $MINIMUM_LINE_COVERAGE%)"
+          # Compared as whole percent, so no locale can reinterpret the
+          # decimal separator; dropping the fraction only makes it stricter.
+          if [ "${lines%%.*}" -lt "$MINIMUM_LINE_COVERAGE" ]; then
+              echo "line coverage $lines% is below the $MINIMUM_LINE_COVERAGE% floor"
+              exit 1
+          fi
+
+      # The release workflow attaches this archive and the installer unpacks
+      # it, so its layout is a contract. Building it here keeps a dropped
+      # install rule from surfacing only at release time.
+      - name: Build and check the package archive
+        if: matrix.check_package
+        shell: bash
+        run: |
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
+          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 
       # TODO(SEN-1726): Connect App to Airbus Org.
       # - name: Upload coverage to Codecov
@@ -108,6 +177,7 @@ jobs:
       #     token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Remove unwanted parts from conan cache before backup
+        if: always()
         shell: bash
         run: |
           conan cache clean "*" -s -b -d

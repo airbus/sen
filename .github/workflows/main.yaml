@@ -8,19 +8,161 @@
 name: Orchestrator Workflow
 
 on:
+  # The default types do not fire when a draft is marked ready; converting
+  # back to draft lands in the same concurrency group and cancels the run.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  merge_group:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One run per branch and trigger kind; a new push cancels the running one.
+# event_name is in the key so the nightly cannot cancel a push to main.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  detect-changes:
+    name: "Detect docs-only changes"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: filter
+        name: Classify changed paths
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          # docs/ holds CMakeLists.txt files that every configure parses, so a
+          # build file never counts as documentation. --no-renames keeps a
+          # rename from hiding the path it moved away from. Without diff
+          # information both classifications fail open.
+          code=true
+          docs=true
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            changed=$(git diff --no-renames --name-only "$BASE_SHA"...HEAD)
+            build_files='(^|/)CMakeLists\.txt$|\.cmake$'
+            docs_files='^docs/|\.md$'
+            docs_inputs='^docs/|^examples/|^components/|^\.conan/|\.md$'
+            docs_inputs="$docs_inputs|^mkdocs\.yml$|^conanfile\.py$|^conan\.lock$|^LICENSE\.txt$"
+            docs_inputs="$docs_inputs|^\.github/actions/build_documentation/"
+            docs_inputs="$docs_inputs|^\.github/workflows/docs_check\.yaml$"
+            if [ -n "$changed" ] &&
+               ! echo "$changed" | grep -qvE "$docs_files" &&
+               ! echo "$changed" | grep -qE "$build_files"; then
+              code=false
+            fi
+            if [ -n "$changed" ] && ! echo "$changed" | grep -qE "$docs_inputs"; then
+              docs=false
+            fi
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "docs=$docs" >> "$GITHUB_OUTPUT"
+
+  # Not on a push: after the merge the hook range is empty, so every hook
+  # environment would install to check nothing.
   initial-pre-commit-checks:
+    if: github.event_name != 'push'
     uses: ./.github/workflows/pre-commit.yaml
 
+  python-checks:
+    name: "Python checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - name: Install pytest
+        shell: bash
+        run: pip install pytest==9.1.1 pyyaml==6.0.3
+      - name: Run repository script tests
+        shell: bash
+        run: python -m pytest .github/scripts/ -v
+
+  # Draft pull requests stop after the pre-commit checks; docs-only pull
+  # requests stop there regardless of draft state.
   standard-tests:
+    needs: detect-changes
+    if: >-
+      needs.detect-changes.outputs.code == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     uses: ./.github/workflows/standard_test.yaml
     with:
       building-main: ${{ github.ref == 'refs/heads/main' }}
 
+  # Builds the documentation without publishing it. Pushes to main skip it:
+  # build_docs.yaml builds and publishes there anyway.
+  docs-build:
+    needs: detect-changes
+    if: >-
+      github.event_name != 'push' &&
+      needs.detect-changes.outputs.docs == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    uses: ./.github/workflows/docs_check.yaml
+
+  # Packaging is the only check that builds Sen as a package and consumes it
+  # from outside, so a pull request runs the shipping configuration; running
+  # every configuration on every push flooded the queue. The full set runs
+  # post-merge, in the merge queue, nightly (see nightly.yaml) and on
+  # dispatch.
   conan-packaging:
+    needs: detect-changes
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.draft == false &&
+       needs.detect-changes.outputs.code == 'true')
     uses: ./.github/workflows/conan.yaml
-    needs: standard-tests
+    with:
+      pull_request_subset: ${{ github.event_name == 'pull_request' }}
+
+  # The only required check: every other job is skipped in some legitimate
+  # case, and a required check that never reports blocks the merge forever.
+  # test_main_yaml.py keeps the needs list complete.
+  #
+  # It has to decide explicitly, because GitHub reports a skipped job as a
+  # successful check: without the step below, cancelling a run would satisfy
+  # the check with nothing built.
+  #
+  # A draft is a different case and is deliberately not failed. Its run did
+  # what a draft run is meant to do, and GitHub does not allow a draft to be
+  # merged; reporting failure for work that was never meant to start would
+  # make the check mean "unfinished" as well as "broken".
+  ci-ok:
+    name: "CI OK"
+    if: ${{ always() }}
+    needs:
+      - detect-changes
+      - initial-pre-commit-checks
+      - python-checks
+      - standard-tests
+      - docs-build
+      - conan-packaging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fail unless the checks that had to run passed
+        if: >-
+          cancelled() ||
+          contains(needs.*.result, 'failure') ||
+          contains(needs.*.result, 'cancelled') ||
+          (github.event.pull_request.draft != true &&
+           needs.detect-changes.outputs.code == 'true' &&
+           needs.standard-tests.result == 'skipped')
+        shell: bash
+        run: |
+          echo 'Job results: ${{ toJSON(needs.*.result) }}'
+          exit 1

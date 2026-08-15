@@ -57,23 +57,28 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   get_filename_component(COMPILER_DIRECTORY ${CMAKE_CXX_COMPILER} DIRECTORY)
+  string(
+    REGEX MATCH
+          "[0-9]+"
+          _llvm_major
+          "${CMAKE_CXX_COMPILER_VERSION}"
+  )
   find_program(
     LLVM_PROFDATA_PATH
-    llvm-profdata
-    ${COMPILER_DIRECTORY}
-    NO_DEFAULT_PATH
+    NAMES llvm-profdata "llvm-profdata-${_llvm_major}"
+    HINTS ${COMPILER_DIRECTORY} "/usr/lib/llvm-${_llvm_major}/bin"
   )
   find_program(
     LLVM_COV_PATH
-    llvm-cov
-    ${COMPILER_DIRECTORY}
-    NO_DEFAULT_PATH
+    NAMES llvm-cov "llvm-cov-${_llvm_major}"
+    HINTS ${COMPILER_DIRECTORY} "/usr/lib/llvm-${_llvm_major}/bin"
   )
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
   if(NOT LLVM_PROFDATA_PATH OR NOT LLVM_COV_PATH)
-    message(WARNING "Could not find llvm-profdata or llvm-cov, skipping coverage generation.")
-    return()
+    message(FATAL_ERROR "Coverage was enabled but llvm-profdata or llvm-cov could not be found. "
+                        "Install llvm-${_llvm_major}, or configure without SEN_COVERAGE_ENABLE."
+    )
   endif()
 
   set(SEN_COVERAGE_TARGETS

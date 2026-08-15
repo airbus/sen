@@ -1,0 +1,30 @@
+# === docs_check.yaml ==================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+name: Check the documentation
+
+# Publishing lives in build_docs.yaml, which needs write access to
+# gh-pages. This workflow stays read-only: it builds unreviewed
+# pull-request content.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build_docs:
+    name: "Build the documentation"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/build_documentation

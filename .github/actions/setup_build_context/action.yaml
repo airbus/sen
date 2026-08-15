@@ -17,7 +17,7 @@ runs:
 
     - name: Install python dependencies
       shell: bash
-      run: pip install -U conan pytest
+      run: pip install conan==2.28.1 pytest==9.1.1 junitparser==5.0.1
 
     - name: Install gcc-${{ inputs.compiler-version }}
       if: ${{ inputs.compiler-name == 'gcc' }}
@@ -31,7 +31,11 @@ runs:
         wget https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
         sudo ./llvm.sh ${{ inputs.compiler-version }}
-        sudo apt install -y clang-tools-${{ inputs.compiler-version }}
+        sudo apt install -y \
+          clang-tools-${{ inputs.compiler-version }} \
+          clang-tidy-${{ inputs.compiler-version }} \
+          llvm-${{ inputs.compiler-version }} \
+          libclang-rt-${{ inputs.compiler-version }}-dev
 
     - name: Install system dependencies
       if: ${{ inputs.compiler-name != 'msvc' }}
@@ -46,8 +50,12 @@ runs:
         conan profile detect --force -vquiet
         conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
         cp .conan/profiles/sen_${COMPILER}_${ARCH} ~/.conan2/profiles/default
-        echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
-        echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
+        # In global.conf, not appended to the profile: a bare append lands in
+        # whichever section the profile ends with, and a profile ending in
+        # [settings] turns these into settings, where they do nothing. That is
+        # how the arm leg ended up refusing to install libgl.
+        printf 'tools.system.package_manager:mode=install\ntools.system.package_manager:sudo=True\n' \
+            >> ~/.conan2/global.conf
         conan profile show -pr default
       env:
         COMPILER: ${{ inputs.compiler-name }}

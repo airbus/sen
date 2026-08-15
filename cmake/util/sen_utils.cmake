@@ -43,7 +43,7 @@ if(NOT SEN_DISABLE_CLANG_TIDY)
   find_program(clang_tidy_cache_path NAMES "cltcache")
 
   if(clang_tidy_cache_path)
-    find_program(_clang_tidy_path NAMES "clang-tidy" "clang-tidy-20")
+    find_program(_clang_tidy_path NAMES "clang-tidy-20" "clang-tidy" REQUIRED)
 
     set(clang_tidy_path
         "${clang_tidy_cache_path};${_clang_tidy_path}"
@@ -51,7 +51,11 @@ if(NOT SEN_DISABLE_CLANG_TIDY)
     )
     message(NOTICE "-- Using cltcache to speedup builds")
   else()
-    find_program(clang_tidy_path NAMES "clang-tidy" "clang-tidy-20")
+    # Versioned name first: an older clang-tidy from the system would otherwise
+    # win and analyse with different checks. REQUIRED because analysis was asked
+    # for; without it a missing tool leaves the lane green having analysed
+    # nothing.
+    find_program(clang_tidy_path NAMES "clang-tidy-20" "clang-tidy" REQUIRED)
   endif()
   message(STATUS "Clang-tidy enabled")
 else()
