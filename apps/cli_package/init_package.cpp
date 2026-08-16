@@ -23,6 +23,7 @@
 #include <inja/json.hpp>
 
 // std
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>

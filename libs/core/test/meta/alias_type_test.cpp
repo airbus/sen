@@ -17,7 +17,6 @@
 
 // std
 #include <exception>
-#include <memory>
 #include <tuple>
 #include <vector>
 

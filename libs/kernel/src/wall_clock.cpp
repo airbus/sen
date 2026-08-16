@@ -11,13 +11,14 @@
 #include "stl/sen/kernel/basic_types.stl.h"
 
 // kernel
-#include "kernel_impl.h"
+// Only the x86 branch below uses this, so a run on another architecture sees no use for it.
+#include "kernel_impl.h"  // NOLINT(misc-include-cleaner)
 
 // spdlog
 #include <spdlog/logger.h>  // NOLINT(misc-include-cleaner)
 
 // std
-#include <cstdint>
+#include <cstdint>  // NOLINT(misc-include-cleaner): same as kernel_impl.h above
 #include <cstdlib>
 #include <cstring>
 

@@ -121,6 +121,11 @@ public:
 
 /// @cond
 
+// The generated get() functions are noexcept although the first call constructs a
+// static instance, which can throw only on allocation failure; terminating then is
+// intended, so the escape warning is waived for this block.
+// NOLINTBEGIN(bugprone-exception-escape)
+
 // integral numbers
 SEN_INTEGRAL_TYPE(UInt8Type, uint8_t, u8, "8 bit unsigned integer", readUInt8, writeUInt8);
 SEN_INTEGRAL_TYPE(Int16Type, int16_t, i16, "16 bit signed integer", readInt16, writeInt16);
@@ -137,6 +142,8 @@ SEN_REAL_TYPE(Float64Type, float64_t, f64, "64 bit floating point number", readF
 // other native types
 SEN_BUILTIN_NATIVE_TYPE(BoolType, bool, "bool", "classic boolean", readBool, writeBool, true);
 SEN_BUILTIN_NATIVE_TYPE(StringType, std::string, "string", "unbounded string", readString, writeString, false);
+
+// NOLINTEND(bugprone-exception-escape)
 
 /// @endcond
 

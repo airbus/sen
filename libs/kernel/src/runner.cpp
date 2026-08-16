@@ -41,7 +41,6 @@
 // std
 #include <algorithm>
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <functional>
@@ -709,7 +708,10 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
       if (wakeUpTime - time64 > halfPeriod)
       {
         time64 += period;
-        goto doSleep;  // NOLINT(hicpp-avoid-goto)
+        // Re-enter the sleep phase without running the frame. This is the hot
+        // scheduling loop; turning the jump into a nested loop is a change to
+        // the timing path, not a lint fix, so the check is waived here.
+        goto doSleep;  // NOLINT(cppcoreguidelines-avoid-goto,hicpp-avoid-goto)
       }
     }
 

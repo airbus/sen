@@ -11,12 +11,10 @@
 #include "utils.h"
 
 // sen
-#include "sen/core/base/assert.h"
 #include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/type.h"
 
 // std
-#include <memory>
 #include <string_view>
 #include <tuple>
 #include <utility>
