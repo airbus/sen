@@ -5,6 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#include "component.h"
 #include "rest_e2e_fixture.h"
 
 // sen
@@ -971,4 +972,27 @@ TEST_F(RestE2EFixture, notification_subscription)
 
   EXPECT_EQ(future.wait_for(std::chrono::seconds(5)), std::future_status::ready);
   cancelToken = true;
+}
+
+/// @test
+/// Check REST API with a default configuration is correct
+/// @requirements(SEN-1061)
+TEST(Rest, success_default_config)
+{
+  std::string configString = R"(
+    load:
+    - name: rest
+      group: 3
+      address: "127.0.0.1"
+      port: 12345
+  )";
+
+  auto kernel = sen::kernel::TestKernel::fromYamlString(configString);
+  auto context = kernel.getComponentContext("rest");
+  ASSERT_TRUE(context.has_value());
+
+  auto component = dynamic_cast<const sen::components::rest::RestAPIComponent*>(context.value()->instance);
+
+  ASSERT_EQ(component->getListenAddress(), "127.0.0.1");
+  ASSERT_EQ(component->getListenPort(), 12345);
 }

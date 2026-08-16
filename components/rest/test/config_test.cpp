@@ -41,29 +41,6 @@ TEST(Rest, success_config)
 }
 
 /// @test
-/// Check REST API with a default configuration is correct
-/// @requirements(SEN-1061)
-TEST(Rest, success_default_config)
-{
-  std::string configString = R"(
-    load:
-    - name: rest
-      group: 3
-      address: "127.0.0.1"
-      port: 12345
-  )";
-
-  auto kernel = sen::kernel::TestKernel::fromYamlString(configString);
-  auto context = kernel.getComponentContext("rest");
-  ASSERT_TRUE(context.has_value());
-
-  auto component = dynamic_cast<const sen::components::rest::RestAPIComponent*>(context.value()->instance);
-
-  ASSERT_EQ(component->getListenAddress(), "127.0.0.1");
-  ASSERT_EQ(component->getListenPort(), 12345);
-}
-
-/// @test
 /// Check REST API with an invalid configuration results in an error
 /// @requirements(SEN-1061)
 TEST(Rest, invalid_config_address)
