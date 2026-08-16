@@ -116,6 +116,16 @@ function(add_sen_unit_test_suite test_name)
 
   add_executable(${test_name} ${_arg_UNPARSED_ARGUMENTS})
 
+  # Tests must see the same char signedness as the code under test: the
+  # production flags force -fsigned-char (sen_misc_utils.cmake). A test built
+  # with the platform default poisons shared inline definitions on platforms
+  # where char is unsigned by default (arm): in Debug nothing is inlined, one
+  # copy is picked for the whole process, and values like
+  # numeric_limits<char>::max() become wrong in the other translation units.
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${test_name} PRIVATE -fsigned-char)
+  endif()
+
   target_link_libraries(${test_name} PRIVATE GTest::gmock_main ${_arg_LINK_DEPS})
 
   if(TARGET sen_coverage_flags)
