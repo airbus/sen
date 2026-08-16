@@ -27,6 +27,7 @@
 // std
 #include <array>
 #include <cstdint>
+#include <stdexcept>
 #include <tuple>
 #include <variant>
 #include <vector>

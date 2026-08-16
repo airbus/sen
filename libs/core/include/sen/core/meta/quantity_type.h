@@ -94,7 +94,7 @@ public:
   [[nodiscard]] std::optional<const Unit*> getUnit() const noexcept;
 
   /// Gets the unit of the measurement, failing if no unit was there.
-  [[nodiscard]] const Unit& getUnit(sen::Unit::EnsureTag) const;
+  [[nodiscard]] const Unit& getUnit(sen::Unit::EnsureTag /*ensure*/) const;
 
   /// The maximum value, if any.
   [[nodiscard]] std::optional<float64_t> getMaxValue() const noexcept;

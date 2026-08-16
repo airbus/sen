@@ -38,10 +38,12 @@ int NativePosixAPI::dlclose(void* handle) noexcept { return ::dlclose(handle); }
 
 void* NativePosixAPI::dlsym(void* handle, const char* name) noexcept { return ::dlsym(handle, name); }
 
+// NOLINTNEXTLINE(misc-include-cleaner): pthread.h is included; the check cannot map the type
 int NativePosixAPI::pthread_attr_destroy(pthread_attr_t* attr) noexcept { return ::pthread_attr_destroy(attr); }
 
 int NativePosixAPI::pthread_attr_init(pthread_attr_t* attr) noexcept { return ::pthread_attr_init(attr); }
 
+// NOLINTNEXTLINE(misc-include-cleaner): pthread.h is included; the check cannot map the type
 int NativePosixAPI::pthread_create(pthread_t* pthread,
                                    const pthread_attr_t* attr,
                                    void* (*startRoutine)(void*),  // NOSONAR
@@ -64,6 +66,7 @@ int NativePosixAPI::pthread_attr_setstacksize(pthread_attr_t* attr, std::size_t 
   return ::pthread_attr_setstacksize(attr, stackSize);
 }
 
+// NOLINTNEXTLINE(misc-include-cleaner): pthread.h and sched.h are included; the check cannot map the type
 int NativePosixAPI::pthread_attr_setschedparam(pthread_attr_t* attr, const sched_param* param) noexcept
 {
   return ::pthread_attr_setschedparam(attr, param);

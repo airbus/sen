@@ -270,6 +270,9 @@ public:  // access
   /// Extracts the value of the correct result, or
   /// terminates the program with a given error message.
   template <typename U = T>
+  // resultExpect terminates the program when the state is wrong, so the std::get
+  // below cannot actually throw.
+  // NOLINTNEXTLINE(bugprone-exception-escape)
   [[nodiscard]] const impl::NonVoidT<U>& expect(std::string_view errorMsg = {}) const noexcept
   {
     impl::resultExpect(isOk(), errorMsg);

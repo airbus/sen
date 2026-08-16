@@ -145,7 +145,7 @@ struct Situation
   bool isFrozen = false;
 
   /// TimeStamp of the instant when the situation is computed.
-  sen::TimeStamp timeStamp {};
+  sen::TimeStamp timeStamp;
 
   ///  Position in ECEF.
   Location worldLocation {};
@@ -175,7 +175,7 @@ struct GeodeticSituation
   bool isFrozen = false;
 
   /// TimeStamp of the instant when the situation is computed.
-  sen::TimeStamp timeStamp {};
+  sen::TimeStamp timeStamp;
 
   /// World Location in Geodetic (Latitude, Longitude, Altitude).
   GeodeticWorldLocation worldLocation {};

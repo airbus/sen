@@ -19,6 +19,7 @@
 #include "sen/core/meta/type.h"
 
 // spdlog
+#include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 // lz4
@@ -28,9 +29,10 @@
 // NOLINTNEXTLINE(hicpp-deprecated-headers,modernize-deprecated-headers)
 #include "stdio.h"  // fwrite_unlocked is not part of <stdio>
 
-// std
-#include <spdlog/logger.h>
+// generated
+#include "stl/sen/kernel/basic_types.stl.h"
 
+// std
 #include <cerrno>
 #include <cstddef>
 #include <cstdint>

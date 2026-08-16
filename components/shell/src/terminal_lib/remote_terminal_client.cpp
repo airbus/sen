@@ -169,6 +169,7 @@ void RemoteTerminalClient::run(const std::string& host, const std::string& port)
 
     // connect
     asio::error_code ec;
+    // NOLINTNEXTLINE(misc-include-cleaner): asio/connect.hpp is included; the check cannot map the symbol
     asio::connect(socket, results, ec);
 
     if (!ec)

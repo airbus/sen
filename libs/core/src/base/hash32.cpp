@@ -53,7 +53,6 @@ constexpr uint64_t adlerMod = 65521;
 // Compression
 uchar* stbOutPtr;
 FILE* stbOutFile;
-uint stbOutBytes;
 unsigned int stbRunningAdler;
 
 #define STB_IN2(x)          ((i[x] << 8) + i[(x) + 1])                                      // NOLINT
@@ -310,11 +309,7 @@ unsigned int stbMatchLen(uchar* m1, uchar* m2, uint maxlen)  // NOLINT
   return i;
 }
 
-void stbWriteFunc(unsigned char v)
-{
-  fputc(v, stbOutFile);
-  ++stbOutBytes;
-}
+void stbWriteFunc(unsigned char v) { fputc(v, stbOutFile); }
 
 void stbOut2(uint v)
 {

@@ -119,7 +119,7 @@ private:
   std::vector<ComponentToLoad> componentsToLoad_;
   std::vector<PipelineToLoad> pipelinesToLoad_;
   KernelParams params_ {};
-  std::filesystem::path path_ {};
+  std::filesystem::path path_;
 };
 
 }  // namespace sen::kernel

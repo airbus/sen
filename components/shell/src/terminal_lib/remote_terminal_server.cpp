@@ -21,6 +21,7 @@
 #include "stl/remote_shell.stl.h"
 
 // asio
+
 #include <asio/buffer.hpp>
 #include <asio/error_code.hpp>
 #include <asio/ip/tcp.hpp>
@@ -29,6 +30,7 @@
 #include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
 
 // std
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -182,6 +184,7 @@ void RemoteTerminal::sendMsg(T&& msg)
   }
 
   asio::error_code ec;
+  // NOLINTNEXTLINE(misc-include-cleaner): asio/write.hpp is included; the check cannot map the symbol
   asio::write(socket_, asio::buffer(outBuffer_), ec);
 
   if (ec)

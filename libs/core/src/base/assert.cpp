@@ -13,7 +13,9 @@
 #include "sen/core/base/source_location.h"
 
 // cpptrace
-#include "cpptrace/cpptrace.hpp"
+#include "cpptrace/basic.hpp"
+#include "cpptrace/exceptions.hpp"
+#include "cpptrace/utils.hpp"
 
 // std
 #include <csignal>
