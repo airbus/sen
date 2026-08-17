@@ -210,6 +210,14 @@ class SenConan(ConanFile):
             is_on = self._is_component_enabled(component)
             tc.cache_variables[f"SEN_BUILD_{component.upper()}"] = "ON" if is_on else "OFF"
 
+        # Runtime image for the container-based integration tests. Passing it
+        # through the toolchain keeps the configure step in one place: the
+        # tests are registered by the same conan build that compiles them,
+        # with the cmake conan pins rather than whatever cmake a runner ships.
+        integration_image = getenv("SEN_INTEGRATION_TEST_IMAGE")
+        if integration_image:
+            tc.cache_variables["SEN_INTEGRATION_TEST_IMAGE"] = integration_image
+
         # directory for the generated documentation
         site_dir = getenv("MKDOCS_SITE_DIR")
         if site_dir:

@@ -18,8 +18,15 @@ if(NOT MSVC)
   #
   # integration tests that use containers (only available in Linux)
   if(LINUX)
-    #   add_subdirectory(integration/object_sync)
-    # interest_filtering drives multi-process runs over the ether component
+    # The container-based suites run the built binaries inside docker containers and
+    # need a runtime image. Opt in by configuring with
+    # -DSEN_INTEGRATION_TEST_IMAGE=<image> (CI does; see tools/ci/runtime.Dockerfile).
+    # Without the image the tests are not registered, so a plain local ctest run
+    # stays green on machines without docker. Both suites drive the ether component,
+    # so neither can be registered when the build leaves it out.
+    if(SEN_INTEGRATION_TEST_IMAGE AND SEN_BUILD_ETHER)
+      add_subdirectory(integration/object_sync)
+    endif()
     if(SEN_BUILD_ETHER)
       add_subdirectory(integration/interest_filtering)
     endif()
