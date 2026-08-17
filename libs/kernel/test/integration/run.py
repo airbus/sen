@@ -21,8 +21,11 @@ from testcontainers.core.network import Network
 
 # constants
 # TODO (SEN-1681) replace with a lighter runtime image
-IMAGE_NAME = "sim-csr-docker.pforgeipt-docker.intra.airbusds.corp/sen-build-debian12:0.1.0-31-ge5dd492"
-TIMEOUT = 30
+IMAGE_NAME = (
+    os.environ.get("SEN_INTEGRATION_TEST_IMAGE")
+    or "sim-csr-docker.pforgeipt-docker.intra.airbusds.corp/sen-build-debian12:0.1.0-31-ge5dd492"
+)
+TIMEOUT = int(os.environ.get("SEN_INTEGRATION_TEST_TIMEOUT") or 30)
 
 
 def stream_logs(cont: DockerContainer) -> None:
@@ -82,10 +85,23 @@ def check_image_availability(image: str) -> None:
         raise RuntimeError("Could not connect to the local Docker daemon.") from e
 
 
+def cleanup(container_list: list[DockerContainer]) -> None:
+    """Removes the containers a run started.
+
+    A passing test leaves its containers behind otherwise: they have exited,
+    but nothing deletes them, and the testcontainers janitor is disabled on
+    purpose in CI. Failures here must not mask the result of the test.
+    """
+    for container in container_list:
+        try:
+            container.stop()
+        except Exception as error:  # noqa: BLE001 - cleanup is best effort
+            print(f"could not remove a test container: {error}", file=sys.stderr)
+
+
 def abort(container_list: list[DockerContainer], thread_list: list[Thread]) -> None:
     """Stops containers and joins log threads before aborting with error."""
-    for container in container_list:
-        container.stop()
+    cleanup(container_list)
 
     for t in thread_list:
         if isinstance(t, Thread):
@@ -109,8 +125,10 @@ if __name__ == "__main__":
     # repo root dir in the host machine (if cmake is being configured in a container)
     host_repo_root = find_host_mount(cmake_repo_root) if is_container() else cmake_repo_root
 
-    # repo root dir in the container used to execute the integration tests
-    test_repo_root = Path("/home/builder/sen")
+    # repo root dir in the container used to execute the integration tests;
+    # cmake/util/test.cmake sets this and names the sanitizer suppression
+    # files by the same path
+    test_repo_root = Path(os.environ.get("SEN_INTEGRATION_TEST_MOUNT") or "/home/builder/sen")
     test_workdir = test_repo_root / Path(cmake_workdir).relative_to(cmake_repo_root)
 
     # container paths
@@ -118,42 +136,47 @@ if __name__ == "__main__":
         containers = []
         log_threads = []
 
-        for i, config in enumerate(configs):
-            aliases = ["sen-hub"] if i == 0 else []
+        try:
+            for i, config in enumerate(configs):
+                aliases = ["sen-hub"] if i == 0 else []
 
-            # container definition
-            container = (
-                DockerContainer(IMAGE_NAME)
-                .with_network(network)
-                .with_network_aliases(*aliases)
-                .with_volume_mapping(host_repo_root, "/home/builder/sen", mode="rw")
-                .with_command(f"./cli_run {test_repo_root / Path(config).relative_to(cmake_repo_root)}")
-                .with_kwargs(working_dir=str(test_workdir), cap_add=["SYS_ADMIN"], security_opt=["seccomp=unconfined"])
-            )
+                # container definition
+                container = (
+                    DockerContainer(IMAGE_NAME)
+                    .with_network(network)
+                    .with_network_aliases(*aliases)
+                    .with_volume_mapping(host_repo_root, str(test_repo_root), mode="rw")
+                    .with_command(f"./cli_run {test_repo_root / Path(config).relative_to(cmake_repo_root)}")
+                    .with_kwargs(
+                        working_dir=str(test_workdir), cap_add=["SYS_ADMIN"], security_opt=["seccomp=unconfined"]
+                    )
+                )
 
-            # start the container (with the host environment) and the log thread
-            container.env.update(os.environ)
-            container.start()
-            log_threads.append(Thread(target=stream_logs, args=(container,), daemon=True).start())
-            containers.append(container)
+                # start the container (with the host environment) and the log thread
+                container.env.update(os.environ)
+                container.start()
+                log_threads.append(Thread(target=stream_logs, args=(container,), daemon=True).start())
+                containers.append(container)
 
-        deadline = time.time() + TIMEOUT
-        while time.time() < deadline:
-            wrapped = [c.get_wrapped_container() for c in containers]
-            for w in wrapped:
-                w.reload()
+            deadline = time.time() + TIMEOUT
+            while time.time() < deadline:
+                wrapped = [c.get_wrapped_container() for c in containers]
+                for w in wrapped:
+                    w.reload()
 
-            # abort if any of the processes has exited with error
-            if any(w.status == "exited" and w.wait()["StatusCode"] != 0 for w in wrapped):
+                # abort if any of the processes has exited with error
+                if any(w.status == "exited" and w.wait()["StatusCode"] != 0 for w in wrapped):
+                    abort(containers, log_threads)
+
+                # pass the test if all processes have exited successfully
+                if all(w.status == "exited" for w in wrapped):
+                    # join the logger threads
+                    list(map(Thread.join, [t for t in log_threads if isinstance(t, Thread)]))
+                    break
+
+                time.sleep(0.2)
+            else:
+                print(f"\nError: timeout of {TIMEOUT}s reached!")
                 abort(containers, log_threads)
-
-            # pass the test if all processes have exited successfully
-            if all(w.status == "exited" for w in wrapped):
-                # join the logger threads
-                list(map(Thread.join, [t for t in log_threads if isinstance(t, Thread)]))
-                break
-
-            time.sleep(0.2)
-        else:
-            print(f"\nError: timeout of {TIMEOUT}s reached!")
-            abort(containers, log_threads)
+        finally:
+            cleanup(containers)

@@ -91,6 +91,21 @@ jobs:
         shell: bash
         run: pip install junitparser==5.0.1
 
+      # Built before the compile: a problem with docker or the apt mirror then
+      # costs seconds instead of a whole build. The tag carries the base image
+      # because the test driver mounts binaries built on that OS into it.
+      - name: Build the runtime image for the container-based tests
+        if: matrix.runtime_base != ''
+        shell: bash
+        env:
+          BASE: ${{ matrix.runtime_base }}
+        run: |
+          pip install docker==7.2.0 testcontainers==4.15.0
+          tag="sen-runtime:${BASE//:/-}"
+          docker build --file tools/ci/runtime.Dockerfile \
+            --build-arg "BASE=$BASE" --tag "$tag" tools/ci
+          echo "SEN_INTEGRATION_TEST_IMAGE=$tag" >> "$GITHUB_ENV"
+
       - name: Compile base libraries
         shell: bash
         run: |
@@ -111,9 +126,24 @@ jobs:
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
             -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
 
+      # The suite is registered only if the image reached CMake, and its tests
+      # are labelled flaky, a selection ctest is allowed to leave empty. A
+      # rename on either side of that handoff would otherwise register nothing
+      # and still report success.
+      - name: Check the container-based tests are registered
+        if: matrix.runtime_base != ''
+        shell: bash
+        run: |
+          ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
+            -N -L integration | grep -q object_sync
+
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}
         shell: bash
+        # The runner is discarded when the job ends, so the testcontainers
+        # cleanup helper would only add an image pull.
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests

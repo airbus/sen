@@ -66,6 +66,16 @@ the share of covered lines falls below the floor recorded in
 because the number moves slightly between runs; the browsable report is
 published by the nightly run.
 
+The two x86 gcc legs also build a small runtime image
+(`tools/ci/runtime.Dockerfile`) and register the container-based
+`object_sync` suite, which then runs inside `run_tests` like every other
+test. The image is built before the compile, so a problem with docker costs
+seconds rather than a whole build, and a step right after the compile
+asserts that the suite really registered: its tests are labelled flaky, a
+selection ctest is allowed to leave empty, so a broken handoff would
+otherwise pass silently. The clang and arm legs do not run the suite; they
+would add container startups without covering anything these two legs miss.
+
 A separate job builds the documentation (the API reference and the
 handbook) without publishing it. It runs when a changed path is an input
 of the documentation build: `docs/`, `examples/` (the handbook copies its
@@ -149,9 +159,12 @@ hook, and one of them asserts that every declared leg is selected by some
 workflow, so a leg that reads as coverage but can never run does not
 survive.
 
-Besides compiler, build type and language standard, each leg carries two
-switches: whether it builds the examples, and whether it builds and checks
-the package archive. The
+Besides compiler, build type and language standard, each leg carries three
+switches: whether it builds the examples, the docker base image for the
+container-based integration tests (empty means the leg does not run them;
+the base must match the runner's OS so the binaries mounted into the
+containers find a matching runtime), and whether it builds and checks the
+package archive. The
 standard is passed to the compiler, so adding a leg for a different one
 tests what its name claims; every leg currently builds C++17, which is what
 the project promises its consumers.
@@ -385,10 +398,10 @@ crash), `.ruff.toml` per-file ignores (tutorial scripts),
 - MSVC jobs build but do not run tests (SEN-1725). Uploading coverage to an
   external service is wired but disabled (SEN-1726); the published report and
   the floor cover the same ground without sending anything outside.
-- No container-based suite runs yet. The `object_sync` suite is revived in a
-  change of its own, which brings the runtime image and the steps that build
-  it; the other suites (transport, runtime compatibility, crash report, type
-  clash) are still disabled and need the same verify-and-enable treatment.
+- Only the `object_sync` container suite runs, and only on the two x86 gcc
+  legs. The other container suites (transport, runtime compatibility, crash
+  report, type clash) are still disabled and need the same verify-and-enable
+  treatment.
 - The Windows legs do not build the examples yet.
 - What runs on a pull request is decided by the pull request's own copy of
   the workflows and of `classify_changes.py`, because that is how GitHub
