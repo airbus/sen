@@ -1,15 +1,20 @@
 # High churn subscriptions test
-This test aims to stress the functionality of the Sen kernel when subscriptions are being created and removed from several participants simultaneously. This introduces a load in the `ObjectProvider` and `RemoteInterestHandler` objects.
+
+This test aims to stress the functionality of the Sen kernel when subscriptions are being created and removed from
+several participants simultaneously. This introduces a load in the `ObjectProvider` and `RemoteInterestHandler` objects.
 The test involves two different types of objects:
-- `Producer`: Publishes an object which keeps updating a f64 dynamic property in each update. Producers are instantiated in really high frequency components in the test (1000Hz).
+
+- `Producer`: Publishes an object which keeps updating a f64 dynamic property in each update. Producers are instantiated
+  in really high frequency components in the test (1000Hz).
 - `Consumer`: Creates/removes subscriptions to the `TestObject` instances published by the producers. In each update:
   - An action is performed around 80% of the time (uniform distribution)
-  - An action can be adding a local subscriber to the bus, with a random interest selected from a list of 10 interests, and a random object list selected from a set of 10 object lists.
+  - An action can be adding a local subscriber to the bus, with a random interest selected from a list of 10 interests,
+    and a random object list selected from a set of 10 object lists.
   - An action can also be deleting one of the subscriber lists that were created before
   - These actions are performed in batches of up to three in each update of the consumer component.
   - For the test to pass, this process needs to go on for 20 seconds without any runtime errors.
 
-```
+```text
        ┌───────────┐                 ┌──────────┐
        │ Producer  │                 │ Consumer │
        └─────┬─────┘                 └────┬─────┘

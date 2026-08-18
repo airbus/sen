@@ -115,7 +115,7 @@ variable.
 
 This would print:
 
-```
+```yaml
 Python: run
 Python: update (time: ...)
 Python: update (time: ...)
@@ -263,7 +263,8 @@ def run():
   }
 
   print(f"Python: creating and publishing the object")
-  myObject = sen.api.make("aircrafts.DummyAircraft", "myAircraft", entityType=type, alternateEntityType=type, entityIdentifier = id)
+  myObject = sen.api.make("aircrafts.DummyAircraft", "myAircraft", entityType=type, alternateEntityType=type,
+  entityIdentifier = id)
   testBus = sen.api.getBus("my.tutorial")
   testBus.add(myObject)
 
@@ -312,7 +313,7 @@ def run():
 
 This would print:
 
-```
+```yaml
 Python: enum 'sen.my_package.MyEnum.first' has the value 1
 ```
 
@@ -369,7 +370,7 @@ load:
     bus: local.py
 ```
 
-```
+```shell
 ./sen run test.yaml
     _________  __
    / __/ __/ |/ /          compiler GNU-11.4.0 [mode: debug]

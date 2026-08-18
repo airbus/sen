@@ -1,6 +1,8 @@
 # School example
 
-> **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy), [3 - Aircraft](../3_aircraft/readme.md) (update loop and virtual time). This is the most comprehensive local example - take your time with it.
+> **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy), [3 -
+Aircraft](../3_aircraft/readme.md) (update loop and virtual time). This is the most comprehensive local example - take
+your time with it.
 
 This is a small example that illustrates how objects can discover and interact with each other.
 
@@ -19,7 +21,7 @@ The idea is:
 
 ### Locally using the shell
 
-```
+```shell
 sen run config/4_school/1_school_two_classrooms_one_component.yaml
 ```
 
@@ -34,7 +36,7 @@ You can use the shell to monitor the status or call methods.
 This is the same as the previous example, but also loading the explorer to have an easier time
 following the updates.
 
-```
+```shell
 sen run config/4_school/2_school_two_classrooms_one_component_exp.yaml
 ```
 
@@ -48,7 +50,7 @@ produced during the execution (remember to check the events you are interested i
 
 This example loads the first configuration, but configures the shell with a dynamic query.
 
-```
+```shell
 sen run config/4_school/3_school_two_classrooms_one_component_query.yaml
 ```
 
@@ -60,13 +62,13 @@ This is the same as the previous example, but you will need to start two process
 
 First run:
 
-```
+```shell
 sen run config/4_school/4_school_shell_eth_query.yaml
 ```
 
 Then, in another terminal or command prompt, run:
 
-```
+```shell
 sen run config/4_school/4_school_two_classrooms_one_component_query.yaml
 ```
 
@@ -76,15 +78,15 @@ This is like the first example, but using two threads. One per classroom.
 
 First run:
 
-```
+```shell
 sen run config/4_school/5_school_two_classrooms_two_components_query.yaml
 ```
 
-### Locally, but distributed over two Sen components, using the explorer.
+### Locally, but distributed over two Sen components, using the explorer
 
 This is like the previous example, now with the explorer to have a better look..
 
-```
+```shell
 sen run config/4_school/6_school_two_classrooms_two_components_query_exp.yaml
 ```
 
@@ -95,12 +97,12 @@ teacher over the network.
 
 First run:
 
-```
+```shell
 sen run config/4_school/7_school_one_classroom_no_teacher_eth.yaml
 ```
 
 Then, in another terminal or command prompt, run:
 
-```
+```shell
 sen run config/4_school/7_school_one_classroom_teacher_eth.yaml
 ```

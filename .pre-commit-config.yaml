@@ -25,10 +25,18 @@ repos:
     - id: check-json
       # devcontainer.json is JSONC (comments allowed by its spec)
       exclude: ^\.devcontainer/
+    - id: check-yaml
+      # mkdocs.yml uses mkdocs-material python-name tags
+      exclude: ^mkdocs\.yml$
     - id: check-added-large-files
+    - id: check-merge-conflict
+    - id: check-case-conflict
+    - id: check-illegal-windows-names
     - id: check-toml
     - id: check-xml
 
+# The clang-format major tracks the toolchain (LLVM_VERSION in
+# tools/ci/Dockerfile); do not bump it independently.
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v20.1.8
   hooks:
@@ -41,18 +49,38 @@ repos:
     - id: cmake-format
 
 - repo: https://github.com/jackdewinter/pymarkdown
-  rev: v0.9.20
+  rev: v0.9.39
   hooks:
     - id: pymarkdown
       name: Checking markdown files
-      args: [--config, .pymarkdown.yaml, fix]
+      # scan, not fix: fix mode exits successfully when it has nothing it can
+      # fix, so violations it cannot repair went unreported, and the repairs it
+      # does make have moved code out of list items and content tabs.
+      args: [--config, .pymarkdown.yaml, scan]
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.4.8
+  rev: v0.16.3
   hooks:
-    - id: ruff
+    - id: ruff-check
       args: [--fix]
     - id: ruff-format
+
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.30.1
+  hooks:
+    - id: gitleaks
+
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.7.12
+  hooks:
+    - id: actionlint
+
+- repo: https://github.com/hadolint/hadolint
+  rev: v2.15.1
+  hooks:
+    - id: hadolint-docker
+      # Guards the CI image; example Dockerfiles are tutorial content
+      files: ^tools/
 
 # Scoped to the CI scripts: repo-wide mypy is blocked by duplicate test
 # module names under apps/cli_gen; widen the scope when that is resolved.
@@ -62,6 +90,16 @@ repos:
     - id: mypy
       files: ^\.github/scripts/
       additional_dependencies: [types-PyYAML==6.0.12.20260815]
+
+- repo: local
+  hooks:
+    - id: repository-script-tests
+      name: Repository script tests
+      language: python
+      additional_dependencies: [pytest==9.1.1, pyyaml==6.0.3]
+      entry: python -m pytest .github/scripts -q
+      files: ^\.github/scripts/
+      pass_filenames: false
 
 # Global Configuration
 exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*|.*.svg|.*.excalidraw|stl.tmLanguage.json)

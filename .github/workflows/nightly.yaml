@@ -186,6 +186,21 @@ jobs:
           if-no-files-found: error
           path: build/gcc/Release/**/*_benchmark*.json
 
+  pre-commit-full:
+    name: "pre-commit full tree"
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+        with:
+          python-version: 3.x
+      # The pull-request job checks only changed files; this sweep catches
+      # violations that arrive with hook or rule updates.
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
+        with:
+          extra_args: --all-files
+
   # Catches documentation breakage from paths the pull-request gate does not
   # watch, for example doxygen comments in headers.
   docs-build:
@@ -408,6 +423,7 @@ jobs:
         clang-tidy,
         flake-hunt,
         benchmarks,
+        pre-commit-full,
         docs-build,
         packaging,
         cppstd-20,

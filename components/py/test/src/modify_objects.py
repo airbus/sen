@@ -19,9 +19,9 @@ dynamic_value = 567
 
 def dynamic_prop_changed():
     """Calback to react when a property changed."""
-    assert (
-        test_object.dynamicProp == dynamic_value
-    ), f"Error in dynamicProp [value: {test_object.dynamicProp}, expectation: {dynamic_value}]"
+    assert test_object.dynamicProp == dynamic_value, (
+        f"Error in dynamicProp [value: {test_object.dynamicProp}, expectation: {dynamic_value}]"
+    )
 
     # stopping after checking the value of the property
     sen.api.requestKernelStop()
@@ -36,9 +36,9 @@ def run():
     test_bus.add(test_object)
 
     # check the value of the static property
-    assert (
-        test_object.staticProp == static_value
-    ), f"Error in staticProp [value: {test_object.staticProp}, expectation: {static_value}]"
+    assert test_object.staticProp == static_value, (
+        f"Error in staticProp [value: {test_object.staticProp}, expectation: {static_value}]"
+    )
 
     # react to changes in the dynamicProp
     test_object.onDynamicPropChanged(dynamic_prop_changed)

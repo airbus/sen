@@ -99,7 +99,13 @@ CITE_BIB_FILES         =
 #--------------------------------------------------------------------------------
 
 QUIET                  = YES
-WARNINGS               = NO
+# Warnings are printed but do not fail the build yet: the tree still carries
+# documentation errors (unbalanced @cond in memory_block.h, unbalanced grouping
+# in groups.dox, template signatures doxygen cannot match in io/util.h, var.h
+# and native_object_impl.h), and doxygen 1.17 additionally misparses the free
+# function makeNonOwningTypeHandle as a member. Fix those, then set
+# WARN_AS_ERROR to FAIL_ON_WARNINGS.
+WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = NO
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
@@ -112,7 +118,6 @@ WARN_LOGFILE           =
 #--------------------------------------------------------------------------------
 
 INPUT                  = @project_src_dir@/libs \
-                         @project_src_dir@/docs/doxygen/mainpage.md \
                          @project_src_dir@/docs/doxygen/groups.dox
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h   \
@@ -183,7 +188,7 @@ INPUT_FILTER           =
 FILTER_PATTERNS        =
 FILTER_SOURCE_FILES    = NO
 FILTER_SOURCE_PATTERNS =
-USE_MDFILE_AS_MAINPAGE = mainpage.md
+USE_MDFILE_AS_MAINPAGE =
 
 #--------------------------------------------------------------------------------
 # Source browsing

@@ -80,7 +80,7 @@ In InfluxDB, each data point contains the following elements:
 
 They use a "line protocol" that represents a data point in the following format:
 
-```
+```text
 measurement,tag1=val1,tag2=val2 field1="v1",field2=1i 0000000000000000000
 ```
 

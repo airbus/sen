@@ -9,7 +9,7 @@ This example shows how to use the Sen recorder component.
 Here we just set it up to record some objects that are always published by Sen. They live in the
 `local.kernel` bus.
 
-```
+```shell
 sen run config/6_recorder/1_recorder_kernel.yaml
 ```
 
@@ -19,13 +19,13 @@ After a while you can close the process (with a `shutdown` command or a `Ctrl+D`
 
 The recording should be present in a new folder called `kernel_recording`. To inspect it:
 
-```
+```shell
 sen archive info kernel_recording
 ```
 
 You should see something similar to this:
 
-```
+```yaml
   path:            kernel_recording
   duration:        8.06667s
   start:           2025-05-19 14:34:45 966836
@@ -42,7 +42,7 @@ You should see something similar to this:
 Similar to the previous example, but now we also start the school example and record more
 information (don't run it for too long, as we will be iterating over the entries later on).
 
-```
+```shell
 sen run config/6_recorder/2_recorder_school.yaml
 ```
 
@@ -52,19 +52,19 @@ Ensure you have your Python path configured:
 
 For bash:
 
-```
+```shell
 export PYTHONPATH=$PYTHONPATH;$SEN_PATH/bin
 ```
 
 For fish:
 
-```
+```shell
 set -xa PYTHONPATH $SEN_PATH/bin
 ```
 
 Then, run:
 
-```
+```shell
 python3 config/6_recorder/3_recorder_school_print.py
 ```
 

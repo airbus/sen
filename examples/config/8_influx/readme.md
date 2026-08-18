@@ -13,7 +13,7 @@ cd config/8_influx/docker
 ./start.sh
 ```
 
-## 2. Log into Grafana and set the password.
+## 2. Log into Grafana and set the password
 
 Upon deploying the Docker containers for **Grafana, InfluxDB, and Telegraf**, you'll need to
 configure the connection using Grafana's interface. This is a one-time setup.
