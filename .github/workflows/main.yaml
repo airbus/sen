@@ -43,47 +43,8 @@ jobs:
         name: Classify changed paths
         shell: bash
         env:
-          EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          # docs/ holds CMakeLists.txt files that every configure parses, so a
-          # build file never counts as documentation. --no-renames keeps a
-          # rename from hiding the path it moved away from. Without diff
-          # information both classifications fail open.
-          code=true
-          docs=true
-          image=true
-          if [ "$EVENT_NAME" = "pull_request" ]; then
-            changed=$(git diff --no-renames --name-only "$BASE_SHA"...HEAD)
-            build_files='(^|/)CMakeLists\.txt$|\.cmake$'
-            docs_files='^docs/|\.md$'
-            docs_inputs='^docs/|^examples/|^components/|^\.conan/|\.md$'
-            docs_inputs="$docs_inputs|^mkdocs\.yml$|^conanfile\.py$|^conan\.lock$|^LICENSE\.txt$"
-            docs_inputs="$docs_inputs|^\.github/actions/build_documentation/"
-            docs_inputs="$docs_inputs|^\.github/workflows/docs_check\.yaml$"
-            image_files='^tools/ci/|^\.github/workflows/ci-image\.yaml$'
-            if [ -n "$changed" ] &&
-               ! echo "$changed" | grep -qvE "$docs_files" &&
-               ! echo "$changed" | grep -qE "$build_files"; then
-              code=false
-            fi
-            if [ -n "$changed" ] && ! echo "$changed" | grep -qE "$docs_inputs"; then
-              docs=false
-            fi
-            if [ -n "$changed" ] && ! echo "$changed" | grep -qE "$image_files"; then
-              image=false
-            fi
-            # A documentation-only change cannot affect the image: the
-            # Dockerfile copies nothing out of the repository.
-            if [ "$code" = false ]; then
-              image=false
-            fi
-          fi
-          {
-            echo "code=$code"
-            echo "docs=$docs"
-            echo "image=$image"
-          } >> "$GITHUB_OUTPUT"
+        run: python3 .github/scripts/classify_changes.py --base-sha "$BASE_SHA"
 
   # Not on a push: after the merge the hook range is empty, so every hook
   # environment would install to check nothing.
@@ -97,15 +58,33 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: 3.x
-      - name: Install pytest
+      - name: Install checkers
         shell: bash
-        run: pip install pytest==9.1.1 pyyaml==6.0.3
+        run: pip install pytest==9.1.1 gitlint==0.19.1 pyyaml==6.0.3
       - name: Run repository script tests
         shell: bash
         run: python -m pytest .github/scripts/ -v
+      # From the pull request's own base, not from main: a stacked pull request
+      # sits on the branch below it, and origin/main would drag in every commit
+      # underneath and lint those again.
+      - name: Lint commit messages
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: gitlint --commits "${BASE_SHA:-origin/main}..HEAD"
+      # The squash merge turns the title into the commit subject on main.
+      - name: Lint the pull request title
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | gitlint
 
   conan-lock-check:
     name: "Check conan.lock"
@@ -124,6 +103,10 @@ jobs:
         shell: bash
         run: python .github/scripts/conan_lock.py check
 
+      - name: Verify dependency build_type alignment
+        shell: bash
+        run: python .github/scripts/check_dependency_alignment.py
+
   # Draft pull requests stop after the pre-commit checks; docs-only pull
   # requests stop there regardless of draft state.
   standard-tests:
@@ -135,8 +118,9 @@ jobs:
     with:
       building-main: ${{ github.ref == 'refs/heads/main' }}
 
-  # Builds the documentation without publishing it. Pushes to main skip it:
-  # build_docs.yaml builds and publishes there anyway.
+  # Builds the documentation without publishing it; classify_changes.py
+  # decides what counts as an input. Pushes to main skip it: build_docs.yaml
+  # builds and publishes there anyway.
   docs-build:
     needs: detect-changes
     if: >-
