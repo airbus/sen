@@ -104,6 +104,32 @@ cycles=2  lastCycle="preDrain=1 update=1 preCommit=2"
 Sen supports all special characters in published object names, with the single exception of literal
 space characters (`" "`), which are restricted.
 
+### Validating construction arguments
+
+Classes created from pipeline configuration may validate their arguments before the construction is called.
+You can define a function returning `sen::Result<void, std::string>`
+and pass it as the second optional argument to `SEN_EXPORT_CLASS`:
+
+```c++ title="my_class.cpp"
+sen::Result<void, std::string> validateMyClassArguments(
+    const std::string& objectName,
+    const sen::VarMap& args)
+{
+    const auto prop = args.find("prop1");
+    if (prop == args.end() || prop->second.get<std::string>().empty())
+    {
+        return sen::Err(std::string("prop1 cannot be empty for object ") + objectName);
+    }
+
+    return sen::Ok();
+}
+
+SEN_EXPORT_CLASS(MyClassImpl, validateMyClassArguments)
+```
+
+If the validator returns `sen::Err`, Sen reports the error during initialization and does not call the constructor.
+If it returns `sen::Ok`, Sen creates the object normally.
+
 ## Interacting with objects
 
 ### Calling methods

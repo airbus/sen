@@ -9,6 +9,7 @@
 #define SEN_CORE_META_CLASS_TYPE_H
 
 // sen
+#include "sen/core/base/result.h"
 #include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
@@ -222,6 +223,8 @@ private:
 /// A function that creates a native object.
 using InstanceStorageType = std::shared_ptr<::sen::NativeObject>;
 using InstanceMakerFunc = std::add_pointer_t<void(const std::string&, const VarMap&, InstanceStorageType&)>;
+/// Validates constructor arguments before create an object.
+using ConstructionValidatorFunc = std::add_pointer_t<Result<void, std::string>(const std::string&, const VarMap&)>;
 
 /// A list of types, together with a maker function. Used by package loading.
 // using ExportedTypesList = std::vector<std::pair<const Type*, InstanceMakerFunc>>;
@@ -280,8 +283,19 @@ struct impl::hash<ClassSpec>
 ///   2. Your class must have a constructor taking
 ///      a name string and a VarMap with the arguments.
 ///
+/// An optional second argument can provide a constructor validator:
+///   sen::Result<void, std::string> validator(const std::string& name, const sen::VarMap& args);
+/// Sen executes the validator before calling the constructor.
+///
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define SEN_EXPORT_CLASS(classname)                                                                                    \
+#define SEN_EXPORT_CLASS(...)                                                                                          \
+  SEN_DETAIL_EXPAND_EXPORT_CLASS(SEN_DETAIL_SELECT_EXPORT_CLASS(                                                       \
+    __VA_ARGS__, SEN_DETAIL_EXPORT_CLASS_WITH_VALIDATOR, SEN_DETAIL_EXPORT_CLASS_WITHOUT_VALIDATOR, unused)(           \
+    __VA_ARGS__))
+
+/// Implementation for both forms of SEN_EXPORT_CLASS
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SEN_DETAIL_EXPORT_CLASS(classname, validator)                                                                  \
   [[nodiscard]] const ::sen::Type* senExport##classname(const char* packagePath)                                       \
   {                                                                                                                    \
     static ::sen::ConstTypeHandle<::sen::ClassType> val =                                                              \
@@ -292,6 +306,26 @@ struct impl::hash<ClassSpec>
   void make##classname(const std::string& name, const ::sen::VarMap& args, ::sen::InstanceStorageType& outputStorage)  \
   {                                                                                                                    \
     outputStorage = std::make_shared<classname>(name, args);                                                           \
+  }                                                                                                                    \
+  [[nodiscard]] ::sen::ConstructionValidatorFunc getConstructionValidator##classname()                                 \
+  {                                                                                                                    \
+    return static_cast<::sen::ConstructionValidatorFunc>(validator);                                                   \
   }
+
+/// Implementation of SEN_EXPORT_CLASS for a class without an argument validator.
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SEN_DETAIL_EXPORT_CLASS_WITHOUT_VALIDATOR(classname) SEN_DETAIL_EXPORT_CLASS(classname, nullptr)
+
+/// Implementation of SEN_EXPORT_CLASS for a class with an argument validator.
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SEN_DETAIL_EXPORT_CLASS_WITH_VALIDATOR(classname, validator) SEN_DETAIL_EXPORT_CLASS(classname, validator)
+
+/// Forces the extra expansion pass required by MSVC
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SEN_DETAIL_EXPAND_EXPORT_CLASS(selected) selected
+
+/// Selects the implementation based on the number of arguments.
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SEN_DETAIL_SELECT_EXPORT_CLASS(_1, _2, selected, ...) selected
 
 #endif  // SEN_CORE_META_CLASS_TYPE_H

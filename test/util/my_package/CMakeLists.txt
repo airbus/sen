@@ -35,6 +35,17 @@ add_sen_run_smoke_test(my_package_rshell_smoke CONFIG_FILE config/my_package_rem
 add_sen_run_smoke_test(my_package_vtime_smoke CONFIG_FILE config/my_package_virtual_time.yaml)
 add_sen_run_smoke_test(my_package_log_smoke CONFIG_FILE config/my_package_with_log.yaml)
 add_sen_run_smoke_test(my_package_fast NO_START_STOP CONFIG_FILE config/my_package_fast.yaml)
+add_sen_run_smoke_test(
+  my_package_construction_validation_smoke CONFIG_FILE config/my_package_construction_validation.yaml
+)
+
+set_tests_properties(
+  my_package_construction_validation_smoke
+  PROPERTIES PASS_REGULAR_EXPRESSION
+             "prop1 contains an invalid construction value"
+             FAIL_REGULAR_EXPRESSION
+             "MyClassImpl with name.*invalidMyClass.*created"
+)
 
 # TODO: SEN-1298 investigate and fix the crash on Windows
 if(NOT WIN32)

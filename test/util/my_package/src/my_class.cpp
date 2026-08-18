@@ -10,6 +10,7 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/numbers.h"
+#include "sen/core/base/result.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/var.h"
@@ -31,6 +32,22 @@
 
 namespace my_package
 {
+
+namespace
+{
+
+sen::Result<void, std::string> validateMyClassArguments(const std::string& objectName, const sen::VarMap& args)
+{
+  if (const auto prop = args.find("prop1");
+      prop != args.end() && prop->second.get<std::string>() == "invalid construction value")
+  {
+    return sen::Err(std::string("prop1 contains an invalid construction value for object \"") + objectName + "\"");
+  }
+
+  return sen::Ok();
+}
+
+}  // namespace
 
 MyClassImpl::MyClassImpl(const std::string& name, const sen::VarMap& args): MyClassBase(name, args)
 {
@@ -170,6 +187,6 @@ void MyClassImpl::doingSomethingDeferredImpl(std::promise<std::string>&& promise
 
 void MyClassImpl::doingSomethingDeferredWithoutReturningImpl(std::promise<void>&& promise) { promise.set_value(); }
 
-SEN_EXPORT_CLASS(MyClassImpl)
+SEN_EXPORT_CLASS(MyClassImpl, validateMyClassArguments)
 
 }  // namespace my_package

@@ -98,6 +98,21 @@ function(sen_collect_export_args)
                       _final
           )
 
+          string(FIND "${_final}" "," _validator_separator)
+          if(NOT
+             _validator_separator
+             EQUAL
+             -1
+          )
+            string(
+              SUBSTRING "${_final}"
+                        0
+                        ${_validator_separator}
+                        _final
+            )
+          endif()
+          string(STRIP "${_final}" _final)
+
           list(
             APPEND
             _export_args

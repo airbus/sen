@@ -76,6 +76,7 @@ set(lang_tests
 
 set(obj_tests
     obj/callback_test.cpp
+    obj/class_export_test.cpp
     obj/interest_test.cpp
     obj/work_queue_test.cpp
     obj/event_buffer_test.cpp
