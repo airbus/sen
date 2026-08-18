@@ -15,6 +15,9 @@
 #     pre-commit autoupdate
 #
 
+# install both stages with a single `pre-commit install`
+default_install_hook_types: [pre-commit, commit-msg]
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
@@ -90,6 +93,11 @@ repos:
     - id: mypy
       files: ^\.github/scripts/
       additional_dependencies: [types-PyYAML==6.0.12.20260815]
+
+- repo: https://github.com/jorisroovers/gitlint
+  rev: v0.19.1
+  hooks:
+    - id: gitlint
 
 - repo: local
   hooks:

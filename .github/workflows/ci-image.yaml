@@ -51,13 +51,18 @@ jobs:
       - name: Check the tools are present
         shell: bash
         run: |
+          # The action that installs the toolchain on runners pins the same
+          # conan version; the image is the definition, so read it from there.
+          conan_version=$(sed -n 's/^ARG CONAN_VERSION=//p' tools/ci/Dockerfile)
           docker run --rm sen-ci:probe bash -lc '
             set -e
-            for tool in conan python3 pip3 ccache git g++-12 gcc-12 \
+            for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
                         clang++-20 clang-tidy-20 gcovr lcov genhtml \
                         pytest junitparser; do
                 command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
             done
+            conan --version | grep -F "'"$conan_version"'"
+            python3 -c "import junitparser, pytest"
             # The coverage report target calls these by their versioned names
             # or through the LLVM directory, never from PATH.
             for tool in llvm-profdata llvm-cov; do

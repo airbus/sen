@@ -1,0 +1,14 @@
+# === .gitlint =========================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+[general]
+# Subject-only commits are fine; when a body exists it explains why.
+ignore=body-is-missing
+contrib=contrib-title-conventional-commits
+
+[contrib-title-conventional-commits]
+types=build,chore,ci,docs,feat,fix,perf,refactor,revert,test
