@@ -6,7 +6,7 @@ the approach taken by `git`.
 The best way to familiarize yourself with all the commands and the available options is to do
 `--help`, starting with `sen --help`.
 
-```
+```shell
 --8<-- "snippets/sen.sh"
 ```
 
@@ -372,31 +372,31 @@ Generates json schemas from a Sen data model.
 
 #### JSON schemas for Sen components from STL
 
-```
+```shell
 --8<-- "snippets/sen_generate_json_component_stl.sh"
 ```
 
 #### JSON schemas for Sen components from HLA FOMs
 
-```
+```shell
 --8<-- "snippets/sen_generate_json_component_fom.sh"
 ```
 
 #### JSON schemas for Sen packages from STL
 
-```
+```shell
 --8<-- "snippets/sen_generate_json_package_stl.sh"
 ```
 
 #### JSON schemas for Sen packages from HLA FOMs
 
-```
+```shell
 --8<-- "snippets/sen_generate_json_package_fom.sh"
 ```
 
 #### Combine multiple JSON schemas to create a kernel configuration schema
 
-```
+```shell
 --8<-- "snippets/sen_generate_json_schema.sh"
 ```
 

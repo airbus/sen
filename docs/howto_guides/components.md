@@ -347,7 +347,7 @@ us in the form of a variant (via `api.getConfig()`) and extract it into our type
 
 We haven't yet provided any data to our component, so if we run it, we get the following:
 
-```
+```yaml
 MyComponent: started running
   serviceName:
   users:       null
@@ -386,7 +386,7 @@ load:
 
 Now, when we run our component we get the data:
 
-```
+```yaml
 MyComponent: started running
   serviceName: SenFlix
   users:
@@ -548,4 +548,5 @@ be raised.
 
 ### Object's naming convention
 
-Sen supports the use of all special characters for published object naming, with the only exception of literal space characters (" "), which are restricted.
+Sen supports the use of all special characters for published object naming, with the only exception of literal space
+characters (" "), which are restricted.

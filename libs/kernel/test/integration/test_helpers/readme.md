@@ -33,7 +33,7 @@ without race conditions.
 
 The workflow for the integration tests is the following:
 
-```
+```text
        ┌───────────┐          ┌─────────────┐          ┌────────────────────┐
        │ Publisher │          │  Listeners  │          │ Process Terminator │
        └─────┬─────┘          └──────┬──────┘          └─────────┬──────────┘

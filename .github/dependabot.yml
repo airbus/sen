@@ -1,0 +1,21 @@
+# === dependabot.yml ===================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+#
+# Keeps the SHA-pinned GitHub Actions and the CI image base current.
+# Monthly cadence: dependency movement arrives as a reviewable batch.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: docker
+    directory: /tools/ci
+    schedule:
+      interval: monthly

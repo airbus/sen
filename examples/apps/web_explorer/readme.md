@@ -15,7 +15,7 @@ real-time updates through Server-Sent Events (SSE).
 
 ---
 
-```
+```text
 web_explorer/
 ├── index.html          # Web page
 ├── sen_client.js       # JavaScript client

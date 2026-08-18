@@ -165,7 +165,7 @@ array<f32, 3> Vec3;
 
 You can define types that might optionally hold a value (of any given type). For example,
 
-```
+```rust
 optional<f64> MaybeFloat64;
 optional<Error> MaybeError;
 ```
@@ -174,7 +174,7 @@ optional<Error> MaybeError;
 
 You can use strongly-defined quantity types, with units and optional ranges. For example,
 
-```
+```rust
 quantity<f64, deg> Lat [min: -90.0,  max: 90.0];
 quantity<f64, deg> Lon [min: -180.0, max: 180.0];
 
@@ -201,7 +201,7 @@ or for hiding implementation details behind a domain-specific name. The alias
 is structural - `DeviceId` below is interchangeable with `u64` wherever it is
 used.
 
-```
+```rust
 alias <name> <type>;
 ```
 
@@ -224,7 +224,7 @@ any of them can be given a second name for clarity at the call site.
 
 In STL, enumeration types are defined like this:
 
-```
+```rust
 enum <type_name>: <storage>
 {
   <enumeration>,
@@ -252,7 +252,7 @@ The storage type must be an integral (`u8`,`u16`,`i16`,`u32`,`i32`, `u64` or `i6
 
 You can group values with structs. They are defined like this:
 
-```
+```rust
 struct <type_name>
 {
   <field_name> : <field_type>,
@@ -324,7 +324,7 @@ once.
 
 They are defined as follows:
 
-```
+```rust
 variant <name>
 {
   <type>,
@@ -390,7 +390,7 @@ In C++, variants are rendered as `std::variant<...>`.
 
 You can define classes as follows:
 
-```
+```json
 [abstract] class <name> [: extends <parent_class>]
 {
    <members>...
@@ -672,7 +672,7 @@ in the XML.
 
 Keep in mind that Sen (the STL parser) expects the HLA XML files to follow a certain file layout.
 
-```
+```text
 - root
   - module_1
     - file_1.xml

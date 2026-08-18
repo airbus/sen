@@ -14,7 +14,7 @@ HTTP protocol and REST APIs.
 
 This component is organized with a flat directory structure as follows:
 
-```
+```text
 [components/rest]
 ├── src/                # Component source code. Entry point is in component.cpp
 ├── config/             # Example configurations to start a Sen runtime with the REST component
@@ -25,7 +25,7 @@ This component is organized with a flat directory structure as follows:
 
 Usage documentation and OpenAPI specification can be found at:
 
-```
+```text
 [docs/components]
 ├── rest.md            # Introduction and usage documentation
 └── openapi.yaml       # OpenAPI specification

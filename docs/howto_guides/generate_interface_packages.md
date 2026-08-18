@@ -64,7 +64,7 @@ get_target_property(_sen_replayer_base_path sen::replayer INSTALL_BASE_PATH)
 Note that we can both call the `get_external_interfaces` function and use the `${SEN_INSTALL_DIR}`
 as we have included Sen in the previous step.
 
-### Generating interface code.
+### Generating interface code
 
 After obtaining the relevant information of your interfaces, it's time to configure the function
 that will generate the interfaces' code when the package is consumed. The function written here will
@@ -90,7 +90,7 @@ Note that any dependency the original package/component/library had **must** be 
 interface package generation. If this package is not configured correctly, you **won't** see any
 error in your compilation, the error will appear when other developers try to consume your package.
 
-## Include our -cmake.config.in files in the project's installation.
+## Include our -cmake.config.in files in the project's installation
 
 After writing enough `-cmake.config.in` files, you need to configure your project's `install.cmake`
 file to ensure that the `-cmake.config.in` files are installed and generated correctly when you call

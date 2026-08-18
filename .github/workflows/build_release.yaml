@@ -10,24 +10,27 @@ name: Build release
 on:
   push:
     tags:
-      - \d+.\d+.\d+
-      - \d+.\d+.\d+-rc\d+
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-rc[0-9]+"
 
+# Only the job that creates the release needs write access; the build jobs
+# run the toolchain over the tagged sources.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   compute-matrix-jobs:
     name: "Generate build matrix"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       jobs: ${{ steps.compute-jobs.outputs.jobs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: 3.x
 
@@ -38,6 +41,9 @@ jobs:
     name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
+    # This job builds and packages the release; the cap matches the matrix in
+    # standard_test.yaml rather than the cheap jobs.
+    timeout-minutes: 120
     strategy:
       fail-fast: true
       matrix:
@@ -46,24 +52,29 @@ jobs:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
         with:
           fetch-depth: 0
 
       - name: Setup build context
         uses: ./.github/actions/setup_build_context
         with:
-          compiler: ${{ matrix.compiler }}
+          compiler-name: ${{ matrix.compiler.name }}
+          compiler-version: ${{ matrix.compiler.version }}
+          arch: ${{ matrix.arch }}
 
       - name: Generate release package
         run: |
           conan install . --build=missing
           conan build .
           cmake --build build/${{ matrix.compiler.name }}/Release/ --target package
+          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/Release/
 
       - name: Archive generated release package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
+          # An archive that does not match is a broken release, not a warning.
+          if-no-files-found: error
           name: release-${{ matrix.compiler.name }}
           # sen-0.1.0-x86_64-linux-gnu-12.4.0-release.tar.gz
           # sen-0.1.0-amd64-windows-msvc-19.44.35223.0-release.zip
@@ -72,10 +83,13 @@ jobs:
   attach_release_artifacts:
     name: "Create Release Draft"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
     needs: create_release_with_artifacts
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
 
       - name: Print context
         run: |
@@ -83,11 +97,12 @@ jobs:
           ls -rlisa
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
         if: github.ref_type == 'tag'
         with:
           files: |
             release-*/*
+          fail_on_unmatched_files: true
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}

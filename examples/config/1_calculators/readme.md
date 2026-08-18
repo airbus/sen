@@ -1,6 +1,7 @@
 # Calculators example
 
-> **Prerequisites:** none - this is the first example. Read the [docs quick start](https://airbus.github.io/sen/latest/) if you haven't set up Sen yet.
+> **Prerequisites:** none - this is the first example. Read the [docs quick start](https://airbus.github.io/sen/latest/)
+if you haven't set up Sen yet.
 
 This example illustrates how you can create a package that holds two implementations of a class
 defined in STL.
@@ -13,7 +14,9 @@ This package provides the definition of a calculator.
 --8<-- "snippets/examples/packages/calculators/stl/calculator.stl"
 ```
 
-The STL file declares the `Calculator` class: its properties (`model`, `current`), its methods (`add`, `addWithCurrent`, `divide`, `divideByCurrent`), and its events (`divisionByZero`). Sen generates a `CalculatorBase` C++ class from this definition. Your implementation inherits from it and overrides the `*Impl` methods.
+The STL file declares the `Calculator` class: its properties (`model`, `current`), its methods (`add`, `addWithCurrent`,
+`divide`, `divideByCurrent`), and its events (`divisionByZero`). Sen generates a `CalculatorBase` C++ class from this
+definition. Your implementation inherits from it and overrides the `*Impl` methods.
 
 ## Implementation
 
@@ -48,7 +51,10 @@ add_sen_package(
 )
 ```
 
-`add_sen_package` creates a shared library that Sen loads at runtime. `STL_FILES` triggers code generation: the Sen compiler reads the STL file and produces the `CalculatorBase` C++ class. `SOURCES` lists the hand-written C++ files that are compiled alongside the generated code. `SCHEMA_PATH` controls where the YAML configuration schema is written, making it available for validation and editor tooling.
+`add_sen_package` creates a shared library that Sen loads at runtime. `STL_FILES` triggers code generation: the Sen
+compiler reads the STL file and produces the `CalculatorBase` C++ class. `SOURCES` lists the hand-written C++ files that
+are compiled alongside the generated code. `SCHEMA_PATH` controls where the YAML configuration schema is written, making
+it available for validation and editor tooling.
 
 ## How to run it
 
@@ -99,19 +105,19 @@ you will need to start two processes.
 
 First run:
 
-```
+```shell
 sen run config/1_calculators/2_calculators_eth.yaml
 ```
 
 Then, in another terminal or command prompt, run:
 
-```
+```shell
 sen shell
 ```
 
 In this new Sen instance, open the bus where we should find our objects:
 
-```
+```text
 open my.tutorial
 ```
 
@@ -121,6 +127,6 @@ You should be able to work with the objects as if you were on the same process.
 
 You can also run it using the explorer to see and interact with the objects in a more graphical way.
 
-```
+```shell
 sen run config/1_calculators/3_calculators_exp.yaml
 ```

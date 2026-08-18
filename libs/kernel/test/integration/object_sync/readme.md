@@ -44,7 +44,7 @@ executed in an isolated container spawned from `run.py` using the `test_containe
 
 The publisher and listeners interact in the following way (in a successful test):
 
-```
+```text
        ┌───────────┐          ┌─────────────┐
        │ Publisher │          │  Listeners  │
        └─────┬─────┘          └──────┬──────┘

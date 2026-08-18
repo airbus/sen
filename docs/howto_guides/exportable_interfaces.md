@@ -1,4 +1,4 @@
-# Generate exportable interfaces in your Sen-based project.
+# Generate exportable interfaces in your Sen-based project
 
 In this guide, we will understand how to configure your project so that its interfaces (STL or HLA
 FOM files, although we will focus on STL) can be exported. This will ensure that interfaces can
@@ -78,6 +78,7 @@ Sen enforces a strict directory layout for HLA and always uses the **immediate p
 to build the inclusion paths.
 
 #### STL Example
+
 To ensure correct resolution, the `BASE_PATH` should be set to the **root of the component**.
 
 Let's follow the Sen school example. If we start from the root of the project, the original `stl`
@@ -87,10 +88,12 @@ importing path to be `import stl/sen/components/recorder/school.stl`, we need to
 to `components/recorder`.
 
 #### HLA FOM Example
+
 For FOM files, the inclusion path is derived automatically from the physical location of the XML file,
 regardless of any `BASE_PATH` provided in CMake. Sen expects a `Grandparent/Parent/File.xml` structure.
 
 **Example:**
+
 - Physical path: `fom/rpr/RPR-Base.xml`
 - Sen detects `rpr` as the immediate parent.
 - Any file importing/including this FOM will use the path: `"rpr/RPR-Base.xml.h"`

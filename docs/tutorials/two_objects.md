@@ -224,7 +224,7 @@ SEN_EXPORT_CLASS(ClientImpl)
 
 This is the most important thing to internalize:
 
-```
+```text
 Cycle N — Client update:
     calc.add(3.0, 4.0, callback)
     ↑ call is QUEUED, not executed yet. Returns immediately.
