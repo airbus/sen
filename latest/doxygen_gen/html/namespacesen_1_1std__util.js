@@ -1,15 +1,15 @@
 var namespacesen_1_1std__util =
 [
+    [ "detail", "namespacesen_1_1std__util_1_1detail.html", "namespacesen_1_1std__util_1_1detail" ],
     [ "impl", "namespacesen_1_1std__util_1_1impl.html", [
       [ "conversionImpl", "namespacesen_1_1std__util_1_1impl.html#a5507386efeae9143636b7e22280e7602", null ]
     ] ],
-    [ "detail", "namespacesen_1_1std__util_1_1detail.html", "namespacesen_1_1std__util_1_1detail" ],
-    [ "ReportPolicyAssertion", "structsen_1_1std__util_1_1_report_policy_assertion.html", null ],
-    [ "ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ],
-    [ "ReportPolicyLog", "structsen_1_1std__util_1_1_report_policy_log.html", null ],
-    [ "ReportPolicyIgnore", "structsen_1_1std__util_1_1_report_policy_ignore.html", null ],
     [ "IsInstantiationOf", "structsen_1_1std__util_1_1_is_instantiation_of.html", null ],
     [ "IsInstantiationOf&lt; Template, Template&lt; Args... &gt; &gt;", "structsen_1_1std__util_1_1_is_instantiation_of_3_01_template_00_01_template_3_01_args_8_8_8_01_4_01_4.html", null ],
+    [ "ReportPolicyAssertion", "structsen_1_1std__util_1_1_report_policy_assertion.html", null ],
+    [ "ReportPolicyIgnore", "structsen_1_1std__util_1_1_report_policy_ignore.html", null ],
+    [ "ReportPolicyLog", "structsen_1_1std__util_1_1_report_policy_log.html", null ],
+    [ "ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ],
     [ "move_only_function", "namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70", null ],
     [ "bit_cast", "namespacesen_1_1std__util.html#acb24a1ebd1bfaa2e66f4037578c69be1", null ],
     [ "checkedConversion", "namespacesen_1_1std__util.html#a8cfff482b84f679a8a67fb246cd29a32", null ],
