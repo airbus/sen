@@ -1,0 +1,15 @@
+kernel:
+  logConfig:
+    level: info
+
+load:
+  - name: ether
+    group: 10
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 100 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65454
