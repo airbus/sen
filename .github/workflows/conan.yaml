@@ -14,6 +14,11 @@ on:
         required: false
         default: false
         type: boolean
+      # Pull requests package the shipping configuration only; see main.yaml.
+      pull_request_subset:
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -22,6 +27,7 @@ jobs:
   compute-matrix-jobs:
     name: "Generate build matrix"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       jobs: ${{ steps.compute-jobs.outputs.jobs }}
     steps:
@@ -32,11 +38,12 @@ jobs:
         with:
           python-version: 3.x
       - id: compute-jobs
-        run: python .github/scripts/generate_matrix_jobs.py --conan
+        run: python .github/scripts/generate_matrix_jobs.py --conan ${{ inputs.pull_request_subset && '--pull-request' || '' }}
   build:
     name: "Conan Job: ${{ matrix.compiler.name }}-${{ matrix.arch }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
     strategy:
       fail-fast: true
       matrix:
@@ -49,27 +56,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Disable for now on local runner
-      #
-      # - name: Generate daily cache id
-      #   shell: bash
-      #   run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
+      - name: Generate daily cache id
+        shell: bash
+        run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
 
-      # - name: Cache conan packages
-      #   uses: actions/cache@v5
-      #   if: always()
-      #   env:
-      #     cache-name: cache-conan-packages
-      #   with:
-      #     path: ~/.conan2/p
-      #     key: conanp-${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.build_type }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
-      #     restore-keys: conanp-${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.build_type }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
+      # Same key scheme as standard_test.yaml so both workflows share one
+      # dependency slice per compiler (dependencies are always Release).
+      - name: Cache conan packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.conan2/p
+          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
+          restore-keys: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
 
       - uses: hendrikmuhs/ccache-action@v1.2
         if: runner.os == 'Linux'
         with:
-          key: ${{ matrix.os }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
-          max-size: 250M
+          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          max-size: 1G
           verbose: 1
 
       - name: Setup build context
@@ -83,9 +87,13 @@ jobs:
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          # build_type applies to the sen package only; dependencies stay at
+          # the profiles' Release default, shared across build types and
+          # matching what binary remotes serve. Scoped by name rather than &
+          # because the test_package graph has a different consumer.
           conan create . --user airbus --channel dev --lockfile-out=package.lock \
               --test-folder .conan/test_packages/package \
-              --build=missing -s:a build_type=${{ matrix.build_type }}
+              --build=missing -s "sen/*:build_type=${{ matrix.build_type }}"
 
       - name: Push conan packages
         if: ${{ inputs.push_artifacts }}
@@ -93,6 +101,7 @@ jobs:
         run: echo "Pushing package (fake entry)"
 
       - name: Remove unwanted parts from conan cache before backup
+        if: always()
         shell: bash
         run: |
           conan remove sen --confirm

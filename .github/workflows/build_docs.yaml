@@ -7,6 +7,12 @@
 
 name: Build documentation
 
+# Queue deploys instead of racing them: a merge and its tag arrive seconds
+# apart and both push to gh-pages, where the loser is rejected.
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: false
+
 on:
   push:
     branches:
@@ -18,19 +24,15 @@ on:
 
 permissions:
   contents: write
-  pages: write
 
 jobs:
   deploy_docs:
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
 
       - name: Configure git user and gh-pages repo
         run: |
@@ -38,45 +40,21 @@ jobs:
           git config --global user.email github-actions@github.com
           git fetch origin gh-pages --depth=1
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y g++ graphviz
+      # docs_check.yaml runs the same build on pull requests; only the
+      # publishing below needs write access.
+      - uses: ./.github/actions/build_documentation
 
-      - name: Install pip dependencies
-        run: |
-          pip install conan pytest mike
-          pip install -r docs/requirements.txt
+      - name: Install mike
+        run: pip install mike==2.1.3
 
-      - name: Setup conan profile
-        shell: bash
-        run: |
-          rm ~/.conan2/profiles/default
-          conan profile detect --force -vquiet
-          cp .conan/profiles/sen_gcc ~/.conan2/profiles/sen_gcc
-          cp .conan/profiles/sen_build_docs ~/.conan2/profiles/default
-          echo [conf] >> ~/.conan2/profiles/default
-          echo tools.system.package_manager:mode=install >> ~/.conan2/profiles/default
-          echo tools.system.package_manager:sudo=True >> ~/.conan2/profiles/default
-          conan profile show -pr default
-
-      - name: Install system dependencies
-        # need for clang compat with sdl2 2.24.0
-        shell: bash
-        run: sudo apt-get install -y libxext-dev
-
-      - name: Auto generate docs
-        run: |
-          conan install . --build=missing
-          cmake --preset=conan-gcc-release
-          cmake --build build/gcc/Release/
-          cmake --build build/gcc/Release/ --target doxydocs
-          cmake --build build/gcc/Release/ --target mkdocs
-
+      # Every release keeps a frozen copy. `stable` follows the newest
+      # release and the site's front page opens it; `latest` follows main.
       - name: Build and deploy release documentation
-        if: github.ref_type == 'tag'
-        run: mike deploy --push --update-aliases ${{ github.ref_name }}
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        run: |
+          mike deploy --push --update-aliases ${{ github.ref_name }} stable
+          mike set-default --push stable
 
       - name: Build and deploy intermediate documentation
-        if: github.ref_type != 'tag'
+        if: github.event_name == 'push' && github.ref_type != 'tag'
         run: mike deploy --push --update-aliases latest

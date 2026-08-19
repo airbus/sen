@@ -21,7 +21,7 @@ set(CMAKE_COMMON_CTEST_ARGUMENTS
     "20"
     ${CMAKE_COMMON_CTEST_ARGUMENTS}
 )
-if(${CTEST_RANDOMIZE_TESTS})
+if(${SEN_CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
 endif()
 
@@ -31,18 +31,24 @@ else()
   set(CTEST_PARALLEL_ARGS "--parallel" 0)
 endif()
 
+# An empty main selection is a mistake, not a pass: without --no-tests=error a
+# dropped suite or a filter typo leaves ctest reporting success over zero tests.
 set(CMAKE_CTEST_ARGUMENTS
     ${CTEST_PARALLEL_ARGS}
     "--output-junit"
     "ctestParallelReport.xml"
+    "--no-tests=error"
     ${CMAKE_COMMON_CTEST_ARGUMENTS}
 )
 
+# The flaky pass may legitimately select nothing: a build configuration is
+# allowed to carry no flaky tests at all.
 set(CMAKE_FLAKY_CTEST_ARGUMENTS
     "--repeat"
     "until-pass:5"
     "--output-junit"
     "ctestFlakyReport.xml"
+    "--no-tests=ignore"
     ${CMAKE_COMMON_CTEST_ARGUMENTS}
 )
 
@@ -68,7 +74,7 @@ add_custom_command(
   POST_BUILD TARGET run_unit_tests
   COMMAND ${CMAKE_CTEST_COMMAND} ${CMAKE_CTEST_ARGUMENTS} -L "unit" -LE "flaky"
   VERBATIM
-  COMMAND ${CMAKE_CTEST_COMMAND} ${CMAKE_FLAKY_CTEST_ARGUMENTS} -L "unit" "flaky"
+  COMMAND ${CMAKE_CTEST_COMMAND} ${CMAKE_FLAKY_CTEST_ARGUMENTS} -L "unit" -L "flaky"
   VERBATIM USES_TERMINAL
 )
 
@@ -116,6 +122,16 @@ function(add_sen_unit_test_suite test_name)
 
   add_executable(${test_name} ${_arg_UNPARSED_ARGUMENTS})
 
+  # Tests must see the same char signedness as the code under test: the
+  # production flags force -fsigned-char (sen_misc_utils.cmake). A test built
+  # with the platform default poisons shared inline definitions on platforms
+  # where char is unsigned by default (arm): in Debug nothing is inlined, one
+  # copy is picked for the whole process, and values like
+  # numeric_limits<char>::max() become wrong in the other translation units.
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${test_name} PRIVATE -fsigned-char)
+  endif()
+
   target_link_libraries(${test_name} PRIVATE GTest::gmock_main ${_arg_LINK_DEPS})
 
   if(TARGET sen_coverage_flags)
@@ -124,7 +140,7 @@ function(add_sen_unit_test_suite test_name)
 
   set(labels "unit")
   if(${_arg_FLAKY})
-    list(APPEND labels "LABELS;flaky")
+    list(APPEND labels "flaky")
   endif()
 
   set(environment "")
@@ -143,9 +159,9 @@ function(add_sen_unit_test_suite test_name)
   gtest_discover_tests(
     ${test_name} DISCOVERY_MODE PRE_TEST
     PROPERTIES LABELS
-               ${labels}
+               "${labels}"
                ENVIRONMENT
-               ${environment}
+               "${environment}"
   )
 
   add_dependencies(run_unit_tests ${test_name})
@@ -176,9 +192,9 @@ function(add_sen_integration_test test_name)
 
   set(labels "integration")
   if(${_arg_FLAKY})
-    list(APPEND labels "LABELS;flaky")
+    list(APPEND labels "flaky")
   endif()
-  set_tests_properties(${test_name} PROPERTIES LABELS ${labels})
+  set_tests_properties(${test_name} PROPERTIES LABELS "${labels}")
 
   # disable log buffering in integration tests that use python
   append_test_env_modification(${test_name} "PYTHONUNBUFFERED=set:1")
@@ -281,9 +297,9 @@ function(add_sen_run_smoke_test test_name)
 
   set(labels "smoke")
   if(${_arg_FLAKY})
-    list(APPEND labels "LABELS;flaky")
+    list(APPEND labels "flaky")
   endif()
-  set_tests_properties(${test_name} PROPERTIES LABELS ${labels})
+  set_tests_properties(${test_name} PROPERTIES LABELS "${labels}")
 
   if(_arg_WILL_FAIL)
     set_tests_properties(${test_name} PROPERTIES WILL_FAIL TRUE)
@@ -338,9 +354,9 @@ function(add_sen_smoke_test test_name)
 
   set(labels "smoke")
   if(${_arg_FLAKY})
-    list(APPEND labels "LABELS;flaky")
+    list(APPEND labels "flaky")
   endif()
-  set_tests_properties(${_arg_NAME} PROPERTIES LABELS ${labels})
+  set_tests_properties(${test_name} PROPERTIES LABELS "${labels}")
 
   add_dependencies(run_smoke_tests ${_arg_REQ_DEPS})
   add_dependencies(run_tests ${_arg_REQ_DEPS})
