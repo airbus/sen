@@ -5,6 +5,8 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+sen_internal_component_guard(NAME rest)
+
 include(tps/asio)
 include(tps/cpptrace)
 include(tps/spdlog)

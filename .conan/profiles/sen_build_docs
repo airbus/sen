@@ -1,7 +1,9 @@
 include(sen_gcc)
 
-[options]
+# Doxygen 1.15+ needs C++20 to build itself. compiler.cppstd is a Conan setting (not an option),
+# so it has to be applied from a profile rather than from the recipe.
+[settings]
 doxygen*:compiler.cppstd=20
 
-[tool_requires]
-&:doxygen/[>=1.15.0]
+[options]
+sen/*:with_docs=True
