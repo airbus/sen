@@ -10,4 +10,5 @@ add_subdirectory(unit)
 # Disable integration tests due to windows build agent problems
 if(NOT MSVC)
   add_subdirectory(integration/ls_command)
+  add_subdirectory(integration/log_prompt)
 endif()
