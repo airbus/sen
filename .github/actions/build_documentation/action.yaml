@@ -22,21 +22,41 @@ runs:
         key: conanp-docs-${{ env.cache_date }}
         restore-keys: conanp-docs-
 
+    # Writes only on main, as in standard_test.yaml; main reaches this through
+    # build_docs.yaml, so the cache still gets filled.
     - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
       with:
         key: docs
         max-size: 1G
         verbose: 1
-        # Same reasoning as the conan cache above.
         save: ${{ github.ref == 'refs/heads/main' }}
 
     - name: Install system dependencies
       shell: bash
       # graphviz draws the doxygen diagrams; libxext-dev is needed for clang
       # compat with sdl2 2.24.0.
+      #
+      # apt-get, not the interactive apt. The bounds stop it waiting with no output until
+      # the job timeout kills it: twice in one day this build sat here for its whole hour,
+      # once on the dpkg lock and once on a mirror that stopped answering mid-download.
+      # They are generous on purpose. The mirror can be slow without being stuck, and the
+      # point is to end a hang well before the job cap, not to police how long apt takes.
       run: |
-        sudo apt update
-        sudo apt install -y g++ graphviz libxext-dev
+        # The runners prefer azure.archive.ubuntu.com through this mirror list. That host
+        # has been ignoring requests for us today, and apt then alternates between it and
+        # the working mirror until the bound below kills the step. Point it straight at
+        # the one that answers.
+        if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/apt-mirrors.txt
+        fi
+        sudo tee /etc/apt/apt.conf.d/99-sen-timeouts <<'CONF'
+        DPkg::Lock::Timeout "120";
+        Acquire::Retries "3";
+        Acquire::http::Timeout "30";
+        Acquire::https::Timeout "30";
+        CONF
+        timeout 1200 sudo apt-get update
+        timeout 1200 sudo apt-get install -y g++ graphviz libxext-dev
 
     - name: Install python dependencies
       shell: bash

@@ -46,6 +46,12 @@ ENV LANG=C.UTF-8 \
 # dependency chain (SDL needs libXext, the explorer needs libGL). make
 # serves the autotools-style Conan recipes; python3-dev serves pybind11;
 # bats runs the installer test suite.
+# Every apt and curl call in this file talks to a mirror that can stall or refuse a
+# connection; one such refusal from apt.llvm.org failed an image build. Retries turn
+# those into a pause instead of a red pipeline.
+RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+        > /etc/apt/apt.conf.d/99-sen-retries
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         bats \
         ca-certificates \
@@ -72,7 +78,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # both use this major version. The repository is added directly instead of
 # running llvm.sh, which needs add-apt-repository.
 RUN install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key -o /etc/apt/keyrings/llvm.asc \
+    && curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused \
+        https://apt.llvm.org/llvm-snapshot.gpg.key -o /etc/apt/keyrings/llvm.asc \
     && echo "deb [signed-by=/etc/apt/keyrings/llvm.asc] https://apt.llvm.org/jammy/ llvm-toolchain-jammy-${LLVM_VERSION} main" \
         > /etc/apt/sources.list.d/llvm.list \
     && apt-get update \
