@@ -1,0 +1,3 @@
+package log_prompt_test;
+
+class Publisher {}
