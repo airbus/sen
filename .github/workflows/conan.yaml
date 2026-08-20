@@ -61,9 +61,10 @@ jobs:
         run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
 
       # Same key scheme as standard_test.yaml so both workflows share one
-      # dependency slice per compiler (dependencies are always Release).
-      - name: Cache conan packages
-        uses: actions/cache@v5
+      # dependency slice per compiler (dependencies are always Release), and
+      # the same save-only-on-main split, for the same reason.
+      - name: Restore conan packages
+        uses: actions/cache/restore@v5
         with:
           path: ~/.conan2/p
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
@@ -75,6 +76,7 @@ jobs:
           key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
           max-size: 1G
           verbose: 1
+          save: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Setup build context
         uses: ./.github/actions/setup_build_context
@@ -106,3 +108,11 @@ jobs:
         run: |
           conan remove sen --confirm
           conan cache clean "*" -s -b -d
+
+      # After the clean, so sen itself and the build folders stay out.
+      - name: Save conan packages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.conan2/p
+          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}

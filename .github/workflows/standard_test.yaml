@@ -38,7 +38,9 @@ jobs:
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
       # Generous on purpose: a cold cache builds every dependency from
-      # source. The cap ends a hang, it does not police duration.
+      # source. The cap ends a hang, it does not police duration. Measured
+      # 2026-08-20 on a run whose conan cache missed and whose ccache hit 1.3
+      # per cent: 20 to 30 minutes, so this is around four times the work.
     timeout-minutes: 120
     strategy:
       fail-fast: true
@@ -58,8 +60,12 @@ jobs:
 
       # Dependencies are always Release, so one slice serves the Debug and
       # Release jobs of a compiler alike.
-      - name: Cache conan packages
-        uses: actions/cache@v5
+      #
+      # Saved only on main, at the end of the job: a cache written from a pull
+      # request is private to it, so open pull requests each store the same
+      # slice and the repository passes GitHub's 10 GB limit.
+      - name: Restore conan packages
+        uses: actions/cache/restore@v5
         with:
           path: ~/.conan2/p
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
@@ -71,6 +77,8 @@ jobs:
           key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
           max-size: 1G
           verbose: 1
+          # Same reasoning as the conan cache above.
+          save: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Setup build context
         uses: ./.github/actions/setup_build_context
@@ -181,3 +189,12 @@ jobs:
         shell: bash
         run: |
           conan cache clean "*" -s -b -d
+
+      # After the clean, so build folders stay out. always() keeps what a
+      # cancelled run already built.
+      - name: Save conan packages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.conan2/p
+          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
