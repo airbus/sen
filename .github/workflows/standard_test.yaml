@@ -159,6 +159,15 @@ jobs:
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
             --target generate-coverage-report
 
+      # Runs even when the build failed: that is when the report is worth reading.
+      - name: Publish the test report
+        if: always()
+        shell: bash
+        run: |
+          python .github/scripts/test_report.py \
+            "build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml" \
+            >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish the coverage report
         if: matrix.enable_coverage
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
