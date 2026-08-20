@@ -16,7 +16,6 @@
 #include "sen/core/meta/type.h"
 
 // std
-#include <memory>
 #include <optional>
 #include <ostream>
 

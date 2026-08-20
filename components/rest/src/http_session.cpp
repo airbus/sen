@@ -25,7 +25,6 @@
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/post.hpp>
-#include <asio/thread_pool.hpp>
 
 // std
 #include <cstddef>

@@ -15,7 +15,6 @@
 #include "json_response.h"
 #include "jwt.h"
 #include "locators.h"
-#include "notification_loop.h"
 #include "object_interests_manager.h"
 #include "response_adapter.h"
 #include "types.h"
@@ -40,7 +39,6 @@
 #include "sen/kernel/type_specs_utils.h"
 
 // asio
-#include <asio/buffer.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
 
@@ -57,6 +55,7 @@
 #include <unordered_map>
 #include <utility>
 #include <variant>
+#include <vector>
 
 // json
 #include "nlohmann/json.hpp"

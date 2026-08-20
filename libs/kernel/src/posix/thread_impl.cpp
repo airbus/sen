@@ -147,7 +147,7 @@ Result<void, ThreadCreateErr> ThreadImpl::configurePriority() noexcept
     return Err(ThreadCreateErr::internalOsError);
   }
 
-  sched_param sched {};
+  sched_param sched {};  // NOLINT(misc-include-cleaner): sched.h is included; the check cannot map the type
 
   if (config_.priority == Priority::lowest)
   {

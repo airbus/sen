@@ -16,19 +16,14 @@
 #include <asio/error_code.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/socket_base.hpp>
-#include <asio/system_error.hpp>
-#include <asio/thread_pool.hpp>
 
 // sen
 #include "sen/core/base/assert.h"
 
 // std
 #include <chrono>
-#include <cstdint>
-#include <functional>
 #include <memory>
 #include <system_error>
-#include <thread>
 #include <tuple>
 #include <utility>
 

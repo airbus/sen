@@ -12,6 +12,7 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 // --------------------------------------------------------------------------------------------------------------------------
 // UUID format https://tools.ietf.org/html/rfc4122

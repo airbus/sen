@@ -98,8 +98,14 @@ public:
   {
   }
 
-  IteratorType begin() const noexcept(std::is_nothrow_copy_constructible_v<IteratorType>) { return beginIterator_; }
-  IteratorType end() const noexcept(std::is_nothrow_copy_constructible_v<IteratorType>) { return endIterator_; }
+  [[nodiscard]] IteratorType begin() const noexcept(std::is_nothrow_copy_constructible_v<IteratorType>)
+  {
+    return beginIterator_;
+  }
+  [[nodiscard]] IteratorType end() const noexcept(std::is_nothrow_copy_constructible_v<IteratorType>)
+  {
+    return endIterator_;
+  }
 
 private:
   LockType<MutexType> lock_;
