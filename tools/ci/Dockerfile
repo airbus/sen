@@ -44,8 +44,10 @@ ENV LANG=C.UTF-8 \
 #
 # libgl1-mesa-dev and libxext-dev exist for the imgui explorer's GUI
 # dependency chain (SDL needs libXext, the explorer needs libGL). make
-# serves the autotools-style Conan recipes; python3-dev serves pybind11.
+# serves the autotools-style Conan recipes; python3-dev serves pybind11;
+# bats runs the installer test suite.
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        bats \
         ca-certificates \
         ccache \
         curl \

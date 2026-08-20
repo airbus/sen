@@ -96,12 +96,30 @@ jobs:
           sudo apt-get install -y file
           ls -rlisa
 
+      # The installer verifies what it downloads against this file, and treats
+      # its absence as "verification skipped". Without it every install is
+      # unverified, so the release must carry it.
+      - name: Write SHA256SUMS
+        shell: bash
+        run: |
+          shopt -s nullglob
+          archives=(release-*/*)
+          if [ ${#archives[@]} -eq 0 ]; then
+              echo "no release archives to checksum"
+              exit 1
+          fi
+          for archive in "${archives[@]}"; do
+              (cd "$(dirname "$archive")" && sha256sum "$(basename "$archive")")
+          done > SHA256SUMS
+          cat SHA256SUMS
+
       - name: Create Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
         if: github.ref_type == 'tag'
         with:
           files: |
             release-*/*
+            SHA256SUMS
           fail_on_unmatched_files: true
           preserve_order: true
           draft: true
