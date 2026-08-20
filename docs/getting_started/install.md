@@ -328,3 +328,31 @@ compilers or Conan yourself.
 
      `mkdocs` and `graphviz` are not Conan-managed - install them via `pip install -r docs/requirements.txt`
      and your platform package manager.
+
+??? note "What the build needs (toolchain, network, time)"
+
+    **Toolchain.** Sen's own build gets its tools as Conan tool requirements: CMake, Ninja,
+    GTest — and Node.js 22 whenever the `jsonrpc` component is enabled (any mode above `basic`),
+    because the build generates the `@sen/client` TypeScript types, installs its npm
+    dependencies, and bakes the Web Explorer bundle into the binary. Building the third-party
+    packages from source is different: their recipes use the system's `cmake` and `pkg-config`,
+    so have both installed before the first `conan install`.
+    Don't install Node for the build; the pinned toolchain version comes with `conan install`.
+    (The TS packages' *dev loops* — `npm run dev`, `vitest` on the host — do use your own
+    Node >= 22; see `components/jsonrpc/clients/typescript/README.md`.)
+
+    **Network.** The first `conan install`/`conan build` fetches from Conan Center **and**, for
+    the browser stack, from the npm registry during the build itself (`npm ci`). Behind a
+    proxy, make both reachable — or skip the web stack entirely: build `-o "sen/*:mode=basic"`,
+    or stay in `full` mode and pass `-DSEN_BUILD_JSONRPC_TS_CLIENT=OFF -DSEN_BUILD_WEBEXPLORER=OFF`
+    at the CMake step.
+
+    **Time.** The first full-mode build compiles every third-party dependency plus the whole
+    tree; on a typical developer machine expect on the order of half an hour to an hour.
+    Subsequent builds are incremental. `ccache` shortens rebuilds — CI simply prepends the
+    ccache masquerade directory to `PATH` before building.
+
+    **Windows.** The browser stack is currently unverified on Windows (standard tests are
+    disabled there, see SEN-1725); the C++ tree builds with MSVC.
+
+    For enabling and running the test suite, see [Running the Tests](testing.md).

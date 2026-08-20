@@ -125,7 +125,7 @@ those prefixes with appropriate MIME types. The same origin hosts the WebSocket,
 browser-side client loaded from `http://host:8080/explorer/` can open a WebSocket to
 `ws://host:8080` without crossing origins.
 
-The canonical consumer is the `web_explorer` component: it subscribes to the control bus,
+The canonical consumer is the `webexplorer` component: it subscribes to the control bus,
 finds the `StaticFileServer` object, and calls its `registerBundle(urlPrefix, diskRoot)`
 method to expose its compiled-and-bundled frontend at, e.g., `/explorer/`.
 

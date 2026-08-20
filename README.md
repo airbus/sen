@@ -81,8 +81,10 @@ independence while providing low-overhead, full introspection and an extensible 
 - *Shell* for CLI interaction, with auto-completion, introspection, and remote connectivity.
 - *[Grafana](https://grafana.com/) visualization* via the [InfluxDB](https://www.influxdata.com/) component.
 - *Tracer* based on the excellent [Tracy](https://github.com/wolfpld/tracy) frame-based profiler.
-- *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots).
-- *REST API Server* for interfacing external (non-Sen) systems.
+- *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots),
+  available as either a native desktop window or a browser-based Web Explorer.
+- *REST API Server* or *JSON-RPC over WebSocket* for interfacing external (non-Sen) systems,
+  with an in-tree TypeScript client (`@sen/client`) for browser / Node.js consumers.
 
 **💻 Implementation**
 
@@ -227,6 +229,12 @@ fetches. Per-component opt-out happens at the CMake step via `-DSEN_BUILD_<NAME>
 Developer-facing flags (`with_examples`, `with_tests`, `with_clang_tidy`, `with_coverage`,
 `with_docs`, `sanitizer`) toggle the matching CMake flags. See the
 [Building Sen](docs/getting_started/install.md#build-options) page for examples.
+
+The first full-mode build fetches its toolchain (including Node.js for the browser UI) and all
+third-party packages from Conan Center and the npm registry — details and opt-outs in
+[what the build needs](docs/getting_started/install.md). To run the test suite, see
+[Running the Tests](docs/getting_started/testing.md); for a quick tour of a running system,
+try the [Web Explorer showcase](docs/components/webexplorer.md#try-it-standalone).
 
 <a name="local-workspace-setup"></a>
 
