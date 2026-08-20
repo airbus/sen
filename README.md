@@ -174,6 +174,13 @@ cmake --build build/gcc/Release                   # Build Sen
 If you would like to set up the full development environment for Sen (incl. testing, docs, etc...),
 you would need to install the `pytest`, `graphviz` and `plantuml` packages using your package manager.
 
+Build configuration is driven by a coarse `mode` Conan option
+(`barebones`/`basic`/`full`) that selects which components compile and which deps Conan
+fetches. Per-component opt-out happens at the CMake step via `-DSEN_BUILD_<NAME>=OFF`.
+Developer-facing flags (`with_examples`, `with_tests`, `with_clang_tidy`, `with_coverage`,
+`with_docs`, `sanitizer`) toggle the matching CMake flags. See the
+[Building Sen](docs/getting_started/install.md#build-options) page for examples.
+
 <a name="local-workspace-setup"></a>
 ## 📦 Local Workspace Setup (Conan Editable Mode)
 

@@ -189,3 +189,68 @@ Use Conan to fetch the third-party dependencies `conan install . --profile=sen_g
 To build, use `conan build . --profile=sen_gcc`. Alternatively, use
 `cmake -S . -B build -G Ninja --preset sen_gcc && cmake --build build` (you can replace 'sen_gcc'
 with the preset of your choice).
+
+??? note "Build options"
+
+    **Component selection**
+
+     `mode` is the Conan-level switch; it picks which components compile and which
+     deps Conan fetches.
+
+     | Mode        | Components enabled                                                                |
+     | ----------- | --------------------------------------------------------------------------------- |
+     | `barebones` | none - libs only, for embedding Sen as a library                                  |
+     | `basic`     | `shell`, `ether` (minimum interactive set)                                        |
+     | `full`      | every component (default)                                                         |
+
+     ```shell
+     conan install . --profile=sen_gcc -o sen/*:mode=barebones --build=missing
+     conan install . --profile=sen_gcc -o sen/*:mode=basic --build=missing
+     ```
+
+     Per-component Conan options are deliberately not exposed (combinatorial
+     package_id). Developers skip building specific components at the CMake step:
+
+     ```shell
+     conan install . --profile=sen_gcc --build=missing
+     cmake --preset conan-gcc-release -DSEN_BUILD_TRACY=OFF -DSEN_BUILD_EXPLORER=OFF
+     ```
+
+     The CMake override doesn't change what Conan fetched. Components beyond `mode`
+     can't be enabled this way (their deps weren't fetched).
+
+     **Developer-facing flags**
+
+     Examples, tests, static analysis, coverage, sanitizers, and documentation are exposed as Conan
+     options. All default to off. Turn on what you need with `-o sen/*:…=True`.
+
+     | Option            | Default  | Maps to                                                                       |
+     | ----------------- | -------- | ----------------------------------------------------------------------------- |
+     | `with_examples`   | `False`  | `-DSEN_BUILD_EXAMPLES=ON`                                                     |
+     | `with_tests`      | `False`  | `-DSEN_BUILD_TESTS=ON`                                                        |
+     | `with_clang_tidy` | `False`  | `-DSEN_DISABLE_CLANG_TIDY=OFF` (polarity flipped)                             |
+     | `with_coverage`   | `False`  | `-DSEN_COVERAGE_ENABLE=ON`                                                    |
+     | `with_docs`       | `False`  | `-DSEN_BUILD_DOCS=ON` and pulls `doxygen` as a tool requirement               |
+     | `sanitizer`       | `"none"` | `-DSEN_USE_SANITIZER=None`/`ASanUBSan`/`Thread` for `none`/`address`/`thread` |
+
+     Options are applied at `conan install` time — that's the step that generates the build files. The
+     subsequent `conan build` (or a direct `cmake --build`) just compiles with the settings already baked
+     in; the `-D` mappings above are for users invoking CMake without Conan.
+
+     ```shell
+     # Configure a build that compiles the test suite with the address sanitizer
+     conan install . --profile=sen_gcc -o sen/*:with_tests=True -o sen/*:sanitizer=address --build=missing
+     ```
+
+     **Building the docs**
+
+     `with_docs=True` pulls `doxygen` automatically, but `doxygen` itself needs `compiler.cppstd=20`
+     (set per-dep), which has to come from a profile rather than from the recipe. Sen ships a
+     `sen_build_docs` profile that sets both, so the one-liner for docs is:
+
+     ```shell
+     conan install . --profile=sen_build_docs --build=missing
+     ```
+
+     `mkdocs` and `graphviz` are not Conan-managed - install them via `pip install -r docs/requirements.txt`
+     and your platform package manager.
