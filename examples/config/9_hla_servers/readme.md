@@ -42,13 +42,13 @@ This terrain client implementation looks for all the servers and continuously re
 
 In one terminal:
 
-```
+```shell
 sen run config/9_hla_servers/1_terrain_client.yaml
 ```
 
 In another terminal:
 
-```
+```shell
 sen run config/9_hla_servers/1_terrain_server.yaml
 ```
 
@@ -75,13 +75,13 @@ care of more object types and handle UUIDs.
 
 ### How to run it
 
-```
+```shell
 sen run config/9_hla_servers/3_weather_server.yaml
 ```
 
 In this case you need to populate the parameters in a more involved manner due to the nature of the
 data model:
 
-```
+```text
 my.tutorial.weatherServer.reqWeather {"type": "GeodeticLocation", "value": { "latitude": 0, "longitude": 0}}, false
 ```

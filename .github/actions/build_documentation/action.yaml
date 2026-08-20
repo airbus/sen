@@ -4,7 +4,7 @@ description: "Build the API reference and the handbook; the caller decides wheth
 runs:
   using: 'composite'
   steps:
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
       with:
         python-version: 3.x
 
@@ -16,13 +16,13 @@ runs:
     # request is private to it, and open pull requests together pass the 10 GB
     # limit.
     - name: Restore conan packages
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
         key: conanp-docs-${{ env.cache_date }}
         restore-keys: conanp-docs-
 
-    - uses: hendrikmuhs/ccache-action@v1.2
+    - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
       with:
         key: docs
         max-size: 1G
@@ -78,7 +78,7 @@ runs:
     # build_docs.yaml, which is what keeps the slice pull requests restore.
     - name: Save conan packages
       if: always() && github.ref == 'refs/heads/main'
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
         key: conanp-docs-${{ env.cache_date }}

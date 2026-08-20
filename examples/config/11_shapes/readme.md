@@ -76,10 +76,16 @@ The listener prints the shapes that is able to detect.
 
 The ShapeListener demonstrates the full subscription lifecycle:
 
-1. **Select**: `api.selectFrom<ShapeInterface>(bus, query)` creates a subscription and returns a `Subscription<ShapeInterface>` holding an `ObjectList`.
-2. **React**: `sub->list.onAdded(...)` and `sub->list.onRemoved(...)` install callbacks that fire whenever matching objects appear or disappear. The returned `ConnectionGuard` must be kept alive â€” dropping it unregisters the callback.
-3. **Guard storage**: Per-shape guards (from `shape->onCollidedWithWall(...)`) are stored in a `std::list<ConnectionGuard>`. `std::list` is used deliberately: its iterators are stable across insertions and erasures, so adding a new guard never invalidates an existing one.
-4. **Cleanup**: Erasing a shape's entry from `shapeGuards_` drops all its guards, unregistering the callbacks. Erasing the subscription from `subscriptions_` triggers the `Subscription` destructor, which disconnects from the bus.
+1. **Select**: `api.selectFrom<ShapeInterface>(bus, query)` creates a subscription and returns a
+   `Subscription<ShapeInterface>` holding an `ObjectList`.
+2. **React**: `sub->list.onAdded(...)` and `sub->list.onRemoved(...)` install callbacks that fire whenever matching
+   objects appear or disappear. The returned `ConnectionGuard` must be kept alive â€” dropping it unregisters the
+   callback.
+3. **Guard storage**: Per-shape guards (from `shape->onCollidedWithWall(...)`) are stored in a
+   `std::list<ConnectionGuard>`. `std::list` is used deliberately: its iterators are stable across insertions and
+   erasures, so adding a new guard never invalidates an existing one.
+4. **Cleanup**: Erasing a shape's entry from `shapeGuards_` drops all its guards, unregistering the callbacks. Erasing
+   the subscription from `subscriptions_` triggers the `Subscription` destructor, which disconnects from the bus.
 
 ## How to run it
 
@@ -97,25 +103,25 @@ Let's define what we want to run in our Sen kernel.
 
 In one terminal (let's call it A):
 
-```
+```shell
 sen run config/11_shapes/1_shapes_listener.yaml
 ```
 
 In another terminal (let's call it B):
 
-```
+```shell
 sen run config/11_shapes/1_shapes_producer.yaml
 ```
 
 In another terminal (let's call it C):
 
-```
+```shell
 sen shell
 ```
 
 In terminal C, type:
 
-```
+```text
 open my.tutorial
 my.tutorial.listener.startListeningTo "my.tutorial", null, null, null
 ```
@@ -128,7 +134,7 @@ In terminal `A` you will see:
 
 If you now type the following in terminal C:
 
-```
+```text
 my.tutorial.listener.stopListening
 ```
 
@@ -138,25 +144,25 @@ In terminal `A` now you see that we don't get any new notification.
 
 Now, try the same as before, but specify a color:
 
-```
+```text
 my.tutorial.listener.startListeningTo "my.tutorial", "green", null, null
 ```
 
 ### Filtering by location
 
-```
+```text
 my.tutorial.listener.startListeningTo "my.tutorial", null, {"min": 0, "max": 20}, null
 ```
 
 In both dimensions:
 
-```
+```text
 my.tutorial.listener.startListeningTo "my.tutorial", null, {"min": 0, "max": 20}, {"min": 0, "max": 20}
 ```
 
 ### Filtering by all criteria
 
-```
+```text
 my.tutorial.listener.startListeningTo "my.tutorial", "green", {"min": 0, "max": 20}, {"min": 0, "max": 20}
 ```
 
@@ -167,13 +173,13 @@ property changes, and collision events in real time:
 
 In terminal A (listener, unchanged):
 
-```
+```shell
 sen run config/11_shapes/1_shapes_listener.yaml
 ```
 
 In terminal B (producer with explorer GUI):
 
-```
+```shell
 sen run config/11_shapes/2_shapes_producer_exp.yaml
 ```
 

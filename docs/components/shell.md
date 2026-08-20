@@ -14,7 +14,7 @@ get auto-complete, error-checking, argument parsing and even the ability to read
 You can run a stand-alone shell by typing:
 
 ```shell
-$ sen shell
+sen shell
 ```
 
 And you can load the shell component into any kernel. You do it like this:
@@ -87,7 +87,7 @@ When you `open` a bus, you are declaring an interest in all the objects that are
 You can inspect the list of active interests by using the `src` command. For example, if we call
 `open local.kernel` and then call `src` we will see the following:
 
-```
+```text
   Name               Query
   local.kernel.all   SELECT * FROM local.kernel
 ```
@@ -106,8 +106,10 @@ se.env.friendly_fire.
 
 As soon as the query is active, Sen automatically evaluates the objects on the bus. The shell will:
 
-* Notify you of discovered objects that meet the query conditions. Once an object has been discovered, you can interact with it as usual.
-* Notify you when an object no longer meets the query conditions (or is destroyed), meaning it has been removed from your view.
+* Notify you of discovered objects that meet the query conditions. Once an object has been discovered, you can interact
+  with it as usual.
+* Notify you when an object no longer meets the query conditions (or is destroyed), meaning it has been removed from
+  your view.
 
 You can always run the `ls` command to see the objects currently matching your active queries.
 

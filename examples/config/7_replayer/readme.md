@@ -6,7 +6,7 @@ This example uses the recordings produced by the previous example.
 
 ## How to run it
 
-```
+```shell
 sen run config/7_replayer/1_replayer_school.yaml
 ```
 
@@ -15,13 +15,13 @@ using the shell, open a `sen explorer`, etc.
 
 You can also interact with the replayer API by running:
 
-```
+```shell
 sen run config/7_replayer/2_replayer_alone.yaml
 ```
 
 Then you can run commands such as:
 
-```
+```text
 local.replay.replayer.print
 
 local.replay.replayer.open "my_replay", "school_recording"

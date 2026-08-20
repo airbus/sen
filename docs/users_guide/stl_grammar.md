@@ -96,13 +96,13 @@ same attribute list. Attribute values are either a literal or an identifier.
 
 ### 1.7 Identifiers
 
-```
+```ebnf
 identifier ::= [A-Za-z_] [A-Za-z0-9_]*
 ```
 
 Qualified names are a sequence of identifiers separated by `.`:
 
-```
+```ebnf
 qualifiedName ::= identifier ( '.' identifier )*
 ```
 
@@ -125,7 +125,7 @@ made available through the meta-reflection API.
 
 An STL file has three ordered sections:
 
-```
+```ebnf
 stl ::=  importStatement*
          packageDeclaration
          topLevelDeclaration*
@@ -157,7 +157,7 @@ documents). Paths are resolved against the Sen include search path.
 
 ### 3.1 Struct
 
-```
+```ebnf
 structDecl   ::= 'struct' identifier structParent? ( structBody | ';' )
 structParent ::= ':' qualifiedName
 structBody   ::= '{' ( structField ( ',' structField )* ','? )? '}'
@@ -170,7 +170,7 @@ form (`struct Empty;`) with no body braces.
 
 ### 3.2 Class
 
-```
+```ebnf
 classDecl      ::= 'abstract'? 'class' identifier classParents? classBody
 classParents   ::= ':' classParent ( ','? classParent )*
 classParent    ::= 'extends' qualifiedName
@@ -183,14 +183,14 @@ one `extends` is permitted). Separating commas between clauses are optional.
 
 Examples:
 
-```
+```rust
 class Foo { ... }
 class Foo : extends Bar { ... }
 ```
 
 ### 3.3 Class members
 
-```
+```ebnf
 propertyDecl   ::= 'var' identifier ':' typeExpr attributeList? ';'
 methodDecl     ::= 'fn' identifier '(' paramList? ')' ( '->' typeExpr )? attributeList? ';'
 eventDecl      ::= 'event' identifier '(' paramList? ')' attributeList? ';'
@@ -208,7 +208,7 @@ implementation.
 
 ### 3.4 Enum
 
-```
+```ebnf
 enumDecl     ::= 'enum' identifier ':' typeExpr enumBody
 enumBody     ::= '{' enumVariant ( ',' enumVariant )* ','? '}'
 enumVariant  ::= identifier
@@ -221,7 +221,7 @@ named-only; explicit numeric values are not supported.
 
 ### 3.5 Variant
 
-```
+```ebnf
 variantDecl    ::= 'variant' identifier '{' variantElement ( ',' variantElement )* ','? '}'
 variantElement ::= qualifiedName
 ```
@@ -231,20 +231,20 @@ distinct.
 
 ### 3.6 Alias
 
-```
+```ebnf
 aliasDecl ::= 'alias' identifier typeExpr ';'
 ```
 
 The two names appear side-by-side, no `=` between them:
 
-```
+```rust
 alias DeviceId   u64;
 alias NameList   sequence<string>;
 ```
 
 ### 3.7 Quantity
 
-```
+```ebnf
 quantityDecl ::= 'quantity' '<' typeExpr ',' identifier '>' identifier attributeList? ';'
 ```
 
@@ -255,7 +255,7 @@ are valid but the long names (`meter`, `degree`, `km_per_hour`, `centigrade`)
 are not. See [Appendix A](#appendix-a--registered-quantity-units) for the
 full list.
 
-```
+```rust
 quantity<f32, degC>     Temperature  [min: -273.15];
 quantity<f64, m>        Distance     [min: 0.0];
 quantity<f32, kph>      GroundSpeed;
@@ -267,7 +267,7 @@ quantity<f32, m_per_s>  Speed;
 
 These give a container a type name so it can be referenced elsewhere:
 
-```
+```ebnf
 sequenceDecl ::= 'sequence' '<' typeExpr ( ',' integerLiteral )? '>' identifier ';'
 arrayDecl    ::= 'array'    '<' typeExpr ','   integerLiteral    '>' identifier ';'
 optionalDecl ::= 'optional' '<' typeExpr '>'                         identifier ';'
@@ -277,7 +277,7 @@ optionalDecl ::= 'optional' '<' typeExpr '>'                         identifier 
 
 ## 4. Type expressions
 
-```
+```ebnf
 typeExpr       ::= qualifiedName typeArguments?
 typeArguments  ::= '<' typeArg ( ',' typeArg )* '>'
 typeArg        ::= typeExpr | integerLiteral
@@ -285,7 +285,7 @@ typeArg        ::= typeExpr | integerLiteral
 
 Examples:
 
-```
+```text
 u32
 string
 sen.kernel.BuildInfo

@@ -183,7 +183,7 @@ higher.
 
 Check the current UDP/IP receive buffer limit & default by typing the following commands:
 
-```
+```shell
 sysctl net.core.rmem_max
 sysctl net.core.rmem_default
 ```
@@ -191,7 +191,7 @@ sysctl net.core.rmem_default
 If the values are less than 8388608 bytes you should add the following lines to the /etc/sysctl.conf
 file:
 
-```
+```text
 net.core.rmem_max=8388608
 net.core.rmem_default=8388608
 ```
@@ -199,7 +199,7 @@ net.core.rmem_default=8388608
 Changes to /etc/sysctl.conf do not take effect until reboot. To update the values immediately, type
 the following commands as root:
 
-```
+```shell
 sysctl -w net.core.rmem_max=8388608
 sysctl -w net.core.rmem_default=8388608
 ```
@@ -212,20 +212,20 @@ if you want an 8MB buffer (8388608 bytes) you need to set the kernel limit to 83
 
 Check the current UDP/IP buffer limit by typing the following command:
 
-```
+```shell
 sysctl kern.ipc.maxsockbuf
 ```
 
 If the value is less than 9646900 bytes you should add the following lines to the /etc/sysctl.conf
 file (create it if necessary):
 
-```
+```text
 kern.ipc.maxsockbuf=9646900
 ```
 
 Changes to /etc/sysctl.conf do not take effect until reboot. To update the values immediately, type
 the following command as root:
 
-```
+```shell
 sysctl -w kern.ipc.maxsockbuf=9646900
 ```

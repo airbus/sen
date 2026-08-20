@@ -103,7 +103,7 @@ WHERE  currentSpeed BETWEEN commandedSpeed - 10.0 AND
 
 The `SELECT` expression syntax is as follows:
 
-```
+```sql
 SELECT class_name
 FROM bus_name
 WHERE condition

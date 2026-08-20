@@ -25,10 +25,10 @@ jobs:
     outputs:
       jobs: ${{ steps.compute-jobs.outputs.jobs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: 3.x
       - id: compute-jobs
@@ -50,7 +50,7 @@ jobs:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
         with:
           fetch-depth: 0
 
@@ -65,13 +65,13 @@ jobs:
       # request is private to it, so open pull requests each store the same
       # slice and the repository passes GitHub's 10 GB limit.
       - name: Restore conan packages
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
         with:
           path: ~/.conan2/p
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
           restore-keys: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
 
-      - uses: hendrikmuhs/ccache-action@v1.2
+      - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
         if: runner.os == 'Linux'
         with:
           key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
@@ -131,7 +131,7 @@ jobs:
 
       - name: Publish the coverage report
         if: matrix.enable_coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage-report
           if-no-files-found: error
@@ -183,7 +183,7 @@ jobs:
 
       # TODO(SEN-1726): Connect App to Airbus Org.
       # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v4
+      #   uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238  # v4
       #   with:
       #     files: coverage_reports/coverage.lcov
       #     fail_ci_if_error: true
@@ -199,7 +199,7 @@ jobs:
       # cancelled run already built.
       - name: Save conan packages
         if: always() && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
         with:
           path: ~/.conan2/p
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}

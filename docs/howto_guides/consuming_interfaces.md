@@ -1,4 +1,4 @@
-# Use interfaces from an imported Sen-based project.
+# Use interfaces from an imported Sen-based project
 
 This guide will focus on how to set up your project to consume interfaces from external packages.
 For this guide to be accurate, the package you consume should have followed the instructions

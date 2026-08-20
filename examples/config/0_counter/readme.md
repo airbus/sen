@@ -1,6 +1,7 @@
 # My Counter
 
-> **Prerequisites:** none - this is the introductory package used in the [Getting Started](../../docs/getting_started.md) guide.
+> **Prerequisites:** none - this is the introductory package used in the [Getting
+Started](../../docs/getting_started.md) guide.
 
 This package demonstrates the minimal structure of a Sen package: a single STL file that declares one class, and one
 C++ implementation class. It is intentionally small so you can focus on the mechanics of writing and wiring a Sen
@@ -57,14 +58,14 @@ compiled alongside the generated code.
 
 Run the package with:
 
-```
+```shell
 sen run examples/packages/my_counter/config.yaml
 ```
 
 This opens a Sen shell with the `myCounter` object published on the `local.counters` bus. You can interact
 with it using:
 
-```
+```text
 local.counters.myCounter.print
 local.counters.myCounter.hello
 ```

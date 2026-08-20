@@ -1,6 +1,7 @@
 # Aircraft example
 
-> **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy, STL inheritance). Familiarity with [HLA FOMs](https://en.wikipedia.org/wiki/High_Level_Architecture) is helpful but not required.
+> **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy, STL inheritance). Familiarity with
+[HLA FOMs](https://en.wikipedia.org/wiki/High_Level_Architecture) is helpful but not required.
 
 Here you can see how to use an HLA-based definition to implement a simple aircraft simulation using
 the `update()` method.
@@ -34,7 +35,7 @@ This will open a shell and tell Sen to instantiate one aircraft in the `my.tutor
 
 To run it, let's call `sen run`:
 
-```
+```shell
 sen run config/3_aircraft/1_aircraft.yaml
 ```
 
@@ -45,7 +46,7 @@ the position.
 
 You can also load the explorer to have an easier time following the updates.
 
-```
+```shell
 sen run config/3_aircraft/2_aircraft_exp.yaml
 ```
 
@@ -58,7 +59,7 @@ Let's now start the kernel in virtualized time mode by changing our config file.
 ```
 
 We can run it with the following command:
-```
+```shell
 sen run config/3_aircraft/3_aircraft_virtual_time.yaml
 ```
 
@@ -66,7 +67,7 @@ Now, if you execute `my.tutorial.myAircraft.getSpatial` you will see that there 
 
 Let's now advance one cycle by using the clock API.
 
-```
+```text
 my.tutorial.master.step
 my.tutorial.myAircraft.getSpatial
 ```
@@ -75,7 +76,7 @@ You can see how the component got triggered.
 
 If you want to advance the time more, say 60 seconds:
 
-```
+```text
 my.tutorial.master.advanceTime "60 s"
 ```
 

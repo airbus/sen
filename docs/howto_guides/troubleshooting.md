@@ -26,7 +26,7 @@ Before diving into specific problems, run through this list:
 
 **Symptom:** Sen starts but immediately prints something like:
 
-```
+```yaml
 error: cannot open shared object file: libmy_package.so: No such file or directory
 ```
 
@@ -307,6 +307,7 @@ the class.
 a string where a number is expected).
 
 **Fix:** Check that:
+
 - The property key in YAML matches the STL property name exactly (case-sensitive)
 - Numeric properties use numbers in YAML, not quoted strings
 - `[static]` properties that are required must be present

@@ -17,7 +17,7 @@ with properties, methods, and events that happens to live in our own thread, in 
 in another process, or on another machine. You call methods on it. You read its properties. You subscribe
 to its events. The network is transparent.
 
-```
+```yaml
 Message-oriented:                    Sen:
   producer → [topic] → consumer        caller.calc.add(3, 4, callback)
   "send data to a name"                "call a method on an object"
@@ -136,7 +136,7 @@ As a side effect, **no object can ever be blocked waiting for another**. The sys
 
 Sen objects live in a three-level namespace:
 
-```
+```text
 session.bus.objectName
 
 e.g.:  monitoring.headquarters.sensor42
@@ -210,7 +210,7 @@ example, a method call that triggers an irreversible action.
 
 ---
 
-## If you're coming from...
+## If you're coming from…
 
 ### ROS / ROS 2
 
