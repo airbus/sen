@@ -21,10 +21,32 @@ runs:
       shell: bash
       run: pip install conan==2.28.1 pytest==9.1.1 junitparser==5.0.1
 
+    # Both ways apt hangs here, bounded in one place so the calls inside llvm.sh get it
+    # too: it waits for the dpkg lock the runner's background updates hold, and it waits
+    # on a mirror that stopped answering. Unbounded, both produce no output at all until
+    # the job timeout kills them; one clang leg spent two hours that way.
+    - name: Bound how long apt waits
+      if: ${{ inputs.compiler-name != 'msvc' }}
+      shell: bash
+      run: |
+        # The runners prefer azure.archive.ubuntu.com through this mirror list. That host
+        # has been ignoring requests for us today, and apt then alternates between it and
+        # the working mirror until the bound below kills the step. Point it straight at
+        # the one that answers.
+        if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/apt-mirrors.txt
+        fi
+        sudo tee /etc/apt/apt.conf.d/99-sen-timeouts <<'CONF'
+        DPkg::Lock::Timeout "120";
+        Acquire::Retries "3";
+        Acquire::http::Timeout "30";
+        Acquire::https::Timeout "30";
+        CONF
+
     - name: Install gcc-${{ inputs.compiler-version }}
       if: ${{ inputs.compiler-name == 'gcc' }}
       shell: bash
-      run: sudo apt-get install -y g++-${{ inputs.compiler-version }}
+      run: timeout 1200 sudo apt-get install -y g++-${{ inputs.compiler-version }}
 
     - name: Install clang-${{ inputs.compiler-version }}
       if: ${{ inputs.compiler-name == 'clang' }}
@@ -32,8 +54,11 @@ runs:
       run: |
         wget https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
-        sudo ./llvm.sh ${{ inputs.compiler-version }}
-        sudo apt install -y \
+        # llvm.sh refreshes the apt metadata and installs the whole toolchain, so it is
+        # slow by nature: 15 minutes killed a run that was still making progress. This is
+        # well under the job cap, so a real hang is still caught long before that.
+        timeout 2400 sudo ./llvm.sh ${{ inputs.compiler-version }}
+        timeout 1200 sudo apt-get install -y \
           clang-tools-${{ inputs.compiler-version }} \
           clang-tidy-${{ inputs.compiler-version }} \
           llvm-${{ inputs.compiler-version }} \
@@ -43,7 +68,7 @@ runs:
       if: ${{ inputs.compiler-name != 'msvc' }}
       shell: bash
       # libxext for clang compat with sdl2 2.24.0; bats for the installer tests
-      run: sudo apt-get install -y libxext-dev bats
+      run: timeout 1200 sudo apt-get install -y libxext-dev bats
 
     - name: Setup conan profile
       shell: bash
