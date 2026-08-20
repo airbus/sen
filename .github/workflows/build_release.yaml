@@ -37,6 +37,27 @@ jobs:
       - id: compute-jobs
         run: python .github/scripts/generate_matrix_jobs.py --release
 
+  generate_changelog:
+    name: "Generate changelog"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Compute changelog
+        run: python .github/scripts/create_changelog.py > ${{ github.workspace }}-CHANGELOG.txt
+
+      - name: Archive the generated changelog
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: changelog
+          # The release body comes from this file; an empty artifact would ship
+          # a release with no notes.
+          if-no-files-found: error
+          path: ${{ github.workspace }}-CHANGELOG.txt
+
   create_release_with_artifacts:
     name: "Build Job: ${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} [${{ matrix.build_type }}]"
     needs: compute-matrix-jobs
@@ -86,7 +107,9 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
-    needs: create_release_with_artifacts
+    needs:
+      - create_release_with_artifacts
+      - generate_changelog
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
@@ -95,6 +118,7 @@ jobs:
         run: |
           sudo apt-get install -y file
           ls -rlisa
+          cat changelog/sen-CHANGELOG.txt
 
       # The installer verifies what it downloads against this file, and treats
       # its absence as "verification skipped". Without it every install is
@@ -117,6 +141,7 @@ jobs:
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
         if: github.ref_type == 'tag'
         with:
+          body_path: changelog/sen-CHANGELOG.txt
           files: |
             release-*/*
             SHA256SUMS
