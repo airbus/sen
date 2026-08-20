@@ -1,0 +1,62 @@
+import "stl/sen/kernel/basic_types.stl"
+
+package sen.components.jsonrpc;
+
+// One file inside a StaticBundle. Bytes are owned by the bundle; `path` is relative to the
+// bundle's `urlPrefix` and uses forward slashes regardless of the producer's OS. `contentType`
+// is the MIME type the server will return verbatim; the bundle producer decides it (no
+// extension-based inference happens server-side).
+struct StaticFile
+{
+  path        : string,           // path within the bundle, e.g. "assets/main.js"
+  contentType : string,           // MIME type, e.g. "text/html"
+  contents    : sen.kernel.Buffer // raw file bytes
+}
+sequence<StaticFile> StaticFileList;
+
+// One bundle of in-memory files served on a configurable URL prefix. The same bundle's files
+// are served at `<urlPrefix>/<file.path>`. `indexFileName` is the SPA fallback served whenever a
+// request under `urlPrefix` does not match any file (lets the client-side router handle paths
+// the server does not know about).
+struct StaticBundle
+{
+  urlPrefix     : string,         // URL prefix, e.g. "/explorer"; must start with "/"
+  indexFileName : string,         // SPA fallback, e.g. "index.html"; must match a `path` in `files`
+  files         : StaticFileList  // file set
+}
+
+// Summary record returned by `listRegisteredBundles`. Excludes the file bytes; just enough to
+// answer "what is currently being served, and where".
+struct RegisteredBundleInfo
+{
+  bundleId  : u64,    // opaque id assigned by the server, stable for the bundle's lifetime
+  urlPrefix : string, // bundle's URL prefix
+  fileCount : u64     // number of files in the bundle
+}
+sequence<RegisteredBundleInfo> RegisteredBundleInfoList;
+
+// Server-wide registry of in-memory static-file bundles, served alongside the WebSocket+JSON-RPC
+// surface by the same uWS app. Internal-only: lives on the configurable control bus (defaults to
+// `local.jsonrpc_control`), not on the data-plane bus that hosts authenticated per-connection
+// JsonRpcServer instances. The component publishes exactly one instance.
+class StaticFileServer
+{
+  // Currently-registered bundles. Externally read-only; the component mutates this whenever a
+  // bundle is registered or unregistered. Subscribe to receive notifications on every change.
+  var registeredBundles : RegisteredBundleInfoList [confirmed];
+
+  // Register a bundle. The bundle is copied into the registry; the caller may release the
+  // argument afterwards. Routes are wired up asynchronously on the uWS thread; the returned
+  // bundleId is stable and may be used immediately with `unregisterStaticBundle`.
+  //
+  // @param bundle the bundle to serve.
+  // @return opaque id usable with `unregisterStaticBundle`.
+  fn registerStaticBundle(bundle : StaticBundle) -> u64;
+
+  // Stop serving the bundle. The slot in the registry is nulled; the underlying uWS route
+  // remains registered (uWS does not expose a clean route-removal API) but becomes inert and
+  // returns 404. No-op if `bundleId` is unknown.
+  //
+  // @param bundleId id returned by an earlier `registerStaticBundle` call.
+  fn unregisterStaticBundle(bundleId : u64);
+}
