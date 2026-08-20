@@ -34,6 +34,7 @@ jobs:
     outputs:
       code: ${{ steps.filter.outputs.code }}
       docs: ${{ steps.filter.outputs.docs }}
+      image: ${{ steps.filter.outputs.image }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -51,6 +52,7 @@ jobs:
           # information both classifications fail open.
           code=true
           docs=true
+          image=true
           if [ "$EVENT_NAME" = "pull_request" ]; then
             changed=$(git diff --no-renames --name-only "$BASE_SHA"...HEAD)
             build_files='(^|/)CMakeLists\.txt$|\.cmake$'
@@ -59,6 +61,7 @@ jobs:
             docs_inputs="$docs_inputs|^mkdocs\.yml$|^conanfile\.py$|^conan\.lock$|^LICENSE\.txt$"
             docs_inputs="$docs_inputs|^\.github/actions/build_documentation/"
             docs_inputs="$docs_inputs|^\.github/workflows/docs_check\.yaml$"
+            image_files='^tools/ci/|^\.github/workflows/ci-image\.yaml$'
             if [ -n "$changed" ] &&
                ! echo "$changed" | grep -qvE "$docs_files" &&
                ! echo "$changed" | grep -qE "$build_files"; then
@@ -67,9 +70,20 @@ jobs:
             if [ -n "$changed" ] && ! echo "$changed" | grep -qE "$docs_inputs"; then
               docs=false
             fi
+            if [ -n "$changed" ] && ! echo "$changed" | grep -qE "$image_files"; then
+              image=false
+            fi
+            # A documentation-only change cannot affect the image: the
+            # Dockerfile copies nothing out of the repository.
+            if [ "$code" = false ]; then
+              image=false
+            fi
           fi
-          echo "code=$code" >> "$GITHUB_OUTPUT"
-          echo "docs=$docs" >> "$GITHUB_OUTPUT"
+          {
+            echo "code=$code"
+            echo "docs=$docs"
+            echo "image=$image"
+          } >> "$GITHUB_OUTPUT"
 
   # Not on a push: after the merge the hook range is empty, so every hook
   # environment would install to check nothing.
@@ -131,6 +145,16 @@ jobs:
       (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     uses: ./.github/workflows/docs_check.yaml
 
+  # A change to the build environment has to prove the image still builds and
+  # still holds the tools it promises. ci-ok needs this job, so a broken image
+  # blocks the merge rather than showing up as a red mark beside it.
+  image-check:
+    needs: detect-changes
+    if: >-
+      needs.detect-changes.outputs.image == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    uses: ./.github/workflows/ci-image.yaml
+
   # Packaging is the only check that builds Sen as a package and consumes it
   # from outside, so a pull request runs the shipping configuration; running
   # every configuration on every push flooded the queue. The full set runs
@@ -168,6 +192,7 @@ jobs:
       - conan-lock-check
       - standard-tests
       - docs-build
+      - image-check
       - conan-packaging
     runs-on: ubuntu-latest
     timeout-minutes: 10
