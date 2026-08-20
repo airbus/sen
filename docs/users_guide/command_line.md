@@ -298,6 +298,10 @@ build:
 
 ## Code generator
 
+`sen generate` is a thin command-line front-end over the
+[`sen::gen`](gen_library.md) library, which implements the underlying
+generators.
+
 ```title="sen generate"
 --8<-- "snippets/sen_generate.sh"
 ```

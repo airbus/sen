@@ -101,4 +101,9 @@
 @{
 @}
 
+@brief Code generators that emit source artefacts from Sen type sets
+@defgroup gen Code Generation library
+@{
+@}
+
 */

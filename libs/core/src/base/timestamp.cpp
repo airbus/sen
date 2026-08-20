@@ -31,7 +31,9 @@ namespace
 using Clock = std::chrono::system_clock;
 
 constexpr std::size_t microsecondsZeroes = 6U;
+constexpr std::size_t nanosecondsZeroes = 9U;
 constexpr auto format = "%Y-%m-%d %H:%M:%S";
+constexpr auto rfc3339Format = "%Y-%m-%dT%H:%M:%S";
 
 }  // namespace
 
@@ -57,6 +59,29 @@ std::string TimeStamp::toUtcString() const
 
   auto microSecs = std::chrono::duration_cast<std::chrono::microseconds>(chronoTime);
   ss << " " << std::setw(microsecondsZeroes) << std::setfill('0') << microSecs.count() % std::micro::den;
+
+  return ss.str();
+}
+
+std::string TimeStamp::toUtcStringNs() const
+{
+  auto chronoTime = timeSinceEpoch_.toChrono();
+  auto duration = std::chrono::duration_cast<Clock::duration>(chronoTime);
+
+  std::time_t tt = Clock::to_time_t(Clock::time_point(duration));
+  tm timeBuffer {};
+
+#ifdef WIN32
+  gmtime_s(&timeBuffer, &tt);
+#else
+  std::ignore = gmtime_r(&tt, &timeBuffer);
+#endif
+
+  std::stringstream ss;
+  ss << std::put_time(&timeBuffer, rfc3339Format);
+
+  auto nanoSecs = std::chrono::duration_cast<std::chrono::nanoseconds>(chronoTime);
+  ss << "." << std::setw(nanosecondsZeroes) << std::setfill('0') << nanoSecs.count() % std::nano::den << "Z";
 
   return ss.str();
 }
