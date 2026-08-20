@@ -1,0 +1,24 @@
+# $schema: ../../../../../examples/config/base/schema.json
+
+# Sen config used by the @sen/client hello-world and browser smoke. Spawns the rufus cat
+# and elon dog from the `animals` example package on the `my.tutorial` bus, and exposes
+# the kernel over jsonrpc on ws://127.0.0.1:8080 (the URL all client docs connect to).
+# `animals` ships with examples enabled (Conan: with_examples=True).
+
+load:
+  - name: jsonrpc
+    address: "127.0.0.1"
+    port: 8080
+
+build:
+  - name: tutorial
+    freqHz: 30
+    imports: [animals]
+    group: 3
+    objects:
+      - class: animals.CatImpl
+        name: rufus
+        bus: my.tutorial
+      - class: animals.DogImpl
+        name: elon
+        bus: my.tutorial
