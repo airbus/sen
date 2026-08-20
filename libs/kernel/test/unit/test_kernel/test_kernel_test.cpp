@@ -16,6 +16,7 @@
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
+#include "sen/kernel/kernel_config.h"
 #include "sen/kernel/test_kernel.h"
 #include "sen/kernel/tracer.h"
 
@@ -215,6 +216,128 @@ TEST(TestKernel, repeatedNames)
 
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
+}
+
+/// @test
+/// Checks that Sen can not have repeated object names on the same bus from different local participants
+/// @requirements(SEN-580)
+TEST(TestKernel, repeatedNamesAcrossLocalParticipants)
+{
+  auto object1 = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+  auto object2 = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  std::shared_ptr<sen::ObjectSource> source1;
+  std::shared_ptr<sen::ObjectSource> source2;
+  bool object1Added = false;
+  bool object2Added = true;
+
+  sen::kernel::TestComponent component1;
+  component1.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source1 = api.getSource("local.test");
+      object1Added = source1->add(object1);
+      return sen::kernel::done();
+    });
+  component1.onRun([&](auto& api) { return api.execLoop(std::chrono::seconds(1), [&]() {}); });
+
+  sen::kernel::TestComponent component2;
+  component2.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source2 = api.getSource("local.test");
+      object2Added = source2->add(object2);
+      return sen::kernel::done();
+    });
+  component2.onRun([&](auto& api) { return api.execLoop(std::chrono::seconds(1), [&]() {}); });
+
+  // Keep the first object pending during both initializations
+  sen::kernel::KernelConfig config;
+  sen::kernel::KernelConfig::ComponentToLoad component1ToLoad;
+  component1ToLoad.component.instance = &component1;
+  component1ToLoad.component.info.name = "component1";
+  component1ToLoad.config.group = 2U;
+  config.addToLoad(std::move(component1ToLoad));
+
+  sen::kernel::KernelConfig::ComponentToLoad component2ToLoad;
+  component2ToLoad.component.instance = &component2;
+  component2ToLoad.component.info.name = "component2";
+  component2ToLoad.config.group = 2U;
+  config.addToLoad(std::move(component2ToLoad));
+
+  sen::kernel::TestKernel kernel(std::move(config));
+
+  // Check the pending object
+  EXPECT_TRUE(object1Added);
+  EXPECT_FALSE(object2Added);
+  EXPECT_NE(source2, nullptr);
+
+  if (object1Added && source2 != nullptr)
+  {
+    // Publish the first object
+    kernel.step();
+
+    // Check again with a new object when first object is already published
+    auto object3 = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+    EXPECT_FALSE(source2->add(object3));
+  }
+
+  source1.reset();
+  source2.reset();
+}
+
+/// @test
+/// Checks that different local participants can publish objects with the same name on different buses
+/// @requirements(SEN-580)
+TEST(TestKernel, sameNameDifferentBuses)
+{
+  auto object1 = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+  auto object2 = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  std::shared_ptr<sen::ObjectSource> source1;
+  std::shared_ptr<sen::ObjectSource> source2;
+  bool object1Added = false;
+  bool object2Added = false;
+
+  sen::kernel::TestComponent component1;
+  component1.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source1 = api.getSource("local.first");
+      object1Added = source1->add(object1);
+      return sen::kernel::done();
+    });
+
+  sen::kernel::TestComponent component2;
+  component2.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source2 = api.getSource("local.second");
+      object2Added = source2->add(object2);
+      return sen::kernel::done();
+    });
+
+  sen::kernel::KernelConfig config;
+  sen::kernel::KernelConfig::ComponentToLoad component1ToLoad;
+  component1ToLoad.component.instance = &component1;
+  component1ToLoad.component.info.name = "component1";
+  component1ToLoad.config.group = 2U;
+  config.addToLoad(std::move(component1ToLoad));
+
+  sen::kernel::KernelConfig::ComponentToLoad component2ToLoad;
+  component2ToLoad.component.instance = &component2;
+  component2ToLoad.component.info.name = "component2";
+  component2ToLoad.config.group = 2U;
+  config.addToLoad(std::move(component2ToLoad));
+
+  sen::kernel::TestKernel kernel(std::move(config));
+
+  // Both objects are valid
+  EXPECT_TRUE(object1Added);
+  EXPECT_TRUE(object2Added);
+
+  source1.reset();
+  source2.reset();
 }
 
 /// @test

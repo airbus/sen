@@ -133,7 +133,7 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 
     instance->setLocalPrefix(objectsNamePrefix_);
     const auto& localName = instance->getLocalName();
-    if (localObjectNames_.count(localName) != 0)
+    if (localObjectNames_.count(localName) != 0 || bus_->isObjectNameUsedLocally(instance->getName()).has_value())
     {
       result = false;
 
@@ -165,13 +165,30 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 
   if (localObjectNames_.count(localName) != 0)
   {
-    for (const auto& [id, obj]: localObjects_.currentObjects)
+    const auto findRegistrationTime = [name](const auto& objects) -> std::optional<TimeStamp>
     {
-      if (obj->getName() == name)
+      for (const auto& [id, object]: objects)
       {
-        return obj->asNativeObject()->getRegistrationTime();
+        std::ignore = id;
+        if (object->getName() == name)
+        {
+          return object->asNativeObject()->getRegistrationTime();
+        }
       }
+
+      return std::nullopt;
+    };
+
+    if (auto registrationTime = findRegistrationTime(localObjects_.currentObjects); registrationTime.has_value())
+    {
+      return registrationTime;
     }
+    if (auto registrationTime = findRegistrationTime(localObjects_.newObjects); registrationTime.has_value())
+    {
+      return registrationTime;
+    }
+
+    return findRegistrationTime(tempNewObjects_);
   }
   return std::nullopt;
 }
