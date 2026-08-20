@@ -24,6 +24,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -200,4 +201,36 @@ TEST(TestKernel, repeatedNames)
 
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
+}
+
+/// @test
+/// A pipeline object with one side of `bus` empty (trailing or leading dot) is rejected
+/// at config-validation time.
+TEST(TestKernel, busAddressMustBeFullySpecified)
+{
+  const auto* yaml = R"yaml(
+build:
+  - name: comp
+    group: 1
+    freqHz: 100
+    objects:
+      - name: obj
+        class: test.MyClass
+        bus: "session."
+)yaml";
+  EXPECT_THROW(sen::kernel::TestKernel::fromYamlString(yaml), std::runtime_error);
+}
+
+/// @test
+/// A pipeline that does not declare imports gets an empty import list and loads fine.
+TEST(TestKernel, missingImportsMeansEmptyImportList)
+{
+  const auto* yaml = R"yaml(
+build:
+  - name: comp
+    group: 1
+    freqHz: 100
+    objects: []
+)yaml";
+  EXPECT_NO_THROW(sen::kernel::TestKernel::fromYamlString(yaml));
 }

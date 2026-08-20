@@ -142,22 +142,27 @@ public:
   /// The work queue of this runner
   [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue() const noexcept;
 
+  /// Subscribe to every object of type T on `bus`. The returned Subscription owns the
+  /// kernel-side wiring; destruct it to stop.
+  ///
+  /// Callback lifetime (this overload, the next, and selectFrom): onAdded / onRemoved
+  /// fire on the kernel's run() thread between subscribe and the Subscription's
+  /// destruction. References they capture must outlive the Subscription. Capture state
+  /// by shared_ptr or via a component member.
   template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const Bus& bus);
 
-  /// Overload of selectAllFrom that installs addition and removal callbacks before subscribing,
-  /// so they fire for objects already present at subscription time.
-  /// Pass nullptr for either callback to skip it.
+  /// As above, plus addition/removal callbacks installed before subscribing so they fire
+  /// for objects already present. Pass nullptr to skip either.
   template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(
     const Bus& bus,
     typename sen::ObjectList<T>::Callback onAdded,
     typename sen::ObjectList<T>::Callback onRemoved = nullptr);
 
-  /// Creates a subscription for objects matching the given Sen query string.
-  /// Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions.
-  /// Example: selectFrom<Shape>(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")").
-  /// It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.
+  /// Subscription against an arbitrary Sen query (with WHERE conditions).
+  /// Example: `selectFrom<Shape>(bus, R"(SELECT Shape FROM local.bus WHERE color IN ("red"))")`.
+  /// Installs the callbacks before subscribing. Pass nullptr to skip either.
   template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectFrom(const Bus& bus,
                                                             const std::string& query,
@@ -403,14 +408,15 @@ inline std::shared_ptr<Subscription<T>> KernelApi::selectFrom(const Bus& bus,
 template <typename T>
 inline std::string KernelApi::buildQuery(const BusAddress& address) const
 {
-  const ClassType* meta = nullptr;
-  if constexpr (!std::is_same_v<T, Object>)
-  {
-    meta = &T::meta();
-  }
-
   std::string query = "SELECT ";
-  query.append(meta ? meta->getQualifiedName() : "*");
+  if constexpr (std::is_same_v<T, Object>)
+  {
+    query.append("*");
+  }
+  else
+  {
+    query.append(T::meta()->asClassType()->getQualifiedName());
+  }
   query.append(" FROM ");
   query.append(address.sessionName);
   query.append(".");
@@ -422,14 +428,15 @@ inline std::string KernelApi::buildQuery(const BusAddress& address) const
 template <typename T>
 inline std::string KernelApi::buildQuery(std::string_view bus) const
 {
-  const ClassType* meta = nullptr;
-  if constexpr (!std::is_same_v<T, Object>)
-  {
-    meta = T::meta()->asClassType();
-  }
-
   std::string query = "SELECT ";
-  query.append(meta ? meta->getQualifiedName() : "*");
+  if constexpr (std::is_same_v<T, Object>)
+  {
+    query.append("*");
+  }
+  else
+  {
+    query.append(T::meta()->asClassType()->getQualifiedName());
+  }
   query.append(" FROM ");
   query.append(bus);
 

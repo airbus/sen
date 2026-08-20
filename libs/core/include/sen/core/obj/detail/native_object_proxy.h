@@ -70,29 +70,31 @@ protected:  // called by the generated code
   void senImplRemoveUntypedConnection(ConnId id, MemberHash memberHash) override;
 
 private:
-  struct EventCallbackData
+  // Held by shared_ptr: senImplEventEmitted queues work items that capture this and may
+  // run after senImplRemoveUntypedConnection erases the slot.
+  struct PropertyCallbackData
   {
     uint32_t id;
     std::shared_ptr<EventCallback<VarList>> callback;
   };
 
-  using EventCallbackList = std::vector<EventCallbackData>;
+  using PropertyCallbackList = std::vector<PropertyCallbackData>;
 
-  struct EventData
+  struct PropertyData
   {
-    EventCallbackList list;
+    PropertyCallbackList list;
     TransportMode transportMode;
   };
 
-  using EventCallbackMap = std::unordered_map<MemberHash, EventData>;
+  using PropertyCallbackMap = std::unordered_map<MemberHash, PropertyData>;
 
 private:
   NativeObject* owner_;
   std::shared_ptr<Object> guard_;
   std::string localName_;
   TimeStamp lastCommitTime_;
-  std::unique_ptr<EventCallbackMap> eventCallbacks_;
-  std::recursive_mutex eventCallbacksMutex_;
+  std::unique_ptr<PropertyCallbackMap> propertyCallbacks_;
+  std::recursive_mutex propertyCallbacksMutex_;
 };
 
 }  // namespace impl
