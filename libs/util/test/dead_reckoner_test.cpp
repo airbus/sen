@@ -6,10 +6,12 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/numbers.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/util/dr/algorithms.h"
 #include "sen/util/dr/detail/dead_reckoner_base.h"
 #include "sen/util/dr/detail/dead_reckoner_impl.h"
+#include "sen/util/dr/detail/settable_dead_reckoner_impl.h"
 
 // implementation
 #include "constants.h"
@@ -23,6 +25,8 @@
 
 namespace sen::util
 {
+
+constexpr f64 error = 1e-2;
 
 // timestamps used for the extrapolations of the tests
 constexpr sen::TimeStamp initialTimeStamp {std::chrono::seconds(0)};
@@ -48,9 +52,9 @@ TEST(DeadReckonerTest, drFpw)
 
   const auto situation = drFpw(input, currentTimeStamp);
 
-  EXPECT_NEAR(20, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(-40, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(70, situation.worldLocation.z, 0.01);
+  EXPECT_NEAR(20, situation.worldLocation.x, error);
+  EXPECT_NEAR(-40, situation.worldLocation.y, error);
+  EXPECT_NEAR(70, situation.worldLocation.z, error);
 }
 
 /// @test
@@ -63,12 +67,12 @@ TEST(DeadReckonerTest, drRpw)
 
   const auto situation = drRpw(input, currentTimeStamp);
 
-  EXPECT_NEAR(-20, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(20, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(60, situation.worldLocation.z, 0.01);
-  EXPECT_NEAR(5, toDeg(situation.orientation.psi), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), 0.01);
+  EXPECT_NEAR(-20, situation.worldLocation.x, error);
+  EXPECT_NEAR(20, situation.worldLocation.y, error);
+  EXPECT_NEAR(60, situation.worldLocation.z, error);
+  EXPECT_NEAR(5, toDeg(situation.orientation.psi), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.phi), error);
 }
 
 /// @test
@@ -81,12 +85,12 @@ TEST(DeadReckonerTest, drRvw)
 
   const auto situation = drRvw(input, currentTimeStamp);
 
-  EXPECT_NEAR(-16, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(24, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(64, situation.worldLocation.z, 0.01);
-  EXPECT_NEAR(5, toDeg(situation.orientation.psi), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), 0.01);
+  EXPECT_NEAR(-16, situation.worldLocation.x, error);
+  EXPECT_NEAR(24, situation.worldLocation.y, error);
+  EXPECT_NEAR(64, situation.worldLocation.z, error);
+  EXPECT_NEAR(5, toDeg(situation.orientation.psi), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.phi), error);
 }
 
 /// @test
@@ -99,9 +103,9 @@ TEST(DeadReckonerTest, drFvw)
 
   const auto situation = drFvw(input, currentTimeStamp);
 
-  EXPECT_NEAR(-24, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(24, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(64, situation.worldLocation.z, 0.01);
+  EXPECT_NEAR(-24, situation.worldLocation.x, error);
+  EXPECT_NEAR(24, situation.worldLocation.y, error);
+  EXPECT_NEAR(64, situation.worldLocation.z, error);
 }
 
 /// @test
@@ -114,9 +118,9 @@ TEST(DeadReckonerTest, drFpb)
 
   const auto situation = drFpb(input, currentTimeStamp);
 
-  EXPECT_NEAR(-20, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(-20, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(60, situation.worldLocation.z, 0.01);
+  EXPECT_NEAR(-20, situation.worldLocation.x, error);
+  EXPECT_NEAR(-20, situation.worldLocation.y, error);
+  EXPECT_NEAR(60, situation.worldLocation.z, error);
 }
 
 /// @test
@@ -129,9 +133,9 @@ TEST(DeadReckonerTest, drFvb)
 
   const auto situation = drFvb(input, currentTimeStamp);
 
-  EXPECT_NEAR(-16, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(-64, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(24, situation.worldLocation.z, 0.01);
+  EXPECT_NEAR(-16, situation.worldLocation.x, error);
+  EXPECT_NEAR(-64, situation.worldLocation.y, error);
+  EXPECT_NEAR(24, situation.worldLocation.z, error);
 }
 
 /// @test
@@ -144,12 +148,12 @@ TEST(DeadReckonerTest, drRpb)
 
   const auto situation = drRpb(input, currentTimeStamp);
 
-  EXPECT_NEAR(0, situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(0, situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(-(20 / pi) * 2, situation.worldLocation.z, 0.01);
-  EXPECT_NEAR(180, toDeg(situation.orientation.psi), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), 0.01);
-  EXPECT_NEAR(180, toDeg(situation.orientation.phi), 0.01);
+  EXPECT_NEAR(0, situation.worldLocation.x, error);
+  EXPECT_NEAR(0, situation.worldLocation.y, error);
+  EXPECT_NEAR(-(20 / pi) * 2, situation.worldLocation.z, error);
+  EXPECT_NEAR(180, toDeg(situation.orientation.psi), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
+  EXPECT_NEAR(180, toDeg(situation.orientation.phi), error);
 }
 
 /// @test
@@ -162,12 +166,12 @@ TEST(DeadReckonerTest, drRvb)
 
   const auto situation = drRvb(input, currentTimeStamp);
 
-  EXPECT_NEAR(48 / pi - 32 / (pi * pi), situation.worldLocation.x, 0.01);
-  EXPECT_NEAR(32 / pi + 32 / (pi * pi), situation.worldLocation.y, 0.01);
-  EXPECT_NEAR(0, situation.worldLocation.z, 0.01);
-  EXPECT_NEAR(90, toDeg(situation.orientation.psi), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), 0.01);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), 0.01);
+  EXPECT_NEAR(48 / pi - 32 / (pi * pi), situation.worldLocation.x, error);
+  EXPECT_NEAR(32 / pi + 32 / (pi * pi), situation.worldLocation.y, error);
+  EXPECT_NEAR(0, situation.worldLocation.z, error);
+  EXPECT_NEAR(90, toDeg(situation.orientation.psi), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
+  EXPECT_NEAR(0, toDeg(situation.orientation.phi), error);
 }
 
 /// @test
@@ -190,12 +194,12 @@ TEST(DeadReckonerTest, ecefToNedOrientation)
   const auto result2 = impl::ecefToNed(ecef2, worldLocation2);
 
   // check expected euler angles with respect to ned
-  EXPECT_NEAR(result1.psi, ned1.psi, 0.001);
-  EXPECT_NEAR(result1.theta, ned1.theta, 0.001);
-  EXPECT_NEAR(result1.phi, ned1.phi, 0.001);
-  EXPECT_NEAR(result2.psi, ned2.psi, 0.001);
-  EXPECT_NEAR(result2.theta, ned2.theta, 0.001);
-  EXPECT_NEAR(result2.phi, ned2.phi, 0.001);
+  EXPECT_NEAR(result1.psi, ned1.psi, error);
+  EXPECT_NEAR(result1.theta, ned1.theta, error);
+  EXPECT_NEAR(result1.phi, ned1.phi, error);
+  EXPECT_NEAR(result2.psi, ned2.psi, error);
+  EXPECT_NEAR(result2.theta, ned2.theta, error);
+  EXPECT_NEAR(result2.phi, ned2.phi, error);
 }
 
 /// @test
@@ -203,7 +207,7 @@ TEST(DeadReckonerTest, ecefToNedOrientation)
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, situationCachePopulated)
 {
-  DrConfig drConfig = {};
+  DrConfig drConfig = {false, 100.0, std::chrono::seconds(15)};
   drConfig.smoothing = false;
   TestDeadReckoner dr(drConfig);
 
@@ -220,6 +224,12 @@ TEST(DeadReckonerTest, situationCachePopulated)
   EXPECT_EQ(dr.getCachedSituation().worldLocation.x, result.worldLocation.x);
   EXPECT_EQ(dr.getCachedSituation().worldLocation.y, result.worldLocation.y);
   EXPECT_EQ(dr.getCachedSituation().worldLocation.z, result.worldLocation.z);
+
+  const auto cachedResult = dr.situation(queryTime);
+
+  EXPECT_EQ(cachedResult.worldLocation.x, result.worldLocation.x);
+  EXPECT_EQ(cachedResult.worldLocation.y, result.worldLocation.y);
+  EXPECT_EQ(cachedResult.worldLocation.z, result.worldLocation.z);
 }
 
 /// @test
@@ -254,7 +264,7 @@ TEST(DeadReckonerTest, geodeticSituationCachePopulated)
 
   const sen::TimeStamp t1 {std::chrono::seconds(10)};
   const sen::TimeStamp queryTime = t1 + std::chrono::seconds(2);
-  const GeodeticSituation input {false, t1, {40.741895, -73.989308, 30}, {}, {10, -20, 35}};
+  const GeodeticSituation input {true, t1, {40.741895, -73.989308, 30}, {}, {10, -20, 35}};
   dr.updateGeodeticSituation(input);
 
   EXPECT_FALSE(dr.isGeodeticSituationCached(queryTime));
@@ -265,6 +275,12 @@ TEST(DeadReckonerTest, geodeticSituationCachePopulated)
   EXPECT_EQ(dr.getCachedGeodeticSituation().worldLocation.latitude, result.worldLocation.latitude);
   EXPECT_EQ(dr.getCachedGeodeticSituation().worldLocation.longitude, result.worldLocation.longitude);
   EXPECT_EQ(dr.getCachedGeodeticSituation().worldLocation.altitude, result.worldLocation.altitude);
+
+  const auto cachedResult = dr.geodeticSituation(queryTime);
+
+  EXPECT_EQ(cachedResult.worldLocation.latitude, result.worldLocation.latitude);
+  EXPECT_EQ(cachedResult.worldLocation.longitude, result.worldLocation.longitude);
+  EXPECT_EQ(cachedResult.worldLocation.altitude, result.worldLocation.altitude);
 }
 
 /// @test
@@ -422,6 +438,129 @@ TEST(DeadReckonerTest, testSubMicrosecondThresholdGuard)
 
   // check that the situation does not update
   EXPECT_NEAR(result.worldLocation.x, 0.0, 1e-4);
+}
+
+/// @test
+/// Tests that configuration values changes after setting a new configuration
+TEST(DeadReckonerTest, setConfig)
+{
+  TestDeadReckoner dr {};
+  auto defaultConfig = dr.getConfig();
+
+  EXPECT_TRUE(defaultConfig.smoothing);
+  EXPECT_NEAR(defaultConfig.maxDistance, 100000.0, 0.005);
+  EXPECT_EQ(defaultConfig.maxDeltaTime, std::chrono::seconds(1));
+  EXPECT_EQ(defaultConfig.smoothingInterval, std::chrono::milliseconds(20));
+  EXPECT_EQ(defaultConfig.positionConvergenceTime, std::chrono::milliseconds(500));
+  EXPECT_NEAR(defaultConfig.positionDamping, 1.0, 0.005);
+  EXPECT_EQ(defaultConfig.orientationConvergenceTime, std::chrono::milliseconds(50));
+  EXPECT_NEAR(defaultConfig.orientationDamping, 20.0, 0.005);
+
+  DrConfig newConfig {false, 150000.0, 1, 15};
+
+  dr.setConfig(newConfig);
+
+  auto valueConfig = dr.getConfig();
+
+  EXPECT_EQ(valueConfig.smoothing, newConfig.smoothing);
+  EXPECT_EQ(valueConfig.maxDistance, newConfig.maxDistance);
+  EXPECT_EQ(valueConfig.maxDeltaTime, newConfig.maxDeltaTime);
+  EXPECT_EQ(valueConfig.smoothingInterval, newConfig.smoothingInterval);
+  EXPECT_EQ(valueConfig.positionConvergenceTime, newConfig.positionConvergenceTime);
+  EXPECT_EQ(valueConfig.positionDamping, newConfig.positionDamping);
+  EXPECT_EQ(valueConfig.orientationConvergenceTime, newConfig.orientationConvergenceTime);
+  EXPECT_EQ(valueConfig.orientationDamping, newConfig.orientationDamping);
+}
+
+/// @test
+/// Tests that situation smoothens when time and distance are not exceeded
+TEST(DeadReckonerTest, stuckInTheAir)
+{
+  DrConfig drConfig = {true, 100000.0, std::chrono::seconds(3)};
+  TestDeadReckoner dr(drConfig);
+
+  const sen::TimeStamp t1 {std::chrono::seconds(0)};
+  const sen::TimeStamp t2 = t1 + std::chrono::seconds(2);
+  const sen::TimeStamp queryTime = t2 + std::chrono::seconds(3);
+  const Situation input {false, t1, {100, 200, 200}};
+
+  dr.updateSituation(input);
+
+  [[maybe_unused]] const auto firstSmooth = dr.situation(t2);
+  const auto secondSmooth = dr.situation(queryTime);
+
+  EXPECT_EQ(dr.getCachedSituation().worldLocation.x, secondSmooth.worldLocation.x);
+  EXPECT_EQ(dr.getCachedSituation().worldLocation.y, secondSmooth.worldLocation.y);
+  EXPECT_EQ(dr.getCachedSituation().worldLocation.z, secondSmooth.worldLocation.z);
+}
+
+/// @test
+/// Tests settable dead reckoner isMoving function
+TEST(DeadReckonerTest, isMoving)
+{
+  const Situation zeroVelocity {false, {}, {}, {}, {}};
+
+  EXPECT_FALSE(impl::isMoving(zeroVelocity.velocityVector));
+
+  const Situation velocity {false, {}, {}, {}, {1.0, 3.0, 4.0}};
+
+  EXPECT_TRUE(impl::isMoving(velocity.velocityVector));
+}
+
+/// @test
+/// Tests settable dead reckoner isAccelerating function
+TEST(DeadReckonerTest, isAccelerating)
+{
+  const Situation zeroAcceleration {false, {}, {}, {}, {}, {}, {}};
+
+  EXPECT_FALSE(impl::isAccelerating(zeroAcceleration.accelerationVector));
+
+  const Situation acceleration {false, {}, {}, {}, {}, {}, {1.0, 0.01, 2.0}};
+
+  EXPECT_TRUE(impl::isAccelerating(acceleration.accelerationVector));
+}
+
+/// @test
+/// Tests settable dead reckoner isRotating function
+TEST(DeadReckonerTest, isRotating)
+{
+  const Situation zeroAngularVelocity {false, {}, {}, {}, {}, {}};
+
+  EXPECT_FALSE(impl::isRotating(zeroAngularVelocity.angularVelocity));
+
+  const Situation angularVelocity {false, {}, {}, {}, {}, {3.14, 4.5, 0.02}};
+
+  EXPECT_TRUE(impl::isRotating(angularVelocity.angularVelocity));
+}
+
+/// @test
+/// Tests settable dead reckoner maxDistanceExceeded function
+TEST(DeadReckonerTest, maxDistanceExceeded)
+{
+  Situation initial {false, initialTimeStamp, {4848.75273e3, -291.95876e3, 4120.47542e3}};
+  Situation nonExceeded {false, currentTimeStamp, {4853.167e3, -314.163e3, 4113.752e3}};
+  Situation exceededX {false, currentTimeStamp, {4651.83742e3, -245.11823e3, 4348.85846e3}};
+  Situation exceededY {false, currentTimeStamp, {4756.98798e3, -393.12945e3, 4217.26254e3}};
+  Situation exceededZ {false, currentTimeStamp, {4769.75409e3, -307.61021e3, 4225.60801e3}};
+  auto threshold = 100000.0;
+
+  EXPECT_FALSE(impl::maxDistanceExceeded(initial.worldLocation, nonExceeded.worldLocation, threshold));
+  EXPECT_TRUE(impl::maxDistanceExceeded(initial.worldLocation, exceededX.worldLocation, threshold));
+  EXPECT_TRUE(impl::maxDistanceExceeded(initial.worldLocation, exceededY.worldLocation, threshold));
+  EXPECT_TRUE(impl::maxDistanceExceeded(initial.worldLocation, exceededZ.worldLocation, threshold));
+}
+
+/// @test
+/// Tests settable dead reckoner maxRotationExceeded function
+TEST(DeadReckonerTest, maxRotationExceeded)
+{
+  Situation initial {false, initialTimeStamp, {}, {}, {10, -20, 35}};
+  Situation nonExceeded {false, currentTimeStamp, {}, {}};
+  Situation exceeded {false, currentTimeStamp, {}, {90.0, 0, -20.3}};
+  auto threshold = 0.00;
+
+  EXPECT_FALSE(impl::maxRotationExceeded(initial.orientation, nonExceeded.orientation, threshold));
+  EXPECT_TRUE(impl::maxRotationExceeded(initial.orientation, exceeded.orientation, threshold));
 }
 
 }  // namespace sen::util
