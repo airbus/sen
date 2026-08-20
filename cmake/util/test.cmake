@@ -31,6 +31,14 @@ else()
   set(CTEST_PARALLEL_ARGS "--parallel" 0)
 endif()
 
+# Where the container-based suites mount the repository. run.py reads it from
+# the environment and both sides default to the same path, so the mount point
+# is written down once.
+set(SEN_INTEGRATION_TEST_MOUNT
+    "/home/builder/sen"
+    CACHE STRING "Path the container-based integration tests mount the repository at"
+)
+
 # An empty main selection is a mistake, not a pass: without --no-tests=error a
 # dropped suite or a filter typo leaves ctest reporting success over zero tests.
 set(CMAKE_CTEST_ARGUMENTS
@@ -206,15 +214,17 @@ function(add_sen_integration_test test_name)
 
   # the USE_TESTCONTAINERS argument indicates that the integration test will use python testcontainers
   if(${_arg_USE_TESTCONTAINERS})
-    # ryuk image to clean docker resources used in integration tests that use testcontainers
+    # Hand the runtime image and the mount point to the python test driver
+    # (see run.py). The sanitizer options are read inside the container, so
+    # the suppression files are named by their path there, not on the host.
     append_test_env_modification(
-      ${test_name}
-      "RYUK_CONTAINER_IMAGE=set:docker-proxy.pforgeipt-docker.intra.airbusds.corp/testcontainers/ryuk:0.8.1"
+      ${test_name} "SEN_INTEGRATION_TEST_IMAGE=set:${SEN_INTEGRATION_TEST_IMAGE}"
+      "SEN_INTEGRATION_TEST_MOUNT=set:${SEN_INTEGRATION_TEST_MOUNT}"
     )
-    set(_lsan_suppressions /home/builder/sen/cmake/util/lsan_ignorelist.txt)
-    set(_asan_suppressions /home/builder/sen/cmake/util/asan_ignorelist.txt)
-    set(_ubsan_suppressions /home/builder/sen/cmake/util/ubsan_ignorelist.txt)
-    set(_tsan_suppressions /home/builder/sen/cmake/util/tsan_ignorelist.txt)
+    set(_lsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/lsan_ignorelist.txt)
+    set(_asan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/asan_ignorelist.txt)
+    set(_ubsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/ubsan_ignorelist.txt)
+    set(_tsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/tsan_ignorelist.txt)
   endif()
 
   if(LSAN_SUPPRESSION_FILE)

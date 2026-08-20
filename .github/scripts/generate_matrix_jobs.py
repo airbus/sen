@@ -44,6 +44,12 @@ class JobSpecification:
     build_type: tp.Literal["Release", "Debug"]
     enable_coverage: bool = False
     enable_examples: bool = False
+    # Docker base image for the container-based integration tests. A non-empty
+    # value registers them, and the base must match the runner's OS so the
+    # binaries mounted into the containers find a matching runtime. Empty on
+    # the legs that would only add container startups without covering
+    # anything the x86 gcc legs do not already cover.
+    runtime_base: str = ""
     # Builds the CPack archive and checks its contents. Set on the shipping
     # configuration only: the archive is the same everywhere it is built.
     check_package: bool = False
@@ -90,6 +96,7 @@ SPECIFIED_JOBS = [
             std=17,
             build_type="Debug",
             enable_examples=True,
+            runtime_base="ubuntu:22.04",
         ),
         include_in_release_workflow=False,
         include_in_conan_workflow=True,
@@ -108,6 +115,7 @@ SPECIFIED_JOBS = [
             std=17,
             build_type="Release",
             enable_examples=True,
+            runtime_base="ubuntu:22.04",
             check_package=True,
         ),
         include_in_release_workflow=True,
