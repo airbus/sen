@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+src/baked_docs.ts
+src/baked_package.ts
+.scratch/
