@@ -68,11 +68,7 @@ sen_internal_install(jsonrpc)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/jsonrpc.json DESTINATION schemas)
 
-# Optional: the @sen/client TypeScript package lives at clients/typescript/ and is added by a
-# separate change. When present, wire it in; otherwise this component stands on its own.
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/clients/typescript/CMakeLists.txt)
-  add_subdirectory(clients/typescript)
-endif()
+add_subdirectory(clients/typescript)
 
 if(SEN_BUILD_TESTS)
   add_subdirectory(test)
