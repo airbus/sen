@@ -180,6 +180,7 @@ nav:
       - REST: components/rest.md
       - JSON-RPC: components/jsonrpc.md
       - JSON-RPC TypeScript Client: components/jsonrpc_ts_client.md
+      - MCP Gateway: components/mcp_gateway.md
       - Tracy: components/tracy.md
   - Guides:
       - Building Sen from source: howto_guides/building_from_source.md

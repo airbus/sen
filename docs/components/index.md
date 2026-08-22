@@ -18,6 +18,9 @@ To make your life easier, Sen comes with a set of components that are at your di
   functional logic.
 - A gateway towards InfluxDB, which can be connected to Grafana to inspect and analyze data.
 - A REST API for interfacing with non-Sen systems.
+- An MCP gateway that lets a Large Language Model observe and drive a running Sen kernel — and
+  inspect offline recordings. Unlike the entries above, the gateway is not loaded inside the
+  kernel itself; it is a separate first-party app that fronts the `jsonrpc` component.
 - A connector to the [Tracy](https://github.com/wolfpld/tracy) profiler.
 - A helper for controlling and configuring your debug logs.
 
