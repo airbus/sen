@@ -1,0 +1,35 @@
+# Sen YAML config for the @sen/mcp-gateway integration suite. Mirrors the inheritance.yaml the
+# @sen/client suite uses (both load test packages from test/util to stay independent of the
+# examples build axis).
+#
+# `test.primary` carries a `my_package.MyClass` instance (rich property surface for read tests).
+# `test.secondary` carries an `inheritance.MySubClass` instance (gives the gateway a second bus
+# + a second class to enumerate when exercising the type / topology tools).
+#
+# Both instances live under a single component (one group, one tick loop) -- splitting them
+# would surface a backend race where queries against the second component's bus can return zero
+# matches even after createInterest resolves.
+#
+# Port 8080 matches the SEN_WS_URL the gateway is given via env. Bound on 0.0.0.0 so a
+# containerised CI runner can reach the server from loopback.
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+
+build:
+  - name: testInstances
+    group: 3
+    freqHz: 30
+    imports: [my_package, inheritance]
+    objects:
+      - name: instance1
+        class: my_package.MyClassImpl
+        prop1: instance1-static
+        bus: test.primary
+      - name: instance2
+        class: inheritance.MySubClassImpl
+        prop1: instance2-static
+        aString: subclass-static
+        bus: test.secondary

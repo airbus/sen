@@ -106,3 +106,16 @@ Then, in another terminal or command prompt, run:
 ```shell
 sen run config/4_school/7_school_one_classroom_teacher_eth.yaml
 ```
+
+### From an LLM using the MCP gateway
+
+Same two classrooms, but over JSON-RPC so something outside Sen can reach them. The
+[MCP gateway](../../apps/mcp_gateway/README.md) is one such thing; the web explorer is another.
+
+```shell
+sen run config/4_school/8_school_jsonrpc.yaml
+```
+
+Register the gateway with your LLM host and it can do what the shell does. Ask it to find the
+students in `school.primary`, read their `focusLevel`, or tell the teacher to `assignTasks` and
+watch for `stressLevelPeaked`.

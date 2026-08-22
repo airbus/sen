@@ -1,0 +1,31 @@
+#!/bin/sh
+# Wrapper for the Sen MCP gateway. Resolves the JS bundle alongside this script and
+# execs node against it. Requires Node 22.20.0 or newer on PATH.
+
+DIR="$(cd -- "$(dirname -- "$0")" && pwd -P)"
+BUNDLE="$DIR/sen-mcp-gateway.cjs"
+
+if [ ! -f "$BUNDLE" ]; then
+  echo "sen-mcp-gateway: bundle not found at $BUNDLE" >&2
+  exit 1
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "sen-mcp-gateway: 'node' not found on PATH. Install Node 22.20.0+ or activate the Conan env." >&2
+  exit 1
+fi
+
+# Floor only. The bundle is built --target=node22, so an older runtime trips over syntax it
+# cannot parse, somewhere inside a bundled dependency, with nothing pointing at the version.
+# A newer runtime is fine, so no upper bound is enforced here.
+NODE_NUMBER="$(node -p "var v = process.versions.node.split('.').map(Number); v[0] * 1000000 + v[1] * 1000 + v[2]" 2>/dev/null)"
+case "$NODE_NUMBER" in
+  '' | *[!0-9]*) NODE_NUMBER=0 ;;
+esac
+if [ "$NODE_NUMBER" -lt 22020000 ]; then
+  echo "sen-mcp-gateway: node $(node -v 2>/dev/null) is too old, this build needs 22.20.0 or newer." >&2
+  echo "sen-mcp-gateway: install a newer Node or activate the Conan env." >&2
+  exit 1
+fi
+
+exec node --enable-source-maps "$BUNDLE" "$@"
