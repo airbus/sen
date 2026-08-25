@@ -95,16 +95,21 @@ jobs:
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          export ENABLE_EXAMPLES=${{ matrix.enable_examples }}
-          export ENABLE_TESTS=true
-          export ENABLE_COVERAGE=${{ matrix.enable_coverage }}
 
           # & applies build_type to the sen package only; dependencies stay at
           # the profiles' Release default, which is what binary remotes serve.
           conan install . -s "&:build_type=${{ matrix.build_type }}" \
-            -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing
+            -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing \
+            -o "sen/*:with_tests=True" \
+            -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
+          # The same options go to both commands: conan build regenerates the toolchain,
+          # and without them it would do so from the defaults, which build no tests.
           conan build . -s "&:build_type=${{ matrix.build_type }}" \
-            -s "&:compiler.cppstd=${{ matrix.std }}"
+            -s "&:compiler.cppstd=${{ matrix.std }}" \
+            -o "sen/*:with_tests=True" \
+            -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
 
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}

@@ -7,7 +7,7 @@
 
 add_subdirectory(unit)
 
-# Disable integration tests due to windows build agent problems
+# Disable integration tests in Windows
 if(NOT MSVC)
   add_subdirectory(integration/test_helpers)
   # TODO(SEN-1725): Need to figure out github support
@@ -19,7 +19,10 @@ if(NOT MSVC)
   # integration tests that use containers (only available in Linux)
   if(LINUX)
     #   add_subdirectory(integration/object_sync)
-    add_subdirectory(integration/interest_filtering)
+    # interest_filtering drives multi-process runs over the ether component
+    if(SEN_BUILD_ETHER)
+      add_subdirectory(integration/interest_filtering)
+    endif()
     #   add_subdirectory(integration/stress_tests/high_churn_subs)
   endif()
 endif()
