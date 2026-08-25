@@ -19,7 +19,7 @@
 # pinned cmake for the builds themselves. Build `base` explicitly: a plain
 # `docker build` takes the last stage.
 
-FROM ubuntu:22.04 AS base
+FROM ubuntu:26.04 AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG LLVM_VERSION=20
