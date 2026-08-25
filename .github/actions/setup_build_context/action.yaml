@@ -16,6 +16,8 @@ runs:
         python-version: 3.x
 
     - name: Install python dependencies
+      # conan must match the version that generated conan.lock (and the
+      # tools/ci image); pytest matches the image as well.
       shell: bash
       run: pip install conan==2.28.1 pytest==9.1.1 junitparser==5.0.1
 
