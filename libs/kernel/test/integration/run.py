@@ -20,11 +20,9 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 
 # constants
-# TODO (SEN-1681) replace with a lighter runtime image
-IMAGE_NAME = (
-    os.environ.get("SEN_INTEGRATION_TEST_IMAGE")
-    or "sim-csr-docker.pforgeipt-docker.intra.airbusds.corp/sen-build-debian12:0.1.0-31-ge5dd492"
-)
+# No default image: the driver runs binaries that are already built, so the image has to
+# match the OS they were built on. Build one with tools/ci/runtime.Dockerfile.
+IMAGE_NAME = os.environ.get("SEN_INTEGRATION_TEST_IMAGE")
 TIMEOUT = int(os.environ.get("SEN_INTEGRATION_TEST_TIMEOUT") or 30)
 
 
@@ -116,6 +114,16 @@ if __name__ == "__main__":
 
     cmake_workdir = sys.argv[1]
     configs = sys.argv[2:]
+
+    if not IMAGE_NAME:
+        sys.exit(
+            "SEN_INTEGRATION_TEST_IMAGE is not set.\n"
+            "This driver runs the binaries you already built, so the image has to match the OS\n"
+            "they were built on. Build one and point the configuration at it:\n"
+            "  docker build -f tools/ci/runtime.Dockerfile --build-arg BASE=ubuntu:22.04 \\\n"
+            "      -t sen-runtime:ubuntu-22.04 tools/ci\n"
+            "  cmake -DSEN_INTEGRATION_TEST_IMAGE=sen-runtime:ubuntu-22.04 ..."
+        )
 
     check_image_availability(IMAGE_NAME)
 
