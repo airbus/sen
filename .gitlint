@@ -9,6 +9,14 @@
 # Subject-only commits are fine; when a body exists it explains why.
 ignore=body-is-missing
 contrib=contrib-title-conventional-commits
+regex-style-search=True
 
 [contrib-title-conventional-commits]
 types=build,chore,ci,docs,feat,fix,perf,refactor,revert,test
+
+# Dependency bumps are written by Dependabot and cite compare URLs that run well past
+# the line limit and cannot be wrapped. The limit still applies to everything else,
+# including the rest of a dependency commit's body.
+[ignore-by-title]
+regex=^chore\(deps\)
+ignore=body-max-line-length
