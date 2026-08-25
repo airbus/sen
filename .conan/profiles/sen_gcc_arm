@@ -2,5 +2,3 @@ include(sen_gcc)
 
 [settings]
 arch=armv8
-
-[conf]
