@@ -228,7 +228,7 @@ public:
     return std::get<RawPtrType>(type_);
   }
 
-  const SenTypeType* type() const
+  [[nodiscard]] const SenTypeType* type() const
   {
     if (std::holds_alternative<ManagedPtrType>(type_))
     {

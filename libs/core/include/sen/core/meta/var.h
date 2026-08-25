@@ -243,7 +243,7 @@ private:
   [[nodiscard]] bool isEqual(const Var& rhs) const noexcept;
 
 private:
-  ValueType value_ {};
+  ValueType value_;
 };
 
 template <typename T>

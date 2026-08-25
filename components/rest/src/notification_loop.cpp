@@ -8,7 +8,6 @@
 #include "notification_loop.h"
 
 // component
-#include "client_session.h"
 #include "http_session.h"
 #include "notifications.h"
 #include "utils.h"

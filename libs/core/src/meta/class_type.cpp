@@ -22,6 +22,7 @@
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/property.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/obj/native_object.h"
 
 // std
 #include <algorithm>

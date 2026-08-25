@@ -20,7 +20,6 @@
 // std
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -52,6 +51,9 @@ EnumType::EnumType(EnumSpec spec, Private notUsable): CustomType(impl::hash<Enum
   }
 }
 
+// The handle is built from a valid spec and always holds an alternative, so the
+// std::get inside the dereference cannot actually throw.
+// NOLINTNEXTLINE(bugprone-exception-escape)
 const IntegralType& EnumType::getStorageType() const noexcept { return *spec_.storageType; }
 
 Span<const Enumerator> EnumType::getEnums() const noexcept { return makeConstSpan(spec_.enums); }

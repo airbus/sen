@@ -44,12 +44,17 @@ public:  // types
   using TypedObjectList = std::list<T*>;
   using UntypedObjectList = std::list<std::shared_ptr<Object>>;
 
+  // Plain aggregate carrying the four range endpoints; the member functions are only
+  // range-for sugar over them, so the public members are the point of the type.
+  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
   struct Iterators
   {
     typename TypedObjectList::iterator typedBegin;
     typename TypedObjectList::iterator typedEnd;
     typename UntypedObjectList::iterator untypedBegin;
     typename UntypedObjectList::iterator untypedEnd;
+
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
 
     /// Range-for support iterates over typed objects.
     [[nodiscard]] typename TypedObjectList::iterator begin() const { return typedBegin; }

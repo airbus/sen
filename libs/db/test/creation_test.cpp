@@ -13,7 +13,6 @@
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
-#include "stl/sen/db/basic_types.stl.h"
 
 // google test
 #include <gtest/gtest.h>

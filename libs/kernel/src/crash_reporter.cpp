@@ -34,7 +34,7 @@
 
 // cpptrace
 #include "cpptrace/basic.hpp"
-#include "cpptrace/cpptrace.hpp"
+#include "cpptrace/exceptions.hpp"
 
 // linux
 #ifdef __linux__

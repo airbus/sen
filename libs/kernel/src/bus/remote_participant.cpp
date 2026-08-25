@@ -12,7 +12,6 @@
 
 // bus
 #include "bus/bus.h"
-#include "bus/containers.h"
 #include "bus/generic_remote_object.h"
 #include "bus/local_participant.h"
 #include "bus/remote_interest_manager.h"

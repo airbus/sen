@@ -14,12 +14,14 @@
 #include "sen/db/input.h"
 #include "sen/db/output.h"
 #include "sen/kernel/test_kernel.h"
+#include "stl/sen/db/basic_types.stl.h"
 #include "stl/sen/kernel/basic_types.stl.h"
 
 // google test
 #include <gtest/gtest.h>
 
 // std
+#include <filesystem>
 #include <utility>
 
 namespace sen::db::test

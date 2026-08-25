@@ -21,7 +21,6 @@
 #include <gtest/gtest.h>
 
 // std
-#include <memory>
 #include <utility>
 #include <variant>
 

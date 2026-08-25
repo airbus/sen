@@ -141,24 +141,24 @@ inline Uuid::Uuid(Span<const uint8_t> bytes) noexcept
 constexpr uint32_t Uuid::getHash32() const noexcept
 {
   uint64_t h = getHash();
-  return static_cast<uint32_t>(h ^ (h >> 32));
+  return static_cast<uint32_t>(h ^ (h >> 32U));
 }
 
 constexpr UuidVariant Uuid::getVariant() const noexcept
 {
-  auto b = static_cast<uint8_t>(lo_ >> 56);
+  auto b = static_cast<uint8_t>(lo_ >> 56U);
 
-  if ((b & 0x80) == 0)
+  if ((b & 0x80U) == 0U)
   {
     return UuidVariant::ncs;
   }
 
-  if ((b & 0xC0) == 0x80)
+  if ((b & 0xC0U) == 0x80U)
   {
     return UuidVariant::rfc;
   }
 
-  if ((b & 0xE0) == 0xC0)
+  if ((b & 0xE0U) == 0xC0U)
   {
     return UuidVariant::microsoft;
   }
@@ -168,7 +168,7 @@ constexpr UuidVariant Uuid::getVariant() const noexcept
 
 constexpr UuidVersion Uuid::getVersion() const noexcept
 {
-  uint8_t v = static_cast<uint8_t>(hi_ >> 12) & 0xF;
+  uint8_t v = static_cast<uint8_t>(hi_ >> 12U) & 0xFU;
 
   switch (v)
   {
