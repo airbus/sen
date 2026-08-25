@@ -50,7 +50,7 @@ jobs:
         run: python .github/scripts/create_changelog.py > ${{ github.workspace }}-CHANGELOG.txt
 
       - name: Archive the generated changelog
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: changelog
           # The release body comes from this file; an empty artifact would ship
@@ -92,7 +92,7 @@ jobs:
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/Release/
 
       - name: Archive generated release package
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           # An archive that does not match is a broken release, not a warning.
           if-no-files-found: error

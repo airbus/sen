@@ -141,7 +141,7 @@ jobs:
 
       - name: Archive test logs on failure
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: flake-hunt-logs
           path: build/gcc/Release/Testing/
@@ -178,7 +178,7 @@ jobs:
       # Result history lives in these artifacts until a baseline comparison
       # exists to fail on.
       - name: Archive benchmark results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: benchmark-results
           # An empty archive would mean the benchmarks never ran, which is the
@@ -329,7 +329,7 @@ jobs:
           cmake --build build/clang/Debug/ --target generate-coverage-report
 
       - name: Publish the coverage report
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: coverage-report
           if-no-files-found: error
