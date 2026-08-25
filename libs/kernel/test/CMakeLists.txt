@@ -10,11 +10,12 @@ add_subdirectory(unit)
 # Disable integration tests in Windows
 if(NOT MSVC)
   add_subdirectory(integration/test_helpers)
-  # TODO(SEN-1725): Need to figure out github support
-  # add_subdirectory(integration/transport)
-  # add_subdirectory(integration/runtime_compatibility)
-  # add_subdirectory(integration/crash_report)
-  # add_subdirectory(integration/type_clash)
+  # These drive several `sen run` processes through runner.py; they need no
+  # container, only the ether and py components.
+  add_subdirectory(integration/transport)
+  add_subdirectory(integration/runtime_compatibility)
+  add_subdirectory(integration/crash_report)
+  add_subdirectory(integration/type_clash)
   #
   # integration tests that use containers (only available in Linux)
   if(LINUX)

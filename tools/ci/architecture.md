@@ -437,11 +437,13 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
 - MSVC jobs build but do not run tests (SEN-1725). Uploading coverage to an
   external service is wired but disabled (SEN-1726); the published report and
   the floor cover the same ground without sending anything outside.
-- Only the `object_sync` container suite runs, and only on the two x86 gcc
-  legs. The other container suites (transport, runtime compatibility, crash
-  report, type clash) are still disabled and need the same verify-and-enable
-  treatment.
-- The Windows legs do not build the examples yet.
+- `object_sync` is the only suite that uses containers, and it runs only on the
+  two x86 gcc legs, because they are the ones that set a runtime image.
+  Transport, runtime compatibility, crash report and type clash are a different
+  thing: they drive several `sen run` processes through `runner.py` and need no
+  container at all, only the ether and py components.
+- The Windows legs do not build the examples yet, and are excluded from the
+  standard test workflow entirely, so they run no tests on a pull request.
 - What runs on a pull request is decided by the pull request's own copy of
   the workflows and of `classify_changes.py`, because that is how GitHub
   runs `pull_request` workflows. A green `CI OK` therefore means "the checks
