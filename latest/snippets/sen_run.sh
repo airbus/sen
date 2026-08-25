@@ -7,7 +7,7 @@ Positionals:
 
 Options:
   -h,--help                        Print this help message and exit
-  --preset TEXT:{shell,explorer,replay}
+  --preset TEXT:{shell,replay,explorer}
                                    Preset name
   --start-stop                     Stop execution after all components are running
   --print-config                   Print the configuration that will be used

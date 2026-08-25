@@ -1465,13 +1465,109 @@ For example:</p>
 (you can replace 'sen_gcc' with the preset of your choice).</p>
 <p>To build, use <code>conan build . --profile=sen_gcc</code>. Alternatively, use
 <code>cmake -S . -B build -G Ninja --preset sen_gcc &amp;&amp; cmake --build build</code> (you can replace 'sen_gcc'
-with the preset of your choice).</p></div>
+with the preset of your choice).</p>
+<details class="note">
+<summary>Build options</summary>
+<p><strong>Component selection</strong></p>
+<p><code>mode</code> is the Conan-level switch; it picks which components compile and which
+ deps Conan fetches.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Components enabled</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>barebones</code></td>
+<td>none - libs only, for embedding Sen as a library</td>
+</tr>
+<tr>
+<td><code>basic</code></td>
+<td><code>shell</code>, <code>ether</code> (minimum interactive set)</td>
+</tr>
+<tr>
+<td><code>full</code></td>
+<td>every component (default)</td>
+</tr>
+</tbody>
+</table>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:mode<span class="o">=</span>barebones<span class="w"> </span>--build<span class="o">=</span>missing
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:mode<span class="o">=</span>basic<span class="w"> </span>--build<span class="o">=</span>missing
+</span></code></pre></div>
+<p>Per-component Conan options are deliberately not exposed (combinatorial
+ package_id). Developers skip building specific components at the CMake step:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>--build<span class="o">=</span>missing
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>cmake<span class="w"> </span>--preset<span class="w"> </span>conan-gcc-release<span class="w"> </span>-DSEN_BUILD_TRACY<span class="o">=</span>OFF<span class="w"> </span>-DSEN_BUILD_EXPLORER<span class="o">=</span>OFF
+</span></code></pre></div>
+<p>The CMake override doesn't change what Conan fetched. Components beyond <code>mode</code>
+ can't be enabled this way (their deps weren't fetched).</p>
+<p><strong>Developer-facing flags</strong></p>
+<p>Examples, tests, static analysis, coverage, sanitizers, and documentation are exposed as Conan
+ options. All default to off. Turn on what you need with <code>-o sen/*:…=True</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Maps to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>with_examples</code></td>
+<td><code>False</code></td>
+<td><code>-DSEN_BUILD_EXAMPLES=ON</code></td>
+</tr>
+<tr>
+<td><code>with_tests</code></td>
+<td><code>False</code></td>
+<td><code>-DSEN_BUILD_TESTS=ON</code></td>
+</tr>
+<tr>
+<td><code>with_clang_tidy</code></td>
+<td><code>False</code></td>
+<td><code>-DSEN_DISABLE_CLANG_TIDY=OFF</code> (polarity flipped)</td>
+</tr>
+<tr>
+<td><code>with_coverage</code></td>
+<td><code>False</code></td>
+<td><code>-DSEN_COVERAGE_ENABLE=ON</code></td>
+</tr>
+<tr>
+<td><code>with_docs</code></td>
+<td><code>False</code></td>
+<td><code>-DSEN_BUILD_DOCS=ON</code> and pulls <code>doxygen</code> as a tool requirement</td>
+</tr>
+<tr>
+<td><code>sanitizer</code></td>
+<td><code>"none"</code></td>
+<td><code>-DSEN_USE_SANITIZER=None</code>/<code>ASanUBSan</code>/<code>Thread</code> for <code>none</code>/<code>address</code>/<code>thread</code></td>
+</tr>
+</tbody>
+</table>
+<p>Options are applied at <code>conan install</code> time — that's the step that generates the build files. The
+ subsequent <code>conan build</code> (or a direct <code>cmake --build</code>) just compiles with the settings already baked
+ in; the <code>-D</code> mappings above are for users invoking CMake without Conan.</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="c1"># Configure a build that compiles the test suite with the address sanitizer</span>
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:with_tests<span class="o">=</span>True<span class="w"> </span>-o<span class="w"> </span>sen/*:sanitizer<span class="o">=</span>address<span class="w"> </span>--build<span class="o">=</span>missing
+</span></code></pre></div>
+<p><strong>Building the docs</strong></p>
+<p><code>with_docs=True</code> pulls <code>doxygen</code> automatically, but <code>doxygen</code> itself needs <code>compiler.cppstd=20</code>
+ (set per-dep), which has to come from a profile rather than from the recipe. Sen ships a
+ <code>sen_build_docs</code> profile that sets both, so the one-liner for docs is:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_build_docs<span class="w"> </span>--build<span class="o">=</span>missing
+</span></code></pre></div>
+<p><code>mkdocs</code> and <code>graphviz</code> are not Conan-managed - install them via <code>pip install -r docs/requirements.txt</code>
+ and your platform package manager.</p>
+</details></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 4, 2026 10:41:45 UTC">March 4, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 15:30:41 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>
