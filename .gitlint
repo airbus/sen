@@ -17,6 +17,10 @@ types=build,chore,ci,docs,feat,fix,perf,refactor,revert,test
 # Dependency bumps are written by Dependabot and cite compare URLs that run well past
 # the line limit and cannot be wrapped. The limit still applies to everything else,
 # including the rest of a dependency commit's body.
+#
+# This list REPLACES the one in [general] for matching titles, it does not add to it,
+# so body-is-missing has to be repeated here. Without it the pull request title check
+# fails: it pipes a bare title into gitlint, which then has no body at all.
 [ignore-by-title]
 regex=^chore\(deps\)
-ignore=body-max-line-length
+ignore=body-max-line-length,body-is-missing
