@@ -50,7 +50,7 @@ jobs:
         run: python .github/scripts/create_changelog.py > ${{ github.workspace }}-CHANGELOG.txt
 
       - name: Archive the generated changelog
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: changelog
           # The release body comes from this file; an empty artifact would ship
@@ -92,7 +92,7 @@ jobs:
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/Release/
 
       - name: Archive generated release package
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           # An archive that does not match is a broken release, not a warning.
           if-no-files-found: error
@@ -112,7 +112,7 @@ jobs:
       - generate_changelog
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
 
       - name: Print context
         run: |
@@ -138,7 +138,7 @@ jobs:
           cat SHA256SUMS
 
       - name: Create Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v3.0.2
         if: github.ref_type == 'tag'
         with:
           body_path: changelog/sen-CHANGELOG.txt
