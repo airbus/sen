@@ -20,6 +20,9 @@
 
 // std
 #include <chrono>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
 
 namespace sen::util
 {
@@ -332,6 +335,313 @@ TEST(DeadReckonerTest, geodeticSituationCacheInvalidatedOnUpdate)
   dr.updateGeodeticSituation(input2);
 
   EXPECT_FALSE(dr.isGeodeticSituationCached(queryTime));
+}
+
+namespace
+{
+
+// The conversions as they read before the rotation was shared, so bit exactness is checked.
+GeodeticSituation referenceGeodeticSituation(const Situation& value)
+{
+  const auto geoLocation = impl::toLla(value.worldLocation);
+  return GeodeticSituation {value.isFrozen,
+                            value.timeStamp,
+                            geoLocation,
+                            impl::ecefToNed(value.orientation, geoLocation),
+                            impl::ecefToNed(value.velocityVector, geoLocation),
+                            value.angularVelocity,
+                            impl::ecefToNed(value.accelerationVector, geoLocation),
+                            value.angularAcceleration};
+}
+
+Situation referenceSituation(const GeodeticSituation& value)
+{
+  return Situation {value.isFrozen,
+                    value.timeStamp,
+                    impl::toEcef(value.worldLocation),
+                    impl::nedToEcef(value.orientation, value.worldLocation),
+                    impl::nedToEcef(value.velocityVector, value.worldLocation),
+                    value.angularVelocity,
+                    impl::nedToEcef(value.accelerationVector, value.worldLocation),
+                    value.angularAcceleration};
+}
+
+// Equator, two mid latitudes and both poles beside the date line, to take both branches in toEcef.
+const GeodeticSituation geodeticSamples[] = {
+  {false,
+   initialTimeStamp,
+   {0.0, 0.0, 0.0},
+   {0.1, 0.2, 0.3},
+   {10, -20, 35},
+   {0.01, 0.02, 0.03},
+   {1.0, -2.0, 0.5},
+   {0.001, 0.002, 0.003}},
+  {false,
+   initialTimeStamp,
+   {48.8566, 2.3522, 35.0},
+   {1.2, -0.4, 2.9},
+   {-120, 45, -8},
+   {0.2, 0.0, -0.1},
+   {-1.5, 0.25, 3.0},
+   {0.03, -0.01, 0.0}},
+  {false,
+   initialTimeStamp,
+   {-33.8688, 151.2093, 120.0},
+   {-2.0, 0.9, -1.1},
+   {300, 0, 12},
+   {0.0, 0.5, 0.0},
+   {0.0, 0.0, -9.81},
+   {0.0, 0.2, 0.0}},
+  {false,
+   initialTimeStamp,
+   {89.5, -179.5, 11000.0},
+   {0.5, 0.5, 0.5},
+   {5, 5, 5},
+   {0.1, 0.1, 0.1},
+   {1.0, 1.0, 1.0},
+   {0.01, 0.01, 0.01}},
+  {false,
+   initialTimeStamp,
+   {-89.9, 179.9, -50.0},
+   {3.0, -1.5, 0.2},
+   {-7, 3, 90},
+   {-0.3, 0.0, 0.4},
+   {2.0, -2.0, 0.0},
+   {0.0, -0.05, 0.02}},
+};
+
+void expectSameOrientation(const Orientation& expected, const Orientation& actual)
+{
+  EXPECT_EQ(expected.psi.get(), actual.psi.get());
+  EXPECT_EQ(expected.theta.get(), actual.theta.get());
+  EXPECT_EQ(expected.phi.get(), actual.phi.get());
+}
+
+void expectSameSituation(const Situation& expected, const Situation& actual)
+{
+  EXPECT_EQ(expected.isFrozen, actual.isFrozen);
+  EXPECT_EQ(expected.timeStamp, actual.timeStamp);
+  EXPECT_EQ(expected.worldLocation.x.get(), actual.worldLocation.x.get());
+  EXPECT_EQ(expected.worldLocation.y.get(), actual.worldLocation.y.get());
+  EXPECT_EQ(expected.worldLocation.z.get(), actual.worldLocation.z.get());
+  expectSameOrientation(expected.orientation, actual.orientation);
+  EXPECT_EQ(expected.velocityVector.x.get(), actual.velocityVector.x.get());
+  EXPECT_EQ(expected.velocityVector.y.get(), actual.velocityVector.y.get());
+  EXPECT_EQ(expected.velocityVector.z.get(), actual.velocityVector.z.get());
+  EXPECT_EQ(expected.accelerationVector.x.get(), actual.accelerationVector.x.get());
+  EXPECT_EQ(expected.accelerationVector.y.get(), actual.accelerationVector.y.get());
+  EXPECT_EQ(expected.accelerationVector.z.get(), actual.accelerationVector.z.get());
+  EXPECT_EQ(expected.angularVelocity.x.get(), actual.angularVelocity.x.get());
+  EXPECT_EQ(expected.angularVelocity.y.get(), actual.angularVelocity.y.get());
+  EXPECT_EQ(expected.angularVelocity.z.get(), actual.angularVelocity.z.get());
+  EXPECT_EQ(expected.angularAcceleration.x.get(), actual.angularAcceleration.x.get());
+  EXPECT_EQ(expected.angularAcceleration.y.get(), actual.angularAcceleration.y.get());
+  EXPECT_EQ(expected.angularAcceleration.z.get(), actual.angularAcceleration.z.get());
+}
+
+void expectSameGeodeticSituation(const GeodeticSituation& expected, const GeodeticSituation& actual)
+{
+  EXPECT_EQ(expected.isFrozen, actual.isFrozen);
+  EXPECT_EQ(expected.timeStamp, actual.timeStamp);
+  EXPECT_EQ(expected.worldLocation.latitude.get(), actual.worldLocation.latitude.get());
+  EXPECT_EQ(expected.worldLocation.longitude.get(), actual.worldLocation.longitude.get());
+  EXPECT_EQ(expected.worldLocation.altitude.get(), actual.worldLocation.altitude.get());
+  expectSameOrientation(expected.orientation, actual.orientation);
+  EXPECT_EQ(expected.velocityVector.x.get(), actual.velocityVector.x.get());
+  EXPECT_EQ(expected.velocityVector.y.get(), actual.velocityVector.y.get());
+  EXPECT_EQ(expected.velocityVector.z.get(), actual.velocityVector.z.get());
+  EXPECT_EQ(expected.accelerationVector.x.get(), actual.accelerationVector.x.get());
+  EXPECT_EQ(expected.accelerationVector.y.get(), actual.accelerationVector.y.get());
+  EXPECT_EQ(expected.accelerationVector.z.get(), actual.accelerationVector.z.get());
+  EXPECT_EQ(expected.angularVelocity.x.get(), actual.angularVelocity.x.get());
+  EXPECT_EQ(expected.angularVelocity.y.get(), actual.angularVelocity.y.get());
+  EXPECT_EQ(expected.angularVelocity.z.get(), actual.angularVelocity.z.get());
+  EXPECT_EQ(expected.angularAcceleration.x.get(), actual.angularAcceleration.x.get());
+  EXPECT_EQ(expected.angularAcceleration.y.get(), actual.angularAcceleration.y.get());
+  EXPECT_EQ(expected.angularAcceleration.z.get(), actual.angularAcceleration.z.get());
+}
+
+}  // namespace
+
+/// @test
+/// Tests that sharing the rotation leaves every field of the geodetic conversion bit for bit equal
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, geodeticConversionUnchangedBySharedRotation)
+{
+  for (const auto& sample: geodeticSamples)
+  {
+    const auto ecefSample = referenceSituation(sample);
+    expectSameGeodeticSituation(referenceGeodeticSituation(ecefSample), impl::toGeodeticSituation(ecefSample));
+  }
+}
+
+/// @test
+/// Tests the same for the conversion to ECEF, through both overloads
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, ecefConversionUnchangedBySharedRotation)
+{
+  for (const auto& sample: geodeticSamples)
+  {
+    const auto expected = referenceSituation(sample);
+    expectSameSituation(expected, impl::toSituation(sample));
+    expectSameSituation(
+      expected,
+      impl::toSituation(
+        sample, impl::toEcef(sample.worldLocation), impl::nedToEcef(sample.orientation, sample.worldLocation)));
+  }
+}
+
+/// @test
+/// Tests that the angular acceleration of a geodetic situation survives the conversion to ECEF
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, angularAccelerationSurvivesEcefConversion)
+{
+  const GeodeticSituation input {
+    false, initialTimeStamp, {40.741895, -73.989308, 30.0}, {}, {10, -20, 35}, {}, {}, {0.25, -0.5, 0.75}};
+
+  const auto result = impl::toSituation(input);
+
+  EXPECT_EQ(0.25, result.angularAcceleration.x.get());
+  EXPECT_EQ(-0.5, result.angularAcceleration.y.get());
+  EXPECT_EQ(0.75, result.angularAcceleration.z.get());
+}
+
+namespace
+{
+
+// The orientation conversions as they read before becoming a quaternion composition.
+Orientation referenceEcefToNed(const Orientation& value, const GeodeticWorldLocation& latLonAlt)
+{
+  const auto [x0, y0, z0] = getNedTrihedron(latLonAlt);
+  const Quatd inputOrientation {
+    static_cast<double>(value.psi.get()), static_cast<double>(value.theta.get()), static_cast<double>(value.phi.get())};
+  const auto xf = inputOrientation * Vec3d {1, 0, 0};
+  const auto yf = inputOrientation * Vec3d {0, 1, 0};
+  return eulerAnglesFromTrihedrons(x0, y0, z0, xf, yf);
+}
+
+Orientation referenceNedToEcef(const Orientation& value, const GeodeticWorldLocation& latLonAlt)
+{
+  const auto [x0, y0, z0] = getNedTrihedron(latLonAlt);
+  const auto xf =
+    Quatd {static_cast<double>(value.theta.get()), y0} * Quatd {static_cast<double>(value.psi.get()), z0} * x0;
+  const auto yf =
+    Quatd {static_cast<double>(value.phi.get()), x0} * Quatd {static_cast<double>(value.psi.get()), z0} * y0;
+  return eulerAnglesFromTrihedrons(Vec3d {1, 0, 0}, Vec3d {0, 1, 0}, Vec3d {0, 0, 1}, xf, yf);
+}
+
+// Euler angles are degenerate at a right-angle pitch, so two correct answers can differ there. The
+// rotation they denote must not: this is the angle between two of them.
+double rotationGap(const Orientation& lhs, const Orientation& rhs)
+{
+  const Quatd a {
+    static_cast<double>(lhs.psi.get()), static_cast<double>(lhs.theta.get()), static_cast<double>(lhs.phi.get())};
+  const Quatd b {
+    static_cast<double>(rhs.psi.get()), static_cast<double>(rhs.theta.get()), static_cast<double>(rhs.phi.get())};
+  return 2.0 * std::acos(std::min(1.0, std::abs(a.dot(b))));
+}
+
+// A millimetre at a kilometre of lever arm, and sixteen times the last bit of the f32 storing it.
+constexpr double orientationTolerance = 1e-6;
+
+}  // namespace
+
+/// @test
+/// Tests that the quaternion composition reproduces the trihedron construction it replaced, away
+/// from the pitch limit where yaw and bank cannot be separated
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, orientationConversionMatchesTrihedronConstruction)
+{
+  double worst = 0.0;
+
+  for (int lat = -90; lat <= 90; lat += 15)
+  {
+    for (int lon = -180; lon <= 180; lon += 45)
+    {
+      for (int yaw = -180; yaw <= 180; yaw += 45)
+      {
+        for (const double pitch: {-85.0, -60.0, -30.0, 0.0, 30.0, 60.0, 85.0})
+        {
+          for (int bank = -180; bank <= 180; bank += 90)
+          {
+            const GeodeticWorldLocation position {static_cast<double>(lat), static_cast<double>(lon), 250.0};
+            const Orientation input {static_cast<float>(yaw * M_PI / 180.0),
+                                     static_cast<float>(pitch * M_PI / 180.0),
+                                     static_cast<float>(bank * M_PI / 180.0)};
+
+            const auto converted = impl::ecefToNed(input, position);
+            ASSERT_FALSE(std::isnan(converted.psi.get()) || std::isnan(converted.theta.get()) ||
+                         std::isnan(converted.phi.get()));
+            worst = std::max(worst, rotationGap(referenceEcefToNed(input, position), converted));
+          }
+        }
+      }
+    }
+  }
+
+  EXPECT_LT(worst, orientationTolerance);
+}
+
+/// @test
+/// Tests that converting an orientation to NED and back returns the rotation it started from
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, orientationConversionRoundTrips)
+{
+  double worst = 0.0;
+
+  for (int lat = -90; lat <= 90; lat += 15)
+  {
+    for (int lon = -180; lon <= 180; lon += 45)
+    {
+      for (int yaw = -180; yaw <= 180; yaw += 45)
+      {
+        for (const double pitch: {-90.0, -89.99, -45.0, 0.0, 45.0, 89.99, 90.0})
+        {
+          for (int bank = -180; bank <= 180; bank += 90)
+          {
+            const GeodeticWorldLocation position {static_cast<double>(lat), static_cast<double>(lon), 0.0};
+            const Orientation input {static_cast<float>(yaw * M_PI / 180.0),
+                                     static_cast<float>(pitch * M_PI / 180.0),
+                                     static_cast<float>(bank * M_PI / 180.0)};
+
+            const auto back = impl::nedToEcef(impl::ecefToNed(input, position), position);
+            ASSERT_FALSE(std::isnan(back.psi.get()) || std::isnan(back.theta.get()) || std::isnan(back.phi.get()));
+            worst = std::max(worst, rotationGap(input, back));
+          }
+        }
+      }
+    }
+  }
+
+  EXPECT_LT(worst, orientationTolerance);
+}
+
+/// @test
+/// Tests that extrapolating with no rotation to apply returns the orientation it was given
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, orientationExtrapolationHoldsStillAtThePitchLimit)
+{
+  const sen::Duration step {std::chrono::milliseconds(16)};
+
+  for (const double pitchDeg: {-90.0, -89.999, -45.0, 0.0, 45.0, 89.999, 90.0})
+  {
+    for (int yawDeg = -180; yawDeg <= 180; yawDeg += 45)
+    {
+      for (int bankDeg = -165; bankDeg <= 165; bankDeg += 35)
+      {
+        const Orientation input {static_cast<float>(yawDeg * M_PI / 180.0),
+                                 static_cast<float>(pitchDeg * M_PI / 180.0),
+                                 static_cast<float>(bankDeg * M_PI / 180.0)};
+
+        const auto held = extrapolateOrientation(input, step, AngularVelocity {});
+
+        ASSERT_FALSE(std::isnan(held.psi.get()) || std::isnan(held.theta.get()) || std::isnan(held.phi.get()))
+          << "yaw " << yawDeg << " pitch " << pitchDeg << " bank " << bankDeg;
+        EXPECT_LT(rotationGap(input, held), orientationTolerance)
+          << "yaw " << yawDeg << " pitch " << pitchDeg << " bank " << bankDeg;
+      }
+    }
+  }
 }
 
 }  // namespace sen::util

@@ -15,6 +15,10 @@
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
 
+// std
+#include <algorithm>
+#include <cmath>
+
 namespace sen::util
 {
 
@@ -116,6 +120,9 @@ public:  // quaternion rotations
 
   void makeRotate(const Vec3<T>& from, const Vec3<T>& to) noexcept;
 
+  /// Returns the quaternion for a rotation of an angle about an axis.
+  [[nodiscard]] static Quat makeAxisRotation(T angle, const Vec3<T>& axis) noexcept;
+
   void makeRotate(T angle1,
                   const Vec3<T>& axis1,
                   T angle2,
@@ -164,12 +171,7 @@ inline Quat<T>::Quat(T x, T y, T z, T w) noexcept
 template <typename T>
 inline Quat<T>::Quat(T angle, const Vec3<T>& axis) noexcept
 {
-  v_[0] = static_cast<T>(0.0);
-  v_[1] = static_cast<T>(0.0);
-  v_[2] = static_cast<T>(0.0);
-  v_[3] = static_cast<T>(1.0);
-
-  makeRotate(angle, axis);
+  *this = makeAxisRotation(angle, axis);
 }
 
 template <typename T>
@@ -552,14 +554,36 @@ inline void Quat<T>::makeRotate(T angle1,
                                 T angle3,
                                 const Vec3<T>& axis3) noexcept
 {
-  Quat q1;
-  q1.makeRotate(angle1, axis1);
-  Quat q2;
-  q2.makeRotate(angle2, axis2);
-  Quat q3;
-  q3.makeRotate(angle3, axis3);
+  *this = makeAxisRotation(angle1, axis1) * makeAxisRotation(angle2, axis2) * makeAxisRotation(angle3, axis3);
+}
 
-  *this = q1 * q2 * q3;
+template <typename T>
+inline Quat<T> Quat<T>::makeAxisRotation(T angle, const Vec3<T>& axis) noexcept
+{
+  constexpr T epsilon = 0.0000001;
+
+  const T length2 = axis.getX() * axis.getX() + axis.getY() * axis.getY() + axis.getZ() * axis.getZ();
+
+  if (length2 < epsilon * epsilon)
+  {
+    return {};
+  }
+
+  const T cosHalfAngle = cos(0.5 * angle);
+  const T sinHalfAngle = sin(0.5 * angle);
+
+  // Unit axes need no normalisation, so the square root and the divisions are skipped.
+  if (length2 == T {1})
+  {
+    return {axis.getX() * sinHalfAngle, axis.getY() * sinHalfAngle, axis.getZ() * sinHalfAngle, cosHalfAngle};
+  }
+
+  const T length = std::sqrt(length2);
+
+  return {axis.getX() * sinHalfAngle / length,
+          axis.getY() * sinHalfAngle / length,
+          axis.getZ() * sinHalfAngle / length,
+          cosHalfAngle};
 }
 
 template <typename T>
@@ -619,14 +643,28 @@ inline void Quat<T>::getRotate(T& angle, T& x, T& y, T& z) const noexcept
 template <typename T>
 inline Vec3<T> Quat<T>::getRotateInEulerYPB() const noexcept
 {
-  T sqw = v_[3] * v_[3];
-  T sqx = v_[0] * v_[0];
-  T sqy = v_[1] * v_[1];
-  T sqz = v_[2] * v_[2];
+  const T sqw = v_[3] * v_[3];
+  const T sqx = v_[0] * v_[0];
+  const T sqy = v_[1] * v_[1];
+  const T sqz = v_[2] * v_[2];
 
-  T yaw = atan2(2.0 * (v_[0] * v_[1] + v_[2] * v_[3]), (sqx - sqy - sqz + sqw));
-  T pitch = asin(-2.0 * (v_[0] * v_[2] - v_[1] * v_[3]) / (sqx + sqy + sqz + sqw));
-  T bank = atan2(2.0 * (v_[1] * v_[2] + v_[0] * v_[3]), (-sqx - sqy + sqz + sqw));
+  const T sine = -2.0 * (v_[0] * v_[2] - v_[1] * v_[3]) / (sqx + sqy + sqz + sqw);
+
+  // At a right-angle pitch, yaw and bank turn about one axis and both arcs below lose all
+  // precision. The whole turn is reported as yaw. Folding a bank of up to pi costs about
+  // bank * cos(pitch), so this bound holds the error under 1e-6 rad. The pitch is not rounded.
+  constexpr T gimbalLimit = static_cast<T>(1) - static_cast<T>(1e-14);
+
+  if (std::abs(sine) > gimbalLimit)
+  {
+    return {static_cast<T>(2) * atan2(v_[2], v_[3]),
+            asin(std::clamp(sine, static_cast<T>(-1), static_cast<T>(1))),
+            static_cast<T>(0)};
+  }
+
+  const T yaw = atan2(2.0 * (v_[0] * v_[1] + v_[2] * v_[3]), (sqx - sqy - sqz + sqw));
+  const T pitch = asin(std::clamp(sine, static_cast<T>(-1), static_cast<T>(1)));
+  const T bank = atan2(2.0 * (v_[1] * v_[2] + v_[0] * v_[3]), (-sqx - sqy + sqz + sqw));
 
   return {yaw, pitch, bank};
 }

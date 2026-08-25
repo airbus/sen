@@ -74,3 +74,7 @@ sen_internal_install(util)
 if(SEN_BUILD_TESTS)
   add_subdirectory(test)
 endif()
+
+if(SEN_BUILD_BENCHMARKS)
+  add_subdirectory(benchmark)
+endif()

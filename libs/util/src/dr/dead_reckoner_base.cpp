@@ -25,8 +25,15 @@ Situation DeadReckonerBase::situation(sen::TimeStamp timeStamp)
   if (!isSituationCached(timeStamp))
   {
     const auto update = drRvw(lastSituation_, timeStamp);
+
+    if (!config_.smoothing)
+    {
+      setCachedSituation(update);
+      return cachedSituation_;
+    }
+
     smooth(update);
-    setCachedSituation(config_.smoothing ? smoothSituation_ : update);
+    setCachedSituation(smoothSituation_);
   }
 
   return cachedSituation_;
@@ -36,16 +43,7 @@ GeodeticSituation DeadReckonerBase::geodeticSituation(sen::TimeStamp timeStamp)
 {
   if (!isGeodeticSituationCached(timeStamp))
   {
-    const auto sitVal = situation(timeStamp);
-    const auto geoLocation = impl::toLla(sitVal.worldLocation);
-    setCachedGeodeticSituation(GeodeticSituation {sitVal.isFrozen,
-                                                  sitVal.timeStamp,
-                                                  geoLocation,
-                                                  impl::ecefToNed(sitVal.orientation, geoLocation),
-                                                  impl::ecefToNed(sitVal.velocityVector, geoLocation),
-                                                  sitVal.angularVelocity,
-                                                  impl::ecefToNed(sitVal.accelerationVector, geoLocation),
-                                                  sitVal.angularAcceleration});
+    setCachedGeodeticSituation(impl::toGeodeticSituation(situation(timeStamp)));
   }
 
   return cachedGeodeticSituation_;
@@ -59,14 +57,7 @@ void DeadReckonerBase::updateSituation(const Situation& value)
 
 void DeadReckonerBase::updateGeodeticSituation(const GeodeticSituation& value)
 {
-  lastSituation_ = Situation {value.isFrozen,
-                              value.timeStamp,
-                              impl::toEcef(value.worldLocation),
-                              impl::nedToEcef(value.orientation, value.worldLocation),
-                              impl::nedToEcef(value.velocityVector, value.worldLocation),
-                              value.angularVelocity,
-                              impl::nedToEcef(value.accelerationVector, value.worldLocation),
-                              value.angularAcceleration};
+  lastSituation_ = impl::toSituation(value);
   invalidateCache();
 }
 
