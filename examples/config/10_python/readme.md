@@ -9,17 +9,20 @@ example scripts:
 
 For bash:
 
-```
+```shell
 export PYTHONPATH=$PYTHONPATH;$(pwd)/config/10_python/scripts
 ```
 
 For fish:
 
-```
+```shell
 set -xa PYTHONPATH $(pwd)/config/10_python/scripts
 ```
 
-**PYTHONPATH setup**: The Python scripts import `sen` (the Sen Python binding) and optionally generated type modules. Before running these scripts standalone, ensure `PYTHONPATH` includes the directory containing the `sen` module and any generated Python packages. When using `sen run`, Sen automatically extends `PYTHONPATH` with the paths of Python targets listed in `DEPS` inside `sen_generate_yaml`.
+**PYTHONPATH setup**: The Python scripts import `sen` (the Sen Python binding) and optionally generated type modules.
+Before running these scripts standalone, ensure `PYTHONPATH` includes the directory containing the `sen` module and any
+generated Python packages. When using `sen run`, Sen automatically extends `PYTHONPATH` with the paths of Python targets
+listed in `DEPS` inside `sen_generate_yaml`.
 
 ## Hello Python
 
@@ -27,7 +30,7 @@ In this example we just show how to get a Python interpreter running inside a Se
 
 Run it with:
 
-```
+```shell
 sen run config/10_python/1_python_hello.yaml
 ```
 
@@ -47,7 +50,7 @@ In this example we can see how to fetch objects coming from other components and
 
 Run it with:
 
-```
+```shell
 sen run config/10_python/2_python_inspect_objects.yaml
 ```
 
@@ -69,7 +72,7 @@ In this example we see how to create and publish objects using Python.
 
 Run it with:
 
-```
+```shell
 sen run config/10_python/3_python_create_objects.yaml
 ```
 
@@ -91,7 +94,7 @@ Here we can see how to call methods on objects coming from other components.
 
 Run it with:
 
-```
+```shell
 sen run config/10_python/4_python_interact_with_objects.yaml
 ```
 
@@ -115,7 +118,7 @@ It relies on the "school" example to get some activity going.
 
 Run it with:
 
-```
+```shell
 sen run config/10_python/5_python_react_to_events.yaml
 ```
 
@@ -135,7 +138,7 @@ This example contains the following files:
 
 Here we publish the interpreter object and can use it from within our shell component.
 
-```
+```shell
 sen run config/10_python/6_python_interpreter.yaml
 ```
 
@@ -147,20 +150,20 @@ This example contains the following files:
 
 If you open the shell you can use the interpreter with something like this:
 
-```
+```text
 sen:enrique-debian/6_python_interpreter> local.py.interpreter.eval "2+2"
 "4"
 ```
 
 The `eval` function evaluates an expression and returns the result.
 
-```
+```text
 sen:enrique-debian/6_python_interpreter> local.py.interpreter.exec "x = 2"
 ```
 
 The `exec` function executes statements.
 
-```
+```text
 sen:enrique-debian/6_python_interpreter> local.py.interpreter.eval "2+x"
 "4"
 ```

@@ -113,7 +113,7 @@ private:
 ///
 /// @param[in] begin: of the range
 /// @param[in] end: of the range
-/// @param[in] mutex: that should be locked
+/// @param[in] m: that should be locked
 ///
 /// Example:
 /// @code{.cpp}
@@ -133,7 +133,7 @@ auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& m)
 /// @tparam LockType: type of the lock that should be created
 ///
 /// @param[in] container: to wrap the range around
-/// @param[in] mutex: that should be locked
+/// @param[in] m: that should be locked
 ///
 /// Example:
 /// @code{.cpp}

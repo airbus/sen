@@ -16,10 +16,10 @@ select = [
   "E",
   "F",
   "I",
-  "I",
   "PLC",
   "PLE",
   "PLW",
+  "T10",
   "UP",
   "W",
 ]
@@ -32,3 +32,7 @@ preview = true
 
 [lint.pydocstyle]
 convention = "google"
+
+[lint.per-file-ignores]
+# Tutorial scripts wrap their whole demo in one try block for error output.
+"examples/**" = ["PLW0717"]

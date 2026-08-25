@@ -7,7 +7,7 @@ If you have a Sen archive, you can play it back using the `replayer` component.
 
 There are two ways of starting a replay. The simplest one is to do:
 
-```
+```shell
 # load the archive and start the playback straight away
 $ sen replay my_archive
 

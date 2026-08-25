@@ -7,7 +7,7 @@ We can ask Sen to create the skeleton for a package called "my_package" that wil
 called "MyClass".
 
 ```sh
-$ sen package init my_package --class MyClass
+sen package init my_package --class MyClass
 ```
 
 Let's inspect the contents of the newly-created folder:

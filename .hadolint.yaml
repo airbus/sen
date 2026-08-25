@@ -1,0 +1,5 @@
+# DL3008 (pin apt versions) is waived: the Ubuntu archive drops superseded
+# versions, so exact pins break; the published image digest is the
+# reproducibility boundary (see tools/ci/Dockerfile).
+ignored:
+  - DL3008

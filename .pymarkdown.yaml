@@ -1,5 +1,55 @@
+# mkdocs pages carry YAML front matter. Without this the block between the
+# --- markers is read as markdown, so its keys look like a list and its
+# opening marker looks like a thematic break.
+extensions:
+  front-matter:
+    enabled: true
+  # Without this, a table row is read as an ordinary paragraph line, so the
+  # grid is measured against the prose limit and the table options below
+  # never apply.
+  markdown-tables:
+    enabled: true
+
 plugins:
   md013:
     enabled: true
     line_length: 120
     code_block_line_length: 120
+    # A table row cannot be wrapped without breaking the grid, so its width
+    # follows from the content. Prose and code still hold the 120 columns,
+    # and so do headings, which default to 80 for no reason that applies here.
+    tables: false
+    heading_line_length: 120
+  md046:
+    # Disabled: pymarkdown 0.9.39 crashes in this plugin on
+    # docs/getting_started/install.md; re-enable when fixed upstream.
+    enabled: false
+  md031:
+    # Disabled: the fix de-indents a fenced block that sits inside a list
+    # item or an mkdocs content tab, which moves the code out of the
+    # construct that contained it. Verified on README.md.
+    enabled: false
+  md037:
+    # Disabled: the fix reads LaTeX as emphasis and rewrites it, changing
+    # formulas. Verified on docs/users_guide/util_library.md, which is full
+    # of $$ ... $$ blocks.
+    enabled: false
+  md033:
+    # Disabled: README.md centres its title and lays out the badge row with
+    # HTML, which markdown cannot express. The rule would forbid the page's
+    # own presentation.
+    enabled: false
+  md036:
+    # Disabled: the feature list uses bold emoji lines ("**Architecture**")
+    # as visual separators on purpose. Turning them into headings would put
+    # them in the table of contents, which is not what they are.
+    enabled: false
+  md024:
+    # Repeated headings are fine under different parents: every server
+    # section in an example has its own "Interface" and "How to run it".
+    siblings_only: true
+  md041:
+    # Disabled: documentation pages open with a floating figure and then the
+    # title, and the landing page hides its title behind a centred logo. The
+    # rule wants the heading on the first line, which would undo that layout.
+    enabled: false

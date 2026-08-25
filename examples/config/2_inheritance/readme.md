@@ -80,7 +80,7 @@ Let's define what we want to run in our Sen kernel.
 
 To run it, let's call `sen run`:
 
-```
+```shell
 sen run config/2_inheritance/1_inheritance.yaml
 ```
 
@@ -89,7 +89,7 @@ This will open a shell and tell Sen to instantiate the cat and dog implementatio
 
 You can interact with the objects by doing commands such as:
 
-```
+```text
 info my.tutorial.elon.print
 info my.tutorial.rufus.print
 
@@ -110,19 +110,19 @@ you will need to start two processes.
 
 First run:
 
-```
+```shell
 sen run config/2_inheritance/2_inheritance_eth.yaml
 ```
 
 Then, in another terminal or command prompt, run:
 
-```
+```shell
 sen shell
 ```
 
 In this new Sen instance, open the bus where we should find our objects:
 
-```
+```text
 open my.tutorial
 ```
 
@@ -132,7 +132,7 @@ You should be able to work with the objects as if you were on the same process.
 
 You can also run it using the explorer to see and interact with the objects in a more graphical way.
 
-```
+```shell
 sen run config/2_inheritance/2_inheritance_exp.yaml
 ```
 
