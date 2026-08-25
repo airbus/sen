@@ -1,0 +1,27 @@
+{
+    // Sen development container: the same environment CI validates.
+    // Builds the image locally from the in-tree Dockerfile.
+    "name": "sen",
+    // The Dockerfile has no COPY steps; a repo-root context would tar the
+    // whole checkout on every rebuild.
+    // The dev stage is the CI image plus what an editor needs to recognise a
+    // toolchain: cmake, ninja and gdb. The builds themselves still use the
+    // cmake and ninja Conan pins.
+    "build": {
+        "dockerfile": "../tools/ci/Dockerfile",
+        "context": "../tools/ci",
+        "target": "dev"
+    },
+    // Conan and ccache state survive container rebuilds.
+    "mounts": [
+        "source=sen-devcontainer-conan,target=/home/sen/.conan2,type=volume",
+        "source=sen-devcontainer-ccache,target=/home/sen/.ccache,type=volume"
+    ],
+    // The image creates this user; on a Linux host the editor remaps its ids
+    // to the developer's own, so files written here belong to them.
+    "remoteUser": "sen",
+    // Take over the named volumes first: they keep the ids they were created
+    // with, which the editor may have remapped for this user. Then install the
+    // repo profiles and pick the default matching the container architecture.
+    "postCreateCommand": "sudo chown -R $(id -u):$(id -g) ~/.conan2 ~/.ccache && conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/ && cp .conan/profiles/sen_gcc_$(uname -m | sed -e 's/aarch64/arm/' -e 's/x86_64/x86/') ~/.conan2/profiles/default && conan profile show -pr default"
+}
