@@ -19,6 +19,24 @@ During this initial publication phase, we are limiting external code contributio
 feature suggestions are welcome and will be evaluated. The contribution policy may be reviewed and updated
 at a later stage.
 
+## Commit Messages and Pull Requests
+
+Commit subjects follow the conventional format `type(scope): summary`:
+
+- Types in use: `feat`, `fix`, `test`, `chore`, `refactor`, `docs`, `build`, `ci`, `perf`,
+  `revert`. The scope is optional, lowercase and without spaces (`fix(core,kernel): ...`);
+  a `!` before the colon marks a breaking change.
+- Keep the subject under 72 characters, without a trailing period.
+- A body is optional. When one helps, one to three sentences explaining why the change is
+  needed are enough; the diff shows what changed.
+
+gitlint checks these rules. Run `pre-commit install` once after cloning: it installs the
+file hooks and the commit message hook together.
+
+Pull requests are squash-merged, so **the pull request title becomes the commit subject on
+main** and follows the same format. Keep each pull request to a single logical change:
+whatever lands is one commit.
+
 ## Reporting Bugs
 
 A good bug report shouldn't leave others needing to chase you up for more information. Therefore, we
