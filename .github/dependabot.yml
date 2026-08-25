@@ -7,6 +7,10 @@
 #
 # Keeps the SHA-pinned GitHub Actions and the CI image base current.
 # Monthly cadence: dependency movement arrives as a reviewable batch.
+#
+# Minor and patch updates are grouped into one pull request, because they carry no
+# decision. Major updates stay separate: each needs checking against how this
+# repository actually uses the action, and holding one must not hold the others.
 
 version: 2
 updates:
@@ -16,6 +20,15 @@ updates:
       interval: monthly
     commit-message:
       prefix: "chore(deps)"
+    # The default of 5 hides updates once majors accumulate.
+    open-pull-requests-limit: 10
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: docker
     directory: /tools/ci
@@ -23,3 +36,8 @@ updates:
       interval: monthly
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # The base OS is pinned on purpose. tools/ci/runtime.Dockerfile has to match the
+      # OS the binaries were built on, so moving this is a coordinated change to both
+      # images rather than a dependency bump. Raise it by hand when the time comes.
+      - dependency-name: ubuntu

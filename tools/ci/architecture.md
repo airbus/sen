@@ -373,6 +373,12 @@ the merge-conflict and Windows-filename checks. Pull requests check only
 the changed files; the nightly run checks everything. The nightly run is
 what catches problems caused by updated hooks or rules.
 
+Gitlint exempts `chore(deps)` commits from the body line limit, and only
+that rule. Dependabot cites compare URLs that run past the limit and cannot
+be wrapped, so without the exemption none of its pull requests can merge at
+all. The exemption is written narrowly on purpose: `ci(deps)` is not
+`chore(deps)`, so a human writing about dependencies is still checked.
+
 Exceptions are always written down where they apply: `.hadolint.yaml`
 (DL3008, see the image section), `.pymarkdown.yaml` (MD046, upstream
 crash), `.ruff.toml` per-file ignores (tutorial scripts),
@@ -386,12 +392,45 @@ crash), `.ruff.toml` per-file ignores (tutorial scripts),
 - **Change the matrix**: edit `generate_matrix_jobs.py` and its tests
   together.
 - **Update a tool**: conan is pinned in the three places listed above;
-  actions are pinned by commit SHA (dependabot updates them monthly, and
-  the docker ecosystem watches the base image); pre-commit versions are
-  updated with `pre-commit autoupdate`, except clang-format.
+  actions are pinned by commit SHA and dependabot updates them monthly;
+  pre-commit versions are updated with `pre-commit autoupdate`, except
+  clang-format.
+- **Dependency updates arrive in two shapes.** Minor and patch bumps are
+  grouped into one pull request, because they carry no decision. Majors come
+  separately, because each has to be checked against how this repository uses
+  the action, and holding one must not hold the rest. The base OS is ignored
+  outright: `runtime.Dockerfile` has to match the OS the binaries were built
+  on, so moving it is a coordinated change to both images and is done by hand.
 - **Add a benchmark or a nightly job**: follow the existing shape; a new
   nightly job joins the `needs` list of the tracking-issue job, so its
   failures are reported.
+
+## Landing a change
+
+`main` allows squash only and requires linear history, and required checks are
+strict, so a pull request has to contain the tip of `main` to merge. One merge
+therefore makes every other open pull request stale.
+
+Chained pull requests are a stack, and **`gh pr merge` refuses them**: it
+answers that the pull request "must be merged using the asynchronous merge
+REST API". Use `gh stack merge <n> --yes --squash`, which merges every
+unmerged pull request up to and including the one named, in one all-or-nothing
+operation. The resulting history is the same as merging each from the bottom
+up: one commit per pull request, nothing collapsed.
+
+Two consequences follow, and neither is visible from the workflows:
+
+- **Merging rebases everything above it.** The branches are rewritten onto the
+  new `main`, so their commits get new SHAs and their pipelines run again.
+  This is inherent to stacked merging, not a setting that can be turned off.
+- **Cancelled runs leave a red `CI OK` behind.** When a rebase supersedes a
+  run in flight, its aggregate check reports failure and stays in the rollup.
+  Look for a later successful `CI OK` on the same commit before treating one
+  as a real failure; GitHub enforces the most recent.
+
+`main` also requires review threads to be resolved. Because the stack merge is
+all-or-nothing, **one unresolved comment on one pull request blocks the entire
+stack**, and the pull request it blocks is not necessarily the one being merged.
 
 ## Known limitations
 
