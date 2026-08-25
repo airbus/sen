@@ -1,0 +1,108 @@
+# === ci-image.yaml ====================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+name: CI Image
+
+# main.yaml calls this when a change touches the build environment, so that a
+# broken image fails the one check the branch protection requires. Cancellation
+# and grouping belong to the caller.
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: "Build and check the image"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f  # v3
+
+      # Proves the Dockerfile builds; no registry hosts the image, so the
+      # devcontainer and any self-hosted machine build it from this file.
+      # Layer caching in the Actions cache keeps unchanged rebuilds fast; only
+      # the final layers are cached, since nothing here builds on this image.
+      - name: Build image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8  # v6
+        with:
+          context: tools/ci
+          file: tools/ci/Dockerfile
+          # The Dockerfile's last stage is the editor-facing one; this is the
+          # image the pipeline is described against.
+          target: base
+          push: false
+          load: true
+          tags: sen-ci:probe
+          cache-from: type=gha
+          cache-to: type=gha,mode=min
+
+      # Every tool below has been missing at some point, and a missing tool
+      # shows up as a check that silently analysed nothing or a configure step
+      # that fails on a developer's machine only.
+      - name: Check the tools are present
+        shell: bash
+        run: |
+          docker run --rm sen-ci:probe bash -lc '
+            set -e
+            for tool in conan python3 pip3 ccache git g++-12 gcc-12 \
+                        clang++-20 clang-tidy-20 gcovr lcov genhtml \
+                        pytest junitparser; do
+                command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
+            done
+            # The coverage report target calls these by their versioned names
+            # or through the LLVM directory, never from PATH.
+            for tool in llvm-profdata llvm-cov; do
+                test -x "/usr/lib/llvm-20/bin/$tool" || { echo "missing: $tool"; exit 1; }
+            done
+            # Coverage and the sanitizers need the clang runtime library, which
+            # --no-install-recommends leaves out unless it is asked for.
+            printf "int main(){return 0;}" > /tmp/probe.cpp
+            clang++-20 -fsanitize=address -o /tmp/probe /tmp/probe.cpp
+            # cmake and ninja must come from Conan, so that every build uses
+            # the pinned versions; finding them here would defeat that.
+            for tool in cmake ninja; do
+                ! command -v "$tool" > /dev/null || { echo "unexpected: $tool"; exit 1; }
+            done
+            test "$(id -un)" = sen || { echo "image runs as $(id -un)"; exit 1; }
+            echo "all expected tools present"
+          '
+
+      # The devcontainer builds this stage, and an editor cannot detect a
+      # toolchain without these three.
+      - name: Build the editor-facing stage
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8  # v6
+        with:
+          context: tools/ci
+          file: tools/ci/Dockerfile
+          target: dev
+          push: false
+          load: true
+          tags: sen-ci:dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=min
+
+      - name: Check the editor tools are present
+        shell: bash
+        run: |
+          docker run --rm sen-ci:dev bash -lc '
+            set -e
+            for tool in cmake ninja gdb dot; do
+                command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
+            done
+            # Conan writes CMakeUserPresets.json at version 4, which needs at
+            # least cmake 3.23; the distribution ships 3.22.
+            cmake --version | head -1
+            printf "%s\n" "$(cmake --version | head -1 | grep -oE "[0-9]+\.[0-9]+")" |
+                awk -F. "{ exit (\$1 > 3 || (\$1 == 3 && \$2 >= 23)) ? 0 : 1 }"
+            test "$(id -un)" = sen || { echo "image runs as $(id -un)"; exit 1; }
+            echo "editor tools present"
+          '

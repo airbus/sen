@@ -77,6 +77,9 @@ class SenConan(ConanFile):
         self.tool_requires("cmake/3.28.1")
         self.tool_requires("ninja/1.13.2")
         self.test_requires("gtest/1.17.0")
+        # Benchmarks belong to the full build, so the dependency is fetched only there.
+        if str(self.options.mode) == "full":
+            self.test_requires("benchmark/1.9.5")
         if self.options.with_docs:
             self.tool_requires("doxygen/[>=1.15.0]")
 
@@ -194,6 +197,9 @@ class SenConan(ConanFile):
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if self.options.with_examples else "OFF"
         tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if self.options.with_tests else "OFF"
         tc.cache_variables["SEN_BUILD_DOCS"] = "ON" if self.options.with_docs else "OFF"
+        # Available in the full build, built only when asked for: the benchmark targets
+        # are left out of the default one. -DSEN_BUILD_BENCHMARKS=OFF turns them off.
+        tc.cache_variables["SEN_BUILD_BENCHMARKS"] = "ON" if str(self.options.mode) == "full" else "OFF"
         tc.cache_variables["SEN_USE_SANITIZER"] = {
             "none": "None",
             "address": "ASanUBSan",
