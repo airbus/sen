@@ -102,8 +102,7 @@ def abort(container_list: list[DockerContainer], thread_list: list[Thread]) -> N
     cleanup(container_list)
 
     for t in thread_list:
-        if isinstance(t, Thread):
-            t.join()
+        t.join()
 
     sys.exit(1)
 
@@ -163,7 +162,9 @@ if __name__ == "__main__":
                 # start the container (with the host environment) and the log thread
                 container.env.update(os.environ)
                 container.start()
-                log_threads.append(Thread(target=stream_logs, args=(container,), daemon=True).start())
+                log_thread = Thread(target=stream_logs, args=(container,), daemon=True)
+                log_thread.start()
+                log_threads.append(log_thread)
                 containers.append(container)
 
             deadline = time.time() + TIMEOUT
@@ -179,7 +180,7 @@ if __name__ == "__main__":
                 # pass the test if all processes have exited successfully
                 if all(w.status == "exited" for w in wrapped):
                     # join the logger threads
-                    list(map(Thread.join, [t for t in log_threads if isinstance(t, Thread)]))
+                    list(map(Thread.join, log_threads))
                     break
 
                 time.sleep(0.2)

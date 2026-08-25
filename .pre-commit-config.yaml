@@ -85,13 +85,21 @@ repos:
       # Guards the CI image; example Dockerfiles are tutorial content
       files: ^tools/
 
-# Scoped to the CI scripts: repo-wide mypy is blocked by duplicate test
-# module names under apps/cli_gen; widen the scope when that is resolved.
+# Covers every tracked Python file except three, each excluded for a reason
+# rather than to hide a finding:
+#   .cmake-format.py            a cmake-format config, not source: its names are
+#                               injected by the loader, which is why ruff already
+#                               carries noqa: F821 for it
+#   .conan/test_packages/...    a second conanfile, and mypy resolves both to the
+#                               module "conanfile"
+#   apps/cli_gen/test/test20/   a second test.py, same collision
+# --explicit-package-bases is what lets the rest resolve from the repository root.
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v2.3.1
   hooks:
     - id: mypy
-      files: ^\.github/scripts/
+      args: [--explicit-package-bases, --ignore-missing-imports]
+      exclude: ^(\.cmake-format\.py|\.conan/test_packages/|apps/cli_gen/test/test20/)
       additional_dependencies: [types-PyYAML==6.0.12.20260815]
 
 - repo: https://github.com/jorisroovers/gitlint
