@@ -87,6 +87,18 @@ def test_standard_test_legs_build_examples():
     assert all(job.enable_examples for job in jobs)
 
 
+def test_container_tests_run_on_the_x86_gcc_legs():
+    """The container-based suite runs on the x86 gcc legs, on a matching base."""
+    jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    with_containers = {job.build_type: job for job in jobs if job.runtime_base}
+    assert set(with_containers) == {"Debug", "Release"}
+    for job in with_containers.values():
+        assert job.compiler.name == "gcc"
+        assert job.arch == "x86"
+        # the runner label and the docker base name the same Ubuntu release
+        assert job.runtime_base.replace(":", "-") == job.runner
+
+
 def test_windows_legs_keep_the_defaults():
     """The Windows legs do not build the examples."""
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
@@ -127,6 +139,7 @@ def test_standard_test_specs_in_full():
             "build_type": "Debug",
             "enable_coverage": True,
             "enable_examples": True,
+            "runtime_base": "",
             "check_package": False,
         },
         {
@@ -140,6 +153,7 @@ def test_standard_test_specs_in_full():
             "build_type": "Debug",
             "enable_coverage": False,
             "enable_examples": True,
+            "runtime_base": "ubuntu:22.04",
             "check_package": False,
         },
         {
@@ -153,6 +167,7 @@ def test_standard_test_specs_in_full():
             "build_type": "Release",
             "enable_coverage": False,
             "enable_examples": True,
+            "runtime_base": "ubuntu:22.04",
             "check_package": True,
         },
         {
@@ -166,6 +181,7 @@ def test_standard_test_specs_in_full():
             "build_type": "Debug",
             "enable_coverage": False,
             "enable_examples": True,
+            "runtime_base": "",
             "check_package": False,
         },
     ]
