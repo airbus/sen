@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="objects.html">
+<a class="md-tabs__link" href="building_from_source.html">
           
   
   
@@ -741,6 +741,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="objects.html">
 <span class="md-ellipsis">
     
@@ -942,7 +954,7 @@
 <a class="md-nav__link" href="#generating-interface-code">
 <span class="md-ellipsis">
       
-        Generating interface code.
+        Generating interface code
       
     </span>
 </a>
@@ -954,7 +966,7 @@
 <a class="md-nav__link" href="#include-our-cmakeconfigin-files-in-the-projects-installation">
 <span class="md-ellipsis">
       
-        Include our -cmake.config.in files in the project's installation.
+        Include our -cmake.config.in files in the project's installation
       
     </span>
 </a>
@@ -1403,7 +1415,7 @@ obtain its <code>BASE_PATH</code> and <code>stl</code> files.</p>
 </span></code></pre></div>
 <p>Note that we can both call the <code>get_external_interfaces</code> function and use the <code>${SEN_INSTALL_DIR}</code>
 as we have included Sen in the previous step.</p>
-<h3 id="generating-interface-code">Generating interface code.<a class="headerlink" href="#generating-interface-code" title="Permanent link">¶</a></h3>
+<h3 id="generating-interface-code">Generating interface code<a class="headerlink" href="#generating-interface-code" title="Permanent link">¶</a></h3>
 <p>After obtaining the relevant information of your interfaces, it's time to configure the function
 that will generate the interfaces' code when the package is consumed. The function written here will
 be <strong>unchangeable</strong> upon consumption, so the purpose of this guide is to generate the interfaces in
@@ -1423,7 +1435,7 @@ guide should be followed instead.</p>
 <p>Note that any dependency the original package/component/library had <strong>must</strong> be included in the
 interface package generation. If this package is not configured correctly, you <strong>won't</strong> see any
 error in your compilation, the error will appear when other developers try to consume your package.</p>
-<h2 id="include-our-cmakeconfigin-files-in-the-projects-installation">Include our -cmake.config.in files in the project's installation.<a class="headerlink" href="#include-our-cmakeconfigin-files-in-the-projects-installation" title="Permanent link">¶</a></h2>
+<h2 id="include-our-cmakeconfigin-files-in-the-projects-installation">Include our -cmake.config.in files in the project's installation<a class="headerlink" href="#include-our-cmakeconfigin-files-in-the-projects-installation" title="Permanent link">¶</a></h2>
 <p>After writing enough <code>-cmake.config.in</code> files, you need to configure your project's <code>install.cmake</code>
 file to ensure that the <code>-cmake.config.in</code> files are installed and generated correctly when you call
 <code>cmake install</code>.</p>
@@ -1473,7 +1485,7 @@ to:</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 26, 2026 20:24:42 UTC">February 26, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>

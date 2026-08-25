@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/objects.html">
+<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
           
   
   
@@ -830,15 +830,6 @@
     </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#bsddarwin">
-<span class="md-ellipsis">
-      
-        BSD/Darwin
-      
-    </span>
-</a>
-</li>
 </ul>
 </nav>
 </li>
@@ -907,6 +898,18 @@
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/objects.html">
 <span class="md-ellipsis">
@@ -1650,8 +1653,8 @@ large amounts of UDP traffic to your instance. 8MB is just a recommendation, and
 higher.</p>
 <h3 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">¶</a></h3>
 <p>Check the current UDP/IP receive buffer limit &amp; default by typing the following commands:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>sysctl net.core.rmem_max
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>sysctl net.core.rmem_default
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>sysctl<span class="w"> </span>net.core.rmem_max
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>sysctl<span class="w"> </span>net.core.rmem_default
 </span></code></pre></div>
 <p>If the values are less than 8388608 bytes you should add the following lines to the /etc/sysctl.conf
 file:</p>
@@ -1660,30 +1663,15 @@ file:</p>
 </span></code></pre></div>
 <p>Changes to /etc/sysctl.conf do not take effect until reboot. To update the values immediately, type
 the following commands as root:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sysctl -w net.core.rmem_max=8388608
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>sysctl -w net.core.rmem_default=8388608
-</span></code></pre></div>
-<h3 id="bsddarwin">BSD/Darwin<a class="headerlink" href="#bsddarwin" title="Permanent link">¶</a></h3>
-<p>On BSD/Darwin systems you need to add about a 15% padding to the kernel limit socket buffer. Meaning
-if you want an 8MB buffer (8388608 bytes) you need to set the kernel limit to 8388608*1.15 =
-9646900. This is not documented anywhere but happens in the kernel here.</p>
-<p>Check the current UDP/IP buffer limit by typing the following command:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sysctl kern.ipc.maxsockbuf
-</span></code></pre></div>
-<p>If the value is less than 9646900 bytes you should add the following lines to the /etc/sysctl.conf
-file (create it if necessary):</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>kern.ipc.maxsockbuf=9646900
-</span></code></pre></div>
-<p>Changes to /etc/sysctl.conf do not take effect until reboot. To update the values immediately, type
-the following command as root:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>sysctl -w kern.ipc.maxsockbuf=9646900
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sysctl<span class="w"> </span>-w<span class="w"> </span>net.core.rmem_max<span class="o">=</span><span class="m">8388608</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>sysctl<span class="w"> </span>-w<span class="w"> </span>net.core.rmem_default<span class="o">=</span><span class="m">8388608</span>
 </span></code></pre></div></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 16, 2026 08:56:41 UTC">June 16, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:16 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>

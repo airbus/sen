@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/objects.html">
+<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
           
   
   
@@ -280,28 +280,37 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#using-conan">
+<a class="md-nav__link" href="#quick-install-linux">
 <span class="md-ellipsis">
       
-        Using Conan
+        Quick install (Linux)
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#using-release-packages">
+<a class="md-nav__link" href="#using-sen-in-your-project-conan">
 <span class="md-ellipsis">
       
-        Using Release Packages
+        Using Sen in your project (Conan)
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#building-sen">
+<a class="md-nav__link" href="#manual-release-packages">
 <span class="md-ellipsis">
       
-        Building Sen
+        Manual release packages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#building-from-source">
+<span class="md-ellipsis">
+      
+        Building from source
       
     </span>
 </a>
@@ -787,6 +796,18 @@
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/objects.html">
 <span class="md-ellipsis">
@@ -1310,162 +1331,214 @@
 <div><p><img alt="Screenshot" src="../assets/images/tools_light.svg#only-light" style="width:150px; float: right;"/>
 <img alt="Screenshot" src="../assets/images/tools_dark.svg#only-dark" style="width:150px; float: right;"/></p>
 <h1 id="getting-sen">Getting Sen<a class="headerlink" href="#getting-sen" title="Permanent link">¶</a></h1>
-<h2 id="using-conan">Using Conan<a class="headerlink" href="#using-conan" title="Permanent link">¶</a></h2>
-<p>Sen releases are hosted on Conan-Center. To get it:</p>
-<ol>
-<li>
-<p>Create Conan configuration file (either <em>conanfile.txt</em> or <em>conanfile.py</em>) in your project's
-   top-level directory and add <strong>Sen</strong> as a dependency of your project.</p>
-</li>
-<li>
-<p>Download, build, and install Conan dependencies before running the CMake configuration step:</p>
-</li>
-</ol>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>conan<span class="w"> </span>build<span class="w"> </span>.<span class="w"> </span>--profile<span class="w"> </span>&lt;your_conan_profile&gt;<span class="w"> </span>--build<span class="o">=</span>missing
+<p>There are three ways to get Sen, depending on what you want to do:</p>
+<ul>
+<li><strong>Try Sen quickly</strong> on Linux without setting up Conan: use the <a href="#quick-install-linux">quick installer</a>.</li>
+<li><strong>Use Sen as a dependency in your project</strong>: use the <a href="#using-sen-in-your-project-conan">Conan package</a>.</li>
+<li><strong>Install Sen on a machine without an internet-facing toolchain</strong> (Windows, air-gapped Linux): use the
+  <a href="#manual-release-packages">release zip packages</a>.</li>
+</ul>
+<p>If you want to compile Sen yourself, see <a href="../howto_guides/building_from_source.html">Building Sen from source</a>.</p>
+<h2 id="quick-install-linux">Quick install (Linux)<a class="headerlink" href="#quick-install-linux" title="Permanent link">¶</a></h2>
+<p>A single POSIX <code>sh</code> script. No Conan, no <code>sudo</code>, no system files touched.</p>
+<p><strong>1. Install:</strong></p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>curl<span class="w"> </span>-sSf<span class="w"> </span>https://raw.githubusercontent.com/airbus/sen/main/resources/installer/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh<span class="w"> </span>-s<span class="w"> </span>--<span class="w"> </span><span class="m">0</span>.5.2
 </span></code></pre></div>
-<details class="info">
-<summary>Conan Set-Up</summary>
-<p>Install or upgrade Conan with:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>conan
+<p><strong>2. Activate</strong> (and append the same line to your shell rc to load Sen on every new shell):</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>.<span class="w"> </span>~/.sen/current/activate<span class="w">          </span><span class="c1"># bash / zsh</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nb">source</span><span class="w"> </span>~/.sen/current/activate.fish<span class="w"> </span><span class="c1"># fish</span>
 </span></code></pre></div>
-<p>Then create a profile for your environment in <code>&lt;HOME&gt;/.conan2/profiles</code>. Example:</p>
-<div class="language-ini highlight"><span class="filename">~/.conan2/profiles/gcc15</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">[settings]</span>
-</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="na">arch</span><span class="o">=</span><span class="s">x86_64</span>
-</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="na">build_type</span><span class="o">=</span><span class="s">Release</span>
-</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="na">compiler</span><span class="o">=</span><span class="s">gcc</span>
-</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="na">compiler.cppstd</span><span class="o">=</span><span class="s">17</span>
-</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="na">compiler.libcxx</span><span class="o">=</span><span class="s">libstdc++11</span>
-</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="na">compiler.version</span><span class="o">=</span><span class="s">15</span>
-</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="na">os</span><span class="o">=</span><span class="s">Linux</span>
-</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>
-</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="k">[conf]</span>
-</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="na">tools.build:compiler_executables={"c"</span><span class="o">:</span><span class="w"> </span><span class="s">"gcc-15"</span><span class="na">, "cpp"</span><span class="o">:</span><span class="w"> </span><span class="s">"g++-15"</span><span class="na">}</span>
+<p><strong>3. Check:</strong></p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>sen<span class="w"> </span>--version
 </span></code></pre></div>
-<p>As generator, we recommend Ninja. You can set it in <code>&lt;HOME&gt;/.conan2/global.conf</code>:</p>
-<div class="language-text highlight"><span class="filename">~/.conan2/global.conf</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
-</span></code></pre></div>
-<p>You can find some commonly-used conan profiles in the <code>.conan/profiles</code> folder. Those can be
-installed by running:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>conan<span class="w"> </span>config<span class="w"> </span>install<span class="w"> </span>-tf<span class="w"> </span>profiles<span class="w"> </span>.conan/profiles/&lt;profile&gt;
+<details class="note">
+<summary>What the installer prints</summary>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>  Sen Installer  v0.2.0
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>  ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>  Configuration
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>    Version    0.5.2
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>    Toolchain  gcc 12.4.0
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>    Arch / OS  x86_64-linux
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>    Prefix     /home/alice/.sen/0.5.2-x86_64-linux-gcc-12.4.0
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>  ✓ Downloaded sen-0.5.2-x86_64-linux-gcc-12.4.0-release.tar.gz (42M)
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a>  ✓ Verified sha256 checksum
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>  ✓ Extracted into /home/alice/.sen/0.5.2-x86_64-linux-gcc-12.4.0
+</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a>  ✓ Cached CLI completions  (bash, zsh, fish)
+</span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a>  ✓ Wrote integrity manifest
+</span><span id="__span-3-15"><a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>  ✓ Wrote activate scripts
+</span><span id="__span-3-16"><a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a>  ✓ Refreshed cached installer
+</span><span id="__span-3-17"><a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a>  ✓ Updated 'current' to  0.5.2-x86_64-linux-gcc-12.4.0
+</span><span id="__span-3-18"><a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a>
+</span><span id="__span-3-19"><a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a>  ──────────────────────────────────────────────────────────────────────
+</span><span id="__span-3-20"><a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a>
+</span><span id="__span-3-21"><a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a>  ✓ Sen 0.5.2-x86_64-linux-gcc-12.4.0 installed.
+</span><span id="__span-3-22"><a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a>
+</span><span id="__span-3-23"><a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a>  Activate this build:
+</span><span id="__span-3-24"><a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a>    bash/zsh   . /home/alice/.sen/current/activate
+</span><span id="__span-3-25"><a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a>    fish       source /home/alice/.sen/current/activate.fish
 </span></code></pre></div>
 </details>
 <details class="note">
-<summary>Example Conanfile</summary>
+<summary>Different versions, toolchains, non-interactive</summary>
+<p>Run with no arguments to list the available releases:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>curl<span class="w"> </span>-sSf<span class="w"> </span>.../install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span></code></pre></div>
+<p>A release with multiple toolchains (gcc, clang, ...) opens an interactive menu. Skip it by pinning a
+toolchain explicitly, or run fully non-interactively:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>sh<span class="w"> </span>install.sh<span class="w"> </span><span class="m">0</span>.5.2<span class="w"> </span>--compiler<span class="w"> </span>gcc-12.4.0
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>sh<span class="w"> </span>install.sh<span class="w"> </span><span class="m">0</span>.5.2<span class="w"> </span>--yes
+</span></code></pre></div>
+</details>
+<details class="note">
+<summary>Switching versions and pinning a specific build</summary>
+<p><code>~/.sen/current</code> is a symlink to the most recently installed build. Running <code>sh install.sh &lt;other-version&gt;</code>
+flips the symlink, even if that version was already installed.</p>
+<p>To pin a specific build, source the per-build path directly instead of <code>current/</code>:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>.<span class="w"> </span>~/.sen/0.5.2-x86_64-linux-gcc-12.4.0/activate
+</span></code></pre></div>
+<p>The activate scripts strip any prior <code>~/.sen/</code>-rooted entries from <code>PATH</code> and friends, so re-sourcing or
+switching is idempotent.</p>
+</details>
+<details class="note">
+<summary>What activate sets, and how to uninstall</summary>
+<p>Sourcing the activate file exports <code>SEN_PREFIX</code>, prepends the build's <code>bin/</code> to <code>PATH</code> and to
+<code>LD_LIBRARY_PATH</code>, and points <code>CMAKE_PREFIX_PATH</code> at the prefix so <code>find_package(sen)</code> works.</p>
+<p>To uninstall:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>rm<span class="w"> </span>-rf<span class="w"> </span>~/.sen/&lt;build-id&gt;<span class="w">     </span><span class="c1"># one build</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>rm<span class="w"> </span>-rf<span class="w"> </span>~/.sen<span class="w">                </span><span class="c1"># everything</span>
+</span></code></pre></div>
+<p>Then drop the <code>source ...activate</code> line from your shell rc.</p>
+</details>
+<p>For environment variables, the security model, and the full set of options, see
+<a href="https://github.com/airbus/sen/blob/main/resources/installer/architecture.md"><code>resources/installer/architecture.md</code></a>.</p>
+<h2 id="using-sen-in-your-project-conan">Using Sen in your project (Conan)<a class="headerlink" href="#using-sen-in-your-project-conan" title="Permanent link">¶</a></h2>
+<p>Sen ships as a Conan package. Publication on Conan-Center is on the roadmap; in the meantime the package is
+consumed from the project's repository.</p>
+<p>The recipe sets <code>cmake_find_mode = "none"</code> (in <code>conanfile.py</code>), so Conan does not generate a synthetic
+<code>senConfig.cmake</code> for downstream consumers. Instead, your build picks up Sen's own
+<code>&lt;prefix&gt;/cmake/sen/sen-config.cmake</code> via the <code>CMAKE_PREFIX_PATH</code> that <code>CMakeDeps</code> populates: <code>find_package(sen)</code>
+"just works" once the toolchain file is loaded.</p>
+<ol>
+<li>Add a Conan configuration file (<code>conanfile.txt</code> or <code>conanfile.py</code>) at the top level of your project and list
+   <strong>Sen</strong> as a dependency.</li>
+<li>Make sure you have a Conan profile that matches your host. If this is your first time using Conan, run
+   <code>conan profile detect</code> once: it inspects your installed compiler, OS, and architecture and writes
+   <code>~/.conan2/profiles/default</code>. Without a profile, the next step errors with <code>Profile 'default' doesn't exist</code>.</li>
+<li>Resolve, build, and install the dependencies before running CMake:</li>
+</ol>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>conan<span class="w"> </span>build<span class="w"> </span>.<span class="w"> </span>--profile<span class="w"> </span>&lt;your_conan_profile&gt;<span class="w"> </span>--build<span class="o">=</span>missing
+</span></code></pre></div>
+<p>Always pass <code>--build=missing</code>. Without it, Conan refuses to build any dependency that doesn't already have a
+   matching binary in its cache, which is rarely what you want on a fresh checkout.</p>
+<details class="info">
+<summary>Conan set-up</summary>
+<p>Install or upgrade Conan with:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>conan
+</span></code></pre></div>
+<p>Create a profile for your environment in <code>&lt;HOME&gt;/.conan2/profiles</code>:</p>
+<div class="language-ini highlight"><span class="filename">~/.conan2/profiles/gcc15</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">[settings]</span>
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="na">arch</span><span class="o">=</span><span class="s">x86_64</span>
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="na">build_type</span><span class="o">=</span><span class="s">Release</span>
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="na">compiler</span><span class="o">=</span><span class="s">gcc</span>
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="na">compiler.cppstd</span><span class="o">=</span><span class="s">17</span>
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="na">compiler.libcxx</span><span class="o">=</span><span class="s">libstdc++11</span>
+</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="na">compiler.version</span><span class="o">=</span><span class="s">15</span>
+</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="na">os</span><span class="o">=</span><span class="s">Linux</span>
+</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a>
+</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="k">[conf]</span>
+</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="na">tools.build:compiler_executables={"c"</span><span class="o">:</span><span class="w"> </span><span class="s">"gcc-15"</span><span class="na">, "cpp"</span><span class="o">:</span><span class="w"> </span><span class="s">"g++-15"</span><span class="na">}</span>
+</span></code></pre></div>
+<p>Sen recommends Ninja Multi-Config as the CMake generator. Set it once in <code>&lt;HOME&gt;/.conan2/global.conf</code>:</p>
+<div class="language-text highlight"><span class="filename">~/.conan2/global.conf</span><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
+</span></code></pre></div>
+<p>The Sen repository ships ready-to-use profiles in <code>.conan/profiles</code> (<code>sen_gcc</code>, <code>sen_clang</code>, <code>sen_msvc</code>,
+<code>sen_build_docs</code>). They target Sen's CI baseline (Linux x86_64, gcc 12 / clang): useful if you need to
+reproduce a CI build, less so as a default. Install one with:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>conan<span class="w"> </span>config<span class="w"> </span>install<span class="w"> </span>-tf<span class="w"> </span>profiles<span class="w"> </span>.conan/profiles/&lt;profile&gt;
+</span></code></pre></div>
+<p>For different compiler versions, prefer <code>conan profile detect</code> over the bundled profiles. See
+<a href="../howto_guides/building_from_source.html">Building Sen from source</a> for the full walk-through.</p>
+</details>
+<details class="note">
+<summary>Example conanfile</summary>
+<p>Replace <code>x.y.z</code> with the Sen version you want. The recipe derives its version from <code>git describe --tags</code>, so
+a tagged release reads as <code>0.5.2</code> while an in-between commit reads as <code>0.5.2-5-gc6625265</code> (5 commits past tag
+<code>0.5.2</code>, at hash <code>c6625265</code>).</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1"><em>conanfile.txt</em></label><label for="__tabbed_1_2"><em>conanfile.py</em></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">[requires]</span>
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="na">sen/1.0.0</span>
-</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="k">[layout]</span>
-</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="na">cmake_layout</span>
-</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="k">[generators]</span>
-</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="na">CMakeToolchain</span>
-</span><span id="__span-5-9"><a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="na">CMakeDeps</span>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">[requires]</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="na">sen/x.y.z</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="k">[layout]</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="na">cmake_layout</span>
+</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="k">[generators]</span>
+</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="na">CMakeToolchain</span>
+</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="na">CMakeDeps</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">conan</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConanFile</span>
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">conan.tools.cmake</span><span class="w"> </span><span class="kn">import</span> <span class="n">CMake</span><span class="p">,</span> <span class="n">cmake_layout</span>
-</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProjectConfig</span><span class="p">(</span><span class="n">ConanFile</span><span class="p">):</span>
-</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>    <span class="n">settings</span> <span class="o">=</span> <span class="s2">"os"</span><span class="p">,</span> <span class="s2">"arch"</span><span class="p">,</span> <span class="s2">"compiler"</span><span class="p">,</span> <span class="s2">"build_type"</span>
-</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a>    <span class="n">generators</span> <span class="o">=</span> <span class="s2">"CMakeDeps"</span><span class="p">,</span> <span class="s2">"CMakeToolchain"</span>
-</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a>
-</span><span id="__span-6-8"><a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="__span-6-9"><a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">requires</span><span class="p">(</span><span class="s2">"sen/x.y.z"</span><span class="p">)</span>
-</span><span id="__span-6-10"><a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a>
-</span><span id="__span-6-11"><a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="__span-6-12"><a href="#__codelineno-6-12" id="__codelineno-6-12" name="__codelineno-6-12"></a>        <span class="n">cmake_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</span><span id="__span-6-13"><a href="#__codelineno-6-13" id="__codelineno-6-13" name="__codelineno-6-13"></a>
-</span><span id="__span-6-14"><a href="#__codelineno-6-14" id="__codelineno-6-14" name="__codelineno-6-14"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="__span-6-15"><a href="#__codelineno-6-15" id="__codelineno-6-15" name="__codelineno-6-15"></a>        <span class="n">cmake</span> <span class="o">=</span> <span class="n">CMake</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</span><span id="__span-6-16"><a href="#__codelineno-6-16" id="__codelineno-6-16" name="__codelineno-6-16"></a>        <span class="n">cmake</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-</span><span id="__span-6-17"><a href="#__codelineno-6-17" id="__codelineno-6-17" name="__codelineno-6-17"></a>        <span class="n">cmake</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">conan</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConanFile</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">conan.tools.cmake</span><span class="w"> </span><span class="kn">import</span> <span class="n">CMake</span><span class="p">,</span> <span class="n">cmake_layout</span>
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProjectConfig</span><span class="p">(</span><span class="n">ConanFile</span><span class="p">):</span>
+</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a>    <span class="n">settings</span> <span class="o">=</span> <span class="s2">"os"</span><span class="p">,</span> <span class="s2">"arch"</span><span class="p">,</span> <span class="s2">"compiler"</span><span class="p">,</span> <span class="s2">"build_type"</span>
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a>    <span class="n">generators</span> <span class="o">=</span> <span class="s2">"CMakeDeps"</span><span class="p">,</span> <span class="s2">"CMakeToolchain"</span>
+</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a>
+</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-14-9"><a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">requires</span><span class="p">(</span><span class="s2">"sen/x.y.z"</span><span class="p">)</span>
+</span><span id="__span-14-10"><a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a>
+</span><span id="__span-14-11"><a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-14-12"><a href="#__codelineno-14-12" id="__codelineno-14-12" name="__codelineno-14-12"></a>        <span class="n">cmake_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</span><span id="__span-14-13"><a href="#__codelineno-14-13" id="__codelineno-14-13" name="__codelineno-14-13"></a>
+</span><span id="__span-14-14"><a href="#__codelineno-14-14" id="__codelineno-14-14" name="__codelineno-14-14"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-14-15"><a href="#__codelineno-14-15" id="__codelineno-14-15" name="__codelineno-14-15"></a>        <span class="n">cmake</span> <span class="o">=</span> <span class="n">CMake</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</span><span id="__span-14-16"><a href="#__codelineno-14-16" id="__codelineno-14-16" name="__codelineno-14-16"></a>        <span class="n">cmake</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+</span><span id="__span-14-17"><a href="#__codelineno-14-17" id="__codelineno-14-17" name="__codelineno-14-17"></a>        <span class="n">cmake</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 </span></code></pre></div>
 </div>
 </div>
 </div>
 </details>
-<h2 id="using-release-packages">Using Release Packages<a class="headerlink" href="#using-release-packages" title="Permanent link">¶</a></h2>
-<p>We provide binary releases in zip packages that you can download. You can extract the files into a
-folder (called <code>&lt;sen_path&gt;</code> in the next examples).</p>
-<p>To ensure your system is able to find all the paths, you can do as follows:</p>
+<h2 id="manual-release-packages">Manual release packages<a class="headerlink" href="#manual-release-packages" title="Permanent link">¶</a></h2>
+<p>For Windows or environments where the quick installer is not an option, download the release archive for your
+platform from the <a href="https://github.com/airbus/sen/releases">Releases page</a> and extract it anywhere. The extracted
+directory is <code>&lt;sen_path&gt;</code> in the snippets below.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="" id="__tabbed_2_1" name="__tabbed_2" type="radio"/><input id="__tabbed_2_2" name="__tabbed_2" type="radio"/><div class="tabbed-labels"><label for="__tabbed_2_1">Linux</label><label for="__tabbed_2_2">Windows</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">SEN_PATH</span><span class="o">=</span>&lt;sen_path&gt;
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="c1"># Make the Sen binaries available</span>
-</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$SEN_PATH</span>/bin:<span class="nv">$PATH</span>
-</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a>
-</span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="c1"># Make the Sen libraries available</span>
-</span><span id="__span-7-7"><a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$SEN_PATH</span>/bin:<span class="nv">$LD_LIBRARY_PATH</span>
-</span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">DYLD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$SEN_PATH</span>/bin:<span class="nv">$DYLD_LIBRARY_PATH</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">SEN_PREFIX</span><span class="o">=</span>&lt;sen_path&gt;
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="c1"># Sen binaries on PATH. Sen installs binaries, shared libraries, and archives all under &lt;prefix&gt;/bin</span>
+</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="c1"># (CMAKE_INSTALL_BINDIR), so the same directory goes on LD_LIBRARY_PATH.</span>
+</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$SEN_PREFIX</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
+</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$SEN_PREFIX</span><span class="s2">/bin:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">"</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nb">set</span><span class="w"> </span><span class="nv">SEN_PATH</span><span class="o">=</span>&lt;sen_path&gt;
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="c1"># Make the Sen binaries available</span>
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="nb">set</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>%SEN_PATH%/bin<span class="p">;</span>%PATH%
+<div class="language-bat highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="k">set</span> <span class="nv">SEN_PREFIX</span><span class="p">=&lt;</span>sen_path&gt;
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="c1">rem Sen binaries and DLLs on PATH</span>
+</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="k">set</span> <span class="nv">PATH</span><span class="p">=</span><span class="nv">%SEN_PREFIX%</span>\bin;<span class="nv">%PATH%</span>
 </span></code></pre></div>
 </div>
 </div>
 </div>
-<p>In your CMakeLists.txt file, you would then set the path so that it can find Sen.</p>
-<div class="language-cmake highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nb">list</span><span class="p">(</span><span class="s">APPEND</span><span class="w"> </span><span class="s">CMAKE_PREFIX_PATH</span><span class="w"> </span><span class="s2">"$ENV{SEN_PATH}/cmake"</span><span class="p">)</span>
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="nb">find_package</span><span class="p">(</span><span class="s">sen</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+<p>In your project's <code>CMakeLists.txt</code>, point CMake at the prefix and pull Sen in with <code>find_package</code>:</p>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="nb">list</span><span class="p">(</span><span class="s">APPEND</span><span class="w"> </span><span class="s">CMAKE_PREFIX_PATH</span><span class="w"> </span><span class="s2">"$ENV{SEN_PREFIX}/cmake"</span><span class="p">)</span>
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="nb">find_package</span><span class="p">(</span><span class="s">sen</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
 </span></code></pre></div>
-<details class="note">
-<summary>Helper script</summary>
-<p>For Linux, we offer a script that automates the Sen installation (needs wget and curl).</p>
-<p>Paste this in your shell:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>wget<span class="w"> </span>-qO-<span class="w"> </span>https://github.com/airbus/sen/releases/download/x.y.z/setup.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
-</span></code></pre></div>
-<details class="note">
-<summary>Example</summary>
-<p>The process should look more or less like this:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>$<span class="w"> </span>wget<span class="w"> </span>-qO-<span class="w"> </span>https://github.com/airbus/sen/releases/download/x.y.z/setup.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>Sen<span class="w"> </span>installer<span class="w"> </span>script
-</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>
-</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>Configuration
-</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>&gt;<span class="w"> </span>Version:<span class="w">    </span>x.y.z
-</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a>&gt;<span class="w"> </span>Platform:<span class="w">   </span>linux-x86_64
-</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a>&gt;<span class="w"> </span>Directory:<span class="w">  </span>/home/&lt;user<span class="w"> </span>name&gt;/.sen
-</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a>&gt;<span class="w"> </span>Build:<span class="w">      </span>release
-</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a>&gt;<span class="w"> </span>Compiler:<span class="w">   </span>All
-</span><span id="__span-11-11"><a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a>
-</span><span id="__span-11-12"><a href="#__codelineno-11-12" id="__codelineno-11-12" name="__codelineno-11-12"></a>?<span class="w"> </span>Install<span class="w"> </span>Sen<span class="w"> </span>x.y.z<span class="w"> </span>to<span class="w"> </span>/home/&lt;user<span class="w"> </span>name&gt;/.sen?<span class="w"> </span><span class="o">[</span>y/N<span class="o">]</span><span class="w"> </span>y
-</span><span id="__span-11-13"><a href="#__codelineno-11-13" id="__codelineno-11-13" name="__codelineno-11-13"></a>
-</span><span id="__span-11-14"><a href="#__codelineno-11-14" id="__codelineno-11-14" name="__codelineno-11-14"></a>Installation
-</span><span id="__span-11-15"><a href="#__codelineno-11-15" id="__codelineno-11-15" name="__codelineno-11-15"></a>✓<span class="w"> </span>Downloaded<span class="w"> </span>sen-x.y.z-x86_64-linux-gnu-a.b.c-release.
-</span><span id="__span-11-16"><a href="#__codelineno-11-16" id="__codelineno-11-16" name="__codelineno-11-16"></a>✓<span class="w"> </span>Unpacked.
-</span><span id="__span-11-17"><a href="#__codelineno-11-17" id="__codelineno-11-17" name="__codelineno-11-17"></a>
-</span><span id="__span-11-18"><a href="#__codelineno-11-18" id="__codelineno-11-18" name="__codelineno-11-18"></a>&gt;<span class="w"> </span>Setup<span class="w"> </span>your<span class="w"> </span>fish<span class="w"> </span>environment<span class="w"> </span>with:
-</span><span id="__span-11-19"><a href="#__codelineno-11-19" id="__codelineno-11-19" name="__codelineno-11-19"></a><span class="w">  </span><span class="nb">source</span><span class="w"> </span>/home/&lt;user<span class="w"> </span>name&gt;/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
-</span></code></pre></div>
-<p>The installation will create a script that you can use to set up your environment.
-For example:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/home/&lt;user<span class="w"> </span>name&gt;/.sen/sen-x.y.z-x86_64-linux-gnu-a.b.c-release/setup
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>&gt;<span class="w"> </span>environment<span class="w"> </span>configured<span class="w"> </span><span class="k">for</span><span class="w"> </span>sen-x.y.z-x86_64-linux-gnu-a.b.c-release
-</span></code></pre></div>
-<p>You should be able to do this now:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>$ sen --version
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>x.y.z
-</span></code></pre></div>
-</details>
-</details>
-<h2 id="building-sen">Building Sen<a class="headerlink" href="#building-sen" title="Permanent link">¶</a></h2>
-<p><strong>Sen</strong> requires at least C++17.</p>
-<p>Use Conan to fetch the third-party dependencies <code>conan install . --profile=sen_gcc --build=missing</code>
-(you can replace 'sen_gcc' with the preset of your choice).</p>
-<p>To build, use <code>conan build . --profile=sen_gcc</code>. Alternatively, use
-<code>cmake -S . -B build -G Ninja --preset sen_gcc &amp;&amp; cmake --build build</code> (you can replace 'sen_gcc'
-with the preset of your choice).</p>
+<p>Sen installs its CMake config under <code>&lt;prefix&gt;/cmake/sen/sen-config.cmake</code>. CMake's standard search does not reach
+that from <code>&lt;prefix&gt;</code> alone, so the <code>/cmake</code> suffix is required.</p>
+<h2 id="building-from-source">Building from source<a class="headerlink" href="#building-from-source" title="Permanent link">¶</a></h2>
+<p>If you want to compile Sen yourself (to track <code>main</code>, patch the code, or run on a platform without a release
+artifact), see <a href="../howto_guides/building_from_source.html">Building Sen from source</a>.</p>
+<p>If your editor supports devcontainers, the repository ships one under <code>.devcontainer/</code>. It builds the
+same environment the pipeline uses, from <code>tools/ci/Dockerfile</code>, so you do not have to install
+compilers or Conan yourself.</p>
 <details class="note">
 <summary>Build options</summary>
 <p><strong>Component selection</strong></p>
@@ -1493,13 +1566,13 @@ with the preset of your choice).</p>
 </tr>
 </tbody>
 </table>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:mode<span class="o">=</span>barebones<span class="w"> </span>--build<span class="o">=</span>missing
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:mode<span class="o">=</span>basic<span class="w"> </span>--build<span class="o">=</span>missing
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:mode<span class="o">=</span>barebones<span class="w"> </span>--build<span class="o">=</span>missing
+</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:mode<span class="o">=</span>basic<span class="w"> </span>--build<span class="o">=</span>missing
 </span></code></pre></div>
 <p>Per-component Conan options are deliberately not exposed (combinatorial
  package_id). Developers skip building specific components at the CMake step:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>--build<span class="o">=</span>missing
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>cmake<span class="w"> </span>--preset<span class="w"> </span>conan-gcc-release<span class="w"> </span>-DSEN_BUILD_TRACY<span class="o">=</span>OFF<span class="w"> </span>-DSEN_BUILD_EXPLORER<span class="o">=</span>OFF
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>--build<span class="o">=</span>missing
+</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a>cmake<span class="w"> </span>--preset<span class="w"> </span>conan-gcc-release<span class="w"> </span>-DSEN_BUILD_TRACY<span class="o">=</span>OFF<span class="w"> </span>-DSEN_BUILD_EXPLORER<span class="o">=</span>OFF
 </span></code></pre></div>
 <p>The CMake override doesn't change what Conan fetched. Components beyond <code>mode</code>
  can't be enabled this way (their deps weren't fetched).</p>
@@ -1550,14 +1623,14 @@ with the preset of your choice).</p>
 <p>Options are applied at <code>conan install</code> time — that's the step that generates the build files. The
  subsequent <code>conan build</code> (or a direct <code>cmake --build</code>) just compiles with the settings already baked
  in; the <code>-D</code> mappings above are for users invoking CMake without Conan.</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="c1"># Configure a build that compiles the test suite with the address sanitizer</span>
-</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:with_tests<span class="o">=</span>True<span class="w"> </span>-o<span class="w"> </span>sen/*:sanitizer<span class="o">=</span>address<span class="w"> </span>--build<span class="o">=</span>missing
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="c1"># Configure a build that compiles the test suite with the address sanitizer</span>
+</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:with_tests<span class="o">=</span>True<span class="w"> </span>-o<span class="w"> </span>sen/*:sanitizer<span class="o">=</span>address<span class="w"> </span>--build<span class="o">=</span>missing
 </span></code></pre></div>
 <p><strong>Building the docs</strong></p>
 <p><code>with_docs=True</code> pulls <code>doxygen</code> automatically, but <code>doxygen</code> itself needs <code>compiler.cppstd=20</code>
  (set per-dep), which has to come from a profile rather than from the recipe. Sen ships a
  <code>sen_build_docs</code> profile that sets both, so the one-liner for docs is:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_build_docs<span class="w"> </span>--build<span class="o">=</span>missing
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile<span class="o">=</span>sen_build_docs<span class="w"> </span>--build<span class="o">=</span>missing
 </span></code></pre></div>
 <p><code>mkdocs</code> and <code>graphviz</code> are not Conan-managed - install them via <code>pip install -r docs/requirements.txt</code>
  and your platform package manager.</p>
@@ -1567,7 +1640,7 @@ with the preset of your choice).</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 15:30:41 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:16 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>

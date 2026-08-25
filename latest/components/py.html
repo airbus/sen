@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/objects.html">
+<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
           
   
   
@@ -841,6 +841,18 @@
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/objects.html">
 <span class="md-ellipsis">
@@ -1575,12 +1587,12 @@ component as follows:</p>
 <p>NOTE: Remember to add the folder where your scripts are located to the <code>PYTHONPATH</code> environment
 variable.</p>
 <p>This would print:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>Python: run
-</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>Python: update (time: ...)
-</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>Python: update (time: ...)
-</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>Python: update (time: ...)
-</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>...
-</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>Python: stop called
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nt">Python</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">run</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nt">Python: update (time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...)</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="nt">Python: update (time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...)</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="nt">Python: update (time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...)</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="nn">...</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="nt">Python</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stop called</span>
 </span></code></pre></div>
 <h2 id="inspecting-objects">Inspecting Objects<a class="headerlink" href="#inspecting-objects" title="Permanent link">¶</a></h2>
 <p>Use the <code>sen.api.open(query)</code> to get access to objects. This returns a list that is automatically
@@ -1700,20 +1712,21 @@ callback. For example:</p>
 </span><span id="__span-8-24"><a href="#__codelineno-8-24" id="__codelineno-8-24" name="__codelineno-8-24"></a>  <span class="p">}</span>
 </span><span id="__span-8-25"><a href="#__codelineno-8-25" id="__codelineno-8-25" name="__codelineno-8-25"></a>
 </span><span id="__span-8-26"><a href="#__codelineno-8-26" id="__codelineno-8-26" name="__codelineno-8-26"></a>  <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Python: creating and publishing the object"</span><span class="p">)</span>
-</span><span id="__span-8-27"><a href="#__codelineno-8-27" id="__codelineno-8-27" name="__codelineno-8-27"></a>  <span class="n">myObject</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"aircrafts.DummyAircraft"</span><span class="p">,</span> <span class="s2">"myAircraft"</span><span class="p">,</span> <span class="n">entityType</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">alternateEntityType</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">entityIdentifier</span> <span class="o">=</span> <span class="nb">id</span><span class="p">)</span>
-</span><span id="__span-8-28"><a href="#__codelineno-8-28" id="__codelineno-8-28" name="__codelineno-8-28"></a>  <span class="n">testBus</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">getBus</span><span class="p">(</span><span class="s2">"my.tutorial"</span><span class="p">)</span>
-</span><span id="__span-8-29"><a href="#__codelineno-8-29" id="__codelineno-8-29" name="__codelineno-8-29"></a>  <span class="n">testBus</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
-</span><span id="__span-8-30"><a href="#__codelineno-8-30" id="__codelineno-8-30" name="__codelineno-8-30"></a>
-</span><span id="__span-8-31"><a href="#__codelineno-8-31" id="__codelineno-8-31" name="__codelineno-8-31"></a><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">():</span>
-</span><span id="__span-8-32"><a href="#__codelineno-8-32" id="__codelineno-8-32" name="__codelineno-8-32"></a>  <span class="nb">print</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
-</span><span id="__span-8-33"><a href="#__codelineno-8-33" id="__codelineno-8-33" name="__codelineno-8-33"></a>
-</span><span id="__span-8-34"><a href="#__codelineno-8-34" id="__codelineno-8-34" name="__codelineno-8-34"></a><span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">():</span>
-</span><span id="__span-8-35"><a href="#__codelineno-8-35" id="__codelineno-8-35" name="__codelineno-8-35"></a>  <span class="k">global</span> <span class="n">testBus</span><span class="p">,</span> <span class="n">myObject</span>  <span class="c1"># refer to the globals defined above</span>
-</span><span id="__span-8-36"><a href="#__codelineno-8-36" id="__codelineno-8-36" name="__codelineno-8-36"></a>
-</span><span id="__span-8-37"><a href="#__codelineno-8-37" id="__codelineno-8-37" name="__codelineno-8-37"></a>  <span class="nb">print</span><span class="p">(</span><span class="s2">"Python: deleting the object"</span><span class="p">)</span>
-</span><span id="__span-8-38"><a href="#__codelineno-8-38" id="__codelineno-8-38" name="__codelineno-8-38"></a>  <span class="n">testBus</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
-</span><span id="__span-8-39"><a href="#__codelineno-8-39" id="__codelineno-8-39" name="__codelineno-8-39"></a>  <span class="n">myObject</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="__span-8-40"><a href="#__codelineno-8-40" id="__codelineno-8-40" name="__codelineno-8-40"></a>  <span class="n">testBus</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-8-27"><a href="#__codelineno-8-27" id="__codelineno-8-27" name="__codelineno-8-27"></a>  <span class="n">myObject</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">"aircrafts.DummyAircraft"</span><span class="p">,</span> <span class="s2">"myAircraft"</span><span class="p">,</span> <span class="n">entityType</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">alternateEntityType</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span>
+</span><span id="__span-8-28"><a href="#__codelineno-8-28" id="__codelineno-8-28" name="__codelineno-8-28"></a>  <span class="n">entityIdentifier</span> <span class="o">=</span> <span class="nb">id</span><span class="p">)</span>
+</span><span id="__span-8-29"><a href="#__codelineno-8-29" id="__codelineno-8-29" name="__codelineno-8-29"></a>  <span class="n">testBus</span> <span class="o">=</span> <span class="n">sen</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">getBus</span><span class="p">(</span><span class="s2">"my.tutorial"</span><span class="p">)</span>
+</span><span id="__span-8-30"><a href="#__codelineno-8-30" id="__codelineno-8-30" name="__codelineno-8-30"></a>  <span class="n">testBus</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
+</span><span id="__span-8-31"><a href="#__codelineno-8-31" id="__codelineno-8-31" name="__codelineno-8-31"></a>
+</span><span id="__span-8-32"><a href="#__codelineno-8-32" id="__codelineno-8-32" name="__codelineno-8-32"></a><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">():</span>
+</span><span id="__span-8-33"><a href="#__codelineno-8-33" id="__codelineno-8-33" name="__codelineno-8-33"></a>  <span class="nb">print</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
+</span><span id="__span-8-34"><a href="#__codelineno-8-34" id="__codelineno-8-34" name="__codelineno-8-34"></a>
+</span><span id="__span-8-35"><a href="#__codelineno-8-35" id="__codelineno-8-35" name="__codelineno-8-35"></a><span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">():</span>
+</span><span id="__span-8-36"><a href="#__codelineno-8-36" id="__codelineno-8-36" name="__codelineno-8-36"></a>  <span class="k">global</span> <span class="n">testBus</span><span class="p">,</span> <span class="n">myObject</span>  <span class="c1"># refer to the globals defined above</span>
+</span><span id="__span-8-37"><a href="#__codelineno-8-37" id="__codelineno-8-37" name="__codelineno-8-37"></a>
+</span><span id="__span-8-38"><a href="#__codelineno-8-38" id="__codelineno-8-38" name="__codelineno-8-38"></a>  <span class="nb">print</span><span class="p">(</span><span class="s2">"Python: deleting the object"</span><span class="p">)</span>
+</span><span id="__span-8-39"><a href="#__codelineno-8-39" id="__codelineno-8-39" name="__codelineno-8-39"></a>  <span class="n">testBus</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">myObject</span><span class="p">)</span>
+</span><span id="__span-8-40"><a href="#__codelineno-8-40" id="__codelineno-8-40" name="__codelineno-8-40"></a>  <span class="n">myObject</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-8-41"><a href="#__codelineno-8-41" id="__codelineno-8-41" name="__codelineno-8-41"></a>  <span class="n">testBus</span> <span class="o">=</span> <span class="kc">None</span>
 </span></code></pre></div>
 <p>In this case we had to import the <code>my_package</code> Sen package using our configuration file. It looked
 like this:</p>
@@ -1740,7 +1753,7 @@ example, say that we have a package called <code>my_package</code> that defines 
 </span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Python: enum 'sen.my_package.MyEnum.first' has the value '</span><span class="si">{</span><span class="n">sen</span><span class="o">.</span><span class="n">my_package</span><span class="o">.</span><span class="n">MyEnum</span><span class="o">.</span><span class="n">first</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>This would print:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>Python: enum 'sen.my_package.MyEnum.first' has the value 1
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="nt">Python</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enum 'sen.my_package.MyEnum.first' has the value 1</span>
 </span></code></pre></div>
 <h2 id="making-your-script-fully-sequential">Making your script fully sequential<a class="headerlink" href="#making-your-script-fully-sequential" title="Permanent link">¶</a></h2>
 <p>During testing, you might be in the need of performing fully sequential calls.</p>
@@ -1792,22 +1805,22 @@ the "bus" configuration option.</p>
 </span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="w">    </span><span class="nt">freqHz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
 </span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">    </span><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local.py</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>./sen run test.yaml
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>    _________  __
-</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a>   / __/ __/ |/ /          compiler GNU-11.4.0 [mode: debug]
-</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a>  _\ \/ __/    /           revision 57a86bb1d7ebcd781bb034d73642dde198e69fde
-</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a> /___/___/_/|_/   0.0.1    branch   refs/heads/master [modified]
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>./sen<span class="w"> </span>run<span class="w"> </span>test.yaml
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">    </span>_________<span class="w">  </span>__
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">   </span>/<span class="w"> </span>__/<span class="w"> </span>__/<span class="w"> </span><span class="p">|</span>/<span class="w"> </span>/<span class="w">          </span>compiler<span class="w"> </span>GNU-11.4.0<span class="w"> </span><span class="o">[</span>mode:<span class="w"> </span>debug<span class="o">]</span>
+</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">  </span>_<span class="se">\ \/</span><span class="w"> </span>__/<span class="w">    </span>/<span class="w">           </span>revision<span class="w"> </span>57a86bb1d7ebcd781bb034d73642dde198e69fde
+</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w"> </span>/___/___/_/<span class="p">|</span>_/<span class="w">   </span><span class="m">0</span>.0.1<span class="w">    </span>branch<span class="w">   </span>refs/heads/master<span class="w"> </span><span class="o">[</span>modified<span class="o">]</span>
 </span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a>▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 </span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a>
-</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>sen:enrique-ubuntu/test&gt; local.py.interpreter.exec "c = 2"
-</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>sen:enrique-ubuntu/test&gt; local.py.interpreter.eval "c"
-</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a>"2"
-</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>sen:enrique-ubuntu/test&gt; local.py.interpreter.exec "c = c + 2"
-</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>sen:enrique-ubuntu/test&gt; local.py.interpreter.eval "c"
-</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a>"4"
-</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>sen:enrique-ubuntu/test&gt; local.py.interpreter.exec "import my_module"
-</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>sen:enrique-ubuntu/test&gt; local.py.interpreter.eval "my_module.add(2,2)"
-</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a>"4"
+</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>sen:enrique-ubuntu/test&gt;<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"c = 2"</span>
+</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>sen:enrique-ubuntu/test&gt;<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"c"</span>
+</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="s2">"2"</span>
+</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>sen:enrique-ubuntu/test&gt;<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"c = c + 2"</span>
+</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>sen:enrique-ubuntu/test&gt;<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"c"</span>
+</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a><span class="s2">"4"</span>
+</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>sen:enrique-ubuntu/test&gt;<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"import my_module"</span>
+</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>sen:enrique-ubuntu/test&gt;<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"my_module.add(2,2)"</span>
+</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a><span class="s2">"4"</span>
 </span></code></pre></div>
 <p>With this approach, you are also enabled to call the interpreter if you want to delegate some
 functionality into Python. Just find the interpreter in the selected bus, compose your code,
@@ -1817,7 +1830,7 @@ evaluate your expressions and interpret the result.</p></div>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 27, 2026 11:04:07 UTC">February 27, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>

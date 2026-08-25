@@ -570,7 +570,7 @@ template&lt;template&lt; typename &gt; typename LockType, typename IteratorType,
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">begin</td><td>of the range </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">end</td><td>of the range </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">mutex</td><td>that should be locked</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">m</td><td>that should be locked</td></tr>
   </table>
   </dd>
 </dl>
@@ -578,7 +578,7 @@ template&lt;template&lt; typename &gt; typename LockType, typename IteratorType,
 <div class="line">{</div>
 <div class="line">  <span class="comment">// ensures the lock is held during the loop</span></div>
 <div class="line">} <span class="comment">// lock release after the loop</span></div>
-<div class="ttc" id="anamespacesen_1_1util_html_a4d94d0e2f28dc33d5babf59a2d8adae8"><div class="ttname"><a href="#a4d94d0e2f28dc33d5babf59a2d8adae8">sen::util::makeLockedRange</a></div><div class="ttdeci">auto makeLockedRange(IteratorType begin, IteratorType end, MutexType &amp;m)</div><div class="ttdoc">Create a LockedRangeAdapter for the given iterator pair and lock the given mutex.</div><div class="ttdef"><b>Definition</b> iterator_adapters.h:126</div></div>
+<div class="ttc" id="anamespacesen_1_1util_html_a4d94d0e2f28dc33d5babf59a2d8adae8"><div class="ttname"><a href="#a4d94d0e2f28dc33d5babf59a2d8adae8">sen::util::makeLockedRange</a></div><div class="ttdeci">auto makeLockedRange(IteratorType begin, IteratorType end, MutexType &amp;m)</div><div class="ttdoc">Create a LockedRangeAdapter for the given iterator pair and lock the given mutex.</div><div class="ttdef"><b>Definition</b> iterator_adapters.h:132</div></div>
 </div><!-- fragment --> 
 </div>
 </div>
@@ -613,7 +613,7 @@ template&lt;template&lt; typename &gt; typename LockType, typename ContainerType
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">container</td><td>to wrap the range around </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">mutex</td><td>that should be locked</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">m</td><td>that should be locked</td></tr>
   </table>
   </dd>
 </dl>

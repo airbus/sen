@@ -137,7 +137,8 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('dir_1aaae6101f
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><h1 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 High churn subscriptions test</h1>
-<p>This test aims to stress the functionality of the Sen kernel when subscriptions are being created and removed from several participants simultaneously. This introduces a load in the <span class="tt">ObjectProvider</span> and <span class="tt">RemoteInterestHandler</span> objects. The test involves two different types of objects:</p><ul>
+<p>This test aims to stress the functionality of the Sen kernel when subscriptions are being created and removed from several participants simultaneously. This introduces a load in the <span class="tt">ObjectProvider</span> and <span class="tt">RemoteInterestHandler</span> objects. The test involves two different types of objects:</p>
+<ul>
 <li><span class="tt">Producer</span>: Publishes an object which keeps updating a <a class="el" href="group__util.html#gab31a6d17d0ca9fa1602166a0619533bc">f64</a> dynamic property in each update. Producers are instantiated in really high frequency components in the test (1000Hz).</li>
 <li><span class="tt">Consumer</span>: Creates/removes subscriptions to the <span class="tt">TestObject</span> instances published by the producers. In each update:<ul>
 <li>An action is performed around 80% of the time (uniform distribution)</li>

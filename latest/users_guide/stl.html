@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/objects.html">
+<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
           
   
   
@@ -967,6 +967,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/objects.html">
 <span class="md-ellipsis">
     
@@ -1698,17 +1710,17 @@ add or remove elements.</p>
 </span></code></pre></div>
 <h2 id="optional-values">Optional values<a class="headerlink" href="#optional-values" title="Permanent link">¶</a></h2>
 <p>You can define types that might optionally hold a value (of any given type). For example,</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>optional&lt;f64&gt; MaybeFloat64;
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>optional&lt;Error&gt; MaybeError;
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">optional</span><span class="o">&lt;</span><span class="kt">f64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybeFloat64</span><span class="p">;</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="n">optional</span><span class="o">&lt;</span><span class="n">Error</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybeError</span><span class="p">;</span>
 </span></code></pre></div>
 <h2 id="quantities">Quantities<a class="headerlink" href="#quantities" title="Permanent link">¶</a></h2>
 <p>You can use strongly-defined quantity types, with units and optional ranges. For example,</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>quantity&lt;f64, deg&gt; Lat [min: -90.0,  max: 90.0];
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>quantity&lt;f64, deg&gt; Lon [min: -180.0, max: 180.0];
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f64</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Lat</span><span class="w"> </span><span class="p">[</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mf">90.0</span><span class="p">,</span><span class="w">  </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="mf">90.0</span><span class="p">];</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f64</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Lon</span><span class="w"> </span><span class="p">[</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="mf">180.0</span><span class="p">];</span>
 </span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>quantity&lt;f32, m_per_s&gt; Speed;
-</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a>quantity&lt;f32, rad&gt; Angle;
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>quantity&lt;f32, m&gt; Meters;
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">m_per_s</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Speed</span><span class="p">;</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">rad</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Angle</span><span class="p">;</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Meters</span><span class="p">;</span>
 </span></code></pre></div>
 <p>The second type argument is the <strong>unit abbreviation</strong> (<code>m</code>, <code>rad</code>, <code>deg</code>, <code>kph</code>,
 <code>degC</code>, ...), not the long form. SI base units are also registered with every
@@ -1723,7 +1735,7 @@ as shown above.</p>
 or for hiding implementation details behind a domain-specific name. The alias
 is structural - <code>DeviceId</code> below is interchangeable with <code>u64</code> wherever it is
 used.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>alias &lt;name&gt; &lt;type&gt;;
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="n">alias</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&lt;</span><span class="k">type</span><span class="o">&gt;</span><span class="p">;</span>
 </span></code></pre></div>
 <p>Note that there is <strong>no <code>=</code></strong> between the alias name and the aliased type; the
 two identifiers sit side-by-side.</p>
@@ -1737,11 +1749,11 @@ two identifiers sit side-by-side.</p>
 any of them can be given a second name for clarity at the call site.</p>
 <h2 id="enumerations">Enumerations<a class="headerlink" href="#enumerations" title="Permanent link">¶</a></h2>
 <p>In STL, enumeration types are defined like this:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>enum &lt;type_name&gt;: &lt;storage&gt;
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>{
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>  &lt;enumeration&gt;,
-</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>  ...
-</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>}
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">enum</span><span class="w"> </span><span class="o">&lt;</span><span class="n">type_name</span><span class="o">&gt;</span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">storage</span><span class="o">&gt;</span>
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="p">{</span>
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="o">&lt;</span><span class="n">enumeration</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">  </span><span class="o">..</span><span class="p">.</span>
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>For example,</p>
 <div class="language-c++ highlight"><span class="filename">Example of an enumeration type</span><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="c1">// Category of a problem during component execution</span>
@@ -1757,11 +1769,11 @@ any of them can be given a second name for clarity at the call site.</p>
 <p>The storage type must be an integral (<code>u8</code>,<code>u16</code>,<code>i16</code>,<code>u32</code>,<code>i32</code>, <code>u64</code> or <code>i64</code>).</p>
 <h2 id="structures">Structures<a class="headerlink" href="#structures" title="Permanent link">¶</a></h2>
 <p>You can group values with structs. They are defined like this:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>struct &lt;type_name&gt;
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>{
-</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>  &lt;field_name&gt; : &lt;field_type&gt;,
-</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>  ...
-</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>}
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">struct</span><span class="w"> </span><span class="o">&lt;</span><span class="n">type_name</span><span class="o">&gt;</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="p">{</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="o">&lt;</span><span class="n">field_name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">field_type</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">  </span><span class="o">..</span><span class="p">.</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Fields can be of any type and names must be unique.</p>
 <p>For example:</p>
@@ -1812,11 +1824,11 @@ variant's own object representation, with no additional (dynamic) memory
 involved. A variant is <strong>not</strong> permitted to list the same type more than
 once.</p>
 <p>They are defined as follows:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>variant &lt;name&gt;
-</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a>{
-</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a>  &lt;type&gt;,
-</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a>  ...
-</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a>}
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="n">variant</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span>
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="p">{</span>
+</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="o">&lt;</span><span class="k">type</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">  </span><span class="o">..</span><span class="p">.</span>
+</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Types must be unique within the variant.</p>
 <p>For example,</p>
@@ -1866,10 +1878,10 @@ once.</p>
 <p>In C++, variants are rendered as <code>std::variant&lt;...&gt;</code>.</p>
 <h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">¶</a></h2>
 <p>You can define classes as follows:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a>[abstract] class &lt;name&gt; [: extends &lt;parent_class&gt;]
-</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a>{
-</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a>   &lt;members&gt;...
-</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a>}
+<div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="p">[</span><span class="err">abs</span><span class="kc">tra</span><span class="err">c</span><span class="kc">t</span><span class="p">]</span><span class="w"> </span><span class="err">class</span><span class="w"> </span><span class="err">&lt;</span><span class="kc">na</span><span class="err">me&gt;</span><span class="w"> </span><span class="p">[:</span><span class="w"> </span><span class="err">ex</span><span class="kc">ten</span><span class="err">ds</span><span class="w"> </span><span class="err">&lt;pare</span><span class="kc">nt</span><span class="err">_class&gt;</span><span class="p">]</span>
+</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="p">{</span>
+</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">   </span><span class="err">&lt;members&gt;...</span>
+</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>For example:</p>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="n">class</span><span class="w"> </span><span class="n">MyClass</span>
@@ -2304,7 +2316,7 @@ them.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 29, 2026 07:39:10 UTC">April 29, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>

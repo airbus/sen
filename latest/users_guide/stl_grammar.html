@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/objects.html">
+<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
           
   
   
@@ -998,6 +998,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/objects.html">
 <span class="md-ellipsis">
     
@@ -1723,10 +1735,10 @@ same attribute list. Attribute values are either a literal or an identifier.</p>
 <li><strong>Boolean</strong> — <code>true</code> or <code>false</code>.</li>
 </ul>
 <h3 id="17-identifiers">1.7 Identifiers<a class="headerlink" href="#17-identifiers" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>identifier ::= [A-Za-z_] [A-Za-z0-9_]*
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">identifier </span><span class="err">::</span><span class="o">=</span> <span class="p">[</span><span class="k">A-Za-z_</span><span class="p">]</span> <span class="p">[</span><span class="k">A-Za-z0-9_</span><span class="p">]</span><span class="err">*</span>
 </span></code></pre></div>
 <p>Qualified names are a sequence of identifiers separated by <code>.</code>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>qualifiedName ::= identifier ( '.' identifier )*
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">qualifiedName </span><span class="err">::</span><span class="o">=</span> <span class="k">identifier </span><span class="p">(</span> <span class="s1">'.'</span> <span class="k">identifier </span><span class="p">)</span><span class="err">*</span>
 </span></code></pre></div>
 <p>Qualified names appear in <code>package</code> declarations, type references, struct
 inheritance (<code>struct Child : parent.BaseType</code>) and class inheritance
@@ -1742,23 +1754,23 @@ made available through the meta-reflection API.</p>
 <hr/>
 <h2 id="2-file-structure">2. File structure<a class="headerlink" href="#2-file-structure" title="Permanent link">¶</a></h2>
 <p>An STL file has three ordered sections:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>stl ::=  importStatement*
-</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>         packageDeclaration
-</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>         topLevelDeclaration*
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">stl </span><span class="err">::</span><span class="o">=</span>  <span class="k">importStatement</span><span class="err">*</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>         <span class="k">packageDeclaration</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>         <span class="k">topLevelDeclaration</span><span class="err">*</span>
 </span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>importStatement     ::= 'import' stringLiteral
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="k">importStatement     </span><span class="err">::=</span> <span class="s1">'import'</span> <span class="k">stringLiteral</span>
 </span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>packageDeclaration  ::= 'package' qualifiedName ';'
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="k">packageDeclaration  </span><span class="err">::=</span> <span class="s1">'package'</span> <span class="k">qualifiedName </span><span class="s1">';'</span>
 </span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>topLevelDeclaration ::= structDecl
-</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>                      | classDecl
-</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>                      | enumDecl
-</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>                      | variantDecl
-</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>                      | sequenceDecl
-</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>                      | arrayDecl
-</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>                      | optionalDecl
-</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a>                      | aliasDecl
-</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a>                      | quantityDecl
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="k">topLevelDeclaration </span><span class="err">::=</span> <span class="k">structDecl</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>                      <span class="p">|</span> <span class="k">classDecl</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>                      <span class="p">|</span> <span class="k">enumDecl</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>                      <span class="p">|</span> <span class="k">variantDecl</span>
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>                      <span class="p">|</span> <span class="k">sequenceDecl</span>
+</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>                      <span class="p">|</span> <span class="k">arrayDecl</span>
+</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>                      <span class="p">|</span> <span class="k">optionalDecl</span>
+</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a>                      <span class="p">|</span> <span class="k">aliasDecl</span>
+</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a>                      <span class="p">|</span> <span class="k">quantityDecl</span>
 </span></code></pre></div>
 <p>Exactly one <code>package</code> declaration is required and it must precede all
 declarations. Multiple files may declare the same package.</p>
@@ -1767,35 +1779,35 @@ documents). Paths are resolved against the Sen include search path.</p>
 <hr/>
 <h2 id="3-declarations">3. Declarations<a class="headerlink" href="#3-declarations" title="Permanent link">¶</a></h2>
 <h3 id="31-struct">3.1 Struct<a class="headerlink" href="#31-struct" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>structDecl   ::= 'struct' identifier structParent? ( structBody | ';' )
-</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>structParent ::= ':' qualifiedName
-</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>structBody   ::= '{' ( structField ( ',' structField )* ','? )? '}'
-</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>structField  ::= identifier ':' typeExpr
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">structDecl   </span><span class="err">::</span><span class="o">=</span> <span class="s1">'struct'</span> <span class="k">identifier structParent</span><span class="ni">? ( structBody | ';' )</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="ni">structParent ::= ':' qualifiedName</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="ni">structBody   ::= '{' ( structField ( ',' structField )* ','?</span> <span class="p">)</span><span class="err">?</span> <span class="s1">'}'</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="k">structField  </span><span class="err">::=</span> <span class="k">identifier </span><span class="s1">':'</span> <span class="k">typeExpr</span>
 </span></code></pre></div>
 <p>Struct inheritance uses <code>:</code> followed directly by the parent name. A trailing
 comma after the last field is accepted. An empty struct uses the semicolon
 form (<code>struct Empty;</code>) with no body braces.</p>
 <h3 id="32-class">3.2 Class<a class="headerlink" href="#32-class" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>classDecl      ::= 'abstract'? 'class' identifier classParents? classBody
-</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>classParents   ::= ':' classParent ( ','? classParent )*
-</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>classParent    ::= 'extends' qualifiedName
-</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>classBody      ::= '{' classMember* '}'
-</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a>classMember    ::= propertyDecl | methodDecl | eventDecl
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">classDecl      </span><span class="err">::</span><span class="o">=</span> <span class="s1">'abstract'</span><span class="ni">? 'class' identifier classParents?</span> <span class="k">classBody</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">classParents   </span><span class="err">::=</span> <span class="s1">':'</span> <span class="k">classParent </span><span class="p">(</span> <span class="s1">','</span><span class="err">?</span> <span class="k">classParent </span><span class="p">)</span><span class="err">*</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="k">classParent    </span><span class="err">::=</span> <span class="s1">'extends'</span> <span class="k">qualifiedName</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="k">classBody      </span><span class="err">::=</span> <span class="s1">'{'</span> <span class="k">classMember</span><span class="err">*</span> <span class="s1">'}'</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="k">classMember    </span><span class="err">::=</span> <span class="k">propertyDecl </span><span class="p">|</span> <span class="k">methodDecl </span><span class="p">|</span> <span class="k">eventDecl</span>
 </span></code></pre></div>
 <p>Class inheritance starts with <code>:</code>, then one or more <code>extends</code> clauses (only
 one <code>extends</code> is permitted). Separating commas between clauses are optional.</p>
 <p>Examples:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>class Foo { ... }
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>class Foo : extends Bar { ... }
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="n">class</span><span class="w"> </span><span class="n">Foo</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">..</span><span class="p">.</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="n">class</span><span class="w"> </span><span class="n">Foo</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">extends</span><span class="w"> </span><span class="n">Bar</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">..</span><span class="p">.</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="33-class-members">3.3 Class members<a class="headerlink" href="#33-class-members" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>propertyDecl   ::= 'var' identifier ':' typeExpr attributeList? ';'
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>methodDecl     ::= 'fn' identifier '(' paramList? ')' ( '-&gt;' typeExpr )? attributeList? ';'
-</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>eventDecl      ::= 'event' identifier '(' paramList? ')' attributeList? ';'
-</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a>paramList      ::= param ( ',' param )*
-</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>param          ::= identifier ':' typeExpr
-</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a>attributeList  ::= '[' attribute ( ',' attribute )* ']'
-</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a>attribute      ::= identifier ( ':' ( literal | identifier ) )?
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">propertyDecl   </span><span class="err">::</span><span class="o">=</span> <span class="s1">'var'</span> <span class="k">identifier </span><span class="s1">':'</span> <span class="k">typeExpr attributeList</span><span class="ni">? ';'</span>
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="ni">methodDecl     ::= 'fn' identifier '(' paramList?</span> <span class="s1">')'</span> <span class="p">(</span> <span class="s1">'-&gt;'</span> <span class="k">typeExpr </span><span class="p">)</span><span class="ni">? attributeList?</span> <span class="s1">';'</span>
+</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="k">eventDecl      </span><span class="err">::=</span> <span class="s1">'event'</span> <span class="k">identifier </span><span class="s1">'('</span> <span class="k">paramList</span><span class="ni">? ')' attributeList?</span> <span class="s1">';'</span>
+</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="k">paramList      </span><span class="err">::=</span> <span class="k">param </span><span class="p">(</span> <span class="s1">','</span> <span class="k">param </span><span class="p">)</span><span class="err">*</span>
+</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="k">param          </span><span class="err">::=</span> <span class="k">identifier </span><span class="s1">':'</span> <span class="k">typeExpr</span>
+</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="k">attributeList  </span><span class="err">::=</span> <span class="s1">'['</span> <span class="k">attribute </span><span class="p">(</span> <span class="s1">','</span> <span class="k">attribute </span><span class="p">)</span><span class="err">*</span> <span class="s1">']'</span>
+</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="k">attribute      </span><span class="err">::=</span> <span class="k">identifier </span><span class="p">(</span> <span class="s1">':'</span> <span class="p">(</span> <span class="k">literal </span><span class="p">|</span> <span class="k">identifier </span><span class="p">)</span> <span class="p">)</span><span class="err">?</span>
 </span></code></pre></div>
 <p>A method with no <code>-&gt; type</code> returns <code>void</code>. Properties do not support default
 values; initial values come from the component's YAML configuration (or,
@@ -1803,29 +1815,29 @@ less commonly, from the implementation itself at construction time).
 Properties declared with <code>[static_no_config]</code> can only be set from the
 implementation.</p>
 <h3 id="34-enum">3.4 Enum<a class="headerlink" href="#34-enum" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>enumDecl     ::= 'enum' identifier ':' typeExpr enumBody
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>enumBody     ::= '{' enumVariant ( ',' enumVariant )* ','? '}'
-</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a>enumVariant  ::= identifier
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">enumDecl     </span><span class="err">::</span><span class="o">=</span> <span class="s1">'enum'</span> <span class="k">identifier </span><span class="s1">':'</span> <span class="k">typeExpr enumBody</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="k">enumBody     </span><span class="err">::=</span> <span class="s1">'{'</span> <span class="k">enumVariant </span><span class="p">(</span> <span class="s1">','</span> <span class="k">enumVariant </span><span class="p">)</span><span class="err">*</span> <span class="s1">','</span><span class="err">?</span> <span class="s1">'}'</span>
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="k">enumVariant  </span><span class="err">::=</span> <span class="k">identifier</span>
 </span></code></pre></div>
 <p>The grammar accepts any type expression as the enum's storage type, but in
 practice it must resolve to a built-in integer (<code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>,
 <code>i16</code>, <code>i32</code>, <code>i64</code>) — the type-resolver rejects anything else. Variants are
 named-only; explicit numeric values are not supported.</p>
 <h3 id="35-variant">3.5 Variant<a class="headerlink" href="#35-variant" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>variantDecl    ::= 'variant' identifier '{' variantElement ( ',' variantElement )* ','? '}'
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>variantElement ::= qualifiedName
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">variantDecl    </span><span class="err">::</span><span class="o">=</span> <span class="s1">'variant'</span> <span class="k">identifier </span><span class="s1">'{'</span> <span class="k">variantElement </span><span class="p">(</span> <span class="s1">','</span> <span class="k">variantElement </span><span class="p">)</span><span class="err">*</span> <span class="s1">','</span><span class="err">?</span> <span class="s1">'}'</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="k">variantElement </span><span class="err">::=</span> <span class="k">qualifiedName</span>
 </span></code></pre></div>
 <p>A <code>variant</code> holds exactly one of the listed types at runtime. Types must be
 distinct.</p>
 <h3 id="36-alias">3.6 Alias<a class="headerlink" href="#36-alias" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>aliasDecl ::= 'alias' identifier typeExpr ';'
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">aliasDecl </span><span class="err">::</span><span class="o">=</span> <span class="s1">'alias'</span> <span class="k">identifier typeExpr </span><span class="s1">';'</span>
 </span></code></pre></div>
 <p>The two names appear side-by-side, no <code>=</code> between them:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>alias DeviceId   u64;
-</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>alias NameList   sequence&lt;string&gt;;
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="n">alias</span><span class="w"> </span><span class="n">DeviceId</span><span class="w">   </span><span class="kt">u64</span><span class="p">;</span>
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="n">alias</span><span class="w"> </span><span class="n">NameList</span><span class="w">   </span><span class="n">sequence</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
 </span></code></pre></div>
 <h3 id="37-quantity">3.7 Quantity<a class="headerlink" href="#37-quantity" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>quantityDecl ::= 'quantity' '&lt;' typeExpr ',' identifier '&gt;' identifier attributeList? ';'
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">quantityDecl </span><span class="err">::</span><span class="o">=</span> <span class="s1">'quantity'</span> <span class="s1">'&lt;'</span> <span class="k">typeExpr </span><span class="s1">','</span> <span class="k">identifier </span><span class="s1">'&gt;'</span> <span class="k">identifier attributeList</span><span class="err">?</span> <span class="s1">';'</span>
 </span></code></pre></div>
 <p>The first type argument is the underlying numeric type, the second is the
 unit <strong>abbreviation</strong> (short form). The resolver looks the second argument up
@@ -1833,23 +1845,23 @@ with <code>UnitRegistry::searchUnitByAbbreviation</code>, so <code>m</code>, <co
 are valid but the long names (<code>meter</code>, <code>degree</code>, <code>km_per_hour</code>, <code>centigrade</code>)
 are not. See <a href="#appendix-a--registered-quantity-units">Appendix A</a> for the
 full list.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>quantity&lt;f32, degC&gt;     Temperature  [min: -273.15];
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>quantity&lt;f64, m&gt;        Distance     [min: 0.0];
-</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a>quantity&lt;f32, kph&gt;      GroundSpeed;
-</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a>quantity&lt;f32, rad&gt;      Angle;
-</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>quantity&lt;f32, m_per_s&gt;  Speed;
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">degC</span><span class="o">&gt;</span><span class="w">     </span><span class="n">Temperature</span><span class="w">  </span><span class="p">[</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mf">273.15</span><span class="p">];</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f64</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">&gt;</span><span class="w">        </span><span class="n">Distance</span><span class="w">     </span><span class="p">[</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">];</span>
+</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">kph</span><span class="o">&gt;</span><span class="w">      </span><span class="n">GroundSpeed</span><span class="p">;</span>
+</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">rad</span><span class="o">&gt;</span><span class="w">      </span><span class="n">Angle</span><span class="p">;</span>
+</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="n">quantity</span><span class="o">&lt;</span><span class="kt">f32</span><span class="p">,</span><span class="w"> </span><span class="n">m_per_s</span><span class="o">&gt;</span><span class="w">  </span><span class="n">Speed</span><span class="p">;</span>
 </span></code></pre></div>
 <h3 id="38-top-level-sequence-array-optional-declarations">3.8 Top-level sequence / array / optional declarations<a class="headerlink" href="#38-top-level-sequence-array-optional-declarations" title="Permanent link">¶</a></h3>
 <p>These give a container a type name so it can be referenced elsewhere:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>sequenceDecl ::= 'sequence' '&lt;' typeExpr ( ',' integerLiteral )? '&gt;' identifier ';'
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>arrayDecl    ::= 'array'    '&lt;' typeExpr ','   integerLiteral    '&gt;' identifier ';'
-</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>optionalDecl ::= 'optional' '&lt;' typeExpr '&gt;'                         identifier ';'
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">sequenceDecl </span><span class="err">::</span><span class="o">=</span> <span class="s1">'sequence'</span> <span class="s1">'&lt;'</span> <span class="k">typeExpr </span><span class="p">(</span> <span class="s1">','</span> <span class="k">integerLiteral </span><span class="p">)</span><span class="err">?</span> <span class="s1">'&gt;'</span> <span class="k">identifier </span><span class="s1">';'</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="k">arrayDecl    </span><span class="err">::=</span> <span class="s1">'array'</span>    <span class="s1">'&lt;'</span> <span class="k">typeExpr </span><span class="s1">','</span>   <span class="k">integerLiteral    </span><span class="s1">'&gt;'</span> <span class="k">identifier </span><span class="s1">';'</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="k">optionalDecl </span><span class="err">::=</span> <span class="s1">'optional'</span> <span class="s1">'&lt;'</span> <span class="k">typeExpr </span><span class="s1">'&gt;'</span>                         <span class="k">identifier </span><span class="s1">';'</span>
 </span></code></pre></div>
 <hr/>
 <h2 id="4-type-expressions">4. Type expressions<a class="headerlink" href="#4-type-expressions" title="Permanent link">¶</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>typeExpr       ::= qualifiedName typeArguments?
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>typeArguments  ::= '&lt;' typeArg ( ',' typeArg )* '&gt;'
-</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a>typeArg        ::= typeExpr | integerLiteral
+<div class="language-ebnf highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">typeExpr       </span><span class="err">::</span><span class="o">=</span> <span class="k">qualifiedName typeArguments</span><span class="err">?</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="k">typeArguments  </span><span class="err">::=</span> <span class="s1">'&lt;'</span> <span class="k">typeArg </span><span class="p">(</span> <span class="s1">','</span> <span class="k">typeArg </span><span class="p">)</span><span class="err">*</span> <span class="s1">'&gt;'</span>
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="k">typeArg        </span><span class="err">::=</span> <span class="k">typeExpr </span><span class="p">|</span> <span class="k">integerLiteral</span>
 </span></code></pre></div>
 <p>Examples:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>u32
@@ -2138,7 +2150,7 @@ concatenation (e.g. <code>km</code>, <code>ms</code>, <code>us</code>, <code>cm<
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 29, 2026 07:39:10 UTC">April 29, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>

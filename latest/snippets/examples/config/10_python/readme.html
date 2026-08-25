@@ -152,7 +152,7 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../../../howto_guides/objects.html">
+<a class="md-tabs__link" href="../../../../howto_guides/building_from_source.html">
           
   
   
@@ -740,6 +740,18 @@
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../../../../howto_guides/objects.html">
 <span class="md-ellipsis">
@@ -1342,16 +1354,19 @@
 <p>First make sure that you have the <code>PYTHONPATH</code> environment variable correctly set to point to our
 example scripts:</p>
 <p>For bash:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>export PYTHONPATH=$PYTHONPATH;$(pwd)/config/10_python/scripts
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span><span class="p">;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/config/10_python/scripts
 </span></code></pre></div>
 <p>For fish:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>set -xa PYTHONPATH $(pwd)/config/10_python/scripts
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">set</span><span class="w"> </span>-xa<span class="w"> </span>PYTHONPATH<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/config/10_python/scripts
 </span></code></pre></div>
-<p><strong>PYTHONPATH setup</strong>: The Python scripts import <code>sen</code> (the Sen Python binding) and optionally generated type modules. Before running these scripts standalone, ensure <code>PYTHONPATH</code> includes the directory containing the <code>sen</code> module and any generated Python packages. When using <code>sen run</code>, Sen automatically extends <code>PYTHONPATH</code> with the paths of Python targets listed in <code>DEPS</code> inside <code>sen_generate_yaml</code>.</p>
+<p><strong>PYTHONPATH setup</strong>: The Python scripts import <code>sen</code> (the Sen Python binding) and optionally generated type modules.
+Before running these scripts standalone, ensure <code>PYTHONPATH</code> includes the directory containing the <code>sen</code> module and any
+generated Python packages. When using <code>sen run</code>, Sen automatically extends <code>PYTHONPATH</code> with the paths of Python targets
+listed in <code>DEPS</code> inside <code>sen_generate_yaml</code>.</p>
 <h2 id="hello-python">Hello Python<a class="headerlink" href="#hello-python" title="Permanent link">¶</a></h2>
 <p>In this example we just show how to get a Python interpreter running inside a Sen component.</p>
 <p>Run it with:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>sen run config/10_python/1_python_hello.yaml
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/10_python/1_python_hello.yaml
 </span></code></pre></div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1">Python script</label><label for="__tabbed_1_2">Configuration file</label></div>
 <div class="tabbed-content">
@@ -1404,7 +1419,7 @@ example scripts:</p>
 <h2 id="inspecting-objects">Inspecting objects<a class="headerlink" href="#inspecting-objects" title="Permanent link">¶</a></h2>
 <p>In this example we can see how to fetch objects coming from other components and print their properties.</p>
 <p>Run it with:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>sen run config/10_python/2_python_inspect_objects.yaml
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/10_python/2_python_inspect_objects.yaml
 </span></code></pre></div>
 <p>This example contains the following files:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="" id="__tabbed_2_1" name="__tabbed_2" type="radio"/><input id="__tabbed_2_2" name="__tabbed_2" type="radio"/><div class="tabbed-labels"><label for="__tabbed_2_1">Python script</label><label for="__tabbed_2_2">Configuration file</label></div>
@@ -1465,7 +1480,7 @@ example scripts:</p>
 <h2 id="creating-objects">Creating objects<a class="headerlink" href="#creating-objects" title="Permanent link">¶</a></h2>
 <p>In this example we see how to create and publish objects using Python.</p>
 <p>Run it with:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sen run config/10_python/3_python_create_objects.yaml
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/10_python/3_python_create_objects.yaml
 </span></code></pre></div>
 <p>This example contains the following files:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="" id="__tabbed_3_1" name="__tabbed_3" type="radio"/><input id="__tabbed_3_2" name="__tabbed_3" type="radio"/><div class="tabbed-labels"><label for="__tabbed_3_1">Python script</label><label for="__tabbed_3_2">Configuration file</label></div>
@@ -1544,7 +1559,7 @@ example scripts:</p>
 <h2 id="interacting-with-objects">Interacting with objects<a class="headerlink" href="#interacting-with-objects" title="Permanent link">¶</a></h2>
 <p>Here we can see how to call methods on objects coming from other components.</p>
 <p>Run it with:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>sen run config/10_python/4_python_interact_with_objects.yaml
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/10_python/4_python_interact_with_objects.yaml
 </span></code></pre></div>
 <p>This example contains the following files:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="" id="__tabbed_4_1" name="__tabbed_4" type="radio"/><input id="__tabbed_4_2" name="__tabbed_4" type="radio"/><div class="tabbed-labels"><label for="__tabbed_4_1">Python script</label><label for="__tabbed_4_2">Configuration file</label></div>
@@ -1603,7 +1618,7 @@ example scripts:</p>
 <p>Here we can see how to execute Python code when events are produced or properties change.</p>
 <p>It relies on the "school" example to get some activity going.</p>
 <p>Run it with:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>sen run config/10_python/5_python_react_to_events.yaml
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/10_python/5_python_react_to_events.yaml
 </span></code></pre></div>
 <p>This example contains the following files:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="" id="__tabbed_5_1" name="__tabbed_5" type="radio"/><input id="__tabbed_5_2" name="__tabbed_5" type="radio"/><div class="tabbed-labels"><label for="__tabbed_5_1">Python script</label><label for="__tabbed_5_2">Configuration file</label></div>
@@ -1657,7 +1672,7 @@ example scripts:</p>
 </div>
 <h2 id="using-the-interpreter-from-other-components">Using the interpreter from other components<a class="headerlink" href="#using-the-interpreter-from-other-components" title="Permanent link">¶</a></h2>
 <p>Here we publish the interpreter object and can use it from within our shell component.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>sen run config/10_python/6_python_interpreter.yaml
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/10_python/6_python_interpreter.yaml
 </span></code></pre></div>
 <p>This example contains the following files:</p>
 <div class="language-yaml highlight"><span class="filename">6_python_interpreter.yaml</span><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="c1"># $schema: ../base/schema.json</span>
@@ -1689,7 +1704,7 @@ example scripts:</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 15:36:09 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:50:31 UTC">August 25, 2026</span>
 </span>
 </aside>
 </article>
