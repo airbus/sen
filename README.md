@@ -98,7 +98,16 @@ independence while providing low-overhead, full introspection and an extensible 
 
 ## ⚡ Quick start
 
-We provide binary releases and Conan packages. To use Conan:
+The fastest way to try Sen on Linux: no Conan setup required:
+
+```shell
+curl -sSf https://raw.githubusercontent.com/airbus/sen/main/resources/installer/install.sh | sh
+```
+
+The installer downloads a release into `~/.sen/<build-id>/` and writes activate scripts you source from your shell.
+See the [install guide](https://airbus.github.io/sen/latest/getting_started/install/) for details.
+
+To use Sen as a Conan dependency in your own project:
 
 1. Create a `conanfile.py` in your project's top-level directory and add **Sen** as a dependency:
 
@@ -188,6 +197,11 @@ The package manager conf lets recipes install the system libraries they need (dr
 line when you already run as root, for example in a container). The first install compiles
 every third-party dependency and takes a while; later builds reuse them.
 
+If you use an editor with devcontainer support, the repository ships one under
+`.devcontainer/`: open the folder in a container and the compilers, Conan and the test tools are
+already installed. CMake, Ninja and Node arrive with the first `conan install`, as they do on any
+other machine.
+
 To also build the examples, pass `-o "sen/*:with_examples=True"` to `conan install`, and see
 [examples/README.md](examples/README.md) for running them.
 
@@ -195,13 +209,13 @@ Opening Sen in an editor: `conan install` writes `CMakeUserPresets.json` at the 
 so VS Code, CLion and Visual Studio list the generated preset once you open the folder. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
 
-Alternatively, if you want to control the CMake usage, you can do:
+Alternatively, if you want to drive CMake yourself:
 
 ```shell
 conan install . --profile=sen_gcc_x86 --build=missing # Fetch third-party dependencies (only needed once)
-source build/gcc/Release/generators/conanbuild.sh # Make all the required tools available
+source build/gcc/Release/generators/conanbuild.sh # Make conan's tools (cmake, ninja) available
 cmake --preset conan-gcc-release                  # Generate the build system
-cmake --build build/gcc/Release                   # Build Sen
+cmake --build --preset conan-gcc-release          # Build Sen
 ```
 
 If you would like to set up the full development environment for Sen (incl. testing, docs, etc...),
@@ -241,7 +255,7 @@ without running `conan create` by using conan editable mode. Just follow this st
 
 Sen is under active development. Expect potential bugs and breaking changes between releases.
 
-- The public API is not yet stable — check the release notes before upgrading.
+- The public API is not yet stable: check the release notes before upgrading.
 - Some features may be undocumented or partially implemented.
 - Windows support is available but less battle-tested than Linux.
 

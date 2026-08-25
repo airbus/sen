@@ -42,8 +42,8 @@ runs:
     - name: Install system dependencies
       if: ${{ inputs.compiler-name != 'msvc' }}
       shell: bash
-      # need for clang compat with sdl2 2.24.0
-      run: sudo apt-get install -y libxext-dev
+      # libxext for clang compat with sdl2 2.24.0; bats for the installer tests
+      run: sudo apt-get install -y libxext-dev bats
 
     - name: Setup conan profile
       shell: bash

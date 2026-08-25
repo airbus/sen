@@ -58,7 +58,7 @@ jobs:
             set -e
             for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
                         clang++-20 clang-tidy-20 gcovr lcov genhtml \
-                        pytest junitparser; do
+                        pytest junitparser bats; do
                 command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
             done
             conan --version | grep -F "'"$conan_version"'"
