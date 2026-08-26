@@ -18,6 +18,7 @@ option(SEN_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(SEN_BUILD_DOCS "Build documentation" ON)
 option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
 option(SEN_COVERAGE_ENABLE "Enable coverage generation" OFF)
+option(SEN_USER_SIZE_OPTIMIZED_DEBUG "Enable smaller and better optimized debug build" OFF)
 option(SEN_ENABLE_CMAKE_TARGET_GRAPH "Enable the generation of a graphviz with the targets" ON)
 set(SEN_USE_SANITIZER
     "None"

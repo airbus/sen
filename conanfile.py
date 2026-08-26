@@ -49,6 +49,7 @@ class SenConan(ConanFile):
         "with_clang_tidy": [True, False],
         "with_coverage": [True, False],
         "with_docs": [True, False],
+        "with_user_size_optimized_debug": [True, False],
         "sanitizer": ["none", "address", "thread"],
     }
     default_options = {
@@ -58,6 +59,7 @@ class SenConan(ConanFile):
         "with_clang_tidy": False,
         "with_coverage": False,
         "with_docs": False,
+        "with_user_size_optimized_debug": False,
         "sanitizer": "none",
     }
 
@@ -197,6 +199,7 @@ class SenConan(ConanFile):
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if self.options.with_examples else "OFF"
         tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if self.options.with_tests else "OFF"
         tc.cache_variables["SEN_BUILD_DOCS"] = "ON" if self.options.with_docs else "OFF"
+        tc.cache_variables["SEN_USER_SIZE_OPTIMIZED_DEBUG"] = "ON" if self.options.with_user_size_optimized_debug else "OFF"
         # Available in the full build, built only when asked for: the benchmark targets
         # are left out of the default one. -DSEN_BUILD_BENCHMARKS=OFF turns them off.
         tc.cache_variables["SEN_BUILD_BENCHMARKS"] = "ON" if str(self.options.mode) == "full" else "OFF"

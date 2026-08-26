@@ -696,9 +696,14 @@ function(sen_configure_target target_name)
         -fexceptions
         -ftls-model=global-dynamic
         -fPIC
-        "$<$<CONFIG:Debug>:-O0;-g>"
+        "$<$<CONFIG:Debug>:-O0;-g;-fno-omit-frame-pointer>"
         "$<$<CONFIG:Release>:-O3>"
     )
+
+    if(SEN_USER_SIZE_OPTIMIZED_DEBUG)
+      # Override options to build with debug opt and compression
+      list(APPEND common_clang_gcc_options_ "$<$<CONFIG:Debug>:-Og;-gz;-fno-omit-frame-pointer>")
+    endif()
 
     set(common_linker_options_ -Wno-undef)
 
