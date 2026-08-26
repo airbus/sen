@@ -1,1 +1,8 @@
 * @EnriqueParodi
+
+# Dead reckoning. Both owners are listed so either can review the other's changes:
+# GitHub does not let an author approve their own pull request.
+/libs/util/include/sen/util/dr/         @EnriqueParodi @luisgutierrezpereda
+/libs/util/src/dr/                      @EnriqueParodi @luisgutierrezpereda
+/libs/util/test/dead_reckoner_test.cpp  @EnriqueParodi @luisgutierrezpereda
+/libs/util/test/coordinates_test.cpp    @EnriqueParodi @luisgutierrezpereda
