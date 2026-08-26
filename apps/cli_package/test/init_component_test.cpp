@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 #include "../util.h"
+#include "scoped_work_dir.h"
 
 // google test
 #include <gtest/gtest.h>
@@ -59,6 +60,8 @@ TEST(CliPackageInitComponent, NoUpperCammelCase)
 /// Check sen package init-component fails when the path provided already exists
 TEST(CliPackageInitComponent, DirectoryAlreadyExists)
 {
+  const ScopedWorkDir workDir;
+
   CLI::App app;
   app.name("sen package");
 
@@ -69,14 +72,14 @@ TEST(CliPackageInitComponent, DirectoryAlreadyExists)
   EXPECT_EXIT(app.parse("init-component TestComponent"),
               ::testing::ExitedWithCode(2),
               "directory test_component already exists\n");
-
-  std::filesystem::remove_all("test_component");
 }
 
 /// @test
 /// Check sen package init-component creates all expected directories and files when no errors occur
 TEST(CliPackageInitComponent, NoFlags)
 {
+  const ScopedWorkDir workDir;
+
   CLI::App app;
   app.name("sen package");
 
@@ -90,14 +93,14 @@ TEST(CliPackageInitComponent, NoFlags)
 
   EXPECT_TRUE(std::filesystem::exists("test_component/CMakeLists.txt"));
   EXPECT_TRUE(std::filesystem::exists("test_component/src/component.cpp"));
-
-  std::filesystem::remove_all("test_component");
 }
 
 /// @test
 /// Check sen package init-component creates all expected directories and files when --with-config flag is provided
 TEST(CliPackageInitComponent, WithConfigFlag)
 {
+  const ScopedWorkDir workDir;
+
   CLI::App app;
   app.name("sen package");
 
@@ -113,14 +116,14 @@ TEST(CliPackageInitComponent, WithConfigFlag)
   EXPECT_TRUE(std::filesystem::exists("test_component/CMakeLists.txt"));
   EXPECT_TRUE(std::filesystem::exists("test_component/src/component.cpp"));
   EXPECT_TRUE(std::filesystem::exists("test_component/stl/test_component/config.stl"));
-
-  std::filesystem::remove_all("test_component");
 }
 
 /// @test
 /// Check sen package init-component creates all expected directories and files when --full flag is provided
 TEST(CliPackageInitComponent, FullFlag)
 {
+  const ScopedWorkDir workDir;
+
   CLI::App app;
   app.name("sen package");
 
@@ -136,8 +139,6 @@ TEST(CliPackageInitComponent, FullFlag)
   EXPECT_TRUE(std::filesystem::exists("test_component/CMakeLists.txt"));
   EXPECT_TRUE(std::filesystem::exists("test_component/src/component.cpp"));
   EXPECT_TRUE(std::filesystem::exists("test_component/stl/test_component/config.stl"));
-
-  std::filesystem::remove_all("test_component");
 }
 
 /// @test

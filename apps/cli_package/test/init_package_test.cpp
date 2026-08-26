@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 #include "../util.h"
+#include "scoped_work_dir.h"
 
 // google test
 #include <gtest/gtest.h>
@@ -58,6 +59,8 @@ TEST(CliPackageInit, NoClass)
 /// Check sen package init fails when the path provided already exists
 TEST(CliPackageInit, DirectoryAlreadyExists)
 {
+  const ScopedWorkDir workDir;
+
   CLI::App app;
   app.name("sen package");
 
@@ -68,14 +71,14 @@ TEST(CliPackageInit, DirectoryAlreadyExists)
   EXPECT_EXIT(app.parse("init test_package --class TestClass"),
               ::testing::ExitedWithCode(1),
               "directory test_package already exists\n");
-
-  std::filesystem::remove_all("test_package");
 }
 
 /// @test
 /// Check sen package init creates all expected directories and files when no errors occur
 TEST(CliPackageInit, NoErrors)
 {
+  const ScopedWorkDir workDir;
+
   CLI::App app;
   app.name("sen package");
 
@@ -94,8 +97,6 @@ TEST(CliPackageInit, NoErrors)
   EXPECT_TRUE(std::filesystem::exists("test_package/src/test_class.cpp"));
   EXPECT_TRUE(std::filesystem::exists("test_package/stl/test_package/basic_types.stl"));
   EXPECT_TRUE(std::filesystem::exists("test_package/stl/test_package/test_class.stl"));
-
-  std::filesystem::remove_all("test_package");
 }
 
 /// @test
