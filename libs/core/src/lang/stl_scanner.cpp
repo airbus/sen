@@ -414,7 +414,9 @@ void StlScanner::number(Sign sign)
     if (sign == Sign::negative)
     {
       value = -value;
-      lexeme.insert(0, "-");
+      // The character overload. The const char* one takes a length gcc 12 cannot bound, which it
+      // reports as a huge memcpy when the string methods are constexpr under C++20.
+      lexeme.insert(0, 1, '-');
     }
 
     tokens_.emplace_back(StlTokenType::real, lexeme, value, current_);
@@ -428,7 +430,7 @@ void StlScanner::number(Sign sign)
     if (sign == Sign::negative)
     {
       value = -value;
-      lexeme.insert(0, "-");
+      lexeme.insert(0, 1, '-');
     }
 
     tokens_.emplace_back(StlTokenType::integral, lexeme, value, current_);
