@@ -70,6 +70,12 @@ runs:
       # libxext for clang compat with sdl2 2.24.0; bats for the installer tests
       run: timeout 1200 sudo apt-get install -y libxext-dev bats
 
+    # conan renders the profile on every command, so this has to outlive the step.
+    - name: Select the gcc version the profile builds with
+      if: ${{ inputs.compiler-name == 'gcc' }}
+      shell: bash
+      run: echo "SEN_GCC_VERSION=${{ inputs.compiler-version }}" >> "$GITHUB_ENV"
+
     - name: Setup conan profile
       shell: bash
       run: |

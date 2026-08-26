@@ -42,13 +42,9 @@
 #include <inja/template.hpp>
 
 // std
-#include <algorithm>
 #include <cstddef>
 #include <filesystem>
-#include <fstream>
-#include <ios>
 #include <iostream>
-#include <iterator>
 #include <memory>
 #include <ostream>
 #include <string>
