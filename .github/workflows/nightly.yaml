@@ -285,10 +285,12 @@ jobs:
               python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])')
           for std in 20 23; do
               echo "::group::consumer at C++$std"
-              # & is the consumer here, so sen and its dependencies keep the
-              # settings they were built with.
+              # The bare setting reaches the consumer, the patterns hold sen and its
+              # dependencies at what they were built with. "&:" would not: under conan
+              # test it names the package under test.
               conan test .conan/test_packages/package "sen/$version@airbus/dev" \
-                  -s "&:compiler.cppstd=$std"
+                  -s "compiler.cppstd=$std" -s "*:compiler.cppstd=17" \
+                  -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
               echo "::endgroup::"
           done
 

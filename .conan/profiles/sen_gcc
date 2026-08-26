@@ -1,9 +1,13 @@
+{# SEN_GCC_VERSION lets a lane pick the compiler. Without it the version reaches
+   apt and the cache key but not the profile. #}
+{% set gcc_version = os.getenv("SEN_GCC_VERSION") or "12" %}
+
 [settings]
 os=Linux
 arch={{ detect_api.detect_arch() }}
 compiler=gcc
 compiler.cppstd=17
-compiler.version=12
+compiler.version={{ gcc_version }}
 compiler.libcxx=libstdc++11
 build_type=Release
 
@@ -14,4 +18,4 @@ build_type=Release
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
 tools.cmake.cmake_layout:build_folder_vars=['settings.compiler']
-tools.build:compiler_executables={"c": "gcc-12", "cpp": "g++-12"}
+tools.build:compiler_executables={"c": "gcc-{{ gcc_version }}", "cpp": "g++-{{ gcc_version }}"}
