@@ -72,7 +72,11 @@ std::pair<std::string, std::regex> BaseRouter::parseAndValidateRoute(const std::
     ::sen::throwRuntimeError("Invalid route path");
   }
 
-  const std::regex paramMatcherRegex("/" + std::string(pathUrlParamRegex));
+  // Built by appending rather than with operator+, which gcc 12 reports as a huge memcpy when the
+  // string methods are constexpr under C++20.
+  std::string paramMatcher = "/";
+  paramMatcher += pathUrlParamRegex;
+  const std::regex paramMatcherRegex(paramMatcher);
   std::string paramMatcherStr = std::regex_replace(path, paramMatcherRegex, "/(" + std::string(pathSegmentRegex) + ")");
 
   return {paramMatcherStr, std::regex(paramMatcherStr)};
