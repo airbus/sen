@@ -19,6 +19,10 @@
 #include "sen/core/obj/object_list.h"
 #include "sen/core/obj/object_source.h"
 
+// std
+#include <chrono>
+#include <cstdint>
+
 namespace sen::components::py
 {
 
@@ -38,6 +42,9 @@ public:
 
 public:
   static void definePythonApi(pybind11::module_& self);
+  bool waitUntilEmpty(std::chrono::nanoseconds timeout);
+  bool waitUntilNotEmpty(std::chrono::nanoseconds timeout);
+  bool waitUntilSizeIs(uint32_t count, std::chrono::nanoseconds timeout);
 
 private:
   inline void callBack(const ObjectWrapper& wrapper, pybind11::object& func) const;
