@@ -121,26 +121,15 @@ void ObjectListWrapper::definePythonApi(pybind11::module_& self)
          [](ObjectListWrapper& theWrapper, const pybind11::object& callback)
          { theWrapper.onRemovedCallback_ = callback; });
 
-  cl.def(
-    "waitUntilEmpty",
-    [](ObjectListWrapper& theWrapper)
-    {
-      return theWrapper.api_->waitUntilCpp([&theWrapper]() { return theWrapper.list_.getUntypedObjects().empty(); });
-    });
+  cl.def("waitUntilEmpty", &ObjectListWrapper::waitUntilEmpty, pybind11::arg("timeout") = std::chrono::nanoseconds {});
 
   cl.def(
-    "waitUntilNotEmpty",
-    [](ObjectListWrapper& theWrapper)
-    {
-      return theWrapper.api_->waitUntilCpp([&theWrapper]() { return !theWrapper.list_.getUntypedObjects().empty(); });
-    });
+    "waitUntilNotEmpty", &ObjectListWrapper::waitUntilNotEmpty, pybind11::arg("timeout") = std::chrono::nanoseconds {});
 
   cl.def("waitUntilSizeIs",
-         [](ObjectListWrapper& theWrapper, uint32_t count)
-         {
-           return theWrapper.api_->waitUntilCpp([&theWrapper, count]()
-                                                { return theWrapper.list_.getUntypedObjects().size() == count; });
-         });
+         &ObjectListWrapper::waitUntilSizeIs,
+         pybind11::arg("count"),
+         pybind11::arg("timeout") = std::chrono::nanoseconds {});
 
   cl.def(
     "__getitem__",
@@ -188,6 +177,21 @@ void ObjectListWrapper::definePythonApi(pybind11::module_& self)
            s << "]";
            return s.str();
          });
+}
+
+bool ObjectListWrapper::waitUntilEmpty(std::chrono::nanoseconds timeout)
+{
+  return api_->waitUntilCpp([this]() { return list_.getUntypedObjects().empty(); }, timeout);
+}
+
+bool ObjectListWrapper::waitUntilNotEmpty(std::chrono::nanoseconds timeout)
+{
+  return api_->waitUntilCpp([this]() { return !list_.getUntypedObjects().empty(); }, timeout);
+}
+
+bool ObjectListWrapper::waitUntilSizeIs(uint32_t count, std::chrono::nanoseconds timeout)
+{
+  return api_->waitUntilCpp([this, count] { return list_.getUntypedObjects().size() == count; }, timeout);
 }
 
 }  // namespace sen::components::py
