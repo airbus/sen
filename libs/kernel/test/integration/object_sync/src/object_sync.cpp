@@ -213,11 +213,7 @@ public:
                                         }
 
                                         // shutdown the process kernel if all listeners are finished
-                                        if (allListenersWithState(ListenerState::finished))
-                                        {
-                                          logger_->info("{} commanding kernel stop", getName());
-                                          api.requestKernelStop();
-                                        }
+                                        stopIfAllListenersFinished(api);
 
                                         if (allListenersWithState(ListenerState::ready))
                                         {
@@ -240,16 +236,30 @@ public:
       });
 
     std::ignore = listenerSub_->list.onRemoved(
-      [this](const auto& removedObjects)
+      [this, &api](const auto& removedObjects)
       {
         for (auto* listener: removedObjects)
         {
-          guards_.erase(listener->asObject().getId());
+          const auto& id = listener->asObject().getId();
+          guards_.erase(id);
+
+          listenerStates_[id] = ListenerState::finished;
         }
+
+        stopIfAllListenersFinished(api);
       });
   }
 
 private:
+  void stopIfAllListenersFinished(sen::kernel::RegistrationApi& api)
+  {
+    if (allListenersWithState(ListenerState::finished))
+    {
+      logger_->info("{} commanding kernel stop", getName());
+      api.requestKernelStop();
+    }
+  }
+
   [[nodiscard]] bool allListenersWithState(const ListenerState state)
   {
     return listenerStates_.size() == getNumOfListeners() &&
