@@ -4,4 +4,7 @@ class TestObject
 {
   var staticProp  : u32 [static];
   var dynamicProp : f64 [writable];
+
+  fn divide(a: f32, b: f32) -> f32;
+  event divisionByZero();
 }

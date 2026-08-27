@@ -18,7 +18,7 @@ dynamic_value = 567
 
 
 def dynamic_prop_changed():
-    """Calback to react when a property changed."""
+    """Callback to react when a property changed."""
     assert test_object.dynamicProp == dynamic_value, (
         f"Error in dynamicProp [value: {test_object.dynamicProp}, expectation: {dynamic_value}]"
     )
@@ -28,7 +28,7 @@ def dynamic_prop_changed():
 
 
 def run():
-    """Sen run: to setup the initial component state."""
+    """Sen run: to set up the initial component state."""
     global test_object, test_bus  # noqa: PLW0603
 
     test_object = sen.api.make("py_test_package.TestObject", "test_object", staticProp=static_value)

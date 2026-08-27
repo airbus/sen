@@ -1,0 +1,6 @@
+load:
+  - name: py
+    group: 3
+    freqHz: 50
+    module: event
+    imports: [py_test_package]
