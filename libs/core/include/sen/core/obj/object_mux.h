@@ -12,6 +12,7 @@
 #include "sen/core/obj/object_provider.h"
 
 // std
+#include <memory>
 #include <mutex>
 
 namespace sen
@@ -30,7 +31,7 @@ class MuxedProviderListener: public ObjectProviderListener
   SEN_NOCOPY_NOMOVE(MuxedProviderListener)
 
 public:
-  MuxedProviderListener() = default;
+  MuxedProviderListener();
   ~MuxedProviderListener() override;
 
 public:
@@ -46,7 +47,8 @@ private:
   void removeMuxedProvider(ObjectMux* provider);
 
 private:
-  std::vector<ObjectMux*> muxedProviders_;
+  struct ConcurrentMuxedProviderList;
+  std::unique_ptr<ConcurrentMuxedProviderList> muxedProviders_;
 };
 
 /// Converts multiple object providers into one.

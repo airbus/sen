@@ -325,9 +325,7 @@ void LocalParticipant::flushOutputs()
 
 void LocalParticipant::drainInputs()
 {
-  // explicit copy to prevent modifications
-  auto interestsOnOthers = interestsOnOthers_;
-  for (const auto& proxyManager: interestsOnOthers)
+  for (const auto& proxyManager: interestsOnOthers_)
   {
     if (proxyManager == nullptr)
     {
@@ -415,8 +413,6 @@ void LocalParticipant::localSubscriberAdded(const std::shared_ptr<Interest>& int
   }
 
   // look if we already have a manager for this interest
-  std::lock_guard lock(
-    interestsOnOthersMutex_);  // needs to be a write lock to ensure we don't do double insertion afterward
   for (const auto& proxyManager: interestsOnOthers_)
   {
     if (proxyManager->getLocalInterest() == *interest)
@@ -427,15 +423,16 @@ void LocalParticipant::localSubscriberAdded(const std::shared_ptr<Interest>& int
   }
 
   // we need to create a manager for this interest
-  interestsOnOthers_.push_back(std::make_shared<ProxyManager>(*this, interest, workQueue_, objectsNamePrefix_));
+  auto newProxyManager = std::make_shared<ProxyManager>(*this, interest, workQueue_, objectsNamePrefix_);
+  interestsOnOthers_.emplace(newProxyManager);
 
-  interestsOnOthers_.back()->addListener(listener, notifyAboutExisting);
+  newProxyManager->addListener(listener, notifyAboutExisting);
 
   std::lock_guard participantLock(participantsMutex_);
   // make other participants notify us when it is the case
   for (auto* participant: participants_)
   {
-    interestsOnOthers_.back()->startListeningToParticipant(participant, notifyAboutExisting);
+    newProxyManager->startListeningToParticipant(participant, notifyAboutExisting);
   }
 }
 
@@ -464,7 +461,7 @@ void LocalParticipant::localSubscriberRemoved(const std::shared_ptr<Interest>& i
 
   for (auto itr = interestsOnOthers_.begin(); itr != interestsOnOthers_.end(); ++itr)
   {
-    if (auto* proxyManager = (*itr).get(); proxyManager->getLocalInterest() == *interest)
+    if (auto* proxyManager = itr->get(); proxyManager->getLocalInterest() == *interest)
     {
       proxyManager->removeListener(listener, notifyAboutExisting);
 
@@ -501,19 +498,22 @@ void LocalParticipant::localSubscriberRemoved(ObjectProviderListener* listener, 
                    localParticipant->getId().get());
   }
 
-  std::vector<std::shared_ptr<ProxyManager>> remaining;
-
-  for (auto& proxyManager: interestsOnOthers_)
+  for (auto it = interestsOnOthers_.begin(); it != interestsOnOthers_.end();)
   {
+    const auto proxyManager = *it;
+
     proxyManager->removeListener(listener, notifyAboutExisting);
 
-    if (proxyManager->hasListeners())
+    if (!proxyManager->hasListeners())
     {
-      remaining.push_back(std::move(proxyManager));
+      const auto toRemove = *it;
+      ++it;
+      interestsOnOthers_.erase(toRemove);
+      continue;
     }
-  }
 
-  interestsOnOthers_ = std::move(remaining);
+    ++it;
+  }
 }
 
 void LocalParticipant::remoteSubscriberAdded(const std::shared_ptr<Interest>& interest,
@@ -583,7 +583,7 @@ void LocalParticipant::localParticipantAdded(LocalParticipant* other, bool notif
 {
   logger_->debug("LP {}: local participant {} added", debugName_, other->debugName_);
 
-  for (const auto& proxyManager: makeLockedRange<std::shared_lock>(interestsOnOthers_, interestsOnOthersMutex_))
+  for (const auto& proxyManager: interestsOnOthers_)
   {
     proxyManager->startListeningToParticipant(other, notifyAboutExisting);
   }
@@ -607,7 +607,7 @@ void LocalParticipant::localParticipantRemoved(LocalParticipant* other, bool not
 
 void LocalParticipant::remoteParticipantAdded(RemoteParticipant* other, bool notifyAboutExisting)
 {
-  for (const auto& proxyManager: makeLockedRange<std::shared_lock>(interestsOnOthers_, interestsOnOthersMutex_))
+  for (const auto& proxyManager: interestsOnOthers_)
   {
     proxyManager->startListeningToParticipant(other, notifyAboutExisting);
   }

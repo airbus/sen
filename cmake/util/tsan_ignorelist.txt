@@ -57,7 +57,7 @@ race:sen::impl::RemoteObject::sendCall
 # Issue with writable properties: setNext method can be called from another thread and the ProxyObject mutex is not locked (property buffers unprotected)
 race:object_sync::TestObjectRemoteProxy::setNextWritableProp
 
-# TODO(SEN-SEN-1706): data race found while running object_sync_confirmed_events_single_process with TSAN
+# TODO(SEN-1706): data race found while running object_sync_confirmed_events_single_process with TSAN
 race:sen::impl::EventBuffer::addConnection
 
 # TODO(SEN-1721): thread leak in Session constructor. Found running interest_filtering_dynamic_subscriptions with TSAN
@@ -66,6 +66,9 @@ thread:sen::kernel::impl::Session::Session
 # TODO(SEN-1771): data race found running interest_filtering_dynamic_subscriptions with TSAN
 # MessageDispatcher updates ProxyObject properties while the Runner thread reads them
 race:sen::impl::RemoteObject::propertyUpdatesReceived
+
+# TODO(SEN-1773): data race found while running stress_test_high_churn_subs with TSAN
+race:sen::kernel::impl::MessageDispatcher::Worker::processWork
 
 # TODO(SEN-1511): the ::clear side of the same race. Runner::stopThread clears the
 # work queue during Executor::shutDown while a worker thread is still reading it.

@@ -21,6 +21,11 @@
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_provider.h"
 
+// xenium
+#include <xenium/harris_michael_list_based_set.hpp>
+#include <xenium/policy.hpp>
+#include <xenium/reclamation/generic_epoch_based.hpp>
+
 // std
 #include <algorithm>
 #include <cstddef>
@@ -398,7 +403,32 @@ private:
 namespace sen
 {
 
-ObjectFilter::ObjectFilter(ObjectOwnerId ownerId): ownerId_(ownerId) {}
+/// Lock-free Harris-Michael list using epoch-based reclamation.
+/// Inherits directly from xenium to eliminate wrapper boilerplate within the Pimpl idiom.
+struct ObjectFilter::ConcurrentWeakProvidersList
+  : xenium::harris_michael_list_based_set<
+      std::weak_ptr<impl::FilteredProvider>,
+      xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+      xenium::policy::compare<std::owner_less<std::weak_ptr<impl::FilteredProvider>>>>
+{
+};
+
+/// Lock-free Harris-Michael list using epoch-based reclamation.
+/// Inherits directly from xenium to eliminate wrapper boilerplate within the Pimpl idiom.
+struct ObjectFilter::ConcurrentOwnedProvidersList
+  : xenium::harris_michael_list_based_set<
+      std::shared_ptr<impl::FilteredProvider>,
+      xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+      xenium::policy::compare<std::owner_less<std::shared_ptr<impl::FilteredProvider>>>>
+{
+};
+
+ObjectFilter::ObjectFilter(ObjectOwnerId ownerId)
+  : ownerId_(ownerId)
+  , providers_(std::make_unique<ConcurrentWeakProvidersList>())
+  , ownedProviders_(std::make_unique<ConcurrentOwnedProvidersList>())
+{
+}
 
 // defined here to allow FilteredProvider destructor to run
 ObjectFilter::~ObjectFilter() = default;
@@ -409,7 +439,7 @@ std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
   // check if the provider for this interest already exists
-  for (const auto& providerw: providers_)
+  for (const auto& providerw: *providers_)
   {
     if (const auto provider = providerw.lock(); provider)
     {
@@ -437,7 +467,7 @@ std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std
 
   // not present, so we need to create one
   auto ptr = std::make_shared<impl::FilteredProvider>(this, std::move(interest));
-  providers_.push_back(ptr);
+  providers_->emplace(ptr);
 
   ptr->setName(name);
   ptr->startTracking(lastPresentObjects_);
@@ -450,18 +480,18 @@ void ObjectFilter::removeNamedProvider(std::string_view name)
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
-  for (std::size_t i = 0U; i < providers_.size(); ++i)
+  for (const auto& provider: *providers_)
   {
-    if (const auto provider = providers_[i].lock(); provider)
+    if (const auto providerPtr = provider.lock(); providerPtr)
     {
-      if (provider->hasName() && provider->getName() == name)
+      if (providerPtr->hasName() && providerPtr->getName() == name)
       {
-        provider->clearName();
+        providerPtr->clearName();
 
         // delete the provider if there are no listeners
-        if (!provider->hasListeners())
+        if (!providerPtr->hasListeners())
         {
-          providers_.erase(providers_.begin() + i);  // NOLINT(bugprone-narrowing-conversions)
+          providers_->erase(provider);
         }
         return;
       }
@@ -472,14 +502,22 @@ void ObjectFilter::removeNamedProvider(std::string_view name)
 void ObjectFilter::providerDeleted(impl::FilteredProvider* provider)
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
-  providers_.erase(std::remove_if(providers_.begin(),
-                                  providers_.end(),
-                                  [provider](auto providerw)
-                                  {
-                                    auto providerinner = providerw.lock();
-                                    return providerinner.get() == provider;
-                                  }),
-                   providers_.end());
+
+  for (auto it = providers_->begin(); it != providers_->end();)
+  {
+    if (auto providerPtr = it->lock())
+    {
+      if (providerPtr.get() == provider)
+      {
+        const auto toRemove = *it;
+        ++it;
+        providers_->erase(toRemove);
+        return;
+      }
+    }
+
+    ++it;
+  }
 }
 
 void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
@@ -489,7 +527,7 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
   // check if the provider for this interest already exists
-  for (const auto& provider: ownedProviders_)
+  for (const auto& provider: *ownedProviders_)
   {
     if (provider->getInterest() == *interest)
     {
@@ -499,15 +537,15 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
   }
 
   // create the provider
-  ownedProviders_.push_back(std::make_shared<impl::FilteredProvider>(this, interest));
-  providers_.push_back(ownedProviders_.back());
-  const auto provider = providers_.back().lock();
-  provider->addListener(listener, notifyAboutExisting);
+  auto newProvider = std::make_shared<impl::FilteredProvider>(this, interest);
+  ownedProviders_->emplace(newProvider);
+  providers_->emplace(newProvider);
+  newProvider->addListener(listener, notifyAboutExisting);
 
   if (notifyAboutExisting)
   {
-    provider->startTracking(lastPresentObjects_);
-    provider->evaluateTrackedObjects();
+    newProvider->startTracking(lastPresentObjects_);
+    newProvider->evaluateTrackedObjects();
   }
 }
 
@@ -517,11 +555,9 @@ void ObjectFilter::removeSubscriber(std::shared_ptr<Interest> interest,
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
-  // explicit copy to prevent modifications
-  auto providers = providers_;
-  for (const auto& providerw: providers)
+  for (const auto& providerw: *providers_)
   {
-    auto provider = providerw.lock();
+    const auto provider = providerw.lock();
     if (!provider)
     {
       continue;
@@ -533,22 +569,26 @@ void ObjectFilter::removeSubscriber(std::shared_ptr<Interest> interest,
   }
 
   // delete the provider if there are no listeners and is not named
-  ownedProviders_.erase(
-    std::remove_if(ownedProviders_.begin(),
-                   ownedProviders_.end(),
-                   [](const auto& elem) -> bool { return !elem->hasName() && !elem->hasListeners(); }),
-    ownedProviders_.end());
+  for (auto itr = ownedProviders_->begin(); itr != ownedProviders_->end();)
+  {
+    if (!(*itr)->hasName() && !(*itr)->hasListeners())
+    {
+      const auto toRemove = *itr;
+      ++itr;
+      ownedProviders_->erase(toRemove);
+      continue;
+    }
+    ++itr;
+  }
 }
 
 void ObjectFilter::removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting)
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
-  // explicit copy to prevent modifications
-  auto providers = providers_;
-  for (const auto& providerw: providers)
+  for (const auto& providerw: *providers_)
   {
-    auto provider = providerw.lock();
+    const auto provider = providerw.lock();
     if (!provider)
     {
       continue;
@@ -556,15 +596,22 @@ void ObjectFilter::removeSubscriber(ObjectProviderListener* listener, bool notif
     provider->removeListener(listener, notifyAboutExisting);
   }
 
-  ownedProviders_.erase(
-    std::remove_if(
-      ownedProviders_.begin(), ownedProviders_.end(), [](const auto& elem) -> bool { return !elem->hasListeners(); }),
-    ownedProviders_.end());
+  for (auto itr = ownedProviders_->begin(); itr != ownedProviders_->end();)
+  {
+    if (!(*itr)->hasListeners())
+    {
+      const auto toRemove = *itr;
+      ++itr;
+      ownedProviders_->erase(toRemove);
+      continue;
+    }
+    ++itr;
+  }
 }
 
 void ObjectFilter::replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener)
 {
-  for (const auto& providerw: util::makeLockedRange<std::lock_guard>(providers_, usageMutex_))
+  for (const auto& providerw: *providers_)
   {
     if (auto provider = providerw.lock())
     {
@@ -582,9 +629,7 @@ void ObjectFilter::evaluate(const ObjectSet& objects)
   // check the removed objects
   if (!objects.deletedObjects.empty())
   {
-    // explicit copy to prevent modifications
-    auto providers = providers_;
-    for (const auto& providerw: providers)
+    for (const auto& providerw: *providers_)
     {
       if (const auto provider = providerw.lock(); provider)
       {
@@ -596,7 +641,7 @@ void ObjectFilter::evaluate(const ObjectSet& objects)
   // check the added objects
   if (!objects.newObjects.empty())
   {
-    for (const auto& providerw: providers_)
+    for (const auto& providerw: *providers_)
     {
       if (const auto provider = providerw.lock(); provider)
       {
@@ -607,9 +652,7 @@ void ObjectFilter::evaluate(const ObjectSet& objects)
     lastPresentObjects_.insert(objects.newObjects.begin(), objects.newObjects.end());
   }
 
-  // explicit copy to prevent modifications
-  auto providers = providers_;
-  for (const auto& provider: providers)
+  for (const auto& provider: *providers_)
   {
     if (auto lockedProvider = provider.lock(); lockedProvider)
     {
@@ -660,7 +703,7 @@ bool ObjectFilter::hasActiveListeners()
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
-  for (const auto& providerw: providers_)
+  for (const auto& providerw: *providers_)
   {
     if (const auto provider = providerw.lock(); provider)
     {

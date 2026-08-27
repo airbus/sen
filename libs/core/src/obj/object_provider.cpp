@@ -10,8 +10,15 @@
 // sen
 #include "sen/core/obj/detail/proxy_object.h"
 
+// xenium
+#include <xenium/harris_michael_list_based_set.hpp>
+#include <xenium/policy.hpp>
+#include <xenium/reclamation/generic_epoch_based.hpp>
+
 // std
 #include <algorithm>
+#include <functional>
+#include <memory>
 #include <tuple>
 #include <vector>
 
@@ -22,58 +29,75 @@ namespace sen
 // ObjectProviderListener
 //--------------------------------------------------------------------------------------------------------------
 
+/// Lock-free Harris-Michael list using epoch-based reclamation.
+/// Inherits directly from xenium to eliminate wrapper boilerplate within the Pimpl idiom.
+struct ObjectProviderListener::ConcurrentProviderList
+  : xenium::harris_michael_list_based_set<ObjectProvider*,
+                                          xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+                                          xenium::policy::compare<std::less<ObjectProvider*>>>
+{
+};
+
+ObjectProviderListener::ObjectProviderListener(): providers_(std::make_unique<ConcurrentProviderList>()) {}
+
+ObjectProviderListener::ObjectProviderListener(ObjectProviderListener&& other) noexcept = default;
+
+ObjectProviderListener& ObjectProviderListener::operator=(ObjectProviderListener&& other) noexcept = default;
+
 ObjectProviderListener::~ObjectProviderListener()
 {
-  auto providers = providers_;  // explicit copy to prevent modifications
-  for (auto* provider: providers)
+  // guard against moved-from state where unique_ptr ownership was transferred
+  if (!providers_)
   {
-    provider->listenerDeleted(this);
+    return;
+  }
+
+  for (auto* provider: *providers_)
+  {
+    if (provider != nullptr)
+    {
+      provider->listenerDeleted(this);
+    }
   }
 }
 
-void ObjectProviderListener::addProvider(ObjectProvider* provider)
-{
-  auto itr = std::find(providers_.begin(), providers_.end(), provider);
-  if (itr == providers_.end())
-  {
-    providers_.push_back(provider);
-  }
-}
+void ObjectProviderListener::addProvider(ObjectProvider* provider) { providers_->emplace(provider); }
 
-void ObjectProviderListener::removeProvider(ObjectProvider* provider)
-{
-  auto itr = std::find(providers_.begin(), providers_.end(), provider);
-  if (itr != providers_.end())
-  {
-    providers_.erase(itr);
-  }
-}
+void ObjectProviderListener::removeProvider(ObjectProvider* provider) { providers_->erase(provider); }
 
-sen::kernel::impl::RemoteParticipant* ObjectProviderListener::isRemoteParticipant() noexcept { return nullptr; }
+kernel::impl::RemoteParticipant* ObjectProviderListener::isRemoteParticipant() noexcept { return nullptr; }
 
-sen::kernel::impl::LocalParticipant* ObjectProviderListener::isLocalParticipant() noexcept { return nullptr; }
+kernel::impl::LocalParticipant* ObjectProviderListener::isLocalParticipant() noexcept { return nullptr; }
 
 //--------------------------------------------------------------------------------------------------------------
 // ObjectProvider
 //--------------------------------------------------------------------------------------------------------------
 
+/// Lock-free Harris-Michael list using epoch-based reclamation.
+/// Inherits directly from xenium to eliminate wrapper boilerplate within the Pimpl idiom.
+struct ObjectProvider::ConcurrentListenerList
+  : xenium::harris_michael_list_based_set<ObjectProviderListener*,
+                                          xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+                                          xenium::policy::compare<std::less<ObjectProviderListener*>>>
+{
+};
+
+ObjectProvider::ObjectProvider(): listeners_(std::make_unique<ConcurrentListenerList>()) {}
+
 ObjectProvider::~ObjectProvider()
 {
-  // explicit copy to prevent modifications
-  auto listeners = listeners_;
-
-  for (auto* listener: listeners)
+  for (auto* listener: *listeners_)
   {
-    listener->removeProvider(this);
+    if (listener != nullptr)
+    {
+      listener->removeProvider(this);
+    }
   }
 }
 
 void ObjectProvider::notifyRemovedOnExistingObjectsForAllListeners()
 {
-  // explicit copy to prevent modifications
-  auto listeners = listeners_;
-
-  for (auto* listener: listeners)
+  for (auto* listener: *listeners_)
   {
     notifyRemovedOnExistingObjects(listener);
   }
@@ -81,28 +105,23 @@ void ObjectProvider::notifyRemovedOnExistingObjectsForAllListeners()
 
 void ObjectProvider::replaceListener(ObjectProviderListener* oldListener, ObjectProviderListener* newListener)
 {
-  if (const auto itr = std::find(listeners_.begin(), listeners_.end(), oldListener); itr != listeners_.end())
-  {
-    *itr = newListener;
-
-    oldListener->removeProvider(this);
-    newListener->addProvider(this);
-  }
+  listeners_->erase(oldListener);
+  listeners_->emplace(newListener);
+  // NOTE: the links to the providers in the listeners are NOT updated in this method (the old listener cannot be
+  // modified after moving it in the Subscription move constructor)
 }
 
 bool ObjectProvider::hasListener(ObjectProviderListener* listener) const noexcept
 {
-  return std::find(listeners_.begin(), listeners_.end(), listener) != listeners_.end();
+  return listeners_->contains(listener);
 }
 
-bool ObjectProvider::hasListeners() const noexcept { return !listeners_.empty(); }
+bool ObjectProvider::hasListeners() const noexcept { return listeners_->begin() != listeners_->end(); }
 
 void ObjectProvider::addListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects)
 {
-  auto itr = std::find(listeners_.begin(), listeners_.end(), listener);
-  if (itr == listeners_.end())
+  if (listeners_->emplace(listener))
   {
-    listeners_.push_back(listener);
     listener->addProvider(this);
 
     if (notifyAboutExistingObjects)
@@ -116,31 +135,24 @@ void ObjectProvider::addListener(ObjectProviderListener* listener, bool notifyAb
 
 void ObjectProvider::removeListener(ObjectProviderListener* listener, bool notifyAboutExistingObjects)
 {
-  auto itr = std::find(listeners_.begin(), listeners_.end(), listener);
-  if (itr != listeners_.end())
+  if (listeners_->erase(listener))
   {
+    listener->removeProvider(this);
+
     if (notifyAboutExistingObjects)
     {
       notifyRemovedOnExistingObjects(listener);
     }
 
-    (*itr)->removeProvider(this);
-    listeners_.erase(itr);
-
     listenerRemoved(listener, notifyAboutExistingObjects);
   }
 }
 
-void ObjectProvider::listenerDeleted(ObjectProviderListener* listener)
-{
-  listeners_.erase(std::remove(listeners_.begin(), listeners_.end(), listener), listeners_.end());
-}
+void ObjectProvider::listenerDeleted(ObjectProviderListener* listener) { listeners_->erase(listener); }
 
 void ObjectProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
 {
-  // explicit copy to prevent modifications
-  auto listeners = listeners_;
-  for (auto* listener: listeners)
+  for (auto* listener: *listeners_)
   {
     callOnObjectsAdded(listener, additions);
   }
@@ -148,9 +160,7 @@ void ObjectProvider::notifyObjectsAdded(const ObjectAdditionList& additions)
 
 void ObjectProvider::notifyObjectsRemoved(const ObjectRemovalList& removals)
 {
-  // explicit copy to prevent modifications
-  auto listeners = listeners_;
-  for (auto* listener: listeners)
+  for (auto* listener: *listeners_)
   {
     callOnObjectsRemoved(listener, removals);
   }
@@ -177,7 +187,5 @@ void ObjectProvider::callOnObjectsRemoved(ObjectProviderListener* listener, cons
 {
   listener->onObjectsRemoved(removals);
 }
-
-const std::vector<ObjectProviderListener*>& ObjectProvider::getListeners() const noexcept { return listeners_; }
 
 }  // namespace sen

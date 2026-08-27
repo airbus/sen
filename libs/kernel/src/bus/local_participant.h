@@ -19,6 +19,11 @@
 #include "remote_interest_manager.h"
 #include "session.h"
 
+// xenium
+#include <xenium/harris_michael_list_based_set.hpp>
+#include <xenium/policy.hpp>
+#include <xenium/reclamation/generic_epoch_based.hpp>
+
 // sen
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/span.h"
@@ -150,6 +155,14 @@ private:  // to be accessed from the ProxyManager to check the cache before cons
   void cleanupExpiredProxies();
 
 private:
+  /// Lock-free Harris-Michael list using epoch-based reclamation.
+  /// Inherits directly from xenium to eliminate wrapper boilerplate within the Pimpl idiom.
+  using ConcurrentProxyManagerList =
+    xenium::harris_michael_list_based_set<std::shared_ptr<ProxyManager>,
+                                          xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+                                          xenium::policy::compare<std::owner_less<std::shared_ptr<ProxyManager>>>>;
+
+private:
   impl::Runner* owner_;
   std::recursive_mutex teardownMutex_;
   bool tornDown_ {false};
@@ -160,8 +173,7 @@ private:
   ObjectFilter::ObjectSet localObjects_;
   RemoteInterestsManager remoteInterestsManager_;
   ::sen::impl::WorkQueue& workQueue_;
-  std::shared_mutex interestsOnOthersMutex_;
-  std::vector<std::shared_ptr<ProxyManager>> interestsOnOthers_;
+  ConcurrentProxyManagerList interestsOnOthers_;
   std::unordered_map<ObjectId, std::weak_ptr<sen::impl::ProxyObject>> objectIdToProxy_;
   std::mutex participantsMutex_;
   std::vector<Participant*> participants_;

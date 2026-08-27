@@ -10,6 +10,7 @@ include(tps/spdlog)
 include(tps/concurrentqueue)
 include(tps/cpptrace)
 include(tps/pugixml)
+include(tps/xenium)
 
 get_version_from_git_raw(SEN_VERSION_STRING)
 configure_file(
@@ -272,6 +273,7 @@ target_link_libraries(
   PRIVATE concurrentqueue::concurrentqueue
   PRIVATE cpptrace::cpptrace
   PRIVATE pugixml::pugixml
+  PRIVATE xenium::xenium
 )
 
 # -------------------------------------------------------------------------------------------------------------
