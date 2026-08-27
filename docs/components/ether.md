@@ -131,6 +131,9 @@ Sen uses multicast to distribute information to multiple receivers with minimum 
 multicast groups are generated based on an internal algorithm. In some cases, you might need to
 deploy Sen applications in a context where multicast support is limited.
 
+Use the [network footprint report](../users_guide/command_line.md#offline-network-footprint)
+to inspect the addresses and ports that each process configuration is expected to use.
+
 ### Setting the Network Interface
 
 You can set the `networkDevice` attribute to force Sen to use a particular network interface. If
@@ -269,4 +272,30 @@ the following commands as root:
 ```shell
 sysctl -w net.core.rmem_max=8388608
 sysctl -w net.core.rmem_default=8388608
+```
+
+### BSD/Darwin
+
+On BSD/Darwin systems you need to add about a 15% padding to the kernel limit socket buffer. Meaning
+if you want an 8MB buffer (8388608 bytes) you need to set the kernel limit to 8388608\*1.15 =
+9646900\. This is not documented anywhere but happens in the kernel here.
+
+Check the current UDP/IP buffer limit by typing the following command:
+
+```shell
+sysctl kern.ipc.maxsockbuf
+```
+
+If the value is less than 9646900 bytes you should add the following lines to the /etc/sysctl.conf
+file (create it if necessary):
+
+```text
+kern.ipc.maxsockbuf=9646900
+```
+
+Changes to /etc/sysctl.conf do not take effect until reboot. To update the values immediately, type
+the following command as root:
+
+```shell
+sysctl -w kern.ipc.maxsockbuf=9646900
 ```

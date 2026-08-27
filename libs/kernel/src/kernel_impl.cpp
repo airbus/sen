@@ -16,6 +16,7 @@
 #include "wall_clock.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/move_only_function.h"
 #include "sen/core/base/span.h"
@@ -295,8 +296,43 @@ void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<Netw
   networkReport_ = std::move(reporter);
 }
 
+NetworkFootprint KernelImpl::generateOfflineNetworkFootprint(Span<const BusAddress> suppliedBusAddresses)
+{
+  Lock lock(usageMutex_);
+
+  if (!configured_)
+  {
+    configure();
+    configured_ = true;
+  }
+
+  bool shutdownStarted = false;
+  try
+  {
+    executor_.preloadOnly();
+    auto footprint = getNetworkFootprint(suppliedBusAddresses);
+
+    // do not retry final component cleanup if shutDown() itself throws.
+    shutdownStarted = true;
+    executor_.shutDown();
+    return footprint;
+  }
+  catch (...)
+  {
+    if (!shutdownStarted)
+    {
+      executor_.shutDown();
+    }
+    throw;
+  }
+}
+
 NetworkFootprint KernelImpl::getNetworkFootprint(Span<const BusAddress> busAddresses) const
 {
+  if (!networkReport_)
+  {
+    throwRuntimeError("network footprint reporter is not installed; ensure the ether component is configured");
+  }
   return networkReport_(busAddresses);
 }
 
