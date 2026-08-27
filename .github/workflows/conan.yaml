@@ -70,14 +70,6 @@ jobs:
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ env.cache_date }}
           restore-keys: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-
 
-      - uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
-        if: runner.os == 'Linux'
-        with:
-          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
-          max-size: 1G
-          verbose: 1
-          save: ${{ github.ref == 'refs/heads/main' }}
-
       - name: Setup build context
         uses: ./.github/actions/setup_build_context
         with:
@@ -88,7 +80,6 @@ jobs:
       - name: Create conan package
         shell: bash
         run: |
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           # build_type applies to the sen package only; dependencies stay at
           # the profiles' Release default, shared across build types and
           # matching what binary remotes serve. Scoped by name rather than &
