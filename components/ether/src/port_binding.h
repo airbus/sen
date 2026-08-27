@@ -48,6 +48,12 @@ void bindConfiguredPort(const Configuration& config,
                         PortKind kind,
                         const BindPort& bind);
 
+/// Selects the configured port binding for the given port kind
+///
+/// @param config: ether configuration with the port settings.
+/// @param kind: port type.
+/// @return selected binding.
+[[nodiscard]] const PortBinding& getPortBinding(const Configuration& config, PortKind kind);
 }  // namespace sen::components::ether
 
 #endif  // SEN_COMPONENTS_ETHER_SRC_PORT_BINDING_H

@@ -12,6 +12,7 @@
 #include "bus/remote_participant.h"  // NOLINT(misc-include-cleaner) false positive
 #include "sen/core/base/assert.h"
 #include "sen/core/base/duration.h"
+#include "sen/core/base/move_only_function.h"
 #include "sen/core/base/mutex_utils.h"
 #include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
@@ -269,6 +270,11 @@ void PreloadApi::installTransportFactory(TransportFactory&& factory, uint32_t tr
 void PreloadApi::installTracerFactory(TracerFactory&& factory) const
 {
   kernel_.pimpl_->installTracerFactory(std::move(factory));
+}
+
+void PreloadApi::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter)
+{
+  kernel_.pimpl_->installFootprintReporter(std::move(reporter));
 }
 
 //--------------------------------------------------------------------------------------------------------------

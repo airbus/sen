@@ -49,6 +49,8 @@ add_sen_package(
           src/network_exclusion.cpp
           src/port_binding.h
           src/port_binding.cpp
+          src/network_footprint.h
+          src/network_footprint.cpp
   STL_FILES stl/discovery.stl stl/runtime.stl stl/configuration.stl
   PRIVATE_DEPS
     sen::kernel

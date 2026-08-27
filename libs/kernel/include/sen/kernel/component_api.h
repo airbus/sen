@@ -11,6 +11,7 @@
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/duration.h"
+#include "sen/core/base/move_only_function.h"
 #include "sen/core/base/mutex_utils.h"
 #include "sen/core/base/result.h"
 #include "sen/core/base/span.h"
@@ -32,6 +33,7 @@
 
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // spdlog
 #include <spdlog/logger.h>
@@ -57,6 +59,9 @@ using FuncResult = Result<void, ExecError>;
 
 /// The result of operations that may be called multiple times.
 using PassResult = Result<OpState, ExecError>;
+
+/// Callable that builds a network footprint from bus addresses.
+using NetworkFootprintReporter = NetworkFootprint(Span<const BusAddress>) const;
 
 class SessionsDiscoverer;
 class RunApi;
@@ -231,6 +236,9 @@ public:
 
   /// Installs a tracer factory.
   void installTracerFactory(TracerFactory&& factory) const;
+
+  /// Installs a footprint reporter.
+  void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter);
 
 private:
   Kernel& kernel_;

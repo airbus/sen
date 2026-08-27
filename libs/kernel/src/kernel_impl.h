@@ -18,12 +18,15 @@
 
 // sen
 #include "sen/core/base/class_helpers.h"
+#include "sen/core/base/move_only_function.h"
 #include "sen/core/base/span.h"
+#include "sen/kernel/component_api.h"
 #include "sen/kernel/kernel.h"
 #include "sen/kernel/kernel_config.h"
 
 // generated
 #include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // spdlog
 #include <spdlog/fwd.h>
@@ -33,6 +36,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -121,6 +125,12 @@ public:
   /// Set the factory function for creating tracers
   void installTracerFactory(TracerFactory&& factory);
 
+  /// Set the reporter used to build process network footprint
+  void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter);
+
+  /// Builds a network footprint for the supplied bus addresses
+  NetworkFootprint getNetworkFootprint(Span<const BusAddress> busAddresses) const;
+
 private:
   /// Implementation of run() depending on the run mode stated in the configuration.
   [[nodiscard]] int applyRunMode(KernelBlockMode blockMode);
@@ -168,6 +178,7 @@ private:
   CustomTypeRegistry types_;
   SessionManager sessionManager_;
   std::function<std::unique_ptr<Tracer>(std::string_view)> tracerFactory_;
+  sen::std_util::move_only_function<NetworkFootprintReporter> networkReport_;
   std::vector<ComponentInfo> importedPackages_;
   std::vector<ComponentInfo> loadedComponents_;
 };
