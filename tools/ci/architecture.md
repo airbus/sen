@@ -19,7 +19,7 @@ appears as a reviewable diff.
 
 | File                 | Trigger                                    | Purpose                                     |
 | -------------------- | ------------------------------------------ | ------------------------------------------- |
-| `main.yaml`          | pull_request, push to main, merge_group, nightly cron, dispatch | starts the checks, tests and packaging |
+| `main.yaml`          | pull_request, push to main, merge_group, dispatch | starts the checks, tests and packaging |
 | `pre-commit.yaml`    | called by main.yaml                        | lint and format checks on the changed files |
 | `standard_test.yaml` | called by main.yaml                        | the build-and-test matrix                   |
 | `conan.yaml`         | called by main.yaml                        | the `conan create` packaging jobs           |
@@ -50,38 +50,40 @@ matrix only runs when it is needed:
   described below.
 - Every other pull request runs the matrix from `generate_matrix_jobs.py`.
 
-The matrix legs build the examples together with the production code and
-run the example smoke tests. The shipping leg (Linux gcc Release) also
+The matrix jobs build the examples together with the production code and
+run the example smoke tests. The shipping job (Linux gcc Release) also
 builds the CPack archive and checks that it still holds the binaries, the
 public headers and the exported cmake configuration, and that its name
 still matches what the release upload expects. That archive is what the
 release attaches and what the installer unpacks, so a dropped install rule
-would otherwise surface only at release time. The Windows legs build
+would otherwise surface only at release time. The Windows jobs build
 neither; building the examples there is still open.
 
-The clang leg is the one that measures coverage. It builds the report as it
+The clang job is the one that measures coverage. It builds the report as it
 runs the suite, uploads it, prints the total in the job summary, and fails if
 the share of covered lines falls below the floor recorded in
 `standard_test.yaml`. The floor sits a few points under the measured figure,
 because the number moves slightly between runs; the browsable report is
 published by the nightly run.
 
-The two x86 gcc legs also build a small runtime image
+The two x86 gcc jobs also build a small runtime image
 (`tools/ci/runtime.Dockerfile`) and register the container-based
 `object_sync` suite, which then runs inside `run_tests` like every other
 test. The image is built before the compile, so a problem with docker costs
 seconds rather than a whole build, and a step right after the compile
 asserts that the suite really registered: its tests are labelled flaky, a
-selection ctest is allowed to leave empty, so a broken handoff would
-otherwise pass silently. The clang and arm legs do not run the suite; they
-would add container startups without covering anything these two legs miss.
+selection ctest is allowed to leave empty, so a rename on either side would
+otherwise pass silently. The clang and arm jobs do not run the suite; they
+would add container startups without covering anything these two jobs miss.
 
 A separate job builds the documentation (the API reference and the
-handbook) without publishing it. It runs when a changed path is an input
-of the documentation build: `docs/`, `examples/` (the handbook copies its
-snippets from there), `mkdocs.yml`, or any markdown file. A broken
-documentation change is caught on the pull request instead of after the
-merge.
+handbook) without publishing it. It runs when a changed path is an input of
+the documentation build. `classify_changes.py` holds the list: any markdown
+file, anything under `docs/`, `examples/` or `components/` (the handbook
+copies its snippets from the last two), the conan profiles under `.conan/`,
+the `build_documentation` action, and the files `mkdocs.yml`, `conanfile.py`,
+`conan.lock`, `LICENSE.txt` and `docs_check.yaml`. A broken documentation
+change is caught on the pull request instead of after the merge.
 
 Building and publishing are separate workflows on purpose. Publishing
 needs write access to the `gh-pages` branch, and the documentation build
@@ -95,7 +97,7 @@ documentation the same way.
 
 The last job is `CI OK`, and branch protection requires only this one check.
 The other jobs are skipped on purpose in normal situations (drafts,
-documentation-only changes, a packaging lane that does not run on pull
+documentation-only changes, a packaging job that does not run on pull
 requests), and a required check that never reports would block the merge
 forever, so the aggregator is the one job that always runs and always
 reports.
@@ -111,8 +113,8 @@ without blocking the merge.
 
 A draft is deliberately not failed. Its run did what a draft run is meant to
 do, and GitHub does not allow a draft to be merged, so failing it would make
-the check report "unfinished" as well as "broken" -- and a check that cries
-failure for work that never started is a check people learn to ignore. The
+the check report "unfinished" as well as "broken". A check that fails for work
+that was never meant to start is one people stop reading. The
 cost is one narrow race: the moment a draft is marked ready, the green
 result of the draft run still sits on that commit until the new run reports.
 Auto-merge is off for exactly this reason; do not merge in the seconds
@@ -131,17 +133,21 @@ Two rules keep this setup working:
 
 Only one run per branch and trigger kind exists at a time (the
 `concurrency` group): a new push to a pull request cancels the run that is
-still in progress. Cancellation is limited to pull requests, so two merges
-landing minutes apart cannot cancel each other's post-merge validation. The
-event name is part of the group key, so a manual run and a push to main do
-not collide.
+still in progress. The event name is part of the group key, so a manual run
+and a push to main do not collide.
+
+Cancellation is not limited to pull requests. Two merges landing minutes
+apart share one group, so the second cancels the first and the earlier commit
+keeps no post-merge result. A draft toggle does the same on a single commit,
+because converting to draft and back fires two events into the same group;
+what the cancelled run leaves behind is described under "Landing a change".
 
 **Packaging on a pull request builds one configuration.** Packaging is the
 only check that builds Sen as a package and then builds a consumer against
 it, so a broken conan recipe or an unusable exported configuration shows up
 there and nowhere else. (Whether every install rule still ships what it
 should is a different question, answered by the package-archive check
-below.) Running every configuration on every push flooded the runner queue,
+below.) Running every configuration on every push overloaded the runner queue,
 so a pull request runs the configuration that ships (Linux gcc Release) and
 the full set runs after a merge, in the merge queue, every night and on
 manual dispatch. It runs in parallel with the test matrix.
@@ -154,19 +160,19 @@ description is a dataclass that checks its own fields when it is created. A
 selection that cannot be classified raises an error instead of silently
 producing an empty matrix. `test_generate_matrix_jobs.py` pins the exact
 list of jobs, so changing the matrix also means updating the expected list
-in the same commit. These tests run in stage 0 and as a local pre-commit
-hook, and one of them asserts that every declared leg is selected by some
-workflow, so a leg that reads as coverage but can never run does not
+in the same commit. These tests run in the python-checks job and as a local
+pre-commit hook, and one of them asserts that every declared job is selected
+by some workflow, so a job that reads as coverage but can never run does not
 survive.
 
-Besides compiler, build type and language standard, each leg carries three
+Besides compiler, build type and language standard, each job carries three
 switches: whether it builds the examples, the docker base image for the
-container-based integration tests (empty means the leg does not run them;
+container-based integration tests (empty means the job does not run them;
 the base must match the runner's OS so the binaries mounted into the
 containers find a matching runtime), and whether it builds and checks the
 package archive. The
-standard is passed to the compiler, so adding a leg for a different one
-tests what its name claims; every leg currently builds C++17, which is what
+standard is passed to the compiler, so adding a job for a different one
+tests what its name claims; every job currently builds C++17, which is what
 the project promises its consumers.
 
 ## Dependencies
@@ -189,16 +195,33 @@ compiler, and it matches what binary remotes provide. There is one
 exception: an MSVC Debug test job must not use Release dependencies,
 because MSVC links different C runtimes in Debug and Release (MDd/MD). All
 current Windows jobs are Release, so the rule is safe today; revisit it
-when Windows tests are enabled. A stage-0 check resolves a Debug consumer
-graph and fails if any dependency left the Release default.
+when Windows tests are enabled. The lockfile check job resolves a Debug
+consumer graph and fails if any dependency left the Release default.
 
-**Caches.** Conan packages: one Actions cache entry per compiler
-(`conanp-<os>-<compiler>-<version>-<std>-<date>`). Both workflows and all
-build types share it. It is restored by prefix, so the newest snapshot
-wins. Sources and build folders are cleaned before saving. ccache: one
-cache entry per compiler and build type. The nightly sanitizer runs reuse
-the conan cache (dependencies build without sanitizer flags) but do not use
-ccache: object files built with sanitizer flags must not end up in the
+**Caches.** Conan packages: one Actions cache entry per runner and compiler
+(`conanp-<runner>-<compiler>-<version>-<std>-<date>`). All build types share
+it, because dependencies always build as Release. It is restored by prefix,
+so the newest entry wins, and sources and build folders are cleaned before
+saving.
+
+**Entries are written only on pushes to main.** A cache written from a pull
+request is private to that pull request, so if every open pull request saved
+its own copy, the repository would pass GitHub's 10 GB limit and GitHub would
+evict continuously.
+
+That rule has a consequence which is easy to miss. **A configuration that
+never runs on main never gets an entry at all.** The arm configuration is in
+that position today: it is not selected by the packaging workflow, it is not
+selected on main, and no nightly job covers it, so nothing writes its entry.
+It therefore builds every dependency from source on every pull request, which
+takes far longer than the other configurations and depends on the upstream
+source servers being reachable at that moment.
+
+ccache: one entry per runner, compiler, build type and run. The action that
+writes it puts a timestamp in the key, so every run on main leaves a new entry
+and the previous one stays until it is evicted. The nightly sanitizer runs
+reuse the conan cache (dependencies build without sanitizer flags) but do not
+use ccache: object files built with sanitizer flags must not end up in the
 normal cache entries.
 
 ## The build image
@@ -255,7 +278,7 @@ devcontainer that could not finish a build. The target is a single image,
 built from the file in this repository, published to the GitHub container
 registry when a change lands on main, and used by both the pull-request jobs
 and the devcontainer. Then a tool either exists for everyone or for nobody,
-and "a check that quietly analysed nothing" stops being possible.
+and a check can no longer pass having analysed nothing.
 
 Publishing to that registry has been confirmed to work for this repository
 with the ordinary workflow token, so it needs no organisation-level change.
@@ -294,8 +317,8 @@ nightly run publishes the browsable report beside the documentation.
 
 **A requested check must never quietly do nothing.** Where a tool is missing,
 the build fails rather than warning, whenever the feature was explicitly
-asked for. This is the rule that the coverage and clang-tidy lanes broke: the
-tools were absent, the build warned, and the lanes passed having measured and
+asked for. This is the rule that the coverage and clang-tidy jobs broke: the
+tools were absent, the build warned, and the jobs passed having measured and
 analysed nothing.
 
 **Windows stays outside the image.** MSVC cannot be containerised, so that
@@ -315,19 +338,19 @@ implying the container covers every platform.
 | packaging         | `conan create` for every packaged configuration             | the pull request builds only the shipping configuration |
 | public headers under C++20 | sen itself built at C++20                            | its own sources have to compile under a newer standard, not only C++17 |
 | newest gcc        | whole tree with the newest gcc on a runner, then the sample consumer at C++20 and C++23 | pull requests build with the oldest supported compiler and only C++17 |
-| coverage          | clang Debug build with coverage, report published to `<site>/coverage/` | the clang leg does not run on main, so the published report needs its own lane |
+| coverage          | clang Debug build with coverage, report published to `<site>/coverage/` | the clang job does not run on main, so the report is produced here instead |
 
 When a nightly job fails, it creates or updates a single tracking issue, so
 all nightly failures are collected in one place.
 
 **The coverage report** is published to `<site>/coverage/` on the `gh-pages`
-branch, beside the versioned documentation that `mike` manages. The lane that
-measures it and the job that publishes it are separate, so that a build never
-holds a token which can write to the repository. Publishing shares the
+branch, beside the versioned documentation that `mike` manages. Measuring and
+publishing are separate jobs, so that a build never holds a token which can
+write to the repository. Publishing shares the
 `gh-pages-deploy` concurrency group with the documentation deploy, and if a
 deploy still lands first, the report is replayed on top of it rather than
 merged: that branch is a published directory, not a line of development.
-The pull-request pipeline measures the same figure on its clang leg, prints it
+The pull-request pipeline measures the same figure on its clang job, prints it
 in the job summary and fails if it falls below the floor recorded in
 `standard_test.yaml`.
 
@@ -388,7 +411,7 @@ crash), `.ruff.toml` per-file ignores (tutorial scripts),
 
 - **Add or update a dependency**: edit `conanfile.py`, run
   `python .github/scripts/conan_lock.py update`, commit both files. The
-  stage-0 check fails if you forget.
+  lockfile check job fails if you forget.
 - **Change the matrix**: edit `generate_matrix_jobs.py` and its tests
   together.
 - **Update a tool**: conan is pinned in the three places listed above;
@@ -423,8 +446,9 @@ Two consequences follow, and neither is visible from the workflows:
 - **Merging rebases everything above it.** The branches are rewritten onto the
   new `main`, so their commits get new SHAs and their pipelines run again.
   This is inherent to stacked merging, not a setting that can be turned off.
-- **Cancelled runs leave a red `CI OK` behind.** When a rebase supersedes a
-  run in flight, its aggregate check reports failure and stays in the rollup.
+- **Cancelled runs leave a red `CI OK` behind.** When a rebase replaces a run
+  that is still in progress, its aggregate check reports failure and stays in
+  the rollup.
   Look for a later successful `CI OK` on the same commit before treating one
   as a real failure; GitHub enforces the most recent.
 
@@ -438,18 +462,24 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   external service is wired but disabled (SEN-1726); the published report and
   the floor cover the same ground without sending anything outside.
 - `object_sync` is the only suite that uses containers, and it runs only on the
-  two x86 gcc legs, because they are the ones that set a runtime image.
+  two x86 gcc jobs, because they are the ones that set a runtime image.
   Transport, runtime compatibility, crash report and type clash are a different
   thing: they drive several `sen run` processes through `runner.py` and need no
   container at all, only the ether and py components.
-- The Windows legs do not build the examples yet, and are excluded from the
+- The Windows jobs do not build the examples yet, and are excluded from the
   standard test workflow entirely, so they run no tests on a pull request.
 - What runs on a pull request is decided by the pull request's own copy of
   the workflows and of `classify_changes.py`, because that is how GitHub
   runs `pull_request` workflows. A green `CI OK` therefore means "the checks
   this branch asked for passed"; reading the diff of anything under
   `.github/` is part of reviewing a pull request.
-- The arm leg builds Debug only and is neither packaged nor released, so
+- `CI OK` is required only on pull requests whose base is `main`, because the
+  ruleset that requires it applies to the default branch. On a stacked pull
+  request, which targets the branch below it rather than `main`, no check is
+  required and no review is required. The marks still appear and are still
+  worth reading; they do not block anything until that pull request becomes
+  the bottom of the stack.
+- The arm job builds Debug only and is neither packaged nor released, so
   failures that need optimisation to appear are invisible on that
   architecture and there is no arm artifact.
 - The TypeScript client and the web frontend have their type checks and
@@ -461,11 +491,17 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   broken internal link still reaches the published site. The remaining
   warnings, and a doxygen version difference that has to be resolved first,
   are written down in the backlog.
-- mypy covers `.github/scripts/` only: duplicate test module names under
-  `apps/cli_gen` break a repo-wide run.
+- mypy runs over the changed Python files, with three paths excluded:
+  `.cmake-format.py`, `.conan/test_packages/` and `apps/cli_gen/test/test20/`.
+  The last is excluded because duplicate test module names there break the
+  run.
 - A fresh runner builds all dependencies from source once per cache
   lifetime; the first run of a day (or after the cache was removed) is the
-  slow one.
+  slow one. The arm configuration pays it on every run, because nothing
+  writes its cache entry; see the caches paragraph under Dependencies.
+- The pull-request pipeline does not follow the save-on-main rule everywhere.
+  `pre-commit/action` caches the hook environments itself and saves from every
+  pull request, so each open pull request stores its own copy.
 - clang-tidy and the sanitizers run only at night. Planned pull-request
   additions -- a combined ASan+UBSan build, TSan for tests with the
   `threading` label, and clang-tidy on the changed lines -- are tracked in
