@@ -219,10 +219,20 @@ source servers being reachable at that moment.
 
 ccache: one entry per runner, compiler, build type and run. The action that
 writes it puts a timestamp in the key, so every run on main leaves a new entry
-and the previous one stays until it is evicted. The nightly sanitizer runs
-reuse the conan cache (dependencies build without sanitizer flags) but do not
-use ccache: object files built with sanitizer flags must not end up in the
-normal cache entries.
+and the previous one stays until it is evicted.
+
+**Only the test workflow keeps a ccache.** `conan create` compiles in a folder
+whose name changes every run, so its object files never match the ones a test
+build produces, and the two workflows shared a key. Whichever wrote last won, and
+because the nightly runs the packaging workflow without the test workflow, the
+packaging objects won almost every day. Pull requests were then restoring
+hundreds of megabytes that hit on about one compile in five hundred. The
+packaging jobs now compile without ccache.
+
+This is the same rule as the nightly sanitizer runs, which reuse the conan cache
+(dependencies build without sanitizer flags) but do not use ccache: object files
+from a different kind of build must not land in the entries the ordinary builds
+depend on.
 
 ## The build image
 
