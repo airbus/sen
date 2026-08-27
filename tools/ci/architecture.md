@@ -499,9 +499,9 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   lifetime; the first run of a day (or after the cache was removed) is the
   slow one. The arm configuration pays it on every run, because nothing
   writes its cache entry; see the caches paragraph under Dependencies.
-- The pull-request pipeline does not follow the save-on-main rule everywhere.
-  `pre-commit/action` caches the hook environments itself and saves from every
-  pull request, so each open pull request stores its own copy.
+- `pre-commit/action` caches the hook environments itself, and its key includes
+  the interpreter path. Both call sites have to ask `setup-python` for the same
+  version, or a pull request cannot restore what the nightly saved.
 - clang-tidy and the sanitizers run only at night. Planned pull-request
   additions -- a combined ASan+UBSan build, TSan for tests with the
   `threading` label, and clang-tidy on the changed lines -- are tracked in
