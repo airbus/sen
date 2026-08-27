@@ -13,12 +13,13 @@
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/kernel/component_api.h"
-#include "sen/util/dr/dead_reckoner.h"
+#include "sen/util/dr/detail/dead_reckoner_base.h"
 #include "sen/util/dr/settable_dead_reckoner.h"
 
 // std
 #include <cmath>
 #include <memory>
+#include <utility>
 
 namespace aircrafts
 {
@@ -30,46 +31,57 @@ class DummyAircraftImpl: public DummyAircraftBase<>
 
   // type alias
   using SettableDr = sen::util::SettableDeadReckoner<rpr::BaseEntityBase<>>;
-  using DeadReckoner = sen::util::DeadReckoner<rpr::BaseEntityBase<>>;
+  using DeadReckonerBase = sen::util::DeadReckonerBase;
 
 public:
   using DummyAircraftBase<>::DummyAircraftBase;
   ~DummyAircraftImpl() override = default;
 
 public:
-  void registered(sen::kernel::RegistrationApi& /*api*/) override
+  void registered(sen::kernel::RegistrationApi& api) override
   {
-    // the DeadReckoner is used to update the world location of the aircraft given the configured speed. This is not
-    // the regular use of the DeadReckoner but it comes in handy for the example.
-    deadReckoner_ = std::make_unique<DeadReckoner>(*this);
+    std::ignore = api;
 
-    // the SettablaDeadReckoner is used to update the Spatial field of the aircraft
-    settableDeadReckoner_ = std::make_unique<SettableDr>(*this);
+    // used to update the spatial field of the aircraft
+    settableDeadReckoner_ =
+      std::make_unique<SettableDr>(*this, sen::util::DrThreshold {0.0, 0.0f, sen::util::ReferenceSystem::world});
+
+    // commanded speed can be modified by the user
+    speedGuard_ = onSpeedChanged({this,
+                                  [this]()
+                                  {
+                                    auto situation = deadReckoner_.geodeticSituation(api_->getTime());
+                                    const auto& [north, east, down] = getSpeed();
+                                    situation.velocityVector = {north, east, down};
+                                    deadReckoner_.updateGeodeticSituation(std::move(situation));
+                                  }});
   }
 
-  void update(sen::kernel::RunApi& api) override
+  void update(sen::kernel::RunApi& runApi) override
   {
-    // move the entity using the dead reckoner with the specified speed
-    auto situation = deadReckoner_->geodeticSituation(api.getTime());
+    api_ = &runApi;
 
-    // initialize the situation of the entity in the first iteration
-    if (!init_)
+    if (const auto currentTime = runApi.getTime(); currentTime == runApi.getStartTime())
     {
-      situation.worldLocation = {40.0, 0.0, 10000.0};
-      init_ = true;
+      sen::util::GeodeticSituation initialSituation;
+      initialSituation.timeStamp = currentTime;
+      initialSituation.worldLocation = {40.0, 0.0, 10000.0};
+      const auto& [north, east, down] = getSpeed();
+      initialSituation.velocityVector = {north, east, down};
+      deadReckoner_.updateGeodeticSituation(std::move(initialSituation));
     }
-
-    // update the speed (can be changed while the model is running)
-    situation.velocityVector = {getSpeed(), 0, 0};
+    // move the entity using the dead reckoner with the specified speed
+    auto situation = deadReckoner_.geodeticSituation(runApi.getTime());
 
     // update the spatial using the settable dead reckoner
     settableDeadReckoner_->setSpatial(situation);
   }
 
 private:
-  bool init_ = false;
-  std::unique_ptr<DeadReckoner> deadReckoner_;
+  DeadReckonerBase deadReckoner_;
   std::unique_ptr<SettableDr> settableDeadReckoner_;
+  sen::ConnectionGuard speedGuard_;
+  sen::kernel::RunApi* api_ = nullptr;
 };
 
 SEN_EXPORT_CLASS(DummyAircraftImpl)

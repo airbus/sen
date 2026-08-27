@@ -198,10 +198,12 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
 {
   auto delta = update.timeStamp - situation.timeStamp;
 
-  // update the smoothed situation using steps not exceeding the smoothing interval
   while (delta.toSeconds() > 1e-6)
   {
     const auto step = std::min(config.smoothingInterval, delta);
+
+    // negative duration to go until the final update situation
+    const auto timeFromUpdate = -delta + step;
 
     // update smoothed location
     {
@@ -210,8 +212,11 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
 
       const auto p0 = fromWorldLocation(situation.worldLocation);
       const auto v0 = fromVelocity(situation.velocityVector);
-      const auto p1 = fromWorldLocation(update.worldLocation);
-      const auto v1 = fromVelocity(update.velocityVector);
+
+      const auto p1 = fromWorldLocation(extrapolateLocationWorld(update, timeFromUpdate));
+      const auto v1 =
+        fromVelocity(extrapolateVelocity(update.velocityVector, update.accelerationVector, timeFromUpdate));
+      // NOTE: we assume constant acceleration here
       const auto a1 = fromAcceleration(update.accelerationVector);
 
       const auto t = config.positionConvergenceTime.toSeconds();
@@ -219,7 +224,6 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
       situation.accelerationVector = toAcceleration((p1 + v1 * t + a1 * 0.5 * t * t - p0 - v0 * t) * 2.0 / (t * t) +
                                                     (v1 - v0) * config.positionDamping);
 
-      // zeroize smooth situation values in case of stopped entity
       if (!hasVelocity(situation.velocityVector) && !hasAcceleration(situation.accelerationVector))
       {
         situation.worldLocation = update.worldLocation;
@@ -233,20 +237,20 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
       situation.orientation =
         extrapolateOrientation(situation.orientation, step, situation.angularVelocity, situation.angularAcceleration);
       situation.angularVelocity =
-        toAngularVelocity(fromAngularVelocity(situation.angularVelocity) +
-                          fromAngularAcceleration(situation.angularAcceleration) * step.toSeconds());
+        extrapolateAngularVelocity(situation.angularVelocity, situation.angularAcceleration, step);
 
-      // compute the delta rotation in angle/axis format
       f64 rotationAngle = 0;
       Vec3d rotationAxis {};
       const auto q0 = fromOrientationToQuat(situation.orientation);
-      const auto q1 = fromOrientationToQuat(update.orientation);
+      const auto q1 = fromOrientationToQuat(
+        extrapolateOrientation(update.orientation, timeFromUpdate, update.angularVelocity, update.angularAcceleration));
       const auto q01 = q0.inverse() * q1;
       q01.getRotate(rotationAngle, rotationAxis);
 
       const auto deltaTheta = worldToBody(rotationAxis * rotationAngle, situation.orientation);
       const auto omega0 = fromAngularVelocity(situation.angularVelocity);
-      const auto omega1 = fromAngularVelocity(update.angularVelocity);
+      const auto omega1 = fromAngularVelocity(
+        extrapolateAngularVelocity(update.angularVelocity, update.angularAcceleration, timeFromUpdate));
 
       const auto t = config.orientationConvergenceTime.toSeconds();
 
@@ -254,6 +258,8 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
                                                             (omega1 - omega0) * config.orientationDamping);
     }
 
+    // Advance the internal situation timestamp so extrapolation sub-functions stay accurate
+    situation.timeStamp += step;
     delta -= step;
   }
 
