@@ -1,22 +1,10 @@
+import "test_helpers/test_helpers.stl"
+
 package object_sync;
 
-enum ListenerState : u8
+class ListenerObjectSync : extends sen.test.Listener
 {
-  connecting,
-  ready,
-  inSync,
-  finished
-}
-
-class Publisher
-{
-  var numOfListeners    : u32   [static];
-}
-
-class Listener
-{
-  var query : string        [static, confirmed];
-  var state : ListenerState [confirmed];
+  var query : string [static, confirmed];
 }
 
 struct TestStruct
@@ -46,7 +34,6 @@ class TestObject
 {
   var staticProp                                  : u8               [static];
   var staticNoConfigProp                          : TestEnum         [static_no_config];
-  var updateId                                    : u32              [confirmed];  // used to verify the synchronization of dynamic properties
   var bestEffortProp                              : f64              [bestEffort];
   var confirmedProp                               : TestStruct       [confirmed];
   var multicastProp                               : OptF32;
@@ -58,9 +45,6 @@ class TestObject
 
   fn constMethod(arg: TestEnum)                   -> u32             [const];
   fn confirmedMethod(arg: u64)                    -> u8              [confirmed];
-  fn bestEffortMethod(arg: string)                -> bool            [bestEffort];
+  fn bestEffortMethod(arg: string)                -> u64             [bestEffort];
   fn localMethod()                                -> u16             [local];
-
-  // method to command the object updates to start
-  fn doUpdate()                                                        [confirmed];
 }

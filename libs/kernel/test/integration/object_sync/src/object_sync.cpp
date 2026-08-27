@@ -7,6 +7,9 @@
 
 #include "stl/object_sync.stl.h"
 
+// test_helpers
+#include "test_helpers/helpers.h"
+
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
@@ -27,10 +30,12 @@
 
 // std
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <string_view>
@@ -72,6 +77,40 @@ constexpr auto staticNoConfigPropValue = TestEnum::second;
   return {distInteger(gen), generateString(gen, static_cast<int>(distStrLen(gen))), distFloat(gen)};
 }
 
+[[nodiscard]] TestEnum generateEnum(std::mt19937& gen)
+{
+  return static_cast<TestEnum>(std::uniform_int_distribution(0, 2)(gen));
+}
+
+template <typename ValueType, typename Func>
+inline std::optional<size_t> getFirstUpdateIndex(ValueType value, Func&& randomGen)
+{
+  constexpr auto maxFirstUpdateIndex = 1000;
+  for (size_t i = 0; i < maxFirstUpdateIndex; ++i)
+  {
+    std::mt19937 gen {generatorSeed};
+    gen.discard(i);
+
+    const auto generatedVal = randomGen(gen);
+    if constexpr (std::is_floating_point_v<decltype(generatedVal)>)
+    {
+      if (std::abs(generatedVal - value) < 1e-6)
+      {
+        return i;  // found the matching position
+      }
+    }
+    else
+    {
+      if (generatedVal == value)
+      {
+        return i;
+      }
+    }
+  }
+
+  return std::nullopt;  // value was not found within the limits
+}
+
 }  // namespace
 
 /// Object used when testing class member synchronization
@@ -82,10 +121,7 @@ public:
 
 public:
   TestObjectImpl(const std::string& name, const u8 staticProp)
-    : TestObjectBase(name, staticProp)
-    , logger_(spdlog::stdout_color_mt(name))
-    , gen_(generatorSeed)
-    , localMethodGen_(generatorSeed)
+    : TestObjectBase(name, staticProp), logger_(spdlog::stdout_color_mt(name))
   {
     // set static no config property
     setNextStaticNoConfigProp(staticNoConfigPropValue);
@@ -98,49 +134,37 @@ public:
   {
     std::ignore = runApi;
 
-    if (!doUpdate_)
-    {
-      return;
-    }
-
-    // keeps track of the number of updates
-    setNextUpdateId(++updateCounter_);
+    updateCounter_++;
 
     // update best effort prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     setNextBestEffortProp(std::uniform_real_distribution()(gen_));
 
     // update confirmed prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     setNextConfirmedProp(generateStruct(gen_));
 
     // update multicast prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     setNextMulticastProp(std::uniform_real_distribution()(gen_));
 
     // best effort event
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     bestEffortEvent(updateCounter_, generateStruct(gen_));
 
     // confirmed event
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     confirmedEvent(updateCounter_, generateString(gen_));
 
     // update multicast prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     multicastEvent(updateCounter_, std::uniform_real_distribution()(gen_));
   }
 
 protected:
   [[nodiscard]] u32 constMethodImpl(const TestEnum& arg) const override { return static_cast<u32>(arg); }
   [[nodiscard]] u8 confirmedMethodImpl(u64 arg) override { return static_cast<u8>(arg); }
-  [[nodiscard]] bool bestEffortMethodImpl(const std::string& arg) override
+  [[nodiscard]] u64 bestEffortMethodImpl(const std::string& arg) override
   {
     std::ignore = arg;
     return true;
