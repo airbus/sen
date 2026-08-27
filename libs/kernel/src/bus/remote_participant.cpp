@@ -466,22 +466,18 @@ void RemoteParticipant::localInterestStarted(const LocalParticipant& source, std
 
     if (auto us = usWeak.lock(); us)
     {
-      ++us->nextCallId_;
+      const auto currentCallId = ++us->nextCallId_;
 
       auto remoteAddress = us->getRemoteAddress(ownerId);
 
-      us->sendToBus(remoteAddress,
-                    mode,
-                    us->makeMethodCallHeader(mode,
-                                             us->ownerAddress_.id,
-                                             objectId,
-                                             methodId,
-                                             us->nextCallId_,
-                                             static_cast<uint32_t>(argsSpan.size()),
-                                             meta),
-                    std::forward<decltype(argsBuffer)>(argsBuffer));
+      us->sendToBus(
+        remoteAddress,
+        mode,
+        us->makeMethodCallHeader(
+          mode, us->ownerAddress_.id, objectId, methodId, currentCallId, static_cast<uint32_t>(argsSpan.size()), meta),
+        std::forward<decltype(argsBuffer)>(argsBuffer));
 
-      return Ok(us->nextCallId_);
+      return Ok(currentCallId);
     }
 
     return Err(std::string("object deleted"));
