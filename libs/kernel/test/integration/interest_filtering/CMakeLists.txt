@@ -43,3 +43,16 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/config/multi_subscription_3.yaml
   REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
 )
+
+# Checks the consistency of dynamically created and removed subscriptions across multiple processes
+add_sen_integration_test(
+  interest_filtering_dynamic_subscriptions
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script}
+  ${_working_dir}
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/dynamic_subscriptions_1.yaml
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/dynamic_subscriptions_2.yaml
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/dynamic_subscriptions_3.yaml
+  REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
+)
