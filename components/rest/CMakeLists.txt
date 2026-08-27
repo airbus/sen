@@ -74,6 +74,9 @@ add_sen_package(
 )
 
 set_target_properties(rest PROPERTIES FOLDER "components/rest")
+
+sen_internal_configure_component(rest)
+
 sen_internal_install(rest)
 sen_enable_static_analysis(rest)
 
