@@ -7,6 +7,7 @@
 
 #include "network_exclusion.h"
 #include "port_binding.h"
+#include "util.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -586,6 +587,22 @@ TEST(PortBinding, StopsProbeOnError)
 
   ASSERT_EQ(attempts.size(), 1U);
   EXPECT_EQ(attempts.front(), 20000);
+}
+
+/// @test
+/// Uses the multicast discovery port for bus allocation and the protocol default for TCP discovery.
+/// @requirements(SEN-909)
+TEST(PortBinding, GetsBusDiscoveryPort)
+{
+  constexpr uint16_t configuredDiscoveryPort = 42000;
+  auto config = makeDefaultConfiguration(MaybePortConfig {});
+  auto& multicastDiscovery = std::get<MulticastDiscovery>(config.discovery);
+  multicastDiscovery.port = configuredDiscoveryPort;
+
+  EXPECT_EQ(getBusDiscoveryPort(config), configuredDiscoveryPort);
+
+  config.discovery = TcpDiscovery {};
+  EXPECT_EQ(getBusDiscoveryPort(config), defaultDiscoveryPort);
 }
 
 }  // namespace sen::components::ether

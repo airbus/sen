@@ -252,6 +252,54 @@ TEST(NetworkExclusion, FindsUsableMulticastAddress)
 }
 
 /// @test
+/// Counts usable multicast addresses by intersecting ranges.
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, CountsUsableMulticastAddresses)
+{
+  const auto range = makeRange(192, 193, 0, 0, 0, 3);
+  MulticastExclusions exclusions;
+  exclusions.add(asio::ip::make_address_v4("239.192.0.1").to_uint(),
+                 asio::ip::make_address_v4("239.192.0.2").to_uint());
+  exclusions.add(asio::ip::make_address_v4("239.193.0.0").to_uint(),
+                 asio::ip::make_address_v4("239.193.0.0").to_uint());
+  exclusions.add(asio::ip::make_address_v4("239.194.0.0").to_uint(),
+                 asio::ip::make_address_v4("239.194.0.255").to_uint());
+
+  EXPECT_EQ(usableMulticastAddressCount(range, exclusions), 5U);
+}
+
+/// @test
+/// Selects usable multicast addresses by their index.
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, SelectsAddressByIndex)
+{
+  const auto range = makeRange(192, 192, 0, 0, 10, 13);
+  MulticastExclusions exclusions;
+  exclusions.add(asio::ip::make_address_v4("239.192.0.11").to_uint(),
+                 asio::ip::make_address_v4("239.192.0.11").to_uint());
+
+  EXPECT_EQ(getUsableMulticastAddressAtIndex(0, range, exclusions), asio::ip::make_address_v4("239.192.0.10"));
+  EXPECT_EQ(getUsableMulticastAddressAtIndex(1, range, exclusions), asio::ip::make_address_v4("239.192.0.12"));
+  EXPECT_EQ(getUsableMulticastAddressAtIndex(2, range, exclusions), asio::ip::make_address_v4("239.192.0.13"));
+  EXPECT_FALSE(getUsableMulticastAddressAtIndex(3, range, exclusions).has_value());
+}
+
+/// @test
+/// Selects indexed addresses correctly across gaps in the multicast range
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, SelectsAcrossRangeBlocks)
+{
+  const auto range = makeRange(192, 192, 0, 1, 254, 255);
+  MulticastExclusions exclusions;
+  exclusions.add(asio::ip::make_address_v4("239.192.0.255").to_uint(),
+                 asio::ip::make_address_v4("239.192.0.255").to_uint());
+
+  EXPECT_EQ(getUsableMulticastAddressAtIndex(0, range, exclusions), asio::ip::make_address_v4("239.192.0.254"));
+  EXPECT_EQ(getUsableMulticastAddressAtIndex(1, range, exclusions), asio::ip::make_address_v4("239.192.1.254"));
+  EXPECT_EQ(getUsableMulticastAddressAtIndex(2, range, exclusions), asio::ip::make_address_v4("239.192.1.255"));
+}
+
+/// @test
 /// Returns no multicast address when the complete range is excluded.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, ReturnsNoMulticastAddress)
@@ -263,6 +311,8 @@ TEST(NetworkExclusion, ReturnsNoMulticastAddress)
 
   EXPECT_FALSE(getUsableMulticastAddress(asio::ip::make_address_v4(onlyAddress), range, exclusions).has_value());
   EXPECT_FALSE(hasUsableMulticastAddress(range, exclusions));
+  EXPECT_EQ(usableMulticastAddressCount(range, exclusions), 0U);
+  EXPECT_FALSE(getUsableMulticastAddressAtIndex(0, range, exclusions).has_value());
 }
 
 }  // namespace sen::components::ether
