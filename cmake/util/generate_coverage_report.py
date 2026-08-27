@@ -63,6 +63,7 @@ def generate_html_report(llvm_cov, profile, report_dir, binaries, ignore_regex: 
     cmd += ["-show-line-counts-or-regions"]
     cmd += ["-show-directory-coverage"]
     cmd += ["-coverage-watermark=85,70"]
+    cmd += ["-show-branches=count"]
     cmd += ["-Xdemangler", "c++filt", "-Xdemangler", "-n"]
     if ignore_regex:
         cmd += [f"-ignore-filename-regex={ignore_regex}"]

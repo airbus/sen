@@ -10,6 +10,7 @@ set(dr_tests
     dead_reckoner_test.cpp
     mat3_test.cpp
     quat_test.cpp
+    vec3_test.cpp
     utils/kernel_fixture.cpp
     utils/kernel_fixture.h
     utils_test.cpp
@@ -32,7 +33,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 target_include_directories(
-  util_test SYSTEM
+  util_test
   INTERFACE
   PRIVATE ${CMAKE_SOURCE_DIR}/libs/util/include ${CMAKE_SOURCE_DIR}/libs/util/src/dr
 )
