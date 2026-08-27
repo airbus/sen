@@ -43,7 +43,10 @@ jobs:
       # per cent: 20 to 30 minutes, so this is around four times the work.
     timeout-minutes: 120
     strategy:
-      fail-fast: true
+      # One failing configuration used to cancel the others, so a pull request
+      # learned one verdict instead of four and a fix could not be checked until
+      # an unrelated one landed.
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.compute-matrix-jobs.outputs.jobs) }}
     env:

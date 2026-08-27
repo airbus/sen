@@ -45,7 +45,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     strategy:
-      fail-fast: true
+      # Same reason as standard_test.yaml.
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.compute-matrix-jobs.outputs.jobs) }}
     env:

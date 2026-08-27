@@ -165,6 +165,13 @@ pre-commit hook, and one of them asserts that every declared job is selected
 by some workflow, so a job that reads as coverage but can never run does not
 survive.
 
+**The matrix does not stop at the first failure.** One configuration failing used
+to cancel the others, so a pull request reported one verdict where four were
+wanted, and a fix could not be checked while an unrelated configuration was
+broken. Every configuration now runs to its own result. The cost is runner time
+spent on a commit that is already failing, which is accepted because the
+alternative is a verdict nobody can act on.
+
 Besides compiler, build type and language standard, each job carries three
 switches: whether it builds the examples, the docker base image for the
 container-based integration tests (empty means the job does not run them;
