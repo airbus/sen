@@ -68,7 +68,9 @@ private:
   Duration updatePeriod_;
   kernel::PackageManager* packageManager_;
   bool syncCalls_ = false;
-  std::chrono::nanoseconds defaultTimeout_;
+  // Zero means wait forever, which is what waitUntilCpp does with it. Without
+  // this the constructor left it indeterminate.
+  std::chrono::nanoseconds defaultTimeout_ {};
 };
 
 }  // namespace sen::components::py
