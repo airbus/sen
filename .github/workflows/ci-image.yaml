@@ -10,9 +10,16 @@ name: CI Image
 # main.yaml calls this when a change touches the build environment, so that a
 # broken image fails the one check the branch protection requires. Cancellation
 # and grouping belong to the caller.
+#
+# The schedule is the other reason this runs. The image floats on ubuntu:22.04
+# and on unpinned apt packages, so what it builds changes with the calendar
+# rather than with the diff, and merges here are too bursty to be the trigger.
+# Off the hour because on-the-hour slots are contended.
 on:
   workflow_call:
   workflow_dispatch:
+  schedule:
+    - cron: "41 7 * * *"
 
 permissions:
   contents: read
@@ -33,6 +40,7 @@ jobs:
       # already carries these layers; a second export here would replace that
       # manifest with one the dev build cannot use.
       - name: Build image
+        if: github.event_name != 'schedule'
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
         with:
           context: tools/ci
@@ -44,6 +52,25 @@ jobs:
           load: true
           tags: sen-ci:probe
           cache-from: type=gha
+
+      # Every layer of the cached build is served from the Actions cache, so it
+      # cannot see a dropped package or an unreachable apt.llvm.org. This one
+      # imports no cache and exports none, which is the whole point of it.
+      # Both upstream failures in this repository's history were curl connect
+      # refusals that a plain re-run cleared, so one retry covers them.
+      - name: Build both stages cold
+        if: github.event_name == 'schedule'
+        shell: bash
+        run: |
+          build() {
+              # dev is built on base, so one cold build covers both stages and
+              # the second command only tags the base it has already produced.
+              docker buildx build --no-cache --pull --load \
+                  --target dev -t sen-ci:dev -f tools/ci/Dockerfile tools/ci &&
+              docker buildx build --pull --load \
+                  --target base -t sen-ci:probe -f tools/ci/Dockerfile tools/ci
+          }
+          build || { echo "cold build failed, retrying once"; build; }
 
       # Every tool below has been missing at some point, and a missing tool
       # shows up as a check that silently analysed nothing or a configure step
@@ -84,6 +111,7 @@ jobs:
       # The devcontainer builds this stage, and an editor cannot detect a
       # toolchain without these three.
       - name: Build the editor-facing stage
+        if: github.event_name != 'schedule'
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
         with:
           context: tools/ci

@@ -25,7 +25,7 @@ appears as a reviewable diff.
 | `conan.yaml`         | called by main.yaml                        | the `conan create` packaging jobs           |
 | `nightly.yaml`       | nightly cron, dispatch                     | sanitizers, clang-tidy, repeated test runs, benchmarks, full lint, documentation build, coverage report, newest compiler |
 | `docs_check.yaml`    | called by main.yaml and nightly.yaml       | builds the documentation without publishing it |
-| `ci-image.yaml`      | called by main.yaml, dispatch              | builds the build-environment image and checks the tools inside it |
+| `ci-image.yaml`      | called by main.yaml, daily schedule, dispatch | builds the build-environment image and checks the tools inside it |
 | `build_release.yaml` | version tags                               | release artifacts and the GitHub release draft |
 | `build_docs.yaml`    | push to main, version tags                 | mkdocs + doxygen, published to gh-pages     |
 
@@ -284,6 +284,15 @@ devcontainer and any self-hosted machine build it from this file, and the
 revision of the file identifies the environment. (The apt packages inside
 the Dockerfile stay unpinned on purpose: the Ubuntu archive removes old
 package versions, so exact pins would break within weeks.)
+
+The same workflow runs daily on its own schedule, and that run imports no layer
+cache: it builds both stages from scratch, so it really contacts apt.llvm.org,
+the Ubuntu archive and PyPI. The cached run cannot, because every layer comes
+from the Actions cache. What this catches is drift -- `Dockerfile` names
+`ubuntu:22.04` with no digest, the LLVM repository pins a major version only,
+and the apt packages are unpinned on purpose, so the same file produces a
+different image as the calendar moves. It retries once before failing, writes
+nothing to the cache, and blocks no merge.
 
 The devcontainer builds this same image, keeps the conan and ccache state
 in named volumes, and installs the repository profiles with a default that
