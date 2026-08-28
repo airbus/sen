@@ -6,9 +6,10 @@
 # ======================================================================================================================
 """Classifies a change set so the orchestrator can gate the heavy lanes.
 
-Docs-only pull requests stop after the cheap checks. Without a base commit
-to diff against (pushes, manual dispatch), everything counts as code, and the
-image is rebuilt and checked.
+Docs-only changes stop after the cheap checks. Every event that carries a base
+is classified: a pull request against its base, a push against the commit main
+moved from, a merge queue entry against the queue's base. Without one, every
+flag fails open and says so.
 """
 
 import argparse
@@ -73,16 +74,14 @@ def is_image_change(paths: list[str]) -> bool:
     """Returns True when the image has to be rebuilt and checked.
 
     Documentation is excluded even under tools/ci: the Dockerfile copies
-    nothing out of the repository, so a paragraph cannot change the image. An
-    empty change set fails open, as the other classifications do.
+    nothing out of the repository, so a paragraph cannot change the image. The
+    exclusion is per path; per change set, one source file promoted a paragraph
+    into an image build. An empty change set fails open, as the others do.
     """
     if not paths:
         return True
 
-    if not is_code_change(paths):
-        return False
-
-    return any(affects_image(path) for path in paths)
+    return any(affects_image(path) and not is_docs_path(path) for path in paths)
 
 
 def is_code_change(paths: list[str]) -> bool:
@@ -97,16 +96,63 @@ def is_code_change(paths: list[str]) -> bool:
     return any(not is_docs_path(path) for path in paths)
 
 
-def changed_paths(base_sha: str) -> list[str]:
-    """Lists the paths that changed since the merge base with base_sha."""
+def announce(message: str) -> None:
+    """Reports a classification decision in the log and on the run page."""
+    print(message)
+
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary, "a", encoding="utf-8") as handle:
+            handle.write(f"Change classification: {message}\n")
+
+
+def commit_exists(sha: str) -> bool:
+    """Returns True when the checkout can resolve the sha to a commit."""
+    result = subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"], capture_output=True, check=False)
+    return result.returncode == 0
+
+
+def resolve_base(base_sha: str) -> str:
+    """Returns a base that can be diffed, or empty when there is none to use.
+
+    Every rejection is announced: failing open runs everything, which is also
+    what a successful classification can produce.
+    """
+    if not base_sha:
+        announce("no base commit for this event, so every lane runs")
+        return ""
+
+    # A ref created by the push carries no previous commit.
+    if set(base_sha) == {"0"}:
+        announce(f"base {base_sha} is all zeros, so every lane runs")
+        return ""
+
+    # A rewritten history leaves a base that the checkout cannot reach.
+    if not commit_exists(base_sha):
+        announce(f"base {base_sha} is not in this checkout, so every lane runs")
+        return ""
+
+    return base_sha
+
+
+def changed_paths(base_sha: str, head: str = "HEAD") -> list[str] | None:
+    """Lists the paths that changed since the merge base with base_sha, or None.
+
+    A three-dot diff needs a merge base, so a base resolve_base accepts can
+    still share no history with head. That fails open here rather than raising.
+    """
     # --no-renames: a rename reports only its destination, so moving a source
     # file into docs/ would otherwise read as a documentation change.
     result = subprocess.run(
-        ["git", "diff", "--no-renames", "--name-only", f"{base_sha}...HEAD"],
-        check=True,
+        ["git", "diff", "--no-renames", "--name-only", f"{base_sha}...{head}"],
+        check=False,
         capture_output=True,
         text=True,
     )
+
+    if result.returncode != 0:
+        announce(f"base {base_sha} cannot be diffed against {head}, so every lane runs")
+        return None
 
     return [line for line in result.stdout.splitlines() if line]
 
@@ -117,19 +163,21 @@ def main() -> int:
         prog="classify_changes",
         description="Classifies the change set for workflow gating.",
     )
-    parser.add_argument(
-        "--base-sha", default="", help="Base commit of the pull request; empty means not a pull request."
-    )
+    parser.add_argument("--base-sha", default="", help="Commit to diff against; empty means classify nothing.")
     args = parser.parse_args()
 
     code = True
     docs = True
     image = True
-    if args.base_sha:
-        paths = changed_paths(args.base_sha)
-        code = is_code_change(paths)
-        docs = is_docs_build_change(paths)
-        image = is_image_change(paths)
+    if base_sha := resolve_base(args.base_sha):
+        if (paths := changed_paths(base_sha)) is not None:
+            code = is_code_change(paths)
+            docs = is_docs_build_change(paths)
+            image = is_image_change(paths)
+
+    # A fallback also runs everything, so only a skipped lane is worth naming.
+    if skipped := [name for name, run in (("tests", code), ("docs", docs), ("image", image)) if not run]:
+        announce(f"skipping {', '.join(skipped)}")
 
     output_file = os.environ.get("GITHUB_OUTPUT")
     if not output_file:

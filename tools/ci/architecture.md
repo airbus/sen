@@ -50,6 +50,15 @@ matrix only runs when it is needed:
   described below.
 - Every other pull request runs the matrix from `generate_matrix_jobs.py`.
 
+The same classification runs on a merge and on a merge queue entry, against the
+commit main moved from and against the queue's base.
+
+When there is no usable base -- a manual dispatch, a newly created ref, a base
+that is unreachable or shares no history -- every lane runs and the job says
+why. It also names the lanes it skips. Both go to the log and the run summary:
+running everything is also what a successful classification can produce, and a
+skipped lane leaves no other trace.
+
 The matrix jobs build the examples together with the production code and
 run the example smoke tests. The shipping job (Linux gcc Release) also
 builds the CPack archive and checks that it still holds the binaries, the
@@ -512,6 +521,10 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   `.cmake-format.py`, `.conan/test_packages/` and `apps/cli_gen/test/test20/`.
   The last is excluded because duplicate test module names there break the
   run.
+- A cancelled push run leaves its range unclassified. Two merges landing close
+  together share one concurrency group, so the second cancels the first and then
+  classifies from the first's head. If the first carried code and the second
+  only documentation, the matrix runs for neither on main.
 - A fresh runner builds all dependencies from source once per cache
   lifetime; the first run of a day (or after the cache was removed) is the
   slow one. The arm configuration pays it on every run, because nothing
