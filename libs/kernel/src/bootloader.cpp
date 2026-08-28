@@ -645,7 +645,7 @@ void Bootloader::fetchPipelineExecPeriod(KernelConfig::PipelineToLoad& pipelineC
   if (freqItr != map.end())
   {
     const auto freqVal = getCopyAs<float64_t>(freqItr->second);
-    if (freqVal == 0.0)
+    if (freqVal <= 0.0)
     {
       std::string err;
       err.append("invalid frequency value '");
