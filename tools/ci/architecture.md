@@ -145,11 +145,13 @@ Only one run per branch and trigger kind exists at a time (the
 still in progress. The event name is part of the group key, so a manual run
 and a push to main do not collide.
 
-Cancellation is not limited to pull requests. Two merges landing minutes
-apart share one group, so the second cancels the first and the earlier commit
-keeps no post-merge result. A draft toggle does the same on a single commit,
-because converting to draft and back fires two events into the same group;
-what the cancelled run leaves behind is described under "Landing a change".
+Merges to main are the exception: their runs are never cancelled. Each one
+classifies against the commit main moved from, so a cancelled run's range would
+fall into no other run's, and the merge would go unbuilt with nothing to show
+it. Two merges landing minutes apart therefore both run to a result. A draft
+toggle still cancels, on a single commit, because converting to draft and back
+fires two events into the same group; what that leaves behind is described
+under "Landing a change".
 
 **Packaging on a pull request builds one configuration.** Packaging is the
 only check that builds Sen as a package and then builds a consumer against
@@ -530,10 +532,6 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   `.cmake-format.py`, `.conan/test_packages/` and `apps/cli_gen/test/test20/`.
   The last is excluded because duplicate test module names there break the
   run.
-- A cancelled push run leaves its range unclassified. Two merges landing close
-  together share one concurrency group, so the second cancels the first and then
-  classifies from the first's head. If the first carried code and the second
-  only documentation, the matrix runs for neither on main.
 - A fresh runner builds all dependencies from source once per cache
   lifetime; the first run of a day (or after the cache was removed) is the
   slow one. The arm configuration pays it on every run, because nothing
