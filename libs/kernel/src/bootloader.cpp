@@ -7,6 +7,9 @@
 
 #include "sen/kernel/bootloader.h"
 
+// kernel
+#include "env_substitution.h"
+
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/duration.h"
@@ -43,7 +46,6 @@
 #include <iterator>
 #include <map>
 #include <memory>
-#include <regex>
 #include <set>
 #include <string>
 #include <string_view>
@@ -194,8 +196,13 @@ void importYaml(c4::yml::Tree& into, c4::yml::ConstNodeRef from, const std::file
   std::string fileContents;
   readFile(path.parent_path() / fileString, fileContents);
 
-  c4::substr fileData = into.alloc_arena(fileContents.size());
-  fileData.copy_from(c4::to_csubstr(fileContents));
+  // An included file gets the same expansion as the top-level one. Without it a
+  // pattern here reached the tree as literal text and an unset variable passed
+  // silently, both of which the documentation says cannot happen.
+  const std::string expandedContents = impl::replaceEnvPattern(fileContents);
+
+  c4::substr fileData = into.alloc_arena(expandedContents.size());
+  fileData.copy_from(c4::to_csubstr(expandedContents));
   c4::yml::Tree fileTree = c4::yml::parse_in_place(fileData);
 
   into.merge_with(&fileTree, fileTree.root_id(), into.root_id());
@@ -290,82 +297,9 @@ void combineRepeatedElements(c4::yml::NodeRef node, c4::yml::Tree* tree, std::st
   }
 }
 
-[[nodiscard]] std::string replaceEnvPattern(const std::string& content)
-{
-  std::string expandedContent = content;
-  std::regex pattern(R"((\\*)@env\(([a-zA-Z_$][\w]*)(,([\w]+))?\))");
-
-  auto begin = std::sregex_iterator(expandedContent.begin(), expandedContent.end(), pattern);
-  auto end = std::sregex_iterator();
-
-  std::string result;
-  std::string::const_iterator last = expandedContent.begin();
-
-  for (auto i = begin; i != end; ++i)
-  {
-    const std::smatch& match = *i;
-    result.append(last, match[0].first);
-    last = match[0].second;
-
-    // Extract the environment variable name
-    std::string envVar = match[2].str();
-
-    // Get the environment variable value
-    const char* envValue = std::getenv(envVar.c_str());
-    std::string value;
-
-    if (envValue)
-    {
-      value = std::string(envValue);
-    }
-    else if (match[4].matched)
-    {
-      // Use the default value from the second group if the environment variable is not found
-      value = match[4].str();
-    }
-    else
-    {
-      // Replace with VARIABLE_NOT_FOUND string
-      throwRuntimeError("environment variable " + envVar + " not found and no default value provided");
-    }
-
-    // Count the number of backslashes before the match
-    std::string backslashes = match[1].str();
-    size_t backslashCount = backslashes.size();
-    auto halvedBackslashCount = static_cast<int>(std::round(backslashCount * 0.5));  // NOLINT
-    // If there are an even number of backslashes, halve them and resolve the variable
-    if (backslashCount % 2 == 0)
-    {
-      if (backslashCount == 0)
-      {
-        result += value;
-      }
-      else
-      {
-        result += std::string(halvedBackslashCount, '\\') + value;
-      }
-    }
-    else
-    {
-      // If there are an odd number of backslashes, replace the last backslash with the @env pattern
-      result += std::string(halvedBackslashCount - 1, '\\') + "@env(" + envVar;
-      if (match[4].matched)
-      {
-        result += "," + match[4].str();
-      }
-      result += ")";
-    }
-  }
-
-  // Ensure both iterators are of the same type
-  result.append(last, expandedContent.cend());
-  return result;
-}
-
 [[nodiscard]] c4::yml::Tree loadYamlFromString(const std::string& content, const std::filesystem::path& path)
 {
-  // Use std::regex_replace to perform the replacement
-  const std::string expandedContent = replaceEnvPattern(content);
+  const std::string expandedContent = impl::replaceEnvPattern(content);
   c4::yml::Tree root = c4::yml::parse_in_arena(c4::to_csubstr(expandedContent));
 
   bool hasIncludes = false;
