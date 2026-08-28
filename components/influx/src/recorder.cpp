@@ -233,6 +233,7 @@ void Recorder::sendDeletion(const TimeStamp& time, const Object* object) const
   DataPoint point("deleted", time);
   point.addTag("object", object->getName());
   point.addTag("payload_type", "deletion");
+  database_->write(std::move(point));
 }
 
 }  // namespace sen::components::influx
