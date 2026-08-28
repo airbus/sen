@@ -9,6 +9,7 @@ add_sen_unit_test_suite(
   kernel_test
   bus/remote_interest_handler_test.cpp
   env_substitution_test.cpp
+  pipeline_frequency_test.cpp
   test_kernel/test_kernel_test.cpp
   LINK_DEPS
   sen::core

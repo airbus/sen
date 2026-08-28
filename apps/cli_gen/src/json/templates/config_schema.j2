@@ -52,7 +52,7 @@
         "description": "A component you wish Sen to build",
         "type": "object",
         "allOf": [ { "$ref": "#/$defs/sen.kernel.ComponentConfig" } ],
-        "required": [ "name", "freqHz" ],
+        "required": [ "name" ],
         "properties": {
           "name": {
             "description": "Name of the component",
@@ -62,15 +62,14 @@
           "freqHz": {
             "description": "Cycle frequency in Hertz",
             "type": "number",
-            "minimum": 1,
-            "maximum": 1000
+            "exclusiveMinimum": 0
           },
           "objects": {
             "type": "array",
             "uniqueKeys": [ "/name" ],
             "items": {
               "type": "object",
-              "required": ["name", "class", "bus"],
+              "required": ["name", "class"],
               "properties": {
                 "name": {
                   "description": "The name of the instance",
