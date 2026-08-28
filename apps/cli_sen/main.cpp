@@ -166,7 +166,6 @@ void configureShortcut(CLI::App& app, const char* preset, int argc, char* argv[]
 void configureShortcuts(CLI::App& app, int argc, char* argv[])
 {
   configureShortcut(app, "shell", argc, argv);
-  configureShortcut(app, "term", argc, argv);
   configureShortcut(app, "explorer", argc, argv);
   configureShortcut(app, "replay", argc, argv);
 
