@@ -29,8 +29,9 @@ jobs:
 
       # Proves the Dockerfile builds; no registry hosts the image, so the
       # devcontainer and any self-hosted machine build it from this file.
-      # Layer caching in the Actions cache keeps unchanged rebuilds fast; only
-      # the final layers are cached, since nothing here builds on this image.
+      # Only the dev build below exports. dev is built on base, so its export
+      # already carries these layers; a second export here would replace that
+      # manifest with one the dev build cannot use.
       - name: Build image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
         with:
@@ -43,7 +44,6 @@ jobs:
           load: true
           tags: sen-ci:probe
           cache-from: type=gha
-          cache-to: type=gha,mode=min
 
       # Every tool below has been missing at some point, and a missing tool
       # shows up as a check that silently analysed nothing or a configure step
