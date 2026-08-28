@@ -6,7 +6,22 @@
 # ======================================================================================================================
 """Pins the docs-only classification that gates the heavy workflow lanes."""
 
-from classify_changes import is_code_change, is_docs_build_change, is_image_change
+import subprocess
+import sys
+
+import classify_changes
+import pytest
+from classify_changes import changed_paths, is_code_change, is_docs_build_change, is_image_change, resolve_base
+
+
+@pytest.fixture(autouse=True)
+def keep_out_of_the_live_summary(monkeypatch):
+    """Stops announce() writing into the job summary of the run testing it.
+
+    python-checks runs inside Actions, where GITHUB_STEP_SUMMARY is always set,
+    so without this every run published its own test messages as real ones.
+    """
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
 
 
 def test_docs_directory_only_is_not_code():
@@ -113,3 +128,92 @@ def test_documentation_never_triggers_an_image_build():
 def test_an_empty_change_set_checks_the_image():
     """Without diff information the image is checked, like every other lane."""
     assert is_image_change([])
+
+
+def test_prose_under_tools_ci_does_not_ride_in_on_an_unrelated_change():
+    """The exclusion is per path, not per change set.
+
+    This repository updates architecture.md in the same commit as the pipeline
+    change it describes, so per change set it fired almost every time.
+    """
+    assert not is_image_change(["tools/ci/architecture.md", ".github/workflows/nightly.yaml"])
+    assert not is_image_change(["tools/ci/architecture.md", "libs/core/src/base/hash32.cpp"])
+    # A real input alongside the prose still counts.
+    assert is_image_change(["tools/ci/architecture.md", "tools/ci/Dockerfile"])
+    assert is_image_change(["tools/ci/architecture.md", "tools/ci/CMakeLists.txt"])
+
+
+def test_no_base_classifies_nothing(capsys):
+    """An event without a base runs everything, and says so."""
+    assert not resolve_base("")
+    assert "every lane runs" in capsys.readouterr().out
+
+
+def test_an_all_zero_base_classifies_nothing(capsys):
+    """A ref created by the push carries no previous commit."""
+    assert not resolve_base("0" * 40)
+    assert "all zeros" in capsys.readouterr().out
+
+
+def test_a_base_the_checkout_cannot_reach_classifies_nothing(monkeypatch, capsys):
+    """A rewritten history leaves a base that git cannot resolve."""
+    monkeypatch.setattr(classify_changes, "commit_exists", lambda _sha: False)
+    assert not resolve_base("a" * 40)
+    assert "not in this checkout" in capsys.readouterr().out
+
+
+def test_a_reachable_base_is_used(monkeypatch):
+    """The ordinary case: the base is returned and the diff is taken."""
+    monkeypatch.setattr(classify_changes, "commit_exists", lambda _sha: True)
+    assert resolve_base("a" * 40) == "a" * 40
+
+
+def test_a_rejection_reaches_the_job_summary(tmp_path, monkeypatch):
+    """The summary write is the half that matters, so it is asserted here."""
+    summary = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+
+    assert not resolve_base("")
+
+    assert "every lane runs" in summary.read_text(encoding="utf-8")
+
+
+def test_a_base_with_no_common_history_classifies_nothing(tmp_path, monkeypatch, capsys):
+    """A base can resolve and still share no history, which the three-dot diff needs.
+
+    resolve_base cannot see this: the commit is there and reachable.
+    """
+
+    def git(*args: str) -> None:
+        subprocess.run(["git", "-C", str(tmp_path), *args], check=True, capture_output=True)
+
+    git("init", "-q", "-b", "one")
+    git("config", "user.email", "test@example.com")
+    git("config", "user.name", "Test")
+    (tmp_path / "file.txt").write_text("one")
+    git("add", "file.txt")
+    git("-c", "commit.gpgsign=false", "commit", "-qm", "one")
+
+    # An orphan branch has no parent, so the two lines share no commit at all.
+    git("checkout", "-q", "--orphan", "two")
+    (tmp_path / "other.txt").write_text("two")
+    git("add", "other.txt")
+    git("-c", "commit.gpgsign=false", "commit", "-qm", "two")
+    monkeypatch.chdir(tmp_path)
+
+    assert changed_paths("one", head="two") is None
+    assert "cannot be diffed" in capsys.readouterr().out
+
+
+def test_the_skipped_lanes_reach_the_job_summary(tmp_path, monkeypatch):
+    """A lane that did not run is what the run page cannot otherwise show."""
+    summary = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+    monkeypatch.setenv("GITHUB_OUTPUT", str(tmp_path / "output.txt"))
+    monkeypatch.setattr(classify_changes, "resolve_base", lambda _sha: "a base")
+    monkeypatch.setattr(classify_changes, "changed_paths", lambda _base: ["docs/index.md"])
+    monkeypatch.setattr(sys, "argv", ["classify_changes", "--base-sha", "a base"])
+
+    assert classify_changes.main() == 0
+
+    assert "skipping tests, image" in summary.read_text(encoding="utf-8")
