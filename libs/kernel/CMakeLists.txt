@@ -38,6 +38,8 @@ set(detail_headers include/sen/kernel/detail/kernel_fwd.h)
 
 set(sources
     src/bootloader.cpp
+    src/env_substitution.h
+    src/env_substitution.cpp
     src/component_api_impl.cpp
     src/executor.h
     src/executor.cpp
