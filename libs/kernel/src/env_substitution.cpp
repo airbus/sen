@@ -50,7 +50,10 @@ std::string replaceEnvPattern(const std::string& content)
       result += std::string(halvedBackslashCount - 1, '\\') + "@env(" + envVar;
       if (match[4].matched)
       {
-        result += "," + match[4].str();
+        // Appended separately rather than concatenated: gcc 12 at -O3 -std=c++20
+        // reports a false -Wrestrict overlap through operator+(const char*, string&&).
+        result += ',';
+        result += match[4].str();
       }
       result += ")";
       continue;

@@ -14,6 +14,7 @@
 
 // std
 #include <chrono>
+#include <exception>
 #include <string>
 
 namespace
