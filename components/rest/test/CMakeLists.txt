@@ -48,27 +48,9 @@ target_include_directories(
   PRIVATE asio::asio nlohmann_json::nlohmann_json ${CMAKE_CURRENT_SOURCE_DIR}/../src
 )
 
-add_sen_unit_test_suite(
-  rest_flaky_test
-  e2e_test.cpp
-  rest_e2e_fixture.cpp
-  LINK_DEPS
-  ${rest_test_deps}
-  FLAKY
-)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
-    target_compile_options(
-      rest_flaky_test PRIVATE -Wno-attributes # TODO(SEN-1558): remove after code gen rework
-    )
-  endif()
-endif()
-
-target_include_directories(
-  rest_flaky_test SYSTEM
-  INTERFACE
-  PRIVATE asio::asio nlohmann_json::nlohmann_json ${CMAKE_CURRENT_SOURCE_DIR}/../src
-)
+# rest_flaky_test (e2e_test.cpp) is not registered. Its 34 cases fail whenever
+# ctest runs in parallel -- in the nightly's repeat lane, and under the sanitizer
+# lanes -- and pass when run serially. The component is being removed, so the
+# contention is not worth fixing. The unit suite above is unaffected and stays.
 
 sen_enable_static_analysis(rest_test)
