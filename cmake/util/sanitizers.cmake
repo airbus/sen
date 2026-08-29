@@ -5,6 +5,12 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+# Empty by default, so a local run still sees findings on stderr. Not a cache
+# entry: the toolchain injects this as an ordinary variable, which one deletes.
+if(NOT DEFINED SEN_SANITIZER_LOG_DIR)
+  set(SEN_SANITIZER_LOG_DIR "")
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fasynchronous-unwind-tables")
 

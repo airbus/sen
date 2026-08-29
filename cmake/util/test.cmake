@@ -14,12 +14,19 @@ if(NOT SEN_BUILD_TESTS)
   set(BUILD_TESTING OFF) # Signal to ctest that no tests should be build
 endif()
 
-set(CMAKE_COMMON_CTEST_ARGUMENTS
-    "--stop-on-failure"
-    "--output-on-failure"
-    "--timeout"
-    "20"
-    ${CMAKE_COMMON_CTEST_ARGUMENTS}
+# Not on a sanitizer build: those lanes exist to report what is wrong, and
+# stopping early hides it.
+set(CMAKE_COMMON_CTEST_ARGUMENTS)
+if(SEN_USE_SANITIZER STREQUAL None)
+  list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--stop-on-failure")
+endif()
+
+list(
+  APPEND
+  CMAKE_COMMON_CTEST_ARGUMENTS
+  "--output-on-failure"
+  "--timeout"
+  "20"
 )
 if(${SEN_CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
@@ -59,6 +66,13 @@ set(CMAKE_FLAKY_CTEST_ARGUMENTS
     "--no-tests=ignore"
     ${CMAKE_COMMON_CTEST_ARGUMENTS}
 )
+
+# Appended to every sanitizer's options below, so findings can be collected.
+set(SEN_SANITIZER_LOG_OPTION "")
+if(SEN_SANITIZER_LOG_DIR)
+  file(MAKE_DIRECTORY "${SEN_SANITIZER_LOG_DIR}")
+  set(SEN_SANITIZER_LOG_OPTION ":log_path=${SEN_SANITIZER_LOG_DIR}/report")
+endif()
 
 enable_testing()
 
@@ -153,15 +167,15 @@ function(add_sen_unit_test_suite test_name)
 
   set(environment "")
   if(LSAN_SUPPRESSION_FILE)
-    list(APPEND environment "LSAN_OPTIONS=suppressions=${LSAN_SUPPRESSION_FILE}")
+    list(APPEND environment "LSAN_OPTIONS=suppressions=${LSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}")
   endif()
 
   if(ASAN_SUPPRESSION_FILE)
-    list(APPEND environment "ASAN_OPTIONS=suppressions=${ASAN_SUPPRESSION_FILE}")
+    list(APPEND environment "ASAN_OPTIONS=suppressions=${ASAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}")
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
-    list(APPEND environment "TSAN_OPTIONS=suppressions=${TSAN_SUPPRESSION_FILE}")
+    list(APPEND environment "TSAN_OPTIONS=suppressions=${TSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}")
   endif()
 
   gtest_discover_tests(
@@ -229,14 +243,15 @@ function(add_sen_integration_test test_name)
 
   if(LSAN_SUPPRESSION_FILE)
     append_test_env_modification(
-      ${test_name} "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1"
+      ${test_name}
+      "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1${SEN_SANITIZER_LOG_OPTION}"
     )
   endif()
 
   if(ASAN_SUPPRESSION_FILE)
     append_test_env_modification(
       ${test_name}
-      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100"
+      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100${SEN_SANITIZER_LOG_OPTION}"
     )
   endif()
 
@@ -245,7 +260,9 @@ function(add_sen_integration_test test_name)
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}")
+    append_test_env_modification(
+      ${test_name} "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}${SEN_SANITIZER_LOG_OPTION}"
+    )
   endif()
 
   add_dependencies(run_integration_tests ${_arg_REQ_COMPONENTS} ${_arg_REQ_DEPS})
@@ -324,15 +341,21 @@ function(add_sen_run_smoke_test test_name)
   endif()
 
   if(LSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "LSAN_OPTIONS=set:suppressions=${LSAN_SUPPRESSION_FILE}")
+    append_test_env_modification(
+      ${test_name} "LSAN_OPTIONS=set:suppressions=${LSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+    )
   endif()
 
   if(ASAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "ASAN_OPTIONS=set:suppressions=${ASAN_SUPPRESSION_FILE}")
+    append_test_env_modification(
+      ${test_name} "ASAN_OPTIONS=set:suppressions=${ASAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+    )
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "TSAN_OPTIONS=set:suppressions=${TSAN_SUPPRESSION_FILE}")
+    append_test_env_modification(
+      ${test_name} "TSAN_OPTIONS=set:suppressions=${TSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+    )
   endif()
 
 endfunction()
