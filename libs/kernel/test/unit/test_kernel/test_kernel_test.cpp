@@ -24,6 +24,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -200,4 +202,33 @@ TEST(TestKernel, repeatedNames)
 
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
+}
+
+/// @test
+/// A pipeline object with one side of `bus` empty (trailing or leading dot) is rejected
+/// at config-validation time.
+TEST(TestKernel, busAddressMustBeFullySpecified)
+{
+  const auto* yaml = R"yaml(
+build:
+  - name: comp
+    group: 1
+    freqHz: 100
+    imports: [my_package]
+    objects:
+      - name: obj
+        class: my_package.MyClass
+        bus: "session."
+)yaml";
+  try
+  {
+    sen::kernel::TestKernel::fromYamlString(yaml);
+    FAIL() << "an incomplete bus address should have been rejected";
+  }
+  catch (const std::runtime_error& e)
+  {
+    // Not merely that something threw: loading throws runtime_error for an unregistered
+    // class or a bad field too, so only the message pins the path this test is about.
+    EXPECT_NE(std::string(e.what()).find("incomplete bus address"), std::string::npos) << e.what();
+  }
 }
