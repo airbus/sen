@@ -48,6 +48,7 @@
 // inja
 #include <inja/environment.hpp>
 #include <inja/json.hpp>
+#include <inja/template.hpp>
 
 // std
 #include <algorithm>

@@ -10,7 +10,6 @@
 #include "sen/kernel/bootloader.h"
 
 // sen
-#include "sen/core/base/assert.h"
 #include "sen/core/meta/var.h"
 
 // gtest
@@ -18,6 +17,7 @@
 
 // std
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -34,6 +34,9 @@ void setVariable(const char* name, const char* value)
 #ifdef _WIN32
   _putenv_s(name, value);
 #else
+  // cstdlib provides these; the header include-cleaner asks for is <stdlib.h>,
+  // which the deprecated-headers checks forbid, so no include satisfies both.
+  // NOLINTNEXTLINE(misc-include-cleaner)
   setenv(name, value, 1);
 #endif
 }
@@ -43,6 +46,9 @@ void clearVariable(const char* name)
 #ifdef _WIN32
   _putenv_s(name, "");
 #else
+  // cstdlib provides these; the header include-cleaner asks for is <stdlib.h>,
+  // which the deprecated-headers checks forbid, so no include satisfies both.
+  // NOLINTNEXTLINE(misc-include-cleaner)
   unsetenv(name);
 #endif
 }

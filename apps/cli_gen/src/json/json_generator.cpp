@@ -46,12 +46,8 @@
 #include <inja/template.hpp>
 
 // std
-#include <algorithm>
 #include <filesystem>
-#include <fstream>
-#include <ios>
 #include <iostream>
-#include <iterator>
 #include <memory>
 #include <set>
 #include <string>
