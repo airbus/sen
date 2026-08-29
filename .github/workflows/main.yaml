@@ -144,7 +144,16 @@ jobs:
     if: >-
       needs.detect-changes.outputs.image == 'true' &&
       (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    # Granted here because a called workflow can only narrow the token it is
+    # handed, never widen it.
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/ci-image.yaml
+    # A merge to main that changed the image publishes it; every other event
+    # only checks that it still builds.
+    with:
+      publish: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
   # Packaging is the only check that builds Sen as a package and consumes it
   # from outside, so a pull request runs the shipping configuration; running
