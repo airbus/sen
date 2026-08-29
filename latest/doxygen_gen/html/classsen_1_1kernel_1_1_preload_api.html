@@ -174,12 +174,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a0caf9e63c9e12af2c9f30864816dad08"><td class="mdescLeft">&#160;</td><td class="mdescRight">The work queue of this runner.  <br /></td></tr>
 <tr class="memitem:af75a3b9ae703e6809b71802a85aee6bf" id="r_af75a3b9ae703e6809b71802a85aee6bf"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
 <tr class="memitem:af75a3b9ae703e6809b71802a85aee6bf template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#af75a3b9ae703e6809b71802a85aee6bf">selectAllFrom</a> (const Bus &amp;bus)</td></tr>
+<tr class="memdesc:af75a3b9ae703e6809b71802a85aee6bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subscribe to every object of type T on <span class="tt">bus</span>. The returned <a class="el" href="structsen_1_1_subscription.html" title="A list of objects and a reference to its source (to keep it alive).">Subscription</a> owns the kernel-side wiring; destruct it to stop.  <br /></td></tr>
 <tr class="memitem:a4256a44d2b6734fb44282892215c1553" id="r_a4256a44d2b6734fb44282892215c1553"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
 <tr class="memitem:a4256a44d2b6734fb44282892215c1553 template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a4256a44d2b6734fb44282892215c1553">selectAllFrom</a> (const Bus &amp;bus, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onAdded, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onRemoved=nullptr)</td></tr>
-<tr class="memdesc:a4256a44d2b6734fb44282892215c1553"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overload of selectAllFrom that installs addition and removal callbacks before subscribing, so they fire for objects already present at subscription time. Pass nullptr for either callback to skip it.  <br /></td></tr>
+<tr class="memdesc:a4256a44d2b6734fb44282892215c1553"><td class="mdescLeft">&#160;</td><td class="mdescRight">As above, plus addition/removal callbacks installed before subscribing so they fire for objects already present. Pass nullptr to skip either.  <br /></td></tr>
 <tr class="memitem:a215bea2badcf94c9236dd769697c463e" id="r_a215bea2badcf94c9236dd769697c463e"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
 <tr class="memitem:a215bea2badcf94c9236dd769697c463e template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structsen_1_1_subscription.html">Subscription</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a215bea2badcf94c9236dd769697c463e">selectFrom</a> (const Bus &amp;bus, const std::string &amp;query, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onAdded=nullptr, typename <a class="el" href="classsen_1_1_object_list.html">sen::ObjectList</a>&lt; T &gt;<a class="el" href="classsen_1_1_callback.html">::Callback</a> onRemoved=nullptr)</td></tr>
-<tr class="memdesc:a215bea2badcf94c9236dd769697c463e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a subscription for objects matching the given Sen query string. Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions. Example: selectFrom&lt;Shape&gt;(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")"). It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.  <br /></td></tr>
+<tr class="memdesc:a215bea2badcf94c9236dd769697c463e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structsen_1_1_subscription.html" title="A list of objects and a reference to its source (to keep it alive).">Subscription</a> against an arbitrary Sen query (with WHERE conditions). Example: <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a215bea2badcf94c9236dd769697c463e" title="Subscription against an arbitrary Sen query (with WHERE conditions). Example: selectFrom&lt;Shape&gt;(bus,...">selectFrom</a>&lt;Shape&gt;(bus, R"(SELECT Shape FROM local.bus WHERE color IN ("red"))")</span>. Installs the callbacks before subscribing. Pass nullptr to skip either.  <br /></td></tr>
 <tr class="memitem:a6be66d4510a6e2935671d79d2f147132" id="r_a6be66d4510a6e2935671d79d2f147132"><td class="memItemLeft">std::filesystem::path&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a6be66d4510a6e2935671d79d2f147132">getConfigFilePath</a> () const noexcept</td></tr>
 <tr class="memdesc:a6be66d4510a6e2935671d79d2f147132"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the path to the configuration file used to construct the kernel. It might be empty if the kernel is programmatically configured.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -563,6 +564,9 @@ template&lt;typename T, typename Bus&gt; </div>
 </table>
 </div><div class="memdoc">
 
+<p>Subscribe to every object of type T on <span class="tt">bus</span>. The returned <a class="el" href="structsen_1_1_subscription.html" title="A list of objects and a reference to its source (to keep it alive).">Subscription</a> owns the kernel-side wiring; destruct it to stop. </p>
+<p><a class="el" href="classsen_1_1_callback.html" title="Base class for event or method callbacks. It stores the queue where to push the response....">Callback</a> lifetime (this overload, the next, and selectFrom): onAdded / onRemoved fire on the kernel's run() thread between subscribe and the <a class="el" href="structsen_1_1_subscription.html" title="A list of objects and a reference to its source (to keep it alive).">Subscription</a>'s destruction. References they capture must outlive the <a class="el" href="structsen_1_1_subscription.html" title="A list of objects and a reference to its source (to keep it alive).">Subscription</a>. Capture state by shared_ptr or via a component member. </p>
+
 </div>
 </div>
 <a id="a4256a44d2b6734fb44282892215c1553" name="a4256a44d2b6734fb44282892215c1553"></a>
@@ -599,7 +603,7 @@ template&lt;typename T, typename Bus&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Overload of selectAllFrom that installs addition and removal callbacks before subscribing, so they fire for objects already present at subscription time. Pass nullptr for either callback to skip it. </p>
+<p>As above, plus addition/removal callbacks installed before subscribing so they fire for objects already present. Pass nullptr to skip either. </p>
 
 </div>
 </div>
@@ -642,7 +646,7 @@ template&lt;typename T, typename Bus&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Creates a subscription for objects matching the given Sen query string. Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions. Example: selectFrom&lt;Shape&gt;(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")"). It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it. </p>
+<p><a class="el" href="structsen_1_1_subscription.html" title="A list of objects and a reference to its source (to keep it alive).">Subscription</a> against an arbitrary Sen query (with WHERE conditions). Example: <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a215bea2badcf94c9236dd769697c463e" title="Subscription against an arbitrary Sen query (with WHERE conditions). Example: selectFrom&lt;Shape&gt;(bus,...">selectFrom</a>&lt;Shape&gt;(bus, R"(SELECT Shape FROM local.bus WHERE color IN ("red"))")</span>. Installs the callbacks before subscribing. Pass nullptr to skip either. </p>
 
 </div>
 </div>
