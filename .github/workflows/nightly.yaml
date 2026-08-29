@@ -63,15 +63,31 @@ jobs:
         run: |
           conan install . -s "&:build_type=Debug" --build=missing \
             -o "sen/*:with_tests=True" \
-            -o "sen/*:sanitizer=${{ matrix.sanitizer }}"
+            -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
+            -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
           # conan build regenerates the toolchain, so it needs the same options.
           conan build . -s "&:build_type=Debug" \
             -o "sen/*:with_tests=True" \
-            -o "sen/*:sanitizer=${{ matrix.sanitizer }}"
+            -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
+            -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
 
       - name: Run tests
         shell: bash
         run: cmake --build build/clang/Debug/ --target run_tests
+
+      # Always: a run that failed for an unrelated reason still collected them.
+      - name: Report the ${{ matrix.lane }} findings
+        if: always()
+        shell: bash
+        run: python3 .github/scripts/summarise_sanitizer_reports.py sanitizer-reports
+
+      - name: Archive the ${{ matrix.lane }} reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: sanitizer-reports-${{ matrix.sanitizer }}
+          path: sanitizer-reports/
+          if-no-files-found: ignore
 
   clang-tidy:
     name: "clang-tidy full tree"
