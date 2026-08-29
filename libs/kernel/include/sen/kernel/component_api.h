@@ -46,6 +46,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -142,22 +143,27 @@ public:
   /// The work queue of this runner
   [[nodiscard]] ::sen::impl::WorkQueue* getWorkQueue() const noexcept;
 
+  /// Subscribe to every object of type T on `bus`. The returned Subscription owns the
+  /// kernel-side wiring; destruct it to stop.
+  ///
+  /// Callback lifetime (this overload, the next, and selectFrom): onAdded / onRemoved
+  /// fire on the kernel's run() thread between subscribe and the Subscription's
+  /// destruction. References they capture must outlive the Subscription. Capture state
+  /// by shared_ptr or via a component member.
   template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(const Bus& bus);
 
-  /// Overload of selectAllFrom that installs addition and removal callbacks before subscribing,
-  /// so they fire for objects already present at subscription time.
-  /// Pass nullptr for either callback to skip it.
+  /// As above, plus addition/removal callbacks installed before subscribing so they fire
+  /// for objects already present. Pass nullptr to skip either.
   template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectAllFrom(
     const Bus& bus,
     typename sen::ObjectList<T>::Callback onAdded,
     typename sen::ObjectList<T>::Callback onRemoved = nullptr);
 
-  /// Creates a subscription for objects matching the given Sen query string.
-  /// Unlike selectAllFrom, this lets you supply an arbitrary query with WHERE conditions.
-  /// Example: selectFrom<Shape>(bus, "SELECT Shape FROM local.bus WHERE color IN (\"red\")").
-  /// It installs addition and removal callbacks before subscribing. Pass nullptr for either callback to skip it.
+  /// Subscription against an arbitrary Sen query (with WHERE conditions).
+  /// Example: `selectFrom<Shape>(bus, R"(SELECT Shape FROM local.bus WHERE color IN ("red"))")`.
+  /// Installs the callbacks before subscribing. Pass nullptr to skip either.
   template <typename T, typename Bus>
   [[nodiscard]] std::shared_ptr<Subscription<T>> selectFrom(const Bus& bus,
                                                             const std::string& query,
@@ -400,17 +406,34 @@ inline std::shared_ptr<Subscription<T>> KernelApi::selectFrom(const Bus& bus,
   return sub;
 }
 
+namespace impl
+{
+
+/// The type name a query selects: the qualified class name, or "*" for the base Object.
+/// The assert is on meta(), not inheritance: a generated interface is not an Object but
+/// does carry a ClassType, where an enum or a sequence would give a null one.
+template <typename T>
+[[nodiscard]] inline std::string_view queryTypeName()
+{
+  if constexpr (std::is_same_v<T, Object>)
+  {
+    return "*";
+  }
+  else
+  {
+    static_assert(std::is_same_v<decltype(T::meta()), ::sen::ConstTypeHandle<::sen::ClassType>>,
+                  "a subscription type must be a Sen object class");
+    return T::meta()->getQualifiedName();
+  }
+}
+
+}  // namespace impl
+
 template <typename T>
 inline std::string KernelApi::buildQuery(const BusAddress& address) const
 {
-  const ClassType* meta = nullptr;
-  if constexpr (!std::is_same_v<T, Object>)
-  {
-    meta = &T::meta();
-  }
-
   std::string query = "SELECT ";
-  query.append(meta ? meta->getQualifiedName() : "*");
+  query.append(impl::queryTypeName<T>());
   query.append(" FROM ");
   query.append(address.sessionName);
   query.append(".");
@@ -422,14 +445,8 @@ inline std::string KernelApi::buildQuery(const BusAddress& address) const
 template <typename T>
 inline std::string KernelApi::buildQuery(std::string_view bus) const
 {
-  const ClassType* meta = nullptr;
-  if constexpr (!std::is_same_v<T, Object>)
-  {
-    meta = T::meta()->asClassType();
-  }
-
   std::string query = "SELECT ";
-  query.append(meta ? meta->getQualifiedName() : "*");
+  query.append(impl::queryTypeName<T>());
   query.append(" FROM ");
   query.append(bus);
 

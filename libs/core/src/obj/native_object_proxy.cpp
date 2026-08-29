@@ -70,11 +70,11 @@ void NativeObjectProxy::invokeUntyped(const Method* method, const VarList& args,
 
 ConnectionGuard NativeObjectProxy::onPropertyChangedUntyped(const Property* prop, EventCallback<VarList>&& callback)
 {
-  std::scoped_lock<std::recursive_mutex> lock(eventCallbacksMutex_);
+  std::scoped_lock<std::recursive_mutex> lock(propertyCallbacksMutex_);
 
-  if (!eventCallbacks_)
+  if (!propertyCallbacks_)
   {
-    eventCallbacks_ = std::make_unique<EventCallbackMap>();
+    propertyCallbacks_ = std::make_unique<PropertyCallbackMap>();
   }
 
   if (auto callbackLock = callback.lock(); callbackLock.isValid())
@@ -82,7 +82,7 @@ ConnectionGuard NativeObjectProxy::onPropertyChangedUntyped(const Property* prop
     const auto connId = senImplMakeConnectionId();
     const auto memberHash = prop->getId();
 
-    auto [itr, done] = eventCallbacks_->try_emplace(memberHash, EventData {{}, prop->getTransportMode()});
+    auto [itr, done] = propertyCallbacks_->try_emplace(memberHash, PropertyData {{}, prop->getTransportMode()});
     itr->second.list.push_back({connId.get(), std::make_shared<EventCallback<VarList>>(std::move(callback))});
 
     return senImplMakeConnectionGuard(connId, memberHash, false);
@@ -103,29 +103,29 @@ Var NativeObjectProxy::getPropertyUntyped(const Property* prop) const { return s
 
 void NativeObjectProxy::senImplEventEmitted(MemberHash id, std::function<VarList()>&& argsGetter, const EventInfo& info)
 {
-  std::scoped_lock<std::recursive_mutex> lock(eventCallbacksMutex_);
+  std::scoped_lock<std::recursive_mutex> lock(propertyCallbacksMutex_);
 
-  if (!eventCallbacks_)
+  if (!propertyCallbacks_)
   {
     return;
   }
 
-  auto itr = eventCallbacks_->find(id);
-  if (itr != eventCallbacks_->end())
+  auto itr = propertyCallbacks_->find(id);
+  if (itr != propertyCallbacks_->end())
   {
-    const auto& eventData = itr->second;
+    const auto& propertyData = itr->second;
 
-    if (!eventData.list.empty())
+    if (!propertyData.list.empty())
     {
       const auto args = argsGetter();
-      for (const auto& elem: eventData.list)
+      for (const auto& elem: propertyData.list)
       {
         if (auto callbackLock = elem.callback->lock(); callbackLock.isValid())
         {
           // Capture the shared_ptr by value: the entry may be erased before the workQueue
           // drains, and Callback::invoke is a no-op on an invalidated CallbackData.
           callbackLock.pushAnswer([args, info, callback = elem.callback]() { callback->invoke(info, args); },
-                                  impl::cannotBeDropped(eventData.transportMode));
+                                  impl::cannotBeDropped(propertyData.transportMode));
         }
       }
     }
@@ -136,12 +136,12 @@ void NativeObjectProxy::removeTypedConnectionOnOwner(ConnId connId) { owner_->se
 
 void NativeObjectProxy::senImplRemoveUntypedConnection(ConnId id, MemberHash memberHash)
 {
-  std::scoped_lock<std::recursive_mutex> lock(eventCallbacksMutex_);
+  std::scoped_lock<std::recursive_mutex> lock(propertyCallbacksMutex_);
 
-  if (eventCallbacks_)
+  if (propertyCallbacks_)
   {
-    auto itr = eventCallbacks_->find(memberHash.get());
-    if (itr != eventCallbacks_->end())
+    auto itr = propertyCallbacks_->find(memberHash.get());
+    if (itr != propertyCallbacks_->end())
     {
       auto& callbackList = itr->second.list;
 
@@ -158,13 +158,13 @@ void NativeObjectProxy::senImplRemoveUntypedConnection(ConnId id, MemberHash mem
       // delete the entry for this member if empty
       if (callbackList.empty())
       {
-        eventCallbacks_->erase(itr);
+        propertyCallbacks_->erase(itr);
       }
 
       // delete the callbacks container if empty
-      if (eventCallbacks_->empty())
+      if (propertyCallbacks_->empty())
       {
-        eventCallbacks_ = {};
+        propertyCallbacks_ = {};
       }
     }
   }

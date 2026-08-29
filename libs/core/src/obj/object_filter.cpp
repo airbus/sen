@@ -122,6 +122,13 @@ public:
     }
   }
 
+  /// Tracks the given objects and evaluates them, notifying listeners about the ones that match.
+  void seedFromExistingObjects(const std::unordered_map<ObjectId, std::shared_ptr<Object>>& objects)
+  {
+    startTracking(objects);
+    evaluateTrackedObjects();
+  }
+
   void evaluateTrackedObjects()
   {
     // clear it because we will recompute this here
@@ -440,8 +447,7 @@ std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std
   providers_.push_back(ptr);
 
   ptr->setName(name);
-  ptr->startTracking(lastPresentObjects_);
-  ptr->evaluateTrackedObjects();
+  ptr->seedFromExistingObjects(lastPresentObjects_);
 
   return ptr;
 }
@@ -506,8 +512,7 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
 
   if (notifyAboutExisting)
   {
-    provider->startTracking(lastPresentObjects_);
-    provider->evaluateTrackedObjects();
+    provider->seedFromExistingObjects(lastPresentObjects_);
   }
 }
 
