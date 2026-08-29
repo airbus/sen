@@ -17,6 +17,12 @@ name: CI Image
 # Off the hour because on-the-hour slots are contended.
 on:
   workflow_call:
+    inputs:
+      publish:
+        description: Push the checked image to the registry. Only true for a merge to main.
+        required: false
+        default: false
+        type: boolean
   workflow_dispatch:
   schedule:
     - cron: "41 7 * * *"
@@ -139,3 +145,34 @@ jobs:
             test "$(id -un)" = sen || { echo "image runs as $(id -un)"; exit 1; }
             echo "editor tools present"
           '
+
+      # Last, deliberately: an image that failed a tool check above must never
+      # become the one every job pulls. Packages are private -- the organisation
+      # forbids public ones -- so a consumer authenticates or builds from the
+      # pinned Dockerfile instead.
+      - name: Publish the image
+        if: inputs.publish
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          SHA: ${{ github.sha }}
+        run: |
+          echo "$TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          ref="ghcr.io/${OWNER}/sen-ci"
+          docker tag sen-ci:probe "$ref:$SHA"
+          docker tag sen-ci:probe "$ref:main"
+          docker push "$ref:$SHA"
+          docker push "$ref:main"
+          # The digest is what a job should pull; the tags are for people.
+          # Matched against our own ref rather than taken by position: an image
+          # carries a digest per repository it has been tagged into, and the
+          # first is not necessarily ours.
+          digest=$(docker inspect --format='{{range .RepoDigests}}{{println .}}{{end}}' \
+            "$ref:$SHA" | grep "^${ref}@" | head -1)
+          test -n "$digest"
+          {
+            echo "Published \`$digest\`"
+            echo ""
+            echo "Pull it with: \`docker pull $digest\`"
+          } >> "$GITHUB_STEP_SUMMARY"

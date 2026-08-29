@@ -19,7 +19,10 @@
 # pinned cmake for the builds themselves. Build `base` explicitly: a plain
 # `docker build` takes the last stage.
 
-FROM ubuntu:22.04 AS base
+# Pinned by digest: the tag moves whenever Canonical republishes it, which made
+# two developers building a fortnight apart hold different toolchains. Update it
+# deliberately; the scheduled cold build is what notices when it should be.
+FROM ubuntu:22.04@sha256:2edbbc5dc405e9612ba3584ce95480277e3eb374407b5505fe26f17df77c7dbc AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG LLVM_VERSION=20
