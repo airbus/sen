@@ -137,6 +137,10 @@ jobs:
         if: matrix.runtime_base != ''
         shell: bash
         run: |
+          # Conan provides cmake and ninja, and the image ships neither; entering
+          # its environment is what finds them. Harmless on a runner that has its
+          # own cmake, and required the moment a job runs inside the image.
+          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
             -N -L integration | grep -q object_sync
 
@@ -149,6 +153,8 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          # Same reason as the first of these, in standard_test.yaml.
+          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
 
       # The report target runs the suite itself, so this replaces the step above
@@ -159,6 +165,8 @@ jobs:
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          # Same reason as the first of these, in standard_test.yaml.
+          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
             --target generate-coverage-report
 
@@ -220,6 +228,8 @@ jobs:
         if: matrix.check_package
         shell: bash
         run: |
+          # Same reason as the first of these, in standard_test.yaml.
+          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 
