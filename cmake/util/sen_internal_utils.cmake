@@ -271,6 +271,9 @@ function(sen_internal_bake_npm_licenses)
   )
   add_custom_target(${_target_slug}_npm_licenses ALL DEPENDS ${_sentinel})
   set_target_properties(${_target_slug}_npm_licenses PROPERTIES FOLDER "licenses")
+
+  # The documentation page is written from this tree and has to wait for it.
+  set_property(GLOBAL APPEND PROPERTY SEN_LICENSE_TARGETS ${_target_slug}_npm_licenses)
 endfunction()
 
 # cmake graphviz generation

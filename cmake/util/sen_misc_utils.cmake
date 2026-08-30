@@ -731,12 +731,12 @@ function(sen_configure_target target_name)
 
   if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-    )# .exe and .dll
+    )# .so and .dylib
   endif()
 
   if(NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
     set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-    )# .so and .dylib
+    )# .exe and .dll
   endif()
 
   if(NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
