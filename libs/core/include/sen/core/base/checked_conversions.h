@@ -77,6 +77,18 @@ ToType conversionImpl(FromType from)
     }
     else
     {
+      // NaN compares false against every bound, so it reaches the cast below,
+      // where converting it to an integer is undefined. A floating-point target
+      // is left alone: there the cast is defined and NaN is worth keeping.
+      if constexpr (!std::is_floating_point_v<ToType>)
+      {
+        if (std::isnan(static_cast<float64_t>(from)))
+        {
+          ReportPolicy::report("Needed to convert `from` to zero as it is not a number.");
+          return ToType {};
+        }
+      }
+
       if (std::isless(static_cast<float64_t>(from), static_cast<float64_t>(std::numeric_limits<ToType>::lowest())))
       {
         ReportPolicy::report("Needed to truncate `from` as it's value was to small for ToType.");
