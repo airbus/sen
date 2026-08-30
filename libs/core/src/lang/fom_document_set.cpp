@@ -1078,6 +1078,44 @@ ConstTypeHandle<> FomDocumentSet::recordType(const pugi::xpath_node& node, Parse
   auto specQualifiedName = fomTypeNameToSenTypeNameQual(doc->doc, specName);
   auto specDescription = formatSemantics(node.node().child_value("semantics"));
 
+  // <include> brings in the fields of another record. A sen struct expresses that as its parent,
+  // and takes exactly one, so a record including more than one cannot be represented.
+  MaybeConstTypeHandle<StructType> parent;
+  for (const auto& includeNode: node.node().children("include"))
+  {
+    const std::string includedName = includeNode.child_value();
+
+    if (parent)
+    {
+      std::string err;
+      err.append("record '");
+      err.append(name);
+      err.append("' includes more than one record, which sen cannot represent: a struct has a single parent");
+      throwRuntimeError(err);
+    }
+
+    if (includedName == name)
+    {
+      std::string err;
+      err.append("record '");
+      err.append(name);
+      err.append("' includes itself");
+      throwRuntimeError(err);
+    }
+
+    parent = dynamicTypeHandleCast<const StructType>(getOrCreateTypeFromFomName(includedName, doc).first);
+    if (!parent)
+    {
+      std::string err;
+      err.append("record '");
+      err.append(name);
+      err.append("' includes '");
+      err.append(includedName);
+      err.append("', which is not a record");
+      throwRuntimeError(err);
+    }
+  }
+
   std::vector<StructField> fields;
   for (const auto& fieldNode: node.node().children("field"))
   {
@@ -1088,7 +1126,7 @@ ConstTypeHandle<> FomDocumentSet::recordType(const pugi::xpath_node& node, Parse
     fields.push_back(std::move(field));
   }
 
-  StructSpec spec(specName, specQualifiedName, specDescription, fields, std::nullopt);
+  StructSpec spec(specName, specQualifiedName, specDescription, fields, parent);
 
   return StructType::make(spec);
 }

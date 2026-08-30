@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel
+        xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd"
+        xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>module-A</name>
+        <type>FOM</type>
+        <version>1.0</version>
+        <securityClassification>unclassified</securityClassification>
+        <purpose/>
+        <applicationDomain/>
+        <description>A fixed record including two others</description>
+        <useLimitation/>
+        <other/>
+    </modelIdentification>
+    <objects/>
+    <interactions/>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>TestInt</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <resolution/>
+                <accuracy/>
+                <semantics/>
+            </simpleData>
+        </simpleDataTypes>
+        <enumeratedDataTypes/>
+        <arrayDataTypes/>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>BaseRecord</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>The record whose fields are included by another.</semantics>
+                <field>
+                    <name>Inherited</name>
+                    <dataType>TestInt</dataType>
+                    <semantics/>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>OtherBaseRecord</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>A second record whose fields could be included.</semantics>
+                <field>
+                    <name>AlsoInherited</name>
+                    <dataType>TestInt</dataType>
+                    <semantics/>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>DerivedRecord</name>
+                <encoding>HLAfixedRecord</encoding>
+                <include>BaseRecord</include>
+                <include>OtherBaseRecord</include>
+                <semantics>Brings in the fields of BaseRecord and adds one of its own.</semantics>
+                <field>
+                    <name>Own</name>
+                    <dataType>TestInt</dataType>
+                    <semantics/>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+        <variantRecordDataTypes/>
+    </dataTypes>
+    <notes/>
+</objectModel>
