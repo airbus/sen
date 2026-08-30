@@ -112,7 +112,15 @@ TEST(CheckedConversionsTest, FloatingPointToIntegerTruncation)
 TEST(CheckedConversionsTest, FloatingPointNaNToInteger)
 {
   constexpr double nanValue = std::numeric_limits<double>::quiet_NaN();
-  std::ignore = sen::std_util::ignoredLossyConversion<int32_t>(nanValue);
+
+  // No integer type can represent NaN and the cast to one is undefined, so it
+  // is reported and converted to zero.
+  EXPECT_EQ(sen::std_util::ignoredLossyConversion<int32_t>(nanValue), 0);
+  EXPECT_EQ(sen::std_util::ignoredLossyConversion<uint32_t>(nanValue), 0U);
+  EXPECT_EQ(sen::std_util::ignoredLossyConversion<int64_t>(nanValue), 0);
+
+  // A floating-point target keeps it: that cast is defined.
+  EXPECT_TRUE(std::isnan(sen::std_util::ignoredLossyConversion<float>(nanValue)));
 }
 
 /// @test

@@ -61,6 +61,17 @@ namespace sen::components::replayer
 namespace
 {
 
+// memcpy is undefined with a null pointer even for a zero-length copy, and an
+// empty span carries one. A function rather than a guard at each site: a
+// destination like writer.advance() must still run when there is nothing to copy.
+void copyBytes(void* destination, const void* source, const size_t size)
+{
+  if (size != 0U)
+  {
+    std::memcpy(destination, source, size);
+  }
+}
+
 class FieldGetterVisitor: public TypeVisitor
 {
 public:
@@ -264,7 +275,7 @@ ReplayedObject::ReplayedObject(const db::Snapshot& snapshot, TimeStamp timeStamp
     if (!span.empty())
     {
       iter->second.resize(span.size());
-      std::memcpy(iter->second.data(), span.data(), span.size());
+      copyBytes(iter->second.data(), span.data(), span.size());
     }
   }
 
@@ -371,7 +382,7 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::PropertyChange& prope
       // save the time, var, and buffer
       changeData->time = entryTime;
       changeData->buffer.resize(span.size());
-      std::memcpy(changeData->buffer.data(), span.data(), span.size());
+      copyBytes(changeData->buffer.data(), span.data(), span.size());
 
       changedProperties_[propertyChange.getProperty()] = std::move(changeData);
       senImplEventEmitted(propertyChange.getProperty()->getId(), {}, EventInfo {entryTime});
@@ -387,7 +398,7 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Event& event)
       {
         auto span = event.getArgsAsBuffer();
         bufferPtr->resize(span.size());
-        std::memcpy(bufferPtr->data(), span.data(), span.size());
+        copyBytes(bufferPtr->data(), span.data(), span.size());
       }
 
       addWorkToQueue(
@@ -398,7 +409,7 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Event& event)
           getOutputEventQueue()->push({ev->getId(),
                                        entryTime,
                                        [buf = buffer](OutputStream& out)
-                                       { std::memcpy(out.getWriter().advance(buf->size()), buf->data(), buf->size()); },
+                                       { copyBytes(out.getWriter().advance(buf->size()), buf->data(), buf->size()); },
                                        getId(),
                                        ev->getTransportMode(),
                                        serializedSize});
@@ -448,7 +459,7 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Snapshot& snapshot)
 
           // copy the buffer
           itr->second->buffer.resize(span.size());
-          std::memcpy(itr->second->buffer.data(), span.data(), span.size());
+          copyBytes(itr->second->buffer.data(), span.data(), span.size());
 
           itr->second->time = entryTime;
         }
@@ -534,7 +545,7 @@ void ReplayedObject::writePropertyToStream(impl::BufferProvider& provider,
   OutputStream out(writer);
   out.writeUInt32(id);
   out.writeUInt32(valueSize);
-  std::memcpy(out.getWriter().advance(valueSize), valueBuffer.data(), valueBuffer.size());
+  copyBytes(out.getWriter().advance(valueSize), valueBuffer.data(), valueBuffer.size());
 }
 
 void ReplayedObject::writePropertyToStream(OutputStream& out,
@@ -543,7 +554,7 @@ void ReplayedObject::writePropertyToStream(OutputStream& out,
 {
   out.writeUInt32(property->getId().get());
   out.writeUInt32(static_cast<uint32_t>(valueBuffer.size()));
-  std::memcpy(out.getWriter().advance(valueBuffer.size()), valueBuffer.data(), valueBuffer.size());
+  copyBytes(out.getWriter().advance(valueBuffer.size()), valueBuffer.data(), valueBuffer.size());
 }
 
 void ReplayedObject::senImplStreamCall(MemberHash methodId, InputStream& in, StreamCallForwarder&& func)
