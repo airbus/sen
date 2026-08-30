@@ -225,8 +225,16 @@ is that you can have as many as you want and use them when and where you need.
 
 There is another axis to consider: moving components to processes in other computers.
 
-This is also possible and still fully transparent to your components. In this case you need to
-consider the following:
+This is also possible, and your code does not change: the same calls, the same subscriptions, the
+same objects. What distance changes is timing and failure. In this case you need to consider the
+following:
+
+- Calls and updates take longer, and by an amount that varies. A method result that comes back
+  within a cycle or two locally can take several cycles across a loaded network, so code written
+  against a prompt answer needs a timeout and something useful to do while it waits.
+
+- Best-effort properties and events can be dropped. Nothing is lost this way inside one process.
+  Declare a property or an event as `confirmed` where missing an update is not acceptable.
 
 - You are gaining in isolation and robustness. If a machine halts or the OS becomes overloaded, the
   components on other machines keep running. They do lose the objects the halted machine owned, so a
@@ -461,7 +469,7 @@ Packages become common assets. Sen's multidimensional modularity lets you:
 - instantiate multiple components in a process, telling Sen which ones to load and run in a
   configuration file
 - change where those components run, transparently to your code, even when they communicate over a
-  network
+  network, at [the cost distance brings](#moving-components)
 - do all of the above in a type-safe manner, without dealing with low-level messaging constructs
 
 Your focus stays on the logic you implement and the information you use, not on how or where it

@@ -221,6 +221,11 @@ responsive to others, leave it out:
 return api.execLoop(sen::Duration::fromHertz(1.0));
 ```
 
+The kernel learns your cycle time from `execLoop`. A component that drives the loop by hand never
+tells it, so `RunApi::getTargetCycleTime()` gives its objects nothing. Objects built under `build:`
+always have a cycle time, because the kernel's pipeline calls `execLoop` for them. If you drive the
+loop yourself and your objects need the period, pass it to them.
+
 ## Finding other objects
 
 A component discovers objects exactly the way an object does. `RunApi` inherits `KernelApi`, so

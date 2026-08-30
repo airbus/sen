@@ -11,8 +11,9 @@
   grouping of objects that run in a thread and serve some specific purpose is called *component*.
 
 - Components can be instantiated wherever you like (same process, same computer, other computers)
-  and Sen makes this transparent to your code. You achieve this by publishing objects to *buses*.
-  Sen *sessions* are namespaces for *buses*.
+  and Sen makes this transparent to your code, though not to its timing and failure modes: see
+  [what distance costs](main_concepts.md#moving-components). You achieve this by publishing objects
+  to *buses*. Sen *sessions* are namespaces for *buses*.
 
 - Time can be virtualized. Sen can run your code in real time or stepped mode (slower or faster than
   real time, you choose).

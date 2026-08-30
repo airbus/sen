@@ -27,6 +27,11 @@ void registered(sen::kernel::RegistrationApi& api) override
 The registration API lets you obtain sources and register for discovering other objects that you
 might be interested in.
 
+`registered()` runs when your object is added to a bus. Everything the kernel builds from a
+configuration file is added, so for those objects it always runs, and whatever you acquire there is
+in place for every later call, including the destructor. An object you create in code and never add
+to a bus is never registered, and anything `registered()` would have given it stays empty.
+
 Apart from this, you can also implement a function that will get called when the object gets
 unregistered:
 
@@ -139,13 +144,20 @@ else
   {
     std::rethrow_exception(result.getError());
   }
-  catch(const std::runtime_error& err)
+  catch(const std::exception& err)
   {
     // do something with err
     std::cout << err.what() << std::endl;
   }
 }
 ```
+
+Choose what you catch. `std::exception` covers everything a call can deliver; a narrower type covers
+only what you name, and what it does not match escapes the callback. Within one process the error
+arrives as the type the method threw. Across a process boundary that type cannot travel, so what
+reaches you is a `std::logic_error`, a `std::invalid_argument`, a `std::runtime_error` or a bare
+`std::exception`. [Threading and object
+lifetime](../users_guide/threading.md#what-survives-a-process-boundary) has the mapping.
 
 If you don't install any callback, you will be effectively ignoring the result of the method call.
 This includes any potential errors signaled by the method.
@@ -267,7 +279,8 @@ The kernel can give you the following information:
 - Whether you are required to stop, via `RunApi::stopRequested()`.
 - The current (virtualized) time via `RunApi::getTime()`.
 - The time the component's objects started from, via `RunApi::getStartTime()`.
-- The configured cycle time, when one is set, via `RunApi::getTargetCycleTime()`.
+- The configured cycle time via `RunApi::getTargetCycleTime()`, which is set once `execLoop` is
+  running and empty for a component that drives its own loop.
 
 [The execution model](../users_guide/execution_model.md#the-time-a-component-sees) explains what
 that time is, how it moves in each run mode and how a model uses it.
@@ -325,18 +338,20 @@ running, you can store it as a member of your component and initialize it in the
 This `calculators_->list` container is a `sen::ObjectList<T>` which acts like an enhanced
 `std::vector<T>` where `T` can be the specific type of the objects that you are interested in.
 
-You can also use the Sen Query Language to get certain objects. For example:
+The same discovery is available one level down, where you build the interest yourself and own the
+container. `selectAllFrom` is this with the lifetime taken care of for you, so reach for the lower
+level when you need to build the query at run time, or when you want to own the list.
 
-```cpp title="Using SQL to discover objects"
-// declare your interest
-auto interest = sen::Interest::make("SELECT my_package.MyClass from local.test", api.getTypes());
-
-// get the source
-auto bus = api.getSource(interest->getBusCondition().value());
-
-// create a container
-sen::ObjectList<sen::Object> objects;
-
-// subscribe our container
-bus->addSubscriber(interest, &objects, true);
+```cpp title="test/util/query_test/src/component.cpp"
+--8<-- "test/util/query_test/src/component.cpp:subscribe"
 ```
+
+The list it subscribes is declared as `sen::ObjectList<query_test::QueryTestClassInterface>
+objectsInError_;`, a member. `addSubscriber` keeps the address of your container rather than a copy of it,
+so the container has to outlive the subscription — the rule stated above, with nothing holding the
+list on your behalf. The source can stay a local, as it is here: the kernel owns the bus, and you
+only need to keep the handle if you use it again later, as the school example does to remove its
+objects.
+
+`onAdded` on the list is the same idea as the callback `selectAllFrom` takes, and the query shows a
+`WHERE` clause narrowing the interest to objects whose property has a particular value.

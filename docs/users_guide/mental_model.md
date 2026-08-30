@@ -15,7 +15,9 @@ moving from A to B.
 Sen is **object-oriented at the network level**. The unit of communication is an *object*, a thing
 with properties, methods, and events that happens to live in your own thread, in a different thread,
 in another process, or on another machine. You call methods on it. You read its properties. You
-subscribe to its events. The network is transparent.
+subscribe to its events. The network is transparent to your code. Moving an object away does not
+change how you use it. It does change how long a call takes and how it can fail, which
+[Moving components](main_concepts.md#moving-components) sets out.
 
 ```yaml
 Message-oriented:                    Sen:
@@ -173,6 +175,9 @@ self-publish, and consumers declare what they are looking for.
 To discover objects, you declare an **interest** (a filter), and Sen gives you a live list:
 
 ```cpp
+// A member of your object, so that it outlives the call that creates it:
+std::shared_ptr<sen::Subscription<SensorInterface>> subscription_;
+
 // In registered():
 subscription_ = api.selectAllFrom<SensorInterface>("monitoring.headquarters");
 ```

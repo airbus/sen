@@ -51,14 +51,16 @@ public:
     obj_ = std::make_shared<query_test::QueryTestClassImpl>("object1", sen::VarMap {});
     obj_->setNextCurrentStatus(query_test::Status::idle);
 
+    // --8<-- [start:subscribe]
     const auto bus = api.getSource("se.env");
     bus->add(obj_);
 
-    std::ignore = enumList_.onAdded([this](const auto& /*iterators*/) { enumHits_++; });
+    std::ignore = objectsInError_.onAdded([this](const auto& /*iterators*/) { matchCount_++; });
 
-    const auto enumInterest = sen::Interest::make(
+    const auto interest = sen::Interest::make(
       R"(SELECT query_test.QueryTestClass FROM se.env WHERE currentStatus = "error")", api.getTypes());
-    bus->addSubscriber(enumInterest, &enumList_, true);
+    bus->addSubscriber(interest, &objectsInError_, true);
+    // --8<-- [end:subscribe]
 
     constexpr int maxTicks = 200;  // ~2s at 100Hz
 
@@ -71,7 +73,7 @@ public:
                           {
                             obj_->setNextCurrentStatus(query_test::Status::error);
                           }
-                          else if (enumHits_ == 1)
+                          else if (matchCount_ == 1)
                           {
                             api.requestKernelStop(0);
                           }
@@ -84,8 +86,8 @@ public:
 
 private:
   std::shared_ptr<query_test::QueryTestClassImpl> obj_;
-  sen::ObjectList<query_test::QueryTestClassInterface> enumList_;
-  int enumHits_ = 0;
+  sen::ObjectList<query_test::QueryTestClassInterface> objectsInError_;
+  int matchCount_ = 0;
   int tick_ = 0;
 };
 
