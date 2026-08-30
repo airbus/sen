@@ -80,7 +80,8 @@ python3 config/6_recorder/3_recorder_school_print.py
 
 ## Using Python to inspect the recordings
 
-Sen comes with a Python binding to access the recorded data. The following Python code prints the entries:
+Sen comes with a Python binding to access the recorded data. The following Python code prints the
+entries:
 
 ```python
 --8<-- "snippets/examples/config/6_recorder/3_recorder_school_print.py"

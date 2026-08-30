@@ -8,7 +8,7 @@ components, coordinating their execution, and managing the communication between
 | Area | What the kernel does                                                                          |
 |------|-----------------------------------------------------------------------------------------------|
 | **Bootloader** | Parses the YAML configuration file into the `KernelConfig` the kernel is constructed from     |
-| **Component lifecycle** | Loads, initialises, runs, stops, and unloads components in group order                        |
+| **Component lifecycle** | Loads, initializes, runs, stops, and unloads components in group order                        |
 | **Execution scheduling** | Drives the drain-update-commit cycle at the configured `freqHz`                               |
 | **Transport abstraction** | Routes method calls, property updates, and events between components via pluggable transports |
 | **Session and bus management** | Maintains the session/bus/object namespace and handles broker-less discovery                  |

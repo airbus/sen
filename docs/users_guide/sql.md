@@ -55,7 +55,7 @@ and the trade-offs of this approach. Consider that:
   broadcast the object existence.
 
 Note that to achieve this, Sen defines a way for you to *declare* the conditions that any object
-needs to fulfil. This *externalization* of information comes with some advantages:
+needs to fulfill. This *externalization* of information comes with some advantages:
 
 1. The conditions aren't "buried" in the code, but made explicit. This makes code easier to
    understand and maintain.

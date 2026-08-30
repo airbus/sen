@@ -68,16 +68,16 @@ my_counter/
 
 Open `stl/my_counter/counter.stl` and replace its contents with this:
 
-```{ .rust .annotate }
+```rust
 --8<-- "examples/packages/my_counter/stl/my_counter/counter.stl"
 ```
 
-1. Declares the namespace. All types defined here belong to `my_counter`.
-2. A dynamic, read-only property. Your object updates it each cycle. Other components can read it.
-3. A static property: its value is set at construction and never changes. We'll set it in
-   `config.yaml`.
-4. A method that returns a greeting message. It is marked as `const` so it cannot change the object.
-5. An event fired whenever the value is divisible by 10. Any component can subscribe to this.
+`package my_counter` declares the namespace, so everything defined here belongs to it.
+
+`value` is dynamic and read-only: your object updates it each cycle, and other components can read
+it. `step` is static, so it is set at construction and never changes, and you will set it in
+`config.yaml`. `hello()` is marked `const`, so it cannot change the object.
+`valueIsDivisibleByTen` is an event, and any component can subscribe to it.
 
 !!! note "Static means constant per instance"
     "Static" in STL does not mean shared across instances. It means: set once at construction, then
@@ -119,8 +119,9 @@ Edit `src/counter.cpp`:
    visible to all components after Sen commits the outputs.
 2. Fires the `valueIsDivisibleByTen` event with the new value. Like property changes, events are
    buffered and delivered after commit.
-3. This macro registers `CounterImpl` as a class that Sen's kernel can instantiate. Without it, your
-   class is invisible to the configuration system (no error at build time, just nothing shows up.
+3. This macro registers `CounterImpl` as a class that Sen's kernel can instantiate. Without it there
+   is no build error, but the kernel stops at startup with `could not find type
+   'my_counter.CounterImpl' in any of the imported libraries`, naming the symbol it looked for.
 
 !!! abstract "Why `setNext` instead of `set`?"
 

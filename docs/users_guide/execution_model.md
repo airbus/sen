@@ -163,7 +163,7 @@ Overruns and missed frames are reported separately, and they are not the same:
 | `<component> missed frame (interruption)` | Wall clock: cycles were actually skipped | Tracy only |
 
 **The log tells you about CPU, not about lost cycles.** An update that blocks (on a socket, a lock,
-a vendor SDK, burns wall time without burning CPU time, so it can miss frames without ever producing
+a vendor SDK) burns wall time without burning CPU time, so it can miss frames without ever producing
 a warning. The signal that says cycles were genuinely lost goes only to
 [Tracy](../components/tracy.md), so a component running at a fraction of its configured rate looks
 healthy in the log.

@@ -55,12 +55,13 @@ release you do not have them, and you can still read this tutorial straight thro
 
 The interface lives in `examples/packages/calculators/stl/calculator.stl`:
 
-```{ .rust .annotate }
+```rust
 --8<-- "examples/packages/calculators/stl/calculator.stl"
 ```
 
-1. Stores the running total. Read-only to other objects: only the calculator itself can change it.
-2. The bus name where this client should look for calculators. Configured in YAML.
+`current` stores the running total. It is read-only to other objects, so only the calculator itself
+can change it. `calcBus` is the bus name where the client looks for calculators, and it is set in
+the YAML configuration.
 
 The interface carries a little more than this tutorial uses: `divideByCurrent`, and a `model`
 property that each implementation must be given in the configuration.

@@ -525,7 +525,7 @@ the implementation at construction time.
 
 ### Tagging properties
 
-The `tag: <name>` attribute is the mechanism for user-defined labelling of
+The `tag: <name>` attribute is the mechanism for user-defined labeling of
 properties. Tags are inspectable at runtime through Sen's meta-reflection API
 and let you group properties across unrelated classes for filtering,
 selection, or UI purposes, without those classes having to share a common

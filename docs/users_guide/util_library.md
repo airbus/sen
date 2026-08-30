@@ -124,7 +124,7 @@ orientation relative to NED.
 |---|---|---|---|---|
 | `isFrozen` | — | `bool` | — | When true no extrapolation is performed. Default `false` |
 | `timeStamp` | — | `sen::TimeStamp` | — | The instant this situation describes |
-| `worldLocation` | `x` `y` `z` | metres | ECEF | Position |
+| `worldLocation` | `x` `y` `z` | meters | ECEF | Position |
 | `orientation` | `psi` `theta` `phi` | radians | body relative to ECEF | Body axes are x forward, y right, z down |
 | `velocityVector` | `x` `y` `z` | m/s | ECEF *or* body | Depends on the algorithm being extrapolated |
 | `angularVelocity` | `x` `y` `z` | rad/s | body | |
@@ -135,7 +135,7 @@ orientation relative to NED.
 
 | Field | Components | Unit | Frame | Meaning |
 |---|---|---|---|---|
-| `worldLocation` | `latitude` `longitude` | degrees | — | `altitude` is in metres |
+| `worldLocation` | `latitude` `longitude` | degrees | — | `altitude` is in meters |
 | `orientation` | `psi` `theta` `phi` | radians | body relative to NED | North-East-Down |
 | `velocityVector`, `accelerationVector` | `x` `y` `z` | m/s, m/s² | NED | The overload converts these to ECEF before writing; see **Reference System** below |
 
@@ -146,7 +146,7 @@ one.
 | Field | Type | Unit | Default | Meaning |
 |---|---|---|---|---|
 | `smoothing` | `bool` | — | `true` | Smooth incoming position and orientation to remove noise |
-| `maxDistance` | `f64` | metres | `100000.0` | Displacements larger than this are not smoothed |
+| `maxDistance` | `f64` | meters | `100000.0` | Displacements larger than this are not smoothed |
 | `maxDeltaTime` | `sen::Duration` | — | `1 s` | Time deltas larger than this are not smoothed |
 | `smoothingInterval` | `sen::Duration` | — | `20 ms` | Longest interval used to update the smoothed solution; caps it to keep the solution stable |
 | `positionConvergenceTime` | `sen::Duration` | — | `500 ms` | How long the smoothed position takes to reach the updated position |
@@ -228,7 +228,7 @@ The Settable Dead Reckoner takes the `DrThreshold` as a configuration. The defin
 --8<-- "libs/util/include/sen/util/dr/settable_dead_reckoner.h:dr_threshold"
 ```
 
-Both thresholds default to a value that already suppresses most updates, one metre and 0.05 radians
+Both thresholds default to a value that already suppresses most updates, one meter and 0.05 radians
 (about 2.9 degrees), so the reduction in traffic happens without any configuration. Setting either
 to zero has the opposite effect of what this class is for: every update would exceed it.
 

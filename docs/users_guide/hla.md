@@ -42,7 +42,7 @@ we intend to grow into rather than deliberate omissions.
 The **MIM** is skipped on purpose. Its two roots are recognized so class hierarchies resolve, and
 the rest of it describes managing a federation, which needs an RTI.
 
-`transportation` **is** honoured, and maps like this:
+`transportation` **is** honored, and maps like this:
 
 | FOM `transportation` | Attribute → property | Interaction → method | Interaction → event |
 |---|---|---|---|

@@ -14,9 +14,10 @@ This package provides the definition of a calculator.
 --8<-- "snippets/examples/packages/calculators/stl/calculator.stl"
 ```
 
-The STL file declares the `Calculator` class: its properties (`model`, `current`), its methods (`add`, `addWithCurrent`,
-`divide`, `divideByCurrent`), and its events (`divisionByZero`). Sen generates a `CalculatorBase` C++ class from this
-definition. Your implementation inherits from it and overrides the `*Impl` methods.
+The STL file declares the `Calculator` class: its properties (`model`, `current`), its methods
+(`add`, `addWithCurrent`, `divide`, `divideByCurrent`), and its events (`divisionByZero`). Sen
+generates a `CalculatorBase` C++ class from this definition. Your implementation inherits from it
+and overrides the `*Impl` methods.
 
 ## Implementation
 
@@ -51,10 +52,11 @@ add_sen_package(
 )
 ```
 
-`add_sen_package` creates a shared library that Sen loads at runtime. `STL_FILES` triggers code generation: the Sen
-compiler reads the STL file and produces the `CalculatorBase` C++ class. `SOURCES` lists the hand-written C++ files that
-are compiled alongside the generated code. `SCHEMA_PATH` controls where the YAML configuration schema is written, making
-it available for validation and editor tooling.
+`add_sen_package` creates a shared library that Sen loads at runtime. `STL_FILES` triggers code
+generation: the Sen compiler reads the STL file and produces the `CalculatorBase` C++ class.
+`SOURCES` lists the hand-written C++ files that are compiled alongside the generated code.
+`SCHEMA_PATH` controls where the YAML configuration schema is written, making it available for
+validation and editor tooling.
 
 ## How to run it
 

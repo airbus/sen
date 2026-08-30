@@ -110,7 +110,7 @@ themes ship; the switcher is in the sidebar header, next to the settings button.
 
 The page is a thin reactive skin over the `@sen/client` TypeScript library; no Sen-specific
 schema is hard-coded anywhere in the UI. Every type, property, and unit is discovered at runtime
-through the [JSON-RPC type catalogue](jsonrpc.md). That makes the web explorer a useful
+through the [JSON-RPC type catalog](jsonrpc.md). That makes the web explorer a useful
 reference for any other web UI you'd build on top of `@sen/client`. The contributor-facing
 one-page mental model is at `components/webexplorer/frontend/architecture.md` in the
 repo, alongside per-side READMEs at `components/webexplorer/{frontend,backend}/README.md`.

@@ -2,8 +2,8 @@
 
 > **Prerequisites:** [3 - Aircraft](../3_aircraft/readme.md) (request/response patterns).
 
-These servers are ordinary Sen objects, not HLA federates — though their types come from HLA FOM
-modules. The directory name reflects that.
+These servers are ordinary Sen objects rather than HLA federates, though their types come from HLA
+FOM modules. The directory name reflects that.
 
 Here we implement a terrain server (and a client) and a weather server.
 

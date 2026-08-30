@@ -31,17 +31,19 @@ This is the data model:
 
 ## Implementation
 
-The shape implementation you can find the `shapes.cpp` file defines the `update()` function. In it, we just
-move it around, making it bounce in a box. The shape emits a `collidedWithWall(wall)` event when it collides with a wall.
+The shape implementation you can find the `shapes.cpp` file defines the `update()` function. In it,
+we just move it around, making it bounce in a box. The shape emits a `collidedWithWall(wall)` event
+when it collides with a wall.
 
-The more interesting part is in `shape_listener.cpp`. Let's see how the `startListening` function is implemented:
+The more interesting part is in `shape_listener.cpp`. Let's see how the `startListening` function is
+implemented:
 
 ```c++
 --8<-- "snippets/examples/packages/shapes/src/shape_listener.cpp:start_listening"
 ```
 
-The `buildQuery()` function builds a Sen Query Language string adapted to the conditions defined by the user, for
-example:
+The `buildQuery()` function builds a Sen Query Language string adapted to the conditions defined by
+the user, for example:
 
 ```sql
 SELECT shapes.Shape FROM my.tutorial
@@ -61,12 +63,13 @@ separately.
 onRemoved)` returns a `std::shared_ptr<Subscription<ShapeInterface>>` holding an `ObjectList`, with
 both callbacks already installed so that they also fire for shapes that were already there. The
 listener keeps it in `subscriptions_`, keyed by query name. Erasing that entry destroys the
-`Subscription`, which unregisters the list from the bus. Nothing else has to be kept alive: `onAdded`
-and `onRemoved` are plain callbacks, and installing one replaces whatever was there before.
+`Subscription`, which unregisters the list from the bus. Nothing else has to be kept alive:
+`onAdded` and `onRemoved` are plain callbacks, and installing one replaces whatever was there
+before.
 
 **The collision callback on each discovered shape, one per shape.** `shape->onCollidedWithWall(...)`
-returns a `ConnectionGuard`, which unregisters the callback when it is destroyed. These do have to be
-kept alive, so the listener stores them in `shapeGuards_`, keyed by object id. Erasing a shape's
+returns a `ConnectionGuard`, which unregisters the callback when it is destroyed. These do have to
+be kept alive, so the listener stores them in `shapeGuards_`, keyed by object id. Erasing a shape's
 entry drops its guards and unregisters its callbacks.
 
 ## How to run it

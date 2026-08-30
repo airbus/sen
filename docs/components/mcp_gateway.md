@@ -84,7 +84,7 @@ reference, and runs a script you write in a sandboxed `python3` child.
 
 For the precise inventory and per-tool argument shapes, ask the host's `tools/list` (MCP
 hosts surface this directly) or read each tool's description in the gateway source. The
-canonical contract lives in the description shipped with each tool; this page summarises it.
+canonical contract lives in the description shipped with each tool; this page summarizes it.
 
 ## STL docstrings matter
 
@@ -160,7 +160,7 @@ one that cannot see the tool at all.
 
 If a model invents a withdrawn name anyway, it gets the dispatcher's generic
 `unknown tool: runRecordingScript` and nothing about read-only mode, which is the likely
-explanation when a session that used to analyse recordings suddenly cannot find the tools. The
+explanation when a session that used to analyze recordings suddenly cannot find the tools. The
 gateway writes one line to stderr at startup naming the variable responsible. When both are
 set, that line names `SEN_MCP_GATEWAY_NO_RECORDING`.
 

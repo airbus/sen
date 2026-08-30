@@ -6,7 +6,8 @@ This example shows how to use checked properties.
 
 ## Interface
 
-We model a `Timer` that holds two writable properties. One is called `program` ad the other is called `state`.
+We model a `Timer` that holds two writable properties. One is called `program` ad the other is
+called `state`.
 
 ```rust
 --8<-- "snippets/examples/packages/timer/stl/timer.stl"
@@ -14,10 +15,10 @@ We model a `Timer` that holds two writable properties. One is called `program` a
 
 This property called `program` is "checked". We only accept sets to `program` when `state`is `off`.
 
-The `codegen_settings.json` file tells the Sen code generator to mark the `program` property as **checked**. A checked
-property requires the object to implement `programAcceptsSet()`, which is called before any external set is applied. If
-it returns `false`, the new value is rejected. This lets you enforce invariants (for example: a running timer cannot
-have its program swapped out).
+The `codegen_settings.json` file tells the Sen code generator to mark the `program` property as
+**checked**. A checked property requires the object to implement `programAcceptsSet()`, which is
+called before any external set is applied. If it returns `false`, the new value is rejected. This
+lets you enforce invariants (for example: a running timer cannot have its program swapped out).
 
 ```json
 --8<-- "snippets/examples/packages/timer/src/codegen_settings.json"
@@ -67,5 +68,5 @@ Note that the timer will not start running until it is On. You can turn on / off
 my.tutorial.timer.setNextState "on"
 ```
 
-Once the timer is running, it is not possible to edit its `program` property until it reaches the end.
-You would need to turn the timer off or wait until it times out.
+Once the timer is running, it is not possible to edit its `program` property until it reaches the
+end. You would need to turn the timer off or wait until it times out.

@@ -154,7 +154,7 @@ This includes any potential errors signaled by the method.
 
 A method normally returns its value, and Sen delivers it to the caller. Sometimes you cannot answer
 straight away: the work is slow, or it has to be handed to someone else. Marking a method *deferred*
-changes the generated implementation side: you receive a `std::promise` and fulfil it whenever you
+changes the generated implementation side: you receive a `std::promise` and fulfill it whenever you
 are ready. Callers see no difference.
 
 A method can be marked deferred in two ways. The direct one is the `[deferred]` attribute in the
@@ -192,7 +192,7 @@ virtual void computeFibonacciImpl(u32 n, std::promise<u64>&& promise) = 0;
 Note the name. Callers still use `computeFibonacci()`; the generated base turns that into a
 `computeFibonacciImpl()` on your class, and that is the one you implement.
 
-The `fibonacci` example ships two implementations. The first does the work and fulfils the promise
+The `fibonacci` example ships two implementations. The first does the work and fulfills the promise
 when it is done:
 
 ```c++ title="doing the work"
@@ -200,7 +200,7 @@ when it is done:
 ```
 
 The second hands the call to another object and passes the promise into the callback, so whoever
-answers fulfils the original caller's promise:
+answers fulfills the original caller's promise:
 
 ```c++ title="forwarding the call"
 --8<-- "examples/packages/fibonacci/src/fibonacci.cpp:forward"

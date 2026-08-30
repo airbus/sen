@@ -28,7 +28,7 @@ directory names rather than a sequence, so there are gaps where an example was r
 | 4   | [School](../snippets/examples/config/4_school/readme.md)           | Object discovery, events, multi-component                  |
 | 6   | [Recorder](../snippets/examples/config/6_recorder/readme.md)       | Recording, Python post-processing                          |
 | 7   | [Replayer](../snippets/examples/config/7_replayer/readme.md)       | Replay with real-time and stepped execution                |
-| 8   | [InfluxDB](../snippets/examples/config/8_influx/readme.md)         | Grafana visualisation                                      |
+| 8   | [InfluxDB](../snippets/examples/config/8_influx/readme.md)         | Grafana visualization                                      |
 | 9   | [Request/response servers](../snippets/examples/config/9_hla_servers/readme.md) | Method return values, async callbacks, live query objects  |
 | 10  | [Python](../snippets/examples/config/10_python/readme.md)          | Embedded Python scripting                                  |
 | 11  | [Shapes](../snippets/examples/config/11_shapes/readme.md)          | Interest management, Sen Query Language                    |

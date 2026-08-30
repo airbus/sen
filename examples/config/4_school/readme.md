@@ -1,8 +1,8 @@
 # School example
 
 > **Prerequisites:** [2 - Inheritance](../2_inheritance/readme.md) (class hierarchy), [3 -
-Aircraft](../3_aircraft/readme.md) (update loop and virtual time). This is the most comprehensive local example - take
-your time with it.
+Aircraft](../3_aircraft/readme.md) (update loop and virtual time). This is the most comprehensive
+local example, so take your time with it.
 
 This is a small example that illustrates how objects can discover and interact with each other.
 
@@ -12,9 +12,9 @@ The idea is:
   instantiate a teacher if the `createTeacher` flag is set to `true`.
 - Students can be added/removed by calling `addStudents`/`removeStudents`. They will be published to
   the `studentsBus` bus.
-- When a student makes a noise (by emitting the `madeSomeNoise` event, some other students will get
-  called to the `hearSomeNoise` method). This is also done in the `Classroom`.
-- The teacher discover the students and interacts with them.
+- When a student makes a noise (by emitting the `madeSomeNoise` event), some other students get
+  called to the `hearSomeNoise` method. This is also done in the `Classroom`.
+- The teacher discovers the students and interacts with them.
 - Everyone has a "state" that dictates what they do and that can be influenced by others.
 
 ## How to run it

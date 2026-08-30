@@ -49,7 +49,7 @@ It takes the following parameters:
 | `PRIVATE_DEPS`      |                  | :material-check: | Private dependencies. Linked with `PRIVATE` linkage; not visible to consumers.                                                                                        |
 | `STL_FILES`         |                  | :material-check: | Sen Type Language (`.stl`) files from which C++ code is generated. Mutually exclusive with `HLA_FOM_DIRS`.                                                            |
 | `HLA_FOM_DIRS`      |                  | :material-check: | Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with `STL_FILES`.                                                       |
-| `HLA_MAPPINGS_FILE` |                  | :material-check: | HLA mapping files that customise FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                                                    |
+| `HLA_MAPPINGS_FILE` |                  | :material-check: | HLA mapping files that customize FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                                                    |
 | `EXPORTED_CLASSES`  |                  | :material-check: | Explicit list of class names to register with the Sen runtime. If omitted, derived automatically by scanning `SOURCES` for `SEN_EXPORT_CLASS()` macros.               |
 | `IS_COMPONENT`      |                  |                  | Marks this package as a Sen component. Enables component-specific code generation (e.g. embedding the component name in the schema).                                  |
 | `NO_SCHEMA`         |                  |                  | Skip JSON schema generation. Use this when the package has no YAML configuration interface or when schema generation is handled elsewhere.                             |
@@ -222,7 +222,7 @@ sen_generate_cpp(
 | `HLA_OUTPUT_DIR`       |                  |                  | Subdirectory within `OUTPUT_DIR` for HLA-derived files. Only relevant when `HLA_FOM_DIRS` is used.                                  |
 | `STL_FILES`            |                  | :material-check: | Sen Type Language (`.stl`) files from which C++ code is generated. Mutually exclusive with `HLA_FOM_DIRS`.                         |
 | `HLA_FOM_DIRS`         |                  | :material-check: | Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with `STL_FILES`.                    |
-| `HLA_MAPPINGS_FILE`    |                  | :material-check: | HLA mapping files that customise FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                  |
+| `HLA_MAPPINGS_FILE`    |                  | :material-check: | HLA mapping files that customize FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                  |
 | `VISIBLE_CLASSES`      |                  |                  | Whether generated class symbols are exported with public visibility (`YES` or `NO`). Required when consumed across shared-library boundaries. |
 
 For example,
