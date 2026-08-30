@@ -37,7 +37,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     ignore:
-      # The base OS is pinned on purpose. tools/ci/runtime.Dockerfile has to match the
-      # OS the binaries were built on, so moving this is a coordinated change to both
-      # images rather than a dependency bump. Raise it by hand when the time comes.
+      # The base OS is pinned on purpose. The binaries are built on the runner, not in
+      # the CI image, so what runtime.Dockerfile has to match is the runner label the
+      # matrix gives that leg -- test_generate_matrix_jobs.py checks that pair. Moving
+      # this is a coordinated change across the images and the matrix rather than a
+      # dependency bump. Raise it by hand when the time comes.
       - dependency-name: ubuntu

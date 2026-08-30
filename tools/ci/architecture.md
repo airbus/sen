@@ -201,9 +201,9 @@ the build type does not change the graph). Conan picks the file up
 automatically. `conan_lock.py check` resolves the graph with the lockfile
 as input, so changes in upstream recipes stay invisible and only changes in
 our own conanfile show up. `conan_lock.py update` regenerates the lockfile.
-The conan version itself is pinned in three places that must stay
-identical: the image (`CONAN_VERSION` build argument),
-`setup_build_context`, and the lockfile check job.
+The conan version itself is pinned in four places that must stay identical: the
+image (`CONAN_VERSION` build argument), `setup_build_context`, the lockfile check
+job, and the `build_documentation` action.
 
 **Dependencies always build as Release, independent of the build type of
 the sen package** (`-s "&:build_type=..."`, or `sen/*:` in `conan create`,
@@ -290,9 +290,11 @@ package versions, so exact pins would break within weeks.)
 The same workflow runs daily on its own schedule, and that run imports no layer
 cache: it builds both stages from scratch, so it really contacts apt.llvm.org,
 the Ubuntu archive and PyPI. The cached run cannot, because every layer comes
-from the Actions cache. What this catches is drift -- `Dockerfile` names
-`ubuntu:22.04` with no digest, the LLVM repository pins a major version only,
-and the apt packages are unpinned on purpose, so the same file produces a
+from the Actions cache. What this catches is drift. The base is
+pinned by digest, so that part no longer moves -- and it demonstrably would: the
+`ubuntu:22.04` tag was republished within two days of the pin going in. What is
+still unpinned is the LLVM repository, which fixes a major version only, and the
+apt packages, which are unpinned on purpose, so the same file still produces a
 different image as the calendar moves. It retries once before failing, writes
 nothing to the cache, and blocks no merge.
 
@@ -305,9 +307,13 @@ matches the machine architecture.
 The pieces above describe the pipeline as it is. This section describes the
 shape it is being moved towards, so that changes can be judged against it.
 
-**The environment should have one definition.** Today it has three: the
-Dockerfile, the `setup_build_context` action that installs the toolchain on
-runners, and packages installed by individual workflow steps. Nothing keeps
+**The environment should have one definition.** Today it has five:
+
+- the Dockerfile's `base` stage, which nothing runs in,
+- its `dev` stage, which the devcontainer builds,
+- `tools/ci/runtime.Dockerfile`, which the container-based integration tests run in,
+- the `setup_build_context` action, which is what CI actually builds with,
+- and packages installed by individual workflow steps. Nothing keeps
 them in agreement, and every difference between them has produced a real
 defect: clang-tidy present in one and missing in the other, coverage tools
 missing from both, conan pinned in one place and floating in another, a
@@ -317,14 +323,17 @@ registry when a change lands on main, and used by both the pull-request jobs
 and the devcontainer. Then a tool either exists for everyone or for nobody,
 and a check can no longer pass having analysed nothing.
 
-Publishing to that registry has been confirmed to work for this repository
-with the ordinary workflow token, so it needs no organisation-level change.
-Two pieces of work remain before jobs can run inside the image: the image
-must be built for both x86 and arm, because one test configuration runs on
-arm hardware, and workflows must refer to an exact image rather than a
-moving label. Images are private when first published, and a public image is
-what allows somebody who has just cloned the repository to pull it without
-credentials.
+**Publishing to that registry does not work today.** A personal token can push to
+`ghcr.io/airbus`, and the GitHub Actions installation cannot: it is refused `Create`
+and then `Write` on an organization package, and granting the repository Write and
+then Admin on a hand-created package changes neither. Package visibility cannot be set
+to public either, and that is refused organisation-wide rather than per package. An
+administrator request covering both is outstanding.
+
+The route that needs no administrator is for each job to build the image from the
+pinned Dockerfile and run its commands inside it. That needs no registry, and each
+runner builds for its own architecture, so the multi-architecture problem does not
+arise.
 
 **One cmake, not two.** Conan provides cmake and ninja as tool requirements,
 so they stay out of the image. The rule that follows is that any step
@@ -367,7 +376,7 @@ implying the container covers every platform.
 | Job               | What it does                                                | Why                                         |
 | ----------------- | ----------------------------------------------------------- | ------------------------------------------- |
 | TSan / ASan+UBSan | clang Debug build of sen with `-o sen/*:sanitizer=thread` / `=address`, full test suite | finds data races and undefined behavior; the Debug build also compiles the `SEN_DEBUG_ASSERT` checks |
-| clang-tidy        | full build with `-o sen/*:with_clang_tidy=True`             | pull requests never run clang-tidy; this covers the whole tree |
+| clang-tidy        | full build with `-o sen/*:with_clang_tidy=True`             | pull requests never run clang-tidy. Analysis is opt-in per target, so this covers the targets that asked, not the whole tree; eight directories opt in nowhere and the examples are not built here |
 | repeated tests    | unit test suite with `--repeat until-fail:5`                | repetition exposes tests that fail only sometimes, so they get fixed instead of retried |
 | benchmarks        | `run_benchmarks`, JSON results stored per run               | performance history; see below              |
 | pre-commit full   | every hook over every file                                  | the pull-request job only checks changed files |
@@ -495,6 +504,25 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
 
 ## Known limitations
 
+- **Releases are not built by the pipeline described above.** They are cut from a
+  release branch, and those branches carry an older and much smaller set of
+  workflows: no `main.yaml`, no `standard_test.yaml`, no `nightly.yaml`, no
+  `ci-image.yaml` and no `tools/` directory. So none of the checks on this page has
+  ever run against a release. The archive-completeness check does not exist there, the
+  artifact upload does not fail on an empty match, and the release step does not fail
+  on unmatched files, so an archive glob that matched nothing would publish a draft
+  release with no artifacts and every job green. `SHA256SUMS` is also absent, and the
+  installer treats a missing checksum file as "verification skipped".
+- **Two of the three build modes are never built.** `mode` takes `barebones`, `basic`
+  or `full`, defaults to `full`, and no workflow sets it. `basic` does not currently
+  compile: `apps/cli_run` defines a helper whose only callers sit behind the explorer
+  preset, so with the explorer off it is an unused function and `-Werror` stops the
+  build.
+- **A dependency cannot be built from source inside the CI image.** cmake is a
+  tool requirement of the sen package only, while the profiles inject ninja for every
+  package and cmake for none, and the image ships no cmake. On a hosted runner the
+  dependency build silently picks up the runner's own cmake, so this only appears when
+  a job runs inside the image with a cold cache.
 - MSVC jobs build but do not run tests (SEN-1725). Uploading coverage to an
   external service is wired but disabled (SEN-1726); the published report and
   the floor cover the same ground without sending anything outside.
