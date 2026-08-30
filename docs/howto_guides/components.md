@@ -110,7 +110,6 @@ $ sen package init-component MyComponent --full
 $ tree my_component/
 my_component/
 ├── CMakeLists.txt
-├── config.yaml
 ├── src
 │   └── component.cpp
 └── stl
@@ -130,10 +129,21 @@ The `CMakeLists.txt` is a complete project: it calls `find_package(sen)` and `ad
 IS_COMPONENT)`, so it configures on its own. Add it to a larger CMake project with
 `add_subdirectory` when you have one.
 
-The generated `config.yaml` runs what you just built:
+The generator does not write a configuration file, so build the component and then write one:
 
 ```sh
 cmake -S my_component -B build && cmake --build build
+```
+
+```yaml title="my_component/config.yaml"
+load:
+  - name: my_component
+    group: 2
+    someParam: some value
+    someOtherParam: 1 s
+```
+
+```sh
 sen run my_component/config.yaml
 ```
 

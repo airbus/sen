@@ -87,9 +87,13 @@ Think of it like rendering frames in a game engine:
 ### Determinism
 
 Because every component sees the same frozen snapshot during its update, the system is
-**deterministic**[^determinism]: given the same inputs, the same sequence of outputs is produced
+**deterministic**: given the same inputs, the same sequence of outputs is produced
 every time. This makes testing and debugging vastly easier. It also enables *stepped execution*,
 letting you advance the clock one cycle at a time and inspect the exact state at each step.
+
+Today, determinism is possible within a single process (even if it hosts multiple components). Across
+processes a run is not yet reproducible step for step. A lock-stepped distributed execution mechanism
+that would extend the guarantee is in progress.
 
 ---
 
@@ -199,7 +203,7 @@ The code generator takes your STL interface definition and produces:
 | Generated piece | What it does |
 |-----------------|-------------|
 | `MyClassBase` | The base class you inherit from |
-| `getMyProp()` / `setNextMyProp()` | Typed accessors for every property |
+| <code>get&lt;<var>Prop</var>&gt;()</code> / <code>setNext&lt;<var>Prop</var>&gt;()</code> | Typed accessors for every property |
 | `virtual myMethodImpl(...)` | Pure virtual methods you override |
 | Serialization code | Reads/writes properties to the network |
 | Runtime type metadata | Powers the shell, explorer, and recorder |
@@ -275,38 +279,30 @@ underlying transport is managed for you.
 
 ### HLA or DIS
 
+Sen does not aim to replace HLA or DIS, but there are some areas where the needs and solutions overlap.
+
 Sen reads HLA FOMs and generates types from them, but it is not an RTI and does not natively join
 federations. As with any other protocol, that is done by writing an adapter. The vocabulary collides
 badly, so the map matters more here than anywhere else:
 
-| What you call it | Sen's equivalent |
-|---|---|
-| Federate | A Sen process. The resemblance stops there: what one federate does is usually split across several *components* inside that process, each a thread owning its own objects |
-| Federation execution | A session. There is nothing to create, join or leave (a session exists because someone used the name), but the separation is real: the name feeds the multicast addressing, and participants ignore remote kernels from other sessions |
-| RTI | No equivalent. Sen is broker-less: kernels find each other over `ether` |
-| FOM | The STL types your project shares. If the FOM itself has to be the agreement, as taking part in a federation requires, write your data model as a FOM and compile it: Sen reads it and the FOM stays the shared artifact. STL is not a FOM and carries no part of the HLA contract. See [Using HLA FOMs](hla.md) |
-| SOM | The configuration. A kernel cannot publish from a package it has not imported, so `imports:` bounds what a component can offer and `build:` says which of those it instantiates and on which bus[^som] |
-| Object class, attribute | Class, property |
-| Interaction | No direct equivalent. You map each one by hand onto a method or event of a class you nominate |
-| Declaration Management | The `SELECT <class> FROM <bus>` part of an interest: what a component publishes and what it subscribes to |
-| DDM regions | The `WHERE` part of a [Sen Query Language](sql.md) interest, matched against real attribute values rather than a routing space. Filtering happens on both the producing and the consuming side |
-| Dead reckoning | `sen::util` implements all nine IEEE 1278.1-2012 Annex E algorithms, plus smoothing. See [the util library](util_library.md) |
+| What you call it               | Sen's equivalent                                                                                                                                                                                                                                                                                                                                                                                               |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Federate                       | A Sen kernel. The resemblance stops there: what one federate does is usually split across several *components* inside that kernel, each a thread owning its own objects                                                                                                                                                                                                                                        |
+| Federation execution (loosely) | A session. There is nothing to create, join or leave (a session exists because someone used the name), but the separation is real: the name feeds the multicast addressing, and participants ignore remote kernels from other sessions                                                                                                                                                                         |
+| RTI                            | No equivalent. Sen is broker-less: kernels find each other over `ether`                                                                                                                                                                                                                                                                                                                                        |
+| FOM                            | The STL types your project shares. If the FOM itself has to be the agreement, as taking part in a federation requires, write your data model as a FOM and compile it: Sen reads it and the FOM stays the shared artifact. STL is not a FOM and carries no part of the HLA contract. See [Using HLA FOMs](hla.md)                                                                                               |
+| SOM                            | No equivalent today. The configuration answers part of the same question (and machine checking it is possible: `imports` bounds what a component can offer, and `objects` says which of those it instantiates and on which bus. The subscribing side is there too when a component takes its interests from configuration. Generating a SOM would be technically possible, but it is currently not implemented. |
+| Object class, attribute        | Class, property                                                                                                                                                                                                                                                                                                                                                                                                |
+| Interaction                    | Methods and events. You can map interactions onto a method or event of a class you nominate                                                                                                                                                                                                                                                                                                                    |
+| Declaration Management         | Partly. Subscription is the `SELECT <class> FROM <bus>` part of an interest; publication is instantiating an object on a bus, bounded by `imports:` and `build:`. HLA declares at attribute level, while a Sen interest is per class and delivers whole objects                                                                                                                                                |
+| DDM regions                    | Loosely, the `WHERE` part of a [Sen Query Language](sql.md) interest, matched against real attribute values rather than a routing space. Filtering happens on both the producing and the consuming side. A FOM's own `dimensions` are dropped on import, so the model's DDM declarations do not carry over; see [Using HLA FOMs](hla.md)                                                                       |
+| Dead reckoning                 | `sen::util` implements all nine IEEE 1278.1-2012 Annex E algorithms, plus smoothing. See [the util library](util_library.md)                                                                                                                                                                                                                                                                                   |
 
 Some HLA services have no row because Sen leaves them to the application: simulation time, ownership
 transfer, save and restore. Sen does not assume that it holds all the state of the objects in play,
 nor that it owns the time source for simulation purposes. It runs real time, stepped or faster than
 real time, and projects build what they need on top of that. They do, and in more than one way:
 `sen::db` is one route to save and restore.
-
-[^determinism]: Within a single process. Across processes a run is not yet reproducible step for
-    step; a lock-stepped distributed execution mechanism that would extend the guarantee is in
-    progress.
-
-[^som]: A SOM describes one participant on its own, so that someone can judge whether it fits their
-    federation before integrating it. Sen answers the publishing half of that question without
-    running anything: follow `imports:` to the packages, read their STL for the types, and intersect
-    with what `build:` instantiates. The subscribing half is not in the configuration, because a
-    component declares its interests in code.
 
 ### In-process C++ (no networking)
 

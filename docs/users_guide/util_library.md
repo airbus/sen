@@ -22,10 +22,10 @@ This library enables the computation of Dead Reckoning extrapolations on entitie
 APIs:
 
 - The base API where a custom `Situation` struct is used for the extrapolation.
-- An API adapted to FOM which takes a `BaseEntity` object and extrapolates its spatial situation
-  following the algorithms specified in IEEE 1278.1-2012, Annex E.
+- An API adapted to RPR which takes a `BaseEntity` object instance and extrapolates its spatial
+  situation following the algorithms specified in IEEE 1278.1-2012, Annex E.
 
-Additionally, this library allows users to update `BaseEntity` objects based on error thresholds
+Additionally, this library allows users to update `BaseEntity` object instances based on error
 between real-time data and extrapolated values, thereby reducing spatial data transmission.
 
 ### How to use it?
@@ -106,10 +106,10 @@ classDiagram
 
 The `DeadReckonerBase` class encapsulates the core functionality of the dead reckoning, and that
 class can be directly used to extrapolate (and optionally smooth) any `Situation` that does not need
-to be coming from the `Spatial` field of a FOM object.
+to be coming from the RPR `Spatial` attribute.
 
-The `DeadReckonerTemplateBase<T>` class particularizes this functionality for FOM objects and the
-`DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
+The `DeadReckonerTemplateBase<T>` class particularizes this functionality for RPR object instances
+and the `DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
 
 #### Data models and configuration
 
@@ -186,9 +186,9 @@ position/orientation extrapolated to the timestamp provided as argument.
 
 #### The Dead Reckoner
 
-The `DeadReckoner<T>` provides an API to the user tailored to accept `rpr::BaseEntityInterface` FOM
-objects and perform extrapolations on them following the algorithms specified in IEEE 1278.1-2012,
-Annex E. The FOM entity updates are detected automatically in this case. The API is shown below:
+The `DeadReckoner<T>` provides an API to the user tailored to accept `rpr::BaseEntityInterface`
+object instances and perform extrapolations on them following the algorithms specified in IEEE
+1278.1-2012, Annex E. Their updates are detected automatically in this case. The API is shown below:
 
 ```c++ title="DeadReckoner API"
 --8<-- "libs/util/include/sen/util/dr/dead_reckoner.h:dead_reckoner"

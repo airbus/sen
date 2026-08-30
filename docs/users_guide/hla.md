@@ -2,11 +2,12 @@
 
 Sen is able to use HLA FOMs to model types and classes.
 
-## What this does and does not mean
+## How Sen uses a FOM
 
 Sen uses HLA FOM XML as an **interface definition format**. The code generator reads your FOM
-modules at build time and emits Sen types and classes from them, so a SISO standard model such as
-RPR, NETN or Link 16 can serve as your ICD instead of hand-written STL.
+modules at build time and emits Sen types and classes from them, so a shared model can serve as your
+ICD instead of an STL. For example, you could use the RPR FOM and Link 16 FOM (SISO standards), NETN
+FOM (NATO product), etc.
 
 **Sen is not an RTI and does not natively join HLA federations.** As with any other protocol, that
 is done by writing an adapter. The same applies to DIS. Sen participants talk to other Sen
@@ -26,6 +27,10 @@ These are decisions, and they are separate from the list below of things that ar
 An adapter bridging to a real federation reads the FOM itself for encoding detail, because that is a
 transport concern and this layer is an API.
 
+Sen generates no encoder or decoder, and does not need to. Encoding is a wire concern and belongs to
+whatever is on the wire: an adapter or gateway does it against the FOM, using the encoding helpers
+its RTI provides.
+
 Currently, Sen expects the element layout of the IEEE 1516.2-2010 DIF. Only files with an `.xml`
 extension are processed.
 
@@ -36,25 +41,41 @@ semantics.
 
 These are **not supported yet**: `ownership`, `order`, `updateCondition` and `dimensions`. A FOM
 declaring `DivestAcquire` on an attribute imports cleanly and that declaration is currently dropped,
-so plan on Sen's own ownership model for now; see [Main concepts](main_concepts.md). These are areas
-we intend to grow into rather than deliberate omissions.
+so plan on Sen's own ownership model for now; see [Main concepts](main_concepts.md). A FOM declaring
+`TimeStamp` order imports the same way; [Time management](#time-management) covers what that means.
+These are areas we intend to grow into rather than deliberate omissions.
+
+`<modelIdentification>` gives the model's name, which is how a mappings file names a document, and
+its `reference` entries of type Dependency, which are where the module dependency graph comes from.
+A dependency naming a document that is not in the set is an error at generation time, and one on
+the MIM is ignored. Version, POC, `useLimitation` and `useHistory` do not reach the generated model.
 
 The **MIM** is skipped on purpose. Its two roots are recognized so class hierarchies resolve, and
 the rest of it describes managing a federation, which needs an RTI.
+
+Sen can read several module sets at once, each one a directory of FOM files whose name becomes the
+Sen package. A name is looked for in the module that mentions it and then through that module's
+dependencies, so a class declared in more than one module becomes a single class rather than one
+per module. `BaseEntity` is declared in seven of the example modules and comes out as one class in
+the package of the directory it was first read from, `rpr.BaseEntity`. The empty classes NETN uses
+to reach RPR's hierarchy resolve to it the same way, which is how `netn.NETNAircraft` comes to
+extend `rpr.Aircraft`, and 69 of the NETN classes inherit from an RPR one like this.
 
 `transportation` **is** honored, and maps like this:
 
 | FOM `transportation` | Attribute → property | Interaction → method | Interaction → event |
 |---|---|---|---|
 | `HLAreliable` | reliable, as `[confirmed]` | reliable, as `[confirmed]` | reliable, as `[confirmed]` |
-| `HLAbestEffort` | best-effort broadcast | best-effort directed, as `[bestEffort]` | best-effort broadcast |
+| `HLAbestEffort` | best-effort multicast | best-effort unicast, as `[bestEffort]` | best-effort multicast |
 
-HLA's `transportation` says only how reliable delivery must be, and says nothing about addressing;
-Sen's transport modes carry both, so the mapping picks an addressing mode the FOM never asked for.
-And best-effort broadcast has no attribute name you can write in STL. It is what a property or event
-gets when you leave the attribute off, so those two cells describe a mode instead of naming one.
-[Quality of service](mental_model.md#quality-of-service-confirmed-vs-best-effort) covers the three
-modes.
+A FOM's `transportation` says whether delivery has to be reliable, and nothing more. Sen's modes say
+that too, but they also say whether a message goes to every subscriber or to one, so mapping
+`HLAbestEffort` means choosing something the FOM never stated. The table shows what Sen chooses.
+
+`[confirmed]` and `[bestEffort]` are the modes you write in STL. Best-effort multicast is what
+a property or event gets when you write neither, which is why those two cells name no attribute.
+[Quality of service](mental_model.md#quality-of-service-confirmed-vs-best-effort) describes all
+three.
 
 A `transportation` value Sen does not recognize is a hard error at generation time. That means the
 OMT's own extension point, where a FOM declares its own transportation types, is not supported.
@@ -109,9 +130,50 @@ sen_generate_uml(
 )
 ```
 
+## Time management
+
+Sen's stepped mode is not a system without HLA time management. It is one point inside it, the most
+constrained one: under `virtualTime` every kernel is in effect both time-regulating and
+time-constrained, with one lookahead and one timestep shared by all of them, and a barrier at every
+step.
+
+The services you would reach for all serve the same purpose. Per-federate lookahead, LBTS, the
+distinction between a time advance request and a next message request, the four combinations of
+regulating and constrained: every one of them exists so that participants can sit at different
+logical times at once. The barrier forbids that, so they collapse into advancing everyone by
+`delta`. Nothing is left to declare or negotiate, and everything arrives in receive order.
+
+Lookahead is the exception, in that it survives but nobody declares it.
+[`processNoFlush(delta)`](execution_model.md#real-time-execution-vs-stepped-execution) cycles the
+components without publishing what they produced, and `flushOutputs()` publishes it, so a value
+written in step T cannot be read before T+1. Lookahead is `delta`, and the double buffer is what
+enforces it. A federate that understates its lookahead corrupts the federation; a Sen component has
+no way to understate it, because `setNext` cannot make a value visible in the same step.
+
+Two limits are worth knowing. Within one process stepping is deterministic, and across processes it
+is not yet. And a component that cannot be stepped keeps following the real clock, `ether` among
+them, because the network does not step.
+
+Simulation time itself belongs to your model. Carry it as a property and Sen will move it around
+without interpreting it. Every object also has a `lastCommitTime`, which follows virtual time when
+the kernel is stepped.
+
+In your FOM, `order` is read and dropped, while `transportation` is honored and maps as the table
+above shows. In the modules shipped with the examples that costs nothing: 15 declarations ask for
+`TimeStamp` order, all of them in `RPR-Minefield_v2.0.xml`, and all 15 also declare `HLAreliable`,
+so they arrive reliably and in order anyway. That is true of these modules and is not a general
+rule, because the two elements are independent: a FOM can ask for `HLAbestEffort` with `TimeStamp`,
+wanting ordering without reliability, and Sen has no way to express that. Sen also reads none of the
+`<tags>` section, which is where RPR keeps the DIS timestamp.
+
 ## Data type mappings
 
-- HLA Enumerations are mapped to Sen enumerations.
+- HLA Enumerations are mapped to Sen enumerations. The declared `representation` picks the
+  underlying integer type, and a representation Sen does not know is an error at generation time.
+  Each enumerator keeps the value the FOM gives it, because in HLA the value is normative and the
+  name is documentation. Two enumerators whose names collide after conversion to camel case get a
+  numeric suffix. A `<value>` holding a list or a range is not supported: only the leading number is
+  read, and the rest is ignored without a message. `HLAother` alternatives are not handled.
 - HLA Records are mapped to Sen structs.
 - HLA Variant Records are mapped to Sen variants.
 - HLA Arrays of `HLAASCIIchar` or `HLAunicodeChar` with a `Dynamic` cardinality are mapped to Sen
@@ -137,6 +199,18 @@ alternative is picked by index, and where a type repeats that is the only way, s
 alternative, named after its enumerator in the FOM, so you can write the index by name. The
 discriminant enumeration itself carries the FOM's own values and is not the index.
 
+The [Sen Query Language](sql.md) does not work this way. A query names the alternative by its type,
+as in `spatial.SpatialFPStruct.worldLocation.x`, and a type name is the only thing a query path can
+say. So where a FOM uses one type for two alternatives, a query has no way to name one of them.
+`SpatialFPStruct` is both the world-axis and the body-axis alternative of `SpatialVariantStruct`,
+and a query mentioning it cannot express which one you mean.
+
+[^octetpair]: The OMT treats an octet pair as two opaque bytes with no arithmetic meaning. Mapping
+    it to `u16` gives it one, so the rules in
+    [Run-time compatibility](compatibility_conversions.md#basic-types), which widen and clamp, will
+    apply arithmetic semantics to something the standard says has none. Treat it as storage rather
+    than as a number.
+
 [^bounded-text]: In C++ a Sen `string` is rendered as `std::string`, while a bounded sequence
     becomes `sen::StaticVector<T, size>`, because the standard library has no bounded-capacity
     container of that kind. See [Sequences and arrays](stl.md#sequences-and-arrays). Support for
@@ -153,7 +227,7 @@ HLA data representations are mapped as follows:
 | `HLAinteger32BE`, `HLAinteger32LE` | `i32` |
 | `HLAinteger64BE`, `HLAinteger64LE` | `i64` |
 | `HLAoctet`                         | `u8`  |
-| `HLAoctetPairBE`, `HLAoctetPairLE` | `u16` |
+| `HLAoctetPairBE`, `HLAoctetPairLE` | `u16`[^octetpair] |
 
 A FOM may also declare its own representations, as RPR does with
 `RPRunsignedInteger32BE` and friends. You do not need to register these with Sen: it reads every
@@ -195,7 +269,8 @@ mappings for those:
 
 HLA does not define a standard for naming units, so Sen matches the unit text in your FOM against
 the list below. The match is exact, spaces and brackets included, and a unit that is not on the list
-simply produces a plain number instead of a quantity.
+simply produces a plain number instead of a quantity. The list is what published models have been
+seen to use, not a standard anybody publishes.
 
 | HLA Unit                              | Sen Unit     |
 | ------------------------------------- | ------------ |
@@ -272,12 +347,12 @@ The `class` name is the class's **path in the FOM hierarchy**, not its Sen name:
 
 ### Properties
 
-`writable="true"` gives the property a public setter, overriding the mode the FOM's `sharing` and
-`updateType` would have produced. Everything else about the property comes from the FOM.
+`writable="true"` gives the property a public setter. The FOM decides everything else about it.
 
 ### Interactions
 
-Interactions in HLA are broadcasts. As such they encode multiple communication patterns:
+An interaction is sent once and delivered to every federate subscribed to its class, so it carries
+several distinct communication patterns:
 
 - True broadcasts.
 - Requests made to one or multiple "back-ends" (where the receiver may or may not be defined, and a

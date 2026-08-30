@@ -318,21 +318,33 @@ the class.
 
 ---
 
-### YAML config error: unexpected key or wrong type
+### YAML config error: wrong type
 
-**Symptom:** The kernel refuses to start. If the value has the wrong type, the message can be very
-terse. A string where an `i32` is expected reports only `Implementation error: stol`, naming
-neither the key, the object nor the expected type. `stol` is the standard-library conversion that
-failed.
+**Symptom:** The kernel refuses to start. The message can be very terse. A string where an `i32` is
+expected reports only `Implementation error: stol`, naming neither the key, the object nor the
+expected type. `stol` is the standard-library conversion that failed.
 
-**Cause:** A property name is misspelled, or the value type does not match the STL declaration
-(e.g., a string where a number is expected).
+**Cause:** The value type does not match the STL declaration, for example a string where a number is
+expected.
 
-**Fix:** Check that:
+**Fix:** Check that numeric properties use numbers in YAML rather than quoted strings, and that
+every required `[static]` property is present.
 
-- The property key in YAML matches the STL property name exactly (case-sensitive)
-- Numeric properties use numbers in YAML, not quoted strings
-- `[static]` properties that are required must be present
+---
+
+### A misspelled property name is not reported at all
+
+**Symptom:** The object starts, but a property you set in YAML has its default value instead of
+yours. Nothing is logged.
+
+**Cause:** Nothing checks an object's YAML keys against the properties its class declares. The
+constructor reads the keys it knows about and ignores the rest, so a misspelled name is not a key
+anybody is looking for. The kernel cannot report it, because `name`, `class` and `bus` live in the
+same map and are not properties either.
+
+**Fix:** Check the key against the STL property name, which is case-sensitive. Generating a JSON
+schema for your package and pointing your editor at it turns this into an editor warning, which is
+the only place it gets caught; see [The configuration file](../users_guide/configuration.md).
 
 ---
 

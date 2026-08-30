@@ -1,7 +1,7 @@
 # Using the Dead Reckoning library
 
 The aircraft example uses both `DeadReckoner<T>` and `SettableDeadReckoner<T>`, the first to move
-the entity at its configured speed, the second to write the result into the FOM Spatial attribute.
+the entity at its configured speed, the second to write the result into the RPR `Spatial` attribute.
 This is the whole of it:
 
 ```c++ title="examples/packages/aircrafts/src/dummy_aircraft_impl.cpp"

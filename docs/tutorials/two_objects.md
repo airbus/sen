@@ -79,9 +79,10 @@ example ships two, `CasioCalculator` and `FaultyCalculator`; here is the first.
 
 1. Stage the new value. It won't be visible until commit, but the return value is delivered to the
    caller immediately when their next drain processes the method result.
-2. Dividing by zero emits an event rather than returning a wrong answer. Throwing from a method
-   implementation also works, since Sen catches it, wraps it in a `MethodResult` and delivers it to
-   the caller's callback, but an event suits an error that subscribers may want to observe.
+2. Dividing by zero does both things Sen offers. It emits an event, which suits an error that
+   subscribers may want to observe, and it throws, which is how the caller finds out: Sen catches
+   the exception, wraps it in a `MethodResult` and delivers it to the caller's callback. Returning
+   a value the caller cannot tell apart from a real answer is the one option it does not take.
 
 ---
 

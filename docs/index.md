@@ -58,7 +58,7 @@ an acronym nor an abbreviation, but a noun.
 - Object-oriented and event-driven architecture on top of a light (user-space) micro-kernel.
 - Package-based, plugin-oriented system for higher reuse, modularity and lower coupling.
 - Rich type system[^1] with full compile-time and run-time introspection.
-- Generates your types from HLA FOM files, so a SISO standard model such as RPR or NETN can
+- Generates your types from HLA FOM files, so a shared model such as RPR or NETN can
   serve as your interface definition. Sen reads FOMs at build time; it does not join HLA
   federations; see [Using HLA FOMs](users_guide/hla.md).
 - Simple language for easy definition of your interfaces (Sen Type Language).
@@ -70,9 +70,10 @@ an acronym nor an abbreviation, but a noun.
   created it, and goes away when that component does. This is lifetime ownership, not
   transfer between components.
 - Inherently asynchronous system. Callers cannot be blocked. Callees can postpone their execution.
-- Thread-safe: your components don't need to use synchronization primitives. Code that Sen calls
-  runs inside the cycle; a thread you started yourself is outside it and hands work in through the
-  `preDrain()` and `preCommit()` hooks rather than writing directly; see
+- Thread-safe communication with other components: everything Sen calls runs inside the cycle, so
+  your objects exchange data without synchronization primitives of their own. A thread you started
+  yourself is outside the cycle and hands work in rather than writing directly, and protecting what
+  the two share is your job; see
   [Connecting existing systems](howto_guides/connecting_existing_systems.md).
 - Dependency management and controlled component execution by groups.
 - Built-in type-safe configuration mechanism based on YAML[^2].
@@ -93,15 +94,15 @@ an acronym nor an abbreviation, but a noun.
 - *Ethernet transport* that supports asynchronous I/O over TCP, UDP unicast and multicast.
 - *Recorder*, highly customizable, with LZ4 compression, indexes, snapshots, annotations, etc.
 - *Replayer* with support for real-time, stepped execution and random access.
-- *Python Interpreter* that can be instantiated. You can script your components and tests.
+- *Python interpreter* that can be instantiated. You can script your components and tests.
 - *Shell* for CLI interaction, with auto-completion, introspection, and remote connectivity.
 - *Grafana visualization* via the InfluxDB component.
 - *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots).
-- *Web Explorer* serving the same thing from Sen itself, to a browser.
+- *Web explorer* serving the same thing from Sen itself, to a browser.
 - *JSON-RPC* 2.0 over WebSocket, with a TypeScript client for browser and Node applications.
 - *MCP gateway* so a large language model can observe and drive a running system, or read a
   recording.
-- *Log Manager* to have full control over your logs.
+- *Log master* to have full control over your logs.
 - *Tracer* to use the frame-based tracer [Tracy](https://github.com/wolfpld/tracy) to inspect the
   behavior of your processes.
 - *REST* API to interface with Sen through HTTP endpoints.

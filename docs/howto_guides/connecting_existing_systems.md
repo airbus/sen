@@ -159,12 +159,16 @@ express. The objects being translated do not know, and nothing in the gateway ha
 be written with that in mind.
 
 The composition goes further than that. Two gateways written by different people, for
-different protocols, both speak Sen objects on a bus. So if you load an HLA gateway and
-a DIS gateway into one kernel and run nothing else at all, no model and no objects of
-your own, what you have is a bidirectional DIS to HLA translator that neither author
-set out to build. Every gateway that exists pairs with every gateway that already
-existed, and nobody has to agree on anything beyond the object model they both already
+different protocols, both speak Sen objects on a bus. So if you load an RPR (HLA)
+gateway and a DIS gateway into one kernel and run nothing else at all, the data already
+crosses: what the DIS gateway turns into Sen objects is what the RPR gateway publishes,
+and the other way round. Neither author set out to build that. Every gateway that exists
+pairs with every gateway that already existed, on the object model they both already
 speak.
+
+What does not come free is the protocol behaviour around that data: entity lifetime,
+heartbeats and timeouts, dead-reckoning thresholds. That is configuration on whichever
+gateway owns the protocol.
 
 There is a matching point about what you do not pay for. A system built natively on Sen
 carries none of these protocols in its own model. You attach a gateway when you have

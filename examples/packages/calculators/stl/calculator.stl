@@ -22,11 +22,11 @@ class Calculator
   // Returns "a / b" and sets the last result to it.
   //
   // @param a left-hand operator.
-  // @param b right-hand operator (if 0, the divisionByZero event gets emitted).
+  // @param b right-hand operator. If 0, the divisionByZero event is emitted and the call fails.
   fn divide(a: f32, b: f32) -> f32;
 
-  // Returns "a / R" where R is was the last result.
-  // If R is 0, the divisionByZero event gets emitted.
+  // Returns "a / R" where R is the last result.
+  // If R is 0, the divisionByZero event is emitted and the call fails.
   //
   // @param a left-hand operator.
   fn divideByCurrent(a: f32) -> f32;

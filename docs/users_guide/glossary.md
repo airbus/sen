@@ -163,7 +163,7 @@ have to leave to find out.
 | FOM / SOM / OMT | The object models of an HLA federation, and the template they are written against | The FOM is an input to the code generator. OMT's own extension point for custom transportation types is not supported |
 | [RTI](https://en.wikipedia.org/wiki/Run-time_infrastructure_(simulation)) | The broker an HLA federation runs through | No equivalent. Sen is broker-less; kernels find each other over `ether` |
 | [SISO](https://www.siso.org/) | The body that publishes the standard simulation models | Its models are what Sen's FOM importer is aimed at |
-| RPR, NETN | SISO standard FOMs | Either can serve as your interface definition. See [Using HLA FOMs](hla.md) |
+| RPR, NETN | Shared FOMs: RPR (SISO standard), NETN (NATO product) | Either can serve as your interface definition. See [Using HLA FOMs](hla.md) |
 | [DIS](https://en.wikipedia.org/wiki/Distributed_Interactive_Simulation) | A message-based simulation protocol with fixed PDUs | Reachable through a gateway you write. A DIS gateway is not shipped |
 | [CIGI](https://en.wikipedia.org/wiki/Common_Image_Generator_Interface) | The common image generator interface protocol | A CIGI gateway exists as a worked example and is **not released**. See [Connecting existing systems](../howto_guides/connecting_existing_systems.md) |
 | [DDS](https://en.wikipedia.org/wiki/Data_Distribution_Service) | A publish-subscribe middleware standard | A system you may be arriving from. See [The mental model](mental_model.md) |

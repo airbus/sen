@@ -6,7 +6,7 @@ This example shows how to use checked properties.
 
 ## Interface
 
-We model a `Timer` that holds two writable properties. One is called `program` ad the other is
+We model a `Timer` that holds two writable properties. One is called `program` and the other is
 called `state`.
 
 ```rust

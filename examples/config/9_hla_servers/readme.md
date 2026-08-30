@@ -7,7 +7,7 @@ FOM modules. The directory name reflects that.
 
 Here we implement a terrain server (and a client) and a weather server.
 
-## Terrain Server
+## Terrain server
 
 ### Interface
 
@@ -25,7 +25,7 @@ This class uses the types defined in the following STL file:
 --8<-- "snippets/examples/packages/terrain_server/stl/basic_types.stl"
 ```
 
-### Server Implementation
+### Server implementation
 
 This terrain server implementation provides answers with random values.
 
@@ -33,7 +33,7 @@ This terrain server implementation provides answers with random values.
 --8<-- "snippets/examples/packages/terrain_server/src/terrain_server_impl.cpp"
 ```
 
-### Client Implementation
+### Client implementation
 
 This terrain client implementation looks for all the servers and continuously requests information.
 
@@ -57,7 +57,7 @@ sen run config/9_hla_servers/1_terrain_server.yaml
 
 You should see how the client detects the server and prints the query results.
 
-## Weather Server
+## Weather server
 
 ### Interface
 

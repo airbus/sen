@@ -23,9 +23,9 @@ This component is able to:
 - Use the recorded meta-data to allow for backwards-compatible replays.
 - Add arbitrary annotations to the recording, without altering the existing content.
 
-The serialization is binary *and automatically compressed* with LZ4. Also, the threading model is
-designed to parallelize the work and minimize any overhead to other components running in the same
-process.
+The serialization is binary. Keyframes are compressed with LZ4; property changes, events, creations
+and deletions are written uncompressed. Also, the threading model is designed to parallelize the
+work and minimize any overhead to other components running in the same process.
 
 ## Recording your system
 

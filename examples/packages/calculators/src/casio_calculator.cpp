@@ -13,6 +13,9 @@
 #include "sen/core/base/numbers.h"
 #include "sen/core/meta/class_type.h"
 
+// std
+#include <stdexcept>
+
 namespace calculators
 {
 
@@ -47,15 +50,14 @@ protected:
   /// Implementation of divide.
   float32_t divideImpl(float32_t a, float32_t b) override
   {
-    float32_t result = 0.0f;
     if (b == 0.0f)
     {
-      divisionByZero();  // If we divide by zero, emit the event. (2)!
+      // The event lets subscribers observe it; the exception is how the caller finds out.
+      divisionByZero();
+      throw std::runtime_error("division by zero");  // (2)!
     }
-    else
-    {
-      result = a / b;
-    }
+
+    const float32_t result = a / b;
 
     // Save the result in our "current" property.
     setNextCurrent(result);

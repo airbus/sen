@@ -17,10 +17,10 @@ A recording is a directory on disk that contains:
 | **Snapshots** | The full state of one object at one time, which is what keyframes and creation entries are built from |
 | **Type metadata** | The type definitions needed to interpret the data without the original binaries |
 
-Keyframes are compressed with [LZ4](https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)) by
-default. The rest of the stream, meaning property changes, events, creations and deletions, is
-written uncompressed, since each entry is small and the cost of compressing one would outweigh the
-saving.
+Keyframes are compressed with [LZ4](https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)).
+There is no configuration key for it. The rest of the stream, meaning property changes, events,
+creations and deletions, is written uncompressed, since each entry is small and the cost of
+compressing one would outweigh the saving.
 
 ## Reading a recording
 

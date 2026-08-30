@@ -189,8 +189,7 @@ Generates json schemas from a Sen data model.
 
 ### TypeScript
 
-TypeScript generation reads STL only; there is no FOM subcommand today
-(no HLA model targets TS).
+TypeScript generation reads STL only; there is no FOM subcommand today.
 
 ```title="sen generate ts"
 --8<-- "snippets/sen_generate_ts.sh"

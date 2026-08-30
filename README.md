@@ -144,9 +144,10 @@ The [examples](examples/README.md) go further, and the
   created it, and goes away when that component does. This is lifetime ownership, not
   transfer between components.
 - Inherently asynchronous. Callers cannot be blocked. Callees can postpone their execution.
-- Thread-safe: your components don't need to use synchronization primitives. Code that Sen calls
-  runs inside the cycle; a thread you started yourself is outside it and hands work in rather than
-  writing directly.
+- Thread-safe communication with other components: everything Sen calls runs inside the cycle, so
+  your objects exchange data without synchronization primitives of their own. A thread you started
+  yourself is outside the cycle and hands work in rather than writing directly, and protecting what
+  the two share is your job.
 - Dependency management and controlled component execution by groups.
 - Built-in type-safe configuration mechanism based on [YAML](https://yaml.org/) or
   [Python](https://www.python.org/).

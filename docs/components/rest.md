@@ -110,10 +110,11 @@ export TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
 #### 2. List available sessions
 
-You can list all available Sen sessions (no authentication required):
+You can list all available Sen sessions:
 
 ```shell
-curl http://localhost:8080/api/sessions
+curl http://localhost:8080/api/sessions \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 Expected response:

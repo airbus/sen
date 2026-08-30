@@ -7,7 +7,7 @@
 Here you can see how to use an HLA-based definition to implement a simple aircraft simulation using
 the `update()` method.
 
-## Interface and Implementation
+## Interface and implementation
 
 In the `dummy_aircraft.stl` file you can see how we inherit from `rpr.Aircraft`, and in the
 implementation `dummy_aircraft_impl.cpp` you can see a (dummy) implementation of the `update`

@@ -340,8 +340,10 @@ consequences:
   [interests](sql.md): interests decide what you are told about, buses decide what reaches your
   machine in the first place.
 - A different session is a different system. The session name is part of the group address, and
-  participants also ignore remote kernels whose session differs. Two systems on one network with
-  different session names do not see each other, even on the same buses.
+  participants also ignore remote kernels whose session differs, so no connection is opened and no
+  object traffic crosses between them. They do still discover each other's presence: a kernel from
+  another session shows up in the list of available sessions, which is what makes `open` possible in
+  the shell.
 
 The cost is the other side of the same fact: a socket and a group membership per bus actually in
 use. Splitting a system across many fine-grained buses is not free, and a handful of well-chosen

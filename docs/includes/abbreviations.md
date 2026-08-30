@@ -2,6 +2,7 @@
 *[CORS]: Cross-Origin Resource Sharing
 *[DDM]: Data Distribution Management, an HLA service
 *[DDS]: Data Distribution Service
+*[DIF]: Data Interchange Format
 *[DIS]: Distributed Interactive Simulation
 *[ECEF]: Earth-Centered, Earth-Fixed
 *[FOM]: Federation Object Model
