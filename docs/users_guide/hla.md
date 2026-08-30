@@ -154,9 +154,12 @@ Two limits are worth knowing. Within one process stepping is deterministic, and 
 is not yet. And a component that cannot be stepped keeps following the real clock, `ether` among
 them, because the network does not step.
 
-Simulation time itself belongs to your model. Carry it as a property and Sen will move it around
-without interpreting it. Every object also has a `lastCommitTime`, which follows virtual time when
-the kernel is stepped.
+Simulation time itself belongs to your model. The execution time from `getTime()` can serve as it
+directly, since Sen does not interpret what it means; see
+[the execution model](execution_model.md#the-time-your-model-sees). If your model needs a time of
+its own, a scenario clock or a time of day, carry it as an ordinary property and Sen will move that
+around without interpreting it either. Every object also has a `lastCommitTime`, which follows
+virtual time when the kernel is stepped.
 
 In your FOM, `order` is read and dropped, while `transportation` is honored and maps as the table
 above shows. In the modules shipped with the examples that costs nothing: 15 declarations ask for

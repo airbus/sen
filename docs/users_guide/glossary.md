@@ -111,12 +111,31 @@ SQL { #sql }
     the shape is familiar, but it queries live objects on a bus rather than rows in a table,
     and it is not a database language. See [The Sen Query Language](sql.md).
 
+kernel { #kernel }
+
+:   The interconnection mechanism a Sen system runs in. It loads your components, runs their
+    cycles and carries objects between them, and there is one per process.
+
+    *This is not an operating-system kernel.* It is an ordinary library linked into your own
+    process, with no privileged mode and nothing installed on the machine. See
+    [Main concepts](main_concepts.md) and [Execution model](execution_model.md).
+
 remote kernel { #remote-kernel }
 
 :   The kernel in another process that this one has found, one per process. If you arrive
     from another distributed system, this is what you would call a *peer*. This documentation
     uses "remote kernel", and keeps *peer* only for the shape of the network: Sen's transport
     is peer-to-peer, with no central server or broker. See [Ether](../components/ether.md).
+
+subscription { #subscription }
+
+:   The live list of objects an [interest](#interest) currently matches, held as a
+    `Subscription<T>`. It has to stay alive to keep working: if it goes out of scope the list is
+    destroyed and the callbacks stop.
+
+    *It is not a topic subscription.* Nothing is subscribed to a channel or a queue. The interest
+    is the query, and the subscription is what that query matches right now. See
+    [Working with objects](../howto_guides/objects.md).
 
 container { #container }
 
@@ -128,6 +147,16 @@ container { #container }
     so. See [The Sen Type Language](stl.md).
 
 ## Words with more than one meaning inside Sen
+
+execution time { #execution-time }
+
+:   Two unrelated things share this word.
+
+    - The value `RunApi::getTime()` returns, which is the time a component is running at. It
+      advances by whole periods and Sen does not interpret what it means. See
+      [The time your model sees](execution_model.md#the-time-your-model-sees).
+    - The **CPU time an update consumed**, which is what the `<component> execution time overrun`
+      metric measures and what gets reported when a cycle runs long.
 
 export { #export }
 

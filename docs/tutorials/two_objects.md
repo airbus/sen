@@ -11,7 +11,8 @@ handles the result asynchronously.
 - Why method calls in Sen are always asynchronous, and how to work with that
 - The `Subscription<T>` pattern and why it must be kept alive
 
-**Prerequisites:** Completed Tutorial 1, comfortable with STL → C++ → YAML flow.
+**Prerequisites:** Completed Tutorial 1, comfortable with STL → C++ → YAML flow, and a source build
+with the examples enabled. A release install can read this tutorial, but not run it.
 
 ---
 
@@ -102,8 +103,10 @@ This is where the interesting part happens. The `Client` needs to:
 2. **This must be a member variable**, not a local. `Subscription<T>` must stay alive as long as
    you want to receive updates. If it goes out of scope, the list is destroyed and callbacks stop.
 3. `api.selectAllFrom<CalculatorInterface>(getCalcBus())` matches *all* objects that implement
-   `CalculatorInterface`. Subscribe to the generated interface, not to `CasioCalculator`, because a
-   calculator in another process has no implementation on your side to name.
+   `CalculatorInterface`. A class in STL generates a `<Class>Base` to inherit from and a
+   `<Class>Interface` for everyone else to hold, so `class Calculator` gives you `CalculatorBase`
+   and `CalculatorInterface`. Subscribe to the generated interface, not to `CasioCalculator`,
+   because a calculator in another process has no implementation on your side to name.
 4. Always guard against an empty list. Objects can disappear between cycles.
 5. `list.front()` returns a reference to the first matching object. The reference is valid for this
    entire update cycle (it was frozen during drain).
@@ -172,7 +175,8 @@ With the examples built, run this from the `examples/` directory of your Sen che
 sen run config/1_calculators/4_calculators_client.yaml
 ```
 
-The shell opens on `my.tutorial`. Asking the client to run gives you the print from the callback:
+The shell opens on `my.tutorial`, because the shell configuration pulled in by `include:` pre-opens
+that bus. Asking the client to run gives you the print from the callback:
 
 ```text
 sen:host/4_calculators_client> my.tutorial.client1.useCalculator
@@ -245,13 +249,15 @@ Calculator` in the STL, which is reason enough to write one.
   reference to `calc1`.
 - When someone calls `useCalculator` on the client, `useCalculatorImpl()` reads the frozen list,
   picks the first calculator, and posts an async `add` call.
-- The call travels through the kernel's queue, executes in `CasioCalculator::addImpl` one or two
-  cycles later, and the result comes back via the callback.
+- The call travels through the [kernel](../users_guide/glossary.md#kernel)'s queue, executes in
+  `CasioCalculator::addImpl` one or two cycles later, and the result comes back via the callback.
 
 ---
 
 ## Next steps
 
+- **[Tutorial 3: Two processes talking](two_processes.md)**: the same calculator, with the caller
+  in a separate process.
 - **[Understanding Sen: a mental model](../users_guide/mental_model.md)**: a deeper look at why
   the async model works the way it does.
 - **[Working with objects](../howto_guides/objects.md)**: full reference for subscriptions,

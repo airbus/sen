@@ -80,6 +80,18 @@ Sen will:
 3. Request the other components to perform a method call on the objects and methods that you called
    during the update stage.
 
+Components do not run in any order relative to one another. Each has its own thread and its own
+`freqHz`, and nothing schedules one after another. The double buffer is what makes that safe: what
+you read during your update was fixed before it began. A component that has to act on another one's
+result therefore reads what that component last committed, never a value being computed in the same
+cycle, and you express such a dependency in the data flow instead of in the schedule. `group` orders
+startup and shutdown only, as [Configuration](configuration.md#componentconfig) says.
+
+Different rates need nothing special. A slow reader sees whatever the fast component committed most
+recently, and a fast reader sees the same value on every cycle until the slow one commits again.
+Under `virtualTime` that does not change: `freqHz` still decides how often a component updates, and
+the master clock's `delta` decides how far time moves on each step.
+
 ## Real-time execution vs stepped execution
 
 "Real time execution" in Sen means that Sen will use the internal system clock to measure the
@@ -145,6 +157,68 @@ Everything the kernel builds from your `build:` section is stepped. See
 [Writing a component](../howto_guides/components.md#the-component-lifecycle) for how to mark one
 of your own.
 
+## The time your model sees
+
+`getTime()` gives you the execution time, and what that time means is yours to decide: Sen moves it
+along and does not interpret it. Under `realTime` it follows your component's schedule, anchored
+when the component starts and advancing by exactly one period per cycle. Under `virtualTime` it
+advances by that same period, aligned to multiples of it, and no cycle is ever skipped. What changes
+is the stepping: you drive it, so how fast it runs against the wall clock is your choice and need
+not match it at all. It is fixed for the cycle you are in, so reading it more than once during
+`update()` gives the same value. If your system already keeps other clocks, you can correlate them
+to this one and drive them however you like.
+
+You drive that stepping from the master clock, where `delta` is the size of one step. `step()` takes
+a single step and `steps(n)` takes several, while `advanceTime(duration)` takes as many steps of
+`delta` as fit in the duration and rounds up to a whole one, so asking for 100 ms with a `delta` of
+30 ms runs four steps and advances 120 ms.
+[Controlling the clock](../howto_guides/controlling_clock.md) has the configuration and a worked
+run.
+
+Fixed-rate cycles are what Sen schedules today, and other scheduling modes will follow as they are
+needed.
+
+Sen is not a simulation framework. What it gives you is objects other processes can see, a cycle
+that runs them and a clock you can drive, which is what a simulation framework would be built on
+rather than the framework itself. Solvers, scenario handling, model libraries and scheduling
+policies are yours to bring or to build. For a model that does not need any of that, what is here
+may be enough on its own.
+
+A model that advances in time differences the clock and integrates over the result. Nothing else is
+needed:
+
+```cpp
+class AircraftImpl: public AircraftBase<>
+{
+  void update(sen::kernel::RunApi& api) override
+  {
+    const auto now = api.getTime();
+
+    // There is nothing to integrate over on the first cycle, so start from the beginning.
+    if (!started_)
+    {
+      lastUpdate_ = api.getStartTime();
+      started_ = true;
+    }
+
+    const auto dt = now - lastUpdate_;
+    lastUpdate_ = now;
+
+    setNextAltitude(getAltitude() + getVerticalSpeed() * dt.toSeconds());
+  }
+
+  sen::TimeStamp lastUpdate_;
+  bool started_ = false;
+};
+```
+
+Subtracting two `TimeStamp` values gives a `Duration`, and `toSeconds()` turns it into a `float64_t`
+you can multiply by. Because `dt` comes from the clock rather than from `freqHz`, the same code is
+correct when a cycle is skipped and when the component is stepped. It is not the same run, though.
+Stepping gives the same sequence of steps every time, while under `realTime` a skipped cycle merges
+two steps into one, so a model with a saturation, a rate limit or a discrete event can land
+somewhere else.
+
 ## When a component runs out of time
 
 Only under real-time execution. Stepping has no deadline to miss: the kernel waits for every
@@ -154,6 +228,14 @@ cycle. Components marked `isRealTimeOnly()` keep their deadline even in a steppe
 A component at `freqHz: 30` gets 33 ms. If `update()` takes longer, the kernel does not stretch the
 period or queue the work: it **skips whole cycles** and stays on the original schedule. A component
 that overruns once loses updates but is back in step immediately, rather than accumulating delay.
+The execution time follows that schedule, so it advances by a whole number of periods: two
+consecutive `update()` calls can be 33 ms apart or 66, but never 41.
+
+Cycles are skipped for one other reason. Under real-time execution the schedule is kept on the
+machine's clock, so an adjustment to it, from NTP or PTP or by hand, moves the schedule too. A large
+correction forward skips cycles the same way an overrun does, and a large one backward leaves the
+component waiting until wall time catches up. Small corrections, which is what a synchronized
+network produces, pass through without either effect.
 
 Overruns and missed frames are reported separately, and they are not the same:
 

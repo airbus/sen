@@ -60,6 +60,10 @@ Quantities can be converted to/from in the following ways:
 - **`Quantity <-> Optional`**: Conversion between the underlying type of the quantity and the type
   of the optional
 
+The transformation only applies within a unit category. Quantities whose units measure different
+things, or where one side carries a unit and the other does not, are reported as incompatible
+instead of being converted, so a length never arrives as a duration.
+
 ### Enums
 
 Enums can be converted to/from in the following ways:

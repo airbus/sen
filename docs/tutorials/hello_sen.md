@@ -1,8 +1,9 @@
 # Tutorial 1: Hello Sen
 
 In this tutorial you will build the simplest possible Sen application: a single object that updates
-a property each cycle and exposes a method. By the end, you will have a running kernel, a live
-object visible in the shell, and a clear picture of how Sen's pieces fit together.
+a property each cycle and exposes a method. By the end, you will have a running
+[kernel](../users_guide/glossary.md#kernel), a live object visible in the shell, and a clear
+picture of how Sen's pieces fit together.
 
 **What you'll learn:**
 
@@ -41,6 +42,7 @@ Sen can generate the folder structure for you:
 
 ```sh
 sen package init my_counter --class Counter
+cd my_counter
 ```
 
 This creates:
@@ -116,7 +118,8 @@ Edit `src/counter.cpp`:
    prepared during the drain stage (the first of the cycle's three stages, explained in [What just
    happened?](#what-just-happened) below). These values will not change during this update cycle.
    `setNextValue()` writes to the *next* buffer. The new value is **not** visible yet. It becomes
-   visible to all components after Sen commits the outputs.
+   visible to all components after Sen commits the outputs. `getNextValue()` reads that next buffer
+   back, which is how the line below tests the value it has just written rather than last cycle's.
 2. Fires the `valueIsDivisibleByTen` event with the new value. Like property changes, events are
    buffered and delivered after commit.
 3. This macro registers `CounterImpl` as a class that Sen's kernel can instantiate. Without it there
@@ -161,7 +164,9 @@ build:
 2. Automatically open this bus in the shell so we can see objects without typing `open` manually.
 3. The component (and all its objects) will call `update()` twice per second.
 4. Tell Sen to load your package so it can find `CounterImpl`.
-5. The fully-qualified class name: `<package>.<class>`.
+5. The C++ class you registered with `SEN_EXPORT_CLASS`, qualified by its package. This is not the
+   STL class name: the shell below shows the same object as `my_counter.Counter`, the class it
+   implements.
 6. Initial value for the `step` static property. Required: static properties must have a value.
 7. The bus where your object will be published. Must match what the shell opens.
 
@@ -220,6 +225,11 @@ read-only against `rw`. So `value` is the dynamic, read-only one we update each 
 the static one we set in the configuration, which is what the STL declared. Descriptions come
 straight from your comments, truncated to fit the terminal.
 
+Read-only and read-write are about everyone else, not about you: you always set your own properties
+with `setNext<Prop>()`. `value` is a plain `var`, so nobody outside can write it. `step` is
+`[static]`, and that is what makes it settable from the configuration. Declaring a dynamic property
+`[writable]` opens it to other objects in the same way.
+
 Now read the properties. A getter prints as `- <name>: <value>`:
 
 ```text
@@ -236,6 +246,10 @@ sen:host/config> local.counters.myCounter.getStep
 Your numbers will differ from these, and that is the point: at 2 Hz with `step: 5` the value climbs
 by ten every second for as long as the kernel runs, so what you see depends on how long it has been
 up and how fast you type. `step` does not move, because it is static.
+
+That coupling is deliberate here and fine for a counter. A value that should advance per second
+rather than per cycle has to read the time instead, which
+[the execution model](../users_guide/execution_model.md#the-time-your-model-sees) shows how to do.
 
 Calling the method returns a string:
 

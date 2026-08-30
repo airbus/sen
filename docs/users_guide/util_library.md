@@ -158,6 +158,10 @@ The lengths, angles and rates above are quantity types (`LengthMeters`, `AngleRa
 `VelocityMetersPerSecond` and so on), so the unit is part of the type rather than a convention you
 have to remember.
 
+In C++ a quantity is a wrapper over its underlying type that converts to and from it implicitly, so
+you can pass one wherever the plain number is expected and assign a plain number back. The unit is
+enforced where values cross between components, not inside arithmetic you write yourself.
+
 ??? note "C++ declarations"
 
     ```c++ title="sen::util::Situation"
@@ -320,8 +324,8 @@ Updating the acceleration helps to avoid discontinuities in the solution because
 order integration. The condition to update the acceleration is that the smoothed solution needs to
 converge with the input data after a convergence time. This directly translates to higher
 accelerations as the error increases. The smoothed solution can be unstable for small convergence
-times, that is why the convergence time is clamped internally to minimize errors while
-ensuring stability.
+times, which is why the update is advanced in steps no longer than `smoothingInterval`, 20 ms by
+default. The convergence time you configure is used as given.
 
 In addition to the convergence time, a damping is applied to the smoothed solution to avoid
 overshooting. This coefficient is configurable via `DrConfig`, and the defaults are tuned to

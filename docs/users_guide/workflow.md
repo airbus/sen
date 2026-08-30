@@ -21,8 +21,8 @@ The typical workflow when using Sen in large projects is as follows:
 ![Screenshot](../assets/images/workflow_light.svg#only-light){: style="width:1200px;"}
 ![Screenshot](../assets/images/workflow_dark.svg#only-dark){: style="width:1200px;"}
 
-We have depicted some roles here different people, but in reality you will often see the same guy
-wearing all those hats (depending on the size and complexity of the project).
+We have depicted some roles here as different people, but in reality you will often see the same
+person wearing all those hats (depending on the size and complexity of the project).
 
 The key here is that this workflow is something that could ideally be executed in a matter of
 minutes, locally in any suitable development environment so that the iteration cycles are as minimal

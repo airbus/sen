@@ -259,7 +259,12 @@ The kernel can give you the following information:
   towards tooling).
 - The configuration passed by the user via `ConfigGetter::getConfig()`.
 - Whether you are required to stop, via `RunApi::stopRequested()`.
-- The current (virtualized) time via `RunApi::getTime()`. More on this later.
+- The current (virtualized) time via `RunApi::getTime()`.
+- The time the component's objects started from, via `RunApi::getStartTime()`.
+- The configured cycle time, when one is set, via `RunApi::getTargetCycleTime()`.
+
+[The execution model](../users_guide/execution_model.md#the-time-your-model-sees) explains what that
+time is, how it moves in each run mode and how a model uses it.
 
 You can also ask the kernel:
 

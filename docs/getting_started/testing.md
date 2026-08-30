@@ -6,6 +6,9 @@ the `run_tests` family of targets. Those targets build every test prerequisite f
 
 ## Enable and build
 
+These use the repository's `sen_gcc` profile, which you install once with
+`conan config install -tf profiles .conan/profiles/` (see [Install](install.md)).
+
 ```shell
 conan install . --profile:all=sen_gcc -o "sen/*:with_tests=True" --build=missing
 conan build   . --profile:all=sen_gcc

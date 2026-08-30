@@ -21,8 +21,9 @@ it.
 
 ## Step 1: Run the calculator with a transport
 
-Sen's kernel does not talk to the network on its own. The `ether` component is what carries objects
-between processes, and adding it is a configuration change, not a code change.
+Sen's [kernel](../users_guide/glossary.md#kernel) does not talk to the network on its own. The
+`ether` component is what carries objects between processes, and adding it is a configuration
+change, not a code change.
 
 The calculators example ships exactly this config:
 

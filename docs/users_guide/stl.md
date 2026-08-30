@@ -194,6 +194,10 @@ for what is currently available.
 Quantities accept an attribute list containing `min:` and/or `max:` bounds,
 as shown above.
 
+A value outside those bounds is not clamped and not flagged: assigning one throws, with a message
+naming the value and the range it missed. A default-constructed quantity takes its lower bound
+rather than zero, which matters when the range does not include zero.
+
 ## Aliases
 
 Aliases give an existing type a new name. They are useful for making intent clear,

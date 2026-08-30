@@ -1,7 +1,7 @@
 # Understanding Sen: a mental model
 
-If you've used gRPC, ROS, DDS, or a message queue before, Sen will feel familiar in some ways and
-surprising in others. This page maps Sen's core ideas to patterns you likely already know, and
+If you've used gRPC, ROS, DDS, HLA, DIS, or a message queue before, Sen will feel familiar in some
+ways and surprising in others. This page maps Sen's core ideas to patterns you likely already know, and
 explains the design decisions that trip up newcomers most often.
 
 ---
@@ -301,7 +301,8 @@ badly, so the map matters more here than anywhere else:
 Some HLA services have no row because Sen leaves them to the application: simulation time, ownership
 transfer, save and restore. Sen does not assume that it holds all the state of the objects in play,
 nor that it owns the time source for simulation purposes. It runs real time, stepped or faster than
-real time, and projects build what they need on top of that. They do, and in more than one way:
+real time, and projects build what they need on top of that. What it does give a model is described
+in [the execution model](execution_model.md#the-time-your-model-sees). They do, and in more than one way:
 `sen::db` is one route to save and restore.
 
 ### In-process C++ (no networking)

@@ -1,7 +1,9 @@
 # Tutorials
 
-Worked examples, in order. Each builds something small and runs it, and each assumes you have
-already been through [Install](../getting_started/install.md).
+Worked examples, in order. Each assumes you have already been through
+[Install](../getting_started/install.md). Tutorial 1 builds and runs from an empty directory.
+Tutorials 2 and 3 walk through the calculator that ships with the source, so running them needs a
+source build with the examples enabled.
 
 **[Tutorial 1: Hello Sen](hello_sen.md)** builds one object that counts, publishes it, and lets you
 watch it change from the shell. It is the shortest path from an empty directory to a running Sen
