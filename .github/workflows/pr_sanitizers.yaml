@@ -1,0 +1,107 @@
+# === pr_sanitizers.yaml ===============================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+#
+# The address and undefined-behaviour sanitizers, on every pull request. The tree
+# is clean under both, so a finding here is a regression the change introduced.
+#
+# SEN_SANITIZER_FAIL_FAST is what makes it a verdict: ASan aborts on its own, and
+# UBSan prints and carries on unless it is told otherwise. The nightly leaves the
+# switch off, because there one abort would hide the findings behind it.
+#
+# The thread sanitizer is deliberately not here. Its lane exists to capture an
+# inventory for the concurrency redesign, and gating on defects that work already
+# owns would block every pull request over them.
+
+name: Pull request sanitizers
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  sanitizers:
+    name: "ASan+UBSan"
+    runs-on: ubuntu-24.04
+    # Generous on purpose, as elsewhere: a cold cache builds every dependency
+    # from source. The cap ends a hang, it does not police duration.
+    timeout-minutes: 120
+    env:
+      CC: clang-20
+      CXX: clang++-20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Generate daily cache id
+        shell: bash
+        run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
+
+      # Restore only, never save. prepare_build would be the obvious thing to
+      # reuse here, but it saves at the end of the job, and a cache written from
+      # a pull request is private to it: every open pull request storing its own
+      # slice puts the repository past GitHub's 10 GB limit. The nightly can use
+      # it because the nightly only runs on main.
+      - name: Restore conan packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.conan2/p
+          key: conanp-ubuntu-24.04-clang-20-17-${{ env.cache_date }}
+          restore-keys: conanp-ubuntu-24.04-clang-20-17-
+
+      # No ccache: sanitized object files must not land in the entries the
+      # ordinary builds depend on. Same rule as the nightly's sanitizer lanes.
+      - name: Setup build context
+        uses: ./.github/actions/setup_build_context
+        with:
+          compiler-name: clang
+          compiler-version: 20
+          arch: x86
+
+      - name: Install additional python dependencies
+        shell: bash
+        run: pip install junitparser==5.0.1
+
+      # Debug also compiles the SEN_DEBUG_ASSERT invariant checks, which
+      # RelWithDebInfo builds leave out.
+      - name: Build with the sanitizers
+        shell: bash
+        run: |
+          options='-o sen/*:with_tests=True -o sen/*:sanitizer=address'
+          variables="{'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports', 'SEN_SANITIZER_FAIL_FAST': 'ON'}"
+          # shellcheck disable=SC2086
+          conan install . -s "&:build_type=Debug" --build=missing $options \
+            -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
+          # conan build regenerates the toolchain, so it needs the same options.
+          # shellcheck disable=SC2086
+          conan build . -s "&:build_type=Debug" $options \
+            -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
+
+      - name: Run tests
+        shell: bash
+        run: |
+          # Conan provides cmake and ninja; entering its environment is what finds
+          # them, and the image the jobs are moving into ships neither.
+          source build/clang/Debug/generators/conanbuild.sh
+          cmake --build build/clang/Debug/ --target run_tests
+
+      # Always: the findings are what the failure is about, so they have to be
+      # reported on the run that failed.
+      - name: Report the findings
+        if: always()
+        shell: bash
+        run: python3 .github/scripts/summarise_sanitizer_reports.py sanitizer-reports
+
+      - name: Archive the reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr-sanitizer-reports
+          path: sanitizer-reports/
+          if-no-files-found: ignore

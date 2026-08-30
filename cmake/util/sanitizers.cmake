@@ -11,6 +11,13 @@ if(NOT DEFINED SEN_SANITIZER_LOG_DIR)
   set(SEN_SANITIZER_LOG_DIR "")
 endif()
 
+# UBSan prints a finding and lets the process continue, so a lane that gates has
+# to be told to stop. Off by default: the nightly wants the whole sweep, where
+# one abort would hide the findings behind it.
+if(NOT DEFINED SEN_SANITIZER_FAIL_FAST)
+  set(SEN_SANITIZER_FAIL_FAST OFF)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fasynchronous-unwind-tables")
 
@@ -23,6 +30,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
     add_compile_options(-fsanitize=address,undefined)
     add_link_options(-fsanitize=address,undefined)
+
+    if(SEN_SANITIZER_FAIL_FAST)
+      add_compile_options(-fno-sanitize-recover=all)
+    endif()
   elseif(SEN_USE_SANITIZER STREQUAL Thread)
     message(STATUS "Enabling sanitizers: Thread")
 
