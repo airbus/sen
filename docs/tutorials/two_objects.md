@@ -156,7 +156,7 @@ Cycle N+2 — Client drain:
     }});
     ```
     Sen ensures the callback is only invoked while your object is still alive: if your object
-    is unregistered before the result arrives, the callback is silently dropped.
+    is destroyed before the result arrives, the callback is not invoked.
 
 ---
 

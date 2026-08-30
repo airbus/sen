@@ -133,9 +133,9 @@ placed on the kernel's bus unless `clockBus` says otherwise. Advancing it happen
 this is what makes multiple processes tractable: `processNoFlush(delta)` updates the time, drains
 the inputs and cycles the components *without* making their outputs visible, and `flushOutputs()`
 then publishes them. Across several processes you call the first on every kernel, wait for all of
-them, and only then call the second, which is how the whole system steps together rather than
-drifting. Setting `clockMaster: true` publishes a master clock that discovers the individual kernel
-clocks on its bus and does that coordination for you.
+them, and only then call the second, which is how the whole system steps together instead of
+drifting apart. Setting `clockMaster: true` publishes a master clock that discovers the individual
+kernel clocks on its bus and does that coordination for you.
 
 Within a single process, stepped execution is deterministic. Across processes it is not, yet.
 
@@ -143,7 +143,7 @@ Not everything can be stepped. A component that returns `true` from `isRealTimeO
 of the set the kernel advances: it keeps following the real clock while the rest of the system is
 virtualized.
 
-That is for components doing infrastructural work rather than simulating anything: the ones whose
+That is for components doing infrastructural work instead of simulating anything, the ones whose
 job only makes sense in real time. A shell stepped along with the model would be unusable: it would
 respond only when you advanced the clock, and you advance the clock from the shell. The same
 reasoning covers transports, profilers and anything driven by a person or an external system.
@@ -186,8 +186,8 @@ Fixed-rate cycles are what Sen schedules today, and other scheduling modes will 
 needed.
 
 Sen is not a simulation framework. What it gives you is objects other processes can see, a cycle
-that runs them and a clock you can drive, which is what a simulation framework would be built on
-rather than the framework itself. Solvers, scenario handling, model libraries and scheduling
+that runs them and a clock you can drive. That is what a simulation framework would be built on, and
+Sen stops there. Solvers, scenario handling, model libraries and scheduling
 policies are yours to bring or to build. For a component that does not need any of that, what is
 here may be enough on its own.
 
@@ -220,7 +220,7 @@ class AircraftImpl: public AircraftBase<>
 ```
 
 Subtracting two `TimeStamp` values gives a `Duration`, and `toSeconds()` turns it into a `float64_t`
-you can multiply by. Because `dt` comes from the clock rather than from `freqHz`, the same code is
+you can multiply by. Because `dt` comes from the clock instead of from `freqHz`, the same code is
 correct when a cycle is skipped and when the component is stepped. It is not the same run, though.
 Stepping gives the same sequence of steps every time, while under `realTime` a skipped cycle merges
 two steps into one, so a component with a saturation, a rate limit or a discrete event can land
@@ -234,7 +234,7 @@ cycle. Components marked `isRealTimeOnly()` keep their deadline even in a steppe
 
 A component at `freqHz: 30` gets 33 ms. If `update()` takes longer, the kernel does not stretch the
 period or queue the work: it **skips whole cycles** and stays on the original schedule. A component
-that overruns once loses updates but is back in step immediately, rather than accumulating delay.
+that overruns once loses updates but is back in step immediately, with no delay accumulating.
 The execution time follows that schedule, so it advances by a whole number of periods: two
 consecutive `update()` calls can be 33 ms apart or 66, but never 41.
 
@@ -254,8 +254,19 @@ Overruns and missed frames are reported separately, and they are not the same:
 
 **The two kinds measure different things.** An overrun is counted in CPU time, so an update that
 blocks on a socket, a lock or a vendor SDK burns wall time without burning CPU and never counts as
-one. The missed-frame lines are the ones that say cycles were genuinely lost, which is what a
-component running at a fraction of its configured rate produces.
+one. The missed-frame lines are the ones that say cycles were lost, which is what a component
+running at a fraction of its configured rate produces.
+
+**The two missed-frame lines point in different directions.** An interruption means the work
+finished after the cycle it belonged to, so the update itself ran long. An oversleep means the sleep
+returned more than a full period late, so the component was not running at all when it should have
+been, which makes it a symptom of the machine and not of your code. They also differ in what
+happens next: after an oversleep, if less than half a period remains, the kernel skips the frame
+outright and waits for the next one instead of starting a cycle it cannot finish.
+
+A run of lost cycles reports once, not once each. The kernel takes every missed cycle in a single
+pass and warns one time, so a component that blocks for five seconds at 30 Hz produces one line
+instead of a hundred and fifty.
 
 The warning can be suppressed from code but not from configuration: `RunApi::execLoop` takes a
 `logOverruns` flag, so a component driving its own loop can drop the log line and keep the Tracy
@@ -266,7 +277,7 @@ not take the flag.
 
     Overrun handling is an area we intend to grow: more ways to observe what happened, and more
     control over the response. What is described here is what the kernel does today and what you can
-    build on; expect additions rather than changes.
+    build on, and what is here will grow by addition.
 
 ______________________________________________________________________
 

@@ -189,6 +189,7 @@ nav:
       - Mental model: users_guide/mental_model.md
       - Workflow: users_guide/workflow.md
       - Execution model: users_guide/execution_model.md
+      - Threading and object lifetime: users_guide/threading.md
       - The Sen Type Language:
           - Description: users_guide/stl.md
           - STL grammar: users_guide/stl_grammar.md

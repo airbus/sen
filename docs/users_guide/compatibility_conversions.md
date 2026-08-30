@@ -167,3 +167,24 @@ between class members does not care about the level of the hierarchy where the m
 **`Class <-> String`**:
 
 Classes are stringified to JSON form.
+
+## Changing a class others already use
+
+Everything above matches by name, and that decides what is safe to change once another team builds
+against your class.
+
+**Adding is safe.** A new property, method or event is ignored by anyone who does not know it.
+
+**Renaming is a break, and a quiet one.** Names are the only thing conversions match on, so a
+renamed property stops arriving and the reader keeps whatever it last had. Removing a property does
+the same to anyone still reading it.
+
+**Narrowing a type keeps working and loses data.** A `u32` above 65535 reaches a `u16` as 65535.
+Under `relaxed` that is warned about, and under `strict` it is refused.
+
+**Arguments go opposite ways for methods and events.** A method is called only when it takes the
+same number of arguments as the caller supplies or fewer, with the extras dropped, so adding an
+argument to a method breaks callers built against the old one: they supply too few, and that is an
+error. An event is delivered only when the subscriber takes the same number or fewer, so adding an
+argument to an event is safe, while removing one silently stops delivery to subscribers that still
+expect it.

@@ -255,7 +255,8 @@ publishes itself, then two objects calling each other. For a tour of a running s
 
 Sen is under active development. Expect potential bugs and breaking changes between releases; check
 the [release notes](https://github.com/airbus/sen/releases) before upgrading. Breaking changes are
-marked in the commit that makes them and collected into a dedicated section of each release's notes.
+marked in the commit that makes them and collected into a dedicated section of each release's notes,
+which are generated from the commit history.
 
 - Some features may be undocumented or partially implemented.
 - Windows is supported and in use; its automated test coverage is not yet wired up in GitHub.

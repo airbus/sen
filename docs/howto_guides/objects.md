@@ -219,15 +219,21 @@ will be named as `onXChanged(callback)`, where `X` would be the name of the prop
 For example:
 
 ```c++ title="Reacting to property changes"
-auto cb = [&]() { std::cout << "position changed: " << myObject->getPosition() << "\n"; };
+auto cb = [myObject]() { std::cout << "position changed: " << myObject->getPosition() << "\n"; };
 myObject->onPositionChanged({this, std::move(cb)}).keep();
 ```
+
+The lambda captures `myObject` by value. A kept connection outlives the scope that created it, so a
+reference capture would dangle. The `this` in `{this, std::move(cb)}` does a different job. It names
+the object that owns the registration, and the lambda never reads it.
 
 These methods register a callback and return a `ConnectionGuard` object. The returned
 `ConnectionGuard` object represents this registration.
 
 NOTE: The call to `.keep()` keeps the connection established, even after the `ConnectionGuard`
-object was destroyed.
+object was destroyed. What ends it then is the object named in the token, the `this` above: while
+that object is alive the callback keeps being invoked, and once it is destroyed the callback stops.
+[Threading and object lifetime](../users_guide/threading.md) covers what that guarantees.
 
 If you don't have the generated code, and see yourself working with generic proxies, you can use the
 `onPropertyChangedUntyped` method, which is also available in all objects, but works with Variants.
@@ -263,8 +269,8 @@ The kernel can give you the following information:
 - The time the component's objects started from, via `RunApi::getStartTime()`.
 - The configured cycle time, when one is set, via `RunApi::getTargetCycleTime()`.
 
-[The execution model](../users_guide/execution_model.md#the-time-a-component-sees) explains what that
-time is, how it moves in each run mode and how a model uses it.
+[The execution model](../users_guide/execution_model.md#the-time-a-component-sees) explains what
+that time is, how it moves in each run mode and how a model uses it.
 
 You can also ask the kernel:
 
