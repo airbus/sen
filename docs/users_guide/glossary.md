@@ -154,7 +154,7 @@ execution time { #execution-time }
 
     - The value `RunApi::getTime()` returns, which is the time a component is running at. It
       advances by whole periods and Sen does not interpret what it means. See
-      [The time your model sees](execution_model.md#the-time-your-model-sees).
+      [The time a component sees](execution_model.md#the-time-a-component-sees).
     - The **CPU time an update consumed**, which is what the `<component> execution time overrun`
       metric measures and what gets reported when a cycle runs long.
 

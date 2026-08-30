@@ -249,7 +249,7 @@ up and how fast you type. `step` does not move, because it is static.
 
 That coupling is deliberate here and fine for a counter. A value that should advance per second
 rather than per cycle has to read the time instead, which
-[the execution model](../users_guide/execution_model.md#the-time-your-model-sees) shows how to do.
+[the execution model](../users_guide/execution_model.md#the-time-a-component-sees) shows how to do.
 
 Calling the method returns a string:
 

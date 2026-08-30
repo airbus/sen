@@ -242,6 +242,12 @@ the default is already best-effort, so it is rejected too. Declaring `var name :
 with "unbounded dynamic properties with non-confirmed transport mode may cause data loss". Static
 properties are exempt, since they never travel as updates.
 
+The two are about different things. A best-effort channel gives no guarantee: on a quiet local
+network the odds of losing a datagram are low, but never zero. Size raises them, because a value
+larger than the network's MTU travels in fragments and is lost in full if any one goes missing. With
+no bound on the size there is no bound on that exposure, which is why the compiler refuses the
+combination instead of leaving it to you. The alternative is a confirmed transport.
+
 ---
 
 ## If you're coming from…
@@ -301,9 +307,10 @@ badly, so the map matters more here than anywhere else:
 Some HLA services have no row because Sen leaves them to the application: simulation time, ownership
 transfer, save and restore. Sen does not assume that it holds all the state of the objects in play,
 nor that it owns the time source for simulation purposes. It runs real time, stepped or faster than
-real time, and projects build what they need on top of that. What it does give a model is described
-in [the execution model](execution_model.md#the-time-your-model-sees). They do, and in more than one way:
-`sen::db` is one route to save and restore.
+real time, and projects build what they need on top of that, in more than one way: `sen::db` is one
+route to save and restore, though Sen itself has no equivalent of the federation service. What Sen
+does give a component is described in
+[the execution model](execution_model.md#the-time-a-component-sees).
 
 ### In-process C++ (no networking)
 

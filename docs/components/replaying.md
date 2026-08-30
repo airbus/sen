@@ -63,3 +63,20 @@ sequenceDiagram
     You->>+Replayer: close(name)
     You-xReplay: delete
 ```
+
+## What a replay reproduces
+
+A replay reproduces what was recorded, which is state and events. Nothing is re-executed: method
+calls were never in the archive, so components that called each other during the original run do not
+do so again.
+
+Playback advances by the replayer's own cycle. Each update takes the time elapsed since the last one
+and applies every entry whose recorded timestamp falls in that window, so recorded timing is
+reproduced to the resolution of one cycle, and entries closer together than that arrive together.
+Because the step comes from the execution time, a replay follows the kernel's run mode: real time,
+or a virtual clock you drive as slowly or as quickly as you like.
+
+Seeking is exact in time rather than keyframe-granular. The replayer jumps to the keyframe at or
+before the time you asked for and then replays forward to it, so the keyframe period decides what a
+seek costs rather than how precisely it lands. An archive recorded without keyframes does not
+support seeking, and says so.

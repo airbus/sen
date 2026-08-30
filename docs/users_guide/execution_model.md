@@ -20,6 +20,13 @@ remote) are created to allow it.
 use random numbers, do not seed your generator with the current time. Instead, make the seed part of
 the input parameters used during initialization.
 
+The same care applies to anything else that varies between runs. A subscription hands you its
+objects in the order they arrived, which is stable within a process and not guaranteed across them,
+so a calculation that sums over a list is sensitive to that order in exactly the way floating-point
+addition is. Sen's own threading does not add to this: each component runs on its own thread, but
+every one of them reads the same frozen snapshot, so the risk comes from threads you start yourself
+and from arithmetic that depends on order.
+
 ## The drain-update-commit cycle
 
 To achieve determinism, Sen components execute in iterations. In each iteration they:
@@ -157,7 +164,7 @@ Everything the kernel builds from your `build:` section is stepped. See
 [Writing a component](../howto_guides/components.md#the-component-lifecycle) for how to mark one
 of your own.
 
-## The time your model sees
+## The time a component sees
 
 `getTime()` gives you the execution time, and what that time means is yours to decide: Sen moves it
 along and does not interpret it. Under `realTime` it follows your component's schedule, anchored
@@ -181,11 +188,11 @@ needed.
 Sen is not a simulation framework. What it gives you is objects other processes can see, a cycle
 that runs them and a clock you can drive, which is what a simulation framework would be built on
 rather than the framework itself. Solvers, scenario handling, model libraries and scheduling
-policies are yours to bring or to build. For a model that does not need any of that, what is here
-may be enough on its own.
+policies are yours to bring or to build. For a component that does not need any of that, what is
+here may be enough on its own.
 
-A model that advances in time differences the clock and integrates over the result. Nothing else is
-needed:
+A component that advances in time differences the clock and integrates over the result. Nothing
+else is needed:
 
 ```cpp
 class AircraftImpl: public AircraftBase<>
@@ -216,7 +223,7 @@ Subtracting two `TimeStamp` values gives a `Duration`, and `toSeconds()` turns i
 you can multiply by. Because `dt` comes from the clock rather than from `freqHz`, the same code is
 correct when a cycle is skipped and when the component is stepped. It is not the same run, though.
 Stepping gives the same sequence of steps every time, while under `realTime` a skipped cycle merges
-two steps into one, so a model with a saturation, a rate limit or a discrete event can land
+two steps into one, so a component with a saturation, a rate limit or a discrete event can land
 somewhere else.
 
 ## When a component runs out of time
@@ -242,23 +249,24 @@ Overruns and missed frames are reported separately, and they are not the same:
 | Reported | Measured against | Where it goes |
 |---|---|---|
 | `<component> execution time overrun` | Thread CPU time used by the update | Tracy, and a `WARN` in the log |
-| `<component> missed frame (interruption)` | Wall clock: cycles were actually skipped | Tracy only |
+| `<component> missed frame (interruption)` | Wall clock: the work finished after the cycle it belonged to | Tracy, and a `WARN` in the log |
+| `<component> missed frame (overslept)` | Wall clock: the sleep returned more than a period late | Tracy, and a `WARN` in the log |
 
-**The log tells you about CPU, not about lost cycles.** An update that blocks (on a socket, a lock,
-a vendor SDK) burns wall time without burning CPU time, so it can miss frames without ever producing
-a warning. The signal that says cycles were genuinely lost goes only to
-[Tracy](../components/tracy.md), so a component running at a fraction of its configured rate looks
-healthy in the log.
+**The two kinds measure different things.** An overrun is counted in CPU time, so an update that
+blocks on a socket, a lock or a vendor SDK burns wall time without burning CPU and never counts as
+one. The missed-frame lines are the ones that say cycles were genuinely lost, which is what a
+component running at a fraction of its configured rate produces.
 
 The warning can be suppressed from code but not from configuration: `RunApi::execLoop` takes a
 `logOverruns` flag, so a component driving its own loop can drop the log line and keep the Tracy
 message. Components declared under `build:` run through the kernel's standard pipeline, which does
 not take the flag.
 
-!!! note "Under development"
+!!! note "Open for expansion"
 
-    Overrun handling is an area we are actively working on. What is described here is what the
-    current implementation does, not a settled contract.
+    Overrun handling is an area we intend to grow: more ways to observe what happened, and more
+    control over the response. What is described here is what the kernel does today and what you can
+    build on; expect additions rather than changes.
 
 ______________________________________________________________________
 

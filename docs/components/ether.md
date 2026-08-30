@@ -191,6 +191,15 @@ following ways:
 - Setting the `BEAM_TRACKER_EXPIRATION_TIME_MS` environment variable to the desired duration in
   milliseconds.
 
+Until a beam expires, the peer's objects are still there, holding the values from the last update
+that arrived, and nothing marks them stale. When it expires the peer is treated as gone and its
+objects are removed like any other departure, as
+[Main concepts](../users_guide/main_concepts.md) describes.
+
+So `beamExpirationTime` is the window in which a model can read values from a machine that is no
+longer there. Shortening it narrows the window and makes a brief stall more likely to be read as a
+departure.
+
 ## UDP OS buffer sizes
 
 Some OSes (most notably, Linux) place very restrictive limits on the performance of UDP protocols.

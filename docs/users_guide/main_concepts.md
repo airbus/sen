@@ -96,6 +96,16 @@ In Sen, objects are strongly owned by the component that creates them. If the ow
 away (is halted, shut-down, crashes or gets disconnected), all its objects will be automatically
 removed.
 
+That removal is all Sen does. Subscribers see the objects go, and nothing tells them why: a crash
+and a deliberate deletion look the same, both live and in a recording, where a deletion carries only
+the object's identity. There is no watchdog, no restart and no health policing anywhere in the
+kernel.
+
+That is deliberate rather than missing. Whether a dead component should be restarted, whether the
+run continues, and who gets told are decisions about the exercise rather than about the objects, and
+they belong to whatever supervises it. Sen is a reasonable substrate for building that orchestrator,
+and stays out of the decision itself.
+
 Ownership governs lifetime, not every write. An object is responsible for its own properties, but a
 **Read Write** property is genuinely written from outside: the caller's setter puts the value into
 the object's next buffer, and the owner finds out afterwards through
@@ -218,8 +228,9 @@ There is another axis to consider: moving components to processes in other compu
 This is also possible and still fully transparent to your components. In this case you need to
 consider the following:
 
-- You are gaining in isolation and robustness. If a machine halts or the OS becomes overloaded, only
-  the components in that machine will be affected.
+- You are gaining in isolation and robustness. If a machine halts or the OS becomes overloaded, the
+  components on other machines keep running. They do lose the objects the halted machine owned, so a
+  component that was tracking them has to cope.
 
 - You are gaining in computing power. You have more resources and can do more. Make sure you are
   using those resources effectively and locating components accordingly.

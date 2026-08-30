@@ -207,6 +207,7 @@ ctest --preset conan-gcc-release -R <pattern>
 | `'libxext-dev' missing but can't install`        | Pre-install with `sudo apt install libxext-dev`, or pass `-c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True` so Conan installs it via `sudo`. |
 | `ERROR: Package '<dep>' missing prebuilt binary` | You forgot `--build=missing` on `conan install`.                                                                                                                                   |
 | `compiler.version` setting mismatch              | Your profile pins a compiler version that isn't installed. Edit `~/.conan2/profiles/default` to match what's on `PATH`, or pass `--profile:build=<other>`.                         |
+| `VERSION "v0.6.0" format invalid.`               | The version tag carries no `v` prefix. Tag `0.6.0`, not `v0.6.0`. Configure exits 1 on the prefixed form.                                                                          |
 
 ## What `sen --version` reports from a source build
 

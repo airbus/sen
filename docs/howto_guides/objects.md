@@ -263,7 +263,7 @@ The kernel can give you the following information:
 - The time the component's objects started from, via `RunApi::getStartTime()`.
 - The configured cycle time, when one is set, via `RunApi::getTargetCycleTime()`.
 
-[The execution model](../users_guide/execution_model.md#the-time-your-model-sees) explains what that
+[The execution model](../users_guide/execution_model.md#the-time-a-component-sees) explains what that
 time is, how it moves in each run mode and how a model uses it.
 
 You can also ask the kernel:

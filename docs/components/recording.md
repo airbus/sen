@@ -23,6 +23,13 @@ This component is able to:
 - Use the recorded meta-data to allow for backwards-compatible replays.
 - Add arbitrary annotations to the recording, without altering the existing content.
 
+An archive holds what objects published: property changes, events, creations and deletions, plus the
+keyframes, annotations and snapshots you asked for. It does not hold method calls: a call from one
+component to another is not an entry type the archive has.
+
+Coverage is whatever your `selections` matched. A bus nobody selected is not in the archive, so
+treat the selections as the definition of what you will be able to review later.
+
 The serialization is binary. Keyframes are compressed with LZ4; property changes, events, creations
 and deletions are written uncompressed. Also, the threading model is designed to parallelize the
 work and minimize any overhead to other components running in the same process.
@@ -66,6 +73,12 @@ The configuration options are defined in the component's STL:
 You can create multiple recordings (each recording generates an archive), and define multiple
 selection criteria for each recording. You can use those to define the objects to be tracked and
 recorded.
+
+Loading the recorder as a component, as above, is the convenient route: it runs on its own cycle and
+records what it sees when it drains, so a value that changes twice between those cycles reaches the
+archive once. `sen.components.recorder` is also an ordinary package, so you can instantiate a
+`Recorder` object alongside the objects you want to record; it then runs inside their component's
+cycle and misses nothing.
 
 You can also have more control over the recording state by using the `Recorder` object that this
 component publishes. Those objects offer an interface to control and monitor their execution:

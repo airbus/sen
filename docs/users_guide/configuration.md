@@ -203,10 +203,10 @@ Everything here has a default, so the section can be omitted entirely.
 ```
 
 `realTime` is the default shape: components run against the system clock. Under `virtualTime` the
-kernel advances in discrete steps you drive yourself, which is what makes a run reproducible;
-`virtualTimeRunning` advances those steps continuously instead of waiting to be told. `startAndStop`
-brings everything up and takes it straight back down, which is a cheap smoke test that a
-configuration is valid.
+kernel advances in discrete steps you drive yourself, which is what makes a run reproducible within
+a process; `virtualTimeRunning` advances those steps continuously instead of waiting to be told.
+`startAndStop` brings everything up and takes it straight back down, which is a cheap smoke test
+that a configuration is valid.
 
 ## Environment variables
 

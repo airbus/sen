@@ -25,9 +25,21 @@ In general, these are the conversion rules for numeric types:
   with the usual operators (e.g. transformation of a number to string) and custom types are
   transformed to JSON format.
 
-These conversions are not guaranteed to be lossless! Sen tries to reduce conversion loss where
-possible but does lossy conversions where necessary. For example, when sending a `u32` to a receiver
-that expects `u16`, any value above `65535` arrives as `65535`.
+These conversions are not guaranteed to be lossless. Sen reduces conversion loss where it can and
+does lossy conversions where it must: sending a `u32` to a receiver that expects `u16` delivers any
+value above `65535` as `65535`.
+
+How much of that you accept is a setting. The kernel's `compatibility` key takes one of three
+values:
+
+| `compatibility` | Behavior |
+|---|---|
+| `relaxed` | Conversions happen, and a conversion that can lose data is warned about, naming both types. The default. |
+| `strict` | Conversions happen, but one that can lose data is refused. |
+| `disabled` | Only an exact type match is accepted. |
+
+`relaxed` is the default so that a system that works today keeps working, and starts telling you
+where it is losing data. A rig whose numbers have to be trusted should run `strict`.
 
 | Source \\ Target              | bool               | integral           | floating point     | string         | duration                | timestamp                          |
 | ----------------------------- | ------------------ | ------------------ | ------------------ | -------------- | ----------------------- | ---------------------------------- |

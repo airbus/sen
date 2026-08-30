@@ -120,7 +120,8 @@ an acronym nor an abbreviation, but a noun.
 - Container-friendly.
 - Python bindings for accessing recorded data.
 - Backward compatible ICDs with runtime interoperability. Where two participants disagree about a
-  type, Sen adapts rather than refuses, as far as the types allow (see
+  type, Sen adapts rather than refuses, as far as the types allow. Adaptations that can lose data
+  are warned about, and `compatibility: strict` refuses them instead (see
   [Compatibility conversions](users_guide/compatibility_conversions.md) for details).
 - Configuration is defined using YAML or Python.
 
