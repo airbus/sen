@@ -4,21 +4,21 @@ Sen ships a `TestKernel` and a `TestComponent` so your packages can be driven fr
 testing framework, without a running system. Both are declared in
 `libs/kernel/include/sen/kernel/test_kernel.h`.
 
-`TestKernel` starts in virtual time, so a test decides when time advances rather than waiting for
-it. You move it forward with `step()`, one cycle at a time.
+`TestKernel` starts in virtual time, so a test decides when time advances instead of waiting for it.
+You move it forward with `step()`, one cycle at a time.
 
-## Two modes
+## The modes
 
 A `TestKernel` runs in one of two modes, chosen when you construct it and never from configuration.
 
-Virtual time is the default and what the rest of this page uses: components advance only when you
+Virtual time is the default and what the rest of this page uses. Components advance only when you
 call `step()`, so the test decides when time passes and the same test does the same thing every run.
 Real time lets the components free-run on their own threads, which is how you exercise several
 components at different rates, or anything whose behaviour depends on real interleavings.
 
 The two are not interchangeable. `step()`, `stepUntil()` and `getTime()` abort on a real-time
 `TestKernel`, because there is no virtual clock to advance or to read. `stopRequested()` differs
-too: stepping ignores a stop request, so a virtual-time test can use it as a completion signal,
+too. Stepping ignores a stop request, so a virtual-time test can use it as a completion signal,
 while a real-time `TestKernel` honors it and tears itself down.
 
 ## The double step
@@ -31,8 +31,8 @@ To see why, look at how a cycle works.
 ![Screenshot](../assets/images/two_ticks_light.svg#only-light)
 ![Screenshot](../assets/images/two_ticks_dark.svg#only-dark)
 
-The properties changed during a cycle are collected in the commit phase ❶, and become visible in the
-drain phase ❷ of the *next* cycle.
+The properties changed during a cycle are collected in the commit phase ❶, and become visible in
+the drain phase ❷ of the *next* cycle.
 
 When a test pushes an update, it does so between kernel steps ❸, while the kernel is waiting. The
 queue of changed properties for that cycle has already been built, so the change needs one more step
@@ -55,7 +55,7 @@ First the setup: an object, a component that publishes it, and callbacks that co
 usually ends in `execLoop`, which drives a cycle at the given period. The callback passed to
 `execLoop` is optional, and runs once per cycle.
 
-Note `.keep()` on the callback registrations: they return a `ConnectionGuard`, and dropping it
+Note `.keep()` on the callback registrations. They return a `ConnectionGuard`, and dropping it
 unregisters the callback immediately.
 
 Now the double step, with the assertions that show it:
@@ -87,10 +87,10 @@ virtual-time mode, at a step boundary, on state owned by a component the virtual
 the writer is idle and the step you just returned from is what makes its last write visible to you.
 
 Reading `local.kernel` this way is never safe. The kernel component runs in real time whichever mode
-you chose, so it may be writing while you read. Use `fetchStats()` instead: it returns a snapshot of
+you chose, so it may be writing while you read. Use `fetchStats()` instead. It returns a snapshot of
 the kernel's counters and is safe to call from the test thread at any moment.
 
 Everything else needs a fixture component: real-time mode, objects owned by another process,
 observing mid-step, or an assertion that has to span several objects at one instant. The fixture
 subscribes to what you care about and captures the values on its own runner thread, and your test
-reads the fixture's copies rather than the live objects.
+reads the fixture's copies instead of the live objects.

@@ -101,13 +101,13 @@ and a deliberate deletion look the same, both live and in a recording, where a d
 the object's identity. There is no watchdog, no restart and no health policing anywhere in the
 kernel.
 
-That is deliberate rather than missing. Whether a dead component should be restarted, whether the
-run continues, and who gets told are decisions about the exercise rather than about the objects, and
-they belong to whatever supervises it. Sen is a reasonable substrate for building that orchestrator,
+That is deliberate, and not an omission. Whether a dead component should be restarted, whether the
+run continues, and who gets told are decisions about the exercise and not about the objects, so they
+belong to whatever supervises it. Sen is a reasonable substrate for building that orchestrator,
 and stays out of the decision itself.
 
 Ownership governs lifetime, not every write. An object is responsible for its own properties, but a
-**Read Write** property is genuinely written from outside: the caller's setter puts the value into
+**Read Write** property really is written from outside: the caller's setter puts the value into
 the object's next buffer, and the owner finds out afterwards through
 <code>on&lt;<var>Prop</var>&gt;Changed()</code>, if it subscribes at all.
 

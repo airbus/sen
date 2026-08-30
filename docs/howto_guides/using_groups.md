@@ -14,7 +14,7 @@ sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
 }
 ```
 
-And modify your configuration file to enable kernel logs:
+Now modify your configuration file to enable kernel logs:
 
 ```yaml title="config.yaml"
 # you can configure the kernel that will
@@ -87,10 +87,9 @@ process, but in reverse.
 3. The kernel does not find any other group, so it reaches the "stopped" state, and finishes the
    execution.
 
-You see that during start-up the kernel proceeds by groups, and within each group it makes three
-passes over the components: it loads all of them, then initializes all of them, then runs all of
-them. During shut-down it works through the groups in reverse, stopping all the components in a
-group before unloading any of them.
+You see that during start-up the kernel proceeds by groups, and within each group it loads all the
+components, then initializes all of them, then runs all of them. During shut-down it works through
+the groups in reverse, stopping all the components in a group before unloading any of them.
 
-Group numbers are used as written: the kernel counts up from 1 and skips any number nothing is
+Group numbers are used as written. The kernel counts up from 1 and skips any number nothing is
 assigned to, so leaving gaps costs nothing and only the relative order matters.

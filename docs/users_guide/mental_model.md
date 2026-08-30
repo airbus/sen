@@ -179,8 +179,8 @@ subscription_ = api.selectAllFrom<SensorInterface>("monitoring.headquarters");
 
 `subscription_->list` is automatically populated during each drain. Objects appear when they
 register and disappear when they unregister, and they also leave the list when a property named in
-the interest's `WHERE` clause changes so that the object no longer matches. That second case is a
-live object dropping out of your view rather than a dead one. Within a cycle the list does not
+the interest's `WHERE` clause changes so that the object no longer matches. In that second case the
+object is still alive and has only dropped out of your view. Within a cycle the list does not
 change, so you never hold stale pointers.
 
 !!! warning "Keep the Subscription alive"
@@ -234,7 +234,7 @@ to UDP unicast. So writing it is a change of transport, not a way of asking for 
 already have. Methods, which start confirmed, do move to unicast when you write it.
 
 In a well-behaved local network, you will almost never lose UDP packets, so best-effort is fine for
-most property updates. Use `confirmed` when you genuinely cannot afford to miss a value.
+most property updates. Use `confirmed` when you cannot afford to miss a value.
 
 One case takes the choice away from you. A dynamic property whose size is unbounded, such as a
 `string` or an unbounded `sequence`, has to be `[confirmed]`, and writing nothing is not enough:

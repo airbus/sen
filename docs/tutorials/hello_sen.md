@@ -119,7 +119,7 @@ Edit `src/counter.cpp`:
    happened?](#what-just-happened) below). These values will not change during this update cycle.
    `setNextValue()` writes to the *next* buffer. The new value is **not** visible yet. It becomes
    visible to all components after Sen commits the outputs. `getNextValue()` reads that next buffer
-   back, which is how the line below tests the value it has just written rather than last cycle's.
+   back, which is how the line below tests the value it has just written instead of last cycle's.
 2. Fires the `valueIsDivisibleByTen` event with the new value. Like property changes, events are
    buffered and delivered after commit.
 3. This macro registers `CounterImpl` as a class that Sen's kernel can instantiate. Without it there
@@ -247,8 +247,8 @@ Your numbers will differ from these, and that is the point: at 2 Hz with `step: 
 by ten every second for as long as the kernel runs, so what you see depends on how long it has been
 up and how fast you type. `step` does not move, because it is static.
 
-That coupling is deliberate here and fine for a counter. A value that should advance per second
-rather than per cycle has to read the time instead, which
+That coupling is deliberate here and fine for a counter. A value that should advance per second, and
+not per cycle, has to read the time instead, which
 [the execution model](../users_guide/execution_model.md#the-time-a-component-sees) shows how to do.
 
 Calling the method returns a string:
@@ -258,7 +258,7 @@ sen:host/config> local.counters.myCounter.hello
 "Hello from Sen! My current value is: 250"
 ```
 
-And `shutdown` stops the kernel:
+Finally, `shutdown` stops the kernel:
 
 ```text
 sen:host/config> shutdown

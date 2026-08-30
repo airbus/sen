@@ -22,13 +22,13 @@ Most of the variance you will see comes from how modern processors work.
 instructions in parallel, reorders them, and guesses which way branches will go so it can start work
 before the answer is known. A measurement therefore depends on the code surrounding the part you
 care about, not only on the part itself. Timing a small piece of code in isolation and timing it in
-place can give genuinely different answers, and both can be correct.
+place can give different answers, and both can be correct.
 
 **Your core may not be entirely yours.** With simultaneous multithreading, two hardware threads
 share one physical core's execution resources. What the sibling thread is doing changes what is left
 for you, and it does not change it uniformly: a sibling saturating the floating-point units
-interferes with your floating-point work far more than with your integer work. So what matters is
-not just how loaded the machine is, but with what.
+interferes with your floating-point work far more than with your integer work. So it is not enough
+to know how loaded the machine is; you need to know with what.
 
 **The clock rate is not fixed.** Separate mechanisms move it, and each adds noise:
 
@@ -81,8 +81,8 @@ it a falsy value.
 
 ## Thread priority, CPU affinity and stack size
 
-Every component runs in its own thread, so these are **per-component** settings rather than
-process-wide ones. They go on the component's entry in the configuration file, alongside `group` and
+Every component runs in its own thread, so these settings apply **per component**, not to the whole
+process. They go on the component's entry in the configuration file, alongside `group` and
 `freqHz`, and they work the same way under `load:` and `build:`.
 
 ```yaml
@@ -95,10 +95,11 @@ build:
     stackSize: 1048576      # bytes; 0 or omitted means the system default
 ```
 
-**Priority** takes one of four values. `nominalMin` and `nominalMax` bound what is intended for
-ordinary component work; `lowest` is for background work that should yield to everything else, and
-`highest` is for supervisory work. What these map onto is the operating system's own scheme, so the
-practical spread between them depends on the platform and on how the process was started.
+**Priority** takes one of the names shown above. `nominalMin` and `nominalMax` bound what is
+intended for ordinary component work; `lowest` is for background work that should yield to
+everything else, and `highest` is for supervisory work. What these map onto is the operating
+system's own scheme, so the practical spread between them depends on the platform and on how the
+process was started.
 
 **CPU affinity** is a bitmask, one bit per processor: `1` is processor 0, `2` is processor 1, `12`
 is processors 2 and 3. The field is 64 bits wide, so processors beyond the first 64 cannot be
@@ -108,7 +109,7 @@ addressed this way.
 
     If the operating system rejects the mask, which is what happens inside a container whose
     processor set does not include the processors you asked for, thread creation fails, and a
-    component that cannot create its thread terminates the whole process rather than continuing
+    component that cannot create its thread terminates the whole process instead of continuing
     without the setting. It is reported before that happens, so the cause is in the log, but the
     process does not survive it.
 

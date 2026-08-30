@@ -25,6 +25,6 @@ After that, the [examples](../examples/index.md) are a graded set of working pac
 
 ---
 
-[Running the tests](testing.md) is a different kind of page: it covers building and testing **Sen
-itself** from a source checkout, which is a contributor task rather than a step on this path. You do
+[Running the tests](testing.md) is a different kind of page. It covers building and testing **Sen
+itself** from a source checkout, which is a contributor task and not a step on this path. You do
 not need it to use Sen.

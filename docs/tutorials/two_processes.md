@@ -89,7 +89,7 @@ my.tutorial.goodCalc.getCurrent
 Tutorial 2 used. It does not know whether the caller is in its own process, in another process, or
 on another machine. That is the property the whole design is built around, and it is why [design
 considerations](../howto_guides/considerations.md) argues you should defer the "how many processes?"
-question rather than answer it early.
+question instead of answering it early.
 
 **The two kernels found each other without being told about each other.** Neither config contains
 the other's address. Sen is broker-less: `ether` announces what a kernel has and listens for what
@@ -120,7 +120,7 @@ multicast is unavailable.
 
 **Objects vanish with their owner.** Stop the first process and watch the shell: `goodCalc` and
 `badCalc` disappear within a few seconds. Sen removes every object owned by a component that goes
-away, so a subscriber sees them leave rather than seeing them freeze. If you hold a reference across
+away, so a subscriber sees them leave and does not watch them freeze. If you hold a reference across
 cycles, check it is still there.
 
 ---
