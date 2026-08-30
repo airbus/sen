@@ -161,6 +161,16 @@ jobs:
     with:
       pull_request_subset: ${{ github.event_name == 'pull_request' }}
 
+  # A pull request only. The tree is clean under both sanitizers, so a finding
+  # is a regression this change introduced; the nightly keeps the wider sweep.
+  pr-sanitizers:
+    needs: detect-changes
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.draft == false &&
+      needs.detect-changes.outputs.code == 'true'
+    uses: ./.github/workflows/pr_sanitizers.yaml
+
   # The only required check: every other job is skipped in some legitimate
   # case, and a required check that never reports blocks the merge forever.
   # test_main_yaml.py keeps the needs list complete.
@@ -185,6 +195,7 @@ jobs:
       - docs-build
       - image-check
       - conan-packaging
+      - pr-sanitizers
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
