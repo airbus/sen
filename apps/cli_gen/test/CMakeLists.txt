@@ -344,3 +344,36 @@ add_sen_cli_gen_smoke_test(
   COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test24/fom
   WORKING_DIRECTORY ${working_dir}
 )
+
+# Test case 25
+#
+# Two fixed records whose fields name each other.
+#
+# Expected result: failure
+add_sen_cli_gen_smoke_test(
+  hla_fom_gen_smoke_25
+  COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test25/fom
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# Test case 26
+#
+# An array whose element type is itself.
+#
+# Expected result: failure
+add_sen_cli_gen_smoke_test(
+  hla_fom_gen_smoke_26
+  COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test26/fom
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# Test case 27
+#
+# Two fixed records that include each other.
+#
+# Expected result: failure
+add_sen_cli_gen_smoke_test(
+  hla_fom_gen_smoke_27
+  COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test27/fom
+  WORKING_DIRECTORY ${working_dir}
+)
