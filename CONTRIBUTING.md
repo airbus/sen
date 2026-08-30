@@ -37,6 +37,27 @@ are retried until they pass. While working on one library, `run_unit_tests` is q
 If your editor supports devcontainers, the one under `.devcontainer/` already has the compilers,
 Conan and the test tools installed.
 
+### Running a CI lane
+
+The build above is not what the pipeline does to your change: the sanitizer lanes build with
+different options, the coverage lane measures the suite as it runs it, and clang-tidy analyses.
+
+```shell
+python .github/scripts/lanes.py --list       # the lanes, and where each one runs today
+python .github/scripts/lanes.py asan-ubsan   # run one
+```
+
+A lane runs inside the CI image as your own user, and keeps its conan cache, its ccache and its
+build folder under `~/.cache/sen-lanes/`, so your own build folder and the devcontainer's volumes
+are left alone. There is no option to run one directly on your machine: it would pick up whichever
+conan profile you have as your default. `--print` shows the commands instead of running them.
+
+`test_lanes.py` checks each definition against the job that runs it today.
+
+The first run builds every dependency from source and takes about twenty minutes; later ones reuse
+what it left. The runners are x86, so an answer can differ where that matters: one undefined
+conversion the sanitizers found yields zero on arm and `INT_MIN` on x86.
+
 ## Editors
 
 `conan install` writes `CMakeUserPresets.json` at the repository root, pointing at the presets

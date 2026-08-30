@@ -12,6 +12,7 @@
 .cache
 .scannerwork
 __pycache__
+sanitizer-reports
 
 # ======================================================================================================================
 # generated build-related files

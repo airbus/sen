@@ -5,7 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 #
-# Build environment for Sen CI and the devcontainer.
+# Build environment for Sen CI, the devcontainer and .github/scripts/lanes.py.
 # .github/actions/setup_build_context installs the same toolchain directly
 # on runners; keep the two in sync.
 #

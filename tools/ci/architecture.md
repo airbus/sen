@@ -176,6 +176,13 @@ pre-commit hook, and one of them asserts that every declared job is selected
 by some workflow, so a job that reads as coverage but can never run does not
 survive.
 
+`lanes.py` does the same for the lanes that are not matrix legs: the sanitizer lanes,
+clang-tidy and coverage. `test_lanes.py` reads the job each one names
+and compares the commands token for token, so a definition and the workflow that carries
+it cannot drift apart while both exist. A line in a modelled job that is neither a lane
+command nor one of the exceptions named in that file fails the test rather than being
+left out.
+
 **The matrix does not stop at the first failure.** One configuration failing used
 to cancel the others, so a pull request reported one verdict where four were
 wanted, and a fix could not be checked while an unrelated configuration was
@@ -284,8 +291,8 @@ lost a tool therefore fails in the pull request that broke it. `main.yaml` calls
 and `ci-ok` needs it, so a broken image blocks the merge instead of showing up
 as a red mark beside it. Documentation under `tools/ci/` does not trigger it:
 the Dockerfile copies nothing out of the repository. Docker layer caching in the Actions cache keeps
-rebuilds without changes fast. No registry hosts the image: the
-devcontainer and any self-hosted machine build it from this file, and the
+rebuilds without changes fast. No registry hosts the image: the devcontainer,
+`lanes.py` and any self-hosted machine build it from this file, and the
 revision of the file identifies the environment. (The apt packages inside
 the Dockerfile stay unpinned on purpose: the Ubuntu archive removes old
 package versions, so exact pins would break within weeks.)
@@ -305,6 +312,13 @@ The devcontainer builds this same image, keeps the conan and ccache state
 in named volumes, and installs the repository profiles with a default that
 matches the machine architecture.
 
+[`lanes.py`](../../.github/scripts/lanes.py) runs a named lane in that image without an
+editor. It builds `base`, runs the lane's commands inside it as the invoking user, and
+keeps the conan cache, the ccache and the build folder outside the checkout, because a
+build folder configured in a container cannot be built on the host. The devcontainer's
+volumes are deliberately not reused: they belong to the image's own user, and a container
+running as anyone else cannot write to them. `CONTRIBUTING.md` has the commands.
+
 ## Where this is heading
 
 The pieces above describe the pipeline as it is. This section describes the
@@ -312,7 +326,7 @@ shape it is being moved towards, so that changes can be judged against it.
 
 **The environment should have one definition.** Today it has five:
 
-- the Dockerfile's `base` stage, which nothing runs in,
+- the Dockerfile's `base` stage, which `lanes.py` runs in and no CI job does yet,
 - its `dev` stage, which the devcontainer builds,
 - `tools/ci/runtime.Dockerfile`, which the container-based integration tests run in,
 - the `setup_build_context` action, which is what CI actually builds with,
@@ -322,9 +336,16 @@ defect: clang-tidy present in one and missing in the other, coverage tools
 missing from both, conan pinned in one place and floating in another, a
 devcontainer that could not finish a build. The target is a single image,
 built from the file in this repository, published to the GitHub container
-registry when a change lands on main, and used by both the pull-request jobs
-and the devcontainer. Then a tool either exists for everyone or for nobody,
-and a check can no longer pass having analysed nothing.
+registry when a change lands on main, and used by the pull-request jobs, the
+devcontainer and `lanes.py` alike. Then a tool either exists for everyone or for
+nobody, and a check can no longer pass having analysed nothing.
+
+**The lane commands should have one definition too.** They are in the workflow steps and
+in `lanes.py`, with a test holding the second to the first. The direction is for the
+workflow step to call `lanes.py`, a lane at a time, so that what a developer runs and
+what CI runs are one text rather than two a test compares. The same move collapses the
+profile installation, which `setup_build_context`, the devcontainer's `postCreateCommand`
+and `lanes.py` each carry a copy of.
 
 **Publishing to that registry does not work today.** A personal token can push to
 `ghcr.io/airbus`, and the GitHub Actions installation cannot: it is refused `Create`
