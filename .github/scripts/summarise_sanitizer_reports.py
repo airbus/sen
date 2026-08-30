@@ -8,7 +8,15 @@
 
 A sanitizer prints one block per finding, and a run repeats the same defect
 across every test that reaches it. Raw, that reads as a crisis; grouped by the
-first frame inside sen::, it reads as the handful of sites it actually is.
+sen:: frames that produced it, it reads as the handful of families it actually is.
+
+Two shapes are parsed. Thread, address and leak sanitizers write
+"WARNING/ERROR: <X>Sanitizer: <kind>"; undefined behaviour writes
+"<file>:<line>:<col>: runtime error:" and neither its own name nor a stack.
+
+A race is a pair, so the family is the first sen:: frame on each side: one anchor
+plus whatever the other side happened to be collapses distinct families together.
+Undefined behaviour has no frames to pair, so its location is its identity.
 
 This reports rather than judges: the exit status says whether the summary was
 written, not whether findings were found.
@@ -25,21 +33,86 @@ from pathlib import Path
 # "ERROR: AddressSanitizer: heap-use-after-free on address 0x60300000eff0"
 FINDING = re.compile(r"(?:WARNING|ERROR): (\w+Sanitizer): (.+)")
 
+# "libs/core/include/sen/core/base/checked_conversions.h:92:34: runtime error: nan is ..."
+# UndefinedBehaviorSanitizer says neither WARNING nor its own name on this line.
+UBSAN = re.compile(r"^(?P<where>\S+?):(?P<line>\d+):(?P<col>\d+): runtime error: (?P<kind>.+?)\s*$", re.M)
+
 # "on vptr" is part of the kind; "on address" is not, nor is a pid or an aside.
 KIND_TAIL = re.compile(r"\s+on address\b|\s+on 0x|\s+\(")
 
 # "    #3 sen::impl::WorkQueueImpl::clear() /workspace/libs/core/src/obj/work_queue.cpp:132:5"
 SEN_FRAME = re.compile(r"#\d+ (sen::[A-Za-z0-9_:~]+)")
+FRAME = re.compile(r"^\s*#\d+ ")
+
+# A block is divided into sides by its own headers: "Previous write of size 4 at
+# 0x... by thread T1:", "Mutex M0 previously acquired by the same thread here:".
+# Anything ending in a colon that is not a frame opens a new side.
+SIDE = re.compile(r":\s*$")
 
 # The repository-relative half of a frame's path, which is what a reader can open.
 SOURCE = re.compile(r"((?:libs|apps|components|tools)/[A-Za-z0-9_/.]+\.(?:cpp|h)):(\d+)")
 
+# The same tail without a line number, for paths the sanitizer prints on their own.
+REPO_PATH = re.compile(r"((?:libs|apps|components|tools)/[A-Za-z0-9_/.]+)$")
+
+
+def anchors(block: str) -> list[str]:
+    """First sen:: frame of each side of a finding, in the order they appear.
+
+    A race names two sides and the pair identifies the family. Sides with no
+    sen:: frame contribute nothing: a finding entirely inside third-party code
+    is anchored by whichever side does reach us.
+    """
+    found: list[str] = []
+    current: str | None = None
+
+    for line in block.splitlines():
+        if not FRAME.match(line) and SIDE.search(line):
+            if current:
+                found.append(current)
+            current = None
+            continue
+        match = SEN_FRAME.search(line)
+        if match and current is None:
+            current = match.group(1)
+
+    if current:
+        found.append(current)
+    return found
+
+
+def relative(path: str) -> str:
+    """Trims an absolute build path down to the repository-relative part."""
+    match = REPO_PATH.search(path)
+    return match.group(1) if match else path
+
+
+def undefined_behaviour(text: str) -> list[dict]:
+    """One entry per UBSan diagnostic.
+
+    These carry no stack, so the source location is both the site and the only
+    thing later runs can be matched on.
+    """
+    entries = []
+    for match in UBSAN.finditer(text):
+        site = f"{relative(match.group('where'))}:{match.group('line')}:{match.group('col')}"
+        entries.append(
+            {
+                "tool": "UndefinedBehaviorSanitizer",
+                "kind": match.group("kind"),
+                "sites": [site],
+                "site": site,
+                "sources": [f"{relative(match.group('where'))}:{match.group('line')}"],
+            }
+        )
+    return entries
+
 
 def findings(text: str) -> list[dict]:
-    """Splits a sanitizer log into one entry per finding.
+    """Splits sanitizer output into one entry per finding.
 
-    A finding runs from its WARNING/ERROR line to the next one, so the frames
-    in between are the ones that produced it.
+    A block runs from its header line to the next one, so the frames in between
+    are the ones that produced it.
     """
     starts = [m.start() for m in FINDING.finditer(text)]
     entries = []
@@ -50,40 +123,60 @@ def findings(text: str) -> list[dict]:
         if match is None:
             continue
 
-        frame = SEN_FRAME.search(block)
+        sites = anchors(block)
         entries.append(
             {
                 "tool": match.group(1),
                 "kind": KIND_TAIL.split(match.group(2))[0].strip(),
-                "site": frame.group(1) if frame else "(no sen:: frame)",
+                "sites": sites,
+                "site": sites[0] if sites else "(no sen:: frame)",
                 "sources": [f"{path}:{line}" for path, line in SOURCE.findall(block)],
             }
         )
-    return entries
+
+    return entries + undefined_behaviour(text)
 
 
 def summarise(entries: list[dict]) -> str:
-    """Renders the grouped findings as markdown."""
+    """Renders the grouped findings as markdown.
+
+    Grouped by family -- tool, kind and the pair of sen:: frames -- because that
+    is the unit a later run can be matched against. Line numbers move; symbols
+    survive a refactor.
+    """
     if not entries:
         return "No sanitizer findings in this run.\n"
 
-    by_site = Counter((entry["tool"], entry["kind"], entry["site"]) for entry in entries)
+    def family(entry: dict) -> tuple:
+        return (entry["tool"], entry["kind"], tuple(entry["sites"]))
+
+    by_family = Counter(family(entry) for entry in entries)
     sources: dict[tuple, Counter] = {}
     for entry in entries:
-        key = (entry["tool"], entry["kind"], entry["site"])
-        sources.setdefault(key, Counter()).update(entry["sources"])
+        sources.setdefault(family(entry), Counter()).update(entry["sources"])
 
-    lines = [f"{len(entries)} sanitizer findings, {len(by_site)} distinct sites.", ""]
-    lines.append("| count | tool | kind | first sen:: frame |")
-    lines.append("|---|---|---|---|")
-    for (tool, kind, site), count in by_site.most_common():
-        lines.append(f"| {count} | {tool} | {kind} | `{site}` |")
+    def count_of(number: int, one: str, many: str) -> str:
+        return f"{number} {one if number == 1 else many}"
+
+    lines = [
+        f"{count_of(len(entries), 'sanitizer finding', 'sanitizer findings')}, "
+        f"{count_of(len(by_family), 'distinct family', 'distinct families')}.",
+        "",
+    ]
+    lines.append("| count | tool | kind | first sen:: frame | other side |")
+    lines.append("|---|---|---|---|---|")
+    for (tool, kind, sites), count in by_family.most_common():
+        first = f"`{sites[0]}`" if sites else "_(no sen:: frame)_"
+        other = f"`{sites[1]}`" if len(sites) > 1 else "_(one side only)_"
+        lines.append(f"| {count} | {tool} | {kind} | {first} | {other} |")
 
     lines.append("")
-    for key, count in by_site.most_common():
+    for key, count in by_family.most_common():
         common = ", ".join(f"`{where}`" for where, _ in sources[key].most_common(4))
-        if common:
-            lines.append(f"- `{key[2]}` ({count}): {common}")
+        if not common:
+            continue
+        _, kind, sites = key
+        lines.append(f"- `{sites[0] if sites else kind}` ({count}): {common}")
 
     return "\n".join(lines) + "\n"
 

@@ -36,3 +36,6 @@ convention = "google"
 [lint.per-file-ignores]
 # Tutorial scripts wrap their whole demo in one try block for error output.
 "examples/**" = ["PLW0717"]
+# Sanitizer output is quoted verbatim as test input. Reflowing a line would
+# change the thing being parsed, so these fixtures are exempt from the width.
+".github/scripts/test_summarise_sanitizer_reports.py" = ["E501"]
