@@ -198,6 +198,7 @@ nav:
       - Command line tools: users_guide/command_line.md
       - CMake integration: users_guide/cmake.md
       - Run-time compatibility: users_guide/compatibility_conversions.md
+      - Versioning and compatibility: users_guide/versioning.md
       - The Sen libraries:
           - sen::core: users_guide/core_library.md
           - sen::db: users_guide/db_library.md
@@ -228,12 +229,14 @@ nav:
       - Working with objects: howto_guides/objects.md
       - The generated code: howto_guides/generated_code.md
       - Using logs: howto_guides/logging.md
+      - Observing a running system: howto_guides/observability.md
       - Using component groups: howto_guides/using_groups.md
       - Controlling the clock: howto_guides/controlling_clock.md
       - Python as config: howto_guides/python_config.md
       - Configuring component sleeping between updates: howto_guides/precision_sleeper_config.md
       - Using the Dead Reckoning library: howto_guides/dead_reckoning.md
       - Implementing unit tests: howto_guides/unit_tests.md
+      - Integration testing: howto_guides/integration_tests.md
       - Writing a component (advanced): howto_guides/components.md
       - Connecting existing systems: howto_guides/connecting_existing_systems.md
       - Design considerations: howto_guides/considerations.md

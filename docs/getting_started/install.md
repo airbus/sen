@@ -367,9 +367,9 @@ compilers or Conan yourself.
     Subsequent builds are incremental. `ccache` shortens rebuilds. CI simply prepends the
     ccache masquerade directory to `PATH` before building.
 
-    **Windows.** The C++ tree and the browser stack both build with MSVC. The standard test
-    suite is not yet wired up on Windows (see SEN-1725), so the automated coverage that runs on
-    Linux does not run there.
+    **Windows.** The C++ tree and the browser stack both build with MSVC, and projects run on it.
+    The automated test suite has not been wired up for Windows since the move to GitHub, so the
+    coverage that runs on Linux does not yet run there.
 
     For enabling and running the test suite, see [Running the tests](testing.md).
 

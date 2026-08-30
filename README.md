@@ -258,7 +258,7 @@ the [release notes](https://github.com/airbus/sen/releases) before upgrading. Br
 marked in the commit that makes them and collected into a dedicated section of each release's notes.
 
 - Some features may be undocumented or partially implemented.
-- Windows support is available but less battle-tested than Linux.
+- Windows is supported and in use; its automated test coverage is not yet wired up in GitHub.
 - Performance is a stated design target, not a published measurement. Low latency and high
   throughput are what Sen is built for, and the execution model is shaped around them, but we have
   not yet published figures for latency, message rate, entity count or participant scaling. The
