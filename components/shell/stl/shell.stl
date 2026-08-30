@@ -1,5 +1,6 @@
 package sen.components.shell;
 
+// --8<-- [start:config]
 // How lists should be printed
 enum ListStyle: u8
 {
@@ -44,6 +45,7 @@ struct Configuration
   query         : QueryList,    // list of queries to create automatically
   logBus        : string        // where to find the logmaster, if any (default: local.log)
 }
+// --8<-- [end:config]
 
 // Provides a text-based interface to interact with the a sen kernel
 class Shell
@@ -51,6 +53,7 @@ class Shell
   // service configuration
   var config: Configuration [static];
 
+  // --8<-- [start:commands]
   // clears the screen
   fn clear() [const];
 
@@ -80,4 +83,5 @@ class Shell
 
   // lists the current sources
   fn src();
+  // --8<-- [end:commands]
 }

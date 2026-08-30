@@ -1,11 +1,21 @@
-# Working with Objects
+# Working with objects
+
+The examples on this page come from the shipped example packages, `calculators`, `lifecycle` and
+`fibonacci`. Where a snippet is written out rather than transcluded, it uses `my_package.MyClass`
+from [Create your first package](../getting_started/first_package.md).
 
 ## Implementing your objects
+
+### Initial values
+
+A property staged in your constructor with `setNext...()` is published by the first commit, which
+happens before the first cycle begins. That makes the constructor a place to set initial values in
+code, as an alternative to setting them in the YAML configuration.
 
 ### Registration
 
 If you need to do some work after construction, but just before your object starts to get called,
-you can overwrite the `registered()` function. For example: 4
+you can overwrite the `registered()` function. For example:
 
 ```c++ title="MyClass registration"
 void registered(sen::kernel::RegistrationApi& api) override
@@ -34,7 +44,7 @@ If your object is published to a bus, an `update()` function will be called ever
 trigger your internal logic. For example:
 
 ```c++ title="my_class.cpp"
-void MyClass::update(sen::kernel::RunApi& runApi)
+void MyClassImpl::update(sen::kernel::RunApi& runApi)
 {
   // change prop2 with some dummy values
   StructOfInts val = getProp2();
@@ -49,54 +59,66 @@ allows your component to interact with Sen. It only has a few (but powerful) met
 
 ### Advanced callbacks
 
-If you need finer control over what happens during the drain-compute-flush cycle, you can implement
-the following functions. For example, this would help if you need to perform some action before the
-draining inputs the component where the object lives. Note that the needsPreDrainOrPreCommit()
-function should return true for these functions to be called.
+If you need finer control over what happens during the drain-update-commit cycle, you can run code
+just before the drain and just before the commit.
+
+**`needsPreDrainOrPreCommit()` returns `false` by default**, and the two hooks are only called when
+it returns true. Overriding the hooks alone does nothing at all, silently, which is the easiest
+mistake to make here.
+
+The code below is from the `lifecycle` example package, which builds as part of the examples. Its
+interface is small: it counts the phases and publishes what it saw:
+
+```rust
+--8<-- "examples/packages/lifecycle/stl/lifecycle/phase_recorder.stl"
+```
 
 ```c++
-void preDrain() override
-{
-  std::cout << "after this, Sen will drain the inputs\n";
-}
-
-void preCommit() override
-{
-  std::cout << "after this, Sen will flush the outputs\n";
-}
-
-bool needsPreDrainOrPreCommit() const noexcept override
-{
-  return true;  // 'true' means preDrain() and preCommit() will be called
-}
+--8<-- "examples/packages/lifecycle/src/phase_recorder.h:hooks"
 ```
+
+`preCommit()` is the more useful of the two, because it is the last point at which a property staged
+with `setNext...()` still reaches the commit at the end of that same cycle. That lets an object
+publish something derived from everything that happened during the cycle:
+
+```c++
+--8<-- "examples/packages/lifecycle/src/phase_recorder.cpp:precommit"
+```
+
+Running that example shows the ordering. **The first commit happens before any drain or update**,
+because the kernel commits the initial state of your objects before the first cycle begins. So
+`preCommit()` is called once more than the other two.
+
+```text
+cycles=1  lastCycle="preDrain=0 update=0 preCommit=1"
+cycles=2  lastCycle="preDrain=1 update=1 preCommit=2"
+```
+
+### Object naming convention
+
+Sen supports all special characters in published object names, with the single exception of literal
+space characters (`" "`), which are restricted.
 
 ## Interacting with objects
 
-### Calling Methods
+### Calling methods
 
 Sen is fully asynchronous, this means that calls to methods do not block. This is easy when your
 method does not return any value, but if it does (and you are interested in it), then you need to
 provide a callback. For example:
 
-```c++ title="Calling a method"
-  myObject->divideNumbers(2, 2, {this, [&](const auto& response)
-  {
-    if (response)
-    {
-      std::cout << response.getValue() << "\n";
-    }
-    else
-    {
-      std::cout << "error\n";
-    }
-  }});
+```c++ title="calculators/src/client.cpp"
+--8<-- "examples/packages/calculators/src/client.cpp:async_call"
 ```
+
+That is the whole of a real client: find a calculator, call `add` on it, and handle the answer when
+it arrives. The `{this, handleResult}` pair is the callback. `this` is what ties the callback to
+your object's lifetime, so it stops being invoked if your object goes away.
 
 #### Handling responses and errors
 
 Methods may or may not return values. If you want to obtain the returned value, you can use the
-`response` argument. It's a `MethodResult<T>` from which you can extract the value (using
+`result` argument. It's a `MethodResult<T>` from which you can extract the value (using
 `getValue()`) or the error (using `getError()`).
 
 Note that if methods do not return any value, you can still register a callback and react to the
@@ -128,72 +150,68 @@ else
 If you don't install any callback, you will be effectively ignoring the result of the method call.
 This includes any potential errors signaled by the method.
 
-### Deferred Methods
+### Deferred methods
 
-In Sen, you can postpone the execution of a method by declaring it `deferred`. This will sightly
-change the signature of the generated code in the *implementation* side (users keep the same API).
+A method normally returns its value, and Sen delivers it to the caller. Sometimes you cannot answer
+straight away: the work is slow, or it has to be handed to someone else. Marking a method *deferred*
+changes the generated implementation side: you receive a `std::promise` and fulfil it whenever you
+are ready. Callers see no difference.
 
-For example, imagine the following STL:
+A method can be marked deferred in two ways. The direct one is the `[deferred]` attribute in the
+STL:
 
 ```rust
-class Calculator
-{
-  // If b != 0 then returs a / b. Throws otherwise.
-  fn divideNumbers(a: i32, b: i32) -> i32 [deferred];
-}
+fn computeFibonacci(n: u32) -> u64 [deferred];
 ```
 
-The generated code will look like this:
+The other is the code generation settings, which keeps the STL free of implementation choices, so
+the same interface can be implemented with or without deferral. That is what the `fibonacci` example
+does, so it is the one shown here. Its STL declares an ordinary method:
+
+```rust
+--8<-- "examples/packages/fibonacci/stl/fibonacci.stl"
+```
+
+and the settings file names the ones to defer:
+
+```json
+--8<-- "examples/packages/fibonacci/src/codegen_settings.json"
+```
+
+which the package passes with `CODEGEN_SETTINGS`. See
+[CMake integration](../users_guide/cmake.md#to-build-a-package). See also
+[Customizing the generated code](../users_guide/stl.md#customizing-the-generated-code), which covers
+the other settings this file can carry.
+
+The generated declaration is then `computeFibonacciImpl`, taking the promise by rvalue reference:
 
 ```c++
-virtual void divideNumbers(int32_t a, int32_t b, std::promise<int32_t> result) = 0;
+virtual void computeFibonacciImpl(u32 n, std::promise<u64>&& promise) = 0;
 ```
 
-So, instead of having to return, you are now able to store the promise and defer the computation to
-eventually call `result.set_value()` with the result.
+Note the name. Callers still use `computeFibonacci()`; the generated base turns that into a
+`computeFibonacciImpl()` on your class, and that is the one you implement.
 
-For example:
+The `fibonacci` example ships two implementations. The first does the work and fulfils the promise
+when it is done:
 
-```c++ title="Postponing work"
-void divideNumbers(int32_t a, int32_t b, std::promise<int32_t> result)
-{
-  // defer the work by storing it in a queue of std::function<void()>
-  pendingWork_.push_back([a, b, result = std::move(result)]() mutable {
-    if (b != 0)
-    {
-      result.set_value(a/b)
-    }
-    else
-    {
-      auto err = "divideNumbers would cause a division by 0";
-      result.set_exception(std::make_exception_ptr(std::runtime_error(err)));
-    }
-  });
-}
+```c++ title="doing the work"
+--8<-- "examples/packages/fibonacci/src/fibonacci.cpp:worker"
 ```
 
-Apart from storing the work for deferred execution, you can also use this mechanism to forward the
-call to another object. For example:
+The second hands the call to another object and passes the promise into the callback, so whoever
+answers fulfils the original caller's promise:
 
-```c++ title="Forwarding a call"
-void divideNumbers(int32_t a, int32_t b, std::promise<int32_t> result)
-{
-  // we can hand over the work to another object
-  otherCalculator_->divideNumbers(a, b, {this, [ourResult = std::move(result)](const auto& theirResponse)
-  {
-    if (theirResponse.isOk())
-    {
-      ourResult.set_value(theirResponse.getValue());
-    }
-    else
-    {
-      ourResult.set_exception(theirResponse.getError());
-    }
-  }});
-}
+```c++ title="forwarding the call"
+--8<-- "examples/packages/fibonacci/src/fibonacci.cpp:forward"
 ```
 
-### Reacting to Property changes
+The lambda must be `mutable`: it owns the promise, and `set_value()` is not `const`. Note also that
+a promise cannot be copied, so it cannot be stored in a `std::function`, which requires a
+copy-constructible target. Sen's own callback type accepts move-only targets, which is why passing
+the promise into the callback above works.
+
+### Reacting to property changes
 
 All Sen objects allow hooks that you can use to react to property changes. The generated function
 will be named as `onXChanged(callback)`, where `X` would be the name of the property.
@@ -214,7 +232,7 @@ object was destroyed.
 If you don't have the generated code, and see yourself working with generic proxies, you can use the
 `onPropertyChangedUntyped` method, which is also available in all objects, but works with Variants.
 
-### Reacting to Events
+### Reacting to events
 
 In the same way as with properties, you can register as interested in an event by using the
 corresponding generated function.
@@ -234,22 +252,22 @@ As with properties, there's a Variant-based option in case you don't have the ge
 If you need to obtain data coming from other sources (the environment). Those sources can be (1) the
 kernel or (2) other components.
 
-The kernel can provide us the following information:
+The kernel can give you the following information:
 
-- Our application name via `KernelApi::getAppName()`.
+- Your application name via `KernelApi::getAppName()`.
 - The known types via `KernelApi::getTypes()` (You won't normally need to use this, as it is aimed
   towards tooling).
 - The configuration passed by the user via `ConfigGetter::getConfig()`.
-- If we are required to stop via `RunApi::stopRequested()`.
+- Whether you are required to stop, via `RunApi::stopRequested()`.
 - The current (virtualized) time via `RunApi::getTime()`. More on this later.
 
-We can also actively ask the kernel:
+You can also ask the kernel:
 
 - To stop, via `KernelApi::requestKernelStop(int exitCode)`.
-- To get us to process incoming information, via `RunApi::drainInputs()`.
+- To process incoming information, via `RunApi::drainInputs()`.
 - To flush outgoing information, via `RunApi::commit()`.
-- To provide us pointers to objects that were published by other components and to let us publish
-  our own objects.
+- To give you pointers to objects published by other components, and to let you publish your own
+  objects.
 
 The last point is the most interesting for this section because it is where the largest part of the
 communication happens.
@@ -268,31 +286,33 @@ kernel always publishes some objects in the "local.kernel" bus.
 Finally, you need some storage where to put those discovered objects. The `sen::ObjectList` class
 serves this purpose.
 
-The code to see the objects that are published by the kernel in the "local.tutorial" bus could look
-like this.
+The code to discover objects on a bus could look like this.
 
-```cpp title="Using object sources to discover objects"
-sub_ = api.selectAllFrom<MySubClassImpl>(
-    "local.tutorial",
-    [this](const auto &addedObjects) {
-      for (auto obj : addedObjects)
-      {
-        obj->onSomethingHappened({this, [](){ std::cout << "something happened!\n"; }}).keep();
-      }
-    }
-  );
+Subscribe to the generated `<Class>Interface` type, never to an implementation class. Sen generates
+an interface for every class you declare in STL, and that is what other objects hold: a remote
+object has no implementation on your side to name. [The generated code](generated_code.md) covers
+the pair.
 
-// you can also use sub_.list to iterate over the objects (which will be automatically populated)
+```c++ title="calculators/src/client.cpp"
+--8<-- "examples/packages/calculators/src/client.cpp:subscribe"
 ```
+
+The member it assigns to is declared as
+`std::shared_ptr<sen::Subscription<CalculatorInterface>> calculators_;`, and reading it is
+`calculators_->list.getObjects()`. [Tutorial 2](../tutorials/two_objects.md) shows the same file
+in full, with both lines annotated.
+
+`selectAllFrom` also takes an optional callback, invoked during drain with the objects that have
+just appeared, which is useful when you want to react to a discovery instead of polling the list.
 
 NOTE: Keep in mind the subscription and the registered callbacks are tied to the lifetime of the
 subscription object, so when you want to keep a subscription alive you have to store it for the
 required time. For example, when the subscription should be alive as long as your component is
 running, you can store it as a member of your component and initialize it in the
-`my_component::register(...)` function of your component.
+`registered()` function of your object.
 
-This `sub_.list` container is a `sen::ObjectList<T>` which acts like an enhanced `std::vector<T>`
-where `T` can be the specific type of the objects that you are interested in.
+This `calculators_->list` container is a `sen::ObjectList<T>` which acts like an enhanced
+`std::vector<T>` where `T` can be the specific type of the objects that you are interested in.
 
 You can also use the Sen Query Language to get certain objects. For example:
 

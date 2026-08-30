@@ -1,7 +1,7 @@
 # Calculators example
 
-> **Prerequisites:** none - this is the first example. Read the [docs quick start](https://airbus.github.io/sen/latest/)
-if you haven't set up Sen yet.
+> **Prerequisites:** [0 - Counter](../0_counter/readme.md) (writing and wiring a Sen package), or
+the [docs quick start](https://airbus.github.io/sen/latest/) if you haven't set up Sen yet.
 
 This example illustrates how you can create a package that holds two implementations of a class
 defined in STL.
@@ -93,14 +93,14 @@ my.tutorial.goodCalc.addWithCurrent -2
 
 my.tutorial.goodCalc.divideByCurrent 4
 
-my.tutorial.bsCalc.add 2, 2
+my.tutorial.badCalc.add 2, 2
 
-my.tutorial.bsCalc.add 2, 2
+my.tutorial.badCalc.add 2, 2
 ```
 
 ## Running it over the network
 
-We can run it over the network using the eth component. This is the same as the first example, but
+We can run it over the network using the ether component. This is the same as the first example, but
 you will need to start two processes.
 
 First run:

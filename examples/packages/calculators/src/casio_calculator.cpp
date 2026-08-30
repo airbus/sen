@@ -33,7 +33,7 @@ protected:
   float32_t addImpl(float32_t a, float32_t b) override
   {
     const auto result = a + b;
-    setNextCurrent(result);  // Save the result in our "current" property.
+    setNextCurrent(result);  // Save the result in our "current" property. (1)!
     return result;
   }
 
@@ -50,7 +50,7 @@ protected:
     float32_t result = 0.0f;
     if (b == 0.0f)
     {
-      divisionByZero();  // If we divide by zero, emit the event.
+      divisionByZero();  // If we divide by zero, emit the event. (2)!
     }
     else
     {

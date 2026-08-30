@@ -1,4 +1,4 @@
-# Web Explorer for Sen
+# Web explorer for Sen
 
 This web explorer demonstrates how to use the Sen REST API from a browser environment. It provides
 real-time updates through Server-Sent Events (SSE).

@@ -11,7 +11,7 @@ combine pieces of information from different places. The main driving reason is 
 "single source of truth", and the chaos that might derive from an inconsistent or redundant
 specification for our applications to run.
 
-The natural consequence, is that developers are "forced" to extend standard file formats (json,
+The natural consequence is that developers are "forced" to extend standard file formats (json,
 yaml, xml, ini, etc.) to allow for "including" other files. And that works well for the first week
 or so. The second week, people will start to realize that they don't need to just "include other
 files" but "merge" them together, as maybe there are default parameters that need to be overwritten.
@@ -28,7 +28,7 @@ multiplications, concatenations, replacements, etc.
 
 Do you see where we are going? Complex systems need powerful tools. A humble YAML or JSON file will
 never be able to deal with all the needs we might have. We need some tooling on top. In some
-systems, these tooling can get very sophisticated (full IDEs, with domain-specific knowledge and
+systems, this tooling can get very sophisticated (full IDEs, with domain-specific knowledge and
 static validation). But sometimes a programming language is more than enough to achieve these goals.
 
 ## Solution
@@ -50,9 +50,9 @@ Apart from all the power of Python (which is huge), you also get type safety (vi
 
 ## Example
 
-Lets' say that we have a set of types defined in an STL file:
+Let's say that we have a set of types defined in an STL file:
 
-```Rust title="data.stl"
+```rust title="data.stl"
 package my.data;
 
 struct SomeStruct
@@ -72,7 +72,13 @@ struct SomeOtherStruct
 
 Sen will generate a Python file with the following definitions:
 
-```Python title="data.py"
+```python title="data.py"
+import yaml
+from dataclasses import dataclass
+from typing import Union, TypedDict, List, NewType
+from datetime import datetime, timedelta
+from enum import Enum
+
 @dataclass
 class SomeStruct:
     param1: str
@@ -88,7 +94,7 @@ class SomeOtherStruct:
 
 Which you can now populate in your script(s). For example:
 
-```Python title="my_example.py"
+```python title="my_example.py"
 from data import *
 
 data1 = SomeStruct(
@@ -104,22 +110,25 @@ data2 = SomeOtherStruct(
 )
 ```
 
-To finally write a script that generates the YAML:
+Now write a script that generates the YAML. `asdict` turns the dataclasses into the plain
+dictionaries that YAML can represent.
 
-```Python title="config.py"
-import my_example
+```python title="config.py"
+import yaml
+from dataclasses import asdict
+from my_example import data1, data2
 
 myObject = {
     'name': 'myObjectName',
-    'class': 'MyClass',
+    'class': 'my_package.MyClassImpl',
     'bus': 'local.tutorial',
-    'prop1': data1,
-    'prop2': data2,
+    'prop1': asdict(data1),
+    'prop2': asdict(data2),
 }
 
 shell = {
     'name': 'shell',
-     'group': 2
+    'group': 2
 }
 
 ether = {
@@ -135,5 +144,34 @@ myComponent = {
     'objects': [myObject]
 }
 
-exportYaml({'load': [shell, ether], 'build': [myComponent]})
+with open('config.yaml', 'w') as out:
+    yaml.safe_dump({'load': [shell, ether], 'build': [myComponent]}, out, sort_keys=False)
+```
+
+Running that script writes the configuration Sen consumes:
+
+```yaml title="config.yaml"
+load:
+- name: shell
+  group: 2
+- name: ether
+  group: 3
+build:
+- name: myComponent
+  group: 4
+  freqHz: 60
+  imports:
+  - myPackage
+  objects:
+  - name: myObjectName
+    class: my_package.MyClassImpl
+    bus: local.tutorial
+    prop1:
+      param1: GenericDynamicModelImpl
+      param2: true
+      param3: 4
+    prop2:
+      a: 2.3
+      b: 3.4
+      c: 4.5
 ```

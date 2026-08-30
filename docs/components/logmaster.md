@@ -1,4 +1,4 @@
-# The Log Master
+# The log master
 
 This component allows you to control your loggers.
 

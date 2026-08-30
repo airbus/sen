@@ -8,6 +8,7 @@ Useful for poking at the JSON-RPC surface manually (with `wscat`, the browser De
 | `1_fibonacci.yaml` | `fibonacci` | one Manager + three Workers on one bus | event-driven flows; work dispatched by Manager, results surfaced as events |
 | `2_animals.yaml` | `animals` | one Cat + one Dog | the simplest surface; small class hierarchy + method with arguments (`Cat::jumpToLocation`) |
 | `3_explorer.yaml` | (jsonrpc only) | jsonrpc + webexplorer side by side | smoke-testing the webexplorer backend; `curl http://127.0.0.1:8080/explorer/` returns the bundled HTML |
+| `4_explorer_demo.yaml` | `school`, `aircrafts`, `shapes`, `fibonacci` | four packages across five buses, plus the webexplorer backend | driving the web explorer; a populated object graph with writable properties, variants, events and a slow method |
 
 The `@sen/client` integration suite uses its own YAML fixture under
 `components/jsonrpc/clients/typescript/test/integration/configs/`; it is not part of this tree.
@@ -17,7 +18,7 @@ The `@sen/client` integration suite uses its own YAML fixture under
 From the build directory:
 
 ```bash
-./bin/sen run ../../examples/config/14_jsonrpc/1_fibonacci.yaml
+./bin/sen run config/14_jsonrpc/1_fibonacci.yaml
 ```
 
 Then connect with anything that speaks JSON-RPC 2.0 over WebSocket. The `@sen/client` TS library

@@ -5,15 +5,19 @@ the underlying data from what the senders representation is to what the receiver
 communication is still possible even when the senders and receivers type specifications do not match
 exactly, for example, because a legacy service has not been upgraded to the new version of an `STL`.
 
-## Basic Types
+## Basic types
 
 In general, these are the conversion rules for numeric types:
 
-- **Truncation**: when the receiver type is smaller, the result will be truncated to fit into the
-  value range of the receiver type. *Lossy for integer and floating-point types*
-- **Widening**: when the receiver type is larger, the result will be widened. *Lossy for
-  floating-point types*.
-- **Signedness**: when the receiver type has a different signedness, the result will be truncated.
+- **Clamping**: when the value does not fit the receiver type, it is clamped to that type's nearest
+  bound. It is *not* wrapped or bit-truncated. Sending `1000` to a `u8` receiver yields `255`, not
+  `232`; sending `-1` yields `0`. *Lossy for integer and floating-point types*.
+- **Widening**: when the receiver type is larger, the result is widened. Integer to larger integer
+  and `f32` to `f64` are exact. Converting an integer *into* a floating-point type is exact only
+  while the value stays within the range that type represents exactly, so very large integers lose
+  precision. *Lossy only in that last case*.
+- **Signedness**: when the receiver has a different signedness, the value is clamped to the
+  receiver's range by the same rule: a negative value sent to an unsigned receiver arrives as `0`.
   *Lossy for integer types*.
 - **Rounding**: when the decimal values of the senders value cannot be represented in the receiver
   type, they will be rounded. *Lossy for integer and floating-point types*.
@@ -23,22 +27,24 @@ In general, these are the conversion rules for numeric types:
 
 These conversions are not guaranteed to be lossless! Sen tries to reduce conversion loss where
 possible but does lossy conversions where necessary. For example, when sending a `u32` to a receiver
-that expects `u16`. Here, Sen will truncate sent values to fit into the value range of the receiver
-type `u16`.
+that expects `u16`, any value above `65535` arrives as `65535`.
 
 | Source \\ Target              | bool               | integral           | floating point     | string         | duration                | timestamp                          |
 | ----------------------------- | ------------------ | ------------------ | ------------------ | -------------- | ----------------------- | ---------------------------------- |
 | **bool (false)**              | `false`            | `0`                | `0.0`              | `"false"`      | :fontawesome-solid-ban: | :fontawesome-solid-ban:            |
-| **bool (true)**               | `true`             | `1`                | `1.0`              | `“true”`       | :fontawesome-solid-ban: | :fontawesome-solid-ban:            |
-| **integral (zero)**           | `false`            | `0`                | `0.0`              | `"0.0"`        | `0 ns`                  | epoch                              |
-| **integral (non-zero)**       | `true`             | numeric conversion | numeric conversion | `"`<value>`"`  | ns                      | ns since epoch                     |
-| **floating point (zero)**     | `false`            | `0`                | 0.0                | `"0.0"`        | `0 ns`                  | epoch                              |
-| **floating point (non-zero)** | `true`             | rounding           | numeric conversion | `"`<value>`"`  | ns                      | ns since epoch                     |
-| **string**                    | `“true”` -> `true` | parsing            | parsing            | nothing        | ns (if numeric string)  | ns since epoch (if numeric string) |
+| **bool (true)**               | `true`             | `1`                | `1.0`              | `"true"`       | :fontawesome-solid-ban: | :fontawesome-solid-ban:            |
+| **integral (zero)**           | `false`            | `0`                | `0.0`              | `"0"`          | `0 ns`                  | epoch                              |
+| **integral (non-zero)**       | `true`             | numeric conversion | numeric conversion | `"<value>"`    | ns                      | ns since epoch                     |
+| **floating point (zero)**     | `false`            | `0`                | 0.0                | `"0.000000"`   | `0 ns`                  | epoch                              |
+| **floating point (non-zero)** | `true`             | rounding           | numeric conversion | `"<value>"`    | ns                      | ns since epoch                     |
+| **string**                    | `"true"` -> `true` | parsing            | parsing            | nothing        | ns (if numeric string)  | ns since epoch (if numeric string) |
 | **duration**                  | non-zero -> `true` | ns                 | ns                 | ns             | nothing                 | ns since epoch                     |
 | **timestamp**                 | non-zero -> `true` | ns since epoch     | ns since epoch     | ns since epoch | ns since epoch          | nothing                            |
 
-## Custom Types
+Numbers become strings through `std::to_string`, so floating-point values carry six decimal places:
+`1.5` arrives as `"1.500000"`.
+
+## Custom types
 
 ### Quantities
 
@@ -75,7 +81,7 @@ Enums can be converted to/from in the following ways:
 Structs can be converted to/from in the following ways:
 
 - **`Struct <-> Struct`**: Fields are mapped using their names, provided the types are compatible.
-  Field updates from fields not present in the receiver class are ignored. All these conversions
+  Field updates from fields not present in the receiver struct are ignored. All these conversions
   extend through all the hierarchy of the structs (e.g. a property in the sender parent struct can
   be mapped to a property in the receiver child struct)
 - **`Struct <-> String`**: Structs are stringified to JSON form
@@ -104,9 +110,16 @@ Optionals can be converted to/from in the following ways:
 
 Sequences can be converted to/from in the following ways:
 
-- **`Sequence <-> Sequence`**: If receiver sequence is smaller, it is truncated. The type of the
-  elements stored in the sequences need to be compatible. If the sequence is of fixed-size (array),
-  elements are converted into the receiver array and remaining elements are discarded.
+- **`Sequence <-> Sequence`**: If the receiver sequence is smaller, it is truncated: the receiver
+  keeps the first elements that fit and the rest are dropped, without an error at the time. The type
+  of the elements stored in the sequences need to be compatible. If the sequence is of fixed-size
+  (array), elements are converted into the receiver array and remaining elements are discarded the
+  same way.
+
+  Note that this differs from the numeric rule above: a number that does not fit is *clamped* to the
+  receiver's bound, while a sequence that does not fit is *cut short*. A size mismatch is reported
+  as a minor compatibility issue when the two type sets are matched, so it is visible before any
+  data flows.
 - **`Sequence <-> String`**: Sequences are stringified to JSON form
 - **`Sequence <-> Optional`**: Conversion between the sequence and the underlying type of the
   optional, if the latter is a sequence or a string

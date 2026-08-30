@@ -39,6 +39,7 @@ public:  // special members
   virtual ~Component() = default;
 
 public:
+  // --8<-- [start:hooks]
   /// Preload the component and initialize all self-contained resources.
   /// This function is just called once.
   virtual FuncResult preload(PreloadApi&& /* api */) { return Ok(); }
@@ -69,6 +70,7 @@ public:
 
   /// Return true here if your component is not designed to work with virtualized time.
   [[nodiscard]] virtual bool isRealTimeOnly() const noexcept { return false; }
+  // --8<-- [end:hooks]
 
 protected:  // helpers
   /// Convenience function to return an operation delay request.

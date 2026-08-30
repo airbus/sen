@@ -1,4 +1,4 @@
-# The MCP Gateway
+# The MCP gateway
 
 The MCP gateway lets a Large Language Model agent work against a running Sen kernel from its
 chat surface. It can browse the object graph, read and write properties, call methods, watch
@@ -24,9 +24,10 @@ MCP server as a child process and talks to it in framed JSON-RPC 2.0 over stdin 
 Neither side listens on a socket. What the server offers the host is *tools*, which are named
 callables with a JSON-Schema argument list, and *resources*, which are readable text at a URI.
 
-This gateway is that server. It opens a WebSocket to each kernel's `jsonrpc` component and
-re-publishes the object graph as tools, plus Sen's own documentation as resources under
-`sen://docs/`, so you are not pasting reference material into the prompt.
+This gateway is that server. It opens a WebSocket to each kernel's `jsonrpc`
+[component](../users_guide/glossary.md#component) and re-publishes the object graph as tools, plus
+Sen's own documentation as resources under `sen://docs/`, so you are not pasting reference material
+into the prompt.
 
 ## When to reach for it
 
@@ -38,28 +39,28 @@ It is, however, the LLM-facing piece of the same external-access story as `jsonr
 
 | Surface | Transport | Best for |
 |---|---|---|
-| `shell` | Local TCP, text protocol | Quick interactive poking from a terminal |
+| `shell` | TCP, text protocol | Quick interactive poking from a terminal |
 | `jsonrpc` | WebSocket + JSON-RPC 2.0 | Long-lived programmatic sessions, streaming notifications |
 | `mcp_gateway` (this app) | MCP over stdio, fronts `jsonrpc` | Letting an LLM agent observe and drive Sen |
 
 ## What the LLM gets
 
 On every MCP `initialize` the LLM receives a conceptual primer about Sen: the namespace
-(`<session>.<bus>.<object>`), the four property categories, the type system, the execution
-model, the query grammar, the interest lifecycle, and recommended operating habits. The primer
-also tells the agent that it can pull more depth from the baked `sen://docs/...` resources
-on demand.
+(`<session>.<bus>.<object>`), the four property categories, the type system, the execution model,
+the query grammar, the [interest](../users_guide/glossary.md#interest) lifecycle, and recommended
+operating habits. The primer also tells the agent that it can pull more depth from the baked
+`sen://docs/...` resources on demand.
 
 Each tool then carries its own per-call contract in its MCP description. The LLM never needs
 to read C++ headers or guess SQL syntax: it discovers the live data through the tools and
-the documented behaviour through the primer plus the resources.
+the documented behavior through the primer plus the resources.
 
 The tools fall into a few groups.
 
 `connectToKernel`, `listKernels` and `disconnectFromKernel` manage connections by name, and one
-gateway can hold several at once: a staging kernel and a production one, reasoned about in the
-same session. Every other tool takes an optional `kernel` argument, which you can omit when only
-one is connected.
+gateway can hold several at once: a staging kernel and a production one, reasoned about in the same
+[session](../users_guide/glossary.md#session). Every other tool takes an optional `kernel` argument,
+which you can omit when only one is connected.
 
 Type introspection enumerates the registered types and fetches a `CustomTypeSpec` for any of
 them: properties, methods, events, inheritance. An opt-in flag attaches the JSON-Schema
@@ -83,14 +84,24 @@ reference, and runs a script you write in a sandboxed `python3` child.
 
 For the precise inventory and per-tool argument shapes, ask the host's `tools/list` (MCP
 hosts surface this directly) or read each tool's description in the gateway source. The
-canonical contract is the description shipped with each tool, not this page.
+canonical contract lives in the description shipped with each tool; this page summarises it.
 
 ## STL docstrings matter
 
-Whatever `getType` returns is what the agent believes. A property called `s` leaves it
-guessing; `stressLevel` does not. A `[doc]` annotation on that property is quoted back to
-whoever asked, so the difference between an agent inventing what `focusLevel` means and one
-stating your team's intent is a line of STL.
+The agent believes whatever `getType` returns. A property called `s` leaves it guessing;
+`stressLevel` does not. A `[doc]` annotation on that property is quoted back to whoever
+asked, so one line of STL is what makes the agent state your team's intent for `focusLevel`
+instead of inventing its own.
+
+## Building the gateway
+
+The gateway is built when `jsonrpc` is on and
+`SEN_BUILD_MCP_GATEWAY` is `ON`, which is the default; `-DSEN_BUILD_MCP_GATEWAY=OFF` skips it.
+The gateway bundles the JSON-RPC TypeScript client, so it also needs
+`SEN_BUILD_JSONRPC_TS_CLIENT`. Turning that one off while the gateway is on stops the
+configure step with an error naming both flags. Separately, the build skips the gateway with a
+message in the CMake output when `npm` is not on `PATH`, so a build that finds no `npm`
+produces no gateway and no error.
 
 ## Registering the gateway with an MCP host
 
@@ -99,19 +110,21 @@ A Sen install ships two launchers in `${CMAKE_INSTALL_PREFIX}/bin/`, alongside t
 `sen-mcp-gateway.cmd` for Windows, where an MCP host cannot spawn the shell script. Both are
 installed on every platform, so a tree built on one machine still works on another.
 
-A launcher refuses to start when `node` is missing from `PATH` or is older than 22.20.0, and
-says which of the two is wrong. That is a floor, not a range: `package.json` declares
-`>=22.20.0` to match, and a newer Node is fine. The bundle is built for node22, so it is an
-older runtime that fails, somewhere inside a bundled dependency and with nothing pointing at
-the version. Sen builds and tests against 22.20.0.
+A launcher refuses to start when `node` is missing from `PATH` or is older than the minimum the
+gateway needs, and says which of the two is wrong. That minimum is a floor: a newer Node is fine. It
+is declared in one place, the `engines` field of
+[`apps/mcp_gateway/package.json`](https://github.com/airbus/sen/blob/main/apps/mcp_gateway/package.json).
+The bundle targets node22, so it is an older runtime that fails, somewhere inside a bundled
+dependency and with nothing pointing at the version.
 
 Conan consumers get the wrapper and Node from two different environments. Sen puts the wrapper
-on `PATH` through its own run environment, which `conanrun` activates. Node comes from
-`tool_requires("nodejs/22.20.0")` in your conanfile, which feeds the build environment that
+on `PATH` through its own run environment, which `conanrun` activates. Node comes from a
+`tool_requires("nodejs/<version>")` in your conanfile. Sen's own `conanfile.py` pins the version it
+builds and tests with, and matching it is the safe choice. That feeds the build environment that
 `conanbuild` activates. Activating only `conanrun` gives you the wrapper without Node, and the
 wrapper then fails to start.
 
-The two pieces of host-side wiring you supply are:
+The host-side wiring you supply is:
 
 1. The command: `sen-mcp-gateway`, or the absolute install path. On Windows, name
    `sen-mcp-gateway.cmd`.
@@ -126,36 +139,28 @@ claude mcp add sen-mcp-gateway --transport stdio -- sen-mcp-gateway
 Once registered, the LLM can call `connectToKernel({name, url})` against any reachable Sen
 WebSocket endpoint. No URL needs to be baked into the gateway's startup.
 
-Two flags govern the build. The gateway is built when `jsonrpc` is on and
-`SEN_BUILD_MCP_GATEWAY` is `ON`, which is the default; `-DSEN_BUILD_MCP_GATEWAY=OFF` skips it.
-The gateway bundles the JSON-RPC TypeScript client, so it also needs
-`SEN_BUILD_JSONRPC_TS_CLIENT`. Turning that one off while the gateway is on stops the
-configure step with an error naming both flags. Separately, the build skips the gateway with a
-message in the CMake output when `npm` is not on `PATH`, so a build that finds no `npm`
-produces no gateway and no error.
-
 ### Configuration
 
 The gateway reads four environment variables; all are optional. Per-call inputs (kernel URLs,
-interest names, recording roots, etc.) are arguments to each tool call, not environment.
+interest names, recording roots, etc.) are passed as arguments to each tool call instead.
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `SEN_RECORDING_TIMEOUT_MS` | `60000` | Wall-clock cap (ms) for `runRecordingScript` python invocations. Accepts a positive number up to `600000`. A value outside that range is not clamped and does not fall back to the default: the gateway reports an error at startup and every `runRecordingScript` call fails until the value is corrected. |
 | `SEN_MCP_GATEWAY_READONLY` | unset | When set (`1`, `true`, `yes`, `on`), `setProperty` is rejected, and `invokeMethod` and the three recording tools are withdrawn from the advertised surface. Implies `SEN_MCP_GATEWAY_NO_RECORDING`. The reasoning is under [Security model](#security-model-and-deployment). |
 | `SEN_MCP_GATEWAY_NO_RECORDING` | unset | When set, the recording tools (`listRecordings`, `runRecordingScript`, `getRecordingDocs`) are omitted from the advertised tool surface entirely. The live-kernel tools, including the write tools, are unaffected. |
-| `SEN_MCP_GATEWAY_AUDIT_LOG` | unset | When set, append-only JSON-lines audit log file path. State-changing tool calls are recorded with the tool name, the kernel name, the names the call acts on, and the outcome (`ok`, `failed`, or `denied`). Property and method names are recorded without their values or arguments, and `runRecordingScript` records a SHA-256 hash of the script rather than the script. Two entries are not reduced: `connectToKernel` records the kernel URL in full, and `declareInterest` records the query text in full. Falls back to stderr on write failure. |
+| `SEN_MCP_GATEWAY_AUDIT_LOG` | unset | When set, append-only JSON-lines audit log file path. State-changing tool calls are recorded with the tool name, the kernel name, the names the call acts on, and the outcome (`ok`, `failed`, or `denied`). Property and method names are recorded without their values or arguments, and `runRecordingScript` records a SHA-256 hash of the script rather than the script. `connectToKernel` and `declareInterest` are not reduced: the kernel URL and the query text are both recorded in full. Falls back to stderr on write failure. |
 
 Either recording variable removes the same three tools at registration, so they never appear
 in `tools/list`: `SEN_MCP_GATEWAY_NO_RECORDING` drops the advertised count by three, and
-`SEN_MCP_GATEWAY_READONLY` by four, taking `invokeMethod` with them. No withdrawn tool is ever
-present and refusing. `setProperty` is the exception and stays visible, because refusing every
-write is a check that means exactly what it says, and a model told why it was refused behaves
-better than one that cannot see the tool at all.
+`SEN_MCP_GATEWAY_READONLY` by four, taking `invokeMethod` with them. Those tools are gone from
+the surface rather than present and refusing. `setProperty` is the exception and stays visible,
+because a model that attempts a write and is told the gateway is read-only behaves better than
+one that cannot see the tool at all.
 
 If a model invents a withdrawn name anyway, it gets the dispatcher's generic
-`unknown tool: runRecordingScript` rather than anything about read-only mode, which is worth
-knowing when a session that used to analyse recordings suddenly cannot find the tools. The
+`unknown tool: runRecordingScript` and nothing about read-only mode, which is the likely
+explanation when a session that used to analyse recordings suddenly cannot find the tools. The
 gateway writes one line to stderr at startup naming the variable responsible. When both are
 set, that line names `SEN_MCP_GATEWAY_NO_RECORDING`.
 
@@ -216,18 +221,18 @@ Run the gateway inside a container. A reference Dockerfile is provided at
   LLM writes starts with `import sen_db_python`, so a `python3` without the bindings fails on
   the first line.
 
-For higher-trust deployments, narrow the tool surface with the environment variables above.
-They are not two independent choices. `SEN_MCP_GATEWAY_NO_RECORDING=1` removes the three
-recording tools, so no python child is ever spawned. `SEN_MCP_GATEWAY_READONLY=1` removes
-those same three, withdraws `invokeMethod` and refuses every property write, so it implies the
-first and setting both adds nothing. Use read-only when the agent should only observe, and
-no-recording when it should still drive the kernel but never run Python.
+For higher-trust deployments, narrow the tool surface with the environment variables above;
+[Configuration](#configuration) lists exactly which tools each one withdraws. They are not two
+independent choices: `SEN_MCP_GATEWAY_READONLY=1` implies `SEN_MCP_GATEWAY_NO_RECORDING=1`, so
+setting both adds nothing. Either way no python child is ever spawned. Use read-only when the
+agent should only observe, and no-recording when it should still drive the kernel but never run
+Python.
 
 Read-only withdraws `invokeMethod` outright rather than allowing methods marked `constant`,
 because that attribute does not carry the meaning the decision needs. `constant` promises a
 method does not modify its own object; it promises nothing about what else the method does.
 Sen's own shell declares `fn shutdown() [const]`, correctly, since it touches no member of the
-Shell object, and calling it stops the kernel. An agent in read-only mode keeps the
+`Shell` object, and calling it stops the kernel. An agent in read-only mode keeps the
 reads it needs: `getTypes`, `getType`, `listObjects`, `getProperty` and `getObjectsState` are
 tools in their own right and are unaffected.
 

@@ -1,16 +1,16 @@
-package my_counter;
+package my_counter;  // (1)!
 
 class Counter
 {
-  // The current value of the counter.
+  // The current value of the counter (2)!.
   var value : i32;
 
-  // How much should the counter increase each cycle.
+  // How much should the counter increase each cycle (3)!.
   var step    : i32 [static];
 
-  // Returns a greeting message.
+  // Returns a greeting message (4)!.
   fn hello() -> string [const];
 
-  // Emitted each time the current value is divisible by 10.
+  // Emitted each time the current value is divisible by 10 (5)!.
   event valueIsDivisibleByTen(newValue: i32);
 }

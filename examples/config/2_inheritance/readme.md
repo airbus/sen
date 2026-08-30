@@ -90,22 +90,22 @@ This will open a shell and tell Sen to instantiate the cat and dog implementatio
 You can interact with the objects by doing commands such as:
 
 ```text
-info my.tutorial.elon.print
-info my.tutorial.rufus.print
+my.tutorial.elon.print
+my.tutorial.rufus.print
 
-info my.tutorial.elon.advance 2, 2
-info my.tutorial.elon.getPosition
-info my.tutorial.elon.goodDog
+my.tutorial.elon.advance 2, 2
+my.tutorial.elon.getPosition
+my.tutorial.elon.goodDog
 
-info my.tutorial.rufus.advance 2, 2
-info my.tutorial.rufus.getPosition
-info my.tutorial.rufus.jumpToPosition 4, 4
-info my.tutorial.rufus.getPosition
+my.tutorial.rufus.advance 2, 2
+my.tutorial.rufus.getPosition
+my.tutorial.rufus.jumpToLocation 4, 4
+my.tutorial.rufus.getPosition
 ```
 
 ## Running it over the network
 
-We can run it over the network using the eth component. This is the same as the first example, but
+We can run it over the network using the ether component. This is the same as the first example, but
 you will need to start two processes.
 
 First run:
@@ -133,7 +133,7 @@ You should be able to work with the objects as if you were on the same process.
 You can also run it using the explorer to see and interact with the objects in a more graphical way.
 
 ```shell
-sen run config/2_inheritance/2_inheritance_exp.yaml
+sen run config/2_inheritance/3_inheritance_exp.yaml
 ```
 
 You can monitor the events produced by the instances by opening the relevant window, checking the

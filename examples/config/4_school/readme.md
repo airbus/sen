@@ -56,7 +56,7 @@ sen run config/4_school/3_school_two_classrooms_one_component_query.yaml
 
 You should be able to see how the list of present objects changes as they match the query.
 
-### Over the network using the eth and a query
+### Over the network using the ether component and a query
 
 This is the same as the previous example, but you will need to start two processes.
 
@@ -69,7 +69,7 @@ sen run config/4_school/4_school_shell_eth_query.yaml
 Then, in another terminal or command prompt, run:
 
 ```shell
-sen run config/4_school/4_school_two_classrooms_one_component_query.yaml
+sen run config/4_school/4_school_two_classrooms_one_component_eth.yaml
 ```
 
 ### Locally, but distributed over two Sen components
@@ -79,7 +79,7 @@ This is like the first example, but using two threads. One per classroom.
 First run:
 
 ```shell
-sen run config/4_school/5_school_two_classrooms_two_components_query.yaml
+sen run config/4_school/5_school_two_classrooms_two_components.yaml
 ```
 
 ### Locally, but distributed over two Sen components, using the explorer
@@ -87,7 +87,7 @@ sen run config/4_school/5_school_two_classrooms_two_components_query.yaml
 This is like the previous example, now with the explorer to have a better look..
 
 ```shell
-sen run config/4_school/6_school_two_classrooms_two_components_query_exp.yaml
+sen run config/4_school/6_school_two_classrooms_two_components_exp.yaml
 ```
 
 ### Over the network with a remote teacher
@@ -110,7 +110,7 @@ sen run config/4_school/7_school_one_classroom_teacher_eth.yaml
 ### From an LLM using the MCP gateway
 
 Same two classrooms, but over JSON-RPC so something outside Sen can reach them. The
-[MCP gateway](../../apps/mcp_gateway/README.md) is one such thing; the web explorer is another.
+[MCP gateway](https://airbus.github.io/sen/latest/components/mcp_gateway.html) is one such thing; the web explorer is another.
 
 ```shell
 sen run config/4_school/8_school_jsonrpc.yaml

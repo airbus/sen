@@ -1,4 +1,4 @@
-# Python Interpreter examples
+# Python interpreter examples
 
 > **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic objects). Sub-examples 5 and 6 also use [4 - School](../4_school/readme.md).
 
@@ -10,7 +10,7 @@ example scripts:
 For bash:
 
 ```shell
-export PYTHONPATH=$PYTHONPATH;$(pwd)/config/10_python/scripts
+export PYTHONPATH=$PYTHONPATH:$(pwd)/config/10_python/scripts
 ```
 
 For fish:
@@ -151,20 +151,20 @@ This example contains the following files:
 If you open the shell you can use the interpreter with something like this:
 
 ```text
-sen:enrique-debian/6_python_interpreter> local.py.interpreter.eval "2+2"
+sen:host/6_python_interpreter> local.py.interpreter.eval "2+2"
 "4"
 ```
 
 The `eval` function evaluates an expression and returns the result.
 
 ```text
-sen:enrique-debian/6_python_interpreter> local.py.interpreter.exec "x = 2"
+sen:host/6_python_interpreter> local.py.interpreter.exec "x = 2"
 ```
 
 The `exec` function executes statements.
 
 ```text
-sen:enrique-debian/6_python_interpreter> local.py.interpreter.eval "2+x"
+sen:host/6_python_interpreter> local.py.interpreter.eval "2+x"
 "4"
 ```
 

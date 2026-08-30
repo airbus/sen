@@ -7,7 +7,7 @@ class Calculator
   var model : string [static];
 
   // The last result, or what is currently presented at the screen.
-  var current : f32;
+  var current : f32;  // (1)!
 
   // Returns "a + b" and sets the last result to it.
   //
@@ -39,7 +39,7 @@ class Calculator
 class Client
 {
   // Where to find the calculator objects.
-  var calcBus : string [static];
+  var calcBus : string [static];  // (2)!
 
   // Uses any available calculator.
   fn useCalculator();

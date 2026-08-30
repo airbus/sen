@@ -109,5 +109,24 @@ repos:
       files: ^\.github/scripts/
       pass_filenames: false
 
+    # A `docs/` path written in a comment, a config or a script is invisible to
+    # mkdocs, so that whole class of reference rots silently. One did.
+    - id: docs-references
+      name: Documentation references resolve
+      language: python
+      entry: python .github/scripts/check_docs_references.py
+      pass_filenames: false
+      always_run: true
+
+    # Nothing executes the commands the README, CONTRIBUTING and the guides print,
+    # and CI builds Sen its own way, so a wrong flag survives a green pipeline.
+    # See F-229.
+    - id: command-consistency
+      name: Commands in prose are ones a reader can run
+      language: python
+      entry: python .github/scripts/check_command_consistency.py
+      files: \.md$
+      pass_filenames: false
+
 # Global Configuration
 exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*|.*.svg|.*.excalidraw|stl.tmLanguage.json)

@@ -3,23 +3,29 @@
 
 # Getting Sen
 
-There are three ways to get Sen, depending on what you want to do:
+How you get Sen depends on what you want to do:
 
-- **Try Sen quickly** on Linux without setting up Conan: use the [quick installer](#quick-install-linux).
-- **Use Sen as a dependency in your project**: use the [Conan package](#using-sen-in-your-project-conan).
-- **Install Sen on a machine without an internet-facing toolchain** (Windows, air-gapped Linux): use the
-  [release zip packages](#manual-release-packages).
-
-If you want to compile Sen yourself, see [Building Sen from source](../howto_guides/building_from_source.md).
+- **Try Sen quickly** on Linux without setting up Conan: use the [quick
+  installer](#quick-install-linux).
+- **Use Sen as a dependency in your project**: use the [Conan
+  package](#using-sen-in-your-project-conan).
+- **Install Sen on a machine without an internet-facing toolchain** (Windows, air-gapped Linux): use
+  the [release zip packages](#manual-release-packages).
+- **Compile Sen yourself**, to track `main` or to run on a platform with no release artifact: see
+  [building from source](#building-from-source).
 
 ## Quick install (Linux)
 
 A single POSIX `sh` script. No Conan, no `sudo`, no system files touched.
 
+Releases publish `x86_64` Linux and `amd64` Windows archives only. The script picks the asset that
+matches your host, so on any other architecture, arm64 Linux included, it finds nothing to download
+and stops. Build [from source](../howto_guides/building_from_source.md) there.
+
 **1. Install:**
 
 ```shell
-curl -sSf https://raw.githubusercontent.com/airbus/sen/main/resources/installer/install.sh | sh -s -- 0.5.2
+curl -sSf https://raw.githubusercontent.com/airbus/sen/main/resources/installer/install.sh | sh -s -- 0.6.0
 ```
 
 **2. Activate** (and append the same line to your shell rc to load Sen on every new shell):
@@ -42,23 +48,23 @@ sen --version
       ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
       Configuration
-        Version    0.5.2
+        Version    0.6.0
         Toolchain  gcc 12.4.0
         Arch / OS  x86_64-linux
-        Prefix     /home/alice/.sen/0.5.2-x86_64-linux-gcc-12.4.0
+        Prefix     /home/alice/.sen/0.6.0-x86_64-linux-gcc-12.4.0
 
-      ✓ Downloaded sen-0.5.2-x86_64-linux-gcc-12.4.0-release.tar.gz (42M)
+      ✓ Downloaded sen-0.6.0-x86_64-linux-gcc-12.4.0-release.tar.gz (42M)
       ✓ Verified sha256 checksum
-      ✓ Extracted into /home/alice/.sen/0.5.2-x86_64-linux-gcc-12.4.0
+      ✓ Extracted into /home/alice/.sen/0.6.0-x86_64-linux-gcc-12.4.0
       ✓ Cached CLI completions  (bash, zsh, fish)
       ✓ Wrote integrity manifest
       ✓ Wrote activate scripts
       ✓ Refreshed cached installer
-      ✓ Updated 'current' to  0.5.2-x86_64-linux-gcc-12.4.0
+      ✓ Updated 'current' to  0.6.0-x86_64-linux-gcc-12.4.0
 
       ──────────────────────────────────────────────────────────────────────
 
-      ✓ Sen 0.5.2-x86_64-linux-gcc-12.4.0 installed.
+      ✓ Sen 0.6.0-x86_64-linux-gcc-12.4.0 installed.
 
       Activate this build:
         bash/zsh   . /home/alice/.sen/current/activate
@@ -73,27 +79,27 @@ sen --version
     curl -sSf .../install.sh | sh
     ```
 
-    A release with multiple toolchains (gcc, clang, ...) opens an interactive menu. Skip it by pinning a
-    toolchain explicitly, or run fully non-interactively:
+    A release with multiple toolchains (gcc, clang, ...) opens an interactive menu. Skip it by
+    pinning a toolchain explicitly, or run fully non-interactively:
 
     ```shell
-    sh install.sh 0.5.2 --compiler gcc-12.4.0
-    sh install.sh 0.5.2 --yes
+    sh install.sh 0.6.0 --compiler gcc-12.4.0
+    sh install.sh 0.6.0 --yes
     ```
 
 ??? note "Switching versions and pinning a specific build"
 
-    `~/.sen/current` is a symlink to the most recently installed build. Running `sh install.sh <other-version>`
-    flips the symlink, even if that version was already installed.
+    `~/.sen/current` is a symlink to the most recently installed build. Running `sh install.sh
+    <other-version>` flips the symlink, even if that version was already installed.
 
     To pin a specific build, source the per-build path directly instead of `current/`:
 
     ```shell
-    . ~/.sen/0.5.2-x86_64-linux-gcc-12.4.0/activate
+    . ~/.sen/0.6.0-x86_64-linux-gcc-12.4.0/activate
     ```
 
-    The activate scripts strip any prior `~/.sen/`-rooted entries from `PATH` and friends, so re-sourcing or
-    switching is idempotent.
+    The activate scripts strip any prior `~/.sen/`-rooted entries from `PATH` and friends, so
+    re-sourcing or switching is idempotent.
 
 ??? note "What activate sets, and how to uninstall"
 
@@ -114,29 +120,30 @@ For environment variables, the security model, and the full set of options, see
 
 ## Using Sen in your project (Conan)
 
-Sen ships as a Conan package. Publication on Conan-Center is on the roadmap; in the meantime the package is
-consumed from the project's repository.
+Sen ships as a Conan package. Publication on Conan-Center is on the roadmap; in the meantime the
+package is consumed from the project's repository.
 
-The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does not generate a synthetic
-`senConfig.cmake` for downstream consumers. Instead, your build picks up Sen's own
-`<prefix>/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates: `find_package(sen)`
-"just works" once the toolchain file is loaded.
+The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does not generate a
+synthetic `senConfig.cmake` for downstream consumers. Instead, your build picks up Sen's own
+`<prefix>/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates:
+`find_package(sen)` "just works" once the toolchain file is loaded.
 
-1. Add a Conan configuration file (`conanfile.txt` or `conanfile.py`) at the top level of your project and list
-   **Sen** as a dependency.
-2. Make sure you have a Conan profile that matches your host. If this is your first time using Conan, run
-   `conan profile detect` once: it inspects your installed compiler, OS, and architecture and writes
-   `~/.conan2/profiles/default`. Without a profile, the next step errors with `Profile 'default' doesn't exist`.
+1. Add a Conan configuration file (`conanfile.txt` or `conanfile.py`) at the top level of your
+   project and list **Sen** as a dependency.
+2. Make sure you have a Conan profile that matches your host. If this is your first time using
+   Conan, run `conan profile detect` once: it inspects your installed compiler, OS, and architecture
+   and writes `~/.conan2/profiles/default`. Without a profile, the next step errors with `Profile
+   'default' doesn't exist`.
 3. Resolve, build, and install the dependencies before running CMake:
 
    ```shell
-   conan build . --profile <your_conan_profile> --build=missing
+   conan install . --profile:all <your_conan_profile> --build=missing
    ```
 
-   Always pass `--build=missing`. Without it, Conan refuses to build any dependency that doesn't already have a
-   matching binary in its cache, which is rarely what you want on a fresh checkout.
+   Always pass `--build=missing`. Without it, Conan refuses to build any dependency that doesn't
+   already have a matching binary in its cache, which is rarely what you want on a fresh checkout.
 
-??? info "Conan set-up"
+???+ info "Conan set-up"
 
     Install or upgrade Conan with:
 
@@ -160,28 +167,36 @@ The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does no
     tools.build:compiler_executables={"c": "gcc-15", "cpp": "g++-15"}
     ```
 
-    Sen recommends Ninja Multi-Config as the CMake generator. Set it once in `<HOME>/.conan2/global.conf`:
+    Sen recommends Ninja Multi-Config as the CMake generator. Set it once in
+    `<HOME>/.conan2/global.conf`:
 
     ```text title="~/.conan2/global.conf"
     tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
     ```
 
-    The Sen repository ships ready-to-use profiles in `.conan/profiles` (`sen_gcc`, `sen_clang`, `sen_msvc`,
-    `sen_build_docs`). They target Sen's CI baseline (Linux x86_64, gcc 12 / clang): useful if you need to
-    reproduce a CI build, less so as a default. Install one with:
+    The Sen repository ships ready-to-use profiles in `.conan/profiles`. `sen_gcc`, `sen_clang` and
+    `sen_msvc` pin the compilers CI builds with and otherwise follow the machine you run them on;
+    the suffixed ones such as `sen_gcc_x86` and `sen_gcc_arm` name an architecture as well. They are
+    useful for reproducing a CI build, less so as a default. Install the whole folder:
 
     ```shell
-    conan config install -tf profiles .conan/profiles/<profile>
+    conan config install -tf profiles .conan/profiles/
     ```
+
+    Install the whole folder, not one file. The three base profiles, `sen_gcc`, `sen_clang`
+    and `sen_msvc`, are self-contained and do work on their own. The other five, the four
+    architecture variants plus `sen_build_docs`, are an `include` of their base plus what they
+    override, so installing `sen_gcc_x86` by itself fails with `Profile not found: sen_gcc`. Note
+    that the error names the base it could not find, not the profile you asked for.
 
     For different compiler versions, prefer `conan profile detect` over the bundled profiles. See
     [Building Sen from source](../howto_guides/building_from_source.md) for the full walk-through.
 
 ??? note "Example conanfile"
 
-    Replace `x.y.z` with the Sen version you want. The recipe derives its version from `git describe --tags`, so
-    a tagged release reads as `0.5.2` while an in-between commit reads as `0.5.2-5-gc6625265` (5 commits past tag
-    `0.5.2`, at hash `c6625265`).
+    Replace `x.y.z` with the Sen version you want. The recipe derives its version from `git describe
+    --tags`, so a tagged release reads as `0.6.0` while an in-between commit reads as
+    `0.6.0-5-gc6625265` (5 commits past tag `0.6.0`, at hash `c6625265`).
 
     === "_conanfile.txt_"
 
@@ -221,9 +236,9 @@ The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does no
 
 ## Manual release packages
 
-For Windows or environments where the quick installer is not an option, download the release archive for your
-platform from the [Releases page](https://github.com/airbus/sen/releases) and extract it anywhere. The extracted
-directory is `<sen_path>` in the snippets below.
+For Windows or environments where the quick installer is not an option, download the release archive
+for your platform from the [Releases page](https://github.com/airbus/sen/releases) and extract it
+anywhere. The extracted directory is `<sen_path>` in the snippets below.
 
 === "Linux"
 
@@ -252,16 +267,16 @@ list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/cmake")
 find_package(sen REQUIRED)
 ```
 
-Sen installs its CMake config under `<prefix>/cmake/sen/sen-config.cmake`. CMake's standard search does not reach
-that from `<prefix>` alone, so the `/cmake` suffix is required.
+Sen installs its CMake config under `<prefix>/cmake/sen/sen-config.cmake`. CMake's standard search
+does not reach that from `<prefix>` alone, so the `/cmake` suffix is required.
 
 ## Building from source
 
-If you want to compile Sen yourself (to track `main`, patch the code, or run on a platform without a release
-artifact), see [Building Sen from source](../howto_guides/building_from_source.md).
+If you want to compile Sen yourself (to track `main`, patch the code, or run on a platform without a
+release artifact), see [Building Sen from source](../howto_guides/building_from_source.md).
 
-If your editor supports devcontainers, the repository ships one under `.devcontainer/`. It builds the
-same environment the pipeline uses, from `tools/ci/Dockerfile`, so you do not have to install
+If your editor supports devcontainers, the repository ships one under `.devcontainer/`. It builds
+the same environment the pipeline uses, from `tools/ci/Dockerfile`, so you do not have to install
 compilers or Conan yourself.
 
 ??? note "Build options"
@@ -273,20 +288,20 @@ compilers or Conan yourself.
 
      | Mode        | Components enabled                                                                |
      | ----------- | --------------------------------------------------------------------------------- |
-     | `barebones` | none - libs only, for embedding Sen as a library                                  |
-     | `basic`     | `shell`, `ether` (minimum interactive set)                                        |
+     | `barebones` | none (libs only, for embedding Sen as a library)                                   |
+     | `basic`     | `shell`, `ether` (minimum interactive set)                                         |
      | `full`      | every component (default)                                                         |
 
      ```shell
-     conan install . --profile=sen_gcc -o sen/*:mode=barebones --build=missing
-     conan install . --profile=sen_gcc -o sen/*:mode=basic --build=missing
+     conan install . --profile:all=sen_gcc -o sen/*:mode=barebones --build=missing
+     conan install . --profile:all=sen_gcc -o sen/*:mode=basic --build=missing
      ```
 
      Per-component Conan options are deliberately not exposed (combinatorial
      package_id). Developers skip building specific components at the CMake step:
 
      ```shell
-     conan install . --profile=sen_gcc --build=missing
+     conan install . --profile:all=sen_gcc --build=missing
      cmake --preset conan-gcc-release -DSEN_BUILD_TRACY=OFF -DSEN_BUILD_EXPLORER=OFF
      ```
 
@@ -298,22 +313,22 @@ compilers or Conan yourself.
      Examples, tests, static analysis, coverage, sanitizers, and documentation are exposed as Conan
      options. All default to off. Turn on what you need with `-o sen/*:…=True`.
 
-     | Option            | Default  | Maps to                                                                       |
+     | Option            | Default  | Maps to |
      | ----------------- | -------- | ----------------------------------------------------------------------------- |
-     | `with_examples`   | `False`  | `-DSEN_BUILD_EXAMPLES=ON`                                                     |
-     | `with_tests`      | `False`  | `-DSEN_BUILD_TESTS=ON`                                                        |
-     | `with_clang_tidy` | `False`  | `-DSEN_DISABLE_CLANG_TIDY=OFF` (polarity flipped)                             |
-     | `with_coverage`   | `False`  | `-DSEN_COVERAGE_ENABLE=ON`                                                    |
+     | `with_examples`   | `False`  | `-DSEN_BUILD_EXAMPLES=ON` |
+     | `with_tests`      | `False`  | `-DSEN_BUILD_TESTS=ON` |
+     | `with_clang_tidy` | `False`  | `-DSEN_DISABLE_CLANG_TIDY=OFF` (polarity flipped) |
+     | `with_coverage`   | `False`  | `-DSEN_COVERAGE_ENABLE=ON` |
      | `with_docs`       | `False`  | `-DSEN_BUILD_DOCS=ON` and pulls `doxygen` as a tool requirement               |
      | `sanitizer`       | `"none"` | `-DSEN_USE_SANITIZER=None`/`ASanUBSan`/`Thread` for `none`/`address`/`thread` |
 
-     Options are applied at `conan install` time — that's the step that generates the build files. The
-     subsequent `conan build` (or a direct `cmake --build`) just compiles with the settings already baked
-     in; the `-D` mappings above are for users invoking CMake without Conan.
+     Options are applied at `conan install` time, the step that generates the build files. The
+     subsequent `conan build` (or a direct `cmake --build`) just compiles with the settings already
+     baked in; the `-D` mappings above are for users invoking CMake without Conan.
 
      ```shell
      # Configure a build that compiles the test suite with the address sanitizer
-     conan install . --profile=sen_gcc -o sen/*:with_tests=True -o sen/*:sanitizer=address --build=missing
+     conan install . --profile:all=sen_gcc -o sen/*:with_tests=True -o sen/*:sanitizer=address --build=missing
      ```
 
      **Building the docs**
@@ -323,36 +338,37 @@ compilers or Conan yourself.
      `sen_build_docs` profile that sets both, so the one-liner for docs is:
 
      ```shell
-     conan install . --profile=sen_build_docs --build=missing
+     conan install . --profile:all=sen_build_docs --build=missing
      ```
 
-     `mkdocs` and `graphviz` are not Conan-managed - install them via `pip install -r docs/requirements.txt`
-     and your platform package manager.
+     `mkdocs` and `graphviz` are not Conan-managed, so install them via `pip install -r
+     docs/requirements.txt` and your platform package manager.
 
-??? note "What the build needs (toolchain, network, time)"
+???+ note "What the build needs (toolchain, network, time)"
 
     **Toolchain.** Sen's own build gets its tools as Conan tool requirements: CMake, Ninja,
-    GTest — and Node.js 22 whenever the `jsonrpc` component is enabled (any mode above `basic`),
+    GTest, and Node.js 22 whenever the `jsonrpc` component is enabled (any mode above `basic`),
     because the build generates the `@sen/client` TypeScript types, installs its npm
-    dependencies, and bakes the Web Explorer bundle into the binary. Building the third-party
+    dependencies, and bakes the web explorer bundle into the binary. Building the third-party
     packages from source is different: their recipes use the system's `cmake` and `pkg-config`,
     so have both installed before the first `conan install`.
     Don't install Node for the build; the pinned toolchain version comes with `conan install`.
-    (The TS packages' *dev loops* — `npm run dev`, `vitest` on the host — do use your own
+    (The TS packages' *dev loops*, `npm run dev` and `vitest` on the host, do use your own
     Node >= 22; see `components/jsonrpc/clients/typescript/README.md`.)
 
     **Network.** The first `conan install`/`conan build` fetches from Conan Center **and**, for
     the browser stack, from the npm registry during the build itself (`npm ci`). Behind a
-    proxy, make both reachable — or skip the web stack entirely: build `-o "sen/*:mode=basic"`,
+    proxy, make both reachable, or skip the web stack entirely: build `-o "sen/*:mode=basic"`,
     or stay in `full` mode and pass `-DSEN_BUILD_JSONRPC_TS_CLIENT=OFF -DSEN_BUILD_WEBEXPLORER=OFF`
     at the CMake step.
 
     **Time.** The first full-mode build compiles every third-party dependency plus the whole
     tree; on a typical developer machine expect on the order of half an hour to an hour.
-    Subsequent builds are incremental. `ccache` shortens rebuilds — CI simply prepends the
+    Subsequent builds are incremental. `ccache` shortens rebuilds. CI simply prepends the
     ccache masquerade directory to `PATH` before building.
 
-    **Windows.** The browser stack is currently unverified on Windows (standard tests are
-    disabled there, see SEN-1725); the C++ tree builds with MSVC.
+    **Windows.** The C++ tree and the browser stack both build with MSVC. The standard test
+    suite is not yet wired up on Windows (see SEN-1725), so the automated coverage that runs on
+    Linux does not run there.
 
-    For enabling and running the test suite, see [Running the Tests](testing.md).
+    For enabling and running the test suite, see [Running the tests](testing.md).

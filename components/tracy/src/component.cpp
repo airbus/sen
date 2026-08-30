@@ -98,6 +98,7 @@ private:
 // TracyComponent
 //--------------------------------------------------------------------------------------------------------------
 
+// --8<-- [start:component]
 struct TracyComponent final: ::sen::kernel::Component
 {
   [[nodiscard]] ::sen::kernel::FuncResult preload(::sen::kernel::PreloadApi&& api) override
@@ -118,3 +119,4 @@ struct TracyComponent final: ::sen::kernel::Component
 };
 
 SEN_COMPONENT(TracyComponent)
+// --8<-- [end:component]

@@ -1,4 +1,4 @@
-# The TypeScript Client (`@sen/client`)
+# The TypeScript client (`@sen/client`)
 
 A TypeScript library that lets a browser or Node.js program talk to a running Sen process
 over the [`jsonrpc`](jsonrpc.md) component's wire (JSON-RPC 2.0 + WebSocket). Connect, walk
@@ -7,8 +7,8 @@ React apps) drive a UI off the same data without writing your own subscription b
 
 It ships in-tree at
 [`components/jsonrpc/clients/typescript/`](https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript)
-and is the primary client for the [Sen Web Explorer](webexplorer.md) and for any custom
-operator UI built against Sen.
+and is the primary client for the [Sen web explorer](webexplorer.md) and for any custom operator UI
+built against Sen.
 
 ## When to use it
 
@@ -27,7 +27,8 @@ In one terminal, start a Sen process exposing the bundled `animals` package:
 sen run components/jsonrpc/clients/typescript/examples/browser/animals.yaml
 ```
 
-That spins up `rufus` (a `Cat`) and `elon` (a `Dog`) on `my.tutorial`. The JSON-RPC server
+That spins up `rufus` (a `Cat`) and `elon` (a `Dog`) on `my.tutorial`. Only the cat matches the
+query below; the dog is there so the interest has something to filter out. The JSON-RPC server
 listens on `ws://127.0.0.1:8080`.
 
 In a second terminal:
@@ -45,6 +46,7 @@ const cats = await client.declareInterest({
 cats.onObjectAdded(async (cat) => {
   console.log(`got ${cat.className} named ${cat.name}`);
   cat.onPropertyChanged("position", (pos) => console.log("position:", pos));
+  await cat.awaitPropertySubscribed("position");
   await cat.invoke("jumpToLocation", { x: 42, y: 17 });
 });
 ```
@@ -53,9 +55,14 @@ You should see the initial position print, then the post-jump position. The
 `onObjectAdded` handler fires uniformly for objects matched at declare-time and for late
 arrivals.
 
+`onPropertyChanged` returns as soon as it has registered the handler, while the subscribe
+it triggers travels to the server and back. Without the `awaitPropertySubscribed` line the
+jump can land first, and then the only value you see is the one after the jump. Use the
+same pattern for events, where the partner call is `awaitEventSubscribed`.
+
 ## Concepts
 
-Three layered handles:
+The handles are layered:
 
 - **`Client`** -- the connection. One per Sen process. Owns the WebSocket, hands out
   interests, surfaces connection-state events.
@@ -68,8 +75,9 @@ You only ever construct a `Client`. Interests and objects come from it.
 
 ## Full reference
 
-The package's [README](https://github.com/airbus/sen/blob/main/components/jsonrpc/clients/typescript/README.md)
-is the comprehensive user reference, covering:
+The package's
+[README](https://github.com/airbus/sen/blob/main/components/jsonrpc/clients/typescript/README.md) is
+the comprehensive user reference, covering:
 
 - Queries + pre-subscribing properties / events at declare time
 - Property reads, writes, and subscriptions (and `onAnyChange`)
@@ -86,9 +94,9 @@ is the comprehensive user reference, covering:
 ## Browser example
 
 [`examples/browser/`](https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript/examples/browser)
-in the package is a static HTML page that loads the built bundle and runs the hello-world
-above in a real browser. Use it as a sanity check after `npm run build`, or as a starting
-point for a custom browser UI.
+in the package is a static HTML page that loads the built bundle and runs the hello-world above in a
+real browser. Use it as a sanity check after `npm run build`, or as a starting point for a custom
+browser UI.
 
 ## Architecture
 

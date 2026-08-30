@@ -1,17 +1,18 @@
 ![Screenshot](../assets/images/rest_light.svg#only-light){: style="width:250px; float: right;"}
 ![Screenshot](../assets/images/rest_dark.svg#only-dark){: style="width:250px; float: right;"}
 
-# The REST API Component
+# The REST API component
 
-This component allows interaction with Sen sessions, interests, and objects through a REST API with
-JWT authentication.
+This [component](../users_guide/glossary.md#component) allows interaction with Sen
+[sessions](../users_guide/glossary.md#session), [interests](../users_guide/glossary.md#interest),
+and [objects](../users_guide/glossary.md#object) through a REST API with JWT authentication.
 
 ## What is a REST API?
 
 A REST API is a specific type of API that follows the Representational State Transfer (REST)
 architecture style, promoting stateless communication over HTTP.
 
-## Key Concepts
+## Key concepts
 
 ### Authentication
 
@@ -21,9 +22,9 @@ header of subsequent requests.
 
 ### Interests
 
-An **interest** is a named query that selects a set of Sen objects using Sen Query Language. Instead
-of directly accessing sessions and buses, clients create interests to specify which objects they
-want to interact with. For example:
+An **[interest](../users_guide/glossary.md#interest)** is a named query that selects a set of Sen
+objects using Sen Query Language. Instead of directly accessing sessions and buses, clients create
+interests to specify which objects they want to interact with. For example:
 
 ```sql
 SELECT * FROM local.kernel
@@ -31,7 +32,7 @@ SELECT * FROM local.kernel
 
 This allows for flexible object discovery and filtering.
 
-### Objects, Methods, Properties, and Events
+### Objects, methods, properties, and events
 
 Once you have an interest, you can:
 
@@ -42,12 +43,12 @@ Once you have an interest, you can:
 - **Read and subscribe to properties** to receive updates when values change
 - **Subscribe to events** to receive notifications when events are emitted
 
-### Type Introspection
+### Type introspection
 
 The API provides type introspection through the `/api/types/{type}` endpoint, allowing you to
 discover the structure of custom Sen types at runtime.
 
-## HTTP Server
+## HTTP server
 
 This component implements its own HTTP/1.1 server on top of Asio TCP. It does not rely on any other
 third-party libraries in order to keep dependencies low and uses HTTP/1.1 to keep the implementation
@@ -64,7 +65,7 @@ The main features of this server are:
 As a side note, WebSockets are not supported since they are not required for Sen’s REST API; only
 **SSE** is implemented for push notifications.
 
-## Getting Started
+## Getting started
 
 To start this component, you will need to configure the following parameters:
 
@@ -81,7 +82,7 @@ load:
     port: 8080
 ```
 
-### Example Using cURL
+### Example using cURL
 
 #### 1. Authentication
 
@@ -107,7 +108,7 @@ Save the token for subsequent requests. You'll need to include it in the `Author
 export TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
-#### 2. List Available Sessions
+#### 2. List available sessions
 
 You can list all available Sen sessions (no authentication required):
 
@@ -121,7 +122,7 @@ Expected response:
 ["local"]
 ```
 
-#### 3. Create an Interest
+#### 3. Create an interest
 
 Create an interest to select objects using a query:
 
@@ -143,7 +144,7 @@ Expected response:
 }
 ```
 
-#### 4. List Interests
+#### 4. List interests
 
 Get all interests for the authenticated client:
 
@@ -152,7 +153,7 @@ curl http://localhost:8080/api/interests \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-#### 5. List Objects in an Interest
+#### 5. List objects in an interest
 
 Get all objects matching the interest query:
 
@@ -163,7 +164,7 @@ curl http://localhost:8080/api/interests/my-interest/objects \
 
 This returns an array of object summaries with links to detailed information.
 
-#### 6. Get Object Details
+#### 6. Get object details
 
 Get detailed information about a specific object:
 
@@ -177,7 +178,7 @@ The response includes available methods, properties, and events with links to in
 For more details on all available endpoints, check the
 [OpenAPI documentation](#openapi-documentation).
 
-### Push Notifications
+### Push notifications
 
 The `rest` component provides real-time notifications through Server-Sent Events (SSE). Clients can
 receive live updates for subscribed events, property changes, method invocations, and object
@@ -202,7 +203,7 @@ Before receiving notifications, you must subscribe to the specific events or pro
 interested in. For more details on how to subscribe to events or properties, check the
 [OpenAPI documentation](#openapi-documentation).
 
-## Updating the OpenAPI Specification
+## Updating the OpenAPI specification
 
 The OpenAPI specification must be validated whenever updates are made, such as when adding a new
 feature.
@@ -219,6 +220,6 @@ Then use the `validate-openapi` CMake target to check its validity:
 cmake --build build/Debug --target validate-openapi
 ```
 
-## OpenAPI Documentation
+## OpenAPI documentation
 
 <redoc src="openapi.yaml" />

@@ -48,18 +48,28 @@ sen run config/6_recorder/2_recorder_school.yaml
 
 Once closed, we want to explore the data using a Python script.
 
-Ensure you have your Python path configured:
+Ensure you have your Python path configured. The bindings live in Sen's `bin` directory; on a
+POSIX install, the `activate` script the installer writes exports `SEN_PREFIX` pointing at it.
 
-For bash:
+For bash or zsh:
 
 ```shell
-export PYTHONPATH=$PYTHONPATH;$SEN_PATH/bin
+export PYTHONPATH="$SEN_PREFIX/bin:$PYTHONPATH"
 ```
 
 For fish:
 
 ```shell
-set -xa PYTHONPATH $SEN_PATH/bin
+set -xa PYTHONPATH $SEN_PREFIX/bin
+```
+
+For PowerShell on Windows, where the separator is `;` rather than `:`. The installer is a POSIX
+shell script and writes no PowerShell activate script, so give the path to Sen's `bin` directory
+yourself:
+
+```powershell
+# replace the path with wherever Sen is installed
+$env:PYTHONPATH = "C:\path\to\sen\bin;$env:PYTHONPATH"
 ```
 
 Then, run:

@@ -2,11 +2,13 @@
 
 Sen offers helpers for those using the [spdlog](https://github.com/gabime/spdlog) library.
 
-We now extend the component of our previous example so that:
+We now add logging to a component so that:
 
 - the logs are written to the standard output and to file,
 - the standard output shows more detailed logs than the file, and
 - the logs include the filepath and line number from where the log was triggered.
+
+## Configuring the sinks
 
 The configuration file specifies the sinks, their log level, and other properties. The file
 `libs/kernel/stl/sen/kernel/log.stl` lists available sinks and their properties. In this example,
@@ -22,7 +24,7 @@ kernel:
         singleThreaded: true
         level: trace
         config:
-          type: Stderr
+          type: Stdout
           value: {}
       - name: "file_sink"
         singleThreaded: true
@@ -46,6 +48,7 @@ load:
 
 build:
   - name: myComponent
+    group: 3
     freqHz: 30
     imports: [my_package]
     objects:
@@ -54,6 +57,8 @@ build:
         bus: my.tutorial
         prop1: some value
 ```
+
+## Getting a logger
 
 To get the logger, we need to fetch it from the `spdlog` registry. To make it easy, we made the
 registration of the logger accessible automatically via the `sen::kernel::KernelApi` using the
@@ -66,8 +71,7 @@ static method called `getOrCreateLogger`:
 }
 ```
 
-We can now use our logger in the component's `run()` function. We can flush the logger's buffer to
-ensure that the logs are written to file immediately.
+## Compile-time log levels
 
 You will normally use the syntax `logger->info(..)` (or `trace` etc.), but be aware that this won't
 output the file and line number. This is only included when using macros such as
@@ -76,9 +80,13 @@ including `spdlog` headers.
 
 ```c++
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 ```
+
+`spdlog.h` is where the macros live. You do not need a sink header: the sinks come from the
+configuration above, not from your code.
+
+You can now use your logger in the component's `run()` function:
 
 ```c++ title="run function" linenums="1"
 sen::kernel::FuncResult run(sen::kernel::RunApi& api) override

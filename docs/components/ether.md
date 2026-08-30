@@ -1,9 +1,10 @@
 ![Screenshot](../assets/images/ether_light.svg#only-light){: style="width:250px; float: right;"}
 ![Screenshot](../assets/images/ether_dark.svg#only-dark){: style="width:250px; float: right;"}
 
-# The Ether Transport
+# The ether transport
 
-If you load the ether component, your process will be able to communicate with other processes.
+If you load the ether [component](../users_guide/glossary.md#component), your process will be able
+to communicate with other processes.
 
 ```yaml
 load:
@@ -18,17 +19,35 @@ discovery parameters, but here you can see the available options:
 --8<-- "snippets/ether_config.stl"
 ```
 
+If you arrive from another distributed system, the word you are reaching for here is *peer*. Sen
+calls it a **remote kernel**: the kernel in another process that this one has found, one per
+process. That is the term used in this documentation. *Peer* is kept only for
+the shape of the network: Sen's transport is peer-to-peer, with no central server or broker to
+connect to.
+
 ## Queue sizes
 
 If the components are pumping more data than the I/O stack can handle, your system will eventually
 run out of memory. Therefore, it is advised to set some maximum size to the queues, and pay
-attention to warning raised by the warningLevel parameter when the system is under heavy load.
+attention to the warnings the `warningLevel` parameter raises when the system is under heavy load.
 
 ## Isolating communication
 
 If you are sharing a network with other Sen instances that are unrelated to your project, you can
-set the `discovery.port` parameter to some predefined value used by the Sen instances that you want
-to keep isolated from the rest.
+set the discovery port to a value shared only by the Sen instances you want to keep together.
+`discovery` is a variant, so it takes a `type` and a `value`:
+
+```yaml
+load:
+  - name: ether
+    discovery:
+      type: MulticastDiscovery
+      value:
+        port: 60544
+```
+
+A flat `discovery.port:` is not an error and is not applied. The parser needs the `type` key to know
+which alternative you mean, and without it the whole block is ignored and the default port stands.
 
 If changing the YAML file is not possible or convenient, this parameter can be overwritten by using
 the `SEN_ETHER_DISCOVERY_PORT` environment variable.
@@ -36,11 +55,11 @@ the `SEN_ETHER_DISCOVERY_PORT` environment variable.
 ## Working with containers
 
 Sen uses the host name to identify participants in the network. If running a container, remember to
-set a host name so that Sen gets the right picture about where things are running (you can do it with
-the `--hostname` option).
+set a host name so that Sen gets the right picture about where things are running (you can do it
+with the `--hostname` option).
 
-If you are using the TCP Discovery mechanism in a bridged network, remember to set the hub host address
-to the IP/alias of the container hosting the hub.
+If you are using the TCP Discovery mechanism in a bridged network, remember to set `hubAddress.host`
+in the discovery configuration to the host name or IP address of the container hosting the hub.
 
 ## Network interfaces
 
@@ -56,9 +75,9 @@ By default, the ether component ignores virtual interfaces (interfaces that have
 flag). This is useful when working with containers, but might be inconvenient when working with
 virtual machines.
 
-You can enable virtual interfaces by setting the `discovery.allowVirtualInterfaces` parameter to
-`true`, or by setting the `SEN_ETHER_ALLOW_VIRTUAL_INTERFACES` environment variable to `true` (or
-`yes`, or a number != `0`).
+You can enable virtual interfaces with `allowVirtualInterfaces`, nested inside the discovery
+variant as above, or by setting the `SEN_ETHER_ALLOW_VIRTUAL_INTERFACES` environment variable to
+`true` (or `yes`, or a number != `0`). The environment variable is the simpler of the two.
 
 ### Ensuring that multicast is enabled
 
@@ -72,20 +91,20 @@ If you have other interfaces, use `eth0` (or your preferred interface) instead o
 
 Remember to also do it if you are inside a Docker container (use `--cap-add=NET_ADMIN` and `eth0`).
 
-## Controlling Multicast
+## Controlling multicast
 
 Sen uses multicast to distribute information to multiple receivers with minimum overhead. The
 multicast groups are generated based on an internal algorithm. In some cases, you might need to
 deploy Sen applications in a context where multicast support is limited.
 
-### Setting the Network Interface
+### Setting the network interface
 
 You can set the `networkDevice` attribute to force Sen to use a particular network interface. If
-set, the Ether component will route all the traffic through it. To know which devices can be used,
+set, the ether component will route all the traffic through it. To know which devices can be used,
 you can execute the `ip a` command (in Linux). Typically, the names will be along the lines of `lo`,
 `eth0`, or similar.
 
-The Take into account that:
+Take into account that:
 
 - The interface must be UP.
 - If you use multicast, multicast needs to be enabled.
@@ -109,14 +128,14 @@ to all receivers.
 
 ### Disabling multicast entirely
 
-By default, Sen relies on multicast for peers to discover each other. If your infrastructure does
+By default, Sen relies on multicast for kernels to discover each other. If your infrastructure does
 not allow multicast traffic at all, you will need to disable it for bus traffic (see previous
 section) and enable the **TCP-based discovery hub**.
 
 The TCP discovery hub is a process that Sen applications connect to in order to discover each other.
 You only need one.
 
-Starting a hub is easy. You just need to tell the ether service to start it on a given port.
+Starting a hub is easy. You just need to tell the ether component to start it on a given port.
 
 ```yaml
 load:
@@ -161,18 +180,18 @@ Different ether instances find each other using a beamer that broadcasts beam me
 The period at which beams are sent can be configured in the `DiscoveryConfig` of the ether
 configuration by modifying the `beamPeriod`. The default value of this period is 1 second.
 
-The BeamTracker is then responsible for the detection of beams, allowing different processes to
-discover themselves. The BeamTracker uses a parameter called `beamExpirationTime` to determine when
-a beam is no longer being received at the expected frequency, at which point it is assumed lost. By
-default, this parameter is set to 3 times the value of the `beamPeriod`, and this could be
-problematic in cases where the `beamPeriod` is configured to small values (e.g. 100 ms). Therefore,
-the `beamExpirationTime` can be configured by the user in the following ways:
+The BeamTracker is then responsible for the detection of beams. The BeamTracker uses a parameter
+called `beamExpirationTime` to determine when a beam is no longer being received at the expected
+frequency, at which point it is assumed lost. By default, this parameter is set to 3 times the value
+of the `beamPeriod`, and this could be problematic in cases where the `beamPeriod` is configured to
+small values (e.g. 100 ms). Therefore, the `beamExpirationTime` can be configured by the user in the
+following ways:
 
 - Configuring the `beamExpirationTime` parameter of the `DiscoveryConfig` to the desired duration.
 - Setting the `BEAM_TRACKER_EXPIRATION_TIME_MS` environment variable to the desired duration in
   milliseconds.
 
-## UDP OS Buffer Sizes
+## UDP OS buffer sizes
 
 Some OSes (most notably, Linux) place very restrictive limits on the performance of UDP protocols.
 It is highly recommended that you increase these OS limits to at least 8MB before trying to run

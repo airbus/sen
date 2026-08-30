@@ -25,8 +25,8 @@ The [README](README.md) covers the build. For a contribution, build with the tes
 run them before opening the pull request:
 
 ```shell
-conan install . --profile=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
-conan build . --profile=sen_gcc_x86                  # sen_gcc_arm on arm hardware
+conan install . --profile:all=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
+conan build . --profile:all=sen_gcc_x86              # sen_gcc_arm on arm hardware
 pip install junitparser                                  # run_tests merges the ctest reports with it
 cmake --build build/gcc/Release --target run_tests
 ```

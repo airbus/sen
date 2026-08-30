@@ -32,14 +32,16 @@ enum class ReferenceSystem : u32
   body
 };
 
-/// Threshold configuration structure with the position error threshold (maximum distance between extrapolation and
-/// data) and the entity dynamics (speed and changes of direction)
+// --8<-- [start:dr_threshold]
+/// How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle
+/// between orientations, and the reference system both are measured in.
 struct DrThreshold
 {
   LengthMeters distanceThreshold {1.0};
   AngleRadians orientationThreshold {0.05f};
   ReferenceSystem referenceSystem {ReferenceSystem::world};
 };
+// --8<-- [end:dr_threshold]
 
 /// Allows the user to get the extrapolated situation of an object and to set the Spatial when the error of the
 /// extrapolation exceeds a configurable threshold.

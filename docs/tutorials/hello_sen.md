@@ -1,8 +1,8 @@
 # Tutorial 1: Hello Sen
 
-In this tutorial you will build the simplest possible Sen application: a single object that updates a
-property each cycle and exposes a method. By the end, you will have a running kernel, a live object
-visible in the shell, and a clear picture of how Sen's pieces fit together.
+In this tutorial you will build the simplest possible Sen application: a single object that updates
+a property each cycle and exposes a method. By the end, you will have a running kernel, a live
+object visible in the shell, and a clear picture of how Sen's pieces fit together.
 
 **What you'll learn:**
 
@@ -12,14 +12,26 @@ visible in the shell, and a clear picture of how Sen's pieces fit together.
 - How to stage property updates with `setNext` and why that matters
 - How to use the shell to inspect a live object
 
-**Prerequisites:** Sen installed and on your `PATH`, basic C++ knowledge.
+**Prerequisites:** Sen installed, basic C++ knowledge, and the activation script sourced in the
+shell you are about to work in:
+
+```sh
+. ~/.sen/current/activate           # bash / zsh
+source ~/.sen/current/activate.fish # fish
+```
+
+Having `sen` on your `PATH` is not enough. The script also exports `SEN_PREFIX`, which is what lets
+`find_package(sen REQUIRED)` succeed in Step 4. Without it, `cmake` fails at configure time with
+"Could not find a package configuration file provided by sen". See [Getting
+Sen](../getting_started/install.md).
 
 ---
 
 ## What we're building
 
-A simple counter object that increments a value every update cycle and exposes an `add` method.
-Nothing exciting — but it touches every part of the workflow in the most direct way possible.
+A simple counter object that increments a value every drain-update-commit cycle and exposes a
+`hello` method.
+Nothing exciting, but it touches every part of the workflow in the most direct way possible.
 
 ---
 
@@ -46,9 +58,9 @@ my_counter/
             └── counter.stl  # (3)!
 ```
 
-1. Tells CMake how to build the package. Uses `add_sen_package()` — a function Sen provides.
+1. Tells CMake how to build the package. Uses `add_sen_package()`, a function Sen provides.
 2. A ready-to-run configuration file that instantiates the object and opens a shell.
-3. The interface definition for our `Counter` class. We'll edit this next.
+3. The interface definition for your `Counter` class. You will edit this next.
 
 ---
 
@@ -57,33 +69,19 @@ my_counter/
 Open `stl/my_counter/counter.stl` and replace its contents with this:
 
 ```{ .rust .annotate }
-package my_counter;  // (1)!
-
-class Counter
-{
-  // The current value of the counter (2)!.
-  var value : i32;
-
-  // How much should the counter increase each cycle (3)!.
-  var step    : i32 [static];
-
-  // Returns a greeting message (4)!.
-  fn hello() -> string [const];
-
-  // Emitted each time the current value is divisible by 10 (5)!.
-  event valueIsDivisibleByTen(newValue: i32);
-}
+--8<-- "examples/packages/my_counter/stl/my_counter/counter.stl"
 ```
 
 1. Declares the namespace. All types defined here belong to `my_counter`.
-2. A dynamic, read-only property. Our object updates it each cycle. Other components can read it.
-3. A static property — its value is set at construction and never changes. We'll set it in `config.yaml`.
+2. A dynamic, read-only property. Your object updates it each cycle. Other components can read it.
+3. A static property: its value is set at construction and never changes. We'll set it in
+   `config.yaml`.
 4. A method that returns a greeting message. It is marked as `const` so it cannot change the object.
 5. An event fired whenever the value is divisible by 10. Any component can subscribe to this.
 
 !!! note "Static means constant per instance"
     "Static" in STL does not mean shared across instances. It means: set once at construction, then
-    immutable. Every instance of `Counter` can have a different `step` value — you just can't change
+    immutable. Every instance of `Counter` can have a different `step` value; you just can't change
     it after the object is registered.
 
 ---
@@ -95,35 +93,13 @@ class Counter
 Edit `src/counter.h`:
 
 ```{ .cpp .annotate }
-#pragma once
-
-#include "stl/my_counter/counter.stl.h"  // (1)!
-
-namespace my_counter
-{
-
-class CounterImpl : public CounterBase  // (2)!
-{
-public:
-  SEN_NOCOPY_NOMOVE(CounterImpl)  // (3)!
-
-  using CounterBase::CounterBase;
-  ~CounterImpl() override = default;
-
-public:
-  void update(sen::kernel::RunApi& runApi) override;  // (4)!
-
-protected:
-  std::string helloImpl() const override;  // (5)!
-};
-
-}  // namespace my_counter
+--8<-- "examples/packages/my_counter/src/counter.h"
 ```
 
 1. The code generator produces this header from your STL file. It contains `CounterBase` and all the
    generated plumbing.
 2. You always inherit from the generated base class. It handles serialization, subscriptions, and
-   method dispatch — you just fill in the logic.
+   method dispatch. You just fill in the logic.
 3. A helper macro that deletes the copy and move constructors.
 4. Called once per cycle during the *update* stage. This is where you compute your next state.
 5. The generated base class declares `helloImpl` as a pure virtual method. You must implement it.
@@ -133,45 +109,25 @@ protected:
 Edit `src/counter.cpp`:
 
 ```{ .cpp .annotate }
-#include "counter.h"
-
-namespace my_counter
-{
-
-void CounterImpl::update(sen::kernel::RunApi& /*runApi*/)
-{
-  setNextValue(getValue() + getStep()); // (1)!
-
-  if (getNextValue() % 10 == 0)
-  {
-    valueIsDivisibleByTen(getNextValue());  // (2)!
-  }
-}
-
-std::string CounterImpl::helloImpl() const
-{
-  return "Hello from Sen! My current value is: " + std::to_string(getValue());
-}
-
-SEN_EXPORT_CLASS(CounterImpl)  // (3)!
-
-}  // namespace my_counter
+--8<-- "examples/packages/my_counter/src/counter.cpp"
 ```
 
-1. `getValue()` and `getStep()` read from the *current* buffer — the frozen snapshot that Sen prepared during the
-   drain stage. These values will not change during this update cycle. `setNextValue()` writes to the *next* buffer.
-   The new value is **not** visible yet. It becomes visible to all components after Sen commits the outputs.
-2. Fires the `valueIsDivisibleByTen` event with the new value. Like property changes, events are buffered and
-   delivered after commit.
+1. `getValue()` and `getStep()` read from the *current* buffer, the frozen snapshot that Sen
+   prepared during the drain stage (the first of the cycle's three stages, explained in [What just
+   happened?](#what-just-happened) below). These values will not change during this update cycle.
+   `setNextValue()` writes to the *next* buffer. The new value is **not** visible yet. It becomes
+   visible to all components after Sen commits the outputs.
+2. Fires the `valueIsDivisibleByTen` event with the new value. Like property changes, events are
+   buffered and delivered after commit.
 3. This macro registers `CounterImpl` as a class that Sen's kernel can instantiate. Without it, your
-   class is invisible to the configuration system — no error at build time, just nothing shows up.
+   class is invisible to the configuration system (no error at build time, just nothing shows up.
 
 !!! abstract "Why `setNext` instead of `set`?"
 
-    Sen uses double-buffering. During the update stage, every component sees the same frozen snapshot
-    of the world. If `setNextValue()` wrote directly to the live value, another component reading
-    `getValue()` on the same cycle might see a half-updated state. By writing to a separate "next"
-    buffer, Sen guarantees that all components see a fully consistent world — the flip happens
+    Sen uses double-buffering. During the update stage, every component sees the same frozen
+    snapshot of the world. If `setNextValue()` wrote directly to the live value, another component
+    reading `getValue()` on the same cycle might see a half-updated state. By writing to a separate
+    "next" buffer, Sen guarantees that all components see a fully consistent world. The flip happens
     atomically during commit.
 
     Think of it like frames in a film: you render to the back buffer, then swap.
@@ -203,16 +159,16 @@ build:
 1. Load the shell component so we can interact with the running system.
 2. Automatically open this bus in the shell so we can see objects without typing `open` manually.
 3. The component (and all its objects) will call `update()` twice per second.
-4. Tell Sen to load our package so it can find `CounterImpl`.
+4. Tell Sen to load your package so it can find `CounterImpl`.
 5. The fully-qualified class name: `<package>.<class>`.
-6. Initial value for the `step` static property. Required — static properties must have a value.
-7. The bus where our object will be published. Must match what the shell opens.
+6. Initial value for the `step` static property. Required: static properties must have a value.
+7. The bus where your object will be published. Must match what the shell opens.
 
 Now build and run:
 
 ```sh
 cmake -S . -B build && cmake --build build
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/build/bin
+export LD_LIBRARY_PATH="$(pwd)/build/bin:$LD_LIBRARY_PATH"
 sen run config.yaml
 ```
 
@@ -220,26 +176,79 @@ sen run config.yaml
 
 ## Step 5: Explore the object
 
-The shell opens automatically. Try these commands:
+The shell opens automatically. Its prompt shows the host and the configuration you started, so it
+looks like `sen:host/config>`. Start with `ls`, which lists everything the shell can see:
 
-```sh
-# List everything on the bus
-ls
+```text
+sen:host/config> ls
+  ┬
+  └─┬local [session]
+    ├─┬counters [bus]
+    │ └──myCounter [my_counter.Counter]
+    ├──shell [~]
+    ├──kernel [~]
+    └──log [~]
+```
 
-# Inspect the object — see all properties, methods and events
-info local.counters.myCounter
+`local` is the session, `counters` is the bus we opened, and `myCounter` is your object with its
+class beside it. The three entries marked `[~]` are the components: the shell itself, the kernel and
+the log.
 
-# Read the current property value
-local.counters.myCounter.getValue
+`info` prints the interface, which is the fastest way to confirm the generator understood your STL:
 
-# Wait a second, read it again — you'll see it has incremented
-local.counters.myCounter.getValue
+```text
+sen:host/config> info local.counters.myCounter
 
-# Call the hello method
-local.counters.myCounter.hello
+  OBJECT myCounter [id 0x68c1c76c]
 
-# Shut down cleanly
-shutdown
+  CLASS my_counter.Counter
+
+  PROPERTIES
+    [i32] value dy-ro-multicast The current value of the counter.
+    [i32] step  st-rw-multicast How much should the counter increase each cycle.
+
+  METHODS
+    hello Returns a greeting message.
+
+  EVENTS
+    valueIsDivisibleByTen multicast Emitted each time the current value is div..
+```
+
+The flags say what each property is: `dy` for dynamic against `st` for static, and `ro` for
+read-only against `rw`. So `value` is the dynamic, read-only one we update each cycle and `step` is
+the static one we set in the configuration, which is what the STL declared. Descriptions come
+straight from your comments, truncated to fit the terminal.
+
+Now read the properties. A getter prints as `- <name>: <value>`:
+
+```text
+sen:host/config> local.counters.myCounter.getValue
+- value: 125
+
+sen:host/config> local.counters.myCounter.getValue
+- value: 185
+
+sen:host/config> local.counters.myCounter.getStep
+- step: 5
+```
+
+Your numbers will differ from these, and that is the point: at 2 Hz with `step: 5` the value climbs
+by ten every second for as long as the kernel runs, so what you see depends on how long it has been
+up and how fast you type. `step` does not move, because it is static.
+
+Calling the method returns a string:
+
+```text
+sen:host/config> local.counters.myCounter.hello
+"Hello from Sen! My current value is: 250"
+```
+
+And `shutdown` stops the kernel:
+
+```text
+sen:host/config> shutdown
+shutting down...
+bye ☺
 ```
 
 !!! tip
@@ -258,7 +267,7 @@ Here is the execution in plain English:
 2. **`CounterImpl` is instantiated** with `step = 5` and registered on the `local.counters` bus.
    The shell sees it immediately because it has the bus open.
 
-3. **Every 500 ms** (2 Hz), the kernel runs the drain → update → commit cycle for `counterComponent`:
+3. **Every 500 ms** (2 Hz), the kernel runs the drain-update-commit cycle for `counterComponent`:
    - **Drain**: Sen delivers any pending method calls and property changes.
    - **Update**: Sen calls `CounterImpl::update()`. You read `getValue()` (frozen snapshot),
      compute the next value, and call `setNextValue()` (writes to back buffer). The event is also
@@ -274,9 +283,9 @@ Here is the execution in plain English:
 
 ## Next steps
 
-- **[Tutorial 2: Two Objects Talking](two_objects.md)** — learn how objects discover each other and
+- **[Tutorial 2: Two objects talking](two_objects.md)**: learn how objects discover each other and
   make async method calls.
-- **[Understanding Sen: A Mental Model](../users_guide/mental_model.md)** — a deeper explanation of
+- **[Understanding Sen: a mental model](../users_guide/mental_model.md)**: a deeper explanation of
   the drain-update-commit cycle and how Sen differs from other systems.
-- **[Working with Objects](../howto_guides/objects.md)** — the full how-to reference for
+- **[Working with objects](../howto_guides/objects.md)**: the full how-to reference for
   properties, methods, events and subscriptions.

@@ -19,6 +19,7 @@ namespace sen::util
 /// \addtogroup dr
 /// @{
 
+// --8<-- [start:dead_reckoner_base]
 /// Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by
 /// default unless the user specifies otherwise.
 class DeadReckonerBase
@@ -91,6 +92,7 @@ private:
   Situation cachedSituation_;
   GeodeticSituation cachedGeodeticSituation_;
 };
+// --8<-- [end:dead_reckoner_base]
 
 /// Base class for the DeadReckoner and SettableDeadReckoner classes.
 template <typename T>

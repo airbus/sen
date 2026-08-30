@@ -1,8 +1,7 @@
 # The Sen Type Language (STL)
 
-STL is Sen's small declarative language for describing the shape of
-components: their configurable data, their events, and the operations they
-expose.
+STL is Sen's small declarative language for describing the shape of your classes:
+the data they carry, the events they emit, and the operations they expose.
 
 > Looking for the exact syntax rules? See the [formal grammar reference](stl_grammar.md)
 > for tokens, EBNF production rules, and the full list of registered quantity units.
@@ -85,8 +84,8 @@ Sen defines the following basic types:
 | `i32`       | 32-bit integral.          | `int32_t`     |
 | `u64`       | 64-bit unsigned integral. | `uint64_t`    |
 | `i64`       | 64-bit integral.          | `int64_t`     |
-| `f32`       | 32-bit floating point.    | `float`       |
-| `f64`       | 64-bit floating point.    | `double`      |
+| `f32`       | 32-bit floating point.    | `float32_t`   |
+| `f64`       | 64-bit floating point.    | `float64_t`   |
 | `bool`      | Boolean.                  | `bool`        |
 | `string`    | Character string.         | `std::string` |
 | `TimeStamp` | A point in time.          | `TimeStamp`   |
@@ -167,7 +166,7 @@ You can define types that might optionally hold a value (of any given type). For
 
 ```rust
 optional<f64> MaybeFloat64;
-optional<Error> MaybeError;
+optional<TimeStamp> MaybeDeadline;
 ```
 
 ## Quantities
@@ -185,10 +184,11 @@ quantity<f32, m> Meters;
 
 The second type argument is the **unit abbreviation** (`m`, `rad`, `deg`, `kph`,
 `degC`, ...), not the long form. SI base units are also registered with every
-metric prefix, so `km`, `ms`, `us`, `cm`, `MPa` all resolve out of the box.
+metric prefix, so `km`, `ms`, `us`, `cm`, `Mpa` all resolve out of the box. Note the case: the
+abbreviation for pascals is `pa`, so megapascals are `Mpa` and `MPa` does not resolve.
 
 See the
-[full list of registered units](stl_grammar.md#appendix-a--registered-quantity-units)
+[full list of registered units](stl_grammar.md#appendix-a-registered-quantity-units)
 for what is currently available.
 
 Quantities accept an attribute list containing `min:` and/or `max:` bounds,
@@ -198,7 +198,7 @@ as shown above.
 
 Aliases give an existing type a new name. They are useful for making intent clear,
 or for hiding implementation details behind a domain-specific name. The alias
-is structural - `DeviceId` below is interchangeable with `u64` wherever it is
+is structural: `DeviceId` below is interchangeable with `u64` wherever it is
 used.
 
 ```rust
@@ -211,10 +211,18 @@ two identifiers sit side-by-side.
 For example,
 
 ```rust
-alias DeviceId       u64;
-alias NameList       sequence<string>;
-alias CoordinatePair array<f64, 2>;
-alias HostBuildInfo  sen.kernel.BuildInfo; // aliasing a struct from another package
+alias DeviceId      u64;
+alias HostBuildInfo sen.kernel.BuildInfo; // aliasing a struct from another package
+```
+
+An alias names an existing type, so the type has to exist first. Containers are
+declared before they can be aliased, not constructed inside the alias:
+
+```rust
+sequence<string> NameSequence;
+alias NameList   NameSequence;  // fine
+
+alias Wrong      sequence<string>;  // does not parse
 ```
 
 Aliases shine once you've declared your own structs, variants, and enums:
@@ -260,24 +268,14 @@ struct <type_name>
 }
 ```
 
-Fields can be of any type and names must be unique.
+Field names must be unique. A field may hold any value type, but it references that type by
+name: containers are declared first and used by name, so `sequence<Foo>` cannot appear in field
+position.
 
 For example:
 
 ```rust
-// Build-related information
-struct BuildInfo
-{
-  maintainer: string,    // principal maintainer of the software
-  version   : string,    // version string (format-agnostic)
-  compiler  : string,    // vendor-specific compiler string
-  debugMode : bool,      // compiled in debug mode or not
-  buildTime : string,    // when did this build took place
-  wordSize  : WordSize,  // architecture
-  gitRef    : string,    // git ref spec
-  gitHash   : string,    // git hash
-  gitStatus : GitStatus  // git status
-}
+--8<-- "libs/kernel/stl/sen/kernel/basic_types.stl:build_info"
 ```
 
 In C++, structs are (unsurprisingly) rendered as `struct`.
@@ -292,11 +290,15 @@ struct RestoreCursorPosition;
 Furthermore, structs may have a parent struct to avoid code duplication. For example,
 
 ```rust
+struct BadHabit { name : string }
+
+sequence<BadHabit> BadHabitList;
+
 struct ParentStruct
 {
   familyName : string,
   hairColor : string,
-  badHabits : sequence<BadHabit>
+  badHabits : BadHabitList
 }
 
 struct ChildStruct : ParentStruct
@@ -306,21 +308,25 @@ struct ChildStruct : ParentStruct
 }
 ```
 
-*Note:* structs that specify a parent always declare a `is-a` relationship
-to their parent. That is, as structs do not have any invariants all data members from
-the parent will be available to every user of the derived class. Furthermore, a struct
-with a parent is a class that requires run-time polymorphism and should, therefore, also
-be treated as such in code. We currently strongly discourage the polymorphic usage of
-structs as parent structs do have a virtual constructor.
+*Note:* a struct that specifies a parent declares an `is-a` relationship to it. Structs carry no
+invariants, so every data member of the parent is available to every user of the child.
+
+Polymorphic use of these structs is strongly discouraged. The generated C++ is a plain
+`struct Child : public Parent` with no virtual members of
+any kind. With no virtual destructor, deleting a child through a pointer to its parent is
+undefined behavior. Struct inheritance is here to avoid repeating fields, not to build a
+hierarchy you dispatch on.
 
 ## Variants
 
-The variant type represents a type-safe union. A variant instance always
-holds a value of exactly one of its alternative types. As with unions, the
-object representation of the held type is allocated directly within the
-variant's own object representation, with no additional (dynamic) memory
-involved. A variant is **not** permitted to list the same type more than
-once.
+A variant holds exactly one of its listed types at a time, and it knows which
+one it is holding. The value lives inside the variant itself, in space sized for
+the largest alternative, so assigning to a variant never allocates. Each type
+may appear only once in a variant you declare in STL. `variant { i32, i32 }` is
+rejected at generation time, since there would be no way to say which of the two
+you meant. A variant imported from an HLA FOM is not held to this, because the
+FOM is published elsewhere and Sen takes it as it stands.
+[Using HLA FOMs](hla.md#data-type-mappings) covers what that means in C++.
 
 They are defined as follows:
 
@@ -332,21 +338,12 @@ variant <name>
 }
 ```
 
-Types must be unique within the variant.
+Types must be unique within a variant declared in STL.
 
 For example,
 
 ```rust
-variant CustomTypeData
-{
-  EnumTypeSpec,
-  QuantityTypeSpec,
-  SequenceTypeSpec,
-  StructTypeSpec,
-  VariantTypeSpec,
-  AliasTypeSpec,
-  ClassTypeSpec
-}
+--8<-- "libs/kernel/stl/sen/kernel/type_specs.stl:custom_type_data"
 ```
 
 Note that variants can be used as "enumerations with state". For example:
@@ -390,7 +387,7 @@ In C++, variants are rendered as `std::variant<...>`.
 
 You can define classes as follows:
 
-```json
+```rust
 [abstract] class <name> [: extends <parent_class>]
 {
    <members>...
@@ -411,11 +408,18 @@ class MySubClass : extends MyClass
 
 A class may `extends` at most one parent class.
 
+Extending changes the shape of the generated base your C++ inherits from. A class with no parent
+gets a plain `MyClassBase`; a class that extends one gets a template, so you write
+`MyClassBase<>` with the empty brackets. The parameter is there so you can inject an
+implementation for an intermediate class in the hierarchy, which the
+[inheritance example](../snippets/examples/config/2_inheritance/readme.md) walks through. Forget the
+brackets and the compiler complains about the base class rather than about the missing argument.
+
 If a class is marked as `abstract`, the Sen kernel will refuse to instantiate
 it without a dedicated C++ implementation. Non-abstract classes can be
 instantiated directly from configuration.
 
-There are 3 kinds of members that a class can have: properties, methods and events.
+A class can have properties, methods and events.
 
 **Methods** are defined as follows:
 
@@ -498,10 +502,12 @@ The table below lists every attribute and which declarations it applies to.
 | `static_no_config`   |     ✓      |          |          |           | Static and cannot be set from YAML configuration; only from the implementation.           |
 | `writable`           |     ✓      |          |          |           | The property has a public setter (it can be set externally).                              |
 | `confirmed`          |     ✓      |    ✓     |    ✓     |           | Transport is reliable. Default for methods; opt-in for properties and events.             |
-| `bestEffort`         |     ✓      |    ✓     |    ✓     |           | Transport uses best-effort mechanisms. Default for events; opt-in for methods/properties. |
+| `bestEffort`         |     ✓      |    ✓     |    ✓     |           | Selects best-effort unicast. Never a default: properties and events already arrive best-effort over multicast, and this narrows them to unicast. |
 | `const`              |            |    ✓     |          |           | The method does not change the state of the object.                                       |
 | `local`              |            |    ✓     |          |           | The method can only be called within its component context.                               |
+| `deferred`           |            |    ✓     |          |           | The implementation receives a `std::promise` and answers when it chooses. See [Deferred methods](../howto_guides/objects.md#deferred-methods). |
 | `tag: <name>`        |     ✓      |          |          |           | User-defined tag, inspectable at runtime. May appear multiple times.                      |
+| `checked`            |     ✓      |          |          |           | **Deprecated.** Still parsed, but the resolver warns and asks you to mark the property in `codegen_settings.json` instead. See [Customizing the generated code](#customizing-the-generated-code). |
 | `min: <literal>`     |            |          |          |     ✓     | Lower bound for the quantity's value.                                                     |
 | `max: <literal>`     |            |          |          |     ✓     | Upper bound for the quantity's value.                                                     |
 
@@ -550,8 +556,9 @@ If you are generating C++ code, there are some knobs you can use to customize th
 - *Checked properties*: If you have a `writable` property, you can tell Sen to first ask for your
   approval when someone attempts to do a "set" to it.
 - *Deferred methods*: If you mark a method as deferred, the generated code will allow you to
-  postpone the execution of calls by providing a `std::future` that can be set by you whenever you
-  decide.
+  postpone the execution of calls by providing a `std::promise` that can be set by you whenever you
+  decide. The `[deferred]` attribute does the same thing from the STL; naming the method here
+  instead keeps the interface free of the choice, so the same STL can be implemented either way.
 
 To generate the code in this way, you use a JSON file that may look as follows:
 
@@ -573,7 +580,7 @@ To generate the code in this way, you use a JSON file that may look as follows:
 
 ## Documenting STL files
 
-You can add comments to STL files in two main ways:
+You can add comments to STL files before a declaration or beside it:
 
 - **Before comments** → placed right before the declaration.
 - **Inline comments** → placed at the end of the same line as the declaration.
@@ -603,7 +610,7 @@ struct Point
 // An angle in radians
 quantity<f32, rad> Angle;
 
-quantity<f32, rad> Angle; // An angle in radians
+quantity<f32, rad> Bearing; // a bearing, in radians
 ```
 
 ### Classes
@@ -638,9 +645,10 @@ class Example
   event somethingElseHappened(what: string, count: u32); // Example event
 
   // This is just an example method
-  // @param example1 This parameter is a string
-  // You can add more description here of the parameter, but do not repeat @param example1
-  // @param example2: This parameter is also a string
+  // @param example1 This parameter is a string.
+  // A parameter's description can run over several lines, as long as the
+  // continuation does not open a second tag for the same parameter.
+  // @param example2 This parameter is also a string
   fn exampleMethod(example1: string, example2: string) -> string;
 }
 ```
@@ -730,93 +738,21 @@ abstract class MyService : extends Base
 
 ## Examples
 
+These are the real files from the `school` example package, which builds with Sen. `Teacher` and
+`Student` both extend `Person`, so that one comes first.
+
+```rust title="person.stl"
+--8<-- "examples/packages/school/stl/school/person.stl"
+```
+
 ```rust title="teacher.stl"
-import "stl/school/person.stl"
-
-package school;
-
-struct ImpartingClass
-{
-  since     : TimeStamp,
-  className : string
-}
-
-struct WaitingForStudents
-{
-  since : TimeStamp
-}
-
-variant TeacherStatus
-{
-  WaitingForStudents,
-  ImpartingClass
-}
-
-class Teacher: extends Person
-{
-  var status      : TeacherStatus [confirmed];
-  var stressLevel : f32;
-
-  fn assignTasks();
-
-  event stressLevelPeaked(level : f32);
-}
+--8<-- "examples/packages/school/stl/school/teacher.stl"
 ```
 
 ```rust title="student.stl"
-import "stl/school/person.stl"
-
-package school;
-
-struct Sleeping
-{
-  since          : TimeStamp,
-  snortingVolume : f32
-}
-
-struct DoingSomething
-{
-  since      : TimeStamp,
-  taskName   : string,
-  difficulty : f32,
-  progress   : f32
-}
-
-struct DoingNothing
-{
-  since : TimeStamp
-}
-
-variant StudentStatus
-{
-  DoingNothing,
-  DoingSomething,
-  Sleeping
-}
-
-class Student: extends Person
-{
-  var status     : StudentStatus [confirmed];
-  var focusLevel : f32;
-
-  fn startDoingTask(taskName: string, difficulty: f32) -> bool;
-
-  event madeSomeNoise(noise: string, volume: f32);
-  event gotDistracted(reason: string);
-}
+--8<-- "examples/packages/school/stl/school/student.stl"
 ```
 
-```rust title="class_room.stl"
-package school;
-
-class ClassRoom
-{
-  var createTeacher : bool   [static];
-  var defaultSize   : u32    [static];
-  var studentsBus   : string [static];
-  var teacherName   : string [confirmed];
-
-  fn addStudents(count: u32);
-  fn removeStudents(count: u32);
-}
+```rust title="classroom.stl"
+--8<-- "examples/packages/school/stl/school/classroom.stl"
 ```

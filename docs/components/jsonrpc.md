@@ -1,4 +1,4 @@
-# The JSON-RPC Component
+# The JSON-RPC component
 
 The `jsonrpc` component exposes a running Sen process to outside programs without forcing
 them to link against the Sen kernel. A browser UI, a Python script, a Node.js service, or any
@@ -26,15 +26,17 @@ matched objects, properties, or events change.
 
 It is one of the ways to talk to a running Sen process from the outside:
 
-| Component | Transport | Best for |
+| Surface | Transport | Best for |
 |---|---|---|
-| `shell` | Local TCP, text protocol | Quick interactive poking from a terminal |
+| `shell` | TCP, text protocol | Quick interactive poking from a terminal |
 | `jsonrpc` | WebSocket + JSON-RPC 2.0 | Long-lived programmatic sessions, streaming notifications |
 
 The wire grammar is defined by the component's STL
 ([`components/jsonrpc/stl/jsonrpc.stl`](https://github.com/airbus/sen/blob/main/components/jsonrpc/stl/jsonrpc.stl)).
-Both the C++ dispatcher and the bundled TypeScript client are generated from it, so they
-cannot drift.
+Both the C++ dispatcher and the bundled TypeScript client are generated from it, so whatever is
+declared there cannot drift apart. One notification sits outside that guarantee:
+`notificationsDropped` is written by hand in the dispatcher, so it travels on the wire without
+appearing in the STL.
 
 ## Running the component
 
@@ -71,19 +73,18 @@ A typical session flows like this:
    `Authenticator` on the upgrade.
 2. **Discover** -- the client calls `listTopology` to see what sessions and buses exist, and
    `getTypes` / `getType` to fetch class shapes.
-3. **Declare an interest** -- `createInterest` opens a live query (a Sen Query Language
-   string) and returns the current match-set. From there the client owns a logical
-   *interest* it can read from, write to, and subscribe to. **Ordering note:** the
-   server fills the initial match-set by firing `interestUpdate.added` *before* the
-   `createInterest` response lands on the wire. Clients must be ready to receive
-   pushes for an interest whose response hasn't acked yet; the `@sen/client` library
-   handles this transparently. Hand-written clients should queue inbound notifications
-   keyed by `interestName` until the response is observed. A query may name a bus that
-   does not exist yet: the interest is accepted, starts empty, and resolves live once a
-   publisher joins that bus — which is what makes re-declaring interests right after a
-   server restart race-free. The flip side is that a typo'd bus name yields a
-   forever-empty interest rather than an error; use `listTopology` to check what exists.
-   A connection can hold at most 256 concurrent interests.
+3. **Declare an [interest](../users_guide/glossary.md#interest)** -- `createInterest` opens a live
+   query (a Sen Query Language string) and returns the current match-set. From there the client owns
+   a logical *interest* it can read from, write to, and subscribe to. **Ordering note:** the server
+   fills the initial match-set by firing `interestUpdate.added` *before* the `createInterest`
+   response lands on the wire. Clients must be ready to receive pushes for an interest whose
+   response hasn't acked yet; the `@sen/client` library handles this transparently. Hand-written
+   clients should queue inbound notifications keyed by `interestName` until the response is
+   observed. A query may name a [bus](../users_guide/glossary.md#bus) that does not exist yet: the
+   interest is accepted, starts empty, and resolves live once a publisher joins that bus, which is
+   what makes re-declaring interests right after a server restart race-free. The flip side is that a
+   typo'd bus name yields a forever-empty interest rather than an error; use `listTopology` to check
+   what exists. A connection can hold at most 256 concurrent interests.
 4. **Read / write / invoke / subscribe** -- per matched object: `getProperty`,
    `setProperty`, `invoke`, `subscribeProperty`, `subscribeEvent`, etc.
 5. **Receive notifications** -- as the kernel ticks, the server pushes `interestUpdate`,
@@ -114,20 +115,24 @@ Server-pushed notifications:
   with the cumulative count of unreliable notifications the dispatcher dropped during it.
 - `topologyChanged` -- session / bus topology shifted (for subscribers).
 
-The full envelope shapes are defined in `jsonrpc.stl`.
+The full envelope shapes are defined in `jsonrpc.stl`, apart from `notificationsDropped`
+as noted above.
 
 ## Static file server
 
 `jsonrpc` ships an optional HTTP static-file responder that runs on the same listening
-socket as the WebSocket. Other components register URL prefixes -> on-disk roots at runtime
-over the control bus (default `local.jsonrpc_control`); the responder serves files under
-those prefixes with appropriate MIME types. The same origin hosts the WebSocket, so a
-browser-side client loaded from `http://host:8080/explorer/` can open a WebSocket to
-`ws://host:8080` without crossing origins.
+socket as the WebSocket. Other components register bundles of in-memory files at runtime
+over the control bus (default `local.jsonrpc_control`). Nothing is read from disk, and the
+registering component gives each file its MIME type, because the server does not infer one
+from the extension. The same origin hosts the WebSocket, so a browser-side client loaded
+from `http://host:8080/explorer/` can open a WebSocket to `ws://host:8080` without crossing
+origins.
 
 The canonical consumer is the `webexplorer` component: it subscribes to the control bus,
-finds the `StaticFileServer` object, and calls its `registerBundle(urlPrefix, diskRoot)`
-method to expose its compiled-and-bundled frontend at, e.g., `/explorer/`.
+finds the `StaticFileServer` object, and calls `registerStaticBundle(bundle)` to expose its
+compiled frontend at `/explorer`. The call returns an id for `unregisterStaticBundle`. Each
+bundle names an `indexFileName` that is served for any path under the prefix that matches no
+file, which lets a client-side router own paths the server knows nothing about.
 
 The feature is dormant when nothing registers a bundle. There is no plain-HTTP API exposed
 by default.
@@ -143,7 +148,9 @@ without bound. Two thresholds defend against this:
   *unreliable* notifications (sticky subscription updates, etc.). Reliable replies and
   events keep flowing. When the buffer drains back below the threshold, the server emits
   one `notificationsDropped {count: N}` notification carrying the cumulative drop count
-  for that window so the client can know it missed updates and refresh.
+  for that window so the client can know it missed updates and refresh. `@sen/client`
+  registers no handler for it, and its transport discards notifications that have none, so
+  a page built on that library never sees the count.
 - **Hard (`maxBackpressureBytes`, default 64 KiB)**: crossing this ceiling drops the
   connection. The client must reconnect and re-establish state.
 
@@ -154,10 +161,10 @@ neighbors.
 
 A TypeScript client (`@sen/client`) ships in-tree at
 [`components/jsonrpc/clients/typescript/`](https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript).
-It wraps the wire surface in idiomatic browser / Node.js code and ships matching React
-bindings (`@sen/client/react`). See the dedicated TypeScript client documentation for
-install instructions, the `Client` / `InterestHandle` / `ObjectHandle` lifecycle, error
-handling, reconnection, and the React hook surface.
+It wraps the wire surface in idiomatic browser / Node.js code and ships matching React bindings
+(`@sen/client/react`). See the dedicated TypeScript client documentation for install instructions,
+the `Client` / `InterestHandle` / `ObjectHandle` lifecycle, error handling, reconnection, and the
+React hook surface.
 
 The wire is JSON-RPC 2.0, so a client in any other language can be written against
 `jsonrpc.stl` directly. The Python ecosystem has `python-jsonrpc-client` and similar
@@ -168,14 +175,19 @@ options; the Sen project does not maintain one in-tree.
 A pluggable seam in `auth.h` runs on every WebSocket upgrade. The default `Authenticator`
 implementation (`NoAuth`) accepts every upgrade.
 
-To require auth, subclass `Authenticator`, read the `Authorization` header (or any other
-upgrade-request fields), validate, and return an `Identity` (or reject with `401`). The
-returned `Identity` is forwarded into every handler call. Until a non-default authenticator
-is wired, gate `jsonrpc` at the network layer (firewall, reverse-proxy auth) when exposing
-it beyond `127.0.0.1`.
+To require auth, subclass `Authenticator` and implement `verify`, which returns either an
+`Identity` or an error string; an error makes the server answer the upgrade with
+`401 Unauthorized`. The `Identity` is attached to the connection's server object, so every
+handler on that connection can reach it.
+
+`verify` receives only the `Authorization` header, so schemes that live elsewhere in the
+upgrade request, cookies or a query parameter for instance, have nothing to read and need
+the seam widened first. Until a non-default authenticator is wired, gate `jsonrpc` at the
+network layer (firewall, reverse-proxy auth) when exposing it beyond `127.0.0.1`.
 
 ## Component architecture
 
-See [`components/jsonrpc/architecture.md`](https://github.com/airbus/sen/blob/main/components/jsonrpc/architecture.md)
-for the contributor-facing overview: threading model, layer diagram, per-module
-responsibilities, key invariants.
+See
+[`components/jsonrpc/architecture.md`](https://github.com/airbus/sen/blob/main/components/jsonrpc/architecture.md)
+for the contributor-facing overview: threading model, layer diagram, per-module responsibilities,
+key invariants.

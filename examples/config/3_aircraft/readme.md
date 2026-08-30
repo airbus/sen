@@ -8,8 +8,9 @@ the `update()` method.
 
 ## Interface and Implementation
 
-In the `aircraft.stl` file you can see how we inherit from `rpr.Aircraft`, and in the implementation
-`dummy_aircraft.cpp` you can see a (dummy) implementation of the `update` function.
+In the `dummy_aircraft.stl` file you can see how we inherit from `rpr.Aircraft`, and in the
+implementation `dummy_aircraft_impl.cpp` you can see a (dummy) implementation of the `update`
+function.
 
 === "_dummy_aircraft.stl_"
 

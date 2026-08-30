@@ -1,4 +1,4 @@
-# Checked Properties Example
+# Checked properties example
 
 > **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic properties and functions).
 

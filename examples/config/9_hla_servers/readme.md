@@ -1,6 +1,9 @@
-# HLA Servers Examples
+# Request/response servers
 
-> **Prerequisites:** [3 - Aircraft](../3_aircraft/readme.md) (HLA concepts and request/response patterns).
+> **Prerequisites:** [3 - Aircraft](../3_aircraft/readme.md) (request/response patterns).
+
+These servers are ordinary Sen objects, not HLA federates — though their types come from HLA FOM
+modules. The directory name reflects that.
 
 Here we implement a terrain server (and a client) and a weather server.
 
@@ -76,7 +79,7 @@ care of more object types and handle UUIDs.
 ### How to run it
 
 ```shell
-sen run config/9_hla_servers/3_weather_server.yaml
+sen run config/9_hla_servers/2_weather_server.yaml
 ```
 
 In this case you need to populate the parameters in a more involved manner due to the nature of the

@@ -1,8 +1,8 @@
 # The Sen Query Language
 
-## The Challenge
+## The challenge
 
-We have two related needs:
+There are related needs:
 
 1. The infrastructure should prevent saturating the network with redundant or unnecessary traffic.
 2. Users need an easy way to find the objects they are interested in. And this interest may change
@@ -17,14 +17,13 @@ In any case, the idea is to go beyond that, and only send those updates towards 
 are interested in the information. Most traditional systems simply send the information and let the
 consumers decide if to use or ignore it. This is mostly prevalent in systems that rely on multicast,
 as the producer doesn't see any difference between having one or many consumers. But things change
-when we have multiple quality-of-service configurations (UDP unicast, multicast and TCP), because
-then the producer needs to do more work and dedicate time and memory to each consumer. How do we do
-to make the producer aware of which participant is interested in which object and under which
-conditions?
+with multiple quality-of-service configurations (UDP unicast, multicast and TCP), because
+then the producer needs to do more work and dedicate time and memory to each consumer. How is the
+producer made aware of which participant is interested in which object, and under which conditions?
 
-## The Solution
+## The solution
 
-We do as follows:
+Sen does the following:
 
 1. When you publish an object, Sen takes note, but doesn't notify anyone straight away.
 2. When you connect to a bus, Sen takes note, but you don't receive any objects straight away.
@@ -42,7 +41,7 @@ working, as we avoid traffic from happening in the first place.
 You might be wondering about the performance impact on the producers that have to do those checks,
 and the trade-offs of this approach. Consider that:
 
-- When sending updates (property changes and events), producers consume resources. We need to keep
+- When sending updates (property changes and events), producers consume resources. Sen has to keep
   track of the deltas, serialize the messages, and transmit the data (individually to each
   participant in case of UDP unicast or TCP).
 - The implementation of the checks in the producers is highly optimized.
@@ -75,8 +74,8 @@ thing is SQL when abbreviated, and that's a happy coincidence because it's very 
 SELECT rpr.PhysicalEntity FROM se.env WHERE name = "ownship"
 ```
 
-You can see that the classes are analogous to the selected elements (we are selecting objects),
-buses are analogous to tables, and properties are analogous to columns.
+You can see that the classes are analogous to the selected elements (objects are what a query
+selects), buses are analogous to tables, and properties are analogous to columns.
 
 You can also use other expressions, and combination of expressions:
 
@@ -95,7 +94,7 @@ SELECT rpr.Aircraft
  WHERE forceIdentifier IN ("friendly", "neutral", "opposing")
    AND (isActive OR spatial.SpatialFPStruct.lon < 1.0)
 
-SELECT se.Aircraft
+SELECT rpr.Aircraft
 FROM   se.env
 WHERE  currentSpeed BETWEEN commandedSpeed - 10.0 AND
                             commandedSpeed + 10.0
@@ -109,17 +108,30 @@ FROM bus_name
 WHERE condition
 ```
 
+Use `*` in place of the class name to take every object on the bus whatever its class, which is the
+form most of the shipped configurations use:
+
+```sql title="Every object on a bus"
+SELECT * FROM local.kernel
+```
+
+The `WHERE` clause is optional. Without one, the interest is in everything the `SELECT` names, and
+as noted above producers skip their checks entirely in that case.
+
 The operators in the `WHERE` clause are:
 
-| Operator          | Description                         |
-| ----------------- | ----------------------------------- |
-| `=`               | Equal                               |
-| `>`               | Greater than                        |
-| `<`               | Lower than                          |
-| `>=`              | Greater than or equal               |
-| `<=`              | Lower than or equal                 |
-| `BETWEEN x AND y` | Between a certain range             |
-| `IN (x, y, ...)`  | To specify multiple possible values |
+| Operator              | Description                         |
+| --------------------- | ----------------------------------- |
+| `=`                   | Equal                               |
+| `!=`                  | Not equal                           |
+| `>`                   | Greater than                        |
+| `<`                   | Less than                           |
+| `>=`                  | Greater than or equal               |
+| `<=`                  | Less than or equal                  |
+| `BETWEEN x AND y`     | Between a certain range             |
+| `NOT BETWEEN x AND y` | Outside that range                  |
+| `IN (x, y, ...)`      | To specify multiple possible values |
+| `NOT IN (x, y, ...)`  | None of those values                |
 
 The `WHERE` clause can be combined with `AND`, `OR`, and `NOT` operators.
 
@@ -128,11 +140,16 @@ The `AND` and `OR` operators are used to filter objects based on more than one c
 - The `AND` operator selects an object if all the conditions separated by `AND` are `true`.
 - The `OR` operator selects an object if any of the conditions separated by `OR` is `true`.
 
-The `NOT` operator selects an object if the condition(s) is `NOT true`.
+The `NOT` operator selects an object if the condition is `NOT true`.
+
+**Parenthesize anything more than a bare boolean.** Unlike database SQL, `NOT` binds more tightly
+than the comparison operators, so `NOT altitude > 100.0` groups as `(NOT altitude) > 100.0`, and on
+a number that negation is arithmetic. Write `NOT (altitude > 100.0)`. `NOT BETWEEN` and `NOT IN`
+are special-cased and behave as you would expect.
 
 Regarding values:
 
-- Strings be "double-quoted".
+- Strings are "double-quoted".
 - Booleans can be `true` or `false`.
 - Integers as usual.
 - Real numbers use the dot for the decimal part (as usual).
