@@ -81,6 +81,9 @@ jobs:
           # The action that installs the toolchain on runners pins the same
           # conan version; the image is the definition, so read it from there.
           conan_version=$(sed -n 's/^ARG CONAN_VERSION=//p' tools/ci/Dockerfile)
+          cmake_version=$(sed -n 's/^ARG CMAKE_VERSION=//p' tools/ci/Dockerfile)
+          ninja_version=$(sed -n 's/^ARG NINJA_VERSION=//p' tools/ci/Dockerfile)
+          test -n "$conan_version" && test -n "$cmake_version" && test -n "$ninja_version"
           docker run --rm sen-ci:probe bash -lc '
             set -e
             for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
@@ -99,11 +102,11 @@ jobs:
             # --no-install-recommends leaves out unless it is asked for.
             printf "int main(){return 0;}" > /tmp/probe.cpp
             clang++-20 -fsanitize=address -o /tmp/probe /tmp/probe.cpp
-            # cmake and ninja must come from Conan, so that every build uses
-            # the pinned versions; finding them here would defeat that.
-            for tool in cmake ninja; do
-                ! command -v "$tool" > /dev/null || { echo "unexpected: $tool"; exit 1; }
-            done
+            # A package built from source in here uses these, so they must report
+            # the versions Conan pins rather than merely be present. ninja appends the
+            # packager patch level to what it reports, so compare only the release.
+            cmake --version | head -1 | grep -Fx "cmake version '"$cmake_version"'"
+            test "$(ninja --version | cut -d. -f1-3)" = "'"$ninja_version"'"
             test "$(id -un)" = sen || { echo "image runs as $(id -un)"; exit 1; }
             echo "all expected tools present"
           '

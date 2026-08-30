@@ -4,9 +4,10 @@
     "name": "sen",
     // The Dockerfile has no COPY steps; a repo-root context would tar the
     // whole checkout on every rebuild.
-    // The dev stage is the CI image plus what an editor needs to recognise a
-    // toolchain: cmake, ninja and gdb. The builds themselves still use the
-    // cmake and ninja Conan pins.
+    // The dev stage is the CI image plus what an editor needs on top of the
+    // toolchain it already carries: a debugger, and graphviz for the
+    // dependency-graph target. The builds themselves still use the cmake and
+    // ninja Conan pins.
     "build": {
         "dockerfile": "../tools/ci/Dockerfile",
         "context": "../tools/ci",
