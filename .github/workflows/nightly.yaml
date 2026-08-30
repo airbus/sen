@@ -93,7 +93,7 @@ jobs:
           if-no-files-found: ignore
 
   clang-tidy:
-    name: "clang-tidy full tree"
+    name: "clang-tidy (targets that opted in)"
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     env:
@@ -111,8 +111,9 @@ jobs:
           compiler-version: 20
           runner-label: ubuntu-24.04
 
-      # SEN_DISABLE_CLANG_TIDY=OFF attaches clang-tidy to every target
-      # (CXX_CLANG_TIDY), so the full tree is checked as it compiles.
+      # Analysis is opt-in per target, so this covers the targets that called
+      # sen_enable_static_analysis, not the whole tree: eight directories opt in
+      # nowhere. Examples are excluded too, since with_examples is off here.
       - name: Build with clang-tidy
         shell: bash
         run: |
