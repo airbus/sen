@@ -13,8 +13,18 @@ the one running the hook instead.
 
 import pytest
 
-# Each of these redirects git on its own, whether or not a hook sets it.
-REDIRECTING_VARIABLES = ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE", "GIT_COMMON_DIR")
+# Anything inherited that tells git where the repository is, whether or not a hook
+# set it. GIT_DIR and GIT_OBJECT_DIRECTORY are the two that move a write: the first
+# takes precedence over -C, the second sends the objects somewhere else entirely.
+REDIRECTING_VARIABLES = (
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_CEILING_DIRECTORIES",
+)
 
 
 @pytest.fixture(autouse=True)

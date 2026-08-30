@@ -7,6 +7,7 @@
 """Pins the grouping and breaking-change extraction of the changelog."""
 
 import configparser
+import os
 import subprocess
 from pathlib import Path
 
@@ -16,8 +17,20 @@ GITLINT_FILE = Path(__file__).resolve().parents[2] / ".gitlint"
 
 
 def git(repo: Path, *args: str) -> None:
-    """Runs a git command in the test repository."""
-    subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
+    """Runs a git command in the test repository.
+
+    The identity goes in per invocation and the global and system config files
+    point inside the test's own directory, so a call that resolves somewhere
+    unexpected writes nothing real. One that ran `git config` left
+    `test@example.com` on a working clone, and two commits reached GitHub with it.
+    """
+    env = {
+        **os.environ,
+        "GIT_CONFIG_GLOBAL": str(repo.parent / "gitconfig-global"),
+        "GIT_CONFIG_SYSTEM": str(repo.parent / "gitconfig-system"),
+    }
+    identity = ["-c", "user.name=Test", "-c", "user.email=test@example.com"]
+    subprocess.run(["git", "-C", str(repo), *identity, *args], check=True, capture_output=True, env=env)
 
 
 def commit(repo: Path, subject: str) -> None:
@@ -108,8 +121,6 @@ def test_the_previous_release_line_is_chosen_from_a_detached_head(tmp_path, monk
     repo = tmp_path / "repo"
     repo.mkdir()
     git(repo, "init", "-q", "-b", "main")
-    git(repo, "config", "user.email", "test@example.com")
-    git(repo, "config", "user.name", "Test")
     commit(repo, "feat: the 0.5 work")
     git(repo, "branch", "release/0.5.x")
     commit(repo, "feat: the 0.6 work")
