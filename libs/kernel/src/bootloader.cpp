@@ -358,6 +358,7 @@ void combineRepeatedElements(c4::yml::NodeRef node, c4::yml::Tree* tree, std::st
   params.runMode = kernel::RunMode::realTime;
   params.logConfig = getDefaultLogConfig();
   params.sleepPolicy = SystemSleep {};
+  params.compatibilityMode = kernel::CompatibilityMode::relaxed;
   return params;
 }
 

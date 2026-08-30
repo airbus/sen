@@ -1,0 +1,16 @@
+load:
+  - name: ether
+    group: 10
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65455
+  - name: py
+    group: 5
+    freqHz: 100
+    imports: [type_clash_participant_4]
+    module: compat_mode_tester

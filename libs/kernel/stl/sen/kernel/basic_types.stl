@@ -90,6 +90,14 @@ variant SleepPolicy
   SystemSleep
 }
 
+// What to do when a type published by another kernel does not match the local one
+enum CompatibilityMode: u8
+{
+  relaxed,  // convert, and warn when the conversion can lose data
+  strict,   // convert only when nothing can be lost, reject the object otherwise
+  disabled  // accept only an exact match
+}
+
 // Basic runtime configuration for a component
 struct ComponentConfig
 {
@@ -176,7 +184,8 @@ struct KernelParams
   crashReportDir      : string,                 // where to store crash reports (defaults to the temp dir)
   crashReportDisabled : bool,                   // if true, no reports are generated
   lockMemoryPages     : bool,                   // keep process pages memory-resident
-  sleepPolicy         : SleepPolicy             // configurable sleep policy of the kernel component
+  sleepPolicy         : SleepPolicy,            // configurable sleep policy of the kernel component
+  compatibilityMode   : CompatibilityMode       // what to do with a remote type that does not match
 }
 
 // Type of operating system

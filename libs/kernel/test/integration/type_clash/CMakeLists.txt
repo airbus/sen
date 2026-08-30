@@ -49,6 +49,20 @@ add_sen_package(
 sen_enable_static_analysis(type_clash_participant_3)
 set_target_properties(type_clash_participant_3 PROPERTIES FOLDER "test")
 
+add_sen_package(
+  TARGET type_clash_participant_4
+  MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
+  VERSION "0.0.1"
+  DESCRIPTION "Type clash participant 4"
+  SOURCES participant_4/src/participant_4.h participant_4/src/participant_4.cpp
+  STL_FILES participant_4/stl/participant_4.stl
+  BASE_PATH participant_4
+  EXPORT_NAME sen.test.type_clash
+  NO_SCHEMA
+)
+sen_enable_static_analysis(type_clash_participant_4)
+set_target_properties(type_clash_participant_4 PROPERTIES FOLDER "test")
+
 add_sen_integration_test(
   kernel_type_clash_test_1
   COMMAND
@@ -92,3 +106,34 @@ set_tests_properties(kernel_type_clash_test_2 PROPERTIES RUN_SERIAL TRUE)
 set_tests_properties(
   kernel_type_clash_test_2 PROPERTIES PASS_REGULAR_EXPRESSION "has an incompatible remote implementation"
 )
+
+# Compatibility modes, end to end. Participant 4 declares the same class as participant 2 with a
+# narrower property, so reading it can drop a value. The tester asserts whether obj_clash reached
+# its bus, not whether a message was logged.
+foreach(mode_case relaxed strict disabled)
+  if(mode_case STREQUAL "relaxed")
+    set(expect_object 1)
+  else()
+    set(expect_object 0)
+  endif()
+
+  add_sen_integration_test(
+    kernel_compatibility_mode_${mode_case}
+    COMMAND
+    ${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/participant_4/config/participant_4.yaml
+    ${CMAKE_CURRENT_SOURCE_DIR}/compat_mode_publisher.yaml
+    ${CMAKE_CURRENT_SOURCE_DIR}/compat_mode_${mode_case}.yaml
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
+    REQ_COMPONENTS ether py REQ_DEPS type_clash_participant_4 type_clash_participant_2
+  )
+
+  set_tests_properties(
+    kernel_compatibility_mode_${mode_case}
+    PROPERTIES
+      ENVIRONMENT
+      "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/..;PYTHONUNBUFFERED=1;SEN_EXPECT_CLASH_OBJECT=${expect_object}"
+  )
+  set_tests_properties(kernel_compatibility_mode_${mode_case} PROPERTIES RUN_SERIAL TRUE)
+endforeach()

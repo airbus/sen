@@ -14,6 +14,7 @@
 #include "sen/core/meta/type_registry.h"
 
 // stl
+#include "stl/sen/kernel/basic_types.stl.h"
 #include "stl/sen/kernel/type_specs.stl.h"
 
 namespace sen::kernel
@@ -36,8 +37,21 @@ namespace sen::kernel
 /// Detects which differences cause
 [[nodiscard]] std::vector<std::string> getRuntimeDifferences(const Type* localType, const Type* remoteType);
 
-/// Checks if two types are runtime-compatible and returns the error string in case they are not
-[[nodiscard]] std::vector<std::string> runtimeCompatible(const Type* localType, const Type* remoteType);
+/// Whether a runtime-compatible remote type may still be used, under a compatibility mode. One
+/// that is not runtime-compatible is refused before this is asked.
+///
+/// @param mode what the kernel was configured to do.
+/// @param typesAreEquivalent the two definitions are identical, so nothing is converted.
+/// @param anyConversionLosesData at least one conversion between them can drop a value.
+[[nodiscard]] bool acceptsUnderCompatibilityMode(CompatibilityMode mode,
+                                                 bool typesAreEquivalent,
+                                                 bool anyConversionLosesData) noexcept;
+
+/// Checks if two types are runtime-compatible and returns the error string in case they are not.
+/// When lossy is given, it also collects the conversions that are allowed but can drop a value.
+[[nodiscard]] std::vector<std::string> runtimeCompatible(const Type* localType,
+                                                         const Type* remoteType,
+                                                         std::vector<std::string>* lossy = nullptr);
 
 /// Translates a CustomTypeSpec from V4 to the current version (V6) of the kernel protocol
 [[nodiscard]] CustomTypeSpec toCurrentVersion(const CustomTypeSpecV4& v4);
