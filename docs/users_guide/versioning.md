@@ -27,3 +27,8 @@ Versions are `major.minor.patch`. A release begins as a branch named for its ser
 and `0.6.0-rc2`, and when one is accepted it takes the final tag, `0.6.0`. The branch stays
 afterwards, so a released series can still receive patches without waiting for the next one:
 `0.5.1` and `0.5.2` were both tagged on `release/0.5.x`.
+
+Expect breaking changes between releases. A change that breaks is marked in the commit that makes
+it, and those commits are collected into a dedicated section of each release's notes, which are
+generated from the commit history. Read that section before upgrading. The
+[releases page](https://github.com/airbus/sen/releases) carries one set of notes per release.

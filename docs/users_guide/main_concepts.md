@@ -106,6 +106,17 @@ run continues, and who gets told are decisions about the exercise and not about 
 belong to whatever supervises it. Sen is a reasonable substrate for building that orchestrator,
 and stays out of the decision itself.
 
+When it comes back, you do nothing. The returning kernel is discovered again on its own, and the
+interest you already hold serves its objects without being re-issued: you see the removal once, then
+a fresh arrival. That arrival carries state. The receiving side asks for the state of the objects it
+has just accepted and the publisher serves it, so an object is populated when it appears rather than
+filling in as later updates happen to land.
+
+The object that comes back is a new object. Sen promises no re-identification, so matching it to the
+one that went away, by name or by anything else, is yours to do. A component that restarted and a
+network that healed look the same from here, because the remote side is torn down and discarded
+either way, and nothing you can see distinguishes them.
+
 Ownership governs lifetime, not every write. An object is responsible for its own properties, but a
 **Read Write** property really is written from outside: the caller's setter puts the value into
 the object's next buffer, and the owner finds out afterwards through

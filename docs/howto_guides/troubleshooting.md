@@ -116,8 +116,10 @@ because it is a local variable that goes out of scope.
 
 **Fix:** Objects must be owned by the component (stored as `shared_ptr` members), not as locals.
 
-**Cause 2:** `Subscription<T>` is a local variable. When it goes out of scope, it tears down the
-subscription, which can cascade into the object being removed.
+**Cause 2:** `Subscription<T>` is a local variable. When it goes out of scope it tears down the
+subscription: the list is cleared, and any `onRemoved` callback you installed fires for every
+object the list was holding. The object itself is untouched. It is still on the bus and `ls` in
+the shell still lists it, so what disappeared is your view of it.
 
 **Fix:** Make the subscription a member variable of your class. `selectAllFrom` returns a
 `std::shared_ptr<sen::Subscription<T>>`, so that is the type the member has to hold:

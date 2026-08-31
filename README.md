@@ -56,8 +56,9 @@ curl -sSf https://raw.githubusercontent.com/airbus/sen/main/resources/installer/
 The installer downloads a release into `~/.sen/<build-id>/` and writes activate scripts you source from your shell.
 See the [install guide](https://airbus.github.io/sen/latest/getting_started/install.html) for details.
 
-Sen is not on Conan Center yet. To use it as a dependency, clone this repository and run
-`conan create .` once to put it in your local Conan cache.
+Sen is not on Conan Center yet, so you build it into your local Conan cache once, from a checkout of
+the release tag. [Using Sen in your project](docs/getting_started/install.md#using-sen-in-your-project-conan)
+has the commands.
 
 1. Create a `conanfile.py` in your project's top-level directory and add **Sen** as a dependency:
 

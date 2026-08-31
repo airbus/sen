@@ -120,8 +120,24 @@ For environment variables, the security model, and the full set of options, see
 
 ## Using Sen in your project (Conan)
 
-Sen ships as a Conan package. Publication on Conan-Center is on the roadmap; in the meantime the
-package is consumed from the project's repository.
+Sen ships as a Conan package. Publication on Conan-Center is on the roadmap; until then there is no
+remote to resolve it from, so you put it in your local Conan cache yourself:
+
+```shell
+git clone https://github.com/airbus/sen.git
+cd sen
+git checkout 0.6.0
+conan create .
+```
+
+Check out the release tag first. The recipe takes its version from `git describe --tags`, and the
+tags are on the `release/x.y.x` branches rather than on `main`, so a fresh clone left on `main`
+gives you `sen/<commit hash>` instead of `sen/0.6.0`.
+
+`conan create .` uses your default Conan profile. If you have never used Conan, run
+`conan profile detect` once first. Sen's own profiles in `.conan/profiles/` are for building Sen
+itself: they fix the operating system and pin compiler versions and executable names, so they are
+not a starting point for your machine.
 
 The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does not generate a
 synthetic `senConfig.cmake` for downstream consumers. Instead, your build picks up Sen's own

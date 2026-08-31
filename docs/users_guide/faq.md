@@ -40,7 +40,7 @@ infrastructural problem that would cause it.
 
 : If you don't load the ether component, all the sessions and buses are local.
 
-## WSL2 FAQ
+## WSL2
 
 ______________________________________________________________________
 

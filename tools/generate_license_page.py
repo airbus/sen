@@ -18,7 +18,7 @@ from pathlib import Path
 
 PREAMBLE = """# Licensed Code in Sen
 
-The public API of Sen **has no dependencies**.
+The public API of Sen depends on no third-party code apart from spdlog, which provides loggers.
 
 Internally, some parts of the Sen _implementation_ uses third-party
 code that is licensed under specific open-source licenses from the

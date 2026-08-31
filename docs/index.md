@@ -24,6 +24,9 @@ If you are arriving from ROS, DDS, gRPC or SOME/IP, start with
 equivalents, and explains the one idea that is genuinely different: Sen is object-oriented at the
 network level, not message-oriented.
 
+Sen is under active development. See
+[Versioning and compatibility](users_guide/versioning.md) for more information.
+
 On performance: low latency and high throughput are what Sen is built for and what its execution
 model is shaped around, but no figures are published yet. The benchmarking work to produce numbers
 worth standing behind is in progress. Read the wording above as intent, and measure on your own
@@ -115,7 +118,8 @@ an acronym nor an abbreviation, but a noun.
 - Optimized memory management by extensive use of memory pools.
 - Natively integrated with spdlog.
 - Natively integrated with CMake. Compiler and version info is baked into the binaries.
-- Self-contained: no 3rd-party dependencies on the public interface.
+- Self-contained: the public API of Sen depends on no third-party code apart from spdlog, which
+  provides loggers.
 - Code generation template engine that allows extending and enhancing it to our future needs.
 - Container-friendly.
 - Python bindings for accessing recorded data.
