@@ -36,7 +36,9 @@
 
 // os
 #ifdef __linux__
+#  include <fcntl.h>     // for open()
 #  include <sys/mman.h>  // for mlockall()
+#  include <unistd.h>    // for write() and close()
 #endif
 
 namespace sen::kernel::impl
@@ -78,7 +80,7 @@ Executor::Executor(std::vector<std::unique_ptr<Runner>>& runners)
 {
 }
 
-void Executor::startUp(bool tryToLockPages)
+void Executor::startUp(bool tryToLockPages, bool tryToLimitCpuIdleLatency)
 {
   // early exit
   if (runners_.empty())
@@ -104,8 +106,31 @@ void Executor::startUp(bool tryToLockPages)
         logger->warn("could not call mlockall (use setcap cap_ipc_lock,cap_sys_nice=+eip <path_to_cli_run>)");
       }
     }
+
+    // An idle processor drops into states it is slow to climb out of, and that climb is what makes
+    // a sleeping component wake late. Holding this file open at zero asks for none of them. It
+    // applies to the whole machine, for as long as the descriptor is held.
+    if (tryToLimitCpuIdleLatency && cpuIdleLatencyFd_ == -1)
+    {
+      cpuIdleLatencyFd_ =
+        ::open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);  // NOLINT(cppcoreguidelines-pro-type-vararg)
+      const int32_t noLatency = 0;
+      if (cpuIdleLatencyFd_ == -1 || ::write(cpuIdleLatencyFd_, &noLatency, sizeof(noLatency)) != sizeof(noLatency))
+      {
+        if (cpuIdleLatencyFd_ != -1)
+        {
+          std::ignore = ::close(cpuIdleLatencyFd_);
+          cpuIdleLatencyFd_ = -1;
+        }
+
+        logger->warn(
+          "could not limit the cpu idle latency (/dev/cpu_dma_latency needs write access; "
+          "components may wake late on an otherwise idle machine)");
+      }
+    }
 #else
     std::ignore = tryToLockPages;
+    std::ignore = tryToLimitCpuIdleLatency;
 #endif
 
     startupFinished_ = true;
@@ -170,6 +195,15 @@ uint32_t Executor::computeMaxGroup(uint32_t previous) const noexcept
 void Executor::shutDown()
 {
   auto logger = KernelImpl::getKernelLogger();
+
+#ifdef __linux__
+  // the idle-latency constraint lasts exactly as long as the descriptor is held
+  if (cpuIdleLatencyFd_ != -1)
+  {
+    std::ignore = ::close(cpuIdleLatencyFd_);
+    cpuIdleLatencyFd_ = -1;
+  }
+#endif
 
   while (true)
   {

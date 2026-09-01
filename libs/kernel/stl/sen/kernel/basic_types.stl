@@ -196,7 +196,10 @@ struct KernelParams
   crashReportDisabled : bool,                   // if true, no reports are generated
   lockMemoryPages     : bool,                   // keep process pages memory-resident
   sleepPolicy         : SleepPolicy,            // configurable sleep policy of the kernel component
-  compatibilityMode   : CompatibilityMode       // what to do with a remote type that does not match
+  compatibilityMode   : CompatibilityMode,      // what to do with a remote type that does not match
+  // This struct is reachable over the wire through Kernel.getConfig() and is embedded in SenData,
+  // and the encoding is positional, so adding a field here shifts what follows it either way.
+  limitCpuIdleLatency : bool                    // keep the CPUs out of the deep idle states they are slow to leave
 }
 // --8<-- [end:kernel_params]
 
