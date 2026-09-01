@@ -19,19 +19,25 @@
 #include "wall_clock.h"
 
 // std
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <optional>
 #include <ratio>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <variant>
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__MINGW32__) || defined(__MINGW64__)
 #  include <time.h>
 #  include <unistd.h>
+#  if defined(__linux__)
+#    include <sys/prctl.h>
+#  endif
 #elif defined(_WIN32)
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
@@ -45,6 +51,86 @@
 namespace sen::kernel
 {
 
+/// What a sleep costs beyond what it asks for.
+///
+/// A sleep of X costs X plus a roughly constant amount, so the overhead is a property of the
+/// machine rather than of any one step size. It is measured once and shared.
+class SleepOverhead
+{
+public:
+  using NanoSecsAsDouble = std::chrono::duration<double, std::ratio<1, 1000000000>>;
+
+public:
+  /// Starts pessimistic: assuming sleeps are cheap means taking the first few before finding out
+  /// they were not, and those are the ones that oversleep.
+  explicit SleepOverhead(NanoSecs initialGuess) noexcept: overhead_(NanoSecsAsDouble(initialGuess)) {}
+
+  /// What a sleep of this size is expected to cost.
+  [[nodiscard]] NanoSecsAsDouble costOf(NanoSecs grain) const noexcept { return NanoSecsAsDouble(grain) + overhead_; }
+
+  /// Whether one more sleep of this size fits in the time left.
+  [[nodiscard]] bool fits(NanoSecs remaining, NanoSecs grain) const noexcept
+  {
+    return NanoSecsAsDouble(remaining) > costOf(grain);
+  }
+
+  /// Fold one measured sleep into the overhead.
+  ///
+  /// Holds the largest cost seen rather than averaging: an average sits below half its
+  /// measurements, and each of those is a sleep taken that could not be afforded.
+  void observe(NanoSecs requested, NanoSecs took) noexcept
+  {
+    // A sleep cannot return early, so a measurement saying it did is the clock having moved rather
+    // than the sleep having been cheap.
+    const auto measured = NanoSecsAsDouble(took) - NanoSecsAsDouble(requested);
+    if (measured.count() < 0.0)
+    {
+      return;
+    }
+
+    overhead_ = std::max(overhead_, measured);
+    ++samples_;
+  }
+
+  /// Called once per sleep, whether or not the step ran.
+  ///
+  /// An over-large overhead stops the step that would measure it, so nothing would notice the
+  /// machine getting faster. Easing it down is the way back, and costs at most one late cycle:
+  /// the first step that runs measures the truth and puts it straight back.
+  void decay() noexcept { overhead_ *= decayPerCycle; }
+
+  [[nodiscard]] NanoSecsAsDouble overhead() const noexcept { return overhead_; }
+  [[nodiscard]] uint64_t samples() const noexcept { return samples_; }
+
+private:
+  /// How much of the overhead survives a cycle that measured nothing. Slow enough not to drift
+  /// below what sleeps really cost, quick enough to recover within about a second.
+  static constexpr double decayPerCycle = 0.999;
+
+  NanoSecsAsDouble overhead_;
+  uint64_t samples_ {0};
+};
+
+/// Sleeps in steps of one size for as long as another step fits in the time left.
+///
+/// "Ops" is how a step sleeps: it takes the duration to ask for and returns what the sleep really
+/// took. Production passes an adapter over the system call; a test passes a cost model, so the loop
+/// can be driven over thousands of cycles without waiting for them.
+template <typename Ops>
+[[nodiscard]] NanoSecs stepDownWith(NanoSecs duration, NanoSecs grain, SleepOverhead& cost, Ops& ops) noexcept
+{
+  while (cost.fits(duration, grain))
+  {
+    const auto took = ops.sleepFor(grain);
+    cost.observe(grain, took);
+    duration -= took;
+  }
+
+  return duration;
+}
+
+struct PrecisionSleeperTestAccess;
+
 /// Helper to sleep and have more precise wake-ups.
 /// The implementation does sleeps of different granularity, ending
 /// up in a spin-lock when getting really close to the desired wake-up
@@ -52,6 +138,9 @@ namespace sen::kernel
 class PrecisionSleeper
 {
   SEN_NOCOPY_NOMOVE(PrecisionSleeper)
+
+  // The sleep steps only run inside a real sleep, so a test has no other way to reach them.
+  friend struct PrecisionSleeperTestAccess;
 
 public:
   /// We need the wall-clock time to get precise time measurements.
@@ -79,11 +168,6 @@ private:
   /// @return Gets duration reduced by the time we have slept.
   [[nodiscard]] NanoSecs veryCoarseGrainSleep(NanoSecs duration) noexcept;
 
-  /// Sleep for a relatively medium time step.
-  /// @param[in] duration: The duration to sleep.
-  /// @return Gets duration reduced by the time we have slept.
-  [[nodiscard]] NanoSecs coarseGrainSleep(NanoSecs duration) noexcept;
-
   /// Sleep for a small time step using the highest available clock source.
   /// @param[in, out] duration: The duration to sleep. Gets reduced by the time we have slept.
   void highResFineGrainSleep(NanoSecs duration) const noexcept;
@@ -92,14 +176,31 @@ private:
   /// @param[in, out] duration: The duration to sleep. Gets reduced by the time we have slept.
   void lowResFineGrainSleep(NanoSecs duration) const noexcept;
 
-  /// Update the internal stats with the observed sleep time.
-  void updateStats(NanoSecsAsDouble observed) noexcept;
-
   /// Make a system call to sleep.
   void doSleep(NanoSecs duration) noexcept;
 
 private:
-  static constexpr NanoSecsAsDouble defaultEstimate {std::chrono::milliseconds(5U)};
+  /// How a step sleeps in production: ask the operating system, and measure what it really took.
+  class SystemSleepOps
+  {
+  public:
+    SystemSleepOps(PrecisionSleeper& sleeper, WallClock& wallClock) noexcept: sleeper_(sleeper), wallClock_(wallClock)
+    {
+    }
+
+    [[nodiscard]] NanoSecs sleepFor(NanoSecs requested) noexcept
+    {
+      const auto start = wallClock_.highResNow();
+      sleeper_.doSleep(requested);
+      return wallClock_.highResNow() - start;
+    }
+
+  private:
+    PrecisionSleeper& sleeper_;
+    WallClock& wallClock_;
+  };
+
+private:
   using FineGrainSleepFunc = void (PrecisionSleeper::*)(NanoSecs) const noexcept;
   using SleepFunc = void (PrecisionSleeper::*)(NanoSecs) noexcept;
   struct PrecisionSleepTimes
@@ -109,14 +210,11 @@ private:
   };
 
 private:
-  NanoSecsAsDouble estimate_ {defaultEstimate};
-  NanoSecsAsDouble mean_ {defaultEstimate};
-  NanoSecsAsDouble m2_ {0};
-  uint64_t count_ = 1;
   WallClock& wallClock_;
   FineGrainSleepFunc fineGrainSleepFunc_;
   SleepFunc sleepFunc_;
   PrecisionSleepTimes precisionSleepTimes_;
+  std::optional<SleepOverhead> sleepCost_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -169,6 +267,16 @@ inline PrecisionSleeper::PrecisionSleeper(WallClock& wallClock, const std::strin
       throwRuntimeError(std::move(err));
     }
   }
+
+  // Linux pads every timer request with 50us of slack by default, which lands inside the window
+  // this class protects. Asking for none of it shortens how early the spin has to start.
+#if defined(__linux__)
+  std::ignore = ::prctl(PR_SET_TIMERSLACK, 1UL, 0UL, 0UL, 0UL);
+#endif
+
+  // Seed once the configured times have settled, from the sleep about to be measured: a seed above
+  // what that sleep really costs stops the step before it takes a single sample.
+  sleepCost_.emplace(precisionSleepTimes_.coarseGrain);
 }
 
 inline void PrecisionSleeper::sleep(NanoSecs duration) noexcept { std::invoke(sleepFunc_, this, duration); }
@@ -176,7 +284,18 @@ inline void PrecisionSleeper::sleep(NanoSecs duration) noexcept { std::invoke(sl
 inline void PrecisionSleeper::doSleepWithPrecision(NanoSecs duration) noexcept
 {
   duration = veryCoarseGrainSleep(duration);
-  duration = coarseGrainSleep(duration);
+
+  SystemSleepOps ops {*this, wallClock_};
+
+  auto& cost = sleepCost_.value();
+  cost.decay();
+
+  duration = stepDownWith(duration, precisionSleepTimes_.coarseGrain, cost, ops);
+
+  // A finer step here would end the sleeping closer in and cut the spin further. It is safe only
+  // where a sleep costs little more than it asks for, and that overhead varies by more than an
+  // order of magnitude across machines, so it needs measuring on the target first.
+
   std::invoke(fineGrainSleepFunc_, this, duration);
 }
 
@@ -190,24 +309,6 @@ inline NanoSecs PrecisionSleeper::veryCoarseGrainSleep(NanoSecs duration) noexce
     const auto end = wallClock_.highResNow();
 
     duration -= end - start;  // reduce the remaining time to sleep
-  }
-
-  return duration;
-}
-
-inline NanoSecs PrecisionSleeper::coarseGrainSleep(NanoSecs duration) noexcept
-{
-  // regular sleep in 1ms iterations (decreasing the duration variable)
-  while (duration > estimate_)
-  {
-    // try to sleep for a millisecond - we might end up sleeping more than that
-    const auto start = wallClock_.highResNow();
-    doSleep(precisionSleepTimes_.coarseGrain);
-    const auto end = wallClock_.highResNow();
-
-    const auto observed = end - start;  // check how much did we really sleep
-    duration -= observed;               // reduce the remaining time to sleep
-    updateStats(observed);              // estimate how much do we really sleep
   }
 
   return duration;
@@ -232,16 +333,6 @@ inline void PrecisionSleeper::lowResFineGrainSleep(NanoSecs duration) const noex
   {
     // no code needed
   }
-}
-
-inline void PrecisionSleeper::updateStats(NanoSecsAsDouble observed) noexcept
-{
-  ++count_;
-  const auto delta = observed - mean_;
-  mean_ += delta / count_;
-  m2_ += delta * (observed - mean_).count();
-  const auto stdDev = std::sqrt(m2_.count() / static_cast<double>(count_ - 1));
-  estimate_ = mean_ + NanoSecsAsDouble(stdDev);
 }
 
 inline void PrecisionSleeper::doSleep(NanoSecs duration) noexcept
