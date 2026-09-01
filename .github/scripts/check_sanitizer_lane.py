@@ -281,30 +281,49 @@ def build_compiler(build_dir: Path, fallback: str) -> str:
     return fallback
 
 
-def linked_here(build_dir: Path) -> list[str]:
+def linked_here(build_dir: Path) -> list[str] | None:
     """What this build links, read from the generator's own edges.
 
     File names cannot answer this: Sen versions its libraries, so the real files are
     `libcore.so.0.0.0` and `sen-0.0.0` with a symlink beside them. A vendored dependency is
     not linked here at all, so the edges exclude it without a list to maintain.
+
+    None when no generator wrote its edges here, which is not the same as a build that
+    linked nothing and must not be reported as one.
     """
     ninja = build_dir / "build.ninja"
-    if not ninja.exists():
-        return []
-    edge = re.compile(r"^build ([^:\n]+): (?:CXX|C)_(?:SHARED_LIBRARY|EXECUTABLE|MODULE_LIBRARY)_LINKER__\S+", re.M)
-    outputs: set[str] = set()
-    for match in edge.finditer(ninja.read_text(encoding="utf-8", errors="replace")):
-        outputs.update(part.replace("$ ", " ") for part in match.group(1).split())
-    return sorted(outputs)
+    if ninja.exists():
+        edge = re.compile(r"^build ([^:\n]+): (?:CXX|C)_(?:SHARED_LIBRARY|EXECUTABLE|MODULE_LIBRARY)_LINKER__\S+", re.M)
+        outputs: set[str] = set()
+        for match in edge.finditer(ninja.read_text(encoding="utf-8", errors="replace")):
+            outputs.update(part.replace("$ ", " ") for part in match.group(1).split())
+        return sorted(outputs)
+
+    # A Makefile build records each link the same way, one file per target. Its -o is
+    # relative to the directory the command runs in, which is the target's own.
+    links = sorted(build_dir.glob("**/CMakeFiles/*.dir/link.txt"))
+    if links:
+        outputs = set()
+        for link in links:
+            written = re.search(r"(?:^|\s)-o\s+(\S+)", link.read_text(encoding="utf-8", errors="replace"))
+            if written:
+                linked = (link.parent.parent.parent / written.group(1)).resolve()
+                outputs.add(str(linked.relative_to(build_dir.resolve())))
+        return sorted(outputs)
+
+    return None
 
 
-def binaries(build_dir: Path) -> list[Path]:
+def binaries(build_dir: Path) -> list[Path] | None:
     """Everything the lane linked that the runtime should be in, and that exists.
 
     A configuration that leaves a target out -- benchmarks here -- names it and does not
     produce it, which is not this check's business.
     """
-    return [build_dir / output for output in linked_here(build_dir) if (build_dir / output).is_file()]
+    outputs = linked_here(build_dir)
+    if outputs is None:
+        return None
+    return [build_dir / output for output in outputs if (build_dir / output).is_file()]
 
 
 def options_of(test: dict) -> tuple[dict[str, str], list[str], str | None]:
@@ -541,6 +560,8 @@ def instrumentation_problems(build_dir: Path, symbols: list[str]) -> list[str]:
     instrumented, and one instrumented library is enough to hide the whole of the rest.
     """
     found = binaries(build_dir)
+    if found is None:
+        return [f"no build.ninja and no link.txt under {build_dir}: what this build linked cannot be read"]
     if not found:
         return [f"no libraries or executables under {build_dir}, so nothing can be checked for instrumentation"]
 

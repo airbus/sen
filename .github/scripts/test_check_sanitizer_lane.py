@@ -252,3 +252,28 @@ def test_two_tests_differing_only_in_where_they_write_are_one_option_set():
         "c": {"ASAN_OPTIONS": "suppressions=/other:log_path=/r/c/report"},
     }
     assert len(check.option_sets(tests)) == 2
+
+
+def test_a_makefile_build_is_read_like_a_ninja_one(tmp_path):
+    """The lane is checked locally as well as on the runner, and the two use different generators."""
+    target = tmp_path / "libs" / "core" / "CMakeFiles" / "core.dir"
+    target.mkdir(parents=True)
+    (target / "link.txt").write_text(
+        "/usr/bin/clang++-20 -fsanitize=address -shared -o ../../bin/libcore.so.0.0.0 core.cpp.o\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "bin").mkdir(parents=True)
+    (tmp_path / "bin" / "libcore.so.0.0.0").write_text("", encoding="utf-8")
+
+    assert check.linked_here(tmp_path) == ["bin/libcore.so.0.0.0"]
+    assert [path.name for path in check.binaries(tmp_path)] == ["libcore.so.0.0.0"]
+
+
+def test_a_tree_with_no_generator_edges_is_not_reported_as_linking_nothing(tmp_path):
+    """A check that cannot see must say so. Reported as an empty build it reads as a real finding."""
+    assert check.linked_here(tmp_path) is None
+    assert check.binaries(tmp_path) is None
+
+    problems = check.instrumentation_problems(tmp_path, ["__asan_init"])
+    assert problems, "a tree it cannot read must be a problem, not a pass"
+    assert "cannot be read" in problems[0]
