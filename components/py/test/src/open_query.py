@@ -6,7 +6,6 @@
 # ======================================================================================================================
 """Module to test opening queries through the py component."""
 
-import pytest
 import sen
 
 test_object = test_bus = test_query = None
@@ -49,8 +48,11 @@ def run():
     sen.api.syncCalls = True
 
     # check the component throws an exception when trying to make an incomplete query
-    with pytest.raises(RuntimeError):
+    try:
         sen.api.open("SELECT * FROM ")
+        raise AssertionError("Error in open: expected a RuntimeError for an incomplete query")
+    except RuntimeError:
+        pass
 
     test_query = sen.api.open("SELECT * FROM my.test")
 
