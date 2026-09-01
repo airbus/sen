@@ -6,6 +6,7 @@
 # ======================================================================================================================
 """Pins the docs-only classification that gates the heavy workflow lanes."""
 
+import os
 import subprocess
 import sys
 
@@ -185,11 +186,19 @@ def test_a_base_with_no_common_history_classifies_nothing(tmp_path, monkeypatch,
     """
 
     def git(*args: str) -> None:
-        subprocess.run(["git", "-C", str(tmp_path), *args], check=True, capture_output=True)
+        """Runs git with the identity per invocation and its config inside tmp_path.
+
+        Contained the same way as test_create_changelog.py, where the reason is.
+        """
+        env = {
+            **os.environ,
+            "GIT_CONFIG_GLOBAL": str(tmp_path / "gitconfig-global"),
+            "GIT_CONFIG_SYSTEM": str(tmp_path / "gitconfig-system"),
+        }
+        identity = ["-c", "user.name=Test", "-c", "user.email=test@example.com"]
+        subprocess.run(["git", "-C", str(tmp_path), *identity, *args], check=True, capture_output=True, env=env)
 
     git("init", "-q", "-b", "one")
-    git("config", "user.email", "test@example.com")
-    git("config", "user.name", "Test")
     (tmp_path / "file.txt").write_text("one")
     git("add", "file.txt")
     git("-c", "commit.gpgsign=false", "commit", "-qm", "one")
