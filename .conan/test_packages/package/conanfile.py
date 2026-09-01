@@ -10,7 +10,7 @@ from os.path import join
 
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment
 
 
@@ -24,6 +24,10 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         """Defines the dependencies of Sen."""
         self.requires(self.tested_reference_str)
+
+    def layout(self):
+        """Keep generated test files in a build directory."""
+        cmake_layout(self, generator="Ninja")
 
     def generate(self):
         """Generate the toolchain files."""
@@ -39,6 +43,8 @@ class TestPackageConan(ConanFile):
     def test(self):
         """Defines a few test calls to ensure Sen works."""
         if not cross_building(self):
+            cmake = CMake(self)
+            cmake.test()
             self.run("sen --version", env="conanrun")
 
             # The point is that an installed Sen finds its own libraries, so the environment must

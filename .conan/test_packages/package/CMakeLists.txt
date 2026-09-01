@@ -8,6 +8,28 @@
 cmake_minimum_required(VERSION 3.12)
 project(test_package LANGUAGES CXX C)
 
+enable_testing()
+
 find_package(sen REQUIRED CONFIG)
 
-add_subdirectory(my_package)
+set(SEN_GENERATED_FILE_TEST_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/test_generated_file.cmake")
+
+function(add_generated_file_test test_name generated_file)
+  cmake_parse_arguments(
+    _arg
+    ""
+    "REQUIRED_TEXT"
+    ""
+    ${ARGN}
+  )
+
+  add_test(NAME ${test_name}
+           COMMAND ${CMAKE_COMMAND} "-DGENERATED_FILE=${generated_file}"
+                   "-DREQUIRED_TEXT=${_arg_REQUIRED_TEXT}" -P ${SEN_GENERATED_FILE_TEST_SCRIPT}
+  )
+endfunction()
+
+add_subdirectory(package_functions/add_sen_package package)
+add_subdirectory(package_functions/add_sen_component interface)
+add_subdirectory(package_functions/add_sen_interface_package i_package)
+add_subdirectory(package_functions/sen_generate_package component)

@@ -1,0 +1,6 @@
+package cmake_component;
+
+struct Configuration
+{
+  enabled : bool
+}
