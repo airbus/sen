@@ -7,6 +7,8 @@
 
 #include "runner.h"
 
+#include "schedule_cycles.h"
+
 // implementation
 #include "kernel_impl.h"
 #include "operating_system.h"
@@ -682,11 +684,13 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
 
     bool missedFrameEnd = false;
 
-    // check if we need to skip cycles
-    while (workEnd > time64)
+    // check if we need to skip cycles. A clock that jumps forward puts the next cycle an arbitrary
+    // distance away, so walk to it in one step: period by period is unbounded and stopFlag_ is not
+    // read along the way. Only ever forward, as the bus discards updates stamped before the last.
+    if (workEnd > time64)
     {
       missedFrameEnd = true;
-      time64 += period;
+      time64 += period * cyclesToCover(workEnd - time64, period);
     }
 
     if (missedFrameEnd)
@@ -699,16 +703,27 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
       }
     }
 
-    // calibrate the clock from time to time
+    // calibrate the clock from time to time. This instant is read from the same clock it
+    // schedules, so a backward jump leaves it out of reach and stalls drift correction until wall
+    // time catches up.
+    const auto calibrateInterval = wallClock.getCalibrateIntervalNs();
+    if (nextCalibrationTime > workEnd + calibrateInterval)
+    {
+      nextCalibrationTime = workEnd + calibrateInterval;
+    }
+
     if (workEnd >= nextCalibrationTime)
     {
       wallClock.calibrate();
-      nextCalibrationTime = workEnd + wallClock.getCalibrateIntervalNs();
+      nextCalibrationTime = workEnd + calibrateInterval;
     }
 
   doSleep:
-    // sleep until nextCycleStart
-    sleeper.sleep(static_cast<std::chrono::nanoseconds>(time64 - wallClock.highResNow()));
+    // sleep until nextCycleStart, never asking for longer than a cycle. A backward jump makes this
+    // difference arbitrarily large, and the sleeper issues it as one call that does not read
+    // stopFlag_. This bounds the request, not the sleep: where highResNow is the system clock, a
+    // jump landing inside a sleep still holds it for the size of the jump.
+    sleeper.sleep(static_cast<std::chrono::nanoseconds>(std::min(time64 - wallClock.highResNow(), period)));
     const auto wakeUpTime = wallClock.highResNow();
 
     tracer_->plot(oversleepPlotName_, (wakeUpTime - time64).count());
@@ -716,11 +731,11 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
     // check if we missed one or more cycles while sleeping
     bool skippedFrames = false;
 
-    // jump over the cycles we missed
-    while (wakeUpTime - time64 > period)
+    // jump over the cycles we missed, in one step for the same reason as above
+    if (wakeUpTime - time64 > period)
     {
       skippedFrames = true;
-      time64 += period;
+      time64 += period * cyclesToCover(wakeUpTime - time64 - period, period);
     }
 
     if (skippedFrames)
