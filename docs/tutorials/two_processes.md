@@ -1,6 +1,6 @@
 # Tutorial 3: Two processes talking
 
-**What you will learn**
+**What you'll learn:**
 
 - How to put two Sen processes on the same bus
 - What you have to change in your code to go from one process to two (nothing)
@@ -83,7 +83,7 @@ my.tutorial.goodCalc.getCurrent
 
 ---
 
-## What just happened
+## What just happened?
 
 **Nothing in the calculator's code changed.** `casio_calculator.cpp` is byte-for-byte the same file
 Tutorial 2 used. It does not know whether the caller is in its own process, in another process, or

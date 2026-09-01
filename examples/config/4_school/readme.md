@@ -84,7 +84,7 @@ sen run config/4_school/5_school_two_classrooms_two_components.yaml
 
 ### Locally, but distributed over two Sen components, using the explorer
 
-This is like the previous example, now with the explorer to have a better look..
+This is like the previous example, now with the explorer to have a better look.
 
 ```shell
 sen run config/4_school/6_school_two_classrooms_two_components_exp.yaml

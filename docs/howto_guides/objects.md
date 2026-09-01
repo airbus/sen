@@ -44,8 +44,8 @@ void unregistered(sen::kernel::RegistrationApi& api) override
 
 ### Updates
 
-If your object is published to a bus, an `update()` function will be called every time, after the
-`drainInputs()` gets called. This allows you to perform periodic updates to your internal state and
+If your object is published to a bus, your `update()` is called once per cycle, after
+`drainInputs()`. This allows you to perform periodic updates to your internal state and
 trigger your internal logic. For example:
 
 ```c++ title="my_class.cpp"
@@ -59,7 +59,7 @@ void MyClassImpl::update(sen::kernel::RunApi& runApi)
 }
 ```
 
-:man_raising_hand: The `sen::kernel::RunApi`, like the name indicates, is the runtime API that
+The `sen::kernel::RunApi`, as the name suggests, is the runtime API that
 allows your component to interact with Sen. It only has a few (but powerful) methods.
 
 ### Advanced callbacks
@@ -108,7 +108,7 @@ space characters (`" "`), which are restricted.
 
 ### Calling methods
 
-Sen is fully asynchronous, this means that calls to methods do not block. This is easy when your
+Sen is fully asynchronous, which means that calls to methods do not block. This is easy when your
 method does not return any value, but if it does (and you are interested in it), then you need to
 provide a callback. For example:
 
@@ -239,16 +239,16 @@ The lambda captures `myObject` by value. A kept connection outlives the scope th
 reference capture would dangle. The `this` in `{this, std::move(cb)}` does a different job. It names
 the object that owns the registration, and the lambda never reads it.
 
-These methods register a callback and return a `ConnectionGuard` object. The returned
-`ConnectionGuard` object represents this registration.
+These methods register the callback and return a `ConnectionGuard` that owns the registration.
 
 NOTE: The call to `.keep()` keeps the connection established, even after the `ConnectionGuard`
 object was destroyed. What ends it then is the object named in the token, the `this` above: while
 that object is alive the callback keeps being invoked, and once it is destroyed the callback stops.
 [Threading and object lifetime](../users_guide/threading.md) covers what that guarantees.
 
-If you don't have the generated code, and see yourself working with generic proxies, you can use the
-`onPropertyChangedUntyped` method, which is also available in all objects, but works with Variants.
+If you do not have the generated code, and find yourself working with generic proxies, you can use
+the `onPropertyChangedUntyped` method, which is also available in all objects, but works with
+Variants.
 
 ### Reacting to events
 
@@ -267,14 +267,14 @@ As with properties, there's a Variant-based option in case you don't have the ge
 
 ## Runtime API
 
-If you need to obtain data coming from other sources (the environment). Those sources can be (1) the
-kernel or (2) other components.
+Some of what you need comes from outside your own objects: from the kernel, and from other
+components.
 
 The kernel can give you the following information:
 
 - Your application name via `KernelApi::getAppName()`.
 - The known types via `KernelApi::getTypes()` (You won't normally need to use this, as it is aimed
-  towards tooling).
+  at tooling).
 - The configuration passed by the user via `ConfigGetter::getConfig()`.
 - Whether you are required to stop, via `RunApi::stopRequested()`.
 - The current (virtualized) time via `RunApi::getTime()`.
@@ -307,15 +307,15 @@ use to discover objects based on some criteria that you can define.
 a string as an argument, and it expects it to be in the format `<session>.<bus>`. For example, the
 kernel always publishes some objects in the "local.kernel" bus.
 
-Finally, you need some storage where to put those discovered objects. The `sen::ObjectList` class
+Finally, you need somewhere to put those discovered objects. The `sen::ObjectList` class
 serves this purpose.
-
-The code to discover objects on a bus could look like this.
 
 Subscribe to the generated `<Class>Interface` type, never to an implementation class. Sen generates
 an interface for every class you declare in STL, and that is what other objects hold: a remote
 object has no implementation on your side to name. [The generated code](generated_code.md) covers
 the pair.
+
+Discovering objects on a bus then looks like this:
 
 ```c++ title="calculators/src/client.cpp"
 --8<-- "examples/packages/calculators/src/client.cpp:subscribe"
@@ -347,11 +347,11 @@ level when you need to build the query at run time, or when you want to own the 
 ```
 
 The list it subscribes is declared as `sen::ObjectList<query_test::QueryTestClassInterface>
-objectsInError_;`, a member. `addSubscriber` keeps the address of your container rather than a copy of it,
-so the container has to outlive the subscription — the rule stated above, with nothing holding the
-list on your behalf. The source can stay a local, as it is here: the kernel owns the bus, and you
-only need to keep the handle if you use it again later, as the school example does to remove its
-objects.
+objectsInError_;`, a member. `addSubscriber` keeps the address of your container rather than a copy
+of it, so the container has to outlive the subscription. That is the rule stated above, with nothing
+holding the list on your behalf. The source can stay a local, as it is here: the kernel owns the
+bus, and you only need to keep the handle if you use it again later, as the school example does to
+remove its objects.
 
 `onAdded` on the list is the same idea as the callback `selectAllFrom` takes, and the query shows a
 `WHERE` clause narrowing the interest to objects whose property has a particular value.

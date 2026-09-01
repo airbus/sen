@@ -5,7 +5,7 @@ This page continues the package built in
 `my_package.MyClass` a handful of properties, methods and events. They are there just to illustrate
 the options, but they will do here.
 
-The generated code for this class will result in a base class that will have:
+Generation produces a base class holding:
 
 - Getters and setters for the properties.
 - Pure virtual functions for the methods (that you will need to implement).
@@ -49,12 +49,12 @@ Each event produces a pair, listed together.
 
 First, there are the functions that clients can use to receive notifications about the emission of
 events. Those are named like <code>on&lt;<var>Event</var>&gt;()</code>, taking the name of the
-event. They receive an `EventCallback<>`, which is just a function where clients will get called to.
+event. They receive an `EventCallback<>`, which is the function Sen calls back on.
 The template parameters are the types of the arguments of the event (that's where we get the
 signature of the callback we expect to receive).
 
 Second, there are the functions that fire those events. They are named after the events. The
-`mode` argument is rarely used but tells Sen when would you like to produce the event.
+`mode` argument is rarely used but tells Sen when you want the event produced.
 
 ## Properties
 
@@ -71,7 +71,7 @@ public: // MyClass properties
   [[nodiscard]] inline const ::my_package::StructOfInts& getNextProp2() const noexcept;
   inline ::sen::ConnectionGuard onProp2Changed(::sen::PropertyCallback&& callback) final;
 
-  // prop4 -- not writable, so its setter is not final: see below
+  // prop4: not writable, so its setter is not final, see below
   [[nodiscard]] inline const ::my_package::Vec2& getProp4() const noexcept final;
   inline void setNextProp4(const ::my_package::Vec2& val);
   [[nodiscard]] inline const ::my_package::Vec2& getNextProp4() const noexcept;
@@ -86,15 +86,15 @@ public: // MyClass properties
 
 `prop3` follows the same shape as `prop2` and is left out here for brevity.
 
-There are getters for all of them. Getters are named like <code>get&lt;<var>Prop</var>&gt;()</code>,
+Every property has a getter, named like <code>get&lt;<var>Prop</var>&gt;()</code>,
 taking the name of the property.
 
-There are also hooks for detecting changes. Those are the ones named like
+Change notification comes from the hooks named like
 <code>on&lt;<var>Prop</var>&gt;Changed()</code>. They all receive a callback to notify clients. You
 can see that those functions return a `ConnectionGuard`. `ConnectionGuard`s keep your callback
 installed in the object.
 
-There are also the setters, named <code>setNext&lt;<var>Prop</var>&gt;()</code>. Every *dynamic*
+The setters are named <code>setNext&lt;<var>Prop</var>&gt;()</code>. Every *dynamic*
 property has one on the base class, because your implementation has to be able to change its own
 state. A `[static]` property has none at all: it is set once through the constructor and never
 changes, so `prop1` above has a getter and nothing else. What `[writable]` decides is whether the

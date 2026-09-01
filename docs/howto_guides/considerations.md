@@ -1,7 +1,8 @@
 # Design considerations
 
-With Sen, you will be able to expand your options when designing your system. This page compiles
-some notes, considerations and tips you can use when doing so.
+Sen leaves the shape of your system to you. This page covers the decisions that come up first,
+where a process boundary goes and where to bridge to something that is not Sen, and closes with
+the principles Sen itself is built on.
 
 ## Bridging domains
 
@@ -37,10 +38,11 @@ whatever process they sit in, and changing a class that others already consume i
 propagates. [Compatibility conversions](../users_guide/compatibility_conversions.md) absorb some of
 that, but they are a tolerance, not a substitute for a boundary you intend.
 
-## Architectural guidelines
+## Principles Sen is built on
 
-Software design requires combining multiple perspectives and evaluating their applicability in
-different contexts. In this section, we define some general ideas to guide the design decisions.
+What follows is the set of principles Sen holds itself to, kept in the words they were written in.
+They are here because a system built on Sen meets the same trade-offs, and because knowing what the
+infrastructure commits to tells you what you can lean on.
 
 **Aim for simplicity and clarity of intent**
 
@@ -91,7 +93,7 @@ This results in:
 - Instrumented code that creates continuous performance and endurance tests, and regression
   detections.
 
-Testing shall not be a second thought, but a primary need for both Sen and functional components.
+Testing shall not be an afterthought, but a primary need for both Sen and functional components.
 Testing must apply existing, well-known patterns for exercising the code. To ensure that your code
 is easy to test:
 
@@ -101,7 +103,7 @@ is easy to test:
 - Declare pre- and post-conditions and automate them for validation at every possible level.
 - Rely on integration tests to verify contracts between components.
 - Run the tests in the target HW environment as the critical last step. If it does not work in the
-  target, it does not work, but requiring the target HW for testing basic logic is not sufficient.
+  target, it does not work, but you should not need the target HW to test basic logic.
 
 **Tooling follows method, not the other way around**
 
@@ -111,9 +113,8 @@ forth.
 
 **Prioritize validation by design-time > compile-time > run-time**
 
-Prevent bugs as early as possible. Design-time checkers are the first and most powerful weapon
-against bugs. Design-time checkers prevent bugs before any code is written, and the tooling has
-access to system-level and domain-specific considerations that the compiler lacks. That said, the
+Prevent bugs as early as possible. Design-time checkers catch a bug before any code is written, and
+the tooling can see system-level and domain-specific facts the compiler cannot. That said, the
 compiler is a powerful ally, and it has a better understanding of the final code than the tool that
 generated the code. Therefore, both the generated and manually written code should use compile-time
 assertions to prevent wrong assumptions (which is especially relevant when switching compilers,
@@ -128,5 +129,5 @@ architectural framework that is backed by a SW infrastructure that ensures that 
 a castle in the air." Our design approach must be solid, up to date with the code, transparent to
 the tooling, traceable, easy to change, easy to validate, and resilient to human error.
 
-Sen (starting with this document) shall enforce design decisions to be visible, documented, and
-structured.
+Sen's own design decisions are meant to be visible, documented and structured. This page is part of
+that.

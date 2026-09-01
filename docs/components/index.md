@@ -6,7 +6,7 @@ will be there.
 
 ## What ships with Sen
 
-To make your life easier, Sen comes with a set of components that are at your disposal:
+Sen ships components you load rather than write:
 
 - A command-line interface for interacting with the components and objects that are running in a
   process. This component is called [*shell*](shell.md), and you can also remotely connect to it.
@@ -20,7 +20,7 @@ To make your life easier, Sen comes with a set of components that are at your di
 - A [*replayer*](replaying.md) to playback whatever you have previously recorded.
 - An embedded [*Python*](py.md) interpreter with full access to the Sen world, for tests,
   orchestrators and functional logic.
-- A gateway towards [*InfluxDB*](influx.md), which can be connected to Grafana to inspect and
+- A gateway to [*InfluxDB*](influx.md), which can be connected to Grafana to inspect and
   analyze data.
 - A [*REST*](rest.md) API for interfacing with non-Sen systems.
 - A [*JSON-RPC*](jsonrpc.md) server over WebSocket, with a
@@ -32,8 +32,6 @@ To make your life easier, Sen comes with a set of components that are at your di
   [the Tracy component](tracy.md).
 - A helper for controlling and configuring your debug logs:
   [the log master](logmaster.md).
-
-These are the shipped components that are present today, but this list might grow in the future.
 
 ## Moving components between processes
 
@@ -58,13 +56,11 @@ To get the two processes to see each-other you need to instantiate the *ether* c
 ![Screenshot](../assets/images/services_3_light.svg#only-light){: style="width:1250px"}
 ![Screenshot](../assets/images/services_3_dark.svg#only-dark){: style="width:1250px"}
 
-We can now independently start and stop our monitoring tools when needed. Of course, running the
-*shell*, the *explorer* and the *ether* components creates some load on our computer, so we can move
-those tools to another computer and keep our system running truly independently in another one (we
-have two computers to take care of, so we will now be in the need of some kind of deployment and
-orchestration solution. Containers will probably help you here, but we will not go into that in this
-document). After a while we start to see that the computer where we run our functional components
-does not have a good storage device (maybe not big enough, or not fast enough).
+The monitoring tools can now be started and stopped without touching the system. They cost something
+to run, so move them to a second computer and the system keeps going on its own. That is two
+machines to deploy and watch, which is where containers start to earn their place; this page does
+not go into that. Later you notice the machine running the functional components has the wrong
+storage for recording: too small, or too slow.
 
 ![Screenshot](../assets/images/services_4_light.svg#only-light){: style="width:1200px"}
 ![Screenshot](../assets/images/services_4_dark.svg#only-dark){: style="width:1200px"}
@@ -75,5 +71,4 @@ setup. So, we modify our configuration file accordingly.
 ![Screenshot](../assets/images/services_5_light.svg#only-light){: style="width:1400px"}
 ![Screenshot](../assets/images/services_5_dark.svg#only-dark){: style="width:1400px"}
 
-This is just an example, but the takeaway here is that you can mix and match the built-in components
-as you would do with your own, and deploy them according to your needs.
+The shipped components mix with your own, and each one can sit wherever you need it.

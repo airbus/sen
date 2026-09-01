@@ -64,7 +64,7 @@ Note that applying this directory organization will also mean changing the way o
 and importing (`stl`) the `stl` files inside your project: instead of importing `person.stl` or
 including `stl/person.stl.h`, you would need to add the full path described above.
 
-______________________________________________________________________
+---
 
 > Can we ignore this directory organization when importing other STL files?
 
@@ -118,7 +118,7 @@ structure.
 To ensure a consistent structure, organize your FOM directories so that the immediate parent
 directory matches your intended include prefix (e.g., `rpr/`, `netn/`).
 
-______________________________________________________________________
+---
 
 > What happens if the `BASE_PATH` argument is ignored or set to a different value for STL files?
 
@@ -201,7 +201,7 @@ file:
 set(*your_project_name*_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
 ```
 
-______________________________________________________________________
+---
 
 > What does this variable do?
 
@@ -210,7 +210,7 @@ installed at the time of consuming it. The `../..` is added since in the standar
 generation, the CMakes of the project are located inside the `cmake/project_name` directory, hence
 the root directory will be located two directories behind.
 
-______________________________________________________________________
+---
 
 > Why is this needed?
 

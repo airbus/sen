@@ -134,7 +134,8 @@ Edit `src/counter.cpp`:
     "next" buffer, Sen guarantees that all components see a fully consistent world. The flip happens
     atomically during commit.
 
-    Think of it like frames in a film: you render to the back buffer, then swap.
+    The [double-buffer analogy](../users_guide/mental_model.md#the-double-buffer-analogy) in the
+    manual works this through.
 
 ---
 
@@ -220,8 +221,8 @@ sen:host/config> info local.counters.myCounter
     valueIsDivisibleByTen multicast Emitted each time the current value is div..
 ```
 
-The flags say what each property is: `dy` for dynamic against `st` for static, and `ro` for
-read-only against `rw`. So `value` is the dynamic, read-only one we update each cycle and `step` is
+The flags say what each property is: `dy` or `st` for dynamic or static, and `ro` or `rw` for
+read-only or read-write. So `value` is the dynamic, read-only one we update each cycle and `step` is
 the static one we set in the configuration, which is what the STL declared. Descriptions come
 straight from your comments, truncated to fit the terminal.
 

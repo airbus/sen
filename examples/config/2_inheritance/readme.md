@@ -127,7 +127,7 @@ In this new Sen instance, open the bus where we should find our objects:
 open my.tutorial
 ```
 
-You should be able to work with the objects as if you were on the same process.
+You should be able to work with the objects as if you were in the same process.
 
 ## Using the explorer
 

@@ -27,7 +27,7 @@ You can discover objects published by other components, examine their properties
 and react to their events. You can also publish your own objects, so that other components can "see"
 you, call you, and react to your changes.
 
-Objects are identified by name. This means that object names will be unique. You are responsible for
+Objects are identified by name, so names have to be unique. You are responsible for
 naming your objects. Once named, objects also provide a (32-bit) numeric identifier that is more
 "computer-friendly".
 
@@ -63,7 +63,7 @@ Methods, properties and events can have a quality-of-service attribute that can 
 
 - **Best Effort**. The call, response or notification will be sent as fast as possible. There are no
   guarantees regarding reception or ordering. Old data does not overwrite newer data. This is
-  typically used when you are interested in the latest data, low latency and are Ok with sporadic
+  typically used when you are interested in the latest data, low latency and are OK with sporadic
   missing packets. For in-process communication, this is implemented using (potentially queued)
   function calls. UDP unicast is used for inter-process method calls. UDP multicast is used for
   inter-process events.
@@ -71,14 +71,12 @@ Methods, properties and events can have a quality-of-service attribute that can 
 ![Screenshot](../assets/images/tcp_udp_light.svg#only-light){: style="width:250px; float: right;"}
 ![Screenshot](../assets/images/tcp_udp_dark.svg#only-dark){: style="width:250px; float: right;"}
 
-You can clearly see that the guarantees that Sen provides are in line with those of TCP and UDP.
-That said, keep in mind that in controlled environments (a single computer, a local area network
-with bounded traffic, or basically anything that is not the internet) you are very likely going to
-be fine with a best-effort approach, as packet loss would represent a non-nominal operation and is
-probably a sign of some infrastructural or load calculation problem. That said, you can always
-choose.
+Sen's guarantees line up with those of TCP and UDP. In controlled environments, a single computer,
+a local area network with bounded traffic, or basically anything that is not the internet, you are
+very likely fine with best effort: packet loss there is a sign of an infrastructure or load
+problem rather than normal operation.
 
-Well, you can always choose as long as it makes sense. A dynamic property whose type is unbounded
+The choice is yours except in one case. A dynamic property whose type is unbounded
 has to be `[confirmed]`, because best effort could leave you with incomplete, incorrect or
 inconsistent data. Leaving the attribute off does not work either: properties default to best
 effort, so an unbounded one is rejected until you ask for `[confirmed]` in as many words. Static
@@ -138,8 +136,7 @@ a future time and will call you back if you provide a callback function. If the 
 value, the callback will receive it, and you will be able to use it. If the method threw an
 exception, you will be able to examine it and re-throw it if needed.
 
-We have talked about objects, but so far we have not touched the topic of *types*. What types may I
-use as an argument for a method? Or for my property?
+Objects are only half of it. What can you use as an argument for a method, or as a property?
 
 ## Types
 
@@ -151,7 +148,7 @@ The Sen type system is rich:
 - Time: Time stamps (`TimeStamp`) and time durations (`Duration`).
 - Enumerations (with an integral storage `T`, `enum : T {...}`).
 - Structures (with 0:n fields of any value type, `struct {...}`). Single inheritance is supported.
-- Variants (holding 1:n distinct types , `variant { T1, ... Tn}`)
+- Variants (holding 1:n distinct types, `variant { T1, ... Tn}`).
 - Sequences (of any value type, bounded, unbounded, and fixed `sequence<T>`, `sequence<T, n>`,
   `array<T, n>`).
 - Quantities (of any numeric type, with a given unit and an optional min and max value).
@@ -187,7 +184,7 @@ When components need to talk to each other, they will declare it and Sen will pr
 visibility.
 
 A system needs a context to run in and a way for components to talk to
-each-other. In Sen, the inter-connection mechanism for components is called a kernel.
+each other. In Sen, the inter-connection mechanism for components is called a kernel.
 
 ![Screenshot](../assets/images/one_process_light.svg#only-light){: style="width:700px"}
 ![Screenshot](../assets/images/one_process_dark.svg#only-dark){: style="width:700px"}
@@ -266,7 +263,7 @@ following:
 
 - Testing will become more complicated. You now have more moving parts and the network is, by
   nature, a shared resource. This means that if you don't have an isolated network, running your
-  tests in parallel will cause them interfere each-other and fail.
+  tests in parallel will cause them to interfere with each other and fail.
 
 Now, the issues listed above are not unique to Sen, but common to any distributed system.
 Thankfully, there are mature solutions that help you overcome many of these challenges during
@@ -307,8 +304,8 @@ before any of them is loaded, whatever their group. That makes it the place for 
 process needs before anything else starts. The `tracy` component uses it to install a profiler
 before the rest of the system exists, and `unload()` to shut it down again.
 
-Say you have components A, B and C. Components A and B are in group 1. Component C is in group
-2\. The progression of the initialization logic would be as follows:
+Say you have components A, B and C, with A and B in group 1 and C in group 2. The initialization
+logic then progresses as follows:
 
 1. The kernel starts at group 0, and it advances to group 1.
 2. In group 1, the kernel finds the *A* and *B* components, so it: (1) loads them, (2) initializes
@@ -409,13 +406,12 @@ those two classes and create a package out of that.
 Now you have a package containing the binaries of your implementation. It also contains the
 definition of all the types you work with and meta information that encapsulates all these facts.
 
-You might be asking: What can you do with a package? You can use it as a factory for objects. Users
-of your package are now able to instantiate objects of class y and z. They won't know the details of
-your implementation, but they know the interfaces and can create objects of those types.
+A package is a factory for objects. Users of your package can instantiate objects of class y and z.
+They won't know the details of your implementation, but they know the interfaces and can create
+objects of those types.
 
-We need to explain the difference between a package and a good-old library. You might be asking: "if
-the same can be achieved with a header file and a static or shared library, what value does this
-mechanism provide?". The answer is that, in fact, *packages are libraries*. Specifically, packages
+If the same can be achieved with a header file and a static or shared library, what does this
+mechanism add? In fact, *packages are libraries*. Specifically, packages
 are shared libraries that can be natively loaded by a Sen kernel. The particularity of packages is
 that they are created with a uniform interface that allows Sen to inspect all the meta information
 it needs to understand what is being provided.
@@ -424,7 +420,7 @@ This means that Sen is able to instantiate objects (depending on the packages th
 import) and use configuration parameters. This creates a huge opportunity for getting rid of
 boilerplate code.
 
-You see, there is a common pattern that most Sen applications share. Normally you:
+Most Sen applications share a pattern. Normally you:
 
 1. Instantiate the components and get them to run.
 2. Load some sort of configuration information / parametrization data.
@@ -442,14 +438,13 @@ You see, there is a common pattern that most Sen applications share. Normally yo
 ![Screenshot](../assets/images/wheel_light.svg#only-light){: style="width:250px; float: right;"}
 ![Screenshot](../assets/images/wheel_dark.svg#only-dark){: style="width:250px; float: right;"}
 
-If we don't do something about it, every Sen user will likely do the previous steps in sightly
+If we don't do something about it, every Sen user will likely do the previous steps in slightly
 different ways, using different approaches, getting the configuration data from different sources in
 different formats and therefore ending up re-doing the same work many (*many*) times across an
 undefined set of projects and with a wide range of bugs.
 
-We can do something about this. We can identify what are the common needs here and provide a
-reference implementation to allow users to automatically instantiate components that do all of this
-in a structured way.
+Sen identifies those common needs and ships a reference implementation, so you can instantiate
+components that do all of this in a structured way.
 
 In most cases, there are only a few things that vary between applications:
 
@@ -459,8 +454,7 @@ In most cases, there are only a few things that vary between applications:
   components.
 - The criteria you use to discover other objects.
 
-Sen allows you to define all of this in a configuration file and let you focus on the business logic
-to have an easier life getting some things done.
+Sen lets you define all of this in a configuration file, so your code is left with the logic.
 
 ![Screenshot](../assets/images/parametrization.svg#only-light){: style="width:900px;"}
 ![Screenshot](../assets/images/parametrization_dark.svg#only-dark){: style="width:900px;"}

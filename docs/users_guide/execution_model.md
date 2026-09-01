@@ -40,15 +40,13 @@ To achieve determinism, Sen components execute in iterations. In each iteration 
 3. Commit the outputs, so that they become visible to other components in a self-consistent manner.
    You also don't have to worry about this step.
 
-This is the drain-update-commit approach, and you can think of this as with frames in a movie:
+This is the drain-update-commit approach, and you can think of it as frames in a movie:
 
 1. You get the current frame when Sen drains the inputs.
 2. You compute the next frame based on the current one.
 3. Sen prints the next frame when it commits the outputs.
 
-Let's be a bit more precise:
-
-______________________________________________________________________
+---
 
 **During the drain stage**
 
@@ -60,9 +58,9 @@ Sen will:
 4. Perform the callbacks that have been triggered due to the emission of events.
 
 During this stage you might update the state of an object or emit an event. That's fine. Those
-changes will not be visible to anyone (including you) until your outputs are commited.
+changes will not be visible to anyone (including you) until your outputs are committed.
 
-______________________________________________________________________
+---
 
 **During update stage**
 
@@ -74,7 +72,7 @@ You can fully rely on safely fetching the state of the objects that you are trac
 come from other components. *They will not change*. They have been created just for you. Even if the
 other component is running in the same process.
 
-______________________________________________________________________
+---
 
 **During commit stage**
 
@@ -105,13 +103,13 @@ the master clock's `delta` decides how far time moves on each step.
 passage of time. When you have multiple components running at the same time, you need to decide the
 mechanism you want to use to keep them in sync.
 
-In case of real time execution, the simplest, most effective, most performant and most commonly used
-approach, is to have the computers' clocks in sync using PTP (or NTP), and select an update rate
+In case of real time execution, the usual approach, and the one that works best, is to have the
+computers' clocks in sync using PTP (or NTP), and select an update rate
 where every component updates frequently enough so that the execution progresses consistently
 forward within some margin of tolerance. Be aware that this approach is *inherently
 non-deterministic*, because the iterations are not fully coordinated and very much affected by the
 precision of the time sync, the compute load and scheduling made by the OS, the network load and
-transport delays, and a very long etc.
+transport delays, and a long list besides.
 
 Stepped execution does coordinate your components. This idea translates to:
 
@@ -129,8 +127,9 @@ You ask for it in the configuration, with the kernel's `runMode`:
 | `startAndStop` | Starts everything, then stops. This is what `sen run --start-stop` sets. |
 
 Under `virtualTime` the kernel publishes a clock object you drive, named `clock` by default and
-placed on the kernel's bus unless `clockBus` says otherwise. Advancing it happens in two calls, and
-this is what makes multiple processes tractable: `processNoFlush(delta)` updates the time, drains
+placed on the kernel's bus unless `clockBus` says otherwise. You advance it with
+`processNoFlush(delta)` and `flushOutputs()`, and keeping them separate is what makes several
+processes tractable: `processNoFlush(delta)` updates the time, drains
 the inputs and cycles the components *without* making their outputs visible, and `flushOutputs()`
 then publishes them. Across several processes you call the first on every kernel, wait for all of
 them, and only then call the second, which is how the whole system steps together instead of
@@ -279,7 +278,7 @@ not take the flag.
     control over the response. What is described here is what the kernel does today and what you can
     build on, and what is here will grow by addition.
 
-______________________________________________________________________
+---
 
 **Note**: With stepped execution the system is not only deterministic within a process, but
 *multithreaded*. If components have a significant amount of work to do on each iteration, and there

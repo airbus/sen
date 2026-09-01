@@ -24,7 +24,5 @@ The typical workflow when using Sen in large projects is as follows:
 We have depicted some roles here as different people, but in reality you will often see the same
 person wearing all those hats (depending on the size and complexity of the project).
 
-The key here is that this workflow is something that could ideally be executed in a matter of
-minutes, locally in any suitable development environment so that the iteration cycles are as minimal
-as possible. This is made possible by having a tight integration between our build, deployment,
-orchestration and testing tools.
+The whole of this should run in minutes on a developer's own machine, so the loop stays short. That
+is why the build, deployment and test tooling are integrated as tightly as they are.

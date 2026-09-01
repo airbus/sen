@@ -101,12 +101,12 @@ The shell does not see any objects by default. The only thing you can see are th
 sessions. You need to open sessions and their buses so that the shell can start discovering objects.
 
 The `open` command can be used to connect to a bus or to open a session and discover the available
-buses. This command has auto-complete capabilities to help you. Let's give it a try.
+buses. This command has auto-complete capabilities to help you. Try it.
 
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_open_ls_close.gif){: style="width:900px"}
 
 You can see that the shell lets you know when objects are discovered. The `ls` command shows them.
-Unsurprisingly, the `close` command does the inverse.
+The `close` command does the inverse.
 
 Sometimes you will find yourself having to open some buses every time you load the shell. This is
 because you are interested in working with some objects and the shell is not opening any bus by
@@ -133,9 +133,6 @@ The animation below shows the same thing against an object's `addNumbers` method
 
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/instantiate_class.gif){: style="width:1200px"}
 
-Keep in mind that due to Sen's asynchronous nature, the shell won't block and the call results will
-eventually arrive.
-
 The shell is meant to be an interactive interface. For scripting, see [what ships with
 Sen](index.md#what-ships-with-sen); several of those components expose the same objects to code.
 
@@ -153,20 +150,20 @@ types (the built-in types, and also any type received over the network during ex
 ## Creating queries
 
 When you `open` a bus, you are declaring an interest in all the objects that are published in it.
-You can inspect the list of active interests by using the `src` command. For example, if we call
-`open local.kernel` and then call `src` we will see the following:
+You can inspect the list of active interests by using the `src` command. Calling
+`open local.kernel` and then `src` shows this:
 
 ```text
   Name               Query
   local.kernel.all   SELECT * FROM local.kernel
 ```
 
-This means that we have an active query named "local.kernel.all" which defines an interest in all
-objects of that bus.
+That is an active query named "local.kernel.all", declaring an interest in all objects of that
+bus.
 
 You can create your own queries, and therefore use the shell to monitor certain objects. For
-example, let's create a query that only notifies us about the entities in the se.env bus, with a
-force ID property that is "neutral" or "friendly". We call that query "friendly_fire":
+example, create a query that only notifies about entities in the se.env bus whose force ID property
+is "neutral" or "friendly", named "friendly_fire":
 
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_query.gif){: style="width:1200px;"}
 
@@ -210,7 +207,7 @@ You can connect to a remote shell by doing `sen rshell`. For example:
 sen rshell 192.168.1.44:8094
 ```
 
-This process is actually very light and doesn't run any Sen kernel at all. It just *talks* to a
+This process is very light and doesn't run any Sen kernel at all. It just *talks* to a
 shell running in a remote Sen kernel over a TCP channel.
 
 Remote shell access is off unless you set `serverEnabled`, and the connection is unauthenticated, so
@@ -222,8 +219,8 @@ commands from it.
 This means that you have all the power of the shell in your local terminal, even if your local
 terminal is Windows and the Sen process is on a Linux computer.
 
-For example, here you can see how we start a Sen process that hosts a shell that can only be
-remotely accessed, and then we use the `sen rshell` tool to connect to it.
+This starts a Sen process hosting a shell reachable only from outside, then connects to it with
+`sen rshell`.
 
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_remote.gif){: style="width:1200px;"}
 
@@ -231,9 +228,8 @@ To configure your shell to accept remote connections you need to set the `server
 `serverPort` parameters. The last example used the following:
 
 ```yaml title="configuring a remote shell"
-# Here we instantiate a shell, but it is meant to be accessed remotely.
-# We do so by setting the serverEnabled parameter to true. You can optionally
-# set a custom port using the serverPort parameter.
+# A shell meant to be reached remotely, via serverEnabled. serverPort is
+# optional and sets a custom port.
 #
 # If you start this process, you will see nothing, but if you start a connection
 # to it, you will see that it is like working locally. To do so run:

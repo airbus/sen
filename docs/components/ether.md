@@ -28,8 +28,7 @@ connect to.
 ## Queue sizes
 
 If the components are pumping more data than the I/O stack can handle, your system will eventually
-run out of memory. Therefore, it is advised to set some maximum size to the queues, and pay
-attention to the warnings the `warningLevel` parameter raises when the system is under heavy load.
+run out of memory. So cap the queues, and watch the warnings `warningLevel` raises under load.
 
 ## Isolating communication
 
@@ -135,7 +134,7 @@ section) and enable the **TCP-based discovery hub**.
 The TCP discovery hub is a process that Sen applications connect to in order to discover each other.
 You only need one.
 
-Starting a hub is easy. You just need to tell the ether component to start it on a given port.
+Tell the ether component to run one, and give it a port.
 
 ```yaml
 load:
@@ -159,7 +158,7 @@ load:
           port: 64222           # has to match with the port where the hub will be running
 ```
 
-Connecting to a hub is also easy. You need to set it in the discovery configuration:
+Point the discovery configuration at it:
 
 ```yaml
 load:
@@ -180,12 +179,10 @@ Different ether instances find each other using a beamer that broadcasts beam me
 The period at which beams are sent can be configured in the `DiscoveryConfig` of the ether
 configuration by modifying the `beamPeriod`. The default value of this period is 1 second.
 
-The BeamTracker is then responsible for the detection of beams. The BeamTracker uses a parameter
-called `beamExpirationTime` to determine when a beam is no longer being received at the expected
-frequency, at which point it is assumed lost. By default, this parameter is set to 3 times the value
-of the `beamPeriod`, and this could be problematic in cases where the `beamPeriod` is configured to
-small values (e.g. 100 ms). Therefore, the `beamExpirationTime` can be configured by the user in the
-following ways:
+The BeamTracker watches for those beams and uses `beamExpirationTime` to decide when one has stopped
+arriving at the expected frequency, at which point it is assumed lost. It defaults to three times
+`beamPeriod`, which is too tight once you set the period low, 100 ms say, so you can set it yourself
+in either of these ways:
 
 - Configuring the `beamExpirationTime` parameter of the `DiscoveryConfig` to the desired duration.
 - Setting the `BEAM_TRACKER_EXPIRATION_TIME_MS` environment variable to the desired duration in
@@ -202,10 +199,9 @@ departure.
 
 ## UDP OS buffer sizes
 
-Some OSes (most notably, Linux) place very restrictive limits on the performance of UDP protocols.
-It is highly recommended that you increase these OS limits to at least 8MB before trying to run
-large amounts of UDP traffic to your instance. 8MB is just a recommendation, and can be adjusted
-higher.
+Some operating systems, most notably Linux, place restrictive limits on socket buffer sizes. Raise
+them to at least 8MB before pushing large amounts of UDP traffic through your instance. 8MB is a
+starting point rather than a ceiling, and can go higher.
 
 ### Linux
 

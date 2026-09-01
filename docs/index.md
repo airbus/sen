@@ -37,18 +37,18 @@ an acronym nor an abbreviation, but a noun.
 
 ## Where to start
 
-- **New to Sen?** [Getting started](getting_started/index.md) takes you from nothing installed to
+- **Start here.** [Getting started](getting_started/index.md) takes you from nothing installed to
   your own package running, in two steps.
-- **Want to see it work first?** [Tutorial 1: Hello Sen](tutorials/hello_sen.md) is the shortest
-  path from an empty directory to a running system.
-- **Prefer to read code?** The [examples](examples/index.md) are a graded set of working packages,
-  ordered by complexity.
-- **Want to know how it works?** The [manual](users_guide/index.md) explains the ideas, the
-  interface language and the runtime.
-- **Tripped up by a word?** The [glossary](users_guide/glossary.md) covers the terms Sen redefines,
-  and the ones that collide with something you already know.
-- **Looking for something specific?** The [how-to guides](howto_guides/index.md) each answer one
-  question, and the [components](components/index.md) pages cover what ships with Sen.
+- **The shortest path to something running.** [Tutorial 1: Hello Sen](tutorials/hello_sen.md)
+  starts from an empty directory.
+- **Working code.** The [examples](examples/index.md) are a graded set of packages, ordered by
+  complexity.
+- **The ideas, the interface language and the runtime.** That is the
+  [manual](users_guide/index.md).
+- **The vocabulary.** The [glossary](users_guide/glossary.md) covers the terms Sen redefines, and
+  the ones that collide with something you already know.
+- **One question at a time.** The [how-to guides](howto_guides/index.md) are shaped that way, and
+  the [components](components/index.md) pages cover what ships with Sen.
 
 ## Key features
 
@@ -131,18 +131,17 @@ an acronym nor an abbreviation, but a noun.
 
 ## Motivation
 
-Technically, most innovative solutions aren't new; it is how we use and integrate them in clever and
-unique ways that makes them facilitators for our business. Infrastructures enable this integration,
-and by simplifying their use, engineers adopt them, migrating products step-by-step into the next
-generations. Sen is a software infrastructure designed to be fast, efficient, and lightweight,
-serving as a base for user applications. Built on substantial prior experience, Sen is tailored for
-(but not limited to) simulation-related applications.
+Most of what makes a system work is not new technology. It is how the existing pieces are put
+together, and that is usually where the cost is. Sen is infrastructure for that job: fast, small,
+and built to sit underneath your applications rather than around them. It comes out of a long run
+of simulation work, which is what it is shaped for, though nothing in it is specific to simulation.
 
 Sen's high-level objectives are:
 
 - **Simplify system integration**: As a communications backbone, Sen helps to integrate systems,
-  reducing the need for monoliths and minimizing differences between system components. This
-  enhances testability, separability, and interoperability with third-party solutions.
+  reducing the need for monoliths and minimizing differences between system components. That makes
+  a system easier to test in pieces, easier to split across teams, and easier to connect to
+  something you did not write.
 - **Reduce complexity**: Sen controls complexity by defining a way of working and organizing
   knowledge into independent, reusable, and interconnected parts.
 - **Avoid duplication**: Beyond IPC, Sen connects ideas, knowledge, tools, data, and solutions. It

@@ -9,7 +9,7 @@ fix format. For a deeper understanding of why things work the way they do, see
 
 ## Quick diagnostics checklist
 
-Before diving into specific problems, run through this list:
+Run through this before anything else:
 
 1. Is the Sen environment sourced? (`sen --version` should print a version or a commit hash)
 2. Is `LD_LIBRARY_PATH` set to include your build output? (e.g. `$(pwd)/build/bin`)

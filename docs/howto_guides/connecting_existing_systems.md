@@ -166,7 +166,7 @@ and the other way round. Neither author set out to build that. Every gateway tha
 pairs with every gateway that already existed, on the object model they both already
 speak.
 
-What does not come free is the protocol behaviour around that data: entity lifetime,
+What does not come free is the protocol behavior around that data: entity lifetime,
 heartbeats and timeouts, dead-reckoning thresholds. That is configuration on whichever
 gateway owns the protocol.
 
@@ -227,13 +227,11 @@ adding a translator does not mean building a tool around the libraries first.
 A different question from the ones above. Here the goal is not
 to bridge two systems but to work with Sen objects from somewhere other than C++.
 
-One thing this is not is Sen's pluggable transport. That interface is how the kernel
+This is not what Sen's pluggable transport is for. That interface is how the kernel
 reaches a network, and replacing it changes what carries Sen traffic between kernels. It
 is not a way to make a participant out of a program written in another language, because
 the wire format and the discovery it would have to speak are internal. Use one of the
-three shapes below instead.
-
-They run in increasing distance from the kernel:
+shapes below instead, ordered by how far they sit from the kernel:
 
 | | How it works | Consequences |
 |---|---|---|

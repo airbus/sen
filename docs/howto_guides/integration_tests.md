@@ -85,7 +85,7 @@ injects one.
 ### Asking what a kernel can see
 
 The network is inspectable through `network()`, which lets a test assert about visibility instead of
-inferring it from behaviour. `processIdOf` gives a kernel its address. From there `peersOf`
+inferring it from behavior. `processIdOf` gives a kernel its address. From there `peersOf`
 answers which peers a kernel can reach and `getVisibleProcesses` which processes it can see at all.
 Those two differ on purpose: the second includes processes this kernel would refuse to talk to,
 which is how you tell "cannot see it" apart from "sees it and rejects it". `hasDiscovered` asks
@@ -185,7 +185,7 @@ A loss report delivered to one observer while both kernels are still there.
 
 What the cluster cannot tell you is whether any of this survives a real network. Everything above
 happens in one process over an in-process transport, so serialization, sockets, discovery over the
-wire and the behaviour of separate operating-system processes are all out of scope. That is what the
+wire and the behavior of separate operating-system processes are all out of scope. That is what the
 container harness is for.
 
 Sen's own tests for these live in `libs/kernel/test/support/loopback/test/`.
@@ -202,7 +202,7 @@ the chain end to end.
 
 Sen's own integration suite is built this way and is worth reading before you write your own. It
 lives in `libs/kernel/test/integration/`, and the cases there cover object synchronization, interest
-filtering, transport behaviour, type clashes, runtime compatibility, crash reporting and stress.
+filtering, transport behavior, type clashes, runtime compatibility, crash reporting and stress.
 Each case is an ordinary Sen package: an `.stl` file, its C++, configuration templates and a readme
 explaining the scenario.
 

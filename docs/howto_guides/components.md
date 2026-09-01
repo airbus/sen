@@ -117,7 +117,7 @@ my_component/
         └── config.stl
 ```
 
-The flavors, in increasing size:
+Each flag adds to the one before it:
 
 | Command | You get |
 |---|---|

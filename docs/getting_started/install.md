@@ -104,7 +104,8 @@ sen --version
 ??? note "What activate sets, and how to uninstall"
 
     Sourcing the activate file exports `SEN_PREFIX`, prepends the build's `bin/` to `PATH` and to
-    `LD_LIBRARY_PATH`, and points `CMAKE_PREFIX_PATH` at the prefix so `find_package(sen)` works.
+    `LD_LIBRARY_PATH`, and prepends `<prefix>/cmake` to `CMAKE_PREFIX_PATH` so `find_package(sen)`
+    works. The `/cmake` suffix is the part that matters; see below.
 
     To uninstall:
 
@@ -193,7 +194,7 @@ synthetic `senConfig.cmake` for downstream consumers. Instead, your build picks 
     The Sen repository ships ready-to-use profiles in `.conan/profiles`. `sen_gcc`, `sen_clang` and
     `sen_msvc` pin the compilers CI builds with and otherwise follow the machine you run them on;
     the suffixed ones such as `sen_gcc_x86` and `sen_gcc_arm` name an architecture as well. They are
-    useful for reproducing a CI build, less so as a default. Install the whole folder:
+    useful for reproducing a CI build, less so as a default. Install them with:
 
     ```shell
     conan config install -tf profiles .conan/profiles/

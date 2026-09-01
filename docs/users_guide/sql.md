@@ -2,20 +2,18 @@
 
 ## The challenge
 
-There are related needs:
-
-1. The infrastructure should prevent saturating the network with redundant or unnecessary traffic.
-2. Users need an easy way to find the objects they are interested in. And this interest may change
-   over time.
+The infrastructure should not flood the network with traffic nobody wants. At the same time you
+need an easy way to find the objects you care about, and what you care about changes while the
+system runs. Those turn out to be the same problem.
 
 Sen automatically optimizes the communication by only sending the changes with respect to the
 previous state. For example, imagine you have an object with 10 properties, and you have only
 changed 3 of them in the current execution cycle. Sen will only send those 3 values (and only if
-they differ from the previous). This is important because it greatly reduces network traffic.
+they differ from the previous).
 
-In any case, the idea is to go beyond that, and only send those updates towards the processes which
+In any case, the idea is to go beyond that, and only send those updates toward the processes which
 are interested in the information. Most traditional systems simply send the information and let the
-consumers decide if to use or ignore it. This is mostly prevalent in systems that rely on multicast,
+consumers decide if to use or ignore it. This is most common in systems that rely on multicast,
 as the producer doesn't see any difference between having one or many consumers. But things change
 with multiple quality-of-service configurations (UDP unicast, multicast and TCP), because
 then the producer needs to do more work and dedicate time and memory to each consumer. How is the
@@ -36,7 +34,7 @@ Sen does the following:
 
 This approach is usually called "producer level filtering", as the producer is the one who evaluates
 when to send the information to the different consumers. Normally, this is the most efficient way of
-working, as we avoid traffic from happening in the first place.
+working, as the traffic never happens in the first place.
 
 You might be wondering about the performance impact on the producers that have to do those checks,
 and the trade-offs of this approach. Consider that:
@@ -67,8 +65,8 @@ needs to fulfill. This *externalization* of information comes with some advantag
 4. Consumers get the notifications as soon as the data is available, as the producers evaluate the
    conditions at their own rate, and as soon as the changes are made.
 
-The **Sen Query Language** is what you use to express interest in objects. Note that the name of the
-thing is SQL when abbreviated, and that's a happy coincidence because it's very similar.
+The **Sen Query Language** is how you express interest in objects. It abbreviates to SQL, which is
+convenient, because it borrows `SELECT ... FROM ... WHERE` from database SQL on purpose.
 
 ```sql title="Example using the name of an object"
 SELECT rpr.PhysicalEntity FROM se.env WHERE name = "ownship"

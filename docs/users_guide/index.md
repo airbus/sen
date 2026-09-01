@@ -4,8 +4,8 @@
 # Overview
 
 - In Sen, you write *packages*. Packages contain your functionality in the form of classes that can
-  be instantiated to create objects. Sen objects are regular C++ objects with "super-powers" infused
-  by the Sen code generator.
+  be instantiated to create objects. A Sen object is a C++ object plus everything the code generator
+  gives it: serialization, introspection, and a place on a bus.
 
 - By writing config files, you tell Sen which packages to load and which objects to create. The
   grouping of objects that run in a thread and serve some specific purpose is called *component*.
@@ -21,13 +21,10 @@
 - You can define your types and classes using a little language called STL, and it can also be done
   using standard HLA FOMs.
 
-- Sen comes with a bunch of tools that let you interact with your systems, test them, script them,
-  and create your own apps.
+- Sen ships tools for interacting with a running system, testing it, scripting it, and building
+  your own.
 
-That's basically it. Now we take a step back and get an understanding of the bigger picture and how
-everything fits together.
-
-To understand how Sen sees the world, let's define a few lightweight concepts:
+Those are the moving parts. The words Sen uses for them:
 
 - **Classes** define the interface of objects.
 

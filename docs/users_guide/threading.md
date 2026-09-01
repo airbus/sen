@@ -45,7 +45,7 @@ far more call sites than write paths and no single place to put a check, so guar
 paid for across the whole system. A fire-and-forget method call is unchecked for a different reason:
 the state that made it hazardous was removed.
 
-**One case is undefined behaviour**: reading `local.kernel` from a test thread. Use
+**One case is undefined behavior**: reading `local.kernel` from a test thread. Use
 [`fetchStats()`](../howto_guides/unit_tests.md) instead, which is safe to call at any moment.
 
 ## How long a reference lasts

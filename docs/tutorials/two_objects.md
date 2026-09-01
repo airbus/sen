@@ -118,7 +118,7 @@ This is where the interesting part happens. The `Client` needs to:
 
 ## Step 4: The async call timeline
 
-This is the most important thing to internalize:
+This is the part worth getting straight:
 
 ```text
 Cycle N — Client update:
@@ -216,9 +216,9 @@ sen:host/4_calculators_client> info my.tutorial.calc1
 
   METHODS
     add             Returns "a + b" and sets the last result to it.
-    addWithCurrent  Returns "a + R" where R is was the last result.
+    addWithCurrent  Returns "a + R" where R was the last result.
     divide          Returns "a / b" and sets the last result to it.
-    divideByCurrent Returns "a / R" where R is was the last result. If R is 0,..
+    divideByCurrent Returns "a / R" where R was the last result. If R is 0,..
 
   EVENTS
     divisionByZero multicast Emitted when there's an attempt to divide by zero.
@@ -226,7 +226,7 @@ sen:host/4_calculators_client> info my.tutorial.calc1
 
 The flags are the ones from [Tutorial 1](hello_sen.md#step-5-explore-the-object), so `current` reads
 as dynamic and read-only. The `DESCRIPTION` block is new here: it is the comment above `class
-Calculator` in the STL, which is reason enough to write one.
+Calculator` in the STL, so a comment there pays off twice.
 
 ---
 

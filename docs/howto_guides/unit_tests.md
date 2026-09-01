@@ -14,7 +14,7 @@ A `TestKernel` runs in one of two modes, chosen when you construct it and never 
 Virtual time is the default and what the rest of this page uses. Components advance only when you
 call `step()`, so the test decides when time passes and the same test does the same thing every run.
 Real time lets the components free-run on their own threads, which is how you exercise several
-components at different rates, or anything whose behaviour depends on real interleavings.
+components at different rates, or anything whose behavior depends on real interleavings.
 
 The two are not interchangeable. `step()`, `stepUntil()` and `getTime()` abort on a real-time
 `TestKernel`, because there is no virtual clock to advance or to read. `stopRequested()` differs

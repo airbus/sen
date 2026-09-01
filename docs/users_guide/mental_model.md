@@ -213,8 +213,7 @@ The code generator takes your STL interface definition and produces:
 | Serialization code | Reads/writes properties to the network |
 | Runtime type metadata | Powers the shell, explorer, and recorder |
 
-You write the STL (the *what*), the generator writes the boilerplate (the *how*), and you implement
-the logic (the *why*).
+You write the STL, the generator writes the boilerplate, and you write the logic.
 
 ---
 

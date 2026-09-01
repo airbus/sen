@@ -17,14 +17,14 @@ and `SEN_PREFIX` is exported. See [Getting Sen](install.md).
 
 ## The generated layout
 
-We can ask Sen to create the skeleton for a package called "my_package" that will contain a class
-called "MyClass".
+Ask Sen to create the skeleton for a package called "my_package", containing a class called
+"MyClass".
 
 ```sh
 sen package init my_package --class MyClass
 ```
 
-Let's inspect the contents of the newly-created folder:
+Inspect the contents of the newly-created folder:
 
 ```{ .shell .annotate }
   my_package
@@ -43,7 +43,7 @@ Let's inspect the contents of the newly-created folder:
 2. Tells the Sen kernel how to use your package.
 3. The implementation of your package.
 4. Contains the interface of your package.
-5. The class that we will implement.
+5. The class you implement.
 
 ## `CMakeLists.txt`: how the package builds
 
@@ -86,10 +86,10 @@ add_sen_package( # (3)!
 
 ## `stl/my_package/my_class.stl`: the interface
 
-In this file we define a class that has some properties, methods and events. We can provide multiple
-implementations of this class (but in this example we are just providing one). You could also import
-an STL file from another repository or software asset, and make this package provide an
-implementation for it (in that case we would not need to define any STL file here).
+This file defines a class with some properties, methods and events. A class can have several
+implementations, though this example provides one. You could also import an STL file from another
+repository or software asset and have this package implement it, in which case there is no STL file
+to write here.
 
 ```{ .rust .annotate }
 import "stl/my_package/basic_types.stl" // (1)!
@@ -214,8 +214,8 @@ SEN_EXPORT_CLASS(MyClassImpl) // (1)!
 }  // namespace my_package
 ```
 
-1. Here we are exporting this particular class implementation. This means that users can tell Sen to
-   load this package and instantiate `MyClassImpl`s.
+1. This exports the class implementation, so users can tell Sen to load the package and instantiate
+   `MyClassImpl`s.
 
 ## `config.yaml`: the run configuration
 
@@ -238,26 +238,24 @@ build:
         prop1: some value # (8)!
 ```
 
-1. Let's load the shell to be able to see something.
+1. Load the shell, so there is something to look at.
 2. The shell runs in group 2, and your component in group 3.
-3. Automatically open this bus to see the created objects. This way we don't have to manually open
-   it.
+3. Automatically open this bus to see the created objects, so you do not have to open it by hand.
 4. This is the name of the component that Sen will build for us.
 5. Import your package so Sen can discover your implementation and instantiate your class.
-6. This is the name of the type that provides the implementation. We defined it in `my_class.cpp`.
+6. The name of the type that provides the implementation, defined in `my_class.cpp`.
 7. Your object will be published to this bus, which is why the shell auto-opens it.
-8. We need to define a value for `prop1` because it is static, and static properties require an
-   initial value.
+8. `prop1` needs a value because it is static, and static properties require an initial value.
 
 ## Build and run
 
-To build and run, we follow the instructions `sen package init` printed:
+To build and run, follow the instructions `sen package init` printed:
 
 ```sh
 # compile
 cmake -S . -B build && cmake --build build
 
-# tell the loader where the package is -- bash or zsh
+# tell the loader where the package is: bash or zsh
 export LD_LIBRARY_PATH="$(pwd)/build/bin:$LD_LIBRARY_PATH"
 
 # run
@@ -277,7 +275,7 @@ From this point you should be able to use the `shell` to inspect and interact wi
 
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/listing_objects.gif){: style="width:1200px"}
 
-We can now stop the kernel by using the `shutdown` command.
+Stop the kernel with the `shutdown` command.
 
 !!! note "Exit codes"
 
