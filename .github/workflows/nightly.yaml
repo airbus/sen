@@ -71,6 +71,17 @@ jobs:
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
             -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
 
+      # Without this the lane cannot tell having found nothing from having looked at
+      # nothing, which is the state it has been in: no thread report has ever been
+      # uploaded. Fails unless a deliberate finding reaches the summary.
+      - name: Check the sanitizers detect
+        shell: bash
+        run: |
+          # Same reason as the "Run tests" step below: the check calls ctest, which comes
+          # from Conan rather than from the runner.
+          source build/clang/Debug/generators/conanbuild.sh
+          python3 .github/scripts/check_sanitizer_lane.py build/clang/Debug ${{ matrix.sanitizer }}
+
       - name: Run tests
         shell: bash
         run: |

@@ -225,6 +225,7 @@ function(add_sen_integration_test test_name)
   set(_asan_suppressions ${ASAN_SUPPRESSION_FILE})
   set(_ubsan_suppressions ${UBSAN_SUPPRESSION_FILE})
   set(_tsan_suppressions ${TSAN_SUPPRESSION_FILE})
+  set(_sanitizer_log_option ${SEN_SANITIZER_LOG_OPTION})
 
   # the USE_TESTCONTAINERS argument indicates that the integration test will use python testcontainers
   if(${_arg_USE_TESTCONTAINERS})
@@ -239,19 +240,39 @@ function(add_sen_integration_test test_name)
     set(_asan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/asan_ignorelist.txt)
     set(_ubsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/ubsan_ignorelist.txt)
     set(_tsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/tsan_ignorelist.txt)
+
+    # And where a finding is written, for the same reason. Left on the host's path the
+    # sanitizer creates it inside the container and the container is deleted with it, and a
+    # log path silences stderr, so nothing survives. run.py mounts the repository read-write
+    # here, so a path under the mount comes back out. Per test; run.py adds the container.
+    if(SEN_SANITIZER_LOG_DIR)
+      file(
+        RELATIVE_PATH
+        _log_dir_from_root
+        ${PROJECT_SOURCE_DIR}
+        ${SEN_SANITIZER_LOG_DIR}
+      )
+      # Per test, because every container's process is pid 1 and the runtime names its
+      # file report.<pid>: without this the whole container suite lands on report.1 and
+      # truncates itself. run.py adds a directory per container, which is the other half
+      # -- a test that starts two of them collides with itself otherwise.
+      set(_sanitizer_log_option
+          ":log_path=${SEN_INTEGRATION_TEST_MOUNT}/${_log_dir_from_root}/${test_name}/report"
+      )
+    endif()
   endif()
 
   if(LSAN_SUPPRESSION_FILE)
     append_test_env_modification(
       ${test_name}
-      "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1${SEN_SANITIZER_LOG_OPTION}"
+      "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1${_sanitizer_log_option}"
     )
   endif()
 
   if(ASAN_SUPPRESSION_FILE)
     append_test_env_modification(
       ${test_name}
-      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100${SEN_SANITIZER_LOG_OPTION}"
+      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100${_sanitizer_log_option}"
     )
   endif()
 
@@ -261,7 +282,7 @@ function(add_sen_integration_test test_name)
 
   if(TSAN_SUPPRESSION_FILE)
     append_test_env_modification(
-      ${test_name} "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}${SEN_SANITIZER_LOG_OPTION}"
+      ${test_name} "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}${_sanitizer_log_option}"
     )
   endif()
 
@@ -360,6 +381,35 @@ function(add_sen_run_smoke_test test_name)
 
 endfunction()
 
+# add_sanitizer_options(<test_name>)
+#
+# Tells a test where its suppressions are and where to write a finding. Without it a
+# test is instrumented and reports to nobody, which reads exactly like a clean run.
+# The integration and run-smoke suites pass extra flags and still carry their own copies.
+function(add_sanitizer_options test_name)
+  if(LSAN_SUPPRESSION_FILE)
+    append_test_env_modification(
+      ${test_name} "LSAN_OPTIONS=set:suppressions=${LSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+    )
+  endif()
+
+  if(ASAN_SUPPRESSION_FILE)
+    append_test_env_modification(
+      ${test_name} "ASAN_OPTIONS=set:suppressions=${ASAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+    )
+  endif()
+
+  if(UBSAN_SUPPRESSION_FILE)
+    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:suppressions=${UBSAN_SUPPRESSION_FILE}")
+  endif()
+
+  if(TSAN_SUPPRESSION_FILE)
+    append_test_env_modification(
+      ${test_name} "TSAN_OPTIONS=set:suppressions=${TSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+    )
+  endif()
+endfunction()
+
 # add_sen_smoke_test(
 #   <name>
 #   COMMAND <cmd>
@@ -390,6 +440,8 @@ function(add_sen_smoke_test test_name)
     list(APPEND labels "flaky")
   endif()
   set_tests_properties(${test_name} PROPERTIES LABELS "${labels}")
+
+  add_sanitizer_options(${test_name})
 
   add_dependencies(run_smoke_tests ${_arg_REQ_DEPS})
   add_dependencies(run_tests ${_arg_REQ_DEPS})

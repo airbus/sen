@@ -114,7 +114,10 @@ repos:
       language: python
       additional_dependencies: [pytest==9.1.1, pyyaml==6.0.3]
       entry: python -m pytest .github/scripts -q
-      files: ^\.github/scripts/
+      # The workflows too: test_lanes.py compares each lane definition against the job
+      # that carries it, so a workflow-only edit is exactly the drift it exists to catch
+      # and used to reach CI before anything said so.
+      files: ^\.github/(scripts|workflows)/
       pass_filenames: false
 
 # Global Configuration

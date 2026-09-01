@@ -83,6 +83,17 @@ jobs:
           conan build . -s "&:build_type=Debug" $options \
             -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
 
+      # A lane that reports nothing looks the same whether it found nothing or looked
+      # at nothing, so this fails unless a deliberate finding of each kind reaches the
+      # summary. It runs before the suite: a blind lane should say so in seconds.
+      - name: Check the sanitizers detect
+        shell: bash
+        run: |
+          # Conan provides cmake and ninja; the check calls ctest, so it needs the same
+          # environment the step below does rather than whatever the runner ships.
+          source build/clang/Debug/generators/conanbuild.sh
+          python3 .github/scripts/check_sanitizer_lane.py build/clang/Debug address
+
       - name: Run tests
         shell: bash
         run: |

@@ -8,6 +8,7 @@
 
 # std
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -32,6 +33,27 @@ def stream_logs(cont: DockerContainer) -> None:
     for line in w.logs(stream=True, follow=True):
         if line:
             print(f"[{w.short_id}] {line.decode('utf-8', 'replace').strip()}")
+
+
+# "log_path=/repo/sanitizer-reports/report" -> the directory and the file stem it names.
+SANITIZER_LOG_PATH = re.compile(r"(^|:)log_path=([^:]*)/([^:/]+)")
+
+
+def per_container_log_path(environment: dict[str, str], index: int) -> dict[str, str]:
+    """Gives each container of a test its own directory to write findings into.
+
+    Every container runs its command as pid 1 and the runtime names its file report.<pid>,
+    so containers sharing a directory truncate each other's findings. cmake gives each test
+    a directory; this separates the containers within one, and the pid separates one
+    attempt from the next, since these suites are retried and ctest gives no attempt number.
+    """
+    separated = {}
+    for name, value in environment.items():
+        if name.endswith("SAN_OPTIONS") and SANITIZER_LOG_PATH.search(value):
+            separated[name] = SANITIZER_LOG_PATH.sub(rf"\1log_path=\2/{index}-{os.getpid()}/\3", value)
+        else:
+            separated[name] = value
+    return separated
 
 
 def is_container() -> bool:
@@ -160,7 +182,7 @@ if __name__ == "__main__":
                 )
 
                 # start the container (with the host environment) and the log thread
-                container.env.update(os.environ)
+                container.env.update(per_container_log_path(dict(os.environ), i))
                 container.start()
                 log_thread = Thread(target=stream_logs, args=(container,), daemon=True)
                 log_thread.start()
