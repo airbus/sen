@@ -146,6 +146,12 @@ void TcpBeamTracker::connect()
                         err.message(),
                         err.value());
 
+      // A socket whose connect failed cannot be connected again: the next attempt returns
+      // ECONNABORTED on linux and EINVAL on macos, whatever the peer is doing by then. Closing it
+      // here is what makes the retry below a retry -- connect() opens a fresh one.
+      asio::error_code closeError;
+      us->socket_.close(closeError);  // NOLINT(bugprone-unused-return-value)
+
       us->timer_.cancel();
       us->timer_.expires_after(reconnectTimeout);
       us->timer_.async_wait(
