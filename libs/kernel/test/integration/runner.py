@@ -10,18 +10,35 @@ import os
 import subprocess
 import sys
 
+# How long a supporting instance is given to stop before it is killed outright.
+SHUTDOWN_GRACE_SECONDS = 5
+
 
 def run_sen_command(args):
     """
-    Do a sen run with the given arguments.
+    Do a sen run with the given arguments and return the process.
+
+    The caller keeps it in order to stop it: a supporting instance shuts down when the
+    tester asks it to, and the tester does not always get that far.
 
     Args:
         args: passed to sen
     """
     if os.name == "nt":  # Windows
-        subprocess.Popen(["sen", "run", args], start_new_session=True, env=os.environ.copy())
+        return subprocess.Popen(["sen", "run", args], start_new_session=True, env=os.environ.copy())
     else:  # Unix-like
-        subprocess.Popen(["./sen", "run", args], start_new_session=True)
+        return subprocess.Popen(["./sen", "run", args], start_new_session=True)
+
+
+def stop(instances):
+    """Stops the given instances, killing any that ignore the request."""
+    for instance in instances:
+        instance.terminate()
+    for instance in instances:
+        try:
+            instance.wait(timeout=SHUTDOWN_GRACE_SECONDS)
+        except subprocess.TimeoutExpired:
+            instance.kill()
 
 
 def main():
@@ -35,12 +52,16 @@ def main():
     arg3 = sys.argv[3]
 
     # Run the other 2 instances
-    run_sen_command(arg1)
-    run_sen_command(arg2)
+    supporting = [run_sen_command(arg1), run_sen_command(arg2)]
 
-    # Run the main instance for the smoke test
-    os.execv(os.path.join(os.curdir, "sen"), ["sen", "run", arg3])
+    try:
+        # Run the main instance for the smoke test, as a child rather than through exec.
+        # Exec replaces this process, so when the main instance dies on its own there is
+        # nothing left to stop the other two. The status is still the main instance's.
+        return subprocess.run([os.path.join(os.curdir, "sen"), "run", arg3], check=False).returncode
+    finally:
+        stop(supporting)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
