@@ -241,13 +241,15 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
 
       f64 rotationAngle = 0;
       Vec3d rotationAxis {};
-      const auto q0 = fromOrientationToQuat(situation.orientation);
-      const auto q1 = fromOrientationToQuat(
-        extrapolateOrientation(update.orientation, timeFromUpdate, update.angularVelocity, update.angularAcceleration));
-      const auto q01 = q0.inverse() * q1;
+
+      // worldToBody would rebuild this from the same angles, across a translation unit boundary.
+      const auto fromSmoothed = fromOrientationToQuat(situation.orientation).inverse();
+      const auto q01 =
+        fromSmoothed * fromOrientationToQuat(extrapolateOrientation(
+                         update.orientation, timeFromUpdate, update.angularVelocity, update.angularAcceleration));
       q01.getRotate(rotationAngle, rotationAxis);
 
-      const auto deltaTheta = worldToBody(rotationAxis * rotationAngle, situation.orientation);
+      const auto deltaTheta = fromSmoothed * (rotationAxis * rotationAngle);
       const auto omega0 = fromAngularVelocity(situation.angularVelocity);
       const auto omega1 = fromAngularVelocity(
         extrapolateAngularVelocity(update.angularVelocity, update.angularAcceleration, timeFromUpdate));
