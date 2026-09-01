@@ -6,7 +6,9 @@
 # ======================================================================================================================
 """Pins the grouping that turns a run's sanitizer output into a short report."""
 
-from summarise_sanitizer_reports import findings, summarise
+import sys
+
+from summarise_sanitizer_reports import findings, main, summarise
 
 RACE = """\
 WARNING: ThreadSanitizer: data race (pid=118)
@@ -202,3 +204,123 @@ def test_nothing_read_is_reported_differently_from_nothing_found():
 def test_the_old_wording_survives_when_the_count_is_unknown():
     """A caller that passes no count keeps the sentence it had."""
     assert summarise([]) == "No sanitizer findings in this run.\n"
+
+
+def test_it_can_be_told_to_judge_and_says_nothing_over_an_empty_run(tmp_path, monkeypatch):
+    """The report files are the one place every finding can be seen at once.
+
+    A finding written by a process ctest never waited on, or by a test whose verdict was
+    inverted, reaches the files and reaches nothing else. So the lane that gates reads
+    them; the nightly, which collects an inventory, must keep its exit status of zero.
+    """
+    reports = tmp_path / "sanitizer-reports"
+    reports.mkdir()
+    (reports / "report.1").write_text(SUPPRESSIONS, encoding="utf-8")
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+
+    monkeypatch.setattr(sys, "argv", ["summarise", str(reports)])
+    assert main() == 0, "a lane that collects must not gate"
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(reports)])
+    assert main() == 0, "a suppression tally is not a finding, so it must not fail a gate"
+
+    (reports / "report.2").write_text(RACE, encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(reports)])
+    assert main() == 1, "a real finding must fail the lane that gates"
+    monkeypatch.setattr(sys, "argv", ["summarise", str(reports)])
+    assert main() == 0, "and must still not fail the lane that collects"
+
+
+def test_judging_says_nothing_about_silence(tmp_path, monkeypatch):
+    """Whether a silent lane looked at anything is check_sanitizer_lane.py's question.
+
+    Answering it here as well would turn every clean run red on a missing directory.
+    """
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(tmp_path / "never-created")])
+    assert main() == 0
+
+
+def test_a_runtime_that_could_not_do_its_job_is_not_read_as_silence(tmp_path, monkeypatch):
+    """With a log path set the runtime writes this into the file and nothing to stderr.
+
+    Every test then goes red while the summary beside them said there were no findings,
+    which is the worst of both: a wall of failures and a report claiming a clean run.
+    """
+    reports = tmp_path / "sanitizer-reports"
+    reports.mkdir()
+    (reports / "report.1").write_text(
+        "AddressSanitizer: failed to read suppressions file '/gone/asan_ignorelist.txt'\n", encoding="utf-8"
+    )
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(reports)])
+    assert main() == 1
+
+    text = summarise([], reports=1, broken=["AddressSanitizer: failed to read suppressions file '/gone'"])
+    assert "silence says nothing" in text
+    assert "No sanitizer findings" not in text
+
+
+def test_a_report_that_cannot_be_read_is_not_the_same_as_one_that_is_not_there(tmp_path, monkeypatch):
+    """A container running as root leaves its reports unreadable by the job's user."""
+    reports = tmp_path / "sanitizer-reports"
+    reports.mkdir()
+    unreadable = reports / "report.1"
+    unreadable.write_text("anything\n", encoding="utf-8")
+    unreadable.chmod(0o000)
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(reports)])
+    try:
+        assert main() == 1
+    finally:
+        unreadable.chmod(0o644)
+
+
+def test_a_finding_whose_path_contains_a_space_is_still_a_finding():
+    """A build directory may contain one, and the pattern could not cross it."""
+    entries = findings("/work/src dir/ub.cpp:2:55: runtime error: signed integer overflow\n")
+    assert len(entries) == 1
+    assert entries[0]["tool"] == "UndefinedBehaviorSanitizer"
+
+
+def test_both_wordings_of_a_suppression_file_it_cannot_use_are_recognised(tmp_path, monkeypatch):
+    """A missing file says "read"; an unreadable or malformed one says "parse".
+
+    Only the first was matched, so the likelier half of the failure this was written for
+    still printed "No sanitizer findings" while every test in the run went red.
+    """
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    for wording in ("failed to read suppressions file '/gone'", "failed to parse suppressions."):
+        reports = tmp_path / wording.split()[2].strip("'/.")
+        reports.mkdir()
+        (reports / "report.1").write_text(f"AddressSanitizer: {wording}\n", encoding="utf-8")
+        monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(reports)])
+        assert main() == 1, wording
+
+
+def test_a_malfunction_is_still_reported_when_the_run_also_found_things():
+    """The warning has to survive alongside the table, not be replaced by it.
+
+    That is when a reader most needs it: a suppression file that failed to load means the
+    findings listed beside it may be noise that should have been suppressed.
+    """
+    text = summarise(findings(RACE), reports=1, broken=["AddressSanitizer: failed to parse suppressions."])
+    assert "could not do its job" in text
+    assert "sanitizer finding" in text
+
+
+def test_a_directory_that_cannot_be_opened_is_not_read_as_an_empty_one(tmp_path, monkeypatch):
+    """The container writes its reports as root; the job's user cannot open the directory.
+
+    rglob walks past it without a word, so a heap-use-after-free read as "no reports".
+    """
+    reports = tmp_path / "sanitizer-reports"
+    inner = reports / "container-0"
+    inner.mkdir(parents=True)
+    (inner / "report.1").write_text("WARNING: AddressSanitizer: heap-use-after-free\n", encoding="utf-8")
+    inner.chmod(0o000)
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", str(reports)])
+    try:
+        assert main() == 1
+    finally:
+        inner.chmod(0o755)
