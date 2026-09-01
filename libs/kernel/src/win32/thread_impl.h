@@ -36,6 +36,12 @@ public:
 public:
   [[nodiscard]] Result<void, ThreadCreateErr> run() noexcept;
   [[nodiscard]] bool join() noexcept;
+
+  /// False when the configured priority could not be applied and the thread runs without it.
+  [[nodiscard]] bool priorityApplied() const noexcept { return priorityApplied_; }
+
+  /// False when the configured cpu affinity could not be applied and the thread runs unpinned.
+  [[nodiscard]] bool affinityApplied() const noexcept { return affinityApplied_; }
   [[nodiscard]] bool kill() noexcept;
   [[nodiscard]] bool detach() noexcept;
 
@@ -52,6 +58,8 @@ private:
 
 private:
   ThreadConfig config_;
+  bool priorityApplied_ = true;
+  bool affinityApplied_ = true;
   HANDLE thread_ {};
   std::shared_ptr<Win32API> api_;
 };

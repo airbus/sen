@@ -37,6 +37,8 @@ struct ThreadConfig
 struct Thread
 {
   void* nativeHandle = nullptr;  ///< A nullptr handle indicates an invalid thread.
+  bool priorityApplied = true;   ///< False when the configured priority could not be granted.
+  bool affinityApplied = true;   ///< False when the configured cpu affinity could not be applied.
 };
 
 }  // namespace sen::kernel

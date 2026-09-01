@@ -47,6 +47,15 @@ public:
   /// Calls pthread_create and sets the affinity (if any).
   [[nodiscard]] Result<void, ThreadCreateErr> run() noexcept;
   [[nodiscard]] bool join() const noexcept;
+
+  /// False when the configured priority could not be applied and the thread runs without it.
+  [[nodiscard]] bool priorityApplied() const noexcept { return priorityApplied_; }
+
+  /// False when the configured cpu affinity could not be applied and the thread runs unpinned.
+  [[nodiscard]] bool affinityApplied() const noexcept { return affinityApplied_; }
+
+  /// The underlying handle, so a test can ask the operating system what the thread actually got.
+  [[nodiscard]] pthread_t nativeThread() const noexcept { return thread_; }
   [[nodiscard]] bool kill() const noexcept;
   [[nodiscard]] bool detach() const noexcept;
 
@@ -70,6 +79,8 @@ private:
 private:
   ThreadConfig config_;
   pthread_attr_t attributes_ {};
+  bool priorityApplied_ = true;
+  bool affinityApplied_ = true;
   pthread_t thread_ {};
   std::shared_ptr<PosixAPI> api_;
 };

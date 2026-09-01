@@ -18,6 +18,10 @@ add_sen_unit_test_suite(
   sen::kernel
 )
 
+if(NOT WIN32)
+  target_sources(kernel_test PRIVATE thread_priority_test.cpp)
+endif()
+
 sen_generate_cpp(
   TARGET kernel_test
   STL_FILES test_kernel/stl/my_class.stl

@@ -116,8 +116,15 @@ Result<Thread, ThreadCreateErr> PosixOS::createThread(const ThreadConfig& config
   }
 
   threads_.emplace_back(std::move(result).getValue());
-  std::ignore = threads_.back().run();
-  return Ok(Thread {&threads_.back()});
+  if (auto runResult = threads_.back().run(); runResult.isError())
+  {
+    // run() only reports an error when no thread was created, so nothing is running that could
+    // still be reading this object.
+    threads_.pop_back();
+    return Err(runResult.getError());
+  }
+
+  return Ok(Thread {&threads_.back(), threads_.back().priorityApplied(), threads_.back().affinityApplied()});
 }
 
 bool PosixOS::joinThread(Thread thread) noexcept
