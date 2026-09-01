@@ -9,15 +9,15 @@
 # .github/actions/setup_build_context installs the same toolchain directly
 # on runners; keep the two in sync.
 #
-# cmake, ninja and node are not installed: Conan tool_requires provide them.
-# Steps that call cmake directly must source the generated conanbuild.sh
-# first.
+# cmake and ninja are installed at the versions conanfile.py tool-requires. A Conan
+# tool_requires reaches the sen package only, so a package built from source in here
+# finds neither. Sen's own build still uses Conan's copies: a step calling cmake or
+# ninja directly must source the generated conanbuild.sh first.
 #
 # Two stages. `base` is what CI validates and what the pipeline is described
-# against. `dev` adds what an editor needs to recognise a toolchain, and is
-# what the devcontainer builds; keeping those tools out of `base` keeps one
-# pinned cmake for the builds themselves. Build `base` explicitly: a plain
-# `docker build` takes the last stage.
+# against. `dev` adds what an editor needs to recognise a toolchain, and is what
+# the devcontainer builds. Build `base` explicitly: a plain `docker build` takes
+# the last stage.
 
 # Pinned by digest: the tag moves whenever Canonical republishes it, which made
 # two developers building a fortnight apart hold different toolchains. Update it
@@ -29,8 +29,10 @@ ARG LLVM_VERSION=20
 ARG CONAN_VERSION=2.28.1
 ARG JUNITPARSER_VERSION=5.0.1
 ARG PYTEST_VERSION=9.1.1
-# For the dev stage only: the editors need a cmake that reads Conan's presets.
+# Both must equal the versions conanfile.py tool-requires, and nothing checks that
+# they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.28.1
+ARG NINJA_VERSION=1.13.2
 
 LABEL org.opencontainers.image.source="https://github.com/airbus/sen" \
       org.opencontainers.image.description="Sen CI build environment" \
@@ -95,11 +97,14 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     && rm -rf /var/lib/apt/lists/*
 
 
-# cmake/util/test.cmake invokes junitparser from the run_tests targets;
-# pytest runs the python test suites.
+# cmake/util/test.cmake invokes junitparser from the run_tests targets; pytest runs
+# the python test suites. cmake comes from pip because Ubuntu 22.04 ships 3.22, which
+# cannot read the CMakeUserPresets.json Conan writes at version 4.
 RUN pip3 install --no-cache-dir \
+        cmake==${CMAKE_VERSION} \
         conan==${CONAN_VERSION} \
         junitparser==${JUNITPARSER_VERSION} \
+        ninja==${NINJA_VERSION} \
         pytest==${PYTEST_VERSION}
 
 # Work as a normal user: on a Linux host the editor remaps this user's ids to
@@ -123,12 +128,10 @@ USER sen
 WORKDIR /workspace
 
 
-# CLion, VS Code and Visual Studio detect a toolchain by looking for cmake, a
-# build tool and a debugger inside the environment, so an editor cannot drive
-# the container without them. cmake comes from pip rather than apt because
-# Ubuntu 22.04 ships 3.22, which cannot read the CMakeUserPresets.json that
-# Conan writes (it declares version 4). graphviz is here for the
-# cmake_target_graph target, which otherwise warns that 'dot' is missing.
+# CLion, VS Code and Visual Studio detect a toolchain by looking for cmake, a build
+# tool and a debugger inside the environment; base carries the first two, so this
+# stage adds the debugger. graphviz is here for the cmake_target_graph target, which
+# otherwise warns that 'dot' is missing.
 FROM base AS dev
 
 # Names again, for the same reason as in the base stage: this user exists in
@@ -138,8 +141,6 @@ USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gdb \
         graphviz \
-        ninja-build \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip3 install --no-cache-dir cmake==${CMAKE_VERSION}
+    && rm -rf /var/lib/apt/lists/*
 # hadolint ignore=DL3066
 USER sen

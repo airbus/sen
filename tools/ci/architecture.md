@@ -257,27 +257,30 @@ depend on.
 [`Dockerfile`](Dockerfile) defines the build environment: gcc-12, clang-20
 and clang-tidy-20 from a pinned apt.llvm.org repository, ccache, pinned
 versions of conan, junitparser and pytest, and the coverage tools
-(gcovr, lcov and the LLVM equivalents). cmake, ninja and node are not
-installed in the image: Conan provides them as tool_requires. Anything that calls cmake
-directly must source the generated `conanbuild.sh` first.
+(gcovr, lcov and the LLVM equivalents), and cmake and ninja at the versions
+`conanfile.py` tool-requires. Those last two are there for the dependencies. A
+Conan `tool_requires` applies to the sen package alone, so a package built from
+source in the image finds neither, and the profiles select the Ninja generator
+everywhere, so even building ninja needs one. Sen's own build is unaffected:
+anything that calls cmake directly must still source the generated
+`conanbuild.sh` first, which is what puts Conan's copies on PATH.
 `setup_build_context` installs the same toolchain directly on hosted
 runners; keep the two in sync.
 
 The Dockerfile has two stages. `base` is the image described above, the one
-the pipeline is measured against. `dev` adds cmake, ninja, gdb and graphviz,
-because an editor detects a toolchain by looking for the first three and the
-dependency-graph target needs the fourth, and the devcontainer builds that
-stage. Its cmake comes from pip rather than the distribution:
-Conan writes `CMakeUserPresets.json` at version 4, which Ubuntu 22.04's cmake
-3.22 refuses to read. Builds still use the cmake and ninja that Conan pins, so
-the rule above is unchanged; the editor tools exist for the editor.
+the pipeline is measured against. `dev` adds gdb and graphviz, because an
+editor detects a toolchain by looking for cmake, a build tool and a debugger,
+and the dependency-graph target needs `dot`; the devcontainer builds that
+stage. `base` installs cmake from pip rather than from the distribution
+because Conan writes `CMakeUserPresets.json` at version 4, which Ubuntu
+22.04's cmake 3.22 refuses to read.
 
 `ci-image.yaml` builds both stages and then checks what is inside them. For
-`base`: the expected tools are present, cmake and ninja are absent, clang can
-link a sanitizer binary, and the image does not run as root. For `dev`: cmake,
-ninja, gdb and dot are present and cmake is new enough to read the presets. A Dockerfile
-that still builds but lost a tool therefore fails in the pull request that
-broke it. `main.yaml` calls it when a change touches the build environment,
+`base`: the expected tools are present, cmake and ninja report the versions
+`conanfile.py` tool-requires, clang can link a sanitizer binary, and the image
+does not run as root. For `dev`: cmake, ninja, gdb and dot are present and
+cmake is new enough to read the presets. A Dockerfile that still builds but
+lost a tool therefore fails in the pull request that broke it. `main.yaml` calls it when a change touches the build environment,
 and `ci-ok` needs it, so a broken image blocks the merge instead of showing up
 as a red mark beside it. Documentation under `tools/ci/` does not trigger it:
 the Dockerfile copies nothing out of the repository. Docker layer caching in the Actions cache keeps
@@ -336,11 +339,13 @@ runner builds for its own architecture, so the multi-architecture problem does n
 arise.
 
 **One cmake, not two.** Conan provides cmake and ninja as tool requirements,
-so they stay out of the image. The rule that follows is that any step
-invoking cmake must do so inside the environment Conan generates. When a step
-calls the cmake that happens to be installed on the runner instead, it
-disagrees with the one that configured the build, and the whole project
-relinks; that is a real cost that was measured, not a theoretical concern.
+and the rule that follows is that any step invoking cmake must do so inside
+the environment Conan generates. When a step calls the cmake that happens to
+be installed on the runner instead, it disagrees with the one that configured
+the build, and the whole project relinks; that is a real cost that was
+measured, not a theoretical concern. The image carries the same versions for
+the builds a tool requirement cannot reach, which is its own dependencies, so
+the rule holds there too.
 
 **One compiler version across the Linux configurations.** All of them build
 with gcc-12, including the arm configuration, so the profiles no longer
@@ -518,11 +523,6 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   compile: `apps/cli_run` defines a helper whose only callers sit behind the explorer
   preset, so with the explorer off it is an unused function and `-Werror` stops the
   build.
-- **A dependency cannot be built from source inside the CI image.** cmake is a
-  tool requirement of the sen package only, while the profiles inject ninja for every
-  package and cmake for none, and the image ships no cmake. On a hosted runner the
-  dependency build silently picks up the runner's own cmake, so this only appears when
-  a job runs inside the image with a cold cache.
 - MSVC jobs build but do not run tests (SEN-1725). Uploading coverage to an
   external service is wired but disabled (SEN-1726); the published report and
   the floor cover the same ground without sending anything outside.

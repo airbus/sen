@@ -86,8 +86,8 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          # Conan provides cmake and ninja; entering its environment is what finds
-          # them, and the image the jobs are moving into ships neither.
+          # Conan provides cmake and ninja; entering its environment is what puts
+          # them ahead of whatever else is on PATH, the image's own pair included.
           source build/clang/Debug/generators/conanbuild.sh
           cmake --build build/clang/Debug/ --target run_tests
 

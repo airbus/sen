@@ -137,9 +137,8 @@ jobs:
         if: matrix.runtime_base != ''
         shell: bash
         run: |
-          # Conan provides cmake and ninja, and the image ships neither; entering
-          # its environment is what finds them. Harmless on a runner that has its
-          # own cmake, and required the moment a job runs inside the image.
+          # Conan provides cmake and ninja; entering its environment is what puts
+          # them ahead of whatever else is on PATH, the runner's own copies included.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
             -N -L integration | grep -q object_sync
