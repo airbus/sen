@@ -20,6 +20,8 @@ def merge_coverage_profiles(llvm_profdata, profile_data_dir):
     print(" ├ Merging raw profiles...")
 
     raw_profiles = glob.glob(os.path.join(profile_data_dir, "*.profraw"))
+    if not raw_profiles:
+        raise SystemExit(f"No raw profiles in {profile_data_dir}: the tests produced no coverage data.")
 
     input_files = os.path.join(profile_data_dir, "profile_input_files")
     profdata_path = os.path.join(profile_data_dir, "merged_coverage.profdata")
@@ -27,18 +29,41 @@ def merge_coverage_profiles(llvm_profdata, profile_data_dir):
     with open(input_files, "w", encoding="utf-8") as manifest:
         manifest.write("\n".join(raw_profiles))
 
+    # A process killed while writing its profile leaves a truncated file. Without this, one of
+    # those makes the merge refuse every good profile beside it.
     cmd = [llvm_profdata, "merge"]
     cmd += ["-sparse"]
+    cmd += ["--failure-mode=warn"]
     cmd += ["-f", input_files]
     cmd += ["-o", profdata_path]
 
-    subprocess.check_call(cmd)
+    merge = subprocess.run(cmd, check=True, capture_output=True, text=True, encoding="utf-8")
+    unreadable = [line for line in merge.stderr.splitlines() if line.startswith("warning: ")]
+    for warning in unreadable:
+        print(f" │ {warning}")
+    if unreadable:
+        print(f" │ Skipped {len(unreadable)} of {len(raw_profiles)} raw profiles.")
+
+    if functions_covered(llvm_profdata, profdata_path) == 0:
+        raise SystemExit(f"No raw profile in {profile_data_dir} could be read: the report would be empty.")
 
     for raw_profile in raw_profiles:
         os.remove(raw_profile)
     os.remove(input_files)
 
     return profdata_path
+
+
+def functions_covered(llvm_profdata, profdata_path) -> int:
+    """How many functions the merged profile holds, so an empty report cannot pass for a real one."""
+    summary = subprocess.run(
+        [llvm_profdata, "show", profdata_path], check=True, capture_output=True, text=True, encoding="utf-8"
+    )
+    for line in summary.stdout.splitlines():
+        label, _, count = line.partition(":")
+        if label.strip() == "Total functions":
+            return int(count.strip())
+    raise SystemExit(f"`llvm-profdata show {profdata_path}` reported no function count.")
 
 
 def transform_to_binary_args(binaries) -> list[str]:
