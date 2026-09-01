@@ -2,4 +2,5 @@ package sen.test.crash_report;
 
 class CrashMaker
 {
+  var generateSignal: bool [static];
 }
