@@ -137,7 +137,7 @@ def findings(text: str) -> list[dict]:
     return entries + undefined_behaviour(text)
 
 
-def summarise(entries: list[dict]) -> str:
+def summarise(entries: list[dict], reports: int | None = None) -> str:
     """Renders the grouped findings as markdown.
 
     Grouped by family -- tool, kind and the pair of sen:: frames -- because that
@@ -145,6 +145,13 @@ def summarise(entries: list[dict]) -> str:
     survive a refactor.
     """
     if not entries:
+        # Saying "no findings" over nothing read is how a lane that saw nothing and a
+        # lane that looked at nothing came to print the same sentence. Whether the lane
+        # can detect at all is check_sanitizer_lane.py's question, not this one.
+        if reports == 0:
+            return "No sanitizer reports were produced in this run.\n"
+        if reports is not None:
+            return f"No sanitizer findings in {reports} report file(s).\n"
         return "No sanitizer findings in this run.\n"
 
     def family(entry: dict) -> tuple:
@@ -200,7 +207,7 @@ def main() -> int:
         elif path.is_file():
             text.append(path.read_text(encoding="utf-8", errors="replace"))
 
-    report = summarise(findings("\n".join(text)))
+    report = summarise(findings("\n".join(text)), reports=len(text))
     print(report, end="")
 
     summary = os.environ.get("GITHUB_STEP_SUMMARY")

@@ -19,6 +19,8 @@ __pycache__
 cmake-build-*
 build
 install
+# Where a sanitizer lane writes its findings; the workflows upload it as an artifact.
+sanitizer-reports
 
 # ======================================================================================================================
 # generated Conan-related files

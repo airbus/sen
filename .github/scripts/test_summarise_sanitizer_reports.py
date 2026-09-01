@@ -191,3 +191,14 @@ def test_kinds_do_not_merge():
 def test_a_suppressions_block_is_not_a_finding():
     """Every clean report file contains one; none of them is a finding."""
     assert findings(SUPPRESSIONS) == []
+
+
+def test_nothing_read_is_reported_differently_from_nothing_found():
+    """These looked identical, which is how a lane that saw nothing read as clean."""
+    assert "No sanitizer reports were produced" in summarise([], reports=0)
+    assert "No sanitizer findings in 3 report file(s)" in summarise([], reports=3)
+
+
+def test_the_old_wording_survives_when_the_count_is_unknown():
+    """A caller that passes no count keeps the sentence it had."""
+    assert summarise([]) == "No sanitizer findings in this run.\n"
