@@ -8,12 +8,13 @@
 #ifndef SEN_LIBS_KERNEL_TEST_INTEGRATION_CRASH_REPORT_H
 #define SEN_LIBS_KERNEL_TEST_INTEGRATION_CRASH_REPORT_H
 
+// generated code
+#include "stl/crash_report.stl.h"
+
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/var.h"
-
-// generated code
-#include "stl/crash_report.stl.h"
+#include "sen/kernel/component_api.h"
 
 // std
 #include <string>
@@ -28,6 +29,11 @@ public:
 
   CrashMakerImpl(std::string name, const VarMap& args);
   ~CrashMakerImpl() override = default;
+
+  void update(kernel::RunApi& runApi) override;
+
+private:
+  bool generateSignal_ = false;
 };
 
 }  // namespace sen::test::crash_report
