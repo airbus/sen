@@ -58,6 +58,15 @@ function(_git_find_closest_git_dir _start_dir _git_dir_var)
 endfunction()
 
 function(get_git_head_revision _refspecvar _hashvar)
+  set(${_refspecvar}
+      ""
+      PARENT_SCOPE
+  )
+  set(${_hashvar}
+      ""
+      PARENT_SCOPE
+  )
+
   _git_find_closest_git_dir("${CMAKE_CURRENT_SOURCE_DIR}" GIT_DIR)
 
   if("${ARGN}" STREQUAL "ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR")
@@ -84,35 +93,41 @@ function(get_git_head_revision _refspecvar _hashvar)
   endif()
 
   if("${GIT_DIR}" STREQUAL "")
-    set(${_refspecvar}
-        ""
-        PARENT_SCOPE
-    )
-    set(${_hashvar}
-        ""
-        PARENT_SCOPE
-    )
     return()
   endif()
 
   # Check if the current source dir is a git submodule or a worktree. In both cases .git is a file instead of a
   # directory.
   if(NOT IS_DIRECTORY ${GIT_DIR})
+    find_package(Git QUIET)
+    if(NOT GIT_EXECUTABLE)
+      return()
+    endif()
 
     # The following git command will return a non empty string that points to the super project working tree if the
     # current source dir is inside a git submodule. Otherwise the command will return an empty string.
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --show-superproject-working-tree
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-      OUTPUT_VARIABLE out
-      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+      RESULT_VARIABLE git_result
+      OUTPUT_VARIABLE superproject_working_tree
+      ERROR_VARIABLE git_error
+      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE
     )
     if(NOT
-       "${out}"
+       "${git_result}"
+       STREQUAL
+       "0"
+    )
+      return()
+    endif()
+
+    if(NOT
+       "${superproject_working_tree}"
        STREQUAL
        ""
     )
-      # If out is empty, GIT_DIR/CMAKE_CURRENT_SOURCE_DIR is in a submodule
+      # If superproject_working_tree is not empty, GIT_DIR/CMAKE_CURRENT_SOURCE_DIR is in a submodule
       file(READ ${GIT_DIR} submodule)
       string(
         REGEX
