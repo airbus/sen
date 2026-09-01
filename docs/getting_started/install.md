@@ -230,9 +230,17 @@ directory is `<sen_path>` in the snippets below.
     ```shell
     export SEN_PREFIX=<sen_path>
 
-    # Sen binaries on PATH. Sen installs binaries, shared libraries, and archives all under <prefix>/bin
-    # (CMAKE_INSTALL_BINDIR), so the same directory goes on LD_LIBRARY_PATH.
+    # Sen binaries on PATH. Sen finds its own shared libraries through its run path, so this is all
+    # that running sen needs.
     export PATH="$SEN_PREFIX/bin:$PATH"
+    ```
+
+    An application you build against Sen has to find those libraries itself. Give it a run path of
+    its own, or tell the loader where to look:
+
+    ```shell
+    # Sen installs binaries, shared libraries and archives all under <prefix>/bin
+    # (CMAKE_INSTALL_BINDIR), so that is the directory to name.
     export LD_LIBRARY_PATH="$SEN_PREFIX/bin:$LD_LIBRARY_PATH"
     ```
 
