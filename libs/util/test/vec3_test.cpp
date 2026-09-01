@@ -17,7 +17,7 @@
 namespace sen::util
 {
 
-constexpr f64 error = 1e-4;
+constexpr f64 absoluteError = 1e-4;
 
 /// @test
 /// Tests Vec3 initialization with values and without them
@@ -141,10 +141,11 @@ TEST(Vec3, multiplication)
   EXPECT_EQ(vec3L * vec3R, 41);
 
   Vec3d crossMultiply = vec3L ^ vec3R;
+  Vec3d crossMultiplyResult {37, 17, -70};
 
-  EXPECT_EQ(crossMultiply.getX(), 37);
-  EXPECT_EQ(crossMultiply.getY(), 17);
-  EXPECT_EQ(crossMultiply.getZ(), -70);
+  EXPECT_EQ(crossMultiply.getX(), crossMultiplyResult.getX());
+  EXPECT_EQ(crossMultiply.getY(), crossMultiplyResult.getY());
+  EXPECT_EQ(crossMultiply.getZ(), crossMultiplyResult.getZ());
 
   Vec3d dotProduct = vec3L * 2;
 
@@ -184,15 +185,15 @@ TEST(Vec3, addition)
 {
   Vec3 vec3 = Vec3<f64> {63.16, 6.05, 37} + Vec3<f64> {16.31, 49.9, 54.24};
 
-  EXPECT_NEAR(vec3.getX(), 63.16 + 16.31, error);
-  EXPECT_NEAR(vec3.getY(), 6.05 + 49.9, error);
-  EXPECT_NEAR(vec3.getZ(), 37 + 54.24, error);
+  EXPECT_NEAR(vec3.getX(), 63.16 + 16.31, absoluteError);
+  EXPECT_NEAR(vec3.getY(), 6.05 + 49.9, absoluteError);
+  EXPECT_NEAR(vec3.getZ(), 37 + 54.24, absoluteError);
 
   vec3 += Vec3<f64> {19.8, 3.24, 15.16};
 
-  EXPECT_NEAR(vec3.getX(), 79.47 + 19.8, error);
-  EXPECT_NEAR(vec3.getY(), 55.95 + 3.24, error);
-  EXPECT_NEAR(vec3.getZ(), 91.24 + 15.16, error);
+  EXPECT_NEAR(vec3.getX(), 79.47 + 19.8, absoluteError);
+  EXPECT_NEAR(vec3.getY(), 55.95 + 3.24, absoluteError);
+  EXPECT_NEAR(vec3.getZ(), 91.24 + 15.16, absoluteError);
 }
 
 /// @test
@@ -201,21 +202,21 @@ TEST(Vec3, subtraction)
 {
   Vec3 vec3 = Vec3<f64> {28.05, 36.79, 5.7} - Vec3<f64> {18.36, 53.78, 86.77};
 
-  EXPECT_NEAR(vec3.getX(), 28.05 - 18.36, error);
-  EXPECT_NEAR(vec3.getY(), 36.79 - 53.78, error);
-  EXPECT_NEAR(vec3.getZ(), 5.7 - 86.77, error);
+  EXPECT_NEAR(vec3.getX(), 28.05 - 18.36, absoluteError);
+  EXPECT_NEAR(vec3.getY(), 36.79 - 53.78, absoluteError);
+  EXPECT_NEAR(vec3.getZ(), 5.7 - 86.77, absoluteError);
 
   vec3 -= Vec3<f64> {6.36, 30.61, 11.18};
 
-  EXPECT_NEAR(vec3.getX(), 9.69 - 6.36, error);
-  EXPECT_NEAR(vec3.getY(), -16.99 - 30.61, error);
-  EXPECT_NEAR(vec3.getZ(), -81.07 - 11.18, error);
+  EXPECT_NEAR(vec3.getX(), 9.69 - 6.36, absoluteError);
+  EXPECT_NEAR(vec3.getY(), -16.99 - 30.61, absoluteError);
+  EXPECT_NEAR(vec3.getZ(), -81.07 - 11.18, absoluteError);
 
   vec3 = -vec3;
 
-  EXPECT_NEAR(vec3.getX(), -3.33, error);
-  EXPECT_NEAR(vec3.getY(), 47.6, error);
-  EXPECT_NEAR(vec3.getZ(), 92.25, error);
+  EXPECT_NEAR(vec3.getX(), -3.33, absoluteError);
+  EXPECT_NEAR(vec3.getY(), 47.6, absoluteError);
+  EXPECT_NEAR(vec3.getZ(), 92.25, absoluteError);
 }
 
 /// @test
