@@ -120,14 +120,16 @@ public:  // Reflection-based interface (do not use for real-time applications)
   virtual void invokeUntyped(const Method* method, const VarList& args, MethodCallback<Var>&& onDone = {}) = 0;
 
   /// Reflection-based interface for detecting property changes.
-  /// @note Only one callback per property is stored.
+  /// @note Multiple callbacks can be registered for the same property; each returns its own
+  ///       ConnectionGuard and they all fire in registration order on every change.
   /// This mechanism is meant to be used only when the natively generated functions are not
   /// available or when performance or type safety are of no particular concern.
   [[nodiscard]] virtual ConnectionGuard onPropertyChangedUntyped(const Property* prop,
                                                                  EventCallback<VarList>&& callback) = 0;
 
   /// Reflection-based interface for reacting to events.
-  /// @note Only one callback per event is stored.
+  /// @note Multiple callbacks can be registered for the same event; each returns its own
+  ///       ConnectionGuard and they all fire in registration order on every emission.
   /// This mechanism is meant to be used only when the natively generated functions are not
   /// available or when performance or type safety are of no particular concern.
   [[nodiscard]] virtual ConnectionGuard onEventUntyped(const Event* ev, EventCallback<VarList>&& callback) = 0;
