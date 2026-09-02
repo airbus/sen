@@ -21,6 +21,7 @@
     "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/sen-mcp-gateway.cjs --sourcemap=linked --metafile=dist/meta.json",
     "pretypecheck": "npm run bake",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "pretest": "npm run bake",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts"
