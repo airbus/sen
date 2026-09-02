@@ -289,3 +289,58 @@ add_sen_integration_test(
 
 # link them so the checker only runs if the generator succeeds
 set_tests_properties(hla_fom_gen_integration_test_20 PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
+
+# Test case 21
+#
+# ModuleA-21 defines a fixed record that includes the fields of another one.
+#
+# Check that after compilation the including record carries both its own field and the included one
+add_sen_package(
+  TARGET included_record_fom
+  HLA_FOM_DIRS test21/fom
+  GEN_HDR_FILES included_record_fom_headers
+  PUBLIC_SYMBOLS
+)
+
+add_executable(included_record_tester test21/main.cpp)
+sen_configure_target(included_record_tester)
+target_link_libraries(included_record_tester PRIVATE sen::core included_record_fom)
+
+add_sen_smoke_test(
+  test_included_record_generation
+  COMMAND included_record_tester
+  WORKING_DIRECTORY ${working_dir} REQ_DEPS included_record_tester
+)
+
+# Test case 22
+#
+# A fixed record including two other records, which a sen struct cannot represent.
+#
+# Expected result: failure
+add_sen_cli_gen_smoke_test(
+  hla_fom_gen_smoke_22
+  COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test22/fom
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# Test case 23
+#
+# A fixed record including a type that is not a record.
+#
+# Expected result: failure
+add_sen_cli_gen_smoke_test(
+  hla_fom_gen_smoke_23
+  COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test23/fom
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# Test case 24
+#
+# A fixed record including itself.
+#
+# Expected result: failure
+add_sen_cli_gen_smoke_test(
+  hla_fom_gen_smoke_24
+  COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test24/fom
+  WORKING_DIRECTORY ${working_dir}
+)
