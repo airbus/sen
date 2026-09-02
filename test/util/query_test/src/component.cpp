@@ -51,6 +51,7 @@ public:
     obj_ = std::make_shared<query_test::QueryTestClassImpl>("object1", sen::VarMap {});
     obj_->setNextCurrentStatus(query_test::Status::idle);
 
+    // --8<-- [start:subscribe]
     const auto bus = api.getSource("se.env");
     bus->add(obj_);
 
@@ -59,6 +60,7 @@ public:
     const auto enumInterest = sen::Interest::make(
       R"(SELECT query_test.QueryTestClass FROM se.env WHERE currentStatus = "error")", api.getTypes());
     bus->addSubscriber(enumInterest, &enumList_, true);
+    // --8<-- [end:subscribe]
 
     return api.execLoop(sen::Duration::fromHertz(100.0),
                         [this, &api]
