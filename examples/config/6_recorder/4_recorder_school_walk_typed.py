@@ -68,10 +68,11 @@ try:
     # ------------------------------------------------------------------------------------------
     # Track per-class snapshot counts, per-object property writes, and the last value seen for
     # each property. Read event args too.
-    snapshot_count_by_class = defaultdict(int)
-    property_changes_by_object = defaultdict(int)
+    # ObjectId casts to a Python int; className, propertyName and eventName are str.
+    snapshot_count_by_class: defaultdict[str, int] = defaultdict(int)
+    property_changes_by_object: defaultdict[int, int] = defaultdict(int)
     last_value_by_property = {}  # (objectId, propertyName) -> value
-    events_seen = defaultdict(int)  # (objectId, eventName) -> count
+    events_seen: defaultdict[tuple[int, str], int] = defaultdict(int)  # (objectId, eventName)
     event_arg_samples = {}  # (objectId, eventName) -> first args tuple seen
 
     cursor = input.begin()
