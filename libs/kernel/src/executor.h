@@ -37,7 +37,7 @@ public:
 
   /// Goes through each group, starting all runners.
   /// Throws std::exception on failure.
-  void startUp(bool tryToLockPages);
+  void startUp(bool tryToLockPages, bool tryToLimitCpuIdleLatency);
 
   /// Goes through each group, shutting down all runners.
   /// Throws std::exception on failure.
@@ -78,6 +78,7 @@ private:
   std::mutex startedConditionMutex_;
   std::atomic_bool startupFinished_;
   bool memoryLocked_ = false;
+  int cpuIdleLatencyFd_ = -1;
 };
 
 }  // namespace sen::kernel::impl

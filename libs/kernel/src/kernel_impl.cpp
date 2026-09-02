@@ -88,7 +88,7 @@ int KernelImpl::run(KernelBlockMode blockMode)
       configured_ = true;
     }
 
-    executor_.startUp(config_.getParams().lockMemoryPages);
+    executor_.startUp(config_.getParams().lockMemoryPages, config_.getParams().limitCpuIdleLatency);
 
     // Can only be started after components are preloaded to ensure a trace component can install the tracer factory.
     sessionManager_.startMessageProcessing();
