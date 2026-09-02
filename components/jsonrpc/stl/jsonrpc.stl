@@ -403,4 +403,16 @@ class JsonRpcServer
   //
   // @param sessions every currently-detected session with its currently-detected buses.
   event topologyChanged(sessions : SessionInfoList);
+
+  // Sent once when outbound backpressure clears on this connection, reporting how many
+  // unreliable notifications were dropped while the buffer was above the high watermark.
+  // Emitted reliably on purpose: the notice about dropped messages must not be droppable.
+  //
+  // A client that receives this has an incomplete picture and cannot tell which updates it
+  // missed -- only that it missed some. The correct response is to re-read what it displays
+  // (getObjectsBatchState over the affected interests) rather than to wait for the next
+  // change, which may never come for a property that has stopped moving.
+  //
+  // @param count notifications dropped during the window that just ended; always > 0.
+  event notificationsDropped(count : u64);
 }
