@@ -15,6 +15,7 @@
 
 // std
 #include <iostream>
+#include <optional>
 
 namespace timer
 {
@@ -33,9 +34,21 @@ public:
 public:
   void update(sen::kernel::RunApi& runApi) override
   {
+    // --8<-- [start:elapsed]
+    // Elapsed time comes from the clock, not from the configured period: a skipped cycle covers two
+    // periods, and a component that is stepped rather than cycled has no period at all.
+    // The first cycle has nothing to difference against, so it contributes nothing rather than the
+    // whole interval since the kernel started.
+    const auto now = runApi.getTime();
+    const auto elapsedTime = now - lastUpdate_.value_or(now);
+
+    // Advanced on every cycle, including while the timer is off, so switching it on does not
+    // subtract the whole interval it spent paused.
+    lastUpdate_ = now;
+    // --8<-- [end:elapsed]
+
     if (const auto countdown = getCountdown(); getState() == RunningState::on && countdown > 0)
     {
-      const auto elapsedTime = runApi.getTargetCycleTime().value();
       const auto newTimerValue = elapsedTime > countdown ? 0 : countdown - elapsedTime;
       setNextCountdown(newTimerValue);
 
@@ -53,6 +66,12 @@ protected:
   {
     onProgramChanged({this, [this]() { setNextCountdown(getProgram()); }}).keep();
   }
+
+private:
+  // --8<-- [start:elapsed_state]
+  /// Empty until the first update, which has nothing to difference against yet.
+  std::optional<sen::TimeStamp> lastUpdate_;
+  // --8<-- [end:elapsed_state]
 
   bool programAcceptsSet(sen::Duration /*val*/) const override
   {

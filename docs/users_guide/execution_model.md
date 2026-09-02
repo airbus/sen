@@ -190,40 +190,25 @@ Sen stops there. Solvers, scenario handling, model libraries and scheduling
 policies are yours to bring or to build. For a component that does not need any of that, what is
 here may be enough on its own.
 
-A component that advances in time differences the clock and integrates over the result. Nothing
-else is needed:
+A component that advances in time takes its step from the clock rather than from its configured
+rate. Keep the last time you saw:
 
-```cpp
-class AircraftImpl: public AircraftBase<>
-{
-  void update(sen::kernel::RunApi& api) override
-  {
-    const auto now = api.getTime();
-
-    // There is nothing to integrate over on the first cycle, so start from the beginning.
-    if (!started_)
-    {
-      lastUpdate_ = api.getStartTime();
-      started_ = true;
-    }
-
-    const auto dt = now - lastUpdate_;
-    lastUpdate_ = now;
-
-    setNextAltitude(getAltitude() + getVerticalSpeed() * dt.toSeconds());
-  }
-
-  sen::TimeStamp lastUpdate_;
-  bool started_ = false;
-};
+```cpp title="examples/packages/timer/src/timer.cpp"
+--8<-- "examples/packages/timer/src/timer.cpp:elapsed_state"
 ```
 
-Subtracting two `TimeStamp` values gives a `Duration`, and `toSeconds()` turns it into a `float64_t`
-you can multiply by. Because `dt` comes from the clock instead of from `freqHz`, the same code is
-correct when a cycle is skipped and when the component is stepped. It is not the same run, though.
-Stepping gives the same sequence of steps every time, while under `realTime` a skipped cycle merges
-two steps into one, so a component with a saturation, a rate limit or a discrete event can land
-somewhere else.
+and difference it on every cycle:
+
+```cpp title="examples/packages/timer/src/timer.cpp"
+--8<-- "examples/packages/timer/src/timer.cpp:elapsed"
+```
+
+Subtracting two `TimeStamp` values gives a `Duration`. A component integrating a rate turns that
+into a `float64_t` with `toSeconds()` and multiplies by it; the timer subtracts it from a countdown.
+Because the step comes from the clock instead of from `freqHz`, the same code is correct when a
+cycle is skipped and when the component is stepped. It is not the same run, though. Stepping gives
+the same sequence of steps every time, while under `realTime` a skipped cycle merges two steps into
+one, so a component with a saturation, a rate limit or a discrete event can land somewhere else.
 
 ## When a component runs out of time
 
