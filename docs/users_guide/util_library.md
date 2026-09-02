@@ -3,29 +3,29 @@
 This library houses Sen tools that, while not part of the Sen core, are frequently used within Sen
 environments.
 
-This library includes Dead Reckoning utilities.
+This library currently contains only Dead Reckoning utilities.
 
-Check out the [API Reference](../doxygen_gen/html/index.html) for a detailed description of the Sen Util
-library.
+Check out the [API Reference](../doxygen_gen/html/index.html) for a detailed description of the Sen
+Util library.
 
-## Dead Reckoning Utilities
+## Dead Reckoning utilities
 
 ### What is it?
 
-Dead Reckoning is a computational technique used in distributed simulations and networked
-applications to minimize data transmission by predicting the movement of entities between infrequent
-state updates. Instead of continuously transmitting real time positions, participants extrapolate
-future states using kinematic models based on last-known data (position, velocity, acceleration)
-reducing bandwidth consumption while maintaining perceived synchrony.
+Dead Reckoning is a way to cut data transmission in distributed simulations and networked
+applications. Instead of transmitting real time positions continuously, each participant predicts
+where an entity has moved between infrequent state updates: it extrapolates the entity forward with
+a kinematic model, from the last position, velocity and acceleration it received. Bandwidth drops,
+and the entities still appear to be in step.
 
 This library enables the computation of Dead Reckoning extrapolations on entities by using these two
 APIs:
 
 - The base API where a custom `Situation` struct is used for the extrapolation.
-- An API adapted to FOM which takes a `BaseEntity` object and extrapolates its spatial situation
-  following the algorithms specified in IEEE 1278.1-1995 Annex B.
+- An API adapted to RPR which takes a `BaseEntity` object instance and extrapolates its spatial
+  situation following the algorithms specified in IEEE 1278.1-2012, Annex E.
 
-Additionally, this library allows users to update `BaseEntity` objects based on error thresholds
+Additionally, this library allows users to update `BaseEntity` object instances based on error
 between real-time data and extrapolated values, thereby reducing spatial data transmission.
 
 ### How to use it?
@@ -42,7 +42,7 @@ This section targets readers interested in the detailed design of the Dead Recko
 The primary objectives that motivated the design of this library are as follows:
 
 - **Coverage**: This library extrapolates position and orientation data for all the Dead Reckoning
-  algorithms contemplated in the IEEE 1278.1-1995 Annex B.
+  algorithms contemplated in the IEEE 1278.1-2012, Annex E.
 
 - **Performance**: Dead Reckoning extrapolations are usually computed at a frequency higher than the
   network's frequency, thus making efficiency a key requirement of this library. All the algorithms
@@ -56,7 +56,7 @@ The primary objectives that motivated the design of this library are as follows:
 - **A library, not a package**: This software is a Sen library, but it is not a package. This can be
   confusing because Sen packages are also .so files (shared library). Being a Sen library means that
   it provides a set of helpers which can be used by another package, but it cannot be instantiated
-  directly by the Sen Kernel.
+  directly by the Sen kernel.
 
 A general diagram of the library is shown below:
 
@@ -64,11 +64,12 @@ A general diagram of the library is shown below:
 classDiagram
     class DeadReckonerBase {
         +situation(timeStamp) Situation
+        +geodeticSituation(timeStamp) GeodeticSituation
         +updateSituation(Situation)
-        +updateGeodeticSituation(Situation)
+        +updateGeodeticSituation(GeodeticSituation)
     }
     class DeadReckonerTemplateBase~T~ {
-        #extrapolate(SpatialVariant) Situation
+        #extrapolate(SpatialVariant, time, lastTimeStamp) Situation
     }
     class DeadReckoner~T~ {
         +situation(timeStamp) override Situation
@@ -86,8 +87,8 @@ classDiagram
         orientationDamping
     }
     class SettableDeadReckoner~T~ {
-        +setSpatial(situation)
-        +setSpatial(geodeticSituation)
+        +setSpatial(situation) bool
+        +setSpatial(geodeticSituation) bool
         +setFrozen(timeStamp, isFrozen)
         +object() T
     }
@@ -105,178 +106,82 @@ classDiagram
 
 The `DeadReckonerBase` class encapsulates the core functionality of the dead reckoning, and that
 class can be directly used to extrapolate (and optionally smooth) any `Situation` that does not need
-to be coming from the `Spatial` field of a FOM object.
+to be coming from the RPR `Spatial` attribute.
 
-The `DeadReckonerTemplateBase<T>` class particularizes this functionality for FOM objects and the
-`DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
+The `DeadReckonerTemplateBase<T>` class particularizes this functionality for RPR object instances
+and the `DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
 
 #### Data models and configuration
 
-The dead reckoning library allows the user to extrapolate the position/orientation of an entity
-using data in the form of the following two structs:
+The dead reckoning library extrapolates the position and orientation of an entity from a
+*situation*. `Situation` and `GeodeticSituation` differ only in the frame the position and
+orientation are expressed in: the first uses ECEF, the second latitude/longitude/altitude with
+orientation relative to NED.
 
-```c++ title="sen::util::Situation"
-/// Situation structure with the following parameters:
-struct Situation
-{
-  /// When true, no extrapolation is performed because the entity is frozen.
-  bool isFrozen = false;
+**`sen::util::Situation`**: Cartesian, earth-centered earth-fixed.
 
-  /// TimeStamp of the instant when the situation is computed.
-  sen::TimeStamp timeStamp {};
+| Field | Components | Unit | Frame | Meaning |
+|---|---|---|---|---|
+| `isFrozen` | — | `bool` | — | When true no extrapolation is performed. Default `false` |
+| `timeStamp` | — | `sen::TimeStamp` | — | The instant this situation describes |
+| `worldLocation` | `x` `y` `z` | meters | ECEF | Position |
+| `orientation` | `psi` `theta` `phi` | radians | body relative to ECEF | Body axes are x forward, y right, z down |
+| `velocityVector` | `x` `y` `z` | m/s | ECEF *or* body | Depends on the algorithm being extrapolated |
+| `angularVelocity` | `x` `y` `z` | rad/s | body | |
+| `accelerationVector` | `x` `y` `z` | m/s² | ECEF *or* body | Depends on the algorithm being extrapolated |
+| `angularAcceleration` | `x` `y` `z` | rad/s² | body | |
 
-  ///  Position in ECEF.
-  Location worldLocation {};
+**`sen::util::GeodeticSituation`**: identical apart from the three rows below.
 
-  /// Orientation of the body reference system (x forward, y right, z down) with respect to ECEF.
-  Orientation orientation {};
+| Field | Components | Unit | Frame | Meaning |
+|---|---|---|---|---|
+| `worldLocation` | `latitude` `longitude` | degrees | — | `altitude` is in meters |
+| `orientation` | `psi` `theta` `phi` | radians | body relative to NED | North-East-Down |
+| `velocityVector`, `accelerationVector` | `x` `y` `z` | m/s, m/s² | NED | The overload converts these to ECEF before writing; see **Reference System** below |
 
-  /// Velocity vector with respect to ECEF or body reference system (depending on
-  /// the reference system of the algorithm extrapolated).
-  Velocity velocityVector {};
+**`sen::util::DrConfig`**: the smoothing configuration. The defaults are tuned to work in most
+scenarios; [the how-to guide](../howto_guides/dead_reckoning.md) explains which way to turn each
+one.
 
-  /// Angular velocity vector with respect to body reference system.
-  AngularVelocity angularVelocity {};
+| Field | Type | Unit | Default | Meaning |
+|---|---|---|---|---|
+| `smoothing` | `bool` | — | `true` | Smooth incoming position and orientation to remove noise |
+| `maxDistance` | `f64` | meters | `100000.0` | Displacements larger than this are not smoothed |
+| `maxDeltaTime` | `sen::Duration` | — | `1 s` | Time deltas larger than this are not smoothed |
+| `smoothingInterval` | `sen::Duration` | — | `20 ms` | Longest interval used to update the smoothed solution; caps it to keep the solution stable |
+| `positionConvergenceTime` | `sen::Duration` | — | `500 ms` | How long the smoothed position takes to reach the updated position |
+| `positionDamping` | `f64` | — | `1.0` | Damping of the smoothed position |
+| `orientationConvergenceTime` | `sen::Duration` | — | `50 ms` | How long the smoothed orientation takes to reach the updated orientation |
+| `orientationDamping` | `f64` | — | `20.0` | Damping of the smoothed orientation |
 
-  /// Acceleration vector with respect to ECEF or body reference system (depending on
-  /// the reference system of the algorithm extrapolated).
-  Acceleration accelerationVector {};
+The lengths, angles and rates above are quantity types (`LengthMeters`, `AngleRadians`,
+`VelocityMetersPerSecond` and so on), so the unit is part of the type rather than a convention you
+have to remember.
 
-  /// Angular acceleration vector with respect to body reference system.
-  AngularAcceleration angularAcceleration {};
-};
-```
+In C++ a quantity is a wrapper over its underlying type that converts to and from it implicitly, so
+you can pass one wherever the plain number is expected and assign a plain number back. The unit is
+enforced where values cross between components, not inside arithmetic you write yourself.
 
-```c++ title="sen::util::GeodeticSituation"
-/// GeodeticSituation structure with the following parameters:
-struct GeodeticSituation
-{
-  /// When true, no extrapolation is performed because the entity is frozen.
-  bool isFrozen = false;
+??? note "C++ declarations"
 
-  /// TimeStamp of the instant when the situation is computed.
-  sen::TimeStamp timeStamp {};
+    ```c++ title="sen::util::Situation"
+    --8<-- "libs/util/include/sen/util/dr/algorithms.h:situation"
+    ```
 
-  /// World Location in Geodetic (Latitude, Longitude, Altitude).
-  GeodeticWorldLocation worldLocation {};
+    ```c++ title="sen::util::GeodeticSituation"
+    --8<-- "libs/util/include/sen/util/dr/algorithms.h:geodetic_situation"
+    ```
 
-  /// Orientation of the body reference system (x forward, y right, z down)
-  /// with respect to NED (North - East - Down).
-  Orientation orientation {};
-
-  /// Velocity vector with respect to NED.
-  Velocity velocityVector {};
-
-  /// Angular velocity vector with respect to body-reference system.
-  AngularVelocity angularVelocity {};
-
-  ///  Acceleration vector with respect to NED.
-  Acceleration accelerationVector {};
-
-  /// Angular acceleration vector with respect to body-reference system.
-  AngularAcceleration angularAcceleration {};
-};
-```
-
-Additionally, the dead reckoning takes the following configuration:
-
-```c++ title="sen::util::DrConfig"
-/// Dead Reckoning configuration.
-struct DrConfig
-{
-  /// If true, the position and orientation of the input data is smoothed removing noise
-  bool smoothing = true;
-
-  ///  No smoothing is performed for displacements bigger than this distance.
-  LengthMeters maxDistance = 100000.0;
-
-  /// No smoothing is performed for time deltas bigger than this duration
-  sen::Duration maxDeltaTime {std::chrono::seconds(1)};
-
-  /// Maximum time interval used to update the smoothed solution. It is used to prevent the smoothed solution from
-  /// becoming unstable.
-  sen::Duration smoothingInterval {std::chrono::milliseconds(20)};
-
-  /// Convergence time for the smoothed position to match the updated position
-  sen::Duration positionConvergenceTime {std::chrono::milliseconds(500)};
-
-  /// Damping coefficient for the smoothed position solution.
-  DampingCoefficient positionDamping = 1.0;
-
-  /// Convergence time for the smoothed orientation to match the updated orientation
-  sen::Duration orientationConvergenceTime {std::chrono::milliseconds(50)};
-
-  /// Damping coefficient for the smoothed orientation solution.
-  DampingCoefficient orientationDamping = 20.0;
-};
-```
-
-The default values provided in the `DrConfig` where trimmed to ensure a good performance in the
-majority of scenarios but can be freely changed by the user.
+    ```c++ title="sen::util::DrConfig"
+    --8<-- "libs/util/include/sen/util/dr/algorithms.h:dr_config"
+    ```
 
 #### The Dead Reckoner Base
 
 The `DeadReckonerBase` has the following API:
 
 ```c++ title="DeadReckonerBase API"
-/// Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by
-/// default unless the user specifies otherwise.
-class DeadReckonerBase
-{
-
-public:
-  SEN_NOCOPY_NOMOVE(DeadReckonerBase)
-
-public:
-  explicit DeadReckonerBase(DrConfig config = {});
-  virtual ~DeadReckonerBase() = default;
-
-public:
-  /// Returns the extrapolated/smoothed situation of the object at the timestamp introduced as argument, expressed in
-  /// the following coordinates:
-  /// - World position: ECEF coordinates
-  /// - Orientation: Euler angles of the body reference system (x forward, y right, z down) with respect to ECEF
-  /// - Velocity: In world coordinates for world-centered DR algorithms and in body coordinates for body-centered
-  /// algorithms
-  /// - Acceleration: In world coordinates for world-centered DR algorithms and in body coordinates for body-centered
-  /// algorithms
-  /// - AngularVelocity: In body coordinates.
-  /// - AngularAcceleration: In body coordinates.
-  [[nodiscard]] virtual Situation situation(sen::TimeStamp timeStamp);
-
-  /// Returns the extrapolated/smoothed situation of the object at the timestamp introduced as argument, expressed in
-  /// the following coordinates:
-  /// - World position: Geodetic Latitude, Longitude and Altitude
-  /// - Orientation: Euler angles of the body reference system (x forward, y right, z down) with respect to NED
-  /// - Velocity: In NED coordinates for world-referenced algorithms, in body coordinates for body-referenced
-  /// algorithms.
-  /// - Acceleration: In NED coordinates for world-referenced algorithms, in body coordinates for body-referenced
-  /// algorithms.
-  /// - AngularVelocity: In body coordinates.
-  /// - AngularAcceleration: In body coordinates.
-  [[nodiscard]] virtual GeodeticSituation geodeticSituation(sen::TimeStamp timeStamp);
-
-  /// Updates the last known real time Situation. A valid timestamp is needed inside the Situation provided as
-  /// argument.
-  void updateSituation(const Situation& value);
-
-  /// Updates the last known real time GeodeticSituation. A valid timestamp is needed inside the GeodeticSituation
-  /// provided as argument.
-  void updateGeodeticSituation(const GeodeticSituation& value);
-
-public:  // config
-  [[nodiscard]] const DrConfig& getConfig() const noexcept;
-  void setConfig(const DrConfig& config);
-
-protected:
-  [[nodiscard]] const Situation& getSmoothSituation() const noexcept;
-  void smooth(const Situation& update);
-
-private:
-  DrConfig config_;
-  Situation lastSituation_;
-  Situation smoothSituation_;
-};
+--8<-- "libs/util/include/sen/util/dr/detail/dead_reckoner_base.h:dead_reckoner_base"
 ```
 
 Where the user needs to call `updateSituation` (with a situation containing a valid timestamp) every
@@ -285,76 +190,12 @@ position/orientation extrapolated to the timestamp provided as argument.
 
 #### The Dead Reckoner
 
-The `DeadReckoner<T>` provides an API to the user tailored to accept `rpr::BaseEntityInterface` FOM
-objects and perform extrapolations on them following the algorithms specified in IEEE 1278.1-1995
-Annex B. The FOM entity updates are detected automatically in this case. The API is shown below:
+The `DeadReckoner<T>` provides an API to the user tailored to accept `rpr::BaseEntityInterface`
+object instances and perform extrapolations on them following the algorithms specified in IEEE
+1278.1-2012, Annex E. Their updates are detected automatically in this case. The API is shown below:
 
 ```c++ title="DeadReckoner API"
-template <typename T>
-class DeadReckoner: public DeadReckonerTemplateBase<T>
-{
-public:
-  SEN_NOCOPY_NOMOVE(DeadReckoner)
-
-public:  // RPR types from DeadReckonerTemplateBase
-  using Parent = DeadReckonerTemplateBase<T>;
-  using SpatialVariant = typename Parent::SpatialVariant;
-  using StaticSpatial = typename Parent::StaticSpatial;
-  using FpsSpatial = typename Parent::FpsSpatial;
-  using RpsSpatial = typename Parent::RpsSpatial;
-  using RvsSpatial = typename Parent::RvsSpatial;
-  using FvsSpatial = typename Parent::FvsSpatial;
-  using RprLocation = typename Parent::RprLocation;
-  using RprOrientation = typename Parent::RprOrientation;
-  using RprVelocity = typename Parent::RprVelocity;
-  using RprAcceleration = typename Parent::RprAcceleration;
-  using RprAngularVelocity = typename Parent::RprAngularVelocity;
-
-public:  // type aliases
-  using SituationProcessor = std::function<Situation(sen::TimeStamp)>;
-  using GeodeticSituationProcessor = std::function<GeodeticSituation(sen::TimeStamp)>;
-
-public:
-  /// Constructor for the DeadReckoner where an object inheriting from rpr::BaseEntity is inputted as a reference.
-  /// This is the easiest version of the API to instantiate a DeadReckoner.
-  explicit DeadReckoner(const T& object, DrConfig config = {});
-  ~DeadReckoner() override = default;
-
-public: // overrides DeadReckonerBase
-  [[nodiscard]] Situation situation(sen::TimeStamp timeStamp) override;
-  [[nodiscard]] GeodeticSituation geodeticSituation(sen::TimeStamp timeStamp) override;
-
-public:
-  /// Provides direct mutable access to the internal object managed by this instance of the DeadReckoner
-  [[nodiscard]] T& getObject() noexcept;
-
-public:  // situation translation helpers
-  /// Translates a SpatialVariant to a Situation struct
-  [[nodiscard]] static Situation toSituation(const SpatialVariant& spatial, sen::TimeStamp timeStamp = {});
-
-  /// Translates a SpatialVariant to a GeodeticSituation struct
-  [[nodiscard]] static GeodeticSituation toGeodeticSituation(const SpatialVariant& spatial,
-                                                             sen::TimeStamp timeStamp = {});
-
-private:
-  /// Provides the situation processor that will be executed depending on the type of DR algorithm used
-  /// (body-centered or world-centered). NOTE: Smoothing is only available for world centered algorithms.
-  [[nodiscard]] SituationProcessor getSituationProcessor(bool bodyReferenced);
-
-  /// Provides the geodetic situation processor that will be executed depending on the type of DR algorithm used
-  /// (body-centered or world-centered). NOTE: Smoothing is only available for world centered algorithms.
-  [[nodiscard]] GeodeticSituationProcessor getGeodeticSituationProcessor(bool bodyReferenced);
-
-  /// Updates the lastSpatial and lastTimeStamp members when a new Spatial is received
-  void updateSpatial(sen::TimeStamp time);
-
-private:
-  const T& object_;
-  SituationProcessor processSituation_;
-  GeodeticSituationProcessor processGeodeticSituation_;
-  sen::TimeStamp lastTimeStamp_;
-  SpatialVariant lastSpatial_;
-};
+--8<-- "libs/util/include/sen/util/dr/dead_reckoner.h:dead_reckoner"
 ```
 
 The following diagram shows how the dead reckoner performs extrapolations of the `rpr::BaseEntity`
@@ -388,15 +229,12 @@ The Settable Dead Reckoner takes the `DrThreshold` as a configuration. The defin
 `DrThreshold` is shown below:
 
 ```cpp title="sen::util::DrThreshold"
-/// Threshold configuration structure with the position error threshold (maximum distance between extrapolation and
-/// data) and the entity dynamics (speed and changes of direction)
-struct DrThreshold
-{
-  LengthMeters distanceThreshold {};
-  AngleRadians orientationThreshold {};
-  ReferenceSystem referenceSystem {ReferenceSystem::world};
-};
+--8<-- "libs/util/include/sen/util/dr/settable_dead_reckoner.h:dr_threshold"
 ```
+
+Both thresholds default to a value that already suppresses most updates, one meter and 0.05 radians
+(about 2.9 degrees), so the reduction in traffic happens without any configuration. Setting either
+to zero has the opposite effect of what this class is for: every update would exceed it.
 
 As you can see, it enables the configuration of the following parameters:
 
@@ -420,7 +258,7 @@ $$
 - **Orientation Threshold**: Minimum angle in radians between the extrapolation and new orientation
   updates to trigger a set of the `Spatial` property of the local Sen object. The orientation
   threshold can be easily computed using quaternions with the following expressions, where $q_{new}$
-  is the quaternion representing the new orientation update, $q_{dr}$ is the quaterion representing
+  is the quaternion representing the new orientation update, $q_{dr}$ is the quaternion representing
   the extrapolated orientation and $\beta$ is the angle between both orientations:
 
 $$
@@ -429,13 +267,23 @@ $$
 
 - **Reference System**: Reference system used for the `Spatial` property of the local
   `BaseEntityBase` object. Spatial dead reckoning algorithms use two different reference systems,
-  body (x forward, y right, z down) and world (ECEF). In case a `GeodeticSituation` is used as input
-  to set the Spatial, the reference system configuration is not used, as the Spatial will always be
-  in world coordinates.
+  body (x forward, y right, z down) and world (ECEF). This setting picks which of the two the
+  written `Spatial` is tagged with, and it applies to both `setSpatial` overloads. The
+  `GeodeticSituation` overload converts its position, orientation, velocity and acceleration to
+  ECEF before writing them, so leaving this at its `world` default is what matches that data;
+  setting it to `body` on that path produces a `Spatial` holding world vectors under a body-frame
+  algorithm.
 
 The two main methods of the `SettableDeadReckoner<T>` class are the two overloads of the
 `setSpatial` method, which take a Situation and a GeodeticSituation as inputs. These two overloads
 allow the consumer to input the `Situation` in two possible reference systems.
+
+Both return `true` when the call published a new `Spatial` and `false` when the extrapolation was
+still within the threshold, which is the common case for anything in near-linear motion. You can
+ignore the return, and most callers do. It is there for a producer that needs to know whether it
+wrote on this cycle: instrumentation that must not report activity on a cycle where the object
+published nothing, for instance. Note that it reports what was **published**, not whether the
+situation you passed in differed from the last one.
 
 As you can see in the [algorithms annex](#dead-reckoning-algorithms), the `Spatial` property of a
 `BaseEntity` can use multiple DeadReckoning algorithms. The `SettableDeadReckoner<T>` automatically
@@ -476,23 +324,23 @@ Updating the acceleration helps to avoid discontinuities in the solution because
 order integration. The condition to update the acceleration is that the smoothed solution needs to
 converge with the input data after a convergence time. This directly translates to higher
 accelerations as the error increases. The smoothed solution can be unstable for small convergence
-times, that is why the magnitude of the convergence time was trimmed internally to minimize errors
-while ensuring stability.
+times, which is why the update is advanced in steps no longer than `smoothingInterval`, 20 ms by
+default. The convergence time you configure is used as given.
 
 In addition to the convergence time, a damping is applied to the smoothed solution to avoid
-overshooting. This coefficient is configurable via de `DrConfig` and the default values were trimmed
-to ensure high quality damping for the position and orientation solutions. Modification of this
-values is not recommended unless it is necessary.
+overshooting. This coefficient is configurable via `DrConfig`, and the defaults are tuned to
+damp the position and orientation solutions well. Changing them is not recommended unless
+you need to.
 
 Finally, when the error between the smoothed solution and the input data surpasses a maximum
 distance threshold (configurable in the DrConfig), the error is corrected instantly without
 smoothing. This applies, for example, when the IOS applies big corrections to the location of the
 entities.
 
-#### Dead Reckoning Algorithms
+#### Dead Reckoning algorithms
 
 Here we detail the extrapolation algorithms implemented in this library. This library covers all the
-algorithms specified on IEEE 1278.1-1995 Annex B.
+algorithms specified on IEEE 1278.1-2012, Annex E.
 
 **Static**: No movement.
 

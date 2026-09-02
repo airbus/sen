@@ -14,6 +14,9 @@
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
+// std
+#include <iostream>
+
 namespace calculators
 {
 
@@ -25,17 +28,20 @@ public:
   ~ClientImpl() override = default;
 
 public:
-  void registered(sen::kernel::RegistrationApi& api) override
+  // --8<-- [start:subscribe]
+  void registered(sen::kernel::RegistrationApi& api) override  // (1)!
   {
-    calculators_ = api.selectAllFrom<CalculatorInterface>(getCalcBus());
+    calculators_ = api.selectAllFrom<CalculatorInterface>(getCalcBus());  // (3)!
   }
+  // --8<-- [end:subscribe]
 
 protected:
+  // --8<-- [start:async_call]
   void useCalculatorImpl() override
   {
-    if (const auto& list = calculators_->list.getObjects(); !list.empty())
+    if (const auto& list = calculators_->list.getObjects(); !list.empty())  // (4)!
     {
-      auto handleResult = [](sen::MethodResult<float64_t> result)
+      auto handleResult = [](sen::MethodResult<float32_t> result)  // (6)!
       {
         if (result.isOk())
         {
@@ -48,12 +54,13 @@ protected:
       };
 
       // Call add(3, 4) and handle the result
-      list.front()->add(3.0, 4.0, {this, handleResult});
+      list.front()->add(3.0, 4.0, {this, handleResult});  // (5)!
     }
+    // --8<-- [end:async_call]
   }
 
 private:
-  std::shared_ptr<sen::Subscription<CalculatorInterface>> calculators_;
+  std::shared_ptr<sen::Subscription<CalculatorInterface>> calculators_;  // (2)!
 };
 
 SEN_EXPORT_CLASS(ClientImpl)

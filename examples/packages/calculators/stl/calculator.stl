@@ -8,14 +8,13 @@ class Calculator
 
   // The last result, or what is currently presented at the screen.
   var current : f32;
-
   // Returns "a + b" and sets the last result to it.
   //
   // @param a left-hand operator.
   // @param b right-hand operator.
   fn add(a: f32, b: f32) -> f32;
 
-  // Returns "a + R" where R is was the last result.
+  // Returns "a + R" where R was the last result.
   //
   // @param a left-hand operator.
   fn addWithCurrent(a: f32) -> f32;
@@ -40,7 +39,6 @@ class Client
 {
   // Where to find the calculator objects.
   var calcBus : string [static];
-
   // Uses any available calculator.
   fn useCalculator();
 }

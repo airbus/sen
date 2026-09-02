@@ -188,10 +188,10 @@ The dict shape is the kernel's external `CustomTypeSpec` encoding. Top level:
 
 `ClassTypeSpec` members:
 
-- **properties[i]**: `name`, `description`, `category` (`staticRO` / `staticRW` / `dynamicRO` / `dynamicRW`), `type`,
-  `transportMode`, `tags`, `checkedSet`.
-- **methods[i]**: `name`, `description`, `args` (list of `{name, description, type}`), `transportMode`, `constness`,
-  `deferred`, `returnType`, `propertyRelation`, `localOnly`.
+- **properties[i]**: `name`, `description`, `category` (`staticRO` / `staticRW` / `dynamicRO` /
+  `dynamicRW`), `type`, `transportMode`, `tags`, `checkedSet`.
+- **methods[i]**: `name`, `description`, `args` (list of `{name, description, type}`),
+  `transportMode`, `constness`, `deferred`, `returnType`, `propertyRelation`, `localOnly`.
 - **events[i]**: `name`, `description`, `args` (same shape as method args), `transportMode`.
 - **constructor**: same shape as `methods[i]`.
 - **parents**: list of qualified parent class names.
@@ -221,7 +221,7 @@ def find_event(reg, class_name, event_name):
 | ----------------------------------------- | ---------------------------------------------------------------------- |
 | `inp.getObjectIndexDefinitions()`         | sequence of `ObjectIndexDef`                                           |
 | `inp.getAllKeyframeIndexes()`             | sequence of `KeyframeIndex`                                            |
-| `inp.getKeyframeIndex(time)`              | `KeyframeIndex` or `None` -- closest keyframe at or before `time`      |
+| `inp.getKeyframeIndex(time)`              | `KeyframeIndex` or `None` -- nearest keyframe in either direction; `None` only when there are no keyframes at all |
 | `inp.at(keyframeIndex)`                   | new `DataCursor` starting at that keyframe                             |
 | `inp.makeCursor(objectIndexDef)`          | new `DataCursor` iterating one object only                             |
 
@@ -271,8 +271,11 @@ wall_clock = EPOCH + entry.time
 
 ## Output discipline
 
-Calling code (CLI / MCP gateway / etc.) typically caps script output. The MCP gateway
-caps stdout at 64 KiB, stderr at 16 KiB, and wall-clock duration at 60 s. Print
+Calling code (CLI / [MCP gateway](../components/mcp_gateway.md) / etc.) typically caps script
+output. The gateway defaults to 64 KiB of stdout, 16 KiB of stderr, and 60 s of wall clock, the last
+raisable to 600 s through `SEN_RECORDING_TIMEOUT_MS`. It also caps the script itself
+at 64 KiB. That limit matches the pipe buffer, so a larger script stalls on the write
+rather than failing with a message. Print
 *summaries* (not raw rows), and bound the walk by time-window or sample count when the
 recording is large.
 
@@ -387,4 +390,4 @@ for name, count in sorted(event_counts.items(), key=lambda kv: -kv[1]):
 - [sen::db](db_library.md)
 - [Recorder component](../components/recording.md)
 - [Replayer component](../components/replaying.md)
-- [Recorder example](../../examples/config/6_recorder/readme.md)
+- [Recorder example](../snippets/examples/config/6_recorder/readme.md)

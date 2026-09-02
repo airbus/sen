@@ -6,12 +6,11 @@ described on the [how to export interfaces in Sen-based projects](exportable_int
 
 ## How to consume Sen-based projects as CMake packages
 
-In order to use the interfaces of a project you consume externally, you first need the project
-itself. Consuming Sen-based projects is done via CMake. Every Sen-based project will be exported as
-a CMake package, and obtaining those packages can be done in several ways: Conan package manager,
-ZIP files, CMake installations, etc. The way of obtaining the package is transparent: the only
-requirement is that the path to the `-config.cmake` file that every project has is added to the
-`CMAKE_PREFIX_PATH`.
+To use an external project's interfaces you first need the project itself, and you consume it
+through CMake. Every Sen-based project is exported as a CMake package, and you can get that package
+in several ways: the Conan package manager, ZIP files, CMake installations, and so on. It does not
+matter which one you use. Every project ships a `-config.cmake` file, and the only requirement is
+that the directory containing it is on the `CMAKE_PREFIX_PATH`.
 
 Setting the `CMAKE_PREFIX_PATH` depends on the method you choose to consume the package:
 
@@ -27,14 +26,14 @@ can now call
 find_package(my_project)
 ```
 
-to add the consumed project to ours. Sen uses an independent CMake file for each dependency, so the
+to add the consumed project to yours. Sen uses an independent CMake file for each dependency, so the
 recommendation is to follow the same architecture. You can check Sen's dependencies located in
-`cmake/tps/` or the dependencies of any Sen-based project (e.g. `sen_dis_gateway`) under
+`cmake/tps` or the dependencies of any Sen-based project (e.g. a Sen-based gateway project) under
 `cmake/deps` for further detail.
 
-## Use external interfaces inside our project
+## Use external interfaces inside your project
 
-After importing the external project into ours, we can make use of Sen's CMake tools to use the
+After importing the external project into yours, you can use Sen's CMake tools to use the
 interfaces of an externally included project.
 
 ### get_external_interfaces function
@@ -50,7 +49,7 @@ get_external_interfaces(TARGET target_name INSTALLATION_DIR install_dir)
 - The `TARGET` argument will be the name of the desired CMake target who you want to obtain the
   interfaces from. The target name will stay the same as it is on the original project, preceded by
   its namespace. For example, if I want to obtain Sen's recorder component interfaces, I would call
-  get_external_interfaces(TARGET sen::recorder ...).
+  `get_external_interfaces(TARGET sen::recorder ...)`.
 - The `INSTALLATION_DIR` argument is a variable that points to the actual directory where the
   imported package is located at compile time. If the CMake package of the consumed project was
   generated using the [how to export interfaces in Sen-based projects](exportable_interfaces.md)
@@ -64,7 +63,7 @@ later be used to generate code making use of Sen's CMake generation functions (`
 
 ### Generating code using external interfaces
 
-After calling `get_external_interfaces`, CMake will add three additional properties to the given
+After calling `get_external_interfaces`, CMake will add four additional properties to the given
 `TARGET` that were not present at the time of building:
 
 - `INSTALL_STL_FILES`: List of paths to each of the component's STL files in the installation dir.
@@ -72,6 +71,8 @@ After calling `get_external_interfaces`, CMake will add three additional propert
   the installation dir.
 - `INSTALL_HLA_FOM_DIRS`: List of paths to each of the component's defined HLA_FOM_DIRS in the
   installation dir.
+- `INSTALL_HLA_MAPPINGS`: List of paths to the component's HLA mapping files in the installation
+  dir.
 
 You can use CMake's `get_target_property` function to fetch the value of these properties into local
 variables. With these variables filled, you will be able to call Sen's code generation functions
@@ -84,7 +85,7 @@ dependency of your Sen Packages, etc.
 If the consumed project followed the
 [how to export interfaces in Sen-based projects](exportable_interfaces.md) guide, you will be able
 to import the stl files in **exactly the same way** as they are imported in the original project.
-This affects to `stl` inclusions (`import stl/sen/components/recorder/recorder.stl`), CPP
+This applies to `stl` inclusions (`import "stl/sen/components/recorder/recorder.stl"`), CPP
 (`#include "stl/sen/components/recorder/recorder.stl.h"`) or any language supported by Sen.
 
 Note that you are not only limited to STL interfaces as HLA FOM files can also be exported in the
@@ -96,25 +97,25 @@ In this use case example, I have a component called `Town`. The town component r
 project, but it wants to use the interfaces of the already created `school` component, present on
 the Sen project. The steps to follow would be:
 
-1 . Import Sen's CMake package by consuming it via Conan (or any other method to obtain packages)
+**1.** Import Sen's CMake package by consuming it via Conan (or any other method to obtain packages)
 and call `find_package` accordingly.
 
-2 . In your project's CMake files, call the `get_external_interfaces` function with the adequate
+**2.** In your project's CMake files, call the `get_external_interfaces` function with the adequate
 arguments:
 
 ```cmake
   get_external_interfaces(TARGET sen::school INSTALLATION_DIR ${SEN_INSTALL_DIR})
 ```
 
-3 . Obtain both the `stl` files list and the `BASE_PATH` with `get_target_property` calls, storing
-them in local CMake variables:
+**3.** Obtain both the `stl` files list and the `BASE_PATH` with `get_target_property` calls,
+storing them in local CMake variables:
 
 ```cmake
   get_target_property(school_base_path sen::school INSTALL_BASE_PATH)
   get_target_property(school_stl_files sen::school INSTALL_STL_FILES)
 ```
 
-4 . Use the locally filled variables to generate the `cpp` code of the `school` interfaces:
+**4.** Use the locally filled variables to generate the `cpp` code of the `school` interfaces:
 
 ```cmake
 sen_generate_cpp(TARGET sen_school_interfaces
@@ -122,12 +123,12 @@ sen_generate_cpp(TARGET sen_school_interfaces
                  STL_FILES ${school_stl_files})
 ```
 
-NOTE: if the interfaces you are using depend on any other interfaces (e.g., Sen Recorder interface
+NOTE: if the interfaces you are using depend on any other interfaces (e.g., Sen recorder interface
 depends on `sen::db` library interfaces), you need to generate them with a Sen code generation
-function that allows adding dependencies with the `DEPS` argument. This two functions are
+function that allows adding dependencies with the `DEPS` argument. These two functions are
 `add_sen_component` and `add_sen_package`.
 
-5 . After generating the code of the interfaces, you can use the obtained target
+**5.** After generating the code of the interfaces, you can use the obtained target
 `sen_school_interfaces` inside your Sen packages:
 
 ```cmake
@@ -143,31 +144,38 @@ Sen package.
 
 - In STL files:
 
-```cpp
+```rust
 // town.stl file
-import stl/sen/packages/school/school.stl
+import "stl/school/student.stl"
 
 package town;
 
+// What the schools we oversee last reported.
+sequence<school.StudentStatus> StatusList;
+
 class EducationCouncil
 {
-    var councelor           : school.person
-    var neededTaxIncome     : f32
-    var primarySchool       : school.school
-    var secondarySchool     : school.school
+  var neededTaxIncome  : f32;
+  var reportedStatuses : StatusList [confirmed];
 }
 ```
+
+Note what crosses the boundary here: `school.StudentStatus` is a *value* type, and value types are
+what properties can hold. A class such as `school.Student` cannot be a property type. To work with
+another package's objects you discover them at run time and hold them through the generated
+interface, as below.
 
 - In CPP files:
 
 ```c++
-  #include "stl/sen/packages/school/school.stl.h"
+#include "stl/school/student.stl.h"
 
-   class Town {
-        // some class implementation ...
+class EducationCouncilImpl: public EducationCouncilBase
+{
+  // some class implementation ...
 
-        private:
-            // pointer to our school object
-            school::SchoolInterface * school_
-  };
+private:
+  // the students we are keeping an eye on, discovered at run time
+  std::shared_ptr<sen::Subscription<school::StudentInterface>> students_;
+};
 ```

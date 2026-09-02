@@ -5,6 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+# --8<-- [start:package]
 add_sen_package(
   TARGET aircrafts
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
@@ -15,3 +16,4 @@ add_sen_package(
   DEPS hla_fom sen::util
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
 )
+# --8<-- [end:package]

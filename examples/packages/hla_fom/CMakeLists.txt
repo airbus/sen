@@ -5,6 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+# --8<-- [start:package]
 add_sen_package(
   TARGET hla_fom
   BASE_PATH ${CMAKE_CURRENT_LIST_DIR}
@@ -15,6 +16,7 @@ add_sen_package(
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
   PUBLIC_SYMBOLS
 )
+# --8<-- [end:package]
 
 sen_generate_uml(
   TARGET hla_fom_uml

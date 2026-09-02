@@ -1,6 +1,6 @@
 ![Screenshot](../assets/images/python_light.svg){: style="width:200px; float: right;"}
 
-# The Python Component
+# The Python component
 
 Sen allows you to use Python by embedding an interpreter and giving you native access to all
 objects, sessions and buses. In particular:
@@ -35,10 +35,11 @@ following members:
 | defaultTimeout        | timedelta      | Default timeout used in waitUntil(), if none given.                 |
 | appName               | string         | The name of the application where the script is being executed.     |
 | config                | dictionary     | Configuration passed to the component to parametrize your module.   |
-| getBusName(name)      | sen.Bus        | Returns an object representing a bus. Use the "session.bus" format. |
+| getBus(name)          | sen.Bus        | Returns an object representing a bus. Use the "session.bus" format. |
 | open(query)           | sen.ObjectList | Returns a list containing the objects matching the query.           |
 | make(type, name)      | sen.Object     | Creates a new object. Constructor args go last and are keyed.       |
 | waitUntil(cond, time) | Boolean        | Holds the execution until the condition is met (timeout is opt.).   |
+| requestKernelStop()   | None           | Asks the kernel to shut down.                                       |
 
 The `sen.Bus` class has the following members:
 
@@ -61,8 +62,8 @@ The `sen.Object` class contains all the properties and methods of the correspond
 addition, you can register callbacks to react to events and property changes:
 
 ```python
-    object.on < EventName > (callback)
-    object.on < PropertyName > Changed(callback)
+object.on<EventName>(callback)
+object.on<PropertyName>Changed(callback)
 ```
 
 Independently of their class, all `sen.Object` instances have the following members:
@@ -80,34 +81,20 @@ We will now go over a set of simple examples to illustrate the API.
 ## Examples
 
 You need to define your Python module, which consists of a main .py file. Then you load the `py`
-component as follows:
+[component](../users_guide/glossary.md#component) as follows:
 
-```yaml title="hello_python.yaml"
-# Load the Python interpreter and run the hello_python module
-load:
-  - name: py
-    group: 3
-    freqHz: 1
-    module: hello_python  # don't include the .py extension here
+```yaml title="1_python_hello.yaml"
+--8<-- "examples/config/10_python/1_python_hello.yaml"
 ```
 
-This will instantiate the interpreter in a component that will run your module.
+This will instantiate the interpreter in a component that will run your module. `module` names the
+Python module, so it carries no `.py` extension. The `include` pulls in the shell, which is how the
+shipped examples avoid repeating it in every configuration.
 
 Example module:
 
 ```python title="hello_python.py"
-def run():
-  print(f"Python: run")
-  print(f"Python: the config is: {sen.api.config}")
-  print(f"Python: the app name is: {sen.api.appName}")
-
-
-def update():
-  print(f"Python: update (current time: {sen.api.time})")
-
-
-def stop():
-  print(f"Python: stop called")
+--8<-- "examples/config/10_python/scripts/hello_python.py:script"
 ```
 
 NOTE: Remember to add the folder where your scripts are located to the `PYTHONPATH` environment
@@ -115,16 +102,17 @@ variable.
 
 This would print:
 
-```yaml
+```text
 Python: run
-Python: update (time: ...)
-Python: update (time: ...)
-Python: update (time: ...)
+Python: the config is: ...
+Python: the app name is: ...
+Python: update (current time: ...)
+Python: update (current time: ...)
 ...
 Python: stop called
 ```
 
-## Inspecting Objects
+## Inspecting objects
 
 Use the `sen.api.open(query)` to get access to objects. This returns a list that is automatically
 updated. You can also define callbacks to react on objects being added or removed.
@@ -134,35 +122,7 @@ The list can also be iterated as a normal Python sequence.
 For example:
 
 ```python title="inspecting_objects.py"
-import sen
-
-# to store the objects that we want to inspect
-list = None
-
-
-def run():
-  global list  # refer to the global variable defined above
-
-  list = sen.api.open("SELECT * FROM local.kernel")  # open it
-
-  # register some callbacks to show changes in the list
-  list.onAdded(lambda obj: print(f'Python: object added {obj}'))
-  list.onRemoved(lambda obj: print(f'Python: object removed {obj}'))
-
-
-def update():
-  # refer to the global variable defined above
-  global list
-
-  print(f"Python: printing the list at: {sen.api.time})")
-  print(list)
-
-  print("Python: iterating over the objects in the list:")
-  for obj in list:
-    print(f"Python: * object {obj.name}")
-    print(f"Python:   - class: {obj.className}")
-    print(f"Python:   - id:    {obj.id}")
-    print(f"Python:   - time:  {obj.lastCommitTime}")
+--8<-- "examples/config/10_python/scripts/inspecting_objects.py:script"
 ```
 
 All objects define the `name`, `className`, `id` and `lastCommitTime` as read-only properties. The
@@ -173,33 +133,10 @@ next example shows a more complete representation of accessing object members.
 You can call C++ methods on objects from Python. For example:
 
 ```python title="interacting_with_objects.py"
-import sen
-
-# to store the object
-obj = None
-
-
-def run():
-  global obj  # refer to the global variable defined above
-  obj = sen.api.open("SELECT * FROM local.shell WHERE name = \"shell_impl\"")
-
-
-def update():
-  global obj  # refer to the global variable defined above
-  print("Python: update")
-
-  # if the object is present, do something with it
-  if len(obj) != 0:
-    print("Python: interacting with the object")
-    obj[0].info("i16")  # print the info of the i16 type
-    obj[0].ls()  # list the current objects in the terminal
-    obj[0].history()  # show the current history
-
-    print("Python: asking the process to shut down")
-    obj[0].shutdown()  # trigger the process shutdown
+--8<-- "examples/config/10_python/scripts/interacting_with_objects.py:script"
 ```
 
-If you need to process the return value of a method call (which are asynchronous), you can pass a
+If you need to process the return value of a method call (which is asynchronous), you can pass a
 callback. For example:
 
 ```python
@@ -211,25 +148,7 @@ obj.addNumbers(2, 2, lambda result: print(f"the result is {result}"))
 As in C++, you can attach a callback to react to events and/or property changes. For example:
 
 ```python title="reacting_to_events_and_changes.py"
-import sen
-
-# to store the objects
-teachers = None
-
-
-def teacherDetected(teacher):
-  teacher.onStressLevelPeaked(lambda args: print(f"Python: {teacher.name} stress level peaking to {args}"))
-  teacher.onStatusChanged(lambda: print(f"Python: {teacher.name} status changed to {teacher.status}"))
-
-
-def run():
-  global teachers  # refer to the global variable defined above
-
-  print("Python: run")
-
-  # select the object and install some callbacks
-  teachers = sen.api.open("SELECT school.Teacher FROM school.primary")
-  teachers.onAdded(lambda obj: teacherDetected(obj))
+--8<-- "examples/config/10_python/scripts/reacting_to_events_and_changes.py:script"
 ```
 
 ## Creating and publishing objects
@@ -237,63 +156,14 @@ def run():
 You can import your Sen packages and instantiate objects from Python. For example:
 
 ```python title="creating_objects.py"
-import sen
-
-myObject = testBus = None
-
-def run():
-  global myObject, testBus  # refer to the globals defined above
-
-  type = {
-    "entityKind": 1,
-    "domain": 2,
-    "countryCode": 198,
-    "category": 1,
-    "subcategory": 3,
-    "specific": 0,
-    "extra": 0
-  }
-
-  id = {
-    "entityNumber": 1,
-    "federateIdentifier": {
-      "siteID": 1,
-      "applicationID": 1
-    }
-  }
-
-  print(f"Python: creating and publishing the object")
-  myObject = sen.api.make("aircrafts.DummyAircraft", "myAircraft", entityType=type, alternateEntityType=type,
-  entityIdentifier = id)
-  testBus = sen.api.getBus("my.tutorial")
-  testBus.add(myObject)
-
-def update():
-  print(myObject)
-
-def stop():
-  global testBus, myObject  # refer to the globals defined above
-
-  print("Python: deleting the object")
-  testBus.remove(myObject)
-  myObject = None
-  testBus = None
+--8<-- "examples/config/10_python/scripts/creating_objects.py:script"
 ```
 
-In this case we had to import the `my_package` Sen package using our configuration file. It looked
-like this:
+In this case we had to import the `my_package` Sen [package](../users_guide/glossary.md#package)
+using your configuration file. It looked like this:
 
-```yaml title="creating_objects.yaml"
-# Load the shell, the Python interpreter and run the creating_objects module
-load:
-  - name: shell
-    group: 2
-    open: [ "local.test" ]
-  - name: py
-    group: 3
-    freqHz: 1
-    module: creating_objects
-    imports: [ my_package ]
+```yaml title="3_python_create_objects.yaml"
+--8<-- "examples/config/10_python/3_python_create_objects.yaml"
 ```
 
 ## Using enumerations
@@ -313,9 +183,12 @@ def run():
 
 This would print:
 
-```yaml
-Python: enum 'sen.my_package.MyEnum.first' has the value 1
+```text
+Python: enum 'sen.my_package.MyEnum.first' has the value 'first'
 ```
+
+The value is the enumerator's name, not its ordinal. Sen converts that name back when the value
+crosses into a Sen object, so passing an integer in its place fails rather than being interpreted.
 
 ## Making your script fully sequential
 
@@ -341,7 +214,7 @@ The `timeout` is a duration that, when elapsed, will fail the `waitUntil` call, 
 ## Testing with python
 
 You can use python for testing your sen objects in a flexible manner. Using pytest framework, you
-can manipulate sen objects in order to verify complex behaviours, making this a powerful tool for
+can manipulate sen objects in order to verify complex behaviors, making this a powerful tool for
 automated integration testing.
 
 The use of pytest-bdd allows the users to automate project requirements testing in a flexible way
@@ -349,8 +222,8 @@ using the Gherkin language.
 
 ## Using Python from your package or component
 
-The Python component will create an "Interpreter" object and publish it in a given bus if you define
-the "bus" configuration option.
+The Python component will create an "Interpreter" object and publish it in a given
+[bus](../users_guide/glossary.md#bus) if you define the "bus" configuration option.
 
 It provides the following interface:
 
@@ -378,14 +251,14 @@ load:
  /___/___/_/|_/   0.0.1    branch   refs/heads/master [modified]
 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 
-sen:enrique-ubuntu/test> local.py.interpreter.exec "c = 2"
-sen:enrique-ubuntu/test> local.py.interpreter.eval "c"
+sen:host/test> local.py.interpreter.exec "c = 2"
+sen:host/test> local.py.interpreter.eval "c"
 "2"
-sen:enrique-ubuntu/test> local.py.interpreter.exec "c = c + 2"
-sen:enrique-ubuntu/test> local.py.interpreter.eval "c"
+sen:host/test> local.py.interpreter.exec "c = c + 2"
+sen:host/test> local.py.interpreter.eval "c"
 "4"
-sen:enrique-ubuntu/test> local.py.interpreter.exec "import my_module"
-sen:enrique-ubuntu/test> local.py.interpreter.eval "my_module.add(2,2)"
+sen:host/test> local.py.interpreter.exec "import my_module"
+sen:host/test> local.py.interpreter.eval "my_module.add(2,2)"
 "4"
 ```
 

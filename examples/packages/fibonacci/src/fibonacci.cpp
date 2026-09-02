@@ -51,6 +51,7 @@ namespace fibonacci
 }
 
 /// Computes the Fibonacci number.
+// --8<-- [start:worker]
 class FibonacciWorker: public WorkerBase
 {
 public:
@@ -67,6 +68,7 @@ public:
     promise.set_value(::fibonacci::computeFibonacci(n));
   }
 };
+// --8<-- [end:worker]
 
 /// Forwards work to the workers found in "workersBus".
 class FibonacciManager: public ManagerBase<>
@@ -95,6 +97,7 @@ protected:
   }
 
 public:
+  // --8<-- [start:forward]
   /// Forwards the call to a random worker, or does the work if none is found.
   void computeFibonacciImpl(uint32_t n, std::promise<uint64_t>&& promise) override
   {
@@ -112,6 +115,7 @@ public:
         n, {this, [p = std::move(promise)](const auto& result) mutable { p.set_value(result.getValue()); }});
     }
   }
+  // --8<-- [end:forward]
 
 private:
   [[nodiscard]] WorkerInterface& selectRandomWorker()

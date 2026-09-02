@@ -1,128 +1,158 @@
-# Writing a Component (advanced - internal to Sen)
+# Writing a component (advanced)
 
-The reality is that you are likely going to write more packages than components, but this tutorial
-is fundamental to understand how Sen works, and therefore it provides the knowledge you will need to
-design and implement your packages.
+A component is Sen's unit of execution. It has an interface, your logic, and a thread to run it in.
+Every Sen application has them, so the question is never whether you want a component. It is whether
+you write one.
 
-## Getting it started
+Most of the time you do not. You write **packages**, libraries of your classes holding your
+implementations, and the kernel *builds* a component for you from a configuration file, importing
+those packages and instantiating your objects. That is what the `build:` section of a configuration
+does, and it is the easiest and most flexible way to get a component.
+[Create your first package](../getting_started/first_package.md) is where that starts.
 
-Let's create our first component and get it to run in a Sen process.
+The other way is to write the component yourself, in C++, and name it under `load:`. Such a
+component is still a package, built with `add_sen_package(... IS_COMPONENT)`, that additionally
+exports a class deriving from `sen::kernel::Component`. What it buys you is the thread
+and the execution loop, and that is the only reason to reach for it.
 
-We can ask Sen to create a skeleton for our component by doing:
+This page is about that second way. The section below is how to tell whether you need it.
+
+## Do you need to write one?
+
+Write the component yourself when you have to own something the kernel cannot own for you.
+
+| You need to own | Because | Shipped example |
+|---|---|---|
+| An external event loop | Something else wants to run the loop, and it will not yield to a cycle | `ether` runs an ASIO `io_context` |
+| A process-wide resource with its own lifetime rules | It must be created and destroyed on one thread, once | `py` owns a `pybind11::scoped_interpreter` |
+| A terminal or a listening socket | Blocking I/O has to happen somewhere | `shell` serves a REPL or a socket |
+| A sampling loop that creates its objects from configuration | The objects are not known until the configuration is read | `recorder`, `influx`, `logmaster` |
+
+If none of those describe what you are building, let the kernel build the component: write a
+package and instantiate your objects from configuration. An object can already publish itself,
+discover other objects, call their methods, react to their events and do work every cycle, and it
+gets all of that without you owning a thread.
+
+The components Sen ships are all in the table's territory (transport, persistence, tooling and
+scripting), and none of them models a domain, because a domain is what packages and objects are for.
+[The component list](../components/index.md) has the current set.
+
+## The component lifecycle
+
+A component you write is a class deriving from `sen::kernel::Component`. Every hook has a default,
+so you implement only the ones you need.
+
+```cpp
+--8<-- "libs/kernel/include/sen/kernel/component.h:hooks"
+```
+
+`init()`, `preload()` and `run()` need more explanation than the rest.
+
+`init()` gets called repeatedly. It returns `PassResult`, and the kernel keeps calling it until it
+reports that it is done, which is how a component waits for something without blocking. The helpers
+`done()` and `delay(Duration)` build those two answers.
+
+`preload()` runs for every component before any of them is loaded. `load()`, `init()` and `run()`
+all happen one group at a time in group order, so `preload()` is the place for anything the whole
+process needs before the rest starts.
+
+`run()` is the one that gets a thread. Your component is running until it returns, and it should
+return once `RunApi::stopRequested()` becomes true.
+
+## A component that only installs a hook
+
+The smallest components have no `run()` at all. `tracy` exists to install a tracer factory
+before anything else loads, and to tear it down afterwards:
+
+```cpp
+--8<-- "components/tracy/src/component.cpp:component"
+```
+
+That is the whole component. `preload()` is the only place a process-wide profiler can be started,
+because it is the only point at which nothing else has loaded yet. `isRealTimeOnly()` tells the
+kernel this component cannot be stepped by virtualized time: it is still loaded and still runs, but
+the kernel leaves it out of the set it advances, so it keeps following the real clock while the rest
+of the system is virtualized.
+
+Nothing here could be an object. There is no bus, no data and no cycle, only a process-wide
+resource with a strict lifetime.
+
+## A component that publishes an object
+
+`logmaster` is the other common shape: read the configuration, create an object from it, publish it,
+and drive a loop.
+
+```cpp
+--8<-- "components/logmaster/src/component.cpp:component"
+```
+
+`sen::toValue<Config>(api.getConfig())` converts the untyped configuration the kernel holds into the
+struct generated from the component's STL file. No parsing, no field lookups, no type checks. You
+declare the shape in STL and get it back in your own language's types. This is why a component that
+takes parameters has an STL file at all.
+
+`api.getSource(config.targetBus)` opens a bus. The returned `std::shared_ptr<ObjectSource>` has to
+stay alive for as long as you use it; when the last reference goes, the kernel closes the source.
+
+`targetBus->add(master)` publishes the object. Objects are owned by the component that creates them,
+so the component holds the `shared_ptr` and the kernel borrows it. `add()` returns a `bool` and does
+nothing if the object is already there, so publishing twice is harmless.
+
+`api.execLoop(config.period)` runs the drain-update-commit cycle at the configured rate until a stop
+is requested. It returns the component's result, so returning it directly is the whole of `run()`.
+
+## Starting your own
+
+`sen package init-component` writes a working skeleton:
 
 ```console
-$ sen package init-component MyComponent
+$ sen package init-component MyComponent --full
 $ tree my_component/
 my_component/
 ├── CMakeLists.txt
-└── src
-   └── component.cpp
-1 directory, 2 files
+├── src
+│   └── component.cpp
+└── stl
+    └── my_component
+        └── config.stl
 ```
 
-If we open the CMakeLists.txt file and fill in our info, we get:
+Each flag adds to the one before it:
 
-```cmake title="CMakeLists.txt"
-add_sen_package(
-        TARGET my_component
-        MAINTAINER "John Doe (johndoe@mail.com)"
-        VERSION "0.0.1"
-        DESCRIPTION "This is my first component"
-        SOURCES lang/component.cpp
-        IS_COMPONENT
-)
+| Command | You get |
+|---|---|
+| `sen package init-component MyComponent` | `run()` with `execLoop` |
+| `sen package init-component MyComponent --with-config` | the above, plus an STL configuration and `sen::toValue` |
+| `sen package init-component MyComponent --full` | the above, plus `load()`, `init()` and `unload()` |
+
+The `CMakeLists.txt` is a complete project: it calls `find_package(sen)` and `add_sen_package(...
+IS_COMPONENT)`, so it configures on its own. Add it to a larger CMake project with
+`add_subdirectory` when you have one.
+
+The generator does not write a configuration file, so build the component and then write one:
+
+```sh
+cmake -S my_component -B build && cmake --build build
 ```
 
-The `add_sen_component` function is a CMake helper that will create a shared library target
-containing all the required meta information. This information also includes the git version, branch
-and status, compiler and compilation flags, etc.
-
-Add the CMakeLists.txt to your CMake project. We will now have a target named `my_component` that
-will be built as a shared object.
-
-Let's have a look at the component.cpp file:
-
-```c++ title="component.cpp" linenums="1"
-#include "sen/kernel/component.h"
-
-#include <iostream>
-#include <thread>
-
-struct MyComponent: public sen::kernel::Component /*(1)*/
-{
-  sen::kernel::FuncResult run(sen::kernel::RunApi& api /*(2)*/) override
-  {
-    std::cout << "MyComponent: started running\n";
-
-    while (!api.stopRequested())
-    {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      std::cout << "MyComponent: hello\n";
-    }
-
-    std::cout << "MyComponent: finished\n";
-    return done();
-  }
-};
-
-SEN_COMPONENT(MyComponent) //-> (3)
-```
-
-1. :man_raising_hand: The `sen::kernel::Component` class also has other methods that you can
-   implement if you want to prepare your component before running.
-
-2. :man_raising_hand: The `sen::kernel::RunApi`, like the name indicates, is the runtime API that
-   allows your component to interact with Sen. It only has a few (but very powerful) methods. We
-   will get to know them later on.
-
-3. :man_raising_hand: This macro is important because this is what lets Sen know that you are
-   exporting the `MyComponent` class. The only thing that this macro does is to create a C function
-   that the Sen kernel can find and use to instantiate your class.
-
-You can see that we just print the fact that we started running and wait for Sen to notify us that
-we should stop via `#!cpp api.stopRequested()`.
-
-To get our component running, we first need to write our configuration file `config.yaml` (Sen uses
-YAML. See [this page](https://spacelift.io/blog/yaml) for more info). We can write the following:
-
-```yaml title="config.yaml"
+```yaml title="my_component/config.yaml"
 load:
   - name: my_component
     group: 2
+    someParam: some value
+    someOtherParam: 1 s
 ```
 
-This says: "Please run my_component in group 2". Let's try it.
-
-```console
-$ sen run config.yaml
-
-MyComponent: started running
-MyComponent: hello
-MyComponent: hello
-MyComponent: hello
+```sh
+sen run my_component/config.yaml
 ```
 
-And it keeps printing "hello" forever (you need to kill the process with ++ctrl+c++).
+Your component starts, and keeps running until you stop it with ++ctrl+c++.
 
-We are able to run, but there is no way for telling the kernel that it should stop. As you will see,
-there are some built-in components that can help us interact with the kernel in an easy way.
+## Stopping it, and looking at it
 
-## Getting it stopped
-
-Sen comes with a *shell* component that provides a rich command-line interface to interact with the
-kernel our components and our objects.
-
-As we don't want our component to pollute our terminal with those "hello" messages, let's remove
-that print:
-
-```cpp title="removing prints from component.cpp" linenums="12"
-while (!api.stopRequested())
-{
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-}
-```
-
-Now let's add the *shell* to our configuration file.
+Sen's *shell* component gives you a command line into the running kernel. Add it to your
+configuration ahead of your own component:
 
 ```yaml title="config.yaml"
 load:
@@ -136,417 +166,77 @@ load:
     group: 3
 ```
 
-If you now run it, you should see that the shell starts and then our component gets to run. We can
-now stop the kernel by using the `shutdown` command and see that our component does in fact shut
-down and prints the correct message.
+Groups run in order, so the shell is up before your component starts. `shutdown` then stops the
+kernel, and your component's `unload()` runs.
 
-![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shutdown.gif){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif){: style="width:1200px"}
 
-When the Sen executable finishes without error, it prints a :smiley: and returns zero. If it detects
-and is able to handle an error it will print a :slightly_frowning_face: and returns non-zero. This
-is independent of any component.
+When Sen finishes without error it prints a :smiley: and returns zero. If it detects an error it can
+handle, it prints a :slightly_frowning_face: and returns non-zero. This is independent of any
+component.
 
-If we do an `ls` in our *shell* we can see the objects that are currently published.
+`ls` shows the objects currently published. The kernel publishes one per running component in the
+`local.kernel` bus, so your component appears there without doing anything.
 
-![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/component_ls.gif){: style="width:1200px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/component_ls.gif){: style="width:1200px"}
 
-You can see that the kernel itself is publishing some objects in a bus called "local.kernel". In
-that bus, it publishes objects that represent the running components. There we can see our component
-as "my_component". We can also see the "shell" component, that we also loaded, and a "kernel"
-component that is always added by the Sen kernel itself.
+Inspecting that object shows the metadata baked into your binary at build time. Some comes from your
+`CMakeLists.txt`, the rest from the build environment: git revision and status, compiler and flags,
+word size. The `config` field holds what the kernel is using to run you.
 
-Now let's inspect the object that was published to represent our component and see some info about
-it.
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/print_component_info.gif){: style="width:1200px"}
 
-![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/print_component_info.gif){: style="width:1200px"}
+## The execution loop
 
-Here we can see the meta information that gets automatically baked into our component binary. Some
-of it comes from our CMakeLists.txt, and some gets added by the build environment used when
-compiling it.
+The kernel does not call your component every cycle. You own the loop. Three calls drive it:
+`RunApi::drainInputs()` takes in everything that arrived since last time, `RunApi::update()` runs
+the update of every object your component registered, and `RunApi::commit()` publishes everything
+that changed.
 
-You can also see that there's a `config` field. It contains the information that the kernel is using
-to run your component. You can customize it, but for now we are only setting the `group` to 2, so
-that our component starts after the *shell*.
+Written out, a loop looks like this:
 
-## Adding parameters
-
-Processes need inputs to be able to do something. In general, there are two sources of inputs: the
-ones you get at start-up and the ones you get at run-time. Here we will address the former and get
-to parametrize our component.
-
-In Sen, we have a type-safe environment. In order to be type-safe you need to tell Sen which types
-do you want to work with. You do it by using the Sen Type Language (STL). Once you define your
-types, then the user can define values that Sen will parse out of the config file and provide them
-to you in your language's native representation.
-
-Let's imagine that our component is in charge of managing the information about users of some TV
-streaming service. For each user we need to store their basic info, address and subscription plan.
-Let's define our first STL file:
-
-```rust title="stl/configuration.stl"
-package example;
-
-// The address of a user
-struct Address
-{
-  city   : string, // Name of the city
-  street : string, // Full street name
-  number : u32     // Number of the building (1)
-}
-
-// Subscription plan (2)
-enum Plan : u8
-{
-  basic,   // Only one HD screen
-  premium, // One 4K screen and unlimited HD
-  gold     // Unlimited 4K content
-}
-
-// Information about our users
-struct User
-{
-  name    : string,   // Full name
-  points  : f32,      // Customer points (3)
-  plan    : Plan,     // The subscription plan
-  address : Address,  // Where does it lives
-  since   : Duration  // Since when is subscribed
-}
-
-// A list of users
-sequence<User> UsersList;
-
-// Our component configuration
-struct Configuration
-{
-  serviceName : string,   // Name of our service
-  users       : UsersList // Our users
-}
-```
-
-1. In STL, integral types are `u8`, `u16`, `i16`, `u32`, `i32`, `u64` and `i64`. The `u` is for
-   "unsigned integer" and the `i` is for "signed integer". The number refers to the bits that are
-   used to represent the values.
-
-2. The `: u8` after the enum type name represents the integral type that will be used to store the
-   values.
-
-3. In STL, floating-point types are `f32` and `f64`. The `f` is for "floating point" and the number
-   refers to the bits that are used to represent the values. Floating points are always represented
-   in the IEEE 754 standard.
-
-Now that we have defined our data model, let's tell Sen to include it into our component's code by
-updating our CMake file:
-
-```cmake title="CMakeLists.txt"  hl_lines="7"
-add_sen_package(
-        TARGET my_component
-        MAINTAINER "John Doe (johndoe@mail.com)"
-        VERSION "0.0.1"
-        DESCRIPTION "This is my first component"
-        SOURCES lang/component.cpp
-        STL_FILES stl/configuration.stl
-        IS_COMPONENT
-)
-```
-
-With this, we now have a generated header that can be used in our `component.cpp` file. The
-generated header is named like the STL file, but with a `.h` at the end. In our case it is
-`stl/configuration.stl.h`.
-
-Let's have a look at it:
-
-```cpp title="stl/configuration.stl.h"
-#ifndef STL_CONFIGURATION_STL_H
-#define STL_CONFIGURATION_STL_H
-
-namespace example
-{
-
-/// The address of a user
-struct Address
-{
-  std::string city{};    ///<  Name of the city
-  std::string street{};  ///<  Full street name
-  u32 number{};          ///<  Number of the building
-};
-
-/// Subscription plan
-enum class Plan: u8
-{
-  basic = 0,    ///<  Only one HD screen
-  premium = 1,  ///<  One 4K screen and unlimited HD
-  gold = 2,     ///<  Unlimited 4K content
-};
-
-/// Information about our users
-struct User
-{
-  std::string name{};     ///<  Full name
-  f32 points{};           ///<  Customer points
-  Plan plan{};            ///<  The subscription plan
-  Address address{};      ///<  Where does it lives
-  sen::Duration since{};  ///<  Since when is subscribed
-};
-
-/// Our component configuration
-struct Configuration
-{
-  std::string serviceName{};  ///<  Name of our service
-  UsersList users{};          ///<  Our users
-};
-
-}  // namespace example
-
-#endif STL_CONFIGURATION_STL_H
-```
-
-You can see that the translation between STL and C++ is pretty straight-forward, readable, and it
-also contains the documentation (in a format that is compatible with Doxygen).
-
-We can now use these types to get our configuration in our component.
-
-```cpp title="component.cpp" hl_lines="2 13 14 16 17 19 20"
-#include "sen/kernel/component.h"
-#include "stl/configuration.stl.h"
-
-#include <iostream>
-#include <thread>
-
-struct MyComponent: public sen::kernel::Component
-{
-  sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
-  {
-    std::cout << "MyComponent: started running\n";
-
-    // to store our configuration
-    auto config = sen::toValue<example::Configuration>(api.getConfig());
-
-    // print it
-    std::cout << config << "\n";
-
-    while (!api.stopRequested())
-    {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MyComponent: finished\n";
-    return done();
-  }
-};
-
-SEN_COMPONENT(MyComponent)
-```
-
-See? no parsing no looking for fields or checking types. You have your data in a native format. And
-you can even directly print it!
-
-The piece of code doing the magic is `sen::toValue<example::Configuration>(api.getConfig())`. This
-is a type trait template that gets generated and allows us to do things with our types that regular
-C++ does not. In this case we are using it to convert the "type-unsafe" data that the kernel gives
-us in the form of a variant (via `api.getConfig()`) and extract it into our type.
-
-We haven't yet provided any data to our component, so if we run it, we get the following:
-
-```yaml
-MyComponent: started running
-  serviceName:
-  users:       null
-```
-
-Let's change this and provide our component with data. We just need to update the configuration file
-and add some:
-
-```yaml title="config.yaml"
-load:
-  - name: shell
-    group: 2
-    open: [ local.kernel ]
-
-  - name: my_component
-    group: 3
-    serviceName: SenFlix
-    users:
-      - name: John Doe
-        points: 5.4
-        plan: basic
-        since: 10 s
-        address:
-          city: Ulanbataar
-          street: Las Quejas
-          number: 69
-      - name: Elon Musk
-        points: 0.3
-        plan: gold
-        since: 5 s
-        address:
-          city: Ciudad Juarez
-          street: Los Malandros
-          number: 12
-```
-
-Now, when we run our component we get the data:
-
-```yaml
-MyComponent: started running
-  serviceName: SenFlix
-  users:
-      name:    John Doe
-      points:  5.4
-      plan:    basic
-      address:
-        city:   Ulanbataar
-        street: Las Quejas
-        number: 69
-      since:   10 s
-
-      name:    Elon Musk
-      points:  0.3
-      plan:    gold
-      address:
-        city:   Ciudad Juarez
-        street: Los Malandros
-        number: 13
-      since:   5 s
-```
-
-That's it! Now you know how to parametrize your components and work with complex configuration
-parameters without the burden of parsing config files or dealing with type-unsafe constructs.
-
-## The environment
-
-We can tell the kernel to update any input we might have by calling `RunApi::drainInputs()`, and
-notify others about our activity by calling `RunApi::commit()`. This also applies to our sources.
-Let's see how our component's loop would look like with this:
-
-```cpp title="drain-update-flush loop" hl_lines="3 5"
+```cpp title="drain-update-commit, by hand"
 while (!api.stopRequested())
 {
   api.drainInputs();
-  // ... maybe do something (and probably sleep for a while) ...
+  api.update();
+  // ... do something, and probably sleep for a while ...
   api.commit();
 }
 ```
 
-But writing those loops in every component is tedious and prone to error. Sen comes with a helper
-function that allows you to do the same:
+Writing that in every component is tedious and easy to get wrong, so `execLoop` does it for you:
 
-```cpp title="Built-in drain-update-flush loop"
+```cpp title="the same loop, with execLoop"
 auto func = [](){ /* ... do something */ };
-api.execLoop(sen::Duration::fromHertz(1.0), std::move(func));
+return api.execLoop(sen::Duration::fromHertz(1.0), std::move(func));
 ```
 
-Here you see that the sleep time is given as a time duration (which we construct in this case from a
-period in Hz).
+The cycle time is a `Duration`, constructed here from a frequency. Each cycle drains the inputs,
+lets your objects update, calls `func`, then commits, so anything `func` stages is published by the
+commit at the end of that same cycle. If you have nothing to do each cycle and only need to stay
+responsive to others, leave it out:
 
-The function `func` will be called on every iteration of the loop.
-
-If you don't have anything to do, but to react to the inputs and interactions made by other
-components, you can simply do the following:
-
-```cpp
-api.execLoop(sen::Duration::fromHertz(1.0));
+```cpp title="a loop that only drains and commits"
+return api.execLoop(sen::Duration::fromHertz(1.0));
 ```
 
-And adding all of this into our example, we end up with a very compact component implementation.
+The kernel learns your cycle time from `execLoop`. A component that drives the loop by hand never
+tells it, so `RunApi::getTargetCycleTime()` gives its objects nothing. Objects built under `build:`
+always have a cycle time, because the kernel's pipeline calls `execLoop` for them. If you drive the
+loop yourself and your objects need the period, pass it to them.
 
-```cpp title="Using the built-in drain-update-flush loop" hl_lines="8"
-struct MyComponent: public sen::kernel::Component
-{
-  sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
-  {
-    auto bus = api.getSource("local.kernel"); // get the source
-    sen::ObjectList<sen::Object> objects;     // create a container
-    bus->addSubscriber(sen::Interest::make("SELECT * FROM local.kernel", api.getTypes()),
-                       &objects, true); // subscribe to all objects
-    return api.execLoop(sen::Duration::fromHertz(1.0));
-  }
-};
-```
+## Finding other objects
 
-The only problem here is that we don't print the objects that we are discovering. Let's add some
-code to do that:
+A component discovers objects exactly the way an object does. `RunApi` inherits `KernelApi`, so
+`selectAllFrom<T>()`, `selectFrom<T>()` and `getSource()` are all available inside `run()` with the
+same signatures and the same rules about keeping the returned subscription alive.
 
-```cpp title="Full example, printing discovered objects" hl_lines="13 14"
-#include "sen/kernel/component.h"
+That is covered in full, with worked examples, in
+[Working with objects](objects.md#interacting-with-objects). There is nothing component-specific
+about it.
 
-#include <iostream>
-
-struct MyComponent: public sen::kernel::Component
-{
-  sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
-  {
-    subscription = api->selectAllFrom<sen::Object>(
-      "local.kernel",
-      [](const auto& addedObjects) {
-        for (auto obj : addedObjects)
-        {
-          std::cout << "\n - got " << obj->getLocalName() << "\n";
-        }
-      },
-      [](const auto& removedObjects)
-      {
-        for (auto obj : removedObjects)
-        {
-          std::cout << "\n - got " << obj->getLocalName() << "\n";
-        }
-      });
-
-    return api.execLoop(sen::Duration::fromHertz(1.0));
-  }
-};
-
-SEN_COMPONENT(MyComponent)
-```
-
-Let's run it:
-
-![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/listing_objects.gif){: style="width:1200px"}
-
-You can see that we can see some objects. In particular:
-
-| Local Name                                          | Description                |
-| --------------------------------------------------- | -------------------------- |
-| `my_component.local.kernel.components.my_component` | Represents our component.  |
-| `my_component.local.kernel.components.shell`        | The shell component.       |
-| `my_component.local.kernel.components.kernel`       | The kernel component.      |
-| `my_component.local.kernel.api`                     | Represents the kernel API. |
-
-Notice that all the objects start with the `"my_component."` prefix. This is because we are working
-with *Proxy Objects* that represent our view of the system. Those objects are "our copy" of the real
-objects that live elsewhere, and they are guaranteed not to change while we are running. They have
-the `"my_component."` prefix because Sen created them for us.
-
-The "local" session is special because buses there will never be shared across the process boundary.
-
-## Publishing objects
-
-Objects are owned by components. That means that if you want to publish an object, you need to own
-its memory. This can be done using a regular `std::shared_ptr<T>`.
-
-```c++ title="A run function that publishes an object"
-sen::kernel::FuncResult run(sen::kernel::RunApi& api) override
-{
-  auto obj = std::make_shared<MyClass>("myObject"); // create the object
-  auto bus = api.getSource("local.myBus");          // get the bus
-  bus->add(obj);                                    // publish the object
-  result = api.execLoop(defaultShellUpdateFreq);    // execute
-  bus->remove(obj);                                 // remove the object
-  return result;                                    // done
-}
-```
-
-You can store your objects on the stack or as a member of your component class. Same with sources.
-We just need to be aware of the following:
-
-- The `RunApi::getSource()` function returns a `std::shared_ptr<ObjectSource>` that needs to be kept
-  alive during the usage of the source. If there are no more references to our source, it will be
-  automatically closed by the kernel.
-- After the execution loop, it is advisable to explicitly remove our objects from the sources.
-
-Object names must be unique within the bus in which they are published. Otherwise, an exception will
-be raised.
-
-### Object's naming convention
-
-Sen supports the use of all special characters for published object naming, with the only exception of literal space
-characters (" "), which are restricted.
+One detail that is specific to components: the objects the kernel publishes in `local.kernel` are
+*proxy objects*, your component's own view of the real ones, and they are named with your
+component's prefix. They are guaranteed not to change while you are running. The `local` session is
+special in that its buses are never shared across a process boundary.

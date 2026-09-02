@@ -4,22 +4,7 @@ Two different sleep policies can be configured for a Sen component. The `SleepPo
 below:
 
 ```rust
-// Use the native system sleep
-struct SystemSleep;
-
-// Be more precise at the expense of some CPU cycles.
-struct PrecisionSleep
-{
-  veryCoarseGrainSleepTime : Duration,  // First set of sleeps. If 0 defaults to 7ms
-  coarseGrainSleepTime     : Duration   // Second set of sleeps. If 0 defaults to 1ms
-}
-
-// Component sleep policy
-variant SleepPolicy
-{
-  PrecisionSleep,
-  SystemSleep
-}
+--8<-- "libs/kernel/stl/sen/kernel/basic_types.stl:sleep_policy"
 ```
 
 The two sleep policies are the following:
@@ -144,8 +129,8 @@ them to have precisely timed updates. The default values are the following:
 - **Kernel Component**: it is a low frequency component in charge of maintenance/monitoring work. It
   does not require high precision wake-up times, so the default sleep policy for it is
   `SystemSleep`.
-- **Loaded Components** (ether, explorer, influx, logmaster, py, recorder, replayer, rest, shell,
-  term, tracy): None of them requires a high precision for its updates, so their default sleep
-  policy is `SystemSleep`.
+- **Loaded components** (ether, explorer, influx, jsonrpc, logmaster, py, recorder, replayer, rest,
+  shell, tracy, webexplorer): None of them requires a high precision for its updates, therefore
+  their default sleep policy is `SystemSleep`.
 - **Built Components**: Components build by Sen on behalf of users default to the `PrecisionSleep`
   policy.

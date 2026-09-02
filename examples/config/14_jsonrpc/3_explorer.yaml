@@ -2,13 +2,13 @@
 #
 # Minimal config that loads the jsonrpc component side-by-side with the webexplorer backend
 # component. The backend subscribes to local.jsonrpc_control, finds the StaticFileServer,
-# and registers a placeholder HTML bundle at /explorer (real frontend bundle is wired in a
-# later pass). Smoke test:
+# and registers the built HTML bundle at /explorer. Smoke test:
 #
 #   sen run examples/config/14_jsonrpc/3_explorer.yaml &
 #   curl -s http://127.0.0.1:8080/explorer/ | head
 #
-# Should print the placeholder "<!doctype html><html>..." page.
+# Should print the start of the explorer page. For a populated object graph to look at,
+# use 4_explorer_demo.yaml instead.
 
 load:
   - name: jsonrpc

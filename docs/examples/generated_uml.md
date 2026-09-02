@@ -1,4 +1,4 @@
-# UML Generation
+# UML generation
 
 With this CMake function you can tell Sen to generate UML diagrams from HLA FOMs:
 

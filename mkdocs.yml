@@ -7,12 +7,36 @@
 # Project information
 site_name: "Sen"
 site_description: "Sen Software Infrastructure"
-site_url: https://github.com/airbus/sen
+# The published site, not the repository: this is what every page advertises as
+# its canonical URL, and what sitemap.xml is built from.
+site_url: https://airbus.github.io/sen/
 site_author: "Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS"
+
+# Screenshots and recordings are not in this branch. They live on the `docs-assets`
+# branch of the same repository and are referenced by raw.githubusercontent URL, so the
+# binaries stay out of the source history. Deleting that branch blanks images across six
+# pages, and nothing in a build would fail. It is protected against deletion for that
+# reason. Note GitHub serves .mp4 as application/octet-stream, so animated media there
+# has to be GIF or WebP, not video.
 
 # Repository
 repo_name: airbus/sen
 repo_url: https://github.com/airbus/sen.git
+
+# A broken link is a build failure, not a line in a log nobody reads. MkDocs 1.6
+# has no error level for these, so warn plus strict is the strongest available.
+strict: true
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+# Copied into the site from examples/ so their pages resolve, but they belong to
+# the gallery rather than the navigation.
+not_in_nav: |
+  snippets/*
+  includes/*
 
 # Copyright
 copyright: &copy Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
@@ -23,7 +47,6 @@ copyright: &copy Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SA
 theme:
   name: material
   logo: assets/images/logo_simple.svg
-  highlightjs: true
   favicon: assets/images/logo_simple.svg
   font: false
   palette:
@@ -44,9 +67,6 @@ theme:
     - navigation.tracking
     - navigation.footer
     - navigation.top
-    - navigation.footer
-    - navigation.instant
-    - navigation.instant.progress
     - content.code.annotate
     - content.code.copy
     - content.tooltips
@@ -56,15 +76,6 @@ theme:
     repo: fontawesome/brands/github
     admonition:
       note: octicons/note-16
-  hljs_languages:
-    - cpp
-    - json
-    - console
-    - bat
-    - cmake
-    - xml
-    - rust
-    - yaml
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Extra
@@ -74,7 +85,6 @@ extra_javascript:
 
 extra_css:
   - stylesheets/extra.css
-  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css
 
 extra:
   version:
@@ -88,8 +98,18 @@ markdown_extensions:
   - toc:
       permalink: true
       toc_depth: 10
+  # util_library.md writes formulas as $...$ and $$...$$. MathJax 3 renders
+  # display maths on its own but leaves single-dollar inline maths alone, so
+  # without this the inline formulas reached the reader as literal text.
+  - pymdownx.arithmatex:
+      generic: true
   - admonition
   - def_list
+  # Acronym tooltips. 26 of the 30 acronyms in the corpus were expanded nowhere at
+  # all, and the front page opens its feature list with five of them in two lines.
+  # The definitions live in one file, appended to every page below, so a hover
+  # resolves the word where the reader meets it rather than sending them away.
+  - abbr
   - pymdownx.tasklist
   - pymdownx.details
   - pymdownx.critic
@@ -102,7 +122,17 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.snippets:
-      base_path: docs
+      # docs/ first, then the repository root, so a page can include a marked
+      # region of real compiled source rather than a copy of it that drifts.
+      base_path:
+        - docs
+        - .
+      # A snippet whose file has moved is a build failure, not an empty block.
+      check_paths: true
+      # Appended to every page so the `abbr` definitions above apply site-wide.
+      # One file to maintain, and no page has to remember to include it.
+      auto_append:
+        - includes/abbreviations.md
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -118,20 +148,24 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
-  - search
+  # Without a separator that splits on ':' and '<', a name like
+  # sen::StaticVector<T, size> is indexed as one token and cannot be searched for.
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - callouts
   - offline
-  - mkdocs-video:
-      is_video: true
-      video_muted: false
-      video_controls: true
-      video_loop: false
-      css_style:
-        width: "100%"
-        height: "22.172vw"
+  # examples/generated_uml.md marks the FOM diagram { .on-glb } so it opens
+  # full size. The attribute has been there without the plugin to act on it.
+  - glightbox
   - git-revision-date-localized:
       enable_creation_date: false
       fallback_to_build_date: true
+      # Generated at build time and never committed, so the plugin finds no
+      # history and warns once per file: 38 warnings, which strict mode would
+      # turn into a failed build.
+      exclude:
+        - snippets/*
+        - licenses/licensed_code_in_sen.md
   - redoc-tag:
       height: 100vh
 
@@ -141,23 +175,31 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started:
+      - getting_started/index.md
       - Getting Sen: getting_started/install.md
-      - Running the Tests: getting_started/testing.md
-      - Creating your first Package: getting_started/first_package.md
+      - Tutorials:
+          - tutorials/index.md
+          - "Tutorial 1: Hello Sen": tutorials/hello_sen.md
+          - "Tutorial 2: Two objects talking": tutorials/two_objects.md
+          - "Tutorial 3: Two processes talking": tutorials/two_processes.md
+      - Creating your first package: getting_started/first_package.md
   - Manual:
       - users_guide/index.md
       - Concepts: users_guide/main_concepts.md
-      - Mental Model: users_guide/mental_model.md
+      - Mental model: users_guide/mental_model.md
       - Workflow: users_guide/workflow.md
-      - Execution Model: users_guide/execution_model.md
+      - Execution model: users_guide/execution_model.md
+      - Threading and object lifetime: users_guide/threading.md
       - The Sen Type Language:
           - Description: users_guide/stl.md
-          - STL Grammar: users_guide/stl_grammar.md
+          - STL grammar: users_guide/stl_grammar.md
       - The Sen Query Language: users_guide/sql.md
       - Using HLA FOMs: users_guide/hla.md
-      - Command Line Tools: users_guide/command_line.md
-      - CMake Integration: users_guide/cmake.md
-      - Run-Time Compatibility: users_guide/compatibility_conversions.md
+      - The configuration file: users_guide/configuration.md
+      - Command line tools: users_guide/command_line.md
+      - CMake integration: users_guide/cmake.md
+      - Run-time compatibility: users_guide/compatibility_conversions.md
+      - Versioning and compatibility: users_guide/versioning.md
       - The Sen libraries:
           - sen::core: users_guide/core_library.md
           - sen::db: users_guide/db_library.md
@@ -166,46 +208,51 @@ nav:
           - sen::kernel: users_guide/kernel_library.md
           - sen::util: users_guide/util_library.md
       - FAQ: users_guide/faq.md
+      - Glossary: users_guide/glossary.md
   - Components:
       - components/index.md
       - Explorer: components/explorer.md
-      - Web Explorer: components/webexplorer.md
+      - Web explorer: components/webexplorer.md
       - Shell: components/shell.md
       - Influx: components/influx.md
       - Python: components/py.md
       - Recorder: components/recording.md
       - Replayer: components/replaying.md
       - Ether: components/ether.md
-      - Log Master: components/logmaster.md
+      - Log master: components/logmaster.md
       - REST: components/rest.md
       - JSON-RPC: components/jsonrpc.md
-      - JSON-RPC TypeScript Client: components/jsonrpc_ts_client.md
+      - JSON-RPC TypeScript client: components/jsonrpc_ts_client.md
       - MCP Gateway: components/mcp_gateway.md
       - Tracy: components/tracy.md
   - Guides:
-      - Building Sen from source: howto_guides/building_from_source.md
+      - howto_guides/index.md
       - Working with objects: howto_guides/objects.md
       - The generated code: howto_guides/generated_code.md
       - Using logs: howto_guides/logging.md
       - Using component groups: howto_guides/using_groups.md
-      - Python as config: howto_guides/python_config.md
       - Controlling the clock: howto_guides/controlling_clock.md
-      - Design Considerations: howto_guides/considerations.md
-      - Configuring your environment: howto_guides/configure_environment.md
-      - Creating Conan Packages for Sen-based projects: howto_guides/creating_conan_packages.md
-      - Generate exportable interfaces (STL files): howto_guides/exportable_interfaces.md
-      - Use interfaces from imported packages: howto_guides/consuming_interfaces.md
-      - Generate and consume specific CMake packages for interfaces: howto_guides/generate_interface_packages.md
+      - Python as config: howto_guides/python_config.md
       - Configuring component sleeping between updates: howto_guides/precision_sleeper_config.md
       - Using the Dead Reckoning library: howto_guides/dead_reckoning.md
-      - Implementing Unit Tests: howto_guides/unit_tests.md
+      - Implementing unit tests: howto_guides/unit_tests.md
+      - Integration testing: howto_guides/integration_tests.md
       - Writing a component (advanced): howto_guides/components.md
+      - Connecting existing systems: howto_guides/connecting_existing_systems.md
+      - Design considerations: howto_guides/considerations.md
+      - Configuring your environment: howto_guides/configure_environment.md
+      - Sharing interfaces between projects:
+          - Creating Conan packages for Sen-based projects: howto_guides/creating_conan_packages.md
+          - Generate exportable interfaces (STL files): howto_guides/exportable_interfaces.md
+          - Use interfaces from imported packages: howto_guides/consuming_interfaces.md
+          - Generate and consume specific CMake packages for interfaces: howto_guides/generate_interface_packages.md
       - Troubleshooting: howto_guides/troubleshooting.md
-  - Tutorials:
-      - "Tutorial 1: Hello Sen": tutorials/hello_sen.md
-      - "Tutorial 2: Two Objects Talking": tutorials/two_objects.md
+      - Working on Sen itself:
+          - Building Sen from source: howto_guides/building_from_source.md
+          - Running Sen's own tests: getting_started/testing.md
   - Examples:
       - examples/index.md
+      - Counter: snippets/examples/config/0_counter/readme.md
       - Simple package: snippets/examples/config/1_calculators/readme.md
       - Inheritance: snippets/examples/config/2_inheritance/readme.md
       - Updates: snippets/examples/config/3_aircraft/readme.md
@@ -217,9 +264,10 @@ nav:
       - Recorder: snippets/examples/config/6_recorder/readme.md
       - Replayer: snippets/examples/config/7_replayer/readme.md
       - Using Python: snippets/examples/config/10_python/readme.md
-      - Using HLA: snippets/examples/config/9_hla_servers/readme.md
-      - Web Generation: snippets/fom.md
-      - UML Generation: examples/generated_uml.md
+      - Request/response servers: snippets/examples/config/9_hla_servers/readme.md
+      - JSON-RPC: snippets/examples/config/14_jsonrpc/readme.md
+      - Web generation: snippets/fom.md
+      - UML generation: examples/generated_uml.md
   - License:
       - licenses/index.md
-      - External Libraries: licenses/licensed_code_in_sen.md
+      - External libraries: licenses/licensed_code_in_sen.md

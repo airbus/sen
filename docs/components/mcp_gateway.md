@@ -1,8 +1,17 @@
 # The MCP Gateway
 
+![An agent connected to a live Sen kernel, reading object state and following
+events](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/mcp_gateway_live.png){: style="width:330px; margin-right:14px"}
+![The same gateway reading a recording from disk, with run statistics and a per-actor
+timeline](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/mcp_gateway_recording.png){: style="width:330px"}
+
 The MCP gateway lets a Large Language Model agent work against a running Sen kernel from its
 chat surface. It can browse the object graph, read and write properties, call methods, watch
 events, and open recordings.
+
+Above, the same gateway against a live kernel and against a recording. Nothing in either was
+written for the example: the object names, the property categories and the event types all come
+from the kernel's own introspection.
 
 ## One gateway, any Sen system
 

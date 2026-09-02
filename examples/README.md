@@ -1,11 +1,14 @@
-# Sen Examples
+# Sen examples
 
 How this directory is laid out:
 
-- `packages/` holds the example code: one Sen package per directory, each with its STL
-  interface, C++ implementation and a runnable `config.yaml`.
-- `config/` holds the documentation pages for the example walkthroughs. They are sources for
-  the [documentation site](https://airbus.github.io/sen/latest/) and reference the code in
+- `packages/` holds the example code: one Sen package per directory, most with an STL
+  interface and a C++ implementation. `hla_fom` is the exception, generated from HLA FOM XML
+  rather than from STL. Two packages, `my_counter` and `lifecycle`, also carry a runnable
+  `config.yaml`.
+- `config/` holds the numbered walkthroughs: the YAML configurations that run the examples,
+  and a readme per directory. The readmes are sources for the
+  [documentation site](https://airbus.github.io/sen/latest/) and reference the code in
   `packages/`; read them there rather than on GitHub.
 - `apps/` holds larger example applications.
 

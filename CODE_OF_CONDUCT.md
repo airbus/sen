@@ -62,7 +62,7 @@ represents a code of conduct violation, and this Code of Conduct reinforces enco
 avoid conflicts and minimize harm.
 
 When an incident does occur, it is important to report it promptly. To report a possible violation, **write an email to
-the project owner.**
+Enrique Parodi Spalazzi (enrique.parodi@airbus.com)**.
 
 Community Moderators take reports of violations seriously and will make every effort to respond in a timely manner. They
 will investigate all reports of code of conduct violations, reviewing messages, logs, and recordings, or interviewing
