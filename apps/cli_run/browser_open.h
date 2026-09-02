@@ -8,16 +8,22 @@
 #ifndef SEN_CLI_RUN_BROWSER_OPEN_H
 #define SEN_CLI_RUN_BROWSER_OPEN_H
 
+#include <atomic>
 #include <chrono>
 #include <string>
 
 namespace sen::cli_run
 {
 
-/// Block until a TCP connect to host:port succeeds, or `timeout` elapses. Used to delay
-/// the browser launch until the explorer is reachable; opening the URL while the kernel
-/// is still bringing the jsonrpc listener up would land on a connection-refused page.
-[[nodiscard]] bool waitForTcpListening(const std::string& host, int port, std::chrono::milliseconds timeout);
+/// Block until a TCP connect to host:port succeeds, `timeout` elapses, or `cancelled` turns
+/// true. Used to delay the browser launch until the explorer is reachable; opening the URL
+/// while the kernel is still bringing the jsonrpc listener up would land on a
+/// connection-refused page. Returns false when cancelled or timed out, so a caller that is
+/// shutting down does not launch a browser onto a kernel that is going away.
+[[nodiscard]] bool waitForTcpListening(const std::string& host,
+                                       int port,
+                                       std::chrono::milliseconds timeout,
+                                       const std::atomic<bool>& cancelled);
 
 /// Hand the URL to the user's default browser via the OS launcher (`open`, `xdg-open`,
 /// `start`). Returns false if the launcher could not be started; the caller is responsible

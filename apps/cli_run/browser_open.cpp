@@ -72,7 +72,10 @@ constexpr auto pollInterval = std::chrono::milliseconds(100);
 
 }  // namespace
 
-bool waitForTcpListening(const std::string& host, int port, std::chrono::milliseconds timeout)
+bool waitForTcpListening(const std::string& host,
+                         int port,
+                         std::chrono::milliseconds timeout,
+                         const std::atomic<bool>& cancelled)
 {
 #ifdef _WIN32
   WSADATA wsaData;
@@ -84,6 +87,12 @@ bool waitForTcpListening(const std::string& host, int port, std::chrono::millise
   bool ready = false;
   while (std::chrono::steady_clock::now() < deadline)
   {
+    // Checked before the connect attempt and once per poll, so a shutdown asked for during
+    // the readiness window is honoured within one pollInterval rather than the full timeout.
+    if (cancelled.load(std::memory_order_relaxed))
+    {
+      break;
+    }
     if (tryConnect(host, port))
     {
       ready = true;

@@ -9,6 +9,7 @@
 #include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
+#include "sen/core/base/scope_guard.h"
 #include "sen/kernel/bootloader.h"
 #include "sen/kernel/kernel.h"
 
@@ -373,23 +374,41 @@ void SignalStopper::watch(sen::kernel::Kernel& kernel) noexcept
     }
 
 #ifdef SEN_CLI_RUN_HAS_WEBEXPLORER_PRESET
-    // Detached helper for the web-explorer preset: wait for the jsonrpc listener to come
-    // up, then hand the URL to the user's default browser. Print the URL unconditionally
-    // so a headless user (no display, --no-browser, or launcher failure) still sees it.
+    // Helper for the web-explorer preset: wait for the jsonrpc listener to come up, then hand
+    // the URL to the user's default browser. Print the URL unconditionally so a headless user
+    // (no display, --no-browser, or launcher failure) still sees it.
+    //
+    // Joinable rather than detached, and the wait is cancellable: a stop signal arriving during
+    // the readiness window would otherwise leave a thread that opens a browser onto a kernel
+    // that has already gone. Same reason the signal thread above is joined rather than detached.
+    // The guard is declared after both, so it runs first and the thread is never destroyed while
+    // still joinable -- including on the exception paths below.
+    std::atomic<bool> browserCancelled {false};
+    std::thread browserThread;
+    auto browserGuard = sen::makeScopeGuard(
+      [&browserCancelled, &browserThread]()
+      {
+        browserCancelled.store(true, std::memory_order_relaxed);
+        if (browserThread.joinable())
+        {
+          browserThread.join();
+        }
+      });
+
     if (args->preset == "web-explorer")
     {
       std::cout << "Web Explorer at " << webExplorerUrl << '\n' << std::flush;
       if (!args->noBrowser)
       {
-        std::thread(
-          []
+        browserThread = std::thread(
+          [&browserCancelled]()
           {
-            if (sen::cli_run::waitForTcpListening(webExplorerHost, webExplorerPort, webExplorerReadyTimeout))
+            if (sen::cli_run::waitForTcpListening(
+                  webExplorerHost, webExplorerPort, webExplorerReadyTimeout, browserCancelled))
             {
               sen::cli_run::openInBrowser(webExplorerUrl);
             }
-          })
-          .detach();
+          });
       }
     }
 #endif
