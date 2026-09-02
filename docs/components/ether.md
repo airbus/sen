@@ -152,6 +152,12 @@ deploy Sen applications in a context where multicast support is limited.
 Use the [network footprint report](../users_guide/command_line.md#offline-network-footprint)
 to inspect the addresses and ports that each process configuration is expected to use.
 
+That report is built from the configuration, before anything runs, so it shows what a process is
+expected to use. A running process can be asked directly, through its kernel object:
+`KernelApi.getRuntimeNetworkFootprint()` returns the buses it has open and the ports it has bound,
+including the ephemeral ones the operating system picks at startup. When multicast is disabled no
+multicast bus is created, and the report follows.
+
 ### Setting the network interface
 
 You can set the `networkDevice` attribute to force Sen to use a particular network interface. If

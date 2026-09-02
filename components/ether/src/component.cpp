@@ -171,16 +171,19 @@ public:
     }
 
     const auto& appName = api.getAppName();
+    auto runtimeFootprintState = std::make_shared<RuntimeNetworkFootprintState>(config_, exclusions_);
     api.installTransportFactory(
-      [this, appName](const auto& session, std::unique_ptr<sen::kernel::Tracer> tracer)
+      [this, appName, runtimeFootprintState](const auto& session, std::unique_ptr<sen::kernel::Tracer> tracer)
       {
-        return std::make_unique<EtherTransport>(config_, session, appName, discovery_, std::move(tracer), exclusions_);
+        return std::make_unique<EtherTransport>(
+          config_, session, appName, discovery_, std::move(tracer), exclusions_, runtimeFootprintState);
       },
       etherProtocolVersion);
     api.installFootprintReporter(
       [this,
        configuredBusAddresses = std::move(configuredBusAddresses)](Span<const kernel::BusAddress> suppliedBusAddresses)
-      { return makeNetworkFootprint(configuredBusAddresses, suppliedBusAddresses, config_, exclusions_); });
+      { return makeNetworkFootprint(configuredBusAddresses, suppliedBusAddresses, config_, exclusions_); },
+      [runtimeFootprintState]() { return runtimeFootprintState->snapshot(); });
     return done();
   }
 

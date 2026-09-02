@@ -11,6 +11,7 @@
 #include "bus_handler.h"
 #include "discovery.h"
 #include "network_exclusion.h"
+#include "network_footprint.h"
 #include "port_binding.h"
 #include "process_handler.h"
 #include "stats.h"
@@ -143,20 +144,27 @@ EtherTransport::EtherTransport(const Configuration& config,
                                std::string_view appName,
                                std::shared_ptr<DiscoverySystem> discovery,
                                std::unique_ptr<sen::kernel::Tracer> tracer,
-                               const NetworkExclusions& exclusions)
+                               const NetworkExclusions& exclusions,
+                               std::shared_ptr<RuntimeNetworkFootprintState> runtimeFootprintState)
   : kernel::Transport(sessionName)
   , config_(config)
   , sessionId_(crc32(sessionName))
   , ownInfo_(sen::kernel::getOwnProcessInfo(sessionName))
   , discovery_(std::move(discovery))
+  , runtimeFootprintState_(std::move(runtimeFootprintState))
   , logger_(getLogger())
   , tracer_(std::move(tracer))
   , exclusions_(exclusions)
 {
   ownInfo_.appName = appName;
+  runtimeFootprintTransportId_ = runtimeFootprintState_->addTransport(ownInfo_.sessionName, sessionId_);
 }
 
-EtherTransport::~EtherTransport() { logger_->debug("transport: deleted"); }
+EtherTransport::~EtherTransport()
+{
+  runtimeFootprintState_->removeTransport(runtimeFootprintTransportId_);
+  logger_->debug("transport: deleted");
+}
 
 void EtherTransport::stop() noexcept
 {
@@ -194,9 +202,13 @@ void EtherTransport::stop() noexcept
 
     // stop bus activity
     logger_->debug("transport: stopping bus handlers");
-    for (const auto& [first, second]: busMap_)
+    for (const auto& [busId, bus]: localBuses_)
     {
-      second->stop();
+      if (bus.multicastHandler)
+      {
+        bus.multicastHandler->stop();
+        runtimeFootprintState_->removeBus(runtimeFootprintTransportId_, busId.get());
+      }
     }
 
     // stop process activity
@@ -208,13 +220,14 @@ void EtherTransport::stop() noexcept
 
     // do not accept incoming connections
     acceptor_.reset();
+    removeRuntimePort(acceptorPortId_);
 
     // clear our state
     {
       logger_->debug("transport: clearing state");
       readyProcesses_.clear();
       processes_.clear();
-      busMap_.clear();
+      localBuses_.clear();
     }
   }
 
@@ -227,6 +240,9 @@ void EtherTransport::stop() noexcept
     std::lock_guard lock(ioMutex_);
     io_ = {};  // free all i/o resources
   }
+
+  runtimeFootprintState_->removeTransport(runtimeFootprintTransportId_);
+  runtimeFootprintTransportId_ = invalidRuntimeFootprintTransportId;
 
   logger_->debug("transport: stop finished");
 }
@@ -248,6 +264,7 @@ void EtherTransport::start(kernel::TransportListener* listener)
     io_ = std::make_unique<asio::io_context>();
   }
   acceptor_ = std::make_unique<Acceptor>(this, *io_);
+  acceptorPortId_ = addRuntimePort(PortKind::tcpAcceptor, acceptor_->getEndpoint().port());
   listener_ = listener;
   discovery_->addListener(this);
 
@@ -287,6 +304,17 @@ const Configuration& EtherTransport::getConfig() const noexcept { return config_
 const PortExclusionSources& EtherTransport::getPortExclusions() const noexcept { return exclusions_.ports; }
 
 const kernel::ProcessInfo& EtherTransport::getOwnInfo() const noexcept { return ownInfo_; }
+
+RuntimeFootprintPortId EtherTransport::addRuntimePort(PortKind kind, uint16_t port)
+{
+  return runtimeFootprintState_->addPort(runtimeFootprintTransportId_, kind, port);
+}
+
+void EtherTransport::removeRuntimePort(RuntimeFootprintPortId& portId)
+{
+  runtimeFootprintState_->removePort(runtimeFootprintTransportId_, portId);
+  portId = invalidRuntimeFootprintPortId;
+}
 
 TimerId EtherTransport::startTimer(std::chrono::steady_clock::duration timeout, std::function<void()>&& timeoutCallback)
 {
@@ -445,11 +473,11 @@ kernel::ProcessId EtherTransport::processReady(ProcessHandler* process)
 
   // notify the process about the existing local participants
   // in all the open buses
-  for (const auto& [busId, bus]: busMap_)
+  for (const auto& [busId, bus]: localBuses_)
   {
-    for (const auto& local: bus->getLocalParticipants())
+    for (const auto& local: bus.participants)
     {
-      process->localParticipantJoinedBus(local, busId, bus->getName());
+      process->localParticipantJoinedBus(local, busId, bus.name);
     }
   }
   return id;
@@ -476,31 +504,36 @@ void EtherTransport::localParticipantJoinedBus(ObjectOwnerId participant, kernel
 {
   Lock procLock(procMutex_);
 
-  // create the bus handler, if not present
-  auto busItr = busMap_.find(bus);
-  if (busItr == busMap_.end())
+  auto busItr = localBuses_.find(bus);
+  if (busItr == localBuses_.end())
   {
-    const auto procId = ownInfo_.processId;
+    std::shared_ptr<BusHandler> multicastHandler;
+    if (!config_.busConfig.multicastDisabled)
+    {
+      multicastHandler = BusHandler::make(sessionId_,
+                                          bus,
+                                          busName,
+                                          ownInfo_.processId,
+                                          listener_,
+                                          getBusDiscoveryPort(config_),
+                                          *io_,
+                                          config_,
+                                          *tracer_,
+                                          counters_,
+                                          exclusions_.multicast);
+      multicastHandler->startReading();
+    }
 
-    auto handler = BusHandler::make(sessionId_,
-                                    bus,
-                                    busName,
-                                    procId,
-                                    listener_,
-                                    getBusDiscoveryPort(config_),
-                                    *io_,
-                                    config_,
-                                    *tracer_,
-                                    counters_,
-                                    exclusions_.multicast);
-    handler->startReading();
-
-    auto [itr, done] = busMap_.try_emplace(bus, std::move(handler));
-    busItr = itr;
+    LocalBusState busState {busName, {}, std::move(multicastHandler)};
+    busItr = localBuses_.try_emplace(bus, std::move(busState)).first;
+    if (busItr->second.multicastHandler)
+    {
+      runtimeFootprintState_->addBus(
+        runtimeFootprintTransportId_, bus.get(), busName, busItr->second.multicastHandler->getGroupAddress());
+    }
   }
 
-  // save the id of the local Participant
-  busItr->second->saveLocalParticipantId(participant);
+  busItr->second.participants.push_back(participant);
 
   // notify other processes about this local localParticipantId
   for (const auto& [first, second]: readyProcesses_)
@@ -518,16 +551,23 @@ void EtherTransport::localParticipantLeftBus(ObjectOwnerId participant, kernel::
     second->localParticipantLeftBus(participant, bus, busName);
   }
 
-  // remove the participant id from our bus handler
-  auto busItr = busMap_.find(bus);
-  if (busItr != busMap_.end())
+  auto busItr = localBuses_.find(bus);
+  if (busItr != localBuses_.end())
   {
-    busItr->second->removeLocalParticipantId(participant);
-
-    // if no local participants, we don't need the handler
-    if (!busItr->second->hasLocalParticipants())
+    auto& participants = busItr->second.participants;
+    if (auto participantItr = std::find(participants.begin(), participants.end(), participant);
+        participantItr != participants.end())
     {
-      busMap_.erase(busItr);
+      participants.erase(participantItr);
+    }
+
+    if (participants.empty())
+    {
+      if (busItr->second.multicastHandler)
+      {
+        runtimeFootprintState_->removeBus(runtimeFootprintTransportId_, bus.get());
+      }
+      localBuses_.erase(busItr);
     }
   }
 }

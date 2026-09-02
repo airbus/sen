@@ -111,36 +111,23 @@ asio::ip::address computeMulticastAddress(uint32_t sessionId,
   return *address;
 }
 
-Result<MulticastCollisionAnalysis, std::string> analyzeConfiguredMulticastBuses(
-  const std::vector<kernel::BusAddress>& configuredBusAddresses,
-  uint16_t discoveryPort,
-  const MulticastRange& range,
-  const MulticastExclusions& exclusions)
+MulticastCollisionAnalysis analyzeMulticastAllocations(std::vector<ConfiguredBusMulticastAllocation> allocations,
+                                                       uint64_t usableAddressCount)
 {
   MulticastCollisionAnalysis analysis;
-  analysis.usableAddressCount = usableMulticastAddressCount(range, exclusions);
-  if (analysis.usableAddressCount == 0U)
-  {
-    return Err(std::string("multicast address range has no usable addresses after applying exclusions"));
-  }
-
-  analysis.allocations.reserve(configuredBusAddresses.size());
+  analysis.usableAddressCount = usableAddressCount;
+  analysis.allocations.reserve(allocations.size());
   std::unordered_map<uint32_t, std::size_t> allocationIndexByGroupAddress;
-  allocationIndexByGroupAddress.reserve(configuredBusAddresses.size());
+  allocationIndexByGroupAddress.reserve(allocations.size());
 
-  for (const auto& busAddress: configuredBusAddresses)
+  for (auto& allocation: allocations)
   {
-    const auto sessionId = crc32(busAddress.sessionName);
-    const auto busId = crc32(busAddress.busName);
-    const auto groupAddress = computeMulticastAddress(sessionId, busId, discoveryPort, range, exclusions).to_v4();
-    ConfiguredBusMulticastAllocation allocation {busAddress, sessionId, busId, groupAddress};
-
     const auto [groupItr, inserted] =
-      allocationIndexByGroupAddress.try_emplace(groupAddress.to_uint(), analysis.allocations.size());
+      allocationIndexByGroupAddress.try_emplace(allocation.groupAddress.to_uint(), analysis.allocations.size());
     if (!inserted)
     {
       const auto& existingAllocation = analysis.allocations.at(groupItr->second);
-      if (existingAllocation.busAddress == busAddress)
+      if (existingAllocation.busAddress == allocation.busAddress)
       {
         continue;
       }
@@ -152,7 +139,32 @@ Result<MulticastCollisionAnalysis, std::string> analyzeConfiguredMulticastBuses(
 
   analysis.collisionProbability =
     computeBirthdayCollisionProbability(analysis.allocations.size(), analysis.usableAddressCount);
-  return Ok(std::move(analysis));
+  return analysis;
+}
+
+Result<MulticastCollisionAnalysis, std::string> analyzeConfiguredMulticastBuses(
+  const std::vector<kernel::BusAddress>& configuredBusAddresses,
+  uint16_t discoveryPort,
+  const MulticastRange& range,
+  const MulticastExclusions& exclusions)
+{
+  const auto usableAddressCount = usableMulticastAddressCount(range, exclusions);
+  if (usableAddressCount == 0U)
+  {
+    return Err(std::string("multicast address range has no usable addresses after applying exclusions"));
+  }
+
+  std::vector<ConfiguredBusMulticastAllocation> allocations;
+  allocations.reserve(configuredBusAddresses.size());
+  for (const auto& busAddress: configuredBusAddresses)
+  {
+    const auto sessionId = crc32(busAddress.sessionName);
+    const auto busId = crc32(busAddress.busName);
+    const auto groupAddress = computeMulticastAddress(sessionId, busId, discoveryPort, range, exclusions).to_v4();
+    allocations.push_back({busAddress, sessionId, busId, groupAddress});
+  }
+
+  return Ok(analyzeMulticastAllocations(std::move(allocations), usableAddressCount));
 }
 
 std::string formatMulticastSelfCollision(const std::vector<MulticastSelfCollision>& collisionsToReport)
@@ -354,18 +366,9 @@ void BusHandler::readMessage()
 
 void BusHandler::startReading() { readMessage(); }
 
-void BusHandler::saveLocalParticipantId(ObjectOwnerId id) { localParticipants_.push_back(id); }
-
-void BusHandler::removeLocalParticipantId(ObjectOwnerId id)
-{
-  localParticipants_.erase(std::find(localParticipants_.begin(), localParticipants_.end(), id));
-}
-
-bool BusHandler::hasLocalParticipants() const noexcept { return !localParticipants_.empty(); }
-
-const std::vector<ObjectOwnerId>& BusHandler::getLocalParticipants() const noexcept { return localParticipants_; }
-
 const std::string& BusHandler::getName() const noexcept { return name_; }
+
+asio::ip::address_v4 BusHandler::getGroupAddress() const { return endpoint_.address().to_v4(); }
 
 MemBlockPtr BusHandler::makeHeaderBuffer(kernel::ProcessId procId, uint32_t payloadSize) const
 {

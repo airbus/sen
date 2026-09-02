@@ -112,6 +112,14 @@ stream redirected by `> footprint.json` in the example above.
 Diagnostic and error messages are written to standard error instead, so they do not make the saved
 JSON invalid.
 
+### Runtime network footprint
+
+The offline report is built before the application starts, so it cannot know the buses the
+application creates while running, nor the ports the operating system hands out for ephemeral
+bindings. Ask a running process instead. `getRuntimeNetworkFootprint()` on its kernel object
+returns the buses it has open and the ports it has bound. Use it to check a deployed process
+against what its configuration asked for.
+
 ## Code generator
 
 `sen generate` is a thin command-line front-end over the
