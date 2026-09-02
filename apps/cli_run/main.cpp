@@ -331,9 +331,6 @@ void SignalStopper::watch(sen::kernel::Kernel& kernel) noexcept
 {
   int exitCode = EXIT_FAILURE;
 
-  // Before anything that might start a thread: the mask is what every later thread inherits.
-  SignalStopper stopper;
-
   try
   {
     auto bootloader = makeBootloader(args, app);
@@ -343,6 +340,10 @@ void SignalStopper::watch(sen::kernel::Kernel& kernel) noexcept
       sen::kernel::Kernel::registerTerminationHandler();
     }
     sen::kernel::Kernel kernel(bootloader->getConfig());
+
+    // After the kernel, so it is destroyed before it: the watching thread holds a reference to the
+    // kernel and has to be joined while that reference is still good.
+    SignalStopper stopper;
 
     stopper.watch(kernel);
     if (stopper.signalled())
