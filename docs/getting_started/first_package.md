@@ -34,8 +34,8 @@ Let's inspect the contents of the newly-created folder:
 ```{ .cmake .annotate }
 project(my_package_project VERSION 0.0.1 LANGUAGES CXX C)
 
-if(DEFINED ENV{SEN_PATH}) # (1)!
-   list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PATH}/cmake") # (2)!
+if(DEFINED ENV{SEN_PREFIX}) # (1)!
+   list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/cmake") # (2)!
 endif()
 
 find_package(sen REQUIRED)
@@ -54,7 +54,7 @@ add_sen_package( # (3)!
 )
 ```
 
-1. The `SEN_PATH` environment variable gets defined by our setup script.
+1. The `SEN_PREFIX` environment variable is exported by the installer's activate script.
 2. This enables CMake to find the Sen package below.
 3. This function becomes automatically accessible once Sen is found.
 4. Not mandatory, but helpful if redistributing the package.
