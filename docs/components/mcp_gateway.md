@@ -146,6 +146,13 @@ interest names, recording roots, etc.) are arguments to each tool call, not envi
 | `SEN_MCP_GATEWAY_NO_RECORDING` | unset | When set, the recording tools (`listRecordings`, `runRecordingScript`, `getRecordingDocs`) are omitted from the advertised tool surface entirely. The live-kernel tools, including the write tools, are unaffected. |
 | `SEN_MCP_GATEWAY_AUDIT_LOG` | unset | When set, append-only JSON-lines audit log file path. State-changing tool calls are recorded with the tool name, the kernel name, the names the call acts on, and the outcome (`ok`, `failed`, or `denied`). Property and method names are recorded without their values or arguments, and `runRecordingScript` records a SHA-256 hash of the script rather than the script. Two entries are not reduced: `connectToKernel` records the kernel URL in full, and `declareInterest` records the query text in full. Falls back to stderr on write failure. |
 
+Both flags accept `1`, `true`, `yes` or `on` to enable and `0`, `false`, `no` or `off` to
+disable, in any case and ignoring surrounding whitespace; unset or empty reads as disabled.
+Any other value is refused rather than guessed at: the gateway reports the variable, the
+value and both accepted sets, and does not start. Defaulting an unrecognised spelling to
+"off" would leave the write tools and the python child enabled on a gateway its operator
+believes is restricted, and say nothing.
+
 Either recording variable removes the same three tools at registration, so they never appear
 in `tools/list`: `SEN_MCP_GATEWAY_NO_RECORDING` drops the advertised count by three, and
 `SEN_MCP_GATEWAY_READONLY` by four, taking `invokeMethod` with them. No withdrawn tool is ever

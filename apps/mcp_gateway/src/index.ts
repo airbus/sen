@@ -24,6 +24,7 @@ import { KernelRegistry } from "./kernel_registry.js";
 import { RecordingRunner, type RecordingRunnerConfig } from "./recording_runner.js";
 import { listResources, readResource } from "./resources.js";
 import { makeKernelTools, makeRecordingTools, type GatewayContext, type Tool } from "./tools.js";
+import { isEnvFlagSet } from "./util/env_flags.js";
 
 async function main(): Promise<void> {
   const log = (msg: string): void => {
@@ -143,13 +144,6 @@ function envOrUndefined(name: string): string | undefined {
   const v = process.env[name];
   if (v === undefined || v === "") return undefined;
   return v;
-}
-
-function isEnvFlagSet(name: string): boolean {
-  const v = process.env[name];
-  if (v === undefined) return false;
-  const lc = v.toLowerCase();
-  return lc === "1" || lc === "true" || lc === "yes" || lc === "on";
 }
 
 main().catch((err: unknown) => {
