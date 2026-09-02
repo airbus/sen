@@ -170,7 +170,7 @@ Classes</h2></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ADeadReckonerTemplateBase_3C_20T_20_3E" id="r_sen_3A_3Autil_3A_3ADeadReckonerTemplateBase_3C_20T_20_3E"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_template_base.html">sen::util::DeadReckonerTemplateBase&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for the <a class="el" href="classsen_1_1util_1_1_dead_reckoner.html" title="Enables the user to predict an object’s position and movement at any future time applying dead reckon...">DeadReckoner</a> and <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html" title="Allows the user to get the extrapolated situation of an object and to set the Spatial when the error ...">SettableDeadReckoner</a> classes.  <a href="classsen_1_1util_1_1_dead_reckoner_template_base.html#details">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ADrThreshold_5Fstructsen_5F1_5F1util_5F1_5F1_5Fdr_5Fthreshold" id="r_sen_3A_3Autil_3A_3ADrThreshold_5Fstructsen_5F1_5F1util_5F1_5F1_5Fdr_5Fthreshold"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1util_1_1_dr_threshold">sen::util::DrThreshold</a></td></tr>
-<tr class="memdesc:structsen_1_1util_1_1_dr_threshold"><td class="mdescLeft">&#160;</td><td class="mdescRight">Threshold configuration structure with the position error threshold (maximum distance between extrapolation and data) and the entity dynamics (speed and changes of direction).  <a href="#structsen_1_1util_1_1_dr_threshold">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1util_1_1_dr_threshold"><td class="mdescLeft">&#160;</td><td class="mdescRight">How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle between orientations, and the reference system both are measured in.  <a href="#structsen_1_1util_1_1_dr_threshold">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ASettableDeadReckoner_3C_20T_20_3E" id="r_sen_3A_3Autil_3A_3ASettableDeadReckoner_3C_20T_20_3E"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html">sen::util::SettableDeadReckoner&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allows the user to get the extrapolated situation of an object and to set the Spatial when the error of the extrapolation exceeds a configurable threshold.  <a href="classsen_1_1util_1_1_settable_dead_reckoner.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
@@ -260,6 +260,12 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga553a1e9560d398297cb56059ce3440aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translates a <a class="el" href="#structsen_1_1util_1_1_velocity" title="Velocity struct.">Velocity</a> vector from NED to ECEF coordinates.  <br /></td></tr>
 <tr class="memitem:gac819a4b2d275f9441c8cf8c9034bc498" id="r_gac819a4b2d275f9441c8cf8c9034bc498"><td class="memItemLeft"><a class="el" href="#structsen_1_1util_1_1_acceleration">Acceleration</a>&#160;</td><td class="memItemRight"><a class="el" href="#gac819a4b2d275f9441c8cf8c9034bc498">sen::util::impl::nedToEcef</a> (const <a class="el" href="#structsen_1_1util_1_1_acceleration">Acceleration</a> &amp;value, const <a class="el" href="#structsen_1_1util_1_1_geodetic_world_location">GeodeticWorldLocation</a> &amp;location) noexcept</td></tr>
 <tr class="memdesc:gac819a4b2d275f9441c8cf8c9034bc498"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translates an <a class="el" href="#structsen_1_1util_1_1_acceleration" title="Acceleration struct.">Acceleration</a> vector from NED to ECEF coordinates.  <br /></td></tr>
+<tr class="memitem:ga900c66033d44710065dd7fcd99666464" id="r_ga900c66033d44710065dd7fcd99666464"><td class="memItemLeft"><a class="el" href="#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a>&#160;</td><td class="memItemRight"><a class="el" href="#ga900c66033d44710065dd7fcd99666464">sen::util::impl::toGeodeticSituation</a> (const <a class="el" href="#structsen_1_1util_1_1_situation">Situation</a> &amp;value) noexcept</td></tr>
+<tr class="memdesc:ga900c66033d44710065dd7fcd99666464"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a situation from ECEF to geodetic, building the position rotation once for all three quantities that need it.  <br /></td></tr>
+<tr class="memitem:ga74d14deb7ac8fcd675bf28bd829eddca" id="r_ga74d14deb7ac8fcd675bf28bd829eddca"><td class="memItemLeft"><a class="el" href="#structsen_1_1util_1_1_situation">Situation</a>&#160;</td><td class="memItemRight"><a class="el" href="#ga74d14deb7ac8fcd675bf28bd829eddca">sen::util::impl::toSituation</a> (const <a class="el" href="#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;value) noexcept</td></tr>
+<tr class="memdesc:ga74d14deb7ac8fcd675bf28bd829eddca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a situation from geodetic to ECEF.  <br /></td></tr>
+<tr class="memitem:gacdddda34ab8c14a03512d6039550f908" id="r_gacdddda34ab8c14a03512d6039550f908"><td class="memItemLeft"><a class="el" href="#structsen_1_1util_1_1_situation">Situation</a>&#160;</td><td class="memItemRight"><a class="el" href="#gacdddda34ab8c14a03512d6039550f908">sen::util::impl::toSituation</a> (const <a class="el" href="#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;value, const <a class="el" href="#structsen_1_1util_1_1_location">Location</a> &amp;ecefPosition, const <a class="el" href="#structsen_1_1util_1_1_orientation">Orientation</a> &amp;ecefOrientation) noexcept</td></tr>
+<tr class="memdesc:gacdddda34ab8c14a03512d6039550f908"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overload for callers that already hold the converted position and orientation.  <br /></td></tr>
 <tr class="memitem:gacd7fedcbefbff2a1a86f818f0195aab5" id="r_gacd7fedcbefbff2a1a86f818f0195aab5"><td class="memItemLeft"><a class="el" href="#structsen_1_1util_1_1_velocity">Velocity</a>&#160;</td><td class="memItemRight"><a class="el" href="#gacd7fedcbefbff2a1a86f818f0195aab5">sen::util::impl::bodyToNed</a> (const <a class="el" href="#structsen_1_1util_1_1_velocity">Velocity</a> &amp;value, const <a class="el" href="#structsen_1_1util_1_1_orientation">Orientation</a> &amp;orientationNed) noexcept</td></tr>
 <tr class="memdesc:gacd7fedcbefbff2a1a86f818f0195aab5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translates <a class="el" href="#structsen_1_1util_1_1_velocity" title="Velocity struct.">Velocity</a> vectors expressed in body coordinates to NED coordinates.  <br /></td></tr>
 <tr class="memitem:gafebe7c3140c2af69a72d9704db0895ea" id="r_gafebe7c3140c2af69a72d9704db0895ea"><td class="memItemLeft"><a class="el" href="#structsen_1_1util_1_1_angular_velocity">AngularVelocity</a>&#160;</td><td class="memItemRight"><a class="el" href="#gafebe7c3140c2af69a72d9704db0895ea">sen::util::impl::bodyToNed</a> (const <a class="el" href="#structsen_1_1util_1_1_angular_velocity">AngularVelocity</a> &amp;value, const <a class="el" href="#structsen_1_1util_1_1_orientation">Orientation</a> &amp;orientationNed) noexcept</td></tr>
@@ -753,7 +759,7 @@ Angular acceleration vector with respect to body-reference system. </td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>Threshold configuration structure with the position error threshold (maximum distance between extrapolation and data) and the entity dynamics (speed and changes of direction). </p>
+<div class="textblock"><p>How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle between orientations, and the reference system both are measured in. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
@@ -1621,6 +1627,96 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Translates an <a class="el" href="#structsen_1_1util_1_1_acceleration" title="Acceleration struct.">Acceleration</a> vector from NED to ECEF coordinates. </p>
+
+</div>
+</div>
+<a id="ga900c66033d44710065dd7fcd99666464" name="ga900c66033d44710065dd7fcd99666464"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga900c66033d44710065dd7fcd99666464">&#9670;&#160;</a></span>toGeodeticSituation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> sen::util::impl::toGeodeticSituation </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="#structsen_1_1util_1_1_situation">Situation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts a situation from ECEF to geodetic, building the position rotation once for all three quantities that need it. </p>
+
+</div>
+</div>
+<a id="ga74d14deb7ac8fcd675bf28bd829eddca" name="ga74d14deb7ac8fcd675bf28bd829eddca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga74d14deb7ac8fcd675bf28bd829eddca">&#9670;&#160;</a></span>toSituation() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#structsen_1_1util_1_1_situation">Situation</a> sen::util::impl::toSituation </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts a situation from geodetic to ECEF. </p>
+
+</div>
+</div>
+<a id="gacdddda34ab8c14a03512d6039550f908" name="gacdddda34ab8c14a03512d6039550f908"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacdddda34ab8c14a03512d6039550f908">&#9670;&#160;</a></span>toSituation() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#structsen_1_1util_1_1_situation">Situation</a> sen::util::impl::toSituation </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="#structsen_1_1util_1_1_location">Location</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>ecefPosition</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="#structsen_1_1util_1_1_orientation">Orientation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>ecefOrientation</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Overload for callers that already hold the converted position and orientation. </p>
 
 </div>
 </div>

@@ -1,5 +1,8 @@
 var NAVTREEINDEX17 =
 {
+"type__impl_8h_source.html":[3,0,1,0,0,0,0,3,0,1],
+"type__match_8h.html":[3,0,1,0,0,0,0,3,22],
+"type__match_8h_source.html":[3,0,1,0,0,0,0,3,22],
 "type__registry_8h.html":[3,0,1,0,0,0,0,3,23],
 "type__registry_8h_source.html":[3,0,1,0,0,0,0,3,23],
 "type__specs__utils_8h.html":[3,0,1,2,0,0,0,11],

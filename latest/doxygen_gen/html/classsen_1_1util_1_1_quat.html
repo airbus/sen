@@ -194,6 +194,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a82b893c6b1ce777014f2bf28c1692db0" id="r_a82b893c6b1ce777014f2bf28c1692db0"><td class="memItemLeft"><a class="el" href="classsen_1_1util_1_1_vec3.html">Vec3</a>&lt; T &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a82b893c6b1ce777014f2bf28c1692db0">getRotateInEulerYPB</a> () const noexcept</td></tr>
 <tr class="memitem:a31e0141146375fdd53d911d5cfa1b00a" id="r_a31e0141146375fdd53d911d5cfa1b00a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a31e0141146375fdd53d911d5cfa1b00a">slerp</a> (T t, const <a class="el" href="#ab0184a6cacf0dd572094955502c0227f">Quat</a> &amp;from, const <a class="el" href="#ab0184a6cacf0dd572094955502c0227f">Quat</a> &amp;to) noexcept</td></tr>
 <tr class="memdesc:a31e0141146375fdd53d911d5cfa1b00a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs spherical linear interpolation (slerp) between two quaternions.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:adea039cf4bd7d493a08a52fe883cd717" id="r_adea039cf4bd7d493a08a52fe883cd717"><td class="memItemLeft">static <a class="el" href="#ab0184a6cacf0dd572094955502c0227f">Quat</a>&#160;</td><td class="memItemRight"><a class="el" href="#adea039cf4bd7d493a08a52fe883cd717">makeAxisRotation</a> (T angle, const <a class="el" href="classsen_1_1util_1_1_vec3.html">Vec3</a>&lt; T &gt; &amp;axis) noexcept</td></tr>
+<tr class="memdesc:adea039cf4bd7d493a08a52fe883cd717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the quaternion for a rotation of an angle about an axis.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
@@ -1398,6 +1403,39 @@ template&lt;typename T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="adea039cf4bd7d493a08a52fe883cd717" name="adea039cf4bd7d493a08a52fe883cd717"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adea039cf4bd7d493a08a52fe883cd717">&#9670;&#160;</a></span>makeAxisRotation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#ab0184a6cacf0dd572094955502c0227f">Quat</a>&lt; T &gt; <a class="el" href="classsen_1_1util_1_1_quat.html">sen::util::Quat</a>&lt; T &gt;::makeAxisRotation </td>
+          <td>(</td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>angle</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classsen_1_1util_1_1_vec3.html">Vec3</a>&lt; T &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>axis</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the quaternion for a rotation of an angle about an axis. </p>
 
 </div>
 </div>

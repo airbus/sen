@@ -169,10 +169,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4eca0c9288e5e02233d41734f40ddf53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a mutable reference to the RPR object whose position is extrapolated.  <br /></td></tr>
 <tr class="memitem:ae62b54cd52aeec6a1f976b95d680358e" id="r_ae62b54cd52aeec6a1f976b95d680358e"><td class="memItemLeft">const T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ae62b54cd52aeec6a1f976b95d680358e">object</a> () const noexcept</td></tr>
 <tr class="memdesc:ae62b54cd52aeec6a1f976b95d680358e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant reference to the RPR object whose position is extrapolated.  <br /></td></tr>
-<tr class="memitem:abbb695f5ed6891e92fdb8176d5dbde95" id="r_abbb695f5ed6891e92fdb8176d5dbde95"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#abbb695f5ed6891e92fdb8176d5dbde95">setSpatial</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;situation)</td></tr>
-<tr class="memdesc:abbb695f5ed6891e92fdb8176d5dbde95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the spatial property of the object if the update period is exceeded or if the extrapolation error exceeds the threshold.  <br /></td></tr>
-<tr class="memitem:ad14f003d32bdf532bcc75a168b356178" id="r_ad14f003d32bdf532bcc75a168b356178"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad14f003d32bdf532bcc75a168b356178">setSpatial</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;situation)</td></tr>
-<tr class="memdesc:ad14f003d32bdf532bcc75a168b356178"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the spatial property of the object from a Geodetic <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation" title="Situation structure with the following parameters:">Situation</a> input if the update period is exceeded or if the extrapolation error exceeds the threshold.  <br /></td></tr>
+<tr class="memitem:a14e4b106ba825a721f8015064b68bbb3" id="r_a14e4b106ba825a721f8015064b68bbb3"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a14e4b106ba825a721f8015064b68bbb3">setSpatial</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;situation)</td></tr>
+<tr class="memdesc:a14e4b106ba825a721f8015064b68bbb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the spatial property of the object when the extrapolation error exceeds the threshold. Returns true if the spatial was updated.  <br /></td></tr>
+<tr class="memitem:a6f24ac651b24c694170d5302801df05e" id="r_a6f24ac651b24c694170d5302801df05e"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a6f24ac651b24c694170d5302801df05e">setSpatial</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;situation)</td></tr>
+<tr class="memdesc:a6f24ac651b24c694170d5302801df05e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the spatial property of the object from a Geodetic <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation" title="Situation structure with the following parameters:">Situation</a> input when the extrapolation error exceeds the threshold. Returns true if the spatial was updated.  <br /></td></tr>
 <tr class="memitem:a68b2fb72e0c00bea42bb18adf2c2990e" id="r_a68b2fb72e0c00bea42bb18adf2c2990e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a68b2fb72e0c00bea42bb18adf2c2990e">setFrozen</a> (<a class="el" href="classsen_1_1_time_stamp.html">sen::TimeStamp</a> timeStamp, bool value)</td></tr>
 <tr class="memdesc:a68b2fb72e0c00bea42bb18adf2c2990e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Directly sets the frozen state of the object's spatial to true/false. The timestamp is needed to coherently apply the new frozen state to the current extrapolated situation.  <br /></td></tr>
 <tr class="memitem:a0d8882007d94ba8f0726a77056ebff03" id="r_a0d8882007d94ba8f0726a77056ebff03"><td class="memItemLeft">virtual <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a>&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#a0d8882007d94ba8f0726a77056ebff03">situation</a> (<a class="el" href="classsen_1_1_time_stamp.html">sen::TimeStamp</a> timeStamp)</td></tr>
@@ -523,8 +523,8 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
-<a id="abbb695f5ed6891e92fdb8176d5dbde95" name="abbb695f5ed6891e92fdb8176d5dbde95"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abbb695f5ed6891e92fdb8176d5dbde95">&#9670;&#160;</a></span>setSpatial() <span class="overload">[1/2]</span></h2>
+<a id="a14e4b106ba825a721f8015064b68bbb3" name="a14e4b106ba825a721f8015064b68bbb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14e4b106ba825a721f8015064b68bbb3">&#9670;&#160;</a></span>setSpatial() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -535,7 +535,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html">sen::util::SettableDeadReckoner</a>&lt; T &gt;::setSpatial </td>
+          <td class="memname">bool <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html">sen::util::SettableDeadReckoner</a>&lt; T &gt;::setSpatial </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>situation</em></span></td><td>)</td>
           <td></td>
@@ -548,12 +548,12 @@ template&lt;typename T&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Updates the spatial property of the object if the update period is exceeded or if the extrapolation error exceeds the threshold. </p>
+<p>Updates the spatial property of the object when the extrapolation error exceeds the threshold. Returns true if the spatial was updated. </p>
 
 </div>
 </div>
-<a id="ad14f003d32bdf532bcc75a168b356178" name="ad14f003d32bdf532bcc75a168b356178"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad14f003d32bdf532bcc75a168b356178">&#9670;&#160;</a></span>setSpatial() <span class="overload">[2/2]</span></h2>
+<a id="a6f24ac651b24c694170d5302801df05e" name="a6f24ac651b24c694170d5302801df05e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f24ac651b24c694170d5302801df05e">&#9670;&#160;</a></span>setSpatial() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -564,7 +564,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html">sen::util::SettableDeadReckoner</a>&lt; T &gt;::setSpatial </td>
+          <td class="memname">bool <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html">sen::util::SettableDeadReckoner</a>&lt; T &gt;::setSpatial </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__dr.html#structsen_1_1util_1_1_geodetic_situation">GeodeticSituation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>situation</em></span></td><td>)</td>
           <td></td>
@@ -577,7 +577,7 @@ template&lt;typename T&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Updates the spatial property of the object from a Geodetic <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation" title="Situation structure with the following parameters:">Situation</a> input if the update period is exceeded or if the extrapolation error exceeds the threshold. </p>
+<p>Updates the spatial property of the object from a Geodetic <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation" title="Situation structure with the following parameters:">Situation</a> input when the extrapolation error exceeds the threshold. Returns true if the spatial was updated. </p>
 
 </div>
 </div>

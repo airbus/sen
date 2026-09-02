@@ -45,7 +45,7 @@ var searchData=
   ['setnextpropertyuntyped_42',['setNextPropertyUntyped',['../classsen_1_1_native_object.html#acb17095d90cd3dbcd4d36cf12be9aed5',1,'sen::NativeObject']]],
   ['setparams_43',['setParams',['../classsen_1_1kernel_1_1_kernel_config.html#a9356867b82ebfbeaf268b5d10e34da03',1,'sen::kernel::KernelConfig']]],
   ['setposition_44',['setPosition',['../classsen_1_1_input_stream_base.html#a35dfb8b7cd39020bade24723d72fe3fe',1,'sen::InputStreamBase']]],
-  ['setspatial_45',['setSpatial',['../classsen_1_1util_1_1_settable_dead_reckoner.html#abbb695f5ed6891e92fdb8176d5dbde95',1,'sen::util::SettableDeadReckoner::setSpatial(const Situation &amp;situation)'],['../classsen_1_1util_1_1_settable_dead_reckoner.html#ad14f003d32bdf532bcc75a168b356178',1,'sen::util::SettableDeadReckoner::setSpatial(const GeodeticSituation &amp;situation)']]],
+  ['setspatial_45',['setSpatial',['../classsen_1_1util_1_1_settable_dead_reckoner.html#a14e4b106ba825a721f8015064b68bbb3',1,'sen::util::SettableDeadReckoner::setSpatial(const Situation &amp;situation)'],['../classsen_1_1util_1_1_settable_dead_reckoner.html#a6f24ac651b24c694170d5302801df05e',1,'sen::util::SettableDeadReckoner::setSpatial(const GeodeticSituation &amp;situation)']]],
   ['settabledeadreckoner_46',['SettableDeadReckoner',['../classsen_1_1util_1_1_settable_dead_reckoner.html#a5bd68aa6971073a4303a41814dc0d822',1,'sen::util::SettableDeadReckoner']]],
   ['setvalid_47',['setValid',['../classsen_1_1_quantity.html#a1a72116f25fe8758f45382b6e8bbb061',1,'sen::Quantity']]],
   ['setw_48',['setW',['../classsen_1_1util_1_1_quat.html#a7b9bd977b13f46196eb92cb14461ffcd',1,'sen::util::Quat']]],
