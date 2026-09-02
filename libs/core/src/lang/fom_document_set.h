@@ -184,6 +184,7 @@ private:
   std::unique_ptr<lang::TypeSet> rootTypeSet_;
   std::optional<TypeHandle<ClassType>> rootClass_;
   TypeSettings settings_;
+  std::vector<std::pair<std::string, const ParsedDoc*>> typesBeingResolved_;  ///< guards circular references
 };
 
 }  // namespace sen::lang

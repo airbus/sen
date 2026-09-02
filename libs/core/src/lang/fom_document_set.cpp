@@ -9,6 +9,7 @@
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/scope_guard.h"
 #include "sen/core/io/util.h"
 #include "sen/core/lang/stl_resolver.h"
 #include "sen/core/lang/string_utils.h"
@@ -898,6 +899,22 @@ std::pair<ConstTypeHandle<>, ParsedDoc*> FomDocumentSet::getOrCreateTypeFromFomN
     return std::move(lookup).value();
   }
 
+  // A type that names itself, directly or through a chain of other types, would otherwise be
+  // resolved over and over until the stack runs out. The document is part of the key because
+  // resolving the same name in a dependency is how the search below descends.
+  const auto beingResolved = std::make_pair(fomName, static_cast<const ParsedDoc*>(result));
+  if (std::find(typesBeingResolved_.begin(), typesBeingResolved_.end(), beingResolved) != typesBeingResolved_.end())
+  {
+    std::string err;
+    err.append("circular reference while resolving type '");
+    err.append(fomName);
+    err.append("'");
+    throwRuntimeError(err);
+  }
+
+  typesBeingResolved_.push_back(beingResolved);
+  const auto resolved = makeScopeGuard([this]() { typesBeingResolved_.pop_back(); });
+
   // not parsed yet, has to be somewhere in this document
   using Func = std::function<ConstTypeHandle<>(const pugi::xpath_node&)>;
   using Check = std::pair<std::string, Func>;
@@ -1091,15 +1108,6 @@ ConstTypeHandle<> FomDocumentSet::recordType(const pugi::xpath_node& node, Parse
       err.append("record '");
       err.append(name);
       err.append("' includes more than one record, which sen cannot represent: a struct has a single parent");
-      throwRuntimeError(err);
-    }
-
-    if (includedName == name)
-    {
-      std::string err;
-      err.append("record '");
-      err.append(name);
-      err.append("' includes itself");
       throwRuntimeError(err);
     }
 
