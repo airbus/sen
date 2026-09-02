@@ -239,9 +239,13 @@ consecutive `update()` calls can be 33 ms apart or 66, but never 41.
 
 Cycles are skipped for one other reason. Under real-time execution the schedule is kept on the
 machine's clock, so an adjustment to it, from NTP or PTP or by hand, moves the schedule too. A large
-correction forward skips cycles the same way an overrun does, and a large one backward leaves the
-component waiting until wall time catches up. Small corrections, which is what a synchronized
-network produces, pass through without either effect.
+correction forward skips cycles the same way an overrun does. A large one backward keeps the
+component running at its rate, but leaves its schedule ahead of wall time by the size of the
+correction, and nothing brings the two back together: closing the gap would mean either running the
+component below its rate for a while or letting it answer late, and neither is a trade Sen makes for
+you. If the high-resolution clock on your machine is the system clock, a correction arriving while
+the component is asleep holds it there for the length of the jump. Small corrections, which is what
+a synchronized network produces, pass through without any of this.
 
 Overruns and missed frames are reported separately, and they are not the same:
 
