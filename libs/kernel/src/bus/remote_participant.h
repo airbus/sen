@@ -267,6 +267,13 @@ private:
   void registerRemoteType(const CustomTypeSpec& remoteTypeSpec);
   void registerRemoteTypeFoundInBus(ConstTypeHandle<CustomType> type, bool isIncompatible);
 
+  /// Whether a remote type may be used, under the configured compatibility mode. Decided once per
+  /// type; the caller marks a refused class incompatible so its objects are rejected.
+  [[nodiscard]] bool acceptRemoteType(const std::string& qualifiedName,
+                                      const Type* localType,
+                                      const Type* remoteType,
+                                      const std::vector<std::string>& lossyConversions);
+
 private:
   void sendToBus(ParticipantAddr& to, TransportMode mode, MemBlockPtr&& hdr, MemBlockPtr&& data);
   void sendToBus(ParticipantAddr& to, TransportMode mode, MemBlockPtr&& data);

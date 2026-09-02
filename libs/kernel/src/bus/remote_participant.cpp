@@ -1634,6 +1634,39 @@ void RemoteParticipant::addOrRejectObjectsOfClass(u32 typeHash)
   }
 }
 
+bool RemoteParticipant::acceptRemoteType(const std::string& qualifiedName,
+                                         const Type* localType,
+                                         const Type* remoteType,
+                                         const std::vector<std::string>& lossyConversions)
+{
+  const auto mode = session_->getKernel().getConfig().getParams().compatibilityMode;
+
+  if (acceptsUnderCompatibilityMode(mode, equivalent(localType, remoteType), !lossyConversions.empty()))
+  {
+    for (const auto& conversion: lossyConversions)
+    {
+      logger_->warn(
+        "RP {}: type {} from participant {}: {}", getDebugName(), qualifiedName, ownerAddress_.id.get(), conversion);
+    }
+    return true;
+  }
+
+  logger_->error(
+    "RP {}: rejecting type {} from participant {}: it differs from the local definition and the "
+    "compatibility mode is {}",
+    getDebugName(),
+    qualifiedName,
+    ownerAddress_.id.get(),
+    mode == CompatibilityMode::disabled ? "disabled" : "strict");
+
+  for (const auto& conversion: lossyConversions)
+  {
+    logger_->error(" - {}", conversion);
+  }
+
+  return false;
+}
+
 void RemoteParticipant::registerRemoteType(const CustomTypeSpec& remoteTypeSpec)
 {
   const auto& nativeTypesRegistry = session_->getKernel().getTypes();
@@ -1645,10 +1678,22 @@ void RemoteParticipant::registerRemoteType(const CustomTypeSpec& remoteTypeSpec)
 
   if (auto localType = nativeTypesRegistry.get(remoteTypeSpec.qualifiedName))
   {
-    const auto runtimeCompatProblems = runtimeCompatible(localType.value().type(), remoteType.type());
+    std::vector<std::string> lossyConversions;
+    const auto runtimeCompatProblems =
+      runtimeCompatible(localType.value().type(), remoteType.type(), &lossyConversions);
 
     if (runtimeCompatProblems.empty())
     {
+      if (!acceptRemoteType(
+            remoteTypeSpec.qualifiedName, localType.value().type(), remoteType.type(), lossyConversions))
+      {
+        if (remoteType->isClassType())
+        {
+          incompatibleClassHashes_.insert(remoteType->getHash().get());
+        }
+        return;
+      }
+
       logger_->debug("RP {} Detected different version of type {}. Will adapt their data models.",
                      getDebugName(),
                      remoteTypeSpec.qualifiedName);

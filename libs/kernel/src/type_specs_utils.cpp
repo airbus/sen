@@ -1243,14 +1243,21 @@ public:
 
     // constructor
     {
-      if (type.getConstructor()->getHash() != remoteClass->getConstructor()->getHash())
+      const auto* localConstructor = type.getConstructor();
+      const auto* remoteConstructor = remoteClass->getConstructor();
+
+      const bool constructorsDiffer =
+        (localConstructor == nullptr) != (remoteConstructor == nullptr) ||
+        (localConstructor != nullptr && localConstructor->getHash() != remoteConstructor->getHash());
+
+      if (constructorsDiffer)
       {
         std::string diff;
         {
           diff.append("The local and remote versions of the class constructor '");
           diff.append(qualifiedName);
           diff.append(".");
-          diff.append(type.getConstructor()->getName());
+          diff.append(localConstructor != nullptr ? localConstructor->getName() : remoteConstructor->getName());
           diff.append("' are different.");
         }
 
@@ -1367,7 +1374,21 @@ public:
   {
     if (const auto* remoteAlias = remoteType_->asAliasType(); remoteAlias != nullptr)
     {
-      concatDifferences(getRuntimeDifferences(type.getAliasedType().type(), remoteAlias));
+      // reported here rather than by the recursion, which bottoms out on native types and has
+      // nothing to say about them, the way the sequence and quantity cases do it
+      if (type.getAliasedType()->getHash() != remoteAlias->getAliasedType()->getHash())
+      {
+        std::string diff;
+        {
+          diff.append("The local and remote versions of '");
+          diff.append(type.getQualifiedName());
+          diff.append("' alias a different type.");
+        }
+
+        differences_.emplace_back(diff);
+      }
+
+      concatDifferences(getRuntimeDifferences(type.getAliasedType().type(), remoteAlias->getAliasedType().type()));
       return;
     }
 
@@ -1770,7 +1791,92 @@ std::vector<std::string> getRuntimeDifferences(const Type* localType, const Type
 }
 
 // NOLINTNEXTLINE
-std::vector<std::string> runtimeCompatible(const Type* localType, const Type* remoteType)
+/// Value bits of a native type, excluding the sign, so an integer's range and a float's mantissa
+/// compare on the same footing.
+[[nodiscard]] std::size_t valueDigits(const Type& type) noexcept
+{
+  if (type.isBoolType())
+  {
+    return 1U;
+  }
+  if (type.isFloat32Type())
+  {
+    return 24U;
+  }
+  if (type.isFloat64Type())
+  {
+    return 53U;
+  }
+
+  const auto* numeric = type.asNumericType();
+  return numeric == nullptr ? 0U : (numeric->getByteSize() * 8U) - (numeric->isSigned() ? 1U : 0U);
+}
+
+/// Whether a value of from can fail to survive the conversion into to. Only numbers are graded;
+/// anything else is a question for the caller.
+[[nodiscard]] bool conversionLosesData(const Type& from, const Type& to) noexcept
+{
+  const auto isNumber = [](const Type& t) { return t.isNumericType() || t.isBoolType(); };
+  if (!isNumber(from) || !isNumber(to))
+  {
+    return false;
+  }
+
+  if (from.isBoolType())
+  {
+    return false;  // zero and one fit everywhere
+  }
+  if (to.isBoolType())
+  {
+    return true;  // everything but zero collapses to true
+  }
+  if (to.isRealType())
+  {
+    return valueDigits(from) > valueDigits(to);
+  }
+  if (from.isRealType())
+  {
+    return true;  // the fractional part is dropped
+  }
+
+  const auto* source = from.asNumericType();
+  const auto* destination = to.asNumericType();
+  if (source == nullptr || destination == nullptr)
+  {
+    return false;
+  }
+
+  // a signed source needs a signed destination, or its negatives are lost
+  if (source->isSigned() && !destination->isSigned())
+  {
+    return true;
+  }
+
+  return valueDigits(from) > valueDigits(to);
+}
+
+bool acceptsUnderCompatibilityMode(CompatibilityMode mode,
+                                   bool typesAreEquivalent,
+                                   bool anyConversionLosesData) noexcept
+{
+  switch (mode)
+  {
+    case CompatibilityMode::disabled:
+      return typesAreEquivalent;
+
+    case CompatibilityMode::strict:
+      return !anyConversionLosesData;
+
+    case CompatibilityMode::relaxed:
+      break;
+  }
+
+  return true;
+}
+
+std::vector<std::string> runtimeCompatible(const Type* localType,
+                                           const Type* remoteType,
+                                           std::vector<std::string>* lossy)
 {
   class RuntimeCompatVisitor: public FullTypeVisitor
   {
@@ -1778,8 +1884,8 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
     SEN_NOCOPY_NOMOVE(RuntimeCompatVisitor)
 
   public:
-    RuntimeCompatVisitor(const Type* remoteType, std::vector<std::string>& problems)
-      : remoteType_(remoteType), problems_(problems)
+    RuntimeCompatVisitor(const Type* remoteType, std::vector<std::string>& problems, std::vector<std::string>* lossy)
+      : remoteType_(remoteType), problems_(problems), lossy_(lossy)
     {
     }
 
@@ -1809,6 +1915,13 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
       if (!isCompatible)
       {
         problems_.emplace_back(logIncompatible(type.getName().data()));
+        return;
+      }
+
+      // the data arrives from the remote side, so that is the direction to grade
+      if (lossy_ != nullptr)
+      {
+        checkForLoss(*remoteType_, type);
       }
     }
 
@@ -1865,6 +1978,14 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
       if (!remoteType_->isNativeType() && !remoteType_->isEnumType())
       {
         problems_.emplace_back(logIncompatible(type.getName().data()));
+        return;
+      }
+
+      // an enumerator is carried in the storage type, which can narrow like any other number
+      const auto* remoteEnum = remoteType_->asEnumType();
+      if (lossy_ != nullptr && remoteEnum != nullptr)
+      {
+        checkForLoss(remoteEnum->getStorageType(), type.getStorageType());
       }
     }
 
@@ -1882,7 +2003,7 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
       {
         if (const auto* localField = type.getFieldFromName(remoteField.name); localField != nullptr)
         {
-          if (const auto fieldProblems = runtimeCompatible(localField->type.type(), remoteField.type.type());
+          if (const auto fieldProblems = runtimeCompatible(localField->type.type(), remoteField.type.type(), lossy_);
               !fieldProblems.empty())
           {
             std::string error;
@@ -1912,18 +2033,24 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
       // TODO: review if we can accept types contained in the variant
       const auto* remoteVariant = remoteType_->asVariantType();
 
-      for (std::size_t i = 0; i < std::min(type.getFields().size(), remoteVariant->getFields().size()); ++i)
+      // An alternative is addressed by its key, which is not its position: keys come from the
+      // model and need not start at zero or run consecutively. An alternative the other side does
+      // not declare is skipped, the way a property is.
+      for (const auto& localField: type.getFields())
       {
-        const auto key = std_util::checkedConversion<uint32_t, std_util::ReportPolicyIgnore>(i);
+        const auto* remoteField = remoteVariant->getFieldFromKey(localField.key);
+        if (remoteField == nullptr)
+        {
+          continue;
+        }
 
-        if (const auto fieldProblems = runtimeCompatible(type.getFieldFromKey(key)->type.type(),
-                                                         remoteVariant->getFieldFromKey(key)->type.type());
+        if (const auto fieldProblems = runtimeCompatible(localField.type.type(), remoteField->type.type(), lossy_);
             !fieldProblems.empty())
         {
           std::string error;
           {
             error.append("Found incompatible matching variant fields with key ");
-            error.append(std::to_string(i));
+            error.append(std::to_string(localField.key));
             error.append(" in variant type ");
             error.append(type.getName());
           }
@@ -1946,7 +2073,7 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
 
       const auto* remoteSequence = remoteType_->asSequenceType();
       // check the element type
-      concatProblems(runtimeCompatible(type.getElementType().type(), remoteSequence->getElementType().type()));
+      concatProblems(runtimeCompatible(type.getElementType().type(), remoteSequence->getElementType().type(), lossy_));
     }
 
     // NOLINTNEXTLINE
@@ -1966,7 +2093,8 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
       {
         if (const auto* localProp = type.searchPropertyByName(remoteProp->getName()); localProp != nullptr)
         {
-          if (const auto propProblems = runtimeCompatible(localProp->getType().type(), remoteProp->getType().type());
+          if (const auto propProblems =
+                runtimeCompatible(localProp->getType().type(), remoteProp->getType().type(), lossy_);
               !propProblems.empty())
           {
             std::string error;
@@ -1996,7 +2124,7 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
           {
             if (const auto& localArg = localEvent->getArgFromName(remoteArg.name); localArg != nullptr)
             {
-              if (const auto eventProblems = runtimeCompatible(localArg->type.type(), remoteArg.type.type());
+              if (const auto eventProblems = runtimeCompatible(localArg->type.type(), remoteArg.type.type(), lossy_);
                   !eventProblems.empty())
               {
                 std::string error;
@@ -2030,13 +2158,19 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
           auto localReturnType = localMethod->getReturnType();
           auto remoteReturnType = remoteMethod->getReturnType();
 
-          concatProblems(runtimeCompatible(localReturnType.type(), remoteReturnType.type()));
+          concatProblems(runtimeCompatible(localReturnType.type(), remoteReturnType.type(), lossy_));
 
           // check args
           for (const auto& localArg: localMethod->getArgs())
           {
             if (const auto* remoteArg = remoteMethod->getArgFromName(localArg.name); remoteArg != nullptr)
             {
+              // we supply the arguments, so for them the loss runs from us to the writer
+              if (lossy_ != nullptr)
+              {
+                std::ignore = runtimeCompatible(remoteArg->type.type(), localArg.type.type(), lossy_);
+              }
+
               if (const auto argProblems = runtimeCompatible(localArg.type.type(), remoteArg->type.type());
                   !argProblems.empty())
               {
@@ -2120,6 +2254,12 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
           }
         }
 
+        // the unit says what the number means; the number itself can still narrow
+        if (lossy_ != nullptr)
+        {
+          checkForLoss(*remoteQuantity->getElementType().type(), *type.getElementType().type());
+        }
+
         return;
       }
 
@@ -2130,14 +2270,43 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
       }
     }
 
-    void apply(const AliasType& type) override { apply(static_cast<const CustomType&>(type)); }
+    void apply(const AliasType& type) override
+    {
+      apply(static_cast<const CustomType&>(type));
+
+      // an alias is transparent, so a conversion behind one loses just as much
+      if (lossy_ != nullptr)
+      {
+        const auto* remoteAlias = remoteType_->asAliasType();
+        checkForLoss(remoteAlias != nullptr ? *remoteAlias->getAliasedType().type() : *remoteType_,
+                     *type.getAliasedType().type());
+      }
+    }
 
     void apply(const OptionalType& type) override
     {
-      concatProblems(runtimeCompatible(type.getType().type(), remoteType_));
+      concatProblems(runtimeCompatible(type.getType().type(), remoteType_, lossy_));
     }
 
   private:
+    /// Records a conversion that is allowed but can drop a value.
+    void checkForLoss(const Type& from, const Type& to)
+    {
+      if (lossy_ == nullptr || !conversionLosesData(from, to))
+      {
+        return;
+      }
+
+      std::string diff;
+      diff.append("reading ");
+      diff.append(from.getName());
+      diff.append(" as ");
+      diff.append(to.getName());
+      diff.append(" can lose a value");
+
+      lossy_->emplace_back(std::move(diff));
+    }
+
     void concatProblems(const std::vector<std::string>& problems)
     {
       problems_.insert(problems_.end(), problems.begin(), problems.end());
@@ -2146,6 +2315,7 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
   private:
     const Type* remoteType_;
     std::vector<std::string>& problems_;
+    std::vector<std::string>* lossy_;
   };
 
   // always runtime compatible if equivalent
@@ -2157,7 +2327,7 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
   // handle the case where the remote type is optional first
   if (const auto* optionalRemote = remoteType->asOptionalType(); optionalRemote != nullptr)
   {
-    return runtimeCompatible(localType, optionalRemote->getType().type());
+    return runtimeCompatible(localType, optionalRemote->getType().type(), lossy);
   }
 
   // remote type is a timestamp
@@ -2173,9 +2343,21 @@ std::vector<std::string> runtimeCompatible(const Type* localType, const Type* re
   }
 
   std::vector<std::string> problems;
-  RuntimeCompatVisitor visitor {remoteType, problems};
+  RuntimeCompatVisitor visitor {remoteType, problems, lossy};
   localType->accept(visitor);
   return problems;
+}
+
+/// A sequence bound as the older protocol versions encoded it, where zero means unbounded rather
+/// than a capacity of zero.
+[[nodiscard]] MaybeU64 boundFromOlderVersion(u64 maxSize) noexcept
+{
+  if (maxSize == 0U)
+  {
+    return MaybeU64 {};
+  }
+
+  return MaybeU64 {maxSize};
 }
 
 CustomTypeSpec toCurrentVersion(const CustomTypeSpecV4& v4)
@@ -2204,7 +2386,7 @@ CustomTypeSpec toCurrentVersion(const CustomTypeSpecV4& v4)
       [&result](const QuantityTypeSpecV4& v4Data)
       { result.data = QuantityTypeSpec {v4Data.numericType, v4Data.unit, v4Data.minValue, v4Data.maxValue}; },
       [&result](const SequenceTypeSpecV4& v4Data)
-      { result.data = SequenceTypeSpec {v4Data.elementType, v4Data.maxSize, false}; },
+      { result.data = SequenceTypeSpec {v4Data.elementType, boundFromOlderVersion(v4Data.maxSize), false}; },
       [&result](const StructTypeSpecV4& v4Data)
       {
         StructTypeFieldSpecList fields {};
@@ -2356,7 +2538,7 @@ CustomTypeSpec toCurrentVersion(const CustomTypeSpecV5& v5)
       [&result](const QuantityTypeSpecV5& v5Data)
       { result.data = QuantityTypeSpec {v5Data.numericType, v5Data.unit, v5Data.minValue, v5Data.maxValue}; },
       [&result](const SequenceTypeSpecV5& v5Data)
-      { result.data = SequenceTypeSpec {v5Data.elementType, v5Data.maxSize, v5Data.fixedSize}; },
+      { result.data = SequenceTypeSpec {v5Data.elementType, boundFromOlderVersion(v5Data.maxSize), v5Data.fixedSize}; },
       [&result](const StructTypeSpecV5& v5Data)
       {
         StructTypeFieldSpecList fields {};
