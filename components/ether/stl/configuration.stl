@@ -23,7 +23,7 @@ struct MulticastDiscovery
 {
   beamPeriod             : Duration,         // How often are we beaming our presence
   beamExpirationTime     : Duration,         // Expiry time used by the beam tracker
-  mcastGroup             : string,           // Defaults to '239.255.0.1'
+  mcastGroup             : string,           // Defaults to '239.255.0.44'
   port                   : u16,              // Defaults to 60543
   device                 : MaybeDeviceName,  // Device to use for the network communication
   allowVirtualInterfaces : bool              // If true, virtual (NO_CARRIER) interfaces are also considered

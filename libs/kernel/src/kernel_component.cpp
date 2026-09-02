@@ -180,7 +180,6 @@ public:  // special members
   explicit VirtualMasterClock(const std::string& name, RunApi& api, const std::string& source)
     : VirtualMasterClockBase<>(name), api_(api)
   {
-    setNextDelta(Duration::fromHertz(30.0));
     virtualClocks_ = api.selectAllFrom<VirtualKernelClockInterface>(source);
   }
 

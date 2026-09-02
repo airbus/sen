@@ -28,6 +28,7 @@ class DummyAircraftImpl: public DummyAircraftBase<>
 {
   SEN_NOCOPY_NOMOVE(DummyAircraftImpl)
 
+  // --8<-- [start:dead_reckoning]
   // type alias
   using SettableDr = sen::util::SettableDeadReckoner<rpr::BaseEntityBase<>>;
   using DeadReckoner = sen::util::DeadReckoner<rpr::BaseEntityBase<>>;
@@ -65,6 +66,7 @@ public:
     // update the spatial using the settable dead reckoner
     settableDeadReckoner_->setSpatial(situation);
   }
+  // --8<-- [end:dead_reckoning]
 
 private:
   bool init_ = false;

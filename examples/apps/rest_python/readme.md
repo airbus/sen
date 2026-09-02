@@ -39,5 +39,6 @@ Now run the client example:
 python sen_client.py
 ```
 
-This example works as a simple python client for the Sen REST component. It instantiates a SenClient object that starts
-a session, enable notifications and does some basic operations to exemplify how it can be used.
+This example works as a simple python client for the Sen REST component. It instantiates a SenClient
+object that starts a session, enable notifications and does some basic operations to exemplify how
+it can be used.

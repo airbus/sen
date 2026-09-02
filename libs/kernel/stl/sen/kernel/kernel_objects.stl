@@ -146,20 +146,19 @@ class VirtualKernelClock: extends VirtualClock
   fn flushOutputs() -> Duration [bestEffort];
 }
 
-// Controls all the VirtualKernelClock that it discovers in the bus where it's published
+// Controls all the VirtualKernelClock that it discovers in the bus where it's published.
+// One step reaches the next component due to run: each clock reports how long until its
+// own next one, and the soonest wins
 class VirtualMasterClock: extends VirtualClock
 {
-  var delta : Duration [writable];
-
-  // calls advanceTimeDrainInputsAndUpdate(delta) then flushOutputs() on all
-  // VirtualKernelClocks, until the virtual time advanced reaches duration, rounding
-  // up to a whole delta. Returns the wall time the call took
+  // steps until the virtual time advanced reaches duration, rounding up to a whole
+  // step. Returns the wall time the call took
   fn advanceTime(duration: Duration) -> Duration [bestEffort];
 
-  // single step forward, based on delta
+  // single step forward
   fn step() -> Duration [bestEffort];
 
-  // perform 'count' steps forward, based on delta
+  // perform 'count' steps forward
   fn steps(count: u64) -> Duration [bestEffort];
 }
 // --8<-- [end:clocks]

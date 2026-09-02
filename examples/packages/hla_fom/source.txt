@@ -1,1 +1,4 @@
-This folder contains a copy of the standard HLA Federation Object Models by SISO (https://www.sisostandards.org/page/DataFiles).
+This folder contains copies of shared HLA Federation Object Models.
+
+rpr/ and link16/  SISO standards: https://www.sisostandards.org/page/DataFiles
+netn/            NATO product

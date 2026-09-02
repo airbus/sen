@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 // emits a single self-contained `dist/index.html` (all JS / CSS inlined via
 // vite-plugin-singlefile) so it can be embedded into a Sen C++ component as a byte array
 // (via `sen_file_to_cpp`) and registered with the jsonrpc `StaticFileServer` at runtime.
-// See docs/web-explorer/sen-web-explorer-findings.md section 21.
+// See docs/components/webexplorer.md, "Offline behavior".
 //
 // Dev mode (`npm run dev`) uses chunked output + HMR; the singlefile plugin only applies to
 // production builds.

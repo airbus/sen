@@ -1,8 +1,8 @@
 # sen::gen
 
 This library bundles the code generators used to translate Sen type sets (`.stl`
-files, parsed into `sen::lang::TypeSet`) into source artefacts in various target
-languages and documentation formats.
+files, each parsed into a `sen::lang::TypeSet`) into source artifacts in various
+target languages and documentation formats.
 
 The library is CLI-free: its public headers depend only on Sen types and the
 standard library, which lets it be linked from any Sen binary that needs to
@@ -28,15 +28,18 @@ process and feeding it successive type sets.
 | `sen/gen/typescript.h` | `sen::gen::TypeScriptGenerator` | TypeScript modules + barrel |
 | `sen/gen/json.h` | `sen::gen::JsonGenerator` | JSON-Schema documents |
 | `sen/gen/plantuml.h` | `sen::gen::PlantUMLGenerator` | PlantUML class diagrams |
-| `sen/gen/mkdocs.h` | `sen::gen::MkDocsGenerator` | MkDocs-flavoured markdown |
+| `sen/gen/mkdocs.h` | `sen::gen::MkDocsGenerator` | MkDocs-flavored markdown |
 
 ## How to use it
 
-Parse the input STL files into a `sen::lang::TypeSetContext` (see
-`sen::core`), construct the relevant generator, and call its `generate*`
-method. Each method returns the rendered file contents as a `std::string` (or,
-for the C++ generator, a `std::map<path, string>` covering the header / source
-pair plus any transitively-rendered imports).
+Parse the input STL files into a `sen::lang::TypeSetContext` (see `sen::core`),
+which holds one `TypeSet` per file. Construct the relevant generator and call
+its `generate*` method. Most take the whole context, while the C++ and Python
+generators take a single `TypeSet`. Most return the rendered file contents as a
+`std::string`. The C++ and TypeScript generators return `FileContents`, a
+`std::map<std::filesystem::path, std::string>`, since each renders more than
+one file. C++ gives the header and source pair plus any transitively-rendered
+imports; TypeScript gives one module per type set plus the `index.ts` barrel.
 
 For a fully worked example, see the `apps/cli_gen` sources: each per-topic
 subcommand under `apps/cli_gen/src/*_cli.cpp` instantiates one generator and

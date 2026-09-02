@@ -19,6 +19,7 @@ set(packages
     fibonacci
     timer
     my_counter
+    lifecycle
 )
 
 # add the subdirectories and fetch the schemas

@@ -3,19 +3,18 @@
 After covering how to both prepare your project to export interfaces in the
 [how to export interfaces in Sen-based projects](exportable_interfaces.md) guide and learning to
 consume them externally in the
-[how to consume external interfaces in Sen-based projects'](consuming_interfaces.md) guide, we will
-now learn how to create CMake packages where specific interfaces are exported as straightly
-consumable code.
+[how to consume external interfaces in Sen-based projects](consuming_interfaces.md) guide, we will
+now create CMake packages that export specific interfaces as ready-to-use code.
 
 With the detailed guide on how to consume interfaces, you are able to use the source files (`stl`)
-of the exported interfaces and generate any code of your likings (several languages, different
-combination of files, etc.). The purpose of this guide is to facilitate the consumption of certain
+of the exported interfaces and generate any code you like (several languages, different combinations
+of files, and so on). The purpose of this guide is to facilitate the consumption of certain
 interfaces which are almost always exported and consumed in the same way.
 
 ## Creating CMake packages: `-config.cmake.in` files
 
 As we have seen in previous guides, the `-config.cmake.in` file is a CMake file that will be
-automatically included inside your project when calling CMake's `find_package()`. To export our
+automatically included inside your project when calling CMake's `find_package()`. To export your
 interfaces, we need to configure one of these files with the code we want to execute when the file
 is included.
 
@@ -47,8 +46,8 @@ endif ()
 ### Finding relevant information about the interfaces
 
 After ensuring that the parent project has been included, we need to use the described mechanism in
-the [how to consume external interfaces in Sen-based projects'](consuming_interfaces.md) guide to
-obtain relevant information of our interfaces such as `stl` files, the `BASE_PATH` or the `fom`
+the [how to consume external interfaces in Sen-based projects](consuming_interfaces.md) guide to
+obtain relevant information of your interfaces such as `stl` files, the `BASE_PATH` or the `fom`
 include directories.
 
 In this example, we are generating the interfaces of the `sen::replayer` component, so we need to
@@ -71,10 +70,10 @@ that will generate the interfaces' code when the package is consumed. The functi
 be **unchangeable** upon consumption, so the purpose of this guide is to generate the interfaces in
 the way they will always be consumed. If the user wants to consume the interfaces in a different way
 (e.g. in `python` instead of `cpp`, using a `Sen` package instead of a component, etc.), then the
-steps of the [how to consume external interfaces in Sen-based projects'](consuming_interfaces.md)
+steps of the [how to consume external interfaces in Sen-based projects](consuming_interfaces.md)
 guide should be followed instead.
 
-In our example case, we would write a Sen package where we build the interfaces for the
+In this example, you would write a Sen package that builds the interfaces for the
 `sen::replayer` component.
 
 ```cmake
@@ -86,23 +85,27 @@ add_sen_package(
 )
 ```
 
+The pieces above are the whole of a real file, which you can read in one go at
+`cmake/util/interfaces/sen_replayer_interfaces-config.cmake.in`. Its sibling,
+`sen_recorder_interfaces-config.cmake.in`, does the same for the recorder.
+
 Note that any dependency the original package/component/library had **must** be included in the
 interface package generation. If this package is not configured correctly, you **won't** see any
 error in your compilation, the error will appear when other developers try to consume your package.
 
-## Include our -cmake.config.in files in the project's installation
+## Include your -config.cmake.in files in the project's installation
 
-After writing enough `-cmake.config.in` files, you need to configure your project's `install.cmake`
-file to ensure that the `-cmake.config.in` files are installed and generated correctly when you call
+After writing enough `-config.cmake.in` files, you need to configure your project's `install.cmake`
+file to ensure that the `-config.cmake.in` files are installed and generated correctly when you call
 `cmake install`.
 
 Sen brings a CMake function named `configure_exportable_packages`. This function receives an
-`INTERFACES_CONFIG_DIRS` argument, which takes a list of directories containing `-cmake.config.in`
-files. The helper takes care of generating and installing the code for all the `-cmake.config.in`
+`INTERFACES_CONFIG_DIRS` argument, which takes a list of directories containing `-config.cmake.in`
+files. The helper takes care of generating and installing the code for all the `-config.cmake.in`
 files present in the given directories and also in the current listed directory (directory where the
 `install.cmake` file is located).
 
-Using the helper is as simple as including this line in your `cmake.install` file, specifying any
+Using the helper is as simple as including this line in your `install.cmake` file, specifying any
 additional directory that contains interfaces in the `INTERFACES_CONFIG_DIRS` argument.
 
 ```cmake
@@ -110,17 +113,16 @@ configure_exportable_packages(INTERFACES_CONFIG_DIRS ${CMAKE_CURRENT_LIST_DIR}/i
 ```
 
 Note that the function will also install your project's `-config.cmake.in` file (e.g.,
-`sen-config.cmake.in`, located in Sen's `cmake/util` directory), so any content referring this
+`sen-config.cmake.in`, located in Sen's `cmake/util` directory), so any content referring to this
 particular `-config.cmake.in` file in your `install.cmake` can be deleted.
 
 ## Considerations
 
 The `-config.cmake.in` file is only executed when consuming the CMake package via `find_package()`.
 This means that there is no straightforward way of ensuring that what you write here is correct,
-other than testing the consumption locally by installing your project and test it externally
-(calling `find_package()` from another project). This error may not affect you, but the person who
-consumes your package, so ensuring that the package can be consumed appropriately is a great
-practice before uploading your CMake interfaces packages.
+other than installing your project and consuming it from another one that calls `find_package()`.
+A mistake here does not show up for you, only for whoever consumes the package, so check that it
+can be consumed before publishing it.
 
 ## Consuming CMake packages for interfaces
 
