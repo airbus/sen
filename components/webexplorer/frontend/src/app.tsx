@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type * as React from "react";
 
-import { useConnectionState } from "@sen/client/react";
+import { useConnectionState, useNotificationsDropped } from "@sen/client/react";
 
 import { AppShell } from "./components/app_shell.js";
 import { BottomPane, type BottomPaneTab } from "./components/bottom_pane.js";
@@ -98,6 +98,7 @@ export function App() {
   }, [panelCount]);
 
   const state = useConnectionState(client);
+  const droppedNotifications = useNotificationsDropped(client);
 
   const onExplorerPopOut = useCallback(() => {
     if (inPaneExplorer) {
@@ -305,7 +306,12 @@ export function App() {
           </PopoutWindow>
         )}
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <ConnectionStatusBanner state={state} url={url} onRetry={retryConnect} />
+        <ConnectionStatusBanner
+          state={state}
+          url={url}
+          onRetry={retryConnect}
+          droppedNotifications={droppedNotifications}
+        />
         {/* Offline: dim data surfaces; banner stays full-color so Retry is visible. */}
         <div
           style={{
