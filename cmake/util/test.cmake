@@ -74,6 +74,43 @@ if(SEN_SANITIZER_LOG_DIR)
   set(SEN_SANITIZER_LOG_OPTION ":log_path=${SEN_SANITIZER_LOG_DIR}/report")
 endif()
 
+# Compiled into each test binary rather than passed as a test property; see
+# sanitizer_default_options.cpp for why, and why it cannot come from a library.
+add_library(sen_sanitizer_options INTERFACE)
+target_sources(sen_sanitizer_options INTERFACE ${CMAKE_CURRENT_LIST_DIR}/sanitizer_default_options.cpp)
+
+if(ASAN_SUPPRESSION_FILE)
+  target_compile_definitions(
+    sen_sanitizer_options
+    INTERFACE
+      SEN_ASAN_DEFAULT_OPTIONS="suppressions=${ASAN_SUPPRESSION_FILE}:fast_unwind_on_malloc=0:malloc_context_size=100${SEN_SANITIZER_LOG_OPTION}"
+  )
+endif()
+
+if(LSAN_SUPPRESSION_FILE)
+  target_compile_definitions(
+    sen_sanitizer_options
+    INTERFACE
+      SEN_LSAN_DEFAULT_OPTIONS="suppressions=${LSAN_SUPPRESSION_FILE}:report_objects=1${SEN_SANITIZER_LOG_OPTION}"
+  )
+endif()
+
+# Without print_stacktrace a finding is one line, often naming only a dependency.
+if(UBSAN_SUPPRESSION_FILE)
+  target_compile_definitions(
+    sen_sanitizer_options
+    INTERFACE
+      SEN_UBSAN_DEFAULT_OPTIONS="suppressions=${UBSAN_SUPPRESSION_FILE}:print_stacktrace=1${SEN_SANITIZER_LOG_OPTION}"
+  )
+endif()
+
+if(TSAN_SUPPRESSION_FILE)
+  target_compile_definitions(
+    sen_sanitizer_options
+    INTERFACE SEN_TSAN_DEFAULT_OPTIONS="suppressions=${TSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}"
+  )
+endif()
+
 enable_testing()
 
 find_package(GTest QUIET)
@@ -159,6 +196,8 @@ function(add_sen_unit_test_suite test_name)
   if(TARGET sen_coverage_flags)
     target_link_libraries(${test_name} PRIVATE sen_coverage_flags)
   endif()
+
+  target_link_libraries(${test_name} PRIVATE sen_sanitizer_options)
 
   set(labels "unit")
   if(${_arg_FLAKY})
@@ -277,7 +316,9 @@ function(add_sen_integration_test test_name)
   endif()
 
   if(UBSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:suppressions=${_ubsan_suppressions}")
+    append_test_env_modification(
+      ${test_name} "UBSAN_OPTIONS=set:suppressions=${_ubsan_suppressions}:print_stacktrace=1"
+    )
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
@@ -401,7 +442,9 @@ function(add_sanitizer_options test_name)
   endif()
 
   if(UBSAN_SUPPRESSION_FILE)
-    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:suppressions=${UBSAN_SUPPRESSION_FILE}")
+    append_test_env_modification(
+      ${test_name} "UBSAN_OPTIONS=set:suppressions=${UBSAN_SUPPRESSION_FILE}:print_stacktrace=1"
+    )
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
