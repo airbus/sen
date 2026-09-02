@@ -41,7 +41,7 @@ if(NOT
 )
 
   # add the sen schemas
-  file(GLOB sen_schemas ${SEN_PATH}/schemas/*.json)
+  file(GLOB sen_schemas ${PROJECT_SOURCE_DIR}/schemas/*.json)
   list(APPEND schema_files ${sen_schemas})
 
   # assemble the final schema
