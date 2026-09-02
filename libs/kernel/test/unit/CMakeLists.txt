@@ -11,6 +11,7 @@ add_sen_unit_test_suite(
   env_substitution_test.cpp
   pipeline_frequency_test.cpp
   precision_sleeper_test.cpp
+  runner_schedule_test.cpp
   type_specs_utils_test.cpp
   test_kernel/test_kernel_test.cpp
   LINK_DEPS
