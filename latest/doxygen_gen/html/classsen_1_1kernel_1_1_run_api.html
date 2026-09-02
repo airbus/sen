@@ -159,7 +159,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0a8228f00560f70ad9b6754f5aa46dd9" id="r_a0a8228f00560f70ad9b6754f5aa46dd9"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a0a8228f00560f70ad9b6754f5aa46dd9">commit</a> ()</td></tr>
 <tr class="memdesc:a0a8228f00560f70ad9b6754f5aa46dd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send changes, so that they become visible to other participants. This includes object additions and removals, property changes and emitted events that others might have interest in. This method is thread-safe.  <br /></td></tr>
 <tr class="memitem:a913c56440c08af4db87ecb4996ee5d44" id="r_a913c56440c08af4db87ecb4996ee5d44"><td class="memItemLeft"><a class="el" href="namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019">FuncResult</a>&#160;</td><td class="memItemRight"><a class="el" href="#a913c56440c08af4db87ecb4996ee5d44">execLoop</a> (<a class="el" href="classsen_1_1_duration.html">Duration</a> cycleTime, std::function&lt; void()&gt; &amp;&amp;func=nullptr, bool logOverruns=true)</td></tr>
-<tr class="memdesc:a913c56440c08af4db87ecb4996ee5d44"><td class="mdescLeft">&#160;</td><td class="mdescRight">A basic execution loop. Func is an optional callback that will be invoked on each cycle.  <br /></td></tr>
+<tr class="memdesc:a913c56440c08af4db87ecb4996ee5d44"><td class="mdescLeft">&#160;</td><td class="mdescRight">A basic execution loop. Func is an optional callback that will be invoked on each cycle. logOverruns keeps the log lines for a missed deadline: an execution time overrun and the two ways a cycle is lost. The Tracy messages are emitted either way.  <br /></td></tr>
 <tr class="memitem:a0719c5ccf817c65950d3bb775346426a" id="r_a0719c5ccf817c65950d3bb775346426a"><td class="memItemLeft"><a class="el" href="classsen_1_1_time_stamp.html">TimeStamp</a>&#160;</td><td class="memItemRight"><a class="el" href="#a0719c5ccf817c65950d3bb775346426a">getStartTime</a> () const noexcept</td></tr>
 <tr class="memdesc:a0719c5ccf817c65950d3bb775346426a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The initial simulation time for the objects in the component.  <br /></td></tr>
 <tr class="memitem:af88ecc473e1a083867eb7365b28ce39c" id="r_af88ecc473e1a083867eb7365b28ce39c"><td class="memItemLeft"><a class="el" href="classsen_1_1_time_stamp.html">TimeStamp</a>&#160;</td><td class="memItemRight"><a class="el" href="#af88ecc473e1a083867eb7365b28ce39c">getTime</a> () const noexcept</td></tr>
@@ -412,7 +412,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>A basic execution loop. Func is an optional callback that will be invoked on each cycle. </p>
+<p>A basic execution loop. Func is an optional callback that will be invoked on each cycle. logOverruns keeps the log lines for a missed deadline: an execution time overrun and the two ways a cycle is lost. The Tracy messages are emitted either way. </p>
 
 </div>
 </div>
