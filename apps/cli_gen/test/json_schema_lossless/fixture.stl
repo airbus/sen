@@ -1,0 +1,49 @@
+package schema_lossless;
+
+// Enum: integer values should be preserved alongside names.
+enum Status : u8
+{
+  idle,
+  active,
+  error
+}
+
+// Quantity: unit metadata should be preserved.
+quantity<u16, m> Meters [min: 0, max: 1000];
+
+// Duration field must render as integer; Timestamp as date-time string.
+struct Timing
+{
+  delay : Duration,
+  when  : TimeStamp
+}
+
+// Struct with a parent: child must reference parent via allOf.
+struct Base
+{
+  baseField : f32
+}
+
+struct Derived : Base
+{
+  derivedField : i32
+}
+
+// Class with mixed property categories, a method, and an event.
+class SchemaLosslessClass
+{
+  // Static property: must appear in both `properties` and `required`.
+  var staticVersion : u32 [static];
+
+  // Dynamic read-write property.
+  var counter : i32 [writable];
+
+  // Event with typed args.
+  event onTick(tickIndex : u32, status : Status);
+
+  // Plain method returning a primitive.
+  fn ping() -> bool;
+
+  // Method taking a custom-type argument.
+  fn updateStatus(newStatus : Status) -> void;
+}

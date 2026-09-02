@@ -1,0 +1,12 @@
+    "{{ senQual }}": {
+      "$id": "{{ senQual }}",{% if description != "" %}
+      "description": "{{ description }}",{% endif %}
+      "type": "array",
+      "items": { {{ jsonElementSchemaType }} }{% if fixedSize or isBounded %},{% endif %}
+## if fixedSize
+      "minItems": {{ maxSize }},
+      "maxItems": {{ maxSize }}
+## else if isBounded
+      "maxItems": {{ maxSize }}
+## endif
+    }

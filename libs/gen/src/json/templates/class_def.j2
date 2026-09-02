@@ -1,0 +1,106 @@
+    "{{ senQual }}": {
+      "$id": "{{ senQual }}",{% if description != "" %}
+      "description": "{{ description }}",{% endif %}
+      "type": "object",
+      "x-is-interface": {{ isInterface }},
+## if exists("constructor")
+      "x-constructor": {
+        "name": "{{ constructor.name }}",
+        "args": [{% set argFirst=true %}
+## for arg in constructor.args
+          {% if not argFirst %}, {% else %}  {% endif %}{% set argFirst=false %}{
+            "name": "{{ arg.name }}",{% if arg.description != "" %}
+            "description": "{{ arg.description }}",{% endif %}
+            "type": { {{ arg.jsonSchemaType }} }
+          }
+## endfor
+        ]
+      },
+## endif
+## if exists("parents") and length(parents) > 0
+      "x-parents": [{% set isFirst=true %}
+## for parent in parents
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}{
+          "name": "{{ parent.name }}",
+          "ref": { {{ parent.jsonSchemaType }} },
+          "isInterface": {{ parent.isInterface }},
+          "isAbstract": {{ parent.isAbstract }}
+        }
+## endfor
+      ],
+## endif
+      "properties": { {% set isFirst=true %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}"{{ prop.name }}": {
+          {% if prop.description != "" %}"description": "{{ prop.description }}",
+          {% endif %}{{ prop.jsonSchemaType }},
+          "x-category": "{% if prop.staticRW %}staticRW{% else if prop.staticRO %}staticRO{% else if prop.writeAllowed %}dynamicRW{% else %}dynamicRO{% endif %}",
+          "x-transport-mode": "{{ prop.transportEnum }}",
+          "x-checked-set": {{ prop.checkedSet }},
+          "x-tags": [{% set tagFirst=true %}
+## for tag in prop.tags
+            {% if not tagFirst %}, {% else %}  {% endif %}{% set tagFirst=false %}"{{ tag.value }}"
+## endfor
+          ]
+        }
+## endfor
+## endfor
+      },
+      "required": [{% set isFirst=true %}
+## for iface in interfacesToImplement
+## for prop in iface.props
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}"{{ prop.name }}"
+## endfor
+## endfor
+      ],
+      "x-methods": [{% set isFirst=true %}
+## for iface in interfacesToImplement
+## for method in iface.methods
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}{
+          "name": "{{ method.name }}",{% if method.description != "" %}
+          "description": "{{ method.description }}",{% endif %}
+          "constant": {{ method.constant }},
+          "deferred": {{ method.deferred }},
+          "localOnly": {{ method.localOnly }},
+          "transportMode": "{{ method.transportEnum }}",
+          "propertyRelation": {
+            "kind": "{{ method.propertyRelation.kind }}"{% if method.propertyRelation.kind != "none" %},
+            "propertyName": "{{ method.propertyRelation.propertyName }}"{% endif %}
+          },
+          "returnType": { {{ method.jsonSchemaType }} },
+          "args": [{% set argFirst=true %}
+## for arg in method.args
+            {% if not argFirst %}, {% else %}  {% endif %}{% set argFirst=false %}{
+              "name": "{{ arg.name }}",{% if arg.description != "" %}
+              "description": "{{ arg.description }}",{% endif %}
+              "type": { {{ arg.jsonSchemaType }} }
+            }
+## endfor
+          ]
+        }
+## endfor
+## endfor
+      ],
+      "x-events": [{% set isFirst=true %}
+## for iface in interfacesToImplement
+## for event in iface.events
+        {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}{
+          "name": "{{ event.name }}",{% if event.description != "" %}
+          "description": "{{ event.description }}",{% endif %}
+          "transportMode": "{{ event.transportEnum }}",
+          "args": [{% set argFirst=true %}
+## for arg in event.args
+            {% if not argFirst %}, {% else %}  {% endif %}{% set argFirst=false %}{
+              "name": "{{ arg.name }}",{% if arg.description != "" %}
+              "description": "{{ arg.description }}",{% endif %}
+              "type": { {{ arg.jsonSchemaType }} }
+            }
+## endfor
+          ]
+        }
+## endfor
+## endfor
+      ]{% if exists("nonInterfaceParent") %},
+      "allOf": [ { {{ nonInterfaceParent.jsonSchemaType }} } ]{% endif %}
+    }
