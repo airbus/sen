@@ -674,6 +674,11 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
     if (missedFrameEnd)
     {
       tracer_->message(missedFrameEndMessage_);
+
+      if (SEN_LIKELY(logOverruns))
+      {
+        SPDLOG_LOGGER_WARN(logger, missedFrameEndMessage_);
+      }
     }
 
     // calibrate the clock from time to time
@@ -703,6 +708,11 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
     if (skippedFrames)
     {
       tracer_->message(oversleptMessage_);
+
+      if (SEN_LIKELY(logOverruns))
+      {
+        SPDLOG_LOGGER_WARN(logger, oversleptMessage_);
+      }
 
       // check if we have enough time to run. If not, sleep until the next cycle
       if (wakeUpTime - time64 > halfPeriod)

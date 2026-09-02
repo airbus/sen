@@ -297,6 +297,8 @@ public:
 
   /// A basic execution loop.
   /// Func is an optional callback that will be invoked on each cycle.
+  /// logOverruns keeps the log lines for a missed deadline: an execution time overrun and
+  /// the two ways a cycle is lost. The Tracy messages are emitted either way.
   [[nodiscard]] FuncResult execLoop(Duration cycleTime,
                                     std::function<void()>&& func = nullptr,
                                     bool logOverruns = true);
