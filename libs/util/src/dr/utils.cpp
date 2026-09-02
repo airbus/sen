@@ -191,11 +191,13 @@ Orientation extrapolateOrientation(const Orientation& value,
 
   // compute equivalent angular velocity in world coordinates (equivalent to ang vel and angular acceleration in the
   // delta extrapolated)
-  const auto eqOmega = bodyToWorld(fromAngularVelocity(angularVelocity), value) +
-                       bodyToWorld(fromAngularAcceleration(angularAcceleration), value) * 0.5 * deltaSeconds;
-
-  // compute orientation quaternion and rotate it
+  // bodyToWorld rebuilds this rotation on each call.
   auto orientationQuat = fromOrientationToQuat(value);
+
+  // compute equivalent angular velocity in world coordinates (equivalent to ang vel and angular acceleration in the
+  // delta extrapolated)
+  const auto eqOmega = orientationQuat * fromAngularVelocity(angularVelocity) +
+                       orientationQuat * fromAngularAcceleration(angularAcceleration) * 0.5 * deltaSeconds;
   orientationQuat.makeRotate(eqOmega.length() * deltaSeconds, eqOmega);
 
   return toOrientation(orientationQuat.getRotateInEulerYPB());

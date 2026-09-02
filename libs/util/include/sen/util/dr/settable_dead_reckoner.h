@@ -32,14 +32,16 @@ enum class ReferenceSystem : u32
   body
 };
 
-/// Threshold configuration structure with the position error threshold (maximum distance between extrapolation and
-/// data) and the entity dynamics (speed and changes of direction)
+// --8<-- [start:dr_threshold]
+/// How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle
+/// between orientations, and the reference system both are measured in.
 struct DrThreshold
 {
   LengthMeters distanceThreshold {1.0};
   AngleRadians orientationThreshold {0.05f};
   ReferenceSystem referenceSystem {ReferenceSystem::world};
 };
+// --8<-- [end:dr_threshold]
 
 /// Allows the user to get the extrapolated situation of an object and to set the Spatial when the error of the
 /// extrapolation exceeds a configurable threshold.
@@ -76,13 +78,13 @@ public:
   [[nodiscard]] const T& object() const noexcept;
 
 public:
-  /// Updates the spatial property of the object if the update period is exceeded or if the extrapolation error
-  /// exceeds the threshold.
-  void setSpatial(const Situation& situation);
+  /// Updates the spatial property of the object when the extrapolation error exceeds the threshold.
+  /// Returns true if the spatial was updated.
+  bool setSpatial(const Situation& situation);
 
-  /// Updates the spatial property of the object from a Geodetic Situation input if the update period is exceeded or
-  /// if the extrapolation error exceeds the threshold.
-  void setSpatial(const GeodeticSituation& situation);
+  /// Updates the spatial property of the object from a Geodetic Situation input when the extrapolation
+  /// error exceeds the threshold. Returns true if the spatial was updated.
+  bool setSpatial(const GeodeticSituation& situation);
 
   /// Directly sets the frozen state of the object's spatial to true/false. The timestamp is needed to coherently
   /// apply the new frozen state to the current extrapolated situation.
@@ -127,7 +129,7 @@ inline const T& SettableDeadReckoner<T>::object() const noexcept
 }
 
 template <typename T>
-inline void SettableDeadReckoner<T>::setSpatial(const Situation& situation)
+inline bool SettableDeadReckoner<T>::setSpatial(const Situation& situation)
 {
   const auto extrapolation = Parent::extrapolate(obj_.getSpatial(), situation.timeStamp, lastTimeStamp_);
   if (impl::maxDistanceExceeded(situation.worldLocation, extrapolation.worldLocation, threshold_.distanceThreshold) ||
@@ -135,11 +137,14 @@ inline void SettableDeadReckoner<T>::setSpatial(const Situation& situation)
   {
     lastTimeStamp_ = situation.timeStamp;
     obj_.setNextSpatial(toSpatialVariant(situation, threshold_));
+    return true;
   }
+
+  return false;
 }
 
 template <typename T>
-inline void SettableDeadReckoner<T>::setSpatial(const GeodeticSituation& situation)
+inline bool SettableDeadReckoner<T>::setSpatial(const GeodeticSituation& situation)
 {
   // translate input geodetic situation to standard reference system
   const auto ecefPosition = impl::toEcef(situation.worldLocation);
@@ -149,15 +154,11 @@ inline void SettableDeadReckoner<T>::setSpatial(const GeodeticSituation& situati
       impl::maxRotationExceeded(ecefOrientation, extrapolation.orientation, orientationThresholdCos))
   {
     lastTimeStamp_ = situation.timeStamp;
-    obj_.setNextSpatial(toSpatialVariant({situation.isFrozen,
-                                          situation.timeStamp,
-                                          ecefPosition,
-                                          ecefOrientation,
-                                          impl::nedToEcef(situation.velocityVector, situation.worldLocation),
-                                          situation.angularVelocity,
-                                          impl::nedToEcef(situation.accelerationVector, situation.worldLocation)},
-                                         threshold_));
+    obj_.setNextSpatial(toSpatialVariant(impl::toSituation(situation, ecefPosition, ecefOrientation), threshold_));
+    return true;
   }
+
+  return false;
 }
 
 template <typename T>

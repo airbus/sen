@@ -81,6 +81,18 @@ template <typename T>
 /// Translates an Acceleration vector from NED to ECEF coordinates
 [[nodiscard]] Acceleration nedToEcef(const Acceleration& value, const GeodeticWorldLocation& location) noexcept;
 
+/// Converts a situation from ECEF to geodetic, building the position rotation once for all three
+/// quantities that need it.
+[[nodiscard]] GeodeticSituation toGeodeticSituation(const Situation& value) noexcept;
+
+/// Converts a situation from geodetic to ECEF.
+[[nodiscard]] Situation toSituation(const GeodeticSituation& value) noexcept;
+
+/// Overload for callers that already hold the converted position and orientation.
+[[nodiscard]] Situation toSituation(const GeodeticSituation& value,
+                                    const Location& ecefPosition,
+                                    const Orientation& ecefOrientation) noexcept;
+
 /// Translates Velocity vectors expressed in body coordinates to NED coordinates
 [[nodiscard]] Velocity bodyToNed(const Velocity& value, const Orientation& orientationNed) noexcept;
 

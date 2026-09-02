@@ -101,32 +101,11 @@ private:
 /// Transform a Situation to a GeodeticSituation
 [[nodiscard]] inline GeodeticSituation toGeodeticSituation(const Situation& value)
 {
-  const auto geoLocation = impl::toLla(value.worldLocation);
-  return GeodeticSituation {value.isFrozen,
-                            value.timeStamp,
-                            geoLocation,
-                            impl::ecefToNed(value.orientation, geoLocation),
-                            impl::ecefToNed(value.velocityVector, geoLocation),
-                            value.angularVelocity,
-                            impl::ecefToNed(value.accelerationVector, geoLocation),
-                            value.angularAcceleration};
+  return impl::toGeodeticSituation(value);
 }
 
 /// Transforms a GeodeticSituation to a Situation
-[[nodiscard]] inline Situation toSituation(const GeodeticSituation& value)
-{
-  // translate input geodetic situation to standard reference system
-  const auto ecefPosition = impl::toEcef(value.worldLocation);
-  const auto ecefOrientation = impl::nedToEcef(value.orientation, value.worldLocation);
-
-  return Situation {value.isFrozen,
-                    value.timeStamp,
-                    ecefPosition,
-                    ecefOrientation,
-                    impl::nedToEcef(value.velocityVector, value.worldLocation),
-                    value.angularVelocity,
-                    impl::nedToEcef(value.accelerationVector, value.worldLocation)};
-}
+[[nodiscard]] inline Situation toSituation(const GeodeticSituation& value) { return impl::toSituation(value); }
 
 //-------------------------------------------------------------------------------------------------------------------
 // Inline implementation
@@ -298,19 +277,7 @@ typename DeadReckoner<T>::GeodeticSituationProcessor DeadReckoner<T>::getGeodeti
     };
   }
 
-  return [this](sen::TimeStamp time)
-  {
-    const auto situation = processSituation_(time);
-    const auto geoLocation = impl::toLla(situation.worldLocation);
-    return GeodeticSituation {situation.isFrozen,
-                              situation.timeStamp,
-                              geoLocation,
-                              impl::ecefToNed(situation.orientation, geoLocation),
-                              impl::ecefToNed(situation.velocityVector, geoLocation),
-                              situation.angularVelocity,
-                              impl::ecefToNed(situation.accelerationVector, geoLocation),
-                              situation.angularAcceleration};
-  };
+  return [this](sen::TimeStamp time) { return impl::toGeodeticSituation(processSituation_(time)); };
 }
 
 template <typename T>

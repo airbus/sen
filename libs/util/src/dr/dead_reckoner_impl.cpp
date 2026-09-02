@@ -115,23 +115,19 @@ Location toEcef(const GeodeticWorldLocation& latLonAlt) noexcept
   return result;
 }
 
+namespace
+{
+
+Quatd nedRotation(const GeodeticWorldLocation& latLonAlt) noexcept
+{
+  return Quatd {toRad(latLonAlt.longitude), -halfPi - toRad(latLonAlt.latitude), 0.0};
+}
+
+}  // namespace
+
 Orientation ecefToNed(const Orientation& value, const GeodeticWorldLocation& latLonAlt) noexcept
 {
-  // compute the NED trihedron at the point with the input latLonAlt
-  const auto [x0, y0, z0] = getNedTrihedron(latLonAlt);
-
-  // quaternion containing the orientation with respect to the ECEF coordinates
-  const Quatd inputOrientation {std_util::checkedConversion<double>(value.psi),
-                                std_util::checkedConversion<double>(value.theta),
-                                std_util::checkedConversion<double>(value.phi)};
-
-  // i and j unit vectors transformed with the input orientation quaternion
-  const auto xf = inputOrientation * Vec3d {1, 0, 0};
-  const auto yf = inputOrientation * Vec3d {0, 1, 0};
-
-  // calculate euler angles of the orientation with respect to NED using the transformed unit vectors and
-  // trigonometry
-  return eulerAnglesFromTrihedrons(x0, y0, z0, xf, yf);
+  return toOrientation((fromOrientationToQuat(value) * nedRotation(latLonAlt).inverse()).getRotateInEulerYPB());
 }
 
 Velocity ecefToNed(const Velocity& value, const GeodeticWorldLocation& geodeticPosition) noexcept
@@ -146,22 +142,7 @@ Acceleration ecefToNed(const Acceleration& value, const GeodeticWorldLocation& g
 
 Orientation nedToEcef(const Orientation& value, const GeodeticWorldLocation& latLonAlt) noexcept
 {
-  // compute the NED trihedron at the point with the input lat and lon
-  const auto [x0, y0, z0] = getNedTrihedron(latLonAlt);
-
-  // compute final x and y vectors resulting from the transformation of the orientation with respect to NED
-  const auto xf = Quatd {std_util::checkedConversion<double>(value.theta), y0} *
-                  Quatd {std_util::checkedConversion<double>(value.psi), z0} * x0;
-  const auto yf = Quatd {std_util::checkedConversion<double>(value.phi), x0} *
-                  Quatd {std_util::checkedConversion<double>(value.psi), z0} * y0;
-
-  // ECEF unit vectors
-  const Vec3d xi {1, 0, 0};
-  const Vec3d yi {0, 1, 0};
-  const Vec3d zi {0, 0, 1};
-
-  // euler angles to transform the ECEF trihedron to the final vectors
-  return eulerAnglesFromTrihedrons(xi, yi, zi, xf, yf);
+  return toOrientation((fromOrientationToQuat(value) * nedRotation(latLonAlt)).getRotateInEulerYPB());
 }
 
 Velocity nedToEcef(const Velocity& value, const GeodeticWorldLocation& location) noexcept
@@ -172,6 +153,43 @@ Velocity nedToEcef(const Velocity& value, const GeodeticWorldLocation& location)
 Acceleration nedToEcef(const Acceleration& value, const GeodeticWorldLocation& location) noexcept
 {
   return toAcceleration(nedToEcef(fromAcceleration(value), location));
+}
+
+GeodeticSituation toGeodeticSituation(const Situation& value) noexcept
+{
+  const auto geoLocation = toLla(value.worldLocation);
+
+  const auto rotation = nedRotation(geoLocation).inverse();
+
+  return GeodeticSituation {value.isFrozen,
+                            value.timeStamp,
+                            geoLocation,
+                            toOrientation((fromOrientationToQuat(value.orientation) * rotation).getRotateInEulerYPB()),
+                            toVelocity(rotation * fromVelocity(value.velocityVector)),
+                            value.angularVelocity,
+                            toAcceleration(rotation * fromAcceleration(value.accelerationVector)),
+                            value.angularAcceleration};
+}
+
+Situation toSituation(const GeodeticSituation& value,
+                      const Location& ecefPosition,
+                      const Orientation& ecefOrientation) noexcept
+{
+  const auto rotation = nedRotation(value.worldLocation);
+
+  return Situation {value.isFrozen,
+                    value.timeStamp,
+                    ecefPosition,
+                    ecefOrientation,
+                    toVelocity(rotation * fromVelocity(value.velocityVector)),
+                    value.angularVelocity,
+                    toAcceleration(rotation * fromAcceleration(value.accelerationVector)),
+                    value.angularAcceleration};
+}
+
+Situation toSituation(const GeodeticSituation& value) noexcept
+{
+  return toSituation(value, toEcef(value.worldLocation), nedToEcef(value.orientation, value.worldLocation));
 }
 
 Velocity bodyToNed(const Velocity& value, const Orientation& orientationNed) noexcept
@@ -239,12 +257,12 @@ void smoothImpl(Situation& situation, const Situation& update, const DrConfig& c
       // compute the delta rotation in angle/axis format
       f64 rotationAngle = 0;
       Vec3d rotationAxis {};
-      const auto q0 = fromOrientationToQuat(situation.orientation);
-      const auto q1 = fromOrientationToQuat(update.orientation);
-      const auto q01 = q0.inverse() * q1;
+      // worldToBody would rebuild this from the same angles, across a translation unit boundary.
+      const auto fromSmoothed = fromOrientationToQuat(situation.orientation).inverse();
+      const auto q01 = fromSmoothed * fromOrientationToQuat(update.orientation);
       q01.getRotate(rotationAngle, rotationAxis);
 
-      const auto deltaTheta = worldToBody(rotationAxis * rotationAngle, situation.orientation);
+      const auto deltaTheta = fromSmoothed * (rotationAxis * rotationAngle);
       const auto omega0 = fromAngularVelocity(situation.angularVelocity);
       const auto omega1 = fromAngularVelocity(update.angularVelocity);
 

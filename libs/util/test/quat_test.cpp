@@ -20,6 +20,9 @@
 // gtest
 #include <gtest/gtest.h>
 
+// std
+#include <cmath>
+
 using namespace sen::util;  // NOLINT
 
 /// @test
@@ -181,4 +184,31 @@ TEST(QuaternionTest, slerp)
   ASSERT_NEAR(toDeg(eulerAngles.getX()), 0, 0.001);
   ASSERT_NEAR(toDeg(eulerAngles.getY()), 0, 0.001);
   ASSERT_NEAR(toDeg(eulerAngles.getZ()), 23, 0.001);
+}
+
+/// @test
+/// Check that Euler angles recovered from a quaternion rebuild the same rotation at a right-angle
+/// pitch, where yaw and bank turn about one axis
+/// @requirements(SEN-1060)
+TEST(QuaternionTest, eulerRecoveryAtThePitchLimit)
+{
+  for (const double pitchDeg: {-90.0, -89.999, -89.0, 89.0, 89.999, 90.0})
+  {
+    for (int yawDeg = -180; yawDeg <= 180; yawDeg += 30)
+    {
+      for (int bankDeg = -180; bankDeg <= 180; bankDeg += 45)
+      {
+        const Quatd built {toRad(yawDeg), toRad(pitchDeg), toRad(bankDeg)};
+        const auto recovered = built.getRotateInEulerYPB();
+
+        ASSERT_FALSE(std::isnan(recovered.getX()) || std::isnan(recovered.getY()) || std::isnan(recovered.getZ()));
+
+        const Quatd rebuilt {recovered.getX(), recovered.getY(), recovered.getZ()};
+
+        // The angles may differ where the pair is degenerate. The rotation they denote may not.
+        EXPECT_LT(2.0 * std::acos(std::min(1.0, std::abs(built.dot(rebuilt)))), 1e-6)
+          << "yaw " << yawDeg << " pitch " << pitchDeg << " bank " << bankDeg;
+      }
+    }
+  }
 }
