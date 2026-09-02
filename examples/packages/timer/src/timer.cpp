@@ -68,8 +68,10 @@ protected:
   }
 
 private:
+  // --8<-- [start:elapsed_state]
   /// Empty until the first update, which has nothing to difference against yet.
   std::optional<sen::TimeStamp> lastUpdate_;
+  // --8<-- [end:elapsed_state]
 
   bool programAcceptsSet(sen::Duration /*val*/) const override
   {
