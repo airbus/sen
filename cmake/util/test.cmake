@@ -318,15 +318,16 @@ function(add_sen_run_smoke_test test_name)
     set(_working_dir ${_arg_WORKING_DIRECTORY})
   elseif(DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
     set(_working_dir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-  elseif(
-    NOT
-    CMAKE_GENERATOR
-    STREQUAL
-    "Ninja"
-  )
-    set(_working_dir ${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
   else()
-    set(_working_dir ${PROJECT_BINARY_DIR}/bin)
+    # Only a multi-config generator writes binaries under a per-configuration directory.
+    # Keyed on the generator's name, every single-config build that is not Ninja was sent
+    # to one that does not exist, and ctest will not start a test there.
+    get_property(_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if(_multi_config)
+      set(_working_dir ${PROJECT_BINARY_DIR}/bin/$<CONFIG>)
+    else()
+      set(_working_dir ${PROJECT_BINARY_DIR}/bin)
+    endif()
   endif()
 
   get_filename_component(_abs_config ${_arg_CONFIG_FILE} ABSOLUTE)

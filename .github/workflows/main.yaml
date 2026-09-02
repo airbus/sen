@@ -73,9 +73,10 @@ jobs:
       - name: Install checkers
         shell: bash
         run: pip install pytest==9.1.1 gitlint==0.19.1 pyyaml==6.0.3
+      # The integration drivers too: plain python, no build needed to test them.
       - name: Run repository script tests
         shell: bash
-        run: python -m pytest .github/scripts/ -v
+        run: python -m pytest .github/scripts/ libs/kernel/test/integration/ -v
       # From the pull request's own base, not from main: a stacked pull request
       # sits on the branch below it, and origin/main would drag in every commit
       # underneath and lint those again.

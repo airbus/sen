@@ -13,6 +13,10 @@ import sys
 # How long a supporting instance is given to stop before it is killed outright.
 SHUTDOWN_GRACE_SECONDS = 5
 
+# An instance that ended before it was asked to makes the tester's own failure a
+# consequence rather than a cause. The verdict stays the tester's either way.
+INSTANCE = "runner.py: supporting instance"
+
 
 def run_sen_command(args):
     """
@@ -31,14 +35,29 @@ def run_sen_command(args):
 
 
 def stop(instances):
-    """Stops the given instances, killing any that ignore the request."""
+    """Stops the given instances and says how each of them ended.
+
+    An instance is meant to be running here and to stop because this asks it. terminate()
+    on one that has already gone is a no-op, so the three ways that can be untrue are only
+    separable by asking first.
+    """
+    ended_early = {instance.pid for instance in instances if instance.poll() is not None}
     for instance in instances:
         instance.terminate()
+    ignored_the_request = set()
     for instance in instances:
         try:
             instance.wait(timeout=SHUTDOWN_GRACE_SECONDS)
         except subprocess.TimeoutExpired:
+            ignored_the_request.add(instance.pid)
             instance.kill()
+            instance.wait()
+
+    for instance in instances:
+        if instance.pid in ended_early:
+            print(f"{INSTANCE}: {instance.pid} ended on its own with status {instance.returncode}", flush=True)
+        elif instance.pid in ignored_the_request:
+            print(f"{INSTANCE}: {instance.pid} ignored the request to stop and was killed", flush=True)
 
 
 def main():

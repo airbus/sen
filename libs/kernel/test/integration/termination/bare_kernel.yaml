@@ -1,0 +1,3 @@
+# A kernel with nothing loaded and nothing built. It runs until it is asked to stop, which is all
+# this test needs: no component, no discovery, no second process.
+load: []

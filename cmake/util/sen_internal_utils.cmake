@@ -19,8 +19,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_LIBDIR lib)
 set(CMAKE_LINK_WHAT_YOU_USE OFF "Enable this to get feedback about the linkage")
 
+# Components are opened by bare name, so the loader resolves them through the run path of libkernel.
+# Keep that run path relative to the library itself, in the build tree as well as the installed one,
+# or loading depends on the working directory. The entries pointing at conan's package folders stay
+# absolute in the build tree; an installed tree has those libraries beside the binaries instead.
 if(UNIX AND NOT APPLE)
   set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
+  set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
+elseif(APPLE)
+  # The same intent, spelled the way the mach-o loader expects. Nothing builds this today: there is
+  # no macOS profile under .conan/profiles, and the install guide says macOS is unsupported. It is
+  # here so the two loaders do not drift apart while that remains true.
+  set(CMAKE_INSTALL_RPATH "@loader_path/../lib;@loader_path")
+  set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 endif()
 
 include(GNUInstallDirs)
