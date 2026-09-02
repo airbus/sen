@@ -1,5 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,5,120,31"/>
-<area shape="rect" id="Node000001" href="$classsen_1_1test_1_1_publisher_impl.html" title="Performs actions in the integration test. These normally include creating, erasing and modifying obje..." alt="" coords="168,5,343,31"/>
-<area shape="poly" id="edge10_Node000000_Node000001" title=" " alt="" coords="134,15,168,15,168,21,134,21"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,5,180,31"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1test_1_1_process_terminator_impl.html" title="Terminates each process where it is included (via the kernel API) when it detects that all StatefulOb..." alt="" coords="228,5,463,31"/>
+<area shape="poly" id="edge10_Node000000_Node000001" title=" " alt="" coords="194,15,228,15,228,21,194,21"/>
 </map>

@@ -14,6 +14,9 @@ var hierarchy =
     [ "App3ClassBase", null, [
       [ "sen::test::type_clash::App3ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app3_class_impl.html", null ]
     ] ],
+    [ "App4ClassBase", null, [
+      [ "sen::test::type_clash::App4ClassImpl", "classsen_1_1test_1_1type__clash_1_1_app4_class_impl.html", null ]
+    ] ],
     [ "sen::Arg", "structsen_1_1_arg.html", null ],
     [ "sen::ArrayTraitsBase&lt; T &gt;", "structsen_1_1_array_traits_base.html", null ],
     [ "sen::BasicTraits&lt; T &gt;", "structsen_1_1_basic_traits.html", null ],
@@ -28,6 +31,7 @@ var hierarchy =
     [ "sen::CallableSpec", "structsen_1_1_callable_spec.html", null ],
     [ "sen::lang::Chunk", "classsen_1_1lang_1_1_chunk.html", null ],
     [ "ClashTypeBase", null, [
+      [ "sen::test::type_clash::ClashTypeImpl", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl.html", null ],
       [ "sen::test::type_clash::ClashTypeImpl", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl.html", null ],
       [ "sen::test::type_clash::ClashTypeImpl", "classsen_1_1test_1_1type__clash_1_1_clash_type_impl.html", null ]
     ] ],

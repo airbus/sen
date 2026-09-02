@@ -9,6 +9,7 @@ var searchData=
   ['app1classimpl_6',['App1ClassImpl',['../classsen_1_1test_1_1type__clash_1_1_app1_class_impl.html',1,'sen::test::type_clash']]],
   ['app2classimpl_7',['App2ClassImpl',['../classsen_1_1test_1_1type__clash_1_1_app2_class_impl.html',1,'sen::test::type_clash']]],
   ['app3classimpl_8',['App3ClassImpl',['../classsen_1_1test_1_1type__clash_1_1_app3_class_impl.html',1,'sen::test::type_clash']]],
-  ['arg_9',['Arg',['../structsen_1_1_arg.html',1,'sen']]],
-  ['arraytraitsbase_10',['ArrayTraitsBase',['../structsen_1_1_array_traits_base.html',1,'sen']]]
+  ['app4classimpl_9',['App4ClassImpl',['../classsen_1_1test_1_1type__clash_1_1_app4_class_impl.html',1,'sen::test::type_clash']]],
+  ['arg_10',['Arg',['../structsen_1_1_arg.html',1,'sen']]],
+  ['arraytraitsbase_11',['ArrayTraitsBase',['../structsen_1_1_array_traits_base.html',1,'sen']]]
 ];

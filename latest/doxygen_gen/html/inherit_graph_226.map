@@ -1,46 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="18,441,163,481"/>
-<area shape="rect" id="Node000001" href="$classsen_1_1_interest.html" title="Declares interest on objects that satisfy a set of conditions." alt="" coords="287,193,389,219"/>
-<area shape="poly" id="edge74_Node000000_Node000001" title=" " alt="" coords="99,427,115,381,141,327,176,273,198,249,223,228,253,213,286,205,287,210,255,218,225,232,202,253,180,276,145,330,120,383,104,428"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_object.html" title="A sen object." alt="" coords="291,59,385,84"/>
-<area shape="poly" id="edge75_Node000000_Node000002" title=" " alt="" coords="101,427,147,313,181,245,222,179,272,123,318,82,322,86,276,127,226,182,186,247,151,315,106,429"/>
-<area shape="rect" id="Node000004" href="$classsen_1_1_object_provider.html" title="Base class for an entity that is able to produce objects." alt="" coords="263,243,413,268"/>
-<area shape="poly" id="edge77_Node000000_Node000004" title=" " alt="" coords="104,427,123,391,149,351,183,310,223,277,262,260,264,265,225,282,186,314,154,354,128,394,109,429"/>
-<area shape="rect" id="Node000015" title=" " alt="" coords="249,461,427,487"/>
-<area shape="poly" id="edge79_Node000000_Node000015" title=" " alt="" coords="177,463,249,467,249,472,177,468"/>
-<area shape="rect" id="Node000019" href="$classsen_1_1kernel_1_1_session_info_provider.html" title=" " alt="" coords="250,511,426,551"/>
-<area shape="poly" id="edge83_Node000000_Node000019" title=" " alt="" coords="174,482,225,497,266,509,265,514,223,502,173,487"/>
-<area shape="rect" id="Node000021" href="$classsen_1_1kernel_1_1_sessions_discoverer.html" title=" " alt="" coords="224,576,452,601"/>
-<area shape="poly" id="edge84_Node000000_Node000021" title=" " alt="" coords="133,487,178,520,201,542,225,561,258,573,256,578,223,566,197,547,174,524,130,491"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_native_object.html" title="An object instantiated in this process. This is the base class for all user&#45;implemented objects." alt="" coords="537,5,676,31"/>
-<area shape="poly" id="edge76_Node000002_Node000003" title=" " alt="" coords="398,57,542,28,543,33,399,62"/>
-<area shape="rect" id="Node000005" href="$classsen_1_1_object_mux.html" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="545,55,668,80"/>
-<area shape="poly" id="edge78_Node000004_Node000005" title=" " alt="" coords="425,243,450,228,464,212,471,195,473,160,476,125,484,107,498,89,520,76,544,68,546,73,522,80,502,93,488,109,481,126,479,161,476,197,468,215,454,232,428,248"/>
-<area shape="rect" id="Node000016" href="$classsen_1_1_callback.html" title=" " alt="" coords="511,701,702,741"/>
-<area shape="poly" id="edge80_Node000015_Node000016" title=" " alt="" coords="441,487,454,497,472,521,480,545,481,569,480,593,478,617,479,641,486,664,502,687,516,698,513,703,498,690,481,666,473,642,472,617,474,593,476,569,475,546,467,524,450,501,438,492"/>
-<area shape="rect" id="Node000017" href="$classsen_1_1_callback.html" title=" " alt="" coords="507,573,706,613"/>
-<area shape="poly" id="edge81_Node000015_Node000017" title=" " alt="" coords="439,489,454,497,470,512,479,528,487,544,502,559,523,570,520,575,498,563,482,547,474,531,466,516,450,502,437,494"/>
-<area shape="rect" id="Node000018" href="$classsen_1_1_callback.html" title="Base class for event or method callbacks. It stores the queue where to push the response...." alt="" coords="513,637,701,677"/>
-<area shape="poly" id="edge82_Node000015_Node000018" title=" " alt="" coords="441,488,454,497,467,513,475,529,479,561,483,593,490,608,502,623,518,634,515,639,498,627,485,611,478,594,474,562,470,530,463,516,450,501,438,493"/>
-<area shape="rect" id="Node000006" href="$classsen_1_1_object_provider_listener.html" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="237,292,439,317"/>
-<area shape="poly" id="edge92_Node000006_Node000005" title=" " alt="" coords="444,283,450,278,467,255,474,233,475,209,473,186,471,161,473,137,480,113,498,89,520,75,544,67,546,72,522,80,502,93,485,115,478,138,477,161,479,185,481,209,480,234,472,258,454,281,448,287"/>
-<area shape="rect" id="Node000007" href="$classsen_1_1_object_list.html" title=" " alt="" coords="510,253,703,293"/>
-<area shape="poly" id="edge85_Node000006_Node000007" title=" " alt="" coords="452,288,510,281,510,287,452,294"/>
-<area shape="rect" id="Node000008" href="$classsen_1_1_object_list.html" title=" " alt="" coords="515,317,699,357"/>
-<area shape="poly" id="edge86_Node000006_Node000008" title=" " alt="" coords="453,316,515,323,514,328,452,321"/>
-<area shape="rect" id="Node000009" href="$classsen_1_1_object_list.html" title=" " alt="" coords="514,381,699,421"/>
-<area shape="poly" id="edge87_Node000006_Node000009" title=" " alt="" coords="383,320,501,366,537,378,535,383,499,371,381,325"/>
-<area shape="rect" id="Node000010" href="$classsen_1_1_object_list.html" title=" " alt="" coords="509,445,704,485"/>
-<area shape="poly" id="edge88_Node000006_Node000010" title=" " alt="" coords="363,325,423,378,461,406,501,430,528,442,526,447,499,435,458,410,419,382,360,329"/>
-<area shape="rect" id="Node000011" href="$classsen_1_1_object_list.html" title=" " alt="" coords="500,509,713,549"/>
-<area shape="poly" id="edge89_Node000006_Node000011" title=" " alt="" coords="360,327,439,425,478,470,502,495,523,506,521,511,498,499,474,474,435,428,356,330"/>
-<area shape="rect" id="Node000012" href="$classsen_1_1_muxed_provider_listener.html" title="An extended ObjectProviderListener that works together with ObjectMux and notifies when objects provi..." alt="" coords="505,104,708,129"/>
-<area shape="poly" id="edge90_Node000006_Node000012" title=" " alt="" coords="443,283,450,277,464,261,471,245,473,210,476,174,484,156,498,139,515,127,518,132,502,143,488,159,481,175,479,210,476,246,468,264,454,281,446,287"/>
-<area shape="rect" id="Node000013" href="$classsen_1_1_object_list.html" title="A list of objects that is managed by some source based on user&#45;expressed interests." alt="" coords="529,153,685,179"/>
-<area shape="poly" id="edge91_Node000006_Node000013" title=" " alt="" coords="441,284,450,277,467,256,473,234,480,210,498,188,527,173,529,178,502,192,485,213,479,235,472,259,454,281,444,288"/>
-<area shape="rect" id="Node000014" href="$classsen_1_1_object_ref.html" title="Object references may or may not hold an object instance. Their value is set by a provider based on s..." alt="" coords="529,203,684,228"/>
-<area shape="poly" id="edge93_Node000006_Node000014" title=" " alt="" coords="430,285,451,277,465,268,474,258,484,248,499,238,533,226,535,231,501,243,487,252,478,262,468,272,453,282,432,290"/>
-<area shape="rect" id="Node000020" href="$classsen_1_1kernel_1_1_source_info.html" title="Provides information about sources as strings." alt="" coords="5,533,176,559"/>
-<area shape="poly" id="edge94_Node000020_Node000019" title=" " alt="" coords="190,537,250,534,250,539,190,543"/>
-<area shape="poly" id="edge95_Node000020_Node000021" title=" " alt="" coords="179,558,264,573,263,579,178,564"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,45,127,70"/>
+<area shape="rect" id="Node000001" href="$structsen_1_1_is_contained.html" title=" " alt="" coords="175,5,332,45"/>
+<area shape="poly" id="edge72_Node000000_Node000001" title=" " alt="" coords="140,42,174,36,175,41,141,47"/>
+<area shape="rect" id="Node000003" href="$structsen_1_1_is_contained.html" title="Checks if T is on of the types in TypeList." alt="" coords="175,69,332,109"/>
+<area shape="poly" id="edge74_Node000000_Node000003" title=" " alt="" coords="141,67,175,73,174,79,140,73"/>
+<area shape="rect" id="Node000002" href="$structsen_1_1_is_variant_member_3_01_t_00_01std_1_1variant_3_01_member_types_8_8_8_01_4_01_4.html" title="Checks if T is on of the member types of the given VariantType." alt="" coords="380,5,655,45"/>
+<area shape="poly" id="edge73_Node000001_Node000002" title=" " alt="" coords="346,23,380,23,380,28,346,28"/>
 </map>

@@ -205,8 +205,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaf1edbd1327904c8cb1ba7867180ba4b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implementation detail for the kernel.  <br /></td></tr>
 <tr class="memitem:gac1bdcfded30e1ea7e064c37ee8d78d68" id="r_gac1bdcfded30e1ea7e064c37ee8d78d68"><td class="memItemLeft">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#gac1bdcfded30e1ea7e064c37ee8d78d68">sen::kernel::getRuntimeDifferences</a> (const <a class="el" href="classsen_1_1_type.html">Type</a> *localType, const <a class="el" href="classsen_1_1_type.html">Type</a> *remoteType)</td></tr>
 <tr class="memdesc:gac1bdcfded30e1ea7e064c37ee8d78d68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detects which differences cause.  <br /></td></tr>
-<tr class="memitem:ga06c1d815dd1c662923e9a6b3b0d0992f" id="r_ga06c1d815dd1c662923e9a6b3b0d0992f"><td class="memItemLeft">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ga06c1d815dd1c662923e9a6b3b0d0992f">sen::kernel::runtimeCompatible</a> (const <a class="el" href="classsen_1_1_type.html">Type</a> *localType, const <a class="el" href="classsen_1_1_type.html">Type</a> *remoteType)</td></tr>
-<tr class="memdesc:ga06c1d815dd1c662923e9a6b3b0d0992f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if two types are runtime-compatible and returns the error string in case they are not.  <br /></td></tr>
+<tr class="memitem:ga5efd447aba654b03606d7273c3cc26c1" id="r_ga5efd447aba654b03606d7273c3cc26c1"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ga5efd447aba654b03606d7273c3cc26c1">sen::kernel::acceptsUnderCompatibilityMode</a> (CompatibilityMode mode, bool typesAreEquivalent, bool anyConversionLosesData) noexcept</td></tr>
+<tr class="memdesc:ga5efd447aba654b03606d7273c3cc26c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a runtime-compatible remote type may still be used, under a compatibility mode. One that is not runtime-compatible is refused before this is asked.  <br /></td></tr>
+<tr class="memitem:gad2da18fb7424f055b8bf4b0ecc16041a" id="r_gad2da18fb7424f055b8bf4b0ecc16041a"><td class="memItemLeft">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#gad2da18fb7424f055b8bf4b0ecc16041a">sen::kernel::runtimeCompatible</a> (const <a class="el" href="classsen_1_1_type.html">Type</a> *localType, const <a class="el" href="classsen_1_1_type.html">Type</a> *remoteType, std::vector&lt; std::string &gt; *lossy=nullptr)</td></tr>
+<tr class="memdesc:gad2da18fb7424f055b8bf4b0ecc16041a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if two types are runtime-compatible and returns the error string in case they are not. When lossy is given, it also collects the conversions that are allowed but can drop a value.  <br /></td></tr>
 <tr class="memitem:gacb17001785ec80fc9560c8c30677b317" id="r_gacb17001785ec80fc9560c8c30677b317"><td class="memItemLeft">CustomTypeSpec&#160;</td><td class="memItemRight"><a class="el" href="#gacb17001785ec80fc9560c8c30677b317">sen::kernel::toCurrentVersion</a> (const CustomTypeSpecV4 &amp;v4)</td></tr>
 <tr class="memdesc:gacb17001785ec80fc9560c8c30677b317"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translates a CustomTypeSpec from V4 to the current version (V6) of the kernel protocol.  <br /></td></tr>
 <tr class="memitem:ga7095df72155173731ee123ef7e979eb6" id="r_ga7095df72155173731ee123ef7e979eb6"><td class="memItemLeft">CustomTypeSpec&#160;</td><td class="memItemRight"><a class="el" href="#ga7095df72155173731ee123ef7e979eb6">sen::kernel::toCurrentVersion</a> (const CustomTypeSpecV5 &amp;v5)</td></tr>
@@ -677,8 +679,52 @@ tcpReceivedBytes = 0</td>
 
 </div>
 </div>
-<a id="ga06c1d815dd1c662923e9a6b3b0d0992f" name="ga06c1d815dd1c662923e9a6b3b0d0992f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga06c1d815dd1c662923e9a6b3b0d0992f">&#9670;&#160;</a></span>runtimeCompatible()</h2>
+<a id="ga5efd447aba654b03606d7273c3cc26c1" name="ga5efd447aba654b03606d7273c3cc26c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5efd447aba654b03606d7273c3cc26c1">&#9670;&#160;</a></span>acceptsUnderCompatibilityMode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool sen::kernel::acceptsUnderCompatibilityMode </td>
+          <td>(</td>
+          <td class="paramtype">CompatibilityMode</td>          <td class="paramname"><span class="paramname"><em>mode</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>typesAreEquivalent</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>anyConversionLosesData</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether a runtime-compatible remote type may still be used, under a compatibility mode. One that is not runtime-compatible is refused before this is asked. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>what the kernel was configured to do. </td></tr>
+    <tr><td class="paramname">typesAreEquivalent</td><td>the two definitions are identical, so nothing is converted. </td></tr>
+    <tr><td class="paramname">anyConversionLosesData</td><td>at least one conversion between them can drop a value. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gad2da18fb7424f055b8bf4b0ecc16041a" name="gad2da18fb7424f055b8bf4b0ecc16041a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad2da18fb7424f055b8bf4b0ecc16041a">&#9670;&#160;</a></span>runtimeCompatible()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -694,7 +740,12 @@ tcpReceivedBytes = 0</td>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classsen_1_1_type.html">Type</a> *</td>          <td class="paramname"><span class="paramname"><em>remoteType</em></span>&#160;)</td>
+          <td class="paramtype">const <a class="el" href="classsen_1_1_type.html">Type</a> *</td>          <td class="paramname"><span class="paramname"><em>remoteType</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::string &gt; *</td>          <td class="paramname"><span class="paramname"><em>lossy</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -704,7 +755,7 @@ tcpReceivedBytes = 0</td>
 </table>
 </div><div class="memdoc">
 
-<p>Checks if two types are runtime-compatible and returns the error string in case they are not. </p>
+<p>Checks if two types are runtime-compatible and returns the error string in case they are not. When lossy is given, it also collects the conversions that are allowed but can drop a value. </p>
 
 </div>
 </div>
