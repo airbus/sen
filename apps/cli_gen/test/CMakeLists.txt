@@ -378,44 +378,22 @@ add_sen_cli_gen_smoke_test(
   WORKING_DIRECTORY ${working_dir}
 )
 
-# JSON-Schema render: one smoke renders the fixture; each follow-up cats the output and
-# asserts a sentinel pattern, together exercising every wire-relevant `CustomTypeSpec` field.
-
-add_sen_cli_gen_smoke_test(
-  json_schema_render
-  COMMAND ./cli_gen json package stl ${hla_fom_gen_test_sources}/json_schema_lossless/fixture.stl -o
-          lossless.json
+# JSON-Schema structure: one test renders the fixture and asserts the result by JSON path.
+#
+# This replaced thirteen PASS_REGULAR_EXPRESSION checks over `cat lossless.json`. They matched
+# substrings in document order, so a file holding only `{"nonsense": "x-enum ... idle ... : 0"}`
+# satisfied the enum check and three lines of prose satisfied the inheritance one. They also read
+# an artefact a separate render test wrote into the shared binary directory, coupled by DEPENDS,
+# which sequences tests but does not gate them. The checker renders and verifies in one process.
+add_sen_integration_test(
+  json_schema_structure
+  COMMAND
+  ${Python3_EXECUTABLE}
+  ${hla_fom_gen_test_sources}/json_schema_lossless/check_json_schema.py
   WORKING_DIRECTORY ${working_dir}
+  REQ_DEPS cli_gen
 )
-
-function(_sen_add_json_schema_check name pattern)
-  add_sen_cli_gen_smoke_test(
-    ${name}
-    COMMAND ${CMAKE_COMMAND} -E cat lossless.json
-    WORKING_DIRECTORY ${working_dir}
-  )
-  set_tests_properties(
-    ${name}
-    PROPERTIES DEPENDS
-               json_schema_render
-               PASS_REGULAR_EXPRESSION
-               "${pattern}"
-  )
-endfunction()
-
-_sen_add_json_schema_check(json_schema_struct_inheritance "allOf.*schema_lossless\\.Base")
-_sen_add_json_schema_check(json_schema_class_methods "x-methods.*\"name\": \"ping\"")
-_sen_add_json_schema_check(json_schema_class_events "x-events.*\"name\": \"onTick\"")
-_sen_add_json_schema_check(json_schema_duration_integer "\"delay\".*\"type\": \"integer\"")
-_sen_add_json_schema_check(json_schema_timestamp_date_time "\"when\".*format.*date-time")
-_sen_add_json_schema_check(json_schema_static_in_required "required.*staticVersion")
-_sen_add_json_schema_check(json_schema_enum_int_values "x-enum.*idle.*: 0")
-_sen_add_json_schema_check(json_schema_quantity_unit "x-unit.*: \"m\"")
-_sen_add_json_schema_check(json_schema_absolute_id "\\$id.*schema_lossless\\.Status")
-_sen_add_json_schema_check(json_schema_class_is_interface "x-is-interface.*: false")
-_sen_add_json_schema_check(json_schema_property_metadata "counter.*x-category.*dynamicRW")
-_sen_add_json_schema_check(json_schema_method_property_relation "ping.*propertyRelation.*kind.*none")
-_sen_add_json_schema_check(json_schema_event_transport_mode "onTick.*transportMode")
+set_tests_properties(json_schema_structure PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
 
 # TypeScript generator smoke tests.
 add_sen_cli_gen_smoke_test(
@@ -434,29 +412,19 @@ add_sen_cli_gen_smoke_test(
 )
 set_tests_properties(ts_gen_smoke_missing_outdir PROPERTIES WILL_FAIL TRUE)
 
-set(_ts_smoke_out "ts_smoke_happy/fixture.ts")
-
-function(_sen_add_ts_template_check name pattern)
-  add_sen_cli_gen_smoke_test(
-    ${name}
-    COMMAND ${CMAKE_COMMAND} -E cat ${_ts_smoke_out}
-    WORKING_DIRECTORY ${working_dir}
-  )
-  set_tests_properties(
-    ${name}
-    PROPERTIES DEPENDS
-               ts_gen_smoke_happy
-               PASS_REGULAR_EXPRESSION
-               "${pattern}"
-  )
-endfunction()
-
-_sen_add_ts_template_check(ts_gen_smoke_template_enum "export type Direction =")
-_sen_add_ts_template_check(ts_gen_smoke_template_struct "export interface Point ")
-_sen_add_ts_template_check(ts_gen_smoke_template_struct_inherit "Point3D extends Point")
-_sen_add_ts_template_check(ts_gen_smoke_template_sequence "Path = Point")
-_sen_add_ts_template_check(ts_gen_smoke_template_optional "MaybeDirection = Direction")
-_sen_add_ts_template_check(ts_gen_smoke_template_alias "ObjectId = number")
-_sen_add_ts_template_check(ts_gen_smoke_template_quantity "Altitude = number")
-_sen_add_ts_template_check(ts_gen_smoke_template_variant_tag "test\\.ts\\.Point\"")
-_sen_add_ts_template_check(ts_gen_smoke_template_class_event "export interface ReadingNotification")
+# Structural check of the emitted TypeScript, replacing nine PASS_REGULAR_EXPRESSION checks that
+# asked only whether a sentinel appeared somewhere in the file. All nine passed against a file
+# reading `export type Direction = nonsense`. This compares whole declarations.
+#
+# It is the only test of the alias, enum and quantity templates: the client's tsc --noEmit covers
+# the generated types under strict, but that is a different invocation over jsonrpc.stl, which
+# declares none of those three.
+add_sen_integration_test(
+  ts_gen_structure
+  COMMAND
+  ${Python3_EXECUTABLE}
+  ${hla_fom_gen_test_sources}/typescript/check_typescript.py
+  WORKING_DIRECTORY ${working_dir}
+  REQ_DEPS cli_gen
+)
+set_tests_properties(ts_gen_structure PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
