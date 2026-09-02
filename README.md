@@ -18,9 +18,9 @@ and rich communication.</h4>
 
 <div align="center">
 
-<a href="">![License](https://img.shields.io/badge/License-Apache%202.0-blue)</a>
-<a href="">![C++](https://img.shields.io/badge/C%2B%2B-17-blue?logo=c%2B%2B)</a>
-<a href="">[![Documentation](https://github.com/airbus/sen/actions/workflows/build_docs.yaml/badge.svg)](https://github.com/airbus/sen/actions/workflows/build_docs.yaml)</a>
+[![Documentation](https://github.com/airbus/sen/actions/workflows/build_docs.yaml/badge.svg?branch=main)](https://github.com/airbus/sen/actions/workflows/build_docs.yaml?query=branch%3Amain)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE.txt)
+[![C++](https://img.shields.io/badge/C%2B%2B-17-blue?logo=c%2B%2B)](https://en.cppreference.com/w/cpp/17)
 
 </div>
 
