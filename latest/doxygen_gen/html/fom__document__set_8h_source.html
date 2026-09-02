@@ -325,12 +325,13 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('fom__document_
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  std::unique_ptr&lt;lang::TypeSet&gt; rootTypeSet_;</div>
 <div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>  std::optional&lt;TypeHandle&lt;ClassType&gt;&gt; rootClass_;</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  TypeSettings settings_;</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>};</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  std::vector&lt;std::pair&lt;std::string, const ParsedDoc*&gt;&gt; typesBeingResolved_;  </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>};</div>
 </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>}  <span class="comment">// namespace sen::lang</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_LIBS_CORE_SRC_LANG_FOM_DOCUMENT_SET_H</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>}  <span class="comment">// namespace sen::lang</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_LIBS_CORE_SRC_LANG_FOM_DOCUMENT_SET_H</span></div>
 <div class="ttc" id="aclass__type_8h_html"><div class="ttname"><a href="class__type_8h.html">class_type.h</a></div></div>
 <div class="ttc" id="aclasssen_1_1_custom_type_registry_html"><div class="ttname"><a href="classsen_1_1_custom_type_registry.html">sen::CustomTypeRegistry</a></div><div class="ttdoc">A registry of custom types.</div><div class="ttdef"><b>Definition</b> type_registry.h:36</div></div>
 <div class="ttc" id="aclasssen_1_1lang_1_1_fom_document_set_html_a010b5be57783f5836784a92569684484"><div class="ttname"><a href="classsen_1_1lang_1_1_fom_document_set.html#a010b5be57783f5836784a92569684484">sen::lang::FomDocumentSet::getRootTypeSet</a></div><div class="ttdeci">std::unique_ptr&lt; lang::TypeSet &gt; getRootTypeSet() &amp;&amp;noexcept</div><div class="ttdef"><b>Definition</b> fom_document_set.h:64</div></div>
