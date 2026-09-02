@@ -7,12 +7,12 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/users_guide/gen_library.html" rel="canonical"/>
-<link href="db_library.html" rel="prev"/>
-<link href="kernel_library.html" rel="next"/>
+<link href="https://github.com/airbus/sen/latest/components/jsonrpc.html" rel="canonical"/>
+<link href="rest.html" rel="prev"/>
+<link href="tracy.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.4" name="generator"/>
-<title>sen::gen - Sen</title>
+<title>JSON-RPC - Sen</title>
 <link href="../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
@@ -26,7 +26,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#sengen">
+<a class="md-skip" href="#the-json-rpc-component">
           Skip to content
         </a>
 </div>
@@ -52,7 +52,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              sen::gen
+              JSON-RPC
             
           </span>
 </div>
@@ -133,8 +133,8 @@
 
         </a>
 </li>
-<li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="index.html">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../users_guide/index.html">
           
   
   
@@ -142,8 +142,8 @@
 
         </a>
 </li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../components/index.html">
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="index.html">
           
   
   
@@ -277,9 +277,9 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -290,7 +290,7 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_3">
 <span class="md-nav__icon md-icon"></span>
             
@@ -301,7 +301,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="index.html">
+<a class="md-nav__link" href="../users_guide/index.html">
 <span class="md-ellipsis">
     
   
@@ -313,7 +313,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="main_concepts.html">
+<a class="md-nav__link" href="../users_guide/main_concepts.html">
 <span class="md-ellipsis">
     
   
@@ -325,7 +325,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="mental_model.html">
+<a class="md-nav__link" href="../users_guide/mental_model.html">
 <span class="md-ellipsis">
     
   
@@ -337,7 +337,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="workflow.html">
+<a class="md-nav__link" href="../users_guide/workflow.html">
 <span class="md-ellipsis">
     
   
@@ -349,7 +349,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="execution_model.html">
+<a class="md-nav__link" href="../users_guide/execution_model.html">
 <span class="md-ellipsis">
     
   
@@ -384,7 +384,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="stl.html">
+<a class="md-nav__link" href="../users_guide/stl.html">
 <span class="md-ellipsis">
     
   
@@ -396,7 +396,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="stl_grammar.html">
+<a class="md-nav__link" href="../users_guide/stl_grammar.html">
 <span class="md-ellipsis">
     
   
@@ -411,7 +411,7 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="sql.html">
+<a class="md-nav__link" href="../users_guide/sql.html">
 <span class="md-ellipsis">
     
   
@@ -423,7 +423,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="hla.html">
+<a class="md-nav__link" href="../users_guide/hla.html">
 <span class="md-ellipsis">
     
   
@@ -435,7 +435,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="command_line.html">
+<a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
@@ -447,7 +447,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="cmake.html">
+<a class="md-nav__link" href="../users_guide/cmake.html">
 <span class="md-ellipsis">
     
   
@@ -459,7 +459,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="compatibility_conversions.html">
+<a class="md-nav__link" href="../users_guide/compatibility_conversions.html">
 <span class="md-ellipsis">
     
   
@@ -470,8 +470,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
 <label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
 <span class="md-ellipsis">
     
@@ -483,7 +483,7 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
+<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
 <label class="md-nav__title" for="__nav_3_12">
 <span class="md-nav__icon md-icon"></span>
             
@@ -494,7 +494,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="core_library.html">
+<a class="md-nav__link" href="../users_guide/core_library.html">
 <span class="md-ellipsis">
     
   
@@ -506,7 +506,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="db_library.html">
+<a class="md-nav__link" href="../users_guide/db_library.html">
 <span class="md-ellipsis">
     
   
@@ -517,20 +517,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-<span class="md-ellipsis">
-    
-  
-    sen::gen
-  
-
-    
-  </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="gen_library.html">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/gen_library.html">
 <span class="md-ellipsis">
     
   
@@ -540,35 +528,9 @@
     
   </span>
 </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#what-it-contains">
-<span class="md-ellipsis">
-      
-        What it contains
-      
-    </span>
-</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#how-to-use-it">
-<span class="md-ellipsis">
-      
-        How to use it
-      
-    </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="kernel_library.html">
+<a class="md-nav__link" href="../users_guide/kernel_library.html">
 <span class="md-ellipsis">
     
   
@@ -580,7 +542,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="util_library.html">
+<a class="md-nav__link" href="../users_guide/util_library.html">
 <span class="md-ellipsis">
     
   
@@ -595,7 +557,7 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="faq.html">
+<a class="md-nav__link" href="../users_guide/faq.html">
 <span class="md-ellipsis">
     
   
@@ -609,9 +571,9 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
-<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
 <span class="md-ellipsis">
     
   
@@ -622,7 +584,7 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_4">
 <span class="md-nav__icon md-icon"></span>
             
@@ -633,7 +595,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/index.html">
+<a class="md-nav__link" href="index.html">
 <span class="md-ellipsis">
     
   
@@ -645,7 +607,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/explorer.html">
+<a class="md-nav__link" href="explorer.html">
 <span class="md-ellipsis">
     
   
@@ -657,7 +619,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/shell.html">
+<a class="md-nav__link" href="shell.html">
 <span class="md-ellipsis">
     
   
@@ -669,7 +631,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/influx.html">
+<a class="md-nav__link" href="influx.html">
 <span class="md-ellipsis">
     
   
@@ -681,7 +643,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/py.html">
+<a class="md-nav__link" href="py.html">
 <span class="md-ellipsis">
     
   
@@ -693,7 +655,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/recording.html">
+<a class="md-nav__link" href="recording.html">
 <span class="md-ellipsis">
     
   
@@ -705,7 +667,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/replaying.html">
+<a class="md-nav__link" href="replaying.html">
 <span class="md-ellipsis">
     
   
@@ -717,7 +679,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/ether.html">
+<a class="md-nav__link" href="ether.html">
 <span class="md-ellipsis">
     
   
@@ -729,7 +691,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/logmaster.html">
+<a class="md-nav__link" href="logmaster.html">
 <span class="md-ellipsis">
     
   
@@ -741,7 +703,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/rest.html">
+<a class="md-nav__link" href="rest.html">
 <span class="md-ellipsis">
     
   
@@ -752,8 +714,20 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../components/jsonrpc.html">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="jsonrpc.html">
 <span class="md-ellipsis">
     
   
@@ -763,9 +737,98 @@
     
   </span>
 </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-json-rpc-and-websockets-are">
+<span class="md-ellipsis">
+      
+        What JSON-RPC and WebSockets are
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../components/tracy.html">
+<a class="md-nav__link" href="#when-to-reach-for-jsonrpc">
+<span class="md-ellipsis">
+      
+        When to reach for jsonrpc
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-the-component">
+<span class="md-ellipsis">
+      
+        Running the component
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wire-surface">
+<span class="md-ellipsis">
+      
+        Wire surface
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#static-file-server">
+<span class="md-ellipsis">
+      
+        Static file server
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#backpressure">
+<span class="md-ellipsis">
+      
+        Backpressure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#clients">
+<span class="md-ellipsis">
+      
+        Clients
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#authentication">
+<span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#component-architecture">
+<span class="md-ellipsis">
+      
+        Component architecture
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="tracy.html">
 <span class="md-ellipsis">
     
   
@@ -1334,78 +1397,222 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="sengen">sen::gen<a class="headerlink" href="#sengen" title="Permanent link">¶</a></h1>
-<p>This library bundles the code generators used to translate Sen type sets (<code>.stl</code>
-files, parsed into <code>sen::lang::TypeSet</code>) into source artefacts in various target
-languages and documentation formats.</p>
-<p>The library is CLI-free: its public headers depend only on Sen types and the
-standard library, which lets it be linked from any Sen binary that needs to
-render schemas or sources at runtime (for example, the JSON-RPC wire ships
-JSON-Schema descriptions alongside custom type metadata).</p>
-<p>The <a href="command_line.html#code-generator"><code>sen generate</code></a> command-line tool is the
-canonical front-end; it is a thin shell around the generators in this library.</p>
-<p>Check out the <a href="../doxygen_gen/html/group__gen.html">API Reference</a> for the
-complete list of generators and their options.</p>
-<h2 id="what-it-contains">What it contains<a class="headerlink" href="#what-it-contains" title="Permanent link">¶</a></h2>
-<p>Each generator is exposed as a small PImpl class that owns its inja template
-environment. Instances are reusable across calls; prefer constructing one per
-process and feeding it successive type sets.</p>
+<div><h1 id="the-json-rpc-component">The JSON-RPC Component<a class="headerlink" href="#the-json-rpc-component" title="Permanent link">¶</a></h1>
+<p>The <code>jsonrpc</code> component exposes a running Sen process to outside programs without forcing
+them to link against the Sen kernel. A browser UI, a Python script, a Node.js service, or any
+other process can connect, inspect the live object graph, subscribe to property changes and
+events, and invoke methods.</p>
+<h2 id="what-json-rpc-and-websockets-are">What JSON-RPC and WebSockets are<a class="headerlink" href="#what-json-rpc-and-websockets-are" title="Permanent link">¶</a></h2>
+<p>If those terms aren't already familiar:</p>
+<ul>
+<li><strong>JSON-RPC 2.0</strong> is a small request/response message format. A request is a JSON object
+  saying <em>"call this method with these arguments, here's an id"</em>; the response is another
+  JSON object pairing that id with a result (or an error). It is just a convention for what
+  the JSON looks like -- it does not specify how the bytes travel between client and server.</li>
+<li><strong>WebSocket</strong> is a connection-oriented bidirectional message channel kept open between a
+  browser (or any program with a WebSocket library) and a server. Once the connection is
+  established, either side can push messages without polling. Each side reads framed
+  messages out of the socket as they arrive.</li>
+</ul>
+<p><code>jsonrpc</code> puts those two together: a long-lived WebSocket carries JSON-RPC request/response
+pairs in both directions, plus server-initiated <em>notifications</em> the kernel pushes whenever
+matched objects, properties, or events change.</p>
+<h2 id="when-to-reach-for-jsonrpc">When to reach for jsonrpc<a class="headerlink" href="#when-to-reach-for-jsonrpc" title="Permanent link">¶</a></h2>
+<p>It is one of the ways to talk to a running Sen process from the outside:</p>
 <table>
 <thead>
 <tr>
-<th>Header</th>
-<th>Class</th>
-<th>Output</th>
+<th>Component</th>
+<th>Transport</th>
+<th>Best for</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>sen/gen/cpp.h</code></td>
-<td><code>sen::gen::CppGenerator</code></td>
-<td>C++ headers and sources</td>
+<td><code>shell</code></td>
+<td>Local TCP, text protocol</td>
+<td>Quick interactive poking from a terminal</td>
 </tr>
 <tr>
-<td><code>sen/gen/python.h</code></td>
-<td><code>sen::gen::PythonGenerator</code></td>
-<td>Python dataclasses</td>
-</tr>
-<tr>
-<td><code>sen/gen/typescript.h</code></td>
-<td><code>sen::gen::TypeScriptGenerator</code></td>
-<td>TypeScript modules + barrel</td>
-</tr>
-<tr>
-<td><code>sen/gen/json.h</code></td>
-<td><code>sen::gen::JsonGenerator</code></td>
-<td>JSON-Schema documents</td>
-</tr>
-<tr>
-<td><code>sen/gen/plantuml.h</code></td>
-<td><code>sen::gen::PlantUMLGenerator</code></td>
-<td>PlantUML class diagrams</td>
-</tr>
-<tr>
-<td><code>sen/gen/mkdocs.h</code></td>
-<td><code>sen::gen::MkDocsGenerator</code></td>
-<td>MkDocs-flavoured markdown</td>
+<td><code>jsonrpc</code></td>
+<td>WebSocket + JSON-RPC 2.0</td>
+<td>Long-lived programmatic sessions, streaming notifications</td>
 </tr>
 </tbody>
 </table>
-<h2 id="how-to-use-it">How to use it<a class="headerlink" href="#how-to-use-it" title="Permanent link">¶</a></h2>
-<p>Parse the input STL files into a <code>sen::lang::TypeSetContext</code> (see
-<code>sen::core</code>), construct the relevant generator, and call its <code>generate*</code>
-method. Each method returns the rendered file contents as a <code>std::string</code> (or,
-for the C++ generator, a <code>std::map&lt;path, string&gt;</code> covering the header / source
-pair plus any transitively-rendered imports).</p>
-<p>For a fully worked example, see the <code>apps/cli_gen</code> sources: each per-topic
-subcommand under <code>apps/cli_gen/src/*_cli.cpp</code> instantiates one generator and
-writes its output to disk.</p></div>
+<p>The wire grammar is defined by the component's STL
+(<a href="https://github.com/airbus/sen/blob/main/components/jsonrpc/stl/jsonrpc.stl"><code>components/jsonrpc/stl/jsonrpc.stl</code></a>).
+Both the C++ dispatcher and the bundled TypeScript client are generated from it, so they
+cannot drift.</p>
+<h2 id="running-the-component">Running the component<a class="headerlink" href="#running-the-component" title="Permanent link">¶</a></h2>
+<div class="language-yaml highlight"><span class="filename">Example jsonrpc.yaml</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jsonrpc</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</span></code></pre></div>
+<p><code>address</code> and <code>port</code> are the only required fields. The full set of configuration knobs:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>address</code></td>
+<td>--</td>
+<td>IP / hostname to bind. Use <code>0.0.0.0</code> to listen on all interfaces.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>--</td>
+<td>TCP port.</td>
+</tr>
+<tr>
+<td><code>updateFreqHz</code></td>
+<td><code>60</code></td>
+<td>Dispatcher tick rate. Higher = faster notification turnaround, more CPU.</td>
+</tr>
+<tr>
+<td><code>connectionLimits.idleTimeoutSeconds</code></td>
+<td><code>120</code></td>
+<td>uWS closes a connection idle for this long.</td>
+</tr>
+<tr>
+<td><code>connectionLimits.maxPayloadBytes</code></td>
+<td><code>16384</code></td>
+<td>Reject any inbound frame larger than this.</td>
+</tr>
+<tr>
+<td><code>connectionLimits.maxBackpressureBytes</code></td>
+<td><code>65536</code></td>
+<td>Hard outbound buffer ceiling per connection -- crossing it drops the connection.</td>
+</tr>
+<tr>
+<td><code>connectionLimits.highBackpressureBytes</code></td>
+<td><code>32768</code></td>
+<td>Soft threshold: above this, the server starts dropping unreliable notifications and emits <code>notificationsDropped</code> on recovery. See <a href="#backpressure">Backpressure</a> below.</td>
+</tr>
+<tr>
+<td><code>controlBusName</code></td>
+<td><code>"jsonrpc_control"</code></td>
+<td>Sen bus on <code>local.</code> where the static-file-server registry is exposed. See <a href="#static-file-server">Static file server</a> below.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>tls</code> field is reserved in the schema but not yet wired through the uWebSockets SSL
+backend. Setting it fails component start. Front the component with a TLS-terminating proxy
+(nginx, Caddy, etc.) when <code>wss://</code> is needed.</p>
+<h2 id="wire-surface">Wire surface<a class="headerlink" href="#wire-surface" title="Permanent link">¶</a></h2>
+<p>A typical session flows like this:</p>
+<ol>
+<li><strong>Connect</strong> -- the client opens the WebSocket; the server runs the configured
+   <code>Authenticator</code> on the upgrade.</li>
+<li><strong>Discover</strong> -- the client calls <code>listTopology</code> to see what sessions and buses exist, and
+   <code>getTypes</code> / <code>getType</code> to fetch class shapes.</li>
+<li><strong>Declare an interest</strong> -- <code>createInterest</code> opens a live query (a Sen Query Language
+   string) and returns the current match-set. From there the client owns a logical
+   <em>interest</em> it can read from, write to, and subscribe to. <strong>Ordering note:</strong> the
+   server fills the initial match-set by firing <code>interestUpdate.added</code> <em>before</em> the
+   <code>createInterest</code> response lands on the wire. Clients must be ready to receive
+   pushes for an interest whose response hasn't acked yet; the <code>@sen/client</code> library
+   handles this transparently. Hand-written clients should queue inbound notifications
+   keyed by <code>interestName</code> until the response is observed. A query may name a bus that
+   does not exist yet: the interest is accepted, starts empty, and resolves live once a
+   publisher joins that bus — which is what makes re-declaring interests right after a
+   server restart race-free. The flip side is that a typo'd bus name yields a
+   forever-empty interest rather than an error; use <code>listTopology</code> to check what exists.
+   A connection can hold at most 256 concurrent interests.</li>
+<li><strong>Read / write / invoke / subscribe</strong> -- per matched object: <code>getProperty</code>,
+   <code>setProperty</code>, <code>invoke</code>, <code>subscribeProperty</code>, <code>subscribeEvent</code>, etc.</li>
+<li><strong>Receive notifications</strong> -- as the kernel ticks, the server pushes <code>interestUpdate</code>,
+   <code>propertyChanged</code>, <code>eventTriggered</code> notifications matching the client's subscriptions.</li>
+<li><strong>Release</strong> -- <code>releaseInterest</code> tears down subscriptions associated with the interest;
+   closing the WebSocket tears down everything.</li>
+</ol>
+<p>Methods (request / response):</p>
+<ul>
+<li><code>ping</code> -- round-trip check.</li>
+<li><code>listTopology</code>, <code>subscribeTopology</code>, <code>unsubscribeTopology</code> -- discover sessions / buses.</li>
+<li><code>getTypes</code>, <code>getType</code> -- enumerate and fetch the kernel's registered custom types.</li>
+<li><code>createInterest</code>, <code>releaseInterest</code>, <code>listObjects</code> -- manage live queries.</li>
+<li><code>getProperty</code>, <code>setProperty</code> -- read / write a property value on a matched object.</li>
+<li><code>subscribeProperty</code>, <code>unsubscribeProperty</code>, <code>subscribeEvent</code>, <code>unsubscribeEvent</code>,
+  <code>subscribeAll</code>, <code>unsubscribeAll</code> -- manage per-(interest, object, member) subscriptions.</li>
+<li><code>invoke</code> -- call a method on a matched object.</li>
+<li><code>getObjectsBatchState</code> -- read every property of one or many matched objects in a single
+  round-trip.</li>
+</ul>
+<p>Server-pushed notifications:</p>
+<ul>
+<li><code>interestUpdate</code> -- objects matched by an interest came or went; carries the
+  <code>CustomTypeSpec</code>s the client hasn't seen yet.</li>
+<li><code>propertyChanged</code> -- one or more properties changed on a matched object.</li>
+<li><code>eventTriggered</code> -- an event fired on a matched object.</li>
+<li><code>notificationsDropped</code> -- emitted on recovery from a high-backpressure window,
+  with the cumulative count of unreliable notifications the dispatcher dropped during it.</li>
+<li><code>topologyChanged</code> -- session / bus topology shifted (for subscribers).</li>
+</ul>
+<p>The full envelope shapes are defined in <code>jsonrpc.stl</code>.</p>
+<h2 id="static-file-server">Static file server<a class="headerlink" href="#static-file-server" title="Permanent link">¶</a></h2>
+<p><code>jsonrpc</code> ships an optional HTTP static-file responder that runs on the same listening
+socket as the WebSocket. Other components register URL prefixes -&gt; on-disk roots at runtime
+over the control bus (default <code>local.jsonrpc_control</code>); the responder serves files under
+those prefixes with appropriate MIME types. The same origin hosts the WebSocket, so a
+browser-side client loaded from <code>http://host:8080/explorer/</code> can open a WebSocket to
+<code>ws://host:8080</code> without crossing origins.</p>
+<p>The canonical consumer is the <code>web_explorer</code> component: it subscribes to the control bus,
+finds the <code>StaticFileServer</code> object, and calls its <code>registerBundle(urlPrefix, diskRoot)</code>
+method to expose its compiled-and-bundled frontend at, e.g., <code>/explorer/</code>.</p>
+<p>The feature is dormant when nothing registers a bundle. There is no plain-HTTP API exposed
+by default.</p>
+<h2 id="backpressure">Backpressure<a class="headerlink" href="#backpressure" title="Permanent link">¶</a></h2>
+<p>Sen pushes notifications eagerly. A slow client that subscribes to thousands of high-rate
+properties can fall behind the server's send rate, causing the outbound buffer to grow
+without bound. Two thresholds defend against this:</p>
+<ul>
+<li><strong>Soft (<code>highBackpressureBytes</code>, default 32 KiB)</strong>: when the outbound buffer crosses
+  this size, the dispatcher marks the connection as "high" and silently drops further
+  <em>unreliable</em> notifications (sticky subscription updates, etc.). Reliable replies and
+  events keep flowing. When the buffer drains back below the threshold, the server emits
+  one <code>notificationsDropped {count: N}</code> notification carrying the cumulative drop count
+  for that window so the client can know it missed updates and refresh.</li>
+<li><strong>Hard (<code>maxBackpressureBytes</code>, default 64 KiB)</strong>: crossing this ceiling drops the
+  connection. The client must reconnect and re-establish state.</li>
+</ul>
+<p>Both thresholds are per-connection. A misbehaving client cannot affect well-behaved
+neighbors.</p>
+<h2 id="clients">Clients<a class="headerlink" href="#clients" title="Permanent link">¶</a></h2>
+<p>A TypeScript client (<code>@sen/client</code>) ships in-tree at
+<a href="https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript"><code>components/jsonrpc/clients/typescript/</code></a>.
+It wraps the wire surface in idiomatic browser / Node.js code and ships matching React
+bindings (<code>@sen/client/react</code>). See the dedicated TypeScript client documentation for
+install instructions, the <code>Client</code> / <code>InterestHandle</code> / <code>ObjectHandle</code> lifecycle, error
+handling, reconnection, and the React hook surface.</p>
+<p>The wire is JSON-RPC 2.0, so a client in any other language can be written against
+<code>jsonrpc.stl</code> directly. The Python ecosystem has <code>python-jsonrpc-client</code> and similar
+options; the Sen project does not maintain one in-tree.</p>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">¶</a></h2>
+<p>A pluggable seam in <code>auth.h</code> runs on every WebSocket upgrade. The default <code>Authenticator</code>
+implementation (<code>NoAuth</code>) accepts every upgrade.</p>
+<p>To require auth, subclass <code>Authenticator</code>, read the <code>Authorization</code> header (or any other
+upgrade-request fields), validate, and return an <code>Identity</code> (or reject with <code>401</code>). The
+returned <code>Identity</code> is forwarded into every handler call. Until a non-default authenticator
+is wired, gate <code>jsonrpc</code> at the network layer (firewall, reverse-proxy auth) when exposing
+it beyond <code>127.0.0.1</code>.</p>
+<h2 id="component-architecture">Component architecture<a class="headerlink" href="#component-architecture" title="Permanent link">¶</a></h2>
+<p>See <a href="https://github.com/airbus/sen/blob/main/components/jsonrpc/architecture.md"><code>components/jsonrpc/architecture.md</code></a>
+for the contributor-facing overview: threading model, layer diagram, per-module
+responsibilities, key invariants.</p></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 2, 2026 21:45:15 UTC">September 2, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 2, 2026 22:25:57 UTC">September 2, 2026</span>
 </span>
 </aside>
 </article>
@@ -1419,7 +1626,7 @@ writes its output to disk.</p></div>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: sen::db" class="md-footer__link md-footer__link--prev" href="db_library.html">
+<a aria-label="Previous: REST" class="md-footer__link md-footer__link--prev" href="rest.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1428,17 +1635,17 @@ writes its output to disk.</p></div>
                 Previous
               </span>
 <div class="md-ellipsis">
-                sen::db
+                REST
               </div>
 </div>
 </a>
-<a aria-label="Next: sen::kernel" class="md-footer__link md-footer__link--next" href="kernel_library.html">
+<a aria-label="Next: Tracy" class="md-footer__link md-footer__link--next" href="tracy.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                sen::kernel
+                Tracy
               </div>
 </div>
 <div class="md-footer__button md-icon">

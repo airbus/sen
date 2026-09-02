@@ -364,6 +364,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ga569ce99f551ca24057515ee353756526" id="r_ga569ce99f551ca24057515ee353756526"><td class="memItemLeft"><a class="el" href="classsen_1_1lang_1_1_type_set_context.html">TypeSetContext</a>&#160;</td><td class="memItemRight"><a class="el" href="#ga569ce99f551ca24057515ee353756526">sen::lang::parseFomDocuments</a> (const std::vector&lt; std::filesystem::path &gt; &amp;paths, const std::vector&lt; std::filesystem::path &gt; &amp;mappings, const <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> &amp;settings)</td></tr>
 <tr class="memitem:gae0d63c4e041503eb3ec72d8ff2512032" id="r_gae0d63c4e041503eb3ec72d8ff2512032"><td class="memItemLeft">const <a class="el" href="#structsen_1_1lang_1_1_type_set">TypeSet</a> *&#160;</td><td class="memItemRight"><a class="el" href="#gae0d63c4e041503eb3ec72d8ff2512032">sen::lang::readTypesFile</a> (const std::filesystem::path &amp;fileName, const std::vector&lt; std::filesystem::path &gt; &amp;includePaths, <a class="el" href="classsen_1_1lang_1_1_type_set_context.html">TypeSetContext</a> &amp;globalTypeSetContext, const <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> &amp;settings, std::string_view from={})</td></tr>
 <tr class="memdesc:gae0d63c4e041503eb3ec72d8ff2512032"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to use the resolver.  <br /></td></tr>
+<tr class="memitem:gabb35b56e81d8cbb3473b0fcbfddb2643" id="r_gabb35b56e81d8cbb3473b0fcbfddb2643"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#gabb35b56e81d8cbb3473b0fcbfddb2643">sen::lang::computePackagePrefix</a> (const std::vector&lt; std::string &gt; &amp;path)</td></tr>
+<tr class="memdesc:gabb35b56e81d8cbb3473b0fcbfddb2643"><td class="mdescLeft">&#160;</td><td class="mdescRight">Joins a package path (e.g. <span class="tt">["<a class="el" href="namespacesen.html">sen</a>", "components", "jsonrpc"]</span>) into the dotted form used in STL declarations and qualified type names (e.g. <span class="tt">sen.components.jsonrpc</span>).  <br /></td></tr>
 <tr class="memitem:ga0a44153d268ffa532e1547d714ddbc1c" id="r_ga0a44153d268ffa532e1547d714ddbc1c"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ga0a44153d268ffa532e1547d714ddbc1c">sen::lang::toString</a> (const <a class="el" href="classsen_1_1lang_1_1_stl_token.html">StlToken</a> &amp;token)</td></tr>
 <tr class="memitem:ga15822ba0c147f523f4b49a91d8d8e311" id="r_ga15822ba0c147f523f4b49a91d8d8e311"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ga15822ba0c147f523f4b49a91d8d8e311">sen::lang::toString</a> (<a class="el" href="#ga93b0800803a4979d176a9470893ab868">StlTokenType</a> type)</td></tr>
 <tr class="memitem:ga143a0c8db9c3a56c891299a6b9b40d3e" id="r_ga143a0c8db9c3a56c891299a6b9b40d3e"><td class="memItemLeft"><a class="el" href="#ga93b0800803a4979d176a9470893ab868">StlTokenType</a>&#160;</td><td class="memItemRight"><a class="el" href="#ga143a0c8db9c3a56c891299a6b9b40d3e">sen::lang::fromString</a> (const std::string &amp;stlTokenType)</td></tr>
@@ -2149,6 +2151,33 @@ condition</td>
 </div><div class="memdoc">
 
 <p>Helper function to use the resolver. </p>
+
+</div>
+</div>
+<a id="gabb35b56e81d8cbb3473b0fcbfddb2643" name="gabb35b56e81d8cbb3473b0fcbfddb2643"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabb35b56e81d8cbb3473b0fcbfddb2643">&#9670;&#160;</a></span>computePackagePrefix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::lang::computePackagePrefix </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>path</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Joins a package path (e.g. <span class="tt">["<a class="el" href="namespacesen.html">sen</a>", "components", "jsonrpc"]</span>) into the dotted form used in STL declarations and qualified type names (e.g. <span class="tt">sen.components.jsonrpc</span>). </p>
 
 </div>
 </div>

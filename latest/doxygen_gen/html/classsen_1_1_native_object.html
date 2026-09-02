@@ -762,7 +762,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Reflection-based interface for reacting to events. </p>
-<dl class="section note"><dt>Note</dt><dd>Only one callback per event is stored. This mechanism is meant to be used only when the natively generated functions are not available or when performance or type safety are of no particular concern. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Multiple callbacks can be registered for the same event; each returns its own <a class="el" href="classsen_1_1_connection_guard.html" title="Unregisters a callback on destruction, unless keep() is called.">ConnectionGuard</a> and they all fire in registration order on every emission. This mechanism is meant to be used only when the natively generated functions are not available or when performance or type safety are of no particular concern. </dd></dl>
 
 <p>Implements <a class="el" href="classsen_1_1_object.html#a88df2379f00dc1eac80108fd6f45b73c">sen::Object</a>.</p>
 
@@ -834,7 +834,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Reflection-based interface for detecting property changes. </p>
-<dl class="section note"><dt>Note</dt><dd>Only one callback per property is stored. This mechanism is meant to be used only when the natively generated functions are not available or when performance or type safety are of no particular concern. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Multiple callbacks can be registered for the same property; each returns its own <a class="el" href="classsen_1_1_connection_guard.html" title="Unregisters a callback on destruction, unless keep() is called.">ConnectionGuard</a> and they all fire in registration order on every change. This mechanism is meant to be used only when the natively generated functions are not available or when performance or type safety are of no particular concern. </dd></dl>
 
 <p>Implements <a class="el" href="classsen_1_1_object.html#a43da34d4674849b07ff32a7a2c2c3cd6">sen::Object</a>.</p>
 

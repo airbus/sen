@@ -160,6 +160,7 @@ var namespacesen_1_1lang =
     ] ],
     [ "parseFomDocuments", "group__lang.html#ga569ce99f551ca24057515ee353756526", null ],
     [ "readTypesFile", "group__lang.html#gae0d63c4e041503eb3ec72d8ff2512032", null ],
+    [ "computePackagePrefix", "group__lang.html#gabb35b56e81d8cbb3473b0fcbfddb2643", null ],
     [ "toString", "group__lang.html#ga0a44153d268ffa532e1547d714ddbc1c", null ],
     [ "toString", "group__lang.html#ga15822ba0c147f523f4b49a91d8d8e311", null ],
     [ "fromString", "group__lang.html#ga143a0c8db9c3a56c891299a6b9b40d3e", null ],

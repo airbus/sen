@@ -1,5 +1,6 @@
 var NAVTREEINDEX13 =
 {
+"group__lang.html#structsen_1_1lang_1_1_stl_between_expr":[0,0,3,9],
 "group__lang.html#structsen_1_1lang_1_1_stl_binary_expr":[0,0,3,4],
 "group__lang.html#structsen_1_1lang_1_1_stl_class_statement":[0,0,3,40],
 "group__lang.html#structsen_1_1lang_1_1_stl_enum_statement":[0,0,3,27],
@@ -248,6 +249,5 @@ var NAVTREEINDEX13 =
 "group__util.html#gad0925f7c745da2cc7f49ec2d044e3aea":[0,0,0,5,55],
 "group__util.html#gad28dca3a9feaf47152639e0735bc2b23":[0,0,0,5,63],
 "group__util.html#gad45184fef43e040b7a1f56b9d6e7924d":[0,0,0,5,77],
-"group__util.html#gadc85767dc87522e612bd86575955f23a":[0,0,0,5,46],
-"group__util.html#gadc8bb630fc11af6f5c38c8b0c5ca6b06":[0,0,0,5,41]
+"group__util.html#gadc85767dc87522e612bd86575955f23a":[0,0,0,5,46]
 };
