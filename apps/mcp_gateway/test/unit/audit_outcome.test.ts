@@ -127,3 +127,41 @@ describe("event tools are audited", () => {
     });
   }
 });
+
+// Wiring, not the helper: redact_url.test.ts proves the function redacts, this proves the
+// connectToKernel handler actually calls it. Dropping the call at the call site leaves the
+// helper's own tests green.
+describe("connectToKernel does not audit the URL verbatim", () => {
+  function connectHarness(): { tool: Tool; registry: KernelRegistry; entries: AuditEntry[] } {
+    const entries: AuditEntry[] = [];
+    const ctx: GatewayContext = {
+      audit: (entry) => entries.push(entry),
+      readonly: false,
+      shutdownSignal: new AbortController().signal,
+    };
+    const registry = { connect: async () => undefined } as unknown as KernelRegistry;
+    const tool = makeKernelTools(ctx).find((t) => t.name === "connectToKernel")!;
+    return { tool, registry, entries };
+  }
+
+  it("strips userinfo before the entry reaches the sink", async () => {
+    const { tool, registry, entries } = connectHarness();
+    await tool.handler(registry, { name: "k1", url: `ws://operator:${SECRET}@host:8080` });
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ tool: "connectToKernel", name: "k1", outcome: "ok" });
+    expect(entries[0]!["url"]).toBe("ws://host:8080 (redacted)");
+    expect(JSON.stringify(entries[0])).not.toContain(SECRET);
+  });
+
+  it("strips a query-string credential", async () => {
+    const { tool, registry, entries } = connectHarness();
+    await tool.handler(registry, { name: "k1", url: `ws://host:8080?token=${SECRET}` });
+    expect(JSON.stringify(entries[0])).not.toContain(SECRET);
+  });
+
+  it("leaves an ordinary URL readable, so the log stays useful", async () => {
+    const { tool, registry, entries } = connectHarness();
+    await tool.handler(registry, { name: "k1", url: "ws://127.0.0.1:8080" });
+    expect(entries[0]!["url"]).toBe("ws://127.0.0.1:8080");
+  });
+});

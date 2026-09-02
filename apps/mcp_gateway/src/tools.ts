@@ -15,6 +15,7 @@ import { GatewayInputError, GatewayStateError } from "./errors.js";
 import { RecordingRunnerInputTooLargeError, type RecordingRunner } from "./recording_runner.js";
 import { EVENT_BUFFER_BYTE_CAP, EVENT_BUFFER_CAP, INTEREST_CAP_PER_KERNEL, type Kernel } from "./kernel.js";
 import type { KernelRegistry } from "./kernel_registry.js";
+import { redactUrlForAudit } from "./util/redact_url.js";
 
 export interface GatewayContext {
   audit: AuditSink;
@@ -181,7 +182,7 @@ export function makeKernelTools(ctx: GatewayContext): Tool[] {
         typeof rawTimeout === "number" && Number.isFinite(rawTimeout) && rawTimeout > 0
           ? Math.min(rawTimeout, 60_000)
           : 5_000;
-      await audited(ctx, { tool: "connectToKernel", name, url }, () =>
+      await audited(ctx, { tool: "connectToKernel", name, url: redactUrlForAudit(url) }, () =>
         registry.connect(name, url, openTimeoutMs),
       );
       return textOk({ connected: name });
@@ -308,6 +309,10 @@ export function makeKernelTools(ctx: GatewayContext): Tool[] {
           signal: link.signal,
         };
         if (withSchemas) declareArgs.withSchemas = true;
+        // `query` is logged in full on purpose, unlike the kernel URL above. It is the interest
+        // expression -- what the model asked to watch -- which is the question this log exists to
+        // answer. Reducing it would leave entries that record that something was watched without
+        // recording what, and it carries no credential: it names objects and properties.
         const handle = await audited(ctx, { tool: "declareInterest", kernel: link.name, name, query }, () =>
           client.declareInterest(declareArgs),
         );
