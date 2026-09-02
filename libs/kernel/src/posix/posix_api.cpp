@@ -72,6 +72,16 @@ int NativePosixAPI::pthread_attr_setschedparam(pthread_attr_t* attr, const sched
   return ::pthread_attr_setschedparam(attr, param);
 }
 
+int NativePosixAPI::pthread_attr_setinheritsched(pthread_attr_t* attr, int inherit) noexcept
+{
+  return ::pthread_attr_setinheritsched(attr, inherit);
+}
+
+int NativePosixAPI::pthread_attr_setschedpolicy(pthread_attr_t* attr, int policy) noexcept
+{
+  return ::pthread_attr_setschedpolicy(attr, policy);
+}
+
 int NativePosixAPI::pthread_join(pthread_t thread, void** returnVal) noexcept
 {
   return ::pthread_join(thread, returnVal);

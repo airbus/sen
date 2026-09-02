@@ -63,6 +63,8 @@ public:
                                                       std::size_t) noexcept = 0;                  // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_attr_setschedparam(pthread_attr_t*,                           // NOLINT NOSONAR
                                                        const sched_param*) noexcept = 0;          // NOLINT NOSONAR
+  [[nodiscard]] virtual int pthread_attr_setinheritsched(pthread_attr_t*, int) noexcept = 0;      // NOLINT NOSONAR
+  [[nodiscard]] virtual int pthread_attr_setschedpolicy(pthread_attr_t*, int) noexcept = 0;       // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_join(pthread_t, void**) noexcept = 0;                         // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_cancel(pthread_t thread) noexcept = 0;                        // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_setcanceltype(int type, int* old_type) noexcept = 0;          // NOLINT NOSONAR
@@ -91,6 +93,8 @@ public:
   [[nodiscard]] int sched_get_priority_min(int) noexcept override;                                       // NOLINT
   [[nodiscard]] int pthread_attr_setstacksize(pthread_attr_t*, std::size_t) noexcept override;           // NOLINT
   [[nodiscard]] int pthread_attr_setschedparam(pthread_attr_t*, const sched_param*) noexcept override;   // NOLINT
+  [[nodiscard]] int pthread_attr_setinheritsched(pthread_attr_t*, int) noexcept override;                // NOLINT
+  [[nodiscard]] int pthread_attr_setschedpolicy(pthread_attr_t*, int) noexcept override;                 // NOLINT
   [[nodiscard]] int pthread_join(pthread_t, void**) noexcept override;                                   // NOLINT
   [[nodiscard]] int pthread_cancel(pthread_t thread) noexcept override;                                  // NOLINT
   [[nodiscard]] int pthread_setcanceltype(int type, int* old_type) noexcept override;                    // NOLINT

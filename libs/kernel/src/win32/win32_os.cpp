@@ -83,7 +83,7 @@ Result<Thread, ThreadCreateErr> Win32OS::createThread(const ThreadConfig& config
     return Err(runResult.getError());
   }
 
-  return Ok(Thread {threads_.back().get()});
+  return Ok(Thread {threads_.back().get(), threads_.back()->priorityApplied(), threads_.back()->affinityApplied()});
 }
 
 bool Win32OS::joinThread(Thread thread) noexcept

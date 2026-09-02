@@ -131,7 +131,9 @@ Result<void, ThreadCreateErr> ThreadImpl::configurePriority() noexcept
 
   if (api_->SetThreadPriority(thread_, nPriority) == FALSE)
   {
-    return Err(ThreadCreateErr::internalOsError);
+    // Running without the requested priority beats refusing to run, the same as on posix. The
+    // caller reports it.
+    priorityApplied_ = false;
   }
 
   return Ok();
@@ -145,10 +147,13 @@ Result<void, ThreadCreateErr> ThreadImpl::configureAffinity() noexcept
     return Ok();
   }
 
-  DWORD affinity = DWORD(config_.affinity);
-  if (api_->SetThreadAffinityMask(thread_, affinity) != 0U)
+  // SetThreadAffinityMask returns the thread's PREVIOUS mask, and zero only on failure. Testing
+  // for non-zero reported every success as a failure.
+  const DWORD affinity = DWORD(config_.affinity);
+  if (api_->SetThreadAffinityMask(thread_, affinity) == 0U)
   {
-    return Err(ThreadCreateErr::invalidAffinity);
+    // the thread is already running, so report this rather than failing its creation
+    affinityApplied_ = false;
   }
 
   return Ok();

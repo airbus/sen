@@ -314,6 +314,24 @@ FuncResult Runner::run()
   threadConfig.name = std::string(component_.info.name) + "-component";
 
   auto threadCreationResult = os_.createThread(threadConfig);
+  if (threadCreationResult.isOk() && !threadCreationResult.getValue().priorityApplied)
+  {
+    // Running without the configured priority beats refusing to start, but the component is not
+    // scheduled the way it was configured.
+    SPDLOG_LOGGER_WARN(KernelImpl::getKernelLogger(),
+                       "component '{}' runs without its configured priority: the operating system "
+                       "refused it",
+                       component_.info.name);
+  }
+
+  if (threadCreationResult.isOk() && !threadCreationResult.getValue().affinityApplied)
+  {
+    // Same reasoning: a mask the machine cannot honour used to be ignored in silence.
+    SPDLOG_LOGGER_WARN(KernelImpl::getKernelLogger(),
+                       "component '{}' runs unpinned: the configured cpu affinity could not be applied",
+                       component_.info.name);
+  }
+
   if (threadCreationResult.isError())
   {
     std::string msg;

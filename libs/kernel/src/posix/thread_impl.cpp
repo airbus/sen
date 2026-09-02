@@ -20,6 +20,7 @@
 #include <sched.h>
 
 // std
+#include <cerrno>
 #include <cstddef>
 #include <memory>
 #include <tuple>
@@ -74,9 +75,22 @@ Result<void, ThreadCreateErr> ThreadImpl::run() noexcept
   // - EPERM  No permission to set the scheduling policy and parameters
   //          specified in attr.
 
-  if (api_->pthread_create(&thread_, &attributes_, threadFunction, this) != 0U)
+  if (const auto created = api_->pthread_create(&thread_, &attributes_, threadFunction, this); created != 0)
   {
-    return Err(ThreadCreateErr::internalOsError);
+    // Only EPERM means the scheduling attributes were refused, and only then is running without
+    // them better than not running at all. Anything else fails the way it always did.
+    if (created != EPERM)
+    {
+      return Err(ThreadCreateErr::internalOsError);
+    }
+
+    if (api_->pthread_attr_setinheritsched(&attributes_, PTHREAD_INHERIT_SCHED) != 0U ||
+        api_->pthread_create(&thread_, &attributes_, threadFunction, this) != 0U)
+    {
+      return Err(ThreadCreateErr::internalOsError);
+    }
+
+    priorityApplied_ = false;
   }
 
   // attributes are not needed anymore
@@ -84,8 +98,14 @@ Result<void, ThreadCreateErr> ThreadImpl::run() noexcept
 
   std::ignore = api_->pthread_setname_np(thread_, config_.name.c_str());
 
-  // now that the thread is created, we have to set the affinity (if needed).
-  return configureAffinity();
+  // The thread exists from here on, so a failure past this point must not be reported as a failure
+  // to create it: the caller would destroy this object while the thread is still reading it.
+  if (configureAffinity().isError())
+  {
+    affinityApplied_ = false;
+  }
+
+  return Ok();
 }
 
 bool ThreadImpl::join() const noexcept
@@ -112,26 +132,31 @@ bool ThreadImpl::kill() const noexcept
 
 Result<void, ThreadCreateErr> ThreadImpl::configurePriority() noexcept
 {
-  if (config_.priority == Priority::nominalMin)
+  // Only the upper half of the enum asks for a real-time policy. "lowest" is for background work,
+  // so promoting it above every other thread would invert what it means, and lowering it needs a
+  // nice value that is not wired here.
+  if (config_.priority == Priority::lowest || config_.priority == Priority::nominalMin)
   {
     return Ok();
   }
 
-  // Fetch the scheduling policy by calling 'pthread_attr_getschedpolicy'.
-  // This might return EINVAL if the value specified by attr does
-  // not refer to an initialized thread attribute object. This cannot
-  // happen, as this is already initialized in the configure()
-  // function, which calls this one.
-  int policy = 0;
-  if (api_->pthread_attr_getschedpolicy(&attributes_, &policy) != 0U)
+  // A priority only means something under a real-time policy: SCHED_OTHER reports the same value
+  // for its lowest and highest, so there is no range to place a thread in. POSIX also ignores the
+  // attributes unless asked to honour them, which is what made this function do nothing.
+  if (api_->pthread_attr_setinheritsched(&attributes_, PTHREAD_EXPLICIT_SCHED) != 0U)
   {
     return Err(ThreadCreateErr::internalOsError);
   }
 
+  if (api_->pthread_attr_setschedpolicy(&attributes_, SCHED_FIFO) != 0U)
+  {
+    return Err(ThreadCreateErr::internalOsError);
+  }
+
+  const int policy = SCHED_FIFO;
+
   const auto osMinimumPrio = api_->sched_get_priority_min(policy);
   const auto osMaximumPrio = api_->sched_get_priority_max(policy);
-  const auto osNominalMin = 70;
-  const auto osNominalMax = osMaximumPrio - 1;
 
   // 'sched_get_priority_max', and 'sched_get_priority_min' return -1 in case of error. The
   // error is EINVAL and means that the argument policy does not identify a defined scheduling
@@ -149,17 +174,13 @@ Result<void, ThreadCreateErr> ThreadImpl::configurePriority() noexcept
 
   sched_param sched {};  // NOLINT(misc-include-cleaner): sched.h is included; the check cannot map the type
 
-  if (config_.priority == Priority::lowest)
-  {
-    sched.sched_priority = osMinimumPrio;
-  }
-  else if (config_.priority == Priority::highest)
+  if (config_.priority == Priority::highest)
   {
     sched.sched_priority = osMaximumPrio;
   }
   else
   {
-    sched.sched_priority = (osNominalMax - osNominalMin) / 2;
+    sched.sched_priority = osMinimumPrio + (osMaximumPrio - osMinimumPrio) / 2;
   }
 
   if (api_->pthread_attr_setschedparam(&attributes_, &sched) != 0U)
