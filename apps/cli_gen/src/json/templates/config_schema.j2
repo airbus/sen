@@ -52,12 +52,20 @@
         "description": "A component you wish Sen to build",
         "type": "object",
         "allOf": [ { "$ref": "#/$defs/sen.kernel.ComponentConfig" } ],
-        "required": [ "name" ],
+        "required": [ "name", "imports" ],
         "properties": {
           "name": {
             "description": "Name of the component",
             "type": "string",
             "minLength": 1
+          },
+          "imports": {
+            "description": "The packages this component imports",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           "freqHz": {
             "description": "Cycle frequency in Hertz",
