@@ -9,6 +9,7 @@ import { TransportError } from "../errors.js";
 import {
   isEventTriggeredNotification,
   isInterestUpdateNotification,
+  isNotificationsDroppedNotification,
   isPropertyChangedNotification,
   isTopologyChangedNotification,
 } from "./notification_validators.js";
@@ -20,6 +21,7 @@ import type {
   MaybeSubscribeBlock,
   ObjectInfos,
   ObjectStateList,
+  NotificationsDroppedNotification,
   PropertyChangedNotification,
   SessionInfoList,
   StringList,
@@ -422,6 +424,21 @@ export class JsonRpcClient {
         if (!isTopologyChangedNotification(raw)) {
           this.reportError(
             new TransportError(`malformed topologyChanged payload: ${JSON.stringify(raw)}`),
+          );
+          return;
+        }
+        handler(raw);
+      },
+    });
+  }
+
+  onNotificationsDropped(handler: (params: NotificationsDroppedNotification) => void): CancelFn {
+    return this.transport.onNotification({
+      method: "notificationsDropped",
+      handler: (raw) => {
+        if (!isNotificationsDroppedNotification(raw)) {
+          this.reportError(
+            new TransportError(`malformed notificationsDropped payload: ${JSON.stringify(raw)}`),
           );
           return;
         }

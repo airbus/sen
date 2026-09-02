@@ -53,6 +53,7 @@ export type {
   EventTriggeredNotification,
   Identity,
   InterestUpdateNotification,
+  NotificationsDroppedNotification,
   ObjectInfo,
   ObjectInfos,
   PropertyChangedNotification,

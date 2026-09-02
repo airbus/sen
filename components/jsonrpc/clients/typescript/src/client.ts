@@ -26,9 +26,12 @@ export class Client {
   private readonly cancelPropertyChangedListener: CancelFn;
   private readonly cancelEventTriggeredListener: CancelFn;
   private readonly cancelTopologyChangedListener: CancelFn;
+  private readonly cancelNotificationsDroppedListener: CancelFn;
   private readonly interestHandles = new Map<string, InterestHandle>();
   private readonly declareChains = new Map<string, Promise<void>>();
   private readonly topologyHandlers = new Set<(sessions: SessionInfo[]) => void>();
+  private readonly notificationsDroppedHandlers = new Set<(count: number) => void>();
+  private droppedNotificationCount = 0;
   private topologySubscribed = false;
   private lastTopology: SessionInfo[] = [];
   private hasTopology = false;
@@ -60,6 +63,15 @@ export class Client {
       this.lastTopology = params.sessions;
       this.hasTopology = true;
       for (const handler of this.topologyHandlers) handler(params.sessions);
+    });
+
+    // Registered unconditionally, not on first subscriber: the server sends this once when
+    // backpressure clears and never repeats it, so a handler attached afterwards would learn
+    // nothing. The running total is kept so a late subscriber can still discover that data
+    // was missed.
+    this.cancelNotificationsDroppedListener = this.protocol.onNotificationsDropped((params) => {
+      this.droppedNotificationCount += params.count;
+      for (const handler of this.notificationsDroppedHandlers) handler(params.count);
     });
     this.transport.onReconnect(() => {
       this.connectionEpoch += 1;
@@ -299,7 +311,9 @@ export class Client {
     this.cancelPropertyChangedListener();
     this.cancelEventTriggeredListener();
     this.cancelTopologyChangedListener();
+    this.cancelNotificationsDroppedListener();
     this.topologyHandlers.clear();
+    this.notificationsDroppedHandlers.clear();
     this.interestHandles.clear();
     this.typeCache.clearListeners();
     this.transport.close();
@@ -341,6 +355,42 @@ export class Client {
    */
   onConnectionStateChange(handler: (state: ConnectionState) => void): CancelFn {
     return this.transport.onConnectionStateChange(handler);
+  }
+
+  /**
+   * Total notifications the server has reported dropping on this connection since it opened.
+   *
+   * The server drops unreliable notifications while its outbound buffer is above the high
+   * watermark, and reports the tally once the buffer drains. A non-zero value means this
+   * client's cached object state is incomplete: some property changes and events never
+   * arrived, and there is no record of which. It does not decrease.
+   */
+  get droppedNotifications(): number {
+    return this.droppedNotificationCount;
+  }
+
+  /**
+   * Subscribe to backpressure drop reports. The handler receives the count for each window,
+   * not the running total; use {@link Client.droppedNotifications} for that.
+   *
+   * A client that receives this cannot tell which updates it missed, only that it missed
+   * some. Waiting for the next change is not a recovery: a property that stopped moving will
+   * never send another. Re-read what you display instead, through
+   * `InterestHandle.getObjectsBatchState()`.
+   *
+   * @example
+   * ```ts
+   * client.onNotificationsDropped((count) => {
+   *   console.warn(`missed ${count} updates; refreshing`);
+   *   void refreshVisiblePanels();
+   * });
+   * ```
+   */
+  onNotificationsDropped(handler: (count: number) => void): CancelFn {
+    this.notificationsDroppedHandlers.add(handler);
+    return () => {
+      this.notificationsDroppedHandlers.delete(handler);
+    };
   }
 
   /**

@@ -562,3 +562,70 @@ describe("Client.reestablishAll single-flight + epoch idempotence + failure resy
     client.close();
   });
 });
+
+describe("Client.onNotificationsDropped", () => {
+  it("delivers the per-window count and accumulates the running total", async () => {
+    const { client, socket } = await makeConnectedClient();
+    const seen: number[] = [];
+    client.onNotificationsDropped((count) => seen.push(count));
+
+    expect(client.droppedNotifications).toBe(0);
+
+    socket.simulateMessage({ jsonrpc: "2.0", method: "notificationsDropped", params: { count: 3 } });
+    await tick();
+    socket.simulateMessage({ jsonrpc: "2.0", method: "notificationsDropped", params: { count: 4 } });
+    await tick();
+
+    expect(seen).toEqual([3, 4]);
+    expect(client.droppedNotifications).toBe(7);
+    client.close();
+  });
+
+  // The server reports each backpressure window once and never repeats it, so a subscriber
+  // that attaches afterwards would otherwise never learn that data was missed.
+  it("keeps the total readable by a handler attached after the drop", async () => {
+    const { client, socket } = await makeConnectedClient();
+    socket.simulateMessage({ jsonrpc: "2.0", method: "notificationsDropped", params: { count: 9 } });
+    await tick();
+
+    expect(client.droppedNotifications).toBe(9);
+    client.close();
+  });
+
+  it("stops delivering once cancelled", async () => {
+    const { client, socket } = await makeConnectedClient();
+    const seen: number[] = [];
+    const cancel = client.onNotificationsDropped((count) => seen.push(count));
+    cancel();
+
+    socket.simulateMessage({ jsonrpc: "2.0", method: "notificationsDropped", params: { count: 5 } });
+    await tick();
+
+    expect(seen).toEqual([]);
+    // The running total is connection state, not handler state, so it still moves.
+    expect(client.droppedNotifications).toBe(5);
+    client.close();
+  });
+
+  it("reports a malformed frame instead of counting it", async () => {
+    const errors: unknown[] = [];
+    const factory: WebSocketFactory = (url) => new MockWebSocket(url);
+    const pending = connect({
+      url: "ws://test",
+      reconnect: { enabled: false },
+      onError: (err) => errors.push(err),
+      webSocketFactory: factory,
+    });
+    await tick();
+    MockWebSocket.lastInstance!.simulateOpen();
+    const client = await pending;
+    const socket = MockWebSocket.lastInstance!;
+
+    socket.simulateMessage({ jsonrpc: "2.0", method: "notificationsDropped", params: { count: "lots" } });
+    await tick();
+
+    expect(errors.length).toBe(1);
+    expect(client.droppedNotifications).toBe(0);
+    client.close();
+  });
+});

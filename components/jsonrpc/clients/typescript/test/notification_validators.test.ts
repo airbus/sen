@@ -11,6 +11,7 @@ import {
   isInterestUpdateNotification,
   isPropertyChangedNotification,
   isTopologyChangedNotification,
+  isNotificationsDroppedNotification,
 } from "../src/internal/notification_validators.js";
 
 describe("isPropertyChangedNotification", () => {
@@ -136,5 +137,32 @@ describe("isTopologyChangedNotification", () => {
     expect(isTopologyChangedNotification({})).toBe(false);
     expect(isTopologyChangedNotification({ sessions: "no" })).toBe(false);
     expect(isTopologyChangedNotification(null)).toBe(false);
+  });
+});
+
+describe("isNotificationsDroppedNotification", () => {
+  it("accepts a well-formed frame", () => {
+    expect(isNotificationsDroppedNotification({ count: 12 })).toBe(true);
+    expect(isNotificationsDroppedNotification({ count: 0 })).toBe(true);
+  });
+
+  it("rejects a missing or non-numeric count", () => {
+    expect(isNotificationsDroppedNotification({})).toBe(false);
+    expect(isNotificationsDroppedNotification({ count: "12" })).toBe(false);
+    expect(isNotificationsDroppedNotification({ count: null })).toBe(false);
+  });
+
+  // The count is a u64 on the wire. A fractional or negative value is not something the
+  // dispatcher can send, so accepting it would surface a nonsense figure to the operator.
+  it("rejects a count that is not a whole non-negative number", () => {
+    expect(isNotificationsDroppedNotification({ count: 1.5 })).toBe(false);
+    expect(isNotificationsDroppedNotification({ count: -1 })).toBe(false);
+    expect(isNotificationsDroppedNotification({ count: Number.NaN })).toBe(false);
+  });
+
+  it("rejects non-objects", () => {
+    expect(isNotificationsDroppedNotification(null)).toBe(false);
+    expect(isNotificationsDroppedNotification([{ count: 1 }])).toBe(false);
+    expect(isNotificationsDroppedNotification(7)).toBe(false);
   });
 });

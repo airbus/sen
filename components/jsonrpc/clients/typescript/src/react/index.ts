@@ -12,6 +12,7 @@
 export { useConnectionState } from "./use_connection_state.js";
 export { useEvents, type EventDelivery, type UseEventsOptions } from "./use_events.js";
 export { useInterest, type UseInterestArgs, type UseInterestResult } from "./use_interest.js";
+export { useNotificationsDropped } from "./use_notifications_dropped.js";
 export { useInvoke, type InvokeStatus, type UseInvokeResult } from "./use_invoke.js";
 export { useObject } from "./use_object.js";
 export { useObjects } from "./use_objects.js";

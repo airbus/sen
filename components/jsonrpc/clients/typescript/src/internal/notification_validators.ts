@@ -8,6 +8,7 @@
 import type {
   EventTriggeredNotification,
   InterestUpdateNotification,
+  NotificationsDroppedNotification,
   PropertyChangedNotification,
   TopologyChangedNotification,
 } from "../generated/index.js";
@@ -61,4 +62,15 @@ export function isTopologyChangedNotification(
 ): raw is TopologyChangedNotification {
   if (!isObject(raw)) return false;
   return Array.isArray(raw["sessions"]);
+}
+
+// `count` is a u64 in the schema and crosses as a JSON number. Guard the range as well as the
+// type: a non-integer or negative count means the frame is not what the dispatcher sends, and
+// silently accepting it would report a nonsense figure to the operator.
+export function isNotificationsDroppedNotification(
+  raw: unknown,
+): raw is NotificationsDroppedNotification {
+  if (!isObject(raw)) return false;
+  const count = raw["count"];
+  return typeof count === "number" && Number.isInteger(count) && count >= 0;
 }
