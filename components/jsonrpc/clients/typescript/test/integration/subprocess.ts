@@ -14,8 +14,14 @@ import { existsSync } from "node:fs";
 import { Socket } from "node:net";
 import { once } from "node:events";
 
-const defaultStartupTimeoutMs = 10_000;
+// Startup is the whole of it: binding the port, then serving an upgrade. An instrumented build
+// takes far longer over the second than a plain one, and the probe below returns as soon as the
+// server answers, so this ceiling only costs time when something is actually wrong.
+const defaultStartupTimeoutMs = 30_000;
 const defaultShutdownGraceMs = 2_000;
+// Per attempt, not for the whole wait: a server that is bound but not serving accepts the
+// connection and then says nothing, so an attempt has to be abandoned to make room for the next.
+const probeAttemptMs = 1_000;
 
 export interface SpawnSenOptions {
   binary: string;
@@ -55,6 +61,51 @@ export async function waitForPort(port: number, timeoutMs: number): Promise<void
   }
   throw new Error(
     `Sen did not open port ${port} within ${timeoutMs}ms. Last connect error: ${String(lastErr)}`,
+  );
+}
+
+function closeQuietly(socket: WebSocket): void {
+  try {
+    socket.close();
+  } catch {
+    // closing a socket that never opened is not an error worth reporting
+  }
+}
+
+// A connect proves the port is bound, not that anything is serving: the TCP handshake completes
+// from the listen backlog before the component accepts. Waiting on the port alone starts the suite
+// against a server that is not answering, and the first client pays for it out of its own budget.
+export async function waitForWebSocket(port: number, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  let lastErr: unknown;
+  while (Date.now() < deadline) {
+    try {
+      await new Promise<void>((resolveProbe, rejectProbe) => {
+        const socket = new WebSocket(`ws://127.0.0.1:${port}`);
+        const timer = setTimeout(() => {
+          closeQuietly(socket);
+          rejectProbe(new Error(`no upgrade within ${probeAttemptMs}ms`));
+        }, probeAttemptMs);
+        socket.addEventListener("open", () => {
+          clearTimeout(timer);
+          closeQuietly(socket);
+          resolveProbe();
+        });
+        socket.addEventListener("error", () => {
+          clearTimeout(timer);
+          closeQuietly(socket);
+          rejectProbe(new Error("upgrade refused"));
+        });
+      });
+      return;
+    } catch (err) {
+      lastErr = err;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
+  throw new Error(
+    `Sen did not serve a WebSocket upgrade on port ${port} within ${timeoutMs}ms. ` +
+      `Last probe error: ${String(lastErr)}`,
   );
 }
 
@@ -98,8 +149,12 @@ export async function spawnSen(opts: SpawnSenOptions): Promise<SenHandle> {
   const stderrChunks: Buffer[] = [];
   child.stderr?.on("data", (chunk: Buffer) => stderrChunks.push(chunk));
 
+  // One budget across both phases, so a slow bind eats into the wait for a served upgrade rather
+  // than granting a second full one. Whichever phase runs out names itself in the error.
+  const deadline = Date.now() + (opts.startupTimeoutMs ?? defaultStartupTimeoutMs);
   try {
-    await waitForPort(opts.port, opts.startupTimeoutMs ?? defaultStartupTimeoutMs);
+    await waitForPort(opts.port, deadline - Date.now());
+    await waitForWebSocket(opts.port, deadline - Date.now());
   } catch (err) {
     child.kill("SIGKILL");
     throw new Error(`${String(err)}\nSen stderr so far:\n${Buffer.concat(stderrChunks).toString()}`);

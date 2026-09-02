@@ -15,7 +15,7 @@ describe("declareInterest against inheritance.yaml", () => {
     client = await openClient();
   });
   afterAll(() => {
-    client.close();
+    client?.close();
   });
 
   it("matches a MyClass on test.primary", async () => {

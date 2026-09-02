@@ -15,7 +15,7 @@ describe("event subscriptions against inheritance.MySubClass", () => {
     client = await openClient();
   });
   afterAll(() => {
-    client.close();
+    client?.close();
   });
 
   // doSomethingElse(arg) fires somethingElseHappened(arg) synchronously on the server side. We

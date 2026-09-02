@@ -19,7 +19,7 @@ describe("declareInterest({ subscribe }) against my_package.MyClass", () => {
     client = await openClient();
   });
   afterAll(() => {
-    client.close();
+    client?.close();
   });
 
   it("accepts a wildcard property pre-subscription and serves get() from cache", async () => {

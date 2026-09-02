@@ -15,7 +15,7 @@ describe("invoke against my_package.MyClass", () => {
     client = await openClient();
   });
   afterAll(() => {
-    client.close();
+    client?.close();
   });
 
   it("calls addNumbers(a, b) and returns the sum", async () => {

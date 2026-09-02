@@ -111,7 +111,18 @@ if(SEN_BUILD_TESTS)
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     REQ_DEPS jsonrpc jsonrpc_ts_client_codegen jsonrpc_ts_client_npm_install inheritance
   )
-  set_tests_properties(jsonrpc_ts_client_integration PROPERTIES RUN_SERIAL TRUE)
+  # TIMEOUT, because the suite's own budget exceeds ctest's 20s global: globalSetup allows the
+  # kernel 30s to bind and then serve an upgrade, and reconnect.test.ts spawns two more on the
+  # same budget. The ceiling has to clear the sum of those: its whole purpose is that ctest does
+  # not kill the process before the startup diagnostic (which phase, the budget, and the kernel's
+  # stderr) can fire, which would turn a real startup failure into a bare Timeout.
+  set_tests_properties(
+    jsonrpc_ts_client_integration
+    PROPERTIES RUN_SERIAL
+               TRUE
+               TIMEOUT
+               240
+  )
   append_test_env_modification(
     jsonrpc_ts_client_integration
     "SEN_BINARY=set:$<TARGET_FILE:sen::cli_sen>"

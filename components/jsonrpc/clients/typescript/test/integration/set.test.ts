@@ -16,7 +16,7 @@ describe("setProperty against my_package.MyClass", () => {
     client = await openClient();
   });
   afterAll(() => {
-    client.close();
+    client?.close();
   });
 
   // prop7 is `i32 [writable]` and is not modified by MyClassImpl::update, so the value we

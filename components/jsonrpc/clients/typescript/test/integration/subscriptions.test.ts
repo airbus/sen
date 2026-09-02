@@ -15,7 +15,7 @@ describe("property subscriptions against inheritance.yaml", () => {
     client = await openClient();
   });
   afterAll(() => {
-    client.close();
+    client?.close();
   });
 
   it("delivers updates of prop5 (i32) when subscribing to MyClass", async () => {
