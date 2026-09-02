@@ -28,6 +28,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 namespace shapes
@@ -70,7 +71,9 @@ protected:
   {
     if (auto itr = subscriptions_.find(queryName); itr != subscriptions_.end())
     {
-      subscriptions_.erase(itr);  // erase the entry (Subscription dtor unsubscribes).
+      subscriptions_.erase(itr);      // erase the entry (Subscription dtor unsubscribes).
+      shapeGuards_.erase(queryName);  // and the callbacks it installed, which nothing will fire now.
+      refreshDetectedShapesCount();
       std::cout << getName() << ": [" << queryName << "] Stopped listening\n";  // print a log.
       setNextQueryCount(sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyLog>(
         subscriptions_.size()));  // update the query count.
@@ -102,6 +105,23 @@ protected:
   }
 
 private:
+  // Counted from the guards so it cannot drift from them. A shape two queries both match is
+  // one shape.
+  void refreshDetectedShapesCount()
+  {
+    std::unordered_set<sen::ObjectId> distinct;
+    for (const auto& [query, guardsByShape]: shapeGuards_)
+    {
+      for (const auto& [shapeId, guards]: guardsByShape)
+      {
+        distinct.insert(shapeId);
+      }
+    }
+
+    setNextDetectedShapesCount(
+      sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyLog>(distinct.size()));
+  }
+
   void shapesDetected(std::string query, const sen::ObjectList<ShapeInterface>::Iterators& shapes)
   {
     const std::string ourName = getName();
@@ -119,12 +139,11 @@ private:
       auto handler = [=](auto wall)
       { std::cout << ourName << ": [" << query << "] " << shapeName << " hit the " << wall << "\n"; };
 
-      auto guard = shape->onCollidedWithWall({this, std::move(handler)});  // install the callback.
-      shapeGuards_[shapeAsObject.getId()].push_back(std::move(guard));     // save the guard.
-      totalShapesCount_++;                                                 // update our total shapes count.
+      auto guard = shape->onCollidedWithWall({this, std::move(handler)});      // install the callback.
+      shapeGuards_[query][shapeAsObject.getId()].push_back(std::move(guard));  // save the guard.
     }
 
-    setNextDetectedShapesCount(totalShapesCount_);
+    refreshDetectedShapesCount();
   }
 
   void shapesGone(std::string_view query, const sen::ObjectList<ShapeInterface>::Iterators& shapes)
@@ -139,11 +158,10 @@ private:
                 << getGeometryName(shape->getGeometry()) << " named " << shapeAsObject.getName() << " at\n"
                 << shape->getPosition() << "\n";
 
-      shapeGuards_.erase(shapeAsObject.getId());  // delete the guards.
-      totalShapesCount_--;                        // update our total shapes count.
+      shapeGuards_[std::string(query)].erase(shapeAsObject.getId());  // delete this query's guards.
     }
 
-    setNextDetectedShapesCount(totalShapesCount_);
+    refreshDetectedShapesCount();
   }
 
   static std::string_view getGeometryName(const Geometry& geom)
@@ -209,10 +227,12 @@ private:
 
 private:
   std::unordered_map<std::string, std::shared_ptr<sen::Subscription<ShapeInterface>>> subscriptions_;
-  std::unordered_map<sen::ObjectId, std::list<sen::ConnectionGuard>> shapeGuards_;
+
+  // Keyed by query first: two queries can match the same shape, and each holds its own guard.
+  std::unordered_map<std::string, std::unordered_map<sen::ObjectId, std::list<sen::ConnectionGuard>>> shapeGuards_;
+
   sen::kernel::KernelApi* api_ = nullptr;
   uint32_t nextQueryId_ = 1;
-  uint32_t totalShapesCount_ = 0;
 };
 
 SEN_EXPORT_CLASS(ShapeListenerImpl)
