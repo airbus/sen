@@ -128,6 +128,7 @@ class KernelApi
   fn getConfig() -> KernelParams [const];
 }
 
+// --8<-- [start:clocks]
 // Allows inspecting and controlling the advance of virtual time and associated component iteration
 class VirtualClock
 {
@@ -160,3 +161,4 @@ class VirtualMasterClock: extends VirtualClock
   // perform 'count' steps forward, based on delta
   fn steps(count: u64) -> Duration [bestEffort];
 }
+// --8<-- [end:clocks]

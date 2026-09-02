@@ -487,6 +487,7 @@ struct ClassTypeSpecV4
 }
 
 // all custom types
+// --8<-- [start:custom_type_data]
 variant CustomTypeData
 {
   EnumTypeSpec,
@@ -498,6 +499,7 @@ variant CustomTypeData
   OptionalTypeSpec,
   ClassTypeSpec
 }
+// --8<-- [end:custom_type_data]
 
 variant CustomTypeDataV5
 {

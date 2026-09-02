@@ -39,6 +39,7 @@ enum GitStatus: u8
 }
 
 // Build-related information
+// --8<-- [start:build_info]
 struct BuildInfo
 {
   maintainer : string,    // principal maintainer of the software
@@ -51,6 +52,7 @@ struct BuildInfo
   gitHash    : string,    // git hash
   gitStatus  : GitStatus  // git status
 }
+// --8<-- [end:build_info]
 
 // Basic information of a kernel component
 struct ComponentInfo
@@ -60,6 +62,7 @@ struct ComponentInfo
   buildInfo   : BuildInfo
 }
 
+// --8<-- [start:queue_config]
 // Component queue eviction policy
 enum QueueEvictionPolicy: u32
 {
@@ -72,7 +75,9 @@ struct QueueConfig
   evictionPolicy : QueueEvictionPolicy,  // what to do when the queue is full
   maxSize        : u64                   // 0 means unbounded
 }
+// --8<-- [end:queue_config]
 
+// --8<-- [start:sleep_policy]
 // Use the native system sleep
 struct SystemSleep;
 
@@ -89,6 +94,7 @@ variant SleepPolicy
   PrecisionSleep,
   SystemSleep
 }
+// --8<-- [end:sleep_policy]
 
 // What to do when a type published by another kernel does not match the local one
 enum CompatibilityMode: u8
@@ -99,6 +105,7 @@ enum CompatibilityMode: u8
 }
 
 // Basic runtime configuration for a component
+// --8<-- [start:component_config]
 struct ComponentConfig
 {
   priority    : Priority,     // thread priority
@@ -109,6 +116,7 @@ struct ComponentConfig
   outQueue    : QueueConfig,  // queuing of outbound information
   sleepPolicy : SleepPolicy   // configurable component sleep policy
 }
+// --8<-- [end:component_config]
 
 // Category of a problem during component execution
 enum ErrorCategory: u8
@@ -163,6 +171,7 @@ enum ComponentState: u8
 sequence<string> StringList;
 
 // Run modes for the kernel
+// --8<-- [start:run_mode]
 enum RunMode: u8
 {
   realTime,           // components execute using system time
@@ -170,8 +179,10 @@ enum RunMode: u8
   virtualTimeRunning, // same as virtualTime, but continuously advancing the time
   startAndStop,       // starts and stops (useful for smoke tests)
 }
+// --8<-- [end:run_mode]
 
 // Parameters to configure kernel execution
+// --8<-- [start:kernel_params]
 struct KernelParams
 {
   runMode             : RunMode,                // how to run the kernel
@@ -187,6 +198,7 @@ struct KernelParams
   sleepPolicy         : SleepPolicy,            // configurable sleep policy of the kernel component
   compatibilityMode   : CompatibilityMode       // what to do with a remote type that does not match
 }
+// --8<-- [end:kernel_params]
 
 // Type of operating system
 enum OsKind : u8

@@ -26,6 +26,7 @@ namespace sen::util
 /// Enables the user to predict an object’s position and movement at any future time applying dead
 /// reckoning. It adheres to the algorithms specified in IEEE 1278_1:2012, Annex E.
 /// @tparam T rpr::BaseEntityInterface or a subclass of it
+// --8<-- [start:dead_reckoner]
 template <typename T>
 class DeadReckoner: public DeadReckonerTemplateBase<T>
 {
@@ -91,6 +92,7 @@ private:
   sen::TimeStamp lastTimeStamp_;
   SpatialVariant lastSpatial_;
 };
+// --8<-- [end:dead_reckoner]
 
 /// @}
 
