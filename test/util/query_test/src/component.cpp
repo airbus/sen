@@ -55,12 +55,18 @@ public:
     const auto bus = api.getSource("se.env");
     bus->add(obj_);
 
-    std::ignore = enumList_.onAdded([this](const auto& /*iterators*/) { enumHits_++; });
+    std::ignore = objectsInError_.onAdded([this](const auto& /*iterators*/) { matchCount_++; });
 
-    const auto enumInterest = sen::Interest::make(
+    const auto interest = sen::Interest::make(
       R"(SELECT query_test.QueryTestClass FROM se.env WHERE currentStatus = "error")", api.getTypes());
-    bus->addSubscriber(enumInterest, &enumList_, true);
+    bus->addSubscriber(interest, &objectsInError_, true);
     // --8<-- [end:subscribe]
+
+    // The change has to cross the bus and fire the subscription callback, which one cycle
+    // does not bound on a loaded machine. Wait for the match and bound the wait instead.
+    // The bound stops applying once the stop is requested: the loop keeps ticking while the
+    // kernel shuts down, and a slow shutdown was failing this test rather than the query.
+    constexpr int maxTicks = 200;  // ~2 s at 100 Hz
 
     return api.execLoop(sen::Duration::fromHertz(100.0),
                         [this, &api]
@@ -71,26 +77,28 @@ public:
                           {
                             obj_->setNextCurrentStatus(query_test::Status::error);
                           }
-                          else if (tick_ == 2)
+                          else if (matchCount_ > 0 && !stopRequested_)
                           {
-                            if (enumHits_ != 1)
+                            if (matchCount_ != 1)
                             {
-                              sen::throwRuntimeError("Enum query failed to match property change");
+                              sen::throwRuntimeError("Enum query matched the property change more than once");
                             }
 
+                            stopRequested_ = true;
                             api.requestKernelStop(0);
                           }
-                          else if (tick_ > 10)
+                          else if (tick_ > maxTicks && !stopRequested_)
                           {
-                            sen::throwRuntimeError("Test timeout");
+                            sen::throwRuntimeError("Enum query never matched the property change");
                           }
                         });
   }
 
 private:
   std::shared_ptr<query_test::QueryTestClassImpl> obj_;
-  sen::ObjectList<query_test::QueryTestClassInterface> enumList_;
-  int enumHits_ = 0;
+  sen::ObjectList<query_test::QueryTestClassInterface> objectsInError_;
+  int matchCount_ = 0;
+  bool stopRequested_ = false;
   int tick_ = 0;
 };
 
