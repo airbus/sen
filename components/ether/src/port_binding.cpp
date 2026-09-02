@@ -106,9 +106,10 @@ void validateProbeRange(PortKind kind, const ProbePortRange& config)
 {
   if (config.min > config.max)
   {
-    throw std::invalid_argument(std::string("Invalid probe port range for ") + toString(kind) + " (" +
-                                std::to_string(config.min) + "-" + std::to_string(config.max) +
-                                "): min is greater than max.");
+    std::ostringstream oss;
+    oss << "Invalid probe port range for " << toString(kind) << " (" << config.min << '-' << config.max
+        << "): min is greater than max.";
+    sen::throwRuntimeError(oss.str());
   }
 }
 
