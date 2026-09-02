@@ -18,8 +18,11 @@ A race is a pair, so the family is the first sen:: frame on each side: one ancho
 plus whatever the other side happened to be collapses distinct families together.
 Undefined behaviour has no frames to pair, so its location is its identity.
 
-This reports rather than judges: the exit status says whether the summary was
-written, not whether findings were found.
+This reports rather than judges by default, because the nightly lanes exist to collect
+an inventory and one abort would hide what follows it. --fail-on-findings makes it judge,
+for the lane that gates: a finding reaches the report files even when it happened in a
+process ctest never waited on, or in a test whose verdict was inverted, so the files are
+the one place every finding can be seen at once.
 """
 
 import argparse
@@ -34,8 +37,14 @@ from pathlib import Path
 FINDING = re.compile(r"(?:WARNING|ERROR): (\w+Sanitizer): (.+)")
 
 # "libs/core/include/sen/core/base/checked_conversions.h:92:34: runtime error: nan is ..."
-# UndefinedBehaviorSanitizer says neither WARNING nor its own name on this line.
-UBSAN = re.compile(r"^(?P<where>\S+?):(?P<line>\d+):(?P<col>\d+): runtime error: (?P<kind>.+?)\s*$", re.M)
+# UndefinedBehaviorSanitizer says neither WARNING nor its own name on this line. The path is
+# matched loosely because a build directory may contain a space, and \S+? cannot cross one.
+UBSAN = re.compile(r"^(?P<where>.+?):(?P<line>\d+):(?P<col>\d+): runtime error: (?P<kind>.+?)\s*$", re.M)
+
+# A runtime that could not do its job writes this into the log where a finding would go, and
+# with log_path set it writes nothing to stderr -- so every test goes red and the summary
+# beside them used to say there were no findings.
+MALFUNCTION = re.compile(r"(\w+Sanitizer): (failed to (?:read|parse) suppressions[^\n]*|CHECK failed:[^\n]*)")
 
 # "on vptr" is part of the kind; "on address" is not, nor is a pid or an aside.
 KIND_TAIL = re.compile(r"\s+on address\b|\s+on 0x|\s+\(")
@@ -137,22 +146,48 @@ def findings(text: str) -> list[dict]:
     return entries + undefined_behaviour(text)
 
 
-def summarise(entries: list[dict], reports: int | None = None) -> str:
+def malfunctions(text: str) -> list[str]:
+    """Sanitizer failures that are not findings and must not read as their absence."""
+    return sorted({f"{match.group(1)}: {match.group(2).strip()}" for match in MALFUNCTION.finditer(text)})
+
+
+def nothing_found(reports: int | None) -> str:
+    """What to say when a run produced no findings, without saying more than is known.
+
+    Saying "no findings" over nothing read is how a lane that saw nothing and a lane that
+    looked at nothing came to print the same sentence. Whether the lane can detect at all
+    is check_sanitizer_lane.py's question, not this one.
+    """
+    if reports == 0:
+        return "No sanitizer reports were produced in this run.\n"
+    if reports is not None:
+        return f"No sanitizer findings in {reports} report file(s).\n"
+    return "No sanitizer findings in this run.\n"
+
+
+def malfunction_lines(broken: list[str], any_findings: bool) -> list[str]:
+    """The opening of a summary whose run the sanitizer could not properly make."""
+    opening = (
+        "The sanitizer could not do its job in this run, so what follows is not a complete account."
+        if any_findings
+        else "The sanitizer could not do its job in this run, so its silence says nothing."
+    )
+    return [opening, *(f"- `{problem}`" for problem in broken), *([""] if any_findings else [])]
+
+
+def summarise(entries: list[dict], reports: int | None = None, broken: list[str] | None = None) -> str:
     """Renders the grouped findings as markdown.
 
     Grouped by family -- tool, kind and the pair of sen:: frames -- because that
     is the unit a later run can be matched against. Line numbers move; symbols
     survive a refactor.
     """
+    opening = malfunction_lines(broken, bool(entries)) if broken else []
+    if broken and not entries:
+        return "\n".join(opening) + "\n"
+
     if not entries:
-        # Saying "no findings" over nothing read is how a lane that saw nothing and a
-        # lane that looked at nothing came to print the same sentence. Whether the lane
-        # can detect at all is check_sanitizer_lane.py's question, not this one.
-        if reports == 0:
-            return "No sanitizer reports were produced in this run.\n"
-        if reports is not None:
-            return f"No sanitizer findings in {reports} report file(s).\n"
-        return "No sanitizer findings in this run.\n"
+        return nothing_found(reports)
 
     def family(entry: dict) -> tuple:
         return (entry["tool"], entry["kind"], tuple(entry["sites"]))
@@ -166,6 +201,7 @@ def summarise(entries: list[dict], reports: int | None = None) -> str:
         return f"{number} {one if number == 1 else many}"
 
     lines = [
+        *opening,
         f"{count_of(len(entries), 'sanitizer finding', 'sanitizer findings')}, "
         f"{count_of(len(by_family), 'distinct family', 'distinct families')}.",
         "",
@@ -195,19 +231,39 @@ def main() -> int:
         description="Groups a run's sanitizer findings by the site that produced them.",
     )
     parser.add_argument("paths", nargs="+", help="Report files or directories holding them.")
+    parser.add_argument(
+        "--fail-on-findings",
+        action="store_true",
+        help="Exit non-zero when the run produced findings, for a lane that gates rather than collects.",
+    )
     args = parser.parse_args()
 
     text = []
+    unreadable = []
     for raw in args.paths:
         path = Path(raw)
         if path.is_dir():
-            for child in sorted(path.rglob("*")):
-                if child.is_file():
-                    text.append(child.read_text(encoding="utf-8", errors="replace"))
-        elif path.is_file():
-            text.append(path.read_text(encoding="utf-8", errors="replace"))
+            # os.walk reports what it could not open; rglob swallows it, and a directory
+            # nobody can read then reads as a directory with nothing in it.
+            # Consumed, not just created: os.walk is lazy and reports nothing until it runs.
+            list(os.walk(path, onerror=lambda error: unreadable.append(f"{error.filename}: {error.strerror}")))
+            children = sorted(path.rglob("*"))
+        else:
+            children = [path] if path.is_file() else []
+        for child in children:
+            if not child.is_file():
+                continue
+            try:
+                text.append(child.read_text(encoding="utf-8", errors="replace"))
+            except OSError as error:
+                # A container running as root leaves its reports unreadable by the job's
+                # user. Unread is not the same as absent, and used to render as absent.
+                unreadable.append(f"{child}: {error.strerror}")
 
-    report = summarise(findings("\n".join(text)), reports=len(text))
+    joined = "\n".join(text)
+    entries = findings(joined)
+    broken = malfunctions(joined) + [f"could not be read -- {problem}" for problem in unreadable]
+    report = summarise(entries, reports=len(text), broken=broken)
     print(report, end="")
 
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -215,7 +271,9 @@ def main() -> int:
         with open(summary, "a", encoding="utf-8") as handle:
             handle.write(report)
 
-    return 0
+    # Silence is not judged here: a lane that produced nothing may have looked at nothing,
+    # and check_sanitizer_lane.py is what settles that before the suite runs.
+    return 1 if (args.fail_on_findings and (entries or broken)) else 0
 
 
 if __name__ == "__main__":
