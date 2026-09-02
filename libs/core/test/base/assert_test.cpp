@@ -53,7 +53,9 @@ void testAssertHandler(const CheckInfo& checkInfo) noexcept
   ASSERT_EQ(checkInfo.getExpression(), expectedCheckInfo.getExpression());
 }
 
-void exitOnAbort(int /*signal*/) { std::exit(0); }
+// _Exit rather than exit: this runs inside a signal handler, and exit is not async-signal-safe --
+// it runs the at-exit chain, so static destructors free memory in the signal context.
+void exitOnAbort(int /*signal*/) { std::_Exit(0); }
 
 [[noreturn]] void triggerDefaultCheckHandler()
 {
