@@ -1,0 +1,51 @@
+// Fixture class for the dispatcher integration tests. Provides the three things local.kernel.api
+// can't: a writable property (so we can drive propertyChanged notifications), an event with a
+// payload (so we can drive eventTriggered and verify args round-trip), and a value-returning
+// method (so we can exercise the async invoke happy path end-to-end).
+
+package sen.components.jsonrpc.test;
+
+// Arms of the FixtureMode variant, used to exercise outbound variant wire-shape (qualified-name
+// "type" tag) in dispatcher tests. Keeping the structs minimal so the value payload is
+// recognisable end-to-end.
+struct ModeIdle
+{
+  reason : string  // human-readable reason for being idle
+}
+
+struct ModeBusy
+{
+  taskName : string  // what the widget is currently doing
+}
+
+variant FixtureMode
+{
+  ModeIdle,
+  ModeBusy
+}
+
+class FixtureWidget
+{
+  var counter : i32 [writable];
+
+  // Second writable property so tests can prove that two changes committed in the same
+  // WorkQueue task land in a single propertyChanged notification (per-object bundling).
+  // [confirmed] is required for unbounded dynamic types (string) to satisfy the STL guard
+  // against non-confirmed unbounded properties.
+  var label : string [writable, confirmed];
+
+  // Read-only by omission of [writable]. Lets setProperty's "setter exists but rejects writes"
+  // path be exercised end-to-end without faking it.
+  var readonlyId : i32;
+
+  // Variant-typed writable property. Exercises the outbound variant wire-shape path: a
+  // propertyChanged / getProperty response must emit `{type: "<qualifiedName>", value: ...}`
+  // (not the binary protocol's numeric arm key).
+  var mode : FixtureMode [writable, confirmed];
+
+  event chimed(message: string);
+
+  fn doubled(value: i32) -> i32;
+
+  fn boom();
+}

@@ -122,6 +122,10 @@ private:
                                            const TypeSettings& settings,
                                            std::string_view from = {});
 
+/// Joins a package path (e.g. `["sen", "components", "jsonrpc"]`) into the dotted form used in
+/// STL declarations and qualified type names (e.g. `sen.components.jsonrpc`).
+[[nodiscard]] std::string computePackagePrefix(const std::vector<std::string>& path);
+
 /// @}
 
 }  // namespace sen::lang

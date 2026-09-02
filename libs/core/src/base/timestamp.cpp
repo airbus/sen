@@ -17,6 +17,7 @@
 
 // std
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <iomanip>
 #include <ratio>
@@ -28,12 +29,80 @@
 namespace
 {
 
-using Clock = std::chrono::system_clock;
-
 constexpr std::size_t microsecondsZeroes = 6U;
 constexpr std::size_t nanosecondsZeroes = 9U;
 constexpr auto format = "%Y-%m-%d %H:%M:%S";
 constexpr auto rfc3339Format = "%Y-%m-%dT%H:%M:%S";
+constexpr int64_t nanosPerSecond = 1000000000;
+
+/// Floor-divides the total ns count into a (wholeSeconds, subSecondFraction) pair so the
+/// sub-second part is always in [0, fractionDen). Plain `%` would yield a negative remainder
+/// for pre-epoch timestamps, and `Clock::to_time_t` truncates toward zero rather than toward
+/// -infinity; either alone misaligns the printed second from the printed fraction.
+struct DecomposedTimestamp
+{
+  std::time_t wholeSeconds;
+  int64_t fraction;  // 0 <= fraction < fractionDen
+};
+
+[[nodiscard]] DecomposedTimestamp decompose(sen::Duration timeSinceEpoch, int64_t fractionDen) noexcept
+{
+  const int64_t totalNanos = std::chrono::duration_cast<std::chrono::nanoseconds>(timeSinceEpoch.toChrono()).count();
+  int64_t seconds = totalNanos / nanosPerSecond;
+  int64_t remainderNanos = totalNanos % nanosPerSecond;
+  if (remainderNanos < 0)
+  {
+    seconds -= 1;
+    remainderNanos += nanosPerSecond;
+  }
+  const int64_t nanosPerFraction = nanosPerSecond / fractionDen;
+  return {static_cast<std::time_t>(seconds), remainderNanos / nanosPerFraction};
+}
+
+enum class TimeZoneKind
+{
+  utc,
+  local,
+};
+
+[[nodiscard]] std::string formatTimestamp(sen::Duration timeSinceEpoch,
+                                          const char* timeFormat,
+                                          int fractionalWidth,
+                                          int64_t fractionDen,
+                                          char fractionSeparator,
+                                          std::string_view trailingSuffix,
+                                          TimeZoneKind zone) noexcept
+{
+  const auto [wholeSeconds, fraction] = decompose(timeSinceEpoch, fractionDen);
+  tm timeBuffer {};
+#ifdef WIN32
+  if (zone == TimeZoneKind::utc)
+  {
+    gmtime_s(&timeBuffer, &wholeSeconds);
+  }
+  else
+  {
+    localtime_s(&timeBuffer, &wholeSeconds);
+  }
+#else
+  if (zone == TimeZoneKind::utc)
+  {
+    std::ignore = gmtime_r(&wholeSeconds, &timeBuffer);
+  }
+  else
+  {
+    std::ignore = localtime_r(&wholeSeconds, &timeBuffer);
+  }
+#endif
+  std::stringstream ss;
+  ss << std::put_time(&timeBuffer, timeFormat);
+  ss << fractionSeparator << std::setw(fractionalWidth) << std::setfill('0') << fraction;
+  if (!trailingSuffix.empty())
+  {
+    ss << trailingSuffix;
+  }
+  return ss.str();
+}
 
 }  // namespace
 
@@ -42,71 +111,20 @@ namespace sen
 
 std::string TimeStamp::toUtcString() const
 {
-  auto chronoTime = timeSinceEpoch_.toChrono();
-  auto duration = std::chrono::duration_cast<Clock::duration>(chronoTime);
-
-  std::time_t tt = Clock::to_time_t(Clock::time_point(duration));
-  tm timeBuffer {};
-
-  std::stringstream ss;
-
-#ifdef WIN32
-  gmtime_s(&timeBuffer, &tt);
-#else
-  std::ignore = gmtime_r(&tt, &timeBuffer);
-#endif
-  ss << std::put_time(&timeBuffer, format);
-
-  auto microSecs = std::chrono::duration_cast<std::chrono::microseconds>(chronoTime);
-  ss << " " << std::setw(microsecondsZeroes) << std::setfill('0') << microSecs.count() % std::micro::den;
-
-  return ss.str();
+  return formatTimestamp(
+    timeSinceEpoch_, format, static_cast<int>(microsecondsZeroes), std::micro::den, ' ', {}, TimeZoneKind::utc);
 }
 
 std::string TimeStamp::toUtcStringNs() const
 {
-  auto chronoTime = timeSinceEpoch_.toChrono();
-  auto duration = std::chrono::duration_cast<Clock::duration>(chronoTime);
-
-  std::time_t tt = Clock::to_time_t(Clock::time_point(duration));
-  tm timeBuffer {};
-
-#ifdef WIN32
-  gmtime_s(&timeBuffer, &tt);
-#else
-  std::ignore = gmtime_r(&tt, &timeBuffer);
-#endif
-
-  std::stringstream ss;
-  ss << std::put_time(&timeBuffer, rfc3339Format);
-
-  auto nanoSecs = std::chrono::duration_cast<std::chrono::nanoseconds>(chronoTime);
-  ss << "." << std::setw(nanosecondsZeroes) << std::setfill('0') << nanoSecs.count() % std::nano::den << "Z";
-
-  return ss.str();
+  return formatTimestamp(
+    timeSinceEpoch_, rfc3339Format, static_cast<int>(nanosecondsZeroes), std::nano::den, '.', "Z", TimeZoneKind::utc);
 }
 
 std::string TimeStamp::toLocalString() const
 {
-  auto chronoTime = timeSinceEpoch_.toChrono();
-  auto duration = std::chrono::duration_cast<Clock::duration>(chronoTime);
-
-  std::time_t tt = Clock::to_time_t(Clock::time_point(duration));
-  tm timeBuffer {};
-
-  std::stringstream ss;
-
-#ifdef WIN32
-  localtime_s(&timeBuffer, &tt);
-#else
-  localtime_r(&tt, &timeBuffer);
-#endif
-  ss << std::put_time(&timeBuffer, format);
-
-  auto microSecs = std::chrono::duration_cast<std::chrono::microseconds>(chronoTime);
-  ss << " " << std::setw(microsecondsZeroes) << std::setfill('0') << microSecs.count() % std::micro::den;
-
-  return ss.str();
+  return formatTimestamp(
+    timeSinceEpoch_, format, static_cast<int>(microsecondsZeroes), std::micro::den, ' ', {}, TimeZoneKind::local);
 }
 
 Result<TimeStamp, std::string> TimeStamp::make(const std::string_view iso8601Time)
