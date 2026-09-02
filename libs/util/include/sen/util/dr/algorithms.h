@@ -53,6 +53,9 @@ SEN_NON_RANGED_QUANTITY(TimeSeconds, f64)
 /// Non-dimensional damping coefficient
 SEN_NON_RANGED_QUANTITY(DampingCoefficient, f64)
 
+// The structs below are also tabulated in docs/users_guide/util_library.md, with their
+// units and frames spelled out for readers who do not read C++. Update both together.
+// --8<-- [start:dr_config]
 /// Dead Reckoning configuration.
 struct DrConfig
 {
@@ -81,6 +84,7 @@ struct DrConfig
   /// Damping coefficient for the smoothed orientation solution.
   DampingCoefficient orientationDamping = 20.0;
 };
+// --8<-- [end:dr_config]
 
 /// World Location struct
 struct Location
@@ -138,6 +142,7 @@ struct AngularAcceleration
   AngularAccelerationRadiansPerSecondSquared z;
 };
 
+// --8<-- [start:situation]
 /// Situation structure with the following parameters:
 struct Situation
 {
@@ -167,7 +172,9 @@ struct Situation
   /// Angular acceleration vector with respect to body reference system.
   AngularAcceleration angularAcceleration {};
 };
+// --8<-- [end:situation]
 
+// --8<-- [start:geodetic_situation]
 /// GeodeticSituation structure with the following parameters:
 struct GeodeticSituation
 {
@@ -196,6 +203,7 @@ struct GeodeticSituation
   /// Angular acceleration vector with respect to body-reference system.
   AngularAcceleration angularAcceleration {};
 };
+// --8<-- [end:geodetic_situation]
 
 /// Enumeration of the different Spatial algorithms
 enum class SpatialAlgorithm

@@ -40,6 +40,7 @@ constexpr auto defaultPeriod = std::chrono::milliseconds(500);
 // LogMasterComponent
 //--------------------------------------------------------------------------------------------------------------
 
+// --8<-- [start:component]
 struct LogMasterComponent final: ::sen::kernel::Component
 {
   [[nodiscard]] ::sen::kernel::FuncResult run(::sen::kernel::RunApi& api) override
@@ -65,6 +66,7 @@ struct LogMasterComponent final: ::sen::kernel::Component
 
   [[nodiscard]] bool isRealTimeOnly() const noexcept override { return true; }
 };
+// --8<-- [end:component]
 
 }  // namespace sen::components::logmaster
 

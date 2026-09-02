@@ -59,6 +59,7 @@ TEST(TestKernel, emptyConfig) { EXPECT_NO_THROW(auto kernel = sen::kernel::TestK
 /// @requirements(SEN-363)
 TEST(TestKernel, oneComponent)
 {
+  // --8<-- [start:setup]
   // to track the evolution of the test
   int32_t counter = 0;
   int32_t eventCount = 0;
@@ -107,6 +108,7 @@ TEST(TestKernel, oneComponent)
 
   // create the kernel holding only our simple component
   sen::kernel::TestKernel kernel(&component);
+  // --8<-- [end:setup]
 
   // iteration 0, time is 0
   emitEvent = false;
@@ -119,6 +121,7 @@ TEST(TestKernel, oneComponent)
   EXPECT_EQ(std::chrono::seconds(0), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(1), kernel.getTime().sinceEpoch().toChrono());
 
+  // --8<-- [start:delay]
   // iteration 1, sim time was 1s, we have executed 2s, we emit the event
   emitEvent = true;
   emitProp = true;
@@ -140,6 +143,7 @@ TEST(TestKernel, oneComponent)
   EXPECT_EQ(1, propCount);
   EXPECT_EQ(std::chrono::seconds(2), lastTime.sinceEpoch().toChrono());
   EXPECT_EQ(std::chrono::seconds(3), kernel.getTime().sinceEpoch().toChrono());
+  // --8<-- [end:delay]
 
   for (std::size_t i = counter; i < 10; ++i)
   {
