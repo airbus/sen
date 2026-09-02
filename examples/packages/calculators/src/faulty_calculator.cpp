@@ -15,6 +15,7 @@
 
 // std
 #include <cstdint>
+#include <stdexcept>
 
 namespace calculators
 {
@@ -54,15 +55,13 @@ protected:
   {
     callCount_++;
 
-    float32_t result = 0.0f;
     if (b == 0.0f)
     {
       divisionByZero();
+      throw std::runtime_error("division by zero");
     }
-    else
-    {
-      result = (a / b) + (shouldFail() ? 1.0f : 0.0f);
-    }
+
+    const float32_t result = (a / b) + (shouldFail() ? 1.0f : 0.0f);
 
     setNextCurrent(result);
     return result;
