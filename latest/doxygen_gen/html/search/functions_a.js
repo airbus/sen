@@ -1,18 +1,8 @@
 var searchData=
 [
-  ['last_0',['last',['../classsen_1_1_span.html#a10536cb34a57654ad1c780203fa74070',1,'sen::Span']]],
-  ['length_1',['length',['../classsen_1_1util_1_1_quat.html#a1f08884b4a5a9bb877b5fb698d8632e5',1,'sen::util::Quat::length()'],['../classsen_1_1util_1_1_vec3.html#ab61334edf0101d21744bbd925ea7a2b0',1,'sen::util::Vec3::length()']]],
-  ['length2_2',['length2',['../classsen_1_1util_1_1_quat.html#a90b765201a49338e5a126f0ff693a94a',1,'sen::util::Quat::length2()'],['../classsen_1_1util_1_1_vec3.html#a4c66c477d0748317c26c8bd3cf1ca576',1,'sen::util::Vec3::length2()']]],
-  ['lexeme_3',['lexeme',['../classsen_1_1lang_1_1_stl_token.html#aaa7ce6d79af181f5755b9dc2cad9d860',1,'sen::lang::StlToken']]],
-  ['listeneradded_4',['listenerAdded',['../classsen_1_1_object_provider.html#a9b7145f29dd04b615b9d40ae32bc58d8',1,'sen::ObjectProvider']]],
-  ['listenerimpl_5',['ListenerImpl',['../classsen_1_1test_1_1_listener_impl.html#a6e9100d6881745dea68a01389133e2f9',1,'sen::test::ListenerImpl']]],
-  ['listenerremoved_6',['listenerRemoved',['../classsen_1_1_object_provider.html#a62f5c99e74da6b077acc6f54cfeb2c29',1,'sen::ObjectProvider']]],
-  ['load_7',['load',['../structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4.html#a448914deed43da5cf1b3b31a15f7e096',1,'pybind11::detail::type_caster&lt; sen::ObjectId &gt;::load()'],['../classsen_1_1kernel_1_1_component.html#a657caa3e891f411866528baba7e31850',1,'sen::kernel::Component::load()']]],
-  ['loadapi_8',['LoadApi',['../classsen_1_1kernel_1_1_load_api.html#ac62aef47a4a542795e13f7a5c7c11f3c',1,'sen::kernel::LoadApi']]],
-  ['loanbuffer_9',['loanBuffer',['../classsen_1_1test_1_1_test_writer.html#a18e9561ca3c7277961be3be54552c599',1,'sen::test::TestWriter']]],
-  ['localparticipantjoinedbus_10',['localParticipantJoinedBus',['../classsen_1_1kernel_1_1_transport.html#ae54409817a980200a17b2e691d38abb6',1,'sen::kernel::Transport']]],
-  ['localparticipantleftbus_11',['localParticipantLeftBus',['../classsen_1_1kernel_1_1_transport.html#a1576054e77723748616dad02c7e53b83',1,'sen::kernel::Transport']]],
-  ['lock_12',['lock',['../classsen_1_1kernel_1_1_source_info.html#aa7b921ec8a2d414850b206cc7591bf52',1,'sen::kernel::SourceInfo']]],
-  ['lockedrangeadapter_13',['LockedRangeAdapter',['../classsen_1_1util_1_1_locked_range_adapter.html#ac12f0a307f9eb061be67cc1b534b182f',1,'sen::util::LockedRangeAdapter::LockedRangeAdapter(ContainerType &amp;container, MutexType &amp;m)'],['../classsen_1_1util_1_1_locked_range_adapter.html#a25f60b230a72a6dc193cf0b09de8cd1e',1,'sen::util::LockedRangeAdapter::LockedRangeAdapter(IteratorType begin, IteratorType end, MutexType &amp;m)']]],
-  ['lookuptype_14',['lookupType',['../classsen_1_1kernel_1_1_package_manager.html#a0febd2ac7402c3644e3fb727de71e1bf',1,'sen::kernel::PackageManager']]]
+  ['keep_0',['keep',['../classsen_1_1_connection_guard.html#a94c8af0977e48fdbae997e2578ec7470',1,'sen::ConnectionGuard']]],
+  ['kernel_1',['Kernel',['../classsen_1_1kernel_1_1_kernel.html#a6796d0a56bfb8a5a2f96811f407ddb04',1,'sen::kernel::Kernel']]],
+  ['kernelapi_2',['KernelApi',['../classsen_1_1kernel_1_1_kernel_api.html#a1b1730c437aef25be08fa391d81bc8ef',1,'sen::kernel::KernelApi']]],
+  ['kernelconfig_3',['KernelConfig',['../classsen_1_1kernel_1_1_kernel_config.html#ace38a5fc261739189e9cecf18b31f843',1,'sen::kernel::KernelConfig']]],
+  ['keyframe_4',['keyframe',['../classsen_1_1db_1_1_output.html#aafb87e29c35bd1f513d84714243e41ed',1,'sen::db::Output']]]
 ];

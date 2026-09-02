@@ -17,5 +17,6 @@ var classsen_1_1_time_stamp =
     [ "operator-", "classsen_1_1_time_stamp.html#a94587a950b3946509b9ce350f3b903e3", null ],
     [ "operator-", "classsen_1_1_time_stamp.html#a8429edc2ccce0f67f6d146c4f585066b", null ],
     [ "toUtcString", "classsen_1_1_time_stamp.html#a02c952bc3f17fe764b6524313d7501b1", null ],
+    [ "toUtcStringNs", "classsen_1_1_time_stamp.html#a71ef05b66cacbcb06d12c9c9ba930428", null ],
     [ "toLocalString", "classsen_1_1_time_stamp.html#afe93bb87d3cf8a98429d0a6ddc2a9b43", null ]
 ];

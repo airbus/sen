@@ -298,6 +298,7 @@ var group__util =
       [ "operator-", "classsen_1_1_time_stamp.html#a94587a950b3946509b9ce350f3b903e3", null ],
       [ "operator-", "classsen_1_1_time_stamp.html#a8429edc2ccce0f67f6d146c4f585066b", null ],
       [ "toUtcString", "classsen_1_1_time_stamp.html#a02c952bc3f17fe764b6524313d7501b1", null ],
+      [ "toUtcStringNs", "classsen_1_1_time_stamp.html#a71ef05b66cacbcb06d12c9c9ba930428", null ],
       [ "toLocalString", "classsen_1_1_time_stamp.html#afe93bb87d3cf8a98429d0a6ddc2a9b43", null ]
     ] ],
     [ "sen::ShouldBePassedByValue&lt; TimeStamp &gt;", "structsen_1_1_should_be_passed_by_value_3_01_time_stamp_01_4.html", null ],

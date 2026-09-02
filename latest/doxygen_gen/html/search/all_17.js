@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['y_0',['y',['../structsen_1_1_unit_spec.html#ab64bea26113e9e089f6bc2012a63458f',1,'sen::UnitSpec::y'],['../group__dr.html#a2d68d5ec96c6582f97586d64decb08d1',1,'sen::util::Location::y'],['../group__dr.html#a34e71c9d579c1e490f8ec1d5f1ddf139',1,'sen::util::Velocity::y'],['../group__dr.html#a3da78a1b010a9a812cd7377e7d22b1aa',1,'sen::util::Acceleration::y'],['../group__dr.html#a75edbf36b253f76b0b34894955f28a0e',1,'sen::util::AngularVelocity::y'],['../group__dr.html#a703146abfc5a304a13dc44350518b6f0',1,'sen::util::AngularAcceleration::y']]]
+  ['x_0',['x',['../structsen_1_1_unit_spec.html#a49ab68874338d80f7840b5e354af912b',1,'sen::UnitSpec::x'],['../group__dr.html#a77380035870047d6269f7078320b896a',1,'sen::util::Location::x'],['../group__dr.html#a7a3f4d9269e6cc5120404e843c84713b',1,'sen::util::Velocity::x'],['../group__dr.html#a3fba70c2dac957890e4ac3b3864d74f4',1,'sen::util::Acceleration::x'],['../group__dr.html#ac820536e1df368537877ee2ca783a7a8',1,'sen::util::AngularVelocity::x'],['../group__dr.html#ab389cde2c38ca16109dcfacc756d4793',1,'sen::util::AngularAcceleration::x']]],
+  ['xmldoc_1',['xmlDoc',['../namespacesen_1_1lang.html#a0ccbbed54dbfc3ffbf9bdcba7671c1e1',1,'sen::lang::FomDocument']]]
 ];

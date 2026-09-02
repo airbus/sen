@@ -43,6 +43,7 @@ var hierarchy =
     ] ],
     [ "sen::kernel::ComponentContext", "group__kernel.html#structsen_1_1kernel_1_1_component_context", null ],
     [ "sen::kernel::ComponentMonitoringInfo", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info", null ],
+    [ "sen::gen::ComponentOptions", "group__gen.html#structsen_1_1gen_1_1_component_options", null ],
     [ "sen::kernel::KernelConfig::ComponentPluginToLoad", "classsen_1_1kernel_1_1_kernel_config.html#structsen_1_1kernel_1_1_kernel_config_1_1_component_plugin_to_load", null ],
     [ "sen::kernel::KernelConfig::ComponentToLoad", "classsen_1_1kernel_1_1_kernel_config.html#structsen_1_1kernel_1_1_kernel_config_1_1_component_to_load", null ],
     [ "sen::kernel::ConfigGetter", "classsen_1_1kernel_1_1_config_getter.html", [
@@ -57,6 +58,10 @@ var hierarchy =
     [ "std::vector&lt; std::unique_ptr&lt; TypeSet &gt; &gt;::const_iterator", null, [
       [ "sen::lang::TypeSetContext::TypeSetIterator", "classsen_1_1lang_1_1_type_set_context_1_1_type_set_iterator.html", null ]
     ] ],
+    [ "sen::gen::CppExportsOptions", "group__gen.html#structsen_1_1gen_1_1_cpp_exports_options", null ],
+    [ "sen::gen::CppGenerator", "classsen_1_1gen_1_1_cpp_generator.html", null ],
+    [ "sen::gen::CppOptions", "group__gen.html#structsen_1_1gen_1_1_cpp_options", null ],
+    [ "sen::gen::detail::CppTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_cpp_template_set", null ],
     [ "CrashMakerBase", null, [
       [ "sen::test::crash_report::CrashMakerImpl", "classsen_1_1test_1_1crash__report_1_1_crash_maker_impl.html", null ]
     ] ],
@@ -158,6 +163,8 @@ var hierarchy =
     ] ],
     [ "sen::util::IteratorRange&lt; IteratorType &gt;", "structsen_1_1util_1_1_iterator_range.html", null ],
     [ "sen::ObjectList&lt; T &gt;::Iterators", "structsen_1_1_object_list_1_1_iterators.html", null ],
+    [ "sen::gen::JsonGenerator", "classsen_1_1gen_1_1_json_generator.html", null ],
+    [ "sen::gen::detail::JsonTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_json_template_set", null ],
     [ "sen::kernel::Kernel", "classsen_1_1kernel_1_1_kernel.html", null ],
     [ "sen::kernel::KernelApi", "classsen_1_1kernel_1_1_kernel_api.html", [
       [ "sen::kernel::InitApi", "classsen_1_1kernel_1_1_init_api.html", null ],
@@ -183,10 +190,13 @@ var hierarchy =
     [ "sen::MetaTypeTrait&lt; TimeStamp &gt;", "structsen_1_1_meta_type_trait_3_01_time_stamp_01_4.html", null ],
     [ "sen::MethodCallInfo", "group__obj.html#structsen_1_1_method_call_info", null ],
     [ "sen::MethodSpec", "structsen_1_1_method_spec.html", null ],
+    [ "sen::gen::MkDocsGenerator", "classsen_1_1gen_1_1_mk_docs_generator.html", null ],
+    [ "sen::gen::detail::MkDocsTemplates", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_mk_docs_templates", null ],
     [ "sen::std_util::detail::MoveOnlyFunctionBase", "classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html", [
       [ "sen::std_util::detail::MoveOnlyFunctionImpl< ResultType(ArgTypes...) GENERATE_WITH_CV GENERATE_WITH_REF NOEXCEPT_SPECIFIER >", "classsen_1_1std__util_1_1detail_1_1_move_only_function_impl_3_01_result_type_07_arg_types_8_8_8_e1791c2d0ac6611c5c45d4bd5dec2ff0.html", null ]
     ] ],
     [ "sen::std_util::detail::MoveOnlyFunctionImpl&lt; Signature &gt;", "namespacesen_1_1std__util_1_1detail.html#classsen_1_1std__util_1_1detail_1_1_move_only_function_impl", null ],
+    [ "sen::gen::detail::Node", "classsen_1_1gen_1_1detail_1_1_node.html", null ],
     [ "sen::NonPropertyRelated", "group__types.html#structsen_1_1_non_property_related", null ],
     [ "sen::kernel::KernelConfig::ObjectConfig", "classsen_1_1kernel_1_1_kernel_config.html#structsen_1_1kernel_1_1_kernel_config_1_1_object_config", null ],
     [ "sen::ObjectFilterBase", "classsen_1_1_object_filter_base.html", [
@@ -219,9 +229,12 @@ var hierarchy =
     [ "sen::db::Output", "classsen_1_1db_1_1_output.html", null ],
     [ "sen::OutputStreamTemplate&lt; BufferEndian &gt;", "classsen_1_1_output_stream_template.html", null ],
     [ "sen::kernel::PackageManager", "classsen_1_1kernel_1_1_package_manager.html", null ],
+    [ "sen::gen::PackageOptions", "group__gen.html#structsen_1_1gen_1_1_package_options", null ],
     [ "sen::lang::ParsedDoc", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_parsed_doc", null ],
     [ "sen::kernel::ParticipantAddr", "group__kernel.html#structsen_1_1kernel_1_1_participant_addr", null ],
     [ "sen::kernel::KernelConfig::PipelineToLoad", "classsen_1_1kernel_1_1_kernel_config.html#structsen_1_1kernel_1_1_kernel_config_1_1_pipeline_to_load", null ],
+    [ "sen::gen::PlantUMLGenerator", "classsen_1_1gen_1_1_plant_u_m_l_generator.html", null ],
+    [ "sen::gen::detail::PlantUmlTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_plant_uml_template_set", null ],
     [ "ProcessTerminatorBase", null, [
       [ "sen::test::ProcessTerminatorImpl", "classsen_1_1test_1_1_process_terminator_impl.html", null ]
     ] ],
@@ -233,6 +246,8 @@ var hierarchy =
     [ "PublisherBase", null, [
       [ "sen::test::PublisherImpl", "classsen_1_1test_1_1_publisher_impl.html", null ]
     ] ],
+    [ "sen::gen::PythonGenerator", "classsen_1_1gen_1_1_python_generator.html", null ],
+    [ "sen::gen::detail::PythonTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_python_template_set", null ],
     [ "sen::Quantity&lt; T, D &gt;", "classsen_1_1_quantity.html", null ],
     [ "sen::QuantitySpec", "structsen_1_1_quantity_spec.html", null ],
     [ "sen::QuantityTraits&lt; T &gt;", "group__traits.html#structsen_1_1_quantity_traits", null ],
@@ -345,6 +360,7 @@ var hierarchy =
     [ "sen::Subscription&lt; T &gt;", "structsen_1_1_subscription.html", null ],
     [ "sen::detail::TemplatedBaseTypeDispatcher&lt; T, BaseClassType, baseIsTemplate &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher", null ],
     [ "sen::detail::TemplatedBaseTypeDispatcher&lt; T, BaseClassType, true &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher_3_01_t_00_01_base_class_type_00_01true_01_4", null ],
+    [ "sen::gen::detail::TemplateVisitorResult", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_template_visitor_result", null ],
     [ "sen::Guarded&lt; T, MutexType &gt;::TemporaryAccessToken", "structsen_1_1_guarded_1_1_temporary_access_token.html", null ],
     [ "testing::Test", null, [
       [ "KernelFixture", "class_kernel_fixture.html", null ]
@@ -423,13 +439,17 @@ var hierarchy =
       [ "sen::VoidType", "classsen_1_1_void_type.html", null ]
     ] ],
     [ "pybind11::detail::type_caster&lt; sen::ObjectId &gt;", "structpybind11_1_1detail_1_1type__caster_3_01sen_1_1_object_id_01_4.html", null ],
+    [ "sen::gen::detail::TypeGroups", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_type_groups", null ],
     [ "sen::TypeHandle&lt; SenTypeType &gt;", "classsen_1_1_type_handle.html", null ],
     [ "sen::TypeMatchIssue", "group__type__utils.html#structsen_1_1_type_match_issue", null ],
+    [ "sen::gen::TypeScriptGenerator", "classsen_1_1gen_1_1_type_script_generator.html", null ],
+    [ "sen::gen::detail::TypeScriptTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_type_script_template_set", null ],
     [ "sen::TypesDontMatch", "group__type__utils.html#structsen_1_1_types_dont_match", null ],
     [ "sen::lang::TypeSet", "group__lang.html#structsen_1_1lang_1_1_type_set", null ],
     [ "sen::lang::TypeSetContext", "classsen_1_1lang_1_1_type_set_context.html", null ],
     [ "sen::lang::TypeSettings", "structsen_1_1lang_1_1_type_settings.html", null ],
     [ "sen::TypesMatch", "group__type__utils.html#structsen_1_1_types_match", null ],
+    [ "sen::gen::detail::TypeStorage", "classsen_1_1gen_1_1detail_1_1_type_storage.html", null ],
     [ "sen::kernel::UniqueByteBufferManager", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html", null ],
     [ "sen::Unit", "classsen_1_1_unit.html", null ],
     [ "sen::UnitRegistry", "classsen_1_1_unit_registry.html", null ],

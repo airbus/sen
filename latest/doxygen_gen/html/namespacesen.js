@@ -2,6 +2,7 @@ var namespacesen =
 [
     [ "db", "namespacesen_1_1db.html", "namespacesen_1_1db" ],
     [ "detail", "namespacesen_1_1detail.html", "namespacesen_1_1detail" ],
+    [ "gen", "namespacesen_1_1gen.html", "namespacesen_1_1gen" ],
     [ "kernel", "namespacesen_1_1kernel.html", "namespacesen_1_1kernel" ],
     [ "lang", "namespacesen_1_1lang.html", "namespacesen_1_1lang" ],
     [ "std_util", "namespacesen_1_1std__util.html", "namespacesen_1_1std__util" ],

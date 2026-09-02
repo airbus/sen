@@ -7,11 +7,15 @@ var searchData=
   ['objects_4',['objects',['../classsen_1_1kernel_1_1_kernel_config.html#ae9649c9d0531ef100ae69cebb190d696',1,'sen::kernel::KernelConfig::PipelineToLoad']]],
   ['offset_5',['offset',['../group__lang.html#aff22320b322ac0ee2d37151b6302abe5',1,'sen::lang::CodeLocation::offset'],['../group__db.html#a2fbb1448e6375bb9db0ee053d998e452',1,'sen::db::KeyframeIndex::offset']]],
   ['op_6',['op',['../group__lang.html#a9acebce26cfae59138b01466279485fc',1,'sen::lang::StlUnaryExpr::op'],['../group__lang.html#ae35f4b37aa2f14b6530c283a4aaca17b',1,'sen::lang::StlBinaryExpr::op'],['../group__lang.html#ab510f35b5dd2a3919ca405af75b3a516',1,'sen::lang::StlLogicalExpr::op']]],
-  ['orientation_7',['orientation',['../group__dr.html#aa04da7b4fef55fa1f73de21642ae7434',1,'sen::util::Situation::orientation'],['../group__dr.html#a9862f95bb383b43ad033962d39b3f0fa',1,'sen::util::GeodeticSituation::orientation']]],
-  ['orientationconvergencetime_8',['orientationConvergenceTime',['../group__dr.html#acf32e157eb5bdf3621d85b08bcb43d5f',1,'sen::util::DrConfig']]],
-  ['orientationdamping_9',['orientationDamping',['../group__dr.html#a3ce73a6f0eb8f5725531b1ecd2f6bdc4',1,'sen::util::DrConfig']]],
-  ['orientationthreshold_10',['orientationThreshold',['../group__dr.html#a999a824eb69d17300fb8fb878a5520dd',1,'sen::util::DrThreshold']]],
-  ['originalfilename_11',['originalFileName',['../group__lang.html#a58617e2a8cac9e993f80d6903721ae62',1,'sen::lang::ResolverContext']]],
-  ['otherobject_12',['otherObject',['../structsen_1_1db_1_1test_1_1_dual_class_setup.html#a83213fefd8571eac01a5d257faea3a99',1,'sen::db::test::DualClassSetup']]],
-  ['ownerid_13',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]]
+  ['optionalsdoc_7',['optionalsDoc',['../namespacesen_1_1gen_1_1detail.html#ae7e09470c97868bfa73a4087acd7f29a',1,'sen::gen::detail::TemplateVisitorResult']]],
+  ['optionaltemplate_8',['optionalTemplate',['../namespacesen_1_1gen_1_1detail.html#a99d0ab4695da372f7402ce99a6138339',1,'sen::gen::detail::MkDocsTemplates::optionalTemplate'],['../namespacesen_1_1gen_1_1detail.html#a85cafb32ca78cc9b30a6c6a75c3c0dc0',1,'sen::gen::detail::TypeScriptTemplateSet::optionalTemplate']]],
+  ['optionaltype_9',['optionalType',['../namespacesen_1_1gen_1_1detail.html#af44d450e724e3e612c7174794fd5823b',1,'sen::gen::detail::CppTemplateSet::optionalType'],['../namespacesen_1_1gen_1_1detail.html#a0dbc70df13ae421fdd3ef6c9a13a14ed',1,'sen::gen::detail::JsonTemplateSet::optionalType'],['../namespacesen_1_1gen_1_1detail.html#aaa03e47b757ef75674a92b24b5743909',1,'sen::gen::detail::PythonTemplateSet::optionalType']]],
+  ['optionaltypes_10',['optionalTypes',['../namespacesen_1_1gen_1_1detail.html#a1177e30aa2217d85640bb05ce750c2a8',1,'sen::gen::detail::TypeGroups']]],
+  ['orientation_11',['orientation',['../group__dr.html#aa04da7b4fef55fa1f73de21642ae7434',1,'sen::util::Situation::orientation'],['../group__dr.html#a9862f95bb383b43ad033962d39b3f0fa',1,'sen::util::GeodeticSituation::orientation']]],
+  ['orientationconvergencetime_12',['orientationConvergenceTime',['../group__dr.html#acf32e157eb5bdf3621d85b08bcb43d5f',1,'sen::util::DrConfig']]],
+  ['orientationdamping_13',['orientationDamping',['../group__dr.html#a3ce73a6f0eb8f5725531b1ecd2f6bdc4',1,'sen::util::DrConfig']]],
+  ['orientationthreshold_14',['orientationThreshold',['../group__dr.html#a999a824eb69d17300fb8fb878a5520dd',1,'sen::util::DrThreshold']]],
+  ['originalfilename_15',['originalFileName',['../group__lang.html#a58617e2a8cac9e993f80d6903721ae62',1,'sen::lang::ResolverContext']]],
+  ['otherobject_16',['otherObject',['../structsen_1_1db_1_1test_1_1_dual_class_setup.html#a83213fefd8571eac01a5d257faea3a99',1,'sen::db::test::DualClassSetup']]],
+  ['ownerid_17',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]]
 ];

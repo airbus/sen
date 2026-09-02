@@ -65,23 +65,24 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "algorithms_8h.html",
-"classsen_1_1_integral_type.html#a471056418cf61a1f839b1affec379da2",
-"classsen_1_1_object_mux.html#a8fddc9df22c666e5055068969e5071fa",
-"classsen_1_1_result_3_01void_00_01_e_01_4.html#ae505d936a34fbef3a542797f6f58800f",
-"classsen_1_1_strong_type.html#ac8ebbda35ecfb861c47585be3a8c5dbb",
-"classsen_1_1db_1_1_output.html#a55422914dc0f1fb64ac919011e920d13",
-"classsen_1_1kernel_1_1_run_api.html#a4256a44d2b6734fb44282892215c1553",
-"classsen_1_1lang_1_1_stl_token.html#aea4399c9070964f86555fade3d862a24",
-"classsen_1_1test_1_1runtime_1_1_test_class_impl.html#a3285a4041a1ec464951823875586a7e8",
-"classsen_1_1util_1_1_mat3.html#a701529697d204372a994f49a887e428a",
-"dead__reckoner_8h.html",
-"group__dr.html#a6f2516b697638b323d2d42f5c5179864",
-"group__lang.html#ac8eae4db4014e77d2f45685a401a487d",
-"group__type__utils.html#acf716db9bb70aa535201042ad9fb2828",
-"namespacemembers_func_p.html",
-"property__change_8h.html",
-"structsen_1_1_remote_object_discovery.html#ab03222f36730cd2e046dea1fb6b94136",
-"time__types_8h_source.html"
+"classsen_1_1_integral_type.html#a18856bb54ef9910303de9a7a00b12691",
+"classsen_1_1_object_mux.html#a8201be294296e34d9d80c9ba679a6eca",
+"classsen_1_1_result_3_01void_00_01_e_01_4.html#ad7530fd44f4f8c7ec806bfaabf61d0ae",
+"classsen_1_1_strong_type.html#ac24376cd44b3e88d788c5bca14a1a66d",
+"classsen_1_1db_1_1_output.html#a08c539d0a45f6508f2f311c3a0b20b3b",
+"classsen_1_1kernel_1_1_package_manager.html#ac6ed0a5e62d58cfecf0b9662eedad553",
+"classsen_1_1kernel_1_1_unload_api.html#a4256a44d2b6734fb44282892215c1553",
+"classsen_1_1test_1_1_test_reader.html",
+"classsen_1_1util_1_1_dead_reckoner_base.html#a537b4c716b061890068d73b0ec9f8b36",
+"classsen_1_1util_1_1_vec3.html#ab21eab9e95ae0d05737cef8b5e3af5d5",
+"functions_vars_n.html",
+"group__kernel.html#ga3711ecbde6f31398d3486a0d3f7f362e",
+"group__lang.html#structsen_1_1lang_1_1_stl_binary_expr",
+"group__util.html#gaec41e5f8e4b7aef2540e84268692fa84",
+"namespacesen_1_1gen_1_1detail.html#ac25b31b79053e77b8df26dc99048c8b9",
+"runtime__5_2src_2runtime_8h_source.html",
+"structsen_1_1_sequence_spec.html#ad70f4bbc0178ad96bccadcdfed828e63",
+"type__utils_8h_source.html"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

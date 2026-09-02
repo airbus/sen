@@ -174,7 +174,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8429edc2ccce0f67f6d146c4f585066b" id="r_a8429edc2ccce0f67f6d146c4f585066b"><td class="memItemLeft">constexpr <a class="el" href="classsen_1_1_duration.html">Duration</a>&#160;</td><td class="memItemRight"><a class="el" href="#a8429edc2ccce0f67f6d146c4f585066b">operator-</a> (const <a class="el" href="#a62d28d5d1169b2acbe546271d4e5cd46">TimeStamp</a> &amp;other) const noexcept</td></tr>
 <tr class="memdesc:a8429edc2ccce0f67f6d146c4f585066b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <a class="el" href="classsen_1_1_duration.html" title="A time duration.">Duration</a> of *this - other.  <br /></td></tr>
 <tr class="memitem:a02c952bc3f17fe764b6524313d7501b1" id="r_a02c952bc3f17fe764b6524313d7501b1"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a02c952bc3f17fe764b6524313d7501b1">toUtcString</a> () const</td></tr>
-<tr class="memdesc:a02c952bc3f17fe764b6524313d7501b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">UTC string representation of this time point.  <br /></td></tr>
+<tr class="memdesc:a02c952bc3f17fe764b6524313d7501b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">UTC string representation. Format <span class="tt">Y-m-d H:M:S uuuuuu</span> (microsecond precision).  <br /></td></tr>
+<tr class="memitem:a71ef05b66cacbcb06d12c9c9ba930428" id="r_a71ef05b66cacbcb06d12c9c9ba930428"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a71ef05b66cacbcb06d12c9c9ba930428">toUtcStringNs</a> () const</td></tr>
+<tr class="memdesc:a71ef05b66cacbcb06d12c9c9ba930428"><td class="mdescLeft">&#160;</td><td class="mdescRight">UTC string representation in RFC 3339 with nanosecond fractional digits (<span class="tt">2024-01-15T10:30:45.123456789Z</span>). Lossless across the full nanosecond range.  <br /></td></tr>
 <tr class="memitem:afe93bb87d3cf8a98429d0a6ddc2a9b43" id="r_afe93bb87d3cf8a98429d0a6ddc2a9b43"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#afe93bb87d3cf8a98429d0a6ddc2a9b43">toLocalString</a> () const</td></tr>
 <tr class="memdesc:afe93bb87d3cf8a98429d0a6ddc2a9b43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local string representation of this time point.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -648,7 +650,34 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>UTC string representation of this time point. </p>
+<p>UTC string representation. Format <span class="tt">Y-m-d H:M:S uuuuuu</span> (microsecond precision). </p>
+
+</div>
+</div>
+<a id="a71ef05b66cacbcb06d12c9c9ba930428" name="a71ef05b66cacbcb06d12c9c9ba930428"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71ef05b66cacbcb06d12c9c9ba930428">&#9670;&#160;</a></span>toUtcStringNs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::TimeStamp::toUtcStringNs </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>UTC string representation in RFC 3339 with nanosecond fractional digits (<span class="tt">2024-01-15T10:30:45.123456789Z</span>). Lossless across the full nanosecond range. </p>
 
 </div>
 </div>

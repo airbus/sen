@@ -32,6 +32,30 @@ var annotated_dup =
         [ "TemplatedBaseTypeDispatcher", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher", "namespacesen_1_1detail_structsen_1_1detail_1_1_templated_base_type_dispatcher_dup" ],
         [ "TemplatedBaseTypeDispatcher&lt; T, BaseClassType, true &gt;", "namespacesen_1_1detail.html#structsen_1_1detail_1_1_templated_base_type_dispatcher_3_01_t_00_01_base_class_type_00_01true_01_4", "namespacesen_1_1detail_structsen_1_1detail_1_1_templated_base_type_dispatcher_3_01_t_00_01_base_class_type_00_01true_01_4_dup" ]
       ] ],
+      [ "gen", "namespacesen_1_1gen.html", [
+        [ "detail", "namespacesen_1_1gen_1_1detail.html", [
+          [ "CppTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_cpp_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_cpp_template_set_dup" ],
+          [ "JsonTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_json_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_json_template_set_dup" ],
+          [ "MkDocsTemplates", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_mk_docs_templates", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_mk_docs_templates_dup" ],
+          [ "Node", "classsen_1_1gen_1_1detail_1_1_node.html", "classsen_1_1gen_1_1detail_1_1_node" ],
+          [ "PlantUmlTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_plant_uml_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_plant_uml_template_set_dup" ],
+          [ "PythonTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_python_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_python_template_set_dup" ],
+          [ "TemplateVisitorResult", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_template_visitor_result", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_template_visitor_result_dup" ],
+          [ "TypeGroups", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_type_groups", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_type_groups_dup" ],
+          [ "TypeScriptTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_type_script_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_type_script_template_set_dup" ],
+          [ "TypeStorage", "classsen_1_1gen_1_1detail_1_1_type_storage.html", "classsen_1_1gen_1_1detail_1_1_type_storage" ]
+        ] ],
+        [ "ComponentOptions", "group__gen.html#structsen_1_1gen_1_1_component_options", "group__gen_structsen_1_1gen_1_1_component_options" ],
+        [ "CppExportsOptions", "group__gen.html#structsen_1_1gen_1_1_cpp_exports_options", "group__gen_structsen_1_1gen_1_1_cpp_exports_options" ],
+        [ "CppGenerator", "classsen_1_1gen_1_1_cpp_generator.html", "classsen_1_1gen_1_1_cpp_generator" ],
+        [ "CppOptions", "group__gen.html#structsen_1_1gen_1_1_cpp_options", "group__gen_structsen_1_1gen_1_1_cpp_options" ],
+        [ "JsonGenerator", "classsen_1_1gen_1_1_json_generator.html", "classsen_1_1gen_1_1_json_generator" ],
+        [ "MkDocsGenerator", "classsen_1_1gen_1_1_mk_docs_generator.html", "classsen_1_1gen_1_1_mk_docs_generator" ],
+        [ "PackageOptions", "group__gen.html#structsen_1_1gen_1_1_package_options", "group__gen_structsen_1_1gen_1_1_package_options" ],
+        [ "PlantUMLGenerator", "classsen_1_1gen_1_1_plant_u_m_l_generator.html", "classsen_1_1gen_1_1_plant_u_m_l_generator" ],
+        [ "PythonGenerator", "classsen_1_1gen_1_1_python_generator.html", "classsen_1_1gen_1_1_python_generator" ],
+        [ "TypeScriptGenerator", "classsen_1_1gen_1_1_type_script_generator.html", "classsen_1_1gen_1_1_type_script_generator" ]
+      ] ],
       [ "kernel", "namespacesen_1_1kernel.html", [
         [ "Bootloader", "classsen_1_1kernel_1_1_bootloader.html", "classsen_1_1kernel_1_1_bootloader" ],
         [ "BusId", "structsen_1_1kernel_1_1_bus_id.html", "structsen_1_1kernel_1_1_bus_id" ],

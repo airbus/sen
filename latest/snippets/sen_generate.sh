@@ -12,5 +12,6 @@ Subcommands:
   py                               Generate Python dataclasses
   mkdocs                           Generate MkDocs documentation
   json                             Generate JSON schemas
+  ts                               Generate per-input TypeScript modules + a barrel from STL inputs
 
 For help on specific commands run 'sen generate <command> --help'

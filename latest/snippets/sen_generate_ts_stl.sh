@@ -1,16 +1,12 @@
-sen code generator
+Process STL files
+Usage: sen generate ts stl [OPTIONS] stl_files...
 
-Usage: sen generate [OPTIONS] SUBCOMMAND
+Positionals:
+  stl_files TEXT:FILE ... REQUIRED STL files
 
 Options:
   -h,--help                        Print this help message and exit
-  --expect-failure                 Expect a failure in the generation process (for testing purposes)
-
-Subcommands:
-  cpp                              Generate C++ code
-  uml                              Generate UML diagrams
-  py                               Generate Python dataclasses
-  mkdocs                           Generate MkDocs documentation
-  json                             Generate JSON schemas
-
-For help on specific commands run 'sen generate <command> --help'
+  -i,--import TEXT ...             Paths where other STL files can be found
+  -b,--base-path,--base_path TEXT  Base path for including generated files
+  -s,--settings TEXT:FILE          Code generation settings file
+  -d,--out-dir TEXT REQUIRED       Output directory for the generated .ts files

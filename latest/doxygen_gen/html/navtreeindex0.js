@@ -1,7 +1,7 @@
 var NAVTREEINDEX0 =
 {
-"algorithms_8h.html":[3,0,1,3,0,0,0,0,1],
-"algorithms_8h_source.html":[3,0,1,3,0,0,0,0,1],
+"algorithms_8h.html":[3,0,1,4,0,0,0,0,1],
+"algorithms_8h_source.html":[3,0,1,4,0,0,0,0,1],
 "alias__type_8h.html":[3,0,1,0,0,0,0,3,1],
 "alias__type_8h_source.html":[3,0,1,0,0,0,0,3,1],
 "annotated.html":[2,0],
@@ -15,8 +15,8 @@ var NAVTREEINDEX0 =
 "basic__traits_8h_source.html":[3,0,1,0,0,0,0,3,2],
 "bits_8h.html":[3,0,1,0,0,0,0,0,2],
 "bits_8h_source.html":[3,0,1,0,0,0,0,0,2],
-"bootloader_8h.html":[3,0,1,2,0,0,0,1],
-"bootloader_8h_source.html":[3,0,1,2,0,0,0,1],
+"bootloader_8h.html":[3,0,1,3,0,0,0,1],
+"bootloader_8h_source.html":[3,0,1,3,0,0,0,1],
 "buffer__writer_8h.html":[3,0,1,0,0,0,0,1,1],
 "buffer__writer_8h_source.html":[3,0,1,0,0,0,0,1,1],
 "callable_8h.html":[3,0,1,0,0,0,0,3,3],
@@ -35,6 +35,8 @@ var NAVTREEINDEX0 =
 "class_kernel_fixture.html#a5af465e73895e25bc19ee8452d7b877b":[2,0,3,1],
 "class_kernel_fixture.html#a5da544ecbdf4ac02922f9c86032759ec":[2,0,3,4],
 "class_kernel_fixture.html#adadc78401ec2f785afdded2b1b1e7027":[2,0,3,2],
+"classdoc__tree_8h.html":[3,0,1,2,1,3,0],
+"classdoc__tree_8h_source.html":[3,0,1,2,1,3,0],
 "classes.html":[2,1],
 "classsen_1_1_alias_type.html":[0,0,2,1,1],
 "classsen_1_1_alias_type.html#a0a1f69b5f37a348805ef7f0dbfa4c9ee":[0,0,2,1,1,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX0 =
 "classsen_1_1_input_stream_template.html#afa21d11951ffa3321f00d40d9568d5b9":[0,0,1,4,15],
 "classsen_1_1_input_stream_template.html#afd76a1a5abcf571dc52a4fe1fdb8d6f3":[0,0,1,4,14],
 "classsen_1_1_integral_type.html":[0,0,2,4],
-"classsen_1_1_integral_type.html":[0,0,2,1,18],
-"classsen_1_1_integral_type.html#a18856bb54ef9910303de9a7a00b12691":[0,0,2,4,7],
-"classsen_1_1_integral_type.html#a18856bb54ef9910303de9a7a00b12691":[0,0,2,1,18,7]
+"classsen_1_1_integral_type.html":[0,0,2,1,18]
 };
