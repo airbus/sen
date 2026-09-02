@@ -29,6 +29,7 @@
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
 #include "stl/sen/kernel/kernel_objects.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // std
 #include <chrono>
@@ -328,6 +329,11 @@ protected:  // methods implementation
   }
 
   [[nodiscard]] KernelParams getConfigImpl() const final { return config_; }
+
+  [[nodiscard]] NetworkFootprint getNetworkFootprintImpl() const final
+  {
+    return kernelImpl_->getRuntimeNetworkFootprint();
+  }
 
 private:
   void populateUnits()

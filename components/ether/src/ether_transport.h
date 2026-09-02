@@ -12,6 +12,8 @@
 #include "bus_handler.h"
 #include "discovery.h"
 #include "network_exclusion.h"
+#include "network_footprint.h"
+#include "port_binding.h"
 #include "process_handler.h"
 #include "stats.h"
 #include "util.h"
@@ -25,11 +27,13 @@
 
 // std
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <thread>
 #include <utility>
+#include <vector>
 
 namespace sen::components::ether
 {
@@ -44,7 +48,8 @@ public:
                  std::string_view appName,
                  std::shared_ptr<DiscoverySystem> discovery,
                  std::unique_ptr<sen::kernel::Tracer> tracer,
-                 const NetworkExclusions& exclusions);
+                 const NetworkExclusions& exclusions,
+                 std::shared_ptr<RuntimeNetworkFootprintState> runtimeFootprintState);
   ~EtherTransport() override;
 
 public:
@@ -86,6 +91,8 @@ private:
   kernel::ProcessId processReady(ProcessHandler* process);
   [[nodiscard]] BusHandler* getHandler(kernel::BusId& busId);
   [[nodiscard]] ProcessHandler* getHandler(kernel::ParticipantAddr& participantAddr);
+  [[nodiscard]] RuntimeFootprintPortId addRuntimePort(PortKind kind, uint16_t port);
+  void removeRuntimePort(RuntimeFootprintPortId& portId);
 
 private:
   using Lock = std::scoped_lock<std::recursive_mutex>;
@@ -95,6 +102,14 @@ private:
     std::lock_guard lock(ioMutex_);
     io_->stop();
   }
+
+private:
+  struct LocalBusState
+  {
+    std::string name;
+    std::vector<ObjectOwnerId> participants;
+    std::shared_ptr<BusHandler> multicastHandler;
+  };
 
 private:  // timers
   /// Stores an asynchronous steady timer and its expiration callback
@@ -117,9 +132,12 @@ private:
   kernel::ProcessInfo ownInfo_ {};
   std::shared_ptr<DiscoverySystem> discovery_;
   kernel::TransportListener* listener_ = nullptr;
+  std::shared_ptr<RuntimeNetworkFootprintState> runtimeFootprintState_;
+  RuntimeFootprintTransportId runtimeFootprintTransportId_ = invalidRuntimeFootprintTransportId;
+  RuntimeFootprintPortId acceptorPortId_ = invalidRuntimeFootprintPortId;
   std::vector<std::shared_ptr<ProcessHandler>> processes_;
   std::unordered_map<kernel::ProcessId, ProcessHandler*> readyProcesses_;
-  std::unordered_map<kernel::BusId, std::shared_ptr<BusHandler>> busMap_;
+  std::unordered_map<kernel::BusId, LocalBusState> localBuses_;
   std::recursive_mutex procMutex_;
   std::unique_ptr<asio::io_context> io_;
   std::thread executor_;
@@ -145,7 +163,7 @@ inline BusHandler* EtherTransport::getHandler(kernel::BusId& busId)
   BusHandler* handler;
   if (SEN_UNLIKELY(busId.userData == nullptr))
   {
-    handler = busMap_.find(busId)->second.get();
+    handler = localBuses_.find(busId)->second.multicastHandler.get();
     busId.userData = handler;
   }
   else
