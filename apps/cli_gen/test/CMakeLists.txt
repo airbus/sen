@@ -377,3 +377,54 @@ add_sen_cli_gen_smoke_test(
   COMMAND ./cli_gen --expect-failure cpp fom --directories=${hla_fom_gen_test_sources}/test27/fom
   WORKING_DIRECTORY ${working_dir}
 )
+
+# JSON-Schema structure: one test renders the fixture and asserts the result by JSON path.
+#
+# This replaced thirteen PASS_REGULAR_EXPRESSION checks over `cat lossless.json`. They matched
+# substrings in document order, so a file holding only `{"nonsense": "x-enum ... idle ... : 0"}`
+# satisfied the enum check and three lines of prose satisfied the inheritance one. They also read
+# an artefact a separate render test wrote into the shared binary directory, coupled by DEPENDS,
+# which sequences tests but does not gate them. The checker renders and verifies in one process.
+add_sen_integration_test(
+  json_schema_structure
+  COMMAND
+  ${Python3_EXECUTABLE}
+  ${hla_fom_gen_test_sources}/json_schema_lossless/check_json_schema.py
+  WORKING_DIRECTORY ${working_dir}
+  REQ_DEPS cli_gen
+)
+set_tests_properties(json_schema_structure PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
+
+# TypeScript generator smoke tests.
+add_sen_cli_gen_smoke_test(
+  ts_gen_smoke_happy
+  COMMAND ./cli_gen ts stl ${hla_fom_gen_test_sources}/typescript/fixture.stl -d ts_smoke_happy
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# Failure path: omitting -d must error out, not silently produce nothing.
+# CLI11's `->required()` rejects parsing before runApp; we gate on the non-zero exit
+# via WILL_FAIL rather than the app's --expect-failure flag.
+add_sen_cli_gen_smoke_test(
+  ts_gen_smoke_missing_outdir
+  COMMAND ./cli_gen ts stl ${hla_fom_gen_test_sources}/typescript/fixture.stl
+  WORKING_DIRECTORY ${working_dir}
+)
+set_tests_properties(ts_gen_smoke_missing_outdir PROPERTIES WILL_FAIL TRUE)
+
+# Structural check of the emitted TypeScript, replacing nine PASS_REGULAR_EXPRESSION checks that
+# asked only whether a sentinel appeared somewhere in the file. All nine passed against a file
+# reading `export type Direction = nonsense`. This compares whole declarations.
+#
+# It is the only test of the alias, enum and quantity templates: the client's tsc --noEmit covers
+# the generated types under strict, but that is a different invocation over jsonrpc.stl, which
+# declares none of those three.
+add_sen_integration_test(
+  ts_gen_structure
+  COMMAND
+  ${Python3_EXECUTABLE}
+  ${hla_fom_gen_test_sources}/typescript/check_typescript.py
+  WORKING_DIRECTORY ${working_dir}
+  REQ_DEPS cli_gen
+)
+set_tests_properties(ts_gen_structure PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")

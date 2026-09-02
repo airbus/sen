@@ -1,0 +1,8 @@
+## for event in events
+export interface {{ firstUpper(event.name) }}Notification {
+## for arg in event.args
+  {{ arg.name }}: {{ arg.tsAnnotationType }};
+## endfor
+}
+
+## endfor

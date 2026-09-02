@@ -88,8 +88,12 @@ public:  // operators
   constexpr Duration operator-(const TimeStamp& other) const noexcept { return sinceEpoch() - other.sinceEpoch(); }
 
 public:
-  /// UTC string representation of this time point.
+  /// UTC string representation. Format `%Y-%m-%d %H:%M:%S uuuuuu` (microsecond precision).
   [[nodiscard]] std::string toUtcString() const;
+
+  /// UTC string representation in RFC 3339 with nanosecond fractional digits
+  /// (`2024-01-15T10:30:45.123456789Z`). Lossless across the full nanosecond range.
+  [[nodiscard]] std::string toUtcStringNs() const;
 
   /// Local string representation of this time point.
   [[nodiscard]] std::string toLocalString() const;
