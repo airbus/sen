@@ -22,6 +22,21 @@ const packageJsonPath = resolve(here, "..", "package.json");
 const packageOutputPath = resolve(here, "..", "src", "baked_package.ts");
 
 // Per-folder URI prefix + an exclude-set or include-set of basenames.
+//
+// `exclude` is deliberate for users_guide and components, and it is the pairing with
+// baked_docs.test.ts that makes it safe rather than the mode alone. That test asserts the
+// emitted URI list by EXACT equality, so adding a documentation page changes BAKED_DOCS, the
+// snapshot fails, and somebody has to decide whether a model should read it. An allowlist
+// inverts that into silence: the new page is simply not baked, nothing changes, nothing fails,
+// and a page the model should reach is missing with no signal.
+//
+// Opt-in is the safer default for a model-facing surface in general, which is why two readers
+// reached for it independently in one day. It does not survive contact with the snapshot; the
+// tripwire is what forces the decision, and it only fires in exclude mode.
+//
+// If that test is ever weakened from `toEqual` to a subset check -- an inviting edit for someone
+// who finds it failing on every new page and does not know what it is for -- the tripwire is
+// gone and exclude mode really does become silent exposure.
 const sources = [
   {
     folder: "users_guide",

@@ -43,6 +43,11 @@ const EXPECTED_URIS: readonly string[] = [
 ];
 
 describe("baked_docs", () => {
+  // Exact equality, not a subset check, and that is load-bearing. bake_docs selects
+  // users_guide and components by exclusion, so a new documentation page is baked
+  // automatically; this assertion is the only thing that turns that into a decision rather
+  // than silent exposure of a page to a model. Weakening it to "contains at least" to stop it
+  // failing whenever documentation is added would remove the tripwire entirely.
   it("matches the curated URI manifest exactly", () => {
     const actual = BAKED_DOCS.map((d) => d.uri).sort();
     expect(actual).toEqual([...EXPECTED_URIS].sort());
