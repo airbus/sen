@@ -151,8 +151,9 @@ class VirtualMasterClock: extends VirtualClock
 {
   var delta : Duration [writable];
 
-  // calls advanceTimeDrainInputsAndUpdate(delta) and then flushOutputs()
-  // on all VirtualKernelClocks n times, where n is duration / delta
+  // calls advanceTimeDrainInputsAndUpdate(delta) then flushOutputs() on all
+  // VirtualKernelClocks, until the virtual time advanced reaches duration, rounding
+  // up to a whole delta. Returns the wall time the call took
   fn advanceTime(duration: Duration) -> Duration [bestEffort];
 
   // single step forward, based on delta
