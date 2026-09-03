@@ -26,7 +26,7 @@ installer](../getting_started/install.md) cover the common paths. Build from sou
   Conan can also install these for you if you set `tools.system.package_manager:mode=install` in your profile,
   but pre-installing them is simpler and less intrusive.
 
-When you go through the Conan-driven path below, Conan downloads CMake (3.28.1) and Ninja (1.13.2) into its own
+When you go through the Conan-driven path below, Conan downloads CMake (3.31.10) and Ninja (1.13.2) into its own
 cache as `tool_requires`: no system install needed for those.
 
 **Required only if you skip Conan**

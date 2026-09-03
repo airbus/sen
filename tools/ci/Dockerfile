@@ -31,7 +31,7 @@ ARG JUNITPARSER_VERSION=5.0.1
 ARG PYTEST_VERSION=9.1.1
 # Both must equal the versions conanfile.py tool-requires, and nothing checks that
 # they do. The header says why the image carries them at all.
-ARG CMAKE_VERSION=3.28.1
+ARG CMAKE_VERSION=3.31.10
 ARG NINJA_VERSION=1.13.2
 
 LABEL org.opencontainers.image.source="https://github.com/airbus/sen" \
