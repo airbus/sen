@@ -15,7 +15,9 @@ regex-style-search=True
 types=build,chore,ci,docs,feat,fix,perf,refactor,revert,test
 
 # Dependency bumps are written by Dependabot and cite compare URLs that run well past
-# the line limit and cannot be wrapped. The limit still applies to everything else,
+# the line limit and cannot be wrapped. The title has the same problem: it names the
+# manifest's directory, so a package under components/jsonrpc/clients/typescript is over
+# the limit before the version numbers. The limits still apply to everything else,
 # including the rest of a dependency commit's body.
 #
 # This list REPLACES the one in [general] for matching titles, it does not add to it,
@@ -23,4 +25,4 @@ types=build,chore,ci,docs,feat,fix,perf,refactor,revert,test
 # fails: it pipes a bare title into gitlint, which then has no body at all.
 [ignore-by-title]
 regex=^chore\(deps\)
-ignore=body-max-line-length,body-is-missing
+ignore=body-max-line-length,body-is-missing,title-max-length
