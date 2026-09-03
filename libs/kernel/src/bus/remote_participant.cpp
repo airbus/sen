@@ -840,9 +840,12 @@ void RemoteParticipant::rcvObjectUpdate(const ObjectUpdateMessage& message)
 
   if (auto mapItr = trackedProxies_.find(message.objectId); mapItr != trackedProxies_.end())
   {
-    for (auto& elem: *mapItr->second)
+    for (const auto& elem: *mapItr->second)
     {
-      elem->propertyUpdatesReceived(message.buffer, message.time);
+      if (const auto elemPtr = elem.lock())
+      {
+        elemPtr->propertyUpdatesReceived(message.buffer, message.time);
+      }
     }
   }
 }
@@ -993,22 +996,20 @@ void RemoteParticipant::rcvMethodResponse(InputStream& in)
   }
 
   // send the response to the proxy that issued the call
-  RemoteObjectListPtr remotes;
   {
     Lock lock(usageMutex_);
-    auto mapItr = trackedProxies_.find(objectId);
+    const auto mapItr = trackedProxies_.find(objectId);
     if (mapItr == trackedProxies_.end())
     {
       return;
     }
-    remotes = mapItr->second;
-  }
 
-  for (auto& elem: *remotes)
-  {
-    if (elem->responseReceived(responseData))
+    for (const auto& remote: *mapItr->second)
     {
-      break;
+      if (const auto remotePtr = remote.lock(); remotePtr && remotePtr->responseReceived(responseData))
+      {
+        break;
+      }
     }
   }
 }
@@ -1034,9 +1035,12 @@ void RemoteParticipant::rcvEvents(InputStream& in)
     }
 
     // make all the proxies emit the event out of the received buffer
-    for (auto& proxyPtr: *remotes)
+    for (const auto& elem: *remotes)
     {
-      proxyPtr->eventReceived(eventData.eventId, eventData.creationTime, eventData.argumentsBuffer);
+      if (const auto proxyPtr = elem.lock())
+      {
+        proxyPtr->eventReceived(eventData.eventId, eventData.creationTime, eventData.argumentsBuffer);
+      }
     }
   }
 }
@@ -1168,13 +1172,9 @@ void RemoteParticipant::remoteObjectsRemoved(const ObjectsRemoved& msg)
 
     for (const auto elem: interestObjectsRemoval.ids)
     {
-      auto objectId = ObjectId(elem);
-
-      stopTrackingProxy(objectId);
-
       ObjectRemoval removal;
       removal.interestId = interestId;
-      removal.objectid = objectId;
+      removal.objectid = ObjectId(elem);
       removals.push_back(removal);
     }
 
@@ -1887,10 +1887,12 @@ RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscoveryFromProxy(Obje
 {
   if (const auto it = trackedProxies_.find(objectId); it != trackedProxies_.end())
   {
-    auto proxy = it->second->front();
-    auto proxyMaker = createProxyMaker(proxy->getName(), proxy->getId(), proxy->getClass(), proxy->getWriterSchema());
-
-    return {objectId, proxy->getName(), proxy->getClass(), std::move(proxyMaker), interestId, ownerAddress_.id};
+    if (const auto proxyPtr = it->second->front().lock())
+    {
+      auto proxyMaker =
+        createProxyMaker(proxyPtr->getName(), proxyPtr->getId(), proxyPtr->getClass(), proxyPtr->getWriterSchema());
+      return {objectId, proxyPtr->getName(), proxyPtr->getClass(), std::move(proxyMaker), interestId, ownerAddress_.id};
+    }
   }
 
   std::string err = "Could not make remote object discovery (interest ID: ";
@@ -1912,10 +1914,10 @@ std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy
                                                        : std::make_shared<GenericRemoteObject>(std::move(info));
 
   RemoteObjectListPtr remotes;
-  if (auto mapItr = trackedProxies_.find(proxy->getId()); mapItr == trackedProxies_.end())
+  if (const auto mapItr = trackedProxies_.find(proxy->getId()); mapItr == trackedProxies_.end())
   {
     auto [itr, done] = trackedProxies_.try_emplace(
-      proxy->getId(), std::make_shared<std::vector<std::shared_ptr<::sen::impl::RemoteObject>>>());
+      proxy->getId(), std::make_shared<std::vector<std::weak_ptr<::sen::impl::RemoteObject>>>());
 
     remotes = itr->second;
   }
@@ -1928,7 +1930,10 @@ std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy
   // otherwise, we take it from what we have received so far
   if (!remotes->empty())
   {
-    proxy->copyStateFrom(*remotes->front());
+    if (const auto otherProxy = remotes->front().lock())
+    {
+      proxy->copyStateFrom(*otherProxy);
+    }
     monitoredObjects_.stopMonitoring(proxy->getId(), session_->getTransport());
   }
   else
@@ -1958,9 +1963,12 @@ void RemoteParticipant::stopTrackingProxy(ObjectId objectId)
   }
 
   // stop the proxy from calling us, since we will no longer exist
-  for (auto& proxy: *remotes)
+  for (const auto& proxy: *remotes)
   {
-    proxy->clearDestructionCallback();
+    if (const auto proxyPtr = proxy.lock())
+    {
+      proxyPtr->clearDestructionCallback();
+    }
   }
 
   {
@@ -1974,10 +1982,10 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
 {
   const auto id = proxy->getId();
 
+  Lock lock(usageMutex_);
   RemoteObjectListPtr remotes;
   {
-    Lock lock(usageMutex_);
-    auto mapItr = trackedProxies_.find(id);
+    const auto mapItr = trackedProxies_.find(id);
     if (mapItr == trackedProxies_.end())
     {
       // stop monitoring the object in case the proxy has not been tracked yet
@@ -1987,23 +1995,16 @@ void RemoteParticipant::proxyAboutToBeDeleted(::sen::impl::RemoteObject* proxy)
     remotes = mapItr->second;
   }
 
-  if (auto listItr =
-        std::find_if(remotes->begin(), remotes->end(), [proxy](auto& elem) { return elem.get() == proxy; });
-      listItr != remotes->end())
-  {
-    remotes->erase(listItr);
-  }
+  // the proxy weak ptr that has expired is the one that is being deleted
+  remotes->erase(std::remove_if(remotes->begin(), remotes->end(), [](const auto& elem) { return elem.expired(); }),
+                 remotes->end());
 
   if (remotes->empty())
   {
-    Lock lock(usageMutex_);
     trackedProxies_.erase(id);
   }
 
-  {
-    Lock lock(usageMutex_);
-    monitoredObjects_.stopMonitoring(id, session_->getTransport());
-  }
+  monitoredObjects_.stopMonitoring(id, session_->getTransport());
 }
 
 //--------------------------------------------------------------------------------------------------------------
