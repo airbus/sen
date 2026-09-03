@@ -11,6 +11,7 @@
 // component
 #include "bus_handler.h"
 #include "discovery.h"
+#include "network_exclusion.h"
 #include "process_handler.h"
 #include "stats.h"
 #include "util.h"
@@ -42,7 +43,8 @@ public:
                  std::string_view sessionName,
                  std::string_view appName,
                  std::shared_ptr<DiscoverySystem> discovery,
-                 std::unique_ptr<sen::kernel::Tracer> tracer);
+                 std::unique_ptr<sen::kernel::Tracer> tracer,
+                 const NetworkExclusions& exclusions);
   ~EtherTransport() override;
 
 public:
@@ -125,6 +127,7 @@ private:
   std::unique_ptr<sen::kernel::Tracer> tracer_;
   std::mutex ioMutex_;
   TransportCounters counters_;
+  const NetworkExclusions& exclusions_;
 
   // timers
   std::unordered_map<TimerId, TimerData> timers_;

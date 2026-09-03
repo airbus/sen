@@ -8,6 +8,7 @@
 #include "bus_handler.h"
 
 // component
+#include "network_exclusion.h"
 #include "shared_buffer_sequence.h"
 #include "stats.h"
 #include "util.h"
@@ -80,27 +81,37 @@ uint8_t computeByte(const ByteRange& byteRange, uint8_t hash)
 asio::ip::address computeMulticastAddress(uint32_t sessionId,
                                           uint32_t busId,
                                           uint16_t discoveryPort,
-                                          const MulticastRange& ranges)
+                                          const MulticastRange& range,
+                                          const MulticastExclusions& exclusions)
 {
   const auto hash = hashCombine(busHashSeed, sessionId, busId, discoveryPort);
   const auto hashBytes = reinterpret_cast<const uint8_t*>(&hash);  // NOLINT
 
-  const uint8_t byte0 = computeByte(ranges[0], hashBytes[0]);  // NOLINT
-  const uint8_t byte1 = computeByte(ranges[1], hashBytes[1]);  // NOLINT
-  const uint8_t byte2 = computeByte(ranges[2], hashBytes[2]);  // NOLINT
-  const uint8_t byte3 = computeByte(ranges[3], hashBytes[3]);  // NOLINT
+  const uint8_t byte0 = computeByte(range[0], hashBytes[0]);  // NOLINT
+  const uint8_t byte1 = computeByte(range[1], hashBytes[1]);  // NOLINT
+  const uint8_t byte2 = computeByte(range[2], hashBytes[2]);  // NOLINT
+  const uint8_t byte3 = computeByte(range[3], hashBytes[3]);  // NOLINT
 
   // NOLINTNEXTLINE
   asio::ip::address_v4::bytes_type bytes = {byte0, byte1, byte2, byte3};
 
   for (std::size_t i = 0; i < bytes.size(); ++i)
   {
-    bytes[i] = clamp(bytes[i], ranges[i]);  // NOLINT
+    bytes[i] = clamp(bytes[i], range[i]);  // NOLINT
   }
 
-  const auto address = asio::ip::address_v4(bytes);
-  SEN_ENSURE(address.is_multicast());
-  return address;
+  const auto address = getUsableMulticastAddress(asio::ip::address_v4(bytes), range, exclusions);
+
+  // component.cpp rejects a range with no usable address before the component starts, so this
+  // normally cannot fire. It stays because that check is skipped when multicast is disabled, and
+  // because it is per-bus rather than over the whole range.
+  if (!address)
+  {
+    throwRuntimeError("multicast address range has no usable addresses after applying exclusions");
+  }
+
+  SEN_ENSURE(address->is_multicast());
+  return *address;
 }
 
 }  // namespace
@@ -118,10 +129,11 @@ std::shared_ptr<BusHandler> BusHandler::make(uint32_t sessionId,
                                              asio::io_context& io,
                                              const Configuration& config,
                                              sen::kernel::Tracer& tracer,
-                                             TransportCounters& counters)
+                                             TransportCounters& counters,
+                                             const MulticastExclusions& exclusions)
 {
   return std::shared_ptr<BusHandler>(
-    new BusHandler(sessionId, busId, name, procId, listener, discoveryPort, io, config, tracer, counters));
+    new BusHandler(sessionId, busId, name, procId, listener, discoveryPort, io, config, tracer, counters, exclusions));
 }
 
 BusHandler::BusHandler(uint32_t sessionId,
@@ -133,7 +145,8 @@ BusHandler::BusHandler(uint32_t sessionId,
                        asio::io_context& io,
                        const Configuration& config,
                        sen::kernel::Tracer& tracer,
-                       TransportCounters& counters)
+                       TransportCounters& counters,
+                       const MulticastExclusions& exclusions)
   : busId_(busId)
   , procId_(procId)
   , name_(std::move(name))
@@ -146,7 +159,8 @@ BusHandler::BusHandler(uint32_t sessionId,
   , io_(io)
   , counters_(counters)
 {
-  const auto group = computeMulticastAddress(sessionId, busId.get(), discoveryPort, config.busConfig.multicastRange);
+  const auto group =
+    computeMulticastAddress(sessionId, busId.get(), discoveryPort, config.busConfig.multicastRange, exclusions);
 
   // configure the tracing
   outQueue_.configureTracing(name + "bus.udp.out", &tracer);

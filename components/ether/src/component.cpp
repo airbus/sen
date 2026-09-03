@@ -8,6 +8,7 @@
 // component
 #include "discovery.h"
 #include "ether_transport.h"
+#include "network_exclusion.h"
 #include "tcp_discovery_hub.h"
 #include "util.h"
 
@@ -95,6 +96,22 @@ public:
       return result;
     }
 
+    auto exclusionsResult = makeNetworkExclusions(config_);
+    if (exclusionsResult.isError())
+    {
+      return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, std::move(exclusionsResult).getError()});
+    }
+    exclusions_ = std::move(exclusionsResult).getValue();
+
+    if (!config_.busConfig.multicastDisabled &&
+        !hasUsableMulticastAddress(config_.busConfig.multicastRange, exclusions_.multicast))
+    {
+      return Err(kernel::ExecError {
+        kernel::ErrorCategory::expectationsNotMet,
+        "multicast address range has no usable addresses after applying exclusions",
+      });
+    }
+
     discovery_ = DiscoverySystem::make(config_, io_);
 
     // run the discovery hub if needed
@@ -106,7 +123,9 @@ public:
     const auto& appName = api.getAppName();
     api.installTransportFactory(
       [this, appName](const auto& session, std::unique_ptr<sen::kernel::Tracer> tracer)
-      { return std::make_unique<EtherTransport>(config_, session, appName, discovery_, std::move(tracer)); },
+      {
+        return std::make_unique<EtherTransport>(config_, session, appName, discovery_, std::move(tracer), exclusions_);
+      },
       etherProtocolVersion);
     return done();
   }
@@ -275,6 +294,7 @@ private:
   std::shared_ptr<DiscoverySystem> discovery_;
   std::unique_ptr<TcpDiscoveryHub> discoveryHub_;
   Configuration config_ {};
+  NetworkExclusions exclusions_;
 };
 
 }  // namespace sen::components::ether
