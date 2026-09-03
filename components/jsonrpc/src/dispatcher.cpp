@@ -369,6 +369,41 @@ void Dispatcher::markDirty(ConnectionId connId, std::string_view interestName, s
   dirty_.insert(DirtyKey {connId, std::string {interestName}, std::string {objectName}});
 }
 
+void Dispatcher::notePropertyChanged(ConnectionId connId,
+                                     std::string_view interestName,
+                                     std::string_view objectName,
+                                     const std::string& propertyName,
+                                     const sen::Property* property,
+                                     sen::TimeStamp changeTime)
+{
+  Server* server = serverRegistry_->find(connId);
+  if (server == nullptr)
+  {
+    return;
+  }
+
+  auto& interests = server->interests();
+  auto interestIt = interests.find(std::string {interestName});
+  if (interestIt == interests.end())
+  {
+    return;
+  }
+
+  auto subsIt = interestIt->second.objectSubs.find(std::string {objectName});
+  if (subsIt == interestIt->second.objectSubs.end())
+  {
+    return;
+  }
+
+  // Only record WHICH property changed; the value is read at flush time. Reading it here would
+  // take the object's reader lock while the callback lock is held, the reverse of the commit
+  // path's lock order (potential deadlock).
+  subsIt->second.dirtyProperties[propertyName] = property;
+  // Commits are monotonic, so last-write-wins gives the latest time.
+  subsIt->second.latestChangeTime = changeTime;
+  markDirty(connId, interestName, objectName);
+}
+
 void Dispatcher::flushPendingPropertyNotifications()
 {
   if (dirty_.empty())

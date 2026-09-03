@@ -63,43 +63,27 @@ namespace
                                               std::string objectName,
                                               std::string propertyName,
                                               std::shared_ptr<sen::Object> object,
-                                              const sen::Property* property,
-                                              ObjectSubs* subs,
-                                              std::weak_ptr<sen::Object> serverWeak)
+                                              const sen::Property* property)
 {
   const bool reliable = property->getTransportMode() == sen::TransportMode::confirmed;
-  return PropertyGuard {object->onPropertyChangedUntyped(property,
-                                                         {workQueue,
-                                                          [&dispatcher,
-                                                           connId,
-                                                           interestName = std::move(interestName),
-                                                           objectName = std::move(objectName),
-                                                           propertyName = std::move(propertyName),
-                                                           property,
-                                                           subs,
-                                                           serverWeak = std::move(serverWeak)](
-                                                            const sen::EventInfo& info, const sen::VarList& /*args*/)
-                                                          {
-                                                            // Pin the Server for the body so the captured subs* (which
-                                                            // lives inside its InterestEntry) stays valid even if a
-                                                            // queued callback fires after disconnect.
-                                                            auto self = serverWeak.lock();
-                                                            if (!self)
-                                                            {
-                                                              return;
-                                                            }
-                                                            // Only record WHICH property changed; the value is read at
-                                                            // flush time. Reading it here would take the object's
-                                                            // reader lock while the callback lock is held, the reverse
-                                                            // of the commit path's lock order (potential deadlock).
-                                                            subs->dirtyProperties[propertyName] = property;
-                                                            // The change's commit-side timestamp arrives with the
-                                                            // callback. Commits are monotonic, so last-write-wins gives
-                                                            // the latest time.
-                                                            subs->latestChangeTime = info.creationTime;
-                                                            dispatcher.markDirty(connId, interestName, objectName);
-                                                          }}),
-                        reliable};
+  return PropertyGuard {
+    object->onPropertyChangedUntyped(property,
+                                     {workQueue,
+                                      [&dispatcher,
+                                       connId,
+                                       interestName = std::move(interestName),
+                                       objectName = std::move(objectName),
+                                       propertyName = std::move(propertyName),
+                                       property](const sen::EventInfo& info, const sen::VarList& /*args*/)
+                                      {
+                                        // By key, not by pointer: this callback is queued on a
+                                        // work queue, so it can run after the interest it was
+                                        // wired for is gone. Holding the ObjectSubs it wrote to
+                                        // was a use-after-free once the InterestEntry died.
+                                        dispatcher.notePropertyChanged(
+                                          connId, interestName, objectName, propertyName, property, info.creationTime);
+                                      }}),
+    reliable};
 }
 
 [[nodiscard]] sen::ConnectionGuard wireEventGuard(Dispatcher& dispatcher,
@@ -212,10 +196,7 @@ void rewireRequestedSubscriptions(Dispatcher& dispatcher,
     connId,
     [&meta](const std::string& name) { return meta->searchPropertyByName(name); },
     [&](const std::string& name, const sen::Property* property)
-    {
-      return wirePropertyGuard(
-        dispatcher, workQueue, connId, interestName, objectName, name, object, property, &subs, serverWeak);
-    });
+    { return wirePropertyGuard(dispatcher, workQueue, connId, interestName, objectName, name, object, property); });
 
   rewireKind(
     subs.requestedEvents,

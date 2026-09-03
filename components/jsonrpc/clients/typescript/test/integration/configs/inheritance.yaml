@@ -1,0 +1,39 @@
+# Sen YAML config used by the @sen/client integration suite. Loads two test packages from
+# test/util so the suite never depends on the examples build axis (with_examples).
+#
+# `test.primary` carries a `my_package.MyClass` instance: rich writable surface (prop2 struct,
+# prop3 variant, prop5 i32, prop7 i32, etc.) and a [static] prop1 for the RO rejection check.
+# `my_package`'s update tick leaves the test-facing writable props alone, so the set+observe
+# round-trip is deterministic.
+#
+# `test.secondary` carries an `inheritance.MySubClass` instance for the event tests: the impl
+# fires `somethingElseHappened(arg)` from `doSomethingElse(arg)`, so subscribers see the event
+# in response to a client-driven invoke (more deterministic than tick-driven autonomous emit).
+#
+# Both instances live under a single component (one group, one tick loop). Splitting them into
+# separate components surfaces a backend race where queries against the second component's bus
+# can return zero matches even after the createInterest call resolves.
+#
+# Port 8080 matches helpers.ts (senPort). Bound on 0.0.0.0 so a containerised CI runner can
+# still reach the server from the loopback the host probes.
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+
+build:
+  - name: testInstances
+    group: 3
+    freqHz: 30
+    imports: [my_package, inheritance]
+    objects:
+      - name: instance1
+        class: my_package.MyClassImpl
+        prop1: instance1-static
+        bus: test.primary
+      - name: instance2
+        class: inheritance.MySubClassImpl
+        prop1: instance2-static
+        aString: subclass-static
+        bus: test.secondary

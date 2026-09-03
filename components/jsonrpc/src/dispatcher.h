@@ -195,6 +195,17 @@ public:
   /// Marks an `ObjectSubs` as having pending property values that need flushing.
   void markDirty(ConnectionId connId, std::string_view interestName, std::string_view objectName);
 
+  /// Records a changed property and marks its `ObjectSubs` dirty, resolving the subscription
+  /// from the keys rather than from a pointer held by the caller. A property-changed callback
+  /// is queued on a work queue and can run after the interest it was wired for is gone, so it
+  /// has nothing valid to point at; a subscription that no longer exists is not an error here.
+  void notePropertyChanged(ConnectionId connId,
+                           std::string_view interestName,
+                           std::string_view objectName,
+                           const std::string& propertyName,
+                           const sen::Property* property,
+                           sen::TimeStamp changeTime);
+
   /// Per-process session/bus topology tracker. Servers call into it from their
   /// `subscribeTopology` / `unsubscribeTopology` / `listTopology` impls.
   [[nodiscard]] TopologyService& topology() noexcept { return *topology_; }
