@@ -71,6 +71,9 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: npm
     directory: /components/jsonrpc/clients/typescript
@@ -91,6 +94,9 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: npm
     directory: /components/webexplorer/frontend
@@ -111,6 +117,9 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: npm
     directory: /resources/syntax_highlighting/stl/vscode
@@ -131,3 +140,57 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+        update-types:
+          - minor
+          - patch
+
+  # The two python manifests. Same shape as the javascript projects: grouped for the
+  # updates that carry no decision, and majors left on their own.
+  - package-ecosystem: pip
+    directory: /docs
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    groups:
+      docs:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      docs-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+
+  # The two python manifests. Same shape as the javascript projects: grouped for the
+  # updates that carry no decision, and majors left on their own.
+  - package-ecosystem: pip
+    directory: /examples/apps/rest_python
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    groups:
+      rest-python-example:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      rest-python-example-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
