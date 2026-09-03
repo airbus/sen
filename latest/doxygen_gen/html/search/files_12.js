@@ -12,13 +12,14 @@ var searchData=
   ['type_5fimpl_2eh_9',['type_impl.h',['../type__impl_8h.html',1,'']]],
   ['type_5fmatch_2eh_10',['type_match.h',['../type__match_8h.html',1,'']]],
   ['type_5fregistry_2eh_11',['type_registry.h',['../type__registry_8h.html',1,'']]],
-  ['type_5fspecs_5futils_2eh_12',['type_specs_utils.h',['../type__specs__utils_8h.html',1,'']]],
-  ['type_5fstorage_2eh_13',['type_storage.h',['../type__storage_8h.html',1,'']]],
-  ['type_5ftraits_2eh_14',['type_traits.h',['../type__traits_8h.html',1,'']]],
-  ['type_5ftraits_5fextra_2eh_15',['type_traits_extra.h',['../type__traits__extra_8h.html',1,'']]],
-  ['type_5futils_2eh_16',['type_utils.h',['../type__utils_8h.html',1,'']]],
-  ['type_5fvisitor_2eh_17',['type_visitor.h',['../type__visitor_8h.html',1,'']]],
-  ['types_5ffwd_2eh_18',['types_fwd.h',['../types__fwd_8h.html',1,'']]],
-  ['typescript_2eh_19',['typescript.h',['../typescript_8h.html',1,'']]],
-  ['typescript_5ftemplates_2eh_20',['typescript_templates.h',['../typescript__templates_8h.html',1,'']]]
+  ['type_5fspecs_2eh_12',['type_specs.h',['../type__specs_8h.html',1,'']]],
+  ['type_5fspecs_5futils_2eh_13',['type_specs_utils.h',['../type__specs__utils_8h.html',1,'']]],
+  ['type_5fstorage_2eh_14',['type_storage.h',['../type__storage_8h.html',1,'']]],
+  ['type_5ftraits_2eh_15',['type_traits.h',['../type__traits_8h.html',1,'']]],
+  ['type_5ftraits_5fextra_2eh_16',['type_traits_extra.h',['../type__traits__extra_8h.html',1,'']]],
+  ['type_5futils_2eh_17',['type_utils.h',['../type__utils_8h.html',1,'']]],
+  ['type_5fvisitor_2eh_18',['type_visitor.h',['../type__visitor_8h.html',1,'']]],
+  ['types_5ffwd_2eh_19',['types_fwd.h',['../types__fwd_8h.html',1,'']]],
+  ['typescript_2eh_20',['typescript.h',['../typescript_8h.html',1,'']]],
+  ['typescript_5ftemplates_2eh_21',['typescript_templates.h',['../typescript__templates_8h.html',1,'']]]
 ];

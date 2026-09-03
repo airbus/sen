@@ -145,18 +145,29 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('variant__conve
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#define SEN_LIBS_DB_BINDINGS_PYTHON_VARIANT_CONVERSION_H</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">// sen</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;<a class="code" href="var_8h.html">sen/core/meta/var.h</a>&quot;</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// pybind</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;pybind11/pybind11.h&gt;</span>  <span class="comment">// NOLINT(misc-include-cleaner)</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;pybind11/pytypes.h&gt;</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="variant__conversion_8h.html#a63d1953751be4203ec6a0d87932079d3">   18</a></span>[[nodiscard]] pybind11::object <a class="code hl_function" href="variant__conversion_8h.html#a63d1953751be4203ec6a0d87932079d3">toPython</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structsen_1_1_var.html">sen::Var</a>&amp; var);</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_LIBS_DB_BINDINGS_PYTHON_VARIANT_CONVERSION_H</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;<a class="code" href="type_8h.html">sen/core/meta/type.h</a>&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="var_8h.html">sen/core/meta/var.h</a>&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">// pybind</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;pybind11/pybind11.h&gt;</span>  <span class="comment">// NOLINT(misc-include-cleaner)</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &lt;pybind11/pytypes.h&gt;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// With `type`, KeyedVar tags emit the alternative&#39;s qualified type name; without, they emit</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">// the numeric variant index as a string.</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="variant__conversion_8h.html#afcd7bf351d17a22b91094156ba528c97">   21</a></span>[[nodiscard]] pybind11::object <a class="code hl_function" href="variant__conversion_8h.html#afcd7bf351d17a22b91094156ba528c97">toPython</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structsen_1_1_var.html">sen::Var</a>&amp; var, <span class="keyword">const</span> <a class="code hl_class" href="classsen_1_1_type.html">sen::Type</a>* type = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">// Walk a Var into a Python object without performing any KeyedVar adaptation. The caller is</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">// responsible for running adaptVariant(useStrings=true) beforehand if string variant tags are</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">// wanted; otherwise KeyedVar tags surface as their numeric index.</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="variant__conversion_8h.html#a2a98394b09a0b4d0f73e1085a97a7377">   26</a></span>[[nodiscard]] pybind11::object <a class="code hl_function" href="variant__conversion_8h.html#a2a98394b09a0b4d0f73e1085a97a7377">visitVar</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structsen_1_1_var.html">sen::Var</a>&amp; var);</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_LIBS_DB_BINDINGS_PYTHON_VARIANT_CONVERSION_H</span></div>
+<div class="ttc" id="aclasssen_1_1_type_html"><div class="ttname"><a href="classsen_1_1_type.html">sen::Type</a></div><div class="ttdoc">Represents a type that can be used to define variables and arguments for methods or functions....</div><div class="ttdef"><b>Definition</b> type.h:71</div></div>
 <div class="ttc" id="astructsen_1_1_var_html"><div class="ttname"><a href="structsen_1_1_var.html">sen::Var</a></div><div class="ttdoc">Can hold any supported value type. Wraps std::variant to allow recursion and implements some helpers.</div><div class="ttdef"><b>Definition</b> var.h:119</div></div>
+<div class="ttc" id="atype_8h_html"><div class="ttname"><a href="type_8h.html">type.h</a></div></div>
 <div class="ttc" id="avar_8h_html"><div class="ttname"><a href="var_8h.html">var.h</a></div></div>
-<div class="ttc" id="avariant__conversion_8h_html_a63d1953751be4203ec6a0d87932079d3"><div class="ttname"><a href="variant__conversion_8h.html#a63d1953751be4203ec6a0d87932079d3">toPython</a></div><div class="ttdeci">pybind11::object toPython(const sen::Var &amp;var)</div></div>
+<div class="ttc" id="avariant__conversion_8h_html_a2a98394b09a0b4d0f73e1085a97a7377"><div class="ttname"><a href="variant__conversion_8h.html#a2a98394b09a0b4d0f73e1085a97a7377">visitVar</a></div><div class="ttdeci">pybind11::object visitVar(const sen::Var &amp;var)</div></div>
+<div class="ttc" id="avariant__conversion_8h_html_afcd7bf351d17a22b91094156ba528c97"><div class="ttname"><a href="variant__conversion_8h.html#afcd7bf351d17a22b91094156ba528c97">toPython</a></div><div class="ttdeci">pybind11::object toPython(const sen::Var &amp;var, const sen::Type *type=nullptr)</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

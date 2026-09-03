@@ -64,5 +64,6 @@ var searchData=
   ['createwriterlock_61',['createWriterLock',['../classsen_1_1_native_object.html#a7f7fdbf57f3bb3eba1540e1691bba679',1,'sen::NativeObject']]],
   ['creation_62',['creation',['../classsen_1_1db_1_1_output.html#a4f85dd585624dfd7e141977ac5df904b',1,'sen::db::Output']]],
   ['customtype_63',['CustomType',['../classsen_1_1_custom_type.html#a13ede1de6cb24f387abc92212e9549d2',1,'sen::CustomType']]],
-  ['customtyperegistry_64',['CustomTypeRegistry',['../classsen_1_1_custom_type_registry.html#a5eb245294f9c00a31bf89bf718e0e75c',1,'sen::CustomTypeRegistry']]]
+  ['customtyperegistry_64',['CustomTypeRegistry',['../classsen_1_1_custom_type_registry.html#a5eb245294f9c00a31bf89bf718e0e75c',1,'sen::CustomTypeRegistry']]],
+  ['customtypetopython_65',['customTypeToPython',['../namespacesen_1_1db_1_1python.html#aa4c01a0bc2b08d102aed6100a1df100d',1,'sen::db::python']]]
 ];

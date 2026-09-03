@@ -9,7 +9,7 @@
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
 <link href="https://github.com/airbus/sen/latest/users_guide/db_library.html" rel="canonical"/>
 <link href="core_library.html" rel="prev"/>
-<link href="gen_library.html" rel="next"/>
+<link href="db_python_bindings.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.4" name="generator"/>
 <title>sen::db - Sen</title>
@@ -572,6 +572,18 @@
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="db_python_bindings.html">
+<span class="md-ellipsis">
+    
+  
+    sen::db Python bindings
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="gen_library.html">
@@ -1409,8 +1421,8 @@ by default.</p>
 <h2 id="reading-a-recording">Reading a recording<a class="headerlink" href="#reading-a-recording" title="Permanent link">¶</a></h2>
 <p>The <code>sen::db</code> API uses a cursor model: open the recording, seek to a position, and iterate forward
 or backward. The replayer component wraps this with real-time clock synchronisation.</p>
-<p>For scripted post-processing, Sen ships Python bindings that expose the same cursor API - see the
-<a href="../../examples/config/6_recorder/readme.md">Recorder example</a> for a working script.</p>
+<p>For scripted post-processing, Sen ships <a href="db_python_bindings.html">Python bindings</a> that expose the
+same cursor API.</p>
 <h2 id="writing-a-recording">Writing a recording<a class="headerlink" href="#writing-a-recording" title="Permanent link">¶</a></h2>
 <p>Recordings are typically written by the Recorder component via the YAML configuration. Direct
 writes through the <code>sen::db</code> API are possible for custom archiving scenarios.</p>
@@ -1426,7 +1438,7 @@ writes through the <code>sen::db</code> API are possible for custom archiving sc
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 10, 2026 05:41:00 UTC">April 10, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 3, 2026 19:41:28 UTC">September 3, 2026</span>
 </span>
 </aside>
 </article>
@@ -1453,13 +1465,13 @@ writes through the <code>sen::db</code> API are possible for custom archiving sc
               </div>
 </div>
 </a>
-<a aria-label="Next: sen::gen" class="md-footer__link md-footer__link--next" href="gen_library.html">
+<a aria-label="Next: sen::db Python bindings" class="md-footer__link md-footer__link--next" href="db_python_bindings.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                sen::gen
+                sen::db Python bindings
               </div>
 </div>
 <div class="md-footer__button md-icon">

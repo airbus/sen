@@ -134,7 +134,8 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('variant__conve
   <div class="headertitle"><div class="title">variant_conversion.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="var_8h_source.html">sen/core/meta/var.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="type_8h_source.html">sen/core/meta/type.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="var_8h_source.html">sen/core/meta/var.h</a>&quot;</code><br />
 <code>#include &lt;pybind11/pybind11.h&gt;</code><br />
 <code>#include &lt;pybind11/pytypes.h&gt;</code><br />
 </div>
@@ -142,11 +143,12 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('variant__conve
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a63d1953751be4203ec6a0d87932079d3" id="r_a63d1953751be4203ec6a0d87932079d3"><td class="memItemLeft">pybind11::object&#160;</td><td class="memItemRight"><a class="el" href="#a63d1953751be4203ec6a0d87932079d3">toPython</a> (const <a class="el" href="structsen_1_1_var.html">sen::Var</a> &amp;var)</td></tr>
+<tr class="memitem:afcd7bf351d17a22b91094156ba528c97" id="r_afcd7bf351d17a22b91094156ba528c97"><td class="memItemLeft">pybind11::object&#160;</td><td class="memItemRight"><a class="el" href="#afcd7bf351d17a22b91094156ba528c97">toPython</a> (const <a class="el" href="structsen_1_1_var.html">sen::Var</a> &amp;var, const <a class="el" href="classsen_1_1_type.html">sen::Type</a> *type=nullptr)</td></tr>
+<tr class="memitem:a2a98394b09a0b4d0f73e1085a97a7377" id="r_a2a98394b09a0b4d0f73e1085a97a7377"><td class="memItemLeft">pybind11::object&#160;</td><td class="memItemRight"><a class="el" href="#a2a98394b09a0b4d0f73e1085a97a7377">visitVar</a> (const <a class="el" href="structsen_1_1_var.html">sen::Var</a> &amp;var)</td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="a63d1953751be4203ec6a0d87932079d3" name="a63d1953751be4203ec6a0d87932079d3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a63d1953751be4203ec6a0d87932079d3">&#9670;&#160;</a></span>toPython()</h2>
+<a id="afcd7bf351d17a22b91094156ba528c97" name="afcd7bf351d17a22b91094156ba528c97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afcd7bf351d17a22b91094156ba528c97">&#9670;&#160;</a></span>toPython()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -156,6 +158,35 @@ Functions</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">pybind11::object toPython </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structsen_1_1_var.html">sen::Var</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>var</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classsen_1_1_type.html">sen::Type</a> *</td>          <td class="paramname"><span class="paramname"><em>type</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2a98394b09a0b4d0f73e1085a97a7377" name="a2a98394b09a0b4d0f73e1085a97a7377"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a98394b09a0b4d0f73e1085a97a7377">&#9670;&#160;</a></span>visitVar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pybind11::object visitVar </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structsen_1_1_var.html">sen::Var</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>var</em></span></td><td>)</td>
           <td></td>
