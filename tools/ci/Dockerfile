@@ -29,6 +29,7 @@ ARG LLVM_VERSION=20
 ARG CONAN_VERSION=2.28.1
 ARG JUNITPARSER_VERSION=5.0.1
 ARG PYTEST_VERSION=9.1.1
+ARG PRECOMMIT_VERSION=4.5.1
 # Both must equal the versions conanfile.py tool-requires, and nothing checks that
 # they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.31.10
@@ -100,11 +101,18 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # cmake/util/test.cmake invokes junitparser from the run_tests targets; pytest runs
 # the python test suites. cmake comes from pip because Ubuntu 22.04 ships 3.22, which
 # cannot read the CMakeUserPresets.json Conan writes at version 4.
+#
+# pre-commit builds each hook its own environment, so the lint and format tools are not
+# installed here and their versions keep coming from .pre-commit-config.yaml. Nothing is
+# baked at build time, which would reintroduce that drift; the environments are cached in
+# a volume instead, because building them clones a repository per hook and GitHub refuses
+# a burst of unauthenticated clones.
 RUN pip3 install --no-cache-dir \
         cmake==${CMAKE_VERSION} \
         conan==${CONAN_VERSION} \
         junitparser==${JUNITPARSER_VERSION} \
         ninja==${NINJA_VERSION} \
+        pre-commit==${PRECOMMIT_VERSION} \
         pytest==${PYTEST_VERSION}
 
 # Work as a normal user: on a Linux host the editor remaps this user's ids to
@@ -115,7 +123,7 @@ RUN pip3 install --no-cache-dir \
 # original ids, and the container then has to correct them itself.
 RUN groupadd --gid 1000 sen \
     && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash sen \
-    && mkdir -p /home/sen/.conan2 /home/sen/.ccache \
+    && mkdir -p /home/sen/.conan2 /home/sen/.ccache /home/sen/.cache/pre-commit \
     && chown -R sen:sen /home/sen \
     && echo "sen ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/sen \
     && chmod 0440 /etc/sudoers.d/sen

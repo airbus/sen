@@ -26,7 +26,10 @@
     // Conan and ccache state survive container rebuilds.
     "mounts": [
         "source=sen-devcontainer-conan,target=/home/sen/.conan2,type=volume",
-        "source=sen-devcontainer-ccache,target=/home/sen/.ccache,type=volume"
+        "source=sen-devcontainer-ccache,target=/home/sen/.ccache,type=volume",
+        // Building a hook environment clones a repository per hook, and GitHub refuses a
+        // burst of unauthenticated clones. Without this every rebuild pays for that again.
+        "source=sen-devcontainer-precommit,target=/home/sen/.cache/pre-commit,type=volume"
     ],
     // The image creates this user; on a Linux host the editor remaps its ids
     // to the developer's own, so files written here belong to them.
