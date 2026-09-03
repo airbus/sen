@@ -88,6 +88,48 @@ TEST(NetworkExclusion, KeepsRangesSeparate)
 /// @test
 /// Finds the next value that is not excluded.
 /// @requirements(SEN-909)
+/// @test
+/// isExcluded at the edges: both ends of a range are inside it, an empty set excludes nothing,
+/// and a value below every range takes the branch where the search lands on the first element.
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, ExcludesRangeBoundaries)
+{
+  ConfiguredPortExclusions exclusions;
+  exclusions.add(30, 40);
+
+  EXPECT_TRUE(exclusions.isExcluded(30));
+  EXPECT_TRUE(exclusions.isExcluded(40));
+  EXPECT_FALSE(exclusions.isExcluded(29));
+  EXPECT_FALSE(exclusions.isExcluded(41));
+}
+
+/// @test
+/// An empty set excludes nothing.
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, ExcludesNothingWhenEmpty)
+{
+  const ConfiguredPortExclusions exclusions;
+
+  EXPECT_FALSE(exclusions.isExcluded(0));
+  EXPECT_FALSE(exclusions.isExcluded(8080));
+  EXPECT_FALSE(exclusions.isExcluded(65535));
+}
+
+/// @test
+/// A value below every range is not excluded. The search lands on the first element, which is
+/// the branch that has no earlier range to compare against.
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, ExcludesNothingBelowTheFirstRange)
+{
+  ConfiguredPortExclusions exclusions;
+  exclusions.add(100, 200);
+  exclusions.add(300, 400);
+
+  EXPECT_FALSE(exclusions.isExcluded(0));
+  EXPECT_FALSE(exclusions.isExcluded(99));
+  EXPECT_TRUE(exclusions.isExcluded(100));
+}
+
 TEST(NetworkExclusion, FindsNextValue)
 {
   ConfiguredPortExclusions exclusions;
