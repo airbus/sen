@@ -24,7 +24,7 @@
     "@floating-ui/react": "^0.27.19",
     "@sen/client": "file:../../jsonrpc/clients/typescript",
     "geist": "^1.3.0",
-    "gridstack": "12.6.0",
+    "gridstack": "13.2.0",
     "rc-input-number": "^9.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
