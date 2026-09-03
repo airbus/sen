@@ -1,0 +1,8 @@
+package ls_command_test;
+
+class DummyObject {}
+
+class Publisher
+{
+  var bus : string [static];
+}
