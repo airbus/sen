@@ -319,6 +319,13 @@ writes a recording, and `sen archive` is the command that inspects one.
 --8<-- "snippets/sen_archive_indexed.sh"
 ```
 
+### Recording merger
+
+```title="sen archive merger"
+--8<-- "snippets/sen_archive_merge.sh"
+```
+
+## Packaging Utility
 ## Packaging utility
 
 ```title="sen package"
