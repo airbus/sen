@@ -60,6 +60,8 @@ registration of the logger accessible automatically via the `sen::kernel::Kernel
 static method called `getOrCreateLogger`:
 
 ```c++ title="getLogger function" linenums="1"
+#include <sen/kernel/component_api.h>
+
 [[nodiscard]] std::shared_ptr<spdlog::logger> getLogger()
 {
   return sen::kernel::KernelApi::getOrCreateLogger("my_logger");
