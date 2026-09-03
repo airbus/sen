@@ -78,6 +78,7 @@ ${sen_exec} generate ts stl --help > ${snippets_dir}/sen_generate_ts_stl.sh\n\
 ${sen_exec} archive --help > ${snippets_dir}/sen_archive.sh\n\
 ${sen_exec} archive indexed --help > ${snippets_dir}/sen_archive_indexed.sh\n\
 ${sen_exec} archive info --help > ${snippets_dir}/sen_archive_info.sh\n\
+${sen_exec} archive merge --help > ${snippets_dir}/sen_archive_merge.sh\n\
 \n\
 ${sen_exec} package --help > ${snippets_dir}/sen_package.sh\n\
 ${sen_exec} package init --help > ${snippets_dir}/sen_package_init.sh\n\

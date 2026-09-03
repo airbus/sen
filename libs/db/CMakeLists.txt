@@ -24,6 +24,7 @@ set(public_headers
     include/sen/db/snapshot.h
     include/sen/db/annotation.h
     include/sen/db/property_change.h
+    include/sen/db/recording_merger.h
 )
 
 set(sources
@@ -36,6 +37,7 @@ set(sources
     src/snapshot.cpp
     src/keyframe.cpp
     src/property_change.cpp
+    src/recording_merger.cpp
     src/util.h
     src/util.cpp
     src/constants.h

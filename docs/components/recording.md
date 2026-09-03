@@ -108,6 +108,48 @@ things. You can inspect the contents of those files by using the command-line to
 --8<-- "snippets/sen_archive_indexed.sh"
 ```
 
+## Merging recordings
+
+Multiple recordings can be combined into a new archive:
+
+```title="sen archive merge"
+--8<-- "snippets/sen_archive_merge.sh"
+```
+
+By default (or with `--mode normal`), the merge keeps the original timestamps. This means that all
+events will take place at their original times.
+
+With `--mode zero` each input recording is shifted so that the earliest entry begins at time 0.
+The time differences between entries stay the same, so all recordings start together while
+preserving their original timing.
+
+With `--mode offset` you provide one `--offset` value for each input recording in the same order
+as the input paths. Each recording is shifted so that the earliest entry begins at the
+corresponding offset. Offsets are expressed in seconds and can use decimal values
+(for example `0.5`).
+
+```sh
+sen archive merge first_recording second_recording --mode zero --output merged_recording
+sen archive merge first_recording second_recording --mode offset --offset 0 --offset 30 --output merged_recording
+```
+
+A progress bar is shown while the recordings are read. It is only drawn when the output is a
+terminal, so redirecting or piping the command leaves it out.
+
+The output path must not be one of the input recordings, and `merge` will not write over a
+recording archive that is already there. Pass `--force` to replace one:
+
+```sh
+sen archive merge first_recording second_recording --output merged_recording --force
+```
+
+Since Sen can't have multiple objects with the same name, it may happen that different recordings
+have the same object name.
+When `merge` finds one, it asks at the terminal which you want:
+
+- Keep one object and discard the rest.
+- Keep every object, renaming the ones that are the same.
+
 ## Accessing the data with the C++ API
 
 The API for manipulating recordings is part of the Sen library. It is in the `db` folder.
