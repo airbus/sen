@@ -107,7 +107,11 @@ jobs:
       - name: Report the findings
         if: always()
         shell: bash
-        run: python3 .github/scripts/summarise_sanitizer_reports.py sanitizer-reports
+        run: |
+          # The known-findings list is read on every run, not only once this lane gates, so
+          # that an entry which has stopped matching shows up before it is load-bearing.
+          python3 .github/scripts/summarise_sanitizer_reports.py sanitizer-reports \
+            --known-findings .github/sanitizer-known-findings.json
 
       - name: Archive the reports
         if: always()

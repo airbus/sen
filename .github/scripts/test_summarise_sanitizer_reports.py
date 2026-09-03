@@ -6,9 +6,13 @@
 # ======================================================================================================================
 """Pins the grouping that turns a run's sanitizer output into a short report."""
 
+import json
 import sys
+from pathlib import Path
 
 from summarise_sanitizer_reports import findings, main, summarise
+
+ROOT = Path(__file__).resolve().parents[2]
 
 RACE = """\
 WARNING: ThreadSanitizer: data race (pid=118)
@@ -324,3 +328,204 @@ def test_a_directory_that_cannot_be_opened_is_not_read_as_an_empty_one(tmp_path,
         assert main() == 1
     finally:
         inner.chmod(0o755)
+
+
+# The asio diagnostic as the lane produced it [register E93]. The package directory is a
+# conan cache path of the shape the image builds, because the register trimmed the real one
+# to its tail -- which is the point: the tail is all an entry can match on.
+ASIO_UBSAN = """\
+/root/.conan2/p/asio8f0e3d1b2c4a5/p/include/asio/detail/impl/epoll_reactor.ipp:407:25: runtime error: member access within null pointer of type 'descriptor_state'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /root/.conan2/p/asio8f0e3d1b2c4a5/p/include/asio/detail/impl/epoll_reactor.ipp:407:25 in
+"""
+
+# Reconstructed, NOT captured: the raw reports were deleted before they were archived, and
+# only the frame list survived [register E92]. The four source lines are that list; the
+# sen:: names are the functions those lines sit in. So this pins that the list matches the
+# recorded evidence, and cannot pin the wording of a block nobody kept.
+INTEREST_MANAGER_UAF = """\
+==2951==ERROR: AddressSanitizer: heap-use-after-free on address 0x60d00000cbf8
+READ of size 8 at 0x60d00000cbf8 thread T3
+    #0 sen::core::detail::MoveOnlyFunctionImpl<void ()>::invoke() const /workspace/libs/core/include/sen/core/base/detail/move_only_function_impl.h:188:12
+    #1 sen::core::MoveOnlyFunction<void ()>::operator()() const /workspace/libs/core/include/sen/core/base/move_only_function.h:33:12
+    #2 sen::kernel::impl::RemoteInterestsManager::sendObjectUpdates() /workspace/libs/kernel/src/bus/remote_interest_manager.cpp:223:7
+
+freed by thread T0 here:
+    #2 sen::core::detail::MoveOnlyFunctionImpl<void ()>::~MoveOnlyFunctionImpl() /workspace/libs/core/include/sen/core/base/detail/move_only_function_impl.h:152:3
+"""
+
+ENTRY = {
+    "tool": "AddressSanitizer",
+    "kind": "heap-use-after-free",
+    "where": "libs/kernel/src/bus/remote_interest_manager.cpp",
+    "reason": "owned by the concurrency redesign",
+    "remove-when": "that redesign merges",
+}
+
+
+def write_list(tmp_path, *entries):
+    """A known-findings file holding the entries given."""
+    path = tmp_path / "known.json"
+    path.write_text(json.dumps({"findings": list(entries)}), encoding="utf-8")
+    return str(path)
+
+
+def run(monkeypatch, reports, *extra):
+    """Runs the summariser over a directory the way a lane does."""
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.setattr(sys, "argv", ["summarise", "--fail-on-findings", *extra, str(reports)])
+    return main()
+
+
+def reports_holding(tmp_path, text, name="reports"):
+    """A report directory holding one file with the text given."""
+    directory = tmp_path / name
+    directory.mkdir()
+    (directory / "report.1").write_text(text, encoding="utf-8")
+    return directory
+
+
+def test_a_known_finding_is_reported_and_does_not_gate(tmp_path, monkeypatch, capsys):
+    """Both halves matter. Not gating is the point; still reporting is the safeguard.
+
+    A suppression a reader cannot see is how a gate quietly stops gating.
+    """
+    reports = reports_holding(tmp_path, INTEREST_MANAGER_UAF)
+    assert run(monkeypatch, reports) == 1, "without the list it must fail"
+
+    assert run(monkeypatch, reports, "--known-findings", write_list(tmp_path, ENTRY)) == 0
+    printed = capsys.readouterr().out
+    assert "1 known finding, reported and not gating." in printed
+    assert "owned by the concurrency redesign" in printed
+    assert "that redesign merges" in printed
+
+
+def test_a_run_whose_only_findings_are_known_does_not_report_silence(tmp_path, monkeypatch, capsys):
+    """The failure this whole programme keeps finding: absence reported as success."""
+    reports = reports_holding(tmp_path, INTEREST_MANAGER_UAF)
+    run(monkeypatch, reports, "--known-findings", write_list(tmp_path, ENTRY))
+    printed = capsys.readouterr().out
+    assert "No sanitizer findings in" not in printed
+    assert "No sanitizer findings beyond the 1 known one below." in printed
+
+
+def test_an_entry_excuses_its_own_finding_and_nothing_beside_it(tmp_path, monkeypatch):
+    """The danger is not a list that fails to match; it is one that matches too much."""
+    known = write_list(tmp_path, ENTRY)
+
+    elsewhere = reports_holding(
+        tmp_path,
+        "ERROR: AddressSanitizer: heap-use-after-free on address 0x1\n"
+        "    #2 sen::kernel::impl::Bus::send() /workspace/libs/kernel/src/bus.cpp:99:7\n",
+        name="elsewhere",
+    )
+    assert run(monkeypatch, elsewhere, "--known-findings", known) == 1, "the same kind in another file"
+
+    other_kind = reports_holding(
+        tmp_path,
+        "ERROR: AddressSanitizer: stack-use-after-scope on address 0x1\n"
+        "    #2 sen::kernel::impl::RemoteInterestsManager::sendObjectUpdates()"
+        " /workspace/libs/kernel/src/bus/remote_interest_manager.cpp:223:7\n",
+        name="other_kind",
+    )
+    assert run(monkeypatch, other_kind, "--known-findings", known) == 1, "another kind in the same file"
+
+
+def test_a_known_finding_does_not_excuse_the_run_it_shares(tmp_path, monkeypatch, capsys):
+    """One owned finding must not carry an unowned one through the gate with it."""
+    reports = reports_holding(tmp_path, INTEREST_MANAGER_UAF + RACE)
+    assert run(monkeypatch, reports, "--known-findings", write_list(tmp_path, ENTRY)) == 1
+    printed = capsys.readouterr().out
+    assert "1 sanitizer finding, 1 distinct family." in printed
+    assert "1 known finding, reported and not gating." in printed
+
+
+def test_a_list_that_cannot_be_read_is_not_read_as_an_empty_one(tmp_path, monkeypatch, capsys):
+    """Empty is a valid state, so the two are indistinguishable from the outcome.
+
+    Both make every finding gate. Only one of them is a mistake, and the run has to say so
+    or the red is unexplained.
+    """
+    reports = reports_holding(tmp_path, INTEREST_MANAGER_UAF)
+    assert run(monkeypatch, reports, "--known-findings", str(tmp_path / "absent.json")) == 1
+    assert "could not be read" in capsys.readouterr().out
+
+    malformed = tmp_path / "malformed.json"
+    malformed.write_text('{"findings": {"not": "a list"}}', encoding="utf-8")
+    assert run(monkeypatch, reports, "--known-findings", str(malformed)) == 1
+    assert "could not be read" in capsys.readouterr().out
+
+
+def test_an_entry_without_a_reason_or_a_removal_condition_excuses_nothing(tmp_path, monkeypatch, capsys):
+    """An entry with no reason is how a list of two becomes a list of thirty.
+
+    One with no removal condition never leaves. Refusing them is what keeps the list short
+    enough that somebody still reads it.
+    """
+    reports = reports_holding(tmp_path, INTEREST_MANAGER_UAF)
+    for field in ("reason", "remove-when"):
+        assert run(monkeypatch, reports, "--known-findings", write_list(tmp_path, {**ENTRY, field: ""})) == 1
+        assert f"is missing {field}" in capsys.readouterr().out
+        (tmp_path / "known.json").unlink()
+
+
+def test_an_entry_whose_file_has_gone_says_so_without_failing_the_run(tmp_path, monkeypatch, capsys):
+    """The one removal condition a run can check for itself.
+
+    This entry leaves when the concurrency redesign deletes the file. Nothing else would
+    ever notice that it had, and an entry that excuses nothing is the kind that accretes.
+    Reported rather than fatal: it protects nothing, so it endangers nothing.
+    """
+    reports = reports_holding(tmp_path, RACE)
+    gone = {**ENTRY, "stale-when-gone": "libs/kernel/src/bus/deleted_by_the_redesign.cpp"}
+    assert run(monkeypatch, reports, "--known-findings", write_list(tmp_path, gone)) == 1, "the race still gates"
+    printed = capsys.readouterr().out
+    assert "no longer exists -- remove the entry" in printed
+
+    clean = tmp_path / "clean"
+    clean.mkdir()
+    assert run(monkeypatch, clean, "--known-findings", str(tmp_path / "known.json")) == 0, "a stale entry is not fatal"
+    assert "no longer exists -- remove the entry" in capsys.readouterr().out
+
+
+def test_the_repositorys_own_list_matches_the_findings_it_was_written_for(tmp_path, monkeypatch, capsys):
+    """The list is only worth having if it matches what it names.
+
+    An entry that names the wrong thing reads exactly like one that names the right
+    thing, until the gate goes red.
+
+    Both entries are checked against the evidence that put them there, and the entries are
+    checked not to swallow the run they sit in.
+    """
+    known = str(ROOT / ".github" / "sanitizer-known-findings.json")
+    reports = reports_holding(tmp_path, INTEREST_MANAGER_UAF + ASIO_UBSAN)
+    assert run(monkeypatch, reports, "--known-findings", known) == 0, "the two known findings must not gate"
+
+    printed = capsys.readouterr().out
+    assert "2 known findings, reported and not gating." in printed
+    assert "chriskohlhoff/asio#686" in printed
+    assert "not a certified absence" in printed
+
+    both = reports_holding(tmp_path, INTEREST_MANAGER_UAF + ASIO_UBSAN + RACE, name="with_a_race")
+    assert run(monkeypatch, both, "--known-findings", known) == 1, "and must not carry a third finding through"
+
+
+def test_two_entries_naming_one_file_stay_two_rows(tmp_path, monkeypatch, capsys):
+    """Keyed on the file alone they merged, and the row carried the wrong reason.
+
+    Nothing stops a second kind being owned in the same file, and a reader given one
+    finding's reason against another finding's count has been told something untrue.
+    """
+    other = {**ENTRY, "kind": "stack-use-after-scope", "reason": "a different owner", "remove-when": "differently"}
+    reports = reports_holding(
+        tmp_path,
+        INTEREST_MANAGER_UAF + "ERROR: AddressSanitizer: stack-use-after-scope on address 0x1\n"
+        "    #2 sen::kernel::impl::RemoteInterestsManager::sendObjectUpdates()"
+        " /workspace/libs/kernel/src/bus/remote_interest_manager.cpp:230:7\n",
+    )
+    assert run(monkeypatch, reports, "--known-findings", write_list(tmp_path, ENTRY, other)) == 0
+
+    printed = capsys.readouterr().out
+    assert "2 known findings, reported and not gating." in printed
+    assert "owned by the concurrency redesign" in printed
+    assert "a different owner" in printed
+    assert "| 2 |" not in printed, "the two entries were collapsed into one row"

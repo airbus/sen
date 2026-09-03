@@ -93,7 +93,9 @@ jobs:
       - name: Report the ${{ matrix.lane }} findings
         if: always()
         shell: bash
-        run: python3 .github/scripts/summarise_sanitizer_reports.py sanitizer-reports
+        run: |
+          python3 .github/scripts/summarise_sanitizer_reports.py sanitizer-reports \
+            --known-findings .github/sanitizer-known-findings.json
 
       - name: Archive the ${{ matrix.lane }} reports
         if: always()
@@ -510,6 +512,7 @@ jobs:
               echo "**${dir##*sanitizer-reports-}:**"
               echo
               python3 .github/scripts/summarise_sanitizer_reports.py "$dir" \
+                  --known-findings .github/sanitizer-known-findings.json \
                 || echo "(the summary could not be produced)"
             done
           } > comment.md
