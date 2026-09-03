@@ -23,14 +23,22 @@ an inventory and one abort would hide what follows it. --fail-on-findings makes 
 for the lane that gates: a finding reaches the report files even when it happened in a
 process ctest never waited on, or in a test whose verdict was inverted, so the files are
 the one place every finding can be seen at once.
+
+--known-findings names a list of findings somebody already owns. They are reported with
+their reason and do not fail a gating run, so one open defect does not stop every other
+pull request. They keep a table of their own and a count, because a suppression a reader
+cannot see is how a gate quietly stops gating.
 """
 
 import argparse
+import json
 import os
 import re
 import sys
 from collections import Counter
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
 
 # "WARNING: ThreadSanitizer: data race on vptr (ctor/dtor vs virtual call) (pid=1)"
 # "ERROR: AddressSanitizer: heap-use-after-free on address 0x60300000eff0"
@@ -151,6 +159,94 @@ def malfunctions(text: str) -> list[str]:
     return sorted({f"{match.group(1)}: {match.group(2).strip()}" for match in MALFUNCTION.finditer(text)})
 
 
+# Every entry needs all of these. An entry with no reason is how a list of two becomes a
+# list of thirty, and one with no removal condition never leaves.
+REQUIRED = ("tool", "kind", "where", "reason", "remove-when")
+
+
+def load_known(path: str | None) -> tuple[list[dict], list[str]]:
+    """Reads the list of findings that are known, owned, and must not fail a run.
+
+    A list that cannot be read must not read as an empty one. Empty is a valid
+    state -- it means everything gates -- so the two are indistinguishable from
+    the outcome, and the run would go red with nothing saying why.
+    """
+    if path is None:
+        return [], []
+    try:
+        document = json.loads(Path(path).read_text(encoding="utf-8"))
+        entries = document["findings"]
+        if not isinstance(entries, list):
+            raise TypeError("'findings' is not a list")
+    except (OSError, ValueError, TypeError, KeyError) as error:
+        return [], [f"the known-findings list `{path}` could not be read -- {error}"]
+
+    known, refused = [], []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            refused.append(f"entry {index} of `{path}` is not a table, so it excuses nothing")
+            continue
+        missing = [field for field in REQUIRED if not isinstance(entry.get(field), str) or not entry[field].strip()]
+        if missing:
+            refused.append(f"entry {index} of `{path}` is missing {', '.join(missing)}, so it excuses nothing")
+            continue
+        known.append(entry)
+    return known, refused
+
+
+def matches(entry: dict, known: dict) -> bool:
+    """Whether one finding is the known one.
+
+    Tool and kind exactly; the location as a substring, because a site names an
+    absolute path that carries the conan package hash on the machine that built it.
+    """
+    if entry["tool"] != known["tool"] or entry["kind"] != known["kind"]:
+        return False
+    return any(known["where"] in place for place in entry["sites"] + entry["sources"])
+
+
+def partition(entries: list[dict], known: list[dict]) -> tuple[list[dict], list[tuple[dict, dict]]]:
+    """Splits the findings into the ones that gate and the ones the list already owns."""
+    gating: list[dict] = []
+    excused: list[tuple[dict, dict]] = []
+    for entry in entries:
+        owner = next((candidate for candidate in known if matches(entry, candidate)), None)
+        if owner is None:
+            gating.append(entry)
+        else:
+            excused.append((entry, owner))
+    return gating, excused
+
+
+def stale(known: list[dict]) -> list[str]:
+    """Entries whose removal condition a run can check for itself.
+
+    An entry naming a file that has gone excuses nothing and never will, and the
+    only thing that would ever notice is a person rereading the list.
+    """
+    return [
+        f"`{entry['where']}` names `{entry['stale-when-gone']}`, which no longer exists -- remove the entry"
+        for entry in known
+        if entry.get("stale-when-gone") and not (ROOT / entry["stale-when-gone"]).exists()
+    ]
+
+
+def known_lines(excused: list[tuple[dict, dict]]) -> list[str]:
+    """The known findings, with the reason each one does not fail the run."""
+    counts: Counter = Counter()
+    owners: dict[tuple, dict] = {}
+    for _, owner in excused:
+        key = (owner["tool"], owner["kind"], owner["where"])
+        counts[key] += 1
+        owners[key] = owner
+
+    lines = ["| count | tool | kind | where | why it does not gate | removed when |", "|---|---|---|---|---|---|"]
+    for (tool, kind, where), count in counts.most_common():
+        owner = owners[(tool, kind, where)]
+        lines.append(f"| {count} | {tool} | {kind} | `{where}` | {owner['reason']} | {owner['remove-when']} |")
+    return lines
+
+
 def nothing_found(reports: int | None) -> str:
     """What to say when a run produced no findings, without saying more than is known.
 
@@ -175,53 +271,95 @@ def malfunction_lines(broken: list[str], any_findings: bool) -> list[str]:
     return [opening, *(f"- `{problem}`" for problem in broken), *([""] if any_findings else [])]
 
 
-def summarise(entries: list[dict], reports: int | None = None, broken: list[str] | None = None) -> str:
-    """Renders the grouped findings as markdown.
+def count_of(number: int, one: str, many: str) -> str:
+    """Pluralises a count without the reader meeting "1 findings"."""
+    return f"{number} {one if number == 1 else many}"
 
-    Grouped by family -- tool, kind and the pair of sen:: frames -- because that
-    is the unit a later run can be matched against. Line numbers move; symbols
-    survive a refactor.
-    """
-    opening = malfunction_lines(broken, bool(entries)) if broken else []
-    if broken and not entries:
-        return "\n".join(opening) + "\n"
 
-    if not entries:
-        return nothing_found(reports)
+def grouped(entries: list[dict]) -> tuple[Counter, dict[tuple, Counter]]:
+    """Findings by family, and the source lines each family was seen at."""
 
     def family(entry: dict) -> tuple:
         return (entry["tool"], entry["kind"], tuple(entry["sites"]))
 
-    by_family = Counter(family(entry) for entry in entries)
     sources: dict[tuple, Counter] = {}
     for entry in entries:
         sources.setdefault(family(entry), Counter()).update(entry["sources"])
+    return Counter(family(entry) for entry in entries), sources
 
-    def count_of(number: int, one: str, many: str) -> str:
-        return f"{number} {one if number == 1 else many}"
 
+def finding_lines(total: int, by_family: Counter) -> list[str]:
+    """The count, and the table of families that will fail a gating run."""
     lines = [
-        *opening,
-        f"{count_of(len(entries), 'sanitizer finding', 'sanitizer findings')}, "
+        f"{count_of(total, 'sanitizer finding', 'sanitizer findings')}, "
         f"{count_of(len(by_family), 'distinct family', 'distinct families')}.",
         "",
+        "| count | tool | kind | first sen:: frame | other side |",
+        "|---|---|---|---|---|",
     ]
-    lines.append("| count | tool | kind | first sen:: frame | other side |")
-    lines.append("|---|---|---|---|---|")
     for (tool, kind, sites), count in by_family.most_common():
         first = f"`{sites[0]}`" if sites else "_(no sen:: frame)_"
         other = f"`{sites[1]}`" if len(sites) > 1 else "_(one side only)_"
         lines.append(f"| {count} | {tool} | {kind} | {first} | {other} |")
+    return lines
 
-    lines.append("")
+
+def source_lines(by_family: Counter, sources: dict[tuple, Counter]) -> list[str]:
+    """The files to open for each family, which the table has no room for."""
+    lines = []
     for key, count in by_family.most_common():
         common = ", ".join(f"`{where}`" for where, _ in sources[key].most_common(4))
         if not common:
             continue
         _, kind, sites = key
         lines.append(f"- `{sites[0] if sites else kind}` ({count}): {common}")
+    return lines
 
-    return "\n".join(lines) + "\n"
+
+def summarise(
+    entries: list[dict],
+    reports: int | None = None,
+    broken: list[str] | None = None,
+    known: list[dict] | None = None,
+    list_notes: list[str] | None = None,
+) -> str:
+    """Renders the grouped findings as markdown.
+
+    Grouped by family -- tool, kind and the pair of sen:: frames -- because that
+    is the unit a later run can be matched against. Line numbers move; symbols
+    survive a refactor.
+
+    Known findings are separated out and still printed. A gate whose excuses are
+    invisible is a gate nobody can tell is still gating.
+    """
+    opening = malfunction_lines(broken, bool(entries)) if broken else []
+    tail = ["", "About the known-findings list:", *(f"- {note}" for note in list_notes)] if list_notes else []
+    gating, excused = partition(entries, known or [])
+
+    if broken and not entries:
+        return "\n".join([*opening, *tail]) + "\n"
+
+    if not entries:
+        return "\n".join([nothing_found(reports).rstrip("\n"), *tail]) + "\n"
+
+    by_family, sources = grouped(gating)
+    lines = [*opening]
+    if gating:
+        lines += [*finding_lines(len(gating), by_family), ""]
+    else:
+        # Not "no findings": something fired, and the reason it is not failing the run
+        # is the list, which the reader is about to be shown.
+        lines += [f"No sanitizer findings beyond the {count_of(len(excused), 'known one', 'known ones')} below.", ""]
+
+    if excused:
+        lines += [
+            f"{count_of(len(excused), 'known finding', 'known findings')}, reported and not gating.",
+            "",
+            *known_lines(excused),
+            "",
+        ]
+
+    return "\n".join([*lines, *source_lines(by_family, sources), *tail]) + "\n"
 
 
 def main() -> int:
@@ -236,7 +374,13 @@ def main() -> int:
         action="store_true",
         help="Exit non-zero when the run produced findings, for a lane that gates rather than collects.",
     )
+    parser.add_argument(
+        "--known-findings",
+        metavar="PATH",
+        help="A list of findings that are already owned. They are reported and do not fail a gating run.",
+    )
     args = parser.parse_args()
+    known, refused = load_known(args.known_findings)
 
     text = []
     unreadable = []
@@ -262,8 +406,9 @@ def main() -> int:
 
     joined = "\n".join(text)
     entries = findings(joined)
+    gating, _ = partition(entries, known)
     broken = malfunctions(joined) + [f"could not be read -- {problem}" for problem in unreadable]
-    report = summarise(entries, reports=len(text), broken=broken)
+    report = summarise(entries, reports=len(text), broken=broken, known=known, list_notes=refused + stale(known))
     print(report, end="")
 
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -273,7 +418,10 @@ def main() -> int:
 
     # Silence is not judged here: a lane that produced nothing may have looked at nothing,
     # and check_sanitizer_lane.py is what settles that before the suite runs.
-    return 1 if (args.fail_on_findings and (entries or broken)) else 0
+    #
+    # A list that would not load fails the gate. Its entries are not in force, so the run
+    # is about to go red for a reason the report would otherwise not give.
+    return 1 if (args.fail_on_findings and (gating or broken or refused)) else 0
 
 
 if __name__ == "__main__":

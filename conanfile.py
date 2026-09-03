@@ -85,7 +85,7 @@ class SenConan(ConanFile):
 
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
-        self.tool_requires("cmake/3.28.1")
+        self.tool_requires("cmake/3.31.10")
         self.tool_requires("ninja/1.13.2")
         self.test_requires("gtest/1.17.0")
         # Benchmarks belong to the full build, so the dependency is fetched only there.

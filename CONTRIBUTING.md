@@ -25,11 +25,15 @@ The [README](README.md) covers the build. For a contribution, build with the tes
 run them before opening the pull request:
 
 ```shell
-conan install . --profile=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
-conan build . --profile=sen_gcc_x86                  # sen_gcc_arm on arm hardware
+conan install . --profile:all=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
+conan build . --profile:all=sen_gcc_x86 -o "sen/*:with_tests=True"   # sen_gcc_arm on arm hardware
 pip install junitparser                                  # run_tests merges the ctest reports with it
 cmake --build build/gcc/Release --target run_tests
 ```
+
+`conan build` resolves the graph again, so an option left off it falls back to its default and
+rewrites the build folder `conan install` just configured. Leave it off and the tests are
+dropped, and `run_tests` reports that it found none.
 
 `run_tests` runs the suite in two passes: the ordinary tests, then the ones marked flaky, which
 are retried until they pass. While working on one library, `run_unit_tests` is quicker.
@@ -48,9 +52,9 @@ folder rather than at `CMakeLists.txt`.
 
 Two things decide what your editor shows you, and both are set before CMake ever runs:
 
-- `-o "sen/*:with_tests=True"` and `-o "sen/*:with_examples=True"` on the `conan install` line.
-  Without them the
-  project has no test or example targets at all, and the editor is not hiding them.
+- `-o "sen/*:with_tests=True"` and `-o "sen/*:with_examples=True"`, on the `conan build` line as
+  well as the `conan install` one. Without them the project has no test or example targets at
+  all, and the editor is not hiding them.
 - The environment you ran `conan install` in. The generated files hold absolute paths, so a
   build folder belongs to the environment that configured it.
 
@@ -58,12 +62,15 @@ Two things decide what your editor shows you, and both are set before CMake ever
 
 The devcontainer is the least work: its image already carries the compilers, Conan and the
 editor tools, and its setup step installs the profiles and selects the one matching the
-container's architecture. In its terminal, the whole build is:
+container's architecture. In its terminal, the same two steps are:
 
 ```shell
 conan install . --build=missing -o "sen/*:with_tests=True"
-cmake --build --preset conan-gcc-release --target run_unit_tests
+cmake --build --preset conan-gcc-release --target run_tests
 ```
+
+`cmake --build` reads the build folder rather than resolving the graph again, so the option
+does not have to be repeated here.
 
 No package-manager settings are needed there, unlike on a bare machine: the image already has
 the system libraries, and inside the container you are not root.
@@ -79,6 +86,59 @@ CLion builds the profile from the preset by itself, so there is no need to add o
 its run widget stays empty after a reload, the project model is still loading; the commands
 above work from the terminal regardless.
 
+### Container permissions
+
+Some tests take a fallback path unless the container was started with the permission they
+need. Neither is needed to build Sen or run the suite.
+
+```shell
+python3 .github/scripts/check_container_capabilities.py
+```
+
+- `--ulimit rtprio=99`, for the real-time scheduling policy. The devcontainer asks for this;
+  it is safe to request anywhere.
+- `--device=/dev/cpu_dma_latency`, for the idle latency control. Not asked for by default,
+  because Docker refuses to start the container when the device is absent. Add it to
+  `runArgs` in your own checkout if you need those tests.
+
+CI sets `SEN_REQUIRE_CAPABILITIES`, which makes the same check fail when a permission it
+asked for is missing.
+
+### Running the container yourself
+
+The devcontainer does this for you. Without one:
+
+```shell
+# Once. --target dev is the CI image plus a debugger and graphviz.
+docker build --target dev -t sen-dev tools/ci
+
+# A shell in it. The repository is mounted at the path it has outside, so a worktree's
+# .git still resolves; the caches are volumes, so they outlive the container.
+docker run --rm -it -v "$PWD:$PWD" -w "$PWD" \
+    -v sen-conan:/home/sen/.conan2 -v sen-ccache:/home/sen/.ccache \
+    --ulimit rtprio=99 sen-dev bash
+```
+
+Then, inside it:
+
+```shell
+git config --global --add safe.directory "$PWD"
+conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
+conan install . --profile:all=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
+conan build . --profile:all=sen_gcc_x86 -o "sen/*:with_tests=True"
+```
+
+What bites:
+
+- `--profile:all`, not `--profile`. The bare form sets only the host profile, and Conan then
+  looks for a build profile called `default`, which the repository does not ship.
+- `--rm` discards `safe.directory` with the container, so a script that runs one container per
+  command needs that line in each of them. Without it `conan install` fails where it calls
+  `git describe`.
+- Sanitizer builds need `--security-opt seccomp=unconfined` on the `docker run`, and a clang
+  profile. The runtimes call `personality(ADDR_NO_RANDOMIZE)`, which the default seccomp
+  profile blocks, and the failure reads as a compiler crash.
+
 ## Commit Messages and Pull Requests
 
 Commit subjects follow the conventional format `type(scope): summary`:
@@ -90,8 +150,13 @@ Commit subjects follow the conventional format `type(scope): summary`:
 - A body is optional. When one helps, one to three sentences explaining why the change is
   needed are enough; the diff shows what changed.
 
-gitlint checks these rules. Run `pre-commit install` once after cloning: it installs the
-file hooks and the commit message hook together.
+gitlint checks these rules, through pre-commit. The devcontainer and the image already carry
+it, so in a container there is nothing to install. On a bare machine `pip install pre-commit`
+fails on current Debian and Ubuntu with `externally-managed-environment`; use `pipx install
+pre-commit`, or a virtual environment.
+
+Then `pre-commit install` once after cloning, which installs the file hooks and the commit
+message hook together.
 
 Pull requests are squash-merged, so **the pull request title becomes the commit subject on
 main** and follows the same format. Keep each pull request to a single logical change:

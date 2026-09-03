@@ -32,11 +32,19 @@ if(${SEN_CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
 endif()
 
-if(CMAKE_MAJOR_VERSION GREATER_EQUAL 4)
-  set(CTEST_PARALLEL_ARGS "--parallel")
-else()
-  set(CTEST_PARALLEL_ARGS "--parallel" 0)
-endif()
+# One at a time, which is what the suite does today: --parallel 0 is serial on the cmake this
+# repository used to pin, so nothing has ever run concurrently and nothing is prepared for it.
+# Raising this makes tests share a machine, and the --timeout above was measured when each had
+# one to itself -- on a four-core runner it turns slow tests into timeouts, in numbers. Before
+# changing the default, size that timeout against a real run at the intended count and give the
+# tests that need longer a TIMEOUT of their own, as the jsonrpc and mcp_gateway suites do.
+#
+# 0 means every processor, and needs cmake 3.31 or newer; older ones read it as serial.
+set(SEN_CTEST_JOBS
+    1
+    CACHE STRING "Tests to run at once. 0 means every processor and needs cmake 3.31."
+)
+set(CTEST_PARALLEL_ARGS "--parallel" ${SEN_CTEST_JOBS})
 
 # Where the container-based suites mount the repository. run.py reads it from
 # the environment and both sides default to the same path, so the mount point

@@ -13,10 +13,23 @@
         "context": "../tools/ci",
         "target": "dev"
     },
+    // Some tests exercise a feature only when the container was started with the
+    // permission for it, and take a fallback path otherwise. --ulimit is safe to ask
+    // for everywhere: an unattainable value is accepted rather than refused, so this
+    // cannot stop the container starting on a workstation that forbids it.
+    //
+    // --device=/dev/cpu_dma_latency is deliberately NOT here. Docker refuses to start
+    // the container at all when the device is absent, which would lock out anyone
+    // whose machine or administrator does not provide it. Add it locally if you need
+    // the idle-latency tests; check_container_capabilities.py says what you have.
+    "runArgs": ["--ulimit", "rtprio=99"],
     // Conan and ccache state survive container rebuilds.
     "mounts": [
         "source=sen-devcontainer-conan,target=/home/sen/.conan2,type=volume",
-        "source=sen-devcontainer-ccache,target=/home/sen/.ccache,type=volume"
+        "source=sen-devcontainer-ccache,target=/home/sen/.ccache,type=volume",
+        // Building a hook environment clones a repository per hook, and GitHub refuses a
+        // burst of unauthenticated clones. Without this every rebuild pays for that again.
+        "source=sen-devcontainer-precommit,target=/home/sen/.cache/pre-commit,type=volume"
     ],
     // The image creates this user; on a Linux host the editor remaps its ids
     // to the developer's own, so files written here belong to them.

@@ -1,0 +1,32 @@
+{
+  "note": [
+    "Findings listed here are reported in the sanitizer summary and do not fail a gating run.",
+    "Nothing here claims a defect is absent or harmless. It claims somebody owns it, and that",
+    "stopping every pull request on it buys nothing.",
+    "",
+    "tool and kind must match exactly. where is matched as a substring against the finding's",
+    "sen:: frames and its source paths, and names a file rather than a line: lines move under",
+    "ordinary editing, and an entry that silently stops matching turns the gate red for a",
+    "finding this list was written to cover.",
+    "",
+    "Every entry needs a reason and a removal condition. stale-when-gone is optional and names",
+    "a path whose disappearance a run can check for itself."
+  ],
+  "findings": [
+    {
+      "tool": "AddressSanitizer",
+      "kind": "heap-use-after-free",
+      "where": "libs/kernel/src/bus/remote_interest_manager.cpp",
+      "stale-when-gone": "libs/kernel/src/bus/remote_interest_manager.cpp",
+      "reason": "Seen once in roughly eight full suites, at remote_interest_manager.cpp:223, in code the concurrency redesign deletes whole. Registered in that redesign's ledger. Matched on the source path: no raw report survives, so the sen:: frame it groups under is not known here.",
+      "remove-when": "The redesign merges to main and remote_interest_manager.cpp leaves it; that merge drops this entry or records why not. Not an all-clear: the deleted site cannot recur, but the class -- a stored callable collected from a pool after its backing died -- is a design target of the replacement, not a certified absence."
+    },
+    {
+      "tool": "UndefinedBehaviorSanitizer",
+      "kind": "member access within null pointer of type 'descriptor_state'",
+      "where": "asio/detail/impl/epoll_reactor.ipp",
+      "reason": "Upstream, at epoll_reactor.ipp:407 in asio 1.36.0: deregister_descriptor nulls the descriptor state under that object's own mutex, so a thread reaching start_op afterwards dereferences null. chriskohlhoff/asio#686 is open with no fix, so moving the pin does not help.",
+      "remove-when": "Upstream fixes it and conanfile.py requires a release carrying the fix."
+    }
+  ]
+}
