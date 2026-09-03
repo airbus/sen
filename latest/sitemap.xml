@@ -57,6 +57,10 @@
          <lastmod>2026-09-03</lastmod>
     </url>
     <url>
+         <loc>https://github.com/airbus/sen/latest/components/webexplorer.html</loc>
+         <lastmod>2026-09-03</lastmod>
+    </url>
+    <url>
          <loc>https://github.com/airbus/sen/latest/examples/index.html</loc>
          <lastmod>2026-09-03</lastmod>
     </url>
@@ -70,6 +74,10 @@
     </url>
     <url>
          <loc>https://github.com/airbus/sen/latest/getting_started/install.html</loc>
+         <lastmod>2026-09-03</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/airbus/sen/latest/getting_started/testing.html</loc>
          <lastmod>2026-09-03</lastmod>
     </url>
     <url>
@@ -186,6 +194,10 @@
     </url>
     <url>
          <loc>https://github.com/airbus/sen/latest/snippets/examples/config/13_timer/readme.html</loc>
+         <lastmod>2026-09-03</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/airbus/sen/latest/snippets/examples/config/14_jsonrpc/readme.html</loc>
          <lastmod>2026-09-03</lastmod>
     </url>
     <url>

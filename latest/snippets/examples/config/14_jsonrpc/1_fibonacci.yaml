@@ -1,0 +1,45 @@
+# $schema: ../base/schema.json
+#
+# Sen instance exposing the `fibonacci` package over JSON-RPC. One Manager + three Workers on a
+# single bus. Useful for exercising event-driven flows from the @sen/client TS library: the
+# Manager dispatches work to Workers and surfaces results via events.
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+
+build:
+  - name: managerComponent
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciManager
+        workersBus: my.tutorial
+        name: fibManager
+        bus: my.tutorial
+  - name: workerComponentA
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: my.tutorial
+  - name: workerComponentB
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: my.tutorial
+  - name: workerComponentC
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerC
+        bus: my.tutorial

@@ -15,6 +15,7 @@ Subcommands:
                Simple utility to convert a file to a C++ array
   shell        Shortcut to run the sen shell stand-alone
   explorer     Shortcut to run the sen explorer stand-alone
+  web-explorer Shortcut to run the sen web-explorer stand-alone
   replay       Shortcut to run the sen replay stand-alone
   rshell       Shortcut to connect to a remote sen shell
 
