@@ -7,12 +7,12 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/components/jsonrpc_ts_client.html" rel="canonical"/>
-<link href="jsonrpc.html" rel="prev"/>
-<link href="mcp_gateway.html" rel="next"/>
+<link href="https://github.com/airbus/sen/latest/components/mcp_gateway.html" rel="canonical"/>
+<link href="jsonrpc_ts_client.html" rel="prev"/>
+<link href="tracy.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.4" name="generator"/>
-<title>JSON-RPC TypeScript Client - Sen</title>
+<title>MCP Gateway - Sen</title>
 <link href="../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
@@ -26,7 +26,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#the-typescript-client-senclient">
+<a class="md-skip" href="#the-mcp-gateway">
           Skip to content
         </a>
 </div>
@@ -52,7 +52,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              JSON-RPC TypeScript Client
+              MCP Gateway
             
           </span>
 </div>
@@ -762,9 +762,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
+<li class="md-nav__item">
+<a class="md-nav__link" href="jsonrpc_ts_client.html">
 <span class="md-ellipsis">
     
   
@@ -773,13 +772,26 @@
 
     
   </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="jsonrpc_ts_client.html">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    MCP Gateway
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="mcp_gateway.html">
+<span class="md-ellipsis">
+    
+  
+    MCP Gateway
   
 
     
@@ -792,46 +804,144 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#when-to-use-it">
+<a class="md-nav__link" href="#one-gateway-any-sen-system">
 <span class="md-ellipsis">
       
-        When to use it
+        One gateway, any Sen system
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#hello-animals">
+<a class="md-nav__link" href="#what-mcp-is">
 <span class="md-ellipsis">
       
-        Hello, animals
+        What MCP is
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#concepts">
+<a class="md-nav__link" href="#when-to-reach-for-it">
 <span class="md-ellipsis">
       
-        Concepts
+        When to reach for it
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#full-reference">
+<a class="md-nav__link" href="#what-the-llm-gets">
 <span class="md-ellipsis">
       
-        Full reference
+        What the LLM gets
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#browser-example">
+<a class="md-nav__link" href="#stl-docstrings-matter">
 <span class="md-ellipsis">
       
-        Browser example
+        STL docstrings matter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#registering-the-gateway-with-an-mcp-host">
+<span class="md-ellipsis">
+      
+        Registering the gateway with an MCP host
+      
+    </span>
+</a>
+<nav aria-label="Registering the gateway with an MCP host" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-model-and-deployment">
+<span class="md-ellipsis">
+      
+        Security model and deployment
+      
+    </span>
+</a>
+<nav aria-label="Security model and deployment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-process-defenses">
+<span class="md-ellipsis">
+      
+        In-process defenses
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recommended-deployment">
+<span class="md-ellipsis">
+      
+        Recommended deployment
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-in-a-container">
+<span class="md-ellipsis">
+      
+        Running in a container
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-outside-a-container">
+<span class="md-ellipsis">
+      
+        Running outside a container
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-authentication">
+<span class="md-ellipsis">
+      
+        Kernel authentication
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resources">
+<span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trying-it-live-with-the-school-example">
+<span class="md-ellipsis">
+      
+        Trying it live with the school example
       
     </span>
 </a>
@@ -847,18 +957,6 @@
 </li>
 </ul>
 </nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="mcp_gateway.html">
-<span class="md-ellipsis">
-    
-  
-    MCP Gateway
-  
-
-    
-  </span>
-</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="tracy.html">
@@ -1430,109 +1528,329 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="the-typescript-client-senclient">The TypeScript Client (<code>@sen/client</code>)<a class="headerlink" href="#the-typescript-client-senclient" title="Permanent link">¶</a></h1>
-<p>A TypeScript library that lets a browser or Node.js program talk to a running Sen process
-over the <a href="jsonrpc.html"><code>jsonrpc</code></a> component's wire (JSON-RPC 2.0 + WebSocket). Connect, walk
-the live object graph, subscribe to property changes and events, invoke methods, and (in
-React apps) drive a UI off the same data without writing your own subscription bookkeeping.</p>
-<p>It ships in-tree at
-<a href="https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript"><code>components/jsonrpc/clients/typescript/</code></a>
-and is the primary client for the <a href="webexplorer.html">Sen Web Explorer</a> and for any custom
-operator UI built against Sen.</p>
-<h2 id="when-to-use-it">When to use it<a class="headerlink" href="#when-to-use-it" title="Permanent link">¶</a></h2>
+<div><h1 id="the-mcp-gateway">The MCP Gateway<a class="headerlink" href="#the-mcp-gateway" title="Permanent link">¶</a></h1>
+<p>The MCP gateway lets a Large Language Model agent work against a running Sen kernel from its
+chat surface. It can browse the object graph, read and write properties, call methods, watch
+events, and open recordings.</p>
+<h2 id="one-gateway-any-sen-system">One gateway, any Sen system<a class="headerlink" href="#one-gateway-any-sen-system" title="Permanent link">¶</a></h2>
+<p>A Sen kernel already self-describes what it exposes, down to the JSON-Schema of every value.
+The gateway re-publishes that introspection over MCP and adds nothing of its own, so the same
+binary serves a fleet-monitoring kernel and a school simulation equally well.</p>
+<p>There is therefore nothing to write per project. Point the gateway at a kernel and the agent
+discovers whatever that kernel publishes. What does affect how well it reasons is your STL:
+type names, class structure, and the <code>[doc]</code> annotations and <code>///</code> comments that reach the
+agent through <code>getType</code>.</p>
+<h2 id="what-mcp-is">What MCP is<a class="headerlink" href="#what-mcp-is" title="Permanent link">¶</a></h2>
+<p>If you have not used the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> before:</p>
+<p>MCP is a small open protocol. A host application, usually the LLM's chat interface, spawns an
+MCP server as a child process and talks to it in framed JSON-RPC 2.0 over stdin and stdout.
+Neither side listens on a socket. What the server offers the host is <em>tools</em>, which are named
+callables with a JSON-Schema argument list, and <em>resources</em>, which are readable text at a URI.</p>
+<p>This gateway is that server. It opens a WebSocket to each kernel's <code>jsonrpc</code> component and
+re-publishes the object graph as tools, plus Sen's own documentation as resources under
+<code>sen://docs/</code>, so you are not pasting reference material into the prompt.</p>
+<h2 id="when-to-reach-for-it">When to reach for it<a class="headerlink" href="#when-to-reach-for-it" title="Permanent link">¶</a></h2>
+<p>It is not a kernel component. Unlike <code>jsonrpc</code>, <code>explorer</code>, etc., the gateway does <strong>not</strong>
+run inside a Sen process. It is an independent first-party app shipped with Sen, implemented
+in TypeScript, packaged in <code>apps/mcp_gateway/</code> alongside the C++ CLIs.</p>
+<p>It is, however, the LLM-facing piece of the same external-access story as <code>jsonrpc</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Want to ...</th>
-<th>Reach for</th>
+<th>Surface</th>
+<th>Transport</th>
+<th>Best for</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Build a browser UI that drives Sen interactively</td>
-<td><code>@sen/client</code> + <code>@sen/client/react</code></td>
+<td><code>shell</code></td>
+<td>Local TCP, text protocol</td>
+<td>Quick interactive poking from a terminal</td>
 </tr>
 <tr>
-<td>Write a Node.js script that polls / scripts a running Sen</td>
-<td><code>@sen/client</code> (no React)</td>
+<td><code>jsonrpc</code></td>
+<td>WebSocket + JSON-RPC 2.0</td>
+<td>Long-lived programmatic sessions, streaming notifications</td>
 </tr>
 <tr>
-<td>Build a backend service that bridges Sen to another protocol</td>
-<td><code>@sen/client</code></td>
-</tr>
-<tr>
-<td>Talk to Sen from a non-TypeScript language</td>
-<td>Write a client against <code>jsonrpc.stl</code> directly</td>
+<td><code>mcp_gateway</code> (this app)</td>
+<td>MCP over stdio, fronts <code>jsonrpc</code></td>
+<td>Letting an LLM agent observe and drive Sen</td>
 </tr>
 </tbody>
 </table>
-<h2 id="hello-animals">Hello, animals<a class="headerlink" href="#hello-animals" title="Permanent link">¶</a></h2>
-<p>In one terminal, start a Sen process exposing the bundled <code>animals</code> package:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>sen<span class="w"> </span>run<span class="w"> </span>components/jsonrpc/clients/typescript/examples/browser/animals.yaml
+<h2 id="what-the-llm-gets">What the LLM gets<a class="headerlink" href="#what-the-llm-gets" title="Permanent link">¶</a></h2>
+<p>On every MCP <code>initialize</code> the LLM receives a conceptual primer about Sen: the namespace
+(<code>&lt;session&gt;.&lt;bus&gt;.&lt;object&gt;</code>), the four property categories, the type system, the execution
+model, the query grammar, the interest lifecycle, and recommended operating habits. The primer
+also tells the agent that it can pull more depth from the baked <code>sen://docs/...</code> resources
+on demand.</p>
+<p>Each tool then carries its own per-call contract in its MCP description. The LLM never needs
+to read C++ headers or guess SQL syntax: it discovers the live data through the tools and
+the documented behaviour through the primer plus the resources.</p>
+<p>The tools fall into a few groups.</p>
+<p><code>connectToKernel</code>, <code>listKernels</code> and <code>disconnectFromKernel</code> manage connections by name, and one
+gateway can hold several at once: a staging kernel and a production one, reasoned about in the
+same session. Every other tool takes an optional <code>kernel</code> argument, which you can omit when only
+one is connected.</p>
+<p>Type introspection enumerates the registered types and fetches a <code>CustomTypeSpec</code> for any of
+them: properties, methods, events, inheritance. An opt-in flag attaches the JSON-Schema
+fragment too, which is what lets the model shape a write or a method argument without guessing.</p>
+<p>Interests are standing queries over a bus, and they are the handle every per-object operation
+needs. Open one, list what it matches, release it when done.</p>
+<p>Reads come in two shapes: a single property, or a batched call returning every property of
+every matched object, walking the inheritance chain. Values arrive parsed, so primitives are JS
+scalars, structs are nested objects and sequences are arrays.</p>
+<p>Writes are <code>setProperty</code>, which accepts only RW categories, and <code>invokeMethod</code>. Both are
+affected by read-only mode, described below.</p>
+<p>Events are subscribed per event name and polled, since MCP carries no streams. There is a bulk
+unsubscribe for an entire interest.</p>
+<p>Recording analysis lists recordings under a root you supply, fetches the <code>sen_db_python</code>
+reference, and runs a script you write in a sandboxed <code>python3</code> child.</p>
+<p>For the precise inventory and per-tool argument shapes, ask the host's <code>tools/list</code> (MCP
+hosts surface this directly) or read each tool's description in the gateway source. The
+canonical contract is the description shipped with each tool, not this page.</p>
+<h2 id="stl-docstrings-matter">STL docstrings matter<a class="headerlink" href="#stl-docstrings-matter" title="Permanent link">¶</a></h2>
+<p>Whatever <code>getType</code> returns is what the agent believes. A property called <code>s</code> leaves it
+guessing; <code>stressLevel</code> does not. A <code>[doc]</code> annotation on that property is quoted back to
+whoever asked, so the difference between an agent inventing what <code>focusLevel</code> means and one
+stating your team's intent is a line of STL.</p>
+<h2 id="registering-the-gateway-with-an-mcp-host">Registering the gateway with an MCP host<a class="headerlink" href="#registering-the-gateway-with-an-mcp-host" title="Permanent link">¶</a></h2>
+<p>A Sen install ships two launchers in <code>${CMAKE_INSTALL_PREFIX}/bin/</code>, alongside the
+<code>sen-mcp-gateway.cjs</code> JS bundle they run: <code>sen-mcp-gateway</code> for Linux and macOS, and
+<code>sen-mcp-gateway.cmd</code> for Windows, where an MCP host cannot spawn the shell script. Both are
+installed on every platform, so a tree built on one machine still works on another.</p>
+<p>A launcher refuses to start when <code>node</code> is missing from <code>PATH</code> or is older than 22.20.0, and
+says which of the two is wrong. That is a floor, not a range: <code>package.json</code> declares
+<code>&gt;=22.20.0</code> to match, and a newer Node is fine. The bundle is built for node22, so it is an
+older runtime that fails, somewhere inside a bundled dependency and with nothing pointing at
+the version. Sen builds and tests against 22.20.0.</p>
+<p>Conan consumers get the wrapper and Node from two different environments. Sen puts the wrapper
+on <code>PATH</code> through its own run environment, which <code>conanrun</code> activates. Node comes from
+<code>tool_requires("nodejs/22.20.0")</code> in your conanfile, which feeds the build environment that
+<code>conanbuild</code> activates. Activating only <code>conanrun</code> gives you the wrapper without Node, and the
+wrapper then fails to start.</p>
+<p>The two pieces of host-side wiring you supply are:</p>
+<ol>
+<li>The command: <code>sen-mcp-gateway</code>, or the absolute install path. On Windows, name
+   <code>sen-mcp-gateway.cmd</code>.</li>
+<li>The transport: stdio.</li>
+</ol>
+<p>Register with any MCP-aware host. For example, with the Anthropic CLI:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>sen-mcp-gateway<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>--<span class="w"> </span>sen-mcp-gateway
 </span></code></pre></div>
-<p>That spins up <code>rufus</code> (a <code>Cat</code>) and <code>elon</code> (a <code>Dog</code>) on <code>my.tutorial</code>. The JSON-RPC server
-listens on <code>ws://127.0.0.1:8080</code>.</p>
-<p>In a second terminal:</p>
-<div class="language-ts highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sen/client"</span><span class="p">;</span>
-</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connect</span><span class="p">({</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s2">"ws://127.0.0.1:8080"</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">cats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">declareInterest</span><span class="p">({</span>
-</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"cats"</span><span class="p">,</span>
-</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">  </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="s2">"SELECT animals.Cat FROM my.tutorial"</span><span class="p">,</span>
-</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="p">});</span>
-</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="nx">cats</span><span class="p">.</span><span class="nx">onObjectAdded</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">cat</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`got </span><span class="si">${</span><span class="nx">cat</span><span class="p">.</span><span class="nx">className</span><span class="si">}</span><span class="sb"> named </span><span class="si">${</span><span class="nx">cat</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
-</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">  </span><span class="nx">cat</span><span class="p">.</span><span class="nx">onPropertyChanged</span><span class="p">(</span><span class="s2">"position"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">pos</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"position:"</span><span class="p">,</span><span class="w"> </span><span class="nx">pos</span><span class="p">));</span>
-</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">cat</span><span class="p">.</span><span class="nx">invoke</span><span class="p">(</span><span class="s2">"jumpToLocation"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">42</span><span class="p">,</span><span class="w"> </span><span class="nx">y</span><span class="o">:</span><span class="w"> </span><span class="kt">17</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="p">});</span>
+<p>Once registered, the LLM can call <code>connectToKernel({name, url})</code> against any reachable Sen
+WebSocket endpoint. No URL needs to be baked into the gateway's startup.</p>
+<p>Two flags govern the build. The gateway is built when <code>jsonrpc</code> is on and
+<code>SEN_BUILD_MCP_GATEWAY</code> is <code>ON</code>, which is the default; <code>-DSEN_BUILD_MCP_GATEWAY=OFF</code> skips it.
+The gateway bundles the JSON-RPC TypeScript client, so it also needs
+<code>SEN_BUILD_JSONRPC_TS_CLIENT</code>. Turning that one off while the gateway is on stops the
+configure step with an error naming both flags. Separately, the build skips the gateway with a
+message in the CMake output when <code>npm</code> is not on <code>PATH</code>, so a build that finds no <code>npm</code>
+produces no gateway and no error.</p>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h3>
+<p>The gateway reads four environment variables; all are optional. Per-call inputs (kernel URLs,
+interest names, recording roots, etc.) are arguments to each tool call, not environment.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SEN_RECORDING_TIMEOUT_MS</code></td>
+<td><code>60000</code></td>
+<td>Wall-clock cap (ms) for <code>runRecordingScript</code> python invocations. Accepts a positive number up to <code>600000</code>. A value outside that range is not clamped and does not fall back to the default: the gateway reports an error at startup and every <code>runRecordingScript</code> call fails until the value is corrected.</td>
+</tr>
+<tr>
+<td><code>SEN_MCP_GATEWAY_READONLY</code></td>
+<td>unset</td>
+<td>When set (<code>1</code>, <code>true</code>, <code>yes</code>, <code>on</code>), <code>setProperty</code> is rejected, and <code>invokeMethod</code> and the three recording tools are withdrawn from the advertised surface. Implies <code>SEN_MCP_GATEWAY_NO_RECORDING</code>. The reasoning is under <a href="#security-model-and-deployment">Security model</a>.</td>
+</tr>
+<tr>
+<td><code>SEN_MCP_GATEWAY_NO_RECORDING</code></td>
+<td>unset</td>
+<td>When set, the recording tools (<code>listRecordings</code>, <code>runRecordingScript</code>, <code>getRecordingDocs</code>) are omitted from the advertised tool surface entirely. The live-kernel tools, including the write tools, are unaffected.</td>
+</tr>
+<tr>
+<td><code>SEN_MCP_GATEWAY_AUDIT_LOG</code></td>
+<td>unset</td>
+<td>When set, append-only JSON-lines audit log file path. State-changing tool calls are recorded with the tool name, the kernel name, the names the call acts on, and the outcome (<code>ok</code>, <code>failed</code>, or <code>denied</code>). Property and method names are recorded without their values or arguments, and <code>runRecordingScript</code> records a SHA-256 hash of the script rather than the script. The kernel URL is reduced to scheme, host and port: userinfo, query string and fragment are dropped and their removal is marked, and a URL that cannot be parsed is withheld entirely. One entry is not reduced: <code>declareInterest</code> records the query text in full, because it is what the model asked to watch and is the question this log exists to answer. Falls back to stderr on write failure.</td>
+</tr>
+</tbody>
+</table>
+<p>Both flags accept <code>1</code>, <code>true</code>, <code>yes</code> or <code>on</code> to enable and <code>0</code>, <code>false</code>, <code>no</code> or <code>off</code> to
+disable, in any case and ignoring surrounding whitespace; unset or empty reads as disabled.
+Any other value is refused rather than guessed at: the gateway reports the variable, the
+value and both accepted sets, and does not start. Defaulting an unrecognised spelling to
+"off" would leave the write tools and the python child enabled on a gateway its operator
+believes is restricted, and say nothing.</p>
+<p>Either recording variable removes the same three tools at registration, so they never appear
+in <code>tools/list</code>: <code>SEN_MCP_GATEWAY_NO_RECORDING</code> drops the advertised count by three, and
+<code>SEN_MCP_GATEWAY_READONLY</code> by four, taking <code>invokeMethod</code> with them. No withdrawn tool is ever
+present and refusing. <code>setProperty</code> is the exception and stays visible, because refusing every
+write is a check that means exactly what it says, and a model told why it was refused behaves
+better than one that cannot see the tool at all.</p>
+<p>If a model invents a withdrawn name anyway, it gets the dispatcher's generic
+<code>unknown tool: runRecordingScript</code> rather than anything about read-only mode, which is worth
+knowing when a session that used to analyse recordings suddenly cannot find the tools. The
+gateway writes one line to stderr at startup naming the variable responsible. When both are
+set, that line names <code>SEN_MCP_GATEWAY_NO_RECORDING</code>.</p>
+<p>Failed calls record the error's class name, never its message. Kernel error text can quote the
+value that was rejected, which would put values back into a log that otherwise holds none. A
+write refused by read-only mode is recorded as <code>denied</code>, so a blocked attempt still leaves a
+trace.</p>
+<p>The kernel URL is the entry most likely to become sensitive. Kernel authentication is not
+wired through the gateway yet, and when it lands, a credential carried in the URL would be
+written to the audit log verbatim. Give the log file the same protection you would give a
+credential store.</p>
+<h2 id="security-model-and-deployment">Security model and deployment<a class="headerlink" href="#security-model-and-deployment" title="Permanent link">¶</a></h2>
+<p>The gateway runs with the spawning user's full process privileges. It speaks MCP on stdio
+and forwards tool calls to Sen kernels; the <code>runRecordingScript</code> tool additionally spawns
+<code>python3</code> with caller-supplied code as a child process.</p>
+<h3 id="in-process-defenses">In-process defenses<a class="headerlink" href="#in-process-defenses" title="Permanent link">¶</a></h3>
+<p>The gateway scrubs the environment passed to the <code>python3</code> child (allowlist: <code>PATH</code>,
+<code>PYTHONPATH</code>, <code>HOME</code>, <code>LANG</code>, <code>LC_ALL</code>, <code>TZ</code>, <code>TMPDIR</code>); credentials in the launching shell's
+environment do not propagate. The child is spawned in its own process group. On Linux and
+macOS the gateway signals that group, so SIGTERM and SIGKILL reach the child and every
+grandchild still in it; a grandchild that leaves the group, for example by starting its own
+session, survives. Windows has no process groups, so the gateway kills the child's process
+tree instead. A survivor keeps running; what changed is that the gateway stops waiting on it.
+A run is settled once the child exits, rather than once the pipes it left behind are closed,
+so a stray grandchild can no longer hold a recording slot open for good.</p>
+<p>The recording runner rejects a script larger than 64 KiB before it spawns anything. That is
+the size of a pipe buffer, so a larger script would stall on the write to the child instead
+of failing. It then caps stdout (64 KiB), stderr (16 KiB), and wall-clock duration (60 s by
+default, see <code>SEN_RECORDING_TIMEOUT_MS</code>). The gateway caps each kernel at 64 concurrent
+interests, and each interest's event buffer at 1000 entries or 8 MiB, whichever it reaches
+first, so a chatty event cannot grow the process without bound. State-changing tool calls are
+audit-logged (file or stderr per <code>SEN_MCP_GATEWAY_AUDIT_LOG</code>).</p>
+<p>What the gateway does <strong>not</strong> constrain: filesystem read/write outside the recordings root,
+network egress, or what <code>python3</code> itself can do with the rest of the host. There are no
+enforced CPU/memory/file-descriptor limits; those are the deployment layer's responsibility.</p>
+<h3 id="recommended-deployment">Recommended deployment<a class="headerlink" href="#recommended-deployment" title="Permanent link">¶</a></h3>
+<p>Run the gateway inside a container. A reference Dockerfile is provided at
+<code>apps/mcp_gateway/docker/Dockerfile</code>. The container should:</p>
+<ul>
+<li>Run as a non-root user (the reference image does).</li>
+<li>Mount the recordings directory read-only (or read-write only as required) at the path the
+  LLM will reference.</li>
+<li>Restrict network egress to the Sen kernel host(s).</li>
+<li>Drop privileges the gateway never uses: <code>--cap-drop=ALL</code>, <code>--security-opt=no-new-privileges</code>,
+  and a read-only root filesystem.</li>
+<li>Apply resource limits via <code>docker run</code> flags (<code>--memory</code>, <code>--pids-limit</code>,
+  <code>--ulimit nofile=...</code>).</li>
+<li>Provide the <code>sen_db_python</code> bindings if the recording tools will be used. Every script the
+  LLM writes starts with <code>import sen_db_python</code>, so a <code>python3</code> without the bindings fails on
+  the first line.</li>
+</ul>
+<p>For higher-trust deployments, narrow the tool surface with the environment variables above.
+They are not two independent choices. <code>SEN_MCP_GATEWAY_NO_RECORDING=1</code> removes the three
+recording tools, so no python child is ever spawned. <code>SEN_MCP_GATEWAY_READONLY=1</code> removes
+those same three, withdraws <code>invokeMethod</code> and refuses every property write, so it implies the
+first and setting both adds nothing. Use read-only when the agent should only observe, and
+no-recording when it should still drive the kernel but never run Python.</p>
+<p>Read-only withdraws <code>invokeMethod</code> outright rather than allowing methods marked <code>constant</code>,
+because that attribute does not carry the meaning the decision needs. <code>constant</code> promises a
+method does not modify its own object; it promises nothing about what else the method does.
+Sen's own shell declares <code>fn shutdown() [const]</code>, correctly, since it touches no member of the
+Shell object, and calling it stops the kernel. An agent in read-only mode keeps the
+reads it needs: <code>getTypes</code>, <code>getType</code>, <code>listObjects</code>, <code>getProperty</code> and <code>getObjectsState</code> are
+tools in their own right and are unaffected.</p>
+<h3 id="running-in-a-container">Running in a container<a class="headerlink" href="#running-in-a-container" title="Permanent link">¶</a></h3>
+<p>Build the reference image:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mcp_gateway
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>npm<span class="w"> </span>run<span class="w"> </span>build
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>sen-mcp-gateway<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile<span class="w"> </span>.
 </span></code></pre></div>
-<p>You should see the initial position print, then the post-jump position. The
-<code>onObjectAdded</code> handler fires uniformly for objects matched at declare-time and for late
-arrivals.</p>
-<h2 id="concepts">Concepts<a class="headerlink" href="#concepts" title="Permanent link">¶</a></h2>
-<p>Three layered handles:</p>
+<p>Register the containerized gateway with an MCP host. For example, with the Anthropic CLI:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>sen-mcp-gateway<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-i<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span>--memory<span class="o">=</span>512m<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span>--pids-limit<span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span>--ulimit<span class="w"> </span><span class="nv">nofile</span><span class="o">=</span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span>--cap-drop<span class="o">=</span>ALL<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">    </span>--security-opt<span class="o">=</span>no-new-privileges<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">    </span>--read-only<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">    </span>--tmpfs<span class="w"> </span>/tmp<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="w">    </span>-v<span class="w"> </span>/path/to/recordings:/recordings:ro<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">    </span>--network<span class="o">=</span>sen-kernels<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="w">    </span>sen-mcp-gateway
+</span></code></pre></div>
+<p>The MCP host attaches the container's stdio. The LLM then calls <code>connectToKernel</code> with the
+kernel WebSocket URL (<code>ws://...</code>) as usual.</p>
+<p><code>sen-kernels</code> stands for a user-defined Docker network that holds the kernels and nothing
+else. Put the gateway on it so the container can reach the kernels and no other host.
+<code>--network=host</code> also reaches a kernel on the host, but it gives the container the whole host
+network, which undoes the egress restriction above. <code>--read-only</code> needs <code>--tmpfs /tmp</code> so the
+python child keeps a scratch directory; add a writable mount if you point
+<code>SEN_MCP_GATEWAY_AUDIT_LOG</code> at a path inside the container. The <code>--memory</code>, <code>--pids-limit</code>,
+and <code>--ulimit</code> flags backstop the gateway's in-process caps with kernel-enforced limits.</p>
+<h3 id="running-outside-a-container">Running outside a container<a class="headerlink" href="#running-outside-a-container" title="Permanent link">¶</a></h3>
+<p>Supported for local development. In this mode, <code>runRecordingScript</code> executes arbitrary
+Python with the launching user's permissions and can read/write any file the user can.
+Do not point a gateway running outside a sandbox at untrusted recordings, untrusted Sen
+kernels, or LLM hosts in shared contexts.</p>
+<h3 id="kernel-authentication">Kernel authentication<a class="headerlink" href="#kernel-authentication" title="Permanent link">¶</a></h3>
+<p>The gateway connects to Sen kernels via <code>@sen/client</code> without authentication (the <code>jsonrpc</code>
+component's default is <code>NoAuth</code>). This is fine for localhost / trusted-network deployments.
+A pluggable auth seam exists in the <code>jsonrpc</code> component but is not currently wired through
+the gateway. Use only with trusted kernel endpoints until kernel auth lands.</p>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">¶</a></h2>
+<p>The gateway publishes a curated subset of Sen's documentation as MCP <em>resources</em> under the
+<code>sen://docs/</code> URI scheme: the conceptual user-guide pages, per-component overviews (this page
+included), and a few key how-to guides. The bundle is baked into <code>dist/</code> at build time, so the
+gateway does not need network access at runtime; the source folders and the sanitization pass
+live in <code>apps/mcp_gateway/scripts/bake_docs.mjs</code>. The host's <code>resources/list</code> capability lists
+them; <code>resources/read</code> fetches one.</p>
+<p>The <code>initialize.instructions</code> block (in <code>apps/mcp_gateway/src/instructions.ts</code>) gives the LLM
+the conceptual primer once per connect; the resources are reference material it can pull on
+demand.</p>
+<h2 id="trying-it-live-with-the-school-example">Trying it live with the school example<a class="headerlink" href="#trying-it-live-with-the-school-example" title="Permanent link">¶</a></h2>
+<p>Sen ships a school example (<code>examples/config/4_school/</code>) that exercises the gateway
+end-to-end, with rich properties, methods and events across two buses.</p>
+<p>In one terminal, start Sen with the JSON-RPC variant of the school config:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>sen<span class="w"> </span>run<span class="w"> </span>examples/config/4_school/8_school_jsonrpc.yaml
+</span></code></pre></div>
+<p>In another, register the gateway with an MCP host (the Anthropic CLI is one option):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>sen-mcp-gateway<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>--<span class="w"> </span>sen-mcp-gateway
+</span></code></pre></div>
+<p>Then, from the host, prompts such as the following exercise the surface end-to-end:</p>
 <ul>
-<li><strong><code>Client</code></strong> -- the connection. One per Sen process. Owns the WebSocket, hands out
-  interests, surfaces connection-state events.</li>
-<li><strong><code>InterestHandle</code></strong> -- a live query. Keeps a local cache of matching objects in sync
-  with the server. Tells you when objects appear or disappear.</li>
-<li><strong><code>ObjectHandle</code></strong> -- one object in an interest's match set. The unit of work for
-  property reads/writes, event subscriptions, method calls.</li>
+<li>"Connect to the Sen kernel at <code>ws://127.0.0.1:8080</code>."</li>
+<li>"List the sessions and buses."</li>
+<li>"Show me every student in <code>school.primary</code> and read their <code>focusLevel</code>."</li>
+<li>"Ask the teacher in <code>school.primary</code> to <code>assignTasks</code>, then watch for any <code>stressLevelPeaked</code>
+  event over the next 30 seconds."</li>
+<li>"Explain the <code>school.Student</code> class to me, so I know how to read its <code>status</code> property."</li>
 </ul>
-<p>You only ever construct a <code>Client</code>. Interests and objects come from it.</p>
-<h2 id="full-reference">Full reference<a class="headerlink" href="#full-reference" title="Permanent link">¶</a></h2>
-<p>The package's <a href="https://github.com/airbus/sen/blob/main/components/jsonrpc/clients/typescript/README.md">README</a>
-is the comprehensive user reference, covering:</p>
-<ul>
-<li>Queries + pre-subscribing properties / events at declare time</li>
-<li>Property reads, writes, and subscriptions (and <code>onAnyChange</code>)</li>
-<li>Events (<code>onEventTriggered</code>)</li>
-<li>Method invocation (<code>invoke</code>)</li>
-<li>Runtime value types (<code>Quantity</code>, <code>Variant</code>) + narrowing helpers</li>
-<li>Error model (<code>JsonRpcError</code>, <code>TransportError</code>, <code>TimeoutError</code>)</li>
-<li>Reconnection + <code>reestablishAll</code></li>
-<li>Batch reads (<code>getObjectsBatchState</code>) for dashboard-style refresh</li>
-<li>React bindings (<code>@sen/client/react</code>): <code>useObject</code>, <code>useObjects</code>, <code>useProperty</code>,
-  <code>useEvents</code>, <code>useInvoke</code>, <code>useSetProperty</code>, <code>useTopology</code>, <code>useTypeSpec</code>, and the
-  <code>makeStore</code> / <code>useCell</code> primitives for fine-grained subscriptions.</li>
-</ul>
-<h2 id="browser-example">Browser example<a class="headerlink" href="#browser-example" title="Permanent link">¶</a></h2>
-<p><a href="https://github.com/airbus/sen/tree/main/components/jsonrpc/clients/typescript/examples/browser"><code>examples/browser/</code></a>
-in the package is a static HTML page that loads the built bundle and runs the hello-world
-above in a real browser. Use it as a sanity check after <code>npm run build</code>, or as a starting
-point for a custom browser UI.</p>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h2>
-<p>For contributors: see
-<a href="https://github.com/airbus/sen/blob/main/components/jsonrpc/clients/typescript/architecture.md"><code>components/jsonrpc/clients/typescript/architecture.md</code></a>
-for the layer diagram, per-module responsibilities, key invariants, and extension points.</p></div>
+<p>The gateway is a pure Node process. It speaks MCP on one side (stdio with the host) and
+<code>@sen/client</code> on the other (WebSocket to each Sen kernel's <code>jsonrpc</code> component). It does not
+run inside a Sen process and has no C++ side.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>MCP host (LLM-facing)
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>   |  stdio  (JSON-RPC 2.0 framed by the MCP SDK)
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>   v
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a>sen-mcp-gateway  (this process)
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a>   |  WebSocket  (one per connected kernel)
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a>   v
+</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a>Sen kernel A      Sen kernel B      ...
+</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a>(`jsonrpc`)       (`jsonrpc`)
+</span></code></pre></div>
+<p>The contributor-facing overview of layers, dispatch, the audit log, the recording sandbox and
+the bake-docs-into-resources pattern lives in
+<code>apps/mcp_gateway/architecture.md</code>, alongside the source-layout README at
+<code>apps/mcp_gateway/README.md</code>.</p></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 3, 2026 20:58:38 UTC">September 3, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 3, 2026 21:50:44 UTC">September 3, 2026</span>
 </span>
 </aside>
 </article>
@@ -1546,7 +1864,7 @@ for the layer diagram, per-module responsibilities, key invariants, and extensio
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: JSON-RPC" class="md-footer__link md-footer__link--prev" href="jsonrpc.html">
+<a aria-label="Previous: JSON-RPC TypeScript Client" class="md-footer__link md-footer__link--prev" href="jsonrpc_ts_client.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1555,17 +1873,17 @@ for the layer diagram, per-module responsibilities, key invariants, and extensio
                 Previous
               </span>
 <div class="md-ellipsis">
-                JSON-RPC
+                JSON-RPC TypeScript Client
               </div>
 </div>
 </a>
-<a aria-label="Next: MCP Gateway" class="md-footer__link md-footer__link--next" href="mcp_gateway.html">
+<a aria-label="Next: Tracy" class="md-footer__link md-footer__link--next" href="tracy.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                MCP Gateway
+                Tracy
               </div>
 </div>
 <div class="md-footer__button md-icon">
