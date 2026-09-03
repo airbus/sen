@@ -167,6 +167,7 @@ void configureShortcuts(CLI::App& app, int argc, char* argv[])
 {
   configureShortcut(app, "shell", argc, argv);
   configureShortcut(app, "explorer", argc, argv);
+  configureShortcut(app, "web-explorer", argc, argv);
   configureShortcut(app, "replay", argc, argv);
 
   // remote shell

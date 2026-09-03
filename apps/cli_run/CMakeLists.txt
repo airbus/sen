@@ -18,6 +18,9 @@ endif()
 if(SEN_BUILD_EXPLORER)
   list(APPEND builtin_configs builtin_configs/explorer.yaml)
 endif()
+if(SEN_BUILD_WEBEXPLORER)
+  list(APPEND builtin_configs builtin_configs/webexplorer.yaml)
+endif()
 
 set(builtin_configs_headers)
 foreach(_config_file ${builtin_configs})
@@ -39,7 +42,12 @@ foreach(_config_file ${builtin_configs})
 
 endforeach()
 
-add_executable(cli_run ${builtin_configs_headers} main.cpp)
+set(cli_run_sources main.cpp)
+if(SEN_BUILD_WEBEXPLORER)
+  list(APPEND cli_run_sources browser_open.cpp)
+endif()
+
+add_executable(cli_run ${builtin_configs_headers} ${cli_run_sources})
 
 target_link_libraries(
   cli_run
@@ -55,6 +63,12 @@ if(SEN_BUILD_REPLAYER)
 endif()
 if(SEN_BUILD_EXPLORER)
   target_compile_definitions(cli_run PRIVATE SEN_CLI_RUN_HAS_EXPLORER_PRESET)
+endif()
+if(SEN_BUILD_WEBEXPLORER)
+  target_compile_definitions(cli_run PRIVATE SEN_CLI_RUN_HAS_WEBEXPLORER_PRESET)
+  if(WIN32)
+    target_link_libraries(cli_run PRIVATE ws2_32)
+  endif()
 endif()
 
 add_executable(sen::cli_run ALIAS cli_run)

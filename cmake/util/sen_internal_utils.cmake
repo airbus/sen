@@ -216,6 +216,74 @@ function(sen_internal_install target_name)
 
 endfunction()
 
+# Bake a consumer's npm prod-dep licenses into ${CMAKE_BINARY_DIR}/foss_licenses/<target>/.
+# install.cmake ships that tree; docs/CMakeLists.txt renders it into the licenses page.
+# The consumer must list `license-checker-rseidelsohn` in devDependencies.
+#
+# ESBUILD_METAFILE (optional): when set, narrows the bake to packages actually present in the
+# bundle. Without it, every prod dep on disk is attributed (over-inclusive when peer-dep
+# transitives don't ship).
+function(sen_internal_bake_npm_licenses)
+  set(_one_value_args
+      TARGET
+      SOURCE_DIR
+      NPM_SENTINEL
+      NPM_EXEC
+      ESBUILD_METAFILE
+  )
+  cmake_parse_arguments(
+    _args
+    ""
+    "${_one_value_args}"
+    ""
+    ${ARGN}
+  )
+
+  foreach(
+    _required IN
+    ITEMS TARGET
+          SOURCE_DIR
+          NPM_SENTINEL
+          NPM_EXEC
+  )
+    if(NOT _args_${_required})
+      message(FATAL_ERROR "sen_internal_bake_npm_licenses: ${_required} is required")
+    endif()
+  endforeach()
+
+  get_filename_component(_node_bin_dir ${_args_NPM_EXEC} DIRECTORY)
+  set(_out_dir "${CMAKE_BINARY_DIR}/foss_licenses/${_args_TARGET}")
+  set(_script ${PROJECT_SOURCE_DIR}/cmake/util/bake_npm_licenses.mjs)
+  # Slug for cmake target / sentinel filenames; raw TARGET remains the on-disk dir + docs header.
+  string(
+    REGEX
+    REPLACE "[^A-Za-z0-9_]"
+            "_"
+            _target_slug
+            "${_args_TARGET}"
+  )
+  set(_sentinel ${CMAKE_CURRENT_BINARY_DIR}/${_target_slug}_npm_licenses.stamp)
+
+  set(_extra_args)
+  set(_extra_deps)
+  if(_args_ESBUILD_METAFILE)
+    list(APPEND _extra_args --esbuild-metafile=${_args_ESBUILD_METAFILE})
+    list(APPEND _extra_deps ${_args_ESBUILD_METAFILE})
+  endif()
+
+  add_custom_command(
+    OUTPUT ${_sentinel}
+    COMMAND ${CMAKE_COMMAND} -E env --modify "PATH=path_list_prepend:${_node_bin_dir}" ${_node_bin_dir}/node
+            ${_script} ${_args_SOURCE_DIR} "${_out_dir}" ${_extra_args}
+    COMMAND ${CMAKE_COMMAND} -E touch ${_sentinel}
+    DEPENDS ${_args_NPM_SENTINEL} ${_script} ${_extra_deps}
+    COMMENT "Aggregating npm licenses for ${_args_TARGET} -> ${_out_dir}"
+    VERBATIM
+  )
+  add_custom_target(${_target_slug}_npm_licenses ALL DEPENDS ${_sentinel})
+  set_target_properties(${_target_slug}_npm_licenses PROPERTIES FOLDER "licenses")
+endfunction()
+
 # cmake graphviz generation
 if(SEN_ENABLE_CMAKE_TARGET_GRAPH)
   set(GRAPHVIZ_IGNORE_TARGETS
