@@ -1,0 +1,34 @@
+# $schema: ../base/schema.json
+
+# Same two-classroom topology as 1_school_two_classrooms_one_component.yaml, but loads the
+# jsonrpc component instead of the shell. Lets external clients (the @sen/mcp-gateway, the web
+# explorer, or any JSON-RPC consumer) drive the school: read student/teacher state, set focus
+# levels, call assignTasks / addStudents / startDoingTask, subscribe to madeSomeNoise /
+# gotDistracted / stressLevelPeaked.
+#
+# Bind on 0.0.0.0 so a containerised host can reach the WebSocket from loopback. Port 8080
+# matches the default the gateway connects to (override with SEN_WS_URL on the gateway side).
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+
+build:
+  - name: schoolComponent
+    group: 3
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 5
+        createTeacher: true
+      - name: secondGrade
+        class: school.ClassroomImpl
+        studentsBus: school.secondary
+        bus: school.secondary
+        defaultSize: 10
+        createTeacher: true

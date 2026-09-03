@@ -91,6 +91,7 @@ add_subdirectory(apps/cli_gen)
 add_subdirectory(apps/cli_archive)
 add_subdirectory(apps/cli_package)
 add_subdirectory(apps/cli_remote_shell)
+add_subdirectory(apps/mcp_gateway)
 
 # examples
 if(SEN_BUILD_EXAMPLES)

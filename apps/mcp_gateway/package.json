@@ -1,0 +1,42 @@
+{
+  "name": "@sen/mcp-gateway",
+  "version": "0.0.0",
+  "description": "Sen-to-MCP gateway: exposes a running Sen instance as an MCP server over stdio.",
+  "license": "Apache-2.0",
+  "author": "Airbus",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/airbus/sen.git",
+    "directory": "apps/mcp_gateway"
+  },
+  "homepage": "https://airbus.github.io/sen/latest/",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "scripts": {
+    "bake": "node scripts/bake_docs.mjs",
+    "prebuild": "npm run bake",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/sen-mcp-gateway.cjs --sourcemap=linked --metafile=dist/meta.json",
+    "pretypecheck": "npm run bake",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "pretest": "npm run bake",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@sen/client": "file:../../components/jsonrpc/clients/typescript",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.13",
+    "esbuild": "^0.25.0",
+    "license-checker-rseidelsohn": "^4.4.2",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

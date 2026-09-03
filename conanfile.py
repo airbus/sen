@@ -154,6 +154,7 @@ class SenConan(ConanFile):
             "apps/*",
             "cmake/*",
             "components/*",
+            "docs/*",
             "examples/*",
             "libs/*",
             "test/*",
@@ -165,7 +166,22 @@ class SenConan(ConanFile):
             "resources/*",
         ]
 
-        exclude_patterns = ["*/__pycache__/*", "*/.mypy_cache/*", "doc/*", "*/schema.json"]
+        # Images and videos are dropped from docs/ only, where they are illustrations the
+        # package never needs. Elsewhere they are build inputs - the webexplorer frontend
+        # imports an .svg logo - and an unscoped pattern exports a tree that cannot build.
+        exclude_patterns = [
+            "*/__pycache__/*",
+            "*/.mypy_cache/*",
+            "doc/*",
+            "*/schema.json",
+            "docs/*.jpg",
+            "docs/*.jpeg",
+            "docs/*.png",
+            "docs/*.gif",
+            "docs/*.svg",
+            "docs/*.mp4",
+            "docs/*.webm",
+        ]
 
         for export_source_pattern in include_patterns:
             copy(self, export_source_pattern, self.recipe_folder, self.export_sources_folder, excludes=exclude_patterns)

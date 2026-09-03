@@ -143,6 +143,16 @@ jobs:
           ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
             -N -L integration | grep -q object_sync
 
+      # If the bundle built, the tests must be registered. A rename or a missing tool would drop
+      # them and still report success, which is how the baked-docs control went unrun for months.
+      - name: Check the gateway tests are registered
+        shell: bash
+        run: |
+          if [ -f apps/mcp_gateway/dist/sen-mcp-gateway.cjs ]; then
+            ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
+              -N -L unit | grep -q mcp_gateway_unit
+          fi
+
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}
         shell: bash
