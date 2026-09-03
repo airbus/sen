@@ -35,7 +35,7 @@
     "@types/node": "^22.10.0",
     "@types/ws": "^8.5.13",
     "esbuild": "^0.25.0",
-    "license-checker-rseidelsohn": "^4.4.2",
+    "license-checker-rseidelsohn": "^5.0.1",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0"
   }
