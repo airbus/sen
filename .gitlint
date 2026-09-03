@@ -24,5 +24,5 @@ types=build,chore,ci,docs,feat,fix,perf,refactor,revert,test
 # so body-is-missing has to be repeated here. Without it the pull request title check
 # fails: it pipes a bare title into gitlint, which then has no body at all.
 [ignore-by-title]
-regex=^chore\(deps\)
+regex=^chore\(deps(-dev)?\)
 ignore=body-max-line-length,body-is-missing,title-max-length
