@@ -43,3 +43,91 @@ updates:
       # this is a coordinated change across the images and the matrix rather than a
       # dependency bump. Raise it by hand when the time comes.
       - dependency-name: ubuntu
+
+  # The four javascript projects: the MCP gateway, the TypeScript client, the web explorer
+  # frontend and the VS Code extension. One pull request per batch rather than one per
+  # package, because a set of javascript bumps carries no decision and each pull request
+  # runs the whole C++ matrix, which none of them can affect.
+  #
+  # Security fixes need their own group. A group without applies-to covers ordinary version
+  # updates only, so without the second one security fixes keep arriving separately, which
+  # is what filled the queue when the javascript projects landed.
+  - package-ecosystem: npm
+    directory: /apps/mcp_gateway
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    groups:
+      mcp-gateway:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      mcp-gateway-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /components/jsonrpc/clients/typescript
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    groups:
+      jsonrpc-ts-client:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      jsonrpc-ts-client-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /components/webexplorer/frontend
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    groups:
+      web-explorer:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      web-explorer-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /resources/syntax_highlighting/stl/vscode
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 10
+    groups:
+      vscode-extension:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      vscode-extension-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
