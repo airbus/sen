@@ -79,6 +79,59 @@ CLion builds the profile from the preset by itself, so there is no need to add o
 its run widget stays empty after a reload, the project model is still loading; the commands
 above work from the terminal regardless.
 
+### Container permissions
+
+Some tests take a fallback path unless the container was started with the permission they
+need. You need neither to build Sen nor to run the suite.
+
+```shell
+python3 .github/scripts/check_container_capabilities.py
+```
+
+- `--ulimit rtprio=99`, for the real-time scheduling policy. The devcontainer asks for this;
+  it is safe to request anywhere.
+- `--device=/dev/cpu_dma_latency`, for the idle latency control. Not asked for by default,
+  because Docker refuses to start the container at all when the device is absent. Add it to
+  `runArgs` in your own checkout if you need those tests.
+
+CI sets `SEN_REQUIRE_CAPABILITIES`, which makes the same check fail when a permission it
+asked for is missing.
+
+### Running the container yourself
+
+The devcontainer does this for you. Without one:
+
+```shell
+# Once. --target dev is the CI image plus a debugger and graphviz.
+docker build --target dev -t sen-dev tools/ci
+
+# A shell in it. The repository is mounted at the path it has outside, so a worktree's
+# .git still resolves; the caches are volumes, so they outlive the container.
+docker run --rm -it -v "$PWD:$PWD" -w "$PWD" \
+    -v sen-conan:/home/sen/.conan2 -v sen-ccache:/home/sen/.ccache \
+    --ulimit rtprio=99 sen-dev bash
+```
+
+Then, inside it:
+
+```shell
+git config --global --add safe.directory "$PWD"
+conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
+conan install . --profile:all=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
+conan build . --profile:all=sen_gcc_x86 -o "sen/*:with_tests=True"
+```
+
+Three things about that are easy to get wrong:
+
+- `--profile:all`, not `--profile`. The bare form sets only the host profile, and Conan then
+  looks for a build profile called `default`, which the repository does not ship.
+- `safe.directory` is per container, not per machine. `--rm` discards it, so a script that
+  runs one container per command needs the line in each of them, or `conan install` fails
+  where it calls `git describe`.
+- Sanitizer builds need `--security-opt seccomp=unconfined` on the `docker run`, and a clang
+  profile. The runtimes call `personality(ADDR_NO_RANDOMIZE)`, which the default seccomp
+  profile blocks, and the failure reads as a compiler crash.
+
 ## Commit Messages and Pull Requests
 
 Commit subjects follow the conventional format `type(scope): summary`:
