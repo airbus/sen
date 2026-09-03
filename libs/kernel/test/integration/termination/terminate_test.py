@@ -15,11 +15,58 @@ import time
 # a tight bound here would turn a slow machine into a failure.
 STOP_TIMEOUT_SECONDS = 15
 
+# How long to wait for the kernel to block the termination signals. Startup is dynamic linking and
+# an exec, both of which slow down badly when the rest of the suite is starting at the same time.
+READY_TIMEOUT_SECONDS = 30
+
+# Positions of SIGTERM and SIGINT in the mask /proc reports, which counts signals from one.
+BLOCKED_MASK = (1 << (signal.SIGTERM - 1)) | (1 << (signal.SIGINT - 1))
+
+
+def blocked_signals(pid):
+    """The process's blocked-signal mask, or None where /proc does not exist."""
+    try:
+        with open(f"/proc/{pid}/status", encoding="utf-8") as status:
+            for line in status:
+                if line.startswith("SigBlk:"):
+                    return int(line.split()[1], 16)
+    except OSError:
+        return None
+    return None
+
+
+def wait_until_ready(kernel, fallback_delay):
+    """Wait until the kernel has blocked the termination signals, so one can be delivered to it.
+
+    A signal arriving before it does that kills the process outright, which is indistinguishable
+    from the defect this test exists to catch. Sleeping a fixed time instead only looks equivalent:
+    under a full parallel suite the process needs seconds to reach main, and the test then reports
+    a defect that is not there. Where /proc is unavailable there is nothing to observe, so the
+    fixed wait is all that is left.
+    """
+    if blocked_signals(kernel.pid) is None:
+        time.sleep(fallback_delay)
+        return True
+
+    deadline = time.monotonic() + READY_TIMEOUT_SECONDS
+    while time.monotonic() < deadline:
+        mask = blocked_signals(kernel.pid)
+        if mask is None:  # exited already; let the caller report what it did
+            return True
+        if (mask & BLOCKED_MASK) == BLOCKED_MASK:
+            return True
+        time.sleep(0.02)
+
+    return False
+
 
 def run_until_signalled(config, sig, delay):
-    """Start a kernel, signal it after delay seconds, and return (exit code, seconds taken)."""
+    """Start a kernel, signal it once it is ready, and return (exit code, seconds taken)."""
     kernel = subprocess.Popen(["./sen", "run", config], start_new_session=True)  # noqa: S603
-    time.sleep(delay)
+    if not wait_until_ready(kernel, delay):
+        kernel.kill()
+        kernel.wait()
+        return "not ready", 0.0
 
     start = time.monotonic()
     kernel.send_signal(sig)
@@ -34,6 +81,10 @@ def run_until_signalled(config, sig, delay):
 def check(config, name, sig, delay):
     """Report whether one case stopped cleanly."""
     code, took = run_until_signalled(config, sig, delay)
+
+    if code == "not ready":
+        print(f"FAIL {name}: never blocked the termination signals within {READY_TIMEOUT_SECONDS}s")
+        return False
 
     if code is None:
         print(f"FAIL {name}: still running {took:.1f}s after the request, had to be killed")
