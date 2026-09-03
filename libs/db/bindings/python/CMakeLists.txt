@@ -11,6 +11,8 @@ find_package(Python3 REQUIRED COMPONENTS Development)
 
 set(sources
     module.cpp
+    type_specs.cpp
+    type_specs.h
     variant_conversion.cpp
     variant_conversion.h
     type_casters.h
@@ -21,7 +23,13 @@ set(sources
 # -------------------------------------------------------------------------------------------------------------
 
 python3_add_library(sen_db_python MODULE ${sources})
-target_link_libraries(sen_db_python PRIVATE pybind11::pybind11 sen::db sen::core)
+target_link_libraries(
+  sen_db_python
+  PRIVATE pybind11::pybind11
+          sen::db
+          sen::kernel
+          sen::core
+)
 
 sen_internal_configure_lib(sen_db_python)
 sen_enable_static_analysis(sen_db_python)
@@ -32,3 +40,11 @@ sen_internal_install(sen_db_python)
 # -------------------------------------------------------------------------------------------------------------
 
 source_group("src" FILES ${sources})
+
+# -------------------------------------------------------------------------------------------------------------
+# tests
+# -------------------------------------------------------------------------------------------------------------
+
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

@@ -160,6 +160,7 @@ nav:
       - The Sen libraries:
           - sen::core: users_guide/core_library.md
           - sen::db: users_guide/db_library.md
+          - sen::db Python bindings: users_guide/db_python_bindings.md
           - sen::gen: users_guide/gen_library.md
           - sen::kernel: users_guide/kernel_library.md
           - sen::util: users_guide/util_library.md
