@@ -86,13 +86,16 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: gitlint --commits "${BASE_SHA:-origin/main}..HEAD"
-      # The squash merge turns the title into the commit subject on main.
+      # The squash merge turns the title into the commit subject on main, with the
+      # pull request number appended. Linting the bare title passes a 71-character
+      # one and lands 79 on main, where it fails every later pull request.
       - name: Lint the pull request title
         if: github.event_name == 'pull_request'
         shell: bash
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$PR_TITLE" | gitlint
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | gitlint
 
   conan-lock-check:
     name: "Check conan.lock"
