@@ -44,17 +44,19 @@ jobs:
         shell: bash
         run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
 
-      # Restore only, never save. prepare_build would be the obvious thing to
-      # reuse here, but it saves at the end of the job, and a cache written from
-      # a pull request is private to it: every open pull request storing its own
-      # slice puts the repository past GitHub's 10 GB limit. The nightly can use
-      # it because the nightly only runs on main.
+      # prepare_build would be the obvious thing to reuse here, but it saves at the
+      # end of the job, and a cache written from a pull request is private to it:
+      # every open pull request storing its own slice puts the repository past
+      # GitHub's 10 GB limit. So this restores always and saves from main only.
+      # Keyed to the image, not the runner: a conan package id does not distinguish
+      # one Ubuntu from another, and the runner's cache holds 24.04 binaries whose
+      # libstdc++ is newer than the image's -- they install here and fail at link.
       - name: Restore conan packages
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-ubuntu-24.04-clang-20-17-${{ env.cache_date }}
-          restore-keys: conanp-ubuntu-24.04-clang-20-17-
+          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-${{ env.cache_date }}
+          restore-keys: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-
 
       # No ccache: sanitized object files must not land in the entries the
       # ordinary builds depend on. Same rule as the nightly's sanitizer lanes.
@@ -138,3 +140,20 @@ jobs:
           name: pr-sanitizer-reports
           path: sanitizer-reports/
           if-no-files-found: ignore
+
+      # sen itself and the build folders stay out, as in conan.yaml.
+      - name: Clean the conan cache before saving
+        if: always() && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          conan remove sen --confirm
+          conan cache clean "*" -s -b -d
+          IN
+
+      - name: Save conan packages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.conan2/p
+          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-${{ env.cache_date }}
