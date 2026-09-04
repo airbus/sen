@@ -1,0 +1,1596 @@
+@startuml
+!$FONT_NAME = "Courier"
+
+skinparam groupInheritance 2
+skinparam BackgroundColor "transparent"
+skinparam shadowing true
+skinparam defaultFontName  $FONT_NAME
+skinparam defaultFontSize  12
+skinparam RoundCorner 10
+skinparam ArrowColor 454645
+skinparam FontColor 454645
+skinparam SequenceLifeLineBorderColor 454645
+skinparam SequenceGroupHeaderFontColor 454645
+skinparam SequenceGroupFontColor 454645
+skinparam SequenceGroupBorderColor 454645
+skinparam SequenceGroupBorderThickness 1
+skinparam padding 0
+skinparam nodesep 5
+skinparam ranksep 20
+
+skinparam ClassAttribute {
+  FontName $FONT_NAME
+}
+skinparam Package {
+  FontName $FONT_NAME
+}
+skinparam Class {
+  FontName $FONT_NAME
+}
+skinparam ClassAttribute {
+  FontName $FONT_NAME
+}
+skinparam ClassStereotype {
+  FontName $FONT_NAME
+}
+
+package hla <<Folder>>
+{
+  class ObjectRoot
+  {
+    + rtiId : string
+  }
+
+}
+package rpr <<Folder>>
+{
+  class RadioTransmitter
+  {
+    + antennaPatternData : AntennaPatternVariantStructLengthlessArray
+    + cryptographicMode : CryptographicModeEnum32
+    + cryptoSystem : CryptographicSystemTypeEnum16
+    + encryptionKeyIdentifier : UnsignedInteger16
+    + frequency : FrequencyHertzUnsignedInteger64
+    + frequencyBandwidth : FrequencyHertzFloat32
+    + radioIndex : UnsignedInteger16
+    + radioInputSource : RadioInputSourceEnum8
+    + radioSystemType : RadioTypeStruct
+    + rFModulationSystemType : RFModulationSystemTypeEnum16
+    + rFModulationType : RFModulationTypeVariantStruct
+    + spreadSpectrum : SpreadSpectrumVariantStruct
+    + streamTag : UnsignedInteger64
+    + timeHopInUse : bool
+    + transmittedPower : PowerRatioDecibelMilliwattFloat32
+    + transmitterOperationalStatus : TransmitterOperationalStatusEnum8
+    + worldLocation : WorldLocationStruct
+  }
+
+  EmbeddedSystem <|--- RadioTransmitter
+}
+package rpr <<Folder>>
+{
+  class RadioReceiver
+  {
+    + radioIndex : UnsignedInteger16
+    + receivedPower : PowerRatioDecibelMilliwattFloat32
+    + receivedTransmitterIdentifier : string
+    + receiverOperationalStatus : ReceiverOperationalStatusEnum16
+  }
+
+  EmbeddedSystem <|--- RadioReceiver
+}
+package rpr <<Folder>>
+{
+  class EnvironmentalEntity
+  {
+    + opacityCode : OpacityCodeEnum32
+  }
+
+  BaseEntity <|--- EnvironmentalEntity
+}
+package rpr <<Folder>>
+{
+  class EnvironmentObject
+  {
+    + objectIdentifier : EntityIdentifierStruct
+    + referencedObjectIdentifier : string
+    + forceIdentifier : ForceIdentifierEnum8
+    + objectType : EnvironmentObjectTypeStruct
+  }
+
+  ObjectRoot <|--- EnvironmentObject
+}
+package rpr <<Folder>>
+{
+  class ArealObject
+  {
+    + pointsData : WorldLocationStructLengthlessArray
+    + percentComplete : PercentUnsignedInteger32
+    + damagedAppearance : DamageStatusEnum32
+    + objectPreDistributed : bool
+    + deactivated : bool
+    + smoking : bool
+    + flaming : bool
+  }
+
+  EnvironmentObject <|--- ArealObject
+}
+package rpr <<Folder>>
+{
+  class OtherArealObject
+  {
+  }
+
+  ArealObject <|--- OtherArealObject
+}
+package rpr <<Folder>>
+{
+  class LinearObject
+  {
+  }
+
+  EnvironmentObject <|--- LinearObject
+}
+package rpr <<Folder>>
+{
+  class BreachableLinearObject
+  {
+    + segmentRecords : BreachableSegmentStructLengthlessArray
+  }
+
+  LinearObject <|--- BreachableLinearObject
+}
+package rpr <<Folder>>
+{
+  class BreachObject
+  {
+    + segmentRecords : BreachStructLengthlessArray
+  }
+
+  LinearObject <|--- BreachObject
+}
+package rpr <<Folder>>
+{
+  class ExhaustSmokeObject
+  {
+    + segmentRecords : ExhaustSmokeStructLengthlessArray
+  }
+
+  LinearObject <|--- ExhaustSmokeObject
+}
+package rpr <<Folder>>
+{
+  class OtherLinearObject
+  {
+  }
+
+  LinearObject <|--- OtherLinearObject
+}
+package rpr <<Folder>>
+{
+  class PointObject
+  {
+    + location : WorldLocationStruct
+    + orientation : OrientationStruct
+    + percentComplete : PercentUnsignedInteger32
+    + damagedAppearance : DamageStatusEnum32
+    + objectPreDistributed : bool
+    + deactivated : bool
+    + smoking : bool
+    + flaming : bool
+  }
+
+  EnvironmentObject <|--- PointObject
+}
+package rpr <<Folder>>
+{
+  class BreachablePointObject
+  {
+    + breachedStatus : BreachedStatusEnum8
+  }
+
+  PointObject <|--- BreachablePointObject
+}
+package rpr <<Folder>>
+{
+  class BurstPointObject
+  {
+    + percentOpacity : PercentUnsignedInteger32
+    + cylinderSize : UnsignedInteger32
+    + cylinderHeight : UnsignedInteger32
+    + numberOfBursts : UnsignedInteger32
+    + chemicalContent : ChemicalContentEnum32
+  }
+
+  PointObject <|--- BurstPointObject
+}
+package rpr <<Folder>>
+{
+  class CraterObject
+  {
+    + craterSize : UnsignedInteger32
+  }
+
+  PointObject <|--- CraterObject
+}
+package rpr <<Folder>>
+{
+  class OtherPointObject
+  {
+  }
+
+  PointObject <|--- OtherPointObject
+}
+package rpr <<Folder>>
+{
+  class RibbonBridgeObject
+  {
+    + numberOfSegments : UnsignedInteger32
+  }
+
+  PointObject <|--- RibbonBridgeObject
+}
+package rpr <<Folder>>
+{
+  class StructureObject
+  {
+  }
+
+  PointObject <|--- StructureObject
+}
+package rpr <<Folder>>
+{
+  class EnvironmentProcess
+  {
+    + processIdentifier : EntityIdentifierStruct
+    + type : EnvironmentTypeStruct
+    + modelType : EnvironmentModelTypeEnum8
+    + environmentProcessActive : bool
+    + sequenceNumber : hla.MaybeU16
+    + environmentRecData : EnvironmentRecStructArray
+  }
+
+  ObjectRoot <|--- EnvironmentProcess
+}
+package rpr <<Folder>>
+{
+  class GriddedData
+  {
+    + gridIdentifier : EntityIdentifierStruct
+    + coordinateSystem : EnvironmentDataCoordinateSystemEnum16
+    + numberOfGridAxes : Octet
+    + constantGrid : EnvironmentGridTypeEnum8
+    + environmentType : EnvironmentTypeStruct
+    + orientation : OrientationStruct
+    + sampleTime : UnsignedInteger64
+    + totalValues : UnsignedInteger32
+    + vectorDimension : Octet
+    + gridAxisInfo : GridAxisStructLengthlessArray
+    + gridDataInfo : GridDataStructLengthlessArray
+  }
+
+  ObjectRoot <|--- GriddedData
+}
+package rpr <<Folder>>
+{
+  class Minefield
+  {
+    + activeStatus : MinefieldStatusEnum8
+    + forceIdentifier : ForceIdentifierEnum8
+    + lane : MinefieldLaneEnum8
+    + minefieldAppearanceType : MinefieldTypeEnum8
+    + minefieldIdentifier : EntityIdentifierStruct
+    + minefieldLocation : WorldLocationStruct
+    + minefieldOrientation : OrientationStruct
+    + minefieldType : EntityTypeStruct
+    + mineTypes : EntityTypeStructLengthlessArray
+    + perimeterPointCoordinates : PerimeterPointStructLengthlessArray
+    + protocolMode : MinefieldProtocolEnum8
+    + state : bool
+  }
+
+  ObjectRoot <|--- Minefield
+}
+package rpr <<Folder>>
+{
+  class MinefieldData
+  {
+    + groundBurialDepthOffset : DepthMeterFloat32LengthlessArray
+    + fusing : MineFusingStructLengthlessArray
+    + mineEmplacementTime : ClockTimeStructLengthlessArray
+    + mineEntityIdentifier : MineIdentifierLengthlessArray
+    + minefieldIdentifier : string
+    + mineLocation : WorldLocationStructLengthlessArray
+    + mineOrientation : OrientationStructLengthlessArray
+    + mineType : EntityTypeStruct
+    + numberTripDetonationWires : UnsignedInteger8LengthlessArray
+    + numberWireVertices : UnsignedInteger8LengthlessArray
+    + paintScheme : MinefieldPaintSchemeLengthlessArray
+    + reflectance : MineDielectricDifferenceLengthlessArray
+    + scalarDetectionCoefficient : UnsignedInteger8LengthlessArray
+    + sensorTypes : MinefieldSensorTypeLengthlessArray
+    + snowBurialDepthOffset : DepthMeterFloat32LengthlessArray
+    + thermalContrast : TemperatureDegreeCelsiusFloat32LengthlessArray
+    + waterBurialDepthOffset : DepthMeterFloat32LengthlessArray
+    + wireVertices : WorldLocationStructLengthlessArray
+  }
+
+  EmbeddedSystem <|--- MinefieldData
+}
+package rpr <<Folder>>
+{
+  class MinefieldObject
+  {
+    + breachedStatus : BreachedStatusEnum8
+    + mineCount : UnsignedInteger32
+  }
+
+  ArealObject <|--- MinefieldObject
+}
+package rpr <<Folder>>
+{
+  class MinefieldLaneMarkerObject
+  {
+    + segmentRecords : MinefieldLaneMarkerStructLengthlessArray
+  }
+
+  LinearObject <|--- MinefieldLaneMarkerObject
+}
+package rpr <<Folder>>
+{
+  class UnderwaterAcousticsEmission
+  {
+    + eventIdentifier : EventIdentifierStruct
+  }
+
+  EmbeddedSystem <|--- UnderwaterAcousticsEmission
+}
+package rpr <<Folder>>
+{
+  class ActiveSonar
+  {
+    + acousticName : ActiveSonarEnum16
+    + functionCode : ActiveSonarFunctionCodeEnum8
+    + acousticsIdentifier : Octet
+  }
+
+  UnderwaterAcousticsEmission <|--- ActiveSonar
+}
+package rpr <<Folder>>
+{
+  class PropulsionNoise
+  {
+    + hullMaskerOn : bool
+    + passiveParameterIndex : UnsignedInteger16
+    + propulsionPlantConfiguration : PropulsionPlantEnum8
+    + shaftRateData : ShaftDataStructLengthlessArray1Plus
+  }
+
+  UnderwaterAcousticsEmission <|--- PropulsionNoise
+}
+package rpr <<Folder>>
+{
+  class AdditionalPassiveActivities
+  {
+    + activityCode : UnsignedInteger16
+    + activityParameter : Integer16
+    + isSilent : bool
+  }
+
+  UnderwaterAcousticsEmission <|--- AdditionalPassiveActivities
+}
+package rpr <<Folder>>
+{
+  class ActiveSonarBeam
+  {
+    + activeEmissionParameterIndex : Integer16
+    + activeSonarIdentifier : string
+    + azimuthBeamwidth : AngleRadianFloat32
+    + azimuthCenter : AngleRadianFloat32
+    + beamIdentifier : Octet
+    + elevationBeamwidth : AngleRadianFloat32
+    + elevationCenter : AngleRadianFloat32
+    + eventIdentifier : EventIdentifierStruct
+    + scanPattern : ActiveSonarScanPatternEnum16
+  }
+
+  ObjectRoot <|--- ActiveSonarBeam
+}
+package rpr <<Folder>>
+{
+  class BaseEntity
+  {
+    + entityType : EntityTypeStruct
+    + entityIdentifier : EntityIdentifierStruct
+    + isPartOf : IsPartOfStruct
+    + spatial : SpatialVariantStruct
+    + relativeSpatial : SpatialVariantStruct
+  }
+
+  ObjectRoot <|--- BaseEntity
+}
+package rpr <<Folder>>
+{
+  class EmbeddedSystem
+  {
+    + entityIdentifier : EntityIdentifierStruct
+    + hostObjectIdentifier : string
+    + relativePosition : RelativePositionStruct
+  }
+
+  ObjectRoot <|--- EmbeddedSystem
+}
+package rpr <<Folder>>
+{
+  class AggregateEntity
+  {
+    + aggregateMarking : AggregateMarkingStruct
+    + aggregateState : AggregateStateEnum8
+    + dimensions : DimensionStruct
+    + entityIdentifiers : RTIobjectIdArray
+    + forceIdentifier : ForceIdentifierEnum8
+    + formation : FormationEnum32
+    + numberOfSilentEntities : Integer16
+    + numberOfVariableDatums : UnsignedInteger32
+    + silentAggregates : SilentAggregateStructLengthlessArray
+    + silentEntities : SilentEntityStructLengthlessArray
+    + subAggregateIdentifiers : RTIobjectIdArray
+    + variableDatums : VariableDatumStructLengthlessArray
+  }
+
+  BaseEntity <|--- AggregateEntity
+}
+package rpr <<Folder>>
+{
+  class PhysicalEntity
+  {
+    + acousticSignatureIndex : Integer16
+    + alternateEntityType : EntityTypeStruct
+    + articulatedParametersArray : ArticulatedParameterStructLengthlessArray
+    + camouflageType : CamouflageEnum32
+    + damageState : DamageStatusEnum32
+    + engineSmokeOn : bool
+    + firePowerDisabled : bool
+    + flamesPresent : bool
+    + forceIdentifier : ForceIdentifierEnum8
+    + hasAmmunitionSupplyCap : bool
+    + hasFuelSupplyCap : bool
+    + hasRecoveryCap : bool
+    + hasRepairCap : bool
+    + immobilized : bool
+    + infraredSignatureIndex : Integer16
+    + isConcealed : bool
+    + liveEntityMeasuredSpeed : VelocityDecimeterPerSecondInteger16
+    + marking : MarkingStruct
+    + powerPlantOn : bool
+    + propulsionSystemsData : PropulsionSystemDataStructLengthlessArray
+    + radarCrossSectionSignatureIndex : Integer16
+    + smokePlumePresent : bool
+    + tentDeployed : bool
+    + trailingEffectsCode : TrailingEffectsCodeEnum32
+    + vectoringNozzleSystemData : VectoringNozzleSystemDataStructLengthlessArray
+  }
+
+  BaseEntity <|--- PhysicalEntity
+}
+package rpr <<Folder>>
+{
+  class Platform
+  {
+    + afterburnerOn : bool
+    + antiCollisionLightsOn : bool
+    + blackOutBrakeLightsOn : bool
+    + blackOutLightsOn : bool
+    + brakeLightsOn : bool
+    + formationLightsOn : bool
+    + hatchState : HatchStateEnum32
+    + headLightsOn : bool
+    + interiorLightsOn : bool
+    + landingLightsOn : bool
+    + launcherRaised : bool
+    + navigationLightsOn : bool
+    + rampDeployed : bool
+    + runningLightsOn : bool
+    + spotLightsOn : bool
+    + tailLightsOn : bool
+  }
+
+  PhysicalEntity <|--- Platform
+}
+package rpr <<Folder>>
+{
+  class Aircraft
+  {
+  }
+
+  Platform <|--- Aircraft
+}
+package rpr <<Folder>>
+{
+  class AmphibiousVehicle
+  {
+  }
+
+  Platform <|--- AmphibiousVehicle
+}
+package rpr <<Folder>>
+{
+  class GroundVehicle
+  {
+  }
+
+  Platform <|--- GroundVehicle
+}
+package rpr <<Folder>>
+{
+  class MultiDomainPlatform
+  {
+  }
+
+  Platform <|--- MultiDomainPlatform
+}
+package rpr <<Folder>>
+{
+  class Spacecraft
+  {
+  }
+
+  Platform <|--- Spacecraft
+}
+package rpr <<Folder>>
+{
+  class SubmersibleVessel
+  {
+  }
+
+  Platform <|--- SubmersibleVessel
+}
+package rpr <<Folder>>
+{
+  class SurfaceVessel
+  {
+  }
+
+  Platform <|--- SurfaceVessel
+}
+package rpr <<Folder>>
+{
+  class Lifeform
+  {
+    + flashLightsOn : bool
+    + stanceCode : StanceCodeEnum32
+    + primaryWeaponState : WeaponStateEnum32
+    + secondaryWeaponState : WeaponStateEnum32
+    + complianceState : ComplianceStateEnum32
+  }
+
+  PhysicalEntity <|--- Lifeform
+}
+package rpr <<Folder>>
+{
+  class Human
+  {
+  }
+
+  Lifeform <|--- Human
+}
+package rpr <<Folder>>
+{
+  class NonHuman
+  {
+  }
+
+  Lifeform <|--- NonHuman
+}
+package rpr <<Folder>>
+{
+  class CulturalFeature
+  {
+    + externalLightsOn : bool
+    + internalHeatSourceOn : bool
+    + internalLightsOn : bool
+  }
+
+  PhysicalEntity <|--- CulturalFeature
+}
+package rpr <<Folder>>
+{
+  class Munition
+  {
+    + launcherFlashPresent : bool
+  }
+
+  PhysicalEntity <|--- Munition
+}
+package rpr <<Folder>>
+{
+  class Expendables
+  {
+  }
+
+  PhysicalEntity <|--- Expendables
+}
+package rpr <<Folder>>
+{
+  class Radio
+  {
+  }
+
+  PhysicalEntity <|--- Radio
+}
+package rpr <<Folder>>
+{
+  class Sensor
+  {
+    + antennaRaised : bool
+    + blackoutLightsOn : bool
+    + lightsOn : bool
+    + interiorLightsOn : bool
+    + missionKill : bool
+  }
+
+  PhysicalEntity <|--- Sensor
+}
+package rpr <<Folder>>
+{
+  class Supplies
+  {
+  }
+
+  PhysicalEntity <|--- Supplies
+}
+package rpr <<Folder>>
+{
+  class Designator
+  {
+    + codeName : DesignatorCodeNameEnum16
+    + designatedObjectIdentifier : string
+    + designatorCode : DesignatorCodeEnum16
+    + designatorEmissionWavelength : WavelengthMicronFloat32
+    + designatorOutputPower : PowerWattFloat32
+    + designatorSpotLocation : WorldLocationStruct
+    + deadReckoningAlgorithm : DeadReckoningAlgorithmEnum8
+    + relativeSpotLocation : RelativePositionStruct
+    + spotLinearAccelerationVector : AccelerationVectorStruct
+  }
+
+  EmbeddedSystem <|--- Designator
+}
+package rpr <<Folder>>
+{
+  class EmitterSystem
+  {
+    + emitterFunctionCode : EmitterFunctionEnum8
+    + emitterType : EmitterTypeEnum16
+    + emitterIndex : Octet
+    + eventIdentifier : EventIdentifierStruct
+  }
+
+  EmbeddedSystem <|--- EmitterSystem
+}
+package rpr <<Folder>>
+{
+  class IFF
+  {
+    + beamAzimuthCenter : AngleRadianFloat32
+    + beamAzimuthSweep : AngleRadianFloat32
+    + beamElevationCenter : AngleRadianFloat32
+    + beamElevationSweep : AngleRadianFloat32
+    + beamSweepSync : PercentFloat32
+    + eventIdentifier : EventIdentifierStruct
+    + fundamentalParameterData : FundamentalParameterDataStructLengthlessArray
+    + layer2DataAvailable : bool
+    + secondaryOperationalDataParameter1 : IffOperationalParameter1Enum8
+    + secondaryOperationalDataParameter2 : IffOperationalParameter2Enum8
+    + systemMode : IffSystemModeEnum8
+    + systemName : IffSystemNameEnum16
+    + systemType : IffSystemTypeEnum16
+    + systemIsOn : bool
+    + systemIsOperational : bool
+  }
+
+  EmbeddedSystem <|--- IFF
+}
+package rpr <<Folder>>
+{
+  class NatoIFF
+  {
+    + alternateMode4 : IffAlternateMode4Enum8
+    + mode1Enabled : bool
+    + mode1IsDamaged : bool
+    + mode1IsMalfunctioning : bool
+    + mode1IsOn : bool
+    + mode2Enabled : bool
+    + mode2IsDamaged : bool
+    + mode2IsMalfunctioning : bool
+    + mode2IsOn : bool
+    + mode3AEnabled : bool
+    + mode3AIsDamaged : bool
+    + mode3AIsMalfunctioning : bool
+    + mode3AIsOn : bool
+    + mode4Enabled : bool
+    + mode4IsDamaged : bool
+    + mode4IsMalfunctioning : bool
+    + mode4IsOn : bool
+    + mode4PseudoCrypto : UnsignedInteger16
+    + mode4PseudoCryptoAvailable : bool
+    + mode5CEnabled : bool
+    + mode5CIsDamaged : bool
+    + mode5CIsMalfunctioning : bool
+    + mode5CIsOn : bool
+    + modeSEnabled : bool
+    + modeSIsDamaged : bool
+    + modeSIsMalfunctioning : bool
+    + modeSIsOn : bool
+    + modeSIsTcasI : bool
+  }
+
+  IFF <|--- NatoIFF
+}
+package rpr <<Folder>>
+{
+  class NatoIFFInterrogator
+  {
+  }
+
+  NatoIFF <|--- NatoIFFInterrogator
+}
+package rpr <<Folder>>
+{
+  class NatoIFFTransponder
+  {
+    + emergencyOn : bool
+    + identSquawkFlashOn : bool
+    + mode1Code : UnsignedInteger16
+    + mode2Code : UnsignedInteger16
+    + mode3ACode : UnsignedInteger16
+    + mode5CAltitude : TransponderModeCAltitude100FootInteger16
+    + mode5CAltitudeAvailable : bool
+    + stiOn : bool
+  }
+
+  NatoIFF <|--- NatoIFFTransponder
+}
+package rpr <<Folder>>
+{
+  class SovietIFF
+  {
+    + parameter1Enabled : bool
+    + parameter1IsDamaged : bool
+    + parameter1IsMalfunctioning : bool
+    + parameter1IsOn : bool
+    + parameter2Enabled : bool
+    + parameter2IsDamaged : bool
+    + parameter2IsMalfunctioning : bool
+    + parameter2IsOn : bool
+    + parameter3Enabled : bool
+    + parameter3IsDamaged : bool
+    + parameter3IsMalfunctioning : bool
+    + parameter3IsOn : bool
+    + parameter4Enabled : bool
+    + parameter4IsDamaged : bool
+    + parameter4IsMalfunctioning : bool
+    + parameter4IsOn : bool
+    + parameter5Enabled : bool
+    + parameter5IsDamaged : bool
+    + parameter5IsMalfunctioning : bool
+    + parameter5IsOn : bool
+    + parameter6Enabled : bool
+    + parameter6IsDamaged : bool
+    + parameter6IsMalfunctioning : bool
+    + parameter6IsOn : bool
+  }
+
+  IFF <|--- SovietIFF
+}
+package rpr <<Folder>>
+{
+  class SovietIFFInterrogator
+  {
+  }
+
+  SovietIFF <|--- SovietIFFInterrogator
+}
+package rpr <<Folder>>
+{
+  class SovietIFFTransponder
+  {
+  }
+
+  SovietIFF <|--- SovietIFFTransponder
+}
+package rpr <<Folder>>
+{
+  class RRB
+  {
+    + code : Octet
+    + powerReduction : bool
+    + isDamaged : bool
+    + isMalfunctioning : bool
+    + isOn : bool
+    + radarEnhancement : bool
+  }
+
+  IFF <|--- RRB
+}
+package rpr <<Folder>>
+{
+  class EmitterBeam
+  {
+    + beamAzimuthCenter : AngleRadianFloat32
+    + beamAzimuthSweep : AngleRadianFloat32
+    + beamElevationCenter : AngleRadianFloat32
+    + beamElevationSweep : AngleRadianFloat32
+    + beamFunctionCode : BeamFunctionCodeEnum8
+    + beamIdentifier : Octet
+    + beamParameterIndex : UnsignedInteger16
+    + effectiveRadiatedPower : PowerRatioDecibelMilliwattFloat32
+    + emissionFrequency : FrequencyHertzFloat32
+    + emitterSystemIdentifier : string
+    + eventIdentifier : EventIdentifierStruct
+    + frequencyRange : FrequencyHertzFloat32
+    + pulseRepetitionFrequency : FrequencyHertzFloat32
+    + pulseWidth : TimeMicrosecondFloat32
+    + sweepSynch : PercentFloat32
+  }
+
+  ObjectRoot <|--- EmitterBeam
+}
+package rpr <<Folder>>
+{
+  class RadarBeam
+  {
+    + highDensityTrack : bool
+    + trackObjectIdentifiers : RTIobjectIdArray
+  }
+
+  EmitterBeam <|--- RadarBeam
+}
+package rpr <<Folder>>
+{
+  class JammerBeam
+  {
+    + jammingModeSequence : UnsignedInteger32
+    + jammedObjectIdentifiers : RTIobjectIdArray
+    + highDensityJam : bool
+  }
+
+  EmitterBeam <|--- JammerBeam
+}
+package netn <<Folder>>
+{
+  class NETNAggregate
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + subunitList : MaybeArrayOfUuid
+    + parentUnit : MaybeUuidArrayOfHLAbyte16
+    + dividedUnitList : MaybeArrayOfUuid
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + higherHeadquarters : MaybeUuidArrayOfHLAbyte16
+    + mounted : hla.MaybeF64
+    + symbolId : hla.MaybeString
+    + callsign : string
+    + echelon : MaybeEchelonEnum32
+    + entityList : MaybeArrayOfEntityStruct
+    + suppliesStatus : MaybeNETNArrayOfSupplyStruct
+    + equipmentStatus : MaybeArrayOfResourceStatus
+    + personnelStatus : MaybeArrayOfResourceStatus
+    + visualSignature : VisualSignatureStruct
+    + hUMINTSignature : HUMINTSignatureStruct
+    + electronicSignature : ElectronicSignatureStruct
+    + combatValue : hla.MaybeF64
+    + coverStatus : hla.MaybeF64
+    + captureStatus : CaptureStatusEnum8
+    + mission : MissionStruct
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + weaponsControlOrder : MaybeWeaponControlOrderEnum8
+  }
+
+  AggregateEntity <|--- NETNAggregate
+}
+package netn <<Folder>>
+{
+  class NETNAircraft
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  Aircraft <|--- NETNAircraft
+}
+package netn <<Folder>>
+{
+  class NETNAmphibiousVehicle
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  AmphibiousVehicle <|--- NETNAmphibiousVehicle
+}
+package netn <<Folder>>
+{
+  class NETNGroundVehicle
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  GroundVehicle <|--- NETNGroundVehicle
+}
+package netn <<Folder>>
+{
+  class NETNMultiDomainPlatform
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  MultiDomainPlatform <|--- NETNMultiDomainPlatform
+}
+package netn <<Folder>>
+{
+  class NETNSpacecraft
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  Spacecraft <|--- NETNSpacecraft
+}
+package netn <<Folder>>
+{
+  class NETNSubmersibleVessel
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  SubmersibleVessel <|--- NETNSubmersibleVessel
+}
+package netn <<Folder>>
+{
+  class NETNSurfaceVessel
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  SurfaceVessel <|--- NETNSurfaceVessel
+}
+package netn <<Folder>>
+{
+  class NETNHuman
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  Human <|--- NETNHuman
+}
+package netn <<Folder>>
+{
+  class NETNNonHuman
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + sourceUnit : MaybeUuidArrayOfHLAbyte16
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  NonHuman <|--- NETNNonHuman
+}
+package netn <<Folder>>
+{
+  class NETNCulturalFeature
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + embeddedUnitList : MaybeArrayOfUuid
+    + callsign : string
+    + activity : MaybeAggregateMissionEnum16
+    + symbolId : hla.MaybeString
+  }
+
+  CulturalFeature <|--- NETNCulturalFeature
+}
+package netn <<Folder>>
+{
+  class NETNMunition
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + status : ActiveStatusEnum8
+    + route : MaybePathVariantStruct
+    + destination : MaybePointVariantStruct
+    + symbolId : hla.MaybeString
+  }
+
+  Munition <|--- NETNMunition
+}
+package netn <<Folder>>
+{
+  class SEGeoObject
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + nameNonSen : hla.MaybeString
+  }
+
+  ObjectRoot <|--- SEGeoObject
+}
+package netn <<Folder>>
+{
+  class Location
+  {
+    + point : GeodeticPoint
+  }
+
+  SEGeoObject <|--- Location
+}
+package netn <<Folder>>
+{
+  class Path
+  {
+    + points : GeodeticPath
+  }
+
+  SEGeoObject <|--- Path
+}
+package netn <<Folder>>
+{
+  class Region
+  {
+    + area : AreaVariantStruct
+  }
+
+  SEGeoObject <|--- Region
+}
+package netn <<Folder>>
+{
+  class SEFacility
+  {
+    + uniqueId : UuidArrayOfHLAbyte16
+    + locationReference : GeoLocationReferenceVariant
+    + nameNonSen : hla.MaybeString
+    + symbolId : hla.MaybeString
+    + status : MaybeActiveStatusEnum8
+    + objectType : rpr.MaybeEnvironmentObjectTypeStruct
+    + forceId : rpr.MaybeForceIdentifierEnum8
+    + percentComplete : hla.MaybeF32
+    + damageState : rpr.MaybeDamageStatusEnum32
+    + comment : hla.MaybeString
+  }
+
+  ObjectRoot <|--- SEFacility
+}
+package netn <<Folder>>
+{
+  class CheckPoint
+  {
+    + delayTime : rpr.TimeSecondInteger32
+  }
+
+  SEFacility <|--- CheckPoint
+}
+package netn <<Folder>>
+{
+  class ORGRoot
+  {
+    + uniqueId : UUID
+  }
+
+  ObjectRoot <|--- ORGRoot
+}
+package netn <<Folder>>
+{
+  class Unit
+  {
+    + nameNonSen : Text255
+    + superiorUnit : UUID
+    + embarkedIn : MaybeUUID
+    + force : MaybeUUID
+    + holdings : MaybeArrayOfHoldings
+    + entityType : rpr.EntityTypeStruct
+    + symbolId : string
+    + symbolAmplification : MaybeUnitSymbolAmplificationStruct
+    + disposition : DispositionStruct
+    + formation : MaybeFormationStruct
+    + isHq : hla.MaybeBool
+    + echelon : MaybeEchelonEnum32
+    + communicationNetworks : MaybeArrayOfCommunicationNetworks
+  }
+
+  ORGRoot <|--- Unit
+}
+package netn <<Folder>>
+{
+  class EquipmentItem
+  {
+    + nameNonSen : Text255
+    + holdingUnit : UUID
+    + mountedOn : MaybeUUID
+    + entityType : rpr.EntityTypeStruct
+    + natoStockNumber : MaybeNatoStockNumberArray13
+    + symbolId : string
+    + symbolAmplification : MaybeEquipmentSymbolAmplificationStruct
+    + disposition : DispositionStruct
+    + communicationNetworks : MaybeArrayOfCommunicationNetworks
+    + resolution : MaybeModelResolutionTypeEnum32
+  }
+
+  ORGRoot <|--- EquipmentItem
+}
+package netn <<Folder>>
+{
+  class Installation
+  {
+    + nameNonSen : Text255
+    + owner : UUID
+    + entityType : rpr.EntityTypeStruct
+    + symbolId : string
+    + symbolAmplification : MaybeInstallationSymbolAmplificationStruct
+    + location : GeodeticPoint
+  }
+
+  ORGRoot <|--- Installation
+}
+package netn <<Folder>>
+{
+  class Force
+  {
+    + nameNonSen : Text255
+    + relations : MaybeArrayOfRelations
+  }
+
+  ORGRoot <|--- Force
+}
+package netn <<Folder>>
+{
+  class FederateApplication
+  {
+    + nameNonSen : Text255
+    + units : MaybeArrayOfUuid
+    + equipmentItems : MaybeArrayOfUuid
+    + installations : MaybeArrayOfUuid
+  }
+
+  ORGRoot <|--- FederateApplication
+}
+package netn <<Folder>>
+{
+  class METOCRoot
+  {
+    + uniqueId : UUID
+    + nameNonSen : hla.MaybeString
+  }
+
+  ObjectRoot <|--- METOCRoot
+}
+package netn <<Folder>>
+{
+  class EnvironmentCondition
+  {
+    + serviceId : UUID
+    + geoReference : MaybeGeoReferenceVariant
+  }
+
+  METOCRoot <|--- EnvironmentCondition
+}
+package netn <<Folder>>
+{
+  class Weather
+  {
+    + temperature : rpr.MaybeTemperatureDegreeCelsiusFloat32
+    + wind : MaybeWindStruct
+    + precipitation : MaybePrecipitationStruct
+    + haze : MaybeHazeStruct
+    + humidity : hla.MaybeF32
+    + barometricPressure : hla.MaybeF32
+    + visibilityRange : rpr.MaybeMeterFloat32
+  }
+
+  EnvironmentCondition <|--- Weather
+}
+package netn <<Folder>>
+{
+  class LandSurface
+  {
+    + snow : MaybeSnowStruct
+    + moisture : MaybeSurfaceMoistureEnum16
+    + iceCondition : MaybeRoadIceConditionEnum16
+  }
+
+  Weather <|--- LandSurface
+}
+package netn <<Folder>>
+{
+  class WaterSurface
+  {
+    + seaState : MaybeSeaStateEnum16
+    + salinity : hla.MaybeF32
+    + tide : rpr.MaybeMeterFloat32
+    + ice : MaybeIceStruct
+    + current : MaybeCurrentStruct
+    + wave : MaybeWaveStruct
+    + swell : MaybeWaveStruct
+  }
+
+  Weather <|--- WaterSurface
+}
+package netn <<Folder>>
+{
+  class TroposphereLayer
+  {
+    + layer : MaybeLayerStruct
+    + cloud : MaybeCloudStruct
+  }
+
+  Weather <|--- TroposphereLayer
+}
+package netn <<Folder>>
+{
+  class SubsurfaceLayer
+  {
+    + temperature : rpr.MaybeTemperatureDegreeCelsiusFloat32
+    + layer : MaybeLayerStruct
+    + current : MaybeCurrentStruct
+    + salinity : hla.MaybeF32
+    + bottomType : MaybeSedimentTypeEnum32
+  }
+
+  EnvironmentCondition <|--- SubsurfaceLayer
+}
+package netn <<Folder>>
+{
+  class Service
+  {
+    + modelType : WeatherModelTypeEnum32
+  }
+
+  METOCRoot <|--- Service
+}
+package netn <<Folder>>
+{
+  class AisEquipmentItem
+  {
+    + mmsi : hla.MaybeI32
+    + transmitterStatus : rpr.MaybeTransmitterOperationalStatusEnum8
+    + radioSystemType : rpr.MaybeEntityTypeStruct
+  }
+
+  EquipmentItem <|--- AisEquipmentItem
+}
+package netn <<Folder>>
+{
+  class Vessel
+  {
+    + imo : hla.MaybeI32
+  }
+
+  AisEquipmentItem <|--- Vessel
+}
+package netn <<Folder>>
+{
+  class SARaircraft
+  {
+  }
+
+  AisEquipmentItem <|--- SARaircraft
+}
+package netn <<Folder>>
+{
+  class Basestation
+  {
+  }
+
+  AisEquipmentItem <|--- Basestation
+}
+package netn <<Folder>>
+{
+  class AidToNavigation
+  {
+  }
+
+  AisEquipmentItem <|--- AidToNavigation
+}
+package netn <<Folder>>
+{
+  class ATP45HazardArea
+  {
+    + time : EpochTimeSecInt64
+    + validityTime : rpr.TimeSecondInteger32
+    + locations : GeocentricPolygon
+    + aTP45HazardAreaType : ATP45HazardAreaTypeEnum8
+    + agentClass : AgentClassEnum8
+    + uniqueID : UuidArrayOfHLAbyte16
+  }
+
+  ObjectRoot <|--- ATP45HazardArea
+}
+package netn <<Folder>>
+{
+  class ProbabilityHazardContourGroup
+  {
+    + time : EpochTimeSecInt64
+    + agent : AgentTypeEnum16
+    + exposureType : ExposureTypeEnum8
+    + contours : ArrayOfProbabilityHazardContourStruct
+    + uniqueID : UuidArrayOfHLAbyte16
+  }
+
+  ObjectRoot <|--- ProbabilityHazardContourGroup
+}
+package netn <<Folder>>
+{
+  class RawDataHazardContourGroup
+  {
+    + time : EpochTimeSecInt64
+    + agent : AgentTypeEnum16
+    + hazardType : HazardTypeEnum8
+    + contours : ArrayOfRawDataHazardContourStruct
+    + uniqueID : UuidArrayOfHLAbyte16
+  }
+
+  ObjectRoot <|--- RawDataHazardContourGroup
+}
+package netn <<Folder>>
+{
+  class COLPRO
+  {
+    + numberEntities : QuantityUInt32
+    + protection : ArrayOfProtectionEffectivenessStruct
+  }
+
+  NETNCulturalFeature <|--- COLPRO
+}
+package netn <<Folder>>
+{
+  class DecontaminationStation
+  {
+    + numberEntities : QuantityUInt32
+    + decontaminationPeriod : rpr.TimeSecondInteger32
+    + treatments : ArrayOfTreatmentStruct
+  }
+
+  NETNCulturalFeature <|--- DecontaminationStation
+}
+package netn <<Folder>>
+{
+  class CBRNHuman
+  {
+    + exposures : ArrayOfCBRNExposureStruct
+    + treatments : ArrayOfTreatmentStruct
+    + triageLevel : CBRNDamageEnum8
+    + iPEType : IPETypeEnum8
+  }
+
+  NETNHuman <|--- CBRNHuman
+}
+package netn <<Folder>>
+{
+  class CBRNAircraft
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNAircraft <|--- CBRNAircraft
+}
+package netn <<Folder>>
+{
+  class CBRNAmphibiousVehicle
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNAmphibiousVehicle <|--- CBRNAmphibiousVehicle
+}
+package netn <<Folder>>
+{
+  class CBRNGroundVehicle
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNGroundVehicle <|--- CBRNGroundVehicle
+}
+package netn <<Folder>>
+{
+  class CBRNMultiDomainPlatform
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNMultiDomainPlatform <|--- CBRNMultiDomainPlatform
+}
+package netn <<Folder>>
+{
+  class CBRNSpacecraft
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNSpacecraft <|--- CBRNSpacecraft
+}
+package netn <<Folder>>
+{
+  class CBRNSubmersibleVessel
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNSubmersibleVessel <|--- CBRNSubmersibleVessel
+}
+package netn <<Folder>>
+{
+  class CBRNSurfaceVessel
+  {
+    + contamination : ArrayOfAgentMassStruct
+  }
+
+  NETNSurfaceVessel <|--- CBRNSurfaceVessel
+}
+package netn <<Folder>>
+{
+  class CBRNDetector
+  {
+    + uniqueID : UuidArrayOfHLAbyte16
+    + processingTime : rpr.TimeSecondInteger32
+    + averagingTime : rpr.TimeSecondInteger32
+    + detectableAgents : ArrayOfAgentConcentrationStruct
+    + alarm : CBRNAlarmStruct
+  }
+
+  Sensor <|--- CBRNDetector
+}
+package netn <<Folder>>
+{
+  class CBRNSensor
+  {
+    + uniqueID : UuidArrayOfHLAbyte16
+    + updateFrequency : rpr.TimeSecondInteger32
+    + averagingTime : rpr.TimeSecondInteger32
+    + detectableAgents : ArrayOfAgentTypeEnum
+    + sensorReadings : ArrayOfCBRNSensorReadingStruct
+  }
+
+  Sensor <|--- CBRNSensor
+}
+package netn <<Folder>>
+{
+  class COMRoot
+  {
+    + uniqueId : UUID
+  }
+
+  ObjectRoot <|--- COMRoot
+}
+package netn <<Folder>>
+{
+  class CommunicationNetwork
+  {
+    + uniqueName : Text64
+    + networkType : MaybeCommunicationNetworkTypeEnum
+    + serviceType : MaybeCommunicationServiceTypeEnum
+  }
+
+  COMRoot <|--- CommunicationNetwork
+}
+package netn <<Folder>>
+{
+  class CommunicationNode
+  {
+    + entityId : UUID
+    + location : rpr.MaybeWorldLocationStruct
+    + requestedConnections : RequestedConnectionArray
+    + networkDevices : NetworkDeviceArray
+    + incomingConnections : MaybeIncomingConnectionArray
+  }
+
+  COMRoot <|--- CommunicationNode
+}
+package netn <<Folder>>
+{
+  class Connection
+  {
+    + communicationNetworkName : Text64
+    + senderEntityId : UUID
+    + receivers : ConnectionReceiverArray
+  }
+
+  COMRoot <|--- Connection
+}
+package netn <<Folder>>
+{
+  class PhysicalNetwork
+  {
+    + uniqueName : Text64
+    + description : PhysicalNetworkDescriptionVariant
+  }
+
+  COMRoot <|--- PhysicalNetwork
+}
+package netn <<Folder>>
+{
+  class LinkStates
+  {
+    + physicalNetworkName : Text64
+    + links : LinkStatusArray
+  }
+
+  COMRoot <|--- LinkStates
+}
+package netn <<Folder>>
+{
+  class DisruptionEffect
+  {
+    + affectedNetworks : MaybeArrayOfText64
+    + affectedArea : MaybeGeodeticQuadrangle
+    + effect : PercentFloat64
+  }
+
+  COMRoot <|--- DisruptionEffect
+}
+
+@enduml
