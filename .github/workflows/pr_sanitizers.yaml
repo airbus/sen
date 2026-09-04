@@ -40,10 +40,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate daily cache id
-        shell: bash
-        run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
-
       # prepare_build would be the obvious thing to reuse here, but it saves at the
       # end of the job, and a cache written from a pull request is private to it:
       # every open pull request storing its own slice puts the repository past
@@ -55,8 +51,7 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-${{ env.cache_date }}
-          restore-keys: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-
+          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17
 
       # No ccache: sanitized object files must not land in the entries the
       # ordinary builds depend on. Same rule as the nightly's sanitizer lanes.
@@ -152,9 +147,16 @@ jobs:
           conan cache clean "*" -s -b -d
           IN
 
+      - name: Drop the entry this save replaces
+        if: always() && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17"
+
       - name: Save conan packages
         if: always() && github.ref == 'refs/heads/main'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-${{ env.cache_date }}
+          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17
