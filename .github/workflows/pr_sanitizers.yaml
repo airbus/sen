@@ -62,9 +62,15 @@ jobs:
       # definition a developer can also run rather than a second one assembled on
       # the runner. Built here rather than pulled: publishing to the registry is
       # not available, and a runner builds for its own architecture anyway.
+      # One retry, for the same reason ci-image.yaml has one: the archives this
+      # pulls from do go quiet, and a plain re-run has cleared it before. The
+      # image also sets apt retries and timeouts, which the runner-side action
+      # this replaced did for itself.
       - name: Build the image the lane runs in
         shell: bash
-        run: docker build --target base --tag "$SEN_CI_IMAGE" tools/ci
+        run: |
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
+          build || { echo "image build failed, retrying once"; build; }
 
       - name: Install the conan profiles
         shell: bash

@@ -58,7 +58,16 @@ ENV LANG=C.UTF-8 \
 RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
         > /etc/apt/apt.conf.d/99-sen-retries
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# apt gives up on the first refusal by default, and a fetch from apt.llvm.org that
+# cannot resolve fails the whole image. The action this image replaces on the runners
+# carried the same settings for the same reason: the hosts involved do go quiet.
+RUN printf '%s\n' \
+        'Acquire::Retries "3";' \
+        'Acquire::http::Timeout "30";' \
+        'Acquire::https::Timeout "30";' \
+        'DPkg::Lock::Timeout "120";' \
+        > /etc/apt/apt.conf.d/99-sen-timeouts \
+    && apt-get update && apt-get install -y --no-install-recommends \
         bats \
         ca-certificates \
         ccache \
