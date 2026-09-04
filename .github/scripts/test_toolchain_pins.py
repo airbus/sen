@@ -44,17 +44,11 @@ def pins() -> dict[str, dict[str, list[str]]]:
     # clang-format comes from a pre-commit mirror rather than the image, and only
     # its major is meant to track the toolchain. Recorded as that major so it can
     # be compared with LLVM_VERSION rather than against a full patch version.
-    mirror = re.search(
-        r"mirrors-clang-format\s*\n\s*rev:\s*v?([0-9]+)", PRECOMMIT.read_text(encoding="utf-8")
-    )
+    mirror = re.search(r"mirrors-clang-format\s*\n\s*rev:\s*v?([0-9]+)", PRECOMMIT.read_text(encoding="utf-8"))
     if mirror:
-        found["clang-major"][mirror.group(1)].append(
-            f"{PRECOMMIT.relative_to(ROOT)} (mirrors-clang-format rev)"
-        )
+        found["clang-major"][mirror.group(1)].append(f"{PRECOMMIT.relative_to(ROOT)} (mirrors-clang-format rev)")
     if "LLVM_VERSION" in args:
-        found["clang-major"][args["LLVM_VERSION"]].append(
-            f"{DOCKERFILE.relative_to(ROOT)} (ARG LLVM_VERSION)"
-        )
+        found["clang-major"][args["LLVM_VERSION"]].append(f"{DOCKERFILE.relative_to(ROOT)} (ARG LLVM_VERSION)")
 
     # Conan requires cmake and ninja separately from the image's own install.
     for name, version in TOOL_REQUIRE.findall(CONANFILE.read_text(encoding="utf-8")):
@@ -68,9 +62,7 @@ def test_every_tool_is_pinned_to_one_version():
     disagreements = []
     for name, versions in sorted(pins().items()):
         if len(versions) > 1:
-            detail = "; ".join(
-                f"{v} in {', '.join(sorted(set(where)))}" for v, where in sorted(versions.items())
-            )
+            detail = "; ".join(f"{v} in {', '.join(sorted(set(where)))}" for v, where in sorted(versions.items()))
             disagreements.append(f"{name}: {detail}")
 
     assert not disagreements, "tool versions disagree -- " + " | ".join(disagreements)
