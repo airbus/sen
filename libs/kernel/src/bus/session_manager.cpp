@@ -163,9 +163,12 @@ SessionManager::~SessionManager()
 {
   Lock lock(localSessionsMutex_);
   // Shutdown all running sessions
-  for (auto* elem: locallyOpenedSessions_)
+  for (const auto& elem: locallyOpenedSessions_)
   {
-    elem->shutdownTransport();
+    if (const auto session = elem.lock())
+    {
+      session->shutdownTransport();
+    }
   }
 }
 
@@ -176,12 +179,13 @@ std::shared_ptr<Session> SessionManager::getOrOpenSession(const std::string& nam
   {
     Lock lock(localSessionsMutex_);
 
-    // check if it already exists
-    for (auto* elem: locallyOpenedSessions_)
+    // check if it already exists. A session whose last handle has been released is on its way out
+    // even though it is still listed, so it is skipped and the caller gets a fresh one instead.
+    for (const auto& elem: locallyOpenedSessions_)
     {
-      if (elem->getName() == name)
+      if (const auto session = elem.lock(); session && session->getName() == name)
       {
-        return elem->shared_from_this();
+        return session;
       }
     }
 
@@ -191,7 +195,7 @@ std::shared_ptr<Session> SessionManager::getOrOpenSession(const std::string& nam
 
     // create the session
     sessionPtr = std::make_shared<Session>(this, name, std::move(transport), kernel_, messageDispatcher_);
-    locallyOpenedSessions_.push_back(sessionPtr.get());
+    locallyOpenedSessions_.push_back(sessionPtr);
   }
 
   {
@@ -225,28 +229,47 @@ SessionManager::DeletionGuard SessionManager::makeDeletionGuard(Session* session
 
 void SessionManager::sessionDeleted(Session* session)
 {
-  logger_->debug("SessionManager: session {} deleted started", session->getName());
+  // Copied, because the caller is this session's destructor and the announcement below outlives
+  // the point where reading from it is safe.
+  const std::string name = session->getName();
+
+  logger_->debug("SessionManager: session {} deleted started", name);
+
+  // Answered below under localSessionsMutex_, so the announcement does not have to take it while
+  // holding remoteSessionsMutex_.
+  bool nameStillOpen = false;
 
   {
     Lock lock(localSessionsMutex_);
 
-    // remove it from the tracked sessions
-    locallyOpenedSessions_.erase(std::remove(locallyOpenedSessions_.begin(), locallyOpenedSessions_.end(), session),
-                                 locallyOpenedSessions_.end());
+    // remove it from the tracked sessions. This session's own entry expired when its last handle
+    // went, so dropping the expired ones drops exactly the sessions that are already gone.
+    locallyOpenedSessions_.erase(
+      std::remove_if(
+        locallyOpenedSessions_.begin(), locallyOpenedSessions_.end(), [](const auto& elem) { return elem.expired(); }),
+      locallyOpenedSessions_.end());
+
+    nameStillOpen = std::any_of(locallyOpenedSessions_.begin(),
+                                locallyOpenedSessions_.end(),
+                                [&name](const auto& elem)
+                                {
+                                  const auto other = elem.lock();
+                                  return other && other->getName() == name;
+                                });
   }
 
   {
     Lock lock(remoteSessionsMutex_);
 
-    // if no other process is in the session, notify that it has become unavailable
-    if (const auto& name = session->getName();
-        remotelyDetectedProcessesPerSession_.find(name) == remotelyDetectedProcessesPerSession_.end())
+    // if no other process is in the session, notify that it has become unavailable. A session
+    // reopened under this name is still holding it, so announcing would retire a live session.
+    if (!nameStillOpen && remotelyDetectedProcessesPerSession_.find(name) == remotelyDetectedProcessesPerSession_.end())
     {
       onSessionUnavailable_(name);
     }
   }
 
-  logger_->debug("SessionManager: session {} deleted done", session->getName());
+  logger_->debug("SessionManager: session {} deleted done", name);
 }
 
 void SessionManager::remoteProcessDetected(const ProcessInfo& processInfo)
@@ -315,8 +338,14 @@ TransportStats SessionManager::fetchTransportStats() const
   Lock lock(localSessionsMutex_);
 
   TransportStats result {};
-  for (const auto& session: locallyOpenedSessions_)
+  for (const auto& elem: locallyOpenedSessions_)
   {
+    const auto session = elem.lock();
+    if (!session)
+    {
+      continue;
+    }
+
     auto transportStats = session->getTransport().fetchStats();
     result.udpReceivedBytes += transportStats.udpReceivedBytes;
     result.tcpReceivedBytes += transportStats.tcpReceivedBytes;
@@ -332,7 +361,13 @@ bool SessionManager::isSessionLocallyOpen(std::string_view name) const
   Lock lock(localSessionsMutex_);
   return std::any_of(locallyOpenedSessions_.begin(),
                      locallyOpenedSessions_.end(),
-                     [&name](const auto& elem) { return elem->getName() == name; });
+                     [&name](const auto& elem)
+                     {
+                       // a session on its way out no longer holds the name, so a remote process
+                       // arriving now is what makes the session available and must be announced
+                       const auto session = elem.lock();
+                       return session && session->getName() == name;
+                     });
 }
 
 }  // namespace sen::kernel::impl

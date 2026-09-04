@@ -95,7 +95,9 @@ private:
   mutable std::recursive_mutex remoteSessionsMutex_;
   TransportFactory factory_;
   std::optional<uint32_t> transportVersion_;
-  std::vector<Session*> locallyOpenedSessions_;
+  /// Weak, because a session is owned by whoever holds the handle getOrOpenSession returned. A raw
+  /// pointer stays listed while the session runs its destructor, where shared_from_this() throws.
+  std::vector<std::weak_ptr<Session>> locallyOpenedSessions_;
   std::unordered_map<std::string, std::vector<ProcessInfo>> remotelyDetectedProcessesPerSession_;
   KernelImpl& kernel_;
   SessionCallback onSessionAvailable_;
