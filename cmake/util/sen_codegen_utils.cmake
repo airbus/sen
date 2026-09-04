@@ -311,6 +311,7 @@ function(sen_generate_code)
 
     if(${_arg_LANG} STREQUAL py)
       set_property(TARGET ${_arg_TARGET} PROPERTY SEN_IS_PYTHON YES)
+      set_property(TARGET ${_arg_TARGET} PROPERTY SEN_GEN_DIR ${_output_dir})
     endif()
 
   endif(_arg_STL_FILES)
