@@ -34,7 +34,6 @@ runs:
     - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
       with:
         key: docs
-        append-timestamp: false
         max-size: 1G
         verbose: 1
         save: ${{ github.ref == 'refs/heads/main' }}
