@@ -79,9 +79,27 @@ jobs:
               grep -oE "^[A-Za-z]:[^(]+\([0-9]+" build.log | sed 's/(.*//' | sort | uniq -c | sort -rn | head -20
           fi
 
+      # run_tests passes --stop-on-failure, which reports the first failure and
+      # hides the rest. This is the same selection without it.
+      - name: Run every test
+        shell: cmd
+        run: |
+          call build\msvc\Release\generators\conanbuild.bat
+          ctest --test-dir build\msvc\Release --parallel 1 --timeout 20 --schedule-random -LE flaky --output-on-failure > tests.log 2>&1
+          exit /b 0
+
+      - name: The failures
+        shell: bash
+        run: |
+          grep -E "tests passed|tests failed out of" tests.log || true
+          echo "--- failed tests ---"
+          sed -n '/The following tests FAILED/,$p' tests.log || true
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: always()
         with:
           name: windows-build-log
-          path: build.log
+          path: |
+            build.log
+            tests.log
           if-no-files-found: ignore
