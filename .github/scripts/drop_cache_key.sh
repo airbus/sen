@@ -36,10 +36,12 @@ if ! before=$(list_entries 2>&1); then
     exit 1
 fi
 
-# The exact key, and anything under it carrying the date a save appends. Matched
-# by shape so a family whose name merely extends this one is not caught.
+# The exact key, anything under it carrying the date a save appends, and the bare
+# trailing dash left by a brief spell of append-timestamp: false. Matched by shape,
+# and each alternative ends the string, so a family whose name merely extends this
+# one is not caught.
 doomed=$(printf '%s\n' "$before" \
-    | grep -E " ${key}$| ${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
+    | grep -E " ${key}$| ${key}-$| ${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
 
 if [ -z "$doomed" ]; then
     echo "nothing under '$key'"
