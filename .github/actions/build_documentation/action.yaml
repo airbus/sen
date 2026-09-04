@@ -83,14 +83,14 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-      run: .github/scripts/drop_cache_key.sh "ccache-docs"
+      run: bash .github/scripts/drop_cache_key.sh "ccache-docs"
 
     - name: Drop the entry this save replaces
       if: always() && github.ref == 'refs/heads/main'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-      run: .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs"
+      run: bash .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs"
 
     - name: Save conan packages
       if: always() && github.ref == 'refs/heads/main'

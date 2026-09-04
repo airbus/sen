@@ -102,7 +102,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/drop_cache_key.sh "conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
+        run: bash .github/scripts/drop_cache_key.sh "conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
 
       - name: Save conan packages
         if: always() && github.ref == 'refs/heads/main'

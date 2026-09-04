@@ -152,7 +152,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17"
+        run: bash .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17"
 
       - name: Save conan packages
         if: always() && github.ref == 'refs/heads/main'
