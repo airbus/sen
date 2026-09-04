@@ -59,14 +59,24 @@ jobs:
         shell: bash
         run: |
           n=$(grep -cE "error C[0-9]{4}" build.log || true)
+          w=$(grep -cE "warning C[0-9]{4}" build.log || true)
           echo "MSVC error lines: $n"
+          echo "MSVC warning lines: $w"
           if [ "$n" -gt 0 ]; then
-              echo "--- distinct codes ---"
+              echo "--- distinct error codes ---"
               grep -oE "error C[0-9]{4}" build.log | sort | uniq -c | sort -rn
               echo "--- distinct failing lines ---"
               grep -oE "[^ ]+\([0-9]+[,0-9]*\) ?: (fatal )?error C[0-9]{4}: .*" build.log | sort -u
-              echo "--- files ---"
-              grep -oE "^[A-Za-z]:[^(]+\(" build.log | sed 's/($//' | sort -u | head -40
+          fi
+          # gcc and clang build with -Werror; MSVC has /W3 and no /WX, so these are
+          # ignored there. Listed so they can be cleared before /WX is considered.
+          if [ "$w" -gt 0 ]; then
+              echo "--- distinct warning codes ---"
+              grep -oE "warning C[0-9]{4}" build.log | sort | uniq -c | sort -rn
+              echo "--- one example of each code ---"
+              grep -oE "warning C[0-9]{4}: [^\r]*" build.log | sort -u -t: -k1,1 | head -40
+              echo "--- files with the most warnings ---"
+              grep -oE "^[A-Za-z]:[^(]+\([0-9]+" build.log | sed 's/(.*//' | sort | uniq -c | sort -rn | head -20
           fi
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
