@@ -4,14 +4,23 @@ description: "Build the API reference and the handbook; the caller decides wheth
 runs:
   using: 'composite'
   steps:
+    # Not for this action, which runs python inside the image: build_docs.yaml
+    # installs mike on the runner immediately after calling it.
     - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
       with:
         python-version: 3.x
 
-    - name: Generate daily cache id
+    - name: Name the image and generate the daily cache id
       shell: bash
-      run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
+      run: |
+        echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
+        echo "SEN_CI_IMAGE=sen-ci:docs" >> "$GITHUB_ENV"
 
+    # Keyed to the image rather than the runner: a conan package id does not record
+    # which Ubuntu produced a binary, so a cache filled on a runner installs cleanly
+    # in the container and then fails at link. The hash is in the fallback prefix
+    # too, or the next change to the image restores the previous one's packages.
+    #
     # Saved only on main, as in standard_test.yaml: a cache written from a pull
     # request is private to it, and open pull requests together pass the 10 GB
     # limit.
@@ -19,11 +28,12 @@ runs:
       uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
-        key: conanp-docs-${{ env.cache_date }}
-        restore-keys: conanp-docs-
+        key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs-${{ env.cache_date }}
+        restore-keys: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs-
 
-    # Writes only on main, as in standard_test.yaml; main reaches this through
-    # build_docs.yaml, so the cache still gets filled.
+    # This keeps its cache inside the workspace, which the container mounts at the
+    # same path, so the compiler shims on PATH below reach the same directory the
+    # runner saves. Writes only on main, as above.
     - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
       with:
         key: docs
@@ -31,74 +41,48 @@ runs:
         verbose: 1
         save: ${{ github.ref == 'refs/heads/main' }}
 
-    - name: Install system dependencies
-      shell: bash
-      # graphviz draws the doxygen diagrams; libxext-dev is needed for clang
-      # compat with sdl2 2.24.0.
-      #
-      # apt-get, not the interactive apt. The bounds stop it waiting with no output until
-      # the job timeout kills it: twice in one day this build sat here for its whole hour,
-      # once on the dpkg lock and once on a mirror that stopped answering mid-download.
-      # They are generous on purpose. The mirror can be slow without being stuck, and the
-      # point is to end a hang well before the job cap, not to police how long apt takes.
-      run: |
-        # The runners prefer azure.archive.ubuntu.com through this mirror list. That host
-        # has been ignoring requests for us today, and apt then alternates between it and
-        # the working mirror until the bound below kills the step. Point it straight at
-        # the one that answers.
-        if [ -f /etc/apt/apt-mirrors.txt ]; then
-            sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/apt-mirrors.txt
-        fi
-        sudo tee /etc/apt/apt.conf.d/99-sen-timeouts <<'CONF'
-        DPkg::Lock::Timeout "120";
-        Acquire::Retries "3";
-        Acquire::http::Timeout "30";
-        Acquire::https::Timeout "30";
-        CONF
-        timeout 1200 sudo apt-get update
-        timeout 1200 sudo apt-get install -y g++ graphviz libxext-dev
-
-    - name: Install python dependencies
+    # The documentation is built in the image this repository ships rather than on a
+    # runner assembling its own toolchain, so what CI uses is what a developer can
+    # run. One retry, as in ci-image.yaml: the archives this pulls from do go quiet.
+    - name: Build the image the documentation is built in
       shell: bash
       run: |
-        pip install conan==2.28.1
-        pip install -r docs/requirements.txt
+        build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
+        build || { echo "image build failed, retrying once"; build; }
 
-    - name: Setup conan profile
-      shell: bash
-      run: |
-        rm -f ~/.conan2/profiles/default
-        conan profile detect --force -vquiet
-        cp .conan/profiles/sen_gcc ~/.conan2/profiles/sen_gcc
-        cp .conan/profiles/sen_build_docs ~/.conan2/profiles/default
-        {
-          echo "[conf]"
-          echo "tools.system.package_manager:mode=install"
-          echo "tools.system.package_manager:sudo=True"
-        } >> ~/.conan2/profiles/default
-        conan profile show -pr default
-
-    # The handbook runs the built sen binary to capture its command-line help,
-    # so the documentation needs a full build first.
     - name: Build the documentation
       shell: bash
       run: |
-        export PATH="/usr/lib/ccache:$PATH"
-        conan install . --build=missing
+        .github/scripts/in_image.sh <<'IN'
+        # ccache first, so the shims are found ahead of the compilers themselves.
+        export PATH="/usr/lib/ccache:$HOME/.local/bin:$PATH"
+        export CCACHE_DIR="$PWD/.ccache"
+        pip install --user --quiet -r docs/requirements.txt
+        conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+        # --profile:all names both host and build profile. Copying one over `default`
+        # instead is what makes a documented `conan install --profile=...` work here
+        # and fail for a reader.
+        conan install . --profile:all=sen_build_docs --build=missing
         cmake --preset=conan-gcc-release
-        cmake --build build/gcc/Release/
+        # The handbook runs the built binaries to capture their command-line help, so
+        # these targets pull in the six the snippets depend on.
         cmake --build build/gcc/Release/ --target doxydocs
         cmake --build build/gcc/Release/ --target mkdocs
+        IN
 
     - name: Remove unwanted parts from conan cache before backup
+      if: github.ref == 'refs/heads/main'
       shell: bash
-      run: conan cache clean "*" -s -b -d
+      run: |
+        .github/scripts/in_image.sh <<'IN'
+        conan cache clean "*" -s -b -d
+        IN
 
-    # After the clean, so build folders stay out. main gets here through
+    # After the clean, so build folders stay out. main reaches this through
     # build_docs.yaml, which is what keeps the slice pull requests restore.
     - name: Save conan packages
       if: always() && github.ref == 'refs/heads/main'
       uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
-        key: conanp-docs-${{ env.cache_date }}
+        key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs-${{ env.cache_date }}

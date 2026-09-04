@@ -30,6 +30,7 @@ ARG CONAN_VERSION=2.28.1
 ARG JUNITPARSER_VERSION=5.0.1
 ARG PYTEST_VERSION=9.1.1
 ARG PRECOMMIT_VERSION=4.5.1
+ARG PLANTUML_VERSION=1.2026.7
 # Both must equal the versions conanfile.py tool-requires, and nothing checks that
 # they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.31.10
@@ -72,10 +73,12 @@ RUN printf '%s\n' \
         ca-certificates \
         ccache \
         curl \
+        default-jre-headless \
         g++-12 \
         gcc-12 \
         gcovr \
         git \
+        graphviz \
         lcov \
         libgl1-mesa-dev \
         libxext-dev \
@@ -88,6 +91,16 @@ RUN printf '%s\n' \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 \
     && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 \
     && rm -rf /var/lib/apt/lists/*
+
+# plantuml renders the diagram the handbook embeds. Ubuntu's package is from 2020 and
+# pulls a full JDK, 218 packages against 40 for a headless JRE and the jar. CMake finds it
+# with find_program by name, so the wrapper is what has to be on PATH.
+RUN curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused \
+        -o /opt/plantuml.jar \
+        "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar" \
+    && printf '%s\n' '#!/bin/sh' 'exec java -jar /opt/plantuml.jar "$@"' > /usr/local/bin/plantuml \
+    && chmod 0755 /usr/local/bin/plantuml \
+    && plantuml -version
 
 # clang from apt.llvm.org: the matrix's clang leg and the clang-tidy lane
 # both use this major version. The repository is added directly instead of
@@ -147,8 +160,7 @@ WORKDIR /workspace
 
 # CLion, VS Code and Visual Studio detect a toolchain by looking for cmake, a build
 # tool and a debugger inside the environment; base carries the first two, so this
-# stage adds the debugger. graphviz is here for the cmake_target_graph target, which
-# otherwise warns that 'dot' is missing.
+# stage adds the debugger.
 FROM base AS dev
 
 # Names again, for the same reason as in the base stage: this user exists in
@@ -157,7 +169,6 @@ FROM base AS dev
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gdb \
-        graphviz \
     && rm -rf /var/lib/apt/lists/*
 # hadolint ignore=DL3066
 USER sen
