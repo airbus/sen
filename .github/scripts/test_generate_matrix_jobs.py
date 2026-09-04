@@ -27,7 +27,7 @@ def job_keys(jobs: list[JobSpecification]) -> list[tuple[str, str, str, str, str
 def test_standard_test_job_set():
     """Standard tests run the three Linux x86 legs plus the arm leg."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, ARM_DEBUG]
+    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, ARM_DEBUG, MSVC_RELEASE]
 
 
 def test_standard_test_main_job_set():
@@ -82,9 +82,10 @@ def test_invalid_literal_value_is_rejected():
 
 
 def test_standard_test_legs_build_examples():
-    """Every standard-test leg builds the examples."""
+    """Every standard-test leg builds the examples, except Windows (SEN-1725)."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert all(job.enable_examples for job in jobs)
+    assert all(job.enable_examples for job in jobs if job.os != "windows")
+    assert not any(job.enable_examples for job in jobs if job.os == "windows")
 
 
 def test_container_tests_run_on_the_x86_gcc_legs():
@@ -181,6 +182,20 @@ def test_standard_test_specs_in_full():
             "build_type": "Debug",
             "enable_coverage": False,
             "enable_examples": True,
+            "runtime_base": "",
+            "check_package": False,
+        },
+        {
+            "name": "Basic Windows",
+            "os": "windows",
+            "runner": "windows-2022",
+            "container": None,
+            "compiler": {"name": "msvc", "version": 194, "cc": "cl", "cxx": "cl"},
+            "arch": "x86",
+            "std": 17,
+            "build_type": "Release",
+            "enable_coverage": False,
+            "enable_examples": False,
             "runtime_base": "",
             "check_package": False,
         },

@@ -160,8 +160,8 @@ SPECIFIED_JOBS = [
         include_in_release_workflow=True,
         include_in_conan_workflow=True,
         include_in_conan_workflow_on_pull_requests=False,
-        # TODO(SEN-1725): fix build failures in test setup
-        include_in_standard_test_workflow=False,
+        # Examples stay off until the suite is green here (SEN-1725).
+        include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=False,
     ),
     # Add arm jobs
