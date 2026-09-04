@@ -26,34 +26,41 @@ jobs:
           compiler-version: 194
           arch: x86
 
+      # conan install generates the presets; it does not configure. conan build
+      # would do both but calls cmake.build() with no way to pass ninja a flag.
       - name: Configure
         shell: bash
         run: |
           conan install . -s "&:build_type=Release" -s "&:compiler.cppstd=17" \
             --build=missing -o "sen/*:with_tests=True"
+          cmake --preset conan-msvc-release
 
-      # -k 0 rather than conan build, which calls cmake.build() with no way to pass
-      # it through. Never fails: the errors are the output.
+      # -k 0 so every target is attempted. Not continue-on-error: a build that
+      # fails to start must not read as a build with no errors.
       - name: Build, keeping going
         shell: bash
-        continue-on-error: true
         run: |
-          preset=$(python -c "import json;print(json.load(open('CMakeUserPresets.json'))['include'][0])")
-          dir=$(python -c "import json,sys;p=json.load(open(sys.argv[1]));print(p['configurePresets'][0]['binaryDir'])" "$preset")
-          echo "building in $dir"
-          cmake --build "$dir" -- -k 0 2>&1 | tee build.log
+          set -o pipefail
+          cmake --build build/msvc/Release -- -k 0 2>&1 | tee build.log || true
+          grep -qE "\[[0-9]+/[0-9]+\]" build.log || {
+              echo "no ninja progress lines: the build never started" >&2
+              exit 1
+          }
+          tail -1 <(grep -oE "\[[0-9]+/[0-9]+\]" build.log) | sed 's/^/reached /'
 
       - name: The list
         shell: bash
         run: |
-          echo "distinct error codes:"
-          grep -oE "error C[0-9]{4}" build.log | sort | uniq -c | sort -rn
-          echo
-          echo "distinct failing lines:"
-          grep -oE "[^ ]+\([0-9]+[,0-9]*\) ?: (fatal )?error C[0-9]{4}: .*" build.log | sort -u
-          echo
-          echo "files affected:"
-          grep -oE "^[A-Za-z]:[^(]+" build.log | sort -u | head -40
+          n=$(grep -cE "error C[0-9]{4}" build.log || true)
+          echo "MSVC error lines: $n"
+          if [ "$n" -gt 0 ]; then
+              echo "--- distinct codes ---"
+              grep -oE "error C[0-9]{4}" build.log | sort | uniq -c | sort -rn
+              echo "--- distinct failing lines ---"
+              grep -oE "[^ ]+\([0-9]+[,0-9]*\) ?: (fatal )?error C[0-9]{4}: .*" build.log | sort -u
+              echo "--- files ---"
+              grep -oE "^[A-Za-z]:[^(]+\(" build.log | sed 's/($//' | sort -u | head -40
+          fi
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: always()
