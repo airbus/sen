@@ -8,6 +8,11 @@
 # ungated delete would take the shared entry from any branch. Fails rather than
 # reports nothing when it cannot list, because a token without actions: write
 # looks exactly like an empty cache.
+#
+# Judged by id rather than by key. Two lanes share a conan key family on purpose,
+# since they build the same dependencies, so they race: one may delete an entry
+# before the other reaches it, and either may save a new one meanwhile. What must
+# not happen is an entry this run set out to delete surviving.
 set -euo pipefail
 
 key="${1:?usage: drop_cache_key.sh <key>}"
@@ -19,41 +24,51 @@ if [ "${GITHUB_REF:-}" != "refs/heads/main" ]; then
     exit 0
 fi
 
-if ! listing=$(gh api "/repos/$repo/actions/caches" --paginate --jq '.actions_caches[].key' 2>&1); then
+list_entries() {
+    gh api "/repos/$repo/actions/caches" --paginate \
+        --jq '.actions_caches[] | "\(.id) \(.key)"'
+}
+
+if ! before=$(list_entries 2>&1); then
     echo "cannot list caches, so cannot tell an empty cache from a failed call:" >&2
-    echo "$listing" | sed 's/^/  /' >&2
+    echo "$before" | sed 's/^/  /' >&2
     echo "the job needs 'actions: write'." >&2
     exit 1
 fi
 
-# The exact key, and anything under it carrying the date or timestamp a save
-# appends. Matched by shape so a family whose name merely extends this one is
-# not caught.
-doomed=$(printf '%s\n' "$listing" \
-    | grep -E "^${key}$|^${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
+# The exact key, and anything under it carrying the date a save appends. Matched
+# by shape so a family whose name merely extends this one is not caught.
+doomed=$(printf '%s\n' "$before" \
+    | grep -E " ${key}$| ${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
 
 if [ -z "$doomed" ]; then
     echo "nothing under '$key'"
     exit 0
 fi
 
-echo "$doomed" | while IFS= read -r victim; do
-    [ -z "$victim" ] && continue
-    if gh cache delete "$victim" -R "$repo" >/dev/null 2>&1; then
-        echo "  dropped $victim"
+printf '%s\n' "$doomed" | while read -r id name; do
+    [ -z "$id" ] && continue
+    if gh api -X DELETE "/repos/$repo/actions/caches/$id" >/dev/null 2>&1; then
+        echo "  dropped $name"
     else
-        echo "could not delete '$victim'" >&2
-        exit 1
+        echo "  already gone, or another job took it: $name"
     fi
 done
 
-# Proves the deletes landed. A save over a surviving key is downgraded to a
-# warning, so without this the cache would freeze with nothing red to show.
-if ! after=$(gh api "/repos/$repo/actions/caches" --paginate --jq '.actions_caches[].key' 2>&1); then
-    echo "cannot re-list caches to confirm" >&2
+if ! after=$(list_entries 2>&1); then
+    echo "cannot re-list caches to confirm the deletes landed" >&2
     exit 1
 fi
-if printf '%s\n' "$after" | grep -qE "^${key}$|^${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)"; then
-    echo "entries under '$key' survived the delete" >&2
+
+survivors=""
+while read -r id _; do
+    [ -z "$id" ] && continue
+    if printf '%s\n' "$after" | grep -qE "^${id} "; then
+        survivors="$survivors $id"
+    fi
+done <<< "$doomed"
+
+if [ -n "$survivors" ]; then
+    echo "entries this run set out to delete are still present:$survivors" >&2
     exit 1
 fi
