@@ -246,6 +246,19 @@ function(add_sen_unit_test_suite test_name)
     list(APPEND _test_props ${_arg_EXTRA_PROPERTIES})
   endif()
 
+  # Windows has no rpath. A package imported by name reaches LoadLibrary, which
+  # searches the executable's own directory and PATH, and packages are built to
+  # bin/ rather than beside the tests. On other platforms the kernel's $ORIGIN
+  # already resolves there.
+  if(WIN32)
+    list(
+      APPEND
+      _test_props
+      ENVIRONMENT_MODIFICATION
+      "PATH=path_list_append:${PROJECT_BINARY_DIR}/bin"
+    )
+  endif()
+
   # Windows looks for DLLs beside the executable, not by rpath: without these the
   # binary cannot start, which gtest_discover_tests reports as 0xc0000135 while
   # enumerating. The IF makes it a no-op when a target links nothing shared.
