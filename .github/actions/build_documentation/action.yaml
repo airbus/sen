@@ -10,11 +10,9 @@ runs:
       with:
         python-version: 3.x
 
-    - name: Name the image and generate the daily cache id
+    - name: Name the image
       shell: bash
-      run: |
-        echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
-        echo "SEN_CI_IMAGE=sen-ci:docs" >> "$GITHUB_ENV"
+      run: echo "SEN_CI_IMAGE=sen-ci:docs" >> "$GITHUB_ENV"
 
     # Keyed to the image rather than the runner: a conan package id does not record
     # which Ubuntu produced a binary, so a cache filled on a runner installs cleanly
@@ -28,8 +26,7 @@ runs:
       uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
-        key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs-${{ env.cache_date }}
-        restore-keys: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs-
+        key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs
 
     # This keeps its cache inside the workspace, which the container mounts at the
     # same path, so the compiler shims on PATH below reach the same directory the
@@ -37,6 +34,7 @@ runs:
     - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
       with:
         key: docs
+        append-timestamp: false
         max-size: 1G
         verbose: 1
         save: ${{ github.ref == 'refs/heads/main' }}
@@ -80,9 +78,23 @@ runs:
 
     # After the clean, so build folders stay out. main reaches this through
     # build_docs.yaml, which is what keeps the slice pull requests restore.
+    - name: Drop the ccache entry this run replaces
+      if: always() && github.ref == 'refs/heads/main'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash .github/scripts/drop_cache_key.sh "ccache-docs"
+
+    - name: Drop the entry this save replaces
+      if: always() && github.ref == 'refs/heads/main'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs"
+
     - name: Save conan packages
       if: always() && github.ref == 'refs/heads/main'
       uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
-        key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs-${{ env.cache_date }}
+        key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs
