@@ -162,8 +162,12 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          # Same reason as the first of these, in standard_test.yaml.
-          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          # Same reason as the first of these, in standard_test.yaml. Conan writes
+          # .bat rather than .sh on Windows, where cmake takes the generator's path
+          # from the cache instead.
+          if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
+            source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          fi
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
 
       # The report target runs the suite itself, so this replaces the step above
