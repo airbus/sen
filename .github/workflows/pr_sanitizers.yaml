@@ -141,13 +141,14 @@ jobs:
           path: sanitizer-reports/
           if-no-files-found: ignore
 
-      # sen itself and the build folders stay out, as in conan.yaml.
+      # Sources and build folders stay out of the entry. conan.yaml also removes the
+      # sen recipe first; this lane never exports one, because it installs and builds
+      # rather than creating the package, so asking would fail on a missing recipe.
       - name: Clean the conan cache before saving
         if: always() && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           .github/scripts/in_image.sh <<'IN'
-          conan remove sen --confirm
           conan cache clean "*" -s -b -d
           IN
 
