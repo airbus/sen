@@ -175,18 +175,11 @@ constexpr const char* surNames[] = {
 };
 // clang-format on
 
-// Shared RNG for name generation. Seeded once at startup.
-std::mt19937& getRng()
-{
-  static std::mt19937 rng {std::random_device {}()};
-  return rng;
-}
-
 }  // namespace
 
 std::tuple<std::string, std::string, std::string> makeName()
 {
-  auto& rng = getRng();
+  thread_local std::mt19937 rng {std::random_device {}()};
 
   constexpr std::size_t firstNameCount = sizeof(firstNames) / sizeof(firstNames[0]);
   constexpr std::size_t surNameCount = sizeof(surNames) / sizeof(surNames[0]);

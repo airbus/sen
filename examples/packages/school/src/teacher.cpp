@@ -36,8 +36,8 @@ namespace school
 
 int randomPositiveInteger()
 {
-  static std::mt19937 rng;
-  static std::uniform_int_distribution<int> dist(0, std::numeric_limits<int>::max());
+  thread_local std::mt19937 rng {std::random_device {}()};
+  std::uniform_int_distribution<int> dist(0, std::numeric_limits<int>::max());
   return dist(rng);
 }
 
