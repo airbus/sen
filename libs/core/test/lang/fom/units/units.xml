@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelIdentification>
+    <name>TestUnits</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>AccelQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>meter per second squared (m/(s^2))</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An acceleration in metres per second squared.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>DegQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>degree (deg)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An angle in degrees.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>RadQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>radian (rad)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An angle in radians.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>RadPerSQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>radian per second (rad/s)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An angular velocity in radians per second.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>MeterQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>meter (m)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A distance in metres.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>HzQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>hertz (Hz)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A frequency in hertz.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>InterrogationQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>interrogations/second</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A frequency in interrogations per second.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>KgQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>kilogram (kg)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A mass in kilograms.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>RpmRevQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>revolutions per minute (RPM)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A rotational speed in revolutions per minute.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>DegCQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>degree Celsius (C)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A temperature in degrees Celsius.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>MicrosQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>microsecond</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A time in microseconds.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>MillisQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>millisecond (ms)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A time in milliseconds.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>HourQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>hour</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A time in hours.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>SecQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>second (s)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A time in seconds.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>MeterPerSQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>meter per second (m/s)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A velocity in metres per second.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>MicronQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>micron</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A length in microns.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>RpmQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>RPM</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A rotational speed in RPM.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>DmPerSQ</name>
+        <representation>HLAfloat32BE</representation>
+        <units>decimeter per second (dm/s)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A velocity in decimeters per second.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+</objectModel>

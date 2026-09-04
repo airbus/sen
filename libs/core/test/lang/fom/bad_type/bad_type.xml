@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadType</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <fixedRecordDataTypes>
+      <fixedRecordData>
+        <name>RecordWithUnknownType</name>
+        <semantics>A record referencing a type that does not exist.</semantics>
+        <field>
+          <name>Value</name>
+          <dataType>DoesNotExist</dataType>
+          <semantics>A field of an unknown type.</semantics>
+        </field>
+      </fixedRecordData>
+    </fixedRecordDataTypes>
+  </dataTypes>
+</objectModel>

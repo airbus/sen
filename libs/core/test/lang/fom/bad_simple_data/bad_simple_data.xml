@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadSimpleData</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>BadQuantity</name>
+        <representation>HLAASCIIstring</representation>
+        <units>meter (m)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A quantity backed by a non-numeric representation.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+</objectModel>

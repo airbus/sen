@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelIdentification>
+    <name>TestHierarchy</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>QuantityFloat</name>
+        <representation>HLAfloat32BE</representation>
+        <units>meter (m)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A scalar quantity expressed in metres.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A plain integral identifier alias.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>BaseEntity</name>
+        <semantics>Base class of all entities.</semantics>
+        <attribute>
+          <name>Identifier</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>The entity identifier.</semantics>
+        </attribute>
+        <attribute>
+          <name>DisplayName</name>
+          <dataType>HLAASCIIstring</dataType>
+          <updateType>Static</updateType>
+          <sharing>Subscribe</sharing>
+          <transportation>HLAbestEffort</transportation>
+          <semantics>The entity display name.</semantics>
+        </attribute>
+        <attribute>
+          <name>Position</name>
+          <dataType>QuantityFloat</dataType>
+          <updateType>Conditional</updateType>
+          <sharing>Writeable</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Optional. Instantaneous position.</semantics>
+        </attribute>
+        <objectClass>
+          <name>PhysicalEntity</name>
+          <semantics>Base class for physical entities.</semantics>
+          <attribute>
+          <name>Speed</name>
+          <dataType>HLAfloat64Time</dataType>
+            <updateType>Conditional</updateType>
+            <sharing>Neither</sharing>
+            <transportation>HLAbestEffort</transportation>
+            <semantics>Instantaneous speed.</semantics>
+          </attribute>
+        </objectClass>
+      </objectClass>
+    </objectClass>
+  </objects>
+</objectModel>

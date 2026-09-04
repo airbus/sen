@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>DuplicateB</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An identifier.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+  <interactions>
+    <interactionClass>
+      <name>HLAinteractionRoot</name>
+      <interactionClass>
+        <name>Dup</name>
+        <semantics>A duplicated interaction.</semantics>
+        <transportation>HLAbestEffort</transportation>
+        <parameter>
+          <name>Other</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>Another value.</semantics>
+        </parameter>
+      </interactionClass>
+    </interactionClass>
+  </interactions>
+</objectModel>

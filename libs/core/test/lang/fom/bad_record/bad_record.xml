@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadRecord</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An identifier.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+    <fixedRecordDataTypes>
+      <fixedRecordData>
+        <name>BadRecord</name>
+        <semantics>A record including a type that is not a record.</semantics>
+        <include>PlainIdent</include>
+        <field>
+          <name>Value</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A value.</semantics>
+        </field>
+      </fixedRecordData>
+    </fixedRecordDataTypes>
+  </dataTypes>
+</objectModel>

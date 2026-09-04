@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<senMapping>
+  <class name="BaseEntity.PhysicalEntity">
+    <event hlaInteraction="Report.ReportMoved" pack="true"/>
+    <method hlaInteraction="Report.ReportMoved" pack="true">
+      <return hlaInteraction="Report.ReportMoved"/>
+    </method>
+  </class>
+</senMapping>

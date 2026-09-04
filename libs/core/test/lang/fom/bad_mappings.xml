@@ -1,0 +1,5 @@
+<senMapping>
+  <class name="Entity">
+    <event hlaInteraction="NonExistentInteraction"/>
+  </class>
+</senMapping>

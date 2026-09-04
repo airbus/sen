@@ -9,6 +9,7 @@
 
 # By default, we run tests in random order to prevent the introduction of implicit test dependencies.
 option(SEN_CTEST_RANDOMIZE_TESTS "Randomize test execution" On)
+set(SEN_CTEST_TESTS_REGEX "Run tests matching regular expression (fed to ctest -R)" CACHE STRING "")
 
 if(NOT SEN_BUILD_TESTS)
   set(BUILD_TESTING OFF) # Signal to ctest that no tests should be build
@@ -45,6 +46,16 @@ set(SEN_CTEST_JOBS
     CACHE STRING "Tests to run at once. 0 means every processor and needs cmake 3.31."
 )
 set(CTEST_PARALLEL_ARGS "--parallel" ${SEN_CTEST_JOBS})
+
+if(SEN_CTEST_TESTS_REGEX)
+  list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--tests-regex" "${SEN_CTEST_TESTS_REGEX}")
+endif()
+
+if(CMAKE_MAJOR_VERSION GREATER_EQUAL 4)
+  set(CTEST_PARALLEL_ARGS "--parallel")
+else()
+  set(CTEST_PARALLEL_ARGS "--parallel" 0)
+endif()
 
 # Where the container-based suites mount the repository. run.py reads it from
 # the environment and both sides default to the same path, so the mount point

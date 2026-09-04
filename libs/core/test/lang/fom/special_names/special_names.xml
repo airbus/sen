@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelIdentification>
+    <name>TestSpecialNames</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A plain integral identifier alias.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+    <arrayDataTypes>
+      <arrayData>
+        <name>BoundedIntegers</name>
+        <dataType>PlainIdent</dataType>
+        <cardinality>5</cardinality>
+        <semantics>A bounded sequence of five identifiers.</semantics>
+      </arrayData>
+    </arrayDataTypes>
+    <enumeratedDataTypes>
+      <enumeratedData>
+        <name>RPRboolean</name>
+        <representation>HLAinteger32BE</representation>
+        <semantics>RPRboolean is mapped to the Sen boolean type.</semantics>
+      </enumeratedData>
+      <enumeratedData>
+        <name>State</name>
+        <representation>HLAinteger32BE</representation>
+        <semantics>An enumeration with repeated enumerator names.</semantics>
+        <enumerator>
+          <name>Value</name>
+          <value>0</value>
+        </enumerator>
+        <enumerator>
+          <name>Value</name>
+          <value>1</value>
+        </enumerator>
+      </enumeratedData>
+    </enumeratedDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>An object class exercising the special HLA type name mappings.</semantics>
+        <attribute>
+          <name>AnAsciiChar</name>
+          <dataType>HLAASCIIchar</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An ASCII character.</semantics>
+        </attribute>
+        <attribute>
+          <name>AnUnicodeChar</name>
+          <dataType>HLAunicodeChar</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A unicode character.</semantics>
+        </attribute>
+        <attribute>
+          <name>AByte</name>
+          <dataType>HLAbyte</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A byte.</semantics>
+        </attribute>
+        <attribute>
+          <name>ACount</name>
+          <dataType>HLAcount</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A count.</semantics>
+        </attribute>
+        <attribute>
+          <name>ASeconds</name>
+          <dataType>HLAseconds</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Seconds.</semantics>
+        </attribute>
+        <attribute>
+          <name>AMsec</name>
+          <dataType>HLAmsec</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Milliseconds.</semantics>
+        </attribute>
+        <attribute>
+          <name>AnIndex</name>
+          <dataType>HLAindex</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An index.</semantics>
+        </attribute>
+        <attribute>
+          <name>A64BitTime</name>
+          <dataType>HLAinteger64Time</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 64-bit integer time.</semantics>
+        </attribute>
+        <attribute>
+          <name>AFloatTime</name>
+          <dataType>HLAfloat64Time</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 64-bit float time.</semantics>
+        </attribute>
+        <attribute>
+          <name>ABoolean</name>
+          <dataType>HLAboolean</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A boolean.</semantics>
+        </attribute>
+        <attribute>
+          <name>AnAsciiString</name>
+          <dataType>HLAASCIIstring</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An ASCII string.</semantics>
+        </attribute>
+        <attribute>
+          <name>AnUnicodeString</name>
+          <dataType>HLAunicodeString</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A unicode string.</semantics>
+        </attribute>
+        <attribute>
+          <name>ABoundedIntegers</name>
+          <dataType>BoundedIntegers</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A bounded sequence attribute.</semantics>
+        </attribute>
+        <attribute>
+          <name>AState</name>
+          <dataType>State</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An enumeration attribute.</semantics>
+        </attribute>
+        <attribute>
+          <name>AnRprBoolean</name>
+          <dataType>RPRboolean</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An RPR boolean mapped to the Sen boolean type.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+</objectModel>

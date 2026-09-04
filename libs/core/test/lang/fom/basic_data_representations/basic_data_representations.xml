@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>TestBasicDataRepresentations</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <basicDataRepresentations>
+      <basicData>
+        <name>U8</name>
+        <encoding>8-bit unsigned integer</encoding>
+      </basicData>
+      <basicData>
+        <name>U16</name>
+        <encoding>16-bit unsigned integer</encoding>
+      </basicData>
+      <basicData>
+        <name>U32</name>
+        <encoding>32-bit unsigned integer</encoding>
+      </basicData>
+      <basicData>
+        <name>U64</name>
+        <encoding>64-bit unsigned integer</encoding>
+      </basicData>
+      <basicData>
+        <name>I16</name>
+        <encoding>16-bit signed integer</encoding>
+      </basicData>
+      <basicData>
+        <name>I32</name>
+        <encoding>32-bit signed integer</encoding>
+      </basicData>
+      <basicData>
+        <name>I64</name>
+        <encoding>64-bit signed integer</encoding>
+      </basicData>
+    </basicDataRepresentations>
+    <simpleDataTypes>
+      <simpleData>
+        <name>U8Data</name>
+        <representation>U8</representation>
+      </simpleData>
+      <simpleData>
+        <name>U16Data</name>
+        <representation>U16</representation>
+      </simpleData>
+      <simpleData>
+        <name>U32Data</name>
+        <representation>U32</representation>
+      </simpleData>
+      <simpleData>
+        <name>U64Data</name>
+        <representation>U64</representation>
+      </simpleData>
+      <simpleData>
+        <name>I16Data</name>
+        <representation>I16</representation>
+      </simpleData>
+      <simpleData>
+        <name>I32Data</name>
+        <representation>I32</representation>
+      </simpleData>
+      <simpleData>
+        <name>I64Data</name>
+        <representation>I64</representation>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>An object class with one attribute per supported basic data encoding.</semantics>
+        <attribute>
+          <name>U8Data</name>
+          <dataType>U8Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An 8-bit unsigned integer.</semantics>
+        </attribute>
+        <attribute>
+          <name>U16Data</name>
+          <dataType>U16Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 16-bit unsigned integer.</semantics>
+        </attribute>
+        <attribute>
+          <name>U32Data</name>
+          <dataType>U32Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 32-bit unsigned integer.</semantics>
+        </attribute>
+        <attribute>
+          <name>U64Data</name>
+          <dataType>U64Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 64-bit unsigned integer.</semantics>
+        </attribute>
+        <attribute>
+          <name>I16Data</name>
+          <dataType>I16Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 16-bit signed integer.</semantics>
+        </attribute>
+        <attribute>
+          <name>I32Data</name>
+          <dataType>I32Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 32-bit signed integer.</semantics>
+        </attribute>
+        <attribute>
+          <name>I64Data</name>
+          <dataType>I64Data</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A 64-bit signed integer.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+</objectModel>

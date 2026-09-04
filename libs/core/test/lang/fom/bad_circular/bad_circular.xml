@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadCircular</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <fixedRecordDataTypes>
+      <fixedRecordData>
+        <name>Node</name>
+        <semantics>A record that references itself through one of its fields.</semantics>
+        <field>
+          <name>Next</name>
+          <dataType>Node</dataType>
+          <semantics>A self reference.</semantics>
+        </field>
+      </fixedRecordData>
+    </fixedRecordDataTypes>
+  </dataTypes>
+</objectModel>

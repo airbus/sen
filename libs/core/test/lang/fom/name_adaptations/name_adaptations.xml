@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelIdentification>
+    <name>TestToLowerCamelCase</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A plain integral identifier alias.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>An object class exercising toLowerCamelCase on attribute names.</semantics>
+        <attribute>
+          <name>MY_VAR</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>All caps separated by an underscore.</semantics>
+        </attribute>
+        <attribute>
+          <name>dash-var</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Lower case words separated by a dash.</semantics>
+        </attribute>
+        <attribute>
+          <name>A__B</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Consecutive separators producing an empty word.</semantics>
+        </attribute>
+        <attribute>
+          <name>123abc</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A name starting with a digit.</semantics>
+        </attribute>
+        <attribute>
+          <name>class</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A C++ reserved word.</semantics>
+        </attribute>
+        <attribute>
+          <name>TRUE</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An all caps reserved word.</semantics>
+        </attribute>
+        <attribute>
+          <name>MixedCase</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Already camel case, first letter lower cased.</semantics>
+        </attribute>
+        <attribute>
+          <name>ALLCAPS</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>All caps, lowered.</semantics>
+        </attribute>
+        <attribute>
+          <name>snake_case_word</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Multiple words.</semantics>
+        </attribute>
+        <attribute>
+          <name>namespace</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A C++ reserved word (namespace).</semantics>
+        </attribute>
+        <attribute>
+          <name>template</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A C++ reserved word (template).</semantics>
+        </attribute>
+        <attribute>
+          <name>operator</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A C++ reserved word (operator).</semantics>
+        </attribute>
+        <attribute>
+          <name>xor</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A C++ alternative token (xor).</semantics>
+        </attribute>
+        <attribute>
+          <name>co_await</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A C++20 keyword (co_await).</semantics>
+        </attribute>
+        <attribute>
+          <name>name</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A reserved property name, suffixed with NonSen.</semantics>
+        </attribute>
+        <attribute>
+          <name>id</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A reserved property name, suffixed with NonSen.</semantics>
+        </attribute>
+        <attribute>
+          <name>localName</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A reserved property name, suffixed with NonSen.</semantics>
+        </attribute>
+        <attribute>
+          <name>lastCommitTime</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A reserved property name, suffixed with NonSen.</semantics>
+        </attribute>
+        <attribute>
+          <name>propertyUntyped</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A reserved property name, suffixed with NonSen.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+  <interactions>
+    <interactionClass>
+      <name>HLAinteractionRoot</name>
+      <interactionClass>
+        <name>CamelReport</name>
+        <semantics>An interaction exercising toLowerCamelCase on parameter names.</semantics>
+        <parameter>
+          <name>ParamName</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A camel case parameter.</semantics>
+        </parameter>
+        <parameter>
+          <name>UPPER_CASE</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>An all caps parameter.</semantics>
+        </parameter>
+        <parameter>
+          <name>dash-param</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A dashed parameter.</semantics>
+        </parameter>
+        <parameter>
+          <name>123Field</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A parameter starting with a digit.</semantics>
+        </parameter>
+        <parameter>
+          <name>simple</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A plain parameter.</semantics>
+        </parameter>
+      </interactionClass>
+    </interactionClass>
+  </interactions>
+</objectModel>

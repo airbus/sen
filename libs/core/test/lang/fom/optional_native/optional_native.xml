@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>TestOptionalNative</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An identifier, an alias of a native representation.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>A class with an optional property whose type is an alias of a native data representation.</semantics>
+        <attribute>
+          <name>Identifier</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Conditional</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Optional. A native-typed optional identifier.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+</objectModel>

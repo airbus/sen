@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>TestMissingDependency</name>
+    <type>FOM</type>
+    <version>1.0</version>
+    <reference>
+      <type>Dependency</type>
+      <identification>NonExistentDependency</identification>
+    </reference>
+  </modelIdentification>
+</objectModel>

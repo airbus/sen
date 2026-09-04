@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>ForwardRefRecord</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An identifier.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+    <fixedRecordDataTypes>
+      <fixedRecordData>
+        <name>Container</name>
+        <semantics>A record that references a forward-declared record.</semantics>
+        <field>
+          <name>Inner</name>
+          <dataType>InnerRecord</dataType>
+          <semantics>A field referencing a record defined later.</semantics>
+        </field>
+      </fixedRecordData>
+      <fixedRecordData>
+        <name>InnerRecord</name>
+        <semantics>A record defined after it is referenced.</semantics>
+        <field>
+          <name>Value</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A value.</semantics>
+        </field>
+      </fixedRecordData>
+    </fixedRecordDataTypes>
+  </dataTypes>
+</objectModel>

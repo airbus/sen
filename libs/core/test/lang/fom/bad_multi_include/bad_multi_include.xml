@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An identifier.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+    <fixedRecordDataTypes>
+      <fixedRecordData>
+        <name>BaseA</name>
+        <semantics>A record that is included by another.</semantics>
+        <field>
+          <name>Alpha</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A field.</semantics>
+        </field>
+      </fixedRecordData>
+      <fixedRecordData>
+        <name>BaseB</name>
+        <semantics>Another record that is included by another.</semantics>
+        <field>
+          <name>Beta</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>A field.</semantics>
+        </field>
+      </fixedRecordData>
+      <fixedRecordData>
+        <name>BadMultiInclude</name>
+        <semantics>A record that includes more than one record.</semantics>
+        <include>BaseA</include>
+        <include>BaseB</include>
+      </fixedRecordData>
+    </fixedRecordDataTypes>
+  </dataTypes>
+</objectModel>

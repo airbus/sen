@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelIdentification>
+    <name>TestAllTypes</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <basicDataRepresentations>
+      <basicData>
+        <name>MyIntegral</name>
+        <encoding>32-bit signed integer</encoding>
+      </basicData>
+    </basicDataRepresentations>
+    <simpleDataTypes>
+      <simpleData>
+        <name>LengthMetre</name>
+        <representation>MyIntegral</representation>
+        <units>meter (m)</units>
+        <resolution>1</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A quantity represented as a length in metres.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A plain integral identifier alias.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+    <arrayDataTypes>
+      <arrayData>
+        <name>TextBuffer</name>
+        <dataType>HLAASCIIchar</dataType>
+        <cardinality>Dynamic</cardinality>
+        <semantics>A dynamic array of characters, translated to a string.</semantics>
+      </arrayData>
+      <arrayData>
+        <name>PointList</name>
+        <dataType>PlainIdent</dataType>
+        <cardinality>Dynamic</cardinality>
+        <semantics>A dynamic array of identifiers, translated to a sequence.</semantics>
+      </arrayData>
+    </arrayDataTypes>
+    <fixedRecordDataTypes>
+      <fixedRecordData>
+        <name>GeodeticPoint</name>
+        <semantics>A fixed record holding latitude and longitude.</semantics>
+        <field>
+          <name>Lat</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>Latitude.</semantics>
+        </field>
+        <field>
+          <name>Lon</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>Longitude.</semantics>
+        </field>
+      </fixedRecordData>
+    </fixedRecordDataTypes>
+    <variantRecordDataTypes>
+      <variantRecordData>
+        <name>ShapeOrSize</name>
+        <semantics>A variant record that is either a shape or a size.</semantics>
+        <alternative>
+          <name>Shape</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>Shape alternative.</semantics>
+        </alternative>
+        <alternative>
+          <name>Size</name>
+          <dataType>LengthMetre</dataType>
+          <semantics>Size alternative.</semantics>
+        </alternative>
+      </variantRecordData>
+    </variantRecordDataTypes>
+    <enumeratedDataTypes>
+      <enumeratedData>
+        <name>State</name>
+        <representation>HLAinteger32BE</representation>
+        <semantics>An enumeration of runtime states.</semantics>
+        <enumerator>
+          <name>Idle</name>
+          <value>0</value>
+        </enumerator>
+        <enumerator>
+          <name>Active</name>
+          <value>1</value>
+        </enumerator>
+      </enumeratedData>
+    </enumeratedDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>An object class with a single attribute.</semantics>
+        <attribute>
+          <name>Identifier</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>The entity identifier.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+  <interactions>
+    <interactionClass>
+      <name>HLAinteractionRoot</name>
+      <interactionClass>
+        <name>ImpactReport</name>
+        <semantics>An interaction reporting the impact geodetic point.</semantics>
+        <parameter>
+          <name>Position</name>
+          <dataType>GeodeticPoint</dataType>
+          <semantics>Impact geodetic point.</semantics>
+        </parameter>
+      </interactionClass>
+    </interactionClass>
+  </interactions>
+</objectModel>

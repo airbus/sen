@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>UsesDependency</name>
+    <type>FOM</type>
+    <version>1.0</version>
+    <reference>
+      <type>Dependency</type>
+      <identification>DependentTypes</identification>
+    </reference>
+  </modelIdentification>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>An entity that uses types defined in the dependency document.</semantics>
+        <attribute>
+          <name>Identifier</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An identifier whose type is a dependency-provided alias.</semantics>
+        </attribute>
+        <attribute>
+          <name>Length</name>
+          <dataType>LengthMetre</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>A length whose type is a dependency-provided quantity.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+</objectModel>

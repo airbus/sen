@@ -219,6 +219,7 @@ seen to use, not a standard anybody publishes.
 | "degree (deg)"                        | `deg`        |
 | "radian (rad)"                        | `rad`        |
 | "radian per second (rad/s)"           | `rad_per_s`  |
+| "hour"                                | `hour`       |
 | "meter (m)"                           | `m`          |
 | "hertz (Hz)", "interrogations/second" | `hz`         |
 | "kilogram (kg)"                       | `kg`         |

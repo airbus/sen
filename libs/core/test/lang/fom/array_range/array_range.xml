@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelIdentification>
+    <name>TestArrayRange</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A plain integral identifier alias.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+    <arrayDataTypes>
+      <arrayData>
+        <name>RangeIntegers</name>
+        <dataType>PlainIdent</dataType>
+        <cardinality>[1..5]</cardinality>
+        <semantics>A sequence bounded by a cardinality range.</semantics>
+      </arrayData>
+    </arrayDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>An entity using the bounded sequence.</semantics>
+        <attribute>
+          <name>Values</name>
+          <dataType>RangeIntegers</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>Bounded sequence attribute.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+</objectModel>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<senMapping>
+  <class name="Entity">
+    <property name="identifier" writable="true"/>
+    <property name="position" checked="true"/>
+    <property name="velocity" writable="true" checked="true"/>
+  </class>
+</senMapping>

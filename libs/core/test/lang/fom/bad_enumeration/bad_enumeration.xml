@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadEnumeration</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <enumeratedDataTypes>
+      <enumeratedData>
+        <name>BadEnum</name>
+        <representation>HLAfloat64BE</representation>
+        <semantics>An enumeration backed by a non-integral storage type.</semantics>
+        <enumerator>
+          <name>Zero</name>
+          <value>0</value>
+        </enumerator>
+      </enumeratedData>
+    </enumeratedDataTypes>
+  </dataTypes>
+</objectModel>

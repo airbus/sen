@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadEncoding</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <basicDataRepresentations>
+      <basicData>
+        <name>MyIntegral</name>
+        <encoding>128-bit quantum integer</encoding>
+      </basicData>
+    </basicDataRepresentations>
+  </dataTypes>
+</objectModel>

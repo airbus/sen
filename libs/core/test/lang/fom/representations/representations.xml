@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>TestRepresentations</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>Float32BEData</name>
+        <representation>HLAfloat32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A big-endian 32-bit float.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Float32LEData</name>
+        <representation>HLAfloat32LE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A little-endian 32-bit float.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Float64BEData</name>
+        <representation>HLAfloat64BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A big-endian 64-bit float.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Float64LEData</name>
+        <representation>HLAfloat64LE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A little-endian 64-bit float.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Int16BEData</name>
+        <representation>HLAinteger16BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A big-endian 16-bit integer.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Int16LEData</name>
+        <representation>HLAinteger16LE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A little-endian 16-bit integer.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Int32BEData</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A big-endian 32-bit integer.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Int32LEData</name>
+        <representation>HLAinteger32LE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A little-endian 32-bit integer.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Int64BEData</name>
+        <representation>HLAinteger64BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A big-endian 64-bit integer.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>Int64LEData</name>
+        <representation>HLAinteger64LE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A little-endian 64-bit integer.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>OctetData</name>
+        <representation>HLAoctet</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A single octet, big-endian.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>OctetPairBEData</name>
+        <representation>HLAoctetPairBE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A pair of octets, big-endian.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>OctetPairLEData</name>
+        <representation>HLAoctetPairLE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A pair of octets, little-endian.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+</objectModel>

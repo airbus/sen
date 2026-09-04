@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadEventTransport</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>An identifier.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+  <objects>
+    <objectClass>
+      <name>HLAobjectRoot</name>
+      <objectClass>
+        <name>Entity</name>
+        <semantics>A class mapped to an event with an unknown transport.</semantics>
+        <attribute>
+          <name>Identifier</name>
+          <dataType>PlainIdent</dataType>
+          <updateType>Static</updateType>
+          <sharing>PublishSubscribe</sharing>
+          <transportation>HLAreliable</transportation>
+          <semantics>An identifier.</semantics>
+        </attribute>
+      </objectClass>
+    </objectClass>
+  </objects>
+  <interactions>
+    <interactionClass>
+      <name>HLAinteractionRoot</name>
+      <interactionClass>
+        <name>EntityMoved</name>
+        <semantics>An interaction with an unknown transport.</semantics>
+        <transportation>UnknownTransport</transportation>
+        <parameter>
+          <name>NewPosition</name>
+          <dataType>PlainIdent</dataType>
+          <semantics>New position.</semantics>
+        </parameter>
+      </interactionClass>
+    </interactionClass>
+  </interactions>
+</objectModel>

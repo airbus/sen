@@ -1,0 +1,8 @@
+<senMapping>
+  <class name="Entity">
+    <event hlaInteraction="EntityMoved" pack="true"/>
+    <method hlaInteraction="EntityMoved" pack="true">
+      <return dataType="PlainIdent"/>
+    </method>
+  </class>
+</senMapping>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>DependentTypes</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <simpleDataTypes>
+      <simpleData>
+        <name>PlainIdent</name>
+        <representation>HLAinteger32BE</representation>
+        <units>NA</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A plain integral identifier alias provided by the dependency document.</semantics>
+      </simpleData>
+      <simpleData>
+        <name>LengthMetre</name>
+        <representation>HLAfloat64BE</representation>
+        <units>meter (m)</units>
+        <resolution>NA</resolution>
+        <accuracy>NA</accuracy>
+        <semantics>A quantity in metres provided by the dependency document.</semantics>
+      </simpleData>
+    </simpleDataTypes>
+  </dataTypes>
+</objectModel>

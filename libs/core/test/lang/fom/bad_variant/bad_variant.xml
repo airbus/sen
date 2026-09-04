@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+  <modelIdentification>
+    <name>BadVariant</name>
+    <type>FOM</type>
+    <version>1.0</version>
+  </modelIdentification>
+  <dataTypes>
+    <variantRecordDataTypes>
+      <variantRecordData>
+        <name>BadVariant</name>
+        <semantics>A variant with a void alternative.</semantics>
+        <alternative>
+          <name>Nothing</name>
+          <dataType>void</dataType>
+          <semantics>An empty alternative.</semantics>
+        </alternative>
+      </variantRecordData>
+    </variantRecordDataTypes>
+  </dataTypes>
+</objectModel>
