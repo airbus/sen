@@ -16,6 +16,8 @@ on:
 
 permissions:
   contents: read
+  # Deleting the cache entry a save replaces.
+  actions: write
 
 jobs:
   compute-matrix-jobs:
@@ -73,7 +75,6 @@ jobs:
         if: runner.os == 'Linux'
         with:
           key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
-          append-timestamp: false
           max-size: 1G
           verbose: 1
           # Same reasoning as the conan cache above.

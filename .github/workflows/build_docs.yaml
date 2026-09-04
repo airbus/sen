@@ -24,6 +24,8 @@ on:
 
 permissions:
   contents: write
+  # The documentation action drops the cache entry its save replaces.
+  actions: write
 
 jobs:
   deploy_docs:

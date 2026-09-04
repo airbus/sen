@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Deletes the cache entry a save is about to replace. Keys are immutable, so a save
-# can only add: without this every merge leaves another copy and the repository
-# passes GitHub's 10 GB limit, after which entries are evicted at random.
+# Deletes the cache entries a save is about to replace. Keys are immutable, so a
+# save can only add: without this every merge leaves another copy and the
+# repository passes GitHub's 10 GB limit, after which entries are evicted at
+# random.
 #
 # Refuses to run off main, because the saves it accompanies run only there and an
-# ungated delete would take the shared entry from any branch. Checks the entry is
-# gone afterwards, because a failed save is only a warning.
-
+# ungated delete would take the shared entry from any branch. Fails rather than
+# reports nothing when it cannot list, because a token without actions: write
+# looks exactly like an empty cache.
 set -euo pipefail
 
 key="${1:?usage: drop_cache_key.sh <key>}"
@@ -18,43 +19,41 @@ if [ "${GITHUB_REF:-}" != "refs/heads/main" ]; then
     exit 0
 fi
 
-keys_matching() {
-    gh api "/repos/$repo/actions/caches" --paginate \
-        --jq ".actions_caches[] | select(.key | startswith(\"$1\")) | .key" 2>/dev/null || true
-}
-
-# Leftovers from when the key carried a date. The suffix shape is matched exactly,
-# so a family whose name begins with this one is not caught by it.
-siblings=$(keys_matching "$key" \
-    | grep -E "^${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
-if [ -n "$siblings" ]; then
-    echo "dated leftovers under '$key', removing:"
-    while IFS= read -r old_key; do
-        [ -z "$old_key" ] && continue
-        echo "  $old_key"
-        gh cache delete "$old_key" -R "$repo" >/dev/null 2>&1 || true
-    done <<< "$siblings"
-fi
-
-# Shares the prefix and is not a dated leftover. Stop and let someone look.
-unexpected=$(keys_matching "$key" | grep -vx "$key" \
-    | grep -Ev "^${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
-if [ -n "$unexpected" ]; then
-    echo "unexpected entries sharing the prefix '$key':" >&2
-    echo "$unexpected" | sed 's/^/  /' >&2
+if ! listing=$(gh api "/repos/$repo/actions/caches" --paginate --jq '.actions_caches[].key' 2>&1); then
+    echo "cannot list caches, so cannot tell an empty cache from a failed call:" >&2
+    echo "$listing" | sed 's/^/  /' >&2
+    echo "the job needs 'actions: write'." >&2
     exit 1
 fi
 
-if [ -z "$(keys_matching "$key" | grep -x "$key" || true)" ]; then
-    echo "no entry under '$key'; nothing to drop"
+# The exact key, and anything under it carrying the date or timestamp a save
+# appends. Matched by shape so a family whose name merely extends this one is
+# not caught.
+doomed=$(printf '%s\n' "$listing" \
+    | grep -E "^${key}$|^${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)" || true)
+
+if [ -z "$doomed" ]; then
+    echo "nothing under '$key'"
     exit 0
 fi
 
-gh cache delete "$key" -R "$repo"
+echo "$doomed" | while IFS= read -r victim; do
+    [ -z "$victim" ] && continue
+    if gh cache delete "$victim" -R "$repo" >/dev/null 2>&1; then
+        echo "  dropped $victim"
+    else
+        echo "could not delete '$victim'" >&2
+        exit 1
+    fi
+done
 
-if [ -n "$(keys_matching "$key" | grep -x "$key" || true)" ]; then
-    echo "'$key' survived the delete; the save after it would do nothing" >&2
+# Proves the deletes landed. A save over a surviving key is downgraded to a
+# warning, so without this the cache would freeze with nothing red to show.
+if ! after=$(gh api "/repos/$repo/actions/caches" --paginate --jq '.actions_caches[].key' 2>&1); then
+    echo "cannot re-list caches to confirm" >&2
     exit 1
 fi
-
-echo "dropped '$key'"
+if printf '%s\n' "$after" | grep -qE "^${key}$|^${key}-([0-9]{4}-[0-9]{2}-[0-9]{2}T|[0-9]{8}$)"; then
+    echo "entries under '$key' survived the delete" >&2
+    exit 1
+fi

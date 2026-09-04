@@ -123,6 +123,10 @@ jobs:
       needs.detect-changes.outputs.code == 'true' &&
       (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     uses: ./.github/workflows/standard_test.yaml
+    permissions:
+      contents: read
+      # The lane drops the cache entry its save replaces.
+      actions: write
     with:
       building-main: ${{ github.ref == 'refs/heads/main' }}
 
@@ -159,6 +163,10 @@ jobs:
       (github.event.pull_request.draft == false &&
        needs.detect-changes.outputs.code == 'true')
     uses: ./.github/workflows/conan.yaml
+    permissions:
+      contents: read
+      # The lane drops the cache entry its save replaces.
+      actions: write
     with:
       pull_request_subset: ${{ github.event_name == 'pull_request' }}
 
@@ -174,6 +182,10 @@ jobs:
       (github.event_name == 'push' ||
        (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
     uses: ./.github/workflows/pr_sanitizers.yaml
+    permissions:
+      contents: read
+      # The lane drops the cache entry its save replaces.
+      actions: write
 
   # The only required check: every other job is skipped in some legitimate
   # case, and a required check that never reports blocks the merge forever.

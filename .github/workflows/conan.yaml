@@ -22,6 +22,8 @@ on:
 
 permissions:
   contents: read
+  # Deleting the cache entry a save replaces.
+  actions: write
 
 jobs:
   compute-matrix-jobs:
