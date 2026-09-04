@@ -60,6 +60,22 @@ using sen::std_util::fromU8string;
 namespace
 {
 
+// A block that ends on a table row would sit directly above the next `###`, and
+// markdown reads that heading as one more row of the table. One blank line closes
+// the block, here rather than in each of the nine templates.
+void appendBlock(std::string& target, std::string_view rendered)
+{
+  const auto last = rendered.find_last_not_of('\n');
+
+  if (last == std::string_view::npos)
+  {
+    return;
+  }
+
+  target.append(rendered.substr(0, last + 1));
+  target.append("\n\n");
+}
+
 [[nodiscard]] std::string toAnchorStr(std::string_view name, std::string_view link, std::string_view description = "")
 {
   std::string result = "[";
@@ -184,7 +200,7 @@ protected:
     typeInfo["package"] = packageName_;
     typeInfo["level"] = 1;
 
-    result_.classesDoc.append(env_.render(templates_.classTemplate, typeInfo));
+    appendBlock(result_.classesDoc, env_.render(templates_.classTemplate, typeInfo));
     result_.groups.classTypes.push_back(&type);
   }
 
@@ -203,7 +219,7 @@ private:
   {
     auto typeInfo = typeStorage_.getOrCreate(type);
     typeInfo["package"] = packageName_;
-    target.append(env_.render(templateObject, typeInfo));
+    appendBlock(target, env_.render(templateObject, typeInfo));
   }
 
 private:
@@ -263,12 +279,12 @@ void getClassPath(const sen::ClassType* current, std::vector<const sen::ClassTyp
     auto typeInfo = currentNode->getStorage()->getOrCreate(*meta);
     typeInfo["level"] = getLevel(meta);
 
-    result = env.render(tmp, typeInfo);
+    appendBlock(result, env.render(tmp, typeInfo));
   }
 
   for (auto& child: currentNode->getChildren())
   {
-    result.append(makeClassNodeData(&child, env, tmp));
+    appendBlock(result, makeClassNodeData(&child, env, tmp));
   }
 
   return result;
