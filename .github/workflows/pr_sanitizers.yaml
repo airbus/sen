@@ -34,6 +34,7 @@ jobs:
     env:
       CC: clang-20
       CXX: clang++-20
+      SEN_CI_IMAGE: sen-ci:lane
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -43,45 +44,60 @@ jobs:
         shell: bash
         run: echo "cache_date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_ENV"
 
-      # Restore only, never save. prepare_build would be the obvious thing to
-      # reuse here, but it saves at the end of the job, and a cache written from
-      # a pull request is private to it: every open pull request storing its own
-      # slice puts the repository past GitHub's 10 GB limit. The nightly can use
-      # it because the nightly only runs on main.
+      # prepare_build would be the obvious thing to reuse here, but it saves at the
+      # end of the job, and a cache written from a pull request is private to it:
+      # every open pull request storing its own slice puts the repository past
+      # GitHub's 10 GB limit. So this restores always and saves from main only.
+      # Keyed to the image, not the runner: a conan package id does not distinguish
+      # one Ubuntu from another, and the runner's cache holds 24.04 binaries whose
+      # libstdc++ is newer than the image's -- they install here and fail at link.
       - name: Restore conan packages
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-ubuntu-24.04-clang-20-17-${{ env.cache_date }}
-          restore-keys: conanp-ubuntu-24.04-clang-20-17-
+          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-${{ env.cache_date }}
+          restore-keys: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-
 
       # No ccache: sanitized object files must not land in the entries the
       # ordinary builds depend on. Same rule as the nightly's sanitizer lanes.
-      - name: Setup build context
-        uses: ./.github/actions/setup_build_context
-        with:
-          compiler-name: clang
-          compiler-version: 20
-          arch: x86
-
-      - name: Install additional python dependencies
+      # The lane runs in the image this repository builds, so what it uses is the
+      # definition a developer can also run rather than a second one assembled on
+      # the runner. Built here rather than pulled: publishing to the registry is
+      # not available, and a runner builds for its own architecture anyway.
+      # One retry, for the same reason ci-image.yaml has one: the archives this
+      # pulls from do go quiet, and a plain re-run has cleared it before. The
+      # image also sets apt retries and timeouts, which the runner-side action
+      # this replaced did for itself.
+      - name: Build the image the lane runs in
         shell: bash
-        run: pip install junitparser==5.0.1
+        run: |
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
+          build || { echo "image build failed, retrying once"; build; }
+
+      - name: Install the conan profiles
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+          IN
 
       # Debug also compiles the SEN_DEBUG_ASSERT invariant checks, which
       # RelWithDebInfo builds leave out.
       - name: Build with the sanitizers
         shell: bash
         run: |
+          .github/scripts/in_image.sh <<'IN'
           options='-o sen/*:with_tests=True -o sen/*:sanitizer=address'
           variables="{'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports', 'SEN_SANITIZER_FAIL_FAST': 'ON'}"
-          # shellcheck disable=SC2086
-          conan install . -s "&:build_type=Debug" --build=missing $options \
+          # --profile:all names both host and build profile. The action this replaced
+          # copied one over `default` instead, which is the arrangement that makes a
+          # documented `conan install --profile=...` work here and fail for a reader.
+          conan install . --profile:all=sen_clang_x86 -s "&:build_type=Debug" --build=missing $options \
             -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
           # conan build regenerates the toolchain, so it needs the same options.
-          # shellcheck disable=SC2086
-          conan build . -s "&:build_type=Debug" $options \
+          conan build . --profile:all=sen_clang_x86 -s "&:build_type=Debug" $options \
             -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
+          IN
 
       # A lane that reports nothing looks the same whether it found nothing or looked
       # at nothing, so this fails unless a deliberate finding of each kind reaches the
@@ -89,18 +105,22 @@ jobs:
       - name: Check the sanitizers detect
         shell: bash
         run: |
+          .github/scripts/in_image.sh <<'IN'
           # Conan provides cmake and ninja; the check calls ctest, so it needs the same
-          # environment the step below does rather than whatever the runner ships.
+          # environment the step below does rather than whatever the image ships.
           source build/clang/Debug/generators/conanbuild.sh
           python3 .github/scripts/check_sanitizer_lane.py build/clang/Debug address
+          IN
 
       - name: Run tests
         shell: bash
         run: |
+          .github/scripts/in_image.sh <<'IN'
           # Conan provides cmake and ninja; entering its environment is what puts
           # them ahead of whatever else is on PATH, the image's own pair included.
           source build/clang/Debug/generators/conanbuild.sh
           cmake --build build/clang/Debug/ --target run_tests
+          IN
 
       # Always: the findings are what the failure is about, so they have to be
       # reported on the run that failed.
@@ -120,3 +140,20 @@ jobs:
           name: pr-sanitizer-reports
           path: sanitizer-reports/
           if-no-files-found: ignore
+
+      # sen itself and the build folders stay out, as in conan.yaml.
+      - name: Clean the conan cache before saving
+        if: always() && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          conan remove sen --confirm
+          conan cache clean "*" -s -b -d
+          IN
+
+      - name: Save conan packages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.conan2/p
+          key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17-${{ env.cache_date }}
