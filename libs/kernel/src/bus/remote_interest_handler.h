@@ -15,6 +15,7 @@
 #include "sen/core/obj/interest.h"
 
 // std
+#include <functional>
 #include <mutex>
 #include <shared_mutex>
 #include <unordered_map>
@@ -28,26 +29,40 @@ namespace sen::kernel::impl
 class RemoteParticipant;
 class ObjectUpdate;
 
-/// The interest handler manages the local and remote interests registration
+/// The interest handler manages the local and remote interests registration.  Public operations are safe to call
+/// concurrently. Internal state is protected by mutex_
 class InterestsHandler
 {
-  SEN_MOVE_ONLY(InterestsHandler)
-
 public:
   InterestsHandler() = default;
   ~InterestsHandler() = default;
 
 public:
-  void addInterest(InterestId interestId) { interestToCounterMap_[interestId]++; }
-  void removeInterest(InterestId interestId);
-  [[nodiscard]] bool isRegistered(InterestId interestId) const noexcept
+  /// Adds a reference to an interest and returns true when it was not registered before.
+  [[nodiscard]] bool addInterest(const InterestId interestId)
+  {
+    std::lock_guard lock(mutex_);
+    auto [itr, inserted] = interestToCounterMap_.try_emplace(interestId, 0U);
+    ++itr->second;
+    return inserted;
+  }
+  void removeInterest(const InterestId interestId);
+
+  void onInterestRemoved(std::function<void(InterestId)>&& callback)
+  {
+    std::lock_guard lock(mutex_);
+    onRemovedCallback_ = std::move(callback);
+  }
+
+private:
+  /// Unlocked version of the isRegistered method to be used in the implementation of removeInterest
+  [[nodiscard]] bool isRegisteredInternal(InterestId interestId) const noexcept
   {
     return interestToCounterMap_.find(interestId) != interestToCounterMap_.end();
   }
 
-  void onInterestRemoved(std::function<void(InterestId)>&& callback) { onRemovedCallback_ = std::move(callback); }
-
 private:
+  mutable std::mutex mutex_;
   std::unordered_map<InterestId, u32> interestToCounterMap_;
   std::function<void(InterestId)> onRemovedCallback_;
 };
@@ -93,19 +108,29 @@ private:
 
 inline void InterestsHandler::removeInterest(InterestId interestId)
 {
-  if (!isRegistered(interestId))
+  std::function<void(InterestId)> callback;
+
   {
-    return;
+    std::lock_guard lock(mutex_);
+
+    if (!isRegisteredInternal(interestId))
+    {
+      return;
+    }
+
+    if (interestToCounterMap_[interestId] != 1)
+    {
+      --interestToCounterMap_[interestId];
+      return;
+    }
+
+    interestToCounterMap_.erase(interestId);
+    callback = onRemovedCallback_;
   }
 
-  if (interestToCounterMap_[interestId] == 1)
+  if (callback)
   {
-    interestToCounterMap_.erase(interestId);
-    onRemovedCallback_(interestId);
-  }
-  else
-  {
-    interestToCounterMap_[interestId]--;
+    callback(interestId);
   }
 }
 
