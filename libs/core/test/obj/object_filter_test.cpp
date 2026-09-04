@@ -698,3 +698,21 @@ TEST(ObjectFilter, Subscriber_NotifyAboutExistingFalseStaysSilent)
 
   EXPECT_TRUE(added.empty());
 }
+
+/// @test
+/// Verifies that hasActiveListeners correctly reports the presence of active listeners
+/// @requirements(SEN-362)
+TEST(ObjectFilter, HasActiveListeners)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  const auto interest = createEmptyInterest();
+  MockListener listener;
+
+  EXPECT_FALSE(filter.hasActiveListeners());
+
+  filter.addSubscriber(interest, &listener, false);
+  EXPECT_TRUE(filter.hasActiveListeners());
+
+  filter.removeSubscriber(interest, &listener, false);
+  EXPECT_FALSE(filter.hasActiveListeners());
+}
