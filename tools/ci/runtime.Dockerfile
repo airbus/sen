@@ -21,7 +21,15 @@ FROM ${BASE}
 # libpy.so links libpython. The version is read from the base image, because
 # each Ubuntu release carries a different one and no unversioned package
 # exists.
-RUN apt-get update \
+# apt bounds, as in Dockerfile: an archive that answers with a 520 or goes quiet
+# otherwise fails the whole build on the first refusal.
+RUN printf '%s\n' \
+        'Acquire::Retries "3";' \
+        'Acquire::http::Timeout "30";' \
+        'Acquire::https::Timeout "30";' \
+        'DPkg::Lock::Timeout "120";' \
+        > /etc/apt/apt.conf.d/99-sen-timeouts \
+    && apt-get update \
     && apt-get install -y --no-install-recommends libgl1 python3 \
     && apt-get install -y --no-install-recommends \
         "libpython$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" \
