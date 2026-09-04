@@ -252,11 +252,9 @@ void RemoteInterestsManager::subscriberAdded(std::shared_ptr<Interest> interest,
   std::ignore = notifyAboutExisting;
 
   const auto interestId = interest->getId();
-  bool isANewInterest = !interestsHandler_.isRegistered(interestId);
-  interestsHandler_.addInterest(interestId);
+  const bool isANewInterest = interestsHandler_.addInterest(interestId);
 
-  auto* remote = listener->isRemoteParticipant();
-  if (remote != nullptr)
+  if (auto* remote = listener->isRemoteParticipant())
   {
     owner_->getLogger().debug("LP {}: remote participant {} subscribed to interest {}",
                               owner_->getDebugName(),
