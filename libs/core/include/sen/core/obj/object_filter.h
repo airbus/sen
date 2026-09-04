@@ -59,6 +59,12 @@ public:
 
   /// Replaces an existing subscriber with a new one.
   virtual void replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener) = 0;
+
+  /// Returns true if there are still active listeners attached to this filter.
+  ///
+  /// The default is conservative for filters that do not track listeners. This is not pure virtual
+  /// so implementations outside the repository do not need to add an override immediately.
+  [[nodiscard]] virtual bool hasActiveListeners() { return false; }
 };
 
 /// Allows the discovery of objects based on different criteria.
@@ -89,6 +95,7 @@ public:  // implements ObjectFilterBase
                         bool notifyAboutExisting) override;
   void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) override;
   void replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener) override;
+  [[nodiscard]] bool hasActiveListeners() override;
 
 public:
   /// Creates a uniquely named provider for objects determined on a given interest.
