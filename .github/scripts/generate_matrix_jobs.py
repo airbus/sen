@@ -156,11 +156,11 @@ SPECIFIED_JOBS = [
             arch="x86",
             std=17,
             build_type="Release",
+            enable_examples=True,
         ),
         include_in_release_workflow=True,
         include_in_conan_workflow=True,
         include_in_conan_workflow_on_pull_requests=False,
-        # Examples stay off until the suite is green here (SEN-1725).
         include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=False,
     ),

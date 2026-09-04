@@ -82,10 +82,9 @@ def test_invalid_literal_value_is_rejected():
 
 
 def test_standard_test_legs_build_examples():
-    """Every standard-test leg builds the examples, except Windows (SEN-1725)."""
+    """Every standard-test leg builds the examples."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert all(job.enable_examples for job in jobs if job.os != "windows")
-    assert not any(job.enable_examples for job in jobs if job.os == "windows")
+    assert all(job.enable_examples for job in jobs)
 
 
 def test_container_tests_run_on_the_x86_gcc_legs():
@@ -100,12 +99,11 @@ def test_container_tests_run_on_the_x86_gcc_legs():
         assert job.runtime_base.replace(":", "-") == job.runner
 
 
-def test_windows_legs_keep_the_defaults():
-    """The Windows legs do not build the examples."""
+def test_release_legs_build_examples():
+    """Every release leg builds the examples, Windows included."""
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
-    windows = [job for job in jobs if job.os == "windows"]
-    assert windows
-    assert all(not job.enable_examples for job in windows)
+    assert [job for job in jobs if job.os == "windows"]
+    assert all(job.enable_examples for job in jobs)
 
 
 def test_pull_request_packaging_job_set():
@@ -195,7 +193,7 @@ def test_standard_test_specs_in_full():
             "std": 17,
             "build_type": "Release",
             "enable_coverage": False,
-            "enable_examples": False,
+            "enable_examples": True,
             "runtime_base": "",
             "check_package": False,
         },
