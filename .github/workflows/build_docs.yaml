@@ -65,3 +65,21 @@ jobs:
       - name: Build and deploy intermediate documentation
         if: github.event_name == 'push' && github.ref_type != 'tag'
         run: mike deploy --push --update-aliases latest
+
+      # Taken from gh-pages after the deploy rather than from the build tree, so the
+      # asset is what was published and not a second build of it. Re-publishing a
+      # release then means uploading this, which is the only way to reproduce a site
+      # whose dependency versions were never recorded: releases before 0.7.0 have no
+      # conan.lock, and rebuilding them today resolves to versions their tree cannot
+      # build.
+      - name: Keep the published site on the release
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin gh-pages --depth=1
+          staged=$(mktemp -d)
+          git archive origin/gh-pages "${{ github.ref_name }}" | tar -x -C "$staged"
+          tar -czf "sen-docs-${{ github.ref_name }}.tar.gz" -C "$staged" "${{ github.ref_name }}"
+          gh release upload "${{ github.ref_name }}" \
+            "sen-docs-${{ github.ref_name }}.tar.gz" --clobber
