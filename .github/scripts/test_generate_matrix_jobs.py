@@ -30,10 +30,17 @@ def test_standard_test_job_set():
     assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, ARM_DEBUG, MSVC_RELEASE]
 
 
-def test_standard_test_main_job_set():
-    """Post-merge main builds run the coverage leg and the shipping leg."""
-    jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=True)
-    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_RELEASE]
+def test_main_runs_what_pull_requests_run():
+    """A push to main runs the same legs as a pull request.
+
+    A pull request is tested against main as it was. What lands is that change
+    combined with whatever main became since, and only a run on main sees that
+    combination. The merge queue would test it too, but a merge that bypasses
+    the queue leaves no other lane that does.
+    """
+    on_pull_request = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    on_main = compute_jobs(release=False, conan=False, standard_test=True, target_main=True)
+    assert job_keys(on_main) == job_keys(on_pull_request)
 
 
 def test_conan_job_set():

@@ -77,6 +77,9 @@ class JobSelector:
     include_in_conan_workflow: bool
     include_in_conan_workflow_on_pull_requests: bool
     include_in_standard_test_workflow: bool
+    # True on every leg, and a test holds it that way: main has to run what a
+    # pull request runs, or a merge that bypasses the queue lands a combination
+    # nothing has tested.
     include_in_standard_test_workflow_also_main: bool
 
 
@@ -102,7 +105,7 @@ SPECIFIED_JOBS = [
         include_in_conan_workflow=True,
         include_in_conan_workflow_on_pull_requests=False,
         include_in_standard_test_workflow=True,
-        include_in_standard_test_workflow_also_main=False,
+        include_in_standard_test_workflow_also_main=True,
     ),
     JobSelector(
         job_spec=JobSpecification(
@@ -163,7 +166,7 @@ SPECIFIED_JOBS = [
         include_in_conan_workflow=True,
         include_in_conan_workflow_on_pull_requests=False,
         include_in_standard_test_workflow=True,
-        include_in_standard_test_workflow_also_main=False,
+        include_in_standard_test_workflow_also_main=True,
     ),
     # Add arm jobs
     JobSelector(
@@ -182,7 +185,7 @@ SPECIFIED_JOBS = [
         include_in_conan_workflow=False,
         include_in_conan_workflow_on_pull_requests=False,
         include_in_standard_test_workflow=True,
-        include_in_standard_test_workflow_also_main=False,
+        include_in_standard_test_workflow_also_main=True,
     ),
 ]
 
