@@ -5,9 +5,16 @@ FOM files, although we will focus on STL) can be exported. This will ensure that
 later be consumed as explained on the
 [how to consume external interfaces in Sen-based projects](consuming_interfaces.md) guide.
 
+"Export" is used for three unrelated things in Sen, so this page is probably not the one you want
+unless your question is about shipping interface files. `SEN_EXPORT_CLASS` registers a class with
+the kernel, and [Creating your first package](../getting_started/first_package.md) covers it. The
+`sen generate cpp exports` command generates an exports file for symbol visibility, and
+[Command line tools](../users_guide/command_line.md) documents it. This page is about installing
+`.stl` files so another CMake project can build against them.
+
 We will cover the following steps:
 
-- Organization of your project' directories.
+- Organization of your project directories.
 - Configuration of installation rules (exporting interface files).
 - CMake package configuration.
 
@@ -22,75 +29,85 @@ what your repository organization is.
 Firstly, we need to identify the `stl` files that we want to export. Following Sen's standard, these
 files are directly related to either a package, a library or a component.
 
-Let's take an example from Sen: A 'school' package within the 'sen' project. We want to highlight
-the fact that
+Everything else follows from this:
 
-1. This is part of the 'sen' project
-2. It's a 'package'
-3. It is called 'school'
-4. We are defining STL files.
+> **The path from `BASE_PATH` to an STL file is the path everyone imports it by**, and the path of
+> the generated header they include.
 
-We should **organize our STL files and folders in the same way they will be imported**. We want our
-exportation to match
+So the folders you choose under `BASE_PATH` are not an internal detail. They are baked into every
+`import` statement and every `#include` in every project that consumes your interfaces, including
+your own. Pick them so they read well and cannot collide with somebody else's.
 
-`stl/sen/packages/school`
-
-So the folder structure would look like:
+A common shape is to put your organization or project first, then the thing the interfaces belong
+to. Say the `acme` organization has a `radar` package:
 
 ```shell
-└──  stl
-    └── sen
-        └── packages
-            └── school
-                ├── class_room.stl
-                ├── person.stl
-                ├── student.stl
-                ├── superintendent.stl
-                └── teacher.stl
+packages/radar
+├── src
+└── stl
+    └── acme
+        └── radar
+            ├── sar_radar.stl
+            └── waveform.stl
 ```
+
+With `BASE_PATH` set to `packages/radar/stl`, the import becomes:
+
+```rust
+import "acme/radar/sar_radar.stl"
+```
+
+and the generated header is included as `"acme/radar/sar_radar.stl.h"`. The intermediate folders are
+entirely your choice; the generator does not require any particular depth or naming.
 
 Note that applying this directory organization will also mean changing the way of including (`cpp`)
 and importing (`stl`) the `stl` files inside your project: instead of importing `person.stl` or
 including `stl/person.stl.h`, you would need to add the full path described above.
 
-______________________________________________________________________
+---
 
 > Can we ignore this directory organization when importing other STL files?
 
-: Technically, yes, but it is **not** recommended. Ignoring the organization will create ambiguous
-import paths when consuming the interfaces. For example, if we left the example directory as it
-originally was, the consuming developer can still use the interfaces but instead of importing
-`"stl/sen/packages/school/person.stl"`, he would just import `"person.stl"`. This may not only be
-difficult to understand, but it can even **shadow** other files in case several consumed projects
-have `stl` files with the same name.
+: Technically, yes, but it is **not** recommended. Ignoring the organization creates ambiguous
+import paths when consuming the interfaces. If the files sat directly under `BASE_PATH`, a consumer
+would import `"sar_radar.stl"` rather than `"acme/radar/sar_radar.stl"`. That is harder to read, and
+it can **shadow** files: two consumed projects each shipping a `sar_radar.stl` would collide, and
+nothing would tell you which one you got.
 
-### Configuration of our `BASE_PATH`
+### Configuration of your `BASE_PATH`
 
 When generating code from `xml` or `stl` files, Sen offers the possibility of adding a `BASE_PATH`.
-The `BASE_PATH` parameter defines the root of the directory hierarchy so that generated files maintain common
-inclusion paths.
+The `BASE_PATH` parameter defines the root of the directory hierarchy so that generated files
+maintain common inclusion paths.
 
 **Important:** Its behavior differs significantly depending on the file type:
 
-- **For STL files:** The `BASE_PATH` is strictly respected. It determines the relative path used in code inclusions.
-- **For HLA FOM files (.xml):** The `BASE_PATH` is **ignored** by the code generator.
-Sen enforces a strict directory layout for HLA and always uses the **immediate parent directory** of the XML file
+- **For STL files:** The `BASE_PATH` is strictly respected. It determines the relative path used in
+  code inclusions.
+- **For HLA FOM files (.xml):** The `BASE_PATH` is **ignored** by the code generator. Sen enforces a
+strict directory layout for HLA and always uses the **immediate parent directory** of the XML file
 to build the inclusion paths.
 
-#### STL Example
+#### STL example
 
 To ensure correct resolution, the `BASE_PATH` should be set to the **root of the component**.
 
-Let's follow the Sen school example. If we start from the root of the project, the original `stl`
-files resided on `components/recorder/stl/school.stl` but now, they are at
-`components/recorder/stl/sen/components/recorder/school.stl`. This means that if we want our
-importing path to be `import stl/sen/components/recorder/school.stl`, we need to set our `BASE_PATH`
-to `components/recorder`.
+Continuing the example: the file sits at `packages/radar/stl/acme/radar/sar_radar.stl`, and we want
+`import "acme/radar/sar_radar.stl"`. Everything up to and including `stl/` has to be stripped, so
+`BASE_PATH` is `packages/radar/stl`.
 
-#### HLA FOM Example
+Set it one level higher, at the package root, and the `stl/` segment stays in the path, so the
+import becomes `"stl/acme/radar/sar_radar.stl"`. Sen's own components are laid out that way. Neither
+is more correct.
 
-For FOM files, the inclusion path is derived automatically from the physical location of the XML file,
-regardless of any `BASE_PATH` provided in CMake. Sen expects a `Grandparent/Parent/File.xml` structure.
+Writing it relative to CMake, as `BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/stl`, keeps it working if
+the package moves within your repository.
+
+#### HLA FOM example
+
+For FOM files, the inclusion path is derived automatically from the physical location of the XML
+file, regardless of any `BASE_PATH` provided in CMake. Sen expects a `Grandparent/Parent/File.xml`
+structure.
 
 **Example:**
 
@@ -98,69 +115,69 @@ regardless of any `BASE_PATH` provided in CMake. Sen expects a `Grandparent/Pare
 - Sen detects `rpr` as the immediate parent.
 - Any file importing/including this FOM will use the path: `"rpr/RPR-Base.xml.h"`
 
-To ensure a consistent structure, organize your FOM directories so that the immediate parent directory matches
-your intended include prefix (e.g., `rpr/`, `netn/`).
+To ensure a consistent structure, organize your FOM directories so that the immediate parent
+directory matches your intended include prefix (e.g., `rpr/`, `netn/`).
 
-______________________________________________________________________
+---
 
 > What happens if the `BASE_PATH` argument is ignored or set to a different value for STL files?
 
-: Using a different `BASE_PATH` for STL files makes your project much more vulnerable to issues when both
-exporting and consuming its interfaces. Sen code generator expects the files to be organized in a
-certain way. Not adding the `BASE_PATH` can lead to issues such as import and include errors when
-generating code from the interfaces, both in the current project and in any project that consumes the
-interfaces. Using an incorrect `BASE_PATH` will require you to adapt not only your CMake, code, and
-repository structure, but also the one of the developer that consumes your project as a package.
+: Using a different `BASE_PATH` for STL files makes your project much more vulnerable to issues when
+both exporting and consuming its interfaces. Sen code generator expects the files to be organized in
+a certain way. Not adding the `BASE_PATH` can lead to issues such as import and include errors when
+generating code from the interfaces, both in the current project and in any project that consumes
+the interfaces. Using an incorrect `BASE_PATH` will require you to adapt not only your CMake, code,
+and repository structure, but also the one of the developer that consumes your project as a package.
 Promoving a standard way of operating is the best way to ensure that compatibility is maintained
 across the large number of developers that will export and consume Sen-based packages.
 
 ## Configuration of installation rules (exporting `stl` files)
 
 After having reorganized the directory and adapted your project to this reorganization, we need to
-configure the adequate CMake install rules to add our `stl` files to our exported package.
+configure the adequate CMake install rules to add your `stl` files to your exported package.
 
 If you have followed
 [Sen's guide on how to export a Sen-based project as a Conan package](creating_conan_packages.md),
 you may already be familiar with CMake install rules and the importance they have when exporting
-source code inside our CMake packages. To export our interfaces, we need to add similar rules that
-indicate CMake where will our `stl` files be placed once we generate an exportable package.
+source code inside your CMake packages. To export your interfaces, you need to add similar rules
+that tell CMake where your `stl` files go once you generate an exportable package.
 
-The standard location where our interfaces will be installed inside a CMake package is the directory
-`interfaces`. Using this directory will allow us to both have a clear view of where are our
-interfaces located, and also facilitate the importing mechanism.
+The standard location where your interfaces will be installed inside a CMake package is the
+directory `interfaces`. Using it gives you a clear view of where your interfaces are, and makes the
+importing mechanism easier.
 
-Following our **school** example, we would need to add installation rules for all of our files
-inside the `stl` directory. This can be done by editing `cmake/targets/components/school.cmake` (or
-any other location where the CMake code related to the school component is) and adding the following
-code:
+List the files once, so the same variable feeds both `add_sen_package` and the install rule and the
+two cannot fall out of step:
 
 ```cmake
-set(school_source_dir ${CMAKE_SOURCE_DIR}/components/school)
-set(_school_stl_files ${school_source_dir}/stl/sen/packages/school/class_room.stl
-        ${school_source_dir}/stl/sen/packages/school/person.stl
-        ${school_source_dir}/stl/sen/packages/school/student.stl
-        ${school_source_dir}/stl/sen/packages/school/superintendent.stl
-        ${school_source_dir}/stl/sen/packages/school/teacher.stl
+set(_radar_stl_files
+    stl/acme/radar/sar_radar.stl
+    stl/acme/radar/waveform.stl
 )
 
-install(FILES ${_school_stl_files} DESTINATION interfaces/stl/sen/packages/school)
+add_sen_package(
+  TARGET    radar
+  BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/stl
+  STL_FILES ${_radar_stl_files}
+  # ... the rest of your package definition
+)
+
+install(FILES ${_radar_stl_files} DESTINATION interfaces/acme/radar)
 ```
 
-Note that the keyword **interfaces** that we mentioned before precedes the configured path in the
-[previous section](exportable_interfaces.md#organization-of-your-project-directories). The path
-inputted right after `interfaces` needs to be **the path to the `stl` files from the component's
-root directory.**
+The destination is `interfaces/` followed by **the same path the consumer imports**:
+`acme/radar` here, because that is what `BASE_PATH` left. If the two disagree, the package installs
+successfully and consumers cannot resolve the import.
 
-This CMake code will install all the school's `stl` files inside the adequate install directory. You
-will need to configure as many `install` rules as you need, depending on your directory organization
-and the number of `stl` files you need to export.
+Add as many `install` rules as your layout needs. One is enough when all the STL files sit in a
+single directory, as they do here.
 
 ## CMake package configuration
 
-The last step of the process involves adjusting the CMake package configuration so that our
+The last step of the process involves adjusting the CMake package configuration so that your
 interfaces are visible and obtainable to the consumers of the package.
 
-Configuring a CMake package will allow us to export our project in any possible way. With a CMake
+Configuring a CMake package lets you export your project in any way you like. With a CMake
 project you can use every mechanism you can think of to export your package (Conan, Nexus uploading,
 ZIP files, etc.). As long as the path to the CMake files of your package is added in the
 `CMAKE_PREFIX_PATH`, you will be able to use its entire functionality.
@@ -174,7 +191,7 @@ After following these steps, we only need to apply a slight modification to the 
 
 The whole purpose of this guide is to prepare a Sen-based project so that its interfaces can be
 consumed from any external project that uses it as a dependency. This means that the external
-project will need to know **where our package is installed**, so that it can get the paths and any
+project will need to know **where your package is installed**, so that it can get the paths and any
 additional information needed to be able to use those interfaces when consumed externally.
 
 Indicating the installation directory is as simple as adding this line to your `-config.cmake.in`
@@ -184,16 +201,16 @@ file:
 set(*your_project_name*_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
 ```
 
-______________________________________________________________________
+---
 
 > What does this variable do?
 
 : The `INSTALL_DIR` variable will simply point to the root of the directory where your package is
-installed at the time of consuming it. The `../..` is added since in our standard CMake package
+installed at the time of consuming it. The `../..` is added since in the standard CMake package
 generation, the CMakes of the project are located inside the `cmake/project_name` directory, hence
 the root directory will be located two directories behind.
 
-______________________________________________________________________
+---
 
 > Why is this needed?
 

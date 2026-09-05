@@ -1,4 +1,4 @@
-# Command Line Tools
+# Command line tools
 
 Sen comes with a command line application (called `sen`) to help you perform some actions following
 the approach taken by `git`.
@@ -37,263 +37,28 @@ sen run my_config.yaml
 --8<-- "snippets/sen_run.sh"
 ```
 
-The configuration file uses YAML, and it has the following structure:
+The configuration file uses YAML. Its sections, every key the kernel understands,
+environment-variable substitution and the `include` merging rules are documented in
+**[The configuration file](configuration.md)**, which is the reference for the format.
 
-- A "load" section, where we define the components to be loaded. You need to specify at least the
-  name and the group. You can set all the parameters defined in the `ComponentConfig` structure. The
-  rest of parameters are forwarded to the component.
-- A "build" section, where we define components to be built by the Sen kernel. You need to specify
-  at least the name and the group. You can set all the parameters defined in the `ComponentConfig`
-  structure. It also takes the following special entries:
-  - "imports": a list of packages to import.
-  - "objects": a list where you need to define the objects that will be instantiated. You can define
-    the initial values that the object properties will have. There are three special entries:
-    - "name": (required) The name of the instance. Must be unique within the component and bus (if
-      any).
-    - "class": (required) The name of the object's class.
-    - "bus": (optional) The name of the bus where the object shall be published.
-- An optional "kernel" section, that takes the contents of the `KernelParams` structure.
+A short example, so this page stands on its own:
 
-```yaml title="example configuration file"
+```yaml title="a minimal configuration"
 load:
   - name: shell
     group: 2
-    open: [ school.primary, school.secondary ]
+    open: [ local.counters ]
 
 build:
-  - name: example
+  - name: counterComponent
     group: 3
-    freqHz: 30
-    imports: [ school ]
+    freqHz: 2
+    imports: [ my_counter ]
     objects:
-      - name: firstGrade
-        class: school.ClassRoom
-        studentsBus: school.primary
-        bus: school.primary
-        defaultSize: 5
-        createTeacher: true
-      - name: secondGrade
-        class: school.ClassRoom
-        studentsBus: school.secondary
-        bus: school.secondary
-        defaultSize: 10
-        createTeacher: true
-
-```
-
-The `ComponentConfig` structure is defined as follows:
-
-```rust
-// Basic runtime configuration for a component
-struct ComponentConfig
-{
-  priority   : Priority,     // thread priority
-  stackSize  : u32,          // thread stack size in bytes, 0 means default
-  group      : u32,          // the group where to run the component
-  inQueue    : QueueConfig,  // queuing of inbound information
-  outQueue   : QueueConfig   // queuing of outbound information
-}
-```
-
-Regarding queues, they can be configured using the `QueueConfig` structure:
-
-```rust
-// Component queue eviction policy
-enum QueueEvictionPolicy: u32
-{
-  dropOldest, // when full, drop the least recent element
-  dropNewest, // when full, drop the most recent element
-}
-
-struct QueueConfig
-{
-  evictionPolicy : QueueEvictionPolicy, // what to do when the queue is full
-  maxSize        : u64                  // 0 means unbounded
-}
-```
-
-By default, queues are unbounded.
-
-```yaml title="another example configuration file"
-load:
-  # first, load the shell
-  - name: shell
-    group: 2
-
-  # then, load our component
-  - name: my_component_with_config
-    group: 3
-    someParam: a value
-    someOtherParam: 5 s
-
-```
-
-### Environment variables
-
-The YAML sen parser supports using environment variable values directly by using
-`@env(VARIABLE_NAME)` pattern. The pattern can be escaped using the backslash `\` character. If an
-even number backlash characters are found before the `@env()` pattern, they are rendered as half of
-them and the variable is also rendered. If the number is odd, they are rendered as half of them
-minus one and the env command value is not rendered.
-
-The `@env(VARIABLE_NAME)` function also supports default values for when the variable is not found.
-It can be specified using `@env(VARIABLE_NAME, DEFAULT_VALUE)`.
-
-If the `@env(VARIABLE_NAME)` is used and the variable does not exist, a runtime error is thrown.
-
-Consider the variables MY_COMP=FooComponent and MY_BUS=BarBus
-
-```yaml title="another example configuration file"
-load:
-  # first, load the shell
-  - name: shell
-    group: 2
-    open: @env(MY_BUS) # Will throw if MY_BUS does not exist
-  # then, load our component
-  - name: @env(MY_COMP, defaultComponent) # rendered as - name: FooComponent
-    group: 3
-    someParam: a value
-    someOtherParam: 5 s
-    someEscape1: \env(MY_COMP, defaultComponent)        # rendered as env(MY_COMP, defaultComponent)
-    someEscape2: \\env(MY_COMP, defaultComponent)       # rendered as \FooComponent
-    someEscape3: \\\env(MY_COMP, defaultComponent)      # rendered as \env(MY_COMP, defaultComponent)
-    someEscape4: \\\\env(MY_COMP, defaultComponent)     # rendered as \\FooComponent
-    someEscape5: \\\\\env(MY_COMP, defaultComponent)    # rendered as \\env(MY_COMP, defaultComponent)
-    someEscape6: \\\\\\env(MY_COMP, defaultComponent)   # rendered as \\\FooComponent
-    someEscape7: \\\\\\\env(MY_COMP, defaultComponent)  # rendered as \\\env(MY_COMP, defaultComponent)
-    someEscape8: \\\\\\\\env(MY_COMP, defaultComponent) # rendered as \\\\FooComponent
-```
-
-### Combining yaml files
-
-Since configurations can get very complex and repetitive, Sen provides an "include" mechanism for
-yaml files.
-
-```yaml title="including yaml files"
-include:
-  - shell.yaml
-  - ether.yaml
-
-# the rest of the configuration file, as usual
-build:
-  - name: myComponent
-    group: 3
-    freqHz: 10
-    imports: [ my_package ]
-    objects:
-      - name: myObject
-        class: my_package.MyClassImpl
-        prop1: someValue
-        bus: my.tutorial
-
-```
-
-Where:
-
-```yaml title="shell.yaml"
-load:
-  - name: shell
-    group: 2
-    open: [ my.tutorial ]
-```
-
-```yaml title="ether.yaml"
-load:
-  - name: ether
-    group: 3
-```
-
-Resulting in a yaml that Sen perceives as:
-
-```yaml title="result"
-load:
-  - name: shell
-    group: 2
-    open: [ my.tutorial ]
-  - name: ether
-    group: 3
-
-build:
-  - name: myComponent
-    group: 3
-    freqHz: 10
-    imports: [ my_package ]
-    objects:
-      - name: myObject
-        class: my_package.MyClassImpl
-        prop1: someValue
-        bus: my.tutorial
-```
-
-The `include` block contain a list of files (or a single file like `indclude: shell.yaml`), relative
-to the yaml file doing the inclusion. Inclusions are recursive (you can include files that include
-other files).
-
-When including a file, it gets merged (or combined) with the contents of the current file. With this
-mechanism you can effectively do "unions" of configuration parameters. If parameters are repeated
-(the file you are including defines a configuration value that you also define in your file), the
-one in your file prevails.
-
-For example, let's define another yaml file as follows:
-
-```yaml title="my_component.yaml"
-build:
-  - name: myComponent
-    group: 3
-    freqHz: 10
-    imports: [ my_package ]
-    objects:
-      - name: myObject
-        class: my_package.MyClassImpl
-        prop1: someValue
-        bus: my.tutorial
-```
-
-And now let's combine all three as such:
-
-```yaml title="combination"
-include:
-  - shell.yaml
-  - ether.yaml
-  - my_component.yaml
-```
-
-If we want to overwrite the value of `prop1` of `myObject` in `myComponent`, we can do so like this:
-
-```yaml title="combination"
-include:
-  - shell.yaml
-  - ether.yaml
-  - my_component.yaml
-
-build:
-  - name: myComponent
-    objects:
-      - name: myObject
-        prop1: someOtherValue
-```
-
-Note that you just need to define the things you want to overwrite. The resulting configuration as
-perceived by Sen would be like this:
-
-```yaml title="result"
-load:
-  - name: shell
-    group: 2
-    open: [ my.tutorial ]
-  - name: ether
-    group: 3
-
-build:
-  - name: myComponent
-    group: 3
-    freqHz: 10
-    imports: [ my_package ]
-    objects:
-      - name: myObject
-        class: my_package.MyClassImpl
-        prop1: someOtherValue
-        bus: my.tutorial
+      - name: myCounter
+        class: my_counter.CounterImpl
+        bus: local.counters
+        step: 5
 ```
 
 ## Code generator
@@ -424,8 +189,7 @@ Generates json schemas from a Sen data model.
 
 ### TypeScript
 
-TypeScript generation reads STL only; there is no FOM subcommand today
-(no HLA model targets TS).
+TypeScript generation reads STL only; there is no FOM subcommand today.
 
 ```title="sen generate ts"
 --8<-- "snippets/sen_generate_ts.sh"
@@ -437,9 +201,10 @@ TypeScript generation reads STL only; there is no FOM subcommand today
 --8<-- "snippets/sen_generate_ts_stl.sh"
 ```
 
-## Archiving Utility
+## Archiving utility
 
-Helps you interact with archives.
+Helps you interact with archives. "Archive" and "recording" are the same thing here: the recorder
+writes a recording, and `sen archive` is the command that inspects one.
 
 ```title="sen archive"
 --8<-- "snippets/sen_archive.sh"
@@ -457,7 +222,7 @@ Helps you interact with archives.
 --8<-- "snippets/sen_archive_indexed.sh"
 ```
 
-## Packaging Utility
+## Packaging utility
 
 ```title="sen package"
 --8<-- "snippets/sen_package.sh"

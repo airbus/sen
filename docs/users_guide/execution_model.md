@@ -1,27 +1,31 @@
 ![Screenshot](../assets/images/clock_light.svg#only-light){: style="width:250px; float: right;"}
 ![Screenshot](../assets/images/clock_dark.svg#only-dark){: style="width:250px; float: right;"}
 
-# Execution Model
+# Execution model
 
 In Sen your code has an entry point. This means that the rate at which it runs can be controlled,
-and therefore we can switch between real-time and stepped execution (which can be slower or faster
+and therefore you can switch between real-time and stepped execution (which can be slower or faster
 than real-time).
 
-Determinism[^1] is the idea that:
+Determinism[^1] is the idea that what happens next follows entirely from what came before. In this
+context that becomes:
 
-> "Everything that happens in the world is determined completely by previously existing causes."
+> The next state is determined completely by the computations based on the current state.
 
-In our context, this translates to the idea that:
-
-> "The next state is determined completely by the computations based on our current state."
-
-This idea of "current" and "next" state is built-in into the Sen architecture and great care has
+This idea of "current" and "next" state is built into the Sen architecture and great care has
 been put into enabling it. In fact, all objects are double buffered and proxy objects (local and
 remote) are created to allow it.
 
 *Note:* Sen will enable deterministic behavior, but you need to do your part. For example, if you
 use random numbers, do not seed your generator with the current time. Instead, make the seed part of
 the input parameters used during initialization.
+
+The same care applies to anything else that varies between runs. A subscription hands you its
+objects in the order they arrived, which is stable within a process and not guaranteed across them,
+so a calculation that sums over a list is sensitive to that order in exactly the way floating-point
+addition is. Sen's own threading does not add to this: each component runs on its own thread, but
+every one of them reads the same frozen snapshot, so the risk comes from threads you start yourself
+and from arithmetic that depends on order.
 
 ## The drain-update-commit cycle
 
@@ -36,15 +40,13 @@ To achieve determinism, Sen components execute in iterations. In each iteration 
 3. Commit the outputs, so that they become visible to other components in a self-consistent manner.
    You also don't have to worry about this step.
 
-This is the drain-update-commit approach, and you can think of this as with frames in a movie:
+This is the drain-update-commit approach, and you can think of it as frames in a movie:
 
 1. You get the current frame when Sen drains the inputs.
 2. You compute the next frame based on the current one.
 3. Sen prints the next frame when it commits the outputs.
 
-Let's be a bit more precise:
-
-______________________________________________________________________
+---
 
 **During the drain stage**
 
@@ -56,9 +58,9 @@ Sen will:
 4. Perform the callbacks that have been triggered due to the emission of events.
 
 During this stage you might update the state of an object or emit an event. That's fine. Those
-changes will not be visible to anyone (including you) until your outputs are commited.
+changes will not be visible to anyone (including you) until your outputs are committed.
 
-______________________________________________________________________
+---
 
 **During update stage**
 
@@ -70,7 +72,7 @@ You can fully rely on safely fetching the state of the objects that you are trac
 come from other components. *They will not change*. They have been created just for you. Even if the
 other component is running in the same process.
 
-______________________________________________________________________
+---
 
 **During commit stage**
 
@@ -83,46 +85,191 @@ Sen will:
 3. Request the other components to perform a method call on the objects and methods that you called
    during the update stage.
 
-## Real-Time execution vs Stepped execution
+Components do not run in any order relative to one another. Each has its own thread and its own
+`freqHz`, and nothing schedules one after another. The double buffer is what makes that safe: what
+you read during your update was fixed before it began. A component that has to act on another one's
+result therefore reads what that component last committed, never a value being computed in the same
+cycle, and you express such a dependency in the data flow instead of in the schedule. `group` orders
+startup and shutdown only, as [Configuration](configuration.md#componentconfig) says.
 
-"Real time execution" in Sen means that Sel will use the internal system clock to measure the
+Different rates need nothing special. A slow reader sees whatever the fast component committed most
+recently, and a fast reader sees the same value on every cycle until the slow one commits again.
+Under `virtualTime` that does not change: `freqHz` still decides how often a component updates, and
+the master clock's `delta` decides how far time moves on each step.
+
+## Real-time execution vs stepped execution
+
+"Real time execution" in Sen means that Sen will use the internal system clock to measure the
 passage of time. When you have multiple components running at the same time, you need to decide the
 mechanism you want to use to keep them in sync.
 
-In case of real time execution, the simplest, most effective, most performant and most commonly used
-approach, is to have the computers' clocks in sync using PTP (or NTP), and select an update rate
+In case of real time execution, the usual approach, and the one that works best, is to have the
+computers' clocks in sync using PTP (or NTP), and select an update rate
 where every component updates frequently enough so that the execution progresses consistently
 forward within some margin of tolerance. Be aware that this approach is *inherently
 non-deterministic*, because the iterations are not fully coordinated and very much affected by the
 precision of the time sync, the compute load and scheduling made by the OS, the network load and
-transport delays, and a very long etc.
+transport delays, and a long list besides.
 
-In stepped execution, we do coordinate the execution of our components. This idea translates to:
+Stepped execution does coordinate your components. This idea translates to:
 
 - Components do not advance with the natural passage of time. In fact, they do not advance until
   requested.
 - The time that components fetch comes from an internal variable held by the kernel.
 
-When we are controlling multiple components that execute in multiple processes, the approach is very
-similar. We first do step 1 for all processes, and when finished, we do step 2 for all processes.
+You ask for it in the configuration, with the kernel's `runMode`:
 
-In both cases (multiple or just one process), there is an API that we can use to tell Sen to
-sequentially execute multiple steps and therefore advance large chunks of time in a synchronized
-manner.
+| `runMode` | Behavior |
+| --------- | --------- |
+| `realTime` | Components execute using system time. The default. |
+| `virtualTime` | Components execute in discrete steps that you request. |
+| `virtualTimeRunning` | The same, but the kernel advances the time continuously. |
+| `startAndStop` | Starts everything, then stops. This is what `sen run --start-stop` sets. |
 
-______________________________________________________________________
+Under `virtualTime` the kernel publishes a clock object you drive, named `clock` by default and
+placed on the kernel's bus unless `clockBus` says otherwise. You advance it with
+`processNoFlush(delta)` and `flushOutputs()`, and keeping them separate is what makes several
+processes tractable: `processNoFlush(delta)` updates the time, drains
+the inputs and cycles the components *without* making their outputs visible, and `flushOutputs()`
+then publishes them. Across several processes you call the first on every kernel, wait for all of
+them, and only then call the second, which is how the whole system steps together instead of
+drifting apart. Setting `clockMaster: true` publishes a master clock that discovers the individual
+kernel clocks on its bus and does that coordination for you.
 
-**Note**: You can see that with stepped execution we are not only deterministic, but
-*multithreaded*. This means that if components have some significant amount of work to do on each
-iteration, and we have multiple cores (or computers), we are effectively improving the usage of our
-compute resources. This is a nice (and non-accidental) side effect of the drain-update-commit
-approach used with threads and processes.
+Within a single process, stepped execution is deterministic. Across processes it is not, yet.
 
-**Also Note**: Having multiple processes implies a higher synchronization overhead. We not only have
-to synchronize data flows between threads, but computers. If the work that components do is
-*outweighed* by the synchronization overhead, then we are doing a *pessimization*. Pessimizations
-are common when trying to parallelize, as many factors come into play. Luckily for us, Sen allows
+Not everything can be stepped. A component that returns `true` from `isRealTimeOnly()` is left out
+of the set the kernel advances: it keeps following the real clock while the rest of the system is
+virtualized.
+
+That is for components doing infrastructural work instead of simulating anything, the ones whose
+job only makes sense in real time. A shell stepped along with the model would be unusable: it would
+respond only when you advanced the clock, and you advance the clock from the shell. The same
+reasoning covers transports, profilers and anything driven by a person or an external system.
+
+Some of the shipped components are marked this way, for the reasons above, and keep following the
+real clock when the rest of the system is stepped.
+
+Everything the kernel builds from your `build:` section is stepped. See
+[Writing a component](../howto_guides/components.md#the-component-lifecycle) for how to mark one
+of your own.
+
+## The time a component sees
+
+`getTime()` gives you the execution time, and what that time means is yours to decide: Sen moves it
+along and does not interpret it. Under `realTime` it follows your component's schedule, anchored
+when the component starts and advancing by exactly one period per cycle. Under `virtualTime` it
+advances by that same period, aligned to multiples of it, and no cycle is ever skipped. What changes
+is the stepping: you drive it, so how fast it runs against the wall clock is your choice and need
+not match it at all. It is fixed for the cycle you are in, so reading it more than once during
+`update()` gives the same value. If your system already keeps other clocks, you can correlate them
+to this one and drive them however you like.
+
+You drive that stepping from the master clock, where `delta` is the size of one step. `step()` takes
+a single step and `steps(n)` takes several, while `advanceTime(duration)` takes as many steps of
+`delta` as fit in the duration and rounds up to a whole one, so asking for 100 ms with a `delta` of
+30 ms runs four steps and advances 120 ms.
+[Controlling the clock](../howto_guides/controlling_clock.md) has the configuration and a worked
+run.
+
+Fixed-rate cycles are what Sen schedules today, and other scheduling modes will follow as they are
+needed.
+
+Sen is not a simulation framework. What it gives you is objects other processes can see, a cycle
+that runs them and a clock you can drive. That is what a simulation framework would be built on, and
+Sen stops there. Solvers, scenario handling, model libraries and scheduling
+policies are yours to bring or to build. For a component that does not need any of that, what is
+here may be enough on its own.
+
+A component that advances in time takes its step from the clock rather than from its configured
+rate. Keep the last time you saw:
+
+```cpp title="examples/packages/timer/src/timer.cpp"
+--8<-- "examples/packages/timer/src/timer.cpp:elapsed_state"
+```
+
+and difference it on every cycle:
+
+```cpp title="examples/packages/timer/src/timer.cpp"
+--8<-- "examples/packages/timer/src/timer.cpp:elapsed"
+```
+
+Subtracting two `TimeStamp` values gives a `Duration`. A component integrating a rate turns that
+into a `float64_t` with `toSeconds()` and multiplies by it; the timer subtracts it from a countdown.
+Because the step comes from the clock instead of from `freqHz`, the same code is correct when a
+cycle is skipped and when the component is stepped. It is not the same run, though. Stepping gives
+the same sequence of steps every time, while under `realTime` a skipped cycle merges two steps into
+one, so a component with a saturation, a rate limit or a discrete event can land somewhere else.
+
+## When a component runs out of time
+
+Only under real-time execution. Stepping has no deadline to miss: the kernel waits for every
+component to finish its cycle, so a slow `update()` makes the run take longer without losing a
+cycle. Components marked `isRealTimeOnly()` keep their deadline even in a stepped system.
+
+A component at `freqHz: 30` gets 33 ms. If `update()` takes longer, the kernel does not stretch the
+period or queue the work: it **skips whole cycles** and stays on the original schedule. A component
+that overruns once loses updates but is back in step immediately, with no delay accumulating.
+The execution time follows that schedule, so it advances by a whole number of periods: two
+consecutive `update()` calls can be 33 ms apart or 66, but never 41.
+
+Cycles are skipped for one other reason. Under real-time execution the schedule is kept on the
+machine's clock, so an adjustment to it, from NTP or PTP or by hand, moves the schedule too. A large
+correction forward skips cycles the same way an overrun does. A large one backward keeps the
+component running at its rate, but leaves its schedule ahead of wall time by the size of the
+correction, and nothing brings the two back together: closing the gap would mean either running the
+component below its rate for a while or letting it answer late, and neither is a trade Sen makes for
+you. If the high-resolution clock on your machine is the system clock, a correction arriving while
+the component is asleep holds it there for the length of the jump. Small corrections, which is what
+a synchronized network produces, pass through without any of this.
+
+Overruns and missed frames are reported separately, and they are not the same:
+
+| Reported | Measured against | Where it goes |
+|---|---|---|
+| `<component> execution time overrun` | Thread CPU time used by the update | Tracy, and a `WARN` in the log |
+| `<component> missed frame (interruption)` | Wall clock: the work finished after the cycle it belonged to | Tracy, and a `WARN` in the log |
+| `<component> missed frame (overslept)` | Wall clock: the sleep returned more than a period late | Tracy, and a `WARN` in the log |
+
+**An overrun is counted in CPU time**, so an update that blocks on a socket, a lock or a vendor SDK
+burns wall time without burning CPU and never counts as one. The missed-frame lines are the ones
+that say cycles were lost, which is what a component running at a fraction of its configured rate
+produces.
+
+**The two missed-frame lines point in different directions.** An interruption means the work
+finished after the cycle it belonged to, so the update itself ran long. An oversleep means the sleep
+returned more than a full period late, so the component was not running at all when it should have
+been, which makes it a symptom of the machine and not of your code. They also differ in what
+happens next: after an oversleep, if less than half a period remains, the kernel skips the frame
+outright and waits for the next one instead of starting a cycle it cannot finish.
+
+A run of lost cycles reports once, not once each. The kernel takes every missed cycle in a single
+pass and warns one time, so a component that blocks for five seconds at 30 Hz produces one line
+instead of a hundred and fifty.
+
+The warning can be suppressed from code but not from configuration: `RunApi::execLoop` takes a
+`logOverruns` flag, so a component driving its own loop can drop the log line and keep the Tracy
+message. Components declared under `build:` run through the kernel's standard pipeline, which does
+not take the flag.
+
+!!! note "Open for expansion"
+
+    Overrun handling is an area we intend to grow: more ways to observe what happened, and more
+    control over the response. What is described here is what the kernel does today and what you can
+    build on, and what is here will grow by addition.
+
+---
+
+**Note**: With stepped execution the system is not only deterministic within a process, but
+*multithreaded*. If components have a significant amount of work to do on each iteration, and there
+are multiple cores (or computers), the usage of your compute resources improves. This is a nice (and
+non-accidental) side effect of the drain-update-commit approach used with threads and processes.
+
+**Also Note**: Having multiple processes implies a higher synchronization overhead. Data flows have
+to be synchronized not only between threads, but between computers. If the work that components do
+is *outweighed* by the synchronization overhead, the result is a *pessimization*. Pessimizations
+are common when trying to parallelize, as many factors come into play. Luckily, Sen allows
 you to compose your system as you need without touching a single line of code, so you will have an
 easy time shaping your configuration according to the performance profile of your computations.
 
-[^1]: Not a formal definition; just a way to convey the idea. Phds have been written about this.
+[^1]: Not a formal definition, just a way to convey the idea. PhDs have been written about this.

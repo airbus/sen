@@ -31,37 +31,19 @@ This is the data model:
 
 ## Implementation
 
-The shape implementation you can find the `shapes.cpp` file defines the `update()` function. In it, we just
-move it around, making it bounce in a box. The shape emits a `collidedWith(wall)` event when it collides with a wall.
+The shape implementation you can find the `shapes.cpp` file defines the `update()` function. In it,
+we just move it around, making it bounce in a box. The shape emits a `collidedWithWall(wall)` event
+when it collides with a wall.
 
-The more interesting part is in `shape_listener.cpp`. Let's see how the `startListening` function is implemented:
+The more interesting part is in `shape_listener.cpp`. Let's see how the `startListening` function is
+implemented:
 
 ```c++
-  std::string startListeningToImpl(const std::string& bus,
-                                   const MaybeColor& color,
-                                   const MaybeInterval& xRange,
-                                   const MaybeInterval& yRange) override
-  {
-    const auto query = makeQueryName();                                // create a name for our query
-    auto sub = std::make_shared<sen::Subscription<ShapeInterface>>();  // create up a subscription
-    sub->source = api_->getSource(bus);                                // get the bus
-
-    // install the callbacks
-    std::ignore = sub->list.onAdded([query, this](const auto& addedObjects) { shapesDetected(query, addedObjects); });
-    std::ignore = sub->list.onRemoved([query, this](const auto& removedObjects) { shapesGone(query, removedObjects); });
-
-    auto interest = makeInterest(query, bus, color, xRange, yRange);  // build the interest.
-    sub->source->addSubscriber(interest, &sub->list, true);           // connect the list.
-    subscriptions_.emplace(query, std::move(sub));                    // save the subscription.
-
-    // update the query count
-    setNextQueryCount(subscriptions_.size());
-    return query;
-  }
+--8<-- "snippets/examples/packages/shapes/src/shape_listener.cpp:start_listening"
 ```
 
-The `makeInterest()` function builds a Sen Query Language string adapted to the conditions defined by the user, for
-example:
+The `buildQuery()` function builds a Sen Query Language string adapted to the conditions defined by
+the user, for example:
 
 ```sql
 SELECT shapes.Shape FROM my.tutorial
@@ -74,18 +56,21 @@ The listener prints the shapes that is able to detect.
 
 ## Subscription lifecycle
 
-The ShapeListener demonstrates the full subscription lifecycle:
+The ShapeListener manages two independent things, created at different moments and torn down
+separately.
 
-1. **Select**: `api.selectFrom<ShapeInterface>(bus, query)` creates a subscription and returns a
-   `Subscription<ShapeInterface>` holding an `ObjectList`.
-2. **React**: `sub->list.onAdded(...)` and `sub->list.onRemoved(...)` install callbacks that fire whenever matching
-   objects appear or disappear. The returned `ConnectionGuard` must be kept alive â€” dropping it unregisters the
-   callback.
-3. **Guard storage**: Per-shape guards (from `shape->onCollidedWithWall(...)`) are stored in a
-   `std::list<ConnectionGuard>`. `std::list` is used deliberately: its iterators are stable across insertions and
-   erasures, so adding a new guard never invalidates an existing one.
-4. **Cleanup**: Erasing a shape's entry from `shapeGuards_` drops all its guards, unregistering the callbacks. Erasing
-   the subscription from `subscriptions_` triggers the `Subscription` destructor, which disconnects from the bus.
+**The subscription to a bus, one per query.** `api_->selectFrom<ShapeInterface>(bus, query, onAdded,
+onRemoved)` returns a `std::shared_ptr<Subscription<ShapeInterface>>` holding an `ObjectList`, with
+both callbacks already installed so that they also fire for shapes that were already there. The
+listener keeps it in `subscriptions_`, keyed by query name. Erasing that entry destroys the
+`Subscription`, which unregisters the list from the bus. Nothing else has to be kept alive:
+`onAdded` and `onRemoved` are plain callbacks, and installing one replaces whatever was there
+before.
+
+**The collision callback on each discovered shape, one per shape.** `shape->onCollidedWithWall(...)`
+returns a `ConnectionGuard`, which unregisters the callback when it is destroyed. These do have to
+be kept alive, so the listener stores them in `shapeGuards_`, keyed by object id. Erasing a shape's
+entry drops its guards and unregisters its callbacks.
 
 ## How to run it
 

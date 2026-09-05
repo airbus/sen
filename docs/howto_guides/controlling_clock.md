@@ -1,6 +1,13 @@
-# Controlling the Clock
+# Controlling the clock
 
-The `Clock` is a Sen object that can published by the kernel to allow you control the virtual time.
+The kernel can publish a clock object that lets you control the advance of virtual time.
+
+`runMode: virtualTime` means the components advance only when something steps them, so a kernel
+started that way and left alone sits there doing nothing. That is the mode this page is about. If
+what you want instead is virtual time that runs on its own, as fast as the components allow, use
+`runMode: virtualTimeRunning`: the kernel advances the clock itself and you still get virtual time
+rather than the system clock. The [Execution model](../users_guide/execution_model.md) lists all
+four run modes.
 
 You can enable it by adding this to your configuration file:
 
@@ -12,8 +19,9 @@ kernel:
 # ... rest of the configuration file
 ```
 
-This will make the kernel publish an object called "master" in a bus (by default is "local.kernel").
-You can change the bus used for publishing the clock by setting the clockBus attribute, for example:
+This will make the kernel publish an object called "master" in a bus. That bus is `clockBus`, which
+defaults to the kernel's own `bus`, which in turn defaults to `local.kernel`. You can point the
+clock somewhere else by setting `clockBus`, for example:
 
 ```yaml
 kernel:
@@ -24,31 +32,23 @@ kernel:
 # ... rest of the configuration file
 ```
 
-The Clock class is very straightforward:
+The object you get is a `VirtualMasterClock`. There are three clock classes, and it helps to see
+them together:
 
-```rust
-class Clock
-{
-  // the current virtual time
-  var delta : Duration [writable];
-
-  // calls advanceTimeDrainInputsAndUpdate(delta) and then flushOutputs()
-  // on all VirtualKernelClocks n times, where n is duration / delta
-  fn advanceTime(duration: Duration) -> Duration [bestEffort];
-
-  // single step forward, based on delta
-  fn step() -> Duration [bestEffort];
-
-  // perform 'count' steps forward, based on delta
-  fn steps(count: u64) -> Duration [bestEffort];
-}
+```rust title="kernel_objects.stl"
+--8<-- "libs/kernel/stl/sen/kernel/kernel_objects.stl:clocks"
 ```
+
+`VirtualClock` is the part you read: `time` is the current virtual time. Every kernel publishes a
+`VirtualKernelClock` for the components it hosts, and the master discovers those and drives them.
+The one you write to is `delta` on the master, which is the size of a single step, not the current
+time.
 
 ## Stepping the time
 
 1. Start your kernel in virtualized time mode.
 2. Tell it to instantiate a clock by setting `clockMaster` to `true`.
-3. Find the clock and set a value for `delta`.
+3. Find the "master" object and set a value for `delta`, the size of one step.
 4. Call `step()` or `steps(n)` or `advanceTime(duration)`.
 
 For example, here we run the "school" example and use the following kernel config:
@@ -59,8 +59,9 @@ kernel:
   clockMaster: true
 ```
 
-We use the kernel clock to step the time and monitor one object (with the explorer). You can see how the
-properties change and the plot gets updated.
+We use the kernel clock to step the time and monitor one object in the
+[explorer](../components/explorer.md), plotting one of its properties. As you step, you can see the
+properties change and the plot update.
 
 ## Advancing large chunks of time
 
@@ -74,9 +75,9 @@ should tell all the processes to publish their clock in some common bus. Then se
 process (only one) and tell it to publish the master clock to the same bus. The master clock will
 discover and control all the clocks that it finds in the bus.
 
-For example, you would have something like this in your "slave" processes:
+For example, the processes being controlled would have something like this:
 
-```yaml title="Slave app configuration"
+```yaml title="Controlled process configuration"
 kernel:
   runMode: virtualTime
   clockBus: se.clocks
@@ -97,7 +98,7 @@ kernel:
 Now you will find an object called "master" in the "se.clocks" bus that you can use to control the
 global advancement of time :smiley:
 
-[^1]: Note that the explorer is not plotting all the changes that happen to the property (you see some
-    "jumps" in the plot graphic). This is expected. The reason is that the explorer is actually sampling
-    the values of those properties in real time (at 60 Hz or so), while those properties are changing
-    very fast.
+[^1]: Note that the explorer is not plotting all the changes that happen to the property (you see
+    some "jumps" in the plot graphic). This is expected. The reason is that the explorer is actually
+    sampling the values of those properties in real time (at 60 Hz or so), while those properties
+    are changing very fast.

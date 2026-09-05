@@ -3,11 +3,7 @@
 Sen is developed at Airbus; the copyright headers name the legal owner.
 This file credits the people behind the code.
 
-## Original author
-
-Sen was created and designed by:
-
-- Enrique Parodi Spalazzi
+Sen was created and designed by Enrique Parodi Spalazzi.
 
 ## Core team
 

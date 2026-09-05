@@ -5,7 +5,9 @@
 
 If you have a Sen archive, you can play it back using the `replayer` component.
 
-There are two ways of starting a replay. The simplest one is to do:
+## Starting a replay
+
+The simplest way to start a replay is:
 
 ```shell
 # load the archive and start the playback straight away
@@ -16,12 +18,13 @@ $ sen replay my_archive --stopped
 ```
 
 You can see that this approach creates the replay in an independent process. While convenient,
-sometimes you might want to do embed replay in your own process. For example, in testing or during
+sometimes you might want to embed a replay in your own process. For example, in testing or during
 development.
 
 This can be done by adding the `replayer` component to your configuration file. For example:
 
 ```yaml title="Adding the replayer to your process"
+load:
   - name: replayer
     autoOpen: school_recording  # this is the path to the archive
     autoPlay: true  # start the playback right away
@@ -33,6 +36,8 @@ The configuration options are defined in the component's STL:
 ```rust title="Replayer configuration options"
 --8<-- "snippets/replayer_config.stl"
 ```
+
+## The Replayer object
 
 The main object of the `replayer` component is the `Replayer` object. It allows you to open multiple
 archives for replay. Every time you open an archive, a `Replay` object is created, which is the one
@@ -49,12 +54,28 @@ The typical usage would be something like this:
 ```mermaid
 sequenceDiagram
     actor You
-    You->>+Replayer: open(archive)
+    You->>+Replayer: open(name, path)
     Replayer->>+Replay: create()
     You->>+Replay: play()
 
     You->>+Replay: pause()
-    You->>+Replay: moveTo(time)
-    You->>+Replayer: close(archive)
+    You->>+Replay: seek(time)
+    You->>+Replayer: close(name)
     You-xReplay: delete
 ```
+
+## What a replay reproduces
+
+A replay reproduces what was recorded, which is state and events. Nothing is re-executed. Method
+calls were never in the archive, so components that called each other during the original run do not
+do so again.
+
+Playback advances by the replayer's own cycle. Each update takes the time elapsed since the last one
+and applies every entry whose recorded timestamp falls in that window, so recorded timing is
+reproduced to the resolution of one cycle, and entries closer together than that arrive together.
+Because the step comes from the execution time, a replay follows the kernel's run mode, whether that
+is real time or a virtual clock you drive at your own pace.
+
+Seeking lands exactly on the time you ask for. The replayer jumps to the keyframe at or before it
+and then replays forward, so the keyframe period decides what a seek costs. It does not affect where
+the seek ends up. An archive recorded without keyframes does not support seeking, and says so.

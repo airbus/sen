@@ -15,9 +15,13 @@ have found a suitable issue and still need clarification, you can write your que
 
 ## Code contributions
 
-During this initial publication phase, we are limiting external code contributions. Feedback, issue reports, and
-feature suggestions are welcome and will be evaluated. The contribution policy may be reviewed and updated
-at a later stage.
+Sen has only recently been released as open source, and the process for taking in code from outside
+the team is not in place yet. Until it is, we are holding external code contributions.
+
+Feedback, issue reports and feature suggestions are welcome now and will be evaluated.
+
+The sections below describe how a change is built, tested and proposed. That is how the project
+works today, and it is what will apply when contributions open.
 
 ## Building and Testing
 
