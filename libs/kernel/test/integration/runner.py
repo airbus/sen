@@ -34,6 +34,25 @@ def run_sen_command(args):
         return subprocess.Popen(["./sen", "run", args], start_new_session=True)
 
 
+def end(instance, hard=False):
+    """Ends an instance and anything it started.
+
+    terminate() and kill() end one process. On Windows the children carry on holding
+    what they inherited from it -- a listening socket, and the pipes whatever is
+    reading this output waits on. taskkill walks the tree instead.
+    """
+    if os.name == "nt":
+        subprocess.run(  # noqa: S603
+            ["taskkill", "/pid", str(instance.pid), "/t", "/f"],  # noqa: S607
+            check=False,
+            capture_output=True,
+        )
+    elif hard:
+        instance.kill()
+    else:
+        instance.terminate()
+
+
 def stop(instances):
     """Stops the given instances and says how each of them ended.
 
@@ -43,14 +62,14 @@ def stop(instances):
     """
     ended_early = {instance.pid for instance in instances if instance.poll() is not None}
     for instance in instances:
-        instance.terminate()
+        end(instance)
     ignored_the_request = set()
     for instance in instances:
         try:
             instance.wait(timeout=SHUTDOWN_GRACE_SECONDS)
         except subprocess.TimeoutExpired:
             ignored_the_request.add(instance.pid)
-            instance.kill()
+            end(instance, hard=True)
             instance.wait()
 
     for instance in instances:
