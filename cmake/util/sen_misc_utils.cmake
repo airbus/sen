@@ -667,8 +667,6 @@ function(sen_configure_target target_name)
         "$<$<CONFIG:Release>:/O2;/Ox;/Ob2;/MD;/GR;/c>"
     )
 
-    target_compile_definitions(${target_name} PRIVATE _WIN32_WINNT=0x0A00)
-
     # disable manifest generation
     target_link_options(${target_name} PRIVATE /MANIFEST:NO)
   else()
