@@ -19,6 +19,11 @@ built against Sen.
 | Build a backend service that bridges Sen to another protocol | `@sen/client` |
 | Talk to Sen from a non-TypeScript language | Write a client against `jsonrpc.stl` directly |
 
+The data types in the examples below can be generated from your own model rather than written by
+hand: `sen generate ts` writes TypeScript declarations for your structs, enums and variants, and an
+interface for each event's payload. Methods and properties are not generated, so calls are still
+made by name. See [Code generation](../users_guide/code_generation.md).
+
 ## Hello, animals
 
 In one terminal, start a Sen process exposing the bundled `animals` package:

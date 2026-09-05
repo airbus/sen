@@ -30,6 +30,8 @@ an acronym nor an abbreviation, but a noun.
   starts from an empty directory.
 - The [examples](examples/index.md) are a graded set of working packages, ordered by complexity.
 - The [manual](users_guide/index.md) covers the ideas, the interface language and the runtime.
+- [Code generation](users_guide/code_generation.md) covers what Sen writes from your interface
+  definition, and how to ask for it.
 - The [glossary](users_guide/glossary.md) covers the terms Sen redefines, and the ones that collide
   with something you already know.
 - The [how-to guides](howto_guides/index.md) each answer one question, and the

@@ -53,6 +53,9 @@ disagree about a type. [Sen Query Language](sql.md) is how you filter objects.
 for the YAML that `sen run` takes, and [Command line](command_line.md) documents the commands
 themselves. [CMake](cmake.md) documents the build functions your own package will call.
 
+[Code generation](code_generation.md) covers what Sen writes from your model, how to ask for it
+from a build or from the command line, and what surprises people about each generator.
+
 **The libraries**, if you are working against the C++ API directly:
 [core](core_library.md) for the base types, [kernel](kernel_library.md) for the runtime,
 [util](util_library.md) for the helpers, [db](db_library.md) for recorded data and

@@ -14,6 +14,7 @@ set(cli_gen_sources
     io.cpp
     io.h
     cpp_cli.cpp
+    html_cli.cpp
     json_cli.cpp
     mkdocs_cli.cpp
     plantuml_cli.cpp

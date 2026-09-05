@@ -53,11 +53,12 @@ Included in the same examples directory, you can find a set of example applicati
 
 ## Generated documentation
 
-Sen writes documentation from your interface definitions, so it cannot drift from the code. For
-example:
+Sen writes documentation from your interface definitions, so it cannot drift from the code. These
+two are not packages you can run, unlike everything above: they are what the generators produce,
+kept here because seeing one is quicker than reading about it.
 
 - [UML generation](generated_uml.md): class diagrams, here drawn from an HLA FOM
-- [Web generation](../snippets/fom.md): a browsable interface reference, here for an HLA FOM
+- [HTML reference](generated_reference.md): a browsable interface reference, here for an HLA FOM
 
 ## Reference material
 

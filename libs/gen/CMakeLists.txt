@@ -182,6 +182,39 @@ set(typescript_sources src/typescript/typescript_generator.cpp src/typescript/ty
 )
 
 # -------------------------------------------------------------------------------------------------------------
+# HTML Generator
+# -------------------------------------------------------------------------------------------------------------
+
+# The application is data, not a template: baked in whole so the generator can write it out
+# beside the model without needing anything from the filesystem it runs on.
+#
+# Globbed by extension rather than by directory, because everything picked up here becomes a
+# header named after the file stem: a stray .DS_Store or editor backup would fail the
+# configure, and two files sharing a stem would collide. The cost is that an asset added with
+# an extension not listed here is dropped in silence, so add the pattern with the file.
+file(
+  GLOB
+  html_app_files
+  CONFIGURE_DEPENDS
+  "src/html/app/*.html"
+  "src/html/app/*.css"
+  "src/html/app/*.js"
+  "src/html/app/*.svg"
+)
+
+sen_internal_generate_template_headers(
+  OUTDIR
+  ${CMAKE_CURRENT_BINARY_DIR}/gen/html_app
+  GEN_FILE_LIST
+  html_app_dumps
+  TEMPLATE_FILES
+  ${html_app_files}
+)
+
+set(html_public_headers include/sen/gen/html.h)
+set(html_sources src/html/html_generator.cpp src/html/html_app.cpp src/html/html_app.h)
+
+# -------------------------------------------------------------------------------------------------------------
 # Library
 # -------------------------------------------------------------------------------------------------------------
 
@@ -207,6 +240,9 @@ add_library(
   ${typescript_public_headers}
   ${typescript_sources}
   ${typescript_template_dumps}
+  ${html_public_headers}
+  ${html_sources}
+  ${html_app_dumps}
 )
 add_library(sen::gen ALIAS gen)
 sen_internal_configure_lib(gen)
@@ -258,6 +294,10 @@ source_group("typescript/public" FILES ${typescript_public_headers})
 source_group("typescript/sources" FILES ${typescript_sources})
 source_group("typescript/templates" FILES ${typescript_templates})
 source_group("typescript/templates/dumps" FILES ${typescript_template_dumps})
+source_group("html/public" FILES ${html_public_headers})
+source_group("html/sources" FILES ${html_sources})
+source_group("html/app" FILES ${html_app_files})
+source_group("html/app/dumps" FILES ${html_app_dumps})
 
 sen_internal_install(gen)
 
@@ -268,6 +308,7 @@ install(
         ${plantuml_public_headers}
         ${mkdocs_public_headers}
         ${typescript_public_headers}
+        ${html_public_headers}
   DESTINATION libs/gen/include/sen/gen
 )
 
