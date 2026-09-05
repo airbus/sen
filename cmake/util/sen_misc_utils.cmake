@@ -635,6 +635,7 @@ function(sen_configure_target target_name)
       PRIVATE
         /MP
         /W3 # baseline reasonable warnings
+        /WX # warnings are errors, as -Werror does for gcc and clang
         /w14263 # function: member function does not override any base class virtual member function
         /w14265 # classname: class has virtual functions, but destructor is not virtual
         /w14287 # operator: unsigned/negative constant mismatch
