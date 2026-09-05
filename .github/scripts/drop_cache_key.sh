@@ -18,6 +18,9 @@ set -euo pipefail
 key="${1:?usage: drop_cache_key.sh <key>}"
 : "${GH_TOKEN:?GH_TOKEN must be set}"
 repo="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be set}"
+# Endpoints have no leading slash: this runs on Windows too, where git bash
+# rewrites a leading-slash argument into a filesystem path and gh is handed
+# "C:/Program Files/Git/repos/...".
 
 if [ "${GITHUB_REF:-}" != "refs/heads/main" ]; then
     echo "not on main (${GITHUB_REF:-unset}); leaving '$key' alone"
@@ -25,7 +28,7 @@ if [ "${GITHUB_REF:-}" != "refs/heads/main" ]; then
 fi
 
 list_entries() {
-    gh api "/repos/$repo/actions/caches" --paginate \
+    gh api "repos/$repo/actions/caches" --paginate \
         --jq '.actions_caches[] | "\(.id) \(.key)"'
 }
 
@@ -50,7 +53,7 @@ fi
 
 printf '%s\n' "$doomed" | while read -r id name; do
     [ -z "$id" ] && continue
-    if gh api -X DELETE "/repos/$repo/actions/caches/$id" >/dev/null 2>&1; then
+    if gh api -X DELETE "repos/$repo/actions/caches/$id" >/dev/null 2>&1; then
         echo "  dropped $name"
     else
         echo "  already gone, or another job took it: $name"
