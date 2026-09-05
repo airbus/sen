@@ -112,8 +112,7 @@ void Executor::startUp(bool tryToLockPages, bool tryToLimitCpuIdleLatency)
     // applies to the whole machine, for as long as the descriptor is held.
     if (tryToLimitCpuIdleLatency && cpuIdleLatencyFd_ == -1)
     {
-      cpuIdleLatencyFd_ =
-        ::open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);  // NOLINT(cppcoreguidelines-pro-type-vararg)
+      cpuIdleLatencyFd_ = ::open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);  // NOLINT(hicpp-vararg)
       const int32_t noLatency = 0;
       if (cpuIdleLatencyFd_ == -1 || ::write(cpuIdleLatencyFd_, &noLatency, sizeof(noLatency)) != sizeof(noLatency))
       {
