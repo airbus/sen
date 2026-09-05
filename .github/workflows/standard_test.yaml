@@ -171,7 +171,19 @@ jobs:
           if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
             source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           fi
-          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
+          # ctest directly, not through the run_tests target. The target runs these
+          # same three commands, and on Windows cmake --build does not return once
+          # they finish. Measured 2026-09-05: all 1832 tests pass, the three return
+          # in 2m41s when run by hand, and ninja then sits with no children of its
+          # own until the bound above stops it. Keep these in step with
+          # CMAKE_CTEST_ARGUMENTS in cmake/util/test.cmake, which is where the
+          # target gets them.
+          cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
+          ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
+            --stop-on-failure --output-on-failure --timeout 20 --schedule-random -LE flaky
+          ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
+            --stop-on-failure --output-on-failure --timeout 20 --schedule-random -L flaky
+          junitparser merge ctestParallelReport.xml ctestFlakyReport.xml ctestReport.xml
 
       # The report target runs the suite itself, so this replaces the step above
       # rather than following it. Without it the leg pays for instrumentation
