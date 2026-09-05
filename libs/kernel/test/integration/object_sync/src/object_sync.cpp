@@ -7,6 +7,9 @@
 
 #include "stl/object_sync.stl.h"
 
+// test_helpers
+#include "test_helpers/helpers.h"
+
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
@@ -27,10 +30,12 @@
 
 // std
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <string_view>
@@ -72,6 +77,40 @@ constexpr auto staticNoConfigPropValue = TestEnum::second;
   return {distInteger(gen), generateString(gen, static_cast<int>(distStrLen(gen))), distFloat(gen)};
 }
 
+[[nodiscard]] TestEnum generateEnum(std::mt19937& gen)
+{
+  return static_cast<TestEnum>(std::uniform_int_distribution(0, 2)(gen));
+}
+
+template <typename ValueType, typename Func>
+inline std::optional<size_t> getFirstUpdateIndex(ValueType value, Func&& randomGen)
+{
+  constexpr auto maxFirstUpdateIndex = 1000;
+  for (size_t i = 0; i < maxFirstUpdateIndex; ++i)
+  {
+    std::mt19937 gen {generatorSeed};
+    gen.discard(i);
+
+    const auto generatedVal = randomGen(gen);
+    if constexpr (std::is_floating_point_v<decltype(generatedVal)>)
+    {
+      if (std::abs(generatedVal - value) < 1e-6)
+      {
+        return i;  // found the matching position
+      }
+    }
+    else
+    {
+      if (generatedVal == value)
+      {
+        return i;
+      }
+    }
+  }
+
+  return std::nullopt;  // value was not found within the limits
+}
+
 }  // namespace
 
 /// Object used when testing class member synchronization
@@ -82,10 +121,7 @@ public:
 
 public:
   TestObjectImpl(const std::string& name, const u8 staticProp)
-    : TestObjectBase(name, staticProp)
-    , logger_(spdlog::stdout_color_mt(name))
-    , gen_(generatorSeed)
-    , localMethodGen_(generatorSeed)
+    : TestObjectBase(name, staticProp), logger_(spdlog::stdout_color_mt(name))
   {
     // set static no config property
     setNextStaticNoConfigProp(staticNoConfigPropValue);
@@ -98,883 +134,774 @@ public:
   {
     std::ignore = runApi;
 
-    if (!doUpdate_)
-    {
-      return;
-    }
-
-    // keeps track of the number of updates
-    setNextUpdateId(++updateCounter_);
+    updateCounter_++;
 
     // update best effort prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     setNextBestEffortProp(std::uniform_real_distribution()(gen_));
 
     // update confirmed prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     setNextConfirmedProp(generateStruct(gen_));
 
     // update multicast prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     setNextMulticastProp(std::uniform_real_distribution()(gen_));
 
     // best effort event
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     bestEffortEvent(updateCounter_, generateStruct(gen_));
 
     // confirmed event
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     confirmedEvent(updateCounter_, generateString(gen_));
 
     // update multicast prop
-    gen_.seed(generatorSeed);
-    gen_.discard(updateCounter_);
+    resetGen();
     multicastEvent(updateCounter_, std::uniform_real_distribution()(gen_));
   }
 
 protected:
   [[nodiscard]] u32 constMethodImpl(const TestEnum& arg) const override { return static_cast<u32>(arg); }
   [[nodiscard]] u8 confirmedMethodImpl(u64 arg) override { return static_cast<u8>(arg); }
-  [[nodiscard]] bool bestEffortMethodImpl(const std::string& arg) override
+  [[nodiscard]] u64 bestEffortMethodImpl(const std::string& arg) override { return std::hash<std::string>()(arg); }
+  void resetGen()
   {
-    std::ignore = arg;
-    return true;
+    gen_.seed(generatorSeed);
+    gen_.discard(updateCounter_);
   }
-  [[nodiscard]] u16 localMethod() override { return localMethodDist_(gen_); }
-  void doUpdateImpl() override { doUpdate_ = true; }
+  [[nodiscard]] u16 localMethod() override { return std::uniform_int_distribution<uint16_t>()(localMethodGen_); }
 
 private:
   std::shared_ptr<spdlog::logger> logger_;
   uint32_t updateCounter_ = 0U;
-  std::mt19937 gen_;
-  bool doUpdate_ = false;
-
-  // method distributions
-  std::mt19937 localMethodGen_;
-  std::uniform_int_distribution<uint16_t> localMethodDist_;
+  std::mt19937 gen_ {generatorSeed};
+  std::mt19937 localMethodGen_ {generatorSeed};
 };
 
 /// Publishes/Unpublishes the TestObject
-class PublisherImpl final: public PublisherBase
+class PublisherObjectSync final: public sen::test::PublisherImpl
 {
 public:
-  SEN_NOCOPY_NOMOVE(PublisherImpl)
+  SEN_NOCOPY_NOMOVE(PublisherObjectSync)
 
 public:
-  PublisherImpl(std::string name, const sen::VarMap& args)
-    : PublisherBase(name, args), logger_(spdlog::stdout_color_mt(name))
-  {
-  }
-
-  ~PublisherImpl() override = default;
+  using PublisherImpl::PublisherImpl;
+  ~PublisherObjectSync() override = default;
 
 public:
   void registered(sen::kernel::RegistrationApi& api) override
   {
-    listenerStates_.reserve(getNumOfListeners());
-
-    // detect listeners (used for test shutdown)
-    listenerSub_ = api.selectAllFrom<ListenerInterface>(
-      "session.bus",
-      [this, &api](const auto& addedObjects)
-      {
-        detectedListeners_ += std::distance(addedObjects.begin(), addedObjects.end());
-        for (auto* listener: addedObjects)
-        {
-          listenerStates_[listener->asObject().getId()] = listener->getState();
-          guards_.emplace_back(
-            listener->onStateChanged({this,
-                                      [this, &api, listener]()
-                                      {
-                                        std::ignore = api;
-                                        const auto& id = listener->asObject().getId();
-                                        const auto& name = listener->asObject().getName();
-                                        const auto& state = listener->getState();
-
-                                        logger_->info("{} received on state changed from {} to {}",
-                                                      getName(),
-                                                      name,
-                                                      sen::StringConversionTraits<ListenerState>::toString(state));
-
-                                        listenerStates_[id] = state;
-
-                                        // remove the test object from the bus if all listeners are in sync
-                                        if (allListenersWithState(ListenerState::inSync))
-                                        {
-                                          listenerStates_.clear();
-
-                                          logger_->info("{} removing {}", getName(), object_->getName());
-                                          bus_->remove(object_);
-                                        }
-
-                                        // shutdown the process kernel if all listeners are finished
-                                        if (allListenersWithState(ListenerState::finished))
-                                        {
-                                          logger_->info("{} commanding kernel stop", getName());
-                                          api.requestKernelStop();
-                                        }
-
-                                        if (allListenersWithState(ListenerState::ready))
-                                        {
-                                          // start updating the object with all listeners are ready
-                                          object_->doUpdate();
-                                          logger_->info("listeners ready");
-                                        }
-                                      }}));
-        }
-
-        // publish the test object when all expected listeners have been detected
-        if (detectedListeners_ == getNumOfListeners())
-        {
-          // publish the test object
-          bus_ = api.getSource("session.bus");
-          object_ = std::make_shared<TestObjectImpl>("testObject", staticPropValue);
-          logger_->info("publishing test object");
-          bus_->add(object_);
-        }
-      });
+    PublisherImpl::registered(api);
+    bus_ = api.getSource("session.bus");
   }
 
-private:
-  [[nodiscard]] bool allListenersWithState(const ListenerState state)
+protected:
+  void action1() override
   {
-    return listenerStates_.size() == getNumOfListeners() &&
-           std::all_of(listenerStates_.begin(),
-                       listenerStates_.end(),
-                       [state](const auto& pair) { return pair.second == state; });
+    object_ = std::make_shared<TestObjectImpl>("testObject", staticPropValue);
+    bus_->add(object_);
+
+    PublisherImpl::action1();
+  }
+
+  // NOTE: we use action3 here because we install the onRemoved callback in the listener's check2()
+  void action3() override
+  {
+    bus_->remove(object_);
+
+    PublisherImpl::action3();
   }
 
 private:
-  std::shared_ptr<spdlog::logger> logger_;
   std::shared_ptr<sen::ObjectSource> bus_;
   std::shared_ptr<TestObjectImpl> object_;
-  std::shared_ptr<sen::Subscription<ListenerInterface>> listenerSub_;
-  std::unordered_map<sen::ObjectId, ListenerState> listenerStates_;
-  std::vector<sen::ConnectionGuard> guards_;
-  uint32_t detectedListeners_ = 0U;
 };
 
-SEN_EXPORT_CLASS(PublisherImpl)
-
-/// Contains all data from TestObject received on the listeners
-struct ListenedData
-{
-  // static props
-  uint8_t staticProp;
-  TestEnum staticNoConfigProp;
-
-  // dynamic props
-  std::vector<float64_t> bestEffortPropUpdates;
-  std::vector<TestStruct> confirmedPropUpdates;
-  std::vector<OptF32> multicastPropUpdates;
-  std::vector<WritablePropType> writablePropUpdates;
-
-  // events
-  std::unordered_map<uint32_t, TestStruct> bestEffortEventData;
-  std::unordered_map<uint32_t, std::string> confirmedEventData;
-  std::unordered_map<uint32_t, OptF32> multicastEventData;
-};
+SEN_EXPORT_CLASS(PublisherObjectSync)
 
 /// Detects changes in the TestObject members (from the same, or a different component or process)
-class ListenerImpl: public ListenerBase
+class ListenerObjectSyncImpl: public ListenerObjectSyncBase<sen::test::ListenerImpl>
 {
 public:
-  SEN_NOCOPY_NOMOVE(ListenerImpl)
+  SEN_NOCOPY_NOMOVE(ListenerObjectSyncImpl)
 
 public:
-  ListenerImpl(std::string name, const sen::VarMap& args)
-    : ListenerBase(name, args), logger_(spdlog::stdout_color_mt(name))
-  {
-  }
-
-  ~ListenerImpl() override = default;
+  using ListenerObjectSyncBase::ListenerObjectSyncBase;
+  ~ListenerObjectSyncImpl() override = default;
 
 public:
   void registered(sen::kernel::RegistrationApi& api) override
   {
-    // detect all other listeners
-    listenerSub_ = api.selectAllFrom<ListenerInterface>("session.bus");
-
-    // listen to test objects
+    ListenerObjectSyncBase::registered(api);
     bus_ = api.getSource("session.bus");
-    bus_->addSubscriber(sen::Interest::make(getQuery(), api.getTypes()), &objList_, true);
+    bus_->addSubscriber(sen::Interest::make(getQuery(), api.getTypes()), &list_, true);
+  }
 
-    std::ignore = objList_.onAdded(
+protected:
+  virtual void onTestObjectAdded(TestObjectInterface* obj)
+  {
+    std::ignore = obj;
+    ListenerImpl::check1();
+  }
+
+  virtual void onTestObjectRemoved(TestObjectInterface* obj)
+  {
+    std::ignore = obj;
+    ListenerImpl::check3();
+  }
+
+protected:  // implements ListenerImpl
+  void check1() override
+  {
+    std::ignore = list_.onAdded(
       [this](const auto& addedObjects)
       {
-        if (addedObjects.begin() != addedObjects.end())
-        {
-          testObject_ = *addedObjects.begin();
-
-          logger_->info("{} detected {}", getName(), testObject_->asObject().getName());
-
-          // store static data
-          data_.staticProp = testObject_->getStaticProp();
-          data_.staticNoConfigProp = testObject_->getStaticNoConfigProp();
-          doSync();
-
-          // property update callbacks
-          objGuards_.emplace_back(testObject_->onBestEffortPropChanged(
-            {this,
-             [this]()
-             {
-               doSync(testObject_->getUpdateId());
-
-               if (data_.bestEffortPropUpdates.size() < numOfChecks)
-               {
-                 data_.bestEffortPropUpdates.push_back(testObject_->getBestEffortProp());
-               }
-             }}));
-          objGuards_.emplace_back(testObject_->onConfirmedPropChanged(
-            {this,
-             [this]()
-             {
-               doSync(testObject_->getUpdateId());
-               if (data_.confirmedPropUpdates.size() < numOfChecks)
-               {
-                 data_.confirmedPropUpdates.push_back(testObject_->getConfirmedProp());
-               }
-             }}));
-          objGuards_.emplace_back(testObject_->onMulticastPropChanged(
-            {this,
-             [this]()
-             {
-               doSync(testObject_->getUpdateId());
-               if (data_.multicastPropUpdates.size() < numOfChecks)
-               {
-                 data_.multicastPropUpdates.push_back(testObject_->getMulticastProp());
-               }
-             }}));
-          objGuards_.emplace_back(
-            testObject_->onWritablePropChanged({this,
-                                                [this]()
-                                                {
-                                                  doSync(testObject_->getUpdateId());
-                                                  if (data_.writablePropUpdates.size() < numOfChecks)
-                                                  {
-                                                    data_.writablePropUpdates.push_back(testObject_->getWritableProp());
-                                                  }
-                                                }}));
-
-          objGuards_.emplace_back(
-            testObject_->onBestEffortEvent({this,
-                                            [this](const uint32_t id, const TestStruct& arg)
-                                            {
-                                              if (data_.bestEffortEventData.size() < numOfChecks)
-                                              {
-                                                if (!data_.bestEffortEventData.insert({id, arg}).second)
-                                                {
-                                                  // Key was repeated; result.first points to the existing
-                                                  // element
-                                                  repeatedEventsReceived_ = true;
-                                                }
-                                              }
-                                            }}));
-          objGuards_.emplace_back(
-            testObject_->onConfirmedEvent({this,
-                                           [this](const uint32_t id, const std::string& arg)
-                                           {
-                                             if (data_.confirmedEventData.size() < numOfChecks)
-                                             {
-                                               if (!data_.confirmedEventData.insert({id, arg}).second)
-                                               {
-                                                 // Key was repeated; result.first points to the existing
-                                                 // element
-                                                 repeatedEventsReceived_ = true;
-                                               }
-                                             }
-                                           }}));
-          objGuards_.emplace_back(
-            testObject_->onMulticastEvent({this,
-                                           [this](const uint32_t id, const OptF32& arg)
-                                           {
-                                             if (data_.multicastEventData.size() < numOfChecks)
-                                             {
-                                               if (!data_.multicastEventData.insert({id, arg}).second)
-                                               {
-                                                 // Key was repeated; result.first points to the existing
-                                                 // element
-                                                 repeatedEventsReceived_ = true;
-                                               }
-                                             }
-                                           }}));
-
-          setNextState(ListenerState::ready);
-        }
+        SEN_ASSERT(std::distance(addedObjects.begin(), addedObjects.end()) == 1);
+        onTestObjectAdded(*addedObjects.begin());
       });
+  }
 
-    std::ignore = objList_.onRemoved(
+  void check2() override
+  {
+    std::ignore = list_.onRemoved(
       [this](const auto& removedObjects)
       {
-        if (removedObjects.begin() != removedObjects.end())
-        {
-          // clear callbacks associated to the object
-          testObject_ = nullptr;
-          doChecks();
-          setNextState(ListenerState::finished);
-          logger_->info("{} moved to finished state", getName());
-        }
+        SEN_ASSERT(std::distance(removedObjects.begin(), removedObjects.end()) == 1);
+        onTestObjectRemoved(*removedObjects.begin());
       });
 
-    // detect when the listener has finished and stop the kernel if all other listeners are finished
-    listenersGuard_ =
-      onStateChanged({this,
-                      [this, &api]()
-                      {
-                        // if all listeners are finished, stop the process
-                        if (std::all_of(listenerSub_->list.getObjects().begin(),
-                                        listenerSub_->list.getObjects().end(),
-                                        [](const auto* elem) { return elem->getState() == ListenerState::finished; }))
-                        {
-                          logger_->info("stopping listener process", getName());
-                          api.requestKernelStop();
-                        }
-                      }});
+    ListenerImpl::check2();
   }
-
-protected:
-  std::shared_ptr<spdlog::logger>& getLogger() { return logger_; }
-  [[nodiscard]] const ListenedData& getData() const noexcept { return data_; }
-  [[nodiscard]] TestObjectInterface* getTestObject() const noexcept { return testObject_; }
-  [[nodiscard]] uint32_t getFirstUpdateId() const noexcept { return firstUpdateId_; }
-  [[nodiscard]] bool getRepeatedEventsReceived() const noexcept { return repeatedEventsReceived_; }
-
-protected:
-  /// Synchronizes received updates and change the state to onSync when the required updates are received
-  virtual void doSync(uint32_t updateId = 0)  // NOLINT [google-default-arguments]
-  {
-    if (firstUpdateId_ == 0)
-    {
-      firstUpdateId_ = updateId;
-    }
-  }
-
-private:
-  /// Asserts the correctness of the property updates received
-  virtual void doChecks() {}
 
 private:
   std::shared_ptr<sen::ObjectSource> bus_;
-  sen::ObjectList<TestObjectInterface> objList_;
-  TestObjectInterface* testObject_ = nullptr;
-  std::shared_ptr<sen::Subscription<ListenerInterface>> listenerSub_;
-  std::vector<sen::ConnectionGuard> objGuards_;
-  sen::ConnectionGuard listenersGuard_;
-  std::shared_ptr<spdlog::logger> logger_;
-  ListenedData data_ {};
-  uint32_t firstUpdateId_ = 0;  // first update ID received by the listener
-  bool repeatedEventsReceived_ =
-    false;  // true if the events where received more than once in each participant (previous bug)
-  std::vector<ListenerInterface*> listeners_;
+  sen::ObjectList<TestObjectInterface> list_;
 };
 
 /// Listener that checks if static props are synchronized correctly
-class ListenerStaticProps final: public ListenerImpl
+class ListenerStaticProps final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerStaticProps)
 
 public:
-  using ListenerImpl::ListenerImpl;
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerStaticProps() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:  // implements ListenerObjectSyncImpl
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    std::ignore = updateId;
-
-    if (getData().staticProp != 0U)
-    {
-      setNextState(ListenerState::inSync);
-    }
-  }
-
-  void doChecks() override
-  {
-    const auto& data = getData();
-
-    SEN_ASSERT(data.staticProp == staticPropValue);
-    SEN_ASSERT(data.staticNoConfigProp == staticNoConfigPropValue);
+    SEN_ASSERT(obj->getStaticProp() == staticPropValue);
+    SEN_ASSERT(obj->getStaticNoConfigProp() == staticNoConfigPropValue);
+    ListenerObjectSyncImpl::onTestObjectAdded(obj);
   }
 };
 
 SEN_EXPORT_CLASS(ListenerStaticProps)
 
 /// Listener that checks if static props are synchronized correctly
-class ListenerBestEffortProps final: public ListenerImpl
+class ListenerBestEffortProps final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerBestEffortProps)
 
 public:
-  using ListenerImpl::ListenerImpl;
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerBestEffortProps() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    ListenerImpl::doSync(updateId);
+    bestEffortPropUpdates_.reserve(numOfChecks);
+    guard_ = obj->onBestEffortPropChanged(
+      {this,
+       [this, obj]()
+       {
+         if (!firstUpdateIndex_)
+         {
+           firstUpdateIndex_ = getFirstUpdateIndex(
+             obj->getBestEffortProp(), [](std::mt19937& gen) { return std::uniform_real_distribution()(gen); });
+         }
 
-    if (getData().bestEffortPropUpdates.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+         bestEffortPropUpdates_.push_back(obj->getBestEffortProp());
+         if (bestEffortPropUpdates_.size() == numOfChecks)
+         {
+           for (size_t i = 0; i < bestEffortPropUpdates_.size(); ++i)
+           {
+             // TODO: do we need to check this inside the loop?
+             std::mt19937 gen {generatorSeed};
+             gen.discard(*firstUpdateIndex_ + i);
+             SEN_ASSERT(bestEffortPropUpdates_[i] - std::uniform_real_distribution()(gen) < 1e-6);
+           }
+
+           ListenerObjectSyncImpl::onTestObjectAdded(obj);
+         }
+       }});
   }
 
-  void doChecks() override
+  void onTestObjectRemoved(TestObjectInterface* obj) override
   {
-    const auto& data = getData();
-
-    SEN_ASSERT(data.bestEffortPropUpdates.size() == numOfChecks);
-
-    // generator for the updates
-    for (uint32_t i = 0; i < numOfChecks; ++i)
-    {
-      gen_.seed(generatorSeed);
-      gen_.discard(getFirstUpdateId() + i);
-      SEN_ASSERT(data.bestEffortPropUpdates[i] - std::uniform_real_distribution()(gen_) < 1e-6);
-    }
+    guard_ = {};
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
-  std::mt19937 gen_ {generatorSeed};
+  std::vector<float64_t> bestEffortPropUpdates_;
+  sen::ConnectionGuard guard_;
+  std::optional<size_t> firstUpdateIndex_ = std::nullopt;
 };
 
 SEN_EXPORT_CLASS(ListenerBestEffortProps)
 
 /// Listener that checks if static props are synchronized correctly
-class ListenerConfirmedProps final: public ListenerImpl
+class ListenerConfirmedProps final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerConfirmedProps)
 
 public:
-  using ListenerImpl::ListenerImpl;
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerConfirmedProps() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:  // implements ListenerObjectSyncImpl
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    ListenerImpl::doSync(updateId);
+    confirmedPropUpdates_.reserve(numOfChecks);
+    guard_ = obj->onConfirmedPropChanged({this,
+                                          [this, obj]()
+                                          {
+                                            if (!firstUpdateIndex_)
+                                            {
+                                              firstUpdateIndex_ = getFirstUpdateIndex(obj->getConfirmedProp(),
+                                                                                      [](std::mt19937& gen)
+                                                                                      { return generateStruct(gen); });
+                                            }
 
-    if (getData().confirmedPropUpdates.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+                                            confirmedPropUpdates_.push_back(obj->getConfirmedProp());
+
+                                            if (confirmedPropUpdates_.size() == numOfChecks)
+                                            {
+                                              for (size_t i = 0; i < confirmedPropUpdates_.size(); ++i)
+                                              {
+                                                // TODO: do we need to check this inside the loop?
+
+                                                std::mt19937 gen {generatorSeed};
+                                                gen.discard(*firstUpdateIndex_ + i);
+                                                SEN_ASSERT(confirmedPropUpdates_[i] == generateStruct(gen));
+                                              }
+
+                                              ListenerObjectSyncImpl::onTestObjectAdded(obj);
+                                            }
+                                          }});
   }
 
-  void doChecks() override
-  {
-    const auto& data = getData();
-    SEN_ASSERT(data.confirmedPropUpdates.size() == numOfChecks);
-
-    // generator for the updates
-    for (uint32_t i = 0; i < numOfChecks; ++i)
-    {
-      std::mt19937 gen(generatorSeed);
-      gen.discard(getFirstUpdateId() + i);
-      SEN_ASSERT(data.confirmedPropUpdates[i] == generateStruct(gen));
-    }
-  }
+private:
+  std::vector<TestStruct> confirmedPropUpdates_;
+  sen::ConnectionGuard guard_;
+  std::optional<size_t> firstUpdateIndex_ = std::nullopt;
 };
 
 SEN_EXPORT_CLASS(ListenerConfirmedProps)
 
 /// Listener that checks if multicast props are synchronized correctly
-class ListenerMulticastProps final: public ListenerImpl
+class ListenerMulticastProps final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerMulticastProps)
 
 public:
-  using ListenerImpl::ListenerImpl;
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerMulticastProps() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:  // implements ListenerObjectSyncImpl
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    ListenerImpl::doSync(updateId);
+    multicastPropUpdates_.reserve(numOfChecks);
+    guard_ = obj->onMulticastPropChanged({this,
+                                          [this, obj]()
+                                          {
+                                            if (!firstUpdateIndex_)
+                                            {
+                                              firstUpdateIndex_ =
+                                                getFirstUpdateIndex(static_cast<float64_t>(*obj->getMulticastProp()),
+                                                                    [](std::mt19937& gen)
+                                                                    { return std::uniform_real_distribution()(gen); });
+                                            }
 
-    if (getData().multicastPropUpdates.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+                                            multicastPropUpdates_.push_back(obj->getMulticastProp());
+
+                                            if (multicastPropUpdates_.size() == numOfChecks)
+                                            {
+                                              for (size_t i = 0; i < multicastPropUpdates_.size(); ++i)
+                                              {
+                                                // TODO: do i need to create the gen inside the loop?
+                                                std::mt19937 gen {generatorSeed};
+                                                gen.discard(*firstUpdateIndex_ + i);
+                                                SEN_ASSERT(abs(static_cast<float64_t>(*multicastPropUpdates_[i]) -
+                                                               std::uniform_real_distribution()(gen)) < 1e-4);
+                                              }
+
+                                              ListenerObjectSyncImpl::onTestObjectAdded(obj);
+                                            }
+                                          }});
   }
 
-  void doChecks() override
+  void onTestObjectRemoved(TestObjectInterface* obj) override
   {
-    const auto& data = getData();
-    SEN_ASSERT(data.multicastPropUpdates.size() == numOfChecks);
-
-    // generator for the updates
-    for (uint32_t i = 0; i < numOfChecks; ++i)
-    {
-      std::mt19937 gen(generatorSeed);
-      gen.discard(getFirstUpdateId() + i);
-      SEN_ASSERT(data.multicastPropUpdates[i].asOptional().has_value());
-      if (data.multicastPropUpdates[i].asOptional().has_value())
-      {
-        SEN_ASSERT(data.multicastPropUpdates[i].asOptional().value() ==
-                   static_cast<float32_t>(std::uniform_real_distribution()(gen)));
-      }
-    }
+    guard_ = {};
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
+
+private:
+  std::vector<OptF32> multicastPropUpdates_;
+  sen::ConnectionGuard guard_;
+  std::optional<size_t> firstUpdateIndex_ = std::nullopt;
 };
 
 SEN_EXPORT_CLASS(ListenerMulticastProps)
 
 /// Listener that checks if writable props are synchronized . We just send the update ID in the writable prop directly
-class ListenerWritableProps final: public ListenerImpl
+class ListenerWritableProps final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerWritableProps)
 
 public:
-  ListenerWritableProps(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed)
-  {
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerWritableProps() override = default;
 
 public:
   void update(sen::kernel::RunApi& runApi) override
   {
-    std::ignore = runApi;
+    ListenerObjectSyncImpl::update(runApi);
 
-    // set the writable property
-    if (auto* obj = getTestObject(); obj != nullptr)
+    if (testObject_ != nullptr)
     {
-      obj->setNextWritableProp({counter_++, updateDist_(gen_)});
+      testObject_->setNextWritableProp({counter_++, std::uniform_int_distribution<uint64_t>()(gen_)});
     }
   }
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    std::ignore = updateId;
-
-    if (getData().writablePropUpdates.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+    testObject_ = obj;
+    writablePropUpdates_.reserve(numOfChecks);
+    guard_ = obj->onWritablePropChanged({this,
+                                         [this, obj]()
+                                         {
+                                           writablePropUpdates_.push_back(obj->getWritableProp());
+                                           if (writablePropUpdates_.size() == numOfChecks)
+                                           {
+                                             for (const auto& [id, value]: writablePropUpdates_)
+                                             {
+                                               std::mt19937_64 gen {generatorSeed};
+                                               gen.discard(id);
+                                               SEN_ASSERT(value == std::uniform_int_distribution<uint64_t>()(gen));
+                                             }
+                                             ListenerObjectSyncImpl::onTestObjectAdded(obj);
+                                           }
+                                         }});
   }
 
-  void doChecks() override
+  void onTestObjectRemoved(TestObjectInterface* obj) override
   {
-    const auto& updates = getData().writablePropUpdates;
-
-    for (const auto& [id, value]: updates)
-    {
-      gen_.seed(generatorSeed);
-      updateDist_.reset();
-      gen_.discard(id);
-      SEN_ASSERT(value == updateDist_(gen_));
-    }
+    testObject_ = nullptr;
+    guard_ = {};
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
   uint32_t counter_ = 0U;
-  std::mt19937_64 gen_;
-  std::uniform_int_distribution<uint64_t> updateDist_;
+  TestObjectInterface* testObject_ = nullptr;
+  std::mt19937_64 gen_ {generatorSeed};
+  std::vector<WritablePropType> writablePropUpdates_;
+  sen::ConnectionGuard guard_;
 };
 
 SEN_EXPORT_CLASS(ListenerWritableProps)
 
 /// Listener that checks if best effort events are transmitted correctly
-class ListenerBestEffortEvent final: public ListenerImpl
+class ListenerBestEffortEvent final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerBestEffortEvent)
 
 public:
-  ListenerBestEffortEvent(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed)
-  {
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerBestEffortEvent() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    std::ignore = updateId;
-    if (getData().bestEffortEventData.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+    bestEffortEventData_.reserve(numOfChecks);
+    guard_ = obj->onBestEffortEvent({this,
+                                     [this, obj](u32 id, const TestStruct& value)
+                                     {
+                                       bestEffortEventData_.emplace(id, value);
+                                       if (bestEffortEventData_.size() == numOfChecks)
+                                       {
+                                         for (const auto& event: bestEffortEventData_)
+                                         {
+                                           std::mt19937 gen {generatorSeed};
+                                           gen.discard(event.first);
+                                           SEN_ASSERT(generateStruct(gen) == event.second);
+                                         }
+                                         ListenerObjectSyncImpl::onTestObjectAdded(obj);
+                                       }
+                                     }});
   }
 
-  void doChecks() override
+  void onTestObjectRemoved(TestObjectInterface* obj) override
   {
-    const auto& data = getData();
-    SEN_ASSERT(data.bestEffortEventData.size() == numOfChecks);
-
-    // generator for the updates
-    for (const auto& [id, value]: data.bestEffortEventData)
-    {
-      gen_.seed(generatorSeed);
-      gen_.discard(id);
-      SEN_ASSERT(value == generateStruct(gen_));
-    }
-    // check that the event was not received multiple times
-    SEN_ASSERT(!getRepeatedEventsReceived());
+    guard_ = {};
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
-  std::mt19937 gen_;
+  std::unordered_map<uint32_t, TestStruct> bestEffortEventData_;
+  sen::ConnectionGuard guard_;
 };
 
 SEN_EXPORT_CLASS(ListenerBestEffortEvent)
 
 /// Listener that checks if confirmed events are transmitted correctly
-class ListenerConfirmedEvent final: public ListenerImpl
+class ListenerConfirmedEvent final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerConfirmedEvent)
 
 public:
-  ListenerConfirmedEvent(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed)
-  {
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerConfirmedEvent() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    std::ignore = updateId;
-    if (getData().confirmedEventData.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+    confirmedEventData_.reserve(numOfChecks);
+    guard_ = obj->onConfirmedEvent({this,
+                                    [this, obj](u32 id, const std::string& value)
+                                    {
+                                      confirmedEventData_.emplace(id, value);
+                                      if (confirmedEventData_.size() == numOfChecks)
+                                      {
+                                        for (const auto& event: confirmedEventData_)
+                                        {
+                                          std::mt19937 gen {generatorSeed};
+                                          gen.discard(event.first);
+                                          SEN_ASSERT(generateString(gen) == event.second);
+                                        }
+
+                                        ListenerObjectSyncImpl::onTestObjectAdded(obj);
+                                      }
+                                    }});
   }
 
-  void doChecks() override
+  void onTestObjectRemoved(TestObjectInterface* obj) override
   {
-    const auto& data = getData();
-    SEN_ASSERT(data.confirmedEventData.size() == numOfChecks);
-
-    // generator for the updates
-    for (const auto& [id, value]: data.confirmedEventData)
-    {
-      gen_.seed(generatorSeed);
-      gen_.discard(id);
-      SEN_ASSERT(value == generateString(gen_));
-    }
-
-    // check that the event was not received multiple times
-    SEN_ASSERT(!getRepeatedEventsReceived());
+    guard_ = {};
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
-  std::mt19937 gen_;
+  std::unordered_map<uint32_t, std::string> confirmedEventData_;
+  sen::ConnectionGuard guard_;
 };
 
 SEN_EXPORT_CLASS(ListenerConfirmedEvent)
 
 /// Listener that checks if multicast events are transmitted correctly
-class ListenerMulticastEvent final: public ListenerImpl
+class ListenerMulticastEvent final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerMulticastEvent)
 
 public:
-  ListenerMulticastEvent(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed)
-  {
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerMulticastEvent() override = default;
 
-private:  // implements ListenerImpl
-  void doSync(uint32_t updateId) override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    std::ignore = updateId;
-    if (getData().multicastEventData.size() == numOfChecks)
-    {
-      setNextState(ListenerState::inSync);
-    }
+    multicastEventData_.reserve(numOfChecks);
+    guard_ = obj->onMulticastEvent(
+      {this,
+       [this, obj](u32 id, const OptF32& value)
+       {
+         multicastEventData_.emplace(id, value);
+         if (multicastEventData_.size() == numOfChecks)
+         {
+           for (const auto& event: multicastEventData_)
+           {
+             std::mt19937 gen {generatorSeed};
+             gen.discard(event.first);
+             SEN_ASSERT(static_cast<float64_t>(*event.second) - std::uniform_real_distribution()(gen) < 1e-6);
+           }
+
+           ListenerObjectSyncImpl::onTestObjectAdded(obj);
+         }
+       }});
   }
 
-  void doChecks() override
+  void onTestObjectRemoved(TestObjectInterface* obj) override
   {
-    const auto& data = getData();
-    SEN_ASSERT(data.multicastEventData.size() == numOfChecks);
-
-    // generator for the updates
-    for (const auto& [id, value]: data.multicastEventData)
-    {
-      gen_.seed(generatorSeed);
-      gen_.discard(id);
-      SEN_ASSERT(value.asOptional().has_value());
-      if (value.asOptional().has_value())
-      {
-        SEN_ASSERT(value.asOptional().value() == static_cast<float32_t>(std::uniform_real_distribution()(gen_)));
-      }
-    }
-
-    // check that the event was not received multiple times
-    SEN_ASSERT(!getRepeatedEventsReceived());
+    guard_ = {};
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
-  std::mt19937 gen_;
+  std::unordered_map<uint32_t, OptF32> multicastEventData_;
+  sen::ConnectionGuard guard_;
 };
 
 SEN_EXPORT_CLASS(ListenerMulticastEvent)
 
 /// Listener that checks if confirmed events are transmitted correctly
-class ListenerLocalMethod final: public ListenerImpl
+class ListenerLocalMethod final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerLocalMethod)
 
 public:
-  ListenerLocalMethod(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed)
-  {
-    returnValues_.reserve(numOfChecks);
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerLocalMethod() override = default;
 
 public:
   void update(sen::kernel::RunApi& runApi) override
   {
-    std::ignore = runApi;
-    if (auto* testObject = getTestObject(); testObject != nullptr)
-    {
-      returnValues_.push_back(testObject->localMethod());
+    ListenerObjectSyncImpl::update(runApi);
 
-      if (returnValues_.size() == numOfChecks)
+    if (testObject_ != nullptr)
+    {
+      returnedValues_.push_back(testObject_->localMethod());
+      if (returnedValues_.size() == numOfChecks)
       {
-        setNextState(ListenerState::inSync);
+        std::mt19937 gen {generatorSeed};
+        for (const auto value: returnedValues_)
+        {
+          SEN_ASSERT(std::uniform_int_distribution<uint16_t>()(gen) == value);
+        }
+
+        ListenerObjectSyncImpl::onTestObjectAdded(testObject_);
       }
     }
   }
 
-private:  // implements ListenerImpl
-  void doChecks() override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    // generator for the updates
-    for (const auto value: returnValues_)
-    {
-      SEN_ASSERT(value == distribution_(gen_));
-    }
+    testObject_ = obj;
+    returnedValues_.reserve(numOfChecks);
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override
+  {
+    testObject_ = nullptr;
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
-  std::mt19937 gen_;
-  std::uniform_int_distribution<uint16_t> distribution_;
-  std::vector<uint16_t> returnValues_;
+  TestObjectInterface* testObject_ = nullptr;
+  std::vector<uint16_t> returnedValues_;
 };
 
 SEN_EXPORT_CLASS(ListenerLocalMethod)
 
 /// Listener that checks if confirmed return correctly when called
-class ListenerConstMethod final: public ListenerImpl
+// TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
+class ListenerConstMethod final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerConstMethod)
 
 public:
-  ListenerConstMethod(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed), distribution_(0U, 2U)
-  {
-    returnValues_.reserve(numOfChecks);
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerConstMethod() override = default;
 
 public:
   void update(sen::kernel::RunApi& runApi) override
   {
-    std::ignore = runApi;
-    if (const auto* testObject = getTestObject(); testObject != nullptr)
-    {
-      testObject->constMethod(static_cast<TestEnum>(distribution_(gen_)),
-                              {this,
-                               [this](const auto& response)
-                               {
-                                 if (response)
-                                 {
-                                   returnValues_.push_back(response.getValue());
+    ListenerObjectSyncImpl::update(runApi);
 
-                                   if (returnValues_.size() == numOfChecks)
-                                   {
-                                     setNextState(ListenerState::inSync);
-                                   }
-                                 }
-                               }});
+    if (testObject_ != nullptr && callCount_ < numOfChecks)
+    {
+      ++callCount_;
+      testObject_->constMethod(generateEnum(gen_),
+                               {this,
+                                [this](const auto& response)
+                                {
+                                  returnValues_.push_back(response.getValue());
+                                  if (returnValues_.size() == numOfChecks)
+                                  {
+                                    // generate expected series of results
+                                    std::vector<u32> expectedReturnValues;
+                                    expectedReturnValues.reserve(numOfChecks);
+                                    std::mt19937 gen {generatorSeed};
+                                    for (size_t i = 0; i < numOfChecks; ++i)
+                                    {
+                                      expectedReturnValues.push_back(static_cast<u32>(generateEnum(gen)));
+                                    }
+                                    // NOTE: this will not be needed once the work queue does not change the order of
+                                    // the return values
+                                    std::sort(returnValues_.begin(), returnValues_.end());
+                                    std::sort(expectedReturnValues.begin(), expectedReturnValues.end());
+
+                                    SEN_ASSERT(returnValues_ == expectedReturnValues);
+
+                                    ListenerObjectSyncImpl::onTestObjectAdded(testObject_);
+                                  }
+                                }});
     }
   }
 
-private:  // implements ListenerImpl
-  void doChecks() override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    // check that we have collected responses within range (expected values)
-    SEN_ASSERT(std::all_of(returnValues_.begin(), returnValues_.end(), [](uint32_t val) { return val <= 2U; }));
+    testObject_ = obj;
+    returnValues_.reserve(numOfChecks);
   }
 
 private:
-  std::mt19937 gen_;
-  std::uniform_int_distribution<uint8_t> distribution_;
+  TestObjectInterface* testObject_ = nullptr;
+  uint32_t callCount_ = 0U;
   std::vector<uint32_t> returnValues_;
+  std::mt19937 gen_ {generatorSeed};
 };
 
 SEN_EXPORT_CLASS(ListenerConstMethod)
 
 /// Listener that checks if confirmed methods return correctly when called
-class ListenerConfirmedMethod final: public ListenerImpl
+// TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
+class ListenerConfirmedMethod final: public ListenerObjectSyncImpl
 {
 public:
   SEN_NOCOPY_NOMOVE(ListenerConfirmedMethod)
 
 public:
-  ListenerConfirmedMethod(std::string name, const sen::VarMap& args)
-    : ListenerImpl(std::move(name), args), gen_(generatorSeed), distribution_(0U, 2U)
-  {
-    returnValues_.reserve(numOfChecks);
-  }
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
   ~ListenerConfirmedMethod() override = default;
 
 public:
   void update(sen::kernel::RunApi& runApi) override
   {
-    std::ignore = runApi;
-    if (const auto* testObject = getTestObject(); testObject != nullptr)
-    {
-      testObject->constMethod(static_cast<TestEnum>(distribution_(gen_)),
-                              {this,
-                               [this](const auto& response)
-                               {
-                                 if (response)
-                                 {
-                                   returnValues_.push_back(response.getValue());
+    ListenerObjectSyncImpl::update(runApi);
 
-                                   if (returnValues_.size() == numOfChecks)
-                                   {
-                                     setNextState(ListenerState::inSync);
-                                   }
-                                 }
-                               }});
+    if (testObject_ != nullptr && callCount_ < numOfChecks)
+    {
+      ++callCount_;
+      testObject_->confirmedMethod(
+        std::uniform_int_distribution<uint16_t>()(gen_),
+        {this,
+         [this](const auto& response)
+         {
+           methodResults_.push_back(response.getValue());
+
+           if (methodResults_.size() == numOfChecks)
+           {
+             std::vector<u8> expectedReturnValues;
+             expectedReturnValues.reserve(numOfChecks);
+             std::mt19937_64 gen {generatorSeed};
+             for (size_t i = 0; i < numOfChecks; ++i)
+             {
+               expectedReturnValues.push_back(static_cast<u8>(std::uniform_int_distribution<uint16_t>()(gen)));
+             }
+
+             std::sort(methodResults_.begin(), methodResults_.end());
+             std::sort(expectedReturnValues.begin(), expectedReturnValues.end());
+             SEN_ASSERT(methodResults_ == expectedReturnValues);
+             ListenerObjectSyncImpl::onTestObjectAdded(testObject_);
+           }
+         }});
     }
   }
 
-private:  // implements ListenerImpl
-  void doChecks() override
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
   {
-    // check that we have collected responses within range (expected values)
-    SEN_ASSERT(std::all_of(returnValues_.begin(), returnValues_.end(), [](uint32_t val) { return val <= 2U; }));
+    testObject_ = obj;
+    methodResults_.reserve(numOfChecks);
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override
+  {
+    testObject_ = nullptr;
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
   }
 
 private:
-  std::mt19937 gen_;
-  std::uniform_int_distribution<uint8_t> distribution_;
-  std::vector<uint32_t> returnValues_;
+  TestObjectInterface* testObject_ = nullptr;
+  std::vector<u8> methodResults_;
+  uint32_t callCount_ = 0U;
+  std::mt19937_64 gen_ {generatorSeed};
 };
 
 SEN_EXPORT_CLASS(ListenerConfirmedMethod)
+
+/// Listener that checks if best effort methods return correctly when called
+// TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
+class ListenerBestEffortMethod final: public ListenerObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(ListenerBestEffortMethod)
+
+public:
+  using ListenerObjectSyncImpl::ListenerObjectSyncImpl;
+  ~ListenerBestEffortMethod() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    ListenerObjectSyncImpl::update(runApi);
+
+    if (testObject_ != nullptr && callCount_ < numOfChecks)
+    {
+      ++callCount_;
+      testObject_->bestEffortMethod(
+        generateString(gen_),
+        {this,
+         [this](const auto& response)
+         {
+           methodResults_.push_back(response.getValue());
+
+           if (methodResults_.size() == numOfChecks)
+           {
+             std::vector<u64> expectedReturnValues;
+             expectedReturnValues.reserve(numOfChecks);
+             std::mt19937 gen {generatorSeed};
+             for (size_t i = 0; i < numOfChecks; ++i)
+             {
+               expectedReturnValues.push_back(std::hash<std::string>()(generateString(gen)));
+             }
+
+             std::sort(methodResults_.begin(), methodResults_.end());
+             std::sort(expectedReturnValues.begin(), expectedReturnValues.end());
+             SEN_ASSERT(methodResults_ == expectedReturnValues);
+             ListenerObjectSyncImpl::onTestObjectAdded(testObject_);
+           }
+         }});
+    }
+  }
+
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    testObject_ = obj;
+    methodResults_.reserve(numOfChecks);
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override
+  {
+    testObject_ = nullptr;
+    ListenerObjectSyncImpl::onTestObjectRemoved(obj);
+  }
+
+private:
+  TestObjectInterface* testObject_ = nullptr;
+  std::vector<u64> methodResults_;
+  uint32_t callCount_ = 0U;
+  std::mt19937 gen_ {generatorSeed};
+};
+
+SEN_EXPORT_CLASS(ListenerBestEffortMethod)
 
 }  // namespace object_sync
