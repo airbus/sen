@@ -428,3 +428,38 @@ add_sen_integration_test(
   REQ_DEPS cli_gen
 )
 set_tests_properties(ts_gen_structure PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
+
+# The html generator writes an application rather than a file, so both input routes are worth
+# their own checks. These assert the exit status only; what the five files contain is covered by
+# the unit tests in libs/gen/test.
+add_sen_cli_gen_smoke_test(
+  html_gen_smoke_fom
+  COMMAND ./cli_gen html fom --directories=${hla_fom_gen_test_sources}/test1/fom -o html_smoke_fom
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# The stl route registers its own -o and -t and excludes the fom one; none of that is reached by
+# the fom tests above.
+add_sen_cli_gen_smoke_test(
+  html_gen_smoke_stl
+  COMMAND ./cli_gen html stl ${hla_fom_gen_test_sources}/typescript/fixture.stl -o html_smoke_stl
+  WORKING_DIRECTORY ${working_dir}
+)
+
+# CLI11's `->required()` rejects during parsing, before runApp sees the arguments, so these gate
+# on the non-zero exit rather than on the app's --expect-failure flag.
+add_sen_cli_gen_smoke_test(
+  html_gen_smoke_missing_outdir
+  COMMAND ./cli_gen html fom --directories=${hla_fom_gen_test_sources}/test1/fom
+  WORKING_DIRECTORY ${working_dir}
+)
+set_tests_properties(html_gen_smoke_missing_outdir PROPERTIES WILL_FAIL TRUE)
+
+# An unknown flag must be refused. The six sibling generators accept and ignore one, so a typo
+# in a build script generates the wrong thing in silence.
+add_sen_cli_gen_smoke_test(
+  html_gen_smoke_unknown_flag
+  COMMAND ./cli_gen html fom --directories=${hla_fom_gen_test_sources}/test1/fom -o html_smoke_flag --nosuch
+  WORKING_DIRECTORY ${working_dir}
+)
+set_tests_properties(html_gen_smoke_unknown_flag PROPERTIES WILL_FAIL TRUE)
