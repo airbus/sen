@@ -152,6 +152,12 @@ jobs:
 
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}
+        # The suite itself is minutes: the slowest leg measured 4m35s, and Windows
+        # ran it in 59 seconds. This is here for what happens after it finishes. A
+        # process that outlives ctest holding the inherited pipes leaves the build
+        # tool waiting on a writer that never goes, with no output to say so, and
+        # on 2026-09-05 that took the whole 120-minute job budget.
+        timeout-minutes: 20
         shell: bash
         # The runner is discarded when the job ends, so the testcontainers
         # cleanup helper would only add an image pull.
@@ -172,6 +178,8 @@ jobs:
       # and produces no report.
       - name: Run tests and report coverage
         if: matrix.enable_coverage
+        # Same reason as the step above.
+        timeout-minutes: 20
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
