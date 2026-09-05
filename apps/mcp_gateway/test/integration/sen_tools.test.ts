@@ -36,6 +36,27 @@ describe("sen-mcp-gateway against a real Sen", () => {
   let client: Client;
   let transport: StdioClientTransport;
 
+  // declareInterest returns once the interest is registered; its match-set fills
+  // asynchronously, so a call naming the object straight afterwards can fail with
+  // "object not in interest match-set".
+  async function waitForObjects(interestName: string, names: readonly string[], timeoutMs = 10_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      const listed = jsonOf<{ objects: Array<{ name: string }> }>(
+        await client.callTool({ name: "listObjects", arguments: { name: interestName } }),
+      );
+      const have = new Set(listed.objects.map((o) => o.name));
+      if (names.every((n) => have.has(n))) return;
+      if (Date.now() >= deadline) {
+        throw new Error(
+          `interest "${interestName}" did not match [${names.join(", ")}] within ${timeoutMs}ms; ` +
+            `saw [${[...have].join(", ")}]`,
+        );
+      }
+      await new Promise((r) => setTimeout(r, 50));
+    }
+  }
+
   beforeAll(async () => {
     transport = new StdioClientTransport({
       command: "node",
@@ -98,6 +119,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "primary", query: "SELECT * FROM test.primary" },
     });
+    await waitForObjects("primary", ["instance1"]);
     expect(declared.isError ?? false).toBe(false);
     const declaredPayload = jsonOf<{ name: string; matched: Array<{ name: string; className: string }> }>(declared);
     expect(declaredPayload.name).toBe("primary");
@@ -138,6 +160,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "dup", query: "SELECT * FROM test.primary" },
     });
+    await waitForObjects("dup", ["instance1"]);
     expect(first.isError ?? false).toBe(false);
 
     const conflict = await client.callTool({
@@ -182,6 +205,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "rw", query: "SELECT * FROM test.primary", withSchemas: true },
     });
+    await waitForObjects("rw", ["instance1"]);
     try {
       const setResult = await client.callTool({
         name: "setProperty",
@@ -208,6 +232,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "ro", query: "SELECT * FROM test.primary" },
     });
+    await waitForObjects("ro", ["instance1"]);
     try {
       // prop1 is [static]; the wire setter rejects writes.
       const result = await client.callTool({
@@ -226,6 +251,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "calc", query: "SELECT * FROM test.secondary", withSchemas: true },
     });
+    await waitForObjects("calc", ["instance2"]);
     try {
       const result = await client.callTool({
         name: "invokeMethod",
@@ -251,6 +277,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "ev", query: "SELECT * FROM test.secondary", withSchemas: true },
     });
+    await waitForObjects("ev", ["instance2"]);
     try {
       const subResult = await client.callTool({
         name: "subscribeEvent",
@@ -312,6 +339,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "snap", query: "SELECT * FROM test.primary", withSchemas: true },
     });
+    await waitForObjects("snap", ["instance1"]);
     try {
       const result = await client.callTool({
         name: "getObjectsState",
@@ -338,6 +366,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "filt", query: "SELECT * FROM test.secondary", withSchemas: true },
     });
+    await waitForObjects("filt", ["instance2"]);
     try {
       const result = await client.callTool({
         name: "getObjectsState",
@@ -360,6 +389,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "miss", query: "SELECT * FROM test.primary" },
     });
+    await waitForObjects("miss", ["instance1"]);
     try {
       const result = await client.callTool({
         name: "getObjectsState",
@@ -383,6 +413,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "unsubAll", query: "SELECT * FROM test.secondary", withSchemas: true },
     });
+    await waitForObjects("unsubAll", ["instance2"]);
     try {
       await client.callTool({
         name: "subscribeEvent",
@@ -425,6 +456,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "share", query: "SELECT * FROM test.primary", withSchemas: true },
     });
+    await waitForObjects("share", ["instance1"]);
     try {
       const [r1, r2] = await Promise.all([
         client.callTool({
@@ -475,6 +507,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
       name: "declareInterest",
       arguments: { name: "teardown", query: "SELECT * FROM test.secondary", withSchemas: true },
     });
+    await waitForObjects("teardown", ["instance2"]);
     await client.callTool({
       name: "subscribeEvent",
       arguments: { interestName: "teardown", objectName: "instance2", eventName: "somethingElseHappened" },
