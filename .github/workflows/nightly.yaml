@@ -248,6 +248,12 @@ jobs:
   # only the configuration that ships.
   packaging:
     uses: ./.github/workflows/conan.yaml
+    # A called workflow cannot hold more than its caller grants, and this one
+    # drops the cache entry its save replaces. Without this the whole nightly
+    # fails to start, with no jobs and nothing in the log to say why.
+    permissions:
+      contents: read
+      actions: write
 
   # Sen promises consumers "at least C++17", and they compile its headers in
   # their own dialect. Building Sen itself at C++20 compiles those headers the
