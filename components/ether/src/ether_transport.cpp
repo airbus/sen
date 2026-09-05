@@ -151,12 +151,15 @@ EtherTransport::~EtherTransport() { logger_->debug("transport: deleted"); }
 
 void EtherTransport::stop() noexcept
 {
+  logger_->debug("transport: stop started");
+
+  // Outside procMutex_: discovery notifies its listeners under its own lock and those callbacks
+  // come back here for procMutex_, so holding it across these two inverts the order.
+  discovery_->removeListener(this, false);
+  discovery_->stopBeaming(ownInfo_);
+
   {
     Lock procLock(procMutex_);
-
-    logger_->debug("transport: stop started");
-    discovery_->removeListener(this, false);
-    discovery_->stopBeaming(ownInfo_);
 
     // signal the i/o to stop accepting new requests
     if (io_)
