@@ -428,3 +428,31 @@ add_sen_integration_test(
   REQ_DEPS cli_gen
 )
 set_tests_properties(ts_gen_structure PROPERTIES ENVIRONMENT "PYTHONUNBUFFERED=1")
+
+# An unrecognised flag must be rejected rather than collected and dropped. These two run as a
+# pair: the first fixes the invocation as valid, so the second can only fail because of the
+# flag. WILL_FAIL on its own cannot tell a rejected flag from a missing file.
+add_sen_cli_gen_smoke_test(
+  uml_gen_smoke_only_classes
+  COMMAND ./cli_gen uml stl ${hla_fom_gen_test_sources}/typescript/fixture.stl -o uml_smoke_only_classes.uml
+          --only-classes
+  WORKING_DIRECTORY ${working_dir}
+)
+
+add_sen_cli_gen_smoke_test(
+  uml_gen_smoke_rejects_unknown_flag
+  COMMAND ./cli_gen uml stl ${hla_fom_gen_test_sources}/typescript/fixture.stl -o uml_smoke_rejected.uml
+          --classes-only
+  WORKING_DIRECTORY ${working_dir}
+)
+set_tests_properties(uml_gen_smoke_rejects_unknown_flag PROPERTIES WILL_FAIL TRUE)
+
+# A second generator, because the flag was swallowed by whichever subcommand allowed extras and
+# every generator set that separately.
+add_sen_cli_gen_smoke_test(
+  ts_gen_smoke_rejects_unknown_flag
+  COMMAND ./cli_gen ts stl ${hla_fom_gen_test_sources}/typescript/fixture.stl -d ts_smoke_rejected
+          --not-a-real-flag
+  WORKING_DIRECTORY ${working_dir}
+)
+set_tests_properties(ts_gen_smoke_rejects_unknown_flag PROPERTIES WILL_FAIL TRUE)

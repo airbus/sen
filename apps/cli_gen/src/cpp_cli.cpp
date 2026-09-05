@@ -91,7 +91,6 @@ void setupCppCli(CLI::App& app)
   auto cppExtraArgs = std::make_shared<CppExtraArgs>();
 
   auto cpp = app.add_subcommand("cpp", "Generate C++ code");
-  cpp->allow_extras();
   cpp->require_subcommand();
 
   cpp->add_option("-r, --recursive", cppExtraArgs->recursive, "Recursively generate imported packages");

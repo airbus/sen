@@ -86,7 +86,6 @@ void setupPlantUMLCli(CLI::App& app)
 {
   auto umlArgs = std::make_shared<UmlArgs>();
   auto uml = app.add_subcommand("uml", "Generate UML diagrams");
-  uml->allow_extras();
   uml->require_subcommand();
 
   auto stl = setupStlInput(*uml,
