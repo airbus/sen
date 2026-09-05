@@ -67,3 +67,20 @@ race:sen::impl::EventBuffer::addConnection
 # work queue during Executor::shutDown while a worker thread is still reading it.
 # Found by RestE2EFixture.invoke_method, but the race is in the kernel shutdown path.
 race:sen::impl::WorkQueueImpl::clear
+
+# The pre-redesign send path, which the concurrency redesign removes rather than
+# repairs. RemoteInterestsManager owns the ObjectUpdate buffers, and cli_run tears
+# them down while a producer thread is still resetting them; the manager's own
+# remove-vs-send is the same story. Suppressed to keep the nightly readable, not
+# because the race is benign: destruction racing use can crash a process at exit.
+# Drop these when `git grep -c RemoteInterestsManager origin/main -- libs/kernel/src`
+# returns nothing, which is the merge that deletes the code.
+#
+# ResizableHeapBlock::~ResizableHeapBlock summarises three of these and is left
+# out on purpose: it is core, used across twelve files, and suppressing its
+# destructor would hide races that have nothing to do with this. Each of those
+# three has ObjectUpdate::reset on the other side, so the first entry covers them.
+race:sen::kernel::impl::ObjectUpdate::reset*
+race:sen::kernel::impl::ObjectUpdate::~ObjectUpdate*
+race:sen::kernel::impl::RemoteInterestsManager::removeObjectUpdatesByInterest*
+race:sen::kernel::impl::RemoteInterestsManager::sendObjectUpdates*
