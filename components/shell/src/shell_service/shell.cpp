@@ -250,7 +250,7 @@ void parseArgv(const Method* method, std::string_view buffer, VarList& result)
   {
     result = findElement(fromJson(doc).get<VarMap>(), "args", "parsing error").get<VarList>();
   }
-  catch (const std::exception& e)
+  catch (const std::exception&)
   {
     if (method != nullptr && method->getArgs().empty())
     {

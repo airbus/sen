@@ -136,11 +136,11 @@ public:
   void setPrompt(std::string_view prompt)
   {
     prompt_ = prompt;
-    promptLength_ = std::string_view("sen:").length() + hostName_.length() + 2U;
+    promptLength_ = static_cast<uint32_t>(std::string_view("sen:").length() + hostName_.length() + 2U);
 
     if (!prompt_.empty())
     {
-      promptLength_ += prompt_.length() + 1U;
+      promptLength_ += static_cast<uint32_t>(prompt_.length() + 1U);
     }
   }
 
@@ -579,8 +579,8 @@ private:
     uint32_t cols = 80;
     term_->getSize(rows, cols);
 
-    uint32_t absLength = promptLength_ + l.getBuffer().length();
-    uint32_t absCurrPos = promptLength_ + l.getPos();
+    uint32_t absLength = promptLength_ + static_cast<uint32_t>(l.getBuffer().length());
+    uint32_t absCurrPos = promptLength_ + static_cast<uint32_t>(l.getPos());
     uint32_t absPhysicalPos = promptLength_ + lastCursorPos_;
 
     // 0 based index
@@ -631,7 +631,7 @@ private:
 
     // update state trackers
     lastLine_ = totalLines;
-    lastCursorPos_ = l.getPos();
+    lastCursorPos_ = static_cast<uint32_t>(l.getPos());
 
     // move cursor back to the user's actual editing position
     if (totalLines > currLine)
@@ -873,7 +873,7 @@ private:
   Terminal* term_;
   std::string hostName_;
   std::string prompt_;
-  std::size_t promptLength_ = 0U;
+  uint32_t promptLength_ = 0U;
   size_t tableRows_ = 0U;
   Line curLine_;
   kernel::RunApi& api_;

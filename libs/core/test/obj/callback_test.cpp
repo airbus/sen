@@ -59,7 +59,7 @@ namespace
 uint64_t counter;
 
 // example plain function that updates counter value
-void setCounter(const uint32_t value) { counter = value; }
+void setCounter(const uint64_t value) { counter = value; }
 
 // example function with meta information that updates counter value
 void setCustomQualifiedName(const std::string& prefix, std::string& name) { name.insert(0, prefix + "."); }
