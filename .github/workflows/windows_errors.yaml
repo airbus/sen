@@ -99,53 +99,6 @@ jobs:
       # was the flaky pass starting, but that pass on its own takes two seconds, so
       # it is not the one. run_tests is three commands and only the first two say
       # anything, so this runs all three by hand with a marker after each.
-      - name: The three commands run_tests runs, one at a time
-        shell: cmd
-        timeout-minutes: 8
-        run: |
-          call build\msvc\Release\generators\conanbuild.bat
-          cd build\msvc\Release
-          ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error ^
-            --output-on-failure --timeout 20 --stop-on-failure -LE flaky
-          echo MAIN-PASS-RETURNED
-          ctest --parallel 1 --repeat until-pass:5 --output-junit ctestFlakyReport.xml ^
-            --no-tests=ignore --output-on-failure --timeout 20 --stop-on-failure -L flaky
-          echo FLAKY-PASS-RETURNED
-          junitparser merge "ctestParallelReport.xml" "ctestFlakyReport.xml" "ctestReport.xml"
-          echo MERGE-RETURNED
-
-      # The tree during the hang is cmd -> cmake -> ninja and nothing else: every
-      # test process is gone, target.log holds a complete run, and ninja sits there
-      # with no children. So ask ninja. -v names each command as it starts and
-      # -d explain says why it wants to run it, which should show what it is on.
-      - name: Ask ninja what it is doing
-        if: always()
-        shell: cmd
-        timeout-minutes: 10
-        run: |
-          call build\msvc\Release\generators\conanbuild.bat
-          cd build\msvc\Release
-          start "" /b cmd /c "ninja -v -d explain run_tests > ninja.log 2>&1 & echo NINJA-EXITED >> ninja.log"
-          powershell -NoProfile -Command "Start-Sleep -Seconds 330"
-          echo ---- last lines ninja printed ----
-          powershell -NoProfile -Command "Get-Content ninja.log -Tail 25"
-          echo ---- did it exit? ----
-          find "NINJA-EXITED" ninja.log || echo STILL-RUNNING
-          echo ---- tree ----
-          powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'ninja|cmake|ctest|cmd|sen|node|python' } | Select-Object ProcessId,ParentProcessId,Name | Format-Table | Out-String -Width 120"
-          exit /b 0
-
-      # Whatever is still alive here is what the target is waiting on.
-      - name: What is still running
-        if: always()
-        shell: cmd
-        run: |
-          tasklist /fi "imagename eq sen.exe"
-          tasklist /fi "imagename eq node.exe"
-          tasklist /fi "imagename eq python.exe"
-          tasklist /fi "imagename eq ctest.exe"
-          exit /b 0
-
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: always()
         with:
