@@ -271,7 +271,7 @@ inline PrecisionSleeper::PrecisionSleeper(WallClock& wallClock, const std::strin
   // Linux pads every timer request with 50us of slack by default, which lands inside the window
   // this class protects. Asking for none of it shortens how early the spin has to start.
 #if defined(__linux__)
-  std::ignore = ::prctl(PR_SET_TIMERSLACK, 1UL, 0UL, 0UL, 0UL);
+  std::ignore = ::prctl(PR_SET_TIMERSLACK, 1UL, 0UL, 0UL, 0UL);  // NOLINT(hicpp-vararg)
 #endif
 
   // Seed once the configured times have settled, from the sleep about to be measured: a seed above
@@ -287,7 +287,10 @@ inline void PrecisionSleeper::doSleepWithPrecision(NanoSecs duration) noexcept
 
   SystemSleepOps ops {*this, wallClock_};
 
-  auto& cost = sleepCost_.value();
+  // Engaged by the constructor before anything can reach here, and never reset, so the checked
+  // accessor only adds a throw this noexcept function would have to terminate on.
+  SEN_DEBUG_ASSERT(sleepCost_.has_value());
+  auto& cost = *sleepCost_;
   cost.decay();
 
   duration = stepDownWith(duration, precisionSleepTimes_.coarseGrain, cost, ops);
