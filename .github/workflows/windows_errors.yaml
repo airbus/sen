@@ -114,16 +114,26 @@ jobs:
           junitparser merge "ctestParallelReport.xml" "ctestFlakyReport.xml" "ctestReport.xml"
           echo MERGE-RETURNED
 
-      # And the same three through the target, to say whether it is the commands or
-      # the machinery around them.
-      - name: The same three through the target
+      # All three return by hand in under three minutes, and the same three through
+      # the target do not, so what is left is the machinery. Run it detached, wait
+      # past the point it should have finished, then look at the process tree while
+      # it is still stuck -- the earlier tasklist ran after the runner had killed
+      # the step, so it could only ever come back empty.
+      - name: The target, watched while it hangs
         if: always()
         shell: cmd
-        timeout-minutes: 8
+        timeout-minutes: 10
         run: |
           call build\msvc\Release\generators\conanbuild.bat
-          cmake --build build\msvc\Release --target run_tests
-          echo TARGET-RETURNED
+          start "" /b cmd /c "cmake --build build\msvc\Release --target run_tests > target.log 2>&1 & echo TARGET-EXITED >> target.log"
+          powershell -NoProfile -Command "Start-Sleep -Seconds 330"
+          echo ---- tail of target.log ----
+          powershell -NoProfile -Command "Get-Content target.log -Tail 15"
+          echo ---- did it exit? ----
+          find "TARGET-EXITED" target.log || echo STILL-RUNNING
+          echo ---- process tree ----
+          powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'ninja|cmake|ctest|cmd|sen|node|python|conhost' } | Select-Object ProcessId,ParentProcessId,Name,CommandLine | Format-Table -Wrap | Out-String -Width 240"
+          exit /b 0
 
       # Whatever is still alive here is what the target is waiting on.
       - name: What is still running
