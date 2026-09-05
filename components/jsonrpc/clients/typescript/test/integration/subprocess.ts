@@ -23,6 +23,22 @@ const defaultShutdownGraceMs = 2_000;
 // connection and then says nothing, so an attempt has to be abandoned to make room for the next.
 const probeAttemptMs = 1_000;
 
+// child.kill() terminates one process. On Windows the kernel's children inherit both the
+// listening socket and the stdio pipes, so killing only the parent leaves the port bound and
+// the pipes open -- the port wait then times out, and whatever is reading those pipes waits
+// for a writer that never goes. taskkill walks the tree; POSIX has the process group instead.
+function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
+  const pid = child.pid;
+  if (pid === undefined || child.exitCode !== null || child.signalCode !== null) return;
+  if (process.platform === "win32") {
+    const killer = spawn("taskkill", ["/pid", String(pid), "/t", "/f"], { stdio: "ignore" });
+    killer.on("error", () => child.kill(signal));
+    killer.unref();
+    return;
+  }
+  child.kill(signal);
+}
+
 export interface SpawnSenOptions {
   binary: string;
   config: string;
@@ -156,7 +172,7 @@ export async function spawnSen(opts: SpawnSenOptions): Promise<SenHandle> {
     await waitForPort(opts.port, deadline - Date.now());
     await waitForWebSocket(opts.port, deadline - Date.now());
   } catch (err) {
-    child.kill("SIGKILL");
+    killTree(child, "SIGKILL");
     throw new Error(`${String(err)}\nSen stderr so far:\n${Buffer.concat(stderrChunks).toString()}`);
   }
 
@@ -165,17 +181,16 @@ export async function spawnSen(opts: SpawnSenOptions): Promise<SenHandle> {
     port: opts.port,
     async stop({ graceMs = defaultShutdownGraceMs } = {}) {
       if (child.exitCode !== null) return;
-      // Windows has no real SIGINT and any signal invokes TerminateProcess. Both
-      // platforms then wait for the process to actually go: returning once the
-      // signal is delivered leaves the listening socket held, and a caller waiting
-      // for the port to close sees it still open.
-      child.kill(process.platform === "win32" ? "SIGTERM" : "SIGINT");
+      // Wait for the process to actually go: returning once the signal is delivered
+      // leaves the listening socket held, and a caller waiting for the port to close
+      // sees it still open.
+      killTree(child, "SIGINT");
       const exited = await Promise.race([
         once(child, "exit").then(() => true),
         new Promise<boolean>((r) => setTimeout(() => r(false), graceMs)),
       ]);
       if (!exited) {
-        child.kill("SIGKILL");
+        killTree(child, "SIGKILL");
         await Promise.race([
           once(child, "exit"),
           new Promise((r) => setTimeout(r, graceMs)),
