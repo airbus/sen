@@ -114,25 +114,25 @@ jobs:
           junitparser merge "ctestParallelReport.xml" "ctestFlakyReport.xml" "ctestReport.xml"
           echo MERGE-RETURNED
 
-      # All three return by hand in under three minutes, and the same three through
-      # the target do not, so what is left is the machinery. Run it detached, wait
-      # past the point it should have finished, then look at the process tree while
-      # it is still stuck -- the earlier tasklist ran after the runner had killed
-      # the step, so it could only ever come back empty.
-      - name: The target, watched while it hangs
+      # The tree during the hang is cmd -> cmake -> ninja and nothing else: every
+      # test process is gone, target.log holds a complete run, and ninja sits there
+      # with no children. So ask ninja. -v names each command as it starts and
+      # -d explain says why it wants to run it, which should show what it is on.
+      - name: Ask ninja what it is doing
         if: always()
         shell: cmd
         timeout-minutes: 10
         run: |
           call build\msvc\Release\generators\conanbuild.bat
-          start "" /b cmd /c "cmake --build build\msvc\Release --target run_tests > target.log 2>&1 & echo TARGET-EXITED >> target.log"
+          cd build\msvc\Release
+          start "" /b cmd /c "ninja -v -d explain run_tests > ninja.log 2>&1 & echo NINJA-EXITED >> ninja.log"
           powershell -NoProfile -Command "Start-Sleep -Seconds 330"
-          echo ---- tail of target.log ----
-          powershell -NoProfile -Command "Get-Content target.log -Tail 15"
+          echo ---- last lines ninja printed ----
+          powershell -NoProfile -Command "Get-Content ninja.log -Tail 25"
           echo ---- did it exit? ----
-          find "TARGET-EXITED" target.log || echo STILL-RUNNING
-          echo ---- process tree ----
-          powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'ninja|cmake|ctest|cmd|sen|node|python|conhost' } | Select-Object ProcessId,ParentProcessId,Name,CommandLine | Format-Table -Wrap | Out-String -Width 240"
+          find "NINJA-EXITED" ninja.log || echo STILL-RUNNING
+          echo ---- tree ----
+          powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'ninja|cmake|ctest|cmd|sen|node|python' } | Select-Object ProcessId,ParentProcessId,Name | Format-Table | Out-String -Width 120"
           exit /b 0
 
       # Whatever is still alive here is what the target is waiting on.
