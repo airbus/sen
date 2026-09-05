@@ -565,9 +565,9 @@ TEST(DeadReckonerTest, orientationConversionMatchesTrihedronConstruction)
           for (int bank = -180; bank <= 180; bank += 90)
           {
             const GeodeticWorldLocation position {static_cast<double>(lat), static_cast<double>(lon), 250.0};
-            const Orientation input {static_cast<float>(yaw * M_PI / 180.0),
-                                     static_cast<float>(pitch * M_PI / 180.0),
-                                     static_cast<float>(bank * M_PI / 180.0)};
+            const Orientation input {static_cast<float>(yaw * pi / 180.0),
+                                     static_cast<float>(pitch * pi / 180.0),
+                                     static_cast<float>(bank * pi / 180.0)};
 
             const auto converted = impl::ecefToNed(input, position);
             ASSERT_FALSE(std::isnan(converted.psi.get()) || std::isnan(converted.theta.get()) ||
@@ -600,9 +600,9 @@ TEST(DeadReckonerTest, orientationConversionRoundTrips)
           for (int bank = -180; bank <= 180; bank += 90)
           {
             const GeodeticWorldLocation position {static_cast<double>(lat), static_cast<double>(lon), 0.0};
-            const Orientation input {static_cast<float>(yaw * M_PI / 180.0),
-                                     static_cast<float>(pitch * M_PI / 180.0),
-                                     static_cast<float>(bank * M_PI / 180.0)};
+            const Orientation input {static_cast<float>(yaw * pi / 180.0),
+                                     static_cast<float>(pitch * pi / 180.0),
+                                     static_cast<float>(bank * pi / 180.0)};
 
             const auto back = impl::nedToEcef(impl::ecefToNed(input, position), position);
             ASSERT_FALSE(std::isnan(back.psi.get()) || std::isnan(back.theta.get()) || std::isnan(back.phi.get()));
@@ -629,9 +629,9 @@ TEST(DeadReckonerTest, orientationExtrapolationHoldsStillAtThePitchLimit)
     {
       for (int bankDeg = -165; bankDeg <= 165; bankDeg += 35)
       {
-        const Orientation input {static_cast<float>(yawDeg * M_PI / 180.0),
-                                 static_cast<float>(pitchDeg * M_PI / 180.0),
-                                 static_cast<float>(bankDeg * M_PI / 180.0)};
+        const Orientation input {static_cast<float>(yawDeg * pi / 180.0),
+                                 static_cast<float>(pitchDeg * pi / 180.0),
+                                 static_cast<float>(bankDeg * pi / 180.0)};
 
         const auto held = extrapolateOrientation(input, step, AngularVelocity {});
 

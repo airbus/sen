@@ -27,7 +27,7 @@ def job_keys(jobs: list[JobSpecification]) -> list[tuple[str, str, str, str, str
 def test_standard_test_job_set():
     """Standard tests run the three Linux x86 legs plus the arm leg."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, ARM_DEBUG]
+    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, ARM_DEBUG, MSVC_RELEASE]
 
 
 def test_standard_test_main_job_set():
@@ -99,12 +99,11 @@ def test_container_tests_run_on_the_x86_gcc_legs():
         assert job.runtime_base.replace(":", "-") == job.runner
 
 
-def test_windows_legs_keep_the_defaults():
-    """The Windows legs do not build the examples."""
+def test_release_legs_build_examples():
+    """Every release leg builds the examples, Windows included."""
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
-    windows = [job for job in jobs if job.os == "windows"]
-    assert windows
-    assert all(not job.enable_examples for job in windows)
+    assert [job for job in jobs if job.os == "windows"]
+    assert all(job.enable_examples for job in jobs)
 
 
 def test_pull_request_packaging_job_set():
@@ -113,11 +112,14 @@ def test_pull_request_packaging_job_set():
     assert job_keys(jobs) == [GCC_RELEASE]
 
 
-def test_only_the_shipping_leg_checks_the_package():
-    """The CPack archive is built and checked once, on the shipping leg."""
+def test_each_operating_system_checks_its_package():
+    """The CPack archive is built and checked once per operating system.
+
+    Windows ships a different archive, so the Linux leg cannot stand in for it.
+    """
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     checked = [job for job in jobs if job.check_package]
-    assert job_keys(checked) == [GCC_RELEASE]
+    assert job_keys(checked) == [GCC_RELEASE, MSVC_RELEASE]
 
 
 def test_standard_test_specs_in_full():
@@ -183,6 +185,20 @@ def test_standard_test_specs_in_full():
             "enable_examples": True,
             "runtime_base": "",
             "check_package": False,
+        },
+        {
+            "name": "Basic Windows",
+            "os": "windows",
+            "runner": "windows-2022",
+            "container": None,
+            "compiler": {"name": "msvc", "version": 194, "cc": "cl", "cxx": "cl"},
+            "arch": "x86",
+            "std": 17,
+            "build_type": "Release",
+            "enable_coverage": False,
+            "enable_examples": True,
+            "runtime_base": "",
+            "check_package": True,
         },
     ]
 

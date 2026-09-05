@@ -29,9 +29,8 @@ add_sen_integration_test(
   REQ_DEPS crash_report
 )
 
-set_tests_properties(
-  kernel_crash_report_stacktrace_test
-  PROPERTIES ENVIRONMENT
-             "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/..;PYTHONUNBUFFERED=1"
+append_test_env_modification(
+  kernel_crash_report_stacktrace_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}"
+  "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 set_tests_properties(kernel_crash_report_stacktrace_test PROPERTIES RUN_SERIAL TRUE)

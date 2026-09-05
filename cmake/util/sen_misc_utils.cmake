@@ -635,6 +635,7 @@ function(sen_configure_target target_name)
       PRIVATE
         /MP
         /W3 # baseline reasonable warnings
+        /WX # warnings are errors, as -Werror does for gcc and clang
         /w14263 # function: member function does not override any base class virtual member function
         /w14265 # classname: class has virtual functions, but destructor is not virtual
         /w14287 # operator: unsigned/negative constant mismatch
@@ -665,8 +666,6 @@ function(sen_configure_target target_name)
         "$<$<CONFIG:Debug>:/MDd;/Od;/RTC1>"
         "$<$<CONFIG:Release>:/O2;/Ox;/Ob2;/MD;/GR;/c>"
     )
-
-    target_compile_definitions(${target_name} PRIVATE _WIN32_WINNT=0x0A00)
 
     # disable manifest generation
     target_link_options(${target_name} PRIVATE /MANIFEST:NO)

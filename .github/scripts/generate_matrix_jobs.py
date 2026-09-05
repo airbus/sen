@@ -50,8 +50,8 @@ class JobSpecification:
     # the legs that would only add container startups without covering
     # anything the x86 gcc legs do not already cover.
     runtime_base: str = ""
-    # Builds the CPack archive and checks its contents. Set on the shipping
-    # configuration only: the archive is the same everywhere it is built.
+    # Builds the CPack archive and checks its contents. Once per operating system:
+    # Windows ships a zip of .dll and .exe where Linux ships a tarball of .so.
     check_package: bool = False
 
     def __post_init__(self):
@@ -156,12 +156,13 @@ SPECIFIED_JOBS = [
             arch="x86",
             std=17,
             build_type="Release",
+            enable_examples=True,
+            check_package=True,
         ),
         include_in_release_workflow=True,
         include_in_conan_workflow=True,
         include_in_conan_workflow_on_pull_requests=False,
-        # TODO(SEN-1725): fix build failures in test setup
-        include_in_standard_test_workflow=False,
+        include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=False,
     ),
     # Add arm jobs

@@ -116,7 +116,7 @@ constexpr std::string_view localScopeReservedMax = "239.255.255.255";
 [[nodiscard]] uint32_t nextMulticastAddress(uint32_t currentAddress, const MulticastRange& range)
 {
   auto bytes = asio::ip::make_address_v4(currentAddress).to_bytes();
-  for (int index = bytes.size() - 1; index >= 0; --index)
+  for (int index = static_cast<int>(bytes.size()) - 1; index >= 0; --index)
   {
     auto& byte = bytes.at(index);
     const auto& byteRange = range.at(index);

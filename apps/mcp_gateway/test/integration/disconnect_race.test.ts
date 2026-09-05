@@ -27,6 +27,9 @@ function textOf(result: { content: unknown }): string {
   return arr[0]!.text;
 }
 
+// Windows has no signal delivery: process.kill() is TerminateProcess, so a handler never runs.
+const itPosix = it.skipIf(process.platform === "win32");
+
 describe("sen-mcp-gateway kernel-disconnect races", () => {
   let client: Client;
   let transport: StdioClientTransport;
@@ -148,7 +151,7 @@ describe("sen-mcp-gateway kernel-disconnect races", () => {
     }
   });
 
-  it("gateway SIGTERM during an in-flight tool call rejects the host promise and the process exits", async () => {
+  itPosix("gateway SIGTERM during an in-flight tool call rejects the host promise and the process exits", async () => {
     // Local transport so killing the gateway doesn't affect the shared one.
     const localTransport = new StdioClientTransport({
       command: "node",

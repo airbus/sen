@@ -49,7 +49,7 @@ public:
     {
       setBody(sen::toJson(var));
     }
-    catch (std::exception& e)
+    catch (const std::exception&)
     {
       setBody(sen::toJson(sen::toVariant(Error {"error on invalid body"})));
     }

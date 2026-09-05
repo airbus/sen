@@ -246,6 +246,30 @@ function(add_sen_unit_test_suite test_name)
     list(APPEND _test_props ${_arg_EXTRA_PROPERTIES})
   endif()
 
+  # Windows has no rpath. A package imported by name reaches LoadLibrary, which
+  # searches the executable's directory and PATH; packages are built to bin/.
+  if(WIN32)
+    list(
+      APPEND
+      _test_props
+      ENVIRONMENT_MODIFICATION
+      "PATH=path_list_append:${PROJECT_BINARY_DIR}/bin"
+    )
+  endif()
+
+  # Windows looks for DLLs beside the executable, not by rpath: without these the
+  # binary cannot start, which gtest_discover_tests reports as 0xc0000135 while
+  # enumerating. The IF makes it a no-op when a target links nothing shared.
+  if(WIN32)
+    add_custom_command(
+      TARGET ${test_name}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E $<IF:$<BOOL:$<TARGET_RUNTIME_DLLS:${test_name}>>,copy,true>
+              $<TARGET_RUNTIME_DLLS:${test_name}> $<TARGET_FILE_DIR:${test_name}>
+      COMMAND_EXPAND_LISTS
+    )
+  endif()
+
   gtest_discover_tests(${test_name} DISCOVERY_MODE PRE_TEST PROPERTIES ${_test_props})
 
   add_dependencies(run_unit_tests ${test_name})

@@ -137,7 +137,19 @@ private:
     using Parent::operator[];                                                                                          \
     using Parent::front;                                                                                               \
     using Parent::back;                                                                                                \
-    using Parent::data;                                                                                                \
+    /* std::vector<bool> declares no data(), and libc++ and the MSVC STL do not                                        \
+       declare it at all, so a using-declaration is ill-formed there. A member                                         \
+       template is instantiated only when called: a bool sequence has no data(). */                                    \
+    template <typename E = elementtype>                                                                                \
+    auto data()                                                                                                        \
+    {                                                                                                                  \
+      return static_cast<std::vector<E>&>(*this).data();                                                               \
+    }                                                                                                                  \
+    template <typename E = elementtype>                                                                                \
+    auto data() const                                                                                                  \
+    {                                                                                                                  \
+      return static_cast<const std::vector<E>&>(*this).data();                                                         \
+    }                                                                                                                  \
                                                                                                                        \
     using Parent::begin;                                                                                               \
     using Parent::cbegin;                                                                                              \

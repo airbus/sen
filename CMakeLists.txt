@@ -51,6 +51,13 @@ project(
   DESCRIPTION "A simple way for applications to talk to one another and create complex systems with ease."
 )
 
+# Windows headers change structure layouts and which APIs exist by this macro, so
+# every translation unit has to agree on it. Project-wide rather than per target,
+# since asio assumes 0x0601 wherever nothing set it.
+if(MSVC)
+  add_compile_definitions(_WIN32_WINNT=0x0A00)
+endif()
+
 include(util/sen_internal_utils)
 include(util/sanitizers)
 include(util/test)

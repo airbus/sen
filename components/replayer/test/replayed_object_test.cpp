@@ -501,13 +501,13 @@ TEST(ReplayedObjectTest, SerializesStateAndProcessesInjectedChanges)
   auto multiBlock = pool->getBlockPtr();
   uint32_t uniCalls = 0;
   uint32_t multiCalls = 0;
-  auto uniProvider = [&](uint32_t size)
+  auto uniProvider = [&](std::size_t size)
   {
     ++uniCalls;
     uniBlock->resize(size);
     return sen::ResizableBufferWriter<sen::FixedMemoryBlock>(*uniBlock);
   };
-  auto multiProvider = [&](uint32_t size)
+  auto multiProvider = [&](std::size_t size)
   {
     ++multiCalls;
     multiBlock->resize(size);

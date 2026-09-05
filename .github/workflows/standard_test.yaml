@@ -152,6 +152,10 @@ jobs:
 
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}
+        # The suite runs in minutes. The bound is for what happens after it: a
+        # process outliving ctest holds the pipes, and the step then waits in
+        # silence for the whole job budget.
+        timeout-minutes: 20
         shell: bash
         # The runner is discarded when the job ends, so the testcontainers
         # cleanup helper would only add an image pull.
@@ -159,15 +163,30 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          # Same reason as the first of these, in standard_test.yaml.
-          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
-          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target run_tests
+          # Same reason as the first of these, in standard_test.yaml. Conan writes
+          # .bat rather than .sh on Windows, where cmake takes the generator's path
+          # from the cache instead.
+          if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
+            source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          fi
+          # ctest directly rather than through the run_tests target, which runs
+          # these same three commands: on Windows cmake --build does not return
+          # once they finish. Keep in step with CMAKE_CTEST_ARGUMENTS in
+          # cmake/util/test.cmake.
+          cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
+          ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
+            --stop-on-failure --output-on-failure --timeout 20 --schedule-random -LE flaky
+          ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
+            --stop-on-failure --output-on-failure --timeout 20 --schedule-random -L flaky
+          junitparser merge ctestParallelReport.xml ctestFlakyReport.xml ctestReport.xml
 
       # The report target runs the suite itself, so this replaces the step above
       # rather than following it. Without it the leg pays for instrumentation
       # and produces no report.
       - name: Run tests and report coverage
         if: matrix.enable_coverage
+        # Same reason as the step above.
+        timeout-minutes: 20
         shell: bash
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -234,8 +253,11 @@ jobs:
         if: matrix.check_package
         shell: bash
         run: |
-          # Same reason as the first of these, in standard_test.yaml.
-          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          # Same reason as the first of these, in standard_test.yaml, and the
+          # same .bat/.sh difference as the test step above.
+          if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
+            source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          fi
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 

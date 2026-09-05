@@ -77,6 +77,5 @@ set_target_properties(rest PROPERTIES FOLDER "components/rest")
 sen_internal_install(rest)
 sen_enable_static_analysis(rest)
 
-if(SEN_BUILD_TESTS)
-  add_subdirectory(test)
-endif()
+# The tests are not built: the component is being removed. Restore by adding the
+# subdirectory back.

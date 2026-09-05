@@ -75,10 +75,9 @@ add_sen_integration_test(
   REQ_COMPONENTS ether py REQ_DEPS type_clash_participant_1 type_clash_participant_2
 )
 
-set_tests_properties(
-  kernel_type_clash_test_1
-  PROPERTIES ENVIRONMENT
-             "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/..;PYTHONUNBUFFERED=1"
+append_test_env_modification(
+  kernel_type_clash_test_1 "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}"
+  "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 set_tests_properties(kernel_type_clash_test_1 PROPERTIES RUN_SERIAL TRUE)
 set_tests_properties(
@@ -97,10 +96,9 @@ add_sen_integration_test(
   REQ_COMPONENTS ether py REQ_DEPS type_clash_participant_1 type_clash_participant_3
 )
 
-set_tests_properties(
-  kernel_type_clash_test_2
-  PROPERTIES ENVIRONMENT
-             "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/..;PYTHONUNBUFFERED=1"
+append_test_env_modification(
+  kernel_type_clash_test_2 "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}"
+  "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 set_tests_properties(kernel_type_clash_test_2 PROPERTIES RUN_SERIAL TRUE)
 set_tests_properties(
@@ -129,11 +127,11 @@ foreach(mode_case relaxed strict disabled)
     REQ_COMPONENTS ether py REQ_DEPS type_clash_participant_4 type_clash_participant_2
   )
 
-  set_tests_properties(
+  append_test_env_modification(
     kernel_compatibility_mode_${mode_case}
-    PROPERTIES
-      ENVIRONMENT
-      "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_SOURCE_DIR}/..;PYTHONUNBUFFERED=1;SEN_EXPECT_CLASH_OBJECT=${expect_object}"
+    "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}"
+    "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/.."
+    "SEN_EXPECT_CLASH_OBJECT=set:${expect_object}"
   )
   set_tests_properties(kernel_compatibility_mode_${mode_case} PROPERTIES RUN_SERIAL TRUE)
 endforeach()

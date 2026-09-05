@@ -10,7 +10,7 @@
 
 import { existsSync, mkdtempSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -35,6 +35,13 @@ interface JsonText {
 function parseTextResult<T>(content: unknown): T {
   const arr = content as JsonText[];
   return JSON.parse(arr[0]!.text) as T;
+}
+
+// A signal-killed child reports a null exit code on POSIX. Windows has no signals: the runner
+// uses taskkill and node reports a plain non-zero exit.
+function expectKilled(exitCode: number | null): void {
+  if (process.platform === "win32") expect(exitCode).not.toBe(0);
+  else expect(exitCode).toBeNull();
 }
 
 describe("sen-mcp-gateway recording tools (mechanics)", () => {
@@ -94,7 +101,7 @@ describe("sen-mcp-gateway recording tools (mechanics)", () => {
     const res = await client.callTool({ name: "listRecordings", arguments: { root: rootDir } });
     expect(res.isError ?? false).toBe(false);
     const entries = parseTextResult<Array<{ path: string }>>(res.content);
-    const names = entries.map((e) => e.path.split("/").pop()).sort();
+    const names = entries.map((e) => basename(e.path)).sort();
     expect(names).toEqual(["in_bounds_link", "real_recording"]);
     expect(names).not.toContain("out_of_bounds_link");
   });
@@ -161,7 +168,7 @@ describe("sen-mcp-gateway recording tools (mechanics)", () => {
         stdoutTruncated: boolean;
       }>(res.content);
       expect(payload.timedOut).toBe(true);
-      expect(payload.exitCode).toBeNull();
+      expectKilled(payload.exitCode);
       expect(payload.stdout).not.toContain("should not print");
       expect(payload.durationMs).toBeGreaterThanOrEqual(500);
       expect(payload.durationMs).toBeLessThan(3000);
@@ -201,7 +208,7 @@ describe("sen-mcp-gateway recording tools (mechanics)", () => {
         durationMs: number;
       }>(res.content);
       expect(payload.timedOut).toBe(true);
-      expect(payload.exitCode).toBeNull();
+      expectKilled(payload.exitCode);
       expect(payload.durationMs).toBeGreaterThanOrEqual(500);
       expect(payload.durationMs).toBeLessThan(5000);
     } finally {
