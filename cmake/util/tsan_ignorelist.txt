@@ -7,9 +7,6 @@ deadlock:sen::kernel::impl::RemoteParticipant::onObjectsAdded*
 # TODO(SEN-1505):  fix deadlock
 deadlock:sen::kernel::impl::Bus::isObjectNameUsedLocally*
 
-# TODO(SEN-1506):  fix deadlock
-deadlock:sen::components::ether::EtherTransport::detectedNewProcess*
-
 # TODO(SEN-1510): fix thread leak
 thread:sen::components::ether::EtherTransport::start*
 
