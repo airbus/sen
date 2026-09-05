@@ -112,11 +112,14 @@ def test_pull_request_packaging_job_set():
     assert job_keys(jobs) == [GCC_RELEASE]
 
 
-def test_only_the_shipping_leg_checks_the_package():
-    """The CPack archive is built and checked once, on the shipping leg."""
+def test_each_operating_system_checks_its_package():
+    """The CPack archive is built and checked once per operating system.
+
+    Windows ships a different archive, so the Linux leg cannot stand in for it.
+    """
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     checked = [job for job in jobs if job.check_package]
-    assert job_keys(checked) == [GCC_RELEASE]
+    assert job_keys(checked) == [GCC_RELEASE, MSVC_RELEASE]
 
 
 def test_standard_test_specs_in_full():
@@ -195,7 +198,7 @@ def test_standard_test_specs_in_full():
             "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
-            "check_package": False,
+            "check_package": True,
         },
     ]
 

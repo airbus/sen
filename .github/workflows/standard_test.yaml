@@ -238,8 +238,11 @@ jobs:
         if: matrix.check_package
         shell: bash
         run: |
-          # Same reason as the first of these, in standard_test.yaml.
-          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          # Same reason as the first of these, in standard_test.yaml, and the
+          # same .bat/.sh difference as the test step above.
+          if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
+            source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          fi
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 
