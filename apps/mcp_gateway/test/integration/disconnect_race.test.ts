@@ -27,8 +27,7 @@ function textOf(result: { content: unknown }): string {
   return arr[0]!.text;
 }
 
-// Windows has no signal delivery: process.kill() there is TerminateProcess, so a gateway signal
-// handler never runs and any test that drives one cannot be reached.
+// Windows has no signal delivery: process.kill() is TerminateProcess, so a handler never runs.
 const itPosix = it.skipIf(process.platform === "win32");
 
 describe("sen-mcp-gateway kernel-disconnect races", () => {

@@ -23,10 +23,9 @@ const defaultShutdownGraceMs = 2_000;
 // connection and then says nothing, so an attempt has to be abandoned to make room for the next.
 const probeAttemptMs = 1_000;
 
-// child.kill() terminates one process. On Windows the kernel's children inherit both the
-// listening socket and the stdio pipes, so killing only the parent leaves the port bound and
-// the pipes open -- the port wait then times out, and whatever is reading those pipes waits
-// for a writer that never goes. taskkill walks the tree; POSIX has the process group instead.
+// child.kill() ends one process. On Windows the kernel's children inherit the listening
+// socket and the stdio pipes, so the port stays bound and readers of those pipes wait for a
+// writer that never goes. taskkill walks the tree.
 function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
   const pid = child.pid;
   if (pid === undefined || child.exitCode !== null || child.signalCode !== null) return;
@@ -181,9 +180,8 @@ export async function spawnSen(opts: SpawnSenOptions): Promise<SenHandle> {
     port: opts.port,
     async stop({ graceMs = defaultShutdownGraceMs } = {}) {
       if (child.exitCode !== null) return;
-      // Wait for the process to actually go: returning once the signal is delivered
-      // leaves the listening socket held, and a caller waiting for the port to close
-      // sees it still open.
+      // Wait for it to actually go: returning once the signal is delivered leaves
+      // the listening socket held.
       killTree(child, "SIGINT");
       const exited = await Promise.race([
         once(child, "exit").then(() => true),

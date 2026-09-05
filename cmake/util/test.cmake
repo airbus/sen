@@ -247,9 +247,7 @@ function(add_sen_unit_test_suite test_name)
   endif()
 
   # Windows has no rpath. A package imported by name reaches LoadLibrary, which
-  # searches the executable's own directory and PATH, and packages are built to
-  # bin/ rather than beside the tests. On other platforms the kernel's $ORIGIN
-  # already resolves there.
+  # searches the executable's directory and PATH; packages are built to bin/.
   if(WIN32)
     list(
       APPEND

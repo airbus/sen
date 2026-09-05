@@ -37,9 +37,8 @@ function parseTextResult<T>(content: unknown): T {
   return JSON.parse(arr[0]!.text) as T;
 }
 
-// A child killed by a signal reports a null exit code on POSIX. Windows has no signals: the
-// runner terminates the process with taskkill and node reports a plain non-zero exit, so assert
-// that it did not exit normally rather than on the POSIX shape.
+// A signal-killed child reports a null exit code on POSIX. Windows has no signals: the runner
+// uses taskkill and node reports a plain non-zero exit.
 function expectKilled(exitCode: number | null): void {
   if (process.platform === "win32") expect(exitCode).not.toBe(0);
   else expect(exitCode).toBeNull();

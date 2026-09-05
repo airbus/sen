@@ -10,14 +10,9 @@ add_subdirectory(unit)
 # These drive several `sen run` processes through runner.py; they need no
 # container, only the ether and py components.
 #
-# Not on Windows, and not for want of a container. Measured 2026-09-05 with the
-# tree enabled there: the participants do find each other -- all three connect to
-# the ether discovery hub and the testers report ready -- but no object ever
-# reaches the bus, so every suite that waits for one polls until it times out.
-# The crash report suite fails differently: `sen run` writes nothing to stderr,
-# so there is no report to find. The termination suite is the one that genuinely
-# cannot run, since it sends SIGTERM and SIGINT and reads the blocked-signal mask
-# from /proc.
+# Not on Windows: objects never reach the bus there, so anything waiting for one
+# times out; the crash reporter writes nothing to stderr; and the termination
+# suite needs signals and /proc.
 if(NOT MSVC)
   add_subdirectory(integration/test_helpers)
   add_subdirectory(integration/transport)

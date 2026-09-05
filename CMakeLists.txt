@@ -52,9 +52,8 @@ project(
 )
 
 # Windows headers change structure layouts and which APIs exist by this macro, so
-# every translation unit in the binary has to agree on it. Set for the whole
-# project rather than per target: asio warns and assumes 0x0601 wherever nothing
-# defined it, and a file that guesses for itself picks something else again.
+# every translation unit has to agree on it. Project-wide rather than per target,
+# since asio assumes 0x0601 wherever nothing set it.
 if(MSVC)
   add_compile_definitions(_WIN32_WINNT=0x0A00)
 endif()

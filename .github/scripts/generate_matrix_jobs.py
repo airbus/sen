@@ -50,9 +50,8 @@ class JobSpecification:
     # the legs that would only add container startups without covering
     # anything the x86 gcc legs do not already cover.
     runtime_base: str = ""
-    # Builds the CPack archive and checks its contents. Set once per operating
-    # system: the archive is the same across compilers, but Windows ships a zip
-    # of .dll and .exe where Linux ships a tarball of .so.
+    # Builds the CPack archive and checks its contents. Once per operating system:
+    # Windows ships a zip of .dll and .exe where Linux ships a tarball of .so.
     check_package: bool = False
 
     def __post_init__(self):
