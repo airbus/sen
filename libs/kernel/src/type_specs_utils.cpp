@@ -1629,6 +1629,50 @@ private:
         continue;
       }
 
+      // The method hash covers the callable spec, the constness and the return type only, so
+      // the attributes beside it have to be compared whether or not the hashes agree.
+      if (method->getDeferred() != otherMethod->getDeferred())
+      {
+        std::string diff;
+        {
+          diff.append("The remote or local versions of method '");
+          diff.append(qualifiedName);
+          diff.append(".");
+          diff.append(methodName);
+          diff.append("' have different deferred flags.");
+        }
+
+        differences_.emplace_back(diff);
+      }
+
+      if (method->getPropertyRelation().index() != otherMethod->getPropertyRelation().index())
+      {
+        std::string diff;
+        {
+          diff.append("The remote or local versions of method '");
+          diff.append(qualifiedName);
+          diff.append(".");
+          diff.append(methodName);
+          diff.append("' have different property relations.");
+        }
+
+        differences_.emplace_back(diff);
+      }
+
+      if (method->getLocalOnly() != otherMethod->getLocalOnly())
+      {
+        std::string diff;
+        {
+          diff.append("The remote or local versions of method '");
+          diff.append(qualifiedName);
+          diff.append(".");
+          diff.append(methodName);
+          diff.append("' have different local only flags.");
+        }
+
+        differences_.emplace_back(diff);
+      }
+
       if (method->getHash() != otherMethod->getHash())
       {
         checkCallableArgs(*method, *otherMethod, qualifiedName);
@@ -1661,20 +1705,6 @@ private:
           differences_.emplace_back(diff);
         }
 
-        if (method->getDeferred() != otherMethod->getDeferred())
-        {
-          std::string diff;
-          {
-            diff.append("The remote or local versions of method '");
-            diff.append(qualifiedName);
-            diff.append(".");
-            diff.append(methodName);
-            diff.append("' have different deferred flags.");
-          }
-
-          differences_.emplace_back(diff);
-        }
-
         const auto& returnType = method->getReturnType();
         const auto& otherReturnType = otherMethod->getReturnType();
 
@@ -1692,34 +1722,6 @@ private:
           differences_.emplace_back(diff);
 
           concatDifferences(getRuntimeDifferences(method->getReturnType().type(), otherMethod->getReturnType().type()));
-        }
-
-        if (method->getPropertyRelation().index() != otherMethod->getPropertyRelation().index())
-        {
-          std::string diff;
-          {
-            diff.append("The remote or local versions of method '");
-            diff.append(qualifiedName);
-            diff.append(".");
-            diff.append(methodName);
-            diff.append("' have different property relations.");
-          }
-
-          differences_.emplace_back(diff);
-        }
-
-        if (method->getLocalOnly() != otherMethod->getLocalOnly())
-        {
-          std::string diff;
-          {
-            diff.append("The remote or local versions of method '");
-            diff.append(qualifiedName);
-            diff.append(".");
-            diff.append(methodName);
-            diff.append("' have different local only flags.");
-          }
-
-          differences_.emplace_back(diff);
         }
       }
     }
@@ -2348,6 +2350,18 @@ std::vector<std::string> runtimeCompatible(const Type* localType,
   return problems;
 }
 
+/// A quantity range as the older protocol versions encoded it, where a minimum that is not below
+/// the maximum means there is no range rather than one admitting nothing.
+[[nodiscard]] std::pair<MaybeF64, MaybeF64> rangeFromOlderVersion(f64 minValue, f64 maxValue) noexcept
+{
+  if (minValue >= maxValue)
+  {
+    return {MaybeF64 {}, MaybeF64 {}};
+  }
+
+  return {MaybeF64 {minValue}, MaybeF64 {maxValue}};
+}
+
 /// A sequence bound as the older protocol versions encoded it, where zero means unbounded rather
 /// than a capacity of zero.
 [[nodiscard]] MaybeU64 boundFromOlderVersion(u64 maxSize) noexcept
@@ -2384,7 +2398,10 @@ CustomTypeSpec toCurrentVersion(const CustomTypeSpecV4& v4)
         result.data = EnumTypeSpec {enums, v4Data.storageType};
       },
       [&result](const QuantityTypeSpecV4& v4Data)
-      { result.data = QuantityTypeSpec {v4Data.numericType, v4Data.unit, v4Data.minValue, v4Data.maxValue}; },
+      {
+        const auto [minValue, maxValue] = rangeFromOlderVersion(v4Data.minValue, v4Data.maxValue);
+        result.data = QuantityTypeSpec {v4Data.numericType, v4Data.unit, minValue, maxValue};
+      },
       [&result](const SequenceTypeSpecV4& v4Data)
       { result.data = SequenceTypeSpec {v4Data.elementType, boundFromOlderVersion(v4Data.maxSize), false}; },
       [&result](const StructTypeSpecV4& v4Data)
@@ -2536,7 +2553,10 @@ CustomTypeSpec toCurrentVersion(const CustomTypeSpecV5& v5)
         result.data = EnumTypeSpec {enums, v5Data.storageType};
       },
       [&result](const QuantityTypeSpecV5& v5Data)
-      { result.data = QuantityTypeSpec {v5Data.numericType, v5Data.unit, v5Data.minValue, v5Data.maxValue}; },
+      {
+        const auto [minValue, maxValue] = rangeFromOlderVersion(v5Data.minValue, v5Data.maxValue);
+        result.data = QuantityTypeSpec {v5Data.numericType, v5Data.unit, minValue, maxValue};
+      },
       [&result](const SequenceTypeSpecV5& v5Data)
       { result.data = SequenceTypeSpec {v5Data.elementType, boundFromOlderVersion(v5Data.maxSize), v5Data.fixedSize}; },
       [&result](const StructTypeSpecV5& v5Data)
@@ -2585,13 +2605,15 @@ CustomTypeSpec toCurrentVersion(const CustomTypeSpecV5& v5)
         MethodSpecList methods {};
         {
           methods.reserve(v5Data.methods.size());
+          // V5's seventh field is localOnly and V5 has no deferred flag, so deferred is false
+          // here. The binding matches by position: a wrong name here silently swaps the two.
           for (const auto& [memberHash,
                             name,
                             description,
                             v5Args,
                             transportMode,
                             constness,
-                            deferred,
+                            localOnly,
                             returnTypeId,
                             hash]: v5Data.methods)
           {
@@ -2612,10 +2634,10 @@ CustomTypeSpec toCurrentVersion(const CustomTypeSpecV5& v5)
                               args,
                               transportMode,
                               constness,
-                              deferred,
+                              false,
                               returnTypeId,
                               PropertyRelationSpec::nonPropertyRelated,
-                              false};
+                              localOnly};
           }
         }
 

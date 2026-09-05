@@ -794,3 +794,577 @@ TEST(RuntimeCompatibility, RefusesAMismatchedKind)
   // and a quantity against something that carries no number at all
   EXPECT_TRUE(refuses(withUnit, aStruct)) << "quantity against a struct";
 }
+
+/// @test
+/// What getRuntimeDifferences says about two versions of a value type. Each branch builds its own
+/// message, so one being wrong is invisible from the others, and the kernel logs these when it
+/// decides to adapt a type rather than refuse it.
+TEST(RuntimeDifferences, ReportsEveryChangeToAValueType)
+{
+  const auto differences = [](const ConstTypeHandle<>& local, const ConstTypeHandle<>& remote)
+  { return sen::kernel::getRuntimeDifferences(local.type(), remote.type()); };
+  const auto differs = [&differences](const ConstTypeHandle<>& local, const ConstTypeHandle<>& remote)
+  { return !differences(local, remote).empty(); };
+
+  auto wide = sen::UInt32Type::get();
+  auto narrow = sen::UInt8Type::get();
+
+  // a sequence: element, bound, and the fixed-size flag, each on its own
+  const auto sequenceOf = [](const ConstTypeHandle<>& element, std::optional<std::size_t> maxSize, bool fixed)
+  { return sen::SequenceType::make({"Seq", "ns.Seq", "", element, maxSize, fixed}); };
+  EXPECT_TRUE(differs(sequenceOf(wide, 4U, false), sequenceOf(narrow, 4U, false))) << "sequence element";
+  EXPECT_TRUE(differs(sequenceOf(wide, 4U, false), sequenceOf(wide, 8U, false))) << "sequence bound";
+  EXPECT_TRUE(differs(sequenceOf(wide, 4U, false), sequenceOf(wide, 4U, true))) << "fixed size flag";
+  EXPECT_FALSE(differs(sequenceOf(wide, 4U, false), sequenceOf(wide, 4U, false))) << "identical sequences";
+  EXPECT_TRUE(differs(sequenceOf(wide, 4U, false), wide)) << "sequence against a number";
+
+  // a struct: a field whose type changed, and a field the other side does not have
+  const auto structOf = [](const std::vector<sen::StructField>& fields)
+  { return StructType::make({"S", "ns.S", "", fields, {}}); };
+  EXPECT_TRUE(differs(structOf({{"f", "", wide}}), structOf({{"f", "", narrow}}))) << "struct field type";
+  EXPECT_TRUE(differs(structOf({{"f", "", wide}}), structOf({{"f", "", wide}, {"g", "", wide}})))
+    << "a field the other side does not have";
+  EXPECT_TRUE(differs(structOf({{"f", "", wide}}), wide)) << "struct against a number";
+
+  // an optional: the type inside it
+  EXPECT_TRUE(differs(OptionalType::make({"O", "ns.O", "", wide}), OptionalType::make({"O", "ns.O", "", narrow})))
+    << "optional value type";
+  EXPECT_TRUE(differs(OptionalType::make({"O", "ns.O", "", wide}), wide)) << "optional against a number";
+
+  // a quantity: element, unit, minimum and maximum, each reported separately
+  const auto metre = sen::UnitRegistry::get().searchUnitByName("meter");
+  const auto second = sen::UnitRegistry::get().searchUnitByName("second");
+  ASSERT_TRUE(metre.has_value());
+  ASSERT_TRUE(second.has_value());
+
+  const auto quantity =
+    [](auto element, std::optional<const sen::Unit*> unit, std::optional<double> lo, std::optional<double> hi)
+  { return QuantityType::make({"Q", "ns.Q", "", std::move(element), unit, lo, hi}); };
+
+  auto base = quantity(sen::Float32Type::get(), metre, 0.0, 10.0);
+  EXPECT_FALSE(differs(base, quantity(sen::Float32Type::get(), metre, 0.0, 10.0))) << "identical quantities";
+  EXPECT_TRUE(differs(base, quantity(sen::Float64Type::get(), metre, 0.0, 10.0))) << "quantity element";
+  EXPECT_TRUE(differs(base, quantity(sen::Float32Type::get(), second, 0.0, 10.0))) << "quantity unit";
+  EXPECT_TRUE(differs(base, quantity(sen::Float32Type::get(), std::nullopt, 0.0, 10.0))) << "a unit on one side only";
+  EXPECT_TRUE(differs(base, quantity(sen::Float32Type::get(), metre, -1.0, 10.0))) << "minimum value";
+  EXPECT_TRUE(differs(base, quantity(sen::Float32Type::get(), metre, 0.0, 99.0))) << "maximum value";
+  EXPECT_TRUE(differs(base, wide)) << "quantity against a number";
+
+  // the minimum and the maximum are reported apart, so a swap cannot hide behind one message
+  const auto minChanged = differences(base, quantity(sen::Float32Type::get(), metre, -1.0, 10.0));
+  const auto maxChanged = differences(base, quantity(sen::Float32Type::get(), metre, 0.0, 99.0));
+  ASSERT_FALSE(minChanged.empty());
+  ASSERT_FALSE(maxChanged.empty());
+  EXPECT_NE(minChanged.front(), maxChanged.front()) << "minimum and maximum must not report the same thing";
+}
+
+/// @test
+/// What getRuntimeDifferences says about two versions of a class. A class has three kinds of
+/// member and each carries several attributes beyond its type, so this walks them one at a time:
+/// a difference reported under the wrong name, or not at all, is what an operator has to debug
+/// from.
+TEST(RuntimeDifferences, ReportsEveryChangeToAClass)
+{
+  auto wide = sen::UInt32Type::get();
+  auto narrow = sen::UInt8Type::get();
+
+  const auto classOf = [](const std::vector<sen::PropertySpec>& properties,
+                          const std::vector<sen::MethodSpec>& methods,
+                          const std::vector<sen::EventSpec>& events)
+  {
+    const ClassSpec spec {"C", "ns.C", "", properties, methods, events, constructorSpec(), {}, false, {}, {}};
+    return ClassType::make(spec);
+  };
+
+  const auto differs = [](const ConstTypeHandle<>& local, const ConstTypeHandle<>& remote)
+  { return !sen::kernel::getRuntimeDifferences(local.type(), remote.type()).empty(); };
+
+  const sen::PropertySpec plain {"val", "", wide};
+  const sen::MethodSpec plainMethod {{"call", "", {{"arg", "", wide}}}, wide};
+  const sen::EventSpec plainEvent {{"happened", "", {{"arg", "", wide}}}};
+
+  auto base = classOf({plain}, {plainMethod}, {plainEvent});
+  EXPECT_FALSE(differs(base, classOf({plain}, {plainMethod}, {plainEvent}))) << "identical classes";
+
+  // properties: presence, type, category and transport mode
+  EXPECT_TRUE(differs(base, classOf({}, {plainMethod}, {plainEvent}))) << "a property the other side lacks";
+  EXPECT_TRUE(differs(base, classOf({{"val", "", narrow}}, {plainMethod}, {plainEvent}))) << "property type";
+  EXPECT_TRUE(
+    differs(base, classOf({{"val", "", wide, sen::PropertyCategory::dynamicRW}}, {plainMethod}, {plainEvent})))
+    << "property category";
+  EXPECT_TRUE(differs(base,
+                      classOf({{"val", "", wide, sen::PropertyCategory::dynamicRO, sen::TransportMode::confirmed}},
+                              {plainMethod},
+                              {plainEvent})))
+    << "property transport mode";
+
+  // methods: presence, return type, argument type, an argument the other side lacks
+  EXPECT_TRUE(differs(base, classOf({plain}, {}, {plainEvent}))) << "a method the other side lacks";
+  EXPECT_TRUE(differs(base, classOf({plain}, {{{"call", "", {{"arg", "", wide}}}, narrow}}, {plainEvent})))
+    << "method return type";
+  EXPECT_TRUE(differs(base, classOf({plain}, {{{"call", "", {{"arg", "", narrow}}}, wide}}, {plainEvent})))
+    << "method argument type";
+  EXPECT_TRUE(differs(base, classOf({plain}, {{{"call", "", {}}, wide}}, {plainEvent})))
+    << "an argument the other side lacks";
+
+  // methods: the attributes beside the signature
+  EXPECT_TRUE(differs(
+    base, classOf({plain}, {{{"call", "", {{"arg", "", wide}}, sen::TransportMode::multicast}, wide}}, {plainEvent})))
+    << "method transport mode";
+  EXPECT_TRUE(differs(
+    base, classOf({plain}, {{{"call", "", {{"arg", "", wide}}}, wide, sen::Constness::constant}}, {plainEvent})))
+    << "method constness";
+  EXPECT_TRUE(differs(
+    base,
+    classOf({plain},
+            {{{"call", "", {{"arg", "", wide}}}, wide, sen::Constness::nonConstant, sen::NonPropertyRelated {}, true}},
+            {plainEvent})))
+    << "method deferred flag";
+
+  // events: presence and argument type
+  EXPECT_TRUE(differs(base, classOf({plain}, {plainMethod}, {}))) << "an event the other side lacks";
+  EXPECT_TRUE(differs(base, classOf({plain}, {plainMethod}, {{{"happened", "", {{"arg", "", narrow}}}}})))
+    << "event argument type";
+  EXPECT_TRUE(differs(base, classOf({plain}, {plainMethod}, {{{"happened", "", {}}}})))
+    << "an event argument the other side lacks";
+
+  // attributes the method hash does not cover, and which were therefore never reported: gating
+  // them on the hash made each unreachable for exactly the difference it exists to describe
+  EXPECT_TRUE(differs(
+    base,
+    classOf(
+      {plain},
+      {{{"call", "", {{"arg", "", wide}}}, wide, sen::Constness::nonConstant, sen::NonPropertyRelated {}, false, true}},
+      {plainEvent})))
+    << "method local-only flag";
+  EXPECT_TRUE(
+    differs(base,
+            classOf({plain},
+                    {{{"call", "", {{"arg", "", wide}}}, wide, sen::Constness::nonConstant, sen::PropertyGetter {}}},
+                    {plainEvent})))
+    << "method property relation";
+}
+
+/// @test
+/// The mappings between a meta type and its wire spec, both directions, for every value. These are
+/// switch statements, so a wrong case is a silent mistranslation rather than a failure, and it
+/// shows up as the wrong type on the far side of a bus.
+TEST(TypeSpecs, MapsEveryIntegralStorageTypeBothWays)
+{
+  const sen::CustomTypeRegistry natives;
+  sen::CustomTypeRegistry remote;
+
+  const std::vector<std::pair<std::string, sen::ConstTypeHandle<sen::IntegralType>>> storages = {
+    {"u8", sen::UInt8Type::get()},
+    {"i16", sen::Int16Type::get()},
+    {"u16", sen::UInt16Type::get()},
+    {"i32", sen::Int32Type::get()},
+    {"u32", sen::UInt32Type::get()},
+    {"i64", sen::Int64Type::get()},
+    {"u64", sen::UInt64Type::get()}};
+
+  for (const auto& [label, storage]: storages)
+  {
+    auto original = EnumType::make({"E", "ns.E", "", {{"one", 1, ""}}, storage});
+    const auto rebuilt =
+      sen::kernel::buildNonNativeType(sen::kernel::makeCustomTypeSpec(original.type()), natives, remote);
+    remote.add(rebuilt);
+
+    ASSERT_TRUE(rebuilt->isEnumType()) << label;
+    EXPECT_EQ(rebuilt->asEnumType()->getStorageType().getName(), storage->getName())
+      << "an enum stored as " << label << " came back as " << rebuilt->asEnumType()->getStorageType().getName();
+  }
+}
+
+/// @test
+/// The same for unit categories, which is a wider switch and the one where a wrong case turns a
+/// mass into a length.
+TEST(TypeSpecs, MapsEveryUnitCategoryBothWays)
+{
+  const sen::CustomTypeRegistry natives;
+  sen::CustomTypeRegistry remote;
+
+  // one registered unit per category the registry actually carries
+  const std::vector<std::string> unitNames = {
+    "meter", "gram", "second", "radian", "kelvin", "pascals", "newton", "hertz", "knot"};
+
+  for (const auto& name: unitNames)
+  {
+    const auto unit = sen::UnitRegistry::get().searchUnitByName(name);
+    ASSERT_TRUE(unit.has_value()) << name << " is expected in the unit registry";
+
+    auto original =
+      QuantityType::make({"Q", "ns.Q", "", sen::Float64Type::get(), unit.value(), std::nullopt, std::nullopt});
+    const auto rebuilt =
+      sen::kernel::buildNonNativeType(sen::kernel::makeCustomTypeSpec(original.type()), natives, remote);
+    remote.add(rebuilt);
+
+    ASSERT_TRUE(rebuilt->isQuantityType()) << name;
+    const auto rebuiltUnit = rebuilt->asQuantityType()->getUnit();
+    ASSERT_TRUE(rebuiltUnit.has_value()) << name << " lost its unit";
+    EXPECT_EQ(rebuiltUnit.value()->getName(), unit.value()->getName())
+      << name << " came back as " << rebuiltUnit.value()->getName();
+    EXPECT_EQ(rebuiltUnit.value()->getCategory(), unit.value()->getCategory()) << name << " changed category";
+  }
+}
+
+/// @test
+/// The unit category as it is written onto the wire. The rebuild resolves a unit by name, so it
+/// never reads the category back and a round trip cannot see a wrong one: this asserts the spec
+/// itself. Other implementations of this protocol do read the field.
+TEST(TypeSpecs, WritesTheRightUnitCategoryOntoTheWire)
+{
+  const auto categoryOf = [](const std::string& unitName)
+  {
+    const auto unit = sen::UnitRegistry::get().searchUnitByName(unitName);
+    EXPECT_TRUE(unit.has_value()) << unitName;
+    auto quantity =
+      QuantityType::make({"Q", "ns.Q", "", sen::Float64Type::get(), unit.value(), std::nullopt, std::nullopt});
+    const auto spec = sen::kernel::makeCustomTypeSpec(quantity.type());
+    const auto* data = std::get_if<sen::kernel::QuantityTypeSpec>(&spec.data);
+    EXPECT_NE(data, nullptr) << unitName;
+    return data->unit.category;
+  };
+
+  EXPECT_EQ(categoryOf("meter"), sen::kernel::UnitCat::length);
+  EXPECT_EQ(categoryOf("gram"), sen::kernel::UnitCat::mass);
+  EXPECT_EQ(categoryOf("second"), sen::kernel::UnitCat::time);
+  EXPECT_EQ(categoryOf("radian"), sen::kernel::UnitCat::angle);
+  EXPECT_EQ(categoryOf("kelvin"), sen::kernel::UnitCat::temperature);
+  EXPECT_EQ(categoryOf("hertz"), sen::kernel::UnitCat::frequency);
+  EXPECT_EQ(categoryOf("newton"), sen::kernel::UnitCat::force);
+  EXPECT_EQ(categoryOf("pascals"), sen::kernel::UnitCat::pressure);
+  EXPECT_EQ(categoryOf("knot"), sen::kernel::UnitCat::velocity);
+
+  // a quantity with no unit is written as length with an empty name, which is what the reader has
+  // to disambiguate on. Pinned because it is a deliberate placeholder rather than a real category.
+  auto dimensionless =
+    QuantityType::make({"Q", "ns.Q", "", sen::Float64Type::get(), std::nullopt, std::nullopt, std::nullopt});
+  const auto spec = sen::kernel::makeCustomTypeSpec(dimensionless.type());
+  const auto* data = std::get_if<sen::kernel::QuantityTypeSpec>(&spec.data);
+  ASSERT_NE(data, nullptr);
+  EXPECT_TRUE(data->unit.name.empty()) << "a dimensionless quantity carries no unit name";
+  EXPECT_EQ(data->unit.abbreviation, "none");
+}
+
+/// @test
+/// A quantity migrated from an older protocol. V4 and V5 encode "no range" as a minimum that is
+/// not below the maximum, where the current spec uses empty optionals, so a copy that does not
+/// apply the rule turns an unbounded quantity into one whose range admits nothing.
+TEST(TypeSpecs, MigratesAQuantityRangeFromOlderProtocols)
+{
+  const auto migratedV4 = [](double lo, double hi)
+  {
+    sen::kernel::QuantityTypeSpecV4 quantity {};
+    quantity.numericType = sen::kernel::RealType::float64Type;
+    quantity.unit.name = "meter";
+    quantity.unit.abbreviation = "m";
+    quantity.unit.category = sen::kernel::UnitCat::length;
+    quantity.minValue = lo;
+    quantity.maxValue = hi;
+
+    sen::kernel::CustomTypeSpecV4 v4 {};
+    v4.name = "Q";
+    v4.qualifiedName = "ns.Q";
+    v4.data = quantity;
+    return sen::kernel::toCurrentVersion(v4);
+  };
+
+  // a real range survives
+  {
+    const auto migrated = migratedV4(-2.5, 7.5);
+    const auto* data = std::get_if<sen::kernel::QuantityTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr);
+    ASSERT_TRUE(data->minValue.asOptional().has_value());
+    ASSERT_TRUE(data->maxValue.asOptional().has_value());
+    EXPECT_DOUBLE_EQ(data->minValue.asOptional().value(), -2.5);
+    EXPECT_DOUBLE_EQ(data->maxValue.asOptional().value(), 7.5);
+  }
+
+  // and "no range", which the older versions spell as a minimum not below the maximum
+  {
+    const auto migrated = migratedV4(0.0, 0.0);
+    const auto* data = std::get_if<sen::kernel::QuantityTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr);
+    EXPECT_FALSE(data->minValue.asOptional().has_value())
+      << "a V4 quantity with minValue >= maxValue has no range, rather than a range of nothing";
+    EXPECT_FALSE(data->maxValue.asOptional().has_value());
+
+    const sen::CustomTypeRegistry natives;
+    const sen::CustomTypeRegistry remote;
+    const auto rebuilt = sen::kernel::buildNonNativeType(migrated, natives, remote);
+    ASSERT_TRUE(rebuilt->isQuantityType());
+    EXPECT_FALSE(rebuilt->asQuantityType()->getMinValue().has_value());
+    EXPECT_FALSE(rebuilt->asQuantityType()->getMaxValue().has_value());
+  }
+}
+
+/// @test
+/// Every remaining kind a type definition can take, migrated from V4. The migration is one visit
+/// arm per kind, each copying its own fields, so a kind nobody exercises is a kind nobody has
+/// checked.
+TEST(TypeSpecs, MigratesEveryKindFromV4)
+{
+  const auto migrate = [](const sen::kernel::CustomTypeDataV4& data)
+  {
+    sen::kernel::CustomTypeSpecV4 v4 {};
+    v4.name = "T";
+    v4.qualifiedName = "ns.T";
+    v4.description = "from an older kernel";
+    v4.data = data;
+    return sen::kernel::toCurrentVersion(v4);
+  };
+
+  // alias
+  {
+    sen::kernel::AliasTypeSpecV4 alias {};
+    alias.aliasedType = "u32";
+    const auto migrated = migrate(alias);
+    const auto* data = std::get_if<sen::kernel::AliasTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "alias";
+    EXPECT_EQ(data->aliasedType, "u32");
+  }
+
+  // optional
+  {
+    sen::kernel::OptionalTypeSpecV4 optional {};
+    optional.type = "u32";
+    const auto migrated = migrate(optional);
+    const auto* data = std::get_if<sen::kernel::OptionalTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "optional";
+    EXPECT_EQ(data->type, "u32");
+  }
+
+  // struct, including the parent it may declare
+  {
+    sen::kernel::StructTypeSpecV4 structure {};
+    structure.parent = "ns.Base";
+    structure.fields.emplace_back();
+    structure.fields.back() = {"f", "a field", "u32"};
+    const auto migrated = migrate(structure);
+    const auto* data = std::get_if<sen::kernel::StructTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "struct";
+    EXPECT_EQ(data->parent, "ns.Base");
+    ASSERT_EQ(data->fields.size(), 1U);
+    EXPECT_EQ(data->fields.at(0).name, "f");
+    EXPECT_EQ(data->fields.at(0).type, "u32");
+  }
+
+  // variant, whose alternatives are keyed rather than positional
+  {
+    sen::kernel::VariantTypeSpecV4 variant {};
+    variant.fields.emplace_back();
+    variant.fields.back() = {7, "an alternative", "u32"};
+    const auto migrated = migrate(variant);
+    const auto* data = std::get_if<sen::kernel::VariantTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "variant";
+    ASSERT_EQ(data->fields.size(), 1U);
+    EXPECT_EQ(data->fields.at(0).key, 7U) << "the key must survive, not become a position";
+    EXPECT_EQ(data->fields.at(0).type, "u32");
+  }
+
+  // class, with one member of each kind
+  {
+    sen::kernel::ClassTypeSpecV4 klass {};
+    klass.isInterface = false;
+
+    klass.properties.emplace_back();
+    klass.properties.back().name = "val";
+    klass.properties.back().type = "u32";
+
+    klass.methods.emplace_back();
+    klass.methods.back().name = "call";
+    klass.methods.back().returnTypeId = "u32";
+    klass.methods.back().deferred = true;
+    klass.methods.back().args.emplace_back();
+    klass.methods.back().args.back() = {"arg", "", "u32"};
+
+    klass.events.emplace_back();
+    klass.events.back().name = "happened";
+    klass.events.back().args.emplace_back();
+    klass.events.back().args.back() = {"arg", "", "u32"};
+
+    klass.constructor.name = "constructorT";
+
+    const auto migrated = migrate(klass);
+    const auto* data = std::get_if<sen::kernel::ClassTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "class";
+    ASSERT_EQ(data->properties.size(), 1U);
+    EXPECT_EQ(data->properties.at(0).name, "val");
+    ASSERT_EQ(data->methods.size(), 1U);
+    EXPECT_EQ(data->methods.at(0).name, "call");
+    EXPECT_TRUE(data->methods.at(0).deferred) << "the deferred flag must survive the migration";
+    ASSERT_EQ(data->methods.at(0).args.size(), 1U);
+    EXPECT_EQ(data->methods.at(0).args.at(0).name, "arg");
+    ASSERT_EQ(data->events.size(), 1U);
+    EXPECT_EQ(data->events.at(0).name, "happened");
+    EXPECT_EQ(data->constructor.name, "constructorT");
+  }
+}
+
+/// @test
+/// The same kinds from V5, whose method carries localOnly where V4 carried deferred, and whose
+/// class gained the parent list. Each version drops what the other has, so what survives a
+/// migration is not symmetric and is worth stating.
+TEST(TypeSpecs, MigratesEveryKindFromV5)
+{
+  const auto migrate = [](const sen::kernel::CustomTypeDataV5& data)
+  {
+    sen::kernel::CustomTypeSpecV5 v5 {};
+    v5.name = "T";
+    v5.qualifiedName = "ns.T";
+    v5.description = "from a less old kernel";
+    v5.data = data;
+    return sen::kernel::toCurrentVersion(v5);
+  };
+
+  {
+    sen::kernel::AliasTypeSpecV5 alias {};
+    alias.aliasedType = "u32";
+    const auto migrated = migrate(alias);
+    const auto* data = std::get_if<sen::kernel::AliasTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "alias";
+    EXPECT_EQ(data->aliasedType, "u32");
+  }
+
+  {
+    sen::kernel::OptionalTypeSpecV5 optional {};
+    optional.type = "u32";
+    const auto migrated = migrate(optional);
+    const auto* data = std::get_if<sen::kernel::OptionalTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "optional";
+    EXPECT_EQ(data->type, "u32");
+  }
+
+  {
+    sen::kernel::StructTypeSpecV5 structure {};
+    structure.parent = "ns.Base";
+    structure.fields.emplace_back();
+    structure.fields.back() = {"f", "a field", "u32", 0U};
+    const auto migrated = migrate(structure);
+    const auto* data = std::get_if<sen::kernel::StructTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "struct";
+    EXPECT_EQ(data->parent, "ns.Base");
+    ASSERT_EQ(data->fields.size(), 1U);
+    EXPECT_EQ(data->fields.at(0).name, "f");
+  }
+
+  {
+    sen::kernel::VariantTypeSpecV5 variant {};
+    variant.fields.emplace_back();
+    variant.fields.back() = {7, "an alternative", "u32", 0U};
+    const auto migrated = migrate(variant);
+    const auto* data = std::get_if<sen::kernel::VariantTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "variant";
+    ASSERT_EQ(data->fields.size(), 1U);
+    EXPECT_EQ(data->fields.at(0).key, 7U) << "the key must survive, not become a position";
+  }
+
+  {
+    sen::kernel::ClassTypeSpecV5 klass {};
+    klass.parents.emplace_back("ns.Base");
+
+    klass.properties.emplace_back();
+    klass.properties.back().name = "val";
+    klass.properties.back().type = "u32";
+
+    klass.methods.emplace_back();
+    klass.methods.back().name = "call";
+    klass.methods.back().returnTypeId = "u32";
+    klass.methods.back().localOnly = true;
+
+    klass.events.emplace_back();
+    klass.events.back().name = "happened";
+
+    klass.constructor.name = "constructorT";
+
+    const auto migrated = migrate(klass);
+    const auto* data = std::get_if<sen::kernel::ClassTypeSpec>(&migrated.data);
+    ASSERT_NE(data, nullptr) << "class";
+    ASSERT_EQ(data->parents.size(), 1U) << "V5 carries a parent list, unlike V4";
+    EXPECT_EQ(data->parents.at(0), "ns.Base");
+    ASSERT_EQ(data->methods.size(), 1U);
+    EXPECT_TRUE(data->methods.at(0).localOnly) << "V5 carries localOnly where V4 carried deferred";
+    EXPECT_FALSE(data->methods.at(0).deferred) << "V5 has no deferred flag, so it takes the default";
+    ASSERT_EQ(data->properties.size(), 1U);
+    ASSERT_EQ(data->events.size(), 1U);
+    EXPECT_EQ(data->constructor.name, "constructorT");
+  }
+}
+
+/// @test
+/// Every arm of the three mapping switches that translate a meta value into its wire form. A wrong
+/// case is silent: the value is written, read back, and means something else on the far side. The
+/// unit categories are built directly rather than looked up, as the registry lacks some of them.
+TEST(TypeSpecs, MapsEveryEnumeratedValueOntoTheWire)
+{
+  // every unit category
+  const std::vector<std::pair<UnitCategory, sen::kernel::UnitCat>> categories = {
+    {UnitCategory::length, sen::kernel::UnitCat::length},
+    {UnitCategory::mass, sen::kernel::UnitCat::mass},
+    {UnitCategory::time, sen::kernel::UnitCat::time},
+    {UnitCategory::angle, sen::kernel::UnitCat::angle},
+    {UnitCategory::temperature, sen::kernel::UnitCat::temperature},
+    {UnitCategory::density, sen::kernel::UnitCat::density},
+    {UnitCategory::pressure, sen::kernel::UnitCat::pressure},
+    {UnitCategory::area, sen::kernel::UnitCat::area},
+    {UnitCategory::force, sen::kernel::UnitCat::force},
+    {UnitCategory::frequency, sen::kernel::UnitCat::frequency},
+    {UnitCategory::velocity, sen::kernel::UnitCat::velocity},
+    {UnitCategory::angularVelocity, sen::kernel::UnitCat::angularVelocity},
+    {UnitCategory::acceleration, sen::kernel::UnitCat::acceleration},
+    {UnitCategory::angularAcceleration, sen::kernel::UnitCat::angularAcceleration},
+    {UnitCategory::torque, sen::kernel::UnitCat::torque}};
+
+  for (const auto& [category, expected]: categories)
+  {
+    auto unit = sen::Unit::make(UnitSpec {category, "u", "us", "u", 1.0, 0.0, 0.0});
+    auto quantity =
+      QuantityType::make({"Q", "ns.Q", "", sen::Float64Type::get(), unit.get(), std::nullopt, std::nullopt});
+    const auto spec = sen::kernel::makeCustomTypeSpec(quantity.type());
+    const auto* data = std::get_if<sen::kernel::QuantityTypeSpec>(&spec.data);
+    ASSERT_NE(data, nullptr);
+    EXPECT_EQ(data->unit.category, expected)
+      << "unit category " << static_cast<int>(category) << " was written as " << static_cast<int>(data->unit.category);
+  }
+
+  // every property category and transport mode, read back off the wire form of a class
+  const std::vector<std::pair<sen::PropertyCategory, sen::kernel::PropertyCategorySpec>> propertyCategories = {
+    {sen::PropertyCategory::staticRO, sen::kernel::PropertyCategorySpec::staticRO},
+    {sen::PropertyCategory::staticRW, sen::kernel::PropertyCategorySpec::staticRW},
+    {sen::PropertyCategory::dynamicRO, sen::kernel::PropertyCategorySpec::dynamicRO},
+    {sen::PropertyCategory::dynamicRW, sen::kernel::PropertyCategorySpec::dynamicRW}};
+
+  const std::vector<std::pair<sen::TransportMode, sen::kernel::TransportModeSpec>> transportModes = {
+    {sen::TransportMode::unicast, sen::kernel::TransportModeSpec::unicast},
+    {sen::TransportMode::multicast, sen::kernel::TransportModeSpec::multicast},
+    {sen::TransportMode::confirmed, sen::kernel::TransportModeSpec::confirmed}};
+
+  for (const auto& [category, expectedCategory]: propertyCategories)
+  {
+    for (const auto& [mode, expectedMode]: transportModes)
+    {
+      const sen::PropertySpec property {"val", "", sen::UInt32Type::get(), category, mode};
+      const ClassSpec spec {"C", "ns.C", "", {property}, {}, {}, constructorSpec(), {}, false, {}, {}};
+      auto klass = ClassType::make(spec);
+
+      const auto typeSpec = sen::kernel::makeCustomTypeSpec(klass.type());
+      const auto* data = std::get_if<sen::kernel::ClassTypeSpec>(&typeSpec.data);
+      ASSERT_NE(data, nullptr);
+      ASSERT_EQ(data->properties.size(), 1U);
+      EXPECT_EQ(data->properties.at(0).category, expectedCategory)
+        << "property category " << static_cast<int>(category);
+      EXPECT_EQ(data->properties.at(0).transportMode, expectedMode) << "transport mode " << static_cast<int>(mode);
+
+      // and back again, which is a separate switch and so a separate chance to be wrong
+      const sen::CustomTypeRegistry natives;
+      const sen::CustomTypeRegistry remote;
+      const auto rebuilt = sen::kernel::buildNonNativeType(typeSpec, natives, remote);
+      ASSERT_TRUE(rebuilt->isClassType());
+      const auto* rebuiltProperty = rebuilt->asClassType()->searchPropertyByName("val");
+      ASSERT_NE(rebuiltProperty, nullptr);
+      EXPECT_EQ(rebuiltProperty->getCategory(), category) << "category did not survive the return trip";
+      EXPECT_EQ(rebuiltProperty->getTransportMode(), mode) << "transport mode did not survive the return trip";
+    }
+  }
+}
