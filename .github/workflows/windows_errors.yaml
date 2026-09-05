@@ -95,16 +95,22 @@ jobs:
           echo "--- failed tests ---"
           sed -n '/The following tests FAILED/,$p' tests.log || true
 
-      # ctest above returns; the same selection through the target the standard leg
-      # uses does not, though every test passes. Bounded, so the answer costs six
-      # minutes rather than a job.
-      - name: The same tests through the target the standard leg uses
+      # The suite passes and the target still does not return. The last thing it
+      # prints is the flaky pass starting, and that selection is empty here because
+      # every flaky test is a container one and those are added under if(LINUX).
+      # The same command against an empty selection prints one line and exits at
+      # once on Linux. This runs it alone to say whether that is what hangs.
+      - name: The flaky pass on its own
         shell: cmd
-        timeout-minutes: 6
+        timeout-minutes: 3
         run: |
           call build\msvc\Release\generators\conanbuild.bat
-          cmake --build build\msvc\Release --target run_tests
-          echo TARGET-RETURNED
+          ctest --test-dir build\msvc\Release -N -L flaky
+          echo SELECTION-COUNTED
+          ctest --test-dir build\msvc\Release --parallel 1 --repeat until-pass:5 ^
+            --output-junit ctestFlakyReport.xml --no-tests=ignore --output-on-failure ^
+            --timeout 20 --stop-on-failure -L flaky
+          echo FLAKY-PASS-RETURNED
 
       # Whatever is still alive here is what the target is waiting on.
       - name: What is still running
