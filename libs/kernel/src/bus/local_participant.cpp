@@ -19,6 +19,7 @@
 #include "bus/util.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/iterator_adapters.h"
 #include "sen/core/base/span.h"
@@ -89,10 +90,38 @@ LocalParticipant::LocalParticipant(ObjectOwnerId id,
   logger_->debug("LP {}: created with id {}", debugName_, getId().get());
 }
 
+void LocalParticipant::markTornDown() noexcept
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(teardownMutex_);
+    if (tornDown_)
+    {
+      return;
+    }
+    tornDown_ = true;
+  }
+
+  if (bus_ != nullptr)
+  {
+    bus_->disconnect(this);
+    bus_ = nullptr;
+  }
+
+  owner_ = nullptr;
+  session_.reset();
+}
+
 LocalParticipant::~LocalParticipant()
 {
-  bus_->disconnect(this);
-  owner_->localParticipantDeleted(this);
+  SEN_DEBUG_ASSERT(!hasActiveListeners() &&
+                   "All subscription instances must be destroyed before its component's runner is stopped.");
+
+  if (owner_ != nullptr)
+  {
+    owner_->localParticipantDeleted(this);
+  }
+
+  markTornDown();
 }
 
 BusId LocalParticipant::getBusId() const noexcept { return bus_->getId(); }
@@ -384,6 +413,12 @@ void LocalParticipant::localSubscriberAdded(const std::shared_ptr<Interest>& int
                                             ObjectProviderListener* listener,
                                             bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (const auto* localParticipant = listener->isLocalParticipant();
       localParticipant == nullptr && listener->isRemoteParticipant() == nullptr)
   {
@@ -426,6 +461,12 @@ void LocalParticipant::localSubscriberRemoved(const std::shared_ptr<Interest>& i
                                               ObjectProviderListener* listener,
                                               bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (const auto* localParticipant = listener->isLocalParticipant();
       localParticipant == nullptr && listener->isRemoteParticipant() == nullptr)
   {
@@ -459,6 +500,12 @@ void LocalParticipant::localSubscriberRemoved(const std::shared_ptr<Interest>& i
 
 void LocalParticipant::localSubscriberRemoved(ObjectProviderListener* listener, bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (auto* localParticipant = listener->isLocalParticipant();
       localParticipant == nullptr && listener->isRemoteParticipant() == nullptr)
   {
@@ -491,6 +538,12 @@ void LocalParticipant::remoteSubscriberAdded(const std::shared_ptr<Interest>& in
                                              RemoteParticipant* listener,
                                              bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   logger_->debug("LP {}: remote subscriber {} added for interest {} begin '{}')",
                  debugName_,
                  listener->getId().get(),
@@ -509,6 +562,12 @@ void LocalParticipant::remoteSubscriberRemoved(const std::shared_ptr<Interest>& 
                                                RemoteParticipant* listener,
                                                bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   logger_->debug("LP {}: remote subscriber {} removed from interest {} begin",
                  debugName_,
                  listener->getId().get(),
@@ -524,6 +583,13 @@ void LocalParticipant::remoteSubscriberRemoved(const std::shared_ptr<Interest>& 
 
 void LocalParticipant::remoteSubscriberRemoved(RemoteParticipant* listener, bool notifyAboutExisting)
 {
+
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   logger_->debug("LP {}: remote subscriber {} removed begin", debugName_, listener->getId().get());
 
   remoteInterestsManager_.removeSubscriber(listener, notifyAboutExisting);
@@ -592,6 +658,12 @@ void LocalParticipant::subscriberAdded(std::shared_ptr<Interest> interest,
                                        ObjectProviderListener* listener,
                                        bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (const auto& typeCondition = interest->getTypeCondition();
       std::holds_alternative<ConstTypeHandle<ClassType>>(typeCondition))
   {
@@ -604,11 +676,23 @@ void LocalParticipant::subscriberRemoved(std::shared_ptr<Interest> interest,
                                          ObjectProviderListener* listener,
                                          bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   localSubscriberRemoved(interest, listener, notifyAboutExisting);
 }
 
 void LocalParticipant::subscriberRemoved(ObjectProviderListener* listener, bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   localSubscriberRemoved(listener, notifyAboutExisting);
 }
 
