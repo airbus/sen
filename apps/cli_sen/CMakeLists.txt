@@ -23,3 +23,7 @@ set_target_properties(cli_sen PROPERTIES RUNTIME_OUTPUT_NAME sen)
 sen_internal_configure_app(cli_sen)
 sen_enable_static_analysis(cli_sen)
 sen_internal_install(cli_sen)
+
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

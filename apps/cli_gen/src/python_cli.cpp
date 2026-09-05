@@ -54,7 +54,6 @@ namespace sen::cli_gen
 void setupPythonCli(CLI::App& app)
 {
   auto py = app.add_subcommand("py", "Generate Python dataclasses");
-  py->allow_extras();
   py->require_subcommand();
 
   auto stl = setupStlInput(*py,

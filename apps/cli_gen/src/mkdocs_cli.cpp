@@ -61,7 +61,6 @@ void setupMkDocsCli(CLI::App& app)
 {
   auto mkdocsArgs = std::make_shared<MkDocsArgs>();
   auto mkdocs = app.add_subcommand("mkdocs", "Generate MkDocs documentation");
-  mkdocs->allow_extras();
   mkdocs->require_subcommand();
 
   auto stl = setupStlInput(*mkdocs,

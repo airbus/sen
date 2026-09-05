@@ -51,7 +51,6 @@ namespace sen::cli_gen
 void setupTypeScriptCli(CLI::App& app)
 {
   auto ts = app.add_subcommand("ts", "Generate per-input TypeScript modules + a barrel from STL inputs");
-  ts->allow_extras();
   ts->require_subcommand();
 
   auto outDir = std::make_shared<std::string>();

@@ -97,7 +97,6 @@ void setupGenJsonPackage(CLI::App& app)
 {
   auto pkgArgs = std::make_shared<JsonPackageArgs>();
   auto pkg = app.add_subcommand("package", "Generate JSON schemas for packages");
-  pkg->allow_extras();
   pkg->require_subcommand();
 
   auto stl = setupStlInput(*pkg,
@@ -129,7 +128,6 @@ void setupGenJsonComponent(CLI::App& app)
 {
   auto compArgs = std::make_shared<JsonComponentArgs>();
   auto comp = app.add_subcommand("component", "Generate JSON schemas for components");
-  comp->allow_extras();
   comp->require_subcommand();
 
   auto stl = setupStlInput(*comp,
@@ -161,7 +159,6 @@ void setupGenJsonSchema(CLI::App& app)
 {
   auto schemaArgs = std::make_shared<JsonSchemaArgs>();
   auto schema = app.add_subcommand("schema", "Generate JSON schemas for sen configurations");
-  schema->allow_extras();
 
   schema->add_option("schema_files", schemaArgs->schemas, "JSON schema files")->required()->check(CLI::ExistingFile);
 
@@ -192,7 +189,6 @@ void setupGenJsonSchema(CLI::App& app)
 void setupJsonCli(CLI::App& app)
 {
   auto json = app.add_subcommand("json", "Generate JSON schemas");
-  json->allow_extras();
   json->require_subcommand();
 
   setupGenJsonPackage(*json);

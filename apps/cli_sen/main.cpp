@@ -23,8 +23,10 @@
 #endif
 
 // std
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <filesystem>
 #include <iostream>
@@ -59,10 +61,22 @@ void runChildProcess(const char* binPath, int argc, char* argv[])
   cmdVec.push_back(nullptr);
 
 #ifdef WIN32
+  // -1 is also what a child returning -1 gives back, so errno is what separates the two. It is
+  // cleared first because a stale value from anything earlier would read as a spawn failure.
+  errno = 0;
   auto rc = _spawnv(_P_WAIT, binPath, cmdVec.data());
-  exit(rc);
+  if (rc == -1 && errno != 0)
+  {
+    std::cerr << "sen: cannot run " << binPath << ": " << std::strerror(errno) << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  exit(static_cast<int>(rc));
 #else
+  // execv returns only when the child could not be started, so anything after it is a failure
+  // path. Without this a missing binary left the caller exiting zero having done nothing.
   execv(binPath, cmdVec.data());
+  std::cerr << "sen: cannot run " << binPath << ": " << std::strerror(errno) << std::endl;
+  exit(EXIT_FAILURE);
 #endif
 }
 
