@@ -165,18 +165,21 @@ export async function spawnSen(opts: SpawnSenOptions): Promise<SenHandle> {
     port: opts.port,
     async stop({ graceMs = defaultShutdownGraceMs } = {}) {
       if (child.exitCode !== null) return;
-      if (process.platform === "win32") {
-        // Windows has no real SIGINT; child.kill() invokes TerminateProcess.
-        child.kill();
-        return;
-      }
-      child.kill("SIGINT");
+      // Windows has no real SIGINT and any signal invokes TerminateProcess. Both
+      // platforms then wait for the process to actually go: returning once the
+      // signal is delivered leaves the listening socket held, and a caller waiting
+      // for the port to close sees it still open.
+      child.kill(process.platform === "win32" ? "SIGTERM" : "SIGINT");
       const exited = await Promise.race([
         once(child, "exit").then(() => true),
         new Promise<boolean>((r) => setTimeout(() => r(false), graceMs)),
       ]);
       if (!exited) {
         child.kill("SIGKILL");
+        await Promise.race([
+          once(child, "exit"),
+          new Promise((r) => setTimeout(r, graceMs)),
+        ]);
       }
     },
   };
