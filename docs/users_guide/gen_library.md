@@ -17,9 +17,11 @@ complete list of generators and their options.
 
 ## What it contains
 
-Each generator is exposed as a small PImpl class that owns its inja template
-environment. Instances are reusable across calls; prefer constructing one per
-process and feeding it successive type sets.
+Each generator is exposed as a small PImpl class. Most own an inja template
+environment; the HTML one builds its output directly, because it emits an
+application and a data file rather than rendered text. Instances are reusable
+across calls; prefer constructing one per process and feeding it successive type
+sets.
 
 | Header | Class | Output |
 | --- | --- | --- |
@@ -29,14 +31,15 @@ process and feeding it successive type sets.
 | `sen/gen/json.h` | `sen::gen::JsonGenerator` | JSON-Schema documents |
 | `sen/gen/plantuml.h` | `sen::gen::PlantUMLGenerator` | PlantUML class diagrams |
 | `sen/gen/mkdocs.h` | `sen::gen::MkDocsGenerator` | MkDocs-flavoured markdown |
+| `sen/gen/html.h` | `sen::gen::HtmlGenerator` | Browsable HTML reference |
 
 ## How to use it
 
 Parse the input STL files into a `sen::lang::TypeSetContext` (see
 `sen::core`), construct the relevant generator, and call its `generate*`
-method. Each method returns the rendered file contents as a `std::string` (or,
-for the C++ generator, a `std::map<path, string>` covering the header / source
-pair plus any transitively-rendered imports).
+method. Most return the rendered file contents as a `std::string`. The ones that
+write more than one file — C++, TypeScript and HTML — return a
+`FileContents`, a `std::map<path, string>` keyed by the path each file goes to.
 
 For a fully worked example, see the `apps/cli_gen` sources: each per-topic
 subcommand under `apps/cli_gen/src/*_cli.cpp` instantiates one generator and

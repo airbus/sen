@@ -218,7 +218,7 @@ nav:
       - Replayer: snippets/examples/config/7_replayer/readme.md
       - Using Python: snippets/examples/config/10_python/readme.md
       - Using HLA: snippets/examples/config/9_hla_servers/readme.md
-      - Web Generation: snippets/fom.md
+      - HTML Reference: examples/generated_reference.md
       - UML Generation: examples/generated_uml.md
   - License:
       - licenses/index.md

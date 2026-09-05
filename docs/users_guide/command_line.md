@@ -370,6 +370,27 @@ Works the same way as C++, but with slightly different options.
 --8<-- "snippets/sen_generate_mkdocs_fom.sh"
 ```
 
+### HTML reference
+
+Renders the data model as a small web application: a tree, a search, and a page per type. It
+needs no server and no network, so the output opens straight from a file.
+
+```title="sen generate html"
+--8<-- "snippets/sen_generate_html.sh"
+```
+
+#### HTML from STL
+
+```title="sen generate html stl"
+--8<-- "snippets/sen_generate_html_stl.sh"
+```
+
+#### HTML from HLA FOMs
+
+```title="sen generate html fom"
+--8<-- "snippets/sen_generate_html_fom.sh"
+```
+
 ### JSON schemas
 
 Generates json schemas from a Sen data model.

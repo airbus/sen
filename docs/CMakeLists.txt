@@ -52,6 +52,10 @@ ${sen_exec} generate mkdocs --help > ${snippets_dir}/sen_generate_mkdocs.sh\n\
 ${sen_exec} generate mkdocs stl --help > ${snippets_dir}/sen_generate_mkdocs_stl.sh\n\
 ${sen_exec} generate mkdocs fom --help > ${snippets_dir}/sen_generate_mkdocs_fom.sh\n\
 \n\
+${sen_exec} generate html --help > ${snippets_dir}/sen_generate_html.sh\n\
+${sen_exec} generate html stl --help > ${snippets_dir}/sen_generate_html_stl.sh\n\
+${sen_exec} generate html fom --help > ${snippets_dir}/sen_generate_html_fom.sh\n\
+\n\
 ${sen_exec} generate json package stl --help > ${snippets_dir}/sen_generate_json_package_stl.sh\n\
 ${sen_exec} generate json package fom --help > ${snippets_dir}/sen_generate_json_package_fom.sh\n\
 \n\
@@ -75,7 +79,7 @@ ${sen_exec} package --help > ${snippets_dir}/sen_package.sh\n\
 ${sen_exec} package init --help > ${snippets_dir}/sen_package_init.sh\n\
 ${sen_exec} package init-component --help > ${snippets_dir}/sen_package_init-component.sh\n\
 \n\
-${sen_exec} generate mkdocs fom --directories ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16 -t \"Generated RPR, NETN & L16 Docs\" -o ${snippets_dir}/fom.md\n\
+${sen_exec} generate html fom --directories ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16 -t \"RPR, NETN and Link 16\" -o ${snippets_dir}/fom\n\
 exit 0"
       FILE_PERMISSIONS
       OWNER_READ
@@ -96,7 +100,13 @@ exit 0"
     CLASSES_ONLY
   )
 
-  set(fom_doc_example_file ${snippets_dir}/fom.md)
+  # The reference is a small application rather than a page: index.html stands for the five
+  # files beside it, which are written by the same command.
+  set(fom_doc_example_file ${snippets_dir}/fom/index.html)
+
+  # The example used to be one markdown page. snippets/ is gitignored and persists, so a tree
+  # that built before the change would keep serving the old one from the site.
+  file(REMOVE ${snippets_dir}/fom.md)
 
   set(snippets
       ${snippets_dir}/sen.sh
@@ -114,6 +124,9 @@ exit 0"
       ${snippets_dir}/sen_generate_mkdocs.sh
       ${snippets_dir}/sen_generate_mkdocs_stl.sh
       ${snippets_dir}/sen_generate_mkdocs_fom.sh
+      ${snippets_dir}/sen_generate_html.sh
+      ${snippets_dir}/sen_generate_html_stl.sh
+      ${snippets_dir}/sen_generate_html_fom.sh
       ${snippets_dir}/sen_generate_json_package_stl.sh
       ${snippets_dir}/sen_generate_json_package_fom.sh
       ${snippets_dir}/sen_generate_json_component_stl.sh
