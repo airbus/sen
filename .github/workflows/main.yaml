@@ -143,6 +143,9 @@ jobs:
       needs.detect-changes.outputs.docs == 'true' &&
       (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     uses: ./.github/workflows/docs_check.yaml
+    permissions:
+      contents: read
+      actions: write
 
   # A change to the build environment has to prove the image still builds and
   # still holds the tools it promises. ci-ok needs this job, so a broken image

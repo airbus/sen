@@ -243,6 +243,9 @@ jobs:
   # watch, for example doxygen comments in headers.
   docs-build:
     uses: ./.github/workflows/docs_check.yaml
+    permissions:
+      contents: read
+      actions: write
 
   # Every packaged configuration, which a pull request does not run: it builds
   # only the configuration that ships.

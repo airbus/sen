@@ -16,6 +16,8 @@ on:
 
 permissions:
   contents: read
+  # build_documentation drops the cache entries its saves replace.
+  actions: write
 
 jobs:
   build_docs:
