@@ -112,9 +112,19 @@ Sen is fully asynchronous, which means that calls to methods do not block. This 
 method does not return any value, but if it does (and you are interested in it), then you need to
 provide a callback. For example:
 
-```c++ title="calculators/src/client.cpp"
+```{ .c++ .annotate title="calculators/src/client.cpp" }
 --8<-- "examples/packages/calculators/src/client.cpp:async_call"
 ```
+
+1. Subscriptions are set up in `registered()`, earlier in the same file.
+2. The subscription is held in a member so that it outlives the call.
+3. It matches every object implementing the generated interface.
+4. Always guard against an empty list. Objects can disappear between cycles.
+5. `list.front()` gives a reference to the first match, valid for this whole update cycle because
+   it was frozen during drain.
+6. The callback receives a `MethodResult`, holding either the value or an exception. `float32_t`
+   is what `f32` becomes in the generated header, so the types match exactly. It fires during the
+   drain stage of a later cycle, once the calculator has committed the result.
 
 That is the whole of a real client: find a calculator, call `add` on it, and handle the answer when
 it arrives. The `{this, handleResult}` pair is the callback. `this` is what ties the callback to
@@ -316,14 +326,22 @@ the pair.
 
 Discovering objects on a bus then looks like this:
 
-```c++ title="calculators/src/client.cpp"
+```{ .c++ .annotate title="calculators/src/client.cpp" }
 --8<-- "examples/packages/calculators/src/client.cpp:subscribe"
 ```
+
+1. `registered()` runs once, after the object joins the bus: the point at which the API is
+   available and subscriptions can be set up.
+2. The subscription is kept in a member variable so it outlives this call. If it went out of
+   scope the list would be destroyed and the callbacks would stop.
+3. `selectAllFrom<CalculatorInterface>(getCalcBus())` matches every object implementing the
+   generated interface, which is why you subscribe to `CalculatorInterface` and not to an
+   implementation class.
 
 The member it assigns to is declared as
 `std::shared_ptr<sen::Subscription<CalculatorInterface>> calculators_;`, and reading it is
 `calculators_->list.getObjects()`. [Tutorial 2](../tutorials/two_objects.md) shows the same file
-in full, with both lines annotated.
+in full.
 
 `selectAllFrom` also takes an optional callback, invoked during drain with the objects that have
 just appeared, which is useful when you want to react to a discovery instead of polling the list.

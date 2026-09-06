@@ -25,9 +25,15 @@ It also provides two implementations for the `Calculator` class.
 
 === "_casio_calculator.cpp_"
 
-    ```c++ title="Implementation of a calculator"
+    ```{ .c++ .annotate title="Implementation of a calculator" }
     --8<-- "snippets/examples/packages/calculators/src/casio_calculator.cpp"
     ```
+
+    1. Stages the new value. It is not visible until commit, but the return value reaches the
+       caller as soon as their next drain processes the result.
+    2. Dividing by zero does both things Sen offers. The event suits subscribers who want to
+       observe the error; the exception is how the caller finds out, because Sen catches it, wraps
+       it in a `MethodResult` and hands it to the caller's callback.
 
 === "_faulty_calculator.cpp_"
 
