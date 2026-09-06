@@ -5,6 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+# --8<-- [start:package]
 add_sen_package(
   TARGET fibonacci
   TEST_TARGET fibonacci_test_lib # static library with all symbols, used by unit tests
@@ -23,3 +24,4 @@ add_sen_unit_test_suite(
   LINK_DEPS
   fibonacci_test_lib
 )
+# --8<-- [end:package]

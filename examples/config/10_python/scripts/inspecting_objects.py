@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+# --8<-- [start:script]
 """Example module that demonstrates how to inspect objects."""
 
 import sen
@@ -34,3 +35,6 @@ def update():
         print(f"Python:   - class: {obj.className}")
         print(f"Python:   - id:    {obj.id}")
         print(f"Python:   - time:  {obj.lastCommitTime}")
+
+
+# --8<-- [end:script]

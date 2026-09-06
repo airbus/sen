@@ -1,6 +1,7 @@
-# Python Interpreter examples
+# Python interpreter examples
 
-> **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic objects). Sub-examples 5 and 6 also use [4 - School](../4_school/readme.md).
+> **Prerequisites:** [1 - Calculators](../1_calculators/readme.md) (basic objects). Sub-examples 5
+> and 6 also use [4 - School](../4_school/readme.md).
 
 Here you can see how we load and execute Python scripts inside a Sen process.
 
@@ -10,7 +11,7 @@ example scripts:
 For bash:
 
 ```shell
-export PYTHONPATH=$PYTHONPATH;$(pwd)/config/10_python/scripts
+export PYTHONPATH=$PYTHONPATH:$(pwd)/config/10_python/scripts
 ```
 
 For fish:
@@ -19,10 +20,11 @@ For fish:
 set -xa PYTHONPATH $(pwd)/config/10_python/scripts
 ```
 
-**PYTHONPATH setup**: The Python scripts import `sen` (the Sen Python binding) and optionally generated type modules.
-Before running these scripts standalone, ensure `PYTHONPATH` includes the directory containing the `sen` module and any
-generated Python packages. When using `sen run`, Sen automatically extends `PYTHONPATH` with the paths of Python targets
-listed in `DEPS` inside `sen_generate_yaml`.
+**PYTHONPATH setup**: The Python scripts import `sen` (the Sen Python binding) and optionally
+generated type modules. Before running these scripts standalone, ensure `PYTHONPATH` includes the
+directory containing the `sen` module and any generated Python packages. When using `sen run`, Sen
+automatically extends `PYTHONPATH` with the paths of Python targets listed in `DEPS` inside
+`sen_generate_yaml`.
 
 ## Hello Python
 
@@ -46,7 +48,8 @@ sen run config/10_python/1_python_hello.yaml
 
 ## Inspecting objects
 
-In this example we can see how to fetch objects coming from other components and print their properties.
+In this example we can see how to fetch objects coming from other components and print their
+properties.
 
 Run it with:
 
@@ -151,20 +154,20 @@ This example contains the following files:
 If you open the shell you can use the interpreter with something like this:
 
 ```text
-sen:enrique-debian/6_python_interpreter> local.py.interpreter.eval "2+2"
+sen:host/6_python_interpreter> local.py.interpreter.eval "2+2"
 "4"
 ```
 
 The `eval` function evaluates an expression and returns the result.
 
 ```text
-sen:enrique-debian/6_python_interpreter> local.py.interpreter.exec "x = 2"
+sen:host/6_python_interpreter> local.py.interpreter.exec "x = 2"
 ```
 
 The `exec` function executes statements.
 
 ```text
-sen:enrique-debian/6_python_interpreter> local.py.interpreter.eval "2+x"
+sen:host/6_python_interpreter> local.py.interpreter.eval "2+x"
 "4"
 ```
 

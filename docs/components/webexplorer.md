@@ -1,8 +1,14 @@
-# The Web Explorer
+# The web explorer
 
-The `webexplorer` component serves a browser-based UI for inspecting and interacting with a
-running Sen process. Point any modern browser at the JSON-RPC endpoint, and you get a live
-view of every session, bus, and object the process is publishing.
+![The web explorer showing the object grid, live plots and the watch
+pane](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/webexplorer_light.png#only-light){: style="width:1200px"}
+![The web explorer showing the cockpit, live plots and the watch
+pane](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/webexplorer_dark.png#only-dark){: style="width:1200px"}
+
+The `webexplorer` component serves a browser-based UI for inspecting and interacting with a running
+Sen process. Point any modern browser at the JSON-RPC endpoint, and you get a live view of every
+[session](../users_guide/glossary.md#session), [bus](../users_guide/glossary.md#bus), and object the
+process is publishing.
 
 Loading `webexplorer` does not by itself open any port: the UI is delivered by the
 [`jsonrpc`](jsonrpc.md) component's static-file server, and the same WebSocket also carries
@@ -13,7 +19,7 @@ endpoint), so deployment is "one Sen process, one URL".
 
 - **Browse the live topology.** Sessions, buses, and the objects matched by each named
   query, refreshed as the process publishes them.
-- **Author named queries** ("interests") against any bus and reuse them across sessions.
+- **Author named interests** against any bus and reuse them across sessions.
   Queries persist; the Nav remembers them for next time.
 - **Inspect any object's properties** with type-aware rendering for structs, sequences,
   variants, and units; edit writable properties in place with typed editors.
@@ -36,7 +42,7 @@ endpoint), so deployment is "one Sen process, one URL".
 The Sen tree ships a self-contained showcase config that stands up `jsonrpc` +
 `webexplorer` alongside a small heterogeneous object graph (classrooms, aircraft fleet,
 shapes, fibonacci workers) picked to exercise every workspace in the UI. From a built
-Sen tree (see [Getting Sen](../getting_started/install.md) — a full-mode build bakes the
+Sen tree (see [Getting Sen](../getting_started/install.md); a full-mode build bakes the
 frontend bundle into the `webexplorer` component automatically):
 
 ```bash
@@ -86,34 +92,37 @@ non-deterministic.
 
 A three-pane shell with a bottom drawer:
 
-- **Nav (left):** topology (sessions, buses) and saved live queries ("interests"). Multi-select
-  source picker for cross-bus interests.
+- **Nav (left):** topology (sessions, buses) and saved
+  [interests](../users_guide/glossary.md#interest). Multi-select source picker for cross-bus
+  interests.
 - **Detail (center):** per-object Properties (with inline editors), Methods (named-arg
   invocation with typed inputs), and Events (live tail and per-type tables). Two extra tabs
   alongside (Overview and Cockpit) surface pinned-object collections across instances.
 - **Workspace (right):** Watches drawer (pin a property to a sticky set) and a Plots board
-  with multi-series panels, axis-per-unit, brush zoom, synced cursor, retention slider, and a
-  pop-out window for a second monitor. The popped-out plots are layout-locked (rearrange in
-  the main window); per-chart pan and zoom still work.
+  with multi-series panels, two unit axes, brush zoom, synced cursor, retention slider, and a
+  pop-out window for a second monitor. The first distinct unit in a panel takes the left axis
+  and the second takes the right; a third one shares the left axis, so a panel mixing more
+  than two units has an axis spanning unlike scales. The popped-out plots are layout-locked
+  (rearrange in the main window); per-chart pan and zoom still work.
 - **Bottom drawer:** unified Events stream + per-type event tables with column resize and
   source filtering.
 
 Saved layouts (panel arrangement, column widths, retention windows, the Cockpit's pinned
 set) round-trip through `localStorage`; named queries persist the same way. Light and dark
-themes ship; the switcher is in the settings popover.
+themes ship; the switcher is in the sidebar header, next to the settings button.
 
-## Layered architecture
+## Built on `@sen/client`
 
 The page is a thin reactive skin over the `@sen/client` TypeScript library; no Sen-specific
 schema is hard-coded anywhere in the UI. Every type, property, and unit is discovered at runtime
-through the [JSON-RPC type catalogue](jsonrpc.md). That makes the Web Explorer a useful
+through the [JSON-RPC type catalog](jsonrpc.md). That makes the web explorer a useful
 reference for any other web UI you'd build on top of `@sen/client`. The contributor-facing
 one-page mental model is at `components/webexplorer/frontend/architecture.md` in the
 repo, alongside per-side READMEs at `components/webexplorer/{frontend,backend}/README.md`.
 
-## Offline behaviour
+## Offline behavior
 
-The Web Explorer is a single self-contained `index.html` baked into the component (no runtime
+The web explorer is a single self-contained `index.html` baked into the component (no runtime
 CDN fetch, no telemetry). The only network connection the page makes is to the WebSocket on its
 origin. When that connection drops, the UI dims and shows a Retry affordance; live state
 (plots, event tail, watches) is preserved on reconnect.

@@ -1,4 +1,4 @@
-# STL Language — Formal Grammar Reference
+# STL language: formal grammar reference
 
 This document is the authoritative reference for the syntax of Sen's interface
 definition language (STL). The friendly user-guide introduction lives in
@@ -6,7 +6,7 @@ definition language (STL). The friendly user-guide introduction lives in
 definitions, and anyone who needs to resolve a syntax question precisely.
 
 When this document disagrees with the parser (`libs/core/src/lang/stl_parser.cpp`),
-the parser is correct — please open an issue so we can reconcile.
+the parser is correct. Please open an issue so we can reconcile.
 
 ---
 
@@ -17,7 +17,7 @@ the parser is correct — please open an issue so we can reconcile.
 | Category              | Keywords                                                       |
 | --------------------- |----------------------------------------------------------------|
 | File structure        | `import`, `package`                                            |
-| Type declarations     | `class`, `struct`, `enum`, `variant`,                          |
+| Type declarations     | `class`, `struct`, `enum`, `variant`                           |
 | Type modifiers        | `abstract`, `extends`                                          |
 | Type constructors     | `sequence`, `array`, `optional`, `quantity`, `alias`           |
 | Class body            | `var`, `fn`, `event`                                           |
@@ -37,16 +37,22 @@ The full list lives in `StlParser::checkNotReserved` in
 
 ### 1.3 Attribute names
 
-Recognised inside attribute brackets `[...]`:
+Recognized inside attribute brackets `[...]`:
 
 | Context    | Names                                                                      |
 | ---------- |----------------------------------------------------------------------------|
-| Property   | `static`, `static_no_config`, `writable`, `confirmed`, `bestEffort`, `tag` |
-| Method     | `const`, `confirmed`, `bestEffort`, `local`                                |
-| Event      | `confirmed`, `bestEffort`                                                  |
+| Property   | `static`, `static_no_config`, `writable`, `confirmed`, `bestEffort`, `tag`, `checked` |
+| Method     | `const`, `confirmed`, `bestEffort`, `local`, `deferred`                                |
+| Event      | `confirmed`, `bestEffort`                                                             |
+| Quantity   | `min`, `max`                                                                          |
 
 `tag` takes a value: `tag: my_tag_name`. It may appear multiple times in the
 same attribute list. Attribute values are either a literal or an identifier.
+
+`checked` is accepted but deprecated: the resolver takes it and then warns
+"using 'checked' in STL is now deprecated. Please use code generation
+settings." Mark the property checked in `codegen_settings.json` instead. It is
+listed here because the parser still accepts it and existing STL files use it.
 
 ### 1.4 Built-in types
 
@@ -59,14 +65,14 @@ same attribute list. Attribute values are either a literal or an identifier.
 | `i16`       | `int16_t`          |
 | `i32`       | `int32_t`          |
 | `i64`       | `int64_t`          |
-| `f32`       | `float`            |
-| `f64`       | `double`           |
+| `f32`       | `float32_t`        |
+| `f64`       | `float64_t`        |
 | `bool`      | `bool`             |
 | `string`    | `std::string`      |
 | `TimeStamp` | `sen::TimeStamp`   |
 | `Duration`  | `sen::Duration`    |
 
-`i8` does not exist — use `u8` if you need an 8-bit integer.
+`i8` does not exist. Use `u8` if you need an 8-bit integer.
 
 ### 1.5 Operators and punctuation
 
@@ -84,15 +90,15 @@ same attribute list. Attribute values are either a literal or an identifier.
 
 ### 1.6 Literals
 
-* **String** — double-quoted (`"..."`) or single-quoted (`'...'`). No escape
-  sequences are currently recognised; an unterminated literal is a lex error.
-* **Integer** — one or more decimal digits, optionally preceded by `-`.
+* **String**: double-quoted (`"..."`) or single-quoted (`'...'`). No escape
+  sequences are currently recognized; an unterminated literal is a lex error.
+* **Integer**: one or more decimal digits, optionally preceded by `-`.
   Hexadecimal, octal, binary, exponent and suffix forms are not supported.
   Stored as `int64_t`.
-* **Float** — decimal integer part, `.`, decimal fractional part
+* **Float**: decimal integer part, `.`, decimal fractional part
   (e.g. `1.5`, `-0.25`). The decimal point is required to distinguish from an
   integer. Stored as `double`.
-* **Boolean** — `true` or `false`.
+* **Boolean**: `true` or `false`.
 
 ### 1.7 Identifiers
 
@@ -112,18 +118,45 @@ inheritance (`struct Child : parent.BaseType`) and class inheritance
 
 ### 1.8 Comments
 
-* **Line comment** — `// ...` runs to end-of-line.
+* **Line comment**: `// ...` runs to end-of-line.
 * **Block comments are not supported.**
+* **Ruler comment**: a line comment whose text begins with `--`, written either
+  `//-- ...` or `// -- ...` (one space). The scanner discards these entirely, so
+  they never attach to a declaration.
 
-Comments attached to a declaration (on the line before or on the same line
-after `;`) are captured by the parser as the declaration's description and
-made available through the meta-reflection API.
+Comments attached to a declaration, on the line before or on the same line
+after `;`, are captured by the parser as the declaration's description and made
+available through the meta-reflection API.
+
+Note that *consecutive* comment lines are collected together into one
+description, so a stray remark above a member becomes part of that member's
+documentation:
+
+```rust
+// TODO: revisit this name
+// the current temperature
+fn read() -> f32;   // description is BOTH lines
+```
+
+Ruler comments are how you avoid that. Use them for visual separators and for
+markers that belong to tooling rather than to the model:
+
+```rust
+// -- interest creation --
+
+// Registers an interest and returns its id.
+fn createInterest(query: string) -> u32;
+```
+
+This is also why the `--8<--` markers used to include regions of an STL file into
+these pages can sit inside a class body without ending up in the generated
+documentation: they begin with `--`, so the scanner treats them as rulers.
 
 ---
 
 ## 2. File structure
 
-An STL file has three ordered sections:
+An STL file has these sections, in this order:
 
 ```ebnf
 stl ::=  importStatement*
@@ -178,8 +211,12 @@ classBody      ::= '{' classMember* '}'
 classMember    ::= propertyDecl | methodDecl | eventDecl
 ```
 
-Class inheritance starts with `:`, then one or more `extends` clauses (only
-one `extends` is permitted). Separating commas between clauses are optional.
+Class inheritance starts with `:` followed by an `extends` clause. Only one is
+allowed, since a class has a single base class, and the parser rejects a second
+with "Cannot inherit from more than one class. Consider using interfaces." The
+interfaces in that message are the `<Name>Interface` types the code generator
+writes for every class, not something you declare here. A separating comma
+after the clause is optional.
 
 Examples:
 
@@ -216,7 +253,7 @@ enumVariant  ::= identifier
 
 The grammar accepts any type expression as the enum's storage type, but in
 practice it must resolve to a built-in integer (`u8`, `u16`, `u32`, `u64`,
-`i16`, `i32`, `i64`) — the type-resolver rejects anything else. Variants are
+`i16`, `i32`, `i64`). The type-resolver rejects anything else. Variants are
 named-only; explicit numeric values are not supported.
 
 ### 3.5 Variant
@@ -238,8 +275,10 @@ aliasDecl ::= 'alias' identifier typeExpr ';'
 The two names appear side-by-side, no `=` between them:
 
 ```rust
-alias DeviceId   u64;
-alias NameList   sequence<string>;
+sequence<string> NameSequence;
+
+alias DeviceId u64;
+alias NameList NameSequence;
 ```
 
 ### 3.7 Quantity
@@ -252,7 +291,7 @@ The first type argument is the underlying numeric type, the second is the
 unit **abbreviation** (short form). The resolver looks the second argument up
 with `UnitRegistry::searchUnitByAbbreviation`, so `m`, `deg`, `kph`, `degC`
 are valid but the long names (`meter`, `degree`, `km_per_hour`, `centigrade`)
-are not. See [Appendix A](#appendix-a--registered-quantity-units) for the
+are not. See [Appendix A](#appendix-a-registered-quantity-units) for the
 full list.
 
 ```rust
@@ -278,9 +317,7 @@ optionalDecl ::= 'optional' '<' typeExpr '>'                         identifier 
 ## 4. Type expressions
 
 ```ebnf
-typeExpr       ::= qualifiedName typeArguments?
-typeArguments  ::= '<' typeArg ( ',' typeArg )* '>'
-typeArg        ::= typeExpr | integerLiteral
+typeExpr ::= qualifiedName
 ```
 
 Examples:
@@ -289,11 +326,25 @@ Examples:
 u32
 string
 sen.kernel.BuildInfo
-sequence<u8>
-sequence<string, 16>
-array<f32, 4>
-optional<sen.kernel.BuildInfo>
+ItemList
 ```
+
+A type expression is always a **name**. The bracketed forms `sequence<T>`,
+`array<T, N>`, `optional<T>` and `quantity<T, unit>` belong to the declarations
+in section 3, which give the container a name; they cannot be written inline
+where a type is expected. So a property, struct field, parameter, return type or
+alias refers to a container by the name it was declared with:
+
+```rust
+sequence<Item> ItemList;          // declare it once
+
+struct Basket { items : ItemList }  // then refer to it by name
+```
+
+`struct Basket { items : sequence<Item> }` is rejected, as is
+`alias A sequence<Item>;`. The element type inside a declaration is itself a
+name, so containers do not nest inline either: `sequence<sequence<Item>>` is
+rejected, and the inner sequence has to be declared first.
 
 A bounded `sequence<T, N>` uses stack storage and a runtime length up to `N`;
 `array<T, N>` has a fixed compile-time length.
@@ -302,11 +353,11 @@ A bounded `sequence<T, N>` uses stack storage and a runtime length up to `N`;
 
 ## 5. Coding style conventions
 
-These are conventions, not grammar — but the tooling indentation rules and
+These are conventions, not grammar, but the tooling indentation rules and
 the shipped syntax-highlighter indentation follow them.
 
 * 2-space indentation; no tabs.
-* Allman brace style — opening `{` on its own line.
+* Allman brace style: opening `{` on its own line.
 * Struct / enum members one per line, fields aligned with the longest field
   name, commas separating entries.
 * Method / event signatures on a single line; break only if the parameter list
@@ -319,25 +370,25 @@ the shipped syntax-highlighter indentation follow them.
 
 ## 6. Known mistakes and easy confusions
 
-* **Struct vs class inheritance** — both use `:` to introduce the parent list,
+* **Struct vs class inheritance**: both use `:` to introduce the parent list,
   but structs name the parent directly (`struct Child : Parent`) while classes
   use keyworded clauses (`class Child : extends Parent`).
-* **Method return type uses `->`, not `:`** — `:` is for struct fields, method
+* **Method return type uses `->`, not `:`.** The colon is for struct fields, method
   parameters, property type annotations and inheritance; returns use `->`.
-* **`package` terminates with `;`** — easy to forget because import does not.
-* **Properties have no default values** — initialize them from the
+* **`package` terminates with `;`**: easy to forget because import does not.
+* **Properties have no default values**: initialize them from the
   implementation. Don't write `var x : u32 = 5 [static];` even though the
   tokenizer may not complain.
-* **`alias` has no `=`** — the name and the aliased type sit side-by-side.
-* **`quantity` uses generic-style brackets** — `quantity<base, unit> Name`,
+* **`alias` has no `=`**: the name and the aliased type sit side-by-side.
+* **`quantity` uses generic-style brackets**: `quantity<base, unit> Name`,
   not `quantity Name : base in unit`.
-* **`quantity` unit is the abbreviation, not the long name** — write
+* **`quantity` unit is the abbreviation, not the long name**: write
   `quantity<f32, m>`, not `quantity<f32, meter>`. Prefixed forms combine the
   prefix abbreviation with the base abbreviation (`km`, `ms`, `us`, `Mpa`).
 
 ---
 
-## Appendix A — Registered quantity units
+## Appendix A: Registered quantity units
 
 The source of truth is `libs/core/src/meta/unit_registry.cpp`. A
 `quantity<T, unit>` declaration looks the second argument up by
@@ -348,7 +399,7 @@ abbreviation and list the long name for reference only.
 
 Each of the following units is automatically registered with every SI prefix
 from `femto` through `peta`, producing the prefixed abbreviation by
-concatenation (e.g. `km`, `ms`, `us`, `cm`, `MPa`).
+concatenation (e.g. `km`, `ms`, `us`, `cm`, `Mpa`).
 
 | Category           | Abbreviation  | Long name                      |
 | ------------------ | ------------- | ------------------------------ |
@@ -368,7 +419,7 @@ concatenation (e.g. `km`, `ms`, `us`, `cm`, `MPa`).
 `M` (mega), `G` (giga), `T` (tera), `P` (peta).
 
 So, for example, `km` is kilometer, `ms` is millisecond, `us` is microsecond,
-`cm` is centimeter, `MPa` is megapascal.
+`cm` is centimeter, `Mpa` is megapascal (the base abbreviation is `pa`, so the case matters).
 
 ### Additional units (no SI prefixes)
 

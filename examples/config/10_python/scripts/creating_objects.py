@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+# --8<-- [start:script]
 """Example module that demonstrates how to create objects."""
 
 import sen
@@ -51,3 +52,6 @@ def stop():
     testBus.remove(myObject)
     myObject = None
     testBus = None
+
+
+# --8<-- [end:script]

@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+# --8<-- [start:script]
 """Example module that demonstrates how to interact with objects."""
 
 import sen
@@ -31,3 +32,6 @@ def update():
 
         print("Python: asking the process to shut down")
         obj[0].shutdown()  # trigger the process shutdown
+
+
+# --8<-- [end:script]

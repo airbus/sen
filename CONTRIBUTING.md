@@ -15,9 +15,13 @@ have found a suitable issue and still need clarification, you can write your que
 
 ## Code contributions
 
-During this initial publication phase, we are limiting external code contributions. Feedback, issue reports, and
-feature suggestions are welcome and will be evaluated. The contribution policy may be reviewed and updated
-at a later stage.
+Sen has only recently been released as open source, and the process for taking in code from outside
+the team is not in place yet. Until it is, we are holding external code contributions.
+
+Feedback, issue reports and feature suggestions are welcome now and will be evaluated.
+
+The sections below describe how a change is built, tested and proposed. That is how the project
+works today, and it is what will apply when contributions open.
 
 ## Building and Testing
 
@@ -25,9 +29,9 @@ The [README](README.md) covers the build. For a contribution, build with the tes
 run them before opening the pull request:
 
 ```shell
-conan install . --profile:all=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
-conan build . --profile:all=sen_gcc_x86 -o "sen/*:with_tests=True"   # sen_gcc_arm on arm hardware
-pip install junitparser                                  # run_tests merges the ctest reports with it
+conan install . --profile:all=sen_gcc --build=missing -o "sen/*:with_tests=True"
+conan build . --profile:all=sen_gcc -o "sen/*:with_tests=True"
+pipx install junitparser                                 # run_tests merges the ctest reports with it
 cmake --build build/gcc/Release --target run_tests
 ```
 
@@ -46,7 +50,7 @@ Conan and the test tools installed.
 `conan install` writes `CMakeUserPresets.json` at the repository root, pointing at the presets
 Conan generated for the build folder. Run it once, then open the repository folder in your
 editor and pick the preset it lists: `conan-gcc-release` for the profiles above, or
-`conan-msvc-release` when you build with `sen_msvc_x86` on Windows. VS Code reads presets
+`conan-msvc-release` when you build with `sen_msvc` on Windows. VS Code reads presets
 through the CMake Tools extension; CLion and Visual Studio read them natively, pointed at the
 folder rather than at `CMakeLists.txt`.
 
@@ -124,8 +128,8 @@ Then, inside it:
 ```shell
 git config --global --add safe.directory "$PWD"
 conan config install .conan/profiles/ --target-folder ~/.conan2/profiles/
-conan install . --profile:all=sen_gcc_x86 --build=missing -o "sen/*:with_tests=True"
-conan build . --profile:all=sen_gcc_x86 -o "sen/*:with_tests=True"
+conan install . --profile:all=sen_gcc --build=missing -o "sen/*:with_tests=True"
+conan build . --profile:all=sen_gcc -o "sen/*:with_tests=True"
 ```
 
 What bites:

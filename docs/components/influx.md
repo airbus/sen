@@ -1,10 +1,10 @@
-# The Influx Component
+# The Influx component
 
 ![Screenshot](../assets/images/influx_logo.svg){: style="width:120px"}
 
 With Sen, you can use Grafana and InfluxDB to visualize the data that runs through your system.
 
-![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/grafana.gif){: style="width:1200px;"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/grafana.webp){: style="width:1200px;"}
 
 It works as follows:
 
@@ -41,7 +41,8 @@ and commercial users.
 Once the data is stored in InfluxDB, you can access it anytime. Maybe you can find other uses, and
 connect other tools to do your analytics.
 
-The Sen `influx` component sends the data to Telegraf over UDP or TCP.
+The Sen `influx` [component](../users_guide/glossary.md#component) sends the data to Telegraf over
+UDP or TCP.
 
 ## Running the Influx component
 
@@ -74,7 +75,7 @@ In InfluxDB, each data point contains the following elements:
 
 - **tag set**: Comma-delimited list of key value pairs, each representing a tag.
 
-- **field set**: Comma-delimited list key value pairs, each representing a field.
+- **field set**: Comma-delimited list of key value pairs, each representing a field.
 
 - **timestamp**: Unix timestamp associated with the data in nanosecond precision.
 
@@ -86,17 +87,18 @@ measurement,tag1=val1,tag2=val2 field1="v1",field2=1i 0000000000000000000
 
 ## Mapping from objects to time series
 
-Sen applies the following translation between its object's model and Influx's protocol:
+Sen applies the following translation between its object model and Influx's protocol:
 
 - All data points have a tag named `object` containing the name of the object.
 
 - All data points have a tag named `payload_type` containing the type of information contained.
   Possible values are: `event`, `property_change`, `creation` and `deletion`.
 
-- For property changes, the measurement is the name of the property. The value stored in the `value`
-  field.
+- For property changes, the measurement is the qualified name of the class followed by the name of
+  the property, as in `school.Student.brainActivity`. The value is stored in the `value` field.
 
-- For events, the measurement is the name of the event. The arguments (if any) are added as fields.
+- For events, the measurement is the qualified name of the class followed by the name of the event.
+  The arguments (if any) are added as fields, each one named after the argument.
 
 - For creations, the measurement is "created". All property values are added as fields.
 
@@ -105,12 +107,14 @@ Sen applies the following translation between its object's model and Influx's pr
 - When dealing with values of structures, the information is flattened by creating an Influx field
   per structure field. This happens recursively, using dots as separators.
 
-- When dealing with values of variants, the `type` field will contain the name of the type held by
-  it. The `value` field will contain the corresponding value.
+- When dealing with values of variants, there will be an extra ".type" field holding the name of the
+  type currently held, and a ".value" field holding the value itself.
 
-- When dealing with enumerations, there will be an extra ".key" field indicating the numeric value.
+- When dealing with enumerations, the field holds the name of the enumerator, and there will be an
+  extra ".key" field indicating the numeric value.
 
-## Grafana, InfluxDB, and Telegraf Docker Deployment Guide
+## Grafana, InfluxDB, and Telegraf Docker deployment guide
 
-There is a docker image which start a **Grafana** web server and all the components needed to
-receive and serve the data.
+There is a docker image which starts a Grafana web server and all the components needed to receive
+and serve the data. The [InfluxDB example](../snippets/examples/config/8_influx/readme.md) builds
+and starts it, and walks through connecting Grafana to InfluxDB and building a first dashboard.

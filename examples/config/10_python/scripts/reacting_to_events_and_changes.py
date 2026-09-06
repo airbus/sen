@@ -4,6 +4,7 @@
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
+# --8<-- [start:script]
 """Example module that demonstrates how to react on events and changes (e.g., object added)."""
 
 import sen
@@ -27,3 +28,6 @@ def run() -> None:
     # select the object and install some callbacks
     teachers = sen.api.open("SELECT school.Teacher FROM school.primary")
     teachers.onAdded(teacherDetected)
+
+
+# --8<-- [end:script]

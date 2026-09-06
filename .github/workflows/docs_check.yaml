@@ -30,3 +30,16 @@ jobs:
           fetch-depth: 0
 
       - uses: ./.github/actions/build_documentation
+
+      # So a reviewer can read the change rather than the diff. Download the
+      # artifact, unzip it and open index.html: the offline plugin builds the
+      # site with file-relative links, so it works straight from disk.
+      - name: Publish the built site for review
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: documentation-site
+          if-no-files-found: error
+          # The path the docs CMakeLists writes to. 57 MB, most of it doxygen,
+          # and worth nothing once the pull request is decided.
+          retention-days: 7
+          path: build/gcc/Release/docs/site/

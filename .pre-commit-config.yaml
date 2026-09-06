@@ -119,5 +119,14 @@ repos:
       files: ^(\.github/(scripts|workflows)/|libs/kernel/test/integration/)
       pass_filenames: false
 
+    # A `docs/` path written in a comment, a config or a script is invisible to
+    # mkdocs, so that whole class of reference rots silently. One did.
+    - id: docs-references
+      name: Documentation references resolve
+      language: python
+      entry: python .github/scripts/check_docs_references.py
+      pass_filenames: false
+      always_run: true
+
 # Global Configuration
 exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*|.*.svg|.*.excalidraw|stl.tmLanguage.json)
