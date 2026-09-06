@@ -19,6 +19,7 @@ if (!GATEWAY_ENTRYPOINT) {
 }
 
 type ToolText = { type: "text"; text: string };
+type ToolResult = { content: unknown; isError?: boolean };
 
 function textOf(result: { content: unknown }): string {
   const arr = result.content as ToolText[];
@@ -36,15 +37,27 @@ describe("sen-mcp-gateway against a real Sen", () => {
   let client: Client;
   let transport: StdioClientTransport;
 
+  // Checked here rather than after the wait: a failed declareInterest otherwise surfaces
+  // inside waitForObjects as a JSON parse error on "no interest open with name", which names
+  // neither the call that failed nor the reason it did.
+  async function declareInterest(args: Record<string, unknown>): Promise<ToolResult> {
+    const result = (await client.callTool({ name: "declareInterest", arguments: args })) as ToolResult;
+    const detail = `declareInterest ${JSON.stringify(args)} failed: ${JSON.stringify(result.content)}`;
+    expect(result.isError ?? false, detail).toBe(false);
+    return result;
+  }
+
   // declareInterest returns once the interest is registered; its match-set fills
   // asynchronously, so a call naming the object straight afterwards can fail with
   // "object not in interest match-set".
   async function waitForObjects(interestName: string, names: readonly string[], timeoutMs = 10_000): Promise<void> {
     const deadline = Date.now() + timeoutMs;
     for (;;) {
-      const listed = jsonOf<{ objects: Array<{ name: string }> }>(
-        await client.callTool({ name: "listObjects", arguments: { name: interestName } }),
-      );
+      const raw = (await client.callTool({ name: "listObjects", arguments: { name: interestName } })) as ToolResult;
+      if (raw.isError === true) {
+        throw new Error(`listObjects("${interestName}") failed: ${JSON.stringify(raw.content)}`);
+      }
+      const listed = jsonOf<{ objects: Array<{ name: string }> }>(raw);
       const have = new Set(listed.objects.map((o) => o.name));
       if (names.every((n) => have.has(n))) return;
       if (Date.now() >= deadline) {
@@ -65,8 +78,15 @@ describe("sen-mcp-gateway against a real Sen", () => {
     });
     client = new Client({ name: "sen-mcp-gateway-test", version: "0.0.0" }, { capabilities: {} });
     await client.connect(transport);
-    // Single kernel for the whole file; tools omit `kernel` and auto-resolve.
-    await client.callTool({ name: "connectToKernel", arguments: { name: "test", url: senUrl } });
+    // Single kernel for the whole file; tools omit `kernel` and auto-resolve. Checked, because
+    // a failure here makes every test in the file fail on something further downstream.
+    const connected = (await client.callTool({
+      name: "connectToKernel",
+      arguments: { name: "test", url: senUrl },
+    })) as ToolResult;
+    expect(connected.isError ?? false, `connectToKernel ${senUrl} failed: ${JSON.stringify(connected.content)}`).toBe(
+      false,
+    );
   });
 
   afterAll(async () => {
@@ -115,12 +135,8 @@ describe("sen-mcp-gateway against a real Sen", () => {
   });
 
   it("declareInterest -> listObjects -> getProperty -> releaseInterest happy path", async () => {
-    const declared = await client.callTool({
-      name: "declareInterest",
-      arguments: { name: "primary", query: "SELECT * FROM test.primary" },
-    });
+    const declared = await declareInterest({ name: "primary", query: "SELECT * FROM test.primary" });
     await waitForObjects("primary", ["instance1"]);
-    expect(declared.isError ?? false).toBe(false);
     const declaredPayload = jsonOf<{ name: string; matched: Array<{ name: string; className: string }> }>(declared);
     expect(declaredPayload.name).toBe("primary");
     expect(declaredPayload.matched).toEqual(
@@ -156,12 +172,8 @@ describe("sen-mcp-gateway against a real Sen", () => {
   });
 
   it("declareInterest with a name already in use returns isError without disturbing the prior interest", async () => {
-    const first = await client.callTool({
-      name: "declareInterest",
-      arguments: { name: "dup", query: "SELECT * FROM test.primary" },
-    });
+    const first = await declareInterest({ name: "dup", query: "SELECT * FROM test.primary" });
     await waitForObjects("dup", ["instance1"]);
-    expect(first.isError ?? false).toBe(false);
 
     const conflict = await client.callTool({
       name: "declareInterest",
@@ -188,10 +200,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     };
     expect((await interestNames()).has("tracked")).toBe(false);
 
-    await client.callTool({
-      name: "declareInterest",
-      arguments: { name: "tracked", query: "SELECT * FROM test.primary" },
-    });
+    await declareInterest({ name: "tracked", query: "SELECT * FROM test.primary" });
     expect((await interestNames()).has("tracked")).toBe(true);
 
     await client.callTool({ name: "releaseInterest", arguments: { name: "tracked" } });
@@ -201,10 +210,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
   it("setProperty round-trips through getProperty", async () => {
     // prop7 is i32 [writable] and stable (unlike prop5 which auto-increments). The impl
     // gates accepted sets to [-5, 5] via prop7AcceptsSet; 3 is in range.
-    await client.callTool({
-      name: "declareInterest",
-      arguments: { name: "rw", query: "SELECT * FROM test.primary", withSchemas: true },
-    });
+    await declareInterest({ name: "rw", query: "SELECT * FROM test.primary", withSchemas: true });
     await waitForObjects("rw", ["instance1"]);
     try {
       const setResult = await client.callTool({
@@ -228,10 +234,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
   });
 
   it("setProperty on a static property returns isError without changing state", async () => {
-    await client.callTool({
-      name: "declareInterest",
-      arguments: { name: "ro", query: "SELECT * FROM test.primary" },
-    });
+    await declareInterest({ name: "ro", query: "SELECT * FROM test.primary" });
     await waitForObjects("ro", ["instance1"]);
     try {
       // prop1 is [static]; the wire setter rejects writes.
@@ -247,10 +250,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
 
   it("invokeMethod returns the parsed return value", async () => {
     // addNumbers(a:i32, b:i32) -> i32 is inherited by instance2.
-    await client.callTool({
-      name: "declareInterest",
-      arguments: { name: "calc", query: "SELECT * FROM test.secondary", withSchemas: true },
-    });
+    await declareInterest({ name: "calc", query: "SELECT * FROM test.secondary", withSchemas: true });
     await waitForObjects("calc", ["instance2"]);
     try {
       const result = await client.callTool({

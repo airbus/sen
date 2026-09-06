@@ -26,6 +26,12 @@ export const EVENT_BUFFER_BYTE_CAP = 8 * 1024 * 1024;
 
 export const INTEREST_CAP_PER_KERNEL = 64;
 
+// Per-call ceiling for the tools' kernel calls. @sen/client defaults to 2s, which expires on a
+// kernel that is merely slow: `declareInterest` with `withSchemas` fetches a schema per
+// newly-seen type on top of the query. Bounded rather than removed, so a wedged kernel fails the
+// call instead of hanging the tool.
+export const CALL_TIMEOUT_MS = 30_000;
+
 // An AbortSignal never warns about its listener count until something sets a ceiling, so this
 // call is the only thing that would report a reintroduced leak.
 //
@@ -105,6 +111,7 @@ export class Kernel {
       this.clientPromise = connect({
         url: this.url,
         openTimeoutMs: this.openTimeoutMs,
+        defaultTimeoutMs: CALL_TIMEOUT_MS,
         onError: (err) => this.log(`[${this.name}] client error: ${err.message}`),
       })
         .then((c) => {
