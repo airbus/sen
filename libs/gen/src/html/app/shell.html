@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }}</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="back" title="Back" disabled>←</button>
+    <h1 id="modelname">{{ title }}</h1>
+    <span class="sub" id="hsub"></span>
+    <span class="spacer"></span>
+    <button id="theme" title="Light or dark">◐</button>
+  </header>
+
+  <main>
+    <nav id="tree">
+      <div class="controls">
+        <input id="q" type="search" placeholder="Search types…" autocomplete="off" spellcheck="false">
+        <div class="seg" id="seg">
+          <button data-v="classes" class="on">Classes</button>
+          <button data-v="data">Data types</button>
+        </div>
+        <div class="filters" id="kindchips" hidden></div>
+        <div class="filters" id="pkgchips"></div>
+      </div>
+      <div class="scroller" id="scroller"></div>
+      <div class="scroller" id="results" hidden></div>
+    </nav>
+    <div id="split" title="Drag to resize"></div>
+    <div id="detail"></div>
+  </main>
+
+  <footer id="foot"></footer>
+</div>
+
+<script src="model.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

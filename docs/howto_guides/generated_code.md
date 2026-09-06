@@ -1,9 +1,12 @@
-# Understanding the generated code
+# Understanding the generated C++
 
 This page continues the package built in
 [Create your first package](../getting_started/first_package.md), where we gave
 `my_package.MyClass` a handful of properties, methods and events. They are there just to illustrate
 the options, but they will do here.
+
+This page is about the C++ output. What each of the other generators produces is described with
+it under [`sen generate`](../users_guide/command_line.md#code-generator).
 
 Generation produces a base class holding:
 

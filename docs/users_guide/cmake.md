@@ -303,6 +303,50 @@ sen_generate_uml(
 )
 ```
 
+### HTML reference
+
+Sen can generate a browsable HTML reference from STL or HLA FOM files. The output is a directory
+rather than a single file: `index.html` plus the assets beside it, which is why `OUT` names a
+directory here and a file in the functions above.
+
+```cmake
+sen_generate_html(
+    TARGET <name>
+    OUT <dir>
+    [TITLE <text>]
+    [BASE_PATH <path>]
+    [STL_FILES <files...>]
+    [HLA_FOM_DIRS <dirs...>]
+    [HLA_MAPPINGS_FILE <files...>]
+)
+```
+
+| Name                | Mandatory        | Multiple         | Description                                                                                     |
+| ------------------- | ---------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
+| `TARGET`            | :material-check: |                  | Name of the custom CMake target that triggers reference generation.                             |
+| `OUT`               | :material-check: |                  | Directory the reference is written into, not a file.                                            |
+| `TITLE`             |                  |                  | Name of the model, shown on screen.                                                             |
+| `BASE_PATH`         |                  |                  | Root directory for import resolution. Defaults to `CMAKE_CURRENT_SOURCE_DIR`.                   |
+| `STL_FILES`         |                  | :material-check: | Sen Type Language (`.stl`) files to document. Mutually exclusive with `HLA_FOM_DIRS`.           |
+| `HLA_FOM_DIRS`      |                  | :material-check: | Directories containing HLA FOM XML files to document. Mutually exclusive with `STL_FILES`.      |
+| `HLA_MAPPINGS_FILE` |                  | :material-check: | HLA mapping files forwarded to the generator. Requires `HLA_FOM_DIRS`.                          |
+
+For example:
+
+```cmake
+sen_generate_html(
+    TARGET
+        fom_reference
+    OUT
+        ${CMAKE_CURRENT_BINARY_DIR}/reference
+    TITLE
+        "RPR and NETN"
+    HLA_FOM_DIRS
+        rpr
+        netn
+)
+```
+
 ### Target configuration
 
 `sen_configure_target(<target>)` applies Sen's build settings to a target that already exists. It

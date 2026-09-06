@@ -82,6 +82,18 @@ with section("parse"):  # noqa: F821
             },
             "pargs": {"flags": [], "nargs": "*"},
         },
+        "sen_generate_html": {
+            "kwargs": {
+                "TARGET": 1,
+                "OUT": 1,
+                "TITLE": 1,
+                "BASE_PATH": 1,
+                "STL_FILES": "+",
+                "HLA_FOM_DIRS": "+",
+                "HLA_MAPPINGS_FILE": "+",
+            },
+            "pargs": {"flags": [], "nargs": "*"},
+        },
         "sen_generate_uml": {
             "kwargs": {"BASE_PATH": 1, "STL_FILES": "+", "HLA_FOM_DIRS": "+", "OUT": 1},
             "pargs": {"flags": ["CLASSES_ONLY", "TYPES_ONLY", "TYPES_ONLY_NO_ENUMS"], "nargs": "*"},

@@ -1,12 +1,13 @@
 # UML generation
 
-With this CMake function you can tell Sen to generate UML diagrams from HLA FOMs:
+Sen draws UML diagrams from HLA FOMs, or from STL. This is how the `hla_fom` example asks for one:
 
-```cmake
-  sen_generate_uml(TARGET fom_uml OUT fom.plantuml HLA_FOM_DIRS rpr netn link16 CLASSES_ONLY)
+```cmake title="examples/packages/hla_fom/CMakeLists.txt"
+--8<-- "examples/packages/hla_fom/CMakeLists.txt:uml"
 ```
 
-This produces the following output:
+That writes a PlantUML document. Running `plantuml` over it gives the picture, which for these
+three FOMs is:
 
 ![file](../snippets/fom.svg){ .on-glb }
 

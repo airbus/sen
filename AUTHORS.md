@@ -10,6 +10,7 @@ Sen was created and designed by Enrique Parodi Spalazzi.
 Sen is evolved and maintained by:
 
 - Enrique Parodi Spalazzi
+- Luis Ramirez Gonzalez (project management and sponsorship)
 - Luis Gutierrez Pereda
 - Manuel Goesswein
 - Gema Aparicio Cantalapiedra
@@ -20,7 +21,6 @@ Past core team:
 
 ## Contributors
 
-- Luis Ramirez Gonzalez (project management and sponsorship)
 - Francisco Javier Velacoracho Uriel
 - Aridane Sarrionandia
 - Tania Guillot Colls

@@ -5,7 +5,12 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-set(gen_tests json_generator_test.cpp)
+set(gen_tests
+    json_generator_test.cpp
+    html_generator_test.cpp
+    generators_test.cpp
+    every_kind_model.h
+)
 
 add_sen_unit_test_suite(
   gen_test
@@ -13,6 +18,7 @@ add_sen_unit_test_suite(
   LINK_DEPS
   sen::core
   sen::gen
+  nlohmann_json::nlohmann_json
 )
 
 set_target_properties(

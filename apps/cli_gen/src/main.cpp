@@ -24,6 +24,7 @@
 namespace sen::cli_gen
 {
 void setupCppCli(CLI::App& app);
+void setupHtmlCli(CLI::App& app);
 void setupJsonCli(CLI::App& app);
 void setupMkDocsCli(CLI::App& app);
 void setupPlantUMLCli(CLI::App& app);
@@ -52,6 +53,7 @@ int runApp(int argc, char* argv[])
     setupPlantUMLCli(app);
     setupPythonCli(app);
     setupMkDocsCli(app);
+    setupHtmlCli(app);
     setupJsonCli(app);
     setupTypeScriptCli(app);
 

@@ -7,8 +7,8 @@ builds. If you do not, start with [Install](../getting_started/install.md) and
 ## Writing the code
 
 [Working with objects](objects.md) is the one to read first: registering objects, subscribing to
-other people's, calling methods and reacting to events. [Generated code](generated_code.md)
-explains what Sen writes for you from an STL file and how to work with it.
+other people's, calling methods and reacting to events. [The generated C++ code](generated_code.md)
+explains what Sen writes for you in C++ from an STL file and how to work with it.
 [Writing components](components.md) goes further, into components that do more than instantiate
 objects. [Using groups](using_groups.md) controls what runs before what.
 

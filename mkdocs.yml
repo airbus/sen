@@ -154,8 +154,8 @@ plugins:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - callouts
   - offline
-  # examples/generated_uml.md marks the FOM diagram { .on-glb } so it opens
-  # full size. The attribute has been there without the plugin to act on it.
+  # Every image becomes a lightbox, which is on for the FOM diagram: it is the one picture
+  # nobody can read at page width. `manual` is off, so per-image `.on-glb` marks do nothing.
   - glightbox
   - git-revision-date-localized:
       enable_creation_date: false
@@ -195,6 +195,7 @@ nav:
           - STL grammar: users_guide/stl_grammar.md
       - The Sen Query Language: users_guide/sql.md
       - Using HLA FOMs: users_guide/hla.md
+      - Code generation: users_guide/code_generation.md
       - The configuration file: users_guide/configuration.md
       - Command line tools: users_guide/command_line.md
       - CMake integration: users_guide/cmake.md
@@ -228,7 +229,7 @@ nav:
   - Guides:
       - howto_guides/index.md
       - Working with objects: howto_guides/objects.md
-      - The generated code: howto_guides/generated_code.md
+      - The generated C++ code: howto_guides/generated_code.md
       - Using logs: howto_guides/logging.md
       - Using component groups: howto_guides/using_groups.md
       - Controlling the clock: howto_guides/controlling_clock.md
@@ -266,7 +267,7 @@ nav:
       - Using Python: snippets/examples/config/10_python/readme.md
       - Request/response servers: snippets/examples/config/9_hla_servers/readme.md
       - JSON-RPC: snippets/examples/config/14_jsonrpc/readme.md
-      - Web generation: snippets/fom.md
+      - HTML reference: examples/generated_reference.md
       - UML generation: examples/generated_uml.md
   - License:
       - licenses/index.md

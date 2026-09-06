@@ -24,15 +24,30 @@ The `Counter` class has:
 
 === "_counter.h_"
 
-    ```c++ title="counter.h"
+    ```{ .c++ .annotate title="counter.h" }
     --8<-- "snippets/examples/packages/my_counter/src/counter.h"
     ```
 
+    1. The generated header. Sen writes `CounterBase` from `counter.stl`, carrying the properties,
+       the event and the method you declared there.
+    2. Your implementation inherits from the generated base, which handles serialisation,
+       subscriptions and dispatch.
+    3. Deletes the copy and move constructors.
+    4. Called once per cycle, during the update stage. This is where the next state is computed.
+    5. The base class declares `helloImpl` pure virtual, so it has to be implemented here.
+
 === "_counter.cpp_"
 
-    ```c++ title="counter.cpp"
+    ```{ .c++ .annotate title="counter.cpp" }
     --8<-- "snippets/examples/packages/my_counter/src/counter.cpp"
     ```
+
+    1. `getValue()` and `getStep()` read the current buffer, the snapshot frozen before the cycle
+       began. `setNextValue()` writes the next one, which everyone sees once Sen commits.
+    2. Fires the `valueIsDivisibleByTen` event. Events are buffered like property changes and
+       delivered after the commit.
+    3. Registers `CounterImpl` so the kernel can instantiate it. Leave it out and the build still
+       succeeds, but the kernel stops at startup saying it cannot find the type.
 
 ## CMakeLists.txt explained
 

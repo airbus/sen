@@ -731,7 +731,7 @@ function(sen_generate_uml)
         LIST_DIRECTORIES false
         "${_fom_dir}/*.xml"
       )
-      list(APPEND _input_xmls ${_xml_file})
+      list(APPEND _input_xmls ${_xml_files})
     endforeach()
 
     set(_mapping_opt)
@@ -751,6 +751,134 @@ function(sen_generate_uml)
       VERBATIM COMMAND_EXPAND_LISTS
     )
 
+  endif()
+endfunction()
+
+# Generates a browsable HTML reference from STL or HLA FOM files.
+# Creates a custom target that runs the reference generator on demand.
+#
+# sen_generate_html(
+#   TARGET <name>
+#     Name of the custom CMake target that triggers reference generation.
+#
+#   OUT <dir>
+#     Directory the reference is written into. Unlike the other generators this is a
+#     directory, not a file: the reference is index.html plus the assets beside it.
+#
+#   [TITLE <text>]
+#     Name of the model, shown on screen. Defaults to the generator's own.
+#
+#   [BASE_PATH <path>]
+#     Root directory for import resolution. Defaults to CMAKE_CURRENT_SOURCE_DIR.
+#
+#   [STL_FILES <files...>]
+#     Sen Type Language (.stl) files to document. Mutually exclusive with HLA_FOM_DIRS.
+#
+#   [HLA_FOM_DIRS <dirs...>]
+#     Directories containing HLA FOM XML files to document.
+#     Mutually exclusive with STL_FILES.
+#
+#   [HLA_MAPPINGS_FILE <files...>]
+#     HLA mapping files forwarded to the generator. Requires HLA_FOM_DIRS.
+function(sen_generate_html)
+
+  set(_options)
+  set(_one_value_args
+      TARGET
+      BASE_PATH
+      OUT
+      TITLE
+  )
+  set(_multi_value_args STL_FILES HLA_FOM_DIRS HLA_MAPPINGS_FILE)
+
+  cmake_parse_arguments(
+    _arg
+    "${_options}"
+    "${_one_value_args}"
+    "${_multi_value_args}"
+    ${ARGN}
+  )
+
+  if(NOT _arg_TARGET)
+    message(FATAL_ERROR "sen_generate_html: no TARGET set")
+  endif()
+
+  if(NOT _arg_OUT)
+    message(FATAL_ERROR "sen_generate_html: no OUT set")
+  endif()
+
+  if(_arg_STL_FILES AND _arg_HLA_FOM_DIRS)
+    message(FATAL_ERROR "sen_generate_html: STL_FILES and HLA_FOM_DIRS cannot be present at the same time")
+  endif()
+
+  if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(FATAL_ERROR "sen_generate_html: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified")
+  endif()
+
+  set(_title_opt)
+  if(_arg_TITLE)
+    set(_title_opt --title ${_arg_TITLE})
+  endif()
+
+  # get the absolute base path
+  if(_arg_BASE_PATH)
+    get_filename_component(_abs_base_path ${_arg_BASE_PATH} ABSOLUTE)
+  else()
+    set(_abs_base_path ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  if(_arg_STL_FILES)
+    set(_input_files_list)
+
+    foreach(_stl_file ${_arg_STL_FILES})
+      get_filename_component(_abs_stl_file ${_stl_file} ABSOLUTE)
+      list(APPEND _input_files_list ${_abs_stl_file})
+    endforeach()
+
+    add_custom_target(
+      ${_arg_TARGET}
+      COMMAND sen::cli_gen html stl ${_input_files_list} -i ${_abs_base_path} --output ${_arg_OUT}
+              ${_title_opt}
+      DEPENDS sen::cli_gen ${_input_files_list}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating html reference for ${_input_files_list} in ${_arg_OUT}"
+      VERBATIM COMMAND_EXPAND_LISTS
+    )
+  endif()
+
+  if(_arg_HLA_FOM_DIRS)
+    set(_input_xmls)
+    set(_abs_fom_dirs)
+
+    # compute _input_xmls and _abs_fom_dirs
+    foreach(_fom_dir ${_arg_HLA_FOM_DIRS})
+      get_filename_component(_abs_fom_dir ${_fom_dir} ABSOLUTE)
+      list(APPEND _abs_fom_dirs ${_abs_fom_dir})
+
+      file(
+        GLOB _xml_files
+        LIST_DIRECTORIES false
+        "${_fom_dir}/*.xml"
+      )
+      list(APPEND _input_xmls ${_xml_files})
+    endforeach()
+
+    set(_mapping_opt)
+    if(_arg_HLA_MAPPINGS_FILE)
+      get_filename_component(_abs_mapping_file ${_arg_HLA_MAPPINGS_FILE} ABSOLUTE)
+      list(APPEND _input_xmls ${_abs_mapping_file})
+      set(_mapping_opt "--mappings=${_abs_mapping_file}")
+    endif()
+
+    add_custom_target(
+      ${_arg_TARGET}
+      COMMAND sen::cli_gen html fom ${_mapping_opt} --directories=${_abs_fom_dirs} --output ${_arg_OUT}
+              ${_title_opt}
+      DEPENDS sen::cli_gen ${_input_xmls}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating html reference for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
+      VERBATIM COMMAND_EXPAND_LISTS
+    )
   endif()
 endfunction()
 
