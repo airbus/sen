@@ -27,7 +27,7 @@ namespace sen::kernel
 
   // Divide before adding: the sum would overflow for a clock that jumps by decades, and an
   // overflowed count is negative, which would walk the schedule backwards.
-  return amount.count() / period.count() + (amount.count() % period.count() != 0);
+  return amount.count() / period.count() + static_cast<int64_t>(amount.count() % period.count() != 0);
 }
 
 }  // namespace sen::kernel

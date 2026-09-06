@@ -58,8 +58,8 @@ private:
   std::shared_ptr<sen::db::Output> out_;
   std::unique_ptr<sen::ObjectMux> mux_;
   std::unique_ptr<sen::ObjectList<Object>> trackedObjects_;
-  std::unordered_map<sen::ObjectId, std::vector<sen::ConnectionGuard>> guards_ = {};
-  std::vector<std::shared_ptr<sen::ObjectSource>> sources_ = {};
+  std::unordered_map<sen::ObjectId, std::vector<sen::ConnectionGuard>> guards_;
+  std::vector<std::shared_ptr<sen::ObjectSource>> sources_;
   bool additionsAndRemovalsEnabled_ = false;
   sen::TimeStamp lastKeyframeTime_;
   sen::kernel::RunApi* api_ = nullptr;

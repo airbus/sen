@@ -41,7 +41,7 @@ private:
   std::string methodName_;
   std::shared_ptr<const sen::Method> method_ = nullptr;
   std::shared_ptr<sen::Object> owner_ = nullptr;
-  std::vector<std::tuple<sen::Arg, sen::Var, EditablePrinterFunc, bool>> argDrawers_ {};
+  std::vector<std::tuple<sen::Arg, sen::Var, EditablePrinterFunc, bool>> argDrawers_;
   EditablePrinterMaker::PropertiesStateMap propertiesStateMap_;
 
 private:

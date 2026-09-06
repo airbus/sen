@@ -36,13 +36,13 @@ private:
   struct EventLogEntry
   {
     sen::ObjectId emitterId = {0};
-    std::string emitterName = {};
+    std::string emitterName;
     const sen::ClassType* emitterClass = nullptr;
     const sen::Event* ev = nullptr;
     sen::EventInfo eventInfo {};
-    sen::VarList args {};
-    std::string text {};
-    std::string valueText {};
+    sen::VarList args;
+    std::string text;
+    std::string valueText;
   };
 
   struct Track

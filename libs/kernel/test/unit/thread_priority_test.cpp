@@ -18,10 +18,14 @@
 // gtest
 #  include <gtest/gtest.h>
 
+// os
+#  include <sched.h>
+
 // std
 #  include <atomic>
 #  include <memory>
 #  include <string>
+#  include <thread>
 
 namespace
 {

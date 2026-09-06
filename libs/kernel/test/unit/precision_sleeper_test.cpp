@@ -9,9 +9,6 @@
 #include "precision_sleeper.h"
 #include "wall_clock.h"
 
-// stl
-#include "stl/sen/kernel/basic_types.stl.h"
-
 // gtest
 #include <gtest/gtest.h>
 
@@ -19,13 +16,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <fstream>
-#include <string>
-#include <tuple>
-
-#if defined(__linux__)
-#  include <sys/prctl.h>
-#endif
 
 namespace
 {

@@ -14,13 +14,11 @@
 #include "utils.h"
 #include "vec3.h"
 
-// sen
-#include "sen/core/base/numbers.h"
-
 // gtest
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
 #include <cmath>
 
 using namespace sen::util;  // NOLINT

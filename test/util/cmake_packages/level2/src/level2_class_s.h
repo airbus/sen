@@ -11,6 +11,9 @@
 #include "level1_class_s.h"
 #include "stl/level2.stl.h"
 
+// The name is package identity, not just a symbol: the yaml these fixtures load
+// names level2S.Level2ClassImpl, so renaming it would fail at run time, not compile time.
+// NOLINTNEXTLINE(readability-identifier-naming)
 namespace level2S
 {
 

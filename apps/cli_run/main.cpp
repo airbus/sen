@@ -42,7 +42,10 @@
 #  endif
 #  include <Windows.h>
 #else
-#  include <pthread.h>
+// <csignal> does not declare the POSIX functions used here: pthread_sigmask,
+// pthread_kill and sigwait.
+// NOLINTNEXTLINE(hicpp-deprecated-headers,modernize-deprecated-headers)
+#  include <signal.h>
 #endif
 
 // std
@@ -211,11 +214,17 @@ private:
   static inline SignalStopper* instance_ {nullptr};
   static inline sen::kernel::Kernel* kernel_ {nullptr};
 #else
+  // glibc declares this in an internal header, so the check does not connect it to the
+  // public <signal.h> included above.
+  // NOLINTNEXTLINE(misc-include-cleaner)
   sigset_t mask_ {};
   bool armed_ {false};
   std::thread waiter_;
 
   /// Whether blockEarly succeeded. Static because it runs before any instance exists.
+  // A static member reads as a global to the naming check, so the member suffix this
+  // codebase uses fails a global-variable rule.
+  // NOLINTNEXTLINE(readability-identifier-naming)
   static inline bool blocked_ {false};
 #endif
 };

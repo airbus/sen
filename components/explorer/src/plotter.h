@@ -57,7 +57,7 @@ private:
 private:
   ImVector<Vec2d> data_;
   int maxSize_;
-  int offset_;
+  int offset_ = 0;
   Plotter* owner_;
   std::string name_;
   ObjectState* state_;

@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------------------
 
 Plot::Plot(std::string name, Plotter* owner, ObjectState* state, uint32_t elementId, int maxSize)
-  : maxSize_(maxSize), offset_(0U), owner_(owner), name_(std::move(name)), state_(state), elementId_(elementId)
+  : maxSize_(maxSize), owner_(owner), name_(std::move(name)), state_(state), elementId_(elementId)
 {
   data_.reserve(maxSize);
   state_->startObservingElement(elementId_, this);

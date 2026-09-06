@@ -13,16 +13,16 @@
 
 // implementation
 #include "constants.h"
+#include "quat.h"
 #include "utils.h"
 
 // gtest
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
 #include <chrono>
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 
 namespace sen::util
 {
@@ -367,48 +367,55 @@ Situation referenceSituation(const GeodeticSituation& value)
 }
 
 // Equator, two mid latitudes and both poles beside the date line, to take both branches in toEcef.
-const GeodeticSituation geodeticSamples[] = {
-  {false,
-   initialTimeStamp,
-   {0.0, 0.0, 0.0},
-   {0.1, 0.2, 0.3},
-   {10, -20, 35},
-   {0.01, 0.02, 0.03},
-   {1.0, -2.0, 0.5},
-   {0.001, 0.002, 0.003}},
-  {false,
-   initialTimeStamp,
-   {48.8566, 2.3522, 35.0},
-   {1.2, -0.4, 2.9},
-   {-120, 45, -8},
-   {0.2, 0.0, -0.1},
-   {-1.5, 0.25, 3.0},
-   {0.03, -0.01, 0.0}},
-  {false,
-   initialTimeStamp,
-   {-33.8688, 151.2093, 120.0},
-   {-2.0, 0.9, -1.1},
-   {300, 0, 12},
-   {0.0, 0.5, 0.0},
-   {0.0, 0.0, -9.81},
-   {0.0, 0.2, 0.0}},
-  {false,
-   initialTimeStamp,
-   {89.5, -179.5, 11000.0},
-   {0.5, 0.5, 0.5},
-   {5, 5, 5},
-   {0.1, 0.1, 0.1},
-   {1.0, 1.0, 1.0},
-   {0.01, 0.01, 0.01}},
-  {false,
-   initialTimeStamp,
-   {-89.9, 179.9, -50.0},
-   {3.0, -1.5, 0.2},
-   {-7, 3, 90},
-   {-0.3, 0.0, 0.4},
-   {2.0, -2.0, 0.0},
-   {0.0, -0.05, 0.02}},
-};
+// Behind a function so the samples are built on first use: Quantity range-checks in its
+// constructor, so at namespace scope this would be dynamic initialisation that can throw.
+const auto& geodeticSamples()
+{
+  static const GeodeticSituation samples[] = {
+    {false,
+     initialTimeStamp,
+     {0.0, 0.0, 0.0},
+     {0.1, 0.2, 0.3},
+     {10, -20, 35},
+     {0.01, 0.02, 0.03},
+     {1.0, -2.0, 0.5},
+     {0.001, 0.002, 0.003}},
+    {false,
+     initialTimeStamp,
+     {48.8566, 2.3522, 35.0},
+     {1.2, -0.4, 2.9},
+     {-120, 45, -8},
+     {0.2, 0.0, -0.1},
+     {-1.5, 0.25, 3.0},
+     {0.03, -0.01, 0.0}},
+    {false,
+     initialTimeStamp,
+     {-33.8688, 151.2093, 120.0},
+     {-2.0, 0.9, -1.1},
+     {300, 0, 12},
+     {0.0, 0.5, 0.0},
+     {0.0, 0.0, -9.81},
+     {0.0, 0.2, 0.0}},
+    {false,
+     initialTimeStamp,
+     {89.5, -179.5, 11000.0},
+     {0.5, 0.5, 0.5},
+     {5, 5, 5},
+     {0.1, 0.1, 0.1},
+     {1.0, 1.0, 1.0},
+     {0.01, 0.01, 0.01}},
+    {false,
+     initialTimeStamp,
+     {-89.9, 179.9, -50.0},
+     {3.0, -1.5, 0.2},
+     {-7, 3, 90},
+     {-0.3, 0.0, 0.4},
+     {2.0, -2.0, 0.0},
+     {0.0, -0.05, 0.02}},
+  };
+
+  return samples;
+}
 
 void expectSameOrientation(const Orientation& expected, const Orientation& actual)
 {
@@ -417,6 +424,9 @@ void expectSameOrientation(const Orientation& expected, const Orientation& actua
   EXPECT_EQ(expected.phi.get(), actual.phi.get());
 }
 
+// gtest's EXPECT_ macros expand to branches, so this flat list of per-field assertions
+// trips the complexity threshold with no control flow of its own.
+// NOLINTNEXTLINE(readability-function-size)
 void expectSameSituation(const Situation& expected, const Situation& actual)
 {
   EXPECT_EQ(expected.isFrozen, actual.isFrozen);
@@ -439,6 +449,9 @@ void expectSameSituation(const Situation& expected, const Situation& actual)
   EXPECT_EQ(expected.angularAcceleration.z.get(), actual.angularAcceleration.z.get());
 }
 
+// gtest's EXPECT_ macros expand to branches, so this flat list of per-field assertions
+// trips the complexity threshold with no control flow of its own.
+// NOLINTNEXTLINE(readability-function-size)
 void expectSameGeodeticSituation(const GeodeticSituation& expected, const GeodeticSituation& actual)
 {
   EXPECT_EQ(expected.isFrozen, actual.isFrozen);
@@ -468,7 +481,7 @@ void expectSameGeodeticSituation(const GeodeticSituation& expected, const Geodet
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, geodeticConversionUnchangedBySharedRotation)
 {
-  for (const auto& sample: geodeticSamples)
+  for (const auto& sample: geodeticSamples())
   {
     const auto ecefSample = referenceSituation(sample);
     expectSameGeodeticSituation(referenceGeodeticSituation(ecefSample), impl::toGeodeticSituation(ecefSample));
@@ -480,7 +493,7 @@ TEST(DeadReckonerTest, geodeticConversionUnchangedBySharedRotation)
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, ecefConversionUnchangedBySharedRotation)
 {
-  for (const auto& sample: geodeticSamples)
+  for (const auto& sample: geodeticSamples())
   {
     const auto expected = referenceSituation(sample);
     expectSameSituation(expected, impl::toSituation(sample));

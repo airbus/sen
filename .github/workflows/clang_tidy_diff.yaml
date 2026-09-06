@@ -1,0 +1,192 @@
+# === clang_tidy_diff.yaml =============================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+#
+# clang-tidy on the lines a pull request changed. The nightly runs the whole tree and only over
+# the targets that opt in; this runs over the compile database, so it also covers the files that
+# never opted in.
+#
+# It configures and builds the generated headers, nothing else: clang-tidy parses the translation
+# units itself and only needs the headers a changed file may include.
+#
+# This gates. The nightly reports a violation a day after it merges, and one finding at a time
+# because ninja stops at the first failure, so it cannot keep the tree clean on its own.
+
+name: clang-tidy on changed lines
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  clang-tidy-diff:
+    name: "clang-tidy (changed lines)"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      # Only the posting step needs this. A pull request from a fork gets a read-only token
+      # whatever this says, so that step tolerates failure and the findings stay in the job log.
+      pull-requests: write
+    env:
+      CC: clang-20
+      CXX: clang++-20
+      # Release to match the nightly. Debug compiles different code -- SEN_DEBUG_ASSERT and the
+      # NDEBUG-gated paths -- so a delta checked in Debug would not agree with what the nightly
+      # analyses. The path follows the profile's build_folder_vars=['settings.compiler'].
+      BUILD_DIR: build/clang/Release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Prepare the build
+        uses: ./.github/actions/prepare_build
+        with:
+          compiler-name: clang
+          compiler-version: 20
+          runner-label: ubuntu-24.04
+
+      # The scripts ship with the clang-tidy package. Checked rather than assumed: absent, every
+      # command below would report nothing and pass.
+      - name: Locate the clang-tidy helpers
+        shell: bash
+        run: |
+          llvm_share=/usr/lib/llvm-20/share/clang
+          command -v clang-tidy-20 > /dev/null
+          test -f "$llvm_share/clang-tidy-diff.py"
+          echo "CLANG_TIDY_DIFF=$llvm_share/clang-tidy-diff.py" >> "$GITHUB_ENV"
+          # Packaged as a binary on the path in some releases and as a script in others; the
+          # whole-tree scope below needs whichever is here.
+          if command -v run-clang-tidy-20 > /dev/null; then
+            echo "RUN_CLANG_TIDY=run-clang-tidy-20" >> "$GITHUB_ENV"
+          else
+            test -f "$llvm_share/run-clang-tidy.py"
+            echo "RUN_CLANG_TIDY=python3 $llvm_share/run-clang-tidy.py" >> "$GITHUB_ENV"
+          fi
+
+      # The generators script puts Conan's cmake and ninja on the path -- a bare cmake is
+      # whatever the runner image carries, and is a different major version.
+      - name: Configure and build the generated headers
+        shell: bash
+        run: |
+          conan install . -s "&:build_type=Release" --build=missing -o "sen/*:with_tests=True"
+          source "$BUILD_DIR/generators/conanbuild.sh"
+          cmake --preset conan-clang-release
+          # There is no aggregate target for these, so they are enumerated -- by output path,
+          # not by target name. Enumerating names missed the headers that come from a bare
+          # CUSTOM_COMMAND with no target attached, and clang-tidy then cannot parse the unit
+          # that includes one. An empty list would build nothing and pass, so it is rejected.
+          mapfile -t generated < <(
+            ninja -C "$BUILD_DIR" -t targets all \
+              | grep -vE ': (phony|CLEAN|HELP)$' \
+              | sed 's/:.*//' | grep -E '\.(h|hpp|hxx)$' | grep -v '^/' | sort -u
+          )
+          echo "generated headers: ${#generated[@]}"
+          test "${#generated[@]}" -gt 0
+          ninja -C "$BUILD_DIR" "${generated[@]}"
+
+      # The compile database is what both scopes below read. Absent, clang-tidy-diff reports
+      # nothing for every file and the lane passes without analysing a line.
+      - name: Check the compile database exists
+        shell: bash
+        run: |
+          test -s "$BUILD_DIR/compile_commands.json"
+          echo "entries: $(python3 -c "import json,sys;print(len(json.load(open('$BUILD_DIR/compile_commands.json'))))")"
+
+      # A change to the checks themselves invalidates every earlier verdict, so the lane stops
+      # being a diff and reads the whole compile database.
+      - name: Decide the scope
+        id: scope
+        shell: bash
+        env:
+          # One of these is set per event, as classify_changes is given the same way.
+          BASE_SHA: >-
+            ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+        run: |
+          if git diff --name-only "$BASE_SHA...HEAD" | grep -qxF '.clang-tidy'; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "full=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run clang-tidy on the changed lines
+        if: steps.scope.outputs.full == 'false'
+        shell: bash
+        env:
+          BASE_SHA: >-
+            ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+        run: |
+          # Only files the compile database has a command for. A changed header has none, so
+          # clang-tidy falls back to a bare invocation with no include paths and every check
+          # reports nonsense -- include-cleaner calls even std::vector unprovided.
+          mapfile -t analysable < <(
+            git diff --name-only "$BASE_SHA...HEAD" -- '*.cpp' '*.cc' '*.cxx' \
+              | python3 .github/scripts/analysable_sources.py "$BUILD_DIR/compile_commands.json"
+          )
+          if [ "${#analysable[@]}" -eq 0 ]; then
+            echo "::notice::No changed file is a translation unit in the compile database."
+            exit 0
+          fi
+          echo "analysing ${#analysable[@]} changed translation units"
+          git diff -U0 "$BASE_SHA...HEAD" -- "${analysable[@]}" \
+            | python3 "$CLANG_TIDY_DIFF" \
+                -p1 -path "$BUILD_DIR" \
+                -clang-tidy-binary clang-tidy-20 \
+                -export-fixes clang-tidy-fixes.yaml \
+                -j "$(nproc)" \
+            | tee clang-tidy-output.txt
+
+      - name: Run clang-tidy over the whole tree
+        if: steps.scope.outputs.full == 'true'
+        shell: bash
+        run: |
+          echo "::notice::.clang-tidy changed, so every file is analysed rather than the diff."
+          $RUN_CLANG_TIDY -p "$BUILD_DIR" \
+            -export-fixes clang-tidy-fixes.yaml \
+            -j "$(nproc)" \
+            | tee clang-tidy-output.txt
+
+      # The steps above pipe into tee, so their status is tee's unless pipefail is set. Asserting
+      # on the output too, because a checker that finds defects and exits zero is the worst case.
+      - name: Fail on any finding
+        if: always() && hashFiles('clang-tidy-output.txt') != ''
+        shell: bash
+        run: |
+          # A parse failure is this lane's fault -- a missing generated header, a bad compile
+          # database -- and saying so keeps it from reading as a defect in the change.
+          if grep -nE 'error: .*\[clang-diagnostic-error\]$' clang-tidy-output.txt; then
+            echo "::error::clang-tidy could not parse a translation unit. That is a fault in this lane, not in the change."
+            exit 1
+          fi
+          if grep -nE '(warning|error): .*\[[a-z0-9-]+(,-warnings-as-errors)?\]$' clang-tidy-output.txt; then
+            echo "::error::clang-tidy reported findings on the lines this pull request changed."
+            exit 1
+          fi
+          echo "No findings on the changed lines."
+
+      # A fork's token cannot post at all, so this is allowed to fail: the findings are already in
+      # the job log and the archive, and the job has failed above if there were any.
+      - name: Post the findings as review comments
+        if: always() && hashFiles('clang-tidy-fixes.yaml') != ''
+        continue-on-error: true
+        uses: platisd/clang-tidy-pr-comments@28cfb84edafa771c044bde7e4a2a3fae57463818  # v1.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clang_tidy_fixes: clang-tidy-fixes.yaml
+          request_changes: false
+
+      - name: Archive the findings
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: clang-tidy-findings
+          path: |
+            clang-tidy-fixes.yaml
+            clang-tidy-output.txt
+          if-no-files-found: ignore
