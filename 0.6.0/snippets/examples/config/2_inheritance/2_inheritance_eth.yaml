@@ -1,0 +1,4 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/ether.yaml
+  - 1_inheritance.yaml

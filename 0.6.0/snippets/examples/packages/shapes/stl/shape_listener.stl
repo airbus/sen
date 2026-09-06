@@ -1,0 +1,49 @@
+import "shapes.stl"
+
+package shapes;
+
+// An distance interval
+struct DistanceInterval
+{
+  min : Centimeters,
+  max : Centimeters
+}
+
+// A color or nothing
+optional<Color> MaybeColor;
+
+// An interval or nothing
+optional<DistanceInterval> MaybeInterval;
+
+// A list of names
+sequence<string> NameList;
+
+// Base class for listening to various shapes
+class ShapeListener
+{
+  // Number of shapes being tracked
+  var detectedShapesCount: u32;
+
+  // Number of active queries
+  var queryCount: u32;
+
+  // Start listening for shapes that fulfil certain conditions.
+  // Returns the name of the query that was created.
+  //
+  // @param bus the bus where to find the shapes.
+  // @param color if present, the color that the shape must have.
+  // @param xRange if present, the interval along the x axis where the shape should be.
+  // @param yRange if present, the interval along the y axis where the shape should be.
+  fn startListeningTo(bus : string, color : MaybeColor, xRange : MaybeInterval, yRange : MaybeInterval) -> string;
+
+  // Deletes a previously created query.
+  //
+  // @param queryName the name of the query (the one returned by calls to startListeningTo)
+  fn stopListeningTo(queryName : string);
+
+  // Deletes all previously created queries.
+  fn stopListening();
+
+  // Get the names of all the detected shapes
+  fn getAllDetectedShapes() -> NameList;
+}

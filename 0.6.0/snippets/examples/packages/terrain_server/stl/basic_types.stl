@@ -1,0 +1,52 @@
+import "rpr/RPR-Base_v2.0.xml"
+import "netn/NETN-BASE.xml"
+import "netn/NETN-METOC.xml"
+
+package terrain_server;
+
+// Helper to encode azimuth and elevation information (degrees)
+struct AzimElev
+{
+  azimuth   : netn.DirectionDegreesFloat32,
+  elevation : netn.DirectionDegreesFloat32
+}
+
+// Helper to encode min/max information (meters)
+struct Range
+{
+  min : rpr.MeterFloat64,
+  max : rpr.MeterFloat64
+}
+
+// Line of Sight information/
+struct LoS
+{
+  intersection : netn.GeodeticPoint,  // point of intersection
+  range        : rpr.MeterFloat32,    // distance from the start to the intersection
+  normalVector : AzimElev,            // normal vector at the intersection point
+  materialCode : u32                  // material of the object/terrain at the intersection
+}
+
+// Height of/above terrain information
+struct HatHot
+{
+  point        : netn.GeodeticPoint,         // geographic location
+  hat          : netn.AltitudeMeterFloat64,  // height above terrain at the point
+  hot          : netn.AltitudeMeterFloat64,  // height of terrain at the point
+  normalVector : AzimElev,                   // unitary normal vector of the terrain
+  materialCode : u32                         // material of the terrain at the point
+}
+
+// Represents a HaT/HoT query that will be continuously updated by its owner
+class HatHotQuery
+{
+  var ref    : netn.GeoReferenceVariant [static]; // tracked object, position or entity
+  var hatHot : HatHot;                            // HaT/HoT information
+}
+
+// Represents a line of sight query that will be continuously updated by its owner
+class LosQuery
+{
+  var ref : netn.GeoReferenceVariant [static]; // tracked object, position or entity
+  var los : LoS;                               // line of sight information
+}

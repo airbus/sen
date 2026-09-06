@@ -1,0 +1,7 @@
+<map id="sen::kernel::SourceInfo" name="sen::kernel::SourceInfo">
+<area shape="rect" id="Node000001" title="Provides information about sources as strings." alt="" coords="120,5,293,271"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_session_info_provider.html" title=" " alt="" coords="5,321,184,421"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,284,121,322,116,320,135,282"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_sessions_discoverer.html" title=" " alt="" coords="209,319,429,424"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="279,282,296,317,291,320,274,284"/>
+</map>

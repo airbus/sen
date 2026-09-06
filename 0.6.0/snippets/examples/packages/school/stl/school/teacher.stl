@@ -1,0 +1,41 @@
+import "stl/school/person.stl"
+
+package school;
+
+// Represents a teacher who is imparting a class.
+struct ImpartingClass
+{
+  since     : TimeStamp,  // When did the class start.
+  className : string      // The name of the class.
+}
+
+// Represents a teacher that is waiting for students to join the class.
+struct WaitingForStudents
+{
+  since : TimeStamp  // Since when is the teacher waiting.
+}
+
+// The status of a teacher at any given time.
+variant TeacherStatus
+{
+  WaitingForStudents,
+  ImpartingClass
+}
+
+// Teachers manage students in a classroom.
+class Teacher: extends Person
+{
+  // The status of the teacher.
+  var status      : TeacherStatus [confirmed];
+
+  // The level of stress at any given time (goes from 0 to 1).
+  var stressLevel : f32;
+
+  // Requests the teacher to assign tasks to the students in the class.
+  fn assignTasks();
+
+  // Emitted when the stress level reached a peak.
+  //
+  // @param level value of the stress level when peaked.
+  event stressLevelPeaked(level : f32);
+}

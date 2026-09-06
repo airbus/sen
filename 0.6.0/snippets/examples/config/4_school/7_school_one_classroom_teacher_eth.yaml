@@ -1,0 +1,34 @@
+# $schema: ../base/schema.json
+
+# Here we load the ether component. With it, we can now start
+# other sen processes (shells, explorers, etc.) and connect to
+# the 'school.primary' bus to inspect the state of our system.
+#
+# The idea here is to also start the 4_school_one_classroom_no_teacher_eth.yaml
+# configuration so that you see how objects interact across processes.
+include:
+  - ../base/ether.yaml
+  - ../base/shell.yaml
+
+load:
+  - name: shell
+    open: [school.primary]
+
+build:
+  - name: example
+    group: 3
+    freqHz: 30
+    imports: [school]
+    inQueue:
+      evictionPolicy: dropNewest
+      maxSize: 1000
+    outQueue:
+      evictionPolicy: dropOldest
+      maxSize: 1000
+    objects:
+      - name: firstGrade
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 5
+        createTeacher: true

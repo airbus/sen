@@ -1,0 +1,54 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciManager
+        workersBus: my.tutorial
+        name: fibManager
+        bus: my.tutorial
+  - name: myComponentA
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: my.tutorial
+  - name: myComponentB
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: my.tutorial
+  - name: myComponentC
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerC
+        bus: my.tutorial
+  - name: myComponentD
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerD
+        bus: my.tutorial
+  - name: myComponentE
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerE
+        bus: my.tutorial

@@ -1,0 +1,1526 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Distributed Emission Regeneration FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>Represent electromagnetic emissions using the regeneration principle.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABQxJREFUeNrsmlkofG8YxwdjzxKyZ78hkhtuXE4uCGXcKSURN5JGubKmJGtpsjaRIktuJJIlkX0ZstQg2yBLjSVLxvh//079mhgz7zlzzowp3wvNHOe85/0853me93neM2Z+fn48Hs/MzIxnavr4+MBfvlKplMvlPNOUj4+PuaWlJc9khcmb80xcfwB/AH8AfwAmACASicLCwhobG7mbh0wmq62tra+vPz4+pnelv7//h1YtLCzw+Xzq5IqKig8ONDIy4ujoSN3C29t7eXmZ8EJMXjdAdXW1OnBlZSW7s397e4uOjla/hUAgYBMgOzv7y0OrqqpiEUChUDg5OamPj6/kALpj4Orq6suRoqKimpoatrwfzhMVFaV+JDIyks0gfn5+/n6wsLAQAccKgFQqjYuLs7e3p766urrCS8kv5+tGNNcMWVBQYGFhkZeXx3jqMA0CrLS0NDExcW5ubnR0FNVlcnJycHAwm1koNTVVy+VNTU3MXH9xcZGKXSsrK2QhZoMQBXFOTo52E4jFYlp3fXp6gtVtbW2py+vq6hgnACKAsrIy7QBoR1taWuganlJGRoY+GYwIoKuriyRO2traaBkeAglyKOcAGxsbcFOdDAhoiURCaHjI09Nza2tLzzWECODx8fH/80gyGp/f2dmp0/CUBgcH9V8EiQAgoVBI3mV3d3drMTylkpISVlZxUgDUieR5Gf7W19enVCo1Gh5KSUlRqVQGBdjc3LS2tiZn8PDw+Gn1CA8Pv7i4YKuOIgV4f3+PjY2lu+UUERHx5SCqNDgVi4UgUTFHZUnt6/F3yeVyRD/srX4Q5ZPGkNBLJE8AOjk5cXNzYzB4aGgo9Tk/P5/1TojUhSjl5uYyMJDfpxISElC6cQFAo6lHUWRnZ0cXAI/u4eEhLS3NxsaGk26a/AmQFHY/CeGLatnILgTt7+8jRTJjcHZ2Hh8fNzIA1NDQwPhpu7i4TExMGBkAa4JAIGDMgI5xamrKmADQ9vY2aknGDEjHMzMzxgSABgYGUD8zZnB3d0cTbEwASM9dCSSD+fl5YwJAxcXF+jB4eXktLS0ZB+Ds7AwrFD6Ul5fr+ZpxZWXFCABZWVmoT9Ft4TM6en1WWV9f37W1NYMCoD2gNtLQmtzd3eHI9PR0SEgIYwYUS+i8DQeQmZmpvrNA9ebX19fp6en6VDSwiyEA1tfXvzgM6hwsz29vb/jv8PDwv/qZrgIDA7HCcA6QkZGh8fZ4FGNjY9QuRnV1NaKTAUNQUNDu7i6HAFKpVHtFnZSUREU2PKqqqoreNu2nEEt7e3tcAXx/2fF9m3FycvLf+egE+vv70Y46ODiQM4hEIk4AdnZ2SOYB//l+7dHRkVgsFgqF3t7e2n/aA9+bnZ0lB+CTG6a1tRUW1Xkaolxjksn91P39PSIVCQetxenp6c3NDVpNc3NzZAKcExMTEx8fT6/5JnwCh4eHqIQJnZgKAxKpVCqlUokSnfOeuKOj4/b2luRM2BW0hMPCnVDV/vQSiLUX3ZeXlxKJhHDE19dXlGi/6019V1fX+fk5+aCoC34RAKqd9vZ2WoOurq7CrX8LQG9vr0wmozUo8gxhwHAOAIdubm6mO6hCoUCi/BUAQ0NDzBxa42pgaABkw6amJmbjokcxDIC2lbinpwfmR/lAN0/D8Q4ODl5eXrjaD1VfSbCYoVDhmaYCAgL+fjNndAC0gqY7e0yeDyEMTPTn95j8fwIMABHWxrvdL+rFAAAAAElFTkSuQmCC</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>EmbeddedSystem</name>
+                <objectClass>
+                    <name>Designator</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A system used to designate or mark a location or object, such as a laser designator which supports a laser-guided weapon engagement.</semantics>
+                    <attribute>
+                        <name>CodeName</name>
+                        <dataType>DesignatorCodeNameEnum16</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The code name of the designator system.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER1">
+                        <name>DesignatedObjectIdentifier</name>
+                        <dataType>RTIobjectId</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The object instance ID of the entity that is currently being designated (if any).</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>DesignatorCode</name>
+                        <dataType>DesignatorCodeEnum16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The designator code being used by the designating entity.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>DesignatorEmissionWavelength</name>
+                        <dataType>WavelengthMicronFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER12">&gt; DS_WAVELENGTH</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The wavelength of the designator system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>DesignatorOutputPower</name>
+                        <dataType>PowerWattFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The output power of the designator system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>DesignatorSpotLocation</name>
+                        <dataType>WorldLocationStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER10 RPRnoteDER11">DesigPositionChange</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The location, in the world coordinate system, of the designator spot.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>DeadReckoningAlgorithm</name>
+                        <dataType>DeadReckoningAlgorithmEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Dead reckoning algorithm used by the issuing object.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>RelativeSpotLocation</name>
+                        <dataType>RelativePositionStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER10 RPRnoteDER11">RelDesigPositionChange</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The location of the designator spot, relative to the object being designated (if any).</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SpotLinearAccelerationVector</name>
+                        <dataType>AccelerationVectorStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER9 RPRnoteDER10">DesigAccelerationChange</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The rate of change in linear velocity of the designator spot over time.</semantics>
+                    </attribute>
+                </objectClass>
+                <objectClass>
+                    <name>EmitterSystem</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A device that radiates an electromagnetic signal, such as a radar or jammer.</semantics>
+                    <attribute>
+                        <name>EmitterFunctionCode</name>
+                        <dataType>EmitterFunctionEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The function of the emitter system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>EmitterType</name>
+                        <dataType>EmitterTypeEnum16</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The type of the emitter system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>EmitterIndex</name>
+                        <dataType>Octet</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>A unique number, which uniquely identifies the emitter system from other on the same host entity.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER3">
+                        <name>EventIdentifier</name>
+                        <dataType>EventIdentifierStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER4">On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The EventIdentifier is used by the generating federate to associate related events. The event number shall start at one at the beginning of the exercise, and be incremented by one for each event.</semantics>
+                    </attribute>
+                </objectClass>
+                <objectClass>
+                    <name>IFF</name>
+                    <sharing>Neither</sharing>
+                    <semantics>Interrogator Friend or Foe (IFF) system, Air Traffic Control Beacon and Transponder system, collision avoidance and navigational aids systems.</semantics>
+                    <attribute notes="RPRnoteDER14">
+                        <name>BeamAzimuthCenter</name>
+                        <dataType>AngleRadianFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER7">&gt; EE_AZ_THRSH_DFLT</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The azimuth center of the IFF beam's scan volume relative to the IFF system.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>BeamAzimuthSweep</name>
+                        <dataType>AngleRadianFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER7">&gt; EE_AZ_THRSH_DFLT</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The azimuth half-angle of the IFF beam's scan volume relative to the IFF system.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>BeamElevationCenter</name>
+                        <dataType>AngleRadianFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER7">&gt; EE_EL_THRSH_DFLT</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The elevation center of the IFF beam's scan volume relative to the IFF system.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>BeamElevationSweep</name>
+                        <dataType>AngleRadianFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteDER7">&gt; EE_EL_THRSH_DFLT</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The elevation half-angle of the IFF beam's scan volume relative to the IFF system.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>BeamSweepSync</name>
+                        <dataType>PercentFloat32</dataType>
+                        <updateType>Periodic</updateType>
+                        <updateCondition notes="RPRnoteDER8">HRT_BEAT_TIMER secs</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The percentage of time a scan is through its pattern from its origin.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>EventIdentifier</name>
+                        <dataType>EventIdentifierStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Used to associate related events.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>FundamentalParameterData</name>
+                        <dataType>FundamentalParameterDataStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The fundamental energy radiation characteristics of the IFF/ATC/NAVAIDS system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>Layer2DataAvailable</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies if level 2 data is available for this IFF system. If level 2 data is available then the BeamAzimuthCenter, BeamAzimuthSweep, BeamElevationCenter, BeamElevationSweep, BeamSweepSync, FundamentalParameterData, SecondaryOperationalDataParameter1, and SecondaryOperationalDataParameter2 attributes shall be generated.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>SecondaryOperationalDataParameter1</name>
+                        <dataType>IffOperationalParameter1Enum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Additional characteristics of the IFF/ATC/NAVAIDS emitting system.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER14">
+                        <name>SecondaryOperationalDataParameter2</name>
+                        <dataType>IffOperationalParameter2Enum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Additional characteristics of the IFF/ATC/NAVAIDS emitting system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SystemMode</name>
+                        <dataType>IffSystemModeEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Mode of operation.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SystemName</name>
+                        <dataType>IffSystemNameEnum16</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Particular named type of the IFF system in use.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SystemType</name>
+                        <dataType>IffSystemTypeEnum16</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>General type of IFF system in use.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SystemIsOn</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether or not the system is on.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SystemIsOperational</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether or not the system is operational.</semantics>
+                    </attribute>
+                    <objectClass>
+                        <name>NatoIFF</name>
+                        <sharing>Neither</sharing>
+                        <semantics>NATO Identification Friend or Foe (IFF) system that uses electromagnetic transmissions to which friendly forces' equipment automatically responds.</semantics>
+                        <attribute>
+                            <name>AlternateMode4</name>
+                            <dataType>IffAlternateMode4Enum8</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>IFF Alternate Mode 4.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode1Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 1 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode1IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 1 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode1IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 1 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode1IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 1 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode2Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 2 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode2IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 2 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode2IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 2 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode2IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 2 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode3AEnabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 3 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode3AIsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 3 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode3AIsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 3 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode3AIsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 3 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode4Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 4 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode4IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 4 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode4IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 4 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode4IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 4 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode4PseudoCrypto</name>
+                            <dataType>UnsignedInteger16</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Mode 4 Pseudo-Crypto value (0-4094).</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode4PseudoCryptoAvailable</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Mode 4 pseudo-crypto value is available.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode5CEnabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 - Mode C is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode5CIsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 - Mode C is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode5CIsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 - Mode C is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Mode5CIsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 - Mode C is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ModeSEnabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 - Mode S is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ModeSIsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 - Mode S is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ModeSIsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 - Mode S is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ModeSIsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 - Mode S is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ModeSIsTcasI</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies which Traffic Alert/Collision Avoidance System is used. FALSE means TCAS I, TRUE means TCAS II.</semantics>
+                        </attribute>
+                        <objectClass>
+                            <name>NatoIFFInterrogator</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>The part of an IFF system that first transmits electromagnetic signals.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>NatoIFFTransponder</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>The part of a specific IFF system that responds (for example by emitting pulses) to the electromagnetic signals.</semantics>
+                            <attribute>
+                                <name>EmergencyOn</name>
+                                <dataType>RPRboolean</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Specifies whether or not emergency is on.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>IdentSquawkFlashOn</name>
+                                <dataType>RPRboolean</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Specifies whether or not the squawk ident/flash is on.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>Mode1Code</name>
+                                <dataType>UnsignedInteger16</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Mode 1 code, two octal values.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>Mode2Code</name>
+                                <dataType>UnsignedInteger16</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Mode 2 code, four octal values.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>Mode3ACode</name>
+                                <dataType>UnsignedInteger16</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Mode 3 code, four octal values.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>Mode5CAltitude</name>
+                                <dataType>TransponderModeCAltitude100-FootInteger16</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Parameter 5 - Mode C altitude.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>Mode5CAltitudeAvailable</name>
+                                <dataType>RPRboolean</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Specifies whether or not Parameter 5 - Mode C altitude is available.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>StiOn</name>
+                                <dataType>RPRboolean</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Specifies whether or not STI is on.</semantics>
+                            </attribute>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass>
+                        <name>SovietIFF</name>
+                        <sharing>Neither</sharing>
+                        <semantics>Soviet type IFF system</semantics>
+                        <attribute>
+                            <name>Parameter1Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 1 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter1IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 1 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter1IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 1 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter1IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 1 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter2Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 2 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter2IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 2 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter2IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 2 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter2IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 2 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter3Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 3 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter3IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 3 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter3IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 3 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter3IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 3 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter4Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 4 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter4IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 4 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter4IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 4 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter4IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 4 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter5Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter5IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter5IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter5IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 5 is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter6Enabled</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 is enabled.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter6IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter6IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>Parameter6IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not Parameter 6 is on.</semantics>
+                        </attribute>
+                        <objectClass>
+                            <name>SovietIFFInterrogator</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>Soviet IFF Interrogator</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>SovietIFFTransponder</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>Soviet IFF Transponder</semantics>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass notes="RPRnoteDER15">
+                        <name>RRB</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>RRB IFF transponder system</semantics>
+                        <attribute>
+                            <name>Code</name>
+                            <dataType>Octet</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>RRB Code (range 0-16)</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>PowerReduction</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not power reduction is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>IsDamaged</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not the system is damaged.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>IsMalfunctioning</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not the system is malfunctioning.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>IsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not the system is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>RadarEnhancement</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies whether or not the radar enhancement is on.</semantics>
+                        </attribute>
+                    </objectClass>
+                </objectClass>
+            </objectClass>
+            <objectClass>
+                <name>EmitterBeam</name>
+                <sharing>Subscribe</sharing>
+                <semantics>A sector of concentrated energy from a device that radiates an electromagnetic signal. See also IEEE 1278.1-1995 Section 5.4.7.1.</semantics>
+                <attribute>
+                    <name>BeamAzimuthCenter</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition notes="RPRnoteDER7">&gt; EE_AZ_THRSH_DFLT</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The azimuth center of the emitter beam's scan volume relative to the emitter system.</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamAzimuthSweep</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition notes="RPRnoteDER7">&gt; EE_AZ_THRSH_DFLT</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The azimuth half-angle of the emitter beam's scan volume relative to the emitter system.</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamElevationCenter</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition notes="RPRnoteDER7">&gt; EE_EL_THRSH_DFLT</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The elevation center of the emitter beam's scan volume relative to the emitter system.</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamElevationSweep</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition notes="RPRnoteDER7">&gt; EE_EL_THRSH_DFLT</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The elevation half-angle of the emitter beam's scan volume relative to the emitter system.</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamFunctionCode</name>
+                    <dataType>BeamFunctionCodeEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The function of the emitter beam.</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamIdentifier</name>
+                    <dataType>Octet</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The identification of the emitter beam (must be unique on the emitter system).</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamParameterIndex</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The index, into the federation specific emissions database, of the current operating mode of the emitter beam.</semantics>
+                </attribute>
+                <attribute>
+                    <name>EffectiveRadiatedPower</name>
+                    <dataType>PowerRatioDecibelMilliwattFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The effective radiated power of the emitter beam.</semantics>
+                </attribute>
+                <attribute>
+                    <name>EmissionFrequency</name>
+                    <dataType>FrequencyHertzFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The center frequency of the emitter beam.</semantics>
+                </attribute>
+                <attribute notes="RPRnoteDER2">
+                    <name>EmitterSystemIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The identification of the emitter system that is generating this emitter beam.</semantics>
+                </attribute>
+                <attribute notes="RPRnoteDER3">
+                    <name>EventIdentifier</name>
+                    <dataType>EventIdentifierStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition notes="RPRnoteDER4">On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The EventIdentifier is used by the generating federate to associate related events. The event number shall start at one at the beginning of the exercise, and be incremented by one for each event.</semantics>
+                </attribute>
+                <attribute>
+                    <name>FrequencyRange</name>
+                    <dataType>FrequencyHertzFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The bandwidth of the frequencies covered by the emitter beam.</semantics>
+                </attribute>
+                <attribute>
+                    <name>PulseRepetitionFrequency</name>
+                    <dataType>FrequencyHertzFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The Pulse Repetition Frequency of the emitter beam.</semantics>
+                </attribute>
+                <attribute>
+                    <name>PulseWidth</name>
+                    <dataType>TimeMicrosecondFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The pulse width of the emitter beam.</semantics>
+                </attribute>
+                <attribute>
+                    <name>SweepSynch</name>
+                    <dataType>PercentFloat32</dataType>
+                    <updateType>Periodic</updateType>
+                    <updateCondition notes="RPRnoteDER8">HRT_BEAT_TIMER secs</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The percentage of time a scan is through its pattern from its origin.</semantics>
+                </attribute>
+                <objectClass>
+                    <name>RadarBeam</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A sector of concentrated energy from a device that radiates an electromagnetic signal.</semantics>
+                    <attribute>
+                        <name>HighDensityTrack</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>When TRUE the receiving simulation can assume that all targets that are in the scan pattern of the radar beam are being tracked</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER6">
+                        <name>TrackObjectIdentifiers</name>
+                        <dataType>RTIobjectIdArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Identification of the entities being tracked.</semantics>
+                    </attribute>
+                </objectClass>
+                <objectClass>
+                    <name>JammerBeam</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>An emitter beam that is designed to jam or otherwise interfere or confuse another emitter system</semantics>
+                    <attribute>
+                        <name>JammingModeSequence</name>
+                        <dataType>UnsignedInteger32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The jamming mode technique or series of techniques being applied.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteDER5">
+                        <name>JammedObjectIdentifiers</name>
+                        <dataType>RTIobjectIdArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Identification of the emitter beams being jammed.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>HighDensityJam</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>When TRUE the receiving simulation can assume that all emitter beams that are in the scan pattern of the jammer beam are being jammed</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>PowerWattFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>watt (W)</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>The unit of power is the watt (W), which is equal to one joule per second.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>TransponderModeCAltitude100-FootInteger16</name>
+                <representation>HLAinteger16BE</representation>
+                <units>100-foot increment</units>
+                <resolution>1</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Actual Mode C altitude in the range 0-126,000 feet in 100-foot increments.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>FundamentalParameterDataStructLengthlessArray</name>
+                <dataType>FundamentalParameterDataStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Array of Fundamental Parameter Data records.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>FundamentalParameterDataStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Fundamental Parameter Data record.</semantics>
+                <field>
+                    <name>ERP</name>
+                    <dataType>PowerRatioDecibelMilliwattFloat32</dataType>
+                    <semantics>The average peak radiated power of the emission.</semantics>
+                </field>
+                <field notes="RPRnoteDER13">
+                    <name>Frequency</name>
+                    <dataType>FrequencyHertzFloat32</dataType>
+                    <semantics>The center frequency of the emission.</semantics>
+                </field>
+                <field>
+                    <name>PgRF</name>
+                    <dataType>InterrogationsPerSecondFloat32</dataType>
+                    <semantics>When applied to originators, this field shall specify the number of interrogations per second emitted. This field shall be set to zero when applied to a responder (i.e. transponder) systems.</semantics>
+                </field>
+                <field>
+                    <name>PulseWidth</name>
+                    <dataType>TimeMicrosecondFloat32</dataType>
+                    <semantics>The duration of the fundamental pulse of which the interrogation or reply is composed.</semantics>
+                </field>
+                <field>
+                    <name>BurstLength</name>
+                    <dataType>Integer32</dataType>
+                    <semantics>The number of emissions generated in a single burst. This field shall contain zero for continuously emitting systems and shall contain the value 1 for responders.</semantics>
+                </field>
+                <field>
+                    <name>ApplicableModes</name>
+                    <dataType>IffApplicableModesEnum8</dataType>
+                    <semantics>Specifies the modes to which the fundamental parameter data applies.</semantics>
+                </field>
+                <field notes="RPRnoteDER16">
+                    <name>Padding</name>
+                    <dataType>OctetArray3</dataType>
+                    <semantics>Padding to 32 bits</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteDER1</label>
+            <semantics>If there is no object instance associated with the attribute, then this should be set to the empty string (no characters). Refer to SISO-STD-001 section 7.8.6 for handling empty strings.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER2</label>
+            <semantics>This must reference a valid Object instance.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER3</label>
+            <semantics>The EventIdentifier attribute is used to link together updates arising from a common event. For example an emitter function change can be linked to a frequency change in one of its associated emitter beams, by using the same event ID in the attribute updates to the appropriate EmitterSystem and EmitterBeam classes. It is important to note that in order that the EventIdentifier is delivered in the same reflect attribute values call in the receiving federates as the associated attributes, then all the attributes, including the EventIdentifier, must share the same transport type.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER4</label>
+            <semantics>The federate should change the value of the EventIdentifier when associating changes between two or more emitter beams and/or emitter systems. It is not necessary to update the EventIdentifier field with every attribute update if the change is not associated with changes in other instances of other classes.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER5</label>
+            <semantics>The object IDs in this structure shall refer to EmitterBeam objects (or subclasses of EmitterBeam).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER6</label>
+            <semantics>The object IDs in this structure shall refer to PhysicalEntity objects (or subclasses of PhysicalEntity).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER7</label>
+            <semantics>This attribute is updated if the current value differs from the previously updated value by more than the value specified by the symbolic name (see section 5.1.4 of IEEE 1278.1-1995 for the actual values of the symbolic names).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER8</label>
+            <semantics>See section 5.1.4 of IEEE 1278.1-1995 for the values of the symbolic name.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER9</label>
+            <semantics>This condition is TRUE when TSPI_Change is TRUE and the actual acceleration differs from the last updated acceleration by more than a threshold value in any direction. The default threshold shall be DRA_ACCEL_EPSILON_DFLT (0.001 m/s/s).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER10</label>
+            <semantics>The TSPI_Change condition shall be evaluated as follows: 
+The owner of a base entity object shall maintain two state models of the object in support of the dead reckoning process. One model shall be the internal model used by the simulation application to  represent that object. The other shall be a dead reckoning model of the object. Certain thresholds shall be established as criteria for determining if the object's actual TSPI data has varied by an allowable amount from the dead reckoned TSPI data. 
+TSPI_Change is TRUE when either: 
+a) the objects actual position differs from the dead reckoned position by more than DRA_POS_THRSH_DFLT 
+b) the objects actual orientation differs from the dead reckoned orientation by more than DRA_ORIENT_THRSH_DFLT 
+See section 5.1.4 of IEEE 1278.1-1995 for the value of these symbolic constants.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER11</label>
+            <semantics>This condition is TRUE when TSPI_Change is TRUE and the actual position differs from the last updated position by more than a threshold value in any direction. The default threshold shall be DRA_POS_EPSILSON_DFLT (0.001 m).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER12</label>
+            <semantics>The value of DS_WAVELENGTH shall be 0.0000001 microns.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER13</label>
+            <semantics>Frequency modulation shall be derived from database parameters stored for the particular emitting system and specified mode.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER14</label>
+            <semantics>If layer 2 data is available (determined by the state of the Layer2DataAvailable attribute) then this attribute shall be updated by the federate. If layer 2 data is not available then this attribute shall not be updated by the federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER15</label>
+            <semantics>The RRB system is a transponder only system.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteDER16</label>
+            <semantics>All padding fields shall be set to the value 0</semantics>
+        </note>
+    </notes>
+</objectModel>

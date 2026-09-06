@@ -1,0 +1,15 @@
+<map id="sen::kernel::ConfigGetter" name="sen::kernel::ConfigGetter">
+<area shape="rect" id="Node000001" title="Allows for fetching configuration parameters." alt="" coords="445,5,620,91"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="5,269,140,354"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="432,65,353,79,271,96,200,117,173,128,153,141,127,169,107,202,93,237,83,269,78,268,88,235,102,200,123,166,150,137,170,124,198,112,270,91,352,73,431,60"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="164,269,309,354"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="433,78,375,103,347,120,323,141,297,170,277,204,250,270,245,268,272,201,293,167,319,137,344,116,372,99,431,73"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="333,249,519,374"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="513,105,454,249,449,247,508,103"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="543,269,736,354"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="557,103,625,268,620,270,552,105"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="761,139,982,484"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="634,75,694,101,750,137,762,147,759,151,747,141,691,106,632,80"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="1006,269,1166,354"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="634,56,732,68,838,85,931,108,968,121,996,137,1025,165,1048,199,1065,235,1078,268,1073,269,1061,237,1044,202,1021,169,992,141,966,126,930,113,836,91,731,73,633,61"/>
+</map>

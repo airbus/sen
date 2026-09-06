@@ -1,0 +1,17 @@
+<map id="sen::StrongTypeBase&lt; T &gt;" name="sen::StrongTypeBase&lt; T &gt;">
+<area shape="rect" id="Node000001" title="Wraps T to make it a strong type." alt="" coords="273,5,460,211"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="5,259,157,539"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,180,216,218,171,261,159,274,155,271,167,257,212,214,260,176"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="181,259,355,539"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="330,224,318,259,313,257,325,223"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="379,259,552,539"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="408,223,420,257,415,259,403,224"/>
+<area shape="rect" id="Node000008" href="$classsen_1_1_strong_type.html" title="CRTP class that wraps T to make it a strong type." alt="" coords="576,266,749,531"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="473,177,521,215,566,257,578,270,574,273,562,261,517,219,470,181"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_duration.html" title="A time duration." alt="" coords="8,587,155,792"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="84,552,84,586,79,586,79,552"/>
+<area shape="rect" id="Node000005" href="$structsen_1_1_member_hash.html" title="The hash of a member." alt="" coords="202,657,334,722"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="271,552,271,656,265,656,265,552"/>
+<area shape="rect" id="Node000007" href="$structsen_1_1kernel_1_1_bus_id.html" title=" " alt="" coords="401,657,530,722"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="468,552,468,656,463,656,463,552"/>
+</map>

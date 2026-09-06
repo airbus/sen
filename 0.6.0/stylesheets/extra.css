@@ -1,0 +1,40 @@
+@font-face {
+    font-family: 'Anonymous Pro';
+    src: url('../assets/fonts/AnonymousPro-Regular.ttf') format('truetype');
+}
+
+:root {
+    --md-code-font: 'Anonymous Pro';
+}
+
+[data-md-color-scheme="slate"] {
+    --md-primary-fg-color: #363636;
+}
+
+[data-md-color-scheme="default"] {
+    --md-primary-fg-color: #363636;
+}
+
+.mermaid {
+    text-align: center;
+}
+
+.md-grid {
+    max-width: 80%;
+}
+
+.md-content {
+    --md-typeset-a-color: #048297;
+}
+
+.md-tabs a:link {
+    color: white
+}
+
+.md-content a:link {
+    color: #048297;
+}
+
+.md-content a:visited {
+    color: #048297;
+}

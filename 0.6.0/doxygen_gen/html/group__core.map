@@ -1,0 +1,8 @@
+<map id="Core library" name="Core library">
+<area shape="rect" id="Node000002" href="$group__base.html" title="General purpose, used by all other modules." alt="" coords="186,5,293,31"/>
+<area shape="rect" id="Node000001" title="Core library." alt="" coords="5,104,104,129"/>
+<area shape="rect" id="Node000003" href="$group__io.html" title="Serialization and deserialization functions." alt="" coords="152,55,327,80"/>
+<area shape="rect" id="Node000005" href="$group__lang.html" title="Parsing and execution of STL." alt="" coords="152,104,327,129"/>
+<area shape="rect" id="Node000004" href="$group__meta.html" title="Types that represent types." alt="" coords="168,153,311,179"/>
+<area shape="rect" id="Node000006" href="$group__obj.html" title="Manipulation of objects." alt="" coords="204,203,275,228"/>
+</map>

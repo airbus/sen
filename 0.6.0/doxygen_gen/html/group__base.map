@@ -1,0 +1,10 @@
+<map id="Base classes" name="Base classes">
+<area shape="rect" id="Node000001" title="General purpose, used by all other modules." alt="" coords="152,133,259,159"/>
+<area shape="rect" id="Node000003" href="$group__error__handling.html" title="Error processing, assertions, contracts, results." alt="" coords="355,5,469,31"/>
+<area shape="rect" id="Node000006" href="$group__hash.html" title="Hashing and compression utilities." alt="" coords="317,55,507,80"/>
+<area shape="rect" id="Node000004" href="$group__macros.html" title="General utility macros." alt="" coords="377,104,447,129"/>
+<area shape="rect" id="Node000007" href="$group__mem.html" title="Pools, pointers, and related utilities." alt="" coords="329,154,495,194"/>
+<area shape="rect" id="Node000005" href="$group__templates.html" title="Compile&#45;time template magic." alt="" coords="307,219,517,244"/>
+<area shape="rect" id="Node000008" href="$group__util.html" title="Containers, adapters, and commonly used functions." alt="" coords="349,268,475,293"/>
+<area shape="rect" id="Node000002" href="$group__core.html" title="Core library." alt="" coords="5,133,104,159"/>
+</map>

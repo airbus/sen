@@ -1,0 +1,42 @@
+import "rpr/RPR-Base_v2.0.xml"
+import "netn/NETN-BASE.xml"
+import "netn/NETN-METOC.xml"
+
+package weather_server;
+
+// Provides information about weather conditions.
+class WeatherServer
+{
+  var targetBus : string [static]; // Where to publish the objects created by this server
+
+  // Request information about the weather.
+  //
+  // @param ref the place where we want to get the information.
+  // @param asObject true if we also want the response to be an object that auto-updates.
+  fn reqWeather(ref: netn.GeoReferenceVariant, asObject: bool) -> netn.WeatherCondition;
+
+  // Request information about the land surface.
+  //
+  // @param ref the place where we want to get the information.
+  // @param asObject true if we also want the response to be an object that auto-updates.
+  fn reqLandSurface(ref: netn.GeoReferenceVariant, asObject: bool) -> netn.LandSurfaceCondition;
+
+  // Request information about the troposphere.
+  //
+  // @param ref the place where we want to get the information.
+  // @param asObject true if we also want the response to be an object that auto-updates.
+  fn reqTroposphereLayer(ref: netn.GeoReferenceVariant, asObject: bool, layer: netn.LayerStruct) -> netn.TroposphereLayerCondition;
+
+  // Request information about a surface of water.
+  //
+  // @param ref the place where we want to get the information.
+  // @param asObject true if we also want the response to be an object that auto-updates.
+  fn reqWaterSurface(ref: netn.GeoReferenceVariant, asObject: bool) -> netn.WaterSurfaceCondition;
+
+  // Request information about underwater conditions.
+  //
+  // @param ref the place where we want to get the information.
+  // @param asObject true if we also want the response to be an object that auto-updates.
+  // @param layer the particular layer for which we want information.
+  fn reqSubsurfaceLayer(ref: netn.GeoReferenceVariant, asObject: bool, layer: netn.LayerStruct) -> netn.SubsurfaceLayerCondition;
+}

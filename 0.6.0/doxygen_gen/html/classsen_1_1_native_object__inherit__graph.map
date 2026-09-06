@@ -1,0 +1,7 @@
+<map id="sen::NativeObject" name="sen::NativeObject">
+<area shape="rect" id="Node000001" title="An object instantiated in this process. This is the base class for all user&#45;implemented objects." alt="" coords="15,691,269,1225"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object.html" title="A sen object." alt="" coords="5,133,279,643"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,656,145,690,139,690,139,656"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="65,5,219,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="145,99,145,133,139,133,139,99"/>
+</map>

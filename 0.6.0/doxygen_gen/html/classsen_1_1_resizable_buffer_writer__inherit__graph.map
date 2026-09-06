@@ -1,0 +1,5 @@
+<map id="sen::ResizableBufferWriter&lt; Container &gt;" name="sen::ResizableBufferWriter&lt; Container &gt;">
+<area shape="rect" id="Node000001" title="A writer that owns a buffer that gets resized on demand." alt="" coords="5,179,197,319"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_writer.html" title="Interface for writing to a device." alt="" coords="55,5,148,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,145,104,178,99,178,99,145"/>
+</map>

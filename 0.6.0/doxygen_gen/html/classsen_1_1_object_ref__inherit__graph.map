@@ -1,0 +1,5 @@
+<map id="sen::ObjectRef&lt; T &gt;" name="sen::ObjectRef&lt; T &gt;">
+<area shape="rect" id="Node000001" title="Object references may or may not hold an object instance. Their value is set by a provider based on s..." alt="" coords="21,219,187,504"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object_provider_listener.html" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="5,5,203,171"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,184,107,218,101,218,101,184"/>
+</map>

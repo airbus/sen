@@ -1,0 +1,27 @@
+package school;
+
+// Classrooms hold students and a teacher.
+class Classroom
+{
+  // True if the classroom should create a teacher.
+  var createTeacher : bool   [static];
+
+  // Default number of students to create.
+  var defaultSize   : u32    [static];
+
+  // Bus where to publish the students.
+  var studentsBus   : string [static];
+
+  // Name of the teacher giving the class.
+  var teacherName   : string [confirmed];
+
+  // Create and add a number of students.
+  //
+  // @param count number of students to add.
+  fn addStudents(count: u32);
+
+  // Remove a given number of students.
+  //
+  // @param count number of students to remove.
+  fn removeStudents(count: u32);
+}

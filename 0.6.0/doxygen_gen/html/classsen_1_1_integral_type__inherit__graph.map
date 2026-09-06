@@ -1,0 +1,9 @@
+<map id="sen::IntegralType" name="sen::IntegralType">
+<area shape="rect" id="Node000001" title="Represents an integral numeric type." alt="" coords="41,665,171,751"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_numeric_type.html" title="Represents a numeric native type." alt="" coords="39,432,173,617"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,631,109,665,103,665,103,631"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_native_type.html" title="Represents a native (built&#45;in) type that can be created on the stack or sent in a message." alt="" coords="45,299,167,384"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="109,398,109,432,103,432,103,398"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_type.html" title="Represents a type that can be used to define variables and arguments for methods or functions...." alt="" coords="5,5,207,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="109,265,109,298,103,298,103,265"/>
+</map>

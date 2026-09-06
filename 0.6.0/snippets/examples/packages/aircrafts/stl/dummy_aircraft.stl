@@ -1,0 +1,11 @@
+import "rpr/RPR-Physical_v2.0.xml"
+
+package aircrafts;
+
+quantity<f64, m_per_s> Speed;
+
+// A dummy implementation of an aircraft
+class DummyAircraft : extends rpr.Aircraft
+{
+  var speed : Speed [writable];
+}

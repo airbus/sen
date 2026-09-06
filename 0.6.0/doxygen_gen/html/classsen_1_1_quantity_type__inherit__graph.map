@@ -1,0 +1,11 @@
+<map id="sen::QuantityType" name="sen::QuantityType">
+<area shape="rect" id="Node000001" title="Represents a quantity." alt="" coords="79,452,236,797"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_duration_type.html" title="Represents a sen::Duration (a time duration)." alt="" coords="5,845,141,971"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="105,811,94,846,89,844,100,810"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_timestamp_type.html" title="Represents a sen::TimeStamp (a point in time)." alt="" coords="166,845,319,971"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="216,809,226,844,221,846,211,811"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_custom_type.html" title="Represents a user&#45;defined type." alt="" coords="79,299,236,404"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,418,160,452,155,452,155,418"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_type.html" title="Represents a type that can be used to define variables and arguments for methods or functions...." alt="" coords="57,5,258,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="160,265,160,298,155,298,155,265"/>
+</map>

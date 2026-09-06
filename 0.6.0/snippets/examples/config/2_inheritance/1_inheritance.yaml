@@ -1,0 +1,16 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports: [animals]
+    group: 3
+    objects:
+      - class: animals.CatImpl
+        name: rufus
+        bus: my.tutorial
+      - class: animals.DogImpl
+        name: elon
+        bus: my.tutorial

@@ -1,0 +1,15 @@
+load:
+  - name: shell
+    group: 2
+    open: [local.counters]
+
+build:
+  - name: counterComponent
+    freqHz: 2
+    group: 3
+    imports: [my_counter]
+    objects:
+      - class: my_counter.CounterImpl
+        name: myCounter
+        step: 5
+        bus: local.counters

@@ -1,0 +1,13 @@
+import "animal.stl"
+
+package animals;
+
+// A Dog is an animal that can bark.
+class Dog : extends Animal
+{
+  // Tells the dog that it's a good dog.
+  fn goodDog();
+
+  // Tells the dog that it's a bad dog.
+  fn badDog();
+}

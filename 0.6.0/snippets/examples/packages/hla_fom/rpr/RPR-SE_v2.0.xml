@@ -1,0 +1,2090 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Synthetic Environment FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>The Synthetic Environment FOM module relates to the simulation of environmental information both under the form of (point, linear, areal) objects and processes.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAACQFJREFUeNrsmmlsTG0Ux9tp7bWrFkWt1UjtRZpoU9TY44M1jaUhCLGkIggJElsiInygYvtgSUQQEmvFFrvYqmqrtcTaYFC7vr/2JMeTO7fVqZmMJu/z4ebOM8+99yz/8z/nPPcGNmrUKCAgIDAwMKCsjfz8fI7BP378ePbsWUDZHA0aNHCUK1cuoMwOhHcElPFR5hUI9sVNXS5Xenp6Tk5OTExMZGRk/fr1K1WqVGYUuHPnzqpVq7Zt2/bp06eGDRuGh4d36NAhKSnJ6XT6RI3GjRvne28cPHgwLCzM9kEocO/evXyvDoT3pgJ3797F5JJVJLHo0eEoCLbY2NhHjx55VwFvBvGaNWvAvUgvWcY8li9f/tKlS6mpqd++ffsXWej79+8nT54UcX/9+mX6gcEMGTMoKGj//v1Hjx79F4N4586dWVlZvw3jcAQHB5vGFj98/fo1LS2NY1RUVKtWrQRafg7it2/fpqSk2KZJTfMWQfFMrVq1+vbtu3fvXjzjzyB+//49ctij0+GANwVFjsIh8wDJrB2Tk5M/fPjgNwUmTpxo2tWig8wEFQ79l3OUMRfPmDHDPwpcuHChQoUK7rZX9pQTgEQ8WJQUHVCG86pVq964ccMPNJqdnU04mjMhISHQpciHcCI3BAXQVStxCLwkQjAJhK5eveoHGo2IiBBxdfwqHCLrz58/kVsNL2GgC2SNEC7j3bt3flAgPj5+7Nix5kxeXh5Ci5RqYAlfZnAICmuiMNmpZs2aflAA4s/MzLQNAD0RLEFHyC3JgXlRTz2AVq1bt/ZtInv+/Dmcff78+VevXlWrVm3EiBGEJgxocb2lBFKcVKlS5cuXLxw/f/4soptj2LBh7du392Eiy8jIaN68uUnw4DsxMVFnhEw0RjlWrFhR6FLma9SogZnRmXmLAMxTX/iQRuGZLl26/HZZcPDgwYMPHDigZmYmNDRUiVJE5wjDKpxwmhCu7fYH1oGFfEWjmAe+159I1rNnTwoyQQICYVfysUk4YnuGogX8mBWRJTlAxwsXLvRVEIN7E9AfP37kSLelvAnNK6uwBo8BMMkPam/WMGlWRNAO+UtnCLBDhw55X4GXL1+eO3dOkKPSnD17Ni4uTtdge4TTYMBF6MMMxtZL3Gvsz4XDrFU3b96cm5vrzSDevn17kyZN3OsclEHoOXPmKAbM+EYBKUL1RDFDd68mJ3YlWvTOtP/p6eneiQEAsHjx4jFjxjx8+NCCXYFN06ZN69Wrd+zYsVmzZpkULpYWhwiWtPwUpjJBRbcguJJJynLI2gse4METJkwo5hLtcRMSEpYtW7Z06VLbRKbugv5FBwbQF7/JT+6j5WC7du2INy94YNOmTevWrSt+V1UcQg/J40ltlkbMogBDm2OXyyXBIDfhXMIdJWfPnm3ydekz8enTp0u4LwkMwNLx48dN3ZRPRRnkAyqqswlF3AL8KGDDwsKoqfr16+edUsK0qDs2lP55PApgUZKUpfEVw3OUnlgnJbVxFREsAZCamjp69GiTr7xAo+JiJHDvuDX7skZy05YtW0aNGuVOR1pLm3sTCM1VZpl9+/btv3w74bANa1FD7ksZI3EmkJXaQRdDfIjldDpt3z6Y52Zi1puXhnb+qACVJi5WNiTpap4SIdR+ItzatWvT0tLgXLAkuhEesbGxkydPbtGihVTRstK0tCjTsWNHn2yrrF692tJqWXYWLKNz584oef/+/YsXL+ITUjUVB/fp3bu3BCt3i46Orl69OrpJS0mHgM5U43+5tWjfD0yZMqVr167w6fr169X8Zgeom4cykBuYQSkkVyocaoThw4dPmjRJfMUdEH337t0EwIsXL+iAiWPyII/wwn51MaUExUlR+yW2Q7sCxN26dSvSU7fqDGVVKWyMDBTbAwYMsPXVH8rpx48fW7aiLHtSJrrE0vKzT58+3bt3N1teTE7J7alxyfHTp0+n0kbWHj162PN7MR7YtWuXyifWLXipZset5FFVDOllDx19dNMOgF27ds0j20+dOrVu3bpkVc7B3sCBA4Ho06dPPejI4B9hCeVyld5kd5hHoBweHr5x40YJX1Ggf//+pVCA5E2X3KxZs8zMTJ0EkMRVy5YtoQoPWkoNA9vELJQi8nGcN2+eeS0RP2jQIO3jrl+/LvNShxb1RLAO/Nq2bfvkyRP3f8eNG4fAt27d8qAnRgdMW1TU4pPKlStTY8bExLi/QRoyZIhoCI1evnxZ3kFRsXXq1IkU7v6snJwcatLExERK66LkmTZtGgwmPXRJ90bReMmSJXiQSIqIiBDpoUsQEh8fj0D8JWC1jOTkZMkn+IrGevny5YBtxYoVGzZsqFOnDhmTuNTFN2/eBDZDhw4FQsXLM3fu3Nq1a9MqlmZzFwOIAkQY7Q44AfTSQLqPlJQUiXtGUlISHdmRI0fkr6ysrG7dukGRtML8JPdRk5J/SigGBoWaC14oeqoAQBcFQkNDbWFqjvHjx2voR0VFZWdnWxYsWrRItslAKT2gR5KsXLmyAJ+eKrBgwQJRAAwA2eIXk4w1YPbs2WO7hi4sLi6OFqoUaa5gP8rT5KLZyqyKixol2TQnhM6cOVO6MgL+8HhzVxMq0kOIRS2j4CEcMzIydEb3tvz8sYdZ2xVVnMJasBMAM7tEy6sQvymg9SP8SAXhvmDfvn0JCQmk8BMnTpiFk3ffb5deAe2AqSDcIQSrUAXMnz8fpkd6s+Ey9+H89qIb3IeEhCgkZJ9UYwPWv3LlyuHDh8GPLNYtVPnpEwW4LzWTRKQO+YnTX79+/bJwUKIgosvlevDggX4UNHLkSFiYbEJ63rFjB7qdOnVKviKUCDFdZPs+0wsKvHnzBqeDB1KmNOyyn6PvKUh49PWUgeQasi90TrMiMcCFiEiwwuW9evUiO5qboVjBhI2PvnkKRiyKkJJfoJ9qkEecTmebNm2KWglv4jesgKrgDc7+J4KYplZjoPjvNTF/Xl6ebut64buOvw9irB4dHU1gyLZc8Ysh2ZkzZ+bm5r4vHD5SIJAopAMMKJsjMjLy/+9G/1fgbxX4Yyz+ywPhC16fEMdl9PN7hP9PgAEAQGrdNDvN2YgAAAAASUVORK5CYII=</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>BaseEntity</name>
+                <objectClass>
+                    <name>EnvironmentalEntity</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>An object which has physical extent but not necessarily fixed size and shape, such as meteorological effects such as clouds or smokes.</semantics>
+                    <attribute>
+                        <name>OpacityCode</name>
+                        <dataType>OpacityCodeEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the density of an environmental entity</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+            <objectClass>
+                <name>EnvironmentObject</name>
+                <sharing>Subscribe</sharing>
+                <semantics>A base class of environment point, linear, or areal object classes.</semantics>
+                <attribute notes="RPRnoteSE1">
+                    <name>ObjectIdentifier</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies this EnvironmentObject instance (point, linear or areal)</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE3">
+                    <name>ReferencedObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the Synthetic Environment object instance to which this EnvironmentObject instance is associated</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>ForceIdentifier</name>
+                    <dataType>ForceIdentifierEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the force that created or modified this EnvironmentObject instance</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>ObjectType</name>
+                    <dataType>EnvironmentObjectTypeStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the type of this EnvironmentObject instance</semantics>
+                </attribute>
+                <objectClass>
+                    <name>ArealObject</name>
+                    <sharing>Subscribe</sharing>
+                    <semantics>A synthetic environment object that is geometrically anchored to the terrain with a set of three or more points, which comes to a closure.</semantics>
+                    <attribute notes="RPRnoteSE1">
+                        <name>PointsData</name>
+                        <dataType>WorldLocationStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the physical location (a collection of points) of the object</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE4">
+                        <name>PercentComplete</name>
+                        <dataType>PercentUnsignedInteger32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the percent completion of the object</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE5 RPRnoteSE8">
+                        <name>DamagedAppearance</name>
+                        <dataType>DamageStatusEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the damaged appearance of the object</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>ObjectPreDistributed</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object was created before the start of the exercise</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>Deactivated</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object has been deactivated (it has ceased to exist in the synthetic environment)</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>Smoking</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object is smoking (creating a smoke plume)</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>Flaming</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object is aflame</semantics>
+                    </attribute>
+                    <objectClass>
+                        <name>OtherArealObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Areal objects other than Minefield objects.</semantics>
+                    </objectClass>
+                </objectClass>
+                <objectClass>
+                    <name>LinearObject</name>
+                    <sharing>Subscribe</sharing>
+                    <semantics>A synthetic environment object that has size and an orientation and is geometrically anchored to the terrain with one point.</semantics>
+                    <objectClass>
+                        <name>BreachableLinearObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A linear object that can be breached.</semantics>
+                        <attribute notes="RPRnoteSE1">
+                            <name>SegmentRecords</name>
+                            <dataType>BreachableSegmentStructLengthlessArray</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies a breachable linear object</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>BreachObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A breach linear object.</semantics>
+                        <attribute notes="RPRnoteSE1">
+                            <name>SegmentRecords</name>
+                            <dataType>BreachStructLengthlessArray</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies a breach linear object</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>ExhaustSmokeObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>An exhaust smoke linear object.</semantics>
+                        <attribute notes="RPRnoteSE1">
+                            <name>SegmentRecords</name>
+                            <dataType>ExhaustSmokeStructLengthlessArray</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies an exhaust smoke linear object</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>OtherLinearObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Linear objects other than BreachableLinear, Breach, ExhaustSmoke, or MinefieldLaneMarker objects.</semantics>
+                    </objectClass>
+                </objectClass>
+                <objectClass>
+                    <name>PointObject</name>
+                    <sharing>Subscribe</sharing>
+                    <semantics>A synthetic environment object that is geometrically anchored to the terrain with a single point.</semantics>
+                    <attribute notes="RPRnoteSE1">
+                        <name>Location</name>
+                        <dataType>WorldLocationStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the location of the object based on x, y and z coordinates</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE1">
+                        <name>Orientation</name>
+                        <dataType>OrientationStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the angles of rotation around the coordinate axis between the object's attitude and the reference coordinate system axes ; these are calculated as the Tait-Bryan Euler angles, specifying the successive rotations needed to transform from the world coordinate system to the object coordinate system</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE4">
+                        <name>PercentComplete</name>
+                        <dataType>PercentUnsignedInteger32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the percent completion of the object</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE5 RPRnoteSE8">
+                        <name>DamagedAppearance</name>
+                        <dataType>DamageStatusEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the damaged appearance of the object instance</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>ObjectPreDistributed</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object was created before the start of the exercise</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>Deactivated</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object has been deactivated (it has ceased to exist in the synthetic environment)</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>Smoking</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object is smoking (creating a smoke plume)</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteSE2">
+                        <name>Flaming</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies whether or not the object is aflame</semantics>
+                    </attribute>
+                    <objectClass>
+                        <name>BreachablePointObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A point object that can be breached.</semantics>
+                        <attribute notes="RPRnoteSE1 RPRnoteSE9">
+                            <name>BreachedStatus</name>
+                            <dataType>BreachedStatusEnum8</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the breached appearance of the object</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>BurstPointObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A burst point object.</semantics>
+                        <attribute notes="RPRnoteSE1">
+                            <name>PercentOpacity</name>
+                            <dataType>PercentUnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the opacity of the smoke</semantics>
+                        </attribute>
+                        <attribute notes="RPRnoteSE1">
+                            <name>CylinderSize</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the radius of the cylinder approximating an individual smoke burst ; for multiple bursts, the center bottom of each cylinder is calculated based on the model used to represent the multiple bursts</semantics>
+                        </attribute>
+                        <attribute notes="RPRnoteSE1">
+                            <name>CylinderHeight</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the height of the cylinder approximating an individual smoke burst ; for multiple bursts, the center bottom of each cylinder is calculated based on the model used to represent the multiple bursts</semantics>
+                        </attribute>
+                        <attribute notes="RPRnoteSE1">
+                            <name>NumberOfBursts</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the number of bursts in the instance of tactical smoke</semantics>
+                        </attribute>
+                        <attribute notes="RPRnoteSE1">
+                            <name>ChemicalContent</name>
+                            <dataType>ChemicalContentEnum32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the chemical content of the smoke</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>CraterObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A pit, depression, or cavity formed in the surface of the earth by an explosion. The depression's shape can range from saucer to conical, depending largely of the depth of burst.</semantics>
+                        <attribute notes="RPRnoteSE1">
+                            <name>CraterSize</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the diameter of the crater, where the center of the crater is at the point object location</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>OtherPointObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Point objects other than Breachable, Burst, Crater, RibbonBridge, or Structure objects.</semantics>
+                    </objectClass>
+                    <objectClass>
+                        <name>RibbonBridgeObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A ribbon bridge object.</semantics>
+                        <attribute notes="RPRnoteSE1">
+                            <name>NumberOfSegments</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the number of segments composing the ribbon bridge</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>StructureObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A building structure, building rubble, stationary bridge, AVLB object.</semantics>
+                    </objectClass>
+                </objectClass>
+            </objectClass>
+            <objectClass>
+                <name>EnvironmentProcess</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>An object class used to communicate information about environmental processes and effects.</semantics>
+                <attribute notes="RPRnoteSE1">
+                    <name>ProcessIdentifier</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies which process issued the environmental process update</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>Type</name>
+                    <dataType>EnvironmentTypeStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the environmental process type</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>ModelType</name>
+                    <dataType>EnvironmentModelTypeEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the model used for generating this environmental process update ; defined in 1278.1a as being exercise specific</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>EnvironmentProcessActive</name>
+                    <dataType>RPRboolean</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the status of the environmental process (active or inactive)</semantics>
+                </attribute>
+                <attribute>
+                    <name>SequenceNumber</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional, used to support update sequencing ; if not used, set to EP_NO_SEQUENCE ; when used, set to zero for each exercise and incremented by one for each update sent</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>EnvironmentRecData</name>
+                    <dataType>EnvironmentRecStructArray</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies environment records</semantics>
+                </attribute>
+            </objectClass>
+            <objectClass>
+                <name>GriddedData</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>An object class used to depict global, spatially varying environmental effects.</semantics>
+                <attribute notes="RPRnoteSE1">
+                    <name>GridIdentifier</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the environmental simulation application</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>CoordinateSystem</name>
+                    <dataType>EnvironmentDataCoordinateSystemEnum16</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the coordinate system used to locate the data grid</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>NumberOfGridAxes</name>
+                    <dataType>Octet</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the number of grid axes used to define the data grid (e.g. three grid axes for an x, y, z coordinate system)</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>ConstantGrid</name>
+                    <dataType>EnvironmentGridTypeEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies whether the grid axes remain constant for the life of the data grid</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>EnvironmentType</name>
+                    <dataType>EnvironmentTypeStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Identifies the type of environmental entity being described</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the orientation of the data grid, with Euler angles</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>SampleTime</name>
+                    <dataType>UnsignedInteger64</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the valid time of the environmental data sample</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>TotalValues</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the number of data values that make up this grid</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>VectorDimension</name>
+                    <dataType>Octet</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies the number of data values at each grid point ; VectorDimension shall be one for scalar data, and shall be greater than one when multiple enumerated environmental data values are sent for each grid point (e.g. u, v, w wind components have VectorDimension = 3)</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>GridAxisInfo</name>
+                    <dataType>GridAxisStructLengthlessArray</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies information on grid axes</semantics>
+                </attribute>
+                <attribute notes="RPRnoteSE1">
+                    <name>GridDataInfo</name>
+                    <dataType>GridDataStructLengthlessArray</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Specifies information on grid data representations</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>EnvironmentObjectTransaction</name>
+                <sharing>Neither</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A base interaction for modifying instances of point, linear and areal environment object classes.</semantics>
+                <parameter notes="RPRnoteSE1">
+                    <name>ObjectIdentifier</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>Identifies this EnvironmentObject instance (point, linear or areal)</semantics>
+                </parameter>
+                <parameter notes="RPRnoteSE1">
+                    <name>ReferencedObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the Synthetic Environment object instance to which this EnvironmentObject instance is associated</semantics>
+                </parameter>
+                <parameter notes="RPRnoteSE1">
+                    <name>ForceIdentifier</name>
+                    <dataType>ForceIdentifierEnum8</dataType>
+                    <semantics>Identifies the force that created or modified this EnvironmentObject instance</semantics>
+                </parameter>
+                <parameter notes="RPRnoteSE1">
+                    <name>ObjectType</name>
+                    <dataType>EnvironmentObjectTypeStruct</dataType>
+                    <semantics>Identifies the type of this EnvironmentObject instance</semantics>
+                </parameter>
+                <parameter notes="RPRnoteSE1">
+                    <name>RequestingIdentifier</name>
+                    <dataType>FederateIdentifierStruct</dataType>
+                    <semantics>Identifies the simulation application sending the EnvironmentObjectTransaction interaction</semantics>
+                </parameter>
+                <parameter notes="RPRnoteSE1">
+                    <name>ReceivingIdentifier</name>
+                    <dataType>FederateIdentifierStruct</dataType>
+                    <semantics>Identifies the simulation application receiving the EnvironmentObjectTransaction interaction</semantics>
+                </parameter>
+                <interactionClass>
+                    <name>ArealObjectTransaction</name>
+                    <sharing>Subscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>An interaction for modifying instances of the ArealObject class.</semantics>
+                    <parameter notes="RPRnoteSE1">
+                        <name>PointsData</name>
+                        <dataType>WorldLocationStructLengthlessArray</dataType>
+                        <semantics>Specifies the physical location (a collection of points) that defines the object</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE4">
+                        <name>PercentComplete</name>
+                        <dataType>PercentUnsignedInteger32</dataType>
+                        <semantics>Specifies the percent completion of the object</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE5 RPRnoteSE8">
+                        <name>DamagedAppearance</name>
+                        <dataType>DamageStatusEnum32</dataType>
+                        <semantics>Specifies the damaged appearance of the object</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>ObjectPreDistributed</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object was created before the start of the exercise</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>Deactivated</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object has been deactivated (it has ceased to exist in the synthetic environment)</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>Smoking</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object is smoking (creating a smoke plume)</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>Flaming</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object is flaming</semantics>
+                    </parameter>
+                    <interactionClass>
+                        <name>OtherArealObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the OtherArealObject class.</semantics>
+                    </interactionClass>
+                </interactionClass>
+                <interactionClass>
+                    <name>LinearObjectTransaction</name>
+                    <sharing>Subscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>An interaction for modifying instances of the LinearObject class.</semantics>
+                    <interactionClass>
+                        <name>BreachableLinearObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the BreachableLinearObject class.</semantics>
+                        <parameter notes="RPRnoteSE1">
+                            <name>SegmentRecords</name>
+                            <dataType>BreachableSegmentStructLengthlessArray</dataType>
+                            <semantics>Specifies a breachable linear object</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>BreachObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the BreachObject class.</semantics>
+                        <parameter notes="RPRnoteSE1">
+                            <name>SegmentRecords</name>
+                            <dataType>BreachStructLengthlessArray</dataType>
+                            <semantics>Specifies a breach linear object</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>ExhaustSmokeObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the ExhaustSmokeObject class.</semantics>
+                        <parameter notes="RPRnoteSE1">
+                            <name>SegmentRecords</name>
+                            <dataType>ExhaustSmokeStructLengthlessArray</dataType>
+                            <semantics>Specifies an exhaust smoke linear object</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>OtherLinearObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the OtherLinearObject class.</semantics>
+                    </interactionClass>
+                </interactionClass>
+                <interactionClass>
+                    <name>PointObjectTransaction</name>
+                    <sharing>Subscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>An interaction for modifying instances of the PointObject class.</semantics>
+                    <parameter notes="RPRnoteSE1">
+                        <name>Location</name>
+                        <dataType>WorldLocationStruct</dataType>
+                        <semantics>Specifies the location of the object based on x, y and z coordinates</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE1">
+                        <name>Orientation</name>
+                        <dataType>OrientationStruct</dataType>
+                        <semantics>Specifies the angles of rotation around the coordinate axis between the object's attitude and the reference coordinate system axes ; these are calculated as the Tait-Bryan Euler angles, specifying the successive rotations needed to transform from the world coordinate system to the object coordinate system</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE4">
+                        <name>PercentComplete</name>
+                        <dataType>PercentUnsignedInteger32</dataType>
+                        <semantics>Specifies the percent completion of the object</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE5 RPRnoteSE8">
+                        <name>DamagedAppearance</name>
+                        <dataType>DamageStatusEnum32</dataType>
+                        <semantics>Specifies the damaged appearance of the object</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>ObjectPreDistributed</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object was created before the start of the exercise</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>Deactivated</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object has been deactivated (it has ceased to exist in the synthetic environment)</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>Smoking</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object is smoking (creating a smoke plume)</semantics>
+                    </parameter>
+                    <parameter notes="RPRnoteSE2">
+                        <name>Flaming</name>
+                        <dataType>RPRboolean</dataType>
+                        <semantics>Specifies whether or not the object is flaming</semantics>
+                    </parameter>
+                    <interactionClass>
+                        <name>BreachablePointObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the BreachablePointObject class.</semantics>
+                        <parameter notes="RPRnoteSE1 RPRnoteSE9">
+                            <name>BreachedStatus</name>
+                            <dataType>BreachedStatusEnum8</dataType>
+                            <semantics>Specifies the breached appearance of the object</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>BurstPointObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the BurstPointObject class.</semantics>
+                        <parameter notes="RPRnoteSE1">
+                            <name>PercentOpacity</name>
+                            <dataType>PercentUnsignedInteger32</dataType>
+                            <semantics>Specifies the opacity of the smoke</semantics>
+                        </parameter>
+                        <parameter notes="RPRnoteSE1">
+                            <name>CylinderSize</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <semantics>Specifies the radius of the cylinder approximating an individual smoke burst ; for multiple bursts, the center bottom of each cylinder is calculated based on the model used to represent the multiple bursts</semantics>
+                        </parameter>
+                        <parameter notes="RPRnoteSE1">
+                            <name>CylinderHeight</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <semantics>Specifies the height of the cylinder approximating an individual smoke burst ; for multiple bursts, the center bottom of each cylinder is calculated based on the model used to represent the multiple bursts</semantics>
+                        </parameter>
+                        <parameter notes="RPRnoteSE1">
+                            <name>NumberOfBursts</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <semantics>Specifies the number of bursts in the instance of tactical smoke</semantics>
+                        </parameter>
+                        <parameter notes="RPRnoteSE1">
+                            <name>ChemicalContent</name>
+                            <dataType>ChemicalContentEnum32</dataType>
+                            <semantics>Specifies the chemical content of the smoke</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>CraterObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the CraterObject class.</semantics>
+                        <parameter notes="RPRnoteSE1">
+                            <name>CraterSize</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <semantics>Specifies the diameter of the crater, where the center of the crater is at the point object location</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>OtherPointObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the OtherPointObject class.</semantics>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>RibbonBridgeObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the RibbonBridgeObject class.</semantics>
+                        <parameter notes="RPRnoteSE1">
+                            <name>NumberOfSegments</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <semantics>Specifies the number of segments composing the ribbon bridge</semantics>
+                        </parameter>
+                    </interactionClass>
+                    <interactionClass>
+                        <name>StructureObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the StructureObject class.</semantics>
+                    </interactionClass>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>EnvironmentGridAxisTypeEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Grid axis type</semantics>
+                <enumerator>
+                    <name>RegularGridAxisType</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>IrregularGridAxisType</name>
+                    <value>1</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>BreachableSegmentStructLengthlessArray</name>
+                <dataType>BreachableSegmentStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies a breachable linear object (a collection of segments)</semantics>
+            </arrayData>
+            <arrayData>
+                <name>BreachedStatusArray8</name>
+                <dataType>BreachedStatusEnum8</dataType>
+                <cardinality>8</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>Specifies the breached appearance for each individual segment portion of length = BreachLength</semantics>
+            </arrayData>
+            <arrayData>
+                <name>BreachStructLengthlessArray</name>
+                <dataType>BreachStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies a breach linear object (a collection of segments)</semantics>
+            </arrayData>
+            <arrayData>
+                <name>EnvironmentRecStructArray</name>
+                <dataType>EnvironmentRecStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Specifies environment records as a collection of geometry and state records</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ExhaustSmokeStructLengthlessArray</name>
+                <dataType>ExhaustSmokeStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies an exhaust smoke linear object (a collection of smoke segments)</semantics>
+            </arrayData>
+            <arrayData>
+                <name>GridAxisStructLengthlessArray</name>
+                <dataType>GridAxisStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies detailed information for a collection of grid axes</semantics>
+            </arrayData>
+            <arrayData>
+                <name>GridDataStructLengthlessArray</name>
+                <dataType>GridDataStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies detailed information for a collection of grid data representations</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>BreachableSegmentStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the characteristics of a breachable linear object segment</semantics>
+                <field>
+                    <name>SegmentParameters</name>
+                    <dataType>LinearSegmentStruct</dataType>
+                    <semantics>Specifies the breachable linear object segment characteristics</semantics>
+                </field>
+                <field>
+                    <name>BreachLength</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Specifies the breachable linear object segment as 8 portions of length = BreachLength</semantics>
+                </field>
+                <field>
+                    <name>BreachedState</name>
+                    <dataType>BreachedStatusEnum8</dataType>
+                    <semantics>Specifies the breached appearance of the breachable linear object segment</semantics>
+                </field>
+                <field notes="RPRnoteSE1 RPRnoteSE10">
+                    <name>SegmentBreached</name>
+                    <dataType>BreachedStatusArray8</dataType>
+                    <semantics>Specifies whether the segment portion beginning at the segment origin + (i*BreachLength) and extending BreachLength meters is breached or not</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray7</dataType>
+                    <semantics>Padding to 64 bits</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>BreachStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the characteristics of a breach linear object segment</semantics>
+                <field>
+                    <name>SegmentParameters</name>
+                    <dataType>LinearSegmentStruct</dataType>
+                    <semantics>Specifies the breach linear object segment characteristics</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding to 64 bits</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData notes="RPRnoteSE6">
+                <name>COMBICStateRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying COMBIC state record</semantics>
+                <field>
+                    <name>TimeSinceCreation</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Time since creation</semantics>
+                </field>
+                <field>
+                    <name>MunitionSource</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>Munition source</semantics>
+                </field>
+                <field>
+                    <name>NumberOfSources</name>
+                    <dataType>Integer32</dataType>
+                    <semantics>Number of sources</semantics>
+                </field>
+                <field>
+                    <name>GeometryIndex</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Geometry index</semantics>
+                </field>
+                <field>
+                    <name>SourceType</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Source type</semantics>
+                </field>
+                <field>
+                    <name>BarrageRate</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Barrage rate</semantics>
+                </field>
+                <field>
+                    <name>BarrageDuration</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Barrage duration</semantics>
+                </field>
+                <field>
+                    <name>BarrageCrosswindLength</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Barrage crosswind length</semantics>
+                </field>
+                <field>
+                    <name>BarrageDownwindLength</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Barrage downwind length</semantics>
+                </field>
+                <field>
+                    <name>DetonationVelocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Detonation velocity</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Cone1GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Cone 1 geometry record</semantics>
+                <field>
+                    <name>VertexLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Vertex location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+                <field>
+                    <name>Height</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Height</semantics>
+                </field>
+                <field>
+                    <name>PeakAngle</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Peak angle</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Cone2GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Cone 2 geometry record</semantics>
+                <field>
+                    <name>VertexLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Vertex location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+                <field>
+                    <name>Velocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>AngularVelocity</name>
+                    <dataType>AngularVelocityVectorStruct</dataType>
+                    <semantics>Angular velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>Height</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Height</semantics>
+                </field>
+                <field>
+                    <name>HeightRate</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Variation of height</semantics>
+                </field>
+                <field>
+                    <name>PeakAngle</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Peak angle</semantics>
+                </field>
+                <field>
+                    <name>PeakAngleRate</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Variation of peak angle</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>DimensionRateStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying length X, Y, Z rates</semantics>
+                <field>
+                    <name>XRate</name>
+                    <dataType>VelocityMeterPerSecondFloat32</dataType>
+                    <semantics>Variation of X axis length</semantics>
+                </field>
+                <field>
+                    <name>YRate</name>
+                    <dataType>VelocityMeterPerSecondFloat32</dataType>
+                    <semantics>Variation of Y axis length</semantics>
+                </field>
+                <field>
+                    <name>ZRate</name>
+                    <dataType>VelocityMeterPerSecondFloat32</dataType>
+                    <semantics>Variation of Z axis length</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Ellipsoid1GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Ellipsoid 1 geometry record</semantics>
+                <field>
+                    <name>CentroidLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Centroid location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>SigmaValue</name>
+                    <dataType>DimensionStruct</dataType>
+                    <semantics>Sigma dimensions</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Ellipsoid2GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Ellipsoid 2 geometry record</semantics>
+                <field>
+                    <name>CentroidLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Centroid location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>SigmaValue</name>
+                    <dataType>DimensionStruct</dataType>
+                    <semantics>Sigma dimensions</semantics>
+                </field>
+                <field>
+                    <name>SigmaRate</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Variation of sigma dimensions</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+                <field>
+                    <name>Velocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>AngularVelocity</name>
+                    <dataType>AngularVelocityVectorStruct</dataType>
+                    <semantics>Angular velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>EnvironmentObjectTypeStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the domain, the kind and the specific identification of the environment object</semantics>
+                <field>
+                    <name>Domain</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies the domain in which the object exists</semantics>
+                </field>
+                <field>
+                    <name>Kind</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Identifies the kind of object</semantics>
+                </field>
+                <field>
+                    <name>Category</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies the main category that describes the object</semantics>
+                </field>
+                <field>
+                    <name>Subcategory</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies a particular subcategory to which an object belongs based on the Category field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>EnvironmentRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying an environment (geometry or state) record</semantics>
+                <field>
+                    <name>Index</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Identifies the sequentially numbered record index</semantics>
+                </field>
+                <field>
+                    <name>DataVariant</name>
+                    <dataType>EnvironmentRecVariantStruct</dataType>
+                    <semantics>Specifies geometry and state record alternatives</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>EnvironmentTypeStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the kind of environment, the domain and any extra information necessary for describing the environmental entity</semantics>
+                <field>
+                    <name>EntityKind</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Identifies the kind of entity</semantics>
+                </field>
+                <field>
+                    <name>Domain</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies a single primary domain in which the environmental condition exists</semantics>
+                </field>
+                <field>
+                    <name>Class</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Identifies the type of environmental entity</semantics>
+                </field>
+                <field>
+                    <name>Category</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies the main category that describes the environmental entity</semantics>
+                </field>
+                <field>
+                    <name>Subcategory</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies a particular subcategory to which an environmental entity belongs based on the Category field</semantics>
+                </field>
+                <field>
+                    <name>Specific</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Identifies specific information about an environmental entity based on the Subcategory field</semantics>
+                </field>
+                <field>
+                    <name>Extra</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies extra information required to describe a particular environmental entity</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>ExhaustSmokeStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the characteristics of a linear object smoke segment</semantics>
+                <field>
+                    <name>SegmentParameters</name>
+                    <dataType>LinearSegmentStruct</dataType>
+                    <semantics>Specifies the linear object smoke segment characteristics</semantics>
+                </field>
+                <field>
+                    <name>PercentOpacity</name>
+                    <dataType>PercentUnsignedInteger32</dataType>
+                    <semantics>Specifies the opacity of the linear object smoke segment</semantics>
+                </field>
+                <field>
+                    <name>Attached</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether the linear object smoke segment is attached to the vehicle</semantics>
+                </field>
+                <field>
+                    <name>ChemicalContent</name>
+                    <dataType>ChemicalContentEnum32</dataType>
+                    <semantics>Specifies the chemical content of the linear object smoke segment</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>FlareStateRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Flare state record</semantics>
+                <field>
+                    <name>TimeSinceCreation</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Time since creation</semantics>
+                </field>
+                <field>
+                    <name>Source</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>Source</semantics>
+                </field>
+                <field>
+                    <name>NumberIntensity</name>
+                    <dataType>Integer32</dataType>
+                    <semantics>Number intensity</semantics>
+                </field>
+                <field>
+                    <name>NumberOfSources</name>
+                    <dataType>Integer32</dataType>
+                    <semantics>Number of sources</semantics>
+                </field>
+                <field>
+                    <name>GeometryIndex</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Geometry index</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray2</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GaussPlumeGeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Gaussian Plume geometry record</semantics>
+                <field>
+                    <name>SourceLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Source location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+                <field>
+                    <name>PlumeDimension</name>
+                    <dataType>PlumeDimensionStruct</dataType>
+                    <semantics>Plume dimensions</semantics>
+                </field>
+                <field>
+                    <name>PlumeDimensionRate</name>
+                    <dataType>PlumeDimensionRateStruct</dataType>
+                    <semantics>Variation of plume dimensions</semantics>
+                </field>
+                <field>
+                    <name>LeadingEdge</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Leading edge</semantics>
+                </field>
+                <field>
+                    <name>LeadingEdgeVelocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Leading edge velocity</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GaussPuffGeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Gaussian Puff geometry record</semantics>
+                <field>
+                    <name>PuffLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Puff location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>OriginationLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Origination location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>SigmaValue</name>
+                    <dataType>DimensionStruct</dataType>
+                    <semantics>Sigma dimensions</semantics>
+                </field>
+                <field>
+                    <name>SigmaRate</name>
+                    <dataType>DimensionRateStruct</dataType>
+                    <semantics>Variation of sigma dimensions</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+                <field>
+                    <name>Velocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>AngularVelocity</name>
+                    <dataType>AngularVelocityVectorStruct</dataType>
+                    <semantics>Angular velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>CentroidHeight</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Centroid height</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GridAxisStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying grid Xi axis data</semantics>
+                <field>
+                    <name>InitialValue</name>
+                    <dataType>Float64</dataType>
+                    <semantics>Specifies the coordinate of the origin (or initial value) for the Xi axis</semantics>
+                </field>
+                <field>
+                    <name>FinalValue</name>
+                    <dataType>Float64</dataType>
+                    <semantics>Specifies the coordinate of the endpoint (or final value) for the Xi axis</semantics>
+                </field>
+                <field>
+                    <name>TotalNumberOfPoints</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Specifies the total number of grid points along the Xi domain axis</semantics>
+                </field>
+                <field>
+                    <name>InterleafFactor</name>
+                    <dataType>Octet</dataType>
+                    <semantics>Specifies the integer valued interleaf factor along a domain (grid) Xi axis ; a value of one shall indicate no sub-sampling (interleaving), while integer values greater than one shall indicate the sampling frequency along an axis</semantics>
+                </field>
+                <field>
+                    <name>NumberOfPoints</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Specifies the number of grid locations along the Xi axis</semantics>
+                </field>
+                <field>
+                    <name>InitialIndex</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Specifies the index of the initial grid point along the Xi domain axis</semantics>
+                </field>
+                <field>
+                    <name>AxisType-A-Alternatives</name>
+                    <dataType>GridAxisTypeVariantStruct</dataType>
+                    <semantics>Specifies axis data alternatives</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GridDataStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying grid data representation</semantics>
+                <field>
+                    <name>SampleType</name>
+                    <dataType>EnvironmentDataSampleTypeEnum16</dataType>
+                    <semantics>Specifies the environmental data sample</semantics>
+                </field>
+                <field>
+                    <name>DataRepresentation-A-Alternatives</name>
+                    <dataType>GridDataRepresentationVariantStruct</dataType>
+                    <semantics>Specifies grid data representation alternatives</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GridValueType0Struct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying type 0 data representation</semantics>
+                <field>
+                    <name>NumberOfBytes-A-Values</name>
+                    <dataType>OctetArray1Plus</dataType>
+                    <semantics>Specifies the number of bytes</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>PaddingTo32</name>
+                    <dataType>OctetPadding32Array</dataType>
+                    <semantics>Brings the record length to a 32-bit boundary</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GridValueType1Struct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying type 1 data representation</semantics>
+                <field>
+                    <name>Scale</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Specifies the constant scale factor used to scale the environmental state variable data values</semantics>
+                </field>
+                <field>
+                    <name>Offset</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Specifies the constant offset used to scale the environmental state variable data values</semantics>
+                </field>
+                <field>
+                    <name>NumberOfValues-A-Values</name>
+                    <dataType>Integer16Array1Plus</dataType>
+                    <semantics>Specifies the number of environmental state variable data values</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>PaddingTo32</name>
+                    <dataType>OctetPadding32Array</dataType>
+                    <semantics>Brings the record length to a 32-bit boundary</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>GridValueType2Struct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying type 2 data representation</semantics>
+                <field>
+                    <name>NumberOfValues-A-Values</name>
+                    <dataType>Float32Array1Plus</dataType>
+                    <semantics>Specifies the number of environmental state variable data values</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>IrregularGridAxisStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying irregular (variable spacing) axis data</semantics>
+                <field>
+                    <name>CoordinateScale</name>
+                    <dataType>Float64</dataType>
+                    <semantics>Specifies the value that linearly scales the coordinates of the grid locations for the Xi axis</semantics>
+                </field>
+                <field>
+                    <name>CoordinateOffset</name>
+                    <dataType>Float64</dataType>
+                    <semantics>Specifies the constant offset value that shall be applied to the grid locations for the Xi axis</semantics>
+                </field>
+                <field>
+                    <name>NumberOfGridLocations-A-GridLocations</name>
+                    <dataType>UnsignedInteger16Array1Plus</dataType>
+                    <semantics>Specifies the coordinate values for the Ni grid locations along the irregular (variable spacing) Xi axis</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>PaddingTo64</name>
+                    <dataType>OctetPadding64Array</dataType>
+                    <semantics>Brings the record length to a 64-bit boundary</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Line1GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Line 1 geometry record</semantics>
+                <field>
+                    <name>StartPointLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Start point location</semantics>
+                </field>
+                <field>
+                    <name>EndPointLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>End point location</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Line2GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Line 2 geometry record</semantics>
+                <field>
+                    <name>StartPointLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Start point location</semantics>
+                </field>
+                <field>
+                    <name>EndPointLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>End point location</semantics>
+                </field>
+                <field>
+                    <name>StartPointVelocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Start point velocity</semantics>
+                </field>
+                <field>
+                    <name>EndPointVelocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>End point velocity</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>PlumeDimensionRateStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying plume dimension rates</semantics>
+                <field>
+                    <name>LengthRate</name>
+                    <dataType>VelocityMeterPerSecondFloat32</dataType>
+                    <semantics>Variation of plume length</semantics>
+                </field>
+                <field>
+                    <name>WidthRate</name>
+                    <dataType>VelocityMeterPerSecondFloat32</dataType>
+                    <semantics>Variation of plume width</semantics>
+                </field>
+                <field>
+                    <name>HeightRate</name>
+                    <dataType>VelocityMeterPerSecondFloat32</dataType>
+                    <semantics>Variation of plume height</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>PlumeDimensionStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying plume dimensions</semantics>
+                <field>
+                    <name>Length</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Plume length</semantics>
+                </field>
+                <field>
+                    <name>Width</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Plume width</semantics>
+                </field>
+                <field>
+                    <name>Height</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Plume height</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Point2GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Point 2 geometry record</semantics>
+                <field>
+                    <name>Location</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Velocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RectVol1GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Rectangular Volume 1 geometry record</semantics>
+                <field>
+                    <name>CornerLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Corner location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Dimensions</name>
+                    <dataType>DimensionStruct</dataType>
+                    <semantics>Dimensions</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RectVol2GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Rectangular Volume 2 geometry record</semantics>
+                <field>
+                    <name>CornerLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Corner location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Dimensions</name>
+                    <dataType>DimensionStruct</dataType>
+                    <semantics>Dimensions</semantics>
+                </field>
+                <field>
+                    <name>DimensionsRate</name>
+                    <dataType>DimensionRateStruct</dataType>
+                    <semantics>Variation of dimensions</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+                <field>
+                    <name>Velocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>AngularVelocity</name>
+                    <dataType>AngularVelocityVectorStruct</dataType>
+                    <semantics>Angular velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Sphere1GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Bounding Sphere &amp; Sphere 1 geometry record</semantics>
+                <field>
+                    <name>CentroidLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Centroid location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Radius</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Radius</semantics>
+                </field>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray4</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Sphere2GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Sphere 2 geometry record</semantics>
+                <field>
+                    <name>CentroidLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Centroid location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Radius</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Radius</semantics>
+                </field>
+                <field>
+                    <name>RadiusRate</name>
+                    <dataType>Float32</dataType>
+                    <semantics>Variation of radius</semantics>
+                </field>
+                <field>
+                    <name>Velocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity Vx, Vy, Vz</semantics>
+                </field>
+                <field>
+                    <name>AngularVelocity</name>
+                    <dataType>AngularVelocityVectorStruct</dataType>
+                    <semantics>Angular velocity Vx, Vy, Vz</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData notes="RPRnoteSE7">
+                <name>UniformGeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Uniform geometry record</semantics>
+                <field notes="RPRnoteSE11">
+                    <name>Padding</name>
+                    <dataType>OctetArray8</dataType>
+                    <semantics>Padding field</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RectVol3GeomRecStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying Rectangular Volume 3 geometry record</semantics>
+                <field>
+                    <name>CenterLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Center location X, Y, Z</semantics>
+                </field>
+                <field>
+                    <name>Dimensions</name>
+                    <dataType>DimensionStruct</dataType>
+                    <semantics>Dimensions</semantics>
+                </field>
+                <field>
+                    <name>Orientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>Orientation, specified by Euler angles</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+        <variantRecordDataTypes>
+            <variantRecordData>
+                <name>EnvironmentRecVariantStruct</name>
+                <discriminant>Type</discriminant>
+                <dataType>EnvironmentRecordTypeEnum32</dataType>
+                <alternative>
+                    <enumerator>PointRecord1Type</enumerator>
+                    <name>Point1GeometryData</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Specifies Point 1 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>PointRecord2Type</enumerator>
+                    <name>Point2GeometryData</name>
+                    <dataType>Point2GeomRecStruct</dataType>
+                    <semantics>Specifies Point 2 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>LineRecord1Type</enumerator>
+                    <name>Line1GeometryData</name>
+                    <dataType>Line1GeomRecStruct</dataType>
+                    <semantics>Specifies Line 1 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>LineRecord2Type</enumerator>
+                    <name>Line2GeometryData</name>
+                    <dataType>Line2GeomRecStruct</dataType>
+                    <semantics>Specifies Line 2 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>BoundingSphereRecordType</enumerator>
+                    <name>BoundingSphereGeometryData</name>
+                    <dataType>Sphere1GeomRecStruct</dataType>
+                    <semantics>Specifies Bounding Sphere geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>SphereRecord1Type</enumerator>
+                    <name>Sphere1GeometryData</name>
+                    <dataType>Sphere1GeomRecStruct</dataType>
+                    <semantics>Specifies Sphere 1 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>SphereRecord2Type</enumerator>
+                    <name>Sphere2GeometryData</name>
+                    <dataType>Sphere2GeomRecStruct</dataType>
+                    <semantics>Specifies Sphere 2 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>EllipsoidRecord1Type</enumerator>
+                    <name>Ellipsoid1GeometryData</name>
+                    <dataType>Ellipsoid1GeomRecStruct</dataType>
+                    <semantics>Specifies Ellipsoid 1 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>EllipsoidRecord2Type</enumerator>
+                    <name>Ellipsoid2GeometryData</name>
+                    <dataType>Ellipsoid2GeomRecStruct</dataType>
+                    <semantics>Specifies Ellipsoid 2 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>ConeRecord1Type</enumerator>
+                    <name>Cone1GeometryData</name>
+                    <dataType>Cone1GeomRecStruct</dataType>
+                    <semantics>Specifies Cone 1 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>ConeRecord2Type</enumerator>
+                    <name>Cone2GeometryData</name>
+                    <dataType>Cone2GeomRecStruct</dataType>
+                    <semantics>Specifies Cone 2 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>RectangularVolRecord1Type</enumerator>
+                    <name>RectVol1GeometryData</name>
+                    <dataType>RectVol1GeomRecStruct</dataType>
+                    <semantics>Specifies Rectangular Volume 1 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>RectangularVolRecord2Type</enumerator>
+                    <name>RectVol2GeometryData</name>
+                    <dataType>RectVol2GeomRecStruct</dataType>
+                    <semantics>Specifies Rectangular Volume 2 geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>GaussianPlumeRecordType</enumerator>
+                    <name>GaussPlumeGeometryData</name>
+                    <dataType>GaussPlumeGeomRecStruct</dataType>
+                    <semantics>Specifies Gaussian Plume geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>GaussianPuffRecordType</enumerator>
+                    <name>GaussPuffGeometryData</name>
+                    <dataType>GaussPuffGeomRecStruct</dataType>
+                    <semantics>Specifies Gaussian Puff geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>UniformGeometryRecordType</enumerator>
+                    <name>UniformGeometryData</name>
+                    <dataType>UniformGeomRecStruct</dataType>
+                    <semantics>Specifies Uniform geometry record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>COMBICStateRecordType</enumerator>
+                    <name>COMBICStateData</name>
+                    <dataType>COMBICStateRecStruct</dataType>
+                    <semantics>Specifies COMBIC state record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>FlareStateRecordType</enumerator>
+                    <name>FlareStateData</name>
+                    <dataType>FlareStateRecStruct</dataType>
+                    <semantics>Specifies Flare state record alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>RectangularVolRecord3Type</enumerator>
+                    <name>RectVol3GeometryData</name>
+                    <dataType>RectVol3GeomRecStruct</dataType>
+                    <semantics>Specifies Rectangular Volume 3 geometry record alternative</semantics>
+                </alternative>
+                <encoding>RPRextendedVariantRecord</encoding>
+                <semantics>Record specifying either a geometry or a state record</semantics>
+            </variantRecordData>
+            <variantRecordData>
+                <name>GridAxisTypeVariantStruct</name>
+                <discriminant>AxisType</discriminant>
+                <dataType>EnvironmentGridAxisTypeEnum8</dataType>
+                <alternative>
+                    <enumerator>IrregularGridAxisType</enumerator>
+                    <name>IrregularGridAxis</name>
+                    <dataType>IrregularGridAxisStruct</dataType>
+                    <semantics>Specifies irregular (variable spacing) axis data alternative</semantics>
+                </alternative>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>Record specifying either regular (fixed spacing) or irregular (variable spacing) axis data</semantics>
+            </variantRecordData>
+            <variantRecordData>
+                <name>GridDataRepresentationVariantStruct</name>
+                <discriminant>DataRepresentation</discriminant>
+                <dataType>EnvironmentDataRepresentationEnum16</dataType>
+                <alternative>
+                    <enumerator>EnvironmentDataType0</enumerator>
+                    <name>Type0</name>
+                    <dataType>GridValueType0Struct</dataType>
+                    <semantics>Specifies type 0 data representation alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>EnvironmentDataType1</enumerator>
+                    <name>Type1</name>
+                    <dataType>GridValueType1Struct</dataType>
+                    <semantics>Specifies type 1 data representation alternative</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>EnvironmentDataType2</enumerator>
+                    <name>Type2</name>
+                    <dataType>GridValueType2Struct</dataType>
+                    <semantics>Specifies type 2 data representation alternative</semantics>
+                </alternative>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>Record specifying either type 0 or type 1 or type 2 data representation</semantics>
+            </variantRecordData>
+        </variantRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteSE1</label>
+            <semantics>Default value: Not optional</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE2</label>
+            <semantics>Default value: False (0)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE3</label>
+            <semantics>Default value: Zero</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE4</label>
+            <semantics>Default value: 100% complete</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE5</label>
+            <semantics>Default value: NoDamage (0)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE6</label>
+            <semantics>The structure of this datatype follows that defined in SISO-REF-010 (section 12.3.5.1)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE7</label>
+            <semantics>There is no data associated with the uniform geometry complex datatype ; however, to correctly align fields within the EnvironmentRecStruct complex datatype all environmental record datatypes (including this datatype) must have a size which is a multiple of 64 bits ; hence 64 bits of padding are included in this record</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE8</label>
+            <semantics>Damaged appearance for environment objects has values 0: no damage, 1: damaged and 2: destroyed, with respect to the DIS standard as defined in SISO-REF-010 (section 12.1.2.1) ; this has to be taken into account when setting up a DIS-HLA gateway (SDEM mapping and filtering)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE9</label>
+            <semantics>Breached appearance for point objects and areal objects has values 0: no breaching, 1: breached and 2: cleared, with respect to the DIS standard as defined in SISO-REF-010 (section 12.1.2.2.2 &amp; 12.1.2.4.1) ; this has to be taken into account when setting up a DIS-HLA gateway (SDEM mapping and filtering)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE10</label>
+            <semantics>Breached appearance for linear object segments has values 0: portion is not breached, 1: portion breached, with respect to the DIS standard as defined in SISO-REF-010 (section 12.1.2.3.1) ; this has to be taken into account when setting up a DIS-HLA gateway (SDEM mapping and filtering)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSE11</label>
+            <semantics>All padding fields shall be set to the value 0</semantics>
+        </note>
+    </notes>
+</objectModel>

@@ -1,0 +1,19 @@
+# $schema: ../base/schema.json
+include:
+  # bring the shell so that we can interact with our objects
+  - ../base/shell.yaml
+
+build:
+  - name: myComponent
+    freqHz: 5
+    imports: [calculators]
+    group: 3
+    objects:
+      - class: calculators.CasioCalculator
+        name: calc1
+        bus: my.tutorial
+        model: superCalc
+      - class: calculators.ClientImpl
+        name: client1
+        calcBus:  my.tutorial
+        bus:  my.tutorial

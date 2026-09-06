@@ -1,0 +1,42 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/ether.yaml
+  - ../base/shell.yaml
+
+build:
+  - name: shapes_producer
+    group: 4
+    freqHz: 5
+    imports: [shapes]
+    objects:
+      - class: shapes.ShapeImpl
+        name: blueCircle
+        bus: my.tutorial
+        color: blue
+        x: 50.0
+        y: 50.0
+        geometry:
+          type: Circle
+          value:
+            radius: 10
+      - class: shapes.ShapeImpl
+        name: redTriangle
+        bus: my.tutorial
+        color: red
+        x: 15.0
+        y: 22.0
+        geometry:
+          type: Triangle
+          value:
+            side: 4
+      - class: shapes.ShapeImpl
+        name: greenRectangle
+        bus: my.tutorial
+        color: green
+        x: 40.0
+        y: 40.0
+        geometry:
+          type: Rectangle
+          value:
+            width: 20
+            height: 10

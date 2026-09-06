@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Foundation FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>This module contains the foundation for all other RPR FOM modules, including generic datatypes that can be considered independent from the RPR FOM purpose.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>MIM</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABQJJREFUeNrsmmkotGsYx2eYIbsSYhgkSyhZhqxZs0Qa2X3ig/ggwicpS0opQiSSLMUQEYWsZUkoa2Q5WWLsyb5O5vzPO3VyvJjtmXPO1HN9kDL3/Vy/+76W//UMKpPJpFAoVCqVIm/G5/Pxk8bj8bhcLkU+jcFgKNDpdIrcGpxXoMi5kQAkAAlAApAAJAAJQAKQACQACUACkAAkAAlAApAAJIBcGk1G+768vPzxy5aWlubn5/X09GJiYnx8fFRVVf+/AHD64uJiZWVlcXFxY2Njb2/v7OzMwMDA0tLy9vY2JyfH3t4+IiIiJCRES0uLqIdSTUxM9vf3JVv8/Px8enoq8HhtbQ3nDQAdHR0LCws7OzsXFxcHBwecvZKSEj68u7vb1dU1PDx8fHzMYrGio6P9/PykvBBTU1PxAJ6enrhc7vLyMgIDfm9tbV1dXWloaJibm+N0nZ2d4RmDwfjBLT6fj+UcDmdiYgL8np6eCC03NzdlZWXZArS3t/f09KyuriIqaDQaVjo6Ojo5OeGY4T0YJIi36elpkMzMzKioqOA2QII9FRUVxQKgAIAvzObm5uA0FgQFBeF5eDafOEN6dHZ2RkVFMZlMV1fXwsLC9fV1EdfCeeEACBscs4BYU1OTzWaPjo7yZWBIp7q6uoCAAKSNl5dXeXk50oYAgIKCgt/vLjg4eGhoiC8b297eLikpQWLAN+R6S0vLzc2NhAAIHgTodyEoU4y7u7vS0lLBg5AekgB8DJ4fjFiMw8PDpqam+Ph4Q0NDVGQkt7+/v4KCAsq02ABfBo8sMFBPFxYWiouL3d3dUYLV1dXhN3IA2fz+/n5ycoIim56eLh7Az8FDCAa6Xnd3d0pKCuoPmp2urm5CQkJrays8/vTJ1NRUVOrLy0tRAR4fH0UJHgkweDweVEZlZSUEBQ4b1RlCIysra2Rk5P7+/jvUzc1NbFtdXS0SwOvra35+vvQq5SMGMhIiAnLIxsaGSqXS6XRvb2/kKNr529ubKNeFcmRtbQ1+4QBVVVUEKjycdGJiora2Nn6HhouNjUWOHh0diZsnkLTYAacgHGB2dhYxR+A3+GZmZhkZGYODg2i60hSowMDA8PBwXKZISQzJgAXSe29ra/tDcItlAwMDqKe1tbUfAb6dyFDRcF+oCVZWVtIAYIhRU1OT8hQgInNzc1FnodKRBv/4m1ApgeKFxRLoTYF1dHRIfOQYicrKynx9fSF40dr6+vo+6UiRtJDAIOIjIyPF9R7iT4J8RX9obGwMCwszNjZGKauvrz8/P5dczH00nAEku+gAODy0UhE3f3h46O3tjYuLg8pHFyoqKkL5J0CNfjJkJOo3FK8oAOgnQjdE25mcnExLS7P6ZSiAU1NTIjYHSQAEtrOzk5SUJGTcplLHx8d/2AT6LC8vD7ModBviExOzuPVKcgCBjY2NoaF+B4Dh+Esdf3BwUFFR4eHhge6G5TU1NRjzJXNAWgCBtsEY9dds+pt9EvGoZs3NzWjMEMloDjj7LxXyvw0gMC6Xm5mZ+enNAiqJQBf29/ejCOrr6xsZGSUnJyOuEPeEtDbCAP5W4DhggfeAaWhoyM7Oxv4IldDQ0La2tuvra2KnNoIBBMbhcCA5wYBxgsViIdwR9DIaO+E88e9GoTcxoCAx0DHYbDaakUxf7kr1avE/NxQP8vsBEkBaAKgO+fUeztNgyGM5/fd7OP+nAAMA7HElwuUQgMsAAAAASUVORK5CYII=</glyph>
+    </modelIdentification>
+    <dataTypes>
+        <basicDataRepresentations>
+            <basicData>
+                <name>RPRunsignedInteger16BE</name>
+                <size>16</size>
+                <interpretation>Integer in the range [0, 2^16-1]</interpretation>
+                <endian>Big</endian>
+                <encoding>16-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>RPRunsignedInteger32BE</name>
+                <size>32</size>
+                <interpretation>Integer in the range [0, 2^32-1]</interpretation>
+                <endian>Big</endian>
+                <encoding>32-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>RPRunsignedInteger64BE</name>
+                <size>64</size>
+                <interpretation>Integer in the range [0, 2^64-1]</interpretation>
+                <endian>Big</endian>
+                <encoding>64-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>RPRunsignedInteger8BE</name>
+                <size>8</size>
+                <interpretation>Integer in the range [0, 2^8-1]</interpretation>
+                <endian>Big</endian>
+                <encoding>8-bit unsigned integer.</encoding>
+            </basicData>
+        </basicDataRepresentations>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>RPRboolean</name>
+                <representation>HLAoctet</representation>
+                <semantics>Standard Boolean type used for 8-bit compatibility.</semantics>
+                <enumerator>
+                    <name>False</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>True</name>
+                    <value>1</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+        <arrayDataTypes>
+            <arrayData notes="RPRnoteFoundation1">
+                <name>RTIobjectId</name>
+                <dataType>HLAASCIIchar</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRnullTerminatedArray</encoding>
+                <semantics>An RTI object instance identification string.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>RTIobjectIdArray</name>
+                <dataType>RTIobjectId</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Set of ID's of registered object instances.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteFoundation1</label>
+            <semantics>This is the unique ObjectName associated with each object instance. The user can define the name to be used in the registerObjectInstance RTI call. If user does not define the name then the RTI will generate a unique name for the object. RTI generated names may be fairly long, so federations wishing to conserve bandwidth may wish to implement their own object naming scheme. 
+ 
+The ObjectName is provided by the RTI in the discoverObjectInstance call. The user can also obtain the ObjectName for a particular object instance using the getObjectInstanceName call.</semantics>
+        </note>
+    </notes>
+</objectModel>

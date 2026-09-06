@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Aggregate FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>This module provides the object class definition for representing aggregates of entities.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">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</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>BaseEntity</name>
+                <objectClass>
+                    <name>AggregateEntity</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A group of one or more separate objects that operate together as part of an organization. These objects may be discrete, may be other aggregate objects, or may be a mixture of both.</semantics>
+                    <attribute notes="RPRnoteAggregate1">
+                        <name>AggregateMarking</name>
+                        <dataType>AggregateMarkingStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>A unique marking or combination of characters used to distinguish the aggregate from other aggregates.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate2">
+                        <name>AggregateState</name>
+                        <dataType>AggregateStateEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An indicator of the extent of association of objects form an operating group.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate2">
+                        <name>Dimensions</name>
+                        <dataType>DimensionStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>AggSizeChange</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The size of the area covered by the units in the aggregate.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate1">
+                        <name>EntityIdentifiers</name>
+                        <dataType>RTIobjectIdArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The identification of entities that are contained within the aggregate.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate3">
+                        <name>ForceIdentifier</name>
+                        <dataType>ForceIdentifierEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The identification of the force that the aggregate belongs to.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate3">
+                        <name>Formation</name>
+                        <dataType>FormationEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The category of positional arrangement of the entities within the aggregate.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate4">
+                        <name>NumberOfSilentEntities</name>
+                        <dataType>Integer16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The number of elements in the SilentEntities list.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate4">
+                        <name>NumberOfVariableDatums</name>
+                        <dataType>UnsignedInteger32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The number of records in the VariableDatums structure.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate1">
+                        <name>SilentAggregates</name>
+                        <dataType>SilentAggregateStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The numbers and types, of silent aggregates contained in the aggregate. Silent aggregates are sub-aggregates that are in the aggregate, but that are not separately represented in the virtual world.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate1">
+                        <name>SilentEntities</name>
+                        <dataType>SilentEntityStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The numbers and types, of silent entities in the aggregate. Silent entities are entities that are in the aggregate, but that are not separately represented in the virtual world.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate1">
+                        <name>SubAggregateIdentifiers</name>
+                        <dataType>RTIobjectIdArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The identifications of aggregates represented in the virtual world that are contained in the aggregate.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteAggregate1">
+                        <name>VariableDatums</name>
+                        <dataType>VariableDatumStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Extra data that describes the aggregate.</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>MarkingArray31</name>
+                <dataType>Octet</dataType>
+                <cardinality>31</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>String of characters represented by a 31 element character string.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>SilentAggregateStructLengthlessArray</name>
+                <dataType>SilentAggregateStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Set of silent aggregates (aggregates not registered in the federation).</semantics>
+            </arrayData>
+            <arrayData>
+                <name>SilentEntityStructLengthlessArray</name>
+                <dataType>SilentEntityStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>A set of silent entities (entities not registered in the federation).</semantics>
+            </arrayData>
+            <arrayData>
+                <name>VariableDatumStructLengthlessArray</name>
+                <dataType>VariableDatumStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Set of additional data associated with an aggregate.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData notes="RPRnoteAggregate5">
+                <name>AggregateMarkingStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Unique marking associated with an aggregate.</semantics>
+                <field>
+                    <name>MarkingEncodingType</name>
+                    <dataType>MarkingEncodingEnum8</dataType>
+                    <semantics>The type of marking.</semantics>
+                </field>
+                <field>
+                    <name>MarkingData</name>
+                    <dataType>MarkingArray31</dataType>
+                    <semantics>The marking itself.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>SilentAggregateStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>These fields contain information about subaggregates not registered in the federation.</semantics>
+                <field>
+                    <name>AggregateType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>This field shall specify the aggregates common to this system list.</semantics>
+                </field>
+                <field>
+                    <name>NumberOfAggregatesOfThisType</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>This field shall specify the number of aggregates that have the type specified in AggregateType field.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>SilentEntityStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>These fields contain information about entities not registered in the federation.</semantics>
+                <field>
+                    <name>NumberOfEntitiesOfThisType</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>This field shall specify the number of entities that have the type specified in the field EntityType.</semantics>
+                </field>
+                <field>
+                    <name>NumberOfAppearanceRecords</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>This field shall specify the number of Entity Appearance records that follow. This number shall be between zero and the number of entities of this type. Simulation applications representing the aggregate that do not model entity appearances shall set this field to zero. Simulation applications representing the aggregate that model entity appearances shall set this field to the number of entity appearances that deviate from the default appearance. Other simulations can safely assume that any entity appearances not specified are default appearances.</semantics>
+                </field>
+                <field>
+                    <name>EntityType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>This field shall specify the entity types common to the entities in this system list.</semantics>
+                </field>
+                <field notes="RPRnoteAggregate6 RPRnoteAggregate7">
+                    <name>EntityAppearance</name>
+                    <dataType>UnsignedInteger32LengthlessArray</dataType>
+                    <semantics>This field shall specify the entity appearances of entities in the aggregate that deviate from the default. The length of the array is defined in the NumberOfAppearanceRecords field.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteAggregate1</label>
+            <semantics>Default value: empty</semantics>
+        </note>
+        <note>
+            <label>RPRnoteAggregate2</label>
+            <semantics>Not optional</semantics>
+        </note>
+        <note>
+            <label>RPRnoteAggregate3</label>
+            <semantics>Default value: Other</semantics>
+        </note>
+        <note>
+            <label>RPRnoteAggregate4</label>
+            <semantics>Default value: zero</semantics>
+        </note>
+        <note>
+            <label>RPRnoteAggregate5</label>
+            <semantics>The units and semantics for the MarkingData array elements are specified by the value of the MarkingEncodingType.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteAggregate6</label>
+            <semantics>The interpretation of the 32 bits defining the entity appearance is to be derived from the federation agreements, which could refer to the entity appearance record as defined in SISO-REF-010. The reason that this has not been split out into separate fields (as has been done for the subclasses of BaseEntity) is the difficulty of providing an efficient manner of defining an array of such appearance fields.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteAggregate7</label>
+            <semantics>RPRlengthlessArrayLength=NumberOfAppearanceRecords</semantics>
+        </note>
+    </notes>
+</objectModel>

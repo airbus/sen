@@ -1,0 +1,14 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+  - ../4_school/1_school_two_classrooms_one_component.yaml
+
+load:
+  - name: influx
+    group: 3
+    protocol: tcp
+    telegrafAddress: 127.0.0.1
+    telegrafPort: 8095
+    batchSize: 32
+    selections:
+      - SELECT * FROM school.primary

@@ -1,0 +1,5 @@
+<map id="sen::std_util::detail::MoveOnlyFunctionImpl&lt; ResultType(ArgTypes...) GENERATE_WITH_CV GENERATE_WITH_REF NOEXCEPT_SPECIFIER &gt;" name="sen::std_util::detail::MoveOnlyFunctionImpl&lt; ResultType(ArgTypes...) GENERATE_WITH_CV GENERATE_WITH_REF NOEXCEPT_SPECIFIER &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,293,255,637"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html" title=" " alt="" coords="29,5,231,245"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,259,133,293,127,293,127,259"/>
+</map>

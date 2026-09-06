@@ -1,0 +1,11 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/shell.yaml
+
+load:
+  - name: shell
+    open: [local.py]
+  - name: py
+    group: 3
+    freqHz: 30
+    bus: local.py

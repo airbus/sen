@@ -1,0 +1,25 @@
+# $schema: ../base/schema.json
+
+# Here we create another ClassRoom object, but tell it not
+# to create a teacher. The teacher should be found in another
+# process (configured in the dist.yaml file).
+include:
+  - ../base/ether.yaml
+  - ../base/shell.yaml
+
+load:
+  - name: shell
+    open: [school.primary]
+
+build:
+  - name: example
+    group: 5
+    freqHz: 30
+    imports: [school]
+    objects:
+      - name: firstGradeZoom
+        class: school.ClassroomImpl
+        studentsBus: school.primary
+        bus: school.primary
+        defaultSize: 10
+        createTeacher: false

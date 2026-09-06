@@ -1,0 +1,7 @@
+<map id="sen::util::SettableDeadReckoner&lt; T &gt;" name="sen::util::SettableDeadReckoner&lt; T &gt;">
+<area shape="rect" id="Node000001" title="Allows the user to get the extrapolated situation of an object and to set the Spatial when the error ..." alt="" coords="5,607,265,792"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1util_1_1_dead_reckoner_template_base.html" title="Base class for the DeadReckoner and SettableDeadReckoner classes." alt="" coords="17,439,253,559"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,573,138,606,133,606,133,573"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1util_1_1_dead_reckoner_base.html" title="Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by default u..." alt="" coords="23,5,247,391"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="138,405,138,438,133,438,133,405"/>
+</map>

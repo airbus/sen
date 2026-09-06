@@ -1,0 +1,4 @@
+# $schema: ../base/schema.json
+include:
+  - 1_terrain_server.yaml
+  - 2_weather_server.yaml
