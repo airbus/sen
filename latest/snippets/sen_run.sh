@@ -11,4 +11,5 @@ Options:
                                    Preset name
   --start-stop                     Stop execution after all components are running
   --no-browser                     With --preset web-explorer: don't auto-open the URL in a browser
+  --stopped                        With --preset replay: start paused
   --print-config                   Print the configuration that will be used
