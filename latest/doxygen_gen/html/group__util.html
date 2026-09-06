@@ -276,12 +276,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gacae1f4bd0ffe485109c99441d1482b80" id="r_gacae1f4bd0ffe485109c99441d1482b80"><td class="memTemplParams" colspan="2">template&lt;typename T, std::size_t s&gt; </td></tr>
 <tr class="memitem:gacae1f4bd0ffe485109c99441d1482b80 template"><td class="memItemLeft">constexpr <a class="el" href="classsen_1_1_span.html">Span</a>&lt; const T &gt;&#160;</td><td class="memItemRight"><a class="el" href="#gacae1f4bd0ffe485109c99441d1482b80">sen::makeConstSpan</a> (const std::array&lt; T, s &gt; &amp;array) noexcept</td></tr>
 <tr class="memdesc:gacae1f4bd0ffe485109c99441d1482b80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes in a type that can be passed to a contiguous range and returns a <a class="el" href="classsen_1_1_span.html" title="Contiguous view of elements of type T. Inspired by http://www.open-std.org/jtc1/sc22/wg21/docs/papers...">Span</a>. The element types will be const qualified.  <br /></td></tr>
-<tr class="memitem:gad0925f7c745da2cc7f49ec2d044e3aea" id="r_gad0925f7c745da2cc7f49ec2d044e3aea"><td class="memTemplParams" colspan="2">template&lt;typename T, std::size_t size&gt; </td></tr>
-<tr class="memitem:gad0925f7c745da2cc7f49ec2d044e3aea template"><td class="memItemLeft">std::enable_if_t&lt; <a class="el" href="structsen_1_1_has_operator.html">HasOperator</a>&lt; T &gt;::eq, bool &gt;&#160;</td><td class="memItemRight"><a class="el" href="#gad0925f7c745da2cc7f49ec2d044e3aea">sen::operator==</a> (<a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;lhs, <a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;rhs) noexcept</td></tr>
-<tr class="memdesc:gad0925f7c745da2cc7f49ec2d044e3aea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the contents of lhs and rhs are equal, that is, they have the same number of elements and each element in lhs compares equal with the element in rhs at the same position.  <br /></td></tr>
-<tr class="memitem:gabfc9032ff19adf4c2bec2d813fa7527f" id="r_gabfc9032ff19adf4c2bec2d813fa7527f"><td class="memTemplParams" colspan="2">template&lt;typename T, std::size_t size&gt; </td></tr>
-<tr class="memitem:gabfc9032ff19adf4c2bec2d813fa7527f template"><td class="memItemLeft">std::enable_if_t&lt; <a class="el" href="structsen_1_1_has_operator.html">HasOperator</a>&lt; T &gt;::ne, bool &gt;&#160;</td><td class="memItemRight"><a class="el" href="#gabfc9032ff19adf4c2bec2d813fa7527f">sen::operator!=</a> (<a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;lhs, <a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;rhs) noexcept</td></tr>
-<tr class="memdesc:gabfc9032ff19adf4c2bec2d813fa7527f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equivalent to negating operator ==.  <br /></td></tr>
+<tr class="memitem:gaf543be41f4d1f6d05d5ef026bbdd20aa" id="r_gaf543be41f4d1f6d05d5ef026bbdd20aa"><td class="memTemplParams" colspan="2">template&lt;typename T, std::size_t size&gt; </td></tr>
+<tr class="memitem:gaf543be41f4d1f6d05d5ef026bbdd20aa template"><td class="memItemLeft">std::enable_if_t&lt; <a class="el" href="structsen_1_1_has_operator.html">HasOperator</a>&lt; T &gt;::eq, bool &gt;&#160;</td><td class="memItemRight"><a class="el" href="#gaf543be41f4d1f6d05d5ef026bbdd20aa">sen::operator==</a> (<a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;lhs, <a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;rhs) noexcept(noexcept(std::declval&lt; T const &amp; &gt;()==std::declval&lt; T const &amp; &gt;()))</td></tr>
+<tr class="memdesc:gaf543be41f4d1f6d05d5ef026bbdd20aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the contents of lhs and rhs are equal, that is, they have the same number of elements and each element in lhs compares equal with the element in rhs at the same position.  <br /></td></tr>
+<tr class="memitem:ga415d0821f04c9439441581b7fb7d6770" id="r_ga415d0821f04c9439441581b7fb7d6770"><td class="memTemplParams" colspan="2">template&lt;typename T, std::size_t size&gt; </td></tr>
+<tr class="memitem:ga415d0821f04c9439441581b7fb7d6770 template"><td class="memItemLeft">std::enable_if_t&lt; <a class="el" href="structsen_1_1_has_operator.html">HasOperator</a>&lt; T &gt;::ne, bool &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ga415d0821f04c9439441581b7fb7d6770">sen::operator!=</a> (<a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;lhs, <a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp;rhs) noexcept(noexcept(std::declval&lt; <a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp; &gt;()==std::declval&lt; <a class="el" href="classsen_1_1_static_vector.html">StaticVector</a>&lt; T, size &gt; const &amp; &gt;()))</td></tr>
+<tr class="memdesc:ga415d0821f04c9439441581b7fb7d6770"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equivalent to negating operator ==.  <br /></td></tr>
 <tr class="memitem:ga6f0cd15754cad348a23bf2c71db331c6" id="r_ga6f0cd15754cad348a23bf2c71db331c6"><td class="memItemLeft">constexpr&#160;</td><td class="memItemRight"><a class="el" href="#ga6f0cd15754cad348a23bf2c71db331c6">sen::Uuid::Uuid</a> () noexcept=default</td></tr>
 <tr class="memitem:ga2adf16d7d3b2072b39f219391dcb4bd1" id="r_ga2adf16d7d3b2072b39f219391dcb4bd1"><td class="memItemLeft">constexpr&#160;</td><td class="memItemRight"><a class="el" href="#ga2adf16d7d3b2072b39f219391dcb4bd1">sen::Uuid::Uuid</a> (uint64_t hi, uint64_t lo) noexcept</td></tr>
 <tr class="memdesc:ga2adf16d7d3b2072b39f219391dcb4bd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct it from two consecutive 64-bit integers. Does not validate the data.  <br /></td></tr>
@@ -1298,8 +1298,8 @@ template&lt;typename T, std::size_t s&gt; </div>
 
 </div>
 </div>
-<a id="gad0925f7c745da2cc7f49ec2d044e3aea" name="gad0925f7c745da2cc7f49ec2d044e3aea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad0925f7c745da2cc7f49ec2d044e3aea">&#9670;&#160;</a></span>operator==() <span class="overload">[2/3]</span></h2>
+<a id="gaf543be41f4d1f6d05d5ef026bbdd20aa" name="gaf543be41f4d1f6d05d5ef026bbdd20aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf543be41f4d1f6d05d5ef026bbdd20aa">&#9670;&#160;</a></span>operator==() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1328,11 +1328,12 @@ template&lt;typename T, std::size_t size&gt; </div>
 </div><div class="memdoc">
 
 <p>Checks if the contents of lhs and rhs are equal, that is, they have the same number of elements and each element in lhs compares equal with the element in rhs at the same position. </p>
+<p>noexcept only when comparing T is. The trait above accepts any comparable T, so an unconditional promise would turn a throwing comparison into a call to std::terminate. </p>
 
 </div>
 </div>
-<a id="gabfc9032ff19adf4c2bec2d813fa7527f" name="gabfc9032ff19adf4c2bec2d813fa7527f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabfc9032ff19adf4c2bec2d813fa7527f">&#9670;&#160;</a></span>operator!=() <span class="overload">[2/3]</span></h2>
+<a id="ga415d0821f04c9439441581b7fb7d6770" name="ga415d0821f04c9439441581b7fb7d6770"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga415d0821f04c9439441581b7fb7d6770">&#9670;&#160;</a></span>operator!=() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1361,6 +1362,7 @@ template&lt;typename T, std::size_t size&gt; </div>
 </div><div class="memdoc">
 
 <p>Equivalent to negating operator ==. </p>
+<p>Carries the same condition as operator==, which it calls. </p>
 
 </div>
 </div>
