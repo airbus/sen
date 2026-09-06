@@ -9,7 +9,6 @@
 
 // sen
 #include "sen/core/base/assert.h"
-#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
@@ -42,7 +41,6 @@
 // std
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -1874,184 +1872,144 @@ bool acceptsUnderCompatibilityMode(CompatibilityMode mode,
   return true;
 }
 
-std::vector<std::string> runtimeCompatible(const Type* localType,
-                                           const Type* remoteType,
-                                           std::vector<std::string>* lossy)
+namespace
 {
-  class RuntimeCompatVisitor: public FullTypeVisitor
+
+/// Walks the local type against the remote one, collecting the incompatibilities between
+/// them and, when asked, the conversions that would lose data.
+class RuntimeCompatVisitor: public FullTypeVisitor
+{
+public:
+  SEN_NOCOPY_NOMOVE(RuntimeCompatVisitor)
+
+public:
+  RuntimeCompatVisitor(const Type* remoteType, std::vector<std::string>& problems, std::vector<std::string>* lossy)
+    : remoteType_(remoteType), problems_(problems), lossy_(lossy)
   {
-  public:
-    SEN_NOCOPY_NOMOVE(RuntimeCompatVisitor)
+  }
 
-  public:
-    RuntimeCompatVisitor(const Type* remoteType, std::vector<std::string>& problems, std::vector<std::string>* lossy)
-      : remoteType_(remoteType), problems_(problems), lossy_(lossy)
+  ~RuntimeCompatVisitor() override = default;
+
+public:
+  using FullTypeVisitor::apply;
+
+  // root type
+  void apply(const Type& type) override { std::ignore = type; }
+
+  void apply(const VoidType& type) override
+  {
+    std::ignore = type;
+
+    if (!remoteType_->isVoidType())
     {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+    }
+  }
+
+  void apply(const NativeType& type) override
+  {
+    auto isCompatible = remoteType_->isNativeType() || remoteType_->isEnumType() || remoteType_->isQuantityType();
+
+    // remote type is not native, not enum and not quantity
+    if (!isCompatible)
+    {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+      return;
     }
 
-    ~RuntimeCompatVisitor() override = default;
-
-  public:
-    using FullTypeVisitor::apply;
-
-    // root type
-    void apply(const Type& type) override { std::ignore = type; }
-
-    void apply(const VoidType& type) override
+    // the data arrives from the remote side, so that is the direction to grade
+    if (lossy_ != nullptr)
     {
-      std::ignore = type;
+      checkForLoss(*remoteType_, type);
+    }
+  }
 
-      if (!remoteType_->isVoidType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-      }
+  void apply(const ::sen::IntegralType& type) override { apply(static_cast<const NativeType&>(type)); }
+
+  void apply(const ::sen::RealType& type) override { apply(static_cast<const NativeType&>(type)); }
+
+  void apply(const ::sen::NumericType& type) override { apply(static_cast<const NativeType&>(type)); }
+
+  void apply(const BoolType& type) override { apply(static_cast<const NativeType&>(type)); }
+
+  void apply(const UInt8Type& type) override { apply(static_cast<const NativeType&>(type)); }
+
+  void apply(const Int16Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
+
+  void apply(const UInt16Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
+
+  void apply(const Int32Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
+
+  void apply(const UInt32Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
+
+  void apply(const Int64Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
+
+  void apply(const UInt64Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
+
+  void apply(const Float32Type& type) override { apply(static_cast<const ::sen::RealType&>(type)); }
+
+  void apply(const Float64Type& type) override { apply(static_cast<const ::sen::RealType&>(type)); }
+
+  void apply(const DurationType& type) override
+  {
+    if (!remoteType_->isDurationType())
+    {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+    }
+  }
+
+  void apply(const TimestampType& type) override
+  {
+    if (!remoteType_->isTimestampType())
+    {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+    }
+  }
+
+  void apply(const StringType& type) override { apply(static_cast<const NativeType&>(type)); }
+
+  // custom types
+  void apply(const CustomType& type) override { apply(static_cast<const Type&>(type)); }
+
+  void apply(const EnumType& type) override
+  {
+    // remote type is not native and not enum
+    if (!remoteType_->isNativeType() && !remoteType_->isEnumType())
+    {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+      return;
     }
 
-    void apply(const NativeType& type) override
+    // an enumerator is carried in the storage type, which can narrow like any other number
+    const auto* remoteEnum = remoteType_->asEnumType();
+    if (lossy_ != nullptr && remoteEnum != nullptr)
     {
-      auto isCompatible = remoteType_->isNativeType() || remoteType_->isEnumType() || remoteType_->isQuantityType();
+      checkForLoss(remoteEnum->getStorageType(), type.getStorageType());
+    }
+  }
 
-      // remote type is not native, not enum and not quantity
-      if (!isCompatible)
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-        return;
-      }
-
-      // the data arrives from the remote side, so that is the direction to grade
-      if (lossy_ != nullptr)
-      {
-        checkForLoss(*remoteType_, type);
-      }
+  void apply(const StructType& type) override
+  {
+    // remote type is not a struct
+    if (!remoteType_->isStructType())
+    {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+      return;
     }
 
-    void apply(const ::sen::IntegralType& type) override { apply(static_cast<const NativeType&>(type)); }
-
-    void apply(const ::sen::RealType& type) override { apply(static_cast<const NativeType&>(type)); }
-
-    void apply(const ::sen::NumericType& type) override { apply(static_cast<const NativeType&>(type)); }
-
-    void apply(const BoolType& type) override { apply(static_cast<const NativeType&>(type)); }
-
-    void apply(const UInt8Type& type) override { apply(static_cast<const NativeType&>(type)); }
-
-    void apply(const Int16Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
-
-    void apply(const UInt16Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
-
-    void apply(const Int32Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
-
-    void apply(const UInt32Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
-
-    void apply(const Int64Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
-
-    void apply(const UInt64Type& type) override { apply(static_cast<const ::sen::IntegralType&>(type)); }
-
-    void apply(const Float32Type& type) override { apply(static_cast<const ::sen::RealType&>(type)); }
-
-    void apply(const Float64Type& type) override { apply(static_cast<const ::sen::RealType&>(type)); }
-
-    void apply(const DurationType& type) override
+    const auto* remoteStruct = remoteType_->asStructType();
+    for (const auto& remoteField: remoteStruct->getAllFields())
     {
-      if (!remoteType_->isDurationType())
+      if (const auto* localField = type.getFieldFromName(remoteField.name); localField != nullptr)
       {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-      }
-    }
-
-    void apply(const TimestampType& type) override
-    {
-      if (!remoteType_->isTimestampType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-      }
-    }
-
-    void apply(const StringType& type) override { apply(static_cast<const NativeType&>(type)); }
-
-    // custom types
-    void apply(const CustomType& type) override { apply(static_cast<const Type&>(type)); }
-
-    void apply(const EnumType& type) override
-    {
-      // remote type is not native and not enum
-      if (!remoteType_->isNativeType() && !remoteType_->isEnumType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-        return;
-      }
-
-      // an enumerator is carried in the storage type, which can narrow like any other number
-      const auto* remoteEnum = remoteType_->asEnumType();
-      if (lossy_ != nullptr && remoteEnum != nullptr)
-      {
-        checkForLoss(remoteEnum->getStorageType(), type.getStorageType());
-      }
-    }
-
-    void apply(const StructType& type) override
-    {
-      // remote type is not a struct
-      if (!remoteType_->isStructType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-        return;
-      }
-
-      const auto* remoteStruct = remoteType_->asStructType();
-      for (const auto& remoteField: remoteStruct->getAllFields())
-      {
-        if (const auto* localField = type.getFieldFromName(remoteField.name); localField != nullptr)
-        {
-          if (const auto fieldProblems = runtimeCompatible(localField->type.type(), remoteField.type.type(), lossy_);
-              !fieldProblems.empty())
-          {
-            std::string error;
-            {
-              error.append("Found incompatible matching fields with name ");
-              error.append(localField->name);
-              error.append(" in struct type ");
-              error.append(type.getName());
-            }
-            problems_.emplace_back(error);
-
-            concatProblems(fieldProblems);
-          }
-        }
-      }
-    }
-
-    void apply(const VariantType& type) override
-    {
-      // remote type is not a variant
-      if (!remoteType_->isVariantType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-        return;
-      }
-
-      // TODO: review if we can accept types contained in the variant
-      const auto* remoteVariant = remoteType_->asVariantType();
-
-      // An alternative is addressed by its key, which is not its position: keys come from the
-      // model and need not start at zero or run consecutively. An alternative the other side does
-      // not declare is skipped, the way a property is.
-      for (const auto& localField: type.getFields())
-      {
-        const auto* remoteField = remoteVariant->getFieldFromKey(localField.key);
-        if (remoteField == nullptr)
-        {
-          continue;
-        }
-
-        if (const auto fieldProblems = runtimeCompatible(localField.type.type(), remoteField->type.type(), lossy_);
+        if (const auto fieldProblems = runtimeCompatible(localField->type.type(), remoteField.type.type(), lossy_);
             !fieldProblems.empty())
         {
           std::string error;
           {
-            error.append("Found incompatible matching variant fields with key ");
-            error.append(std::to_string(localField.key));
-            error.append(" in variant type ");
+            error.append("Found incompatible matching fields with name ");
+            error.append(localField->name);
+            error.append(" in struct type ");
             error.append(type.getName());
           }
           problems_.emplace_back(error);
@@ -2060,264 +2018,311 @@ std::vector<std::string> runtimeCompatible(const Type* localType,
         }
       }
     }
+  }
 
-    void apply(const SequenceType& type) override
+  void apply(const VariantType& type) override
+  {
+    // remote type is not a variant
+    if (!remoteType_->isVariantType())
     {
-
-      // remote type is not a sequence
-      if (!remoteType_->isSequenceType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-        return;
-      }
-
-      const auto* remoteSequence = remoteType_->asSequenceType();
-      // check the element type
-      concatProblems(runtimeCompatible(type.getElementType().type(), remoteSequence->getElementType().type(), lossy_));
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+      return;
     }
 
-    // NOLINTNEXTLINE
-    void apply(const ClassType& type) override
+    // TODO: review if we can accept types contained in the variant
+    const auto* remoteVariant = remoteType_->asVariantType();
+
+    // An alternative is addressed by its key, which is not its position: keys come from the
+    // model and need not start at zero or run consecutively. An alternative the other side does
+    // not declare is skipped, the way a property is.
+    for (const auto& localField: type.getFields())
     {
-
-      // remote is not a class
-      if (!remoteType_->isClassType())
+      const auto* remoteField = remoteVariant->getFieldFromKey(localField.key);
+      if (remoteField == nullptr)
       {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-        return;
+        continue;
       }
 
-      const auto* remoteClass = remoteType_->asClassType();
-      // check properties
-      for (const auto& remoteProp: remoteClass->getProperties(allParents))
+      if (const auto fieldProblems = runtimeCompatible(localField.type.type(), remoteField->type.type(), lossy_);
+          !fieldProblems.empty())
       {
-        if (const auto* localProp = type.searchPropertyByName(remoteProp->getName()); localProp != nullptr)
+        std::string error;
         {
-          if (const auto propProblems =
-                runtimeCompatible(localProp->getType().type(), remoteProp->getType().type(), lossy_);
-              !propProblems.empty())
-          {
-            std::string error;
-            {
-              error.append("Found incompatible property with name ");
-              error.append(localProp->getName());
-              error.append(" in class ");
-              error.append(type.getName());
-              error.append(". Local type is ");
-              error.append(localProp->getType()->getName());
-              error.append(" and remote type is ");
-              error.append(remoteProp->getType()->getName());
-            }
-            problems_.emplace_back(error);
-
-            concatProblems(propProblems);
-          }
+          error.append("Found incompatible matching variant fields with key ");
+          error.append(std::to_string(localField.key));
+          error.append(" in variant type ");
+          error.append(type.getName());
         }
-      }
+        problems_.emplace_back(error);
 
-      // check events
-      for (const auto& remoteEvent: remoteClass->getEvents(allParents))
-      {
-        if (const auto* localEvent = type.searchEventByName(remoteEvent->getName()); localEvent != nullptr)
-        {
-          for (const auto& remoteArg: remoteEvent->getArgs())
-          {
-            if (const auto& localArg = localEvent->getArgFromName(remoteArg.name); localArg != nullptr)
-            {
-              if (const auto eventProblems = runtimeCompatible(localArg->type.type(), remoteArg.type.type(), lossy_);
-                  !eventProblems.empty())
-              {
-                std::string error;
-                {
-                  error.append("Found incompatible argument with name ");
-                  error.append(localArg->name);
-                  error.append(" in event ");
-                  error.append(localEvent->getName());
-                  error.append(" in class ");
-                  error.append(type.getName());
-                  error.append(". Local type is ");
-                  error.append(localArg->type->getName());
-                  error.append(" and remote type is ");
-                  error.append(remoteArg.type->getName());
-                }
-                problems_.emplace_back(error);
-
-                concatProblems(eventProblems);
-              }
-            }
-          }
-        }
-      }
-
-      // check methods
-      for (const auto& remoteMethod: remoteClass->getMethods(allParents))
-      {
-        if (const auto* localMethod = type.searchMethodByName(remoteMethod->getName()); localMethod != nullptr)
-        {
-          // check return type
-          auto localReturnType = localMethod->getReturnType();
-          auto remoteReturnType = remoteMethod->getReturnType();
-
-          concatProblems(runtimeCompatible(localReturnType.type(), remoteReturnType.type(), lossy_));
-
-          // check args
-          for (const auto& localArg: localMethod->getArgs())
-          {
-            if (const auto* remoteArg = remoteMethod->getArgFromName(localArg.name); remoteArg != nullptr)
-            {
-              // we supply the arguments, so for them the loss runs from us to the writer
-              if (lossy_ != nullptr)
-              {
-                std::ignore = runtimeCompatible(remoteArg->type.type(), localArg.type.type(), lossy_);
-              }
-
-              if (const auto argProblems = runtimeCompatible(localArg.type.type(), remoteArg->type.type());
-                  !argProblems.empty())
-              {
-                std::string error;
-                {
-                  error.append("Found incompatible argument with name ");
-                  error.append(localArg.name);
-                  error.append(" in method ");
-                  error.append(localMethod->getName());
-                  error.append(" in class ");
-                  error.append(type.getName());
-                  error.append(". Local type is ");
-                  error.append(localArg.type->getName());
-                  error.append(" and remote type is ");
-                  error.append(remoteArg->type->getName());
-                }
-                problems_.emplace_back(error);
-
-                concatProblems(argProblems);
-              }
-            }
-          }
-        }
+        concatProblems(fieldProblems);
       }
     }
+  }
 
-    void apply(const QuantityType& type) override
+  void apply(const SequenceType& type) override
+  {
+
+    // remote type is not a sequence
+    if (!remoteType_->isSequenceType())
     {
-      // remote is another quantity
-      if (const auto* remoteQuantity = remoteType_->asQuantityType(); remoteQuantity != nullptr)
-      {
-        const auto localUnit = type.getUnit();
-        const auto remoteUnit = remoteQuantity->getUnit();
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+      return;
+    }
 
-        if (!localUnit && remoteUnit)
+    const auto* remoteSequence = remoteType_->asSequenceType();
+    // check the element type
+    concatProblems(runtimeCompatible(type.getElementType().type(), remoteSequence->getElementType().type(), lossy_));
+  }
+
+  // NOLINTNEXTLINE
+  void apply(const ClassType& type) override
+  {
+
+    // remote is not a class
+    if (!remoteType_->isClassType())
+    {
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+      return;
+    }
+
+    const auto* remoteClass = remoteType_->asClassType();
+    // check properties
+    for (const auto& remoteProp: remoteClass->getProperties(allParents))
+    {
+      if (const auto* localProp = type.searchPropertyByName(remoteProp->getName()); localProp != nullptr)
+      {
+        if (const auto propProblems =
+              runtimeCompatible(localProp->getType().type(), remoteProp->getType().type(), lossy_);
+            !propProblems.empty())
         {
           std::string error;
           {
-            error.append("Found incompatible local unit (non-dimensional) and remote unit ");
-            error.append(remoteUnit.value()->getName());
+            error.append("Found incompatible property with name ");
+            error.append(localProp->getName());
+            error.append(" in class ");
+            error.append(type.getName());
+            error.append(". Local type is ");
+            error.append(localProp->getType()->getName());
+            error.append(" and remote type is ");
+            error.append(remoteProp->getType()->getName());
+          }
+          problems_.emplace_back(error);
+
+          concatProblems(propProblems);
+        }
+      }
+    }
+
+    // check events
+    for (const auto& remoteEvent: remoteClass->getEvents(allParents))
+    {
+      if (const auto* localEvent = type.searchEventByName(remoteEvent->getName()); localEvent != nullptr)
+      {
+        for (const auto& remoteArg: remoteEvent->getArgs())
+        {
+          if (const auto& localArg = localEvent->getArgFromName(remoteArg.name); localArg != nullptr)
+          {
+            if (const auto eventProblems = runtimeCompatible(localArg->type.type(), remoteArg.type.type(), lossy_);
+                !eventProblems.empty())
+            {
+              std::string error;
+              {
+                error.append("Found incompatible argument with name ");
+                error.append(localArg->name);
+                error.append(" in event ");
+                error.append(localEvent->getName());
+                error.append(" in class ");
+                error.append(type.getName());
+                error.append(". Local type is ");
+                error.append(localArg->type->getName());
+                error.append(" and remote type is ");
+                error.append(remoteArg.type->getName());
+              }
+              problems_.emplace_back(error);
+
+              concatProblems(eventProblems);
+            }
+          }
+        }
+      }
+    }
+
+    // check methods
+    for (const auto& remoteMethod: remoteClass->getMethods(allParents))
+    {
+      if (const auto* localMethod = type.searchMethodByName(remoteMethod->getName()); localMethod != nullptr)
+      {
+        // check return type
+        auto localReturnType = localMethod->getReturnType();
+        auto remoteReturnType = remoteMethod->getReturnType();
+
+        concatProblems(runtimeCompatible(localReturnType.type(), remoteReturnType.type(), lossy_));
+
+        // check args
+        for (const auto& localArg: localMethod->getArgs())
+        {
+          if (const auto* remoteArg = remoteMethod->getArgFromName(localArg.name); remoteArg != nullptr)
+          {
+            // we supply the arguments, so for them the loss runs from us to the writer
+            if (lossy_ != nullptr)
+            {
+              std::ignore = runtimeCompatible(remoteArg->type.type(), localArg.type.type(), lossy_);
+            }
+
+            if (const auto argProblems = runtimeCompatible(localArg.type.type(), remoteArg->type.type());
+                !argProblems.empty())
+            {
+              std::string error;
+              {
+                error.append("Found incompatible argument with name ");
+                error.append(localArg.name);
+                error.append(" in method ");
+                error.append(localMethod->getName());
+                error.append(" in class ");
+                error.append(type.getName());
+                error.append(". Local type is ");
+                error.append(localArg.type->getName());
+                error.append(" and remote type is ");
+                error.append(remoteArg->type->getName());
+              }
+              problems_.emplace_back(error);
+
+              concatProblems(argProblems);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void apply(const QuantityType& type) override
+  {
+    // remote is another quantity
+    if (const auto* remoteQuantity = remoteType_->asQuantityType(); remoteQuantity != nullptr)
+    {
+      const auto localUnit = type.getUnit();
+      const auto remoteUnit = remoteQuantity->getUnit();
+
+      if (!localUnit && remoteUnit)
+      {
+        std::string error;
+        {
+          error.append("Found incompatible local unit (non-dimensional) and remote unit ");
+          error.append(remoteUnit.value()->getName());
+          error.append(" in type ");
+          error.append(type.getName());
+        }
+
+        problems_.emplace_back(error);
+        return;
+      }
+
+      if (localUnit && !remoteUnit)
+      {
+        std::string error;
+        {
+          error.append("Found incompatible local unit ");
+          error.append(type.getName());
+          error.append(" and remote unit (non-dimensional) in type ");
+          error.append(type.getName());
+        }
+
+        problems_.emplace_back(error);
+        return;
+      }
+
+      if (localUnit)
+      {
+        const auto localCategory = localUnit.value()->getCategory();
+        const auto remoteCategory = remoteUnit.value()->getCategory();
+
+        if (localCategory != remoteCategory)
+        {
+          std::string error;
+          {
+            error.append("Found incompatible local unit category ");
+            error.append(Unit::getCategoryString(localCategory));
+            error.append(" and remote unit category ");
+            error.append(Unit::getCategoryString(remoteCategory));
             error.append(" in type ");
             error.append(type.getName());
           }
 
           problems_.emplace_back(error);
-          return;
         }
-
-        if (localUnit && !remoteUnit)
-        {
-          std::string error;
-          {
-            error.append("Found incompatible local unit ");
-            error.append(type.getName());
-            error.append(" and remote unit (non-dimensional) in type ");
-            error.append(type.getName());
-          }
-
-          problems_.emplace_back(error);
-          return;
-        }
-
-        if (localUnit)
-        {
-          const auto localCategory = localUnit.value()->getCategory();
-          const auto remoteCategory = remoteUnit.value()->getCategory();
-
-          if (localCategory != remoteCategory)
-          {
-            std::string error;
-            {
-              error.append("Found incompatible local unit category ");
-              error.append(Unit::getCategoryString(localCategory));
-              error.append(" and remote unit category ");
-              error.append(Unit::getCategoryString(remoteCategory));
-              error.append(" in type ");
-              error.append(type.getName());
-            }
-
-            problems_.emplace_back(error);
-          }
-        }
-
-        // the unit says what the number means; the number itself can still narrow
-        if (lossy_ != nullptr)
-        {
-          checkForLoss(*remoteQuantity->getElementType().type(), *type.getElementType().type());
-        }
-
-        return;
       }
 
-      // remote is not numeric or string
-      if (!remoteType_->isNumericType() && !remoteType_->isStringType())
-      {
-        problems_.emplace_back(logIncompatible(type.getName().data()));
-      }
-    }
-
-    void apply(const AliasType& type) override
-    {
-      apply(static_cast<const CustomType&>(type));
-
-      // an alias is transparent, so a conversion behind one loses just as much
+      // the unit says what the number means; the number itself can still narrow
       if (lossy_ != nullptr)
       {
-        const auto* remoteAlias = remoteType_->asAliasType();
-        checkForLoss(remoteAlias != nullptr ? *remoteAlias->getAliasedType().type() : *remoteType_,
-                     *type.getAliasedType().type());
-      }
-    }
-
-    void apply(const OptionalType& type) override
-    {
-      concatProblems(runtimeCompatible(type.getType().type(), remoteType_, lossy_));
-    }
-
-  private:
-    /// Records a conversion that is allowed but can drop a value.
-    void checkForLoss(const Type& from, const Type& to)
-    {
-      if (lossy_ == nullptr || !conversionLosesData(from, to))
-      {
-        return;
+        checkForLoss(*remoteQuantity->getElementType().type(), *type.getElementType().type());
       }
 
-      std::string diff;
-      diff.append("reading ");
-      diff.append(from.getName());
-      diff.append(" as ");
-      diff.append(to.getName());
-      diff.append(" can lose a value");
-
-      lossy_->emplace_back(std::move(diff));
+      return;
     }
 
-    void concatProblems(const std::vector<std::string>& problems)
+    // remote is not numeric or string
+    if (!remoteType_->isNumericType() && !remoteType_->isStringType())
     {
-      problems_.insert(problems_.end(), problems.begin(), problems.end());
+      problems_.emplace_back(logIncompatible(type.getName().data()));
+    }
+  }
+
+  void apply(const AliasType& type) override
+  {
+    apply(static_cast<const CustomType&>(type));
+
+    // an alias is transparent, so a conversion behind one loses just as much
+    if (lossy_ != nullptr)
+    {
+      const auto* remoteAlias = remoteType_->asAliasType();
+      checkForLoss(remoteAlias != nullptr ? *remoteAlias->getAliasedType().type() : *remoteType_,
+                   *type.getAliasedType().type());
+    }
+  }
+
+  void apply(const OptionalType& type) override
+  {
+    concatProblems(runtimeCompatible(type.getType().type(), remoteType_, lossy_));
+  }
+
+private:
+  /// Records a conversion that is allowed but can drop a value.
+  void checkForLoss(const Type& from, const Type& to)
+  {
+    if (lossy_ == nullptr || !conversionLosesData(from, to))
+    {
+      return;
     }
 
-  private:
-    const Type* remoteType_;
-    std::vector<std::string>& problems_;
-    std::vector<std::string>* lossy_;
-  };
+    std::string diff;
+    diff.append("reading ");
+    diff.append(from.getName());
+    diff.append(" as ");
+    diff.append(to.getName());
+    diff.append(" can lose a value");
 
+    lossy_->emplace_back(std::move(diff));
+  }
+
+  void concatProblems(const std::vector<std::string>& problems)
+  {
+    problems_.insert(problems_.end(), problems.begin(), problems.end());
+  }
+
+private:
+  const Type* remoteType_;
+  std::vector<std::string>& problems_;
+  std::vector<std::string>* lossy_;
+};
+
+}  // namespace
+
+std::vector<std::string> runtimeCompatible(const Type* localType,
+                                           const Type* remoteType,
+                                           std::vector<std::string>* lossy)
+{
   // always runtime compatible if equivalent
   if (equivalent(localType, remoteType))
   {

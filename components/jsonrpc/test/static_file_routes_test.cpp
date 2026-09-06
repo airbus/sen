@@ -82,7 +82,8 @@ struct HttpResponse
   asio::io_context ctx;
   asio::ip::tcp::socket socket {ctx};
   asio::ip::tcp::resolver resolver {ctx};
-  asio::connect(socket,
+  asio::connect(socket,  // NOLINT(misc-include-cleaner): asio's public header is included;
+                         // the check maps the symbol to an impl header
                 resolver.resolve(host, std::to_string(port)));  // NOLINT(misc-include-cleaner): asio's public header is
                                                                 // included; the check maps the symbol to an impl header
 

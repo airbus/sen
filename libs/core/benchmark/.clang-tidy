@@ -1,0 +1,10 @@
+# Checks a benchmark cannot satisfy, relaxed here and nowhere else.
+#
+# google-benchmark's loop is `for (auto _ : state)`, so every benchmark body reads as a store
+# that is never used; a benchmark walks its own fixture array with a running index; and fixture
+# data is static by nature. Everything else in the root configuration still applies.
+InheritParentConfig: true
+Checks: >
+  -cert-err58-cpp,
+  -clang-analyzer-deadcode.DeadStores,
+  -cppcoreguidelines-pro-bounds-constant-array-index

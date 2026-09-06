@@ -7,6 +7,7 @@
 
 #include "browser_open.h"
 
+#include <atomic>
 #include <chrono>
 #include <cstdlib>
 #include <string>
@@ -56,7 +57,9 @@ constexpr auto pollInterval = std::chrono::milliseconds(100);
 #else
     const auto sock = ::socket(p->ai_family, p->ai_socktype, p->ai_protocol);
     if (sock < 0)
+    {
       continue;
+    }
     if (::connect(sock, p->ai_addr, p->ai_addrlen) == 0)
     {
       ok = true;
@@ -64,7 +67,9 @@ constexpr auto pollInterval = std::chrono::milliseconds(100);
     ::close(sock);
 #endif
     if (ok)
+    {
       break;
+    }
   }
   freeaddrinfo(res);
   return ok;
@@ -119,6 +124,9 @@ bool openInBrowser(const std::string& url)
 #else
   cmd = "xdg-open '" + url + "' >/dev/null 2>&1";
 #endif
+  // The one caller passes a compile-time constant URL, so nothing external reaches the
+  // shell. Revisit if openInBrowser is ever given a value from outside the process.
+  // NOLINTNEXTLINE(cert-env33-c)
   return std::system(cmd.c_str()) == 0;
 }
 

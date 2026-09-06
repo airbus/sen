@@ -229,9 +229,9 @@ SessionManager::DeletionGuard SessionManager::makeDeletionGuard(Session* session
 
 void SessionManager::sessionDeleted(Session* session)
 {
-  // Copied, because the caller is this session's destructor and the announcement below outlives
-  // the point where reading from it is safe.
-  const std::string name = session->getName();
+  // The guard that calls this is a local in ~Session, so it runs before any member is
+  // destroyed and name_ is still alive.
+  const std::string& name = session->getName();
 
   logger_->debug("SessionManager: session {} deleted started", name);
 

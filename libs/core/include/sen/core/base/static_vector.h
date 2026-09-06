@@ -640,9 +640,13 @@ private:
 
 /// Checks if the contents of lhs and rhs are equal, that is, they have the same number of elements
 /// and each element in lhs compares equal with the element in rhs at the same position.
+///
+/// noexcept only when comparing T is. The trait above accepts any comparable T, so an
+/// unconditional promise would turn a throwing comparison into a call to std::terminate.
 template <typename T, std::size_t size>
-std::enable_if_t<HasOperator<T>::eq, bool> operator==(StaticVector<T, size> const& lhs,
-                                                      StaticVector<T, size> const& rhs) noexcept
+std::enable_if_t<HasOperator<T>::eq, bool> operator==(
+  StaticVector<T, size> const& lhs,
+  StaticVector<T, size> const& rhs) noexcept(noexcept(std::declval<T const&>() == std::declval<T const&>()))
 {
   if (lhs.size() != rhs.size())
   {
@@ -653,9 +657,13 @@ std::enable_if_t<HasOperator<T>::eq, bool> operator==(StaticVector<T, size> cons
 }
 
 /// Equivalent to negating operator ==.
+///
+/// Carries the same condition as operator==, which it calls.
 template <typename T, std::size_t size>
-std::enable_if_t<HasOperator<T>::ne, bool> operator!=(StaticVector<T, size> const& lhs,
-                                                      StaticVector<T, size> const& rhs) noexcept
+std::enable_if_t<HasOperator<T>::ne, bool> operator!=(
+  StaticVector<T, size> const& lhs,
+  StaticVector<T, size> const& rhs) noexcept(noexcept(std::declval<StaticVector<T, size> const&>() ==
+                                                      std::declval<StaticVector<T, size> const&>()))
 {
   return !(lhs == rhs);
 }

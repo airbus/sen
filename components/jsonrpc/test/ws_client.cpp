@@ -152,10 +152,9 @@ void WsClient::close()
   // FIN=1, opcode=0x8 (close), MASK=1, len=0.
   const std::array<std::uint8_t, 6> frame {0x88U, 0x80U, 0x00U, 0x00U, 0x00U, 0x00U};
   asio::error_code ec;
-  std::ignore = asio::write(
-    socket_,
-    asio::buffer(frame),
-    ec);  // NOLINT(misc-include-cleaner): asio's public header is included; the check maps the symbol to an impl header
+  // asio's public header is included above; the check maps the symbol to an impl header.
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  std::ignore = asio::write(socket_, asio::buffer(frame), ec);
   std::ignore = ec;
   std::ignore = socket_.close(ec);
   std::ignore = ec;

@@ -7,55 +7,57 @@
 
 // sen
 #include "sen/core/meta/alias_type.h"
-#include "sen/core/meta/callable.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/native_types.h"
 #include "sen/core/meta/optional_type.h"
+#include "sen/core/meta/property.h"
 #include "sen/core/meta/quantity_type.h"
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
+#include "sen/core/meta/time_types.h"
+#include "sen/core/meta/type.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/meta/unit.h"
 #include "sen/core/meta/unit_registry.h"
 #include "sen/core/meta/variant_type.h"
 #include "sen/kernel/type_specs_utils.h"
+#include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/type_specs.stl.h"
 
 // gtest
 #include <gtest/gtest.h>
 
 // std
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <set>
 #include <string>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace
 {
 
-using sen::AliasSpec;
 using sen::AliasType;
 using sen::ClassSpec;
 using sen::ClassType;
 using sen::ConstTypeHandle;
 using sen::Enumerator;
-using sen::EnumSpec;
 using sen::EnumType;
 using sen::OptionalSpec;
 using sen::OptionalType;
-using sen::QuantitySpec;
 using sen::QuantityType;
-using sen::StructSpec;
 using sen::StructType;
 using sen::UnitCategory;
 using sen::UnitSpec;
 using sen::VariantField;
-using sen::VariantSpec;
 using sen::VariantType;
 
 /// Every generated class carries a constructor; a hand-built one without it is not realistic.
@@ -202,7 +204,8 @@ TEST(RuntimeCompatibility, GradesEveryNativePair)
   {
     for (const auto& [toName, toType]: natives)
     {
-      const auto key = fromName + ">" + toName;
+      std::string key = fromName;
+      key.append(">").append(toName);
       const bool expectedLossless = (fromName == toName) || lossless.count(key) != 0;
       const bool reported = !lossyReading(fromType, toType).empty();
 

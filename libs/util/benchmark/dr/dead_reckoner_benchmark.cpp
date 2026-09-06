@@ -12,6 +12,7 @@
 #include "sen/util/dr/detail/dead_reckoner_impl.h"
 
 // implementation
+#include "constants.h"
 #include "utils.h"
 
 // 3rd party
@@ -22,6 +23,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 
 namespace sen::util
 {

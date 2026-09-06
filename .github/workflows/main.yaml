@@ -193,6 +193,19 @@ jobs:
       # The lane drops the cache entry its save replaces.
       actions: write
 
+  clang-tidy-diff:
+    needs: detect-changes
+    if: >-
+      needs.detect-changes.outputs.code == 'true' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
+    uses: ./.github/workflows/clang_tidy_diff.yaml
+    permissions:
+      contents: read
+      # The lane posts its findings as review comments. A reusable workflow cannot hold more
+      # than its caller grants, and the mismatch fails at startup with no jobs and no log.
+      pull-requests: write
+
   # The only required check: every other job is skipped in some legitimate
   # case, and a required check that never reports blocks the merge forever.
   # test_main_yaml.py keeps the needs list complete.
@@ -218,6 +231,7 @@ jobs:
       - image-check
       - conan-packaging
       - pr-sanitizers
+      - clang-tidy-diff
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

@@ -20,6 +20,7 @@
 // generated code
 #include "stl/sen/kernel/kernel_objects.stl.h"
 #include "stl/transport/transport.stl.h"
+#include "test_helpers/test_helpers.stl.h"
 
 // spdlog
 #include <spdlog/sinks/stdout_color_sinks.h>
