@@ -14,5 +14,6 @@ var searchData=
   ['holdsanyoff_11',['holdsAnyOff',['../structsen_1_1_var.html#a6af8b3ba12d0498da762e5619c99ff7c',1,'sen::Var']]],
   ['holdsfloatingpointvalue_12',['holdsFloatingPointValue',['../structsen_1_1_var.html#a974b67d57f0c182e153d1bb75930c76e',1,'sen::Var']]],
   ['holdsintegralvalue_13',['holdsIntegralValue',['../structsen_1_1_var.html#a13c7e2494eab0b28200296c364cc1938',1,'sen::Var']]],
-  ['hypot_14',['hypot',['../namespacesen_1_1util.html#a3550ae7467478d328c5fd631e30cda0f',1,'sen::util']]]
+  ['htmlgenerator_14',['HtmlGenerator',['../classsen_1_1gen_1_1_html_generator.html#a8a6eb47246045f87501a88c6d7d806b4',1,'sen::gen::HtmlGenerator']]],
+  ['hypot_15',['hypot',['../namespacesen_1_1util.html#a3550ae7467478d328c5fd631e30cda0f',1,'sen::util']]]
 ];

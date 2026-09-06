@@ -69,6 +69,10 @@
          <lastmod>2026-09-06</lastmod>
     </url>
     <url>
+         <loc>https://airbus.github.io/sen/latest/examples/generated_reference.html</loc>
+         <lastmod>2026-09-06</lastmod>
+    </url>
+    <url>
          <loc>https://airbus.github.io/sen/latest/examples/generated_uml.html</loc>
          <lastmod>2026-09-06</lastmod>
     </url>
@@ -185,10 +189,6 @@
          <lastmod>2026-09-06</lastmod>
     </url>
     <url>
-         <loc>https://airbus.github.io/sen/latest/snippets/fom.html</loc>
-         <lastmod>2026-09-06</lastmod>
-    </url>
-    <url>
          <loc>https://airbus.github.io/sen/latest/snippets/examples/index.html</loc>
          <lastmod>2026-09-06</lastmod>
     </url>
@@ -278,6 +278,10 @@
     </url>
     <url>
          <loc>https://airbus.github.io/sen/latest/users_guide/cmake.html</loc>
+         <lastmod>2026-09-06</lastmod>
+    </url>
+    <url>
+         <loc>https://airbus.github.io/sen/latest/users_guide/code_generation.html</loc>
          <lastmod>2026-09-06</lastmod>
     </url>
     <url>

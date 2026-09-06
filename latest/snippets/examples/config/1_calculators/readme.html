@@ -530,6 +530,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../../../users_guide/code_generation.html">
+<span class="md-ellipsis">
+    
+  
+    Code generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../../../users_guide/configuration.html">
 <span class="md-ellipsis">
     
@@ -590,8 +602,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_16" id="__nav_3_16_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -602,8 +614,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_15">
+<nav aria-expanded="false" aria-labelledby="__nav_3_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_16">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -972,7 +984,7 @@
 <span class="md-ellipsis">
     
   
-    The generated code
+    The generated C++ code
   
 
     
@@ -1540,11 +1552,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../../fom.html">
+<a class="md-nav__link" href="../../../../examples/generated_reference.html">
 <span class="md-ellipsis">
     
   
-    Web generation
+    HTML reference
   
 
     
@@ -1686,7 +1698,7 @@ and overrides the <code>*Impl</code> methods.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1"><em>casio_calculator.cpp</em></label><label for="__tabbed_1_2"><em>faulty_calculator.cpp</em></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-c++ highlight"><span class="filename">Implementation of a calculator</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="c1">// === casio_calculator.cpp ============================================================================================</span>
+<div class="language-c++ annotate highlight"><span class="filename">Implementation of a calculator</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="c1">// === casio_calculator.cpp ============================================================================================</span>
 </span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="c1">//                                               Sen Infrastructure</span>
 </span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="c1">//                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).</span>
 </span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="c1">//                                    See the LICENSE.txt file for more information.</span>
@@ -1762,6 +1774,13 @@ and overrides the <code>*Impl</code> methods.</p>
 </span><span id="__span-1-74"><a href="#__codelineno-1-74" id="__codelineno-1-74" name="__codelineno-1-74"></a>
 </span><span id="__span-1-75"><a href="#__codelineno-1-75" id="__codelineno-1-75" name="__codelineno-1-75"></a><span class="p">}</span><span class="w">  </span><span class="c1">// namespace calculators</span>
 </span></code></pre></div>
+<ol>
+<li>Stages the new value. It is not visible until commit, but the return value reaches the
+   caller as soon as their next drain processes the result.</li>
+<li>Dividing by zero does both things Sen offers. The event suits subscribers who want to
+   observe the error; the exception is how the caller finds out, because Sen catches it, wraps
+   it in a <code>MethodResult</code> and hands it to the caller's callback.</li>
+</ol>
 </div>
 <div class="tabbed-block">
 <div class="language-c++ highlight"><span class="filename">Another implementation of a calculator</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1">// === faulty_calculator.cpp ===========================================================================================</span>

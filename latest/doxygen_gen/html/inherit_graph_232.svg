@@ -11,9 +11,9 @@
 <!-- Node0 -->
 <g id="Node000000" class="node">
 <title>Node0</title>
-<g id="a_Node000000"><a xlink:href="classsen_1_1util_1_1_vec3.html" target="_top" xlink:title="Handles all mathematical ops involving 3D Vectors.">
+<g id="a_Node000000"><a xlink:href="classsen_1_1util_1_1_quat.html" target="_top" xlink:title="Quaternion. Represents the orientation of an object in space.">
 <polygon fill="white" stroke="#666666" points="113,-19 0,-19 0,0 113,0 113,-19"/>
-<text text-anchor="middle" x="56.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">sen::util::Vec3&lt; T &gt;</text>
+<text text-anchor="middle" x="56.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">sen::util::Quat&lt; T &gt;</text>
 </a>
 </g>
 </g>

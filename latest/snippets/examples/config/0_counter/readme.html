@@ -530,6 +530,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../../../users_guide/code_generation.html">
+<span class="md-ellipsis">
+    
+  
+    Code generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../../../users_guide/configuration.html">
 <span class="md-ellipsis">
     
@@ -590,8 +602,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_16" id="__nav_3_16_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -602,8 +614,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_15">
+<nav aria-expanded="false" aria-labelledby="__nav_3_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_16">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -972,7 +984,7 @@
 <span class="md-ellipsis">
     
   
-    The generated code
+    The generated C++ code
   
 
     
@@ -1522,11 +1534,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../../fom.html">
+<a class="md-nav__link" href="../../../../examples/generated_reference.html">
 <span class="md-ellipsis">
     
   
-    Web generation
+    HTML reference
   
 
     
@@ -1641,7 +1653,7 @@ mechanics of writing and wiring a Sen package rather than on business logic.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1"><em>counter.h</em></label><label for="__tabbed_1_2"><em>counter.cpp</em></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-c++ highlight"><span class="filename">counter.h</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#pragma once</span>
+<div class="language-c++ annotate highlight"><span class="filename">counter.h</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#pragma once</span>
 </span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"stl/my_counter/counter.stl.h"</span><span class="w">  </span><span class="c1">// (1)!</span>
 </span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
@@ -1668,9 +1680,18 @@ mechanics of writing and wiring a Sen package rather than on business logic.</p>
 </span><span id="__span-1-25"><a href="#__codelineno-1-25" id="__codelineno-1-25" name="__codelineno-1-25"></a>
 </span><span id="__span-1-26"><a href="#__codelineno-1-26" id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="p">}</span><span class="w">  </span><span class="c1">// namespace my_counter</span>
 </span></code></pre></div>
+<ol>
+<li>The generated header. Sen writes <code>CounterBase</code> from <code>counter.stl</code>, carrying the properties,
+   the event and the method you declared there.</li>
+<li>Your implementation inherits from the generated base, which handles serialisation,
+   subscriptions and dispatch.</li>
+<li>Deletes the copy and move constructors.</li>
+<li>Called once per cycle, during the update stage. This is where the next state is computed.</li>
+<li>The base class declares <code>helloImpl</code> pure virtual, so it has to be implemented here.</li>
+</ol>
 </div>
 <div class="tabbed-block">
-<div class="language-c++ highlight"><span class="filename">counter.cpp</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"counter.h"</span>
+<div class="language-c++ annotate highlight"><span class="filename">counter.cpp</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"counter.h"</span>
 </span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">my_counter</span>
 </span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="p">{</span>
@@ -1695,6 +1716,14 @@ mechanics of writing and wiring a Sen package rather than on business logic.</p>
 </span><span id="__span-2-23"><a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a>
 </span><span id="__span-2-24"><a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="p">}</span><span class="w">  </span><span class="c1">// namespace my_counter</span>
 </span></code></pre></div>
+<ol>
+<li><code>getValue()</code> and <code>getStep()</code> read the current buffer, the snapshot frozen before the cycle
+   began. <code>setNextValue()</code> writes the next one, which everyone sees once Sen commits.</li>
+<li>Fires the <code>valueIsDivisibleByTen</code> event. Events are buffered like property changes and
+   delivered after the commit.</li>
+<li>Registers <code>CounterImpl</code> so the kernel can instantiate it. Leave it out and the build still
+   succeeds, but the kernel stops at startup saying it cannot find the type.</li>
+</ol>
 </div>
 </div>
 </div>

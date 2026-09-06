@@ -18,9 +18,20 @@ add_sen_package(
 )
 # --8<-- [end:package]
 
+# --8<-- [start:uml]
 sen_generate_uml(
   TARGET hla_fom_uml
   OUT ${CMAKE_CURRENT_BINARY_DIR}/hla_fom.plantuml
   HLA_FOM_DIRS rpr netn link16
   CLASSES_ONLY
 )
+# --8<-- [end:uml]
+
+# --8<-- [start:html]
+sen_generate_html(
+  TARGET hla_fom_reference
+  OUT ${CMAKE_CURRENT_BINARY_DIR}/reference
+  TITLE "RPR, NETN and Link 16"
+  HLA_FOM_DIRS rpr netn link16
+)
+# --8<-- [end:html]

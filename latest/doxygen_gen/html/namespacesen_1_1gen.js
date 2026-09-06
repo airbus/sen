@@ -1,10 +1,12 @@
 var namespacesen_1_1gen =
 [
     [ "detail", "namespacesen_1_1gen_1_1detail.html", "namespacesen_1_1gen_1_1detail" ],
+    [ "test", "namespacesen_1_1gen_1_1test.html", "namespacesen_1_1gen_1_1test" ],
     [ "ComponentOptions", "group__gen.html#structsen_1_1gen_1_1_component_options", "group__gen_structsen_1_1gen_1_1_component_options" ],
     [ "CppExportsOptions", "group__gen.html#structsen_1_1gen_1_1_cpp_exports_options", "group__gen_structsen_1_1gen_1_1_cpp_exports_options" ],
     [ "CppGenerator", "classsen_1_1gen_1_1_cpp_generator.html", "classsen_1_1gen_1_1_cpp_generator" ],
     [ "CppOptions", "group__gen.html#structsen_1_1gen_1_1_cpp_options", "group__gen_structsen_1_1gen_1_1_cpp_options" ],
+    [ "HtmlGenerator", "classsen_1_1gen_1_1_html_generator.html", "classsen_1_1gen_1_1_html_generator" ],
     [ "JsonGenerator", "classsen_1_1gen_1_1_json_generator.html", "classsen_1_1gen_1_1_json_generator" ],
     [ "MkDocsGenerator", "classsen_1_1gen_1_1_mk_docs_generator.html", "classsen_1_1gen_1_1_mk_docs_generator" ],
     [ "PackageOptions", "group__gen.html#structsen_1_1gen_1_1_package_options", "group__gen_structsen_1_1gen_1_1_package_options" ],

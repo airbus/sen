@@ -52,6 +52,10 @@ ${sen_exec} generate mkdocs --help > ${snippets_dir}/sen_generate_mkdocs.sh\n\
 ${sen_exec} generate mkdocs stl --help > ${snippets_dir}/sen_generate_mkdocs_stl.sh\n\
 ${sen_exec} generate mkdocs fom --help > ${snippets_dir}/sen_generate_mkdocs_fom.sh\n\
 \n\
+${sen_exec} generate html --help > ${snippets_dir}/sen_generate_html.sh\n\
+${sen_exec} generate html stl --help > ${snippets_dir}/sen_generate_html_stl.sh\n\
+${sen_exec} generate html fom --help > ${snippets_dir}/sen_generate_html_fom.sh\n\
+\n\
 ${sen_exec} generate json package stl --help > ${snippets_dir}/sen_generate_json_package_stl.sh\n\
 ${sen_exec} generate json package fom --help > ${snippets_dir}/sen_generate_json_package_fom.sh\n\
 \n\
@@ -78,7 +82,6 @@ ${sen_exec} package init --help > ${snippets_dir}/sen_package_init.sh\n\
 ${sen_exec} package init ${snippets_dir}/my_package --class MyClass\n\
 ${sen_exec} package init-component --help > ${snippets_dir}/sen_package_init-component.sh\n\
 \n\
-${sen_exec} generate mkdocs fom --directories ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16 -t \"Generated RPR, NETN & L16 docs\" -o ${snippets_dir}/fom.md\n\
 exit 0"
       FILE_PERMISSIONS
       OWNER_READ
@@ -92,6 +95,13 @@ exit 0"
       WORLD_EXECUTE
   )
 
+  sen_generate_html(
+    TARGET fom_reference
+    OUT ${snippets_dir}/fom
+    TITLE "RPR, NETN and Link 16"
+    HLA_FOM_DIRS ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16
+  )
+
   sen_generate_uml(
     TARGET fom_uml
     OUT ${snippets_dir}/fom.plantuml
@@ -99,7 +109,9 @@ exit 0"
     CLASSES_ONLY
   )
 
-  set(fom_doc_example_file ${snippets_dir}/fom.md)
+  # The example used to be one markdown page. snippets/ is gitignored and persists, so a tree
+  # that built before the change would keep serving the old one from the site.
+  file(REMOVE ${snippets_dir}/fom.md)
 
   set(snippets
       ${snippets_dir}/sen.sh
@@ -117,6 +129,9 @@ exit 0"
       ${snippets_dir}/sen_generate_mkdocs.sh
       ${snippets_dir}/sen_generate_mkdocs_stl.sh
       ${snippets_dir}/sen_generate_mkdocs_fom.sh
+      ${snippets_dir}/sen_generate_html.sh
+      ${snippets_dir}/sen_generate_html_stl.sh
+      ${snippets_dir}/sen_generate_html_fom.sh
       ${snippets_dir}/sen_generate_json_package_stl.sh
       ${snippets_dir}/sen_generate_json_package_fom.sh
       ${snippets_dir}/sen_generate_json_component_stl.sh
@@ -141,7 +156,6 @@ exit 0"
       ${snippets_dir}/my_package/src/my_class.cpp
       ${snippets_dir}/my_package/stl/my_package/my_class.stl
       ${snippets_dir}/my_package/stl/my_package/basic_types.stl
-      ${fom_doc_example_file}
   )
 
   # Without DEPENDS the outputs were never stale, so the published help text
@@ -180,6 +194,7 @@ exit 0"
   add_dependencies(
     snippets_target
     fom_uml
+    fom_reference
     cli_sen
     cli_gen
     cli_run

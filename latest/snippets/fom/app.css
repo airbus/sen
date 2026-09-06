@@ -1,0 +1,353 @@
+/* Palette, text tiers, radii and surfaces are the sen web explorer's, so a model
+   documented here looks like the tool people inspect it with. Geist is named but not
+   fetched: the output has to work with no network, so it falls back to the system
+   stack when absent. */
+:root{
+  --bg:#f6f8fc; --panel:#fff; --line:rgba(20,50,90,.12); --line2:rgba(20,50,90,.18);
+  /* The dim tiers carry small uppercase headings, so both clear AA on the page ground. */
+  --fg:#0e1c30; --dim:#55637a; --dim2:#657283;
+  --accent:#2f6fd0; --accent-soft:rgba(47,111,208,.10); --accent-line:rgba(47,111,208,.35);
+  --grn:#2e9268; --amb:#a8761f; --vio:#6f5fd6; --red:#c04a43;
+  --code:#eef1f7; --code-line:rgba(20,50,90,.14);
+  --r1:6px; --r2:8px; --r3:10px; --r4:14px;
+  --sans:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'Geist Mono',ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;
+  /* Which way the browser's own widgets and scrollbars should go. */
+  color-scheme:light;
+  /* The package and kind marks live here, not in the script, so they change with the theme.
+     Darker on the light ground, where the brighter set fails contrast. */
+  --pkg-0:#a8542f; --pkg-1:#2d5f9e; --pkg-2:#256f4a; --pkg-3:#6c3f9e;
+  --pkg-4:#8a6606; --pkg-5:#226b73; --pkg-6:#8c3560; --pkg-7:#4e5b6a;
+  --pkg-builtin:#6b7079;
+  --kind-classes:#4055c8; --kind-structures:#1d7a70; --kind-enumerations:#8e3b9c;
+  --kind-sequences:#a05f00; --kind-variants:#c2185b; --kind-quantities:#4a7c1f;
+  --kind-aliases:#5a6b75; --kind-optionals:#4553a8;
+}
+:root[data-theme="dark"]{
+  /* A flat neutral ground rather than the explorer's blue wash: this is a document to
+     read, and the accents carry the resemblance on their own. */
+  --bg:#16161c; --panel:#1d1d25; --line:rgba(230,230,239,.10); --line2:rgba(230,230,239,.16);
+  --fg:#e6e6ef; --dim:#9a9aad; --dim2:#7b7b8c;
+  --accent:#8c9eff; --accent-soft:rgba(140,158,255,.14); --accent-line:rgba(140,158,255,.38);
+  --grn:#46c08a; --amb:#d6a85e; --vio:#9a8cff; --red:#e5675f;
+  --code:#0f0f14; --code-line:rgba(230,230,239,.14);
+  color-scheme:dark;
+  --pkg-0:#c86b4a; --pkg-1:#4a7fc1; --pkg-2:#3f9668; --pkg-3:#8a5fbf;
+  --pkg-4:#b58a1b; --pkg-5:#3f8f96; --pkg-6:#b0567f; --pkg-7:#6c7a89;
+  --pkg-builtin:#8a8f98;
+  --kind-classes:#8c9eff; --kind-structures:#4db6ac; --kind-enumerations:#ba68c8;
+  --kind-sequences:#ffb74d; --kind-variants:#f06292; --kind-quantities:#9ccc65;
+  --kind-aliases:#90a4ae; --kind-optionals:#7986cb;
+}
+/* Same values again under the machine's own setting, so the page is right before any script
+   runs. A reader who has chosen a theme here keeps it: data-theme wins over the query. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+  --bg:#16161c; --panel:#1d1d25; --line:rgba(230,230,239,.10); --line2:rgba(230,230,239,.16);
+  --fg:#e6e6ef; --dim:#9a9aad; --dim2:#7b7b8c;
+  --accent:#8c9eff; --accent-soft:rgba(140,158,255,.14); --accent-line:rgba(140,158,255,.38);
+  --grn:#46c08a; --amb:#d6a85e; --vio:#9a8cff; --red:#e5675f;
+  --code:#0f0f14; --code-line:rgba(230,230,239,.14);
+  color-scheme:dark;
+  --pkg-0:#c86b4a; --pkg-1:#4a7fc1; --pkg-2:#3f9668; --pkg-3:#8a5fbf;
+  --pkg-4:#b58a1b; --pkg-5:#3f8f96; --pkg-6:#b0567f; --pkg-7:#6c7a89;
+  --pkg-builtin:#8a8f98;
+  --kind-classes:#8c9eff; --kind-structures:#4db6ac; --kind-enumerations:#ba68c8;
+  --kind-sequences:#ffb74d; --kind-variants:#f06292; --kind-quantities:#9ccc65;
+  --kind-aliases:#90a4ae; --kind-optionals:#7986cb;
+}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.5 var(--sans);
+  -webkit-font-smoothing:antialiased}
+
+button,input,select{font:inherit;color:inherit}
+
+/* ---- frame ---------------------------------------------------------- */
+html,body{height:100%}
+/* Three rows fixed to the viewport with only the detail pane scrolling, so the footer
+   stays visible however long an entry is. min-height:0 stops a long table growing the
+   middle row instead of scrolling inside it. */
+#app{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100dvh;overflow:hidden}
+header{display:flex;align-items:center;gap:.75rem;padding:.5rem .9rem;
+  background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:.95rem;margin:0;font-weight:650;letter-spacing:-.01em}
+header .sub{color:var(--dim);font-size:.78rem}
+header .spacer{flex:1}
+header #back{min-width:2rem}
+header button:disabled{opacity:.35;cursor:default}
+header button{background:none;border:.5px solid var(--line2);border-radius:var(--r2);
+  padding:.25rem .55rem;cursor:pointer;color:var(--dim)}
+header button:hover{color:var(--fg);border-color:var(--accent)}
+
+main{display:grid;grid-template-columns:var(--treew,320px) 5px minmax(0,1fr);
+  min-height:0;overflow:hidden}
+#split{cursor:col-resize;background:var(--line);position:relative}
+#split::after{content:"";position:absolute;inset:0 -4px;}
+#split:hover,#split.dragging{background:var(--accent)}
+body.resizing{cursor:col-resize;user-select:none}
+#tree{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);
+  border-right:1px solid var(--line)}
+#detail{overflow:auto;min-width:0;min-height:0;padding:1.1rem 1.4rem 3rem}
+
+/* ---- tree ----------------------------------------------------------- */
+.controls{padding:.55rem .6rem;display:grid;gap:.4rem;border-bottom:1px solid var(--line);flex:0 0 auto}
+.controls input,.controls select{width:100%;padding:.35rem .5rem;background:var(--bg);
+  border:.5px solid var(--line2);border-radius:var(--r2)}
+.controls input:focus,.controls select:focus{outline:none;border-color:var(--accent)}
+.seg{display:flex;border:.5px solid var(--line2);border-radius:var(--r2);overflow:hidden}
+.seg button{flex:1;background:var(--bg);border:0;border-right:1px solid var(--line);
+  padding:.3rem .2rem;cursor:pointer;color:var(--dim);font-size:.75rem}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent-soft);color:var(--accent);font-weight:650}
+.scroller{overflow:auto;min-height:0;flex:1 1 auto;padding:.4rem .3rem .8rem}
+/* Filters as labels you switch off, so the state is visible without opening anything.
+   Capped and wrapping, so many packages scroll rather than push the tree off the panel. */
+.filters{display:flex;flex-wrap:wrap;gap:.25rem;max-height:5.4rem;overflow:auto}
+/* display:flex beats the hidden attribute, so hiding has to be restated here. */
+.filters[hidden]{display:none}
+.filters button{font:inherit;font-size:.7rem;line-height:1.6;padding:0 .45rem;cursor:pointer;
+  border:.5px solid var(--line2);border-radius:1rem;background:var(--bg);color:var(--fg);
+  display:inline-flex;align-items:center;gap:.3rem}
+.filters button .kd{width:.42em;height:.42em;border-radius:.1em}
+.filters button .c{color:var(--dim);font-size:.92em}
+.filters button.off{opacity:.45;text-decoration:line-through;color:var(--dim)}
+.filters button[hidden]{display:none}
+.filters button:hover{border-color:var(--accent)}
+#results[hidden]{display:none}
+.hit{padding:.3rem .4rem;border-radius:var(--r1);cursor:pointer;border-bottom:1px solid var(--line)}
+.hit:hover{background:var(--accent-soft)}
+.hit.on{background:var(--accent-soft)}
+.hit .top{display:flex;align-items:center;gap:.3rem}
+.hit .nm2{font-family:var(--mono);font-size:.79rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hit .where{font-size:.64rem;color:var(--dim);margin-left:auto;white-space:nowrap}
+.hit .sn{font-size:.7rem;color:var(--dim);margin-top:.1rem;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hit mark{background:transparent;color:var(--accent);font-weight:650}
+.nohits{padding:.8rem .5rem;color:var(--dim);font-size:.78rem}
+.tools{margin-bottom:.45rem;font-size:.75rem;color:var(--dim)}
+.tools label{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer}
+.self{color:var(--dim);font-style:italic;font-family:system-ui,sans-serif;font-size:.9em}
+.grp{margin:.15rem 0}
+.grp>summary{cursor:pointer;list-style:none;padding:.2rem .45rem;border-radius:var(--r1);
+  font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim2);font-weight:500}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary:hover{background:var(--accent-soft)}
+.grp>summary .n{opacity:.65;text-transform:none;letter-spacing:0}
+/* A hairline down the left of a group of children, so a deep branch stays attached to
+   the node it came from. */
+ul.t{list-style:none;margin:0;padding-left:.9rem;margin-left:.42rem;
+  border-left:1px solid var(--line)}
+ul.t.root{padding-left:.35rem;margin-left:0;border-left:0}
+li.t{margin:0}
+.row{display:flex;align-items:center;gap:.3rem;padding:.13rem .35rem;border-radius:var(--r1);
+  cursor:pointer;white-space:nowrap}
+.row:hover{background:var(--accent-soft)}
+.row.on{background:var(--accent-soft);color:var(--accent);font-weight:650}
+/* A shape in a box of its own, big enough to hit and turning about its centre. */
+.tw{width:16px;height:16px;flex:0 0 16px;position:relative;cursor:pointer}
+.tw::before{content:"";position:absolute;left:4px;top:3px;width:9px;height:9px;
+  background:currentColor;color:var(--dim2);
+  clip-path:polygon(28% 4%, 84% 50%, 28% 96%);
+  transform-origin:50% 50%;transition:transform .13s ease}
+.tw:hover::before{color:var(--accent)}
+.tw.open::before{transform:rotate(90deg)}
+.tw.leaf{cursor:default}
+.tw.leaf::before{display:none}
+.dot{width:.5rem;height:.5rem;border-radius:.12rem;flex:0 0 auto}
+.nm{overflow:hidden;text-overflow:ellipsis;font-size:.79rem}
+.nm .pkg{color:var(--dim)}
+.badge{font-size:.62rem;color:var(--dim);margin-left:.15rem}
+li.t.hide{display:none}
+
+/* ---- detail --------------------------------------------------------- */
+.crumb{font-size:.76rem;color:var(--dim);margin-bottom:.35rem}
+.crumb a{color:var(--dim);text-decoration:none;border-bottom:1px dotted var(--line)}
+.crumb a:hover{color:var(--accent)}
+.crumb .sep{opacity:.5;margin:0 .3rem}
+/* The name and its labels share a line, and a rule closes the heading off from the
+   content below it. */
+.titlerow{display:flex;align-items:baseline;flex-wrap:wrap;gap:.5rem;margin:.1rem 0 .1rem}
+.titlerow .chips{display:inline-flex;flex-wrap:wrap;gap:.35rem;margin:0}
+hr.titlerule{border:0;border-top:.5px solid var(--line2);margin:.55rem 0 1rem}
+h2.tt{margin:0;font-size:1.5rem;letter-spacing:-.02em;font-family:var(--mono)}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin:.35rem 0 .7rem}
+.chip{font-size:.7rem;padding:.1rem .45rem;border:.5px solid var(--line2);border-radius:1rem;color:var(--dim)}
+.chip.k{border-color:var(--accent);color:var(--accent)}
+/* Prose gets a measure, because past roughly eighty characters the eye loses the return
+   sweep. Tables and declarations are scanned rather than read, so they take full width. */
+.desc,.mdesc,.definition,table.values td.vdesc{max-width:80ch}
+.definition{margin:.2rem 0 0;color:var(--fg)}
+.definition code{font-family:var(--mono);color:var(--dim)}
+.desc{color:var(--fg)}
+section{margin-top:1.4rem}
+section>h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim2);font-weight:500;
+  margin:0 0 .45rem;display:flex;align-items:center;gap:.5rem}
+section>h3 .count{opacity:.7;text-transform:none;letter-spacing:0}
+table{border-collapse:collapse;width:100%;font-size:.82rem}
+th,td{text-align:left;padding:.3rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);
+  position:sticky;top:0;background:var(--bg)}
+td.n{font-family:var(--mono);white-space:nowrap}
+td.ty{white-space:nowrap}
+/* A dot in the type's own colour on every reference, so a member table can be read for
+   shape without being read word by word. */
+a.tref{color:var(--accent);text-decoration:none;font-family:var(--mono);font-size:.95em;
+  display:inline-flex;align-items:baseline;gap:.28em}
+a.tref:hover{text-decoration:underline}
+a.tref .kd{width:.42em;height:.42em;border-radius:.1em;flex:0 0 auto;align-self:center}
+
+/* A stripe per member, so a long list stays trackable. No hover tint, which would
+   collide with the class band's accent. */
+table.members tbody.member:nth-of-type(even) td{background:color-mix(in srgb,var(--fg) 3%,transparent)}
+/* Qualifiers beneath the name across both columns, so a long set wraps into that width
+   rather than under the name alone. */
+table.members td.detailcell{padding-top:.1rem;padding-bottom:.4rem;border-bottom:0}
+table.members .mdesc{color:var(--dim);margin-top:.15rem}
+table.members td.n{white-space:normal}
+table.members .sep{color:var(--dim2)}
+table.members .mname{font-weight:500}
+table.members td.ty{width:1%}
+table.values.tight{width:auto;min-width:min(30rem,100%)}
+table.values.tight td{padding-right:1.6rem}
+table.values.tight td:last-child{padding-right:.55rem;color:var(--dim);font-family:var(--mono)}
+table.values.tight th:last-child{text-align:left}
+table.values td.n{white-space:nowrap;font-family:var(--mono)}
+table.values td.ty{white-space:nowrap;width:1%}
+table.values td.vdesc{color:var(--dim)}
+table.values tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--fg) 3%,transparent)}
+table.members tbody.member>tr:first-child>td{border-bottom:0}
+table.members tbody.member>tr:last-child>td{border-bottom:.5px solid var(--line)}
+table.members td.n{padding-bottom:.1rem}
+table.members tbody.member.gone{display:none}
+table.grouped tbody.gap td{height:1.5rem;border:0;padding:0;background:none !important}
+table.members tbody.groupband.shut+tbody.member{border-top:0}
+section>h3{position:sticky;top:0;z-index:2;background:var(--bg);padding:.25rem 0}
+
+/* The shape of a type, as a declaration. The thing a reader copies into their head. */
+/* Set into the page rather than raised off it. No height cap: a nested scroll hides how
+   long the declaration is. */
+.decl{font-family:var(--mono);font-size:.78rem;line-height:1.7;background:var(--code);
+  border:.5px solid var(--code-line);border-radius:var(--r2);padding:.75rem .9rem;
+  overflow-x:auto;margin:.2rem 0 0;tab-size:2}
+.decl .kw{color:var(--accent)}
+.decl .fld{color:var(--fg)}
+.decl .ty{opacity:.85}
+.decl .pun{color:var(--dim)}
+.decl .cm{color:var(--dim);font-style:italic}
+
+
+kbd{font-family:var(--mono);font-size:.68rem;border:.5px solid var(--line2);border-bottom-width:2px;
+  border-radius:.25rem;padding:0 .3rem;color:var(--dim)}
+.hint{display:flex;gap:.6rem;align-items:center;font-size:.7rem;color:var(--dim)}
+/* Under the name, so the column reads as a list of names. One hue per axis (access,
+   volatility, delivery) so the pattern is learnable. */
+.flags{display:inline-flex;flex-wrap:wrap;gap:.22rem;margin-left:.5rem;
+  vertical-align:baseline}
+.f{font-size:.6rem;line-height:1.5;padding:0 .3rem;border-radius:var(--r1);
+  font-family:system-ui,sans-serif;border:1px solid transparent}
+.f-ro{color:#5c6bc0;background:#5c6bc01f;border-color:#5c6bc03d}
+.f-rw{color:#3949ab;background:#3949ab2b;border-color:#3949ab5c}
+.f-dyn{color:#00897b;background:#00897b1f;border-color:#00897b3d}
+.f-stat{color:#6d8b74;background:#6d8b741f;border-color:#6d8b743d}
+.f-conf{color:#8d6e00;background:#8d6e001f;border-color:#8d6e003d}
+.f-be{color:#a1554b;background:#a1554b1f;border-color:#a1554b3d}
+:root[data-theme="dark"] .f-ro{color:#9fa8da;background:#9fa8da1a;border-color:#9fa8da33}
+:root[data-theme="dark"] .f-rw{color:#c5cae9;background:#c5cae91a;border-color:#c5cae933}
+:root[data-theme="dark"] .f-dyn{color:#4db6ac;background:#4db6ac1a;border-color:#4db6ac33}
+:root[data-theme="dark"] .f-stat{color:#a5c9a1;background:#a5c9a11a;border-color:#a5c9a133}
+:root[data-theme="dark"] .f-conf{color:#e0b84a;background:#e0b84a1a;border-color:#e0b84a33}
+:root[data-theme="dark"] .f-be{color:#e59183;background:#e591831a;border-color:#e5918333}
+/* A declaring class as a band across the table, so the columns below stay in the same
+   grid as every other group's. */
+table.grouped tr.grouprow>td{background:var(--accent-soft);border-top:.5px solid var(--line2);
+  border-bottom:.5px solid var(--line2);padding:.42rem .55rem;cursor:pointer;user-select:none}
+table.grouped tr.grouprow .from{font-family:var(--mono);font-size:15px;font-weight:600;
+  letter-spacing:-.01em;color:var(--fg)}
+table.grouped tr.grouprow .n{color:var(--dim2);font-size:12px;margin-left:.4rem}
+table.grouped tr.grouprow .caret{display:inline-block;width:13px;height:13px;
+  margin-right:.45rem;vertical-align:-2px;background:currentColor;color:var(--dim2);
+  clip-path:polygon(28% 4%, 84% 50%, 28% 96%);transform:rotate(90deg);
+  transform-origin:50% 50%;transition:transform .14s ease}
+table.grouped tbody.groupband.shut .caret{transform:rotate(0deg)}
+table.grouped tr.grouprow:hover .caret{color:var(--accent)}
+table.grouped tr.grouprow:hover .from{color:var(--accent)}
+table.grouped tbody.groupband tr.grouprow>td{background:var(--accent-soft) !important}
+.more{margin:.4rem 0;font-size:.78rem;color:var(--dim)}
+.more button{background:none;border:.5px solid var(--line2);border-radius:var(--r1);
+  padding:.15rem .5rem;cursor:pointer;color:var(--accent)}
+details.inh{border:.5px solid var(--line2);border-radius:var(--r2);margin-bottom:.4rem}
+details.inh.grouped{border:0;border-radius:0;margin-bottom:0}
+details.inh.grouped>summary{padding:.42rem .2rem;color:var(--dim);font-size:13px}
+details.inh.grouped>summary:hover{color:var(--fg)}
+details.inh.grouped>summary::before{width:13px;height:13px}
+details.inh.grouped>div{margin-left:8px;border-left:.5px solid var(--line);
+  padding:0 0 .5rem 10px}
+details.inh.grouped .from{font-family:var(--mono);color:var(--fg);font-size:15px;
+  font-weight:600;letter-spacing:-.01em}
+details.inh.grouped .n{color:var(--dim2);font-size:12px;margin-left:.15rem}
+/* ---- hierarchy ------------------------------------------------------ */
+/* A line of descent drawn as a stack, one box per generation, the current class marked.
+   Centred so the connectors run straight down the middle. */
+/* Indented as a whole, chain and rows together, so the diagram sits apart from the prose
+   above it without breaking the entry's left edge. */
+.hier{padding:.2rem 0 .2rem 1rem}
+/* Boxes centred on each other so the connector runs straight down; the stack shrinks to its
+   widest box so it still sits flush left. */
+.hchain{display:flex;flex-direction:column;align-items:center;width:fit-content}
+/* UML's generalisation arrow: a hollow triangle at the parent's end. CSS borders draw only
+   a filled triangle, so the outline is two stacked ones, the inner in the page ground. */
+.hpipe{position:relative;width:1px;height:1.2rem;background:var(--line2);margin-top:.42rem}
+.hpipe::before,.hpipe::after{content:"";position:absolute;left:50%;width:0;height:0;
+  border-left:.32rem solid transparent;border-right:.32rem solid transparent}
+.hpipe::before{top:-.42rem;margin-left:-.32rem;border-bottom:.42rem solid var(--line2)}
+.hpipe::after{top:-.29rem;margin-left:-.22rem;border-left-width:.22rem;border-right-width:.22rem;
+  border-bottom:.29rem solid var(--bg)}
+.hbox{display:inline-flex;align-items:center;gap:.4em;font-family:var(--mono);font-size:.8rem;
+  padding:.22rem .6rem;border:.5px solid var(--line2);border-radius:.3rem;
+  background:var(--panel);color:var(--fg);white-space:nowrap}
+.hbox .kd{width:.42em;height:.42em;border-radius:.1em;flex:0 0 auto}
+/* The one you are reading, so the eye finds it without counting. */
+.hbox.here{border-color:var(--accent);color:var(--accent);font-weight:500;
+  background:var(--accent-soft)}
+a.hlink{text-decoration:none}
+a.hlink:hover .hbox{border-color:var(--accent);color:var(--accent)}
+
+/* Wrapped rather than scrolled: a scrollbar inside the pane hides how many there are. */
+.hgroup{margin-top:.9rem}
+.hlabel{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim2);
+  margin-bottom:.35rem}
+.hrow{display:flex;flex-wrap:wrap;gap:.35rem}
+
+/* An aside rather than part of the entry, so it sits below a gap and a rule. */
+details.inh.aside{margin-top:2.4rem;border-top-width:1px}
+details.inh.aside::before{content:"";display:block;position:relative;top:-1.25rem;
+  border-top:1px solid var(--line)}
+details.inh>summary{cursor:pointer;padding:.35rem .6rem;font-size:.82rem;list-style:none;
+  gap:.25rem;flex-wrap:wrap}
+details.inh>summary::-webkit-details-marker{display:none}
+/* A shape that fills its own box, so rotating it turns about its centre rather than
+   swinging as a text glyph would. */
+details.inh>summary::before{content:"";display:inline-block;flex:none;
+  width:11px;height:11px;margin-right:.45rem;background:currentColor;
+  clip-path:polygon(28% 4%, 84% 50%, 28% 96%);
+  transform-origin:50% 50%;transition:transform .14s ease;color:var(--dim2)}
+details.inh>summary:hover::before{color:var(--accent)}
+details.inh[open]>summary::before{transform:rotate(90deg)}
+details.inh>summary{display:flex;align-items:center}
+details.inh>div{padding:0 .6rem .5rem}
+.usedby{display:flex;flex-wrap:wrap;gap:.3rem}
+.empty{color:var(--dim);font-style:italic}
+
+/* Nothing selected. Centred in the pane rather than tucked at the top, so it reads as a
+   state the page is in and not as content that failed to load. */
+.nothing{display:flex;flex-direction:column;gap:.4rem;align-items:center;justify-content:center;
+  height:100%;min-height:60vh;text-align:center;color:var(--dim)}
+.nothing .big{font-size:1.05rem;color:var(--fg)}
+
+footer .gen{margin-left:auto;color:var(--dim2)}
+footer .made{display:inline-flex;align-items:center;gap:.4rem}
+footer .logo{width:15px;height:15px;display:block;opacity:.9}
+footer{padding:.4rem .9rem;background:var(--panel);border-top:1px solid var(--line);
+  font-size:.72rem;color:var(--dim);display:flex;gap:1rem;flex-wrap:wrap}
+@media (max-width:60em){main{grid-template-columns:1fr}#tree{display:none}}

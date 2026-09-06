@@ -35,8 +35,9 @@ var searchData=
   ['logicaland_32',['logicalAnd',['../group__lang.html#gga40421b432d75f16502847af2462e5a00ab7e98f2fa109d0045d648bc5b472a1a4',1,'sen::lang']]],
   ['logicalnot_33',['logicalNot',['../group__lang.html#gga4e0eeefcf95ea836c8f1925dbccb22dea8d00aecbb338db4faaff1ae1fb58ab4b',1,'sen::lang']]],
   ['logicalor_34',['logicalOr',['../group__lang.html#gga40421b432d75f16502847af2462e5a00aaab94cec04038d7afe73e93fc792799e',1,'sen::lang']]],
-  ['longitude_35',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
-  ['lookuptype_36',['lookupType',['../classsen_1_1kernel_1_1_package_manager.html#a0febd2ac7402c3644e3fb727de71e1bf',1,'sen::kernel::PackageManager']]],
-  ['low_20level_20input_20output_37',['Low level input / output',['../group__io.html',1,'']]],
-  ['lt_38',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator::lt'],['../group__lang.html#gga2f282d2524541d36339abfa3b4b25782ad91af6958918af87d6a057c1cdf5b225',1,'sen::lang::lt']]]
+  ['logo_35',['logo',['../namespacesen_1_1gen_1_1detail.html#a67c4c2f5513e04956d933c5ebd6db27f',1,'sen::gen::detail::HtmlApp']]],
+  ['longitude_36',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
+  ['lookuptype_37',['lookupType',['../classsen_1_1kernel_1_1_package_manager.html#a0febd2ac7402c3644e3fb727de71e1bf',1,'sen::kernel::PackageManager']]],
+  ['low_20level_20input_20output_38',['Low level input / output',['../group__io.html',1,'']]],
+  ['lt_39',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator::lt'],['../group__lang.html#gga2f282d2524541d36339abfa3b4b25782ad91af6958918af87d6a057c1cdf5b225',1,'sen::lang::lt']]]
 ];

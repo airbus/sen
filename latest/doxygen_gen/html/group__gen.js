@@ -18,6 +18,12 @@ var group__gen =
       [ "generate", "classsen_1_1gen_1_1_cpp_generator.html#a072321bf8f604c7740100c0bb8e15416", null ],
       [ "generateExports", "classsen_1_1gen_1_1_cpp_generator.html#a1fbfdb06e5a9149aad420cfe0dcb5366", null ]
     ] ],
+    [ "sen::gen::HtmlGenerator", "classsen_1_1gen_1_1_html_generator.html", [
+      [ "FileContents", "classsen_1_1gen_1_1_html_generator.html#a644d14133ca1a7e35abce29bcb3eb5a3", null ],
+      [ "HtmlGenerator", "classsen_1_1gen_1_1_html_generator.html#a8a6eb47246045f87501a88c6d7d806b4", null ],
+      [ "~HtmlGenerator", "classsen_1_1gen_1_1_html_generator.html#acf1eca993f9ad7681720617e256b9a59", null ],
+      [ "generate", "classsen_1_1gen_1_1_html_generator.html#a96d99e6dc1534610462a6d2e05906a5b", null ]
+    ] ],
     [ "sen::gen::PackageOptions", "group__gen.html#structsen_1_1gen_1_1_package_options", [
       [ "schemaName", "group__gen.html#a39b17246e3d9094096ea50b4429eb082", null ],
       [ "classes", "group__gen.html#a77498bedb2ebace24ebc2ffb2ff8931f", null ]

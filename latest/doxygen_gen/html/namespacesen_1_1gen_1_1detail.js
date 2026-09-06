@@ -4,6 +4,7 @@ var namespacesen_1_1gen_1_1detail =
       [ "maxCommentLineLength", "namespacesen_1_1gen_1_1detail_1_1impl.html#a109dc6cb80e57e1c03ca82df52a91526", null ]
     ] ],
     [ "CppTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_cpp_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_cpp_template_set_dup" ],
+    [ "HtmlApp", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_html_app", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_html_app_dup" ],
     [ "JsonTemplateSet", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_json_template_set", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_json_template_set_dup" ],
     [ "MkDocsTemplates", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_mk_docs_templates", "namespacesen_1_1gen_1_1detail_structsen_1_1gen_1_1detail_1_1_mk_docs_templates_dup" ],
     [ "Node", "classsen_1_1gen_1_1detail_1_1_node.html", "classsen_1_1gen_1_1detail_1_1_node" ],
@@ -30,6 +31,7 @@ var namespacesen_1_1gen_1_1detail =
     [ "makeCppPackageExportTemplate", "namespacesen_1_1gen_1_1detail.html#a59616cf91095f0c26128dd2df1c6f288", null ],
     [ "makeCppBaseHeaderFileTemplate", "namespacesen_1_1gen_1_1detail.html#aaf27242295c3c1ae5372191c69bcfc88", null ],
     [ "makeCppImplFileTemplate", "namespacesen_1_1gen_1_1detail.html#a7d6df927cfe9b8959a5e34a2aa260f6d", null ],
+    [ "makeHtmlApp", "namespacesen_1_1gen_1_1detail.html#a910cffaea44bf9a8443b413a44b6f943", null ],
     [ "makeJsonTypeTemplates", "namespacesen_1_1gen_1_1detail.html#a5d9b4a292a33f5d0d77997f48b5405b9", null ],
     [ "makeMkDocsTemplates", "namespacesen_1_1gen_1_1detail.html#aa53079fa41aba5d6339440243463fdbb", null ],
     [ "makePlantumlTypeTemplates", "namespacesen_1_1gen_1_1detail.html#a073aa59641f8f33eb51c39166eb0edd5", null ],

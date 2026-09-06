@@ -530,6 +530,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/code_generation.html">
+<span class="md-ellipsis">
+    
+  
+    Code generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/configuration.html">
 <span class="md-ellipsis">
     
@@ -590,8 +602,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_16" id="__nav_3_16_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -602,8 +614,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_15">
+<nav aria-expanded="false" aria-labelledby="__nav_3_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_16">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1121,7 +1133,7 @@
 <span class="md-ellipsis">
     
   
-    The generated code
+    The generated C++ code
   
 
     
@@ -1615,11 +1627,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../snippets/fom.html">
+<a class="md-nav__link" href="../examples/generated_reference.html">
 <span class="md-ellipsis">
     
   
-    Web generation
+    HTML reference
   
 
     
@@ -1813,7 +1825,7 @@ space characters (<code>" "</code>), which are restricted.</p>
 <p>Sen is fully asynchronous, which means that calls to methods do not block. This is easy when your
 method does not return any value, but if it does (and you are interested in it), then you need to
 provide a callback. For example:</p>
-<div class="language-c++ highlight"><span class="filename">calculators/src/client.cpp</span><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">useCalculatorImpl</span><span class="p">()</span><span class="w"> </span><span class="k">override</span>
+<div class="language-c++ annotate highlight"><span class="filename">calculators/src/client.cpp</span><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">useCalculatorImpl</span><span class="p">()</span><span class="w"> </span><span class="k">override</span>
 </span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="p">{</span>
 </span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculators_</span><span class="o">-&gt;</span><span class="n">list</span><span class="p">.</span><span class="n">getObjects</span><span class="p">();</span><span class="w"> </span><span class="o">!</span><span class="n">list</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w">  </span><span class="c1">// (4)!</span>
 </span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">    </span><span class="p">{</span>
@@ -1833,6 +1845,17 @@ provide a callback. For example:</p>
 </span><span id="__span-7-18"><a href="#__codelineno-7-18" id="__codelineno-7-18" name="__codelineno-7-18"></a><span class="w">      </span><span class="n">list</span><span class="p">.</span><span class="n">front</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">handleResult</span><span class="p">});</span><span class="w">  </span><span class="c1">// (5)!</span>
 </span><span id="__span-7-19"><a href="#__codelineno-7-19" id="__codelineno-7-19" name="__codelineno-7-19"></a><span class="w">    </span><span class="p">}</span>
 </span></code></pre></div>
+<ol>
+<li>Subscriptions are set up in <code>registered()</code>, earlier in the same file.</li>
+<li>The subscription is held in a member so that it outlives the call.</li>
+<li>It matches every object implementing the generated interface.</li>
+<li>Always guard against an empty list. Objects can disappear between cycles.</li>
+<li><code>list.front()</code> gives a reference to the first match, valid for this whole update cycle because
+   it was frozen during drain.</li>
+<li>The callback receives a <code>MethodResult</code>, holding either the value or an exception. <code>float32_t</code>
+   is what <code>f32</code> becomes in the generated header, so the types match exactly. It fires during the
+   drain stage of a later cycle, once the calculator has committed the result.</li>
+</ol>
 <p>That is the whole of a real client: find a calculator, call <code>add</code> on it, and handle the answer when
 it arrives. The <code>{this, handleResult}</code> pair is the callback. <code>this</code> is what ties the callback to
 your object's lifetime, so it stops being invoked if your object goes away.</p>
@@ -2035,15 +2058,24 @@ an interface for every class you declare in <abbr title="Sen Type Language">STL<
 object has no implementation on your side to name. <a href="generated_code.html">The generated code</a> covers
 the pair.</p>
 <p>Discovering objects on a bus then looks like this:</p>
-<div class="language-c++ highlight"><span class="filename">calculators/src/client.cpp</span><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">registered</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RegistrationApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w">  </span><span class="c1">// (1)!</span>
+<div class="language-c++ annotate highlight"><span class="filename">calculators/src/client.cpp</span><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">registered</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RegistrationApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w">  </span><span class="c1">// (1)!</span>
 </span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">  </span><span class="p">{</span>
 </span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="n">calculators_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">selectAllFrom</span><span class="o">&lt;</span><span class="n">CalculatorInterface</span><span class="o">&gt;</span><span class="p">(</span><span class="n">getCalcBus</span><span class="p">());</span><span class="w">  </span><span class="c1">// (3)!</span>
 </span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div>
+<ol>
+<li><code>registered()</code> runs once, after the object joins the bus: the point at which the API is
+   available and subscriptions can be set up.</li>
+<li>The subscription is kept in a member variable so it outlives this call. If it went out of
+   scope the list would be destroyed and the callbacks would stop.</li>
+<li><code>selectAllFrom&lt;CalculatorInterface&gt;(getCalcBus())</code> matches every object implementing the
+   generated interface, which is why you subscribe to <code>CalculatorInterface</code> and not to an
+   implementation class.</li>
+</ol>
 <p>The member it assigns to is declared as
 <code>std::shared_ptr&lt;sen::Subscription&lt;CalculatorInterface&gt;&gt; calculators_;</code>, and reading it is
 <code>calculators_-&gt;list.getObjects()</code>. <a href="../tutorials/two_objects.html">Tutorial 2</a> shows the same file
-in full, with both lines annotated.</p>
+in full.</p>
 <p><code>selectAllFrom</code> also takes an optional callback, invoked during drain with the objects that have
 just appeared, which is useful when you want to react to a discovery instead of polling the list.</p>
 <p>NOTE: Keep in mind the subscription and the registered callbacks are tied to the lifetime of the
@@ -2078,7 +2110,7 @@ remove its objects.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 22:39:10 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -2105,13 +2137,13 @@ remove its objects.</p>
               </div>
 </div>
 </a>
-<a aria-label="Next: The generated code" class="md-footer__link md-footer__link--next" href="generated_code.html">
+<a aria-label="Next: The generated C++ code" class="md-footer__link md-footer__link--next" href="generated_code.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                The generated code
+                The generated C++ code
               </div>
 </div>
 <div class="md-footer__button md-icon">

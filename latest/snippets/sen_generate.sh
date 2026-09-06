@@ -11,6 +11,7 @@ Subcommands:
   uml                              Generate UML diagrams
   py                               Generate Python dataclasses
   mkdocs                           Generate MkDocs documentation
+  html                             Generate a browsable reference for the data model
   json                             Generate JSON schemas
   ts                               Generate per-input TypeScript modules + a barrel from STL inputs
 

@@ -152,6 +152,8 @@ var hierarchy =
     [ "std::hash&lt;::sen::MemberHash &gt;", "structstd_1_1hash_3_1_1sen_1_1_member_hash_01_4.html", null ],
     [ "sen::HasOperator&lt; S, T &gt;", "structsen_1_1_has_operator.html", null ],
     [ "sen::util::HaversineData", "namespacesen_1_1util.html#structsen_1_1util_1_1_haversine_data", null ],
+    [ "sen::gen::detail::HtmlApp", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_html_app", null ],
+    [ "sen::gen::HtmlGenerator", "classsen_1_1gen_1_1_html_generator.html", null ],
     [ "sen::db::Input", "classsen_1_1db_1_1_input.html", null ],
     [ "sen::InputStreamBase", "classsen_1_1_input_stream_base.html", [
       [ "sen::InputStreamTemplate< LittleEndian >", "classsen_1_1_input_stream_template.html", null ],
@@ -262,6 +264,7 @@ var hierarchy =
     [ "sen::std_util::ReportPolicyIgnore", "structsen_1_1std__util_1_1_report_policy_ignore.html", null ],
     [ "sen::std_util::ReportPolicyLog", "structsen_1_1std__util_1_1_report_policy_log.html", null ],
     [ "sen::std_util::ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ],
+    [ "sen::gen::test::ResolvedModel", "classsen_1_1gen_1_1test_1_1_resolved_model.html", null ],
     [ "sen::lang::ResolverContext", "group__lang.html#structsen_1_1lang_1_1_resolver_context", null ],
     [ "sen::Result&lt; T, E &gt;", "classsen_1_1_result.html", null ],
     [ "sen::Result&lt; void, E &gt;", "classsen_1_1_result_3_01void_00_01_e_01_4.html", null ],
