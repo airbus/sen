@@ -1,7 +1,5 @@
 var NAVTREEINDEX12 =
 {
-"group__kernel.html#ga3711ecbde6f31398d3486a0d3f7f362e":[0,1,26],
-"group__kernel.html#ga396eafeb8e015a7bcd88c2c003a33d64":[0,1,21],
 "group__kernel.html#ga439a1367480c270e6689a5a04aa340e7":[0,1,27],
 "group__kernel.html#ga5efd447aba654b03606d7273c3cc26c1":[0,1,32],
 "group__kernel.html#ga605693dc517d79ae29f56b5383e91d76":[0,1,28],
@@ -249,5 +247,7 @@ var NAVTREEINDEX12 =
 "group__lang.html#structsen_1_1lang_1_1_resolver_context":[0,0,3,14],
 "group__lang.html#structsen_1_1lang_1_1_stl_arg_statement":[0,0,3,35],
 "group__lang.html#structsen_1_1lang_1_1_stl_array_statement":[0,0,3,32],
-"group__lang.html#structsen_1_1lang_1_1_stl_attribute":[0,0,3,22]
+"group__lang.html#structsen_1_1lang_1_1_stl_attribute":[0,0,3,22],
+"group__lang.html#structsen_1_1lang_1_1_stl_between_expr":[0,0,3,9],
+"group__lang.html#structsen_1_1lang_1_1_stl_binary_expr":[0,0,3,4]
 };

@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/components/rest.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/components/rest.html" rel="canonical"/>
 <link href="logmaster.html" rel="prev"/>
 <link href="jsonrpc.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
+<a class="md-tabs__link" href="../howto_guides/index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -592,6 +699,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -647,7 +766,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -731,7 +850,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -780,11 +899,11 @@
 <a class="md-nav__link" href="#key-concepts">
 <span class="md-ellipsis">
       
-        Key Concepts
+        Key concepts
       
     </span>
 </a>
-<nav aria-label="Key Concepts" class="md-nav">
+<nav aria-label="Key concepts" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
 <a class="md-nav__link" href="#authentication">
@@ -808,7 +927,7 @@
 <a class="md-nav__link" href="#objects-methods-properties-and-events">
 <span class="md-ellipsis">
       
-        Objects, Methods, Properties, and Events
+        Objects, methods, properties, and events
       
     </span>
 </a>
@@ -817,7 +936,7 @@
 <a class="md-nav__link" href="#type-introspection">
 <span class="md-ellipsis">
       
-        Type Introspection
+        Type introspection
       
     </span>
 </a>
@@ -829,7 +948,7 @@
 <a class="md-nav__link" href="#http-server">
 <span class="md-ellipsis">
       
-        HTTP Server
+        HTTP server
       
     </span>
 </a>
@@ -838,21 +957,21 @@
 <a class="md-nav__link" href="#getting-started">
 <span class="md-ellipsis">
       
-        Getting Started
+        Getting started
       
     </span>
 </a>
-<nav aria-label="Getting Started" class="md-nav">
+<nav aria-label="Getting started" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
 <a class="md-nav__link" href="#example-using-curl">
 <span class="md-ellipsis">
       
-        Example Using cURL
+        Example using cURL
       
     </span>
 </a>
-<nav aria-label="Example Using cURL" class="md-nav">
+<nav aria-label="Example using cURL" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
 <a class="md-nav__link" href="#1-authentication">
@@ -867,7 +986,7 @@
 <a class="md-nav__link" href="#2-list-available-sessions">
 <span class="md-ellipsis">
       
-        2. List Available Sessions
+        2. List available sessions
       
     </span>
 </a>
@@ -876,7 +995,7 @@
 <a class="md-nav__link" href="#3-create-an-interest">
 <span class="md-ellipsis">
       
-        3. Create an Interest
+        3. Create an interest
       
     </span>
 </a>
@@ -885,7 +1004,7 @@
 <a class="md-nav__link" href="#4-list-interests">
 <span class="md-ellipsis">
       
-        4. List Interests
+        4. List interests
       
     </span>
 </a>
@@ -894,7 +1013,7 @@
 <a class="md-nav__link" href="#5-list-objects-in-an-interest">
 <span class="md-ellipsis">
       
-        5. List Objects in an Interest
+        5. List objects in an interest
       
     </span>
 </a>
@@ -903,7 +1022,7 @@
 <a class="md-nav__link" href="#6-get-object-details">
 <span class="md-ellipsis">
       
-        6. Get Object Details
+        6. Get object details
       
     </span>
 </a>
@@ -915,7 +1034,7 @@
 <a class="md-nav__link" href="#push-notifications">
 <span class="md-ellipsis">
       
-        Push Notifications
+        Push notifications
       
     </span>
 </a>
@@ -927,7 +1046,7 @@
 <a class="md-nav__link" href="#updating-the-openapi-specification">
 <span class="md-ellipsis">
       
-        Updating the OpenAPI Specification
+        Updating the OpenAPI specification
       
     </span>
 </a>
@@ -936,7 +1055,7 @@
 <a class="md-nav__link" href="#openapi-documentation">
 <span class="md-ellipsis">
       
-        OpenAPI Documentation
+        OpenAPI documentation
       
     </span>
 </a>
@@ -961,7 +1080,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -1019,11 +1138,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<a class="md-nav__link" href="../howto_guides/index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -1079,18 +1198,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -1103,11 +1210,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -1126,12 +1317,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1174,53 +1388,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/troubleshooting.html">
@@ -1234,38 +1403,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1273,11 +1439,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1287,9 +1453,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1300,8 +1469,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1316,6 +1485,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1459,7 +1640,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1471,7 +1664,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1483,7 +1676,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1494,8 +1687,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1506,8 +1699,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1521,7 +1714,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1533,7 +1726,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1550,27 +1743,28 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><p><img alt="Screenshot" src="../assets/images/rest_light.svg#only-light" style="width:250px; float: right;"/>
-<img alt="Screenshot" src="../assets/images/rest_dark.svg#only-dark" style="width:250px; float: right;"/></p>
-<h1 id="the-rest-api-component">The REST API Component<a class="headerlink" href="#the-rest-api-component" title="Permanent link">¶</a></h1>
-<p>This component allows interaction with Sen sessions, interests, and objects through a REST API with
-JWT authentication.</p>
-<h2 id="what-is-a-rest-api">What is a REST API?<a class="headerlink" href="#what-is-a-rest-api" title="Permanent link">¶</a></h2>
-<p>A REST API is a specific type of API that follows the Representational State Transfer (REST)
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/rest_light.svg#only-light"><img alt="Screenshot" src="../assets/images/rest_light.svg#only-light" style="width:250px; float: right;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/rest_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/rest_dark.svg#only-dark" style="width:250px; float: right;"/></a></p>
+<h1 id="the-rest-api-component">The <abbr title="Representational State Transfer">REST</abbr> API component<a class="headerlink" href="#the-rest-api-component" title="Permanent link">¶</a></h1>
+<p>This <a href="../users_guide/glossary.html#component">component</a> allows interaction with Sen
+<a href="../users_guide/glossary.html#session">sessions</a>, <a href="../users_guide/glossary.html#interest">interests</a>,
+and <a href="../users_guide/glossary.html#object">objects</a> through a <abbr title="Representational State Transfer">REST</abbr> API with <abbr title="JSON Web Token">JWT</abbr> authentication.</p>
+<h2 id="what-is-a-rest-api">What is a <abbr title="Representational State Transfer">REST</abbr> API?<a class="headerlink" href="#what-is-a-rest-api" title="Permanent link">¶</a></h2>
+<p>A <abbr title="Representational State Transfer">REST</abbr> API is a specific type of API that follows the Representational State Transfer (<abbr title="Representational State Transfer">REST</abbr>)
 architecture style, promoting stateless communication over HTTP.</p>
-<h2 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">¶</a></h2>
+<h2 id="key-concepts">Key concepts<a class="headerlink" href="#key-concepts" title="Permanent link">¶</a></h2>
 <h3 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">¶</a></h3>
-<p>The REST API uses JWT (JSON Web Tokens) for authentication. Most endpoints require a valid bearer
+<p>The <abbr title="Representational State Transfer">REST</abbr> API uses <abbr title="JSON Web Token">JWT</abbr> (JSON Web Tokens) for authentication. Most endpoints require a valid bearer
 token obtained from the <code>/api/auth</code> endpoint. The token must be included in the <code>Authorization</code>
 header of subsequent requests.</p>
 <h3 id="interests">Interests<a class="headerlink" href="#interests" title="Permanent link">¶</a></h3>
-<p>An <strong>interest</strong> is a named query that selects a set of Sen objects using Sen Query Language. Instead
-of directly accessing sessions and buses, clients create interests to specify which objects they
-want to interact with. For example:</p>
+<p>An <strong><a href="../users_guide/glossary.html#interest">interest</a></strong> is a named query that selects a set of Sen
+objects using Sen Query Language. Instead of directly accessing sessions and buses, clients create
+interests to specify which objects they want to interact with. For example:</p>
 <div class="language-sql highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">local</span><span class="p">.</span><span class="n">kernel</span>
 </span></code></pre></div>
 <p>This allows for flexible object discovery and filtering.</p>
-<h3 id="objects-methods-properties-and-events">Objects, Methods, Properties, and Events<a class="headerlink" href="#objects-methods-properties-and-events" title="Permanent link">¶</a></h3>
+<h3 id="objects-methods-properties-and-events">Objects, methods, properties, and events<a class="headerlink" href="#objects-methods-properties-and-events" title="Permanent link">¶</a></h3>
 <p>Once you have an interest, you can:</p>
 <ul>
 <li><strong>List objects</strong> matching the interest query</li>
@@ -1580,11 +1774,11 @@ want to interact with. For example:</p>
 <li><strong>Read and subscribe to properties</strong> to receive updates when values change</li>
 <li><strong>Subscribe to events</strong> to receive notifications when events are emitted</li>
 </ul>
-<h3 id="type-introspection">Type Introspection<a class="headerlink" href="#type-introspection" title="Permanent link">¶</a></h3>
+<h3 id="type-introspection">Type introspection<a class="headerlink" href="#type-introspection" title="Permanent link">¶</a></h3>
 <p>The API provides type introspection through the <code>/api/types/{type}</code> endpoint, allowing you to
 discover the structure of custom Sen types at runtime.</p>
-<h2 id="http-server">HTTP Server<a class="headerlink" href="#http-server" title="Permanent link">¶</a></h2>
-<p>This component implements its own HTTP/1.1 server on top of Asio TCP. It does not rely on any other
+<h2 id="http-server">HTTP server<a class="headerlink" href="#http-server" title="Permanent link">¶</a></h2>
+<p>This component implements its own HTTP/1.1 server on top of Asio <abbr title="Transmission Control Protocol">TCP</abbr>. It does not rely on any other
 third-party libraries in order to keep dependencies low and uses HTTP/1.1 to keep the implementation
 minimal.</p>
 <p>The main features of this server are:</p>
@@ -1592,12 +1786,12 @@ minimal.</p>
 <li>URL path–based routing with parameter support: For example, a route <code>/api/session/:session</code> would
   parse <code>:session</code> as an alphanumeric string and pass it to the handler of that route.</li>
 <li>Support for HTTP methods GET, POST, PUT, DELETE</li>
-<li>Limited CORS support: CORS is enabled by default, and it is not currently configurable.</li>
-<li>Server-Sent Events (SSE) support: Used for sending push notifications to clients.</li>
+<li>Limited <abbr title="Cross-Origin Resource Sharing">CORS</abbr> support: <abbr title="Cross-Origin Resource Sharing">CORS</abbr> is enabled by default, and it is not currently configurable.</li>
+<li>Server-Sent Events (<abbr title="Server-Sent Events">SSE</abbr>) support: Used for sending push notifications to clients.</li>
 </ul>
-<p>As a side note, WebSockets are not supported since they are not required for Sen’s REST API; only
-<strong>SSE</strong> is implemented for push notifications.</p>
-<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">¶</a></h2>
+<p>As a side note, WebSockets are not supported since they are not required for Sen’s <abbr title="Representational State Transfer">REST</abbr> API; only
+<strong><abbr title="Server-Sent Events">SSE</abbr></strong> is implemented for push notifications.</p>
+<h2 id="getting-started">Getting started<a class="headerlink" href="#getting-started" title="Permanent link">¶</a></h2>
 <p>To start this component, you will need to configure the following parameters:</p>
 <ul>
 <li><code>address</code>: The IP address or hostname the server will bind to</li>
@@ -1610,9 +1804,9 @@ minimal.</p>
 </span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.0.0"</span>
 </span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
 </span></code></pre></div>
-<h3 id="example-using-curl">Example Using cURL<a class="headerlink" href="#example-using-curl" title="Permanent link">¶</a></h3>
+<h3 id="example-using-curl">Example using cURL<a class="headerlink" href="#example-using-curl" title="Permanent link">¶</a></h3>
 <h4 id="1-authentication">1. Authentication<a class="headerlink" href="#1-authentication" title="Permanent link">¶</a></h4>
-<p>Most endpoints require authentication. First, authenticate to get a JWT token:</p>
+<p>Most endpoints require authentication. First, authenticate to get a <abbr title="JSON Web Token">JWT</abbr> token:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/auth<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"id": "my-client"}'</span>
@@ -1625,14 +1819,15 @@ minimal.</p>
 <p>Save the token for subsequent requests. You'll need to include it in the <code>Authorization</code> header:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TOKEN</span><span class="o">=</span><span class="s2">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>
 </span></code></pre></div>
-<h4 id="2-list-available-sessions">2. List Available Sessions<a class="headerlink" href="#2-list-available-sessions" title="Permanent link">¶</a></h4>
-<p>You can list all available Sen sessions (no authentication required):</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>curl<span class="w"> </span>http://localhost:8080/api/sessions
+<h4 id="2-list-available-sessions">2. List available sessions<a class="headerlink" href="#2-list-available-sessions" title="Permanent link">¶</a></h4>
+<p>You can list all available Sen sessions:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>curl<span class="w"> </span>http://localhost:8080/api/sessions<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
 </span></code></pre></div>
 <p>Expected response:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="p">[</span><span class="s2">"local"</span><span class="p">]</span>
 </span></code></pre></div>
-<h4 id="3-create-an-interest">3. Create an Interest<a class="headerlink" href="#3-create-an-interest" title="Permanent link">¶</a></h4>
+<h4 id="3-create-an-interest">3. Create an interest<a class="headerlink" href="#3-create-an-interest" title="Permanent link">¶</a></h4>
 <p>Create an interest to select objects using a query:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/interests<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
@@ -1647,18 +1842,18 @@ minimal.</p>
 </span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-interest"</span>
 </span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="p">}</span>
 </span></code></pre></div>
-<h4 id="4-list-interests">4. List Interests<a class="headerlink" href="#4-list-interests" title="Permanent link">¶</a></h4>
+<h4 id="4-list-interests">4. List interests<a class="headerlink" href="#4-list-interests" title="Permanent link">¶</a></h4>
 <p>Get all interests for the authenticated client:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>curl<span class="w"> </span>http://localhost:8080/api/interests<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
 </span></code></pre></div>
-<h4 id="5-list-objects-in-an-interest">5. List Objects in an Interest<a class="headerlink" href="#5-list-objects-in-an-interest" title="Permanent link">¶</a></h4>
+<h4 id="5-list-objects-in-an-interest">5. List objects in an interest<a class="headerlink" href="#5-list-objects-in-an-interest" title="Permanent link">¶</a></h4>
 <p>Get all objects matching the interest query:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>curl<span class="w"> </span>http://localhost:8080/api/interests/my-interest/objects<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
 </span></code></pre></div>
 <p>This returns an array of object summaries with links to detailed information.</p>
-<h4 id="6-get-object-details">6. Get Object Details<a class="headerlink" href="#6-get-object-details" title="Permanent link">¶</a></h4>
+<h4 id="6-get-object-details">6. Get object details<a class="headerlink" href="#6-get-object-details" title="Permanent link">¶</a></h4>
 <p>Get detailed information about a specific object:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>curl<span class="w"> </span>http://localhost:8080/api/interests/my-interest/objects/OBJECT_NAME<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
@@ -1666,8 +1861,8 @@ minimal.</p>
 <p>The response includes available methods, properties, and events with links to invoke/subscribe.</p>
 <p>For more details on all available endpoints, check the
 <a href="#openapi-documentation">OpenAPI documentation</a>.</p>
-<h3 id="push-notifications">Push Notifications<a class="headerlink" href="#push-notifications" title="Permanent link">¶</a></h3>
-<p>The <code>rest</code> component provides real-time notifications through Server-Sent Events (SSE). Clients can
+<h3 id="push-notifications">Push notifications<a class="headerlink" href="#push-notifications" title="Permanent link">¶</a></h3>
+<p>The <code>rest</code> component provides real-time notifications through Server-Sent Events (<abbr title="Server-Sent Events">SSE</abbr>). Clients can
 receive live updates for subscribed events, property changes, method invocations, and object
 additions/removals through a persistent connection.</p>
 <p>To receive push notifications, make a <strong>GET</strong> request to the <code>/api/sse</code> endpoint with
@@ -1685,7 +1880,7 @@ authentication:</p>
 <p>Before receiving notifications, you must subscribe to the specific events or properties you're
 interested in. For more details on how to subscribe to events or properties, check the
 <a href="#openapi-documentation">OpenAPI documentation</a>.</p>
-<h2 id="updating-the-openapi-specification">Updating the OpenAPI Specification<a class="headerlink" href="#updating-the-openapi-specification" title="Permanent link">¶</a></h2>
+<h2 id="updating-the-openapi-specification">Updating the OpenAPI specification<a class="headerlink" href="#updating-the-openapi-specification" title="Permanent link">¶</a></h2>
 <p>The OpenAPI specification must be validated whenever updates are made, such as when adding a new
 feature.</p>
 <p>First, install <code>swagger-cli</code>:</p>
@@ -1694,14 +1889,14 @@ feature.</p>
 <p>Then use the <code>validate-openapi</code> CMake target to check its validity:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build/Debug<span class="w"> </span>--target<span class="w"> </span>validate-openapi
 </span></code></pre></div>
-<h2 id="openapi-documentation">OpenAPI Documentation<a class="headerlink" href="#openapi-documentation" title="Permanent link">¶</a></h2>
-<p><iframe class="redoc-iframe" frameborder="0" id="a41e4464" src="redoc-a41e4464.html" style="overflow:hidden;width:100%;height:100vh;" width="100%"></iframe></p></div>
+<h2 id="openapi-documentation">OpenAPI documentation<a class="headerlink" href="#openapi-documentation" title="Permanent link">¶</a></h2>
+<p><iframe class="redoc-iframe" frameborder="0" id="4f3e80f8" src="redoc-4f3e80f8.html" style="overflow:hidden;width:100%;height:100vh;" width="100%"></iframe></p>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 25, 2026 13:36:23 UTC">March 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1715,7 +1910,7 @@ feature.</p>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Log Master" class="md-footer__link md-footer__link--prev" href="logmaster.html">
+<a aria-label="Previous: Log master" class="md-footer__link md-footer__link--prev" href="logmaster.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1724,7 +1919,7 @@ feature.</p>
                 Previous
               </span>
 <div class="md-ellipsis">
-                Log Master
+                Log master
               </div>
 </div>
 </a>
@@ -1756,11 +1951,12 @@ feature.</p>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1787,5 +1983,4 @@ feature.</p>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

@@ -1,15 +1,12 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/howto_guides/generate_interface_packages.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/howto_guides/generate_interface_packages.html" rel="canonical"/>
 <link href="consuming_interfaces.html" rel="prev"/>
-<link href="precision_sleeper_config.html" rel="next"/>
+<link href="troubleshooting.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Generate and consume specific CMake packages for interfaces - Sen</title>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="building_from_source.html">
+<a class="md-tabs__link" href="index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -592,6 +699,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -647,7 +766,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -731,7 +850,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -767,7 +886,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -825,11 +944,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="building_from_source.html">
+<a class="md-nav__link" href="index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -885,18 +1004,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -909,11 +1016,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -932,12 +1123,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1047,10 +1261,10 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#include-our-cmakeconfigin-files-in-the-projects-installation">
+<a class="md-nav__link" href="#include-your-configcmakein-files-in-the-projects-installation">
 <span class="md-ellipsis">
       
-        Include our -cmake.config.in files in the project's installation
+        Include your -config.cmake.in files in the project's installation
       
     </span>
 </a>
@@ -1076,53 +1290,8 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="troubleshooting.html">
@@ -1136,38 +1305,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1175,11 +1341,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1189,9 +1355,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1202,8 +1371,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1218,6 +1387,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1361,7 +1542,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1373,7 +1566,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1385,7 +1578,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1396,8 +1589,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1408,8 +1601,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1423,7 +1616,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1435,7 +1628,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1452,20 +1645,19 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="create-and-use-cmake-packages-for-interfaces">Create and use CMake packages for interfaces<a class="headerlink" href="#create-and-use-cmake-packages-for-interfaces" title="Permanent link">¶</a></h1>
+<h1 id="create-and-use-cmake-packages-for-interfaces">Create and use CMake packages for interfaces<a class="headerlink" href="#create-and-use-cmake-packages-for-interfaces" title="Permanent link">¶</a></h1>
 <p>After covering how to both prepare your project to export interfaces in the
 <a href="exportable_interfaces.html">how to export interfaces in Sen-based projects</a> guide and learning to
 consume them externally in the
-<a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects'</a> guide, we will
-now learn how to create CMake packages where specific interfaces are exported as straightly
-consumable code.</p>
+<a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects</a> guide, we will
+now create CMake packages that export specific interfaces as ready-to-use code.</p>
 <p>With the detailed guide on how to consume interfaces, you are able to use the source files (<code>stl</code>)
-of the exported interfaces and generate any code of your likings (several languages, different
-combination of files, etc.). The purpose of this guide is to facilitate the consumption of certain
+of the exported interfaces and generate any code you like (several languages, different combinations
+of files, and so on). The purpose of this guide is to facilitate the consumption of certain
 interfaces which are almost always exported and consumed in the same way.</p>
 <h2 id="creating-cmake-packages-configcmakein-files">Creating CMake packages: <code>-config.cmake.in</code> files<a class="headerlink" href="#creating-cmake-packages-configcmakein-files" title="Permanent link">¶</a></h2>
 <p>As we have seen in previous guides, the <code>-config.cmake.in</code> file is a CMake file that will be
-automatically included inside your project when calling CMake's <code>find_package()</code>. To export our
+automatically included inside your project when calling CMake's <code>find_package()</code>. To export your
 interfaces, we need to configure one of these files with the code we want to execute when the file
 is included.</p>
 <h3 id="setting-up-the-file">Setting up the file<a class="headerlink" href="#setting-up-the-file" title="Permanent link">¶</a></h3>
@@ -1487,8 +1679,8 @@ where we attempt to find the original package only if it has not been included y
 </span></code></pre></div>
 <h3 id="finding-relevant-information-about-the-interfaces">Finding relevant information about the interfaces<a class="headerlink" href="#finding-relevant-information-about-the-interfaces" title="Permanent link">¶</a></h3>
 <p>After ensuring that the parent project has been included, we need to use the described mechanism in
-the <a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects'</a> guide to
-obtain relevant information of our interfaces such as <code>stl</code> files, the <code>BASE_PATH</code> or the <code>fom</code>
+the <a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects</a> guide to
+obtain relevant information of your interfaces such as <code>stl</code> files, the <code>BASE_PATH</code> or the <code>fom</code>
 include directories.</p>
 <p>In this example, we are generating the interfaces of the <code>sen::replayer</code> component, so we need to
 obtain its <code>BASE_PATH</code> and <code>stl</code> files.</p>
@@ -1505,9 +1697,9 @@ that will generate the interfaces' code when the package is consumed. The functi
 be <strong>unchangeable</strong> upon consumption, so the purpose of this guide is to generate the interfaces in
 the way they will always be consumed. If the user wants to consume the interfaces in a different way
 (e.g. in <code>python</code> instead of <code>cpp</code>, using a <code>Sen</code> package instead of a component, etc.), then the
-steps of the <a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects'</a>
+steps of the <a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects</a>
 guide should be followed instead.</p>
-<p>In our example case, we would write a Sen package where we build the interfaces for the
+<p>In this example, you would write a Sen package that builds the interfaces for the
 <code>sen::replayer</code> component.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
 </span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">        </span><span class="s">TARGET</span><span class="w"> </span><span class="s">sen_replayer_interfaces</span>
@@ -1516,32 +1708,34 @@ guide should be followed instead.</p>
 </span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">        </span><span class="s">DEPS</span><span class="w"> </span><span class="s">sen::db</span>
 </span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="p">)</span>
 </span></code></pre></div>
+<p>The pieces above are the whole of a real file, which you can read in one go at
+<code>cmake/util/interfaces/sen_replayer_interfaces-config.cmake.in</code>. Its sibling,
+<code>sen_recorder_interfaces-config.cmake.in</code>, does the same for the recorder.</p>
 <p>Note that any dependency the original package/component/library had <strong>must</strong> be included in the
 interface package generation. If this package is not configured correctly, you <strong>won't</strong> see any
 error in your compilation, the error will appear when other developers try to consume your package.</p>
-<h2 id="include-our-cmakeconfigin-files-in-the-projects-installation">Include our -cmake.config.in files in the project's installation<a class="headerlink" href="#include-our-cmakeconfigin-files-in-the-projects-installation" title="Permanent link">¶</a></h2>
-<p>After writing enough <code>-cmake.config.in</code> files, you need to configure your project's <code>install.cmake</code>
-file to ensure that the <code>-cmake.config.in</code> files are installed and generated correctly when you call
+<h2 id="include-your-configcmakein-files-in-the-projects-installation">Include your -config.cmake.in files in the project's installation<a class="headerlink" href="#include-your-configcmakein-files-in-the-projects-installation" title="Permanent link">¶</a></h2>
+<p>After writing enough <code>-config.cmake.in</code> files, you need to configure your project's <code>install.cmake</code>
+file to ensure that the <code>-config.cmake.in</code> files are installed and generated correctly when you call
 <code>cmake install</code>.</p>
 <p>Sen brings a CMake function named <code>configure_exportable_packages</code>. This function receives an
-<code>INTERFACES_CONFIG_DIRS</code> argument, which takes a list of directories containing <code>-cmake.config.in</code>
-files. The helper takes care of generating and installing the code for all the <code>-cmake.config.in</code>
+<code>INTERFACES_CONFIG_DIRS</code> argument, which takes a list of directories containing <code>-config.cmake.in</code>
+files. The helper takes care of generating and installing the code for all the <code>-config.cmake.in</code>
 files present in the given directories and also in the current listed directory (directory where the
 <code>install.cmake</code> file is located).</p>
-<p>Using the helper is as simple as including this line in your <code>cmake.install</code> file, specifying any
+<p>Using the helper is as simple as including this line in your <code>install.cmake</code> file, specifying any
 additional directory that contains interfaces in the <code>INTERFACES_CONFIG_DIRS</code> argument.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nb">configure_exportable_packages</span><span class="p">(</span><span class="s">INTERFACES_CONFIG_DIRS</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/interfaces</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Note that the function will also install your project's <code>-config.cmake.in</code> file (e.g.,
-<code>sen-config.cmake.in</code>, located in Sen's <code>cmake/util</code> directory), so any content referring this
+<code>sen-config.cmake.in</code>, located in Sen's <code>cmake/util</code> directory), so any content referring to this
 particular <code>-config.cmake.in</code> file in your <code>install.cmake</code> can be deleted.</p>
 <h2 id="considerations">Considerations<a class="headerlink" href="#considerations" title="Permanent link">¶</a></h2>
 <p>The <code>-config.cmake.in</code> file is only executed when consuming the CMake package via <code>find_package()</code>.
 This means that there is no straightforward way of ensuring that what you write here is correct,
-other than testing the consumption locally by installing your project and test it externally
-(calling <code>find_package()</code> from another project). This error may not affect you, but the person who
-consumes your package, so ensuring that the package can be consumed appropriately is a great
-practice before uploading your CMake interfaces packages.</p>
+other than installing your project and consuming it from another one that calls <code>find_package()</code>.
+A mistake here does not show up for you, only for whoever consumes the package, so check that it
+can be consumed before publishing it.</p>
 <h2 id="consuming-cmake-packages-for-interfaces">Consuming CMake packages for interfaces<a class="headerlink" href="#consuming-cmake-packages-for-interfaces" title="Permanent link">¶</a></h2>
 <p>If any project you depend on has generated a CMake package for a desired interface, you will need
 to:</p>
@@ -1563,13 +1757,13 @@ to:</p>
    If no documentation is available, you can always consult the <code>-config.cmake.in</code> file on the
    project's repository.</p>
 </li>
-</ol></div>
+</ol>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1596,13 +1790,13 @@ to:</p>
               </div>
 </div>
 </a>
-<a aria-label="Next: Configuring component sleeping between updates" class="md-footer__link md-footer__link--next" href="precision_sleeper_config.html">
+<a aria-label="Next: Troubleshooting" class="md-footer__link md-footer__link--next" href="troubleshooting.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                Configuring component sleeping between updates
+                Troubleshooting
               </div>
 </div>
 <div class="md-footer__button md-icon">
@@ -1624,11 +1818,12 @@ to:</p>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1655,5 +1850,4 @@ to:</p>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/components/shell.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/components/shell.html" rel="canonical"/>
 <link href="webexplorer.html" rel="prev"/>
 <link href="influx.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
+<a class="md-tabs__link" href="../howto_guides/index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -592,6 +699,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -647,7 +766,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -693,6 +812,15 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#command-reference">
+<span class="md-ellipsis">
+      
+        Command reference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#opening-and-closing-buses">
 <span class="md-ellipsis">
       
@@ -723,7 +851,7 @@
 <a class="md-nav__link" href="#creating-queries">
 <span class="md-ellipsis">
       
-        Creating Queries
+        Creating queries
       
     </span>
 </a>
@@ -805,7 +933,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -841,7 +969,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -899,11 +1027,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<a class="md-nav__link" href="../howto_guides/index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -959,18 +1087,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -983,11 +1099,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -1006,12 +1206,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1054,53 +1277,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/troubleshooting.html">
@@ -1114,38 +1292,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1153,11 +1328,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1167,9 +1342,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1180,8 +1358,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1196,6 +1374,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1339,7 +1529,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1351,7 +1553,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1363,7 +1565,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1374,8 +1576,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1386,8 +1588,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1401,7 +1603,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1413,7 +1615,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1430,13 +1632,13 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><p><img alt="Screenshot" src="../assets/images/shell_light.svg#only-light" style="width:150px; float: right;"/>
-<img alt="Screenshot" src="../assets/images/shell_dark.svg#only-dark" style="width:150px; float: right;"/></p>
-<h1 id="the-sen-shell">The Sen Shell<a class="headerlink" href="#the-sen-shell" title="Permanent link">¶</a></h1>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/shell_light.svg#only-light"><img alt="Screenshot" src="../assets/images/shell_light.svg#only-light" style="width:150px; float: right;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/shell_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/shell_dark.svg#only-dark" style="width:150px; float: right;"/></a></p>
+<h1 id="the-sen-shell">The Sen shell<a class="headerlink" href="#the-sen-shell" title="Permanent link">¶</a></h1>
 <h2 id="getting-it-started">Getting it started<a class="headerlink" href="#getting-it-started" title="Permanent link">¶</a></h2>
 <p>The Sen shell allows you to interact with all the objects that are published to the buses in the
 kernel.</p>
-<p>It makes use of the extensive introspection capabilities that are built-in into Sen. That's why you
+<p>It makes use of the extensive introspection capabilities that are built into Sen. That's why you
 get auto-complete, error-checking, argument parsing and even the ability to read the documentation.</p>
 <p>You can run a stand-alone shell by typing:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>sen<span class="w"> </span>shell
@@ -1446,116 +1648,268 @@ get auto-complete, error-checking, argument parsing and even the ability to read
 </span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
 </span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w">     </span><span class="c1"># you decide when to start the shell</span>
 </span></code></pre></div>
-<p>Once you start the shell, you can use tab to auto-complete and/or see the available commands. If you
-type <code>help</code> to you will see more info about all the options you have.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_help.gif" style="width:900px"/></p>
-<p>To shut down the shell, you simply type Ctrl+D or the <code>shutdown</code> command.</p>
+<p>The configuration options and the commands the shell offers are defined in the component's <abbr title="Sen Type Language">STL</abbr>:</p>
+<div class="language-rust highlight"><span class="filename">Shell configuration</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1">// How lists should be printed</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">enum</span><span class="w"> </span><span class="nc">ListStyle</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="p">{</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="n">treeStyle</span><span class="p">,</span><span class="w">  </span><span class="c1">// use a tree</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="n">plainStyle</span><span class="p">,</span><span class="w"> </span><span class="c1">// simple list</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="p">}</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="c1">// How timestamps should be printed</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="k">enum</span><span class="w"> </span><span class="nc">TimeStyle</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="p">{</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">  </span><span class="n">timestampUTC</span><span class="p">,</span><span class="w">   </span><span class="c1">// use UTC timestamps</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="w">  </span><span class="n">timestampLocal</span><span class="p">,</span><span class="w"> </span><span class="c1">// use local time timestamps</span>
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="p">}</span>
+</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>
+</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="c1">// How buffers should be printed</span>
+</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="k">enum</span><span class="w"> </span><span class="nc">BufferStyle</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
+</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="p">{</span>
+</span><span id="__span-2-18"><a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="w">  </span><span class="n">size</span><span class="p">,</span><span class="w">    </span><span class="c1">// just print the buffer size</span>
+</span><span id="__span-2-19"><a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="w">  </span><span class="n">hexdump</span><span class="p">,</span><span class="w"> </span><span class="c1">// print the buffer content has hex numbers</span>
+</span><span id="__span-2-20"><a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="p">}</span>
+</span><span id="__span-2-21"><a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a>
+</span><span id="__span-2-22"><a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="c1">// Holds information about a named query</span>
+</span><span id="__span-2-23"><a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Query</span>
+</span><span id="__span-2-24"><a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="p">{</span>
+</span><span id="__span-2-25"><a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="w">  </span><span class="n">name</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">  </span><span class="c1">// the name of the query (cannot contain spaces or dots)</span>
+</span><span id="__span-2-26"><a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="w">  </span><span class="n">selection</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w">   </span><span class="c1">// the query expression</span>
+</span><span id="__span-2-27"><a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="p">}</span>
+</span><span id="__span-2-28"><a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a>
+</span><span id="__span-2-29"><a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SourcesList</span><span class="p">;</span>
+</span><span id="__span-2-30"><a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">Query</span><span class="o">&gt;</span><span class="w"> </span><span class="n">QueryList</span><span class="p">;</span>
+</span><span id="__span-2-31"><a href="#__codelineno-2-31" id="__codelineno-2-31" name="__codelineno-2-31"></a>
+</span><span id="__span-2-32"><a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="c1">// Configuration params for the shell</span>
+</span><span id="__span-2-33"><a href="#__codelineno-2-33" id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
+</span><span id="__span-2-34"><a href="#__codelineno-2-34" id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="p">{</span>
+</span><span id="__span-2-35"><a href="#__codelineno-2-35" id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="w">  </span><span class="n">prompt</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">       </span><span class="c1">// defaults to 'sen&gt; '</span>
+</span><span id="__span-2-36"><a href="#__codelineno-2-36" id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="w">  </span><span class="n">timeStyle</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStyle</span><span class="p">,</span><span class="w">    </span><span class="c1">// how to display time</span>
+</span><span id="__span-2-37"><a href="#__codelineno-2-37" id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="w">  </span><span class="n">bufferStyle</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">BufferStyle</span><span class="p">,</span><span class="w">  </span><span class="c1">// how to display buffers</span>
+</span><span id="__span-2-38"><a href="#__codelineno-2-38" id="__codelineno-2-38" name="__codelineno-2-38"></a><span class="w">  </span><span class="n">serverEnabled</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w">         </span><span class="c1">// enables remote shell access (false by default)</span>
+</span><span id="__span-2-39"><a href="#__codelineno-2-39" id="__codelineno-2-39" name="__codelineno-2-39"></a><span class="w">  </span><span class="n">serverPort</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span><span class="w">          </span><span class="c1">// 0 means default</span>
+</span><span id="__span-2-40"><a href="#__codelineno-2-40" id="__codelineno-2-40" name="__codelineno-2-40"></a><span class="w">  </span><span class="n">noLogo</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w">         </span><span class="c1">// true if you don't want a welcoming logo</span>
+</span><span id="__span-2-41"><a href="#__codelineno-2-41" id="__codelineno-2-41" name="__codelineno-2-41"></a><span class="w">  </span><span class="n">open</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">SourcesList</span><span class="p">,</span><span class="w">  </span><span class="c1">// list of sources to open automatically</span>
+</span><span id="__span-2-42"><a href="#__codelineno-2-42" id="__codelineno-2-42" name="__codelineno-2-42"></a><span class="w">  </span><span class="n">query</span><span class="w">         </span><span class="p">:</span><span class="w"> </span><span class="nc">QueryList</span><span class="p">,</span><span class="w">    </span><span class="c1">// list of queries to create automatically</span>
+</span><span id="__span-2-43"><a href="#__codelineno-2-43" id="__codelineno-2-43" name="__codelineno-2-43"></a><span class="w">  </span><span class="n">logBus</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w">        </span><span class="c1">// where to find the logmaster, if any (default: local.log)</span>
+</span><span id="__span-2-44"><a href="#__codelineno-2-44" id="__codelineno-2-44" name="__codelineno-2-44"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Once you start the shell, you can use tab to auto-complete and to see the available commands. If you
+type <code>help</code> you will see more info about all the options you have.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_help.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_help.gif" style="width:900px"/></a></p>
+<p>To shut down, type Ctrl+D on an empty line, or use the <code>shutdown</code> command. Both stop the whole
+kernel. If you loaded the shell next to other components, those stop too.</p>
+<h2 id="command-reference">Command reference<a class="headerlink" href="#command-reference" title="Permanent link">¶</a></h2>
+<p>What you type is either one of the built-in commands below, or the address of something on a
+<a href="../users_guide/glossary.html#bus">bus</a> followed by the member you want and its arguments.</p>
+<div class="language-rust highlight"><span class="filename">The commands, from the shell's own interface</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="w">  </span><span class="c1">// clears the screen</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="c1">// basic usage help</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">help</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">  </span><span class="c1">// lists previous commands</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">history</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">  </span><span class="c1">// lists all the existing objects and sources.</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">ls</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">  </span><span class="c1">// opens a source (bus or session) without any condition</span>
+</span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="n">source</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
+</span><span id="__span-3-15"><a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>
+</span><span id="__span-3-16"><a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="w">  </span><span class="c1">// opens a named source using a condition expression</span>
+</span><span id="__span-3-17"><a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">query</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="n">condition</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
+</span><span id="__span-3-18"><a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a>
+</span><span id="__span-3-19"><a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="w">  </span><span class="c1">// closes a previously-opened source (session, bus or query)</span>
+</span><span id="__span-3-20"><a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="n">source</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
+</span><span id="__span-3-21"><a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a>
+</span><span id="__span-3-22"><a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="w">  </span><span class="c1">// prints information about a type or instance</span>
+</span><span id="__span-3-23"><a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="n">term</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-3-24"><a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a>
+</span><span id="__span-3-25"><a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a><span class="w">  </span><span class="c1">// requests the kernel to be shut-down</span>
+</span><span id="__span-3-26"><a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">shutdown</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="k">const</span><span class="p">];</span>
+</span><span id="__span-3-27"><a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a>
+</span><span id="__span-3-28"><a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a><span class="w">  </span><span class="c1">// lists the current sources</span>
+</span><span id="__span-3-29"><a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">src</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Anything else is an address of the form <code>session.bus.object.member</code>:</p>
+<table>
+<thead>
+<tr>
+<th>To do this</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read a property</td>
+<td><code>local.counters.myCounter.getValue</code></td>
+</tr>
+<tr>
+<td>Write a <code>[writable]</code> property</td>
+<td><code>my.tutorial.timer.setNextProgram "20 s"</code></td>
+</tr>
+<tr>
+<td>Call a method, one argument</td>
+<td><code>my.tutorial.fibManager.computeFibonacci 8</code></td>
+</tr>
+<tr>
+<td>Call a method, several arguments</td>
+<td><code>my.tutorial.calc1.add 10, 5</code></td>
+</tr>
+<tr>
+<td>Call a method taking strings</td>
+<td><code>local.replay.replayer.open "my_replay", "school_recording"</code></td>
+</tr>
+<tr>
+<td>Call a method that returns nothing</td>
+<td><code>my.tutorial.client1.useCalculator</code></td>
+</tr>
+<tr>
+<td>Dump an object's current state</td>
+<td><code>my.tutorial.elon.print</code></td>
+</tr>
+<tr>
+<td>Inspect a type or instance</td>
+<td><code>info local.counters.myCounter</code></td>
+</tr>
+</tbody>
+</table>
+<p>Arguments are separated by commas. Strings, durations and enumeration values are quoted; numbers
+are not. Properties are read with the generated <code>get&lt;<var>Prop</var>&gt;()</code> accessor
+and written with <code>setNext&lt;<var>Prop</var>&gt;()</code>, exactly as they are from C++, and
+only <code>[writable]</code> properties expose a setter.</p>
+<p>A getter prints the property name alongside its value, a method prints the returned value on its
+own, strings come back quoted, and a setter that worked prints nothing whatsoever:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>sen:host/config&gt; local.example.myObject.getProp5
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>- prop5: 453
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>sen:host/config&gt; local.example.myObject.addNumbers 10, 5
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a>15
+</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a>sen:host/config&gt; local.example.myObject.echo hello
+</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a>"hello"
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a>sen:host/config&gt; local.example.myObject.setNextProp5 42
+</span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a>sen:host/config&gt;
+</span></code></pre></div>
+<p>So the empty line after <code>setNextProp5</code> is success, not a swallowed error. Read the property back if
+you want to see the effect, bearing in mind that the write lands on the next cycle rather than
+this one, and that if the object assigns that property itself during <code>update()</code> then your value is
+whatever the object last wrote, not the one you typed.</p>
+<p>Calls do not block. Sen is asynchronous, so the shell returns immediately and prints the result when
+it arrives, which may be a cycle or two later.</p>
 <h2 id="opening-and-closing-buses">Opening and closing buses<a class="headerlink" href="#opening-and-closing-buses" title="Permanent link">¶</a></h2>
-<p>The <code>ls</code> command is specially useful because it allows you to see all the objects that are visible
+<p>The <code>ls</code> command is especially useful because it allows you to see all the objects that are visible
 by the shell.</p>
 <p>The shell does not see any objects by default. The only thing you can see are the available
 sessions. You need to open sessions and their buses so that the shell can start discovering objects.</p>
 <p>The <code>open</code> command can be used to connect to a bus or to open a session and discover the available
-buses. This command has auto-complete capabilities to help you. Let's give it a try.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_open_ls_close.gif" style="width:900px"/></p>
-<p>You can see that the shell lets you know about when objects are discovered. The 'ls' command shows
-them. Unsurprisingly, the <code>close</code> command does the inverse.</p>
+buses. This command has auto-complete capabilities to help you. Try it.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_open_ls_close.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_open_ls_close.gif" style="width:900px"/></a></p>
+<p>You can see that the shell lets you know when objects are discovered. The <code>ls</code> command shows them.
+The <code>close</code> command does the inverse.</p>
 <p>Sometimes you will find yourself having to open some buses every time you load the shell. This is
 because you are interested in working with some objects and the shell is not opening any bus by
 default. To change this, you can set the <code>open</code> parameter in your configuration file and the shell
 will automatically open them at the start:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.kernel</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># automatically open the 'local.kernel' bus</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.kernel</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># automatically open the 'local.kernel' bus</span>
 </span></code></pre></div>
 <h2 id="calling-methods-on-objects">Calling methods on objects<a class="headerlink" href="#calling-methods-on-objects" title="Permanent link">¶</a></h2>
-<p>The Shell allows you to invoke methods on objects, no matter if they are local or remote. For
-example, this shows how to call the <code>addNumbers</code> method on an object.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/instantiate_class.gif" style="width:1200px"/></p>
-<p>Keep in mind that due to Sen's asynchronous nature, the shell won't block and the call results will
-eventually arrive.</p>
+<p>The shell allows you to invoke methods on objects, no matter if they are local or remote. Name the
+object, then the method, then the arguments:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>my.tutorial.calc1.add 10, 5
+</span></code></pre></div>
+<p>The animation below shows the same thing against an object's <code>addNumbers</code> method.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/instantiate_class.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/instantiate_class.gif" style="width:1200px"/></a></p>
+<p>The shell is meant to be an interactive interface. For scripting, see <a href="index.html#what-ships-with-sen">what ships with
+Sen</a>; several of those components expose the same objects to code.</p>
 <h2 id="introspecting-the-system">Introspecting the system<a class="headerlink" href="#introspecting-the-system" title="Permanent link">¶</a></h2>
 <p>You can use the shell to get information about the system. For example, you can use the kernel
 object to find out the available types, units and the build information of the kernel and all
 components.</p>
 <p>And there's also a method named <code>info</code>, that you can use to inspect all the details of the available
 types (the built-in types, and also any type received over the network during execution).</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_introspection.gif" style="width:1200px"/></p>
-<h2 id="creating-queries">Creating Queries<a class="headerlink" href="#creating-queries" title="Permanent link">¶</a></h2>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_introspection.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_introspection.gif" style="width:1200px"/></a></p>
+<h2 id="creating-queries">Creating queries<a class="headerlink" href="#creating-queries" title="Permanent link">¶</a></h2>
 <p>When you <code>open</code> a bus, you are declaring an interest in all the objects that are published in it.
-You can inspect the list of active interests by using the <code>src</code> command. For example, if we call
-<code>open local.kernel</code> and then call <code>src</code> we will see the following:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>  Name               Query
-</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>  local.kernel.all   SELECT * FROM local.kernel
+You can inspect the list of active interests by using the <code>src</code> command. Calling
+<code>open local.kernel</code> and then <code>src</code> shows this:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>  Name               Query
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>  local.kernel.all   SELECT * FROM local.kernel
 </span></code></pre></div>
-<p>This means that we have an active query named "local.kernel.all" which defines an interest in all
-objects of that bus.</p>
+<p>That is an active query named "local.kernel.all", declaring an interest in all objects of that
+bus.</p>
 <p>You can create your own queries, and therefore use the shell to monitor certain objects. For
-example, lets create a query that ony notifies us about the entities in the se.env bus, with a force
-ID property that is "neutral" or "friendly". We call that query "friendly_fire":</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_query.gif" style="width:1200px;"/></p>
+example, create a query that only notifies about entities in the se.env bus whose force ID property
+is "neutral" or "friendly", named "friendly_fire":</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_query.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_query.gif" style="width:1200px;"/></a></p>
 <p>You can now see that the shell automatically opened the se.env bus and created a query named
 se.env.friendly_fire.</p>
 <p>As soon as the query is active, Sen automatically evaluates the objects on the bus. The shell will:</p>
 <ul>
-<li>Notify you of discovered objects that meet the query conditions. Once an object has been discovered, you can interact
-  with it as usual.</li>
-<li>Notify you when an object no longer meets the query conditions (or is destroyed), meaning it has been removed from
-  your view.</li>
+<li>Notify you of discovered objects that meet the query conditions. Once an object has been
+  discovered, you can interact with it as usual.</li>
+<li>Notify you when an object no longer meets the query conditions (or is destroyed), meaning it has
+  been removed from your view.</li>
 </ul>
 <p>You can always run the <code>ls</code> command to see the objects currently matching your active queries.</p>
 <p>Note: Currently, you cannot see which object on a bus belongs to a specific query.</p>
 <p>To close/delete a query, use the <code>close</code> command and pass the name of the query.</p>
 <p>If you want the shell to automatically open some predefined queries, do as follows:</p>
-<div class="language-yaml highlight"><span class="filename">Configuring the shell to auto open queries</span><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="nt">query</span><span class="p">:</span>
-</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lat_in_range</span>
-</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">        </span><span class="nt">selection</span><span class="p">:</span><span class="w"> </span><span class="s">"SELECT</span><span class="nv"> </span><span class="s">rpr.PhysicalEntity</span><span class="nv"> </span><span class="s">FROM</span><span class="nv"> </span><span class="s">se.env</span><span class="nv"> </span><span class="s">WHERE</span><span class="nv"> </span><span class="s">spatial.SpatialFPStruct.worldLocation.x</span><span class="nv"> </span><span class="s">BETWEEN</span><span class="nv"> </span><span class="s">0.0</span><span class="nv"> </span><span class="s">AND</span><span class="nv"> </span><span class="s">500.0"</span>
-</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friendly_fire</span>
-</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">        </span><span class="nt">selection</span><span class="p">:</span><span class="w"> </span><span class="s">"SELECT</span><span class="nv"> </span><span class="s">rpr.PhysicalEntity</span><span class="nv"> </span><span class="s">FROM</span><span class="nv"> </span><span class="s">se.env</span><span class="nv"> </span><span class="s">WHERE</span><span class="nv"> </span><span class="s">forceIdentifier</span><span class="nv"> </span><span class="s">IN</span><span class="nv"> </span><span class="s">(\"friendly\",</span><span class="nv"> </span><span class="s">\"neutral\")"</span>
+<div class="language-yaml highlight"><span class="filename">Configuring the shell to auto open queries</span><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">query</span><span class="p">:</span>
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lat_in_range</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">        </span><span class="nt">selection</span><span class="p">:</span><span class="w"> </span><span class="s">"SELECT</span><span class="nv"> </span><span class="s">rpr.PhysicalEntity</span><span class="nv"> </span><span class="s">FROM</span><span class="nv"> </span><span class="s">se.env</span><span class="nv"> </span><span class="s">WHERE</span><span class="nv"> </span><span class="s">spatial.SpatialFPStruct.worldLocation.x</span><span class="nv"> </span><span class="s">BETWEEN</span><span class="nv"> </span><span class="s">0.0</span><span class="nv"> </span><span class="s">AND</span><span class="nv"> </span><span class="s">500.0"</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friendly_fire</span>
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="w">        </span><span class="nt">selection</span><span class="p">:</span><span class="w"> </span><span class="s">"SELECT</span><span class="nv"> </span><span class="s">rpr.PhysicalEntity</span><span class="nv"> </span><span class="s">FROM</span><span class="nv"> </span><span class="s">se.env</span><span class="nv"> </span><span class="s">WHERE</span><span class="nv"> </span><span class="s">forceIdentifier</span><span class="nv"> </span><span class="s">IN</span><span class="nv"> </span><span class="s">(\"friendly\",</span><span class="nv"> </span><span class="s">\"neutral\")"</span>
 </span></code></pre></div>
 <h2 id="connecting-to-a-remote-shell">Connecting to a remote shell<a class="headerlink" href="#connecting-to-a-remote-shell" title="Permanent link">¶</a></h2>
 <p>Sometimes, during development, you will run your Sen application in a remote computer. Maybe you
 don't have ssh access, or the process was started by a script, launcher or orchestrator. How would
-you connect to the Sen process and access it's shell? Enter the remote shell.</p>
+you connect to the Sen process and access its shell? Enter the remote shell.</p>
 <p>You can connect to a remote shell by doing <code>sen rshell</code>. For example:</p>
-<div class="language-console highlight"><span class="filename">connecting to a remote shell</span><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="go">sen rshell 192.168.1.44:8094</span>
+<div class="language-console highlight"><span class="filename">connecting to a remote shell</span><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="go">sen rshell 192.168.1.44:8094</span>
 </span></code></pre></div>
-<p>This process is actually very light and doesn't run any Sen kernel at all. It just <em>talks</em> to a
-shell running in a remote Sen kernel over a TCP channel.</p>
+<p>This process is very light and doesn't run any Sen kernel at all. It just <em>talks</em> to a
+shell running in a remote Sen kernel over a <abbr title="Transmission Control Protocol">TCP</abbr> channel.</p>
+<p>Remote shell access is off unless you set <code>serverEnabled</code>, and the connection is unauthenticated, so
+it is intended for trusted networks.</p>
 <p>It simply sends your key presses to the remote shell and receives low-level terminal drawing
 commands from it.</p>
-<p>This means that you have all the power of the shell in your local terminal. Even if your local
-terminal is Windows and the Sen process is in a linux computer.</p>
-<p>For example, here you can see how we start a Sen process that hosts a shell that can only be
-remotely accessed, and then we use the <code>sen rshell</code> tool to connect to it.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shell_remote.gif" style="width:1200px;"/></p>
+<p>This means that you have all the power of the shell in your local terminal, even if your local
+terminal is Windows and the Sen process is on a Linux computer.</p>
+<p>This starts a Sen process hosting a shell reachable only from outside, then connects to it with
+<code>sen rshell</code>.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_remote.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_remote.gif" style="width:1200px;"/></a></p>
 <p>To configure your shell to accept remote connections you need to set the <code>serverEnabled</code> and
-<code>serverPort</code> parameters. In our last example we used the following:</p>
-<div class="language-yaml highlight"><span class="filename">configuring a remote shell</span><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1"># Here we instantiate a shell, but it is meant to be accessed remotely.</span>
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="c1"># We do so by setting the serverEnabled parameter to true. You can optionally</span>
-</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="c1"># set a custom port using the serverPort parameter.</span>
-</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="c1">#</span>
-</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="c1"># If you start this process, you will see nothing, but if you start a connection</span>
-</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="c1"># to it, you will see that it is like working locally. To do so run:</span>
-</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="c1">#</span>
-</span><span id="__span-6-8"><a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="c1">#   sen rshell &lt;hostname&gt; -p 8094</span>
-</span><span id="__span-6-9"><a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="c1">#</span>
-</span><span id="__span-6-10"><a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-6-11"><a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-</span><span id="__span-6-12"><a href="#__codelineno-6-12" id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</span><span id="__span-6-13"><a href="#__codelineno-6-13" id="__codelineno-6-13" name="__codelineno-6-13"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.tutorial</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># to see the created objects</span>
-</span><span id="__span-6-14"><a href="#__codelineno-6-14" id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="w">    </span><span class="nt">serverEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</span><span id="__span-6-15"><a href="#__codelineno-6-15" id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="w">    </span><span class="nt">serverPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8094</span>
-</span></code></pre></div></div>
+<code>serverPort</code> parameters. The last example used the following:</p>
+<div class="language-yaml highlight"><span class="filename">configuring a remote shell</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="c1"># A shell meant to be reached remotely, via serverEnabled. serverPort is</span>
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="c1"># optional and sets a custom port.</span>
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="c1">#</span>
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="c1"># If you start this process, you will see nothing, but if you start a connection</span>
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="c1"># to it, you will see that it is like working locally. To do so run:</span>
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="c1">#</span>
+</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="c1">#   sen rshell &lt;hostname&gt;:8094</span>
+</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="c1">#</span>
+</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</span><span id="__span-10-12"><a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.tutorial</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># to see the created objects</span>
+</span><span id="__span-10-13"><a href="#__codelineno-10-13" id="__codelineno-10-13" name="__codelineno-10-13"></a><span class="w">    </span><span class="nt">serverEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-10-14"><a href="#__codelineno-10-14" id="__codelineno-10-14" name="__codelineno-10-14"></a><span class="w">    </span><span class="nt">serverPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8094</span>
+</span></code></pre></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1569,7 +1923,7 @@ remotely accessed, and then we use the <code>sen rshell</code> tool to connect t
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Web Explorer" class="md-footer__link md-footer__link--prev" href="webexplorer.html">
+<a aria-label="Previous: Web explorer" class="md-footer__link md-footer__link--prev" href="webexplorer.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1578,7 +1932,7 @@ remotely accessed, and then we use the <code>sen rshell</code> tool to connect t
                 Previous
               </span>
 <div class="md-ellipsis">
-                Web Explorer
+                Web explorer
               </div>
 </div>
 </a>
@@ -1610,11 +1964,12 @@ remotely accessed, and then we use the <code>sen rshell</code> tool to connect t
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1641,5 +1996,4 @@ remotely accessed, and then we use the <code>sen rshell</code> tool to connect t
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

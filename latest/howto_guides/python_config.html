@@ -1,15 +1,12 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/howto_guides/python_config.html" rel="canonical"/>
-<link href="using_groups.html" rel="prev"/>
-<link href="controlling_clock.html" rel="next"/>
+<link href="https://airbus.github.io/sen/latest/howto_guides/python_config.html" rel="canonical"/>
+<link href="controlling_clock.html" rel="prev"/>
+<link href="precision_sleeper_config.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Python as config - Sen</title>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="building_from_source.html">
+<a class="md-tabs__link" href="index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -592,6 +699,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -647,7 +766,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -731,7 +850,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -767,7 +886,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -825,11 +944,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="building_from_source.html">
+<a class="md-nav__link" href="index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -878,6 +997,18 @@
     
   
     Using component groups
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="controlling_clock.html">
+<span class="md-ellipsis">
+    
+  
+    Controlling the clock
   
 
     
@@ -944,11 +1075,71 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="controlling_clock.html">
+<a class="md-nav__link" href="precision_sleeper_config.html">
 <span class="md-ellipsis">
     
   
-    Controlling the clock
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
   
 
     
@@ -960,7 +1151,7 @@
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -979,12 +1170,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1027,53 +1241,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="troubleshooting.html">
@@ -1087,38 +1256,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1126,11 +1292,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1140,9 +1306,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1153,8 +1322,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1169,6 +1338,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1312,7 +1493,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1324,7 +1517,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1336,7 +1529,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1347,8 +1540,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1359,8 +1552,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1374,7 +1567,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1386,7 +1579,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1403,7 +1596,7 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="using-python-to-configure-your-system">Using Python to configure your system<a class="headerlink" href="#using-python-to-configure-your-system" title="Permanent link">¶</a></h1>
+<h1 id="using-python-to-configure-your-system">Using Python to configure your system<a class="headerlink" href="#using-python-to-configure-your-system" title="Permanent link">¶</a></h1>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">¶</a></h2>
 <p>Sen uses a YAML file to fetch the info it needs to run a process. The YAML format is designed to be
 easy to read and write by humans. It is also able to define complex data structures.</p>
@@ -1412,7 +1605,7 @@ reality is that using a single file becomes increasingly challenging, as users w
 combine pieces of information from different places. The main driving reason is the proverbial
 "single source of truth", and the chaos that might derive from an inconsistent or redundant
 specification for our applications to run.</p>
-<p>The natural consequence, is that developers are "forced" to extend standard file formats (json,
+<p>The natural consequence is that developers are "forced" to extend standard file formats (json,
 yaml, xml, ini, etc.) to allow for "including" other files. And that works well for the first week
 or so. The second week, people will start to realize that they don't need to just "include other
 files" but "merge" them together, as maybe there are default parameters that need to be overwritten.
@@ -1427,7 +1620,7 @@ the file format to allow for our custom needs. Don't forget about evaluating exp
 multiplications, concatenations, replacements, etc.</p>
 <p>Do you see where we are going? Complex systems need powerful tools. A humble YAML or JSON file will
 never be able to deal with all the needs we might have. We need some tooling on top. In some
-systems, these tooling can get very sophisticated (full IDEs, with domain-specific knowledge and
+systems, this tooling can get very sophisticated (full IDEs, with domain-specific knowledge and
 static validation). But sometimes a programming language is more than enough to achieve these goals.</p>
 <h2 id="solution">Solution<a class="headerlink" href="#solution" title="Permanent link">¶</a></h2>
 <p>By using Python scripts to hold our configuration, we automatically cover all the previous needs. We
@@ -1442,8 +1635,8 @@ version control. It can always be re-generated on demand.</p>
 <p>Apart from all the power of Python (which is huge), you also get type safety (via
 <a href="https://mypy-lang.org/">mypy</a>), and all of this even before trying to run your Sen process.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">¶</a></h2>
-<p>Lets' say that we have a set of types defined in an STL file:</p>
-<div class="language-Rust highlight"><span class="filename">data.stl</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">package</span><span class="w"> </span><span class="n">my</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+<p>Let's say that we have a set of types defined in an <abbr title="Sen Type Language">STL</abbr> file:</p>
+<div class="language-rust highlight"><span class="filename">data.stl</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">package</span><span class="w"> </span><span class="n">my</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
 </span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="k">struct</span><span class="w"> </span><span class="nc">SomeStruct</span>
 </span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="p">{</span>
@@ -1460,20 +1653,26 @@ version control. It can always be re-generated on demand.</p>
 </span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Sen will generate a Python file with the following definitions:</p>
-<div class="language-Python highlight"><span class="filename">data.py</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nd">@dataclass</span>
-</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">SomeStruct</span><span class="p">:</span>
-</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>    <span class="n">param1</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>    <span class="n">param2</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>    <span class="n">param3</span><span class="p">:</span> <span class="nb">int</span>
+<div class="language-python highlight"><span class="filename">data.py</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NewType</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 </span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>
 </span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="nd">@dataclass</span>
-</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">SomeOtherStruct</span><span class="p">:</span>
-</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>    <span class="n">a</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>    <span class="n">b</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="n">c</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">SomeStruct</span><span class="p">:</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>    <span class="n">param1</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>    <span class="n">param2</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="n">param3</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="nd">@dataclass</span>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="k">class</span><span class="w"> </span><span class="nc">SomeOtherStruct</span><span class="p">:</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a>    <span class="n">a</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a>    <span class="n">b</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a>    <span class="n">c</span><span class="p">:</span> <span class="nb">float</span>
 </span></code></pre></div>
 <p>Which you can now populate in your script(s). For example:</p>
-<div class="language-Python highlight"><span class="filename">my_example.py</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">data</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="language-python highlight"><span class="filename">my_example.py</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">data</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 </span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="n">data1</span> <span class="o">=</span> <span class="n">SomeStruct</span><span class="p">(</span>
 </span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>    <span class="n">param1</span><span class="o">=</span><span class="s1">'GenericDynamicModelImpl'</span><span class="p">,</span>
@@ -1487,43 +1686,72 @@ version control. It can always be re-generated on demand.</p>
 </span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>    <span class="n">c</span><span class="o">=</span><span class="mf">4.5</span>
 </span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>To finally write a script that generates the YAML:</p>
-<div class="language-Python highlight"><span class="filename">config.py</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">my_example</span>
-</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">myObject</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'myObjectName'</span><span class="p">,</span>
-</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>    <span class="s1">'class'</span><span class="p">:</span> <span class="s1">'MyClass'</span><span class="p">,</span>
-</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>    <span class="s1">'bus'</span><span class="p">:</span> <span class="s1">'local.tutorial'</span><span class="p">,</span>
-</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>    <span class="s1">'prop1'</span><span class="p">:</span> <span class="n">data1</span><span class="p">,</span>
-</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>    <span class="s1">'prop2'</span><span class="p">:</span> <span class="n">data2</span><span class="p">,</span>
-</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="p">}</span>
-</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="n">shell</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'shell'</span><span class="p">,</span>
-</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a>     <span class="s1">'group'</span><span class="p">:</span> <span class="mi">2</span>
-</span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="p">}</span>
-</span><span id="__span-3-15"><a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>
-</span><span id="__span-3-16"><a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="n">ether</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-3-17"><a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'ether'</span><span class="p">,</span>
-</span><span id="__span-3-18"><a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a>    <span class="s1">'group'</span><span class="p">:</span> <span class="mi">3</span>
-</span><span id="__span-3-19"><a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="p">}</span>
-</span><span id="__span-3-20"><a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a>
-</span><span id="__span-3-21"><a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="n">myComponent</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-3-22"><a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'myComponent'</span><span class="p">,</span>
-</span><span id="__span-3-23"><a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a>    <span class="s1">'group'</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-</span><span id="__span-3-24"><a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a>    <span class="s1">'freqHz'</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
-</span><span id="__span-3-25"><a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a>    <span class="s1">'imports'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'myPackage'</span><span class="p">],</span>
-</span><span id="__span-3-26"><a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a>    <span class="s1">'objects'</span><span class="p">:</span> <span class="p">[</span><span class="n">myObject</span><span class="p">]</span>
-</span><span id="__span-3-27"><a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a><span class="p">}</span>
-</span><span id="__span-3-28"><a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a>
-</span><span id="__span-3-29"><a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a><span class="n">exportYaml</span><span class="p">({</span><span class="s1">'load'</span><span class="p">:</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="n">ether</span><span class="p">],</span> <span class="s1">'build'</span><span class="p">:</span> <span class="p">[</span><span class="n">myComponent</span><span class="p">]})</span>
-</span></code></pre></div></div>
+<p>Now write a script that generates the YAML. <code>asdict</code> turns the dataclasses into the plain
+dictionaries that YAML can represent.</p>
+<div class="language-python highlight"><span class="filename">config.py</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">my_example</span><span class="w"> </span><span class="kn">import</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="n">myObject</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'myObjectName'</span><span class="p">,</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>    <span class="s1">'class'</span><span class="p">:</span> <span class="s1">'my_package.MyClassImpl'</span><span class="p">,</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>    <span class="s1">'bus'</span><span class="p">:</span> <span class="s1">'local.tutorial'</span><span class="p">,</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>    <span class="s1">'prop1'</span><span class="p">:</span> <span class="n">asdict</span><span class="p">(</span><span class="n">data1</span><span class="p">),</span>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>    <span class="s1">'prop2'</span><span class="p">:</span> <span class="n">asdict</span><span class="p">(</span><span class="n">data2</span><span class="p">),</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="p">}</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="n">shell</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'shell'</span><span class="p">,</span>
+</span><span id="__span-3-15"><a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>    <span class="s1">'group'</span><span class="p">:</span> <span class="mi">2</span>
+</span><span id="__span-3-16"><a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="p">}</span>
+</span><span id="__span-3-17"><a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a>
+</span><span id="__span-3-18"><a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="n">ether</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-19"><a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'ether'</span><span class="p">,</span>
+</span><span id="__span-3-20"><a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a>    <span class="s1">'group'</span><span class="p">:</span> <span class="mi">3</span>
+</span><span id="__span-3-21"><a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="p">}</span>
+</span><span id="__span-3-22"><a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a>
+</span><span id="__span-3-23"><a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="n">myComponent</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-24"><a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'myComponent'</span><span class="p">,</span>
+</span><span id="__span-3-25"><a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a>    <span class="s1">'group'</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-3-26"><a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a>    <span class="s1">'freqHz'</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span><span id="__span-3-27"><a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a>    <span class="s1">'imports'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'myPackage'</span><span class="p">],</span>
+</span><span id="__span-3-28"><a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a>    <span class="s1">'objects'</span><span class="p">:</span> <span class="p">[</span><span class="n">myObject</span><span class="p">]</span>
+</span><span id="__span-3-29"><a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a><span class="p">}</span>
+</span><span id="__span-3-30"><a href="#__codelineno-3-30" id="__codelineno-3-30" name="__codelineno-3-30"></a>
+</span><span id="__span-3-31"><a href="#__codelineno-3-31" id="__codelineno-3-31" name="__codelineno-3-31"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'config.yaml'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+</span><span id="__span-3-32"><a href="#__codelineno-3-32" id="__codelineno-3-32" name="__codelineno-3-32"></a>    <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">({</span><span class="s1">'load'</span><span class="p">:</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="n">ether</span><span class="p">],</span> <span class="s1">'build'</span><span class="p">:</span> <span class="p">[</span><span class="n">myComponent</span><span class="p">]},</span> <span class="n">out</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Running that script writes the configuration Sen consumes:</p>
+<div class="language-yaml highlight"><span class="filename">config.yaml</span><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="nt">build</span><span class="p">:</span>
+</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myComponent</span>
+</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">  </span><span class="nt">freqHz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+</span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">  </span><span class="nt">imports</span><span class="p">:</span>
+</span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myPackage</span>
+</span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="w">  </span><span class="nt">objects</span><span class="p">:</span>
+</span><span id="__span-4-13"><a href="#__codelineno-4-13" id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myObjectName</span>
+</span><span id="__span-4-14"><a href="#__codelineno-4-14" id="__codelineno-4-14" name="__codelineno-4-14"></a><span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_package.MyClassImpl</span>
+</span><span id="__span-4-15"><a href="#__codelineno-4-15" id="__codelineno-4-15" name="__codelineno-4-15"></a><span class="w">    </span><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local.tutorial</span>
+</span><span id="__span-4-16"><a href="#__codelineno-4-16" id="__codelineno-4-16" name="__codelineno-4-16"></a><span class="w">    </span><span class="nt">prop1</span><span class="p">:</span>
+</span><span id="__span-4-17"><a href="#__codelineno-4-17" id="__codelineno-4-17" name="__codelineno-4-17"></a><span class="w">      </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GenericDynamicModelImpl</span>
+</span><span id="__span-4-18"><a href="#__codelineno-4-18" id="__codelineno-4-18" name="__codelineno-4-18"></a><span class="w">      </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-4-19"><a href="#__codelineno-4-19" id="__codelineno-4-19" name="__codelineno-4-19"></a><span class="w">      </span><span class="nt">param3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+</span><span id="__span-4-20"><a href="#__codelineno-4-20" id="__codelineno-4-20" name="__codelineno-4-20"></a><span class="w">    </span><span class="nt">prop2</span><span class="p">:</span>
+</span><span id="__span-4-21"><a href="#__codelineno-4-21" id="__codelineno-4-21" name="__codelineno-4-21"></a><span class="w">      </span><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.3</span>
+</span><span id="__span-4-22"><a href="#__codelineno-4-22" id="__codelineno-4-22" name="__codelineno-4-22"></a><span class="w">      </span><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.4</span>
+</span><span id="__span-4-23"><a href="#__codelineno-4-23" id="__codelineno-4-23" name="__codelineno-4-23"></a><span class="w">      </span><span class="nt">c</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.5</span>
+</span></code></pre></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 27, 2026 11:04:07 UTC">February 27, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1537,7 +1765,7 @@ version control. It can always be re-generated on demand.</p>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Using component groups" class="md-footer__link md-footer__link--prev" href="using_groups.html">
+<a aria-label="Previous: Controlling the clock" class="md-footer__link md-footer__link--prev" href="controlling_clock.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1546,17 +1774,17 @@ version control. It can always be re-generated on demand.</p>
                 Previous
               </span>
 <div class="md-ellipsis">
-                Using component groups
+                Controlling the clock
               </div>
 </div>
 </a>
-<a aria-label="Next: Controlling the clock" class="md-footer__link md-footer__link--next" href="controlling_clock.html">
+<a aria-label="Next: Configuring component sleeping between updates" class="md-footer__link md-footer__link--next" href="precision_sleeper_config.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                Controlling the clock
+                Configuring component sleeping between updates
               </div>
 </div>
 <div class="md-footer__button md-icon">
@@ -1578,11 +1806,12 @@ version control. It can always be re-generated on demand.</p>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1609,5 +1838,4 @@ version control. It can always be re-generated on demand.</p>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

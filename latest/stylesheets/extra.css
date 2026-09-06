@@ -38,3 +38,10 @@
 .md-content a:visited {
     color: #048297;
 }
+
+/* Placeholder inside a code span. `get<Prop>()` names the shape of a generated
+   accessor, not one that exists; the italic marks the part the reader substitutes. */
+.md-typeset code var {
+  font-style: italic;
+  opacity: 0.8;
+}

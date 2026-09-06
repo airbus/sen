@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/users_guide/sql.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/users_guide/sql.html" rel="canonical"/>
 <link href="stl_grammar.html" rel="prev"/>
 <link href="hla.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
+<a class="md-tabs__link" href="../howto_guides/index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -455,7 +538,7 @@
 <a class="md-nav__link" href="#the-challenge">
 <span class="md-ellipsis">
       
-        The Challenge
+        The challenge
       
     </span>
 </a>
@@ -464,7 +547,7 @@
 <a class="md-nav__link" href="#the-solution">
 <span class="md-ellipsis">
       
-        The Solution
+        The solution
       
     </span>
 </a>
@@ -485,11 +568,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -501,7 +596,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -513,7 +608,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -521,8 +628,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -533,8 +640,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -630,6 +737,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -685,7 +804,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -769,7 +888,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -805,7 +924,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -863,11 +982,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<a class="md-nav__link" href="../howto_guides/index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -923,18 +1042,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -947,11 +1054,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -970,12 +1161,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1018,53 +1232,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/troubleshooting.html">
@@ -1078,38 +1247,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1117,11 +1283,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1131,9 +1297,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1144,8 +1313,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1160,6 +1329,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1303,7 +1484,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1315,7 +1508,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1327,7 +1520,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1338,8 +1531,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1350,8 +1543,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1365,7 +1558,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1377,7 +1570,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1394,28 +1587,24 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="the-sen-query-language">The Sen Query Language<a class="headerlink" href="#the-sen-query-language" title="Permanent link">¶</a></h1>
-<h2 id="the-challenge">The Challenge<a class="headerlink" href="#the-challenge" title="Permanent link">¶</a></h2>
-<p>We have two related needs:</p>
-<ol>
-<li>The infrastructure should prevent saturating the network with redundant or unnecessary traffic.</li>
-<li>Users need an easy way to find the objects they are interested in. And this interest may change
-   over time.</li>
-</ol>
+<h1 id="the-sen-query-language">The Sen Query Language<a class="headerlink" href="#the-sen-query-language" title="Permanent link">¶</a></h1>
+<h2 id="the-challenge">The challenge<a class="headerlink" href="#the-challenge" title="Permanent link">¶</a></h2>
+<p>The infrastructure should not flood the network with traffic nobody wants. At the same time you
+need an easy way to find the objects you care about, and what you care about changes while the
+system runs. Those turn out to be the same problem.</p>
 <p>Sen automatically optimizes the communication by only sending the changes with respect to the
 previous state. For example, imagine you have an object with 10 properties, and you have only
 changed 3 of them in the current execution cycle. Sen will only send those 3 values (and only if
-they differ from the previous). This is important because it greatly reduces network traffic.</p>
-<p>In any case, the idea is to go beyond that, and only send those updates towards the processes which
+they differ from the previous).</p>
+<p>In any case, the idea is to go beyond that, and only send those updates toward the processes which
 are interested in the information. Most traditional systems simply send the information and let the
-consumers decide if to use or ignore it. This is mostly prevalent in systems that rely on multicast,
+consumers decide if to use or ignore it. This is most common in systems that rely on multicast,
 as the producer doesn't see any difference between having one or many consumers. But things change
-when we have multiple quality-of-service configurations (UDP unicast, multicast and TCP), because
-then the producer needs to do more work and dedicate time and memory to each consumer. How do we do
-to make the producer aware of which participant is interested in which object and under which
-conditions?</p>
-<h2 id="the-solution">The Solution<a class="headerlink" href="#the-solution" title="Permanent link">¶</a></h2>
-<p>We do as follows:</p>
+with multiple quality-of-service configurations (<abbr title="User Datagram Protocol">UDP</abbr> unicast, multicast and <abbr title="Transmission Control Protocol">TCP</abbr>), because
+then the producer needs to do more work and dedicate time and memory to each consumer. How is the
+producer made aware of which participant is interested in which object, and under which conditions?</p>
+<h2 id="the-solution">The solution<a class="headerlink" href="#the-solution" title="Permanent link">¶</a></h2>
+<p>Sen does the following:</p>
 <ol>
 <li>When you publish an object, Sen takes note, but doesn't notify anyone straight away.</li>
 <li>When you connect to a bus, Sen takes note, but you don't receive any objects straight away.</li>
@@ -1428,13 +1617,13 @@ conditions?</p>
 </ol>
 <p>This approach is usually called "producer level filtering", as the producer is the one who evaluates
 when to send the information to the different consumers. Normally, this is the most efficient way of
-working, as we avoid traffic from happening in the first place.</p>
+working, as the traffic never happens in the first place.</p>
 <p>You might be wondering about the performance impact on the producers that have to do those checks,
 and the trade-offs of this approach. Consider that:</p>
 <ul>
-<li>When sending updates (property changes and events), producers consume resources. We need to keep
+<li>When sending updates (property changes and events), producers consume resources. Sen has to keep
   track of the deltas, serialize the messages, and transmit the data (individually to each
-  participant in case of UDP unicast or TCP).</li>
+  participant in case of <abbr title="User Datagram Protocol">UDP</abbr> unicast or <abbr title="Transmission Control Protocol">TCP</abbr>).</li>
 <li>The implementation of the checks in the producers is highly optimized.</li>
 <li>The checks are only done when needed. For example, if your interest depends on an object's name,
   class name, or some static property, the check will only be done once (when the object is
@@ -1446,7 +1635,7 @@ and the trade-offs of this approach. Consider that:</p>
   broadcast the object existence.</li>
 </ul>
 <p>Note that to achieve this, Sen defines a way for you to <em>declare</em> the conditions that any object
-needs to fulfil. This <em>externalization</em> of information comes with some advantages:</p>
+needs to fulfill. This <em>externalization</em> of information comes with some advantages:</p>
 <ol>
 <li>The conditions aren't "buried" in the code, but made explicit. This makes code easier to
    understand and maintain.</li>
@@ -1458,12 +1647,12 @@ needs to fulfil. This <em>externalization</em> of information comes with some ad
 <li>Consumers get the notifications as soon as the data is available, as the producers evaluate the
    conditions at their own rate, and as soon as the changes are made.</li>
 </ol>
-<p>The <strong>Sen Query Language</strong> is what you use to express interest in objects. Note that the name of the
-thing is SQL when abbreviated, and that's a happy coincidence because it's very similar.</p>
+<p>The <strong>Sen Query Language</strong> is how you express interest in objects. It abbreviates to SQL, which is
+convenient, because it borrows <code>SELECT ... FROM ... WHERE</code> from database SQL on purpose.</p>
 <div class="language-sql highlight"><span class="filename">Example using the name of an object</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">rpr</span><span class="p">.</span><span class="n">PhysicalEntity</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">se</span><span class="p">.</span><span class="n">env</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">"ownship"</span>
 </span></code></pre></div>
-<p>You can see that the classes are analogous to the selected elements (we are selecting objects),
-buses are analogous to tables, and properties are analogous to columns.</p>
+<p>You can see that the classes are analogous to the selected elements (objects are what a query
+selects), buses are analogous to tables, and properties are analogous to columns.</p>
 <p>You can also use other expressions, and combination of expressions:</p>
 <div class="language-sql highlight"><span class="filename">Example using other expressions</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">school</span><span class="p">.</span><span class="n">Student</span>
 </span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">school</span><span class="p">.</span><span class="k">primary</span>
@@ -1479,7 +1668,7 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 </span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">forceIdentifier</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="ss">"friendly"</span><span class="p">,</span><span class="w"> </span><span class="ss">"neutral"</span><span class="p">,</span><span class="w"> </span><span class="ss">"opposing"</span><span class="p">)</span>
 </span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">   </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">isActive</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">spatial</span><span class="p">.</span><span class="n">SpatialFPStruct</span><span class="p">.</span><span class="n">lon</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span>
 </span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a>
-</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">se</span><span class="p">.</span><span class="n">Aircraft</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">rpr</span><span class="p">.</span><span class="n">Aircraft</span>
 </span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="k">FROM</span><span class="w">   </span><span class="n">se</span><span class="p">.</span><span class="n">env</span>
 </span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="k">WHERE</span><span class="w">  </span><span class="n">currentSpeed</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="n">commandedSpeed</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span>
 </span><span id="__span-1-18"><a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="w">                            </span><span class="n">commandedSpeed</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span>
@@ -1489,6 +1678,12 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 </span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">FROM</span><span class="w"> </span><span class="n">bus_name</span>
 </span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">condition</span>
 </span></code></pre></div>
+<p>Use <code>*</code> in place of the class name to take every object on the bus whatever its class, which is the
+form most of the shipped configurations use:</p>
+<div class="language-sql highlight"><span class="filename">Every object on a bus</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">local</span><span class="p">.</span><span class="n">kernel</span>
+</span></code></pre></div>
+<p>The <code>WHERE</code> clause is optional. Without one, the interest is in everything the <code>SELECT</code> names, and
+as noted above producers skip their checks entirely in that case.</p>
 <p>The operators in the <code>WHERE</code> clause are:</p>
 <table>
 <thead>
@@ -1503,12 +1698,16 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 <td>Equal</td>
 </tr>
 <tr>
+<td><code>!=</code></td>
+<td>Not equal</td>
+</tr>
+<tr>
 <td><code>&gt;</code></td>
 <td>Greater than</td>
 </tr>
 <tr>
 <td><code>&lt;</code></td>
-<td>Lower than</td>
+<td>Less than</td>
 </tr>
 <tr>
 <td><code>&gt;=</code></td>
@@ -1516,15 +1715,23 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 </tr>
 <tr>
 <td><code>&lt;=</code></td>
-<td>Lower than or equal</td>
+<td>Less than or equal</td>
 </tr>
 <tr>
 <td><code>BETWEEN x AND y</code></td>
 <td>Between a certain range</td>
 </tr>
 <tr>
+<td><code>NOT BETWEEN x AND y</code></td>
+<td>Outside that range</td>
+</tr>
+<tr>
 <td><code>IN (x, y, ...)</code></td>
 <td>To specify multiple possible values</td>
+</tr>
+<tr>
+<td><code>NOT IN (x, y, ...)</code></td>
+<td>None of those values</td>
 </tr>
 </tbody>
 </table>
@@ -1534,10 +1741,14 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 <li>The <code>AND</code> operator selects an object if all the conditions separated by <code>AND</code> are <code>true</code>.</li>
 <li>The <code>OR</code> operator selects an object if any of the conditions separated by <code>OR</code> is <code>true</code>.</li>
 </ul>
-<p>The <code>NOT</code> operator selects an object if the condition(s) is <code>NOT true</code>.</p>
+<p>The <code>NOT</code> operator selects an object if the condition is <code>NOT true</code>.</p>
+<p><strong>Parenthesize anything more than a bare boolean.</strong> Unlike database SQL, <code>NOT</code> binds more tightly
+than the comparison operators, so <code>NOT altitude &gt; 100.0</code> groups as <code>(NOT altitude) &gt; 100.0</code>, and on
+a number that negation is arithmetic. Write <code>NOT (altitude &gt; 100.0)</code>. <code>NOT BETWEEN</code> and <code>NOT IN</code>
+are special-cased and behave as you would expect.</p>
 <p>Regarding values:</p>
 <ul>
-<li>Strings be "double-quoted".</li>
+<li>Strings are "double-quoted".</li>
 <li>Booleans can be <code>true</code> or <code>false</code>.</li>
 <li>Integers as usual.</li>
 <li>Real numbers use the dot for the decimal part (as usual).</li>
@@ -1553,13 +1764,13 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 <li>If the property or field is a variant, you need to specify the type (i.e.
   spatial.SpatialFPStruct.lon).</li>
 <li>If the variant doesn't contain a value of the specified type, the operator returns <code>false</code>.</li>
-</ul></div>
+</ul>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1573,7 +1784,7 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: STL Grammar" class="md-footer__link md-footer__link--prev" href="stl_grammar.html">
+<a aria-label="Previous: STL grammar" class="md-footer__link md-footer__link--prev" href="stl_grammar.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1582,7 +1793,7 @@ buses are analogous to tables, and properties are analogous to columns.</p>
                 Previous
               </span>
 <div class="md-ellipsis">
-                STL Grammar
+                STL grammar
               </div>
 </div>
 </a>
@@ -1614,11 +1825,12 @@ buses are analogous to tables, and properties are analogous to columns.</p>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1645,5 +1857,4 @@ buses are analogous to tables, and properties are analogous to columns.</p>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

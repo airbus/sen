@@ -5,6 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+# --8<-- [start:package]
 add_sen_package(
   TARGET calculators
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
@@ -14,3 +15,4 @@ add_sen_package(
   STL_FILES stl/calculator.stl
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
 )
+# --8<-- [end:package]

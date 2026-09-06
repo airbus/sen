@@ -15,5 +15,5 @@ build:
         model: superCalc
       - class: calculators.ClientImpl
         name: client1
-        calcBus:  my.tutorial
+        calcBus:  my.tutorial  # (1)!
         bus:  my.tutorial

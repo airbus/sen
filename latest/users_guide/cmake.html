@@ -1,26 +1,32 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/users_guide/cmake.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/users_guide/cmake.html" rel="canonical"/>
 <link href="command_line.html" rel="prev"/>
 <link href="compatibility_conversions.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
-<title>CMake Integration - Sen</title>
+<title>CMake integration - Sen</title>
 <link href="../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -52,7 +58,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              CMake Integration
+              CMake integration
             
           </span>
 </div>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
+<a class="md-tabs__link" href="../howto_guides/index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -464,7 +559,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -498,14 +593,14 @@
 <nav aria-label="To build a package" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#how-to-use-the-deps-and-private-options-for-dependencies">
+<a class="md-nav__link" href="#how-to-use-the-deps-and-private_deps-options-for-dependencies">
 <span class="md-ellipsis">
       
-        How to use the DEPS and PRIVATE options for dependencies
+        How to use the DEPS and PRIVATE_DEPS options for dependencies
       
     </span>
 </a>
-<nav aria-label="How to use the DEPS and PRIVATE options for dependencies" class="md-nav">
+<nav aria-label="How to use the DEPS and PRIVATE_DEPS options for dependencies" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
 <a class="md-nav__link" href="#using-sen-packages-as-dependencies-of-other-sen-packages">
@@ -624,7 +719,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -632,8 +739,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -644,8 +751,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -741,6 +848,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -796,7 +915,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -880,7 +999,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -916,7 +1035,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -974,11 +1093,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<a class="md-nav__link" href="../howto_guides/index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -1034,18 +1153,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -1058,11 +1165,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -1081,12 +1272,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1129,53 +1343,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/troubleshooting.html">
@@ -1189,38 +1358,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1228,11 +1394,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1242,9 +1408,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1255,8 +1424,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1271,6 +1440,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1414,7 +1595,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1426,7 +1619,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1438,7 +1631,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1449,8 +1642,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1461,8 +1654,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1476,7 +1669,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1488,7 +1681,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1505,7 +1698,7 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="using-cmake">Using CMake<a class="headerlink" href="#using-cmake" title="Permanent link">¶</a></h1>
+<h1 id="using-cmake">Using CMake<a class="headerlink" href="#using-cmake" title="Permanent link">¶</a></h1>
 <h2 id="to-build-a-package">To build a package<a class="headerlink" href="#to-build-a-package" title="Permanent link">¶</a></h2>
 <p>To build a Sen package, use the <code>add_sen_package</code> function:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
@@ -1601,7 +1794,7 @@
 <td><code>HLA_OUTPUT_DIR</code></td>
 <td></td>
 <td></td>
-<td>Subdirectory within the generated output directory for HLA-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
+<td>Subdirectory within the generated output directory for <abbr title="High Level Architecture">HLA</abbr>-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
 </tr>
 <tr>
 <td><code>SOURCES</code></td>
@@ -1631,13 +1824,13 @@
 <td><code>HLA_FOM_DIRS</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
+<td>Directories containing <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> XML files from which C++ code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
 </tr>
 <tr>
 <td><code>HLA_MAPPINGS_FILE</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>HLA mapping files that customise FOM-to-C++ translation. Requires <code>HLA_FOM_DIRS</code>.</td>
+<td><abbr title="High Level Architecture">HLA</abbr> mapping files that customize <abbr title="Federation Object Model">FOM</abbr>-to-C++ translation. Requires <code>HLA_FOM_DIRS</code>.</td>
 </tr>
 <tr>
 <td><code>EXPORTED_CLASSES</code></td>
@@ -1673,32 +1866,32 @@
 </table>
 <p>For example,</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
-</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">        </span><span class="s">TARGET</span>
-</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">          </span><span class="s">calculators</span>
-</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">        </span><span class="s">MAINTAINER</span>
-</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">          </span><span class="s2">"Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"</span>
-</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">        </span><span class="s">VERSION</span>
-</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">          </span><span class="s2">"0.0.1"</span>
-</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">        </span><span class="s">DESCRIPTION</span>
-</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">          </span><span class="s2">"Example package"</span>
-</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">        </span><span class="s">SOURCES</span>
-</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">          </span><span class="s">src/casio_calculator.cpp</span>
-</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">          </span><span class="s">src/faulty_calculator.cpp</span>
-</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">        </span><span class="s">STL_FILES</span>
-</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">          </span><span class="s">stl/calculator.stl</span>
-</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">        </span><span class="s">SCHEMA_PATH</span>
-</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">          </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span>
-</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="p">)</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">calculators</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="s">MAINTAINER</span><span class="w"> </span><span class="s2">"Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="s">VERSION</span><span class="w"> </span><span class="s2">"0.0.1"</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="s">DESCRIPTION</span><span class="w"> </span><span class="s2">"Example package"</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="s">SOURCES</span><span class="w"> </span><span class="s">src/casio_calculator.cpp</span><span class="w"> </span><span class="s">src/faulty_calculator.cpp</span><span class="w"> </span><span class="s">src/client.cpp</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">  </span><span class="s">STL_FILES</span><span class="w"> </span><span class="s">stl/calculator.stl</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="s">SCHEMA_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="how-to-use-the-deps-and-private-options-for-dependencies">How to use the <code>DEPS</code> and <code>PRIVATE</code> options for dependencies<a class="headerlink" href="#how-to-use-the-deps-and-private-options-for-dependencies" title="Permanent link">¶</a></h3>
+<p><code>add_sen_package</code> builds and registers the package; it writes no <code>install()</code> rule. That is fine
+while the package is loaded from your build tree, which is what the shipped examples do. If you
+want to ship it, install it yourself: the shared library so Sen can load it, and, if anything is
+meant to compile against your package, the headers code generation produced. <code>GEN_HDR_FILES</code> gives
+you that list. Sen's own libraries do the same thing by hand, which is why each of them carries its
+own install rules for the headers it exports.
+<a href="../howto_guides/creating_conan_packages.html">Creating your own Conan package</a> walks through it with
+a worked example.</p>
+<h3 id="how-to-use-the-deps-and-private_deps-options-for-dependencies">How to use the <code>DEPS</code> and <code>PRIVATE_DEPS</code> options for dependencies<a class="headerlink" href="#how-to-use-the-deps-and-private_deps-options-for-dependencies" title="Permanent link">¶</a></h3>
 <p>The <code>DEPS</code> and <code>PRIVATE_DEPS</code> options of the <code>add_sen_package</code> function are used to link
 dependencies to a package. These dependencies can be of two different types:</p>
 <ul>
-<li>Other Sen packages: these dependencies are linked against our package and their <code>BASE_PATH</code>
-  properties are transmitted to our package, so we can include STL/XML files in the generated code
-  of our package. <strong>This is very important</strong>, as only linking Sen packages is not enough for using
-  their interface files, we need to add them to the <code>DEPS</code> option.</li>
-<li>Dependencies that are not Sen packages: These are just linked to our Sen package as dependencies.
+<li>Other Sen packages: these dependencies are linked against your package and their <code>BASE_PATH</code>
+  properties are transmitted to your package, so you can include <abbr title="Sen Type Language">STL</abbr>/XML files in the generated code
+  of your package. <strong>This is very important</strong>, as only linking Sen packages is not enough for using
+  their interface files, you need to add them to the <code>DEPS</code> option.</li>
+<li>Dependencies that are not Sen packages: These are just linked to your Sen package as dependencies.
   <code>DEPS</code> links the dependency as <code>PUBLIC</code> and <code>PRIVATE_DEPS</code> does it as <code>PRIVATE</code>.</li>
 </ul>
 <h4 id="using-sen-packages-as-dependencies-of-other-sen-packages">Using Sen packages as dependencies of other Sen packages<a class="headerlink" href="#using-sen-packages-as-dependencies-of-other-sen-packages" title="Permanent link">¶</a></h4>
@@ -1714,59 +1907,44 @@ explicitly export it using the <code>SEN_EXPORT</code> macro, as the symbols in 
 default.</p>
 <p>Below is an example of two packages, where one of them is linked as a dependency to the other:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
-</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">        </span><span class="s">TARGET</span>
-</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">          </span><span class="s">hla_fom</span>
-</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">        </span><span class="s">BASE_PATH</span>
-</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">          </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span>
-</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">        </span><span class="s">HLA_OUTPUT_DIR</span>
-</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">          </span><span class="s">hla_fom</span>
-</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">        </span><span class="s">HLA_FOM_DIRS</span>
-</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">          </span><span class="s">rpr</span><span class="w"> </span><span class="s">netn</span><span class="w"> </span><span class="s">link16</span>
-</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="w">        </span><span class="s">GEN_HDR_FILES</span>
-</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">          </span><span class="s">fom_headers</span>
-</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="w">        </span><span class="s">HLA_MAPPINGS_FILE</span>
-</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">          </span><span class="s">base_mappings.xml</span>
-</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="w">        </span><span class="s">SCHEMA_PATH</span>
-</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="w">          </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span>
-</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="w">        </span><span class="s">PUBLIC_SYMBOLS</span>
-</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="p">)</span>
-</span><span id="__span-2-18"><a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a>
-</span><span id="__span-2-19"><a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="nb">add_sen_package</span><span class="p">(</span>
-</span><span id="__span-2-20"><a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="w">        </span><span class="s">TARGET</span>
-</span><span id="__span-2-21"><a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="w">          </span><span class="s">aircrafts</span>
-</span><span id="__span-2-22"><a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="w">        </span><span class="s">MAINTAINER</span>
-</span><span id="__span-2-23"><a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="w">          </span><span class="s2">"Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"</span>
-</span><span id="__span-2-24"><a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="w">        </span><span class="s">VERSION</span>
-</span><span id="__span-2-25"><a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="w">          </span><span class="s2">"0.0.1"</span>
-</span><span id="__span-2-26"><a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="w">        </span><span class="s">DESCRIPTION</span>
-</span><span id="__span-2-27"><a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="w">          </span><span class="s2">"Dummy entities for testing"</span>
-</span><span id="__span-2-28"><a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="w">        </span><span class="s">STL_FILES</span>
-</span><span id="__span-2-29"><a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="w">          </span><span class="s">stl/dummy_aircraft.stl</span>
-</span><span id="__span-2-30"><a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="w">        </span><span class="s">SOURCES</span>
-</span><span id="__span-2-31"><a href="#__codelineno-2-31" id="__codelineno-2-31" name="__codelineno-2-31"></a><span class="w">          </span><span class="s">src/dummy_aircraft_impl.cpp</span>
-</span><span id="__span-2-32"><a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="w">        </span><span class="s">DEPS</span>
-</span><span id="__span-2-33"><a href="#__codelineno-2-33" id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="w">          </span><span class="s">hla_fom</span><span class="w"> </span><span class="s">sen::util</span>
-</span><span id="__span-2-34"><a href="#__codelineno-2-34" id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="w">        </span><span class="s">SCHEMA_PATH</span>
-</span><span id="__span-2-35"><a href="#__codelineno-2-35" id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="w">          </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span>
-</span><span id="__span-2-36"><a href="#__codelineno-2-36" id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="p">)</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">hla_fom</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="s">BASE_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="s">HLA_OUTPUT_DIR</span><span class="w"> </span><span class="s">hla_fom</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="s">HLA_FOM_DIRS</span><span class="w"> </span><span class="s">rpr</span><span class="w"> </span><span class="s">netn</span><span class="w"> </span><span class="s">link16</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">  </span><span class="s">GEN_HDR_FILES</span><span class="w"> </span><span class="s">fom_headers</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">  </span><span class="s">HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">base_mappings.xml</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">  </span><span class="s">SCHEMA_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">  </span><span class="s">PUBLIC_SYMBOLS</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="p">)</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="nb">add_sen_package</span><span class="p">(</span>
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">aircrafts</span>
+</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="w">  </span><span class="s">MAINTAINER</span><span class="w"> </span><span class="s2">"Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"</span>
+</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="w">  </span><span class="s">VERSION</span><span class="w"> </span><span class="s2">"0.0.1"</span>
+</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="w">  </span><span class="s">DESCRIPTION</span><span class="w"> </span><span class="s2">"Dummy entities for testing"</span>
+</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="w">  </span><span class="s">STL_FILES</span><span class="w"> </span><span class="s">stl/dummy_aircraft.stl</span>
+</span><span id="__span-2-18"><a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="w">  </span><span class="s">SOURCES</span><span class="w"> </span><span class="s">src/dummy_aircraft_impl.cpp</span>
+</span><span id="__span-2-19"><a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="w">  </span><span class="s">DEPS</span><span class="w"> </span><span class="s">hla_fom</span><span class="w"> </span><span class="s">sen::util</span>
+</span><span id="__span-2-20"><a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="w">  </span><span class="s">SCHEMA_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span>
+</span><span id="__span-2-21"><a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>As you can see, the <code>hla_fom</code> package is linked as a dependency of the <code>aircrafts</code> package,
 therefore it is marked with the <code>PUBLIC_SYMBOLS</code> flag.</p>
 <h4 id="how-to-test-the-internal-implementation-of-a-package-the-test_target-option">How to test the internal implementation of a package? The <code>TEST_TARGET</code> option<a class="headerlink" href="#how-to-test-the-internal-implementation-of-a-package-the-test_target-option" title="Permanent link">¶</a></h4>
-<p>Sen packages have all symbols hidden by default. This means that if we want to have a test
-executable for the implementation details of a package, we cannot link that executable directly
+<p>Sen packages have all symbols hidden by default. This means that if you want a test
+executable for the implementation details of a package, you cannot link that executable directly
 against the package and expect it to work. All the symbols in the package will not be visible to the
 test executable.</p>
 <p>In order to tackle this problem, we created the <code>TEST_TARGET</code> option on the <code>add_sen_package</code>
-function. In the <code>TEST_TARGET</code> option, the user can specify the name of a test_target (e.g.
+function. In the <code>TEST_TARGET</code> option, the user can specify the name of a test target (e.g.
 <code>&lt;target_name&gt;_test</code>) which will finally be a <code>STATIC</code> library containing the package code.</p>
 <p>Then, the test executable can be linked against that test target and, due to the static linking, all
-the symbols will be available in our executable.</p>
+the symbols will be available in your executable.</p>
 <p>However, adding the <code>TEST_TARGET</code> option changes how the <code>add_sen_package</code> function works: in order
-to avoid compiling the package twice (one as <code>&lt;target_name&gt;</code> and one as <code>&lt;target_name&gt;_test</code>), we
-use an intermediate cmake <code>OBJECT</code> target called <code>&lt;target_name&gt;_obj</code>, which is the one that is
-actually compiled. <strong>This implies that any modification that we want to do to our package outside
-the <code>add_sen_package</code> function, we want to do it to the <code>&lt;target_name&gt;_obj</code> and not to the
+to avoid compiling the package twice (one as <code>&lt;target_name&gt;</code> and one as <code>&lt;target_name&gt;_test</code>), Sen
+uses an intermediate cmake <code>OBJECT</code> target called <code>&lt;target_name&gt;_obj</code>, which is the one that is
+actually compiled. <strong>This implies that any modification you want to make to your package outside
+the <code>add_sen_package</code> function has to be applied to <code>&lt;target_name&gt;_obj</code> and not to
 <code>&lt;target_name&gt;</code>.</strong></p>
 <p>Below is an example of a Sen package with the <code>TEST_TARGET</code> option enabled:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
@@ -1794,7 +1972,7 @@ the <code>add_sen_package</code> function, we want to do it to the <code>&lt;tar
 </span><span id="__span-3-23"><a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">gtest_for_my_package</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">my_package_test</span><span class="p">)</span>
 </span></code></pre></div>
 <p>As you can see in the example above, the include directories property is set to <code>my_package_obj</code> and
-not to my_package or <code>my_package_test</code>. Afterward, the <code>gtest_for_my_package</code> executable is linked
+not to <code>my_package</code> or <code>my_package_test</code>. Afterward, the <code>gtest_for_my_package</code> executable is linked
 against the <code>my_package_test</code>.</p>
 <h4 id="how-to-implement-a-custom-sen-component-the-is_component-flag-advanced">How to implement a custom Sen component, the <code>IS_COMPONENT</code> flag (Advanced)<a class="headerlink" href="#how-to-implement-a-custom-sen-component-the-is_component-flag-advanced" title="Permanent link">¶</a></h4>
 <p>If you want to implement your own Sen component, just add the <code>IS_COMPONENT</code> flag to the
@@ -1804,11 +1982,11 @@ add a Sen component:</p>
 </span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">        </span><span class="s">TARGET</span>
 </span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">          </span><span class="s">example_component</span>
 </span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">        </span><span class="s">MAINTAINER</span>
-</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">          </span><span class="s2">"Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">          </span><span class="s2">"Your Name (your.name@example.com)"</span>
 </span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">        </span><span class="s">VERSION</span>
 </span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">          </span><span class="s2">"0.0.1"</span>
 </span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">        </span><span class="s">DESCRIPTION</span>
-</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">          </span><span class="s2">"Executes a method call during object removal"</span>
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">          </span><span class="s2">"A component built as part of this project"</span>
 </span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">        </span><span class="s">SOURCES</span>
 </span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">          </span><span class="s">component.cpp</span>
 </span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="w">        </span><span class="s">STL_FILES</span>
@@ -1818,8 +1996,9 @@ add a Sen component:</p>
 </span></code></pre></div>
 <h2 id="other-utilities">Other utilities<a class="headerlink" href="#other-utilities" title="Permanent link">¶</a></h2>
 <h3 id="direct-code-generation">Direct code generation<a class="headerlink" href="#direct-code-generation" title="Permanent link">¶</a></h3>
-<p><code>sen_generate_cpp</code> generates C++ code from STL or HLA FOM files and adds the result to an existing
-CMake target. For the common case of building a full Sen package, prefer <code>add_sen_package()</code> instead.</p>
+<p><code>sen_generate_cpp</code> generates C++ code from <abbr title="Sen Type Language">STL</abbr> or <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> files and adds the result to an existing
+CMake target. For the common case of building a full Sen package, prefer <code>add_sen_package()</code>
+instead.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">sen_generate_cpp</span><span class="p">(</span>
 </span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
 </span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="s">[OUTPUT_DIR</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
@@ -1891,7 +2070,7 @@ CMake target. For the common case of building a full Sen package, prefer <code>a
 <td><code>HLA_OUTPUT_DIR</code></td>
 <td></td>
 <td></td>
-<td>Subdirectory within <code>OUTPUT_DIR</code> for HLA-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
+<td>Subdirectory within <code>OUTPUT_DIR</code> for <abbr title="High Level Architecture">HLA</abbr>-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
 </tr>
 <tr>
 <td><code>STL_FILES</code></td>
@@ -1903,13 +2082,13 @@ CMake target. For the common case of building a full Sen package, prefer <code>a
 <td><code>HLA_FOM_DIRS</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
+<td>Directories containing <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> XML files from which C++ code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
 </tr>
 <tr>
 <td><code>HLA_MAPPINGS_FILE</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>HLA mapping files that customise FOM-to-C++ translation. Requires <code>HLA_FOM_DIRS</code>.</td>
+<td><abbr title="High Level Architecture">HLA</abbr> mapping files that customize <abbr title="Federation Object Model">FOM</abbr>-to-C++ translation. Requires <code>HLA_FOM_DIRS</code>.</td>
 </tr>
 <tr>
 <td><code>VISIBLE_CLASSES</code></td>
@@ -1924,7 +2103,7 @@ CMake target. For the common case of building a full Sen package, prefer <code>a
 </span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">    </span><span class="s">TARGET</span>
 </span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">        </span><span class="s">terminal_lib</span>
 </span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="s">STL_FILES</span>
-</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">        </span><span class="s">components/shell/stl/remote_shell.stl</span>
+</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">        </span><span class="s">stl/remote_shell.stl</span>
 </span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>or,</p>
@@ -1944,8 +2123,8 @@ CMake target. For the common case of building a full Sen package, prefer <code>a
 <p>The <code>sen_enable_static_analysis</code> function enables clang-tidy for the target.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nb">sen_enable_static_analysis</span><span class="p">(</span><span class="s">ether</span><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="uml-diagrams">UML diagrams<a class="headerlink" href="#uml-diagrams" title="Permanent link">¶</a></h3>
-<p>Sen can generate PlantUML diagrams from STL or HLA FOM files.</p>
+<h3 id="uml-diagrams"><abbr title="Unified Modeling Language">UML</abbr> diagrams<a class="headerlink" href="#uml-diagrams" title="Permanent link">¶</a></h3>
+<p>Sen can generate PlantUML diagrams from <abbr title="Sen Type Language">STL</abbr> or <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> files.</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nb">sen_generate_uml</span><span class="p">(</span>
 </span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
 </span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="s">OUT</span><span class="w"> </span><span class="s">&lt;file&gt;</span>
@@ -1994,13 +2173,13 @@ CMake target. For the common case of building a full Sen package, prefer <code>a
 <td><code>HLA_FOM_DIRS</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>Directories containing HLA FOM XML files to diagram. Mutually exclusive with <code>STL_FILES</code>.</td>
+<td>Directories containing <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> XML files to diagram. Mutually exclusive with <code>STL_FILES</code>.</td>
 </tr>
 <tr>
 <td><code>HLA_MAPPINGS_FILE</code></td>
 <td></td>
 <td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
-<td>HLA mapping files forwarded to the diagram generator. Requires <code>HLA_FOM_DIRS</code>.</td>
+<td><abbr title="High Level Architecture">HLA</abbr> mapping files forwarded to the diagram generator. Requires <code>HLA_FOM_DIRS</code>.</td>
 </tr>
 <tr>
 <td><code>CLASSES_ONLY</code></td>
@@ -2035,8 +2214,57 @@ CMake target. For the common case of building a full Sen package, prefer <code>a
 </span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="target-configuration">Target configuration<a class="headerlink" href="#target-configuration" title="Permanent link">¶</a></h3>
-<p>The function, <code>sen_configure_target(&lt;target&gt;)</code> adds all the compiler and linker flags, warnings and
-options for building a Sen binary target.</p>
+<p><code>sen_configure_target(&lt;target&gt;)</code> applies Sen's build settings to a target that already exists. It
+takes the target name and nothing else, and stops the configure step with a fatal error if the name
+is not a target.</p>
+<p><code>add_sen_package()</code> calls it for you. Call it directly for a target you created yourself, such as a
+plain executable or library that links against Sen.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++ standard</td>
+<td>C++17, required, extensions off. Requested as a <code>PUBLIC</code> compile feature, so it also applies to anything linking the target.</td>
+</tr>
+<tr>
+<td>Position-independent code</td>
+<td>On, both for the target and for its interface.</td>
+</tr>
+<tr>
+<td>Configuration defines</td>
+<td><code>DEBUG</code> in Debug builds, <code>NDEBUG</code> in Release.</td>
+</tr>
+<tr>
+<td>Warnings</td>
+<td><code>-Wall</code>, <code>-Wextra</code>, <code>-Wpedantic</code> and a curated set on GCC and Clang; <code>/W3</code> plus selected warnings on <abbr title="Microsoft Visual C++">MSVC</abbr>.</td>
+</tr>
+<tr>
+<td>Warnings as errors</td>
+<td><code>-Werror</code>, on GCC and Clang only. A new warning fails the build. <abbr title="Microsoft Visual C++">MSVC</abbr> is not built with warnings as errors.</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td><code>-O0 -g</code> in Debug and <code>-O3</code> in Release; on <abbr title="Microsoft Visual C++">MSVC</abbr>, <code>/Od /RTC1</code> and <code>/O2 /Ob2</code>.</td>
+</tr>
+<tr>
+<td>Output directories</td>
+<td>Binaries to <code>${PROJECT_BINARY_DIR}/bin</code> and archives to <code>${PROJECT_BINARY_DIR}/lib</code>, unless the matching <code>CMAKE_*_OUTPUT_DIRECTORY</code> is already set.</td>
+</tr>
+<tr>
+<td>Linking</td>
+<td><code>--exclude-libs,ALL</code>, so static dependencies are not re-exported. Skipped when a sanitizer is enabled.</td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td>Links the coverage flags when the build was configured with coverage on.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="python-and-yaml-generation">Python and YAML generation<a class="headerlink" href="#python-and-yaml-generation" title="Permanent link">¶</a></h3>
 <p>You can use Python to store your configuration data. This provides a more flexible, readable and
 powerful way of managing complex parameters.</p>
@@ -2045,16 +2273,103 @@ YAML files. To help you in this task, Sen provides means for generating Python c
 <a href="https://realpython.com/python-data-classes/">dataclasses</a> for a type-safe approach.</p>
 <p>There is a CMake function that helps you invoke the code generator:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="nb">sen_generate_python</span><span class="p">(</span>
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;target&gt;</span>
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">    </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">base_path]</span>
-</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">[files...]]</span>
-</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">[directories...]]</span>
-</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">    </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">file]</span>
-</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">    </span><span class="s">[GEN_HDR_FILES</span><span class="w"> </span><span class="s">variable]</span>
-</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="p">)</span>
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">    </span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;name&gt;</span>
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">    </span><span class="s">[OUTPUT_DIR</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="s">[BASE_PATH</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="s">[CODEGEN_SETTINGS</span><span class="w"> </span><span class="s">&lt;file&gt;]</span>
+</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">    </span><span class="s">[GEN_HDR_FILES</span><span class="w"> </span><span class="s">&lt;variable&gt;]</span>
+</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">    </span><span class="s">[SCHEMA_FILE</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">    </span><span class="s">[SCHEMA_COMPONENT_NAME</span><span class="w"> </span><span class="s">&lt;name&gt;]</span>
+</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="w">    </span><span class="s">[HLA_OUTPUT_DIR</span><span class="w"> </span><span class="s">&lt;path&gt;]</span>
+</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="w">    </span><span class="s">[STL_FILES</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-11-11"><a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="w">    </span><span class="s">[HLA_FOM_DIRS</span><span class="w"> </span><span class="s">&lt;dirs...&gt;]</span>
+</span><span id="__span-11-12"><a href="#__codelineno-11-12" id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="w">    </span><span class="s">[HLA_MAPPINGS_FILE</span><span class="w"> </span><span class="s">&lt;files...&gt;]</span>
+</span><span id="__span-11-13"><a href="#__codelineno-11-13" id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>It works like the other code generation functions. There will be one output .py file per input file
-(STL or HLA), and the output folder structure will mimic that of the input.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Mandatory</th>
+<th>Multiple</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TARGET</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td></td>
+<td>An already-created CMake target to which the generated files are added.</td>
+</tr>
+<tr>
+<td><code>OUTPUT_DIR</code></td>
+<td></td>
+<td></td>
+<td>Directory where generated files are written. Defaults to <code>${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_generated</code>.</td>
+</tr>
+<tr>
+<td><code>BASE_PATH</code></td>
+<td></td>
+<td></td>
+<td>Root directory for import resolution and relative-path computation. Defaults to <code>CMAKE_CURRENT_SOURCE_DIR</code>.</td>
+</tr>
+<tr>
+<td><code>CODEGEN_SETTINGS</code></td>
+<td></td>
+<td></td>
+<td>Path to a settings file forwarded to the code generator.</td>
+</tr>
+<tr>
+<td><code>GEN_HDR_FILES</code></td>
+<td></td>
+<td></td>
+<td><strong>Output variable.</strong> Keeps its C++ name, but here it receives the list of generated <code>.py</code> files.</td>
+</tr>
+<tr>
+<td><code>SCHEMA_FILE</code></td>
+<td></td>
+<td></td>
+<td>If set, also generates a JSON schema and writes it to this path. Independent of the output language.</td>
+</tr>
+<tr>
+<td><code>SCHEMA_COMPONENT_NAME</code></td>
+<td></td>
+<td></td>
+<td>When set alongside <code>SCHEMA_FILE</code>, the schema is generated as a component schema for this name rather than a package schema.</td>
+</tr>
+<tr>
+<td><code>HLA_OUTPUT_DIR</code></td>
+<td></td>
+<td></td>
+<td>Subdirectory within <code>OUTPUT_DIR</code> for <abbr title="High Level Architecture">HLA</abbr>-derived files. Only relevant when <code>HLA_FOM_DIRS</code> is used.</td>
+</tr>
+<tr>
+<td><code>STL_FILES</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Sen Type Language (<code>.stl</code>) files from which Python code is generated. Mutually exclusive with <code>HLA_FOM_DIRS</code>.</td>
+</tr>
+<tr>
+<td><code>HLA_FOM_DIRS</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Directories containing <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> XML files from which Python code is generated. Mutually exclusive with <code>STL_FILES</code>.</td>
+</tr>
+<tr>
+<td><code>HLA_MAPPINGS_FILE</code></td>
+<td></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td><abbr title="High Level Architecture">HLA</abbr> mapping files that customize <abbr title="Federation Object Model">FOM</abbr>-to-Python translation. Requires <code>HLA_FOM_DIRS</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>sen_generate_python</code> and <code>sen_generate_cpp</code> are the same function with the output language fixed,
+so the arguments match one for one. The only exception is <code>VISIBLE_CLASSES</code>, which controls C++
+symbol visibility and is ignored for Python.</p>
+<p>There is one output <code>.py</code> file per input file, and the output folder structure mirrors the input.
+Each generated directory also gets an empty <code>__init__.py</code>, so the result imports as a package, and a
+<code>py.typed</code> marker, so type checkers use the annotations.</p>
 <p>Once you have your generated Python code, you will want to write the configuration Python file(s).
 There is another CMake function that helps you in generating the final YAML file:</p>
 <div class="language-cmake highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="nb">sen_generate_yaml</span><span class="p">(</span>
@@ -2108,9 +2423,9 @@ that type-checks the script, and makes <code>TARGET</code> depend on it so type 
 generation.</p>
 <p>Keep in mind that the generated Python code and the generated YAML file are not meant to be kept
 under version control. The idea is to have a single source of truth: your config script for the
-data, and the STL (or HLA) files for the types.</p>
+data, and the <abbr title="Sen Type Language">STL</abbr> (or <abbr title="High Level Architecture">HLA</abbr>) files for the types.</p>
 <h3 id="obtaining-external-interfaces-information">Obtaining external interfaces information<a class="headerlink" href="#obtaining-external-interfaces-information" title="Permanent link">¶</a></h3>
-<p>Sen provides the necessary functionality to obtain interfaces files (such as <code>stls</code> or HLA FOM
+<p>Sen provides the necessary functionality to obtain interfaces files (such as <code>stls</code> or <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr>
 <code>xmls</code>) when consuming packages from outside your project.</p>
 <p>The following CMake utility obtains interface-related properties from a target such as <code>STL_FILES</code>,
 <code>BASE_PATH</code> or <code>HLA_FOM_DIRS</code>.</p>
@@ -2119,15 +2434,17 @@ data, and the STL (or HLA) files for the types.</p>
 </span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="s">INSTALLATION_DIR</span><span class="w"> </span><span class="s">&lt;directory&gt;</span>
 </span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>After calling this function, you will be able to fetch the <code>INSTALL_STL_FILES</code>, <code>INSTALL_BASE_PATH</code>
-and <code>INSTALL_HLA_FOM_DIRS</code> properties who will contain the necessary paths and information for you
-to generate code using the functions described above based on your needs.</p>
+<p>After calling this function, you will be able to fetch the <code>INSTALL_STL_FILES</code>,
+<code>INSTALL_BASE_PATH</code>, <code>INSTALL_HLA_FOM_DIRS</code> and <code>INSTALL_HLA_MAPPINGS</code> properties, which contain the
+paths and information you need to generate code with the functions described above.</p>
 <p>A more detailed guide on this function and on the whole process of exporting and consuming external
 interfaces can be found in the following guides:</p>
 <ul>
 <li><a href="../howto_guides/exportable_interfaces.html">How to export interfaces in Sen-based projects</a></li>
-<li><a href="../howto_guides/consuming_interfaces.html">How to consume external interfaces in Sen-based projects</a></li>
-<li><a href="../howto_guides/generate_interface_packages.html">How to generate CMake packages to export pre-built interfaces</a></li>
+<li><a href="../howto_guides/consuming_interfaces.html">How to consume external interfaces in Sen-based
+  projects</a></li>
+<li><a href="../howto_guides/generate_interface_packages.html">How to generate CMake packages to export pre-built
+  interfaces</a></li>
 </ul>
 <h3 id="automatic-configuration-and-installation-of-configcmakein-files">Automatic configuration and installation of <code>-config.cmake.in</code> files<a class="headerlink" href="#automatic-configuration-and-installation-of-configcmakein-files" title="Permanent link">¶</a></h3>
 <p>A <code>-config.cmake.in</code> file contains the configuration of a CMake package. In a nutshell, this files
@@ -2140,20 +2457,44 @@ files so that they are generated and installed in your <code>CMAKE_INSTALL_PREFI
 also install the <code>-config.cmake.in</code> files found in the current list directory. This directory will
 almost certainly match the directory where your <code>install.cmake</code> file is found, since this function
 should only be used when generating a CMake install package.</p>
-<div class="language-cmake highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="w"> </span><span class="nb">configure_exportable_packages</span><span class="p">(</span>
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">    </span><span class="s">INTERFACES_CONFIG_DIRS</span><span class="w"> </span><span class="s">[directory1,</span><span class="w"> </span><span class="s">directory2,</span><span class="w"> </span><span class="s">...]</span>
-</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="p">)</span>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="nb">configure_exportable_packages</span><span class="p">(</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">    </span><span class="s">[INTERFACES_CONFIG_DIRS</span><span class="w"> </span><span class="s">&lt;directories...&gt;]</span>
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="s">[TARGET_NAME_CMAKEDIRS]</span>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="p">)</span>
 </span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Multiple</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>INTERFACES_CONFIG_DIRS</code></td>
+<td><span class="twemoji"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z"></path></svg></span></td>
+<td>Directories to search for <code>-config.cmake.in</code> files, in addition to the current list directory.</td>
+</tr>
+<tr>
+<td><code>TARGET_NAME_CMAKEDIRS</code></td>
+<td></td>
+<td>Install each config into its own <code>cmake/&lt;name&gt;</code> directory, where <code>&lt;name&gt;</code> is the file name with <code>-config</code> removed. Without it, all configs share <code>CMAKE_INSTALL_CMAKEDIR</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>The per-package layout that <code>TARGET_NAME_CMAKEDIRS</code> produces is what
+<code>find_package()</code> expects to find under a prefix, so a consumer pointing
+<code>CMAKE_PREFIX_PATH</code> at <code>&lt;prefix&gt;/cmake</code> can resolve each package by name.</p>
 <p>More detail on functionality and information on when should this function be used can be found on
-the
-<a href="../howto_guides/generate_interface_packages.html">How to generate CMake packages to export pre-built interfaces</a>
-guide.</p></div>
+the <a href="../howto_guides/generate_interface_packages.html">How to generate CMake packages to export pre-built
+interfaces</a> guide.</p>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 15, 2026 07:24:44 UTC">April 15, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -2167,7 +2508,7 @@ guide.</p></div>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Command Line Tools" class="md-footer__link md-footer__link--prev" href="command_line.html">
+<a aria-label="Previous: Command line tools" class="md-footer__link md-footer__link--prev" href="command_line.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -2176,17 +2517,17 @@ guide.</p></div>
                 Previous
               </span>
 <div class="md-ellipsis">
-                Command Line Tools
+                Command line tools
               </div>
 </div>
 </a>
-<a aria-label="Next: Run-Time Compatibility" class="md-footer__link md-footer__link--next" href="compatibility_conversions.html">
+<a aria-label="Next: Run-time compatibility" class="md-footer__link md-footer__link--next" href="compatibility_conversions.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                Run-Time Compatibility
+                Run-time compatibility
               </div>
 </div>
 <div class="md-footer__button md-icon">
@@ -2208,11 +2549,12 @@ guide.</p></div>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -2239,5 +2581,4 @@ guide.</p></div>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

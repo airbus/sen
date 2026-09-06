@@ -1,0 +1,15 @@
+load:
+  - name: shell
+    group: 2
+    open: [local.example]  # to see the created objects
+
+build:
+  - name: myComponent
+    freqHz: 30
+    imports:
+      - my_package
+    objects:
+      - class: my_package.MyClassImpl
+        name: myObject
+        bus: local.example
+        prop1: some value

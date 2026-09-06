@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/users_guide/main_concepts.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/users_guide/main_concepts.html" rel="canonical"/>
 <link href="index.html" rel="prev"/>
 <link href="mental_model.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
+<a class="md-tabs__link" href="../howto_guides/index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -385,7 +456,7 @@
 <a class="md-nav__link" href="#moving-components">
 <span class="md-ellipsis">
       
-        Moving Components
+        Moving components
       
     </span>
 </a>
@@ -410,6 +481,19 @@
       
     </span>
 </a>
+<nav aria-label="Buses" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-the-partitioning-actually-costs-and-buys">
+<span class="md-ellipsis">
+      
+        What the partitioning actually costs and buys
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#packages">
@@ -437,7 +521,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -461,7 +545,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -469,8 +565,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -481,8 +577,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -508,7 +604,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -543,11 +639,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -559,7 +667,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -571,7 +679,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -579,8 +699,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -591,8 +711,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -688,6 +808,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -743,7 +875,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -827,7 +959,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -863,7 +995,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -921,11 +1053,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<a class="md-nav__link" href="../howto_guides/index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -981,18 +1113,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -1005,11 +1125,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -1028,12 +1232,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1076,53 +1303,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/troubleshooting.html">
@@ -1136,38 +1318,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1175,11 +1354,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1189,9 +1368,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1202,8 +1384,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1218,6 +1400,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1361,7 +1555,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1373,7 +1579,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1385,7 +1591,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1396,8 +1602,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1408,8 +1614,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1423,7 +1629,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1435,7 +1641,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1452,7 +1658,7 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="main-concepts">Main Concepts<a class="headerlink" href="#main-concepts" title="Permanent link">¶</a></h1>
+<h1 id="main-concepts">Main concepts<a class="headerlink" href="#main-concepts" title="Permanent link">¶</a></h1>
 <h2 id="objects">Objects<a class="headerlink" href="#objects" title="Permanent link">¶</a></h2>
 <p>In Sen, the communication is modeled around the idea of objects interacting with each other. In a
 nutshell,</p>
@@ -1469,20 +1675,24 @@ nutshell,</p>
 <p>Objects can emit events. Other components can react to those events. Events can have arguments.</p>
 </li>
 <li>
-<p>Objects are instances of classes. Like C++ and Java, Sen supports inheritance (including multiple
-  inheritance).</p>
+<p>Objects are instances of classes, and a class may extend one other class. Unlike C++, a class
+  cannot extend two: the type language rejects that with "Cannot inherit from more than one class.
+  Consider using interfaces." The interfaces it means are the ones the code generator writes for
+  you: every class gets a <code>&lt;Name&gt;Interface</code>, which both the local implementation and the remote
+  proxy inherit. Hold a reference to that and your code does not depend on whether the object it
+  is talking to lives in your process or on another machine.</p>
 </li>
 </ul>
-<p><img alt="Screenshot" src="../assets/images/object_light.svg#only-light" style="width:900px"/>
-<img alt="Screenshot" src="../assets/images/object_dark.svg#only-dark" style="width:900px"/></p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/object_light.svg#only-light"><img alt="Screenshot" src="../assets/images/object_light.svg#only-light" style="width:900px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/object_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/object_dark.svg#only-dark" style="width:900px"/></a></p>
 <p>You can discover objects published by other components, examine their properties, call their methods
 and react to their events. You can also publish your own objects, so that other components can "see"
 you, call you, and react to your changes.</p>
-<p>Objects are identified by name. This means that object names will be unique. You are responsible for
+<p>Objects are identified by name, so names have to be unique. You are responsible for
 naming your objects. Once named, objects also provide a (32-bit) numeric identifier that is more
 "computer-friendly".</p>
-<p>Methods can be optionally marked as <code>constant</code>. This means that they do not change the internal
-state of the object.</p>
+<p>Methods can be optionally marked <code>const</code>. This means that they do not change the internal state of
+the object.</p>
 <p>Properties can be:</p>
 <ul>
 <li>
@@ -1503,37 +1713,38 @@ state of the object.</p>
 </li>
 <li>
 <p><strong>Read Write</strong>: Other components might call the setter method and change its value (without your
-  permission or awareness).</p>
+  permission or awareness). If you need a say, mark the property as <em>checked</em>; see <strong>Object
+  Ownership</strong> further down this page.</p>
 </li>
 </ul>
 <p>By default, properties are dynamic and read-only.</p>
-<p>Methods, properties and events can have quality-of-service attribute that can be:</p>
+<p>Methods, properties and events can have a quality-of-service attribute that can be:</p>
 <ul>
 <li>
 <p><strong>Confirmed</strong>. The call, response or notification is guaranteed to arrive. The order of emission
   and reception is maintained. For in-process interactions this is implemented as (potentially
-  queued) function calls. TCP is used for inter-process communication.</p>
+  queued) function calls. <abbr title="Transmission Control Protocol">TCP</abbr> is used for inter-process communication.</p>
 </li>
 <li>
 <p><strong>Best Effort</strong>. The call, response or notification will be sent as fast as possible. There are no
   guarantees regarding reception or ordering. Old data does not overwrite newer data. This is
-  typically used when you are interested in the latest data, low latency and are Ok with sporadic
+  typically used when you are interested in the latest data, low latency and are OK with sporadic
   missing packets. For in-process communication, this is implemented using (potentially queued)
-  function calls. UDP unicast is used for inter-process method calls. UDP multicast is used for
+  function calls. <abbr title="User Datagram Protocol">UDP</abbr> unicast is used for inter-process method calls. <abbr title="User Datagram Protocol">UDP</abbr> multicast is used for
   inter-process events.</p>
 </li>
 </ul>
-<p><img alt="Screenshot" src="../assets/images/tcp_udp_light.svg#only-light" style="width:250px; float: right;"/>
-<img alt="Screenshot" src="../assets/images/tcp_udp_dark.svg#only-dark" style="width:250px; float: right;"/></p>
-<p>You can clearly see that the guarantees that Sen provides are in line with those of TCP and UDP.
-That said, keep in mind that in controlled environments (a single computer, a local area network
-with bounded traffic, or basically anything that is not the internet) you are very likely going to
-be fine with a best-effort approach, as packet loss would represent a non-nominal operation and is
-probably a sign of some infrastructural or load calculation problem. That said, you can always
-choose.</p>
-<p>Well, you can always choose as long as it makes sense. Sen will not let you use a best-effort
-transport if it detects that the information that has to be transported is unbounded, and you might
-receive incomplete, incorrect or inconsistent data.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/tcp_udp_light.svg#only-light"><img alt="Screenshot" src="../assets/images/tcp_udp_light.svg#only-light" style="width:250px; float: right;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/tcp_udp_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/tcp_udp_dark.svg#only-dark" style="width:250px; float: right;"/></a></p>
+<p>Sen's guarantees line up with those of <abbr title="Transmission Control Protocol">TCP</abbr> and <abbr title="User Datagram Protocol">UDP</abbr>. In controlled environments, a single computer,
+a local area network with bounded traffic, or basically anything that is not the internet, you are
+very likely fine with best effort: packet loss there is a sign of an infrastructure or load
+problem rather than normal operation.</p>
+<p>The choice is yours except in one case. A dynamic property whose type is unbounded
+has to be <code>[confirmed]</code>, because best effort could leave you with incomplete, incorrect or
+inconsistent data. Leaving the attribute off does not work either: properties default to best
+effort, so an unbounded one is rejected until you ask for <code>[confirmed]</code> in as many words. Static
+properties are exempt, as they never travel as updates.</p>
 <p>Methods are typically expected to execute when called, but this may create contention if there's a
 significant amount of callers, as they would queue up. In Sen, you can mark methods so that they can
 provide deferred answers. This allows them to ingest multiple calls without having to provide an
@@ -1542,17 +1753,42 @@ to other elements (i.e. load balancing) or the parallelization of work.</p>
 <p><strong>Object Ownership</strong>.</p>
 <p>In Sen, objects are strongly owned by the component that creates them. If the owning component goes
 away (is halted, shut-down, crashes or gets disconnected), all its objects will be automatically
-removed. Similarly, objects strongly own their state. This means that each object is responsible for
-updating its properties (even if the property is writeable, it is the owning object who's in charge
-of triggering the update).</p>
+removed.</p>
+<p>That removal is all Sen does. Subscribers see the objects go, and nothing tells them why: a crash
+and a deliberate deletion look the same, both live and in a recording, where a deletion carries only
+the object's identity. There is no watchdog, no restart and no health policing anywhere in the
+kernel.</p>
+<p>That is deliberate, and not an omission. Whether a dead component should be restarted, whether the
+run continues, and who gets told are decisions about the exercise and not about the objects, so they
+belong to whatever supervises it. Sen is a reasonable substrate for building that orchestrator,
+and stays out of the decision itself.</p>
+<p>When it comes back, you do nothing. The returning kernel is discovered again on its own, and the
+interest you already hold serves its objects without being re-issued: you see the removal once, then
+a fresh arrival. That arrival carries state. The receiving side asks for the state of the objects it
+has just accepted and the publisher serves it, so an object is populated when it appears rather than
+filling in as later updates happen to land.</p>
+<p>The object that comes back is a new object. Sen promises no re-identification, so matching it to the
+one that went away, by name or by anything else, is yours to do. A component that restarted and a
+network that healed look the same from here, because the remote side is torn down and discarded
+either way, and nothing you can see distinguishes them.</p>
+<p>Ownership governs lifetime, not every write. An object is responsible for its own properties, but a
+<strong>Read Write</strong> property really is written from outside: the caller's setter puts the value into
+the object's next buffer, and the owner finds out afterwards through
+<code>on&lt;<var>Prop</var>&gt;Changed()</code>, if it subscribes at all.</p>
+<p>If the owner needs a say, mark the property as <em>checked</em> in <code>codegen_settings.json</code>. The generator
+then adds a <code>virtual bool</code> hook the owner overrides, and the setter calls it before storing
+anything. Returning <code>false</code> rejects the write: the value is not applied, and the caller is told.
+Because a setter is dispatched like any other method, the rejection reaches them as a failed result
+rather than escaping into your component. See <a href="stl.html#customizing-the-generated-code">Customizing the generated
+code</a> and the <a href="../snippets/examples/config/13_timer/readme.html">checked properties
+example</a>.</p>
 <p><strong>Asynchronous behavior</strong>.</p>
 <p>Sen is a fully asynchronous system. This means that when calling a method you should not expect it
 to execute immediately after the call is made. It will not block. Sen will trigger the execution at
 a future time and will call you back if you provide a callback function. If the method returns a
 value, the callback will receive it, and you will be able to use it. If the method threw an
 exception, you will be able to examine it and re-throw it if needed.</p>
-<p>We have talked about objects, but so far we have not touched the topic of <em>types</em>. What types may I
-use as an argument for a method? Or for my property?</p>
+<p>Objects are only half of it. What can you use as an argument for a method, or as a property?</p>
 <h2 id="types">Types<a class="headerlink" href="#types" title="Permanent link">¶</a></h2>
 <p>The Sen type system is rich:</p>
 <ul>
@@ -1562,48 +1798,48 @@ use as an argument for a method? Or for my property?</p>
 <li>Time: Time stamps (<code>TimeStamp</code>) and time durations (<code>Duration</code>).</li>
 <li>Enumerations (with an integral storage <code>T</code>, <code>enum : T {...}</code>).</li>
 <li>Structures (with 0:n fields of any value type, <code>struct {...}</code>). Single inheritance is supported.</li>
-<li>Variants (holding 1:n distinct types , <code>variant { T1, ... Tn}</code>)</li>
+<li>Variants (holding 1:n distinct types, <code>variant { T1, ... Tn}</code>).</li>
 <li>Sequences (of any value type, bounded, unbounded, and fixed <code>sequence&lt;T&gt;</code>, <code>sequence&lt;T, n&gt;</code>,
   <code>array&lt;T, n&gt;</code>).</li>
 <li>Quantities (of any numeric type, with a given unit and an optional min and max value).</li>
 <li>Optionals (of any type).</li>
 <li>Classes and interfaces.</li>
 </ul>
-<p>The variant type represents a type-safe union. An instance of variant at any given time either holds
-a value of one of its alternative types, or in the case of error - no value. As with unions, if a
-variant holds a value of some object type T, the object representation of T is allocated directly
-within the object representation of the variant itself. Variant is not allowed to allocate
-additional (dynamic) memory. A variant is <em>not</em> permitted to hold the same type more than once.</p>
+<p>A variant holds exactly one of its listed types at a time, and it knows which one it is holding. The
+value lives inside the variant itself, in space sized for the largest alternative, so assigning to a
+variant never allocates. Each type may appear only once in the list: <code>variant { i32, i32 }</code> is
+rejected at generation time with <em>variant contains type 'i32' more than once</em>, since there would be
+no way to say which of the two you meant.</p>
 <p>Sen will auto-generate the code to natively support these types in your language. The only type that
 you have to "worry" about is the "class", as you will need to inherit from a generated base class in
 order to implement your logic.</p>
-<p>In Sen, you can define your types using a very small language called Sen Type Language (STL, more on
-this later). For those interested in simulation, you can also use HLA FOM.</p>
+<p>In Sen, you can define your types using a very small language called Sen Type Language (<abbr title="Sen Type Language">STL</abbr>, more on
+this later). For those interested in simulation, you can also use <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr>.</p>
 <h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">¶</a></h2>
-<p><img alt="Screenshot" src="../assets/images/component_light.svg#only-light" style="width:600px; float: right;"/>
-<img alt="Screenshot" src="../assets/images/component_dark.svg#only-dark" style="width:600px; float: right;"/></p>
-<p>There are three things we can see in a component:</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/component_light.svg#only-light"><img alt="Screenshot" src="../assets/images/component_light.svg#only-light" style="width:600px; float: right;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/component_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/component_dark.svg#only-dark" style="width:600px; float: right;"/></a></p>
+<p>A component holds:</p>
 <ol>
 <li>An <em>interface</em>, used to interact with other components.</li>
 <li>The <em>functional logic</em> (the code) that is in charge of the actions. This logic often holds state.</li>
 <li>An <em>execution context</em>, that allows the functional code to run. In Sen, this is a thread.</li>
 </ol>
-<p>Components are self-standing. This means that we can always instantiate them, and they will run.
+<p>Components are self-standing. This means you can always instantiate them, and they will run.
 When components need to talk to each other, they will declare it and Sen will provide them
 visibility.</p>
-<p>For a system to execute, we need to provide a context where to run and way for components to talk to
-each-other. In Sen, the inter-connection mechanism for components is called a kernel.</p>
-<p><img alt="Screenshot" src="../assets/images/one_process_light.svg#only-light" style="width:700px"/>
-<img alt="Screenshot" src="../assets/images/one_process_dark.svg#only-dark" style="width:700px"/></p>
+<p>A system needs a context to run in and a way for components to talk to
+each other. In Sen, the inter-connection mechanism for components is called a kernel.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/one_process_light.svg#only-light"><img alt="Screenshot" src="../assets/images/one_process_light.svg#only-light" style="width:700px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/one_process_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/one_process_dark.svg#only-dark" style="width:700px"/></a></p>
 <p>Components are also relocatable. This means that they can be moved to other execution contexts
 (processes or threads) without having to change a single line of code.</p>
-<p><img alt="Screenshot" src="../assets/images/two_processes_light.svg#only-light" style="width:1200px"/>
-<img alt="Screenshot" src="../assets/images/two_processes_dark.svg#only-dark" style="width:1200px"/></p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/two_processes_light.svg#only-light"><img alt="Screenshot" src="../assets/images/two_processes_light.svg#only-light" style="width:1200px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/two_processes_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/two_processes_dark.svg#only-dark" style="width:1200px"/></a></p>
 <p>When components are separated by process boundaries, Sen will take care of transparently handling
-the inter-process-communication (IPC) while respecting their quality-of-service requirements.</p>
-<h3 id="moving-components">Moving Components<a class="headerlink" href="#moving-components" title="Permanent link">¶</a></h3>
-<p><img alt="Screenshot" src="../assets/images/container_light.svg#only-light" style="width:450px; float: right;"/>
-<img alt="Screenshot" src="../assets/images/container_dark.svg#only-dark" style="width:450px; float: right;"/></p>
+the inter-process-communication (<abbr title="inter-process communication">IPC</abbr>) while respecting their quality-of-service requirements.</p>
+<h3 id="moving-components">Moving components<a class="headerlink" href="#moving-components" title="Permanent link">¶</a></h3>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/container_light.svg#only-light"><img alt="Screenshot" src="../assets/images/container_light.svg#only-light" style="width:450px; float: right;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/container_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/container_dark.svg#only-dark" style="width:450px; float: right;"/></a></p>
 <p>In Sen, you are free to run your components in the same or different thread, process or computer.
 This gives you a great degree of flexibility to adapt. Just keep in mind that:</p>
 <ul>
@@ -1620,8 +1856,8 @@ This gives you a great degree of flexibility to adapt. Just keep in mind that:</
 <p>For example, let's say that you decide to put all your components in a single process. The effort to
 move the data between them will be low, but if one component crashes or corrupts the memory it could
 bring all your system down. Let's now say you go the other way and decide to have each component in
-an independent process. In this case, a crash of a component will not bring the others down, but we
-will be requesting the operating system to allocate more resources, create and schedule more
+an independent process. In this case, a crash of a component will not bring the others down, but you
+will be asking the operating system to allocate more resources, create and schedule more
 processes, copy more data between them and do more synchronization work.</p>
 <p>You have to decide how and where to group your components based on the trade-offs you are willing to
 accept and the needs of your project/environment. Sometimes, what matters is the convenience of
@@ -1631,13 +1867,24 @@ components running, while starting and stopping the one you are currently workin
 control and can set the grouping that best fits your needs.</p>
 <p>With Sen, these groupings are nothing more than entries in configuration files, and the good thing
 is that you can have as many as you want and use them when and where you need.</p>
-<p>There is another axis that we need to consider: moving components to processes in other computers.</p>
-<p>This is also possible and still fully transparent to your components. In this case you need to
-consider the following:</p>
+<p>There is another axis to consider: moving components to processes in other computers.</p>
+<p>This is also possible, and your code does not change: the same calls, the same subscriptions, the
+same objects. What distance changes is timing and failure. In this case you need to consider the
+following:</p>
 <ul>
 <li>
-<p>You are gaining in isolation and robustness. If a machine halts or the OS becomes overloaded, only
-  the components in that machine will be affected.</p>
+<p>Calls and updates take longer, and by an amount that varies. A method result that comes back
+  within a cycle or two locally can take several cycles across a loaded network, so code written
+  against a prompt answer needs a timeout and something useful to do while it waits.</p>
+</li>
+<li>
+<p>Best-effort properties and events can be dropped. Nothing is lost this way inside one process.
+  Declare a property or an event as <code>confirmed</code> where missing an update is not acceptable.</p>
+</li>
+<li>
+<p>You are gaining in isolation and robustness. If a machine halts or the OS becomes overloaded, the
+  components on other machines keep running. They do lose the objects the halted machine owned, so a
+  component that was tracking them has to cope.</p>
 </li>
 <li>
 <p>You are gaining in computing power. You have more resources and can do more. Make sure you are
@@ -1647,7 +1894,7 @@ consider the following:</p>
 <p>You need a network between those computers. You will be imposing more on the infrastructure.
   Having a network card is a non-issue these days, but do not underestimate the effort of properly
   setting-up, configuring and maintaining a clean network layout. Remember also that switches and
-  routers might be in the loop and those also need to be configured and maintained (i.e. IGMP
+  routers might be in the loop and those also need to be configured and maintained (i.e. <abbr title="Internet Group Management Protocol">IGMP</abbr>
   Snooping, V-LANs, etc.).</p>
 </li>
 <li>
@@ -1658,11 +1905,11 @@ consider the following:</p>
 <li>
 <p>Testing will become more complicated. You now have more moving parts and the network is, by
   nature, a shared resource. This means that if you don't have an isolated network, running your
-  tests in parallel will cause them interfere each-other and fail.</p>
+  tests in parallel will cause them to interfere with each other and fail.</p>
 </li>
 </ul>
 <p>Now, the issues listed above are not unique to Sen, but common to any distributed system.
-Thankfully, there are mature solutions that help us overcome many of these challenges during
+Thankfully, there are mature solutions that help you overcome many of these challenges during
 development, testing and production: containers and orchestrators.</p>
 <p>Containers allow you to create self-contained, deployable units of software that can be executed in
 isolation and with a great degree of options, tools and features. They allow for things like hosting
@@ -1680,26 +1927,30 @@ concept (and in fact is widely used in similar systems, specially OS microkernel
 is fully defined by the environment, and it works as follows:</p>
 <ul>
 <li>Components always have an associated group.</li>
-<li>During start-up, we increase the group until we reach the highest.</li>
+<li>During start-up, the kernel increases the group until it reaches the highest.</li>
 <li>To increase to a given group, all components associated with it must have been correctly
   initialized and their execution started.</li>
-<li>During shut-down, we decrease the group until we reach the minimum.</li>
+<li>During shut-down, the kernel decreases the group until it reaches the minimum.</li>
 <li>To reduce to a given group, all components associated with it must have been correctly stopped and
   their execution halted.</li>
 </ul>
 <p>In the (somewhat unlikely) case that you are writing a component that would need to perform some
 action during the initialization, loading or unloading, you are free to implement (override) the
 corresponding <code>init()</code>, <code>load()</code> and <code>unload()</code> functions.</p>
-<p>Say that we have components A, B and C. Components A and B are in group 1. Component C is in group
-2. The progression of the initialization logic would be as follows:</p>
+<p>There is one hook that sits outside the group progression: <code>preload()</code> runs for <em>every</em> component
+before any of them is loaded, whatever their group. That makes it the place for something the whole
+process needs before anything else starts. The <code>tracy</code> component uses it to install a profiler
+before the rest of the system exists, and <code>unload()</code> to shut it down again.</p>
+<p>Say you have components A, B and C, with A and B in group 1 and C in group 2. The initialization
+logic then progresses as follows:</p>
 <ol>
 <li>The kernel starts at group 0, and it advances to group 1.</li>
 <li>In group 1, the kernel finds the <em>A</em> and <em>B</em> components, so it: (1) loads them, (2) initializes
-   them, and gets them running. We have reached level 1.</li>
+   them, and gets them running. It has now reached group 1.</li>
 <li>In group 2, the kernel finds <em>C</em>, so it (1) loads it, (2) initializes it and (3) runs it.</li>
 <li>The kernel does not find any other group, so it reaches the "running" state.</li>
 </ol>
-<p>At this point, if we command the kernel to shut-down, the kernel does the same process, but in
+<p>At this point, if you command the kernel to shut down, the kernel does the same process, but in
 reverse.</p>
 <ol>
 <li>In group 2, the kernel finds <em>C</em>, so it stops it and then unloads it.</li>
@@ -1725,14 +1976,36 @@ channel. Let's now dive a bit deeper and see how the communication takes place.<
 <li>Inside a bus, components can find (and publish) <em>objects</em>. Being a distributed object-oriented
   system, objects are the basic element in Sen.</li>
 </ul>
-<p><img alt="Screenshot" src="../assets/images/zoom_light.svg#only-light" style="width:1400px"/>
-<img alt="Screenshot" src="../assets/images/zoom_dark.svg#only-dark" style="width:1400px"/></p>
-<p>This creates a system where objects can be found (and published) using a <code>&lt;session&gt;.&lt;name&gt;</code>
-approach.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/zoom_light.svg#only-light"><img alt="Screenshot" src="../assets/images/zoom_light.svg#only-light" style="width:1400px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/zoom_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/zoom_dark.svg#only-dark" style="width:1400px"/></a></p>
+<p>This creates a system where a bus is addressed as <code>&lt;session&gt;.&lt;bus&gt;</code>, and an object within it adds
+its own name: <code>&lt;session&gt;.&lt;bus&gt;.&lt;object&gt;</code>.</p>
 <p>For example, a building monitoring system may use a session named "monitoring", and then have a bus
 for each building. The buses could be named like <code>"monitoring.headquarters"</code>,
 <code>"monitoring.offices"</code>, <code>"monitoring.depot"</code>, etc. If there would be another system, it could use a
 different session name and define its own buses.</p>
+<h3 id="what-the-partitioning-actually-costs-and-buys">What the partitioning actually costs and buys<a class="headerlink" href="#what-the-partitioning-actually-costs-and-buys" title="Permanent link">¶</a></h3>
+<p>Sessions and buses are not only names. When components are distributed, the ethernet transport turns
+them into real network structure, and that has consequences for how many of each to have.</p>
+<p>Each bus a participant joins gets <strong>its own multicast group and its own socket</strong>, and the group
+address is derived from the session name, the bus, and the discovery port together. That has
+consequences:</p>
+<ul>
+<li>Traffic is separated below your process. A host that has not joined a bus does not receive its
+  multicast traffic at all. The operating system filters it, so it costs nothing to ignore. This is
+  the difference between partitioning with buses and filtering with
+  <a href="sql.html">interests</a>: interests decide what you are told about, buses decide what reaches your
+  machine in the first place.</li>
+<li>A different session is a different system. The session name is part of the group address, and
+  participants also ignore remote kernels whose session differs, so no connection is opened and no
+  object traffic crosses between them. They do still discover each other's presence: a kernel from
+  another session shows up in the list of available sessions, which is what makes <code>open</code> possible in
+  the shell.</li>
+</ul>
+<p>The cost is the other side of the same fact: a socket and a group membership per bus actually in
+use. Splitting a system across many fine-grained buses is not free, and a handful of well-chosen
+buses will usually serve better than one per object. Note the resources follow <em>use</em>, not
+declaration: a bus nobody joins costs nothing.</p>
 <p>You are free to name your sessions and buses as you like, and follow your own criteria for
 categorizing your object groupings. This is something that you need to evaluate based on the nature
 of the problem that you are trying to solve, and the convenience that you might get from this
@@ -1756,73 +2029,69 @@ don't know much about w and x, but want to implement y and z. You write your imp
 those two classes and create a package out of that.</p>
 <p>Now you have a package containing the binaries of your implementation. It also contains the
 definition of all the types you work with and meta information that encapsulates all these facts.</p>
-<p>You might be asking: What can we do with a package? We can use it as a factory for objects. Users of
-your package are now able to instantiate objects of class y and z. They won't know the details of
-your implementation, but they know the interfaces and can create objects of those types.</p>
-<p>We need to explain the difference between a package and a good-old library. You might be asking: "if
-the same can be achieved with a header file and a static or shared library, what value does this
-mechanism provide?". The answer is that, in fact, <em>packages are libraries</em>. Specifically, packages
+<p>A package is a factory for objects. Users of your package can instantiate objects of class y and z.
+They won't know the details of your implementation, but they know the interfaces and can create
+objects of those types.</p>
+<p>If the same can be achieved with a header file and a static or shared library, what does this
+mechanism add? In fact, <em>packages are libraries</em>. Specifically, packages
 are shared libraries that can be natively loaded by a Sen kernel. The particularity of packages is
 that they are created with a uniform interface that allows Sen to inspect all the meta information
 it needs to understand what is being provided.</p>
 <p>This means that Sen is able to instantiate objects (depending on the packages that you may want to
 import) and use configuration parameters. This creates a huge opportunity for getting rid of
 boilerplate code.</p>
-<p>You see, there is a common pattern that most Sen applications share. Normally we:</p>
+<p>Most Sen applications share a pattern. Normally you:</p>
 <ol>
 <li>Instantiate the components and get them to run.</li>
 <li>Load some sort of configuration information / parametrization data.</li>
-<li>Load a set of packages where we will find classes that can be instantiated.</li>
-<li>Instantiate a set of classes (create our own objects).</li>
+<li>Load a set of packages holding classes that can be instantiated.</li>
+<li>Instantiate a set of classes (create your own objects).</li>
 <li>Establish a connection between the component and to some set of buses.</li>
-<li>Publish our objects to those buses.</li>
-<li>Enter an execution loop where we will:</li>
+<li>Publish your objects to those buses.</li>
+<li>Enter an execution loop where you:</li>
 <li>Drain the inputs from the outside (discovered objects, received method calls, received events
       or received property changes).</li>
-<li>Perform some computation based on those inputs, and produce some outputs (published objects,
-      outgoing method calls, emitted events or property changes of the owned objects).</li>
-<li>Flush those outputs so that other components can react to them.</li>
+<li>Update: perform some computation based on those inputs, and produce some outputs (published
+      objects, outgoing method calls, emitted events or property changes of the owned objects).</li>
+<li>Commit those outputs so that other components can react to them.</li>
 </ol>
-<p><img alt="Screenshot" src="../assets/images/wheel_light.svg#only-light" style="width:250px; float: right;"/>
-<img alt="Screenshot" src="../assets/images/wheel_dark.svg#only-dark" style="width:250px; float: right;"/></p>
-<p>If we don't do something about it, every Sen user will likely do the previous steps in sightly
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/wheel_light.svg#only-light"><img alt="Screenshot" src="../assets/images/wheel_light.svg#only-light" style="width:250px; float: right;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/wheel_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/wheel_dark.svg#only-dark" style="width:250px; float: right;"/></a></p>
+<p>If we don't do something about it, every Sen user will likely do the previous steps in slightly
 different ways, using different approaches, getting the configuration data from different sources in
 different formats and therefore ending up re-doing the same work many (<em>many</em>) times across an
 undefined set of projects and with a wide range of bugs.</p>
-<p>We can do something about this. We can identify what are the common needs here and provide a
-reference implementation to allow users to automatically instantiate components that do all of this
-in a structured way.</p>
+<p>Sen identifies those common needs and ships a reference implementation, so you can instantiate
+components that do all of this in a structured way.</p>
 <p>In most cases, there are only a few things that vary between applications:</p>
 <ul>
-<li>The packages that we need to import to be able to instantiate our objects.</li>
-<li>The objects that we want to instantiate and their initialization values.</li>
-<li>The buses where we want to publish our objects and discover the ones published by other
+<li>The packages you need to import to instantiate your objects.</li>
+<li>The objects you want to instantiate and their initialization values.</li>
+<li>The buses where you want to publish your objects and discover the ones published by other
   components.</li>
-<li>The criteria we use to discover other objects.</li>
+<li>The criteria you use to discover other objects.</li>
 </ul>
-<p>Sen allows you to define all of this in a configuration file and let you focus on the business logic
-to have an easier life getting some things done.</p>
-<p><img alt="Screenshot" src="../assets/images/parametrization.svg#only-light" style="width:900px;"/>
-<img alt="Screenshot" src="../assets/images/parametrization_dark.svg#only-dark" style="width:900px;"/></p>
+<p>Sen lets you define all of this in a configuration file, so your code is left with the logic.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/parametrization.svg#only-light"><img alt="Screenshot" src="../assets/images/parametrization.svg#only-light" style="width:900px;"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/parametrization_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/parametrization_dark.svg#only-dark" style="width:900px;"/></a></p>
 <p>Keep in mind that the configuration file can contain the information for instantiating multiple
 components in your process.</p>
 <p>Being able to build and instantiate custom components based on a set of packages and a configuration
 file is key for enabling a powerful degree of composition.</p>
-<p>Packages become common assets. With the multidimensional modularity of Sen:</p>
+<p>Packages become common assets. Sen's multidimensional modularity lets you:</p>
 <ul>
-<li>We can define a rich interface for our objects by using the type system.</li>
-<li>We can decide how to group our implementation into reusable, deployable, modules by using
-  packages.</li>
-<li>We can group objects to perform a well-defined function within a system by using components.</li>
-<li>We can define and parametrize components simply using configuration files.</li>
-<li>We can instantiate multiple components in a process by telling Sen which ones to load and run
-  using a configuration file.</li>
-<li>We can change where those components are executed, and do this in a way that is transparent to our
-  code, even if they are communicating over a network.</li>
-<li>We can do all of the above in a type-safe manner and without having to deal with low-level
-  messaging constructs. Your focus will be in the logic you implement and the information you use,
-  and not in how and where does it come from.</li>
+<li>define a rich interface for your objects, using the type system</li>
+<li>group your implementation into reusable, deployable modules, using packages</li>
+<li>group objects to perform a well-defined function within a system, using components</li>
+<li>define and parametrize components with configuration files</li>
+<li>instantiate multiple components in a process, telling Sen which ones to load and run in a
+  configuration file</li>
+<li>change where those components run, transparently to your code, even when they communicate over a
+  network, at <a href="#moving-components">the cost distance brings</a></li>
+<li>do all of the above in a type-safe manner, without dealing with low-level messaging constructs</li>
 </ul>
+<p>Your focus stays on the logic you implement and the information you use, not on how or where it
+arrives.</p>
 <p><strong>Things to remember</strong></p>
 <ul>
 <li>Components are the units of execution in Sen.</li>
@@ -1835,18 +2104,19 @@ file is key for enabling a powerful degree of composition.</p>
 </ul>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
 <ul>
-<li><a href="../getting_started/first_package.html">Create your first package</a> - put these concepts into practice</li>
-<li><a href="execution_model.html">Execution Model</a> - a deeper look at the drainâ€“updateâ€“commit cycle</li>
-<li><a href="stl.html">STL language reference</a> - how to define types for your objects</li>
-<li><a href="command_line.html">Command Line reference</a> - full YAML configuration schema</li>
-<li><a href="../howto_guides/objects.html">How-to: Working with objects</a> - registration, subscriptions, events in C++</li>
-</ul></div>
+<li><a href="../getting_started/first_package.html">Create your first package</a>: put these concepts into practice</li>
+<li><a href="execution_model.html">Execution model</a>: a deeper look at the drain-update-commit cycle</li>
+<li><a href="stl.html"><abbr title="Sen Type Language">STL</abbr> language reference</a>: how to define types for your objects</li>
+<li><a href="configuration.html">The configuration file</a>: the full YAML reference</li>
+<li><a href="../howto_guides/objects.html">How-to: Working with objects</a>: registration, subscriptions, events in
+  C++</li>
+</ul>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 10, 2026 05:41:00 UTC">April 10, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1873,13 +2143,13 @@ file is key for enabling a powerful degree of composition.</p>
               </div>
 </div>
 </a>
-<a aria-label="Next: Mental Model" class="md-footer__link md-footer__link--next" href="mental_model.html">
+<a aria-label="Next: Mental model" class="md-footer__link md-footer__link--next" href="mental_model.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                Mental Model
+                Mental model
               </div>
 </div>
 <div class="md-footer__button md-icon">
@@ -1901,11 +2171,12 @@ file is key for enabling a powerful degree of composition.</p>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1932,5 +2203,4 @@ file is key for enabling a powerful degree of composition.</p>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

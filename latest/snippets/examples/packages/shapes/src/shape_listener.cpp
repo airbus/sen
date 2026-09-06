@@ -46,6 +46,7 @@ protected:
   void registered(sen::kernel::RegistrationApi& api) override { api_ = &api; }  // save the api for later usage
 
 protected:
+  // --8<-- [start:start_listening]
   std::string startListeningToImpl(const std::string& bus,
                                    const MaybeColor& color,
                                    const MaybeInterval& xRange,
@@ -66,6 +67,7 @@ protected:
       sen::std_util::checkedConversion<uint32_t, sen::std_util::ReportPolicyIgnore>(subscriptions_.size()));
     return queryName;
   }
+  // --8<-- [end:start_listening]
 
   void stopListeningToImpl(const std::string& queryName) override
   {

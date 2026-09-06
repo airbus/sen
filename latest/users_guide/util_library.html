@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/users_guide/util_library.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/users_guide/util_library.html" rel="canonical"/>
 <link href="kernel_library.html" rel="prev"/>
 <link href="faq.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../howto_guides/building_from_source.html">
+<a class="md-tabs__link" href="../howto_guides/index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="true" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -598,11 +705,11 @@
 <a class="md-nav__link" href="#dead-reckoning-utilities">
 <span class="md-ellipsis">
       
-        Dead Reckoning Utilities
+        Dead Reckoning utilities
       
     </span>
 </a>
-<nav aria-label="Dead Reckoning Utilities" class="md-nav">
+<nav aria-label="Dead Reckoning utilities" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
 <a class="md-nav__link" href="#what-is-it">
@@ -690,7 +797,7 @@
 <a class="md-nav__link" href="#dead-reckoning-algorithms">
 <span class="md-ellipsis">
       
-        Dead Reckoning Algorithms
+        Dead Reckoning algorithms
       
     </span>
 </a>
@@ -713,6 +820,18 @@
     
   
     FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
   
 
     
@@ -774,7 +893,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -858,7 +977,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -894,7 +1013,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -952,11 +1071,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<a class="md-nav__link" href="../howto_guides/index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -1012,18 +1131,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -1036,11 +1143,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -1059,12 +1250,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -1107,53 +1321,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../howto_guides/components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../howto_guides/troubleshooting.html">
@@ -1167,38 +1336,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1206,11 +1372,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1220,9 +1386,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1233,8 +1402,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1249,6 +1418,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1392,7 +1573,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1404,7 +1597,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1416,7 +1609,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1427,8 +1620,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1439,8 +1632,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1454,7 +1647,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1466,7 +1659,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1483,27 +1676,27 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="senutil">sen::util<a class="headerlink" href="#senutil" title="Permanent link">¶</a></h1>
+<h1 id="senutil">sen::util<a class="headerlink" href="#senutil" title="Permanent link">¶</a></h1>
 <p>This library houses Sen tools that, while not part of the Sen core, are frequently used within Sen
 environments.</p>
-<p>This library includes Dead Reckoning utilities.</p>
-<p>Check out the <a href="../doxygen_gen/html/index.html">API Reference</a> for a detailed description of the Sen Util
-library.</p>
-<h2 id="dead-reckoning-utilities">Dead Reckoning Utilities<a class="headerlink" href="#dead-reckoning-utilities" title="Permanent link">¶</a></h2>
+<p>This library currently contains only Dead Reckoning utilities.</p>
+<p>Check out the <a href="../doxygen_gen/html/index.html">API Reference</a> for a detailed description of the Sen
+Util library.</p>
+<h2 id="dead-reckoning-utilities">Dead Reckoning utilities<a class="headerlink" href="#dead-reckoning-utilities" title="Permanent link">¶</a></h2>
 <h3 id="what-is-it">What is it?<a class="headerlink" href="#what-is-it" title="Permanent link">¶</a></h3>
-<p>Dead Reckoning is a computational technique used in distributed simulations and networked
-applications to minimize data transmission by predicting the movement of entities between infrequent
-state updates. Instead of continuously transmitting real time positions, participants extrapolate
-future states using kinematic models based on last-known data (position, velocity, acceleration)
-reducing bandwidth consumption while maintaining perceived synchrony.</p>
+<p>Dead Reckoning is a way to cut data transmission in distributed simulations and networked
+applications. Instead of transmitting real time positions continuously, each participant predicts
+where an entity has moved between infrequent state updates: it extrapolates the entity forward with
+a kinematic model, from the last position, velocity and acceleration it received. Bandwidth drops,
+and the entities still appear to be in step.</p>
 <p>This library enables the computation of Dead Reckoning extrapolations on entities by using these two
 APIs:</p>
 <ul>
 <li>The base API where a custom <code>Situation</code> struct is used for the extrapolation.</li>
-<li>An API adapted to FOM which takes a <code>BaseEntity</code> object and extrapolates its spatial situation
-  following the algorithms specified in IEEE 1278.1-1995 Annex B.</li>
+<li>An API adapted to <abbr title="Real-time Platform Reference">RPR</abbr> which takes a <code>BaseEntity</code> object instance and extrapolates its spatial
+  situation following the algorithms specified in IEEE 1278.1-2012, Annex E.</li>
 </ul>
-<p>Additionally, this library allows users to update <code>BaseEntity</code> objects based on error thresholds
+<p>Additionally, this library allows users to update <code>BaseEntity</code> object instances based on error
 between real-time data and extrapolated values, thereby reducing spatial data transmission.</p>
 <h3 id="how-to-use-it">How to use it?<a class="headerlink" href="#how-to-use-it" title="Permanent link">¶</a></h3>
 <p>Information on how to use the Dead Reckoning library can be found in this
@@ -1515,7 +1708,7 @@ between real-time data and extrapolated values, thereby reducing spatial data tr
 <ul>
 <li>
 <p><strong>Coverage</strong>: This library extrapolates position and orientation data for all the Dead Reckoning
-  algorithms contemplated in the IEEE 1278.1-1995 Annex B.</p>
+  algorithms contemplated in the IEEE 1278.1-2012, Annex E.</p>
 </li>
 <li>
 <p><strong>Performance</strong>: Dead Reckoning extrapolations are usually computed at a frequency higher than the
@@ -1532,18 +1725,19 @@ between real-time data and extrapolated values, thereby reducing spatial data tr
 <p><strong>A library, not a package</strong>: This software is a Sen library, but it is not a package. This can be
   confusing because Sen packages are also .so files (shared library). Being a Sen library means that
   it provides a set of helpers which can be used by another package, but it cannot be instantiated
-  directly by the Sen Kernel.</p>
+  directly by the Sen kernel.</p>
 </li>
 </ul>
 <p>A general diagram of the library is shown below:</p>
 <pre class="mermaid"><code>classDiagram
     class DeadReckonerBase {
         +situation(timeStamp) Situation
+        +geodeticSituation(timeStamp) GeodeticSituation
         +updateSituation(Situation)
-        +updateGeodeticSituation(Situation)
+        +updateGeodeticSituation(GeodeticSituation)
     }
     class DeadReckonerTemplateBase~T~ {
-        #extrapolate(SpatialVariant) Situation
+        #extrapolate(SpatialVariant, time, lastTimeStamp) Situation
     }
     class DeadReckoner~T~ {
         +situation(timeStamp) override Situation
@@ -1561,8 +1755,8 @@ between real-time data and extrapolated values, thereby reducing spatial data tr
         orientationDamping
     }
     class SettableDeadReckoner~T~ {
-        +setSpatial(situation)
-        +setSpatial(geodeticSituation)
+        +setSpatial(situation) bool
+        +setSpatial(geodeticSituation) bool
         +setFrozen(timeStamp, isFrozen)
         +object() T
     }
@@ -1578,12 +1772,199 @@ between real-time data and extrapolated values, thereby reducing spatial data tr
     SettableDeadReckoner o-- DrThreshold : 1</code></pre>
 <p>The <code>DeadReckonerBase</code> class encapsulates the core functionality of the dead reckoning, and that
 class can be directly used to extrapolate (and optionally smooth) any <code>Situation</code> that does not need
-to be coming from the <code>Spatial</code> field of a FOM object.</p>
-<p>The <code>DeadReckonerTemplateBase&lt;T&gt;</code> class particularizes this functionality for FOM objects and the
-<code>DeadReckoner&lt;T&gt;</code> and <code>SettableDeadReckoner&lt;T&gt;</code> classes inherit from it.</p>
+to be coming from the <abbr title="Real-time Platform Reference">RPR</abbr> <code>Spatial</code> attribute.</p>
+<p>The <code>DeadReckonerTemplateBase&lt;T&gt;</code> class particularizes this functionality for <abbr title="Real-time Platform Reference">RPR</abbr> object instances
+and the <code>DeadReckoner&lt;T&gt;</code> and <code>SettableDeadReckoner&lt;T&gt;</code> classes inherit from it.</p>
 <h4 id="data-models-and-configuration">Data models and configuration<a class="headerlink" href="#data-models-and-configuration" title="Permanent link">¶</a></h4>
-<p>The dead reckoning library allows the user to extrapolate the position/orientation of an entity
-using data in the form of the following two structs:</p>
+<p>The dead reckoning library extrapolates the position and orientation of an entity from a
+<em>situation</em>. <code>Situation</code> and <code>GeodeticSituation</code> differ only in the frame the position and
+orientation are expressed in: the first uses <abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr>, the second latitude/longitude/altitude with
+orientation relative to <abbr title="North-East-Down">NED</abbr>.</p>
+<p><strong><code>sen::util::Situation</code></strong>: Cartesian, earth-centered earth-fixed.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Components</th>
+<th>Unit</th>
+<th>Frame</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>isFrozen</code></td>
+<td>—</td>
+<td><code>bool</code></td>
+<td>—</td>
+<td>When true no extrapolation is performed. Default <code>false</code></td>
+</tr>
+<tr>
+<td><code>timeStamp</code></td>
+<td>—</td>
+<td><code>sen::TimeStamp</code></td>
+<td>—</td>
+<td>The instant this situation describes</td>
+</tr>
+<tr>
+<td><code>worldLocation</code></td>
+<td><code>x</code> <code>y</code> <code>z</code></td>
+<td>meters</td>
+<td><abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr></td>
+<td>Position</td>
+</tr>
+<tr>
+<td><code>orientation</code></td>
+<td><code>psi</code> <code>theta</code> <code>phi</code></td>
+<td>radians</td>
+<td>body relative to <abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr></td>
+<td>Body axes are x forward, y right, z down</td>
+</tr>
+<tr>
+<td><code>velocityVector</code></td>
+<td><code>x</code> <code>y</code> <code>z</code></td>
+<td>m/s</td>
+<td><abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr> <em>or</em> body</td>
+<td>Depends on the algorithm being extrapolated</td>
+</tr>
+<tr>
+<td><code>angularVelocity</code></td>
+<td><code>x</code> <code>y</code> <code>z</code></td>
+<td>rad/s</td>
+<td>body</td>
+<td></td>
+</tr>
+<tr>
+<td><code>accelerationVector</code></td>
+<td><code>x</code> <code>y</code> <code>z</code></td>
+<td>m/s²</td>
+<td><abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr> <em>or</em> body</td>
+<td>Depends on the algorithm being extrapolated</td>
+</tr>
+<tr>
+<td><code>angularAcceleration</code></td>
+<td><code>x</code> <code>y</code> <code>z</code></td>
+<td>rad/s²</td>
+<td>body</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>sen::util::GeodeticSituation</code></strong>: identical apart from the three rows below.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Components</th>
+<th>Unit</th>
+<th>Frame</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>worldLocation</code></td>
+<td><code>latitude</code> <code>longitude</code></td>
+<td>degrees</td>
+<td>—</td>
+<td><code>altitude</code> is in meters</td>
+</tr>
+<tr>
+<td><code>orientation</code></td>
+<td><code>psi</code> <code>theta</code> <code>phi</code></td>
+<td>radians</td>
+<td>body relative to <abbr title="North-East-Down">NED</abbr></td>
+<td>North-East-Down</td>
+</tr>
+<tr>
+<td><code>velocityVector</code>, <code>accelerationVector</code></td>
+<td><code>x</code> <code>y</code> <code>z</code></td>
+<td>m/s, m/s²</td>
+<td><abbr title="North-East-Down">NED</abbr></td>
+<td>The overload converts these to <abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr> before writing; see <strong>Reference System</strong> below</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>sen::util::DrConfig</code></strong>: the smoothing configuration. The defaults are tuned to work in most
+scenarios; <a href="../howto_guides/dead_reckoning.html">the how-to guide</a> explains which way to turn each
+one.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smoothing</code></td>
+<td><code>bool</code></td>
+<td>—</td>
+<td><code>true</code></td>
+<td>Smooth incoming position and orientation to remove noise</td>
+</tr>
+<tr>
+<td><code>maxDistance</code></td>
+<td><code>f64</code></td>
+<td>meters</td>
+<td><code>100000.0</code></td>
+<td>Displacements larger than this are not smoothed</td>
+</tr>
+<tr>
+<td><code>maxDeltaTime</code></td>
+<td><code>sen::Duration</code></td>
+<td>—</td>
+<td><code>1 s</code></td>
+<td>Time deltas larger than this are not smoothed</td>
+</tr>
+<tr>
+<td><code>smoothingInterval</code></td>
+<td><code>sen::Duration</code></td>
+<td>—</td>
+<td><code>20 ms</code></td>
+<td>Longest interval used to update the smoothed solution; caps it to keep the solution stable</td>
+</tr>
+<tr>
+<td><code>positionConvergenceTime</code></td>
+<td><code>sen::Duration</code></td>
+<td>—</td>
+<td><code>500 ms</code></td>
+<td>How long the smoothed position takes to reach the updated position</td>
+</tr>
+<tr>
+<td><code>positionDamping</code></td>
+<td><code>f64</code></td>
+<td>—</td>
+<td><code>1.0</code></td>
+<td>Damping of the smoothed position</td>
+</tr>
+<tr>
+<td><code>orientationConvergenceTime</code></td>
+<td><code>sen::Duration</code></td>
+<td>—</td>
+<td><code>50 ms</code></td>
+<td>How long the smoothed orientation takes to reach the updated orientation</td>
+</tr>
+<tr>
+<td><code>orientationDamping</code></td>
+<td><code>f64</code></td>
+<td>—</td>
+<td><code>20.0</code></td>
+<td>Damping of the smoothed orientation</td>
+</tr>
+</tbody>
+</table>
+<p>The lengths, angles and rates above are quantity types (<code>LengthMeters</code>, <code>AngleRadians</code>,
+<code>VelocityMetersPerSecond</code> and so on), so the unit is part of the type rather than a convention you
+have to remember.</p>
+<p>In C++ a quantity is a wrapper over its underlying type that converts to and from it implicitly, so
+you can pass one wherever the plain number is expected and assign a plain number back. The unit is
+enforced where values cross between components, not inside arithmetic you write yourself.</p>
+<details class="note">
+<summary>C++ declarations</summary>
 <div class="language-c++ highlight"><span class="filename">sen::util::Situation</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1">/// Situation structure with the following parameters:</span>
 </span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Situation</span>
 </span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="p">{</span>
@@ -1591,7 +1972,7 @@ using data in the form of the following two structs:</p>
 </span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">isFrozen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 </span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>
 </span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="c1">/// TimeStamp of the instant when the situation is computed.</span>
-</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="w"> </span><span class="p">{};</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="p">;</span>
 </span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>
 </span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="c1">///  Position in ECEF.</span>
 </span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="n">Location</span><span class="w"> </span><span class="n">worldLocation</span><span class="w"> </span><span class="p">{};</span>
@@ -1621,7 +2002,7 @@ using data in the form of the following two structs:</p>
 </span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">isFrozen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 </span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>
 </span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">  </span><span class="c1">/// TimeStamp of the instant when the situation is computed.</span>
-</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="w"> </span><span class="p">{};</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="p">;</span>
 </span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>
 </span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">  </span><span class="c1">/// World Location in Geodetic (Latitude, Longitude, Altitude).</span>
 </span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">  </span><span class="n">GeodeticWorldLocation</span><span class="w"> </span><span class="n">worldLocation</span><span class="w"> </span><span class="p">{};</span>
@@ -1643,7 +2024,6 @@ using data in the form of the following two structs:</p>
 </span><span id="__span-1-27"><a href="#__codelineno-1-27" id="__codelineno-1-27" name="__codelineno-1-27"></a><span class="w">  </span><span class="n">AngularAcceleration</span><span class="w"> </span><span class="n">angularAcceleration</span><span class="w"> </span><span class="p">{};</span>
 </span><span id="__span-1-28"><a href="#__codelineno-1-28" id="__codelineno-1-28" name="__codelineno-1-28"></a><span class="p">};</span>
 </span></code></pre></div>
-<p>Additionally, the dead reckoning takes the following configuration:</p>
 <div class="language-c++ highlight"><span class="filename">sen::util::DrConfig</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1">/// Dead Reckoning configuration.</span>
 </span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DrConfig</span>
 </span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="p">{</span>
@@ -1673,8 +2053,7 @@ using data in the form of the following two structs:</p>
 </span><span id="__span-2-27"><a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="w">  </span><span class="n">DampingCoefficient</span><span class="w"> </span><span class="n">orientationDamping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">20.0</span><span class="p">;</span>
 </span><span id="__span-2-28"><a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="p">};</span>
 </span></code></pre></div>
-<p>The default values provided in the <code>DrConfig</code> where trimmed to ensure a good performance in the
-majority of scenarios but can be freely changed by the user.</p>
+</details>
 <h4 id="the-dead-reckoner-base">The Dead Reckoner Base<a class="headerlink" href="#the-dead-reckoner-base" title="Permanent link">¶</a></h4>
 <p>The <code>DeadReckonerBase</code> has the following API:</p>
 <div class="language-c++ highlight"><span class="filename">DeadReckonerBase API</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1">/// Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by</span>
@@ -1730,19 +2109,33 @@ majority of scenarios but can be freely changed by the user.</p>
 </span><span id="__span-3-51"><a href="#__codelineno-3-51" id="__codelineno-3-51" name="__codelineno-3-51"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Situation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">getSmoothSituation</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
 </span><span id="__span-3-52"><a href="#__codelineno-3-52" id="__codelineno-3-52" name="__codelineno-3-52"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">smooth</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Situation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">update</span><span class="p">);</span>
 </span><span id="__span-3-53"><a href="#__codelineno-3-53" id="__codelineno-3-53" name="__codelineno-3-53"></a>
-</span><span id="__span-3-54"><a href="#__codelineno-3-54" id="__codelineno-3-54" name="__codelineno-3-54"></a><span class="k">private</span><span class="o">:</span>
-</span><span id="__span-3-55"><a href="#__codelineno-3-55" id="__codelineno-3-55" name="__codelineno-3-55"></a><span class="w">  </span><span class="n">DrConfig</span><span class="w"> </span><span class="n">config_</span><span class="p">;</span>
-</span><span id="__span-3-56"><a href="#__codelineno-3-56" id="__codelineno-3-56" name="__codelineno-3-56"></a><span class="w">  </span><span class="n">Situation</span><span class="w"> </span><span class="n">lastSituation_</span><span class="p">;</span>
-</span><span id="__span-3-57"><a href="#__codelineno-3-57" id="__codelineno-3-57" name="__codelineno-3-57"></a><span class="w">  </span><span class="n">Situation</span><span class="w"> </span><span class="n">smoothSituation_</span><span class="p">;</span>
-</span><span id="__span-3-58"><a href="#__codelineno-3-58" id="__codelineno-3-58" name="__codelineno-3-58"></a><span class="p">};</span>
+</span><span id="__span-3-54"><a href="#__codelineno-3-54" id="__codelineno-3-54" name="__codelineno-3-54"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">invalidateCache</span><span class="p">();</span>
+</span><span id="__span-3-55"><a href="#__codelineno-3-55" id="__codelineno-3-55" name="__codelineno-3-55"></a>
+</span><span id="__span-3-56"><a href="#__codelineno-3-56" id="__codelineno-3-56" name="__codelineno-3-56"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isSituationCached</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-3-57"><a href="#__codelineno-3-57" id="__codelineno-3-57" name="__codelineno-3-57"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">setCachedSituation</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Situation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">situation</span><span class="p">);</span>
+</span><span id="__span-3-58"><a href="#__codelineno-3-58" id="__codelineno-3-58" name="__codelineno-3-58"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Situation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">getCachedSituation</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-3-59"><a href="#__codelineno-3-59" id="__codelineno-3-59" name="__codelineno-3-59"></a>
+</span><span id="__span-3-60"><a href="#__codelineno-3-60" id="__codelineno-3-60" name="__codelineno-3-60"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isGeodeticSituationCached</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-3-61"><a href="#__codelineno-3-61" id="__codelineno-3-61" name="__codelineno-3-61"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">setCachedGeodeticSituation</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">GeodeticSituation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">situation</span><span class="p">);</span>
+</span><span id="__span-3-62"><a href="#__codelineno-3-62" id="__codelineno-3-62" name="__codelineno-3-62"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">GeodeticSituation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">getCachedGeodeticSituation</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-3-63"><a href="#__codelineno-3-63" id="__codelineno-3-63" name="__codelineno-3-63"></a>
+</span><span id="__span-3-64"><a href="#__codelineno-3-64" id="__codelineno-3-64" name="__codelineno-3-64"></a><span class="k">private</span><span class="o">:</span>
+</span><span id="__span-3-65"><a href="#__codelineno-3-65" id="__codelineno-3-65" name="__codelineno-3-65"></a><span class="w">  </span><span class="n">DrConfig</span><span class="w"> </span><span class="n">config_</span><span class="p">;</span>
+</span><span id="__span-3-66"><a href="#__codelineno-3-66" id="__codelineno-3-66" name="__codelineno-3-66"></a><span class="w">  </span><span class="n">Situation</span><span class="w"> </span><span class="n">lastSituation_</span><span class="p">;</span>
+</span><span id="__span-3-67"><a href="#__codelineno-3-67" id="__codelineno-3-67" name="__codelineno-3-67"></a><span class="w">  </span><span class="n">Situation</span><span class="w"> </span><span class="n">smoothSituation_</span><span class="p">;</span>
+</span><span id="__span-3-68"><a href="#__codelineno-3-68" id="__codelineno-3-68" name="__codelineno-3-68"></a>
+</span><span id="__span-3-69"><a href="#__codelineno-3-69" id="__codelineno-3-69" name="__codelineno-3-69"></a><span class="w">  </span><span class="c1">// cache</span>
+</span><span id="__span-3-70"><a href="#__codelineno-3-70" id="__codelineno-3-70" name="__codelineno-3-70"></a><span class="w">  </span><span class="n">Situation</span><span class="w"> </span><span class="n">cachedSituation_</span><span class="p">;</span>
+</span><span id="__span-3-71"><a href="#__codelineno-3-71" id="__codelineno-3-71" name="__codelineno-3-71"></a><span class="w">  </span><span class="n">GeodeticSituation</span><span class="w"> </span><span class="n">cachedGeodeticSituation_</span><span class="p">;</span>
+</span><span id="__span-3-72"><a href="#__codelineno-3-72" id="__codelineno-3-72" name="__codelineno-3-72"></a><span class="p">};</span>
 </span></code></pre></div>
 <p>Where the user needs to call <code>updateSituation</code> (with a situation containing a valid timestamp) every
 time the last-known data can be updated. Calling <code>situation</code> or <code>geodeticSituation</code> retrieves the
 position/orientation extrapolated to the timestamp provided as argument.</p>
 <h4 id="the-dead-reckoner">The Dead Reckoner<a class="headerlink" href="#the-dead-reckoner" title="Permanent link">¶</a></h4>
-<p>The <code>DeadReckoner&lt;T&gt;</code> provides an API to the user tailored to accept <code>rpr::BaseEntityInterface</code> FOM
-objects and perform extrapolations on them following the algorithms specified in IEEE 1278.1-1995
-Annex B. The FOM entity updates are detected automatically in this case. The API is shown below:</p>
+<p>The <code>DeadReckoner&lt;T&gt;</code> provides an API to the user tailored to accept <code>rpr::BaseEntityInterface</code>
+object instances and perform extrapolations on them following the algorithms specified in IEEE
+1278.1-2012, Annex E. Their updates are detected automatically in this case. The API is shown below:</p>
 <div class="language-c++ highlight"><span class="filename">DeadReckoner API</span><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
 </span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">DeadReckoner</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">DeadReckonerTemplateBase</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
 </span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="p">{</span>
@@ -1773,7 +2166,7 @@ Annex B. The FOM entity updates are detected automatically in this case. The API
 </span><span id="__span-4-28"><a href="#__codelineno-4-28" id="__codelineno-4-28" name="__codelineno-4-28"></a><span class="w">  </span><span class="k">explicit</span><span class="w"> </span><span class="n">DeadReckoner</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">DrConfig</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{});</span>
 </span><span id="__span-4-29"><a href="#__codelineno-4-29" id="__codelineno-4-29" name="__codelineno-4-29"></a><span class="w">  </span><span class="o">~</span><span class="n">DeadReckoner</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span>
 </span><span id="__span-4-30"><a href="#__codelineno-4-30" id="__codelineno-4-30" name="__codelineno-4-30"></a>
-</span><span id="__span-4-31"><a href="#__codelineno-4-31" id="__codelineno-4-31" name="__codelineno-4-31"></a><span class="k">public</span><span class="o">:</span><span class="w"> </span><span class="c1">// overrides DeadReckonerBase</span>
+</span><span id="__span-4-31"><a href="#__codelineno-4-31" id="__codelineno-4-31" name="__codelineno-4-31"></a><span class="k">public</span><span class="o">:</span><span class="w">  </span><span class="c1">// overrides DeadReckonerBase</span>
 </span><span id="__span-4-32"><a href="#__codelineno-4-32" id="__codelineno-4-32" name="__codelineno-4-32"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="n">Situation</span><span class="w"> </span><span class="n">situation</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
 </span><span id="__span-4-33"><a href="#__codelineno-4-33" id="__codelineno-4-33" name="__codelineno-4-33"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="n">GeodeticSituation</span><span class="w"> </span><span class="n">geodeticSituation</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">TimeStamp</span><span class="w"> </span><span class="n">timeStamp</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
 </span><span id="__span-4-34"><a href="#__codelineno-4-34" id="__codelineno-4-34" name="__codelineno-4-34"></a>
@@ -1832,51 +2225,63 @@ This facilitates the reduction of the load in the Sen network, by only updating 
 necessary.</p>
 <p>The Settable Dead Reckoner takes the <code>DrThreshold</code> as a configuration. The definition of the
 <code>DrThreshold</code> is shown below:</p>
-<div class="language-cpp highlight"><span class="filename">sen::util::DrThreshold</span><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1">/// Threshold configuration structure with the position error threshold (maximum distance between extrapolation and</span>
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="c1">/// data) and the entity dynamics (speed and changes of direction)</span>
+<div class="language-cpp highlight"><span class="filename">sen::util::DrThreshold</span><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1">/// How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="c1">/// between orientations, and the reference system both are measured in.</span>
 </span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DrThreshold</span>
 </span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="p">{</span>
-</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">  </span><span class="n">LengthMeters</span><span class="w"> </span><span class="n">distanceThreshold</span><span class="w"> </span><span class="p">{};</span>
-</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="n">AngleRadians</span><span class="w"> </span><span class="n">orientationThreshold</span><span class="w"> </span><span class="p">{};</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">  </span><span class="n">LengthMeters</span><span class="w"> </span><span class="n">distanceThreshold</span><span class="w"> </span><span class="p">{</span><span class="mf">1.0</span><span class="p">};</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="n">AngleRadians</span><span class="w"> </span><span class="n">orientationThreshold</span><span class="w"> </span><span class="p">{</span><span class="mf">0.05f</span><span class="p">};</span>
 </span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">  </span><span class="n">ReferenceSystem</span><span class="w"> </span><span class="n">referenceSystem</span><span class="w"> </span><span class="p">{</span><span class="n">ReferenceSystem</span><span class="o">::</span><span class="n">world</span><span class="p">};</span>
 </span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="p">};</span>
 </span></code></pre></div>
+<p>Both thresholds default to a value that already suppresses most updates, one meter and 0.05 radians
+(about 2.9 degrees), so the reduction in traffic happens without any configuration. Setting either
+to zero has the opposite effect of what this class is for: every update would exceed it.</p>
 <p>As you can see, it enables the configuration of the following parameters:</p>
 <ul>
 <li><strong>Distance Threshold</strong>: Minimum distance in meters between the extrapolation and the new position
   updates (in any of the components of the position x, y or z) to trigger a set of the <code>Spatial</code>
   property of the local object. The distance threshold can be expressed with the following
-  expressions, where $new$ indicates updates in the position and $dr$ extrapolated positions.</li>
+  expressions, where <span class="arithmatex">\(new\)</span> indicates updates in the position and <span class="arithmatex">\(dr\)</span> extrapolated positions.</li>
 </ul>
-<p>$$
+<div class="arithmatex">\[
 \Delta x = |x_{new} - x_{dr}|
-$$</p>
-<p>$$
+\]</div>
+<div class="arithmatex">\[
 \Delta y = |y_{new} - y_{dr}|
-$$</p>
-<p>$$
+\]</div>
+<div class="arithmatex">\[
 \Delta z = |z_{new} - z_{dr}|
-$$</p>
+\]</div>
 <ul>
 <li><strong>Orientation Threshold</strong>: Minimum angle in radians between the extrapolation and new orientation
   updates to trigger a set of the <code>Spatial</code> property of the local Sen object. The orientation
-  threshold can be easily computed using quaternions with the following expressions, where $q_{new}$
-  is the quaternion representing the new orientation update, $q_{dr}$ is the quaterion representing
-  the extrapolated orientation and $\beta$ is the angle between both orientations:</li>
+  threshold can be easily computed using quaternions with the following expressions, where <span class="arithmatex">\(q_{new}\)</span>
+  is the quaternion representing the new orientation update, <span class="arithmatex">\(q_{dr}\)</span> is the quaternion representing
+  the extrapolated orientation and <span class="arithmatex">\(\beta\)</span> is the angle between both orientations:</li>
 </ul>
-<p>$$
+<div class="arithmatex">\[
 q_{new} \cdot q_{dr} = cos(\frac{\beta}{2})
-$$</p>
+\]</div>
 <ul>
 <li><strong>Reference System</strong>: Reference system used for the <code>Spatial</code> property of the local
   <code>BaseEntityBase</code> object. Spatial dead reckoning algorithms use two different reference systems,
-  body (x forward, y right, z down) and world (ECEF). In case a <code>GeodeticSituation</code> is used as input
-  to set the Spatial, the reference system configuration is not used, as the Spatial will always be
-  in world coordinates.</li>
+  body (x forward, y right, z down) and world (<abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr>). This setting picks which of the two the
+  written <code>Spatial</code> is tagged with, and it applies to both <code>setSpatial</code> overloads. The
+  <code>GeodeticSituation</code> overload converts its position, orientation, velocity and acceleration to
+  <abbr title="Earth-Centered, Earth-Fixed">ECEF</abbr> before writing them, so leaving this at its <code>world</code> default is what matches that data;
+  setting it to <code>body</code> on that path produces a <code>Spatial</code> holding world vectors under a body-frame
+  algorithm.</li>
 </ul>
 <p>The two main methods of the <code>SettableDeadReckoner&lt;T&gt;</code> class are the two overloads of the
 <code>setSpatial</code> method, which take a Situation and a GeodeticSituation as inputs. These two overloads
 allow the consumer to input the <code>Situation</code> in two possible reference systems.</p>
+<p>Both return <code>true</code> when the call published a new <code>Spatial</code> and <code>false</code> when the extrapolation was
+still within the threshold, which is the common case for anything in near-linear motion. You can
+ignore the return, and most callers do. It is there for a producer that needs to know whether it
+wrote on this cycle: instrumentation that must not report activity on a cycle where the object
+published nothing, for instance. Note that it reports what was <strong>published</strong>, not whether the
+situation you passed in differed from the last one.</p>
 <p>As you can see in the <a href="#dead-reckoning-algorithms">algorithms annex</a>, the <code>Spatial</code> property of a
 <code>BaseEntity</code> can use multiple DeadReckoning algorithms. The <code>SettableDeadReckoner&lt;T&gt;</code> automatically
 selects the algorithm that will be used by the <code>Spatial</code> dynamically depending on the data inputted
@@ -1901,87 +2306,87 @@ from the bus.</p>
 internal smoothed situation that updates its acceleration depending on its total error with respect
 to the input data. The following diagram depicts the smoothing of the x location. The same smoothing
 algorithm is applied to both position and orientation:</p>
-<p><img alt="Screenshot" src="../assets/images/smoothing_light.svg#only-light" style="width:700px"/>
-<img alt="Screenshot" src="../assets/images/smoothing_dark.svg#only-dark" style="width:700px"/></p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/smoothing_light.svg#only-light"><img alt="Screenshot" src="../assets/images/smoothing_light.svg#only-light" style="width:700px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/smoothing_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/smoothing_dark.svg#only-dark" style="width:700px"/></a></p>
 <p>Updating the acceleration helps to avoid discontinuities in the solution because we perform a second
 order integration. The condition to update the acceleration is that the smoothed solution needs to
 converge with the input data after a convergence time. This directly translates to higher
 accelerations as the error increases. The smoothed solution can be unstable for small convergence
-times, that is why the magnitude of the convergence time was trimmed internally to minimize errors
-while ensuring stability.</p>
+times, which is why the update is advanced in steps no longer than <code>smoothingInterval</code>, 20 ms by
+default. The convergence time you configure is used as given.</p>
 <p>In addition to the convergence time, a damping is applied to the smoothed solution to avoid
-overshooting. This coefficient is configurable via de <code>DrConfig</code> and the default values were trimmed
-to ensure high quality damping for the position and orientation solutions. Modification of this
-values is not recommended unless it is necessary.</p>
+overshooting. This coefficient is configurable via <code>DrConfig</code>, and the defaults are tuned to
+damp the position and orientation solutions well. Changing them is not recommended unless
+you need to.</p>
 <p>Finally, when the error between the smoothed solution and the input data surpasses a maximum
 distance threshold (configurable in the DrConfig), the error is corrected instantly without
 smoothing. This applies, for example, when the IOS applies big corrections to the location of the
 entities.</p>
-<h4 id="dead-reckoning-algorithms">Dead Reckoning Algorithms<a class="headerlink" href="#dead-reckoning-algorithms" title="Permanent link">¶</a></h4>
+<h4 id="dead-reckoning-algorithms">Dead Reckoning algorithms<a class="headerlink" href="#dead-reckoning-algorithms" title="Permanent link">¶</a></h4>
 <p>Here we detail the extrapolation algorithms implemented in this library. This library covers all the
-algorithms specified on IEEE 1278.1-1995 Annex B.</p>
+algorithms specified on IEEE 1278.1-2012, Annex E.</p>
 <p><strong>Static</strong>: No movement.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0
-$$</p>
+\]</div>
 <p><strong>FPW</strong>: Linear extrapolation of the position, not considering rotation and using the world
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + V_0 \Delta t
-$$</p>
+\]</div>
 <p><strong>RPW</strong>: Linear extrapolation of the position, considering rotation and using the world reference
 system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + V_0 \Delta t
-$$</p>
-<p>$$
+\]</div>
+<div class="arithmatex">\[
 [R] _{\omega -&gt; B} = [DR] [R_0] _ {\omega -&gt; B }
-$$</p>
+\]</div>
 <p><strong>RVW</strong>: Second order extrapolation of the position, considering rotation and using the world
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + V_0 \Delta t + 1/2 A_0 \Delta t^2
-$$</p>
-<p>$$
+\]</div>
+<div class="arithmatex">\[
 [R] _{\omega -&gt; B} = [DR] [R_0] _ {\omega -&gt; B }
-$$</p>
+\]</div>
 <p><strong>FVW</strong>: Second order extrapolation of the position, not considering rotation and using the world
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + V_0 \Delta t + 1/2 A_0 \Delta t^2
-$$</p>
+\]</div>
 <p><strong>FPB</strong>: First order extrapolation of the position, not considering rotation and using the body
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + [R] ^ {-1}_ {\omega -&gt; B } [R1]V_b
-$$</p>
+\]</div>
 <p><strong>RPB</strong>: First order extrapolation of the position, considering rotation and using the body
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + [R] ^ {-1}_ {\omega -&gt; B } [R1]V_b
-$$</p>
-<p>$$
+\]</div>
+<div class="arithmatex">\[
 [R] _{\omega -&gt; B} = [DR] [R_0] _ {\omega -&gt; B }
-$$</p>
+\]</div>
 <p><strong>RVB</strong>: Second order extrapolation of the position, considering rotation and using the body
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + [R] ^ {-1}_ {\omega -&gt; B } ([R1]V_b + [R2]A_b)
-$$</p>
-<p>$$
+\]</div>
+<div class="arithmatex">\[
 [R] _{\omega -&gt; B} = [DR] [R_0] _ {\omega -&gt; B }
-$$</p>
+\]</div>
 <p><strong>FVB</strong>: Second order extrapolation of the position, not considering rotation and using the body
 reference system.</p>
-<p>$$
+<div class="arithmatex">\[
 P = P_0 + [R] ^ {-1}_ {\omega -&gt; B } ([R1]V_b + [R2]A_b)
-$$</p></div>
+\]</div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 4, 2026 10:41:45 UTC">March 4, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -2036,11 +2441,12 @@ $$</p></div>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -2067,5 +2473,4 @@ $$</p></div>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

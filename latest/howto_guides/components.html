@@ -1,15 +1,12 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/howto_guides/components.html" rel="canonical"/>
-<link href="unit_tests.html" rel="prev"/>
-<link href="troubleshooting.html" rel="next"/>
+<link href="https://airbus.github.io/sen/latest/howto_guides/components.html" rel="canonical"/>
+<link href="integration_tests.html" rel="prev"/>
+<link href="connecting_existing_systems.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Writing a component (advanced) - Sen</title>
@@ -18,15 +15,24 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#writing-a-component-advanced-internal-to-sen">
+<a class="md-skip" href="#writing-a-component-advanced">
           Skip to content
         </a>
 </div>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="building_from_source.html">
+<a class="md-tabs__link" href="index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -592,6 +699,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -647,7 +766,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -731,7 +850,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -767,7 +886,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -825,11 +944,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="building_from_source.html">
+<a class="md-nav__link" href="index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -885,18 +1004,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -909,11 +1016,187 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#do-you-need-to-write-one">
+<span class="md-ellipsis">
+      
+        Do you need to write one?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-component-lifecycle">
+<span class="md-ellipsis">
+      
+        The component lifecycle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-component-that-only-installs-a-hook">
+<span class="md-ellipsis">
+      
+        A component that only installs a hook
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-component-that-publishes-an-object">
+<span class="md-ellipsis">
+      
+        A component that publishes an object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#starting-your-own">
+<span class="md-ellipsis">
+      
+        Starting your own
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stopping-it-and-looking-at-it">
+<span class="md-ellipsis">
+      
+        Stopping it, and looking at it
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-execution-loop">
+<span class="md-ellipsis">
+      
+        The execution loop
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#finding-other-objects">
+<span class="md-ellipsis">
+      
+        Finding other objects
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -932,12 +1215,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -980,129 +1286,6 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#getting-it-started">
-<span class="md-ellipsis">
-      
-        Getting it started
-      
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#getting-it-stopped">
-<span class="md-ellipsis">
-      
-        Getting it stopped
-      
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#adding-parameters">
-<span class="md-ellipsis">
-      
-        Adding parameters
-      
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#the-environment">
-<span class="md-ellipsis">
-      
-        The environment
-      
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#publishing-objects">
-<span class="md-ellipsis">
-      
-        Publishing objects
-      
-    </span>
-</a>
-<nav aria-label="Publishing objects" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#objects-naming-convention">
-<span class="md-ellipsis">
-      
-        Object's naming convention
-      
-    </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
 </ul>
 </nav>
 </li>
@@ -1118,38 +1301,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1157,11 +1337,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1171,9 +1351,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1184,8 +1367,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1200,6 +1383,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1343,7 +1538,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1355,7 +1562,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1367,7 +1574,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1378,8 +1585,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1390,8 +1597,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1405,7 +1612,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1417,7 +1624,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1434,518 +1641,295 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="writing-a-component-advanced-internal-to-sen">Writing a Component (advanced - internal to Sen)<a class="headerlink" href="#writing-a-component-advanced-internal-to-sen" title="Permanent link">¶</a></h1>
-<p>The reality is that you are likely going to write more packages than components, but this tutorial
-is fundamental to understand how Sen works, and therefore it provides the knowledge you will need to
-design and implement your packages.</p>
-<h2 id="getting-it-started">Getting it started<a class="headerlink" href="#getting-it-started" title="Permanent link">¶</a></h2>
-<p>Let's create our first component and get it to run in a Sen process.</p>
-<p>We can ask Sen to create a skeleton for our component by doing:</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="gp">$ </span>sen<span class="w"> </span>package<span class="w"> </span>init-component<span class="w"> </span>MyComponent
-</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="gp">$ </span>tree<span class="w"> </span>my_component/
-</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="go">my_component/</span>
-</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="go">├── CMakeLists.txt</span>
-</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="go">└── src</span>
-</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="go">   └── component.cpp</span>
-</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="go">1 directory, 2 files</span>
-</span></code></pre></div>
-<p>If we open the CMakeLists.txt file and fill in our info, we get:</p>
-<div class="language-cmake highlight"><span class="filename">CMakeLists.txt</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
-</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">        </span><span class="s">TARGET</span><span class="w"> </span><span class="s">my_component</span>
-</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">        </span><span class="s">MAINTAINER</span><span class="w"> </span><span class="s2">"John Doe (johndoe@mail.com)"</span>
-</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">        </span><span class="s">VERSION</span><span class="w"> </span><span class="s2">"0.0.1"</span>
-</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">        </span><span class="s">DESCRIPTION</span><span class="w"> </span><span class="s2">"This is my first component"</span>
-</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">        </span><span class="s">SOURCES</span><span class="w"> </span><span class="s">lang/component.cpp</span>
-</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">        </span><span class="s">IS_COMPONENT</span>
-</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="p">)</span>
-</span></code></pre></div>
-<p>The <code>add_sen_component</code> function is a CMake helper that will create a shared library target
-containing all the required meta information. This information also includes the git version, branch
-and status, compiler and compilation flags, etc.</p>
-<p>Add the CMakeLists.txt to your CMake project. We will now have a target named <code>my_component</code> that
-will be built as a shared object.</p>
-<p>Let's have a look at the component.cpp file:</p>
-<div class="language-c++ highlight"><table class="highlighttable"><tr><th class="filename" colspan="2"><span class="filename">component.cpp</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-2-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-2-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-2-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-2-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-2-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-2-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-2-10">10</a></span>
-<span class="normal"><a href="#__codelineno-2-11">11</a></span>
-<span class="normal"><a href="#__codelineno-2-12">12</a></span>
-<span class="normal"><a href="#__codelineno-2-13">13</a></span>
-<span class="normal"><a href="#__codelineno-2-14">14</a></span>
-<span class="normal"><a href="#__codelineno-2-15">15</a></span>
-<span class="normal"><a href="#__codelineno-2-16">16</a></span>
-<span class="normal"><a href="#__codelineno-2-17">17</a></span>
-<span class="normal"><a href="#__codelineno-2-18">18</a></span>
-<span class="normal"><a href="#__codelineno-2-19">19</a></span>
-<span class="normal"><a href="#__codelineno-2-20">20</a></span>
-<span class="normal"><a href="#__codelineno-2-21">21</a></span>
-<span class="normal"><a href="#__codelineno-2-22">22</a></span>
-<span class="normal"><a href="#__codelineno-2-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"sen/kernel/component.h"</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyComponent</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">Component</span><span class="w"> </span><span class="cm">/*(1)*/</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="p">{</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="n">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="cm">/*(2)*/</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"MyComponent: started running</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">api</span><span class="p">.</span><span class="n">stopRequested</span><span class="p">())</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"MyComponent: hello</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17"></a>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"MyComponent: finished</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">done</span><span class="p">();</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="p">};</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22"></a>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="n">SEN_COMPONENT</span><span class="p">(</span><span class="n">MyComponent</span><span class="p">)</span><span class="w"> </span><span class="c1">//-&gt; (3)</span>
-</span></code></pre></div></td></tr></table></div>
-<ol>
-<li>
-<p><img alt="🙋‍♂️" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f64b-200d-2642-fe0f.svg" title=":man_raising_hand:"/> The <code>sen::kernel::Component</code> class also has other methods that you can
-   implement if you want to prepare your component before running.</p>
-</li>
-<li>
-<p><img alt="🙋‍♂️" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f64b-200d-2642-fe0f.svg" title=":man_raising_hand:"/> The <code>sen::kernel::RunApi</code>, like the name indicates, is the runtime API that
-   allows your component to interact with Sen. It only has a few (but very powerful) methods. We
-   will get to know them later on.</p>
-</li>
-<li>
-<p><img alt="🙋‍♂️" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f64b-200d-2642-fe0f.svg" title=":man_raising_hand:"/> This macro is important because this is what lets Sen know that you are
-   exporting the <code>MyComponent</code> class. The only thing that this macro does is to create a C function
-   that the Sen kernel can find and use to instantiate your class.</p>
-</li>
-</ol>
-<p>You can see that we just print the fact that we started running and wait for Sen to notify us that
-we should stop via <code class="language-cpp highlight"><span class="n">api</span><span class="p">.</span><span class="n">stopRequested</span><span class="p">()</span></code>.</p>
-<p>To get our component running, we first need to write our configuration file <code>config.yaml</code> (Sen uses
-YAML. See <a href="https://spacelift.io/blog/yaml">this page</a> for more info). We can write the following:</p>
-<div class="language-yaml highlight"><span class="filename">config.yaml</span><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_component</span>
-</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</span></code></pre></div>
-<p>This says: "Please run my_component in group 2". Let's try it.</p>
-<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="gp">$ </span>sen<span class="w"> </span>run<span class="w"> </span>config.yaml
-</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="go">MyComponent: started running</span>
-</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="go">MyComponent: hello</span>
-</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="go">MyComponent: hello</span>
-</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="go">MyComponent: hello</span>
-</span></code></pre></div>
-<p>And it keeps printing "hello" forever (you need to kill the process with <span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-c">C</kbd></span>).</p>
-<p>We are able to run, but there is no way for telling the kernel that it should stop. As you will see,
-there are some built-in components that can help us interact with the kernel in an easy way.</p>
-<h2 id="getting-it-stopped">Getting it stopped<a class="headerlink" href="#getting-it-stopped" title="Permanent link">¶</a></h2>
-<p>Sen comes with a <em>shell</em> component that provides a rich command-line interface to interact with the
-kernel our components and our objects.</p>
-<p>As we don't want our component to pollute our terminal with those "hello" messages, let's remove
-that print:</p>
-<div class="language-cpp highlight"><table class="highlighttable"><tr><th class="filename" colspan="2"><span class="filename">removing prints from component.cpp</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-12">12</a></span>
-<span class="normal"><a href="#__codelineno-5-13">13</a></span>
-<span class="normal"><a href="#__codelineno-5-14">14</a></span>
-<span class="normal"><a href="#__codelineno-5-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">api</span><span class="p">.</span><span class="n">stopRequested</span><span class="p">())</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="p">{</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14"></a><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15"></a><span class="p">}</span>
-</span></code></pre></div></td></tr></table></div>
-<p>Now let's add the <em>shell</em> to our configuration file.</p>
-<div class="language-yaml highlight"><span class="filename">config.yaml</span><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="c1"># first, load the shell</span>
-</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.kernel</span><span class="w"> </span><span class="p p-Indicator">]</span>
-</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">  </span><span class="c1"># then, load our component</span>
-</span><span id="__span-6-8"><a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_component</span>
-</span><span id="__span-6-9"><a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</span></code></pre></div>
-<p>If you now run it, you should see that the shell starts and then our component gets to run. We can
-now stop the kernel by using the <code>shutdown</code> command and see that our component does in fact shut
-down and prints the correct message.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/shutdown.gif" style="width:1200px"/></p>
-<p>When the Sen executable finishes without error, it prints a <img alt="😃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f603.svg" title=":smiley:"/> and returns zero. If it detects
-and is able to handle an error it will print a <img alt="🙁" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f641.svg" title=":slightly_frowning_face:"/> and returns non-zero. This
-is independent of any component.</p>
-<p>If we do an <code>ls</code> in our <em>shell</em> we can see the objects that are currently published.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/component_ls.gif" style="width:1200px"/></p>
-<p>You can see that the kernel itself is publishing some objects in a bus called "local.kernel". In
-that bus, it publishes objects that represent the running components. There we can see our component
-as "my_component". We can also see the "shell" component, that we also loaded, and a "kernel"
-component that is always added by the Sen kernel itself.</p>
-<p>Now let's inspect the object that was published to represent our component and see some info about
-it.</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/print_component_info.gif" style="width:1200px"/></p>
-<p>Here we can see the meta information that gets automatically baked into our component binary. Some
-of it comes from our CMakeLists.txt, and some gets added by the build environment used when
-compiling it.</p>
-<p>You can also see that there's a <code>config</code> field. It contains the information that the kernel is using
-to run your component. You can customize it, but for now we are only setting the <code>group</code> to 2, so
-that our component starts after the <em>shell</em>.</p>
-<h2 id="adding-parameters">Adding parameters<a class="headerlink" href="#adding-parameters" title="Permanent link">¶</a></h2>
-<p>Processes need inputs to be able to do something. In general, there are two sources of inputs: the
-ones you get at start-up and the ones you get at run-time. Here we will address the former and get
-to parametrize our component.</p>
-<p>In Sen, we have a type-safe environment. In order to be type-safe you need to tell Sen which types
-do you want to work with. You do it by using the Sen Type Language (STL). Once you define your
-types, then the user can define values that Sen will parse out of the config file and provide them
-to you in your language's native representation.</p>
-<p>Let's imagine that our component is in charge of managing the information about users of some TV
-streaming service. For each user we need to store their basic info, address and subscription plan.
-Let's define our first STL file:</p>
-<div class="language-rust highlight"><span class="filename">stl/configuration.stl</span><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">package</span><span class="w"> </span><span class="n">example</span><span class="p">;</span>
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="c1">// The address of a user</span>
-</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Address</span>
-</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="p">{</span>
-</span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">  </span><span class="n">city</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="c1">// Name of the city</span>
-</span><span id="__span-7-7"><a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">  </span><span class="n">street</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w"> </span><span class="c1">// Full street name</span>
-</span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">  </span><span class="n">number</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w">     </span><span class="c1">// Number of the building (1)</span>
-</span><span id="__span-7-9"><a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="p">}</span>
-</span><span id="__span-7-10"><a href="#__codelineno-7-10" id="__codelineno-7-10" name="__codelineno-7-10"></a>
-</span><span id="__span-7-11"><a href="#__codelineno-7-11" id="__codelineno-7-11" name="__codelineno-7-11"></a><span class="c1">// Subscription plan (2)</span>
-</span><span id="__span-7-12"><a href="#__codelineno-7-12" id="__codelineno-7-12" name="__codelineno-7-12"></a><span class="k">enum</span><span class="w"> </span><span class="nc">Plan</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
-</span><span id="__span-7-13"><a href="#__codelineno-7-13" id="__codelineno-7-13" name="__codelineno-7-13"></a><span class="p">{</span>
-</span><span id="__span-7-14"><a href="#__codelineno-7-14" id="__codelineno-7-14" name="__codelineno-7-14"></a><span class="w">  </span><span class="n">basic</span><span class="p">,</span><span class="w">   </span><span class="c1">// Only one HD screen</span>
-</span><span id="__span-7-15"><a href="#__codelineno-7-15" id="__codelineno-7-15" name="__codelineno-7-15"></a><span class="w">  </span><span class="n">premium</span><span class="p">,</span><span class="w"> </span><span class="c1">// One 4K screen and unlimited HD</span>
-</span><span id="__span-7-16"><a href="#__codelineno-7-16" id="__codelineno-7-16" name="__codelineno-7-16"></a><span class="w">  </span><span class="n">gold</span><span class="w">     </span><span class="c1">// Unlimited 4K content</span>
-</span><span id="__span-7-17"><a href="#__codelineno-7-17" id="__codelineno-7-17" name="__codelineno-7-17"></a><span class="p">}</span>
-</span><span id="__span-7-18"><a href="#__codelineno-7-18" id="__codelineno-7-18" name="__codelineno-7-18"></a>
-</span><span id="__span-7-19"><a href="#__codelineno-7-19" id="__codelineno-7-19" name="__codelineno-7-19"></a><span class="c1">// Information about our users</span>
-</span><span id="__span-7-20"><a href="#__codelineno-7-20" id="__codelineno-7-20" name="__codelineno-7-20"></a><span class="k">struct</span><span class="w"> </span><span class="nc">User</span>
-</span><span id="__span-7-21"><a href="#__codelineno-7-21" id="__codelineno-7-21" name="__codelineno-7-21"></a><span class="p">{</span>
-</span><span id="__span-7-22"><a href="#__codelineno-7-22" id="__codelineno-7-22" name="__codelineno-7-22"></a><span class="w">  </span><span class="n">name</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">   </span><span class="c1">// Full name</span>
-</span><span id="__span-7-23"><a href="#__codelineno-7-23" id="__codelineno-7-23" name="__codelineno-7-23"></a><span class="w">  </span><span class="n">points</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span><span class="w">      </span><span class="c1">// Customer points (3)</span>
-</span><span id="__span-7-24"><a href="#__codelineno-7-24" id="__codelineno-7-24" name="__codelineno-7-24"></a><span class="w">  </span><span class="n">plan</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">Plan</span><span class="p">,</span><span class="w">     </span><span class="c1">// The subscription plan</span>
-</span><span id="__span-7-25"><a href="#__codelineno-7-25" id="__codelineno-7-25" name="__codelineno-7-25"></a><span class="w">  </span><span class="n">address</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">Address</span><span class="p">,</span><span class="w">  </span><span class="c1">// Where does it lives</span>
-</span><span id="__span-7-26"><a href="#__codelineno-7-26" id="__codelineno-7-26" name="__codelineno-7-26"></a><span class="w">  </span><span class="n">since</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="w">  </span><span class="c1">// Since when is subscribed</span>
-</span><span id="__span-7-27"><a href="#__codelineno-7-27" id="__codelineno-7-27" name="__codelineno-7-27"></a><span class="p">}</span>
-</span><span id="__span-7-28"><a href="#__codelineno-7-28" id="__codelineno-7-28" name="__codelineno-7-28"></a>
-</span><span id="__span-7-29"><a href="#__codelineno-7-29" id="__codelineno-7-29" name="__codelineno-7-29"></a><span class="c1">// A list of users</span>
-</span><span id="__span-7-30"><a href="#__codelineno-7-30" id="__codelineno-7-30" name="__codelineno-7-30"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="w"> </span><span class="n">UsersList</span><span class="p">;</span>
-</span><span id="__span-7-31"><a href="#__codelineno-7-31" id="__codelineno-7-31" name="__codelineno-7-31"></a>
-</span><span id="__span-7-32"><a href="#__codelineno-7-32" id="__codelineno-7-32" name="__codelineno-7-32"></a><span class="c1">// Our component configuration</span>
-</span><span id="__span-7-33"><a href="#__codelineno-7-33" id="__codelineno-7-33" name="__codelineno-7-33"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
-</span><span id="__span-7-34"><a href="#__codelineno-7-34" id="__codelineno-7-34" name="__codelineno-7-34"></a><span class="p">{</span>
-</span><span id="__span-7-35"><a href="#__codelineno-7-35" id="__codelineno-7-35" name="__codelineno-7-35"></a><span class="w">  </span><span class="n">serviceName</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">   </span><span class="c1">// Name of our service</span>
-</span><span id="__span-7-36"><a href="#__codelineno-7-36" id="__codelineno-7-36" name="__codelineno-7-36"></a><span class="w">  </span><span class="n">users</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nc">UsersList</span><span class="w"> </span><span class="c1">// Our users</span>
-</span><span id="__span-7-37"><a href="#__codelineno-7-37" id="__codelineno-7-37" name="__codelineno-7-37"></a><span class="p">}</span>
-</span></code></pre></div>
-<ol>
-<li>
-<p>In STL, integral types are <code>u8</code>, <code>u16</code>, <code>i16</code>, <code>u32</code>, <code>i32</code>, <code>u64</code> and <code>i64</code>. The <code>u</code> is for
-   "unsigned integer" and the <code>i</code> is for "signed integer". The number refers to the bits that are
-   used to represent the values.</p>
-</li>
-<li>
-<p>The <code>: u8</code> after the enum type name represents the integral type that will be used to store the
-   values.</p>
-</li>
-<li>
-<p>In STL, floating-point types are <code>f32</code> and <code>f64</code>. The <code>f</code> is for "floating point" and the number
-   refers to the bits that are used to represent the values. Floating points are always represented
-   in the IEEE 754 standard.</p>
-</li>
-</ol>
-<p>Now that we have defined our data model, let's tell Sen to include it into our component's code by
-updating our CMake file:</p>
-<div class="language-cmake highlight"><span class="filename">CMakeLists.txt</span><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">        </span><span class="s">TARGET</span><span class="w"> </span><span class="s">my_component</span>
-</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">        </span><span class="s">MAINTAINER</span><span class="w"> </span><span class="s2">"John Doe (johndoe@mail.com)"</span>
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">        </span><span class="s">VERSION</span><span class="w"> </span><span class="s2">"0.0.1"</span>
-</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">        </span><span class="s">DESCRIPTION</span><span class="w"> </span><span class="s2">"This is my first component"</span>
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">        </span><span class="s">SOURCES</span><span class="w"> </span><span class="s">lang/component.cpp</span>
-</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="hll"><span class="w">        </span><span class="s">STL_FILES</span><span class="w"> </span><span class="s">stl/configuration.stl</span>
-</span></span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="w">        </span><span class="s">IS_COMPONENT</span>
-</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="p">)</span>
-</span></code></pre></div>
-<p>With this, we now have a generated header that can be used in our <code>component.cpp</code> file. The
-generated header is named like the STL file, but with a <code>.h</code> at the end. In our case it is
-<code>stl/configuration.stl.h</code>.</p>
-<p>Let's have a look at it:</p>
-<div class="language-cpp highlight"><span class="filename">stl/configuration.stl.h</span><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="cp">#ifndef STL_CONFIGURATION_STL_H</span>
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="cp">#define STL_CONFIGURATION_STL_H</span>
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">example</span>
-</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="p">{</span>
-</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="c1">/// The address of a user</span>
-</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Address</span>
-</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="p">{</span>
-</span><span id="__span-9-10"><a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">city</span><span class="p">{};</span><span class="w">    </span><span class="c1">///&lt;  Name of the city</span>
-</span><span id="__span-9-11"><a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">street</span><span class="p">{};</span><span class="w">  </span><span class="c1">///&lt;  Full street name</span>
-</span><span id="__span-9-12"><a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a><span class="w">  </span><span class="n">u32</span><span class="w"> </span><span class="n">number</span><span class="p">{};</span><span class="w">          </span><span class="c1">///&lt;  Number of the building</span>
-</span><span id="__span-9-13"><a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="p">};</span>
-</span><span id="__span-9-14"><a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a>
-</span><span id="__span-9-15"><a href="#__codelineno-9-15" id="__codelineno-9-15" name="__codelineno-9-15"></a><span class="c1">/// Subscription plan</span>
-</span><span id="__span-9-16"><a href="#__codelineno-9-16" id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Plan</span><span class="o">:</span><span class="w"> </span><span class="n">u8</span>
-</span><span id="__span-9-17"><a href="#__codelineno-9-17" id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="p">{</span>
-</span><span id="__span-9-18"><a href="#__codelineno-9-18" id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="w">  </span><span class="n">basic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">    </span><span class="c1">///&lt;  Only one HD screen</span>
-</span><span id="__span-9-19"><a href="#__codelineno-9-19" id="__codelineno-9-19" name="__codelineno-9-19"></a><span class="w">  </span><span class="n">premium</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="c1">///&lt;  One 4K screen and unlimited HD</span>
-</span><span id="__span-9-20"><a href="#__codelineno-9-20" id="__codelineno-9-20" name="__codelineno-9-20"></a><span class="w">  </span><span class="n">gold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">     </span><span class="c1">///&lt;  Unlimited 4K content</span>
-</span><span id="__span-9-21"><a href="#__codelineno-9-21" id="__codelineno-9-21" name="__codelineno-9-21"></a><span class="p">};</span>
-</span><span id="__span-9-22"><a href="#__codelineno-9-22" id="__codelineno-9-22" name="__codelineno-9-22"></a>
-</span><span id="__span-9-23"><a href="#__codelineno-9-23" id="__codelineno-9-23" name="__codelineno-9-23"></a><span class="c1">/// Information about our users</span>
-</span><span id="__span-9-24"><a href="#__codelineno-9-24" id="__codelineno-9-24" name="__codelineno-9-24"></a><span class="k">struct</span><span class="w"> </span><span class="nc">User</span>
-</span><span id="__span-9-25"><a href="#__codelineno-9-25" id="__codelineno-9-25" name="__codelineno-9-25"></a><span class="p">{</span>
-</span><span id="__span-9-26"><a href="#__codelineno-9-26" id="__codelineno-9-26" name="__codelineno-9-26"></a><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="p">{};</span><span class="w">     </span><span class="c1">///&lt;  Full name</span>
-</span><span id="__span-9-27"><a href="#__codelineno-9-27" id="__codelineno-9-27" name="__codelineno-9-27"></a><span class="w">  </span><span class="n">f32</span><span class="w"> </span><span class="n">points</span><span class="p">{};</span><span class="w">           </span><span class="c1">///&lt;  Customer points</span>
-</span><span id="__span-9-28"><a href="#__codelineno-9-28" id="__codelineno-9-28" name="__codelineno-9-28"></a><span class="w">  </span><span class="n">Plan</span><span class="w"> </span><span class="n">plan</span><span class="p">{};</span><span class="w">            </span><span class="c1">///&lt;  The subscription plan</span>
-</span><span id="__span-9-29"><a href="#__codelineno-9-29" id="__codelineno-9-29" name="__codelineno-9-29"></a><span class="w">  </span><span class="n">Address</span><span class="w"> </span><span class="n">address</span><span class="p">{};</span><span class="w">      </span><span class="c1">///&lt;  Where does it lives</span>
-</span><span id="__span-9-30"><a href="#__codelineno-9-30" id="__codelineno-9-30" name="__codelineno-9-30"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="w"> </span><span class="n">since</span><span class="p">{};</span><span class="w">  </span><span class="c1">///&lt;  Since when is subscribed</span>
-</span><span id="__span-9-31"><a href="#__codelineno-9-31" id="__codelineno-9-31" name="__codelineno-9-31"></a><span class="p">};</span>
-</span><span id="__span-9-32"><a href="#__codelineno-9-32" id="__codelineno-9-32" name="__codelineno-9-32"></a>
-</span><span id="__span-9-33"><a href="#__codelineno-9-33" id="__codelineno-9-33" name="__codelineno-9-33"></a><span class="c1">/// Our component configuration</span>
-</span><span id="__span-9-34"><a href="#__codelineno-9-34" id="__codelineno-9-34" name="__codelineno-9-34"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
-</span><span id="__span-9-35"><a href="#__codelineno-9-35" id="__codelineno-9-35" name="__codelineno-9-35"></a><span class="p">{</span>
-</span><span id="__span-9-36"><a href="#__codelineno-9-36" id="__codelineno-9-36" name="__codelineno-9-36"></a><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">serviceName</span><span class="p">{};</span><span class="w">  </span><span class="c1">///&lt;  Name of our service</span>
-</span><span id="__span-9-37"><a href="#__codelineno-9-37" id="__codelineno-9-37" name="__codelineno-9-37"></a><span class="w">  </span><span class="n">UsersList</span><span class="w"> </span><span class="n">users</span><span class="p">{};</span><span class="w">          </span><span class="c1">///&lt;  Our users</span>
-</span><span id="__span-9-38"><a href="#__codelineno-9-38" id="__codelineno-9-38" name="__codelineno-9-38"></a><span class="p">};</span>
-</span><span id="__span-9-39"><a href="#__codelineno-9-39" id="__codelineno-9-39" name="__codelineno-9-39"></a>
-</span><span id="__span-9-40"><a href="#__codelineno-9-40" id="__codelineno-9-40" name="__codelineno-9-40"></a><span class="p">}</span><span class="w">  </span><span class="c1">// namespace example</span>
-</span><span id="__span-9-41"><a href="#__codelineno-9-41" id="__codelineno-9-41" name="__codelineno-9-41"></a>
-</span><span id="__span-9-42"><a href="#__codelineno-9-42" id="__codelineno-9-42" name="__codelineno-9-42"></a><span class="cp">#endif STL_CONFIGURATION_STL_H</span>
-</span></code></pre></div>
-<p>You can see that the translation between STL and C++ is pretty straight-forward, readable, and it
-also contains the documentation (in a format that is compatible with Doxygen).</p>
-<p>We can now use these types to get our configuration in our component.</p>
-<div class="language-cpp highlight"><span class="filename">component.cpp</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"sen/kernel/component.h"</span>
-</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">"stl/configuration.stl.h"</span>
-</span></span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
-</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span>
-</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyComponent</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">Component</span>
-</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="p">{</span>
-</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
-</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"MyComponent: started running</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span><span id="__span-10-12"><a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a>
-</span><span id="__span-10-13"><a href="#__codelineno-10-13" id="__codelineno-10-13" name="__codelineno-10-13"></a><span class="hll"><span class="w">    </span><span class="c1">// to store our configuration</span>
-</span></span><span id="__span-10-14"><a href="#__codelineno-10-14" id="__codelineno-10-14" name="__codelineno-10-14"></a><span class="hll"><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">toValue</span><span class="o">&lt;</span><span class="n">example</span><span class="o">::</span><span class="n">Configuration</span><span class="o">&gt;</span><span class="p">(</span><span class="n">api</span><span class="p">.</span><span class="n">getConfig</span><span class="p">());</span>
-</span></span><span id="__span-10-15"><a href="#__codelineno-10-15" id="__codelineno-10-15" name="__codelineno-10-15"></a>
-</span><span id="__span-10-16"><a href="#__codelineno-10-16" id="__codelineno-10-16" name="__codelineno-10-16"></a><span class="hll"><span class="w">    </span><span class="c1">// print it</span>
-</span></span><span id="__span-10-17"><a href="#__codelineno-10-17" id="__codelineno-10-17" name="__codelineno-10-17"></a><span class="hll"><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span></span><span id="__span-10-18"><a href="#__codelineno-10-18" id="__codelineno-10-18" name="__codelineno-10-18"></a>
-</span><span id="__span-10-19"><a href="#__codelineno-10-19" id="__codelineno-10-19" name="__codelineno-10-19"></a><span class="hll"><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">api</span><span class="p">.</span><span class="n">stopRequested</span><span class="p">())</span>
-</span></span><span id="__span-10-20"><a href="#__codelineno-10-20" id="__codelineno-10-20" name="__codelineno-10-20"></a><span class="hll"><span class="w">    </span><span class="p">{</span>
-</span></span><span id="__span-10-21"><a href="#__codelineno-10-21" id="__codelineno-10-21" name="__codelineno-10-21"></a><span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-</span><span id="__span-10-22"><a href="#__codelineno-10-22" id="__codelineno-10-22" name="__codelineno-10-22"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-10-23"><a href="#__codelineno-10-23" id="__codelineno-10-23" name="__codelineno-10-23"></a>
-</span><span id="__span-10-24"><a href="#__codelineno-10-24" id="__codelineno-10-24" name="__codelineno-10-24"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"MyComponent: finished</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span><span id="__span-10-25"><a href="#__codelineno-10-25" id="__codelineno-10-25" name="__codelineno-10-25"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">done</span><span class="p">();</span>
-</span><span id="__span-10-26"><a href="#__codelineno-10-26" id="__codelineno-10-26" name="__codelineno-10-26"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-10-27"><a href="#__codelineno-10-27" id="__codelineno-10-27" name="__codelineno-10-27"></a><span class="p">};</span>
-</span><span id="__span-10-28"><a href="#__codelineno-10-28" id="__codelineno-10-28" name="__codelineno-10-28"></a>
-</span><span id="__span-10-29"><a href="#__codelineno-10-29" id="__codelineno-10-29" name="__codelineno-10-29"></a><span class="n">SEN_COMPONENT</span><span class="p">(</span><span class="n">MyComponent</span><span class="p">)</span>
-</span></code></pre></div>
-<p>See? no parsing no looking for fields or checking types. You have your data in a native format. And
-you can even directly print it!</p>
-<p>The piece of code doing the magic is <code>sen::toValue&lt;example::Configuration&gt;(api.getConfig())</code>. This
-is a type trait template that gets generated and allows us to do things with our types that regular
-C++ does not. In this case we are using it to convert the "type-unsafe" data that the kernel gives
-us in the form of a variant (via <code>api.getConfig()</code>) and extract it into our type.</p>
-<p>We haven't yet provided any data to our component, so if we run it, we get the following:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="nt">MyComponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">started running</span>
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">serviceName</span><span class="p p-Indicator">:</span>
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="nt">users</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">null</span>
-</span></code></pre></div>
-<p>Let's change this and provide our component with data. We just need to update the configuration file
-and add some:</p>
-<div class="language-yaml highlight"><span class="filename">config.yaml</span><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.kernel</span><span class="w"> </span><span class="p p-Indicator">]</span>
-</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>
-</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_component</span>
-</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">    </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SenFlix</span>
-</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="w">    </span><span class="nt">users</span><span class="p">:</span>
-</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">John Doe</span>
-</span><span id="__span-12-11"><a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="w">        </span><span class="nt">points</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.4</span>
-</span><span id="__span-12-12"><a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a><span class="w">        </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic</span>
-</span><span id="__span-12-13"><a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">        </span><span class="nt">since</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10 s</span>
-</span><span id="__span-12-14"><a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="w">        </span><span class="nt">address</span><span class="p">:</span>
-</span><span id="__span-12-15"><a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="w">          </span><span class="nt">city</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ulanbataar</span>
-</span><span id="__span-12-16"><a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a><span class="w">          </span><span class="nt">street</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Las Quejas</span>
-</span><span id="__span-12-17"><a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">69</span>
-</span><span id="__span-12-18"><a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Elon Musk</span>
-</span><span id="__span-12-19"><a href="#__codelineno-12-19" id="__codelineno-12-19" name="__codelineno-12-19"></a><span class="w">        </span><span class="nt">points</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.3</span>
-</span><span id="__span-12-20"><a href="#__codelineno-12-20" id="__codelineno-12-20" name="__codelineno-12-20"></a><span class="w">        </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gold</span>
-</span><span id="__span-12-21"><a href="#__codelineno-12-21" id="__codelineno-12-21" name="__codelineno-12-21"></a><span class="w">        </span><span class="nt">since</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5 s</span>
-</span><span id="__span-12-22"><a href="#__codelineno-12-22" id="__codelineno-12-22" name="__codelineno-12-22"></a><span class="w">        </span><span class="nt">address</span><span class="p">:</span>
-</span><span id="__span-12-23"><a href="#__codelineno-12-23" id="__codelineno-12-23" name="__codelineno-12-23"></a><span class="w">          </span><span class="nt">city</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ciudad Juarez</span>
-</span><span id="__span-12-24"><a href="#__codelineno-12-24" id="__codelineno-12-24" name="__codelineno-12-24"></a><span class="w">          </span><span class="nt">street</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Los Malandros</span>
-</span><span id="__span-12-25"><a href="#__codelineno-12-25" id="__codelineno-12-25" name="__codelineno-12-25"></a><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span>
-</span></code></pre></div>
-<p>Now, when we run our component we get the data:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="nt">MyComponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">started running</span>
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">serviceName</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SenFlix</span>
-</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">users</span><span class="p p-Indicator">:</span>
-</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">John Doe</span>
-</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">      </span><span class="nt">points</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">5.4</span>
-</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">      </span><span class="nt">plan</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">basic</span>
-</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">      </span><span class="nt">address</span><span class="p">:</span>
-</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">        </span><span class="nt">city</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">Ulanbataar</span>
-</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="w">        </span><span class="nt">street</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Las Quejas</span>
-</span><span id="__span-13-10"><a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="w">        </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">69</span>
-</span><span id="__span-13-11"><a href="#__codelineno-13-11" id="__codelineno-13-11" name="__codelineno-13-11"></a><span class="w">      </span><span class="nt">since</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">10 s</span>
-</span><span id="__span-13-12"><a href="#__codelineno-13-12" id="__codelineno-13-12" name="__codelineno-13-12"></a>
-</span><span id="__span-13-13"><a href="#__codelineno-13-13" id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Elon Musk</span>
-</span><span id="__span-13-14"><a href="#__codelineno-13-14" id="__codelineno-13-14" name="__codelineno-13-14"></a><span class="w">      </span><span class="nt">points</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">0.3</span>
-</span><span id="__span-13-15"><a href="#__codelineno-13-15" id="__codelineno-13-15" name="__codelineno-13-15"></a><span class="w">      </span><span class="nt">plan</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">gold</span>
-</span><span id="__span-13-16"><a href="#__codelineno-13-16" id="__codelineno-13-16" name="__codelineno-13-16"></a><span class="w">      </span><span class="nt">address</span><span class="p">:</span>
-</span><span id="__span-13-17"><a href="#__codelineno-13-17" id="__codelineno-13-17" name="__codelineno-13-17"></a><span class="w">        </span><span class="nt">city</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">Ciudad Juarez</span>
-</span><span id="__span-13-18"><a href="#__codelineno-13-18" id="__codelineno-13-18" name="__codelineno-13-18"></a><span class="w">        </span><span class="nt">street</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Los Malandros</span>
-</span><span id="__span-13-19"><a href="#__codelineno-13-19" id="__codelineno-13-19" name="__codelineno-13-19"></a><span class="w">        </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">13</span>
-</span><span id="__span-13-20"><a href="#__codelineno-13-20" id="__codelineno-13-20" name="__codelineno-13-20"></a><span class="w">      </span><span class="nt">since</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">5 s</span>
-</span></code></pre></div>
-<p>That's it! Now you know how to parametrize your components and work with complex configuration
-parameters without the burden of parsing config files or dealing with type-unsafe constructs.</p>
-<h2 id="the-environment">The environment<a class="headerlink" href="#the-environment" title="Permanent link">¶</a></h2>
-<p>We can tell the kernel to update any input we might have by calling <code>RunApi::drainInputs()</code>, and
-notify others about our activity by calling <code>RunApi::commit()</code>. This also applies to our sources.
-Let's see how our component's loop would look like with this:</p>
-<div class="language-cpp highlight"><span class="filename">drain-update-flush loop</span><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">api</span><span class="p">.</span><span class="n">stopRequested</span><span class="p">())</span>
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="p">{</span>
-</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="hll"><span class="w">  </span><span class="n">api</span><span class="p">.</span><span class="n">drainInputs</span><span class="p">();</span>
-</span></span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">  </span><span class="c1">// ... maybe do something (and probably sleep for a while) ...</span>
-</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="hll"><span class="w">  </span><span class="n">api</span><span class="p">.</span><span class="n">commit</span><span class="p">();</span>
-</span></span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="p">}</span>
-</span></code></pre></div>
-<p>But writing those loops in every component is tedious and prone to error. Sen comes with a helper
-function that allows you to do the same:</p>
-<div class="language-cpp highlight"><span class="filename">Built-in drain-update-flush loop</span><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](){</span><span class="w"> </span><span class="cm">/* ... do something */</span><span class="w"> </span><span class="p">};</span>
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">func</span><span class="p">));</span>
-</span></code></pre></div>
-<p>Here you see that the sleep time is given as a time duration (which we construct in this case from a
-period in Hz).</p>
-<p>The function <code>func</code> will be called on every iteration of the loop.</p>
-<p>If you don't have anything to do, but to react to the inputs and interactions made by other
-components, you can simply do the following:</p>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">));</span>
-</span></code></pre></div>
-<p>And adding all of this into our example, we end up with a very compact component implementation.</p>
-<div class="language-cpp highlight"><span class="filename">Using the built-in drain-update-flush loop</span><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyComponent</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">Component</span>
-</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="p">{</span>
-</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
-</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">bus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">getSource</span><span class="p">(</span><span class="s">"local.kernel"</span><span class="p">);</span><span class="w"> </span><span class="c1">// get the source</span>
-</span><span id="__span-17-6"><a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="n">sen</span><span class="o">::</span><span class="n">ObjectList</span><span class="o">&lt;</span><span class="n">sen</span><span class="o">::</span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">objects</span><span class="p">;</span><span class="w">     </span><span class="c1">// create a container</span>
-</span><span id="__span-17-7"><a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">    </span><span class="n">bus</span><span class="o">-&gt;</span><span class="n">addSubscriber</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Interest</span><span class="o">::</span><span class="n">make</span><span class="p">(</span><span class="s">"SELECT * FROM local.kernel"</span><span class="p">,</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">getTypes</span><span class="p">()),</span>
-</span><span id="__span-17-8"><a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="hll"><span class="w">                       </span><span class="o">&amp;</span><span class="n">objects</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"> </span><span class="c1">// subscribe to all objects</span>
-</span></span><span id="__span-17-9"><a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">));</span>
-</span><span id="__span-17-10"><a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-17-11"><a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="p">};</span>
-</span></code></pre></div>
-<p>The only problem here is that we don't print the objects that we are discovering. Let's add some
-code to do that:</p>
-<div class="language-cpp highlight"><span class="filename">Full example, printing discovered objects</span><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"sen/kernel/component.h"</span>
-</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a>
-</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
-</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a>
-</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyComponent</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">Component</span>
-</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="p">{</span>
-</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">  </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
-</span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-18-9"><a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="w">    </span><span class="n">subscription</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="o">-&gt;</span><span class="n">selectAllFrom</span><span class="o">&lt;</span><span class="n">sen</span><span class="o">::</span><span class="n">Object</span><span class="o">&gt;</span><span class="p">(</span>
-</span><span id="__span-18-10"><a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="w">      </span><span class="s">"local.kernel"</span><span class="p">,</span>
-</span><span id="__span-18-11"><a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a><span class="w">      </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">addedObjects</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-18-12"><a href="#__codelineno-18-12" id="__codelineno-18-12" name="__codelineno-18-12"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">addedObjects</span><span class="p">)</span>
-</span><span id="__span-18-13"><a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="hll"><span class="w">        </span><span class="p">{</span>
-</span></span><span id="__span-18-14"><a href="#__codelineno-18-14" id="__codelineno-18-14" name="__codelineno-18-14"></a><span class="hll"><span class="w">          </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s"> - got "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">getLocalName</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span></span><span id="__span-18-15"><a href="#__codelineno-18-15" id="__codelineno-18-15" name="__codelineno-18-15"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-18-16"><a href="#__codelineno-18-16" id="__codelineno-18-16" name="__codelineno-18-16"></a><span class="w">      </span><span class="p">},</span>
-</span><span id="__span-18-17"><a href="#__codelineno-18-17" id="__codelineno-18-17" name="__codelineno-18-17"></a><span class="w">      </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">removedObjects</span><span class="p">)</span>
-</span><span id="__span-18-18"><a href="#__codelineno-18-18" id="__codelineno-18-18" name="__codelineno-18-18"></a><span class="w">      </span><span class="p">{</span>
-</span><span id="__span-18-19"><a href="#__codelineno-18-19" id="__codelineno-18-19" name="__codelineno-18-19"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">removedObjects</span><span class="p">)</span>
-</span><span id="__span-18-20"><a href="#__codelineno-18-20" id="__codelineno-18-20" name="__codelineno-18-20"></a><span class="w">        </span><span class="p">{</span>
-</span><span id="__span-18-21"><a href="#__codelineno-18-21" id="__codelineno-18-21" name="__codelineno-18-21"></a><span class="w">          </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s"> - got "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">getLocalName</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-</span><span id="__span-18-22"><a href="#__codelineno-18-22" id="__codelineno-18-22" name="__codelineno-18-22"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-18-23"><a href="#__codelineno-18-23" id="__codelineno-18-23" name="__codelineno-18-23"></a><span class="w">      </span><span class="p">});</span>
-</span><span id="__span-18-24"><a href="#__codelineno-18-24" id="__codelineno-18-24" name="__codelineno-18-24"></a>
-</span><span id="__span-18-25"><a href="#__codelineno-18-25" id="__codelineno-18-25" name="__codelineno-18-25"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">));</span>
-</span><span id="__span-18-26"><a href="#__codelineno-18-26" id="__codelineno-18-26" name="__codelineno-18-26"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-18-27"><a href="#__codelineno-18-27" id="__codelineno-18-27" name="__codelineno-18-27"></a><span class="p">};</span>
-</span><span id="__span-18-28"><a href="#__codelineno-18-28" id="__codelineno-18-28" name="__codelineno-18-28"></a>
-</span><span id="__span-18-29"><a href="#__codelineno-18-29" id="__codelineno-18-29" name="__codelineno-18-29"></a><span class="n">SEN_COMPONENT</span><span class="p">(</span><span class="n">MyComponent</span><span class="p">)</span>
-</span></code></pre></div>
-<p>Let's run it:</p>
-<p><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/listing_objects.gif" style="width:1200px"/></p>
-<p>You can see that we can see some objects. In particular:</p>
+<h1 id="writing-a-component-advanced">Writing a component (advanced)<a class="headerlink" href="#writing-a-component-advanced" title="Permanent link">¶</a></h1>
+<p>A component is Sen's unit of execution. It has an interface, your logic, and a thread to run it in.
+Every Sen application has them, so the question is never whether you want a component. It is whether
+you write one.</p>
+<p>Most of the time you do not. You write <strong>packages</strong>, libraries of your classes holding your
+implementations, and the kernel <em>builds</em> a component for you from a configuration file, importing
+those packages and instantiating your objects. That is what the <code>build:</code> section of a configuration
+does, and it is the easiest and most flexible way to get a component.
+<a href="../getting_started/first_package.html">Create your first package</a> is where that starts.</p>
+<p>The other way is to write the component yourself, in C++, and name it under <code>load:</code>. Such a
+component is still a package, built with <code>add_sen_package(... IS_COMPONENT)</code>, that additionally
+exports a class deriving from <code>sen::kernel::Component</code>. What it buys you is the thread
+and the execution loop, and that is the only reason to reach for it.</p>
+<p>This page is about that second way. The section below is how to tell whether you need it.</p>
+<h2 id="do-you-need-to-write-one">Do you need to write one?<a class="headerlink" href="#do-you-need-to-write-one" title="Permanent link">¶</a></h2>
+<p>Write the component yourself when you have to own something the kernel cannot own for you.</p>
 <table>
 <thead>
 <tr>
-<th>Local Name</th>
-<th>Description</th>
+<th>You need to own</th>
+<th>Because</th>
+<th>Shipped example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>my_component.local.kernel.components.my_component</code></td>
-<td>Represents our component.</td>
+<td>An external event loop</td>
+<td>Something else wants to run the loop, and it will not yield to a cycle</td>
+<td><code>ether</code> runs an ASIO <code>io_context</code></td>
 </tr>
 <tr>
-<td><code>my_component.local.kernel.components.shell</code></td>
-<td>The shell component.</td>
+<td>A process-wide resource with its own lifetime rules</td>
+<td>It must be created and destroyed on one thread, once</td>
+<td><code>py</code> owns a <code>pybind11::scoped_interpreter</code></td>
 </tr>
 <tr>
-<td><code>my_component.local.kernel.components.kernel</code></td>
-<td>The kernel component.</td>
+<td>A terminal or a listening socket</td>
+<td>Blocking I/O has to happen somewhere</td>
+<td><code>shell</code> serves a REPL or a socket</td>
 </tr>
 <tr>
-<td><code>my_component.local.kernel.api</code></td>
-<td>Represents the kernel API.</td>
+<td>A sampling loop that creates its objects from configuration</td>
+<td>The objects are not known until the configuration is read</td>
+<td><code>recorder</code>, <code>influx</code>, <code>logmaster</code></td>
 </tr>
 </tbody>
 </table>
-<p>Notice that all the objects start with the <code>"my_component."</code> prefix. This is because we are working
-with <em>Proxy Objects</em> that represent our view of the system. Those objects are "our copy" of the real
-objects that live elsewhere, and they are guaranteed not to change while we are running. They have
-the <code>"my_component."</code> prefix because Sen created them for us.</p>
-<p>The "local" session is special because buses there will never be shared across the process boundary.</p>
-<h2 id="publishing-objects">Publishing objects<a class="headerlink" href="#publishing-objects" title="Permanent link">¶</a></h2>
-<p>Objects are owned by components. That means that if you want to publish an object, you need to own
-its memory. This can be done using a regular <code>std::shared_ptr&lt;T&gt;</code>.</p>
-<div class="language-c++ highlight"><span class="filename">A run function that publishes an object</span><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
-</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="p">{</span>
-</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"myObject"</span><span class="p">);</span><span class="w"> </span><span class="c1">// create the object</span>
-</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">bus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">getSource</span><span class="p">(</span><span class="s">"local.myBus"</span><span class="p">);</span><span class="w">          </span><span class="c1">// get the bus</span>
-</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">  </span><span class="n">bus</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">                                    </span><span class="c1">// publish the object</span>
-</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">defaultShellUpdateFreq</span><span class="p">);</span><span class="w">    </span><span class="c1">// execute</span>
-</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">  </span><span class="n">bus</span><span class="o">-&gt;</span><span class="n">remove</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">                                 </span><span class="c1">// remove the object</span>
-</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w">                                    </span><span class="c1">// done</span>
-</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="p">}</span>
+<p>If none of those describe what you are building, let the kernel build the component: write a
+package and instantiate your objects from configuration. An object can already publish itself,
+discover other objects, call their methods, react to their events and do work every cycle, and it
+gets all of that without you owning a thread.</p>
+<p>The components Sen ships are all in the table's territory (transport, persistence, tooling and
+scripting), and none of them models a domain, because a domain is what packages and objects are for.
+<a href="../components/index.html">The component list</a> has the current set.</p>
+<h2 id="the-component-lifecycle">The component lifecycle<a class="headerlink" href="#the-component-lifecycle" title="Permanent link">¶</a></h2>
+<p>A component you write is a class deriving from <code>sen::kernel::Component</code>. Every hook has a default,
+so you implement only the ones you need.</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="w">  </span><span class="c1">/// Preload the component and initialize all self-contained resources.</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="c1">/// This function is just called once.</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">preload</span><span class="p">(</span><span class="n">PreloadApi</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="cm">/* api */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="c1">/// Load the component and initialize all self-contained resources.</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="c1">/// This function is just called once.</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">LoadApi</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="cm">/* api */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">  </span><span class="c1">/// Initialize the component and perform kernel-related operations.</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="c1">/// This may include dependency resolution, and resource registration.</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="c1">/// This function will be continuously called until it returns that it's done.</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="n">PassResult</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="n">InitApi</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="cm">/* api */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">done</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="c1">/// Runs the component in a dedicated thread.</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">  </span><span class="c1">/// This function is called once and only when the kernel</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">  </span><span class="c1">/// has reached the desired group of this component.</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">  </span><span class="c1">/// Implementations shall end the execution thread when</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="c1">/// the stopFlag is set to true.</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="cm">/* api */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">  </span><span class="c1">/// Unload any self-contained resources.</span>
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">  </span><span class="c1">/// This function is just called once.</span>
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">unload</span><span class="p">(</span><span class="n">UnloadApi</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="cm">/* api */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">  </span><span class="c1">/// Do an additional (and final) clean up step after unloading the component.</span>
+</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">  </span><span class="c1">/// This function is just called once for all components and independently of the chosen group.</span>
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">postUnloadCleanup</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>
+</span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">  </span><span class="c1">/// Return true here if your component is not designed to work with virtualized time.</span>
+</span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isRealTimeOnly</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>You can store your objects on the stack or as a member of your component class. Same with sources.
-We just need to be aware of the following:</p>
-<ul>
-<li>The <code>RunApi::getSource()</code> function returns a <code>std::shared_ptr&lt;ObjectSource&gt;</code> that needs to be kept
-  alive during the usage of the source. If there are no more references to our source, it will be
-  automatically closed by the kernel.</li>
-<li>After the execution loop, it is advisable to explicitly remove our objects from the sources.</li>
-</ul>
-<p>Object names must be unique within the bus in which they are published. Otherwise, an exception will
-be raised.</p>
-<h3 id="objects-naming-convention">Object's naming convention<a class="headerlink" href="#objects-naming-convention" title="Permanent link">¶</a></h3>
-<p>Sen supports the use of all special characters for published object naming, with the only exception of literal space
-characters (" "), which are restricted.</p></div>
+<p><code>init()</code>, <code>preload()</code> and <code>run()</code> need more explanation than the rest.</p>
+<p><code>init()</code> gets called repeatedly. It returns <code>PassResult</code>, and the kernel keeps calling it until it
+reports that it is done, which is how a component waits for something without blocking. The helpers
+<code>done()</code> and <code>delay(Duration)</code> build those two answers.</p>
+<p><code>preload()</code> runs for every component before any of them is loaded. <code>load()</code>, <code>init()</code> and <code>run()</code>
+all happen one group at a time in group order, so <code>preload()</code> is the place for anything the whole
+process needs before the rest starts.</p>
+<p><code>run()</code> is the one that gets a thread. Your component is running until it returns, and it should
+return once <code>RunApi::stopRequested()</code> becomes true.</p>
+<h2 id="a-component-that-only-installs-a-hook">A component that only installs a hook<a class="headerlink" href="#a-component-that-only-installs-a-hook" title="Permanent link">¶</a></h2>
+<p>The smallest components have no <code>run()</code> at all. <code>tracy</code> exists to install a tracer factory
+before anything else loads, and to tear it down afterwards:</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">TracyComponent</span><span class="w"> </span><span class="k">final</span><span class="o">:</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">Component</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="p">{</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="n">preload</span><span class="p">(</span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">PreloadApi</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="o">::</span><span class="n">tracy</span><span class="o">::</span><span class="n">StartupProfiler</span><span class="p">();</span><span class="w">  </span><span class="c1">// NOLINT(misc-include-cleaner)</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="n">api</span><span class="p">.</span><span class="n">installTracerFactory</span><span class="p">([](</span><span class="k">auto</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">TracyTracer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">Ok</span><span class="p">();</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="n">unload</span><span class="p">(</span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">UnloadApi</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="p">;</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">    </span><span class="o">::</span><span class="n">tracy</span><span class="o">::</span><span class="n">ShutdownProfiler</span><span class="p">();</span><span class="w">  </span><span class="c1">// NOLINT(misc-include-cleaner)</span>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">Ok</span><span class="p">();</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isRealTimeOnly</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-18"><a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="p">};</span>
+</span><span id="__span-1-19"><a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a>
+</span><span id="__span-1-20"><a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="n">SEN_COMPONENT</span><span class="p">(</span><span class="n">TracyComponent</span><span class="p">)</span>
+</span></code></pre></div>
+<p>That is the whole component. <code>preload()</code> is the only place a process-wide profiler can be started,
+because it is the only point at which nothing else has loaded yet. <code>isRealTimeOnly()</code> tells the
+kernel this component cannot be stepped by virtualized time: it is still loaded and still runs, but
+the kernel leaves it out of the set it advances, so it keeps following the real clock while the rest
+of the system is virtualized.</p>
+<p>Nothing here could be an object. There is no bus, no data and no cycle, only a process-wide
+resource with a strict lifetime.</p>
+<h2 id="a-component-that-publishes-an-object">A component that publishes an object<a class="headerlink" href="#a-component-that-publishes-an-object" title="Permanent link">¶</a></h2>
+<p><code>logmaster</code> is the other common shape: read the configuration, create an object from it, publish it,
+and drive a loop.</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">LogMasterComponent</span><span class="w"> </span><span class="k">final</span><span class="o">:</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">Component</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="p">{</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="n">run</span><span class="p">(</span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">::</span><span class="n">sen</span><span class="o">::</span><span class="n">toValue</span><span class="o">&lt;</span><span class="n">Config</span><span class="o">&gt;</span><span class="p">(</span><span class="n">api</span><span class="p">.</span><span class="n">getConfig</span><span class="p">());</span>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">targetBus</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">      </span><span class="n">config</span><span class="p">.</span><span class="n">targetBus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultTargetBus</span><span class="p">;</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">period</span><span class="p">.</span><span class="n">getNanoseconds</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">      </span><span class="n">config</span><span class="p">.</span><span class="n">period</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultPeriod</span><span class="p">;</span>
+</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>
+</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">targetBus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">getSource</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">targetBus</span><span class="p">);</span>
+</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">master</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;::</span><span class="n">sen</span><span class="o">::</span><span class="n">components</span><span class="o">::</span><span class="n">logmaster</span><span class="o">::</span><span class="n">LogMasterImpl</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"master"</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">targetBus</span><span class="p">);</span>
+</span><span id="__span-2-18"><a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a>
+</span><span id="__span-2-19"><a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="w">    </span><span class="n">targetBus</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">master</span><span class="p">);</span>
+</span><span id="__span-2-20"><a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a>
+</span><span id="__span-2-21"><a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">period</span><span class="p">);</span>
+</span><span id="__span-2-22"><a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-23"><a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a>
+</span><span id="__span-2-24"><a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isRealTimeOnly</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-25"><a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="p">};</span>
+</span></code></pre></div>
+<p><code>sen::toValue&lt;Config&gt;(api.getConfig())</code> converts the untyped configuration the kernel holds into the
+struct generated from the component's <abbr title="Sen Type Language">STL</abbr> file. No parsing, no field lookups, no type checks. You
+declare the shape in <abbr title="Sen Type Language">STL</abbr> and get it back in your own language's types. This is why a component that
+takes parameters has an <abbr title="Sen Type Language">STL</abbr> file at all.</p>
+<p><code>api.getSource(config.targetBus)</code> opens a bus. The returned <code>std::shared_ptr&lt;ObjectSource&gt;</code> has to
+stay alive for as long as you use it; when the last reference goes, the kernel closes the source.</p>
+<p><code>targetBus-&gt;add(master)</code> publishes the object. Objects are owned by the component that creates them,
+so the component holds the <code>shared_ptr</code> and the kernel borrows it. <code>add()</code> returns a <code>bool</code> and does
+nothing if the object is already there, so publishing twice is harmless.</p>
+<p><code>api.execLoop(config.period)</code> runs the drain-update-commit cycle at the configured rate until a stop
+is requested. It returns the component's result, so returning it directly is the whole of <code>run()</code>.</p>
+<h2 id="starting-your-own">Starting your own<a class="headerlink" href="#starting-your-own" title="Permanent link">¶</a></h2>
+<p><code>sen package init-component</code> writes a working skeleton:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="gp">$ </span>sen<span class="w"> </span>package<span class="w"> </span>init-component<span class="w"> </span>MyComponent<span class="w"> </span>--full
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="gp">$ </span>tree<span class="w"> </span>my_component/
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="go">my_component/</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="go">├── CMakeLists.txt</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="go">├── src</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="go">│   └── component.cpp</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="go">└── stl</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="go">    └── my_component</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="go">        └── config.stl</span>
+</span></code></pre></div>
+<p>Each flag adds to the one before it:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>You get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sen package init-component MyComponent</code></td>
+<td><code>run()</code> with <code>execLoop</code></td>
+</tr>
+<tr>
+<td><code>sen package init-component MyComponent --with-config</code></td>
+<td>the above, plus an <abbr title="Sen Type Language">STL</abbr> configuration and <code>sen::toValue</code></td>
+</tr>
+<tr>
+<td><code>sen package init-component MyComponent --full</code></td>
+<td>the above, plus <code>load()</code>, <code>init()</code> and <code>unload()</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>CMakeLists.txt</code> is a complete project: it calls <code>find_package(sen)</code> and <code>add_sen_package(...
+IS_COMPONENT)</code>, so it configures on its own. Add it to a larger CMake project with
+<code>add_subdirectory</code> when you have one.</p>
+<p>The generator does not write a configuration file, so build the component and then write one:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>my_component<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cmake<span class="w"> </span>--build<span class="w"> </span>build
+</span></code></pre></div>
+<div class="language-yaml highlight"><span class="filename">my_component/config.yaml</span><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_component</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="nt">someParam</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some value</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="nt">someOtherParam</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1 s</span>
+</span></code></pre></div>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>sen<span class="w"> </span>run<span class="w"> </span>my_component/config.yaml
+</span></code></pre></div>
+<p>Your component starts, and keeps running until you stop it with <span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-c">C</kbd></span>.</p>
+<h2 id="stopping-it-and-looking-at-it">Stopping it, and looking at it<a class="headerlink" href="#stopping-it-and-looking-at-it" title="Permanent link">¶</a></h2>
+<p>Sen's <em>shell</em> component gives you a command line into the running kernel. Add it to your
+configuration ahead of your own component:</p>
+<div class="language-yaml highlight"><span class="filename">config.yaml</span><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="c1"># first, load the shell</span>
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.kernel</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">  </span><span class="c1"># then, load our component</span>
+</span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_component</span>
+</span><span id="__span-7-9"><a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span></code></pre></div>
+<p>Groups run in order, so the shell is up before your component starts. <code>shutdown</code> then stops the
+kernel, and your component's <code>unload()</code> runs.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif" style="width:1200px"/></a></p>
+<p>When Sen finishes without error it prints a <img alt="😃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f603.svg" title=":smiley:"/> and returns zero. If it detects an error it can
+handle, it prints a <img alt="🙁" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f641.svg" title=":slightly_frowning_face:"/> and returns non-zero. This is independent of any
+component.</p>
+<p><code>ls</code> shows the objects currently published. The kernel publishes one per running component in the
+<code>local.kernel</code> bus, so your component appears there without doing anything.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/component_ls.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/component_ls.gif" style="width:1200px"/></a></p>
+<p>Inspecting that object shows the metadata baked into your binary at build time. Some comes from your
+<code>CMakeLists.txt</code>, the rest from the build environment: git revision and status, compiler and flags,
+word size. The <code>config</code> field holds what the kernel is using to run you.</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/print_component_info.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/print_component_info.gif" style="width:1200px"/></a></p>
+<h2 id="the-execution-loop">The execution loop<a class="headerlink" href="#the-execution-loop" title="Permanent link">¶</a></h2>
+<p>The kernel does not call your component every cycle. You own the loop. Three calls drive it:
+<code>RunApi::drainInputs()</code> takes in everything that arrived since last time, <code>RunApi::update()</code> runs
+the update of every object your component registered, and <code>RunApi::commit()</code> publishes everything
+that changed.</p>
+<p>Written out, a loop looks like this:</p>
+<div class="language-cpp highlight"><span class="filename">drain-update-commit, by hand</span><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">api</span><span class="p">.</span><span class="n">stopRequested</span><span class="p">())</span>
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="p">{</span>
+</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="n">api</span><span class="p">.</span><span class="n">drainInputs</span><span class="p">();</span>
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">  </span><span class="n">api</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">  </span><span class="c1">// ... do something, and probably sleep for a while ...</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">  </span><span class="n">api</span><span class="p">.</span><span class="n">commit</span><span class="p">();</span>
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Writing that in every component is tedious and easy to get wrong, so <code>execLoop</code> does it for you:</p>
+<div class="language-cpp highlight"><span class="filename">the same loop, with execLoop</span><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](){</span><span class="w"> </span><span class="cm">/* ... do something */</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">func</span><span class="p">));</span>
+</span></code></pre></div>
+<p>The cycle time is a <code>Duration</code>, constructed here from a frequency. Each cycle drains the inputs,
+lets your objects update, calls <code>func</code>, then commits, so anything <code>func</code> stages is published by the
+commit at the end of that same cycle. If you have nothing to do each cycle and only need to stay
+responsive to others, leave it out:</p>
+<div class="language-cpp highlight"><span class="filename">a loop that only drains and commits</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">));</span>
+</span></code></pre></div>
+<p>The kernel learns your cycle time from <code>execLoop</code>. A component that drives the loop by hand never
+tells it, so <code>RunApi::getTargetCycleTime()</code> gives its objects nothing. Objects built under <code>build:</code>
+always have a cycle time, because the kernel's pipeline calls <code>execLoop</code> for them. If you drive the
+loop yourself and your objects need the period, pass it to them.</p>
+<h2 id="finding-other-objects">Finding other objects<a class="headerlink" href="#finding-other-objects" title="Permanent link">¶</a></h2>
+<p>A component discovers objects exactly the way an object does. <code>RunApi</code> inherits <code>KernelApi</code>, so
+<code>selectAllFrom&lt;T&gt;()</code>, <code>selectFrom&lt;T&gt;()</code> and <code>getSource()</code> are all available inside <code>run()</code> with the
+same signatures and the same rules about keeping the returned subscription alive.</p>
+<p>That is covered in full, with worked examples, in
+<a href="objects.html#interacting-with-objects">Working with objects</a>. There is nothing component-specific
+about it.</p>
+<p>One detail that is specific to components: the objects the kernel publishes in <code>local.kernel</code> are
+<em>proxy objects</em>, your component's own view of the real ones, and they are named with your
+component's prefix. They are guaranteed not to change while you are running. The <code>local</code> session is
+special in that its buses are never shared across a process boundary.</p>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1959,7 +1943,7 @@ characters (" "), which are restricted.</p></div>
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Implementing Unit Tests" class="md-footer__link md-footer__link--prev" href="unit_tests.html">
+<a aria-label="Previous: Integration testing" class="md-footer__link md-footer__link--prev" href="integration_tests.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1968,17 +1952,17 @@ characters (" "), which are restricted.</p></div>
                 Previous
               </span>
 <div class="md-ellipsis">
-                Implementing Unit Tests
+                Integration testing
               </div>
 </div>
 </a>
-<a aria-label="Next: Troubleshooting" class="md-footer__link md-footer__link--next" href="troubleshooting.html">
+<a aria-label="Next: Connecting existing systems" class="md-footer__link md-footer__link--next" href="connecting_existing_systems.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                Troubleshooting
+                Connecting existing systems
               </div>
 </div>
 <div class="md-footer__button md-icon">
@@ -2000,11 +1984,12 @@ characters (" "), which are restricted.</p></div>
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -2031,5 +2016,4 @@ characters (" "), which are restricted.</p></div>
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

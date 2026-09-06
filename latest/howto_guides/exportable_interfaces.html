@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
+<html class="no-js" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/latest/howto_guides/exportable_interfaces.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/latest/howto_guides/exportable_interfaces.html" rel="canonical"/>
 <link href="creating_conan_packages.html" rel="prev"/>
 <link href="consuming_interfaces.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -18,9 +15,18 @@
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
 <link href="../stylesheets/extra.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.0/katex.min.css" rel="stylesheet"/>
 <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
 <body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
@@ -125,7 +131,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../getting_started/install.html">
+<a class="md-tabs__link" href="../getting_started/index.html">
           
   
   
@@ -152,20 +158,11 @@
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="building_from_source.html">
+<a class="md-tabs__link" href="index.html">
           
   
   
   Guides
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../tutorials/hello_sen.html">
-          
-  
-  
-  Tutorials
 
         </a>
 </li>
@@ -251,6 +248,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/install.html">
 <span class="md-ellipsis">
     
@@ -262,12 +271,35 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../getting_started/testing.html">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Running the Tests
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
   
 
     
@@ -275,11 +307,50 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../getting_started/first_package.html">
 <span class="md-ellipsis">
     
   
-    Creating your first Package
+    Creating your first package
   
 
     
@@ -341,7 +412,7 @@
 <span class="md-ellipsis">
     
   
-    Mental Model
+    Mental model
   
 
     
@@ -365,7 +436,19 @@
 <span class="md-ellipsis">
     
   
-    Execution Model
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
   
 
     
@@ -373,8 +456,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -385,8 +468,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_6">
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -412,7 +495,7 @@
 <span class="md-ellipsis">
     
   
-    STL Grammar
+    STL grammar
   
 
     
@@ -447,11 +530,23 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/command_line.html">
 <span class="md-ellipsis">
     
   
-    Command Line Tools
+    Command line tools
   
 
     
@@ -463,7 +558,7 @@
 <span class="md-ellipsis">
     
   
-    CMake Integration
+    CMake integration
   
 
     
@@ -475,7 +570,19 @@
 <span class="md-ellipsis">
     
   
-    Run-Time Compatibility
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
   
 
     
@@ -483,8 +590,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -495,8 +602,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_12_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_12">
+<nav aria-expanded="false" aria-labelledby="__nav_3_15_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_15">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -592,6 +699,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -647,7 +766,7 @@
 <span class="md-ellipsis">
     
   
-    Web Explorer
+    Web explorer
   
 
     
@@ -731,7 +850,7 @@
 <span class="md-ellipsis">
     
   
-    Log Master
+    Log master
   
 
     
@@ -767,7 +886,7 @@
 <span class="md-ellipsis">
     
   
-    JSON-RPC TypeScript Client
+    JSON-RPC TypeScript client
   
 
     
@@ -825,11 +944,11 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="building_from_source.html">
+<a class="md-nav__link" href="index.html">
 <span class="md-ellipsis">
     
   
-    Building Sen from source
+    How-to guides
   
 
     
@@ -885,18 +1004,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="python_config.html">
-<span class="md-ellipsis">
-    
-  
-    Python as config
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="controlling_clock.html">
 <span class="md-ellipsis">
     
@@ -909,11 +1016,95 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="considerations.html">
 <span class="md-ellipsis">
     
   
-    Design Considerations
+    Design considerations
   
 
     
@@ -932,12 +1123,35 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="creating_conan_packages.html">
 <span class="md-ellipsis">
     
   
-    Creating Conan Packages for Sen-based projects
+    Creating Conan packages for Sen-based projects
   
 
     
@@ -984,20 +1198,20 @@
 <nav aria-label="Organization of your project directories" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#configuration-of-our-base_path">
+<a class="md-nav__link" href="#configuration-of-your-base_path">
 <span class="md-ellipsis">
       
-        Configuration of our BASE_PATH
+        Configuration of your BASE_PATH
       
     </span>
 </a>
-<nav aria-label="Configuration of our BASE_PATH" class="md-nav">
+<nav aria-label="Configuration of your BASE_PATH" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
 <a class="md-nav__link" href="#stl-example">
 <span class="md-ellipsis">
       
-        STL Example
+        STL example
       
     </span>
 </a>
@@ -1006,7 +1220,7 @@
 <a class="md-nav__link" href="#hla-fom-example">
 <span class="md-ellipsis">
       
-        HLA FOM Example
+        HLA FOM example
       
     </span>
 </a>
@@ -1075,53 +1289,8 @@
   </span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="precision_sleeper_config.html">
-<span class="md-ellipsis">
-    
-  
-    Configuring component sleeping between updates
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="dead_reckoning.html">
-<span class="md-ellipsis">
-    
-  
-    Using the Dead Reckoning library
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="unit_tests.html">
-<span class="md-ellipsis">
-    
-  
-    Implementing Unit Tests
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="components.html">
-<span class="md-ellipsis">
-    
-  
-    Writing a component (advanced)
-  
-
-    
-  </span>
-</a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="troubleshooting.html">
@@ -1135,38 +1304,35 @@
   </span>
 </a>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Tutorials
+    Working on Sen itself
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
+<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_18">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    Working on Sen itself
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<a class="md-nav__link" href="building_from_source.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 1: Hello Sen
+    Building Sen from source
   
 
     
@@ -1174,11 +1340,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tutorials/two_objects.html">
+<a class="md-nav__link" href="../getting_started/testing.html">
 <span class="md-ellipsis">
     
   
-    Tutorial 2: Two Objects Talking
+    Running Sen's own tests
   
 
     
@@ -1188,9 +1354,12 @@
 </ul>
 </nav>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1201,8 +1370,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1217,6 +1386,18 @@
     
   
     Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
   
 
     
@@ -1360,7 +1541,19 @@
 <span class="md-ellipsis">
     
   
-    Using HLA
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
   
 
     
@@ -1372,7 +1565,7 @@
 <span class="md-ellipsis">
     
   
-    Web Generation
+    Web generation
   
 
     
@@ -1384,7 +1577,7 @@
 <span class="md-ellipsis">
     
   
-    UML Generation
+    UML generation
   
 
     
@@ -1395,8 +1588,8 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
-<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1407,8 +1600,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_8">
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1422,7 +1615,7 @@
 <span class="md-ellipsis">
     
   
-    Sen License
+    Sen license
   
 
     
@@ -1434,7 +1627,7 @@
 <span class="md-ellipsis">
     
   
-    External Libraries
+    External libraries
   
 
     
@@ -1451,14 +1644,20 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="generate-exportable-interfaces-in-your-sen-based-project">Generate exportable interfaces in your Sen-based project<a class="headerlink" href="#generate-exportable-interfaces-in-your-sen-based-project" title="Permanent link">¶</a></h1>
-<p>In this guide, we will understand how to configure your project so that its interfaces (STL or HLA
-FOM files, although we will focus on STL) can be exported. This will ensure that interfaces can
+<h1 id="generate-exportable-interfaces-in-your-sen-based-project">Generate exportable interfaces in your Sen-based project<a class="headerlink" href="#generate-exportable-interfaces-in-your-sen-based-project" title="Permanent link">¶</a></h1>
+<p>In this guide, we will understand how to configure your project so that its interfaces (<abbr title="Sen Type Language">STL</abbr> or <abbr title="High Level Architecture">HLA</abbr>
+<abbr title="Federation Object Model">FOM</abbr> files, although we will focus on <abbr title="Sen Type Language">STL</abbr>) can be exported. This will ensure that interfaces can
 later be consumed as explained on the
 <a href="consuming_interfaces.html">how to consume external interfaces in Sen-based projects</a> guide.</p>
+<p>"Export" is used for three unrelated things in Sen, so this page is probably not the one you want
+unless your question is about shipping interface files. <code>SEN_EXPORT_CLASS</code> registers a class with
+the kernel, and <a href="../getting_started/first_package.html">Creating your first package</a> covers it. The
+<code>sen generate cpp exports</code> command generates an exports file for symbol visibility, and
+<a href="../users_guide/command_line.html">Command line tools</a> documents it. This page is about installing
+<code>.stl</code> files so another CMake project can build against them.</p>
 <p>We will cover the following steps:</p>
 <ul>
-<li>Organization of your project' directories.</li>
+<li>Organization of your project directories.</li>
 <li>Configuration of installation rules (exporting interface files).</li>
 <li>CMake package configuration.</li>
 </ul>
@@ -1469,122 +1668,127 @@ your project source code directories.</p>
 what your repository organization is.</p>
 <p>Firstly, we need to identify the <code>stl</code> files that we want to export. Following Sen's standard, these
 files are directly related to either a package, a library or a component.</p>
-<p>Let's take an example from Sen: A 'school' package within the 'sen' project. We want to highlight
-the fact that</p>
-<ol>
-<li>This is part of the 'sen' project</li>
-<li>It's a 'package'</li>
-<li>It is called 'school'</li>
-<li>We are defining STL files.</li>
-</ol>
-<p>We should <strong>organize our STL files and folders in the same way they will be imported</strong>. We want our
-exportation to match</p>
-<p><code>stl/sen/packages/school</code></p>
-<p>So the folder structure would look like:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>└──<span class="w">  </span>stl
-</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">    </span>└──<span class="w"> </span>sen
-</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">        </span>└──<span class="w"> </span>packages
-</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">            </span>└──<span class="w"> </span>school
-</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">                </span>├──<span class="w"> </span>class_room.stl
-</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">                </span>├──<span class="w"> </span>person.stl
-</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">                </span>├──<span class="w"> </span>student.stl
-</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">                </span>├──<span class="w"> </span>superintendent.stl
-</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">                </span>└──<span class="w"> </span>teacher.stl
+<p>Everything else follows from this:</p>
+<blockquote>
+<p><strong>The path from <code>BASE_PATH</code> to an <abbr title="Sen Type Language">STL</abbr> file is the path everyone imports it by</strong>, and the path of
+the generated header they include.</p>
+</blockquote>
+<p>So the folders you choose under <code>BASE_PATH</code> are not an internal detail. They are baked into every
+<code>import</code> statement and every <code>#include</code> in every project that consumes your interfaces, including
+your own. Pick them so they read well and cannot collide with somebody else's.</p>
+<p>A common shape is to put your organization or project first, then the thing the interfaces belong
+to. Say the <code>acme</code> organization has a <code>radar</code> package:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>packages/radar
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>├──<span class="w"> </span>src
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>└──<span class="w"> </span>stl
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span>└──<span class="w"> </span>acme
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">        </span>└──<span class="w"> </span>radar
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">            </span>├──<span class="w"> </span>sar_radar.stl
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">            </span>└──<span class="w"> </span>waveform.stl
 </span></code></pre></div>
+<p>With <code>BASE_PATH</code> set to <code>packages/radar/stl</code>, the import becomes:</p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">import</span><span class="w"> </span><span class="s">"acme/radar/sar_radar.stl"</span>
+</span></code></pre></div>
+<p>and the generated header is included as <code>"acme/radar/sar_radar.stl.h"</code>. The intermediate folders are
+entirely your choice; the generator does not require any particular depth or naming.</p>
 <p>Note that applying this directory organization will also mean changing the way of including (<code>cpp</code>)
 and importing (<code>stl</code>) the <code>stl</code> files inside your project: instead of importing <code>person.stl</code> or
 including <code>stl/person.stl.h</code>, you would need to add the full path described above.</p>
 <hr/>
 <blockquote>
-<p>Can we ignore this directory organization when importing other STL files?</p>
+<p>Can we ignore this directory organization when importing other <abbr title="Sen Type Language">STL</abbr> files?</p>
 </blockquote>
 <dl>
-<dd>Technically, yes, but it is <strong>not</strong> recommended. Ignoring the organization will create ambiguous
-import paths when consuming the interfaces. For example, if we left the example directory as it
-originally was, the consuming developer can still use the interfaces but instead of importing
-<code>"stl/sen/packages/school/person.stl"</code>, he would just import <code>"person.stl"</code>. This may not only be
-difficult to understand, but it can even <strong>shadow</strong> other files in case several consumed projects
-have <code>stl</code> files with the same name.</dd>
+<dd>Technically, yes, but it is <strong>not</strong> recommended. Ignoring the organization creates ambiguous
+import paths when consuming the interfaces. If the files sat directly under <code>BASE_PATH</code>, a consumer
+would import <code>"sar_radar.stl"</code> rather than <code>"acme/radar/sar_radar.stl"</code>. That is harder to read, and
+it can <strong>shadow</strong> files: two consumed projects each shipping a <code>sar_radar.stl</code> would collide, and
+nothing would tell you which one you got.</dd>
 </dl>
-<h3 id="configuration-of-our-base_path">Configuration of our <code>BASE_PATH</code><a class="headerlink" href="#configuration-of-our-base_path" title="Permanent link">¶</a></h3>
+<h3 id="configuration-of-your-base_path">Configuration of your <code>BASE_PATH</code><a class="headerlink" href="#configuration-of-your-base_path" title="Permanent link">¶</a></h3>
 <p>When generating code from <code>xml</code> or <code>stl</code> files, Sen offers the possibility of adding a <code>BASE_PATH</code>.
-The <code>BASE_PATH</code> parameter defines the root of the directory hierarchy so that generated files maintain common
-inclusion paths.</p>
+The <code>BASE_PATH</code> parameter defines the root of the directory hierarchy so that generated files
+maintain common inclusion paths.</p>
 <p><strong>Important:</strong> Its behavior differs significantly depending on the file type:</p>
 <ul>
-<li><strong>For STL files:</strong> The <code>BASE_PATH</code> is strictly respected. It determines the relative path used in code inclusions.</li>
-<li><strong>For HLA FOM files (.xml):</strong> The <code>BASE_PATH</code> is <strong>ignored</strong> by the code generator.
-Sen enforces a strict directory layout for HLA and always uses the <strong>immediate parent directory</strong> of the XML file
+<li><strong>For <abbr title="Sen Type Language">STL</abbr> files:</strong> The <code>BASE_PATH</code> is strictly respected. It determines the relative path used in
+  code inclusions.</li>
+<li><strong>For <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> files (.xml):</strong> The <code>BASE_PATH</code> is <strong>ignored</strong> by the code generator. Sen enforces a
+strict directory layout for <abbr title="High Level Architecture">HLA</abbr> and always uses the <strong>immediate parent directory</strong> of the XML file
 to build the inclusion paths.</li>
 </ul>
-<h4 id="stl-example">STL Example<a class="headerlink" href="#stl-example" title="Permanent link">¶</a></h4>
+<h4 id="stl-example"><abbr title="Sen Type Language">STL</abbr> example<a class="headerlink" href="#stl-example" title="Permanent link">¶</a></h4>
 <p>To ensure correct resolution, the <code>BASE_PATH</code> should be set to the <strong>root of the component</strong>.</p>
-<p>Let's follow the Sen school example. If we start from the root of the project, the original <code>stl</code>
-files resided on <code>components/recorder/stl/school.stl</code> but now, they are at
-<code>components/recorder/stl/sen/components/recorder/school.stl</code>. This means that if we want our
-importing path to be <code>import stl/sen/components/recorder/school.stl</code>, we need to set our <code>BASE_PATH</code>
-to <code>components/recorder</code>.</p>
-<h4 id="hla-fom-example">HLA FOM Example<a class="headerlink" href="#hla-fom-example" title="Permanent link">¶</a></h4>
-<p>For FOM files, the inclusion path is derived automatically from the physical location of the XML file,
-regardless of any <code>BASE_PATH</code> provided in CMake. Sen expects a <code>Grandparent/Parent/File.xml</code> structure.</p>
+<p>Continuing the example: the file sits at <code>packages/radar/stl/acme/radar/sar_radar.stl</code>, and we want
+<code>import "acme/radar/sar_radar.stl"</code>. Everything up to and including <code>stl/</code> has to be stripped, so
+<code>BASE_PATH</code> is <code>packages/radar/stl</code>.</p>
+<p>Set it one level higher, at the package root, and the <code>stl/</code> segment stays in the path, so the
+import becomes <code>"stl/acme/radar/sar_radar.stl"</code>. Sen's own components are laid out that way. Neither
+is more correct.</p>
+<p>Writing it relative to CMake, as <code>BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/stl</code>, keeps it working if
+the package moves within your repository.</p>
+<h4 id="hla-fom-example"><abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr> example<a class="headerlink" href="#hla-fom-example" title="Permanent link">¶</a></h4>
+<p>For <abbr title="Federation Object Model">FOM</abbr> files, the inclusion path is derived automatically from the physical location of the XML
+file, regardless of any <code>BASE_PATH</code> provided in CMake. Sen expects a <code>Grandparent/Parent/File.xml</code>
+structure.</p>
 <p><strong>Example:</strong></p>
 <ul>
 <li>Physical path: <code>fom/rpr/RPR-Base.xml</code></li>
 <li>Sen detects <code>rpr</code> as the immediate parent.</li>
-<li>Any file importing/including this FOM will use the path: <code>"rpr/RPR-Base.xml.h"</code></li>
+<li>Any file importing/including this <abbr title="Federation Object Model">FOM</abbr> will use the path: <code>"rpr/RPR-Base.xml.h"</code></li>
 </ul>
-<p>To ensure a consistent structure, organize your FOM directories so that the immediate parent directory matches
-your intended include prefix (e.g., <code>rpr/</code>, <code>netn/</code>).</p>
+<p>To ensure a consistent structure, organize your <abbr title="Federation Object Model">FOM</abbr> directories so that the immediate parent
+directory matches your intended include prefix (e.g., <code>rpr/</code>, <code>netn/</code>).</p>
 <hr/>
 <blockquote>
-<p>What happens if the <code>BASE_PATH</code> argument is ignored or set to a different value for STL files?</p>
+<p>What happens if the <code>BASE_PATH</code> argument is ignored or set to a different value for <abbr title="Sen Type Language">STL</abbr> files?</p>
 </blockquote>
 <dl>
-<dd>Using a different <code>BASE_PATH</code> for STL files makes your project much more vulnerable to issues when both
-exporting and consuming its interfaces. Sen code generator expects the files to be organized in a
-certain way. Not adding the <code>BASE_PATH</code> can lead to issues such as import and include errors when
-generating code from the interfaces, both in the current project and in any project that consumes the
-interfaces. Using an incorrect <code>BASE_PATH</code> will require you to adapt not only your CMake, code, and
-repository structure, but also the one of the developer that consumes your project as a package.
+<dd>Using a different <code>BASE_PATH</code> for <abbr title="Sen Type Language">STL</abbr> files makes your project much more vulnerable to issues when
+both exporting and consuming its interfaces. Sen code generator expects the files to be organized in
+a certain way. Not adding the <code>BASE_PATH</code> can lead to issues such as import and include errors when
+generating code from the interfaces, both in the current project and in any project that consumes
+the interfaces. Using an incorrect <code>BASE_PATH</code> will require you to adapt not only your CMake, code,
+and repository structure, but also the one of the developer that consumes your project as a package.
 Promoving a standard way of operating is the best way to ensure that compatibility is maintained
 across the large number of developers that will export and consume Sen-based packages.</dd>
 </dl>
 <h2 id="configuration-of-installation-rules-exporting-stl-files">Configuration of installation rules (exporting <code>stl</code> files)<a class="headerlink" href="#configuration-of-installation-rules-exporting-stl-files" title="Permanent link">¶</a></h2>
 <p>After having reorganized the directory and adapted your project to this reorganization, we need to
-configure the adequate CMake install rules to add our <code>stl</code> files to our exported package.</p>
+configure the adequate CMake install rules to add your <code>stl</code> files to your exported package.</p>
 <p>If you have followed
 <a href="creating_conan_packages.html">Sen's guide on how to export a Sen-based project as a Conan package</a>,
 you may already be familiar with CMake install rules and the importance they have when exporting
-source code inside our CMake packages. To export our interfaces, we need to add similar rules that
-indicate CMake where will our <code>stl</code> files be placed once we generate an exportable package.</p>
-<p>The standard location where our interfaces will be installed inside a CMake package is the directory
-<code>interfaces</code>. Using this directory will allow us to both have a clear view of where are our
-interfaces located, and also facilitate the importing mechanism.</p>
-<p>Following our <strong>school</strong> example, we would need to add installation rules for all of our files
-inside the <code>stl</code> directory. This can be done by editing <code>cmake/targets/components/school.cmake</code> (or
-any other location where the CMake code related to the school component is) and adding the following
-code:</p>
-<div class="language-cmake highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">set</span><span class="p">(</span><span class="s">school_source_dir</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_SOURCE_DIR</span><span class="o">}</span><span class="s">/components/school</span><span class="p">)</span>
-</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nb">set</span><span class="p">(</span><span class="s">_school_stl_files</span><span class="w"> </span><span class="o">${</span><span class="nv">school_source_dir</span><span class="o">}</span><span class="s">/stl/sen/packages/school/class_room.stl</span>
-</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">        </span><span class="o">${</span><span class="nv">school_source_dir</span><span class="o">}</span><span class="s">/stl/sen/packages/school/person.stl</span>
-</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">        </span><span class="o">${</span><span class="nv">school_source_dir</span><span class="o">}</span><span class="s">/stl/sen/packages/school/student.stl</span>
-</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">        </span><span class="o">${</span><span class="nv">school_source_dir</span><span class="o">}</span><span class="s">/stl/sen/packages/school/superintendent.stl</span>
-</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">        </span><span class="o">${</span><span class="nv">school_source_dir</span><span class="o">}</span><span class="s">/stl/sen/packages/school/teacher.stl</span>
-</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="p">)</span>
-</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="nb">install</span><span class="p">(</span><span class="s">FILES</span><span class="w"> </span><span class="o">${</span><span class="nv">_school_stl_files</span><span class="o">}</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">interfaces/stl/sen/packages/school</span><span class="p">)</span>
+source code inside your CMake packages. To export your interfaces, you need to add similar rules
+that tell CMake where your <code>stl</code> files go once you generate an exportable package.</p>
+<p>The standard location where your interfaces will be installed inside a CMake package is the
+directory <code>interfaces</code>. Using it gives you a clear view of where your interfaces are, and makes the
+importing mechanism easier.</p>
+<p>List the files once, so the same variable feeds both <code>add_sen_package</code> and the install rule and the
+two cannot fall out of step:</p>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nb">set</span><span class="p">(</span><span class="s">_radar_stl_files</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">    </span><span class="s">stl/acme/radar/sar_radar.stl</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="s">stl/acme/radar/waveform.stl</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="p">)</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="nb">add_sen_package</span><span class="p">(</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">  </span><span class="s">TARGET</span><span class="w">    </span><span class="s">radar</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">  </span><span class="s">BASE_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="o">}</span><span class="s">/stl</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">  </span><span class="s">STL_FILES</span><span class="w"> </span><span class="o">${</span><span class="nv">_radar_stl_files</span><span class="o">}</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="w">  </span><span class="c"># ... the rest of your package definition</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="p">)</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="nb">install</span><span class="p">(</span><span class="s">FILES</span><span class="w"> </span><span class="o">${</span><span class="nv">_radar_stl_files</span><span class="o">}</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">interfaces/acme/radar</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Note that the keyword <strong>interfaces</strong> that we mentioned before precedes the configured path in the
-<a href="exportable_interfaces.html#organization-of-your-project-directories">previous section</a>. The path
-inputted right after <code>interfaces</code> needs to be <strong>the path to the <code>stl</code> files from the component's
-root directory.</strong></p>
-<p>This CMake code will install all the school's <code>stl</code> files inside the adequate install directory. You
-will need to configure as many <code>install</code> rules as you need, depending on your directory organization
-and the number of <code>stl</code> files you need to export.</p>
+<p>The destination is <code>interfaces/</code> followed by <strong>the same path the consumer imports</strong>:
+<code>acme/radar</code> here, because that is what <code>BASE_PATH</code> left. If the two disagree, the package installs
+successfully and consumers cannot resolve the import.</p>
+<p>Add as many <code>install</code> rules as your layout needs. One is enough when all the <abbr title="Sen Type Language">STL</abbr> files sit in a
+single directory, as they do here.</p>
 <h2 id="cmake-package-configuration">CMake package configuration<a class="headerlink" href="#cmake-package-configuration" title="Permanent link">¶</a></h2>
-<p>The last step of the process involves adjusting the CMake package configuration so that our
+<p>The last step of the process involves adjusting the CMake package configuration so that your
 interfaces are visible and obtainable to the consumers of the package.</p>
-<p>Configuring a CMake package will allow us to export our project in any possible way. With a CMake
+<p>Configuring a CMake package lets you export your project in any way you like. With a CMake
 project you can use every mechanism you can think of to export your package (Conan, Nexus uploading,
 ZIP files, etc.). As long as the path to the CMake files of your package is added in the
 <code>CMAKE_PREFIX_PATH</code>, you will be able to use its entire functionality.</p>
@@ -1595,11 +1799,11 @@ After following these steps, we only need to apply a slight modification to the 
 <h3 id="modifying-the-configcmakein-file">Modifying the <code>-config.cmake.in</code> file<a class="headerlink" href="#modifying-the-configcmakein-file" title="Permanent link">¶</a></h3>
 <p>The whole purpose of this guide is to prepare a Sen-based project so that its interfaces can be
 consumed from any external project that uses it as a dependency. This means that the external
-project will need to know <strong>where our package is installed</strong>, so that it can get the paths and any
+project will need to know <strong>where your package is installed</strong>, so that it can get the paths and any
 additional information needed to be able to use those interfaces when consumed externally.</p>
 <p>Indicating the installation directory is as simple as adding this line to your <code>-config.cmake.in</code>
 file:</p>
-<div class="language-cmake highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nb">set</span><span class="p">(</span><span class="s">*your_project_name*_INSTALL_DIR</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/../../</span><span class="p">)</span>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">set</span><span class="p">(</span><span class="s">*your_project_name*_INSTALL_DIR</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/../../</span><span class="p">)</span>
 </span></code></pre></div>
 <hr/>
 <blockquote>
@@ -1607,7 +1811,7 @@ file:</p>
 </blockquote>
 <dl>
 <dd>The <code>INSTALL_DIR</code> variable will simply point to the root of the directory where your package is
-installed at the time of consuming it. The <code>../..</code> is added since in our standard CMake package
+installed at the time of consuming it. The <code>../..</code> is added since in the standard CMake package
 generation, the CMakes of the project are located inside the <code>cmake/project_name</code> directory, hence
 the root directory will be located two directories behind.</dd>
 </dl>
@@ -1619,13 +1823,13 @@ the root directory will be located two directories behind.</dd>
 <dd>The <code>INSTALL_DIR</code> variable will be available to every CMake-based project that consumes your
 exported package. The correct setting of this variable allows the external project to know where
 your project is, and is required in the <a href="consuming_interfaces.html">consuming interfaces</a> process.</dd>
-</dl></div>
+</dl>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 16:28:15 UTC">August 25, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
 </span>
 </aside>
 </article>
@@ -1639,7 +1843,7 @@ your project is, and is required in the <a href="consuming_interfaces.html">cons
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Creating Conan Packages for Sen-based projects" class="md-footer__link md-footer__link--prev" href="creating_conan_packages.html">
+<a aria-label="Previous: Creating Conan packages for Sen-based projects" class="md-footer__link md-footer__link--prev" href="creating_conan_packages.html">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </div>
@@ -1648,7 +1852,7 @@ your project is, and is required in the <a href="consuming_interfaces.html">cons
                 Previous
               </span>
 <div class="md-ellipsis">
-                Creating Conan Packages for Sen-based projects
+                Creating Conan packages for Sen-based projects
               </div>
 </div>
 </a>
@@ -1680,11 +1884,12 @@ your project is, and is required in the <a href="consuming_interfaces.html">cons
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<div class="md-progress" data-md-component="progress" role="progressbar"></div>
-<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
 <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-<script>document$.subscribe(() => {
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
             window.scheme = document.body.getAttribute("data-md-color-scheme")
@@ -1711,5 +1916,4 @@ your project is, and is required in the <a href="consuming_interfaces.html">cons
             }
             observer = new MutationObserver(color_scheme_callback);
             observer.observe(document.body, options);
-            })</script></body>
-</html>
+            })</script></body></html>

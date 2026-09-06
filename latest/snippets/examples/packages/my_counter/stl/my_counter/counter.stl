@@ -1,5 +1,4 @@
 package my_counter;
-
 class Counter
 {
   // The current value of the counter.
