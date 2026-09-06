@@ -43,9 +43,11 @@ const sources = [
     uriPrefix: "sen://docs/users-guide/",
     mode: "exclude",
     set: new Set([
-      "cmake.md",          // build mechanics, not behavior an LLM observes
-      "command_line.md",   // run mechanics, same reason
-      "index.md",          // table-of-contents only; the other docs already cover the topics
+      "cmake.md",           // build mechanics, not behavior an LLM observes
+      "code_generation.md", // what to generate and how to ask for it; a model driving kernels
+                            // does not write the build
+      "command_line.md",    // run mechanics, same reason
+      "index.md",           // table-of-contents only; the other docs already cover the topics
       // C++ library refs are off-topic; db_library / db_python_bindings stay (recording tools).
       "core_library.md",
       "kernel_library.md",
