@@ -73,6 +73,7 @@ struct RunArgs
   std::string preset;
   bool printConfig = false;
   bool noBrowser = false;
+  bool stopped = false;
 };
 
 constexpr auto webExplorerUrl = "http://127.0.0.1:8080/explorer/";
@@ -91,8 +92,7 @@ constexpr auto webExplorerReadyTimeout = std::chrono::seconds(15);
   return true;
 }
 
-std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<RunArgs>& args,
-                                                        [[maybe_unused]] CLI::App& app)
+std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<RunArgs>& args)
 {
   if (args->preset.empty())
   {
@@ -140,16 +140,8 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
 #ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
   if (!presetMatched && args->preset == "replay")
   {
-    bool autoPlay = true;
     const auto autoOpen = args->configFile.string();
-
-    for (const auto& elem: app.remaining())
-    {
-      if (elem == "--stopped")
-      {
-        autoPlay = false;
-      }
-    }
+    const bool autoPlay = !args->stopped;
 
     presetContents = sen::decompressSymbolToString(replay, replaySize);
     std::ignore = replace(presetContents, "$autoOpen", autoOpen);
@@ -347,13 +339,13 @@ void SignalStopper::watch(sen::kernel::Kernel& kernel) noexcept
 //   3       other std::exception escaped from the kernel
 //   4       unknown exception escaped from the kernel
 //   other   kernel.run() returned a non-zero exit code (kernel-defined)
-[[nodiscard]] int runKernel(const std::shared_ptr<RunArgs>& args, CLI::App& app)
+[[nodiscard]] int runKernel(const std::shared_ptr<RunArgs>& args)
 {
   int exitCode = EXIT_FAILURE;
 
   try
   {
-    auto bootloader = makeBootloader(args, app);
+    auto bootloader = makeBootloader(args);
 
     if (!bootloader->getConfig().getParams().crashReportDisabled)
     {
@@ -465,7 +457,6 @@ int runApp(int argc, char* argv[])
 
   CLI::App app {"Run a sen kernel\n"};
   app.name("sen run");
-  app.allow_extras();
   app.get_formatter()->column_width(35);
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
@@ -491,11 +482,14 @@ int runApp(int argc, char* argv[])
 #ifdef SEN_CLI_RUN_HAS_WEBEXPLORER_PRESET
   app.add_flag("--no-browser", args->noBrowser, "With --preset web-explorer: don't auto-open the URL in a browser");
 #endif
+#ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
+  app.add_flag("--stopped", args->stopped, "With --preset replay: start paused");
+#endif
   app.add_flag("--print-config", args->printConfig, "Print the configuration that will be used");
 
   CLI11_PARSE(app, argc, argv)
 
-  return runKernel(args, app);
+  return runKernel(args);
 }
 
 }  // namespace
