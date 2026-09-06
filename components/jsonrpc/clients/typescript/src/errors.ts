@@ -31,7 +31,9 @@ export type JsonRpcErrorCode = (typeof JsonRpcErrorCode)[keyof typeof JsonRpcErr
 export class SenClientError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
-    this.name = new.target.name;
+    // Literal rather than new.target.name: the library ships minified, so the runtime class
+    // name is whatever the bundler chose. Subclasses set their own.
+    this.name = "SenClientError";
   }
 }
 
@@ -47,6 +49,7 @@ export class JsonRpcError extends SenClientError {
     options?: ErrorOptions,
   ) {
     super(message, options);
+    this.name = "JsonRpcError";
   }
 }
 
@@ -54,6 +57,7 @@ export class JsonRpcError extends SenClientError {
 export class TransportError extends SenClientError {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
+    this.name = "TransportError";
   }
 }
 
@@ -65,6 +69,7 @@ export class TimeoutError extends SenClientError {
     options?: ErrorOptions,
   ) {
     super(message, options);
+    this.name = "TimeoutError";
   }
 }
 
@@ -80,5 +85,6 @@ export class InterestReleasedError extends SenClientError {
     options?: ErrorOptions,
   ) {
     super(`Interest "${interestName}" is released; ${operation} is no longer valid`, options);
+    this.name = "InterestReleasedError";
   }
 }

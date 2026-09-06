@@ -84,6 +84,8 @@ async function audited<T>(ctx: GatewayContext, entry: AuditEntry, effect: () => 
     ctx.audit({ ...entry, outcome: "ok" });
     return result;
   } catch (err) {
+    // The name only. An error message can quote the value that was rejected, and no audit entry
+    // carries values; @sen/client sets literal names so this survives minification.
     ctx.audit({ ...entry, outcome: "failed", error: err instanceof Error ? err.name : "unknown" });
     throw err;
   }

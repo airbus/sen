@@ -80,6 +80,12 @@ INTERESTS
   \`invokeMethod\`, event subscriptions) takes the interest name as a handle. Always
   \`releaseInterest\` when done; otherwise the server keeps streaming updates for nothing.
 
+  \`declareInterest\` returns once the interest is registered, which is not the same as its
+  match-set being full: the \`matched\` it returns is a snapshot and can be short, or empty,
+  for an object that is about to appear. Naming an object that is not in it yet fails with
+  "object not in interest match-set". If the object you want is missing from \`matched\`, call
+  \`listObjects\` until it appears rather than treating the absence as final.
+
   If you plan to write or invoke, declare the interest with \`withSchemas: true\` so every type
   involved in matched objects ships with its JSON-Schema. You can then shape values and
   arguments correctly without an extra \`getType\` round-trip per type.
@@ -188,8 +194,10 @@ WORKED EXAMPLE (illustrative; the shape your kernel returns will reflect its own
   -> declareInterest({ name: "primaryStudents",
                        query: "SELECT school.Student FROM school.primary",
                        withSchemas: true })
-  <- { "kernel": "local", "name": "primaryStudents",
-       "matched": [{ "name": "alice", "className": "school.Student" }] }
+  <- { "kernel": "local", "name": "primaryStudents", "matched": [] }
+  -> listObjects({ name: "primaryStudents" })          # alice was not in the snapshot yet
+  <- { "interest": "primaryStudents",
+       "objects": [{ "name": "alice", "className": "school.Student" }] }
   -> getProperty({ interestName: "primaryStudents", objectName: "alice",
                    propertyName: "focusLevel" })
   <- { "object": "alice", "property": "focusLevel", "value": 0.72 }
