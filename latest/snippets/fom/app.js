@@ -284,6 +284,21 @@ function refreshPkgCounts(){
   });
 }
 
+// Below the drawer width the tree sits over the detail pane rather than beside it.
+function setDrawer(open){
+  var tree=document.getElementById("tree"),
+      scrim=document.getElementById("scrim"),
+      menu=document.getElementById("menu");
+  if(!tree)return;
+  tree.classList.toggle("open",open);
+  if(scrim)scrim.classList.toggle("on",open);
+  if(menu)menu.setAttribute("aria-expanded",open?"true":"false");
+}
+function drawerOpen(){
+  var tree=document.getElementById("tree");
+  return !!tree&&tree.classList.contains("open");
+}
+
 // The tree shows one kind at a time, so opening a type has to bring its tab with it or the
 // selection sits on a tab the reader cannot see.
 function setKindMode(mode){
@@ -624,6 +639,8 @@ function show(name,viaTrail){
   if(b){b.disabled=trail.length===0;
         b.title=trail.length?"Back to "+trail[trail.length-1]:"Back";}
   sel=name;
+  // Every route to a type ends here, so this is the one place the drawer has to close.
+  setDrawer(false);
   setKindMode(t.kind==="classes"?"classes":"data");
   var d=document.getElementById("detail"); d.textContent=""; d.scrollTop=0;
 
@@ -863,6 +880,8 @@ function start(data){
   document.getElementById("back").onclick=function(){
     if(!trail.length)return; show(trail.pop(),true);
   };
+  document.getElementById("menu").onclick=function(){setDrawer(!drawerOpen());};
+  document.getElementById("scrim").onclick=function(){setDrawer(false);};
   window.addEventListener("popstate",function(){
     var hh=fragment();
     if(T[hh])show(hh,true); else showNothing();
@@ -882,6 +901,7 @@ function start(data){
     var q=document.getElementById("q");
     if(e.key==="/"&&e.target!==q){e.preventDefault();q.focus();q.select();return;}
     if(e.key==="Escape"&&e.target===q){q.value="";applyFilter();q.blur();return;}
+    if(e.key==="Escape"&&drawerOpen()){setDrawer(false);return;}
     if((e.key==="Backspace"||(e.altKey&&e.key==="ArrowLeft"))&&e.target!==q){
       e.preventDefault();var b=document.getElementById("back");
       if(!b.disabled)b.click();return;}
