@@ -933,6 +933,15 @@
 </nav>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-process-ports">
+<span class="md-ellipsis">
+      
+        Configuring process ports
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#controlling-multicast">
 <span class="md-ellipsis">
       
@@ -1819,40 +1828,70 @@ discovery parameters, but here you can see the available options:</p>
 </span><span id="__span-1-78"><a href="#__codelineno-1-78" id="__codelineno-1-78" name="__codelineno-1-78"></a>
 </span><span id="__span-1-79"><a href="#__codelineno-1-79" id="__codelineno-1-79" name="__codelineno-1-79"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">PortRange</span><span class="o">&gt;</span><span class="w"> </span><span class="n">PortExclusions</span><span class="p">;</span>
 </span><span id="__span-1-80"><a href="#__codelineno-1-80" id="__codelineno-1-80" name="__codelineno-1-80"></a>
-</span><span id="__span-1-81"><a href="#__codelineno-1-81" id="__codelineno-1-81" name="__codelineno-1-81"></a><span class="c1">// Remember to set these to the same value in all related Sen instances</span>
-</span><span id="__span-1-82"><a href="#__codelineno-1-82" id="__codelineno-1-82" name="__codelineno-1-82"></a><span class="k">struct</span><span class="w"> </span><span class="nc">BusConfig</span>
-</span><span id="__span-1-83"><a href="#__codelineno-1-83" id="__codelineno-1-83" name="__codelineno-1-83"></a><span class="p">{</span>
-</span><span id="__span-1-84"><a href="#__codelineno-1-84" id="__codelineno-1-84" name="__codelineno-1-84"></a><span class="w">  </span><span class="c1">// Defaults to the Organization Local scope (RFC 2365):</span>
-</span><span id="__span-1-85"><a href="#__codelineno-1-85" id="__codelineno-1-85" name="__codelineno-1-85"></a><span class="w">  </span><span class="c1">// [239], [192-195], [0-255], [0-255]</span>
-</span><span id="__span-1-86"><a href="#__codelineno-1-86" id="__codelineno-1-86" name="__codelineno-1-86"></a><span class="w">  </span><span class="c1">// Remember to keep a range wide enough for avoiding collisions if you have many buses.</span>
-</span><span id="__span-1-87"><a href="#__codelineno-1-87" id="__codelineno-1-87" name="__codelineno-1-87"></a><span class="w">  </span><span class="n">multicastRange</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">MulticastRange</span><span class="p">,</span>
-</span><span id="__span-1-88"><a href="#__codelineno-1-88" id="__codelineno-1-88" name="__codelineno-1-88"></a>
-</span><span id="__span-1-89"><a href="#__codelineno-1-89" id="__codelineno-1-89" name="__codelineno-1-89"></a><span class="w">  </span><span class="c1">// Address ranges that must not be allocated</span>
-</span><span id="__span-1-90"><a href="#__codelineno-1-90" id="__codelineno-1-90" name="__codelineno-1-90"></a><span class="w">  </span><span class="n">multicastExclusions</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">MulticastAddressExclusions</span><span class="p">,</span>
-</span><span id="__span-1-91"><a href="#__codelineno-1-91" id="__codelineno-1-91" name="__codelineno-1-91"></a>
-</span><span id="__span-1-92"><a href="#__codelineno-1-92" id="__codelineno-1-92" name="__codelineno-1-92"></a><span class="w">  </span><span class="c1">// Defaults to 50985</span>
-</span><span id="__span-1-93"><a href="#__codelineno-1-93" id="__codelineno-1-93" name="__codelineno-1-93"></a><span class="w">  </span><span class="c1">// Change this in case you have limited control over the infrastructure.</span>
-</span><span id="__span-1-94"><a href="#__codelineno-1-94" id="__codelineno-1-94" name="__codelineno-1-94"></a><span class="w">  </span><span class="n">multicastPort</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span>
+</span><span id="__span-1-81"><a href="#__codelineno-1-81" id="__codelineno-1-81" name="__codelineno-1-81"></a><span class="c1">// Let the operating system select an ephemeral port</span>
+</span><span id="__span-1-82"><a href="#__codelineno-1-82" id="__codelineno-1-82" name="__codelineno-1-82"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Ephemeral</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-1-83"><a href="#__codelineno-1-83" id="__codelineno-1-83" name="__codelineno-1-83"></a>
+</span><span id="__span-1-84"><a href="#__codelineno-1-84" id="__codelineno-1-84" name="__codelineno-1-84"></a><span class="c1">// Bind exactly this port, fail closed if taken</span>
+</span><span id="__span-1-85"><a href="#__codelineno-1-85" id="__codelineno-1-85" name="__codelineno-1-85"></a><span class="k">struct</span><span class="w"> </span><span class="nc">PinnedPort</span>
+</span><span id="__span-1-86"><a href="#__codelineno-1-86" id="__codelineno-1-86" name="__codelineno-1-86"></a><span class="p">{</span>
+</span><span id="__span-1-87"><a href="#__codelineno-1-87" id="__codelineno-1-87" name="__codelineno-1-87"></a><span class="w">  </span><span class="n">port</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span>
+</span><span id="__span-1-88"><a href="#__codelineno-1-88" id="__codelineno-1-88" name="__codelineno-1-88"></a><span class="p">}</span>
+</span><span id="__span-1-89"><a href="#__codelineno-1-89" id="__codelineno-1-89" name="__codelineno-1-89"></a>
+</span><span id="__span-1-90"><a href="#__codelineno-1-90" id="__codelineno-1-90" name="__codelineno-1-90"></a><span class="n">variant</span><span class="w"> </span><span class="n">PortBinding</span>
+</span><span id="__span-1-91"><a href="#__codelineno-1-91" id="__codelineno-1-91" name="__codelineno-1-91"></a><span class="p">{</span>
+</span><span id="__span-1-92"><a href="#__codelineno-1-92" id="__codelineno-1-92" name="__codelineno-1-92"></a><span class="w">  </span><span class="n">Ephemeral</span><span class="p">,</span>
+</span><span id="__span-1-93"><a href="#__codelineno-1-93" id="__codelineno-1-93" name="__codelineno-1-93"></a><span class="w">  </span><span class="n">PinnedPort</span><span class="p">,</span>
+</span><span id="__span-1-94"><a href="#__codelineno-1-94" id="__codelineno-1-94" name="__codelineno-1-94"></a><span class="p">}</span>
 </span><span id="__span-1-95"><a href="#__codelineno-1-95" id="__codelineno-1-95" name="__codelineno-1-95"></a>
-</span><span id="__span-1-96"><a href="#__codelineno-1-96" id="__codelineno-1-96" name="__codelineno-1-96"></a><span class="w">  </span><span class="c1">// If true, no multicast traffic is performed and all the bus settings above</span>
-</span><span id="__span-1-97"><a href="#__codelineno-1-97" id="__codelineno-1-97" name="__codelineno-1-97"></a><span class="w">  </span><span class="c1">// become meaningless. Defaults to false.</span>
-</span><span id="__span-1-98"><a href="#__codelineno-1-98" id="__codelineno-1-98" name="__codelineno-1-98"></a><span class="w">  </span><span class="n">multicastDisabled</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span>
-</span><span id="__span-1-99"><a href="#__codelineno-1-99" id="__codelineno-1-99" name="__codelineno-1-99"></a><span class="p">}</span>
-</span><span id="__span-1-100"><a href="#__codelineno-1-100" id="__codelineno-1-100" name="__codelineno-1-100"></a>
-</span><span id="__span-1-101"><a href="#__codelineno-1-101" id="__codelineno-1-101" name="__codelineno-1-101"></a><span class="n">optional</span><span class="o">&lt;</span><span class="kt">u16</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybeDiscoveryHubPort</span><span class="p">;</span>
-</span><span id="__span-1-102"><a href="#__codelineno-1-102" id="__codelineno-1-102" name="__codelineno-1-102"></a>
-</span><span id="__span-1-103"><a href="#__codelineno-1-103" id="__codelineno-1-103" name="__codelineno-1-103"></a><span class="c1">// Overall component configuration</span>
-</span><span id="__span-1-104"><a href="#__codelineno-1-104" id="__codelineno-1-104" name="__codelineno-1-104"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
-</span><span id="__span-1-105"><a href="#__codelineno-1-105" id="__codelineno-1-105" name="__codelineno-1-105"></a><span class="p">{</span>
-</span><span id="__span-1-106"><a href="#__codelineno-1-106" id="__codelineno-1-106" name="__codelineno-1-106"></a><span class="w">  </span><span class="n">discovery</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">DiscoveryConfig</span><span class="p">,</span><span class="w">        </span><span class="c1">// Discovery-related parameters</span>
-</span><span id="__span-1-107"><a href="#__codelineno-1-107" id="__codelineno-1-107" name="__codelineno-1-107"></a><span class="w">  </span><span class="n">busOutQueue</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for broadcasting to buses</span>
-</span><span id="__span-1-108"><a href="#__codelineno-1-108" id="__codelineno-1-108" name="__codelineno-1-108"></a><span class="w">  </span><span class="n">processUdpOutQueue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for communicating with processes over UDP</span>
-</span><span id="__span-1-109"><a href="#__codelineno-1-109" id="__codelineno-1-109" name="__codelineno-1-109"></a><span class="w">  </span><span class="n">processTcpOutQueue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for communicating with processes over TCP</span>
-</span><span id="__span-1-110"><a href="#__codelineno-1-110" id="__codelineno-1-110" name="__codelineno-1-110"></a><span class="w">  </span><span class="n">busConfig</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">BusConfig</span><span class="p">,</span><span class="w">              </span><span class="c1">// Bus transport configuration</span>
-</span><span id="__span-1-111"><a href="#__codelineno-1-111" id="__codelineno-1-111" name="__codelineno-1-111"></a><span class="w">  </span><span class="n">portExclusions</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">PortExclusions</span><span class="p">,</span><span class="w">         </span><span class="c1">// Port ranges that this process must not use</span>
-</span><span id="__span-1-112"><a href="#__codelineno-1-112" id="__codelineno-1-112" name="__codelineno-1-112"></a><span class="w">  </span><span class="n">runDiscoveryHub</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDiscoveryHubPort</span><span class="p">,</span><span class="w">  </span><span class="c1">// If present, run the TCP discovery hub on this port</span>
-</span><span id="__span-1-113"><a href="#__codelineno-1-113" id="__codelineno-1-113" name="__codelineno-1-113"></a><span class="w">  </span><span class="n">networkDevice</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDeviceName</span><span class="w">         </span><span class="c1">// If present, the network device to use</span>
-</span><span id="__span-1-114"><a href="#__codelineno-1-114" id="__codelineno-1-114" name="__codelineno-1-114"></a><span class="p">}</span>
+</span><span id="__span-1-96"><a href="#__codelineno-1-96" id="__codelineno-1-96" name="__codelineno-1-96"></a><span class="c1">// This configuration is per process and does not need to match across Sen instances.</span>
+</span><span id="__span-1-97"><a href="#__codelineno-1-97" id="__codelineno-1-97" name="__codelineno-1-97"></a><span class="c1">// Exclusions apply to a pinned port, not to an ephemeral one: an ephemeral bind asks the OS for</span>
+</span><span id="__span-1-98"><a href="#__codelineno-1-98" id="__codelineno-1-98" name="__codelineno-1-98"></a><span class="c1">// any free port and does not learn which it was given.</span>
+</span><span id="__span-1-99"><a href="#__codelineno-1-99" id="__codelineno-1-99" name="__codelineno-1-99"></a><span class="c1">// udpUnicast cannot be pinned. Its socket is per peer and UDP has no four-tuple to demultiplex</span>
+</span><span id="__span-1-100"><a href="#__codelineno-1-100" id="__codelineno-1-100" name="__codelineno-1-100"></a><span class="c1">// on, so a second peer either fails to bind or silently takes the first peer's traffic.</span>
+</span><span id="__span-1-101"><a href="#__codelineno-1-101" id="__codelineno-1-101" name="__codelineno-1-101"></a><span class="k">struct</span><span class="w"> </span><span class="nc">PortConfig</span>
+</span><span id="__span-1-102"><a href="#__codelineno-1-102" id="__codelineno-1-102" name="__codelineno-1-102"></a><span class="p">{</span>
+</span><span id="__span-1-103"><a href="#__codelineno-1-103" id="__codelineno-1-103" name="__codelineno-1-103"></a><span class="w">  </span><span class="n">tcpAcceptor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">PortBinding</span><span class="p">,</span><span class="w">  </span><span class="c1">// inbound TCP listener</span>
+</span><span id="__span-1-104"><a href="#__codelineno-1-104" id="__codelineno-1-104" name="__codelineno-1-104"></a><span class="w">  </span><span class="n">udpUnicast</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="nc">PortBinding</span><span class="p">,</span><span class="w">  </span><span class="c1">// per-peer UDP unicast; must be Ephemeral</span>
+</span><span id="__span-1-105"><a href="#__codelineno-1-105" id="__codelineno-1-105" name="__codelineno-1-105"></a><span class="w">  </span><span class="n">tcpSource</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="nc">PortBinding</span><span class="w">   </span><span class="c1">// outbound TCP source port</span>
+</span><span id="__span-1-106"><a href="#__codelineno-1-106" id="__codelineno-1-106" name="__codelineno-1-106"></a><span class="p">}</span>
+</span><span id="__span-1-107"><a href="#__codelineno-1-107" id="__codelineno-1-107" name="__codelineno-1-107"></a>
+</span><span id="__span-1-108"><a href="#__codelineno-1-108" id="__codelineno-1-108" name="__codelineno-1-108"></a><span class="n">optional</span><span class="o">&lt;</span><span class="n">PortConfig</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybePortConfig</span><span class="p">;</span>
+</span><span id="__span-1-109"><a href="#__codelineno-1-109" id="__codelineno-1-109" name="__codelineno-1-109"></a>
+</span><span id="__span-1-110"><a href="#__codelineno-1-110" id="__codelineno-1-110" name="__codelineno-1-110"></a><span class="c1">// Remember to set these to the same value in all related Sen instances</span>
+</span><span id="__span-1-111"><a href="#__codelineno-1-111" id="__codelineno-1-111" name="__codelineno-1-111"></a><span class="k">struct</span><span class="w"> </span><span class="nc">BusConfig</span>
+</span><span id="__span-1-112"><a href="#__codelineno-1-112" id="__codelineno-1-112" name="__codelineno-1-112"></a><span class="p">{</span>
+</span><span id="__span-1-113"><a href="#__codelineno-1-113" id="__codelineno-1-113" name="__codelineno-1-113"></a><span class="w">  </span><span class="c1">// Defaults to the Organization Local scope (RFC 2365):</span>
+</span><span id="__span-1-114"><a href="#__codelineno-1-114" id="__codelineno-1-114" name="__codelineno-1-114"></a><span class="w">  </span><span class="c1">// [239], [192-195], [0-255], [0-255]</span>
+</span><span id="__span-1-115"><a href="#__codelineno-1-115" id="__codelineno-1-115" name="__codelineno-1-115"></a><span class="w">  </span><span class="c1">// Remember to keep a range wide enough for avoiding collisions if you have many buses.</span>
+</span><span id="__span-1-116"><a href="#__codelineno-1-116" id="__codelineno-1-116" name="__codelineno-1-116"></a><span class="w">  </span><span class="n">multicastRange</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">MulticastRange</span><span class="p">,</span>
+</span><span id="__span-1-117"><a href="#__codelineno-1-117" id="__codelineno-1-117" name="__codelineno-1-117"></a>
+</span><span id="__span-1-118"><a href="#__codelineno-1-118" id="__codelineno-1-118" name="__codelineno-1-118"></a><span class="w">  </span><span class="c1">// Address ranges that must not be allocated</span>
+</span><span id="__span-1-119"><a href="#__codelineno-1-119" id="__codelineno-1-119" name="__codelineno-1-119"></a><span class="w">  </span><span class="n">multicastExclusions</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">MulticastAddressExclusions</span><span class="p">,</span>
+</span><span id="__span-1-120"><a href="#__codelineno-1-120" id="__codelineno-1-120" name="__codelineno-1-120"></a>
+</span><span id="__span-1-121"><a href="#__codelineno-1-121" id="__codelineno-1-121" name="__codelineno-1-121"></a><span class="w">  </span><span class="c1">// Defaults to 50985</span>
+</span><span id="__span-1-122"><a href="#__codelineno-1-122" id="__codelineno-1-122" name="__codelineno-1-122"></a><span class="w">  </span><span class="c1">// Change this in case you have limited control over the infrastructure.</span>
+</span><span id="__span-1-123"><a href="#__codelineno-1-123" id="__codelineno-1-123" name="__codelineno-1-123"></a><span class="w">  </span><span class="n">multicastPort</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">u16</span><span class="p">,</span>
+</span><span id="__span-1-124"><a href="#__codelineno-1-124" id="__codelineno-1-124" name="__codelineno-1-124"></a>
+</span><span id="__span-1-125"><a href="#__codelineno-1-125" id="__codelineno-1-125" name="__codelineno-1-125"></a><span class="w">  </span><span class="c1">// If true, no multicast traffic is performed and all the bus settings above</span>
+</span><span id="__span-1-126"><a href="#__codelineno-1-126" id="__codelineno-1-126" name="__codelineno-1-126"></a><span class="w">  </span><span class="c1">// become meaningless. Defaults to false.</span>
+</span><span id="__span-1-127"><a href="#__codelineno-1-127" id="__codelineno-1-127" name="__codelineno-1-127"></a><span class="w">  </span><span class="n">multicastDisabled</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-1-128"><a href="#__codelineno-1-128" id="__codelineno-1-128" name="__codelineno-1-128"></a><span class="p">}</span>
+</span><span id="__span-1-129"><a href="#__codelineno-1-129" id="__codelineno-1-129" name="__codelineno-1-129"></a>
+</span><span id="__span-1-130"><a href="#__codelineno-1-130" id="__codelineno-1-130" name="__codelineno-1-130"></a><span class="n">optional</span><span class="o">&lt;</span><span class="kt">u16</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaybeDiscoveryHubPort</span><span class="p">;</span>
+</span><span id="__span-1-131"><a href="#__codelineno-1-131" id="__codelineno-1-131" name="__codelineno-1-131"></a>
+</span><span id="__span-1-132"><a href="#__codelineno-1-132" id="__codelineno-1-132" name="__codelineno-1-132"></a><span class="c1">// Overall component configuration</span>
+</span><span id="__span-1-133"><a href="#__codelineno-1-133" id="__codelineno-1-133" name="__codelineno-1-133"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
+</span><span id="__span-1-134"><a href="#__codelineno-1-134" id="__codelineno-1-134" name="__codelineno-1-134"></a><span class="p">{</span>
+</span><span id="__span-1-135"><a href="#__codelineno-1-135" id="__codelineno-1-135" name="__codelineno-1-135"></a><span class="w">  </span><span class="n">discovery</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">DiscoveryConfig</span><span class="p">,</span><span class="w">        </span><span class="c1">// Discovery-related parameters</span>
+</span><span id="__span-1-136"><a href="#__codelineno-1-136" id="__codelineno-1-136" name="__codelineno-1-136"></a><span class="w">  </span><span class="n">busOutQueue</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for broadcasting to buses</span>
+</span><span id="__span-1-137"><a href="#__codelineno-1-137" id="__codelineno-1-137" name="__codelineno-1-137"></a><span class="w">  </span><span class="n">processUdpOutQueue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for communicating with processes over UDP</span>
+</span><span id="__span-1-138"><a href="#__codelineno-1-138" id="__codelineno-1-138" name="__codelineno-1-138"></a><span class="w">  </span><span class="n">processTcpOutQueue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">QueueConfig</span><span class="p">,</span><span class="w">            </span><span class="c1">// Queue for communicating with processes over TCP</span>
+</span><span id="__span-1-139"><a href="#__codelineno-1-139" id="__codelineno-1-139" name="__codelineno-1-139"></a><span class="w">  </span><span class="n">busConfig</span><span class="w">          </span><span class="p">:</span><span class="w"> </span><span class="nc">BusConfig</span><span class="p">,</span><span class="w">              </span><span class="c1">// Bus transport configuration</span>
+</span><span id="__span-1-140"><a href="#__codelineno-1-140" id="__codelineno-1-140" name="__codelineno-1-140"></a><span class="w">  </span><span class="n">portExclusions</span><span class="w">     </span><span class="p">:</span><span class="w"> </span><span class="nc">PortExclusions</span><span class="p">,</span><span class="w">         </span><span class="c1">// Port ranges that this process must not use</span>
+</span><span id="__span-1-141"><a href="#__codelineno-1-141" id="__codelineno-1-141" name="__codelineno-1-141"></a><span class="w">  </span><span class="n">portConfig</span><span class="w">         </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybePortConfig</span><span class="p">,</span><span class="w">        </span><span class="c1">// If not present, all port bindings are Ephemeral</span>
+</span><span id="__span-1-142"><a href="#__codelineno-1-142" id="__codelineno-1-142" name="__codelineno-1-142"></a><span class="w">  </span><span class="n">runDiscoveryHub</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDiscoveryHubPort</span><span class="p">,</span><span class="w">  </span><span class="c1">// If present, run the TCP discovery hub on this port</span>
+</span><span id="__span-1-143"><a href="#__codelineno-1-143" id="__codelineno-1-143" name="__codelineno-1-143"></a><span class="w">  </span><span class="n">networkDevice</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">MaybeDeviceName</span><span class="w">         </span><span class="c1">// If present, the network device to use</span>
+</span><span id="__span-1-144"><a href="#__codelineno-1-144" id="__codelineno-1-144" name="__codelineno-1-144"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>If you arrive from another distributed system, the word you are reaching for here is <em>peer</em>. Sen
 calls it a <strong>remote kernel</strong>: the kernel in another process that this one has found, one per
@@ -1902,6 +1941,37 @@ variant as above, or by setting the <code>SEN_ETHER_ALLOW_VIRTUAL_INTERFACES</co
 </span></code></pre></div>
 <p>If you have other interfaces, use <code>eth0</code> (or your preferred interface) instead of <code>lo</code>.</p>
 <p>Remember to also do it if you are inside a Docker container (use <code>--cap-add=NET_ADMIN</code> and <code>eth0</code>).</p>
+<h2 id="configuring-process-ports">Configuring process ports<a class="headerlink" href="#configuring-process-ports" title="Permanent link">¶</a></h2>
+<p>By default, Sen asks the operating system to select the <abbr title="Transmission Control Protocol">TCP</abbr> and <abbr title="User Datagram Protocol">UDP</abbr> ports. The optional
+<code>portConfig</code> parameter has one independent entry for each process port, and each entry can use any
+supported port binding mode:</p>
+<ul>
+<li><code>tcpAcceptor</code>: <abbr title="Transmission Control Protocol">TCP</abbr> listening port used to accept incoming process connections.</li>
+<li><code>tcpSource</code>: <abbr title="Transmission Control Protocol">TCP</abbr> source port used when initiating outgoing process connections.</li>
+<li><code>udpUnicast</code>: <abbr title="User Datagram Protocol">UDP</abbr> unicast port used for per-peer best-effort traffic.</li>
+</ul>
+<p>Each entry accepts the same port binding modes:</p>
+<ul>
+<li><code>Ephemeral</code>: let the operating system select the port. This is the default.</li>
+<li><code>PinnedPort</code>: use one exact port.</li>
+</ul>
+<p>Pinned ports fail if the configured port cannot be used.
+This configuration is local to each process and does not need to match in other Sen applications.
+If <code>portConfig</code> is omitted, all process ports use <code>Ephemeral</code>.</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="nt">portConfig</span><span class="p">:</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">      </span><span class="nt">tcpAcceptor</span><span class="p">:</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PinnedPort</span>
+</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">        </span><span class="nt">value</span><span class="p">:</span>
+</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20000</span>
+</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">      </span><span class="nt">udpUnicast</span><span class="p">:</span>
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ephemeral</span>
+</span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">      </span><span class="nt">tcpSource</span><span class="p">:</span>
+</span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PinnedPort</span>
+</span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="w">        </span><span class="nt">value</span><span class="p">:</span>
+</span><span id="__span-4-13"><a href="#__codelineno-4-13" id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22000</span>
+</span></code></pre></div>
 <h2 id="controlling-multicast">Controlling multicast<a class="headerlink" href="#controlling-multicast" title="Permanent link">¶</a></h2>
 <p>Sen uses multicast to distribute information to multiple receivers with minimum overhead. The
 multicast groups are generated based on an internal algorithm. In some cases, you might need to
@@ -1925,25 +1995,25 @@ order for this to work, you need to ensure that all the related Sen applications
 range.</p>
 <p>Sen automatically excludes the relative-address blocks reserved by RFC 2365. Additional address
 ranges can be excluded with <code>busConfig.multicastExclusions</code>.</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
-</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="nt">busConfig</span><span class="p">:</span>
-</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">      </span><span class="nt">multicastExclusions</span><span class="p">:</span>
-</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.0.0</span>
-</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">          </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.99.255</span>
-</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.200.0</span>
-</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">          </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.255.255</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">busConfig</span><span class="p">:</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">      </span><span class="nt">multicastExclusions</span><span class="p">:</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.0.0</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">          </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.99.255</span>
+</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.200.0</span>
+</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">          </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">239.192.255.255</span>
 </span></code></pre></div>
 <h3 id="excluding-ports">Excluding ports<a class="headerlink" href="#excluding-ports" title="Permanent link">¶</a></h3>
 <p><code>portExclusions</code> lists inclusive port ranges this process must not use. Sen also asks the operating
 system which ports it has reserved and avoids those as well; where it cannot ask -- a container
 without <code>/proc/sys/net/ipv4/ip_local_port_range</code>, or Windows without WMI -- it logs a warning and
 continues with only the ranges configured here.</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
-</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">portExclusions</span><span class="p">:</span>
-</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
-</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">        </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
+</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nt">portExclusions</span><span class="p">:</span>
+</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">        </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
 </span></code></pre></div>
 <h3 id="disabling-multicast-for-bus-traffic">Disabling multicast for bus traffic<a class="headerlink" href="#disabling-multicast-for-bus-traffic" title="Permanent link">¶</a></h3>
 <p>You can force Sen to use <abbr title="Transmission Control Protocol">TCP</abbr>. The <code>busConfig.multicastDisabled</code> configuration parameter can be used
@@ -1958,34 +2028,34 @@ section) and enable the <strong><abbr title="Transmission Control Protocol">TCP<
 <p>The <abbr title="Transmission Control Protocol">TCP</abbr> discovery hub is a process that Sen applications connect to in order to discover each other.
 You only need one.</p>
 <p>Tell the ether component to run one, and give it a port.</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
-</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nt">runDiscoveryHub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">     </span><span class="c1"># if you set this, we will run a discovery hub at this port</span>
-</span></code></pre></div>
-<p>If you want to fully disable multicast you would need something like this:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">load</span><span class="p">:</span>
 </span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
-</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="nt">busConfig</span><span class="p">:</span>
-</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">      </span><span class="nt">multicastDisabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># no multicast bus traffic</span>
-</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="nt">runDiscoveryHub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">     </span><span class="c1"># if you set this, we will run a discovery hub at this port</span>
-</span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">    </span><span class="nt">discovery</span><span class="p">:</span>
-</span><span id="__span-7-7"><a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TcpDiscovery</span>
-</span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">      </span><span class="nt">value</span><span class="p">:</span>
-</span><span id="__span-7-9"><a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="w">        </span><span class="nt">hubAddress</span><span class="p">:</span>
-</span><span id="__span-7-10"><a href="#__codelineno-7-10" id="__codelineno-7-10" name="__codelineno-7-10"></a><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
-</span><span id="__span-7-11"><a href="#__codelineno-7-11" id="__codelineno-7-11" name="__codelineno-7-11"></a><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">           </span><span class="c1"># has to match with the port where the hub will be running</span>
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="nt">runDiscoveryHub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">     </span><span class="c1"># if you set this, we will run a discovery hub at this port</span>
 </span></code></pre></div>
-<p>Point the discovery configuration at it:</p>
+<p>If you want to fully disable multicast you would need something like this:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">load</span><span class="p">:</span>
 </span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
 </span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">busConfig</span><span class="p">:</span>
 </span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">      </span><span class="nt">multicastDisabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># no multicast bus traffic</span>
-</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">    </span><span class="nt">discovery</span><span class="p">:</span>
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TcpDiscovery</span>
-</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="w">      </span><span class="nt">value</span><span class="p">:</span>
-</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="w">        </span><span class="nt">hubAddress</span><span class="p">:</span>
-</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">theComputer</span><span class="w">  </span><span class="c1"># this can also be an IPv4 address</span>
-</span><span id="__span-8-10"><a href="#__codelineno-8-10" id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">        </span><span class="c1"># has to match with the port where the hub will be running</span>
+</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">    </span><span class="nt">runDiscoveryHub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">     </span><span class="c1"># if you set this, we will run a discovery hub at this port</span>
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">    </span><span class="nt">discovery</span><span class="p">:</span>
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TcpDiscovery</span>
+</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="w">      </span><span class="nt">value</span><span class="p">:</span>
+</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="w">        </span><span class="nt">hubAddress</span><span class="p">:</span>
+</span><span id="__span-8-10"><a href="#__codelineno-8-10" id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+</span><span id="__span-8-11"><a href="#__codelineno-8-11" id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">           </span><span class="c1"># has to match with the port where the hub will be running</span>
+</span></code></pre></div>
+<p>Point the discovery configuration at it:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ether</span>
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="nt">busConfig</span><span class="p">:</span>
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">      </span><span class="nt">multicastDisabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># no multicast bus traffic</span>
+</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">    </span><span class="nt">discovery</span><span class="p">:</span>
+</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TcpDiscovery</span>
+</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="w">      </span><span class="nt">value</span><span class="p">:</span>
+</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="w">        </span><span class="nt">hubAddress</span><span class="p">:</span>
+</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">theComputer</span><span class="w">  </span><span class="c1"># this can also be an IPv4 address</span>
+</span><span id="__span-9-10"><a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64222</span><span class="w">        </span><span class="c1"># has to match with the port where the hub will be running</span>
 </span></code></pre></div>
 <h3 id="configuring-the-discovery-expiration-time">Configuring the discovery expiration time<a class="headerlink" href="#configuring-the-discovery-expiration-time" title="Permanent link">¶</a></h3>
 <p>Different ether instances find each other using a beamer that broadcasts beam messages periodically.
@@ -2013,25 +2083,25 @@ them to at least 8MB before pushing large amounts of <abbr title="User Datagram 
 starting point rather than a ceiling, and can go higher.</p>
 <h3 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">¶</a></h3>
 <p>Check the current <abbr title="User Datagram Protocol">UDP</abbr>/IP receive buffer limit &amp; default by typing the following commands:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sysctl<span class="w"> </span>net.core.rmem_max
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>sysctl<span class="w"> </span>net.core.rmem_default
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>sysctl<span class="w"> </span>net.core.rmem_max
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>sysctl<span class="w"> </span>net.core.rmem_default
 </span></code></pre></div>
 <p>If the values are less than 8388608 bytes you should add the following lines to the /etc/sysctl.conf
 file:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>net.core.rmem_max=8388608
-</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>net.core.rmem_default=8388608
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>net.core.rmem_max=8388608
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>net.core.rmem_default=8388608
 </span></code></pre></div>
 <p>Changes to /etc/sysctl.conf do not take effect until reboot. To update the values immediately, type
 the following commands as root:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>sysctl<span class="w"> </span>-w<span class="w"> </span>net.core.rmem_max<span class="o">=</span><span class="m">8388608</span>
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>sysctl<span class="w"> </span>-w<span class="w"> </span>net.core.rmem_default<span class="o">=</span><span class="m">8388608</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>sysctl<span class="w"> </span>-w<span class="w"> </span>net.core.rmem_max<span class="o">=</span><span class="m">8388608</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>sysctl<span class="w"> </span>-w<span class="w"> </span>net.core.rmem_default<span class="o">=</span><span class="m">8388608</span>
 </span></code></pre></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 7, 2026 08:53:31 UTC">September 7, 2026</span>
 </span>
 </aside>
 </article>
