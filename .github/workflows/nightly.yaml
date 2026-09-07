@@ -302,6 +302,10 @@ jobs:
     name: "Newest gcc and newer consumer standards"
     runs-on: ubuntu-24.04
     timeout-minutes: 150
+    permissions:
+      contents: read
+      # Dropping the cache entry the save below replaces.
+      actions: write
     env:
       CC: gcc-14
       CXX: g++-14
@@ -311,6 +315,7 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare the build
+        id: prepare
         uses: ./.github/actions/prepare_build
         with:
           compiler-name: gcc
@@ -341,9 +346,38 @@ jobs:
               echo "::endgroup::"
           done
 
-  # The pull-request pipeline measures coverage but keeps the report as a run
-  # artifact, which nobody looks at. The clang leg does not run on main, so
-  # measuring here once a day is what gives the report a stable home.
+      # No merge-path leg builds gcc-14, so this job owns its slice. conan create leaves Sen's
+      # sources and build folders behind, and none of that can serve a restore.
+      #
+      # sen/* because the bare name raises when the recipe is absent; -t because conan leaves a
+      # failed build's folders out of its database, where no other flag reaches them.
+      - name: Remove unwanted parts from the conan cache before saving
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          conan remove "sen/*" --confirm
+          conan cache clean "*" -s -b -d -t
+
+      # A key is immutable, so while the old entry exists the save is refused, quietly, and the
+      # slice would never refresh. Neither step runs unless the restore succeeded and the run was
+      # not cancelled: the delete would land and the upload would not.
+      - name: Drop the entry this save replaces
+        if: ${{ !cancelled() && steps.prepare.outcome == 'success' && github.ref == 'refs/heads/main' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/drop_cache_key.sh "${{ steps.prepare.outputs.cache-key }}"
+
+      - name: Save conan packages
+        if: ${{ !cancelled() && steps.prepare.outcome == 'success' && github.ref == 'refs/heads/main' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.conan2/p
+          key: ${{ steps.prepare.outputs.cache-key }}
+
+  # The pull-request pipeline measures coverage and gates on it, but keeps the report as
+  # a run artifact, which nobody looks at. Measuring here once a day is what gives the
+  # report a stable home to be published from.
   coverage:
     name: "Coverage report"
     runs-on: ubuntu-24.04

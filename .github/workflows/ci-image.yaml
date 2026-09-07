@@ -98,6 +98,12 @@ jobs:
             for tool in llvm-profdata llvm-cov; do
                 test -x "/usr/lib/llvm-20/bin/$tool" || { echo "missing: $tool"; exit 1; }
             done
+            # ccache reaches a dependency build through these masquerade shims and through
+            # nothing else. The ccache package creates them by apt trigger, so a compiler
+            # installed in a later transaction than ccache silently gets none.
+            for shim in gcc-12 g++-12 clang-20 clang++-20; do
+                test -x "/usr/lib/ccache/$shim" || { echo "missing shim: $shim"; exit 1; }
+            done
             # Coverage and the sanitizers need the clang runtime library, which
             # --no-install-recommends leaves out unless it is asked for.
             printf "int main(){return 0;}" > /tmp/probe.cpp

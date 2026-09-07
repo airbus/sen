@@ -35,26 +35,30 @@ inputs:
     required: false
     default: "17"
 
+outputs:
+  cache-key:
+    description: >-
+      The primary conan cache key this lane asked for, which a restore reports unchanged whether
+      it hit, fell back or missed. A job that owns a slice saves under it.
+    value: ${{ steps.conan-cache.outputs.cache-primary-key }}
+
 runs:
   using: composite
   steps:
-    # A daily key: dependencies are rebuilt at most once a day, and a restore
-    # key still finds yesterday's entry.
-    - name: Generate daily cache id
-      id: cache-id
-      shell: bash
-      run: echo "date=$(/bin/date -u "+%Y%m%d")" >> "$GITHUB_OUTPUT"
-
-    # The key scheme matches standard_test.yaml, so a lane restores what the
-    # day's builds already populated. No ccache anywhere in the nightly lanes:
-    # sanitized and instrumented objects must not mix into the slices that the
-    # pull-request builds keep, and each lane compiles every file once anyway.
-    - name: Cache conan packages
-      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+    # Restore only, under the key standard_test.yaml and conan.yaml write on a push to main, so a
+    # lane reads what a merge already built. No date in the key: drop_cache_key.sh can delete an
+    # entry, so a save can replace one.
+    #
+    # No ccache in any lane reaching this action: the nightly's sanitized and instrumented objects
+    # must not mix into the slices the pull-request builds keep, and these lanes compile Sen's
+    # tree once per run.
+    - name: Restore conan packages
+      id: conan-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: ~/.conan2/p
-        key: conanp-${{ inputs.runner-label }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-${{ inputs.std }}-${{ steps.cache-id.outputs.date }}
-        restore-keys: conanp-${{ inputs.runner-label }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-${{ inputs.std }}-
+        key: conanp-${{ inputs.runner-label }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-${{ inputs.std }}
+        restore-keys: conanp-${{ inputs.runner-label }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-
 
     - name: Setup build context
       uses: ./.github/actions/setup_build_context

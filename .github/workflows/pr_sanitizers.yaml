@@ -42,10 +42,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      # prepare_build would be the obvious thing to reuse here, but it saves at the
-      # end of the job, and a cache written from a pull request is private to it:
-      # every open pull request storing its own slice puts the repository past
-      # GitHub's 10 GB limit. So this restores always and saves from main only.
+      # prepare_build is not reused here: it keys on the runner and compiler, and this lane
+      # needs the image instead, for the reason below. A cache written from a pull request is
+      # private to it, and every open pull request storing its own slice puts the repository
+      # past GitHub's 10 GB limit. So this restores always and saves from main only.
       # Keyed to the image, not the runner: a conan package id does not distinguish
       # one Ubuntu from another, and the runner's cache holds 24.04 binaries whose
       # libstdc++ is newer than the image's -- they install here and fail at link.
@@ -142,22 +142,22 @@ jobs:
       # sen recipe first; this lane never exports one, because it installs and builds
       # rather than creating the package, so asking would fail on a missing recipe.
       - name: Clean the conan cache before saving
-        if: always() && github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         shell: bash
         run: |
           .github/scripts/in_image.sh <<'IN'
-          conan cache clean "*" -s -b -d
+          conan cache clean "*" -s -b -d -t
           IN
 
       - name: Drop the entry this save replaces
-        if: always() && github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-clang-20-17"
 
       - name: Save conan packages
-        if: always() && github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p

@@ -410,8 +410,12 @@ compilers or Conan yourself.
 
     **Time.** The first full-mode build compiles every third-party dependency plus the whole
     tree; on a typical developer machine expect on the order of half an hour to an hour.
-    Subsequent builds are incremental. `ccache` shortens rebuilds. CI simply prepends the
-    ccache masquerade directory to `PATH` before building.
+    Subsequent builds are incremental. Sen's own tree wires `ccache` in through
+    `CMAKE_<LANG>_COMPILER_LAUNCHER` whenever it is installed, so there is nothing to
+    configure. Dependencies build inside their own projects and never see that, so to
+    cache them too, put your distribution's ccache shim directory — `/usr/lib/ccache` on
+    Debian and Ubuntu — ahead of the compilers on `PATH` for the `conan install` step
+    only, which is what CI does.
 
     **Windows.** The C++ tree and the browser stack both build with MSVC, and projects run on it.
     The test suite runs there too, though on fewer configurations than Linux.
