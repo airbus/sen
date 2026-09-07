@@ -49,6 +49,7 @@ public:
 
 public:
   [[nodiscard]] const Configuration& getConfig() const noexcept;
+  [[nodiscard]] const PortExclusionSources& getPortExclusions() const noexcept;
 
 public:  // implements Transport
   [[nodiscard]] const kernel::ProcessInfo& getOwnInfo() const noexcept override;
