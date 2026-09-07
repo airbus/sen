@@ -28,9 +28,9 @@ runs:
         path: ~/.conan2/p
         key: conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs
 
-    # This keeps its cache inside the workspace, which the container mounts at the
-    # same path, so the compiler shims on PATH below reach the same directory the
-    # runner saves. Writes only on main, as above.
+    # This keeps its cache inside the workspace, which the container mounts at the same
+    # path, so what compiles inside the container writes where the runner saves from.
+    # CCACHE_DIR is set to match below. Writes only on main, as above.
     - uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639  # v1.2
       with:
         key: docs
@@ -51,15 +51,17 @@ runs:
       shell: bash
       run: |
         .github/scripts/in_image.sh <<'IN'
-        # ccache first, so the shims are found ahead of the compilers themselves.
-        export PATH="/usr/lib/ccache:$HOME/.local/bin:$PATH"
+        export PATH="$HOME/.local/bin:$PATH"
         export CCACHE_DIR="$PWD/.ccache"
         pip install --user --quiet -r docs/requirements.txt
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
         # --profile:all names both host and build profile. Copying one over `default`
         # instead is what makes a documented `conan install --profile=...` work here
         # and fail for a reader.
-        conan install . --profile:all=sen_build_docs --build=missing
+        # Shims for the dependencies only, and the sloppiness with them, as in standard_test.yaml.
+        PATH="/usr/lib/ccache:$PATH" \
+          CCACHE_SLOPPINESS=clang_index_store,include_file_ctime,include_file_mtime,locale,pch_defines,time_macros \
+          conan install . --profile:all=sen_build_docs --build=missing
         cmake --preset=conan-gcc-release
         # The handbook runs the built binaries to capture their command-line help, so
         # these targets pull in the six the snippets depend on.
@@ -72,27 +74,27 @@ runs:
       shell: bash
       run: |
         .github/scripts/in_image.sh <<'IN'
-        conan cache clean "*" -s -b -d
+        conan cache clean "*" -s -b -d -t
         IN
 
     # After the clean, so build folders stay out. main reaches this through
     # build_docs.yaml, which is what keeps the slice pull requests restore.
     - name: Drop the ccache entry this run replaces
-      if: always() && github.ref == 'refs/heads/main'
+      if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: bash .github/scripts/drop_cache_key.sh "ccache-docs"
 
     - name: Drop the entry this save replaces
-      if: always() && github.ref == 'refs/heads/main'
+      if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: bash .github/scripts/drop_cache_key.sh "conanp-image-${{ hashFiles('tools/ci/Dockerfile') }}-docs"
 
     - name: Save conan packages
-      if: always() && github.ref == 'refs/heads/main'
+      if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
       uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p

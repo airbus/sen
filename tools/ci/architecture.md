@@ -217,29 +217,49 @@ when Windows tests are enabled. The lockfile check job resolves a Debug
 consumer graph and fails if any dependency left the Release default.
 
 **Caches.** Conan packages: one Actions cache entry per runner and compiler
-(`conanp-<runner>-<compiler>-<version>-<std>-<date>`). All build types share
-it, because dependencies always build as Release. It is restored by prefix,
-so the newest entry wins, and sources and build folders are cleaned before
-saving.
+(`conanp-<runner>-<compiler>-<version>-<std>`), plus two keyed on the CI image
+instead, for the lanes that build inside it (`conanp-image-<hash>-<...>`). All build types share it,
+because dependencies always build as Release. The key carries no date. An
+Actions key is immutable, so refreshing an entry means deleting it and saving
+again, which `.github/scripts/drop_cache_key.sh` does immediately before each
+save; sources and build folders are cleaned first. `prepare_build` restores without
+saving, and is the one place with a fallback: if its exact key is missing it takes the
+newest entry for the same runner and compiler, whatever standard the entry was built
+for. Dependencies are Release-only and every leg is C++17, so today that fallback can
+only reach an entry with identical contents.
 
-**Entries are written only on pushes to main.** A cache written from a pull
-request is private to that pull request, so if every open pull request saved
-its own copy, the repository would pass GitHub's 10 GB limit and GitHub would
-evict continuously.
+**Entries are written only from `main`.** A cache written from a pull request
+is private to that pull request, so if every open pull request saved its own
+copy, the repository would pass GitHub's 10 GB limit and GitHub would evict
+continuously. Every save is guarded on `github.ref == 'refs/heads/main'`, which
+a push to main satisfies and so does the nightly schedule, since a scheduled run
+uses the default branch. A `workflow_dispatch` from a branch does not, and writes
+nothing. The nightly therefore writes several entries: the newest-gcc lane owns `conanp-ubuntu-24.04-gcc-14-17`, and the
+packaging and documentation jobs it calls rewrite the shared runner keys and the
+image-keyed ones. That last part is a known race — those are keys the nightly's own
+lanes restore, so a lane reaching its restore inside the window between a delete and
+the matching save builds its dependencies from source instead.
 
 That rule has a consequence which is easy to miss. **A configuration that
-never runs on main never gets an entry at all.** The arm configuration is in
-that position today: it is not selected by the packaging workflow, it is not
-selected on main, and no nightly job covers it, so nothing writes its entry.
-It therefore builds every dependency from source on every pull request, which
-takes far longer than the other configurations and depends on the upstream
-source servers being reachable at that moment.
+never runs on main never gets an entry at all**, and pays a full source build
+of every dependency on every run. Every configuration a pull request runs also runs
+on main, which `test_generate_matrix_jobs.py` pins for the test matrix, so
+everything a pull request needs is written. The converse does not hold: packaging
+builds four configurations on main and only the shipping one on a pull request. The
+exposure is a compiler that appears solely in a nightly lane, which is why that lane
+writes its own entry rather than restoring one nothing produces. A configuration
+without an entry does not merely build slowly — it fetches every dependency from the
+upstream source servers, and depends on those being reachable at that moment.
 
-ccache: one entry per runner, compiler, build type and run. The action that
-writes it puts a timestamp in the key, so every run on main leaves a new entry
-and the previous one stays until it is evicted.
+ccache: one entry per runner, compiler, build type and run, its key carrying a
+timestamp, and the previous entry deleted before each save as the conan entries
+are. Compilation reaches ccache through `CMAKE_<LANG>_COMPILER_LAUNCHER`, set in
+`cmake/util/sen_utils.cmake`. The masquerade shims in `/usr/lib/ccache` go on
+`PATH` only while conan builds dependencies, which compile in their own projects
+and never see the launcher; in front of Sen's own build they would add a second
+ccache to the chain and store every object twice.
 
-**Only the test workflow keeps a ccache.** `conan create` compiles in a folder
+**Packaging keeps no ccache.** `conan create` compiles in a folder
 whose name changes every run, so its object files never match the ones a test
 build produces, and the two workflows shared a key. Whichever wrote last won, and
 because the nightly runs the packaging workflow without the test workflow, the
@@ -389,7 +409,7 @@ implying the container covers every platform.
 | packaging         | `conan create` for every packaged configuration             | the pull request builds only the shipping configuration |
 | public headers under C++20 | sen itself built at C++20                            | its own sources have to compile under a newer standard, not only C++17 |
 | newest gcc        | whole tree with the newest gcc on a runner, then the sample consumer at C++20 and C++23 | pull requests build with the oldest supported compiler and only C++17 |
-| coverage          | clang Debug build with coverage, report published to `<site>/coverage/` | the clang job does not run on main, so the report is produced here instead |
+| coverage          | clang Debug build with coverage, report published to `<site>/coverage/` | the clang Debug leg measures coverage on every pull request and gates on it; this job exists to publish the report, and repeats the build to do so |
 
 When a nightly job fails, it creates or updates a single tracking issue, so
 all nightly failures are collected in one place.
@@ -477,7 +497,9 @@ crash), `.ruff.toml` per-file ignores (tutorial scripts),
   on, so moving it is a coordinated change to both images and is done by hand.
 - **Add a benchmark or a nightly job**: follow the existing shape; a new
   nightly job joins the `needs` list of the tracking-issue job, so its
-  failures are reported.
+  failures are reported. If it builds a configuration no merge-path leg builds,
+  it must also save that configuration's conan entry, or it restores nothing for
+  as long as it exists.
 
 ## Landing a change
 
@@ -561,9 +583,8 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   The last is excluded because duplicate test module names there break the
   run.
 - A fresh runner builds all dependencies from source once per cache
-  lifetime; the first run of a day (or after the cache was removed) is the
-  slow one. The arm configuration pays it on every run, because nothing
-  writes its cache entry; see the caches paragraph under Dependencies.
+  lifetime; a run whose entry was evicted, or never written, is the slow one.
+  See the caches paragraph under Dependencies.
 - `pre-commit/action` caches the hook environments itself, and its key includes
   the interpreter path. Both call sites have to ask `setup-python` for the same
   version, or a pull request cannot restore what the nightly saved.

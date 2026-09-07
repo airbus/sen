@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Deletes the cache entries a save is about to replace. Keys are immutable, so a
-# save can only add: without this every merge leaves another copy and the
-# repository passes GitHub's 10 GB limit, after which entries are evicted at
-# random.
+# Deletes the cache entries a save is about to replace. A key is immutable, so a
+# save can never overwrite one. Where the key varies -- the ccache timestamp -- every
+# merge leaves another copy until the repository passes GitHub's 10 GB limit and
+# entries are evicted at random. Where it is fixed, the save is refused instead, and
+# the entry never refreshes.
 #
 # Refuses to run off main, because the saves it accompanies run only there and an
 # ungated delete would take the shared entry from any branch. Fails rather than

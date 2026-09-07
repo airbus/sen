@@ -42,7 +42,9 @@ jobs:
       # Generous on purpose: a cold cache builds every dependency from
       # source. The cap ends a hang, it does not police duration. Measured
       # 2026-08-20 on a run whose conan cache missed and whose ccache hit 1.3
-      # per cent: 20 to 30 minutes, so this is around four times the work.
+      # per cent: 20 to 30 minutes, so this is around four times the work. That
+      # predates the scoping of the ccache shims, so a cold run should now be
+      # faster than the figure this cap was set from.
     timeout-minutes: 120
     strategy:
       # One failing configuration used to cancel the others, so a pull request
@@ -71,6 +73,9 @@ jobs:
           path: ~/.conan2/p
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
 
+      # Sen's targets reach ccache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake), so
+      # the shims must not also be on PATH while it builds: the launcher would invoke a shim and
+      # store every object twice. 631 compile edges drew 1223 ccache calls, run 34117054695.
       - uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
         if: runner.os == 'Linux'
         with:
@@ -109,10 +114,19 @@ jobs:
       - name: Compile base libraries
         shell: bash
         run: |
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-
           # & applies build_type to the sen package only; dependencies stay at
           # the profiles' Release default, which is what binary remotes serve.
+          #
+          # Dependencies build in their own systems and never see the launcher, so the shims are
+          # their only route to ccache; on the conan build below they would be a second one. The
+          # sloppiness rides with the launcher, so this route needs its own: conan extracts a
+          # dependency's sources just before compiling them, and the default mtime check calls
+          # that too new to store.
+          if [ "$RUNNER_OS" = Linux ] && [ ! -x "/usr/lib/ccache/$CXX" ]; then
+            echo "::warning::no /usr/lib/ccache/$CXX, so dependency builds are not cached"
+          fi
+          PATH="/usr/lib/ccache:$PATH" \
+          CCACHE_SLOPPINESS=clang_index_store,include_file_ctime,include_file_mtime,locale,pch_defines,time_macros \
           conan install . -s "&:build_type=${{ matrix.build_type }}" \
             -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing \
             -o "sen/*:with_tests=True" \
@@ -162,7 +176,6 @@ jobs:
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           # Same reason as the first of these, in standard_test.yaml. Conan writes
           # .bat rather than .sh on Windows, where cmake takes the generator's path
           # from the cache instead.
@@ -189,7 +202,6 @@ jobs:
         timeout-minutes: 20
         shell: bash
         run: |
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           # Same reason as the first of these, in standard_test.yaml.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
@@ -270,29 +282,29 @@ jobs:
       #     token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Remove unwanted parts from conan cache before backup
-        if: always()
+        if: ${{ !cancelled() }}
         shell: bash
         run: |
-          conan cache clean "*" -s -b -d
+          conan cache clean "*" -s -b -d -t
 
       # After the clean, so build folders stay out. always() keeps what a
       # cancelled run already built.
       - name: Drop the ccache entry this run replaces
-        if: always() && runner.os == 'Linux' && github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && runner.os == 'Linux' && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .github/scripts/drop_cache_key.sh "ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}"
 
       - name: Drop the entry this save replaces
-        if: always() && github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .github/scripts/drop_cache_key.sh "conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
 
       - name: Save conan packages
-        if: always() && github.ref == 'refs/heads/main'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
