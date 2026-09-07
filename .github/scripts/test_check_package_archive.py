@@ -25,7 +25,8 @@ WINDOWS_NAME = "sen-0.6.0-amd64-windows-msvc-19.44.35228.0-release"
 LINUX_MEMBERS = (
     "LICENSE.txt",
     "bin/sen",
-    "bin/libkernel.so.0.0.0",
+    "bin/libcore.so.0.0.0",
+    "bin/libshell.so",
     "cmake/sen/sen_targets.cmake",
     "cmake/sen/SenConfigVersion.cmake",
     "cmake/sen/util/sen_utils.cmake",
@@ -33,7 +34,14 @@ LINUX_MEMBERS = (
     "resources/syntax_highlighting/stl.tmLanguage.json",
 )
 
-WINDOWS_MEMBERS = tuple("bin/sen.exe" if member == "bin/sen" else member for member in LINUX_MEMBERS)
+# Windows spells the same archive differently: an .exe, and DLLs with no lib prefix.
+WINDOWS_SPELLINGS = {
+    "bin/sen": "bin/sen.exe",
+    "bin/libcore.so.0.0.0": "bin/core.dll",
+    "bin/libshell.so": "bin/shell.dll",
+}
+
+WINDOWS_MEMBERS = tuple(WINDOWS_SPELLINGS.get(member, member) for member in LINUX_MEMBERS)
 
 
 def write_archive(directory: Path, stem: str, members, suffix: str = ".tar.gz") -> Path:
@@ -131,3 +139,31 @@ def test_a_symlinked_executable_ships(tmp_path):
                 tar.add(payload, f"{LINUX_NAME}/{member}")
 
     assert check_archive(archive) == []
+
+
+def test_archive_without_shared_libraries_is_rejected(tmp_path):
+    """The gap this check closes: everything else present, no library shipped."""
+    members = tuple(m for m in LINUX_MEMBERS if not m.startswith("bin/lib"))
+    problems = check_archive(write_archive(tmp_path, LINUX_NAME, members))
+    assert any("shared library" in problem for problem in problems)
+
+
+def test_versioned_and_bare_library_names_both_satisfy(tmp_path):
+    """libcore.so is a symlink to libcore.so.0.0.0; either spelling is the library."""
+    for spelling in ("bin/libcore.so", "bin/libcore.so.0.0.0"):
+        members = tuple(m for m in LINUX_MEMBERS if not m.startswith("bin/libcore")) + (spelling,)
+        assert check_archive(write_archive(tmp_path, LINUX_NAME, members)) == []
+
+
+def test_windows_and_macos_library_spellings_are_accepted(tmp_path):
+    """The name has no prefix or extension precisely because these three differ."""
+    for spelling in ("bin/core.dll", "bin/libcore.dylib"):
+        members = tuple(m for m in WINDOWS_MEMBERS if not m.startswith(("bin/core", "bin/libcore"))) + (spelling,)
+        assert check_archive(write_archive(tmp_path, WINDOWS_NAME, members, ".zip")) == []
+
+
+def test_a_library_outside_the_library_directory_does_not_count(tmp_path):
+    """Shipping it somewhere the loader will not look is the failure, not the fix."""
+    members = tuple(m for m in LINUX_MEMBERS if not m.startswith("bin/libcore")) + ("lib/libcore.so",)
+    problems = check_archive(write_archive(tmp_path, LINUX_NAME, members))
+    assert any("shared library" in problem for problem in problems)
