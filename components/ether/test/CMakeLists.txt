@@ -8,6 +8,7 @@
 add_sen_unit_test_suite(
   ether_test
   network_exclusion_test.cpp
+  port_binding_test.cpp
   LINK_DEPS
   sen::core
   asio::asio

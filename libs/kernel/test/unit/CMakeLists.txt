@@ -38,6 +38,8 @@ target_include_directories(
   PRIVATE ${spdlog_SOURCE_DIR}/include
 )
 
+target_link_libraries(kernel_test PRIVATE concurrentqueue::concurrentqueue)
+
 set_target_properties(
   kernel_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )

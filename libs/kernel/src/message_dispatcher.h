@@ -218,11 +218,16 @@ private:
   }
 
 private:
-  QueueType workQueue_;
   std::atomic_bool continueWorking_ {true};
   TracerFactoryTy tracerFactory_;
   std::vector<Worker> workers_;
   UniqueByteBufferManager bufferManager_;
+
+  // NOTE: 'workQueue_' must be constructed after 'bufferManager_' so that it is destroyed first when
+  // 'MessageDispatcher' is torn down.  This ordering prevents a race where a work‑item still in the queue tries to
+  // release its buffer (via the deleter in transport.cpp:54) and consequently call 'bufferManager_.enqueue()' on a
+  // manager that has already been destroyed.
+  QueueType workQueue_;
 };
 
 }  // namespace sen::kernel::impl
