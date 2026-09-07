@@ -222,6 +222,23 @@ TEST_F(AnHtmlGenerator, theShellNamesFilesThatAreEmitted)
   }
 }
 
+// The control, the stylesheet and the script have to agree, and nothing else checks that they
+// do: a rule hiding the tree passes every other test in this file.
+TEST_F(AnHtmlGenerator, keepsTheTreeReachableWhenTheViewportIsNarrow)
+{
+  generate(twoClasses);
+
+  const auto& shell = file("index.html");
+  EXPECT_NE(shell.find("aria-controls=\"tree\""), std::string::npos)
+    << "the shell offers no control that reveals the tree";
+
+  const auto& styles = file("app.css");
+  EXPECT_EQ(styles.find("#tree{display:none}"), std::string::npos)
+    << "the stylesheet hides the tree outright, so a narrow viewport loses the navigation";
+
+  EXPECT_NE(file("app.js").find("setDrawer"), std::string::npos) << "the application never opens or closes the tree";
+}
+
 TEST_F(AnHtmlGenerator, theModelAndTheApplicationAgreeOnTheGlobal)
 {
   generate(twoClasses);
