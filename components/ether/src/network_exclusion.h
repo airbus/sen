@@ -149,6 +149,13 @@ struct NetworkExclusions
                                                                             const MulticastRange& range,
                                                                             const MulticastExclusions& exclusions);
 
+/// Returns true if the port is excluded by any port source.
+[[nodiscard]] inline bool isPortExcluded(uint16_t port, const PortExclusionSources& exclusions)
+{
+  return exclusions.builtIn.isExcluded(port) || exclusions.configured.isExcluded(port) ||
+         exclusions.os.isExcluded(port);
+}
+
 }  // namespace sen::components::ether
 
 #endif  // SEN_COMPONENTS_ETHER_SRC_NETWORK_EXCLUSION_H
