@@ -36,6 +36,16 @@ REQUIRED_DIRECTORIES = (
     "resources/syntax_highlighting",
 )
 
+# Named without prefix or extension because those differ by platform: libcore.so,
+# libcore.dylib, core.dll. Nothing above covers a shared library, so an archive shipping none
+# satisfied every entry.
+#
+# core is linked by the sen executable. shell is a component, and a missing component is the
+# silent case: components are opened by name only when a config asks for one. shell ships in
+# basic and full; a barebones package has none.
+REQUIRED_LIBRARY_DIR = "bin"
+REQUIRED_LIBRARIES = ("core", "shell")
+
 # sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower
 # case. The version is a tag or "latest", and a tag may carry an -rc suffix.
 NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug)$")
@@ -82,7 +92,25 @@ def missing_entries(entries: list[str]) -> list[str]:
     present = set(entries)
     missing = [name for name in REQUIRED_FILES if name not in present and f"{name}.exe" not in present]
     missing += [name for name in REQUIRED_DIRECTORIES if not any(entry.startswith(f"{name}/") for entry in entries)]
+    missing += [
+        f"{REQUIRED_LIBRARY_DIR}/{name} (shared library)"
+        for name in REQUIRED_LIBRARIES
+        if not any(_is_shared_library(entry, name) for entry in entries)
+    ]
     return missing
+
+
+def _is_shared_library(entry: str, name: str) -> bool:
+    """Whether an archive entry is the shared library `name`, in any platform's spelling.
+
+    Matches a versioned suffix (libcore.so.0.0.0) as well as the bare name, since the
+    versioned file is the real one and the bare name is a symlink to it.
+    """
+    stem = entry.rsplit("/", 1)[-1]
+    if entry != f"{REQUIRED_LIBRARY_DIR}/{stem}":
+        return False
+
+    return stem in (f"{name}.dll", f"lib{name}.dylib") or stem.startswith(f"lib{name}.so")
 
 
 def check_archive(archive: Path) -> list[str]:
