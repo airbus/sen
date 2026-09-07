@@ -71,8 +71,9 @@ setup_two_builds() {
     # /cmake, not the bare prefix: the config is at <prefix>/cmake/sen and CMake's search
     # does not reach it from <prefix>. Asserting the bare prefix here once hid that.
     [ "$CMAKE_PREFIX_PATH" = "$SEN_INSTALL_HOME/$BUILD_A/cmake:/some/prior/path" ]
-    # Sen installs shared libs into <prefix>/bin (CMAKE_INSTALL_BINDIR), so LD_LIBRARY_PATH points there too.
-    [ "$LD_LIBRARY_PATH" = "$SEN_INSTALL_HOME/$BUILD_A/bin" ]
+    # lib first, then bin: one installer installs every release, and releases before the
+    # split put the shared libraries in bin.
+    [ "$LD_LIBRARY_PATH" = "$SEN_INSTALL_HOME/$BUILD_A/lib:$SEN_INSTALL_HOME/$BUILD_A/bin" ]
 }
 
 @test "activate: find_package(sen) resolves through the generated CMAKE_PREFIX_PATH" {

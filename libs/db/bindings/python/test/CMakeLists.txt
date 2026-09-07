@@ -24,10 +24,11 @@ if(SEN_USE_SANITIZER STREQUAL None)
     REQ_DEPS sen_db_python
   )
 
-  # The test imports sen_db_python at runtime; point PYTHONPATH at the built .so directory.
+  # The test imports sen_db_python at runtime; point PYTHONPATH at the built module directory.
   set_property(
     TEST db_python_bindings_test
     APPEND
     PROPERTY ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:sen_db_python>"
   )
+
 endif()

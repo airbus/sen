@@ -33,6 +33,14 @@ target_link_libraries(
 
 sen_internal_configure_lib(sen_db_python)
 sen_enable_static_analysis(sen_db_python)
+
+# The build tree mirrors what the install does for a module library on Windows: keep it beside the
+# DLLs it links, because that directory is one of the few python still searches for an extension
+# module's dependencies. Elsewhere the module and those libraries are the same directory anyway.
+if(WIN32)
+  set_property(TARGET sen_db_python PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
+endif()
+
 sen_internal_install(sen_db_python)
 
 # -------------------------------------------------------------------------------------------------------------

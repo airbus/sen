@@ -41,13 +41,19 @@ class TestPackageConan(ConanFile):
         if not cross_building(self):
             self.run("sen --version", env="conanrun")
 
-            # my_package is built here, not shipped in the Sen package, and components are
-            # opened by bare name -- so this build tree has to be on the loader's search path
-            # or the kernel cannot find it. Both directories are listed because the build tree
-            # puts shared objects in bin/ today; a package that puts them in lib/ still works.
+            # The point is that an installed Sen finds its own libraries, so the environment must
+            # not hand the loader the answer: LD_LIBRARY_PATH names only my_package's own directory,
+            # and the binary is invoked by full path so conanrun does not put the package's library
+            # directory back.
+            _exe = "sen.exe" if self.settings.os == "Windows" else "sen"
+            sen_binary = join(self.dependencies["sen"].package_folder, "bin", _exe)
             env = Environment()
+            env.define_path("LD_LIBRARY_PATH", join(self.build_folder, "lib"))
+
+            # Windows uses PATH, and my_package's DLL is a runtime artefact in the build
+            # tree's bin, so both directories are named.
             for output_dir in (join(self.build_folder, "bin"), join(self.build_folder, "lib")):
-                env.prepend_path("LD_LIBRARY_PATH", output_dir)
                 env.prepend_path("PATH", output_dir)
+
             with env.vars(self, scope="run").apply():
-                self.run("sen run test_configs/my_package.yaml --start-stop", env="conanrun")
+                self.run(f'"{sen_binary}" run test_configs/my_package.yaml --start-stop')

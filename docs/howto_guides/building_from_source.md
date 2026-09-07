@@ -20,6 +20,11 @@ track `main`, patch Sen for local development, or run on a platform without a re
   Not `pip install`: current Debian and Ubuntu refuse it with
   `externally-managed-environment`. `ensurepath` needs a new shell to take effect.
 
+- On Linux, `objdump` — from `binutils`. It is needed at **install** time, not build time: the
+  install rules resolve which third-party shared objects the binaries actually need, and CMake uses
+  `objdump` to read them. Without it `cmake --install` fails long after a successful build. It
+  arrives with GCC, so a normal toolchain already has it; a minimal Conan-only image may not.
+
 - On Linux, a couple of system libraries that Conan can't ship (pulled in by SDL2 / imgui via Sen's
   `requirements()` block in `conanfile.py`). On Debian / Ubuntu:
 

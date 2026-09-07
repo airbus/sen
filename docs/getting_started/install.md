@@ -282,9 +282,10 @@ anywhere. The extracted directory is `<sen_path>` in the snippets below.
     its own, or tell the loader where to look:
 
     ```shell
-    # Sen installs binaries, shared libraries and archives all under <prefix>/bin
-    # (CMAKE_INSTALL_BINDIR), so that is the directory to name.
-    export LD_LIBRARY_PATH="$SEN_PREFIX/bin:$LD_LIBRARY_PATH"
+    # Shared libraries and archives are under <prefix>/lib (CMAKE_INSTALL_LIBDIR). Releases
+    # before that split put them in <prefix>/bin, so both are named here and whichever the
+    # release you downloaded does not have costs the loader nothing.
+    export LD_LIBRARY_PATH="$SEN_PREFIX/lib:$SEN_PREFIX/bin:$LD_LIBRARY_PATH"
     ```
 
 === "Windows"

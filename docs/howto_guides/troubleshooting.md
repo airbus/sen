@@ -12,7 +12,7 @@ fix format. For a deeper understanding of why things work the way they do, see
 Run through this before anything else:
 
 1. Is the Sen environment sourced? (`sen --version` should print a version or a commit hash)
-2. Is `LD_LIBRARY_PATH` set to include your build output? (e.g. `$(pwd)/build/bin`)
+2. Is `LD_LIBRARY_PATH` set to include your build output? (e.g. `$(pwd)/build/lib`)
 3. Did CMake run successfully and did `make` (or similar) complete without errors?
 4. Does your YAML config reference the correct class names (case-sensitive, `package.ClassName`)?
 5. Do all bus names in YAML exactly match what your code uses?
@@ -36,7 +36,7 @@ does not include your build output directory.
 **Fix:**
 
 ```sh
-export LD_LIBRARY_PATH="$(pwd)/build/bin:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$(pwd)/build/lib:$LD_LIBRARY_PATH"
 ```
 
 Put your own directory first: appending it instead means a library of the same name installed
@@ -46,7 +46,7 @@ Add this to your shell profile or a project-local `setup.sh` script so you do no
 every time.
 
 !!! tip
-    Run `ldd build/bin/libmy_package.so` to verify all transitive dependencies are also found.
+    Run `ldd build/lib/libmy_package.so` to verify all transitive dependencies are also found.
 
 ---
 

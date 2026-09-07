@@ -74,7 +74,7 @@ To write your first package:
 sen package init my_package --class MyClass               # Generate the skeleton
 cd my_package                                             # Go to the new folder
 cmake -S . -B build && cmake --build build                # Build it
-export LD_LIBRARY_PATH="$(pwd)/build/bin:$LD_LIBRARY_PATH"  # your build first
+export LD_LIBRARY_PATH="$(pwd)/build/lib:$LD_LIBRARY_PATH"  # your build first
 sen run config.yaml                                       # Run it
 ```
 

@@ -44,8 +44,9 @@ set_tests_properties(
              "cannot run.*cli_gen"
 )
 
-# The copy is moved away from its libraries, so the loader needs pointing back at them. Windows
-# searches the executable's own directory and PATH and has no rpath, which is the same reason
+# The copy is moved away from its libraries, so the loader needs pointing back at them. Named
+# through a library target rather than a directory, so it follows wherever they are built. On
+# Windows a DLL is a runtime artefact and sits with the executables, which is also why
 # add_sen_unit_test_suite appends bin/ there.
 if(WIN32)
   append_test_env_modification(
@@ -53,6 +54,6 @@ if(WIN32)
   )
 else()
   append_test_env_modification(
-    sen_missing_generator_reports "LD_LIBRARY_PATH=path_list_prepend:$<TARGET_FILE_DIR:sen::cli_sen>"
+    sen_missing_generator_reports "LD_LIBRARY_PATH=path_list_prepend:$<TARGET_FILE_DIR:sen::core>"
   )
 endif()

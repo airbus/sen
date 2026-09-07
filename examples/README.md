@@ -28,8 +28,8 @@ conan build . --profile:all=sen_gcc -o "sen/*:with_examples=True"
 x86 and arm. Add `-o "sen/*:with_tests=True"` to both lines as well if you want the tests in
 the same build folder -- the options combine, and building twice is not needed.
 
-Each example package lands as a shared library in `build/gcc/Release/bin/` next to the `sen`
-application.
+Each example package lands as a shared library in `build/gcc/Release/lib/`, beside the Sen
+libraries it links. The `sen` application is in `build/gcc/Release/bin/`.
 
 ## Running an example
 
@@ -37,7 +37,7 @@ From the repository root, with the tree built as above:
 
 ```shell
 source build/gcc/Release/generators/conanrun.sh          # Third-party library paths
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(pwd)/build/gcc/Release/bin"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(pwd)/build/gcc/Release/lib"
 cd examples/packages/my_counter
 ../../../build/gcc/Release/bin/sen run config.yaml
 ```

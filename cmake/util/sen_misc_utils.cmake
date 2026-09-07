@@ -729,7 +729,7 @@ function(sen_configure_target target_name)
   endif()
 
   if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+    set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
     )# .so and .dylib
   endif()
 
