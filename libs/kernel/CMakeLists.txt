@@ -168,7 +168,7 @@ target_compile_definitions(
 target_include_directories(
   kernel
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PUBLIC $<INSTALL_INTERFACE:libs/kernel/include>
+  PUBLIC $<INSTALL_INTERFACE:include>
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
@@ -199,9 +199,9 @@ source_group("src/bus/sen" FILES ${kernel_bus_generated})
 # install
 # -------------------------------------------------------------------------------------------------------------
 
-install(FILES ${public_headers} DESTINATION libs/kernel/include/sen/kernel)
-install(FILES ${public_generated_files} DESTINATION libs/kernel/include/stl/sen/kernel)
-install(FILES ${detail_headers} DESTINATION libs/kernel/include/sen/kernel/detail)
+install(FILES ${public_headers} DESTINATION include/sen/kernel)
+install(FILES ${public_generated_files} DESTINATION include/stl/sen/kernel)
+install(FILES ${detail_headers} DESTINATION include/sen/kernel/detail)
 
 sen_internal_install(kernel)
 

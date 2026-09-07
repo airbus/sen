@@ -255,7 +255,7 @@ endif()
 target_include_directories(
   gen
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/libs/gen/include>"
-  PUBLIC "$<INSTALL_INTERFACE:libs/gen/include>"
+  PUBLIC "$<INSTALL_INTERFACE:include>"
   PRIVATE src
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/gen
 )
@@ -309,7 +309,7 @@ install(
         ${mkdocs_public_headers}
         ${typescript_public_headers}
         ${html_public_headers}
-  DESTINATION libs/gen/include/sen/gen
+  DESTINATION include/sen/gen
 )
 
 if(SEN_BUILD_TESTS)

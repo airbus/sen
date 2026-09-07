@@ -29,8 +29,10 @@ if(TARGET spdlog::spdlog)
             "${FMT_INCLUDES}"
   )
 
+  # Not into include/, which every Sen target puts on a consumer's include path: a consumer with its
+  # own spdlog would then have two. Reached through Findspdlog instead.
   if(SPDLOG_INCLUDES AND FMT_INCLUDES)
-    install(DIRECTORY "${SPDLOG_INCLUDES}/spdlog" DESTINATION include)
-    install(DIRECTORY "${FMT_INCLUDES}/fmt" DESTINATION include)
+    install(DIRECTORY "${SPDLOG_INCLUDES}/spdlog" DESTINATION third_party/include)
+    install(DIRECTORY "${FMT_INCLUDES}/fmt" DESTINATION third_party/include)
   endif()
 endif()

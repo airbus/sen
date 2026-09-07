@@ -44,7 +44,7 @@ endif()
 target_include_directories(
   util
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/libs/util/include>"
-  PUBLIC "$<INSTALL_INTERFACE:libs/util/include>"
+  PUBLIC "$<INSTALL_INTERFACE:include>"
   PRIVATE src
 )
 
@@ -62,8 +62,8 @@ source_group("dr\\sources" FILES ${dr_sources})
 # install
 # -------------------------------------------------------------------------------------------------------------
 
-install(FILES ${dr_public_headers} DESTINATION libs/util/include/sen/util/dr)
-install(FILES ${dr_detail_headers} DESTINATION libs/util/include/sen/util/dr/detail)
+install(FILES ${dr_public_headers} DESTINATION include/sen/util/dr)
+install(FILES ${dr_detail_headers} DESTINATION include/sen/util/dr/detail)
 
 sen_internal_install(util)
 

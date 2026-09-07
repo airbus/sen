@@ -32,7 +32,7 @@ REQUIRED_FILES = (
 )
 
 REQUIRED_DIRECTORIES = (
-    "libs/core/include/sen/core",
+    "include/sen/core",
     "resources/syntax_highlighting",
 )
 

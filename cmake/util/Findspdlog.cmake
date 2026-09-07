@@ -12,10 +12,14 @@ find_package(spdlog CONFIG QUIET)
 if(NOT spdlog_FOUND AND NOT TARGET spdlog::spdlog)
   find_path(SPDLOG_SYSTEM_INCLUDE_DIR NAMES spdlog/spdlog.h)
 
-  if(SPDLOG_SYSTEM_INCLUDE_DIR)
+  # The vendored copy first: Sen's binaries are built against it, and compiling a consumer against a
+  # different spdlog is an ABI mismatch with no diagnostic. A system copy is the fallback, for a tree
+  # installed without third_party/include. Not <prefix>/include -- that is already on a consumer's
+  # include path, and a second spdlog there is one they did not ask for.
+  if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../third_party/include/spdlog/spdlog.h")
+    set(SPDLOG_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../third_party/include")
+  elseif(SPDLOG_SYSTEM_INCLUDE_DIR)
     set(SPDLOG_INCLUDE_DIR "${SPDLOG_SYSTEM_INCLUDE_DIR}")
-  else()
-    set(SPDLOG_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../include")
   endif()
 
   find_package_handle_standard_args(spdlog REQUIRED_VARS SPDLOG_INCLUDE_DIR)

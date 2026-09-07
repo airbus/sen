@@ -79,7 +79,7 @@ sen_add_dependency(db PUBLIC sen::kernel)
 target_include_directories(
   db
   PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  PUBLIC "$<INSTALL_INTERFACE:libs/db/include>"
+  PUBLIC "$<INSTALL_INTERFACE:include>"
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
@@ -105,8 +105,8 @@ source_group("stl" FILES ${db_stl_files} ${db_format_stl_files})
 # install
 # -------------------------------------------------------------------------------------------------------------
 
-install(FILES ${public_headers} DESTINATION libs/db/include/sen/db)
-install(FILES ${public_generated_files} DESTINATION libs/db/include/stl/sen/db)
+install(FILES ${public_headers} DESTINATION include/sen/db)
+install(FILES ${public_generated_files} DESTINATION include/stl/sen/db)
 install(FILES ${db_stl_files} DESTINATION interfaces/stl/sen/db)
 
 sen_internal_install(db)

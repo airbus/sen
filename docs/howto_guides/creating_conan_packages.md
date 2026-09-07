@@ -85,7 +85,7 @@ where the files will be copied inside the Conan package. Ensure that these paths
 `include_directories` defined `INSTALL` directory.
 
 ```cmake
-install(FILES ${core_headers} DESTINATION libs/core/include)
+install(FILES ${core_headers} DESTINATION include)
 ```
 
 In general, use the `install()` function to add anything that needs to be present in the exported
@@ -114,7 +114,7 @@ sen_generate_cpp(
   GEN_HDR_FILES stl_output_files
 )
 
-install(FILES ${stl_output_files} DESTINATION libs/kernel/stl/include/kernel)
+install(FILES ${stl_output_files} DESTINATION include/stl/kernel)
 ```
 
 What we have configured until now is CMake's `install` routine. In a nutshell, CMake installs build

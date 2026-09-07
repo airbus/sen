@@ -260,7 +260,7 @@ target_include_directories(
   core
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/libs/core/include>"
   PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-  PUBLIC "$<INSTALL_INTERFACE:libs/core/include>"
+  PUBLIC "$<INSTALL_INTERFACE:include>"
   PRIVATE src
 )
 
@@ -302,23 +302,21 @@ source_group("lang\\sources" FILES ${lang_sources})
 # install
 # -------------------------------------------------------------------------------------------------------------
 
-install(FILES ${base_public_headers} DESTINATION libs/core/include/sen/core/base)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/sen/core/base/version.h
-        DESTINATION libs/core/include/sen/core/base
-)
-install(FILES ${base_detail_headers} DESTINATION libs/core/include/sen/core/base/detail)
+install(FILES ${base_public_headers} DESTINATION include/sen/core/base)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/sen/core/base/version.h DESTINATION include/sen/core/base)
+install(FILES ${base_detail_headers} DESTINATION include/sen/core/base/detail)
 
-install(FILES ${obj_public_headers} DESTINATION libs/core/include/sen/core/obj)
-install(FILES ${obj_detail_headers} DESTINATION libs/core/include/sen/core/obj/detail)
+install(FILES ${obj_public_headers} DESTINATION include/sen/core/obj)
+install(FILES ${obj_detail_headers} DESTINATION include/sen/core/obj/detail)
 
-install(FILES ${meta_public_headers} DESTINATION libs/core/include/sen/core/meta)
-install(FILES ${meta_detail_headers} DESTINATION libs/core/include/sen/core/meta/detail)
+install(FILES ${meta_public_headers} DESTINATION include/sen/core/meta)
+install(FILES ${meta_detail_headers} DESTINATION include/sen/core/meta/detail)
 
-install(FILES ${io_public_headers} DESTINATION libs/core/include/sen/core/io)
-install(FILES ${io_detail_headers} DESTINATION libs/core/include/sen/core/io/detail)
+install(FILES ${io_public_headers} DESTINATION include/sen/core/io)
+install(FILES ${io_detail_headers} DESTINATION include/sen/core/io/detail)
 
-install(FILES ${lang_public_headers} DESTINATION libs/core/include/sen/core/lang)
-install(FILES ${lang_detail_headers} DESTINATION libs/core/include/sen/core/lang/detail)
+install(FILES ${lang_public_headers} DESTINATION include/sen/core/lang)
+install(FILES ${lang_detail_headers} DESTINATION include/sen/core/lang/detail)
 
 sen_internal_install(core)
 
