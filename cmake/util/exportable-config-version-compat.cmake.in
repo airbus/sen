@@ -1,0 +1,17 @@
+# === exportable-config-version-compat.cmake.in ========================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+# The companion to exportable-config-compat.cmake.in. CMake reads a version file from the directory
+# it found the config in, so a forwarding config alone leaves a versioned find_package failing at the
+# old location. Included rather than copied, and silent when the author installed none.
+get_filename_component(_@auxName@_compat_prefix "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+set(_@auxName@_real_version_file
+    "${_@auxName@_compat_prefix}/@CMAKE_INSTALL_CMAKEDIR@/@auxName@-config-version.cmake"
+)
+if(EXISTS "${_@auxName@_real_version_file}")
+  include("${_@auxName@_real_version_file}")
+endif()

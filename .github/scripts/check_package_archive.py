@@ -26,13 +26,37 @@ REQUIRED_FILES = (
     "LICENSE.txt",
     # sen.exe on Windows; either spelling satisfies this entry.
     "bin/sen",
-    "cmake/sen/sen_targets.cmake",
-    "cmake/sen/SenConfigVersion.cmake",
-    "cmake/sen/util/sen_utils.cmake",
+    # The file find_package actually opens. Its absence was not caught by any entry here, which
+    # meant an archive that no consumer could configure against still passed.
+    "lib/cmake/sen/sen-config.cmake",
+    # The forwarding config for anyone told to point at <prefix>/cmake. This whole change exists
+    # to add it, and nothing asserted it shipped.
+    "cmake/sen/sen-config.cmake",
+    # Removing this makes every consumer's find_package(sen REQUIRED) fail, because sen-config
+    # calls find_dependency(spdlog) and this is the only module that resolves it.
+    "lib/cmake/sen/Findspdlog.cmake",
+    # The version file beside the forwarding config. Without it a versioned find_package through
+    # the old path finds a config it cannot check and rejects the directory.
+    "cmake/sen/sen-config-version.cmake",
+    "lib/cmake/sen/sen_targets.cmake",
+    "lib/cmake/sen/sen-config-version.cmake",
+    "lib/cmake/sen/util/sen_utils.cmake",
+    # configure_exportable_packages generates a consumer's forwarding config from this template, so
+    # a package built against an archive without it fails at install time rather than at configure.
+    "lib/cmake/sen/util/exportable-config-compat.cmake.in",
+    "lib/cmake/sen/util/exportable-config-version-compat.cmake.in",
 )
 
 REQUIRED_DIRECTORIES = (
     "include/sen/core",
+    # Where the vendored spdlog went when it left <prefix>/include. A consumer reaches it through
+    # SEN_THIRD_PARTY_INCLUDE_DIR, and find_package_handle_standard_args checks only that the
+    # variable is non-empty -- so a missing directory reports "found".
+    "third_party/include/spdlog",
+    # fmt installs on the line beside spdlog, unconditionally, and a consumer including
+    # <spdlog/spdlog.h> pulls fmt headers through it -- so a package with one and not the other
+    # compiles for us and fails for them.
+    "third_party/include/fmt",
     "resources/syntax_highlighting",
 )
 
@@ -45,9 +69,19 @@ REQUIRED_DIRECTORIES = (
 # basic and full; a barebones package has none.
 REQUIRED_LIBRARIES = ("core", "shell")
 
+# Third-party shared objects install(RUNTIME_DEPENDENCY_SET) is expected to have resolved from the
+# binaries that link them. That rule is the one new shipping mechanism in this layout and its silent
+# failure is "resolved nothing" -- an archive missing every one of them satisfies all the entries
+# above, which was demonstrated by deleting them from a real package.
+#
+# POSIX only, because the dependency set is not enrolled on Windows: a Windows archive correctly
+# ships no vendored SDL, so requiring it everywhere would fail a good package. Matched on the SONAME
+# prefix rather than a full filename so an SDL patch release does not fail the check.
+POSIX_REQUIRED_LIBRARY_PREFIXES = ("libSDL2",)
+
 # sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower
 # case. The version is a tag or "latest", and a tag may carry an -rc suffix.
-NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug)$")
+NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-(?P<system>[^-]+)-[^-]+-[^-]+-(?:release|debug)$")
 
 
 def list_entries(archive: Path) -> list[str]:
@@ -86,8 +120,12 @@ def archive_stem(archive: Path) -> str:
     raise SystemExit(f"Error: unsupported archive type: {name}")
 
 
-def missing_entries(entries: list[str]) -> list[str]:
-    """Returns the required files and directories the archive does not hold."""
+def missing_entries(entries: list[str], system: str | None = None) -> list[str]:
+    """Returns the required files and directories the archive does not hold.
+
+    `system` is the platform read out of the archive name. None means it could not be read,
+    in which case the platform-specific requirements are not applied rather than guessed.
+    """
     present = set(entries)
     missing = [name for name in REQUIRED_FILES if name not in present and f"{name}.exe" not in present]
     missing += [name for name in REQUIRED_DIRECTORIES if not any(entry.startswith(f"{name}/") for entry in entries)]
@@ -96,6 +134,12 @@ def missing_entries(entries: list[str]) -> list[str]:
         for name in REQUIRED_LIBRARIES
         if not any(_is_shared_library(entry, name) for entry in entries)
     ]
+    if system is not None and system != "windows":
+        missing += [
+            f"lib/{prefix}* (shared library)"
+            for prefix in POSIX_REQUIRED_LIBRARY_PREFIXES
+            if not any(entry.startswith(f"lib/{prefix}") for entry in entries)
+        ]
     return missing
 
 
@@ -119,10 +163,12 @@ def _is_shared_library(entry: str, name: str) -> bool:
 def check_archive(archive: Path) -> list[str]:
     """Returns the problems found in the archive, empty when it is complete."""
     problems = []
-    if not NAME_PATTERN.match(archive_stem(archive)):
+    match = NAME_PATTERN.match(archive_stem(archive))
+    if not match:
         problems.append(f"name does not match the expected pattern: {archive.name}")
 
-    problems.extend(f"missing entry: {entry}" for entry in missing_entries(list_entries(archive)))
+    system = match.group("system") if match else None
+    problems.extend(f"missing entry: {entry}" for entry in missing_entries(list_entries(archive), system))
     return problems
 
 

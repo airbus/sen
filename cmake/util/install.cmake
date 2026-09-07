@@ -27,11 +27,27 @@ install(TARGETS sen_coverage_flags EXPORT sen_targets)
 set(_cmakedir_desc "Directory relative to CMAKE_INSTALL to install the cmake configuration files")
 
 set(CMAKE_INSTALL_CMAKEDIR
-    "cmake/sen"
+    "${CMAKE_INSTALL_LIBDIR}/cmake/sen"
     CACHE STRING "${_cmakedir_desc}"
 )
 
 mark_as_advanced(CMAKE_INSTALL_CMAKEDIR)
+
+# A cache entry keeps its first value, so a build tree from before this move goes on installing the
+# old layout with no diagnostic.
+if(NOT
+   CMAKE_INSTALL_CMAKEDIR
+   STREQUAL
+   "${CMAKE_INSTALL_LIBDIR}/cmake/sen"
+)
+  message(
+    WARNING
+      "CMAKE_INSTALL_CMAKEDIR is '${CMAKE_INSTALL_CMAKEDIR}', not the '${CMAKE_INSTALL_LIBDIR}/cmake/sen' "
+      "this release installs to. A build tree configured before the package config moved keeps the old "
+      "value: delete CMakeCache.txt, or pass -DCMAKE_INSTALL_CMAKEDIR=${CMAKE_INSTALL_LIBDIR}/cmake/sen, "
+      "unless you set it deliberately."
+  )
+endif()
 
 # Sen utils cmake files provided with the Sen package
 set(CMAKE_UTILS_FILES
@@ -41,6 +57,10 @@ set(CMAKE_UTILS_FILES
     ${PROJECT_SOURCE_DIR}/cmake/util/sen_package_utils.cmake
     ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake
     ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake.in
+    # configure_exportable_packages generates a forwarding config from this, so it has to travel
+    # with the utils rather than stay in the source tree.
+    ${PROJECT_SOURCE_DIR}/cmake/util/exportable-config-compat.cmake.in
+    ${PROJECT_SOURCE_DIR}/cmake/util/exportable-config-version-compat.cmake.in
 )
 
 # -------------------------------------------------------------------------------------------------------------
@@ -73,19 +93,43 @@ configure_exportable_packages(INTERFACES_CONFIG_DIRS ${CMAKE_CURRENT_LIST_DIR}/i
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/sen-config-version.cmake
   VERSION ${sen_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
 # Install the configVersion package
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sen-config-version.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
 
 # Install required sen utils cmake files
 install(FILES ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/util)
 
 # Install spdlog
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/util/Findspdlog.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+
+# A config at the location the previous layout used, with its version file, so anything told to put
+# <prefix>/cmake on CMAKE_PREFIX_PATH keeps working.
+configure_file(
+  ${PROJECT_SOURCE_DIR}/cmake/util/sen-config-compat.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/compat/sen-config.cmake @ONLY
+)
+# Skipped when the real config already installs there, or the forwarder overwrites it and includes
+# itself. A leading ./ is stripped first, since "./cmake/sen" names the same directory.
+string(
+  REGEX
+  REPLACE "^\\./"
+          ""
+          _sen_real_cmakedir
+          "${CMAKE_INSTALL_CMAKEDIR}"
+)
+if(NOT
+   _sen_real_cmakedir
+   STREQUAL
+   "cmake/sen"
+)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/compat/sen-config.cmake DESTINATION cmake/sen)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sen-config-version.cmake DESTINATION cmake/sen)
+endif()
 
 # We need the sen utils cmake files in the binary dir when working in conan editable mode
 file(COPY ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/util)

@@ -104,9 +104,9 @@ sen --version
 
 ??? note "What activate sets, and how to uninstall"
 
-    Sourcing the activate file exports `SEN_PREFIX`, prepends the build's `bin/` to `PATH` and to
-    `LD_LIBRARY_PATH`, and prepends `<prefix>/cmake` to `CMAKE_PREFIX_PATH` so `find_package(sen)`
-    works. The `/cmake` suffix is the part that matters; see below.
+    Sourcing the activate file exports `SEN_PREFIX`, puts the build's `bin/` on `PATH`, its `lib/`
+    on `LD_LIBRARY_PATH`, and its CMake directories on `CMAKE_PREFIX_PATH` so `find_package(sen)`
+    works.
 
     To uninstall:
 
@@ -143,7 +143,7 @@ not a starting point for your machine.
 
 The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does not generate a
 synthetic `senConfig.cmake` for downstream consumers. Instead, your build picks up Sen's own
-`<prefix>/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates:
+`<prefix>/lib/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates:
 `find_package(sen)` "just works" once the toolchain file is loaded.
 
 1. Add a Conan configuration file (`conanfile.txt` or `conanfile.py`) at the top level of your
@@ -300,12 +300,29 @@ anywhere. The extracted directory is `<sen_path>` in the snippets below.
 In your project's `CMakeLists.txt`, point CMake at the prefix and pull Sen in with `find_package`:
 
 ```cmake
-list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/cmake")
+list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/lib/cmake" "$ENV{SEN_PREFIX}/cmake")
 find_package(sen REQUIRED)
 ```
 
-Sen installs its CMake config under `<prefix>/cmake/sen/sen-config.cmake`. CMake's standard search
-does not reach that from `<prefix>` alone, so the `/cmake` suffix is required.
+Both entries, because this page describes a release you download rather than one you build.
+`lib/cmake` reaches this release's config; the `/cmake` entry reaches `<prefix>/cmake/sen`, which is
+where every release published before this one puts it, and which CMake's search does not derive
+from the other -- it looks under `lib*/cmake/<name>` and `share/cmake/<name>` beneath a prefix, and
+not under `<prefix>/cmake/<name>`. Naming both costs nothing and works against either, which
+matters most on Windows, where there is no `activate` script to set this up for you.
+
+**The CMake directories rather than the prefix itself**, which would also resolve. A prefix on
+`CMAKE_PREFIX_PATH` puts `<prefix>/lib` on `find_library`'s search path, and Sen's libraries are
+named `core`, `db`, `util`, `gen`, `shell` and `py`. A project of yours that looks for an unrelated
+library under one of those names then finds Sen's, configures against it, and fails at link with
+undefined references. Naming the CMake directories finds every package installed here and leaves
+`find_library` exactly as it was.
+
+Sen installs its CMake config under `<prefix>/lib/cmake/sen/sen-config.cmake`, which CMake's
+standard search reaches from `<prefix>`. Earlier releases put it at `<prefix>/cmake/sen`. This
+release installs a forwarding config there too, so a project written against the old path keeps
+configuring against this one -- but that file ships with *this* release, and an older archive
+does not contain it, which is what the second entry above is for.
 
 ## Building from source
 

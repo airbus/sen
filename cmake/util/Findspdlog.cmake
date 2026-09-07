@@ -12,13 +12,16 @@ find_package(spdlog CONFIG QUIET)
 if(NOT spdlog_FOUND AND NOT TARGET spdlog::spdlog)
   find_path(SPDLOG_SYSTEM_INCLUDE_DIR NAMES spdlog/spdlog.h)
 
-  # The vendored copy first: Sen's binaries are built against it, and compiling a consumer against a
-  # different spdlog is an ABI mismatch with no diagnostic. A system copy is the fallback, for a tree
-  # installed without third_party/include. Not <prefix>/include -- that is already on a consumer's
-  # include path, and a second spdlog there is one they did not ask for.
-  if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../third_party/include/spdlog/spdlog.h")
-    set(SPDLOG_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../third_party/include")
+  # The vendored copy first: Sen's binaries are built against it, and compiling a consumer against
+  # a different spdlog is an ABI mismatch with no diagnostic.
+  if(EXISTS "${SEN_THIRD_PARTY_INCLUDE_DIR}/spdlog/spdlog.h")
+    # Not <prefix>/include, which is already on a consumer's include path. The header is tested
+    # for rather than the variable: find_package_handle_standard_args checks only that it is
+    # non-empty, so a missing directory would report "found".
+    set(SPDLOG_INCLUDE_DIR "${SEN_THIRD_PARTY_INCLUDE_DIR}")
   elseif(SPDLOG_SYSTEM_INCLUDE_DIR)
+    # The fallback, for a tree installed without third_party/include -- which is what a
+    # distribution package that unbundles it looks like.
     set(SPDLOG_INCLUDE_DIR "${SPDLOG_SYSTEM_INCLUDE_DIR}")
   endif()
 

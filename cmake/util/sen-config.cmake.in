@@ -3,6 +3,11 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
+# Where the vendored spdlog and fmt are, for Findspdlog below. From the package prefix rather
+# than a count of ../, because this directory sits under CMAKE_INSTALL_LIBDIR and that is lib,
+# lib64 or a multiarch triplet depending on the platform.
+set(SEN_THIRD_PARTY_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/third_party/include")
+
 include(CMakeFindDependencyMacro)
 find_dependency(spdlog)
 
@@ -10,4 +15,9 @@ include("${CMAKE_CURRENT_LIST_DIR}/sen_targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/util/sen_utils.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/util/git_info.cmake")
 
-set(SEN_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
+# The library directory, relative to the prefix. Baked in at Sen's install time because a consumer's
+# project has no reason to have included GNUInstallDirs: a shipped function that read
+# CMAKE_INSTALL_LIBDIR itself would get an empty string and build an absolute destination.
+set(SEN_INSTALL_LIBDIR "@CMAKE_INSTALL_LIBDIR@")
+
+set(SEN_INSTALL_DIR ${PACKAGE_PREFIX_DIR})

@@ -289,7 +289,12 @@ class SenConan(ConanFile):
     def package_info(self):
         """Calculate the conan package info."""
         self.cpp_info.set_property("cmake_find_mode", "none")
-        self.cpp_info.builddirs = [join("cmake", "sen")]
+        # Both, because the first is where the config is and the second is where the compatibility
+        # config for the previous layout is. Conan only ever puts builddirs on CMAKE_PREFIX_PATH,
+        # and CMake does not reach <prefix>/cmake/<name> from a prefix -- so naming only the first
+        # leaves a consumer with no fallback if CMAKE_INSTALL_CMAKEDIR is ever moved, and naming
+        # only the second would not work at all.
+        self.cpp_info.builddirs = [join("lib", "cmake", "sen"), join("cmake", "sen")]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 
         # runenv library paths. Executables are in bin, shared objects in lib, which is also

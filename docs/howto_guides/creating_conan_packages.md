@@ -66,8 +66,10 @@ Reading through this file, you will find different sections, separated by dashed
 - In the targets section, you will need to firstly add any target (library, app, component or
   package) that you want to export.
 - In the configuration of install directories section, you will need to say where you want the
-  CMake files to be installed. Typically, this will be `cmake/your_project_name`. Any additional
-  directory can also be added in this section (Sen adds examples here).
+  CMake files to be installed. Typically, this will be `<libdir>/cmake/your_project_name` --
+  `lib/cmake/your_project_name` on most systems -- which is where `find_package` looks given the
+  prefix alone, and where `configure_exportable_packages(... TARGET_NAME_CMAKEDIRS)` puts it for
+  you. Any additional directory can also be added in this section (Sen adds examples here).
 - The export targets section defines the file where the targets will be exported. This file is
   critical, since it will be the one read by any external CMake that consumes your project as a
   Conan package. Ensure to comply with naming and add the namespace defined at the beginning of the

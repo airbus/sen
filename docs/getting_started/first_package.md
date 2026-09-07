@@ -53,7 +53,7 @@ cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(my_package_project VERSION 0.0.1 LANGUAGES CXX C)
 
 if(DEFINED ENV{SEN_PREFIX}) # (1)!
-   list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/cmake") # (2)!
+   list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/lib/cmake" "$ENV{SEN_PREFIX}/cmake") # (2)!
 endif()
 
 find_package(sen REQUIRED)

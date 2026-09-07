@@ -1,0 +1,12 @@
+# === exportable-config-compat.cmake.in ================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+# @auxName@'s config moved to <prefix>/@CMAKE_INSTALL_CMAKEDIR@. This stands at the old location so its
+# consumers keep configuring. Generated rather than authored: the move follows from which Sen the
+# package was built against, not from anything its author did.
+get_filename_component(_@auxName@_compat_prefix "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+include("${_@auxName@_compat_prefix}/@CMAKE_INSTALL_CMAKEDIR@/@output_file_name@")

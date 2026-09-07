@@ -7,6 +7,10 @@
 
 include_guard()
 
+# Captured while this file is read: inside a function CMAKE_CURRENT_LIST_DIR is the caller's
+# directory, which the glob below wants and which cannot find a template shipped beside this file.
+set(_sen_misc_utils_dir "${CMAKE_CURRENT_LIST_DIR}")
+
 function(sen_enable_static_analysis target_name)
   if(NOT SEN_DISABLE_CLANG_TIDY)
     set(_targets_to_analyze ${target_name})
@@ -539,7 +543,21 @@ function(configure_exportable_packages)
                 auxName
                 "${auxName}"
       )
-      set(CMAKE_INSTALL_CMAKEDIR "cmake/${auxName}")
+      # The caller's choice wins; Sen's baked value is the fallback for a consumer who never
+      # included GNUInstallDirs. Tested for a usable value rather than a defined one: if(DEFINED x)
+      # is true for the empty string, and an empty or absolute root makes the destination absolute
+      # and the generated config unrelocatable.
+      set(_sen_cmakedir_root "")
+      foreach(_candidate "${CMAKE_INSTALL_LIBDIR}" "${SEN_INSTALL_LIBDIR}")
+        if(_candidate AND NOT IS_ABSOLUTE "${_candidate}")
+          set(_sen_cmakedir_root "${_candidate}")
+          break()
+        endif()
+      endforeach()
+      if(NOT _sen_cmakedir_root)
+        set(_sen_cmakedir_root "lib")
+      endif()
+      set(CMAKE_INSTALL_CMAKEDIR "${_sen_cmakedir_root}/cmake/${auxName}")
     endif()
 
     configure_package_config_file(
@@ -550,6 +568,39 @@ function(configure_exportable_packages)
 
     # Install the config file to the target dir
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${output_file_name} DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+
+    if(_arg_TARGET_NAME_CMAKEDIRS)
+      # A config at the location this package used before. The move is not the author's decision --
+      # it follows from which Sen they built against -- so without this, upgrading Sen breaks their
+      # consumers. Skipped when both destinations are one directory, or it would include itself.
+      string(
+        REGEX
+        REPLACE "^\\./"
+                ""
+                _sen_real_cmakedir
+                "${CMAKE_INSTALL_CMAKEDIR}"
+      )
+      if(NOT
+         _sen_real_cmakedir
+         STREQUAL
+         "cmake/${auxName}"
+      )
+        configure_file(
+          "${_sen_misc_utils_dir}/exportable-config-compat.cmake.in"
+          "${CMAKE_CURRENT_BINARY_DIR}/compat/${output_file_name}" @ONLY
+        )
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/compat/${output_file_name}" DESTINATION "cmake/${auxName}")
+        # The version file beside it, or a versioned find_package resolves the forwarder and finds
+        # no version to check.
+        configure_file(
+          "${_sen_misc_utils_dir}/exportable-config-version-compat.cmake.in"
+          "${CMAKE_CURRENT_BINARY_DIR}/compat/${auxName}-config-version.cmake" @ONLY
+        )
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/compat/${auxName}-config-version.cmake"
+                DESTINATION "cmake/${auxName}"
+        )
+      endif()
+    endif()
   endforeach()
 
 endfunction()

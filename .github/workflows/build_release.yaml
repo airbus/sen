@@ -90,7 +90,7 @@ jobs:
           conan install . --build=missing
           conan build .
           cmake --build build/${{ matrix.compiler.name }}/Release/ --target package
-          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/Release/
+          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/Release/ --execute
 
       - name: Archive generated release package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1

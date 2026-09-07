@@ -500,11 +500,14 @@ configure_exportable_packages(
 | Name                     | Multiple         | Description                                                                                                                                               |
 | ------------------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `INTERFACES_CONFIG_DIRS` | :material-check: | Directories to search for `-config.cmake.in` files, in addition to the current list directory.                                                            |
-| `TARGET_NAME_CMAKEDIRS`  |                  | Install each config into its own `cmake/<name>` directory, where `<name>` is the file name with `-config` removed. Without it, all configs share `CMAKE_INSTALL_CMAKEDIR`. |
+| `TARGET_NAME_CMAKEDIRS`  |                  | Install each config into its own directory under the library directory, `<libdir>/cmake/<name>`, where `<name>` is the file name with `-config` removed. Without it, all configs share `CMAKE_INSTALL_CMAKEDIR`. |
 
 The per-package layout that `TARGET_NAME_CMAKEDIRS` produces is what
 `find_package()` expects to find under a prefix, so a consumer pointing
-`CMAKE_PREFIX_PATH` at `<prefix>/cmake` can resolve each package by name.
+`CMAKE_PREFIX_PATH` at `<prefix>/<libdir>/cmake` can resolve each package by
+name. The prefix itself also resolves them, but it puts `<prefix>/<libdir>` on
+`find_library()`'s search path as well, so prefer the CMake directory unless you
+want that.
 
 More detail on functionality and information on when should this function be used can be found on
 the [How to generate CMake packages to export pre-built

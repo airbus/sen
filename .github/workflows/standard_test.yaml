@@ -271,7 +271,7 @@ jobs:
             source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           fi
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
-          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
+          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --execute
 
       # TODO(SEN-1726): Connect App to Airbus Org.
       # - name: Upload coverage to Codecov

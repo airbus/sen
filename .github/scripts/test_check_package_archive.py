@@ -21,18 +21,30 @@ from check_package_archive import REQUIRED_DIRECTORIES, REQUIRED_FILES, check_ar
 LINUX_NAME = "sen-0.6.0-x86_64-linux-gnu-12.4.0-release"
 WINDOWS_NAME = "sen-0.6.0-amd64-windows-msvc-19.44.35228.0-release"
 
+# Third-party shared objects install(RUNTIME_DEPENDENCY_SET) resolves from the binaries that link
+# them. POSIX only: that rule is not enrolled on Windows, so a correct Windows archive holds none.
+POSIX_ONLY_MEMBERS = ("lib/libSDL2-2.0.so.0",)
+
 # The layout of a real archive, as built by CPack (verified against one).
 LINUX_MEMBERS = (
     "LICENSE.txt",
     "bin/sen",
     "lib/libcore.so.0.0.0",
     "lib/libshell.so",
-    "cmake/sen/sen_targets.cmake",
-    "cmake/sen/SenConfigVersion.cmake",
-    "cmake/sen/util/sen_utils.cmake",
+    "lib/cmake/sen/sen-config.cmake",
+    "cmake/sen/sen-config.cmake",
+    "lib/cmake/sen/Findspdlog.cmake",
+    "cmake/sen/sen-config-version.cmake",
+    "lib/cmake/sen/sen_targets.cmake",
+    "lib/cmake/sen/sen-config-version.cmake",
+    "lib/cmake/sen/util/sen_utils.cmake",
+    "lib/cmake/sen/util/exportable-config-compat.cmake.in",
+    "lib/cmake/sen/util/exportable-config-version-compat.cmake.in",
+    "third_party/include/spdlog/spdlog.h",
+    "third_party/include/fmt/format.h",
     "include/sen/core/base/hash32.h",
     "resources/syntax_highlighting/stl.tmLanguage.json",
-)
+) + POSIX_ONLY_MEMBERS
 
 # Windows spells the same archive differently: an .exe, and DLLs -- which are runtime
 # artefacts, so they ship beside the executables rather than in the library directory.
@@ -42,7 +54,9 @@ WINDOWS_SPELLINGS = {
     "lib/libshell.so": "bin/shell.dll",
 }
 
-WINDOWS_MEMBERS = tuple(WINDOWS_SPELLINGS.get(member, member) for member in LINUX_MEMBERS)
+WINDOWS_MEMBERS = tuple(
+    WINDOWS_SPELLINGS.get(member, member) for member in LINUX_MEMBERS if member not in POSIX_ONLY_MEMBERS
+)
 
 
 def write_archive(directory: Path, stem: str, members, suffix: str = ".tar.gz") -> Path:
@@ -168,3 +182,18 @@ def test_a_library_outside_the_library_directory_does_not_count(tmp_path):
     members = tuple(m for m in LINUX_MEMBERS if not m.startswith("lib/libcore")) + ("bin/libcore.so",)
     problems = check_archive(write_archive(tmp_path, LINUX_NAME, members))
     assert any("shared library" in problem for problem in problems)
+
+
+def test_a_linux_archive_missing_a_vendored_third_party_library_is_rejected(tmp_path):
+    """The runtime dependency set's silent failure is resolving nothing, which every other entry survives."""
+    members = tuple(member for member in LINUX_MEMBERS if member not in POSIX_ONLY_MEMBERS)
+    assert check_archive(write_archive(tmp_path, LINUX_NAME, members)) == [
+        "missing entry: lib/libSDL2* (shared library)"
+    ]
+
+
+def test_a_windows_archive_is_not_required_to_ship_them(tmp_path):
+    """The other half of the control: the same absence must be correct on Windows, or the check is wrong."""
+    archive = write_archive(tmp_path, WINDOWS_NAME, WINDOWS_MEMBERS, suffix=".zip")
+    assert not any("libSDL2" in member for member in WINDOWS_MEMBERS)
+    assert check_archive(archive) == []
