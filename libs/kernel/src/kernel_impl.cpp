@@ -30,6 +30,7 @@
 // spdlog
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 #include <spdlog_config.h>
 
 // std
@@ -279,7 +280,12 @@ void KernelImpl::sessionUnavailable(const std::string& name) const  // NOSONAR
 
 std::shared_ptr<spdlog::logger> KernelImpl::getKernelLogger()
 {
-  static std::shared_ptr<spdlog::logger> logger = spdlog::stdout_color_mt("kernel");
+  static std::shared_ptr<spdlog::logger> logger = []
+  {
+    constexpr auto loggerName = "kernel";
+    auto logger = spdlog::get(loggerName);
+    return logger ? logger : spdlog::stdout_color_mt(loggerName);
+  }();
   return logger;
 }
 
