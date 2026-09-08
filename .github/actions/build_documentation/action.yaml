@@ -55,6 +55,11 @@ runs:
         export CCACHE_DIR="$PWD/.ccache"
         pip install --user --quiet -r docs/requirements.txt
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+        # A dependency's upstream tarball host going down fails any build with a cold cache.
+        # xapian-core, under doxygen, did on 2026-09-08 and blocked the merge queue. Conan
+        # tries ConanCenter's mirror of the same sources first, then the origin.
+        printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
+            >> "$CONAN_HOME/global.conf"
         # --profile:all names both host and build profile. Copying one over `default`
         # instead is what makes a documented `conan install --profile=...` work here
         # and fail for a reader.
