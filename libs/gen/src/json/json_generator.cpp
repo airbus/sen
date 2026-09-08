@@ -77,14 +77,7 @@ public:
   }
 
 protected:
-  void apply(const sen::Type& type) override
-  {
-    std::string err;
-    err.append("unsupported type '");
-    err.append(type.getName());
-    err.append("'");
-    sen::throwRuntimeError(err);
-  }
+  void apply(const sen::Type& type) override { sen::gen::detail::throwUnsupportedType(type); }
 
   void apply(const sen::StructType& type) override { compute(type, templates_.structType); }
 
@@ -263,24 +256,6 @@ public:
   }
 
 private:
-  void collectDependentTypeSets(const sen::lang::TypeSet* set, std::set<const sen::lang::TypeSet*>& allSets)
-  {
-    // do nothing if already present
-    if (allSets.count(set) != 0)
-    {
-      return;
-    }
-
-    // add the current set
-    allSets.insert(set);
-
-    // add the imported sets
-    for (auto& imported: set->importedSets)
-    {
-      collectDependentTypeSets(imported, allSets);
-    }
-  }
-
   bool canMakeInstances(const sen::ClassType* classType)
   {
     if (auto methods = classType->getMethods(sen::ClassType::SearchMode::includeParents); !methods.empty())
@@ -298,16 +273,6 @@ private:
     }
 
     return true;
-  }
-
-  std::set<const sen::lang::TypeSet*> collectAllTypeSets(const sen::lang::TypeSetContext& typeSets)
-  {
-    std::set<const sen::lang::TypeSet*> result;
-    for (auto& set: typeSets)
-    {
-      collectDependentTypeSets(&set, result);
-    }
-    return result;
   }
 
   std::string getConfigType(const sen::lang::TypeSetContext& typeSets, bool componentMode)
@@ -371,7 +336,7 @@ private:
     inja::json fileData;
     fileData["schemaName"] = schemaName;
 
-    auto allTypeSets = collectAllTypeSets(typeSets);
+    auto allTypeSets = sen::gen::detail::collectAllTypeSets(typeSets);
     auto configType = getConfigType(typeSets, componentMode);
 
     std::vector<inja::json> definitions;

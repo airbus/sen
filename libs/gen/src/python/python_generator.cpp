@@ -67,14 +67,7 @@ public:
   }
 
 protected:
-  void apply(const sen::Type& type) override
-  {
-    std::string err;
-    err.append("unsupported type '");
-    err.append(type.getName());
-    err.append("'");
-    sen::throwRuntimeError(err);
-  }
+  void apply(const sen::Type& type) override { sen::gen::detail::throwUnsupportedType(type); }
 
   void apply(const sen::StructType& type) override { compute(type, templates_.structType); }
 
@@ -118,20 +111,6 @@ private:
   const detail::PythonTemplateSet& templates_;
 };
 
-std::string computePackageName(const sen::lang::TypeSet& set)
-{
-  std::string result;
-  for (std::size_t i = 0U; i < set.package.size(); ++i)
-  {
-    result.append(set.package[i]);
-    if (i != set.package.size() - 1U)
-    {
-      result.append(".");
-    }
-  }
-  return result;
-}
-
 }  // namespace
 
 class PythonGenerator::Impl
@@ -151,7 +130,7 @@ public:
   std::string generate(const sen::lang::TypeSet& typeSet)
   {
     auto storage = std::make_shared<detail::TypeStorage>(typeSet);
-    auto packageName = computePackageName(typeSet);
+    auto packageName = sen::gen::detail::computePackageName(typeSet);
 
     std::string visitorResult;
     std::vector<std::string> imports;

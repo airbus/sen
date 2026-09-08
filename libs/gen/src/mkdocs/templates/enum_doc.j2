@@ -1,11 +1,11 @@
 ### {{ senQual }}
 
-{{ description }}
+{{ md(description) }}
 
 Representation: {{ toAnchor(storageSenQual) }}
 
 | Enumerator  | Value |
 | :---------- | :---- |
 *** for enum in enums
-| {{ enum.name }} | {{ enum.key }} {{ enum.description }}|
+| {{ enum.name }} | {{ enum.key }} {{ md(enum.description) }}|
 *** endfor

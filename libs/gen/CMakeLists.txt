@@ -211,6 +211,25 @@ sen_internal_generate_template_headers(
   ${html_app_files}
 )
 
+file(
+  GLOB
+  typst_app_files
+  CONFIGURE_DEPENDS
+  "src/typst/app/*.typ"
+)
+
+sen_internal_generate_template_headers(
+  OUTDIR
+  ${CMAKE_CURRENT_BINARY_DIR}/gen/typst_app
+  GEN_FILE_LIST
+  typst_app_dumps
+  TEMPLATE_FILES
+  ${typst_app_files}
+)
+
+set(typst_public_headers include/sen/gen/typst.h)
+set(typst_sources src/typst/typst_generator.cpp)
+
 set(html_public_headers include/sen/gen/html.h)
 set(html_sources src/html/html_generator.cpp src/html/html_app.cpp src/html/html_app.h)
 
@@ -242,6 +261,9 @@ add_library(
   ${typescript_template_dumps}
   ${html_public_headers}
   ${html_sources}
+  ${typst_public_headers}
+  ${typst_sources}
+  ${typst_app_dumps}
   ${html_app_dumps}
 )
 add_library(sen::gen ALIAS gen)
@@ -295,6 +317,7 @@ source_group("typescript/sources" FILES ${typescript_sources})
 source_group("typescript/templates" FILES ${typescript_templates})
 source_group("typescript/templates/dumps" FILES ${typescript_template_dumps})
 source_group("html/public" FILES ${html_public_headers})
+source_group("typst/public" FILES ${typst_public_headers})
 source_group("html/sources" FILES ${html_sources})
 source_group("html/app" FILES ${html_app_files})
 source_group("html/app/dumps" FILES ${html_app_dumps})
@@ -309,6 +332,7 @@ install(
         ${mkdocs_public_headers}
         ${typescript_public_headers}
         ${html_public_headers}
+        ${typst_public_headers}
   DESTINATION libs/gen/include/sen/gen
 )
 

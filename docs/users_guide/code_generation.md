@@ -17,6 +17,7 @@ The names below are the ones you type after `sen generate`.
 | `uml` | A PlantUML document describing the model. | [UML generation](../examples/generated_uml.md) |
 | `mkdocs` | One markdown file covering every type, for a Material-flavoured MkDocs site. | [Command line tools](command_line.md#mkdocs-markdown) |
 | `html` | A browsable reference that opens from a file: a tree, a search, and a view per type showing what it carries and what uses it. | [HTML reference](../examples/generated_reference.md) |
+| `typst` | A tabular reference in the shape of an interface control document, ready to typeset as a PDF. | [Typeset reference (PDF)](../examples/generated_document.md) |
 
 ## Getting it as part of your build
 
@@ -57,6 +58,20 @@ To generate into a target you made yourself, `sen_generate_cpp` and `sen_generat
 output to a target that already exists. That target has to be a compilable C++ one: both call Sen's
 target setup, which requires C++17 of anything that links it, turns on warnings as errors and links
 `sen::core`. An interface library or a custom target is rejected.
+
+`sen_generate_typst` works the same way, and `PDF` adds the compile step:
+
+```cmake
+sen_generate_typst(
+  TARGET model_document
+  OUT ${CMAKE_CURRENT_BINARY_DIR}/document
+  STL_FILES stl/my_package/my_class.stl
+  PDF
+)
+```
+
+`PDF` needs the `typst` program on the path. Without it the target still writes the `.typ` files and
+says so, because a machine that cannot typeset should not fail your build.
 
 There is no CMake function for `mkdocs` or for `ts`, which does not mean you cannot generate them
 from a build: run `sen::cli_gen` from an `add_custom_command` instead, as Sen's own TypeScript
@@ -104,6 +119,20 @@ generated, so calls into an object are still made by name.
 **`mkdocs` writes one file, and expects Material.** Everything lands in a single markdown document,
 and it uses content tabs and icon shortcodes that need
 [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) rather than plain MkDocs.
+
+**`typst` writes a document, not a PDF.** The output is Typst source: `document.typ`, the
+`reference.typ` it includes, and the `style.typ` that decides how it looks. Turning that into a PDF
+needs the [Typst](https://typst.app/) compiler, one binary with nothing under it. Keeping the two
+apart is what lets you review the document as text, and lets a build machine without a typesetter
+still produce something.
+
+**What goes in the document is yours to say.** Nothing is inferred from the shape of the model:
+`--front-matter`, `--before-reference` and `--after-reference` name Typst files of your own that the
+document includes at those points, and `--style` replaces the look entirely. The generator never
+reads any of them — it writes an `#include` and copies the file in beside the document — so a title
+page can be anything Typst can set. Each section can also be dropped: `--no-overview`,
+`--no-hierarchy`, `--no-summaries`, `--no-index`, `--no-used-by`, `--no-flag-legend`,
+`--no-built-ins`.
 
 The generators are also a library, [`sen::gen`](gen_library.md), for a program that has to write any
 of this while it runs rather than while it builds.

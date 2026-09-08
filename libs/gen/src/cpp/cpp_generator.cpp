@@ -85,14 +85,7 @@ public:
   }
 
 protected:
-  void apply(const sen::Type& type) override
-  {
-    std::string err;
-    err.append("unsupported type '");
-    err.append(type.getName());
-    err.append("'");
-    sen::throwRuntimeError(err);
-  }
+  void apply(const sen::Type& type) override { sen::gen::detail::throwUnsupportedType(type); }
 
   void apply(const sen::StructType& type) override { compute(type, templates_.structType); }
 

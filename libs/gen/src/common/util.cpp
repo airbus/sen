@@ -8,8 +8,18 @@
 #include "util.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/lang/stl_resolver.h"
+#include "sen/core/meta/alias_type.h"
+#include "sen/core/meta/class_type.h"
 #include "sen/core/meta/custom_type.h"
+#include "sen/core/meta/enum_type.h"
+#include "sen/core/meta/optional_type.h"
+#include "sen/core/meta/quantity_type.h"
+#include "sen/core/meta/sequence_type.h"
+#include "sen/core/meta/struct_type.h"
+#include "sen/core/meta/type_visitor.h"
+#include "sen/core/meta/variant_type.h"
 
 // inja
 #include <inja/environment.hpp>
@@ -181,6 +191,86 @@ std::string capitalize(const std::string& str)
 }
 
 std::string capitalize(std::string_view str) { return capitalize(std::string(str)); }
+
+void throwUnsupportedType(const sen::Type& type)
+{
+  std::string err;
+  err.append("unsupported type '");
+  err.append(type.getName());
+  err.append("'");
+  sen::throwRuntimeError(err);
+}
+
+// The kind a type is presented as. Both documents that group a model have to agree, and
+// a visitor is the only way to reach the concrete type.
+namespace
+{
+
+class KindVisitor: protected sen::TypeVisitor
+{
+public:
+  [[nodiscard]] static std::string classify(const sen::CustomType& type)
+  {
+    KindVisitor visitor;
+    type.accept(visitor);
+    return visitor.kind_;
+  }
+
+protected:
+  void apply(const sen::Type& /*type*/) override { kind_ = "types"; }
+  void apply(const sen::StructType& /*type*/) override { kind_ = "structures"; }
+  void apply(const sen::EnumType& /*type*/) override { kind_ = "enumerations"; }
+  void apply(const sen::VariantType& /*type*/) override { kind_ = "variants"; }
+  void apply(const sen::SequenceType& /*type*/) override { kind_ = "sequences"; }
+  void apply(const sen::AliasType& /*type*/) override { kind_ = "aliases"; }
+  void apply(const sen::OptionalType& /*type*/) override { kind_ = "optionals"; }
+  void apply(const sen::QuantityType& /*type*/) override { kind_ = "quantities"; }
+  void apply(const sen::ClassType& /*type*/) override { kind_ = "classes"; }
+
+private:
+  std::string kind_;
+};
+
+}  // namespace
+
+std::string kindOf(const sen::CustomType& type) { return KindVisitor::classify(type); }
+
+std::string collapseWhitespace(std::string_view text)
+{
+  std::string result;
+  result.reserve(text.size());
+  bool gap = false;
+  for (const auto character: text)
+  {
+    const bool space = character == ' ' || character == '\t' || character == '\n' || character == '\r';
+    if (space)
+    {
+      gap = !result.empty();
+      continue;
+    }
+    if (gap)
+    {
+      result.push_back(' ');
+      gap = false;
+    }
+    result.push_back(character);
+  }
+  return result;
+}
+
+std::string computePackageName(const sen::lang::TypeSet& set)
+{
+  std::string result;
+  for (std::size_t i = 0U; i < set.package.size(); ++i)
+  {
+    result.append(set.package[i]);
+    if (i + 1U != set.package.size())
+    {
+      result.append(".");
+    }
+  }
+  return result;
+}
 
 std::string computeCppNamespace(const std::vector<std::string>& package)
 {

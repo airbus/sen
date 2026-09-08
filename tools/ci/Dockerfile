@@ -31,6 +31,7 @@ ARG JUNITPARSER_VERSION=5.0.1
 ARG PYTEST_VERSION=9.1.1
 ARG PRECOMMIT_VERSION=4.5.1
 ARG PLANTUML_VERSION=1.2026.7
+ARG TYPST_VERSION=0.15.1
 # Both must equal the versions conanfile.py tool-requires, and nothing checks that
 # they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.31.10
@@ -92,6 +93,12 @@ RUN printf '%s\n' \
         python3-dev \
         python3-pip \
         sudo \
+        # Liberation Sans carries Helvetica's metrics, for the reference typst
+        # typesets. Without a sans installed the document falls back to a serif and
+        # repaginates, so the published PDF stops matching the one a developer sees.
+        fonts-liberation \
+        # tar -xJ, for the typst release below. Not in the base image.
+        xz-utils \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 \
     && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 \
     && rm -rf /var/lib/apt/lists/*
@@ -105,6 +112,25 @@ RUN curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused \
     && printf '%s\n' '#!/bin/sh' 'exec java -jar /opt/plantuml.jar "$@"' > /usr/local/bin/plantuml \
     && chmod 0755 /usr/local/bin/plantuml \
     && plantuml -version
+
+# typst compiles the reference the documentation publishes as a PDF. The release is a
+# static musl binary with nothing under it, so there is no runtime to install beside it.
+# CMake finds it with find_program by name; without it the docs build still writes the
+# .typ sources and skips the compile, which is why the version is pinned here rather
+# than left to whatever a machine happens to have.
+ARG TARGETARCH
+RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
+        amd64) typst_triple=x86_64-unknown-linux-musl ;; \
+        arm64) typst_triple=aarch64-unknown-linux-musl ;; \
+        *) echo "no typst release for ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused \
+        -o /tmp/typst.tar.xz \
+        "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-${typst_triple}.tar.xz" \
+    && tar -xJf /tmp/typst.tar.xz -C /tmp \
+    && install -m 0755 "/tmp/typst-${typst_triple}/typst" /usr/local/bin/typst \
+    && rm -rf /tmp/typst.tar.xz "/tmp/typst-${typst_triple}" \
+    && typst --version
 
 # clang from apt.llvm.org: the matrix's clang leg and the clang-tidy lane
 # both use this major version. The repository is added directly instead of

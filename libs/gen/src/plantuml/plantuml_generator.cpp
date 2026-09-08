@@ -67,14 +67,7 @@ public:
   }
 
 protected:
-  void apply(const sen::Type& type) override
-  {
-    std::string err;
-    err.append("unsupported type '");
-    err.append(type.getName());
-    err.append("'");
-    sen::throwRuntimeError(err);
-  }
+  void apply(const sen::Type& type) override { sen::gen::detail::throwUnsupportedType(type); }
 
   void apply(const sen::StructType& type) override { compute(type, templates_.structType); }
 
@@ -142,21 +135,6 @@ private:
   const detail::PlantUmlTemplateSet& templates_;
 };
 
-std::string computePackageName(const sen::lang::TypeSet& set)
-{
-  std::string result;
-  for (std::size_t i = 0U; i < set.package.size(); ++i)
-  {
-    result.append(set.package[i]);
-    if (i != set.package.size() - 1U)
-    {
-      result.append(".");
-    }
-  }
-
-  return result;
-}
-
 }  // namespace
 
 class PlantUMLGenerator::Impl
@@ -188,7 +166,7 @@ public:
     for (auto& storageElem: storage)
     {
       auto set = storageElem->getTypeSet();
-      auto packageName = computePackageName(set);
+      auto packageName = sen::gen::detail::computePackageName(set);
 
       for (const auto& type: set.types)
       {
