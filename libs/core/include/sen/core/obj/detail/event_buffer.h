@@ -100,7 +100,7 @@ public:
 
 public:  // special members
   EventBuffer() = default;
-  ~EventBuffer() = default;
+  ~EventBuffer();
 
 public:
   /// Registers a callback that shall be invoked.
@@ -212,6 +212,20 @@ inline void SerializableEventQueue::push(SerializableEvent&& event)
 //--------------------------------------------------------------------------------------------------------------
 // EventBuffer
 //--------------------------------------------------------------------------------------------------------------
+
+template <typename... T>
+inline EventBuffer<T...>::~EventBuffer()
+{
+  // A queued dispatch holds the callback by shared_ptr and can run after this buffer is gone, so
+  // cancel whatever is still attached, as removeConnection() does for an explicit disconnect.
+  for (const auto& callbackEntry: eventCallbacks_)
+  {
+    if (auto callbackLock = callbackEntry.getCallback()->lock(); callbackLock.isValid())
+    {
+      callbackLock.invalidate();
+    }
+  }
+}
 
 template <typename... T>
 inline ConnectionGuard EventBuffer<T...>::addConnection(Object* source, Callback callback, ConnId id)

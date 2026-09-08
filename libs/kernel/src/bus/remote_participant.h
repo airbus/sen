@@ -106,6 +106,18 @@ public:
                         bool notifyAboutExisting) override;
   void removeSubscriber(ObjectProviderListener* listener, bool notifyAboutExisting) override;
   void replaceSubscriber(ObjectProviderListener* oldListener, ObjectProviderListener* newListener) override;
+  /// Remote providers can have local listeners, so report whether any of them are still attached.
+  [[nodiscard]] bool hasActiveListeners() override
+  {
+    for (const auto& providerEntry: providers_)
+    {
+      if (providerEntry.second->hasListeners())
+      {
+        return true;
+      }
+    }
+    return false;
+  }
 
 public:
   void remoteObjectsAdded(InterestId interestId, const ObjectAdditionList& additions);

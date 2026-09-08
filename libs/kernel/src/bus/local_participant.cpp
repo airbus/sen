@@ -19,6 +19,7 @@
 #include "bus/util.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/iterator_adapters.h"
 #include "sen/core/base/span.h"
@@ -90,18 +91,67 @@ LocalParticipant::LocalParticipant(ObjectOwnerId id,
   logger_->debug("LP {}: created with id {}", debugName_, getId().get());
 }
 
-LocalParticipant::~LocalParticipant()
+void LocalParticipant::markTornDown()
 {
-  bus_->disconnect(this);
-  owner_->localParticipantDeleted(this);
+  Bus* bus = nullptr;
+  std::shared_ptr<Session> session;
+  {
+    std::lock_guard<std::recursive_mutex> lock(teardownMutex_);
+    if (tornDown_)
+    {
+      return;
+    }
+    tornDown_ = true;
+
+    // Publish the torn-down state and invalidate the lifetime-sensitive pointers atomically with
+    // respect to add(), remove(), and the bus accessors. Keep the session alive until disconnect()
+    // has completed because Bus stores its Session as a non-owning pointer.
+    bus = bus_;
+    bus_ = nullptr;
+    owner_ = nullptr;
+    session = std::move(session_);
+  }
+
+  if (bus != nullptr)
+  {
+    SEN_ASSERT(session != nullptr);
+    bus->disconnect(this);
+  }
 }
 
-BusId LocalParticipant::getBusId() const noexcept { return bus_->getId(); }
+LocalParticipant::~LocalParticipant()
+{
+  SEN_DEBUG_ASSERT(!hasActiveListeners() &&
+                   "All subscription instances must be destroyed before its component's runner is stopped.");
 
-BusAddress LocalParticipant::getBusAddress() const noexcept { return bus_->getAddress(); }
+  if (owner_ != nullptr)
+  {
+    owner_->localParticipantDeleted(this);
+  }
+
+  markTornDown();
+}
+
+BusId LocalParticipant::getBusId() const noexcept
+{
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  return bus_ != nullptr ? bus_->getId() : BusId {};
+}
+
+BusAddress LocalParticipant::getBusAddress() const noexcept
+{
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  return bus_ != nullptr ? bus_->getAddress() : BusAddress {};
+}
 
 bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return false;
+  }
+
   Session::PublicLock sessionLock(*session_);
 
   bool result = true;
@@ -158,6 +208,12 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 
 void LocalParticipant::remove(const Span<std::shared_ptr<NativeObject>>& instances)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   Session::PublicLock sessionLock(*session_);
 
   for (const auto& instance: instances)
@@ -303,6 +359,9 @@ bool LocalParticipant::handleRejectedPublications(const PublicationRejection& re
 
 void LocalParticipant::flushOutputs()
 {
+  // Only Runner::commit() calls this, from the runner's component thread. Runner::stopThread()
+  // joins that thread before calling markTornDown(), so owner_ remains valid and no teardown lock
+  // is needed here.
   SEN_TRACE_ZONE(owner_->getTracer());
 
   flushLocalObjectsState(owner_->getSerializableEvents().getContents());
@@ -368,6 +427,9 @@ void LocalParticipant::flushLocalObjectsState(const std::list<::sen::impl::Seria
 
 void LocalParticipant::connect()
 {
+  // This is called only by Runner::getOrCreateLocalParticipant() immediately after construction,
+  // before the participant is published or accessible to application threads. It therefore cannot
+  // race with teardown or another connect call.
   Session::PublicLock sessionLock(*session_);
 
   const auto busAddress = getBusAddress();
@@ -385,6 +447,12 @@ void LocalParticipant::localSubscriberAdded(const std::shared_ptr<Interest>& int
                                             ObjectProviderListener* listener,
                                             bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (const auto* localParticipant = listener->isLocalParticipant();
       localParticipant == nullptr && listener->isRemoteParticipant() == nullptr)
   {
@@ -427,6 +495,12 @@ void LocalParticipant::localSubscriberRemoved(const std::shared_ptr<Interest>& i
                                               ObjectProviderListener* listener,
                                               bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (const auto* localParticipant = listener->isLocalParticipant();
       localParticipant == nullptr && listener->isRemoteParticipant() == nullptr)
   {
@@ -460,6 +534,12 @@ void LocalParticipant::localSubscriberRemoved(const std::shared_ptr<Interest>& i
 
 void LocalParticipant::localSubscriberRemoved(ObjectProviderListener* listener, bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (auto* localParticipant = listener->isLocalParticipant();
       localParticipant == nullptr && listener->isRemoteParticipant() == nullptr)
   {
@@ -492,6 +572,12 @@ void LocalParticipant::remoteSubscriberAdded(const std::shared_ptr<Interest>& in
                                              RemoteParticipant* listener,
                                              bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   logger_->debug("LP {}: remote subscriber {} added for interest {} begin '{}')",
                  debugName_,
                  listener->getId().get(),
@@ -510,6 +596,12 @@ void LocalParticipant::remoteSubscriberRemoved(const std::shared_ptr<Interest>& 
                                                RemoteParticipant* listener,
                                                bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   logger_->debug("LP {}: remote subscriber {} removed from interest {} begin",
                  debugName_,
                  listener->getId().get(),
@@ -525,6 +617,13 @@ void LocalParticipant::remoteSubscriberRemoved(const std::shared_ptr<Interest>& 
 
 void LocalParticipant::remoteSubscriberRemoved(RemoteParticipant* listener, bool notifyAboutExisting)
 {
+
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   logger_->debug("LP {}: remote subscriber {} removed begin", debugName_, listener->getId().get());
 
   remoteInterestsManager_.removeSubscriber(listener, notifyAboutExisting);
@@ -593,6 +692,12 @@ void LocalParticipant::subscriberAdded(std::shared_ptr<Interest> interest,
                                        ObjectProviderListener* listener,
                                        bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   if (const auto& typeCondition = interest->getTypeCondition();
       std::holds_alternative<ConstTypeHandle<ClassType>>(typeCondition))
   {
@@ -605,11 +710,23 @@ void LocalParticipant::subscriberRemoved(std::shared_ptr<Interest> interest,
                                          ObjectProviderListener* listener,
                                          bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   localSubscriberRemoved(interest, listener, notifyAboutExisting);
 }
 
 void LocalParticipant::subscriberRemoved(ObjectProviderListener* listener, bool notifyAboutExisting)
 {
+  std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
+  if (tornDown_)
+  {
+    return;
+  }
+
   localSubscriberRemoved(listener, notifyAboutExisting);
 }
 

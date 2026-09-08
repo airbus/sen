@@ -61,6 +61,8 @@ RecorderImpl::RecorderImpl(const sen::components::recorder::RecordingSettings& s
   setNextState(sen::components::recorder::RecorderState::stopped);
 }
 
+RecorderImpl::~RecorderImpl() { stopImpl(); }
+
 void RecorderImpl::update(sen::kernel::RunApi& runApi)
 {
   if (SEN_UNLIKELY(api_ == nullptr))
