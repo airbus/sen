@@ -111,6 +111,10 @@ void ProxyManager::notifyChangesToLocalListeners()
 {
   Lock listenersLock(listenersMutex_);
 
+  // Destroyed a cycle late on purpose: the work queue drains after this call, so anything already
+  // queued for these proxies would otherwise run against a dead object.
+  additionsToDelete_.clear();
+
   // drainInputs the buffers of the remote objects owned by this view
   for (const auto& [first, second]: presentProxiesList_)
   {
@@ -198,9 +202,6 @@ void ProxyManager::processPendingActions()
   {
     notifyObjectsRemoved(recentlyDeletedObjects_);
   }
-
-  // we can delete unused proxies now
-  additionsToDelete_.clear();
 }
 
 void ProxyManager::onObjectsAdded(const ObjectAdditionList& additions)
