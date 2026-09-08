@@ -253,7 +253,9 @@ function(add_sen_unit_test_suite test_name)
       APPEND
       _test_props
       ENVIRONMENT_MODIFICATION
-      "PATH=path_list_append:${PROJECT_BINARY_DIR}/bin"
+      # Components are opened by name rather than linked, so TARGET_RUNTIME_DLLS does not cover
+      # them and this is what finds them.
+      "PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
     )
   endif()
 
@@ -443,7 +445,12 @@ function(add_sen_run_smoke_test test_name)
   endif()
 
   if(NOT WIN32)
-    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=${_working_dir}")
+    # Shared objects are in the library directory, not the working directory. Named through a
+    # target so the path follows the build layout, including a multi-config generator's
+    # per-configuration subdirectory.
+    set_tests_properties(
+      ${test_name} PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:sen::core>:${_working_dir}"
+    )
     append_test_env_modification(
       ${test_name} "PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
       "LD_LIBRARY_PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"

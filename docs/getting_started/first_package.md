@@ -256,16 +256,16 @@ To build and run, follow the instructions `sen package init` printed:
 cmake -S . -B build && cmake --build build
 
 # tell the loader where the package is: bash or zsh
-export LD_LIBRARY_PATH="$(pwd)/build/bin:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$(pwd)/build/lib:$LD_LIBRARY_PATH"
 
 # run
 sen run config.yaml
 ```
 
-The tool prints the equivalent for fish (`set -xa LD_LIBRARY_PATH $(pwd)/build/bin`) and for
+The tool prints the equivalent for fish (`set -xa LD_LIBRARY_PATH $(pwd)/build/lib`) and for
 PowerShell on Windows (`$env:PATH = "$PWD\build\bin;$env:PATH"`).
 
-Pointing the loader at `build/bin` is what running from the build tree looks like, and every package
+Pointing the loader at `build/lib` is what running from the build tree looks like, and every package
 in this repository runs that way. Taking the package anywhere else is a separate step:
 `add_sen_package` writes no install rule, so you write your own for the library and for the
 generated headers. [Creating your own Conan package](../howto_guides/creating_conan_packages.md)

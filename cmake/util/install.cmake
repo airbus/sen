@@ -97,6 +97,38 @@ file(COPY ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/util)
 # our license
 install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt DESTINATION .)
 
+# Third-party shared objects the installed binaries need, resolved from the binaries rather than
+# listed, so nothing ships by being remembered or is missed by being forgotten. The exclusions name
+# the directories the target system provides.
+#
+# Not attempted on Windows: it would need DIRECTORIES naming where the DLLs live and
+# PRE_EXCLUDE_REGEXES for the api-ms-* stubs, neither of which is supplied here.
+#
+# The framework and homebrew entries are load-bearing on macOS. Without them the resolver finds
+# Python's framework binary, has no FRAMEWORK DESTINATION for it, and the install fails.
+if(NOT WIN32)
+  install(
+    RUNTIME_DEPENDENCY_SET
+    sen_runtime_deps
+    POST_EXCLUDE_REGEXES
+    "^/lib"
+    "^/usr/lib"
+    "^/usr/local/lib"
+    "^/opt/rh"
+    "^/nix/store"
+    "^/System/Library"
+    "^/Library/Frameworks"
+    "^/opt/homebrew"
+    "^/opt/local"
+    RUNTIME
+    DESTINATION
+    ${CMAKE_INSTALL_BINDIR}
+    LIBRARY
+    DESTINATION
+    ${CMAKE_INSTALL_LIBDIR}
+  )
+endif()
+
 # FOSS licenses
 if(EXISTS "${CMAKE_BINARY_DIR}/foss_licenses")
   install(DIRECTORY "${CMAKE_BINARY_DIR}/foss_licenses" DESTINATION .)

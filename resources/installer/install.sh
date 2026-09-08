@@ -748,12 +748,14 @@ PATH=\$(_sen_strip "\$PATH")
 CMAKE_PREFIX_PATH=\$(_sen_strip "\${CMAKE_PREFIX_PATH:-}")
 LD_LIBRARY_PATH=\$(_sen_strip "\${LD_LIBRARY_PATH:-}")
 
-# Sen installs binaries, shared libs, and archives into <prefix>/bin (CMAKE_INSTALL_BINDIR), not <prefix>/lib.
+# Executables are in <prefix>/bin, shared libs and archives in <prefix>/lib. Both are named
+# because one installer installs every release, and releases before the split put the shared
+# libs in bin; a directory that does not exist costs the loader nothing.
 # The cmake config is at <prefix>/cmake/sen/sen-config.cmake, which CMake's search does not reach from
 # <prefix> alone, so CMAKE_PREFIX_PATH carries the /cmake suffix or find_package(sen) fails.
 PATH="\$SEN_PREFIX/bin\${PATH:+:\$PATH}"
 CMAKE_PREFIX_PATH="\$SEN_PREFIX/cmake\${CMAKE_PREFIX_PATH:+:\$CMAKE_PREFIX_PATH}"
-LD_LIBRARY_PATH="\$SEN_PREFIX/bin\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+LD_LIBRARY_PATH="\$SEN_PREFIX/lib:\$SEN_PREFIX/bin\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
 
 export PATH CMAKE_PREFIX_PATH LD_LIBRARY_PATH
 
@@ -805,7 +807,8 @@ set -l _sen_path       (_sen_strip "\$PATH")
 set -l _sen_cmake_path (_sen_strip "\$CMAKE_PREFIX_PATH")
 set -l _sen_ldlib_path (_sen_strip "\$LD_LIBRARY_PATH")
 
-# Sen installs binaries, shared libs, and archives into <prefix>/bin (CMAKE_INSTALL_BINDIR), not <prefix>/lib.
+# Executables are in <prefix>/bin, shared libs and archives in <prefix>/lib. Both are named
+# below, for the reason given in the POSIX activate above.
 set -gx PATH \$SEN_PREFIX/bin (string split ':' -- \$_sen_path)
 
 # The /cmake suffix is required, for the reason given in the POSIX activate above.
@@ -815,9 +818,9 @@ else
     set -gx CMAKE_PREFIX_PATH "\$SEN_PREFIX/cmake"
 end
 if test -n "\$_sen_ldlib_path"
-    set -gx LD_LIBRARY_PATH "\$SEN_PREFIX/bin:\$_sen_ldlib_path"
+    set -gx LD_LIBRARY_PATH "\$SEN_PREFIX/lib:\$SEN_PREFIX/bin:\$_sen_ldlib_path"
 else
-    set -gx LD_LIBRARY_PATH "\$SEN_PREFIX/bin"
+    set -gx LD_LIBRARY_PATH "\$SEN_PREFIX/lib:\$SEN_PREFIX/bin"
 end
 
 functions -e _sen_strip

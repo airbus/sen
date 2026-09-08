@@ -70,6 +70,10 @@ RUN printf '%s\n' \
         > /etc/apt/apt.conf.d/99-sen-timeouts \
     && apt-get update && apt-get install -y --no-install-recommends \
         bats \
+        # objdump, needed at install time by the runtime dependency set. A compiler package pulls
+        # binutils in today; named here so it does not depend on that. This image is the
+        # devcontainer -- CI runners supply their own.
+        binutils \
         ca-certificates \
         ccache \
         curl \

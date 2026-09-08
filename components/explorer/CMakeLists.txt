@@ -38,33 +38,9 @@ else()
 
   # avoid compiling the explorer if SDL2 is not found
   if(SDL2_FOUND)
-
-    # get interface link libraries
-    get_target_property(SDL2_INTERFACE_LINK SDL2::SDL2 INTERFACE_LINK_LIBRARIES)
-    string(
-      REGEX MATCH
-            "CONAN_LIB::[^>]+"
-            SDL2_CONAN2_TARGET
-            "${SDL2_INTERFACE_LINK}"
-    )
-
-    # get .so location
-    string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_CMAKE_BUILD_TYPE)
-    get_target_property(SDL2_LIB ${SDL2_CONAN2_TARGET} IMPORTED_LOCATION_${UPPER_CMAKE_BUILD_TYPE})
-
-    # copy sdl2 shared object to our bin path
-    set(sdl_libs_folder ${CMAKE_BINARY_DIR}/sdl_libs)
-    file(
-      COPY "${SDL2_LIB}"
-      DESTINATION ${sdl_libs_folder}
-      FOLLOW_SYMLINK_CHAIN
-    )
-
-    # collect all the shared objects and the symbolic links
-    file(GLOB sdl_files ${sdl_libs_folder}/*)
-
-    # install the shared objects in our binary dir
-    install(FILES ${sdl_files} DESTINATION ${CMAKE_INSTALL_BINDIR})
+    # SDL2's shared object is shipped by the runtime dependency set in install.cmake, resolved
+    # from the binaries that link it. Finding and copying it by hand put it wherever the copy
+    # said rather than wherever the loader looks.
   else()
     message("SDL2 not found. Disabling the explorer component.")
     return()

@@ -219,6 +219,10 @@ class SenConan(ConanFile):
 
         # used in the conan editable package mode
         self.cpp.build.builddirs = ["."]
+        # The build tree is split like the install tree, so an editable consumer's PATH and
+        # library path name the two directories rather than the build root.
+        self.cpp.build.bindirs = ["bin"]
+        self.cpp.build.libdirs = ["lib"]
 
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
@@ -288,9 +292,10 @@ class SenConan(ConanFile):
         self.cpp_info.builddirs = [join("cmake", "sen")]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 
-        # runenv library paths
+        # runenv library paths. Executables are in bin, shared objects in lib, which is also
+        # what cpp_info.libdirs says by default -- these are explicit so the two cannot drift.
         self.runenv_info.prepend_path("PATH", join(self.package_folder, "bin"))
         if self.settings.os == "Linux":
-            self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "bin"))
+            self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "lib"))
 
-        # Windows: PATH is already prepended above; no additional loader path needed.
+        # Windows: a DLL is a runtime artefact and is in bin, which PATH already covers.

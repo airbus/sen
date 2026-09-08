@@ -16,25 +16,37 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_L
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_INSTALL_LIBDIR lib)
 set(CMAKE_LINK_WHAT_YOU_USE OFF "Enable this to get feedback about the linkage")
 
-# Components are opened by bare name, so the loader resolves them through the run path of libkernel.
-# Keep that run path relative to the library itself, in the build tree as well as the installed one,
-# or loading depends on the working directory. The entries pointing at conan's package folders stay
-# absolute in the build tree; an installed tree has those libraries beside the binaries instead.
+# Pinned before GNUInstallDirs, which only sets what is not already defined. A plain variable rather
+# than a cache entry, so -DCMAKE_INSTALL_LIBDIR is ignored: conan's toolchain, the installer and the
+# archive check all spell lib, and lib64 support is the RPM generator's problem, not this line's.
+set(CMAKE_INSTALL_LIBDIR lib)
+
+# Before the run path below, which is derived from the directories it defines.
+include(GNUInstallDirs)
+
+# Components are opened by bare name, so the loader resolves them through libkernel's run path. That
+# has to be relative to the library itself or loading depends on the working directory.
+#
+# Derived rather than written as ../lib so it cannot drift. The FULL_ forms, so it stays correct if
+# the pin above is ever lifted and libdir becomes absolute.
+file(
+  RELATIVE_PATH
+  _sen_bin_to_lib
+  "${CMAKE_INSTALL_FULL_BINDIR}"
+  "${CMAKE_INSTALL_FULL_LIBDIR}"
+)
+
 if(UNIX AND NOT APPLE)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/")
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/${_sen_bin_to_lib}:$ORIGIN/")
   set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 elseif(APPLE)
-  # The same intent, spelled the way the mach-o loader expects. Nothing builds this today: there is
-  # no macOS profile under .conan/profiles, and the install guide says macOS is unsupported. It is
-  # here so the two loaders do not drift apart while that remains true.
-  set(CMAKE_INSTALL_RPATH "@loader_path/../lib;@loader_path")
+  # The same intent in mach-o terms. Nothing builds this today -- no macOS profile and no macOS
+  # runner -- so it is here to keep the two loaders from drifting apart.
+  set(CMAKE_INSTALL_RPATH "@loader_path/${_sen_bin_to_lib};@loader_path")
   set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 endif()
-
-include(GNUInstallDirs)
 
 # for organizing projects into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -173,10 +185,6 @@ macro(sen_internal_component_guard)
 endmacro()
 
 function(sen_internal_install target_name)
-  if(UNIX AND NOT APPLE)
-    set_property(TARGET ${target_name} PROPERTY INSTALL_RPATH "$ORIGIN")
-  endif()
-
   # install the gen object library (cmake requires it)
   if(TARGET ${target_name}_gen)
     get_target_property(_type ${target_name}_gen TYPE)
@@ -185,8 +193,8 @@ function(sen_internal_install target_name)
         TARGETS ${target_name}_gen
         EXPORT sen_targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
       )
     endif()
   endif()
@@ -200,18 +208,38 @@ function(sen_internal_install target_name)
         TARGETS ${target_name}_obj
         EXPORT sen_targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
       )
     endif()
+  endif()
+
+  # Python has not searched PATH for an extension module's dependencies since 3.8, so on Windows the
+  # module must sit beside the DLLs it links or a plain import fails.
+  set(_library_destination ${CMAKE_INSTALL_LIBDIR})
+  if(WIN32)
+    get_target_property(_target_type ${target_name} TYPE)
+    if(_target_type STREQUAL "MODULE_LIBRARY")
+      set(_library_destination ${CMAKE_INSTALL_BINDIR})
+    endif()
+  endif()
+
+  # RUNTIME_DEPENDENCY_SET collects what these binaries actually link, so a third-party shared
+  # object is shipped because it is needed rather than because someone remembered it. install.cmake
+  # resolves the set once, after every target has been added to it -- on the platforms where it can
+  # resolve at all, which is why enrolling is conditional on the same thing.
+  set(_runtime_dependency_set RUNTIME_DEPENDENCY_SET sen_runtime_deps)
+  if(WIN32)
+    set(_runtime_dependency_set "")
   endif()
 
   install(
     TARGETS ${target_name}
     EXPORT sen_targets
+    ${_runtime_dependency_set}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${_library_destination}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
 endfunction()

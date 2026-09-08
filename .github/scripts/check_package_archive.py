@@ -43,7 +43,6 @@ REQUIRED_DIRECTORIES = (
 # core is linked by the sen executable. shell is a component, and a missing component is the
 # silent case: components are opened by name only when a config asks for one. shell ships in
 # basic and full; a barebones package has none.
-REQUIRED_LIBRARY_DIR = "bin"
 REQUIRED_LIBRARIES = ("core", "shell")
 
 # sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower
@@ -93,7 +92,7 @@ def missing_entries(entries: list[str]) -> list[str]:
     missing = [name for name in REQUIRED_FILES if name not in present and f"{name}.exe" not in present]
     missing += [name for name in REQUIRED_DIRECTORIES if not any(entry.startswith(f"{name}/") for entry in entries)]
     missing += [
-        f"{REQUIRED_LIBRARY_DIR}/{name} (shared library)"
+        f"{name} (shared library)"
         for name in REQUIRED_LIBRARIES
         if not any(_is_shared_library(entry, name) for entry in entries)
     ]
@@ -101,16 +100,20 @@ def missing_entries(entries: list[str]) -> list[str]:
 
 
 def _is_shared_library(entry: str, name: str) -> bool:
-    """Whether an archive entry is the shared library `name`, in any platform's spelling.
+    """Whether an archive entry is the shared library `name`, where the loader looks for it.
 
-    Matches a versioned suffix (libcore.so.0.0.0) as well as the bare name, since the
-    versioned file is the real one and the bare name is a symlink to it.
+    The directory follows from the spelling rather than the platform: a DLL is a runtime
+    artefact and ships beside the executables, while .so and .dylib ship in the library
+    directory. A versioned suffix counts, since libcore.so is a symlink to libcore.so.0.0.0.
     """
-    stem = entry.rsplit("/", 1)[-1]
-    if entry != f"{REQUIRED_LIBRARY_DIR}/{stem}":
-        return False
+    directory, _, stem = entry.rpartition("/")
+    if stem == f"{name}.dll":
+        return directory == "bin"
 
-    return stem in (f"{name}.dll", f"lib{name}.dylib") or stem.startswith(f"lib{name}.so")
+    if stem == f"lib{name}.dylib" or stem.startswith(f"lib{name}.so"):
+        return directory == "lib"
+
+    return False
 
 
 def check_archive(archive: Path) -> list[str]:
