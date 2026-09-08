@@ -95,8 +95,12 @@ def test_the_key_families_are_the_ones_this_repository_uses():
     expected = {
         "conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-{STD}",
         "conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-",  # prepare_build's restore ladder
-        "conanp-image-{IMAGE}-docs",
-        "conanp-image-{IMAGE}-clang-20-17",
+        # Hash last, so a prefix can reach the family; the bare prefixes are the
+        # restore ladders that reach the previous image's entry.
+        "conanp-image-docs-{IMAGE}",
+        "conanp-image-docs-",
+        "conanp-image-clang-20-17-{IMAGE}",
+        "conanp-image-clang-20-17-",
     }
     found = set(keys())
     assert found == expected, (
@@ -112,6 +116,6 @@ def test_each_family_is_spelled_in_more_than_one_place():
     family found in a single file is one nobody is comparing.
     """
     found = keys()
-    for family in ("conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-{STD}", "conanp-image-{IMAGE}-docs"):
+    for family in ("conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-{STD}", "conanp-image-docs-{IMAGE}"):
         assert family in found, f"{family} is no longer found by the key scan"
         assert len(found[family]) >= 2, f"{family} is spelled once, in {found[family]}, so nothing is compared"
