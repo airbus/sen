@@ -144,7 +144,8 @@ var group__obj =
       [ "addSubscriber", "classsen_1_1_object_filter_base.html#ab5491edd8a802582d0edd02d53dd6e20", null ],
       [ "removeSubscriber", "classsen_1_1_object_filter_base.html#aa9dbce1dc0f69cdbe62804eae5dadd93", null ],
       [ "removeSubscriber", "classsen_1_1_object_filter_base.html#a4da15a3b5458344ba74f270075b2f2e6", null ],
-      [ "replaceSubscriber", "classsen_1_1_object_filter_base.html#a6913a530bd98002fd6ce6dd06526ecf0", null ]
+      [ "replaceSubscriber", "classsen_1_1_object_filter_base.html#a6913a530bd98002fd6ce6dd06526ecf0", null ],
+      [ "hasActiveListeners", "classsen_1_1_object_filter_base.html#a319b3a91ac26448f521a62e9859bb06e", null ]
     ] ],
     [ "sen::ObjectFilter", "classsen_1_1_object_filter.html", [
       [ "ObjectSet", "structsen_1_1_object_filter_1_1_object_set.html", [
@@ -158,6 +159,7 @@ var group__obj =
       [ "removeSubscriber", "classsen_1_1_object_filter.html#a64e2296d198340367bd8fb964322683d", null ],
       [ "removeSubscriber", "classsen_1_1_object_filter.html#a8a545b7e821fc0e418d095f098d43d41", null ],
       [ "replaceSubscriber", "classsen_1_1_object_filter.html#a7b74bdca80ea72ca417e39bffd724c80", null ],
+      [ "hasActiveListeners", "classsen_1_1_object_filter.html#a1fb2008093a81422cf87f128ed24d621", null ],
       [ "getOrCreateNamedProvider", "classsen_1_1_object_filter.html#aa67a75421d2171728c9f9d387a63da7b", null ],
       [ "removeNamedProvider", "classsen_1_1_object_filter.html#ac62308d5aa2cab78b597c68872a69c8f", null ],
       [ "evaluate", "classsen_1_1_object_filter.html#aed96eb19d3b7e3f3c03203dcb58f2d55", null ],
@@ -325,6 +327,7 @@ var group__obj =
       [ "removeSubscriber", "classsen_1_1_object_source.html#a64e2296d198340367bd8fb964322683d", null ],
       [ "removeSubscriber", "classsen_1_1_object_source.html#a8a545b7e821fc0e418d095f098d43d41", null ],
       [ "replaceSubscriber", "classsen_1_1_object_source.html#a7b74bdca80ea72ca417e39bffd724c80", null ],
+      [ "hasActiveListeners", "classsen_1_1_object_source.html#a1fb2008093a81422cf87f128ed24d621", null ],
       [ "getOrCreateNamedProvider", "classsen_1_1_object_source.html#aa67a75421d2171728c9f9d387a63da7b", null ],
       [ "removeNamedProvider", "classsen_1_1_object_source.html#ac62308d5aa2cab78b597c68872a69c8f", null ],
       [ "evaluate", "classsen_1_1_object_source.html#aed96eb19d3b7e3f3c03203dcb58f2d55", null ],

@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1_o
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_filter_base__inherit__graph.svg" width="230" height="863"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_filter_base__inherit__graph.svg" width="230" height="903"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -158,6 +158,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4da15a3b5458344ba74f270075b2f2e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all the instances of the listener.  <br /></td></tr>
 <tr class="memitem:a6913a530bd98002fd6ce6dd06526ecf0" id="r_a6913a530bd98002fd6ce6dd06526ecf0"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a6913a530bd98002fd6ce6dd06526ecf0">replaceSubscriber</a> (<a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *oldListener, <a class="el" href="classsen_1_1_object_provider_listener.html">ObjectProviderListener</a> *newListener)=0</td></tr>
 <tr class="memdesc:a6913a530bd98002fd6ce6dd06526ecf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces an existing subscriber with a new one.  <br /></td></tr>
+<tr class="memitem:a319b3a91ac26448f521a62e9859bb06e" id="r_a319b3a91ac26448f521a62e9859bb06e"><td class="memItemLeft">virtual bool&#160;</td><td class="memItemRight"><a class="el" href="#a319b3a91ac26448f521a62e9859bb06e">hasActiveListeners</a> ()</td></tr>
+<tr class="memdesc:a319b3a91ac26448f521a62e9859bb06e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if there are still active listeners attached to this filter.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Base class for object filters. </p>
@@ -352,6 +354,36 @@ Public Member Functions</h2></td></tr>
 <p>Replaces an existing subscriber with a new one. </p>
 
 <p>Implemented in <a class="el" href="classsen_1_1_object_filter.html#a7b74bdca80ea72ca417e39bffd724c80">sen::ObjectFilter</a>.</p>
+
+</div>
+</div>
+<a id="a319b3a91ac26448f521a62e9859bb06e" name="a319b3a91ac26448f521a62e9859bb06e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a319b3a91ac26448f521a62e9859bb06e">&#9670;&#160;</a></span>hasActiveListeners()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool sen::ObjectFilterBase::hasActiveListeners </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns true if there are still active listeners attached to this filter. </p>
+<p>The default is conservative for filters that do not track listeners. This is not pure virtual so implementations outside the repository do not need to add an override immediately. </p>
+
+<p>Reimplemented in <a class="el" href="classsen_1_1_object_filter.html#a1fb2008093a81422cf87f128ed24d621">sen::ObjectFilter</a>.</p>
 
 </div>
 </div>

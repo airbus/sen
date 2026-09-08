@@ -1,5 +1,8 @@
 var NAVTREEINDEX11 =
 {
+"functions_s.html":[2,3,0,18],
+"functions_t.html":[2,3,0,19],
+"functions_type.html":[2,3,3],
 "functions_u.html":[2,3,0,20],
 "functions_v.html":[2,3,0,21],
 "functions_vars.html":[2,3,2],
@@ -246,8 +249,5 @@ var NAVTREEINDEX11 =
 "group__hash.html#ga6bf79d75ad81a1ce4c862dbb7a78f9e9":[0,0,0,3,4],
 "group__hash.html#ga784106f033594a1b654be3ead9efce47":[0,0,0,3,11],
 "group__hash.html#ga9f2e7e20ea6542ac9fa8421c6f75c55b":[0,0,0,3,3],
-"group__hash.html#gab67a1e60a7e9ad468ef805050fb9e87e":[0,0,0,3,5],
-"group__hash.html#gae2d40679e3bd4b728e7b5df0768268ed":[0,0,0,3,12],
-"group__hash.html#gafe6d5e0b16f001842c0baf42d625eb6d":[0,0,0,3,7],
-"group__io.html":[0,0,1]
+"group__hash.html#gab67a1e60a7e9ad468ef805050fb9e87e":[0,0,0,3,5]
 };

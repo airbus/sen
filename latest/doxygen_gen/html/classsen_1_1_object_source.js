@@ -15,6 +15,7 @@ var classsen_1_1_object_source =
     [ "removeSubscriber", "classsen_1_1_object_source.html#a64e2296d198340367bd8fb964322683d", null ],
     [ "removeSubscriber", "classsen_1_1_object_source.html#a8a545b7e821fc0e418d095f098d43d41", null ],
     [ "replaceSubscriber", "classsen_1_1_object_source.html#a7b74bdca80ea72ca417e39bffd724c80", null ],
+    [ "hasActiveListeners", "classsen_1_1_object_source.html#a1fb2008093a81422cf87f128ed24d621", null ],
     [ "getOrCreateNamedProvider", "classsen_1_1_object_source.html#aa67a75421d2171728c9f9d387a63da7b", null ],
     [ "removeNamedProvider", "classsen_1_1_object_source.html#ac62308d5aa2cab78b597c68872a69c8f", null ],
     [ "evaluate", "classsen_1_1_object_source.html#aed96eb19d3b7e3f3c03203dcb58f2d55", null ],
