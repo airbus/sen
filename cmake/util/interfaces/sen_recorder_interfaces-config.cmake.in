@@ -9,7 +9,7 @@ set(__dep_sen YES)
 find_package(sen CONFIG REQUIRED)
 endif()
 
-get_external_interfaces(TARGET sen::recorder INSTALLATION_DIR ${SEN_INSTALL_DIR})
+get_external_interfaces(TARGET sen::recorder INSTALLATION_DIR ${SEN_INSTALL_DIR}/${SEN_INSTALL_DATADIR})
 
 get_target_property(_sen_recorder_stl_files sen::recorder INSTALL_STL_FILES)
 get_target_property(_sen_recorder_base_path sen::recorder INSTALL_BASE_PATH)

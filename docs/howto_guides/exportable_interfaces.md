@@ -88,6 +88,17 @@ maintain common inclusion paths.
 strict directory layout for HLA and always uses the **immediate parent directory** of the XML file
 to build the inclusion paths.
 
+!!! warning "Choose a prefix nobody else will choose"
+
+    Sen's own generated headers install to `<prefix>/include/stl/sen/...`, and `<prefix>/include` is
+    a public include directory on every Sen target. If you copy Sen's layout and generate your own
+    headers under a bare `stl/`, both end up on the same include path and which one an
+    `#include <stl/...>` resolves to depends on `-I` ordering — silently, and differently for
+    consumers than for you.
+
+    Put your package's name in the path, as `packages/radar/stl` does above. Then no ordering can
+    make the wrong file win.
+
 #### STL example
 
 To ensure correct resolution, the `BASE_PATH` should be set to the **root of the component**.
@@ -198,17 +209,21 @@ Indicating the installation directory is as simple as adding this line to your `
 file:
 
 ```cmake
-set(*your_project_name*_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
+set(*your_project_name*_INSTALL_DIR ${PACKAGE_PREFIX_DIR})
 ```
 
 ---
 
 > What does this variable do?
 
-: The `INSTALL_DIR` variable will simply point to the root of the directory where your package is
-installed at the time of consuming it. The `../..` is added since in the standard CMake package
-generation, the CMakes of the project are located inside the `cmake/project_name` directory, hence
-the root directory will be located two directories behind.
+: The `INSTALL_DIR` variable points to the root of the directory where your package is installed at
+the time of consuming it. **Do not count `../` by hand.** `configure_package_config_file` defines
+`PACKAGE_PREFIX_DIR` for exactly this, and it is what Sen's own config uses.
+
+    The count is not a fixed number. A config in `<libdir>/cmake/<name>` is three directories deep
+    when the library directory is one segment, and four on a Debian multiarch install where it is
+    `lib/x86_64-linux-gnu`. A hard-coded `../../../` is right on your machine and wrong on your
+    user's, and the symptom is `get_external_interfaces` failing with a message that blames you.
 
 ---
 

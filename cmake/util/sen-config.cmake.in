@@ -8,6 +8,11 @@ list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
 # lib64 or a multiarch triplet depending on the platform.
 set(SEN_THIRD_PARTY_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/third_party/include")
 
+# The data directory, relative to the prefix. Baked in here because it is @CMAKE_INSTALL_DATADIR@
+# at our install time; a consumer's project has no reason to have included GNUInstallDirs, so the
+# variable would be empty if the functions below read it themselves.
+set(SEN_INSTALL_DATADIR "@CMAKE_INSTALL_DATADIR@/sen")
+
 include(CMakeFindDependencyMacro)
 find_dependency(spdlog)
 

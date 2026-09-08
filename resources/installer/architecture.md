@@ -6,6 +6,8 @@
 ~/.sen/                                  # $SEN_INSTALL_HOME (default)
   <build-id>/                            # e.g. 0.5.2-x86_64-linux-gcc-12.4.0
     bin/  lib/  include/  share/
+    cmake/                               # forwarding config, for projects on the older layout
+    third_party/                         # vendored spdlog and fmt, for consumers without them
     activate                             # POSIX (bash / zsh / dash)
     activate.fish                        # fish-native
     .sen-manifest.sha256                 # generated at install time

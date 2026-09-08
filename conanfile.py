@@ -295,6 +295,10 @@ class SenConan(ConanFile):
         # leaves a consumer with no fallback if CMAKE_INSTALL_CMAKEDIR is ever moved, and naming
         # only the second would not work at all.
         self.cpp_info.builddirs = [join("lib", "cmake", "sen"), join("cmake", "sen")]
+        # The package has a real share/ tree now. Conan pins CMAKE_INSTALL_DATAROOTDIR for a
+        # consumer only when this is non-empty, so leaving it unset makes the one root this layout
+        # introduced the only one conan does not control.
+        self.cpp_info.resdirs = ["share"]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 
         # runenv library paths. Executables are in bin, shared objects in lib, which is also

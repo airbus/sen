@@ -54,7 +54,7 @@ In this example, we are generating the interfaces of the `sen::replayer` compone
 obtain its `BASE_PATH` and `stl` files.
 
 ```cmake
-get_external_interfaces(TARGET sen::replayer INSTALLATION_DIR ${SEN_INSTALL_DIR})
+get_external_interfaces(TARGET sen::replayer INSTALLATION_DIR ${SEN_INSTALL_DIR}/${SEN_INSTALL_DATADIR})
 
 get_target_property(_sen_replayer_stl_files sen::replayer INSTALL_STL_FILES)
 get_target_property(_sen_replayer_base_path sen::replayer INSTALL_BASE_PATH)

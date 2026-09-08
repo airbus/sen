@@ -38,11 +38,13 @@ add_sen_package(
 set_target_properties(replayer PROPERTIES FOLDER "components/replayer")
 
 # install interfaces files
-install(FILES ${_replayer_stl_files} DESTINATION interfaces/stl/sen/components/replayer)
+install(FILES ${_replayer_stl_files}
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/interfaces/stl/sen/components/replayer
+)
 
 sen_internal_install(replayer)
 
-install(FILES ${PROJECT_SOURCE_DIR}/schemas/replayer.json DESTINATION schemas)
+install(FILES ${PROJECT_SOURCE_DIR}/schemas/replayer.json DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/schemas)
 
 # tests
 if(SEN_BUILD_TESTS)

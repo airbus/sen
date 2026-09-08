@@ -32,11 +32,13 @@ add_sen_package(
 set_target_properties(recorder PROPERTIES FOLDER "components/recorder")
 
 # install interfaces files
-install(FILES ${_recorder_stl_files} DESTINATION interfaces/stl/sen/components/recorder)
+install(FILES ${_recorder_stl_files}
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/interfaces/stl/sen/components/recorder
+)
 
 sen_internal_install(recorder)
 
-install(FILES ${PROJECT_SOURCE_DIR}/schemas/recorder.json DESTINATION schemas)
+install(FILES ${PROJECT_SOURCE_DIR}/schemas/recorder.json DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/schemas)
 
 # tests
 if(SEN_BUILD_TESTS)

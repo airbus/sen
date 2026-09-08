@@ -50,6 +50,10 @@ get_external_interfaces(TARGET target_name INSTALLATION_DIR install_dir)
   interfaces from. The target name will stay the same as it is on the original project, preceded by
   its namespace. For example, if I want to obtain Sen's recorder component interfaces, I would call
   `get_external_interfaces(TARGET sen::recorder ...)`.
+- `INSTALLATION_DIR` is the directory to look under, and the function expects `interfaces/`
+  beneath it. For a package that installs its interfaces at the root of its prefix that is the
+  prefix itself; for Sen it is `${SEN_INSTALL_DIR}/${SEN_INSTALL_DATADIR}`, because Sen's own
+  interfaces sit under its data directory. Both variables come from `sen-config.cmake`.
 - The `INSTALLATION_DIR` argument is a variable that points to the actual directory where the
   imported package is located at compile time. If the CMake package of the consumed project was
   generated using the [how to export interfaces in Sen-based projects](exportable_interfaces.md)
@@ -104,7 +108,7 @@ and call `find_package` accordingly.
 arguments:
 
 ```cmake
-  get_external_interfaces(TARGET sen::school INSTALLATION_DIR ${SEN_INSTALL_DIR})
+  get_external_interfaces(TARGET sen::school INSTALLATION_DIR ${SEN_INSTALL_DIR}/${SEN_INSTALL_DATADIR})
 ```
 
 **3.** Obtain both the `stl` files list and the `BASE_PATH` with `get_target_property` calls,

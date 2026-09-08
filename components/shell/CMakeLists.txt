@@ -82,7 +82,7 @@ sen_enable_static_analysis(shell)
 
 sen_internal_install(shell)
 
-install(FILES ${PROJECT_SOURCE_DIR}/schemas/shell.json DESTINATION schemas)
+install(FILES ${PROJECT_SOURCE_DIR}/schemas/shell.json DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/schemas)
 
 if(SEN_BUILD_TESTS)
   add_subdirectory(test)

@@ -541,20 +541,28 @@ stack**, and the pull request it blocks is not necessarily the one being merged.
   release with no artifacts and every job green. `SHA256SUMS` is also absent, and the
   installer treats a missing checksum file as "verification skipped".
 - **Two of the three build modes are never built.** `mode` takes `barebones`, `basic`
-  or `full`, defaults to `full`, and no workflow sets it. `basic` does not currently
-  compile: `apps/cli_run` defines a helper whose only callers sit behind the explorer
-  preset, so with the explorer off it is an unused function and `-Werror` stops the
-  build.
-- MSVC jobs build but do not run tests (SEN-1725). Uploading coverage to an
-  external service is wired but disabled (SEN-1726); the published report and
-  the floor cover the same ground without sending anything outside.
+  or `full`, defaults to `full`, and no workflow sets it. Neither `basic` nor
+  `barebones` currently compiles: `apps/cli_run/main.cpp` defines `replace`, whose only
+  callers sit behind `SEN_CLI_RUN_HAS_REPLAY_PRESET`, so with the replayer off it is an
+  unused function and `-Werror` stops the build. Checked both ways -- the replayer alone
+  with every other component off builds and installs, and the replayer off fails even
+  with the explorer on.
+- Uploading coverage to an external service is wired but disabled (SEN-1726);
+  the published report and the floor cover the same ground without sending
+  anything outside.
 - `object_sync` is the only suite that uses containers, and it runs only on the
   two x86 gcc jobs, because they are the ones that set a runtime image.
   Transport, runtime compatibility, crash report and type clash are a different
   thing: they drive several `sen run` processes through `runner.py` and need no
   container at all, only the ether and py components.
-- The Windows jobs do not build the examples yet, and are excluded from the
-  standard test workflow entirely, so they run no tests on a pull request.
+- The Windows job runs more than this page used to say. `generate_matrix_jobs.py`
+  gives "Basic Windows" `include_in_standard_test_workflow=True`,
+  `enable_examples=True` and `check_package=True`, and the Run tests step is
+  gated only on `!enable_coverage` — so it builds the examples, runs the full
+  ctest suite and checks the packaged archive on every non-draft code pull
+  request. Two earlier entries here said the opposite (no tests, no examples,
+  excluded from the workflow); a review took them at their word and had to
+  check the matrix to find otherwise.
 - What runs on a pull request is decided by the pull request's own copy of
   the workflows and of `classify_changes.py`, because that is how GitHub
   runs `pull_request` workflows. A green `CI OK` therefore means "the checks

@@ -119,7 +119,7 @@ set_target_properties(explorer PROPERTIES FOLDER "components/explorer")
 sen_internal_install(explorer_imgui)
 sen_internal_install(explorer)
 
-install(FILES ${PROJECT_SOURCE_DIR}/schemas/explorer.json DESTINATION schemas)
+install(FILES ${PROJECT_SOURCE_DIR}/schemas/explorer.json DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/schemas)
 
 # Install small helper script to make it user-friendly to start the sen explorer
 # Modify the helper script path to point towards the installation directory given to CPack

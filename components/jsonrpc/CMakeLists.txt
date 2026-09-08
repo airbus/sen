@@ -66,7 +66,7 @@ set_target_properties(jsonrpc PROPERTIES FOLDER "components/jsonrpc")
 
 sen_internal_install(jsonrpc)
 
-install(FILES ${PROJECT_SOURCE_DIR}/schemas/jsonrpc.json DESTINATION schemas)
+install(FILES ${PROJECT_SOURCE_DIR}/schemas/jsonrpc.json DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/schemas)
 
 add_subdirectory(clients/typescript)
 

@@ -139,7 +139,7 @@ file(COPY ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/util)
 # -------------------------------------------------------------------------------------------------------------
 
 # our license
-install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt DESTINATION .)
+install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.txt DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Third-party shared objects the installed binaries need, resolved from the binaries rather than
 # listed, so nothing ships by being remembered or is missed by being forgotten. The exclusions name
@@ -175,7 +175,7 @@ endif()
 
 # FOSS licenses
 if(EXISTS "${CMAKE_BINARY_DIR}/foss_licenses")
-  install(DIRECTORY "${CMAKE_BINARY_DIR}/foss_licenses" DESTINATION .)
+  install(DIRECTORY "${CMAKE_BINARY_DIR}/foss_licenses" DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
 # -------------------------------------------------------------------------------------------------------------
@@ -183,7 +183,9 @@ endif()
 # -------------------------------------------------------------------------------------------------------------
 
 # syntax highlighting
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/syntax_highlighting" DESTINATION "resources/")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/syntax_highlighting"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/sen/resources"
+)
 
 # -------------------------------------------------------------------------------------------------------------
 # CPack configuration

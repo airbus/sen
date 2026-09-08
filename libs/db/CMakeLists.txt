@@ -107,7 +107,7 @@ source_group("stl" FILES ${db_stl_files} ${db_format_stl_files})
 
 install(FILES ${public_headers} DESTINATION include/sen/db)
 install(FILES ${public_generated_files} DESTINATION include/stl/sen/db)
-install(FILES ${db_stl_files} DESTINATION interfaces/stl/sen/db)
+install(FILES ${db_stl_files} DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/interfaces/stl/sen/db)
 
 sen_internal_install(db)
 

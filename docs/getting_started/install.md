@@ -324,6 +324,25 @@ release installs a forwarding config there too, so a project written against the
 configuring against this one -- but that file ships with *this* release, and an older archive
 does not contain it, which is what the second entry above is for.
 
+### What the target system has to provide
+
+The archive carries Sen and the third-party shared objects Sen links, and nothing else. On Linux the
+machine running it still needs:
+
+| Needed | Where it comes from |
+|---|---|
+| `libstdc++.so.6`, `libgcc_s.so.1`, `libc.so.6`, `libm.so.6` | any distribution's base system |
+| `libGL.so.1` | `libgl1` on Debian and Ubuntu, `mesa-libGL` on RHEL |
+| `libpython3.10.so.1.0` | `libpython3.10` — the minor version is fixed at build time |
+
+`libGL.so.1` is in the table because the explorer links it, so anything reading the binaries finds
+it. The explorer *also* opens `libX11`, `libX11-xcb`, `libXext`, `libEGL`, `libGLESv2`, `libOpenGL`
+and `libvulkan` by name at run time, and nothing derived from the binaries can see those — they are
+listed here rather than discovered, because a tree that passes every check still fails to open a
+window without them.
+
+A stock `ubuntu:22.04` image has neither `libgl1` nor `libpython3.10`.
+
 ## Building from source
 
 If you want to compile Sen yourself (to track `main`, patch the code, or run on a platform without a
@@ -439,6 +458,91 @@ compilers or Conan yourself.
     The test suite runs there too, though on fewer configurations than Linux.
 
     For enabling and running the test suite, see [Running the tests](testing.md).
+
+## Upgrading from an earlier release
+
+The installed tree and the build tree both changed. Existing projects keep compiling, and
+`find_package(sen)` keeps working, but anything that names a directory by hand
+needs updating.
+
+**On POSIX, your package's shared object is now in `build/lib`, not `build/bin`.** Anything that
+names the old path stops finding it: a shell profile, a `setup.sh`, a CI job, an `ldd` invocation.
+The failure is at run time, with no build error -- the component simply is not found. Windows is
+unaffected: a DLL is a runtime artefact and was always written beside the executables.
+
+**Python bindings are imported from `lib`, not `bin`, on POSIX.** A `PYTHONPATH` naming
+`$SEN_PREFIX/bin` stops finding them; name `$SEN_PREFIX/lib` instead. Windows is unchanged -- an
+extension module is a DLL there and stays in `bin`.
+
+`activate` does not set `PYTHONPATH` and never has, so sourcing the new one does not fix this --
+unlike the library path, this one has to be changed by hand wherever it is set. The directory you
+named still exists, because the executables are in it, so the symptom is a bare
+`ModuleNotFoundError` with nothing pointing at a layout change.
+
+**Shared libraries are in `<prefix>/lib`, headers in `<prefix>/include`.** If you set
+`LD_LIBRARY_PATH` by hand rather than sourcing `activate`, name `lib` as well as `bin`. If you
+passed `-I<prefix>/libs/<lib>/include` rather than linking a Sen target, that path is gone; link
+`sen::core` and the include directory comes with it.
+
+On Windows only the *installed* import library moves, from `<prefix>\bin` to `<prefix>\lib`; the
+DLL is a runtime artefact and stays in `bin`, so `PATH` needs no edit. Nothing moves in the build
+tree there -- the DLL was already in `build\bin` and the import library already in `build\lib`.
+Anything naming `<prefix>\bin\core.lib` by hand needs updating; link the target instead and the
+path does not appear.
+
+**If you call `get_external_interfaces` on Sen's own interfaces, add the data directory.** Sen's
+`.stl` files moved from `<prefix>/interfaces` to `<prefix>/share/sen/interfaces`, so the call the
+guides used to show now fails at configure time with a message naming the package maintainer:
+
+```cmake
+# before
+get_external_interfaces(TARGET sen::recorder INSTALLATION_DIR ${SEN_INSTALL_DIR})
+# after
+get_external_interfaces(TARGET sen::recorder INSTALLATION_DIR ${SEN_INSTALL_DIR}/${SEN_INSTALL_DATADIR})
+```
+
+The argument is a directory to look *under*, and the function still expects `interfaces/` beneath
+it — so a third-party package that installs its own interfaces at the root of its prefix keeps
+working here. That is about the interfaces directory alone; if the same package exports itself
+with `configure_exportable_packages`, the next item does affect it.
+
+**If you export your own package with `configure_exportable_packages(... TARGET_NAME_CMAKEDIRS)`,
+its config directory moves.** It was `<your-prefix>/cmake/<name>`; it is now
+`<your-prefix>/<libdir>/cmake/<name>`, which is where `find_package` looks from a bare prefix. Your
+consumers who point `CMAKE_PREFIX_PATH` at your prefix are better off; any who point it at
+`<your-prefix>/cmake` keep working too: `configure_exportable_packages` now installs a forwarding
+config at the old location, the same one Sen installs for itself, so the move does not reach your
+consumers. What still lands on you:
+
+- If your config computes its own install root by counting `../`, the count changes. Use
+  `PACKAGE_PREFIX_DIR`, which `configure_package_config_file` defines for exactly this — the count
+  is not even a fixed number, since a Debian multiarch library directory is two segments rather
+  than one.
+- **Move your version file's install rule with it.** If you install a
+  `<name>-config-version.cmake`, it has to sit beside the config, which is now
+  `${CMAKE_INSTALL_LIBDIR}/cmake/<name>`. The forwarder carries the config and not the version
+  file, so leaving the rule alone makes `find_package(<name> 1.0)` fail with "no configuration file
+  compatible" while the unversioned call keeps working -- and it fails for consumers who follow the
+  new guidance, not the old.
+- Republish your package after upgrading. A consumer mixing your old config with this Sen gets a
+  config where `find_package` no longer looks.
+
+**`CMAKE_PREFIX_PATH` entries you already have keep working.** `<prefix>/cmake` still resolves,
+through a forwarding config kept for that purpose. If yours is the prefix itself, that resolves too,
+but prefer `<prefix>/lib/cmake`: a prefix also puts `<prefix>/lib` on `find_library`'s path, where
+Sen's `core`, `db`, `util`, `gen`, `shell` and `py` can answer a search meant for something else.
+That is new -- before this release the shared objects were in `bin`, which `find_library` never
+searched.
+
+**Building Sen from source now needs `objdump` at install time.** The install rules resolve
+third-party shared objects from the binaries that link them, which uses binutils. It is in the
+prerequisites in [Building Sen from source](../howto_guides/building_from_source.md); it is
+repeated here because the failure lands after a successful build, and a minimal CI image is where
+it will happen.
+
+Reinstall into a clean directory rather than extracting over an existing one. An older release
+left third-party headers in `<prefix>/include`, and extracting on top leaves both copies there,
+where the stale one can win.
 
 ## Next steps
 

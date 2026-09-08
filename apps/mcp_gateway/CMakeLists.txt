@@ -165,7 +165,7 @@ install(
 )
 install(
   DIRECTORY "${CMAKE_BINARY_DIR}/foss_licenses/MCP Gateway (npm)"
-  DESTINATION foss_licenses
+  DESTINATION ${CMAKE_INSTALL_DOCDIR}/foss_licenses
   COMPONENT mcp_gateway
   OPTIONAL
 )

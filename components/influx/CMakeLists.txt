@@ -37,4 +37,4 @@ set_target_properties(influx PROPERTIES FOLDER "components/influx")
 
 sen_internal_install(influx)
 
-install(FILES ${PROJECT_SOURCE_DIR}/schemas/influx.json DESTINATION schemas)
+install(FILES ${PROJECT_SOURCE_DIR}/schemas/influx.json DESTINATION ${CMAKE_INSTALL_DATADIR}/sen/schemas)
