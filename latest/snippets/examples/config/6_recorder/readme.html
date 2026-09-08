@@ -1649,13 +1649,14 @@ information (don't run it for too long, as we will be iterating over the entries
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/6_recorder/2_recorder_school.yaml
 </span></code></pre></div>
 <p>Once closed, we want to explore the data using a Python script.</p>
-<p>Ensure you have your Python path configured. The bindings live in Sen's <code>bin</code> directory; on a
+<p>Ensure you have your Python path configured. The bindings live in Sen's <code>lib</code> directory on POSIX
+and its <code>bin</code> directory on Windows; on a
 POSIX install, the <code>activate</code> script the installer writes exports <code>SEN_PREFIX</code> pointing at it.</p>
 <p>For bash or zsh:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$SEN_PREFIX</span><span class="s2">/bin:</span><span class="nv">$PYTHONPATH</span><span class="s2">"</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$SEN_PREFIX</span><span class="s2">/lib:</span><span class="nv">$PYTHONPATH</span><span class="s2">"</span>
 </span></code></pre></div>
 <p>For fish:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">set</span><span class="w"> </span>-xa<span class="w"> </span>PYTHONPATH<span class="w"> </span><span class="nv">$SEN_PREFIX</span>/bin
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">set</span><span class="w"> </span>-xa<span class="w"> </span>PYTHONPATH<span class="w"> </span><span class="nv">$SEN_PREFIX</span>/lib
 </span></code></pre></div>
 <p>For PowerShell on Windows, where the separator is <code>;</code> rather than <code>:</code>. The installer is a POSIX
 shell script and writes no PowerShell activate script, so give the path to Sen's <code>bin</code> directory

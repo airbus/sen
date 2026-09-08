@@ -1583,12 +1583,12 @@ out with no examples in it.</p>
 <p><code>sen_gcc</code> targets Linux and detects the architecture, so the same pair of commands works on
 x86 and arm. Add <code>-o "sen/*:with_tests=True"</code> to both lines as well if you want the tests in
 the same build folder -- the options combine, and building twice is not needed.</p>
-<p>Each example package lands as a shared library in <code>build/gcc/Release/bin/</code> next to the <code>sen</code>
-application.</p>
+<p>Each example package lands as a shared library in <code>build/gcc/Release/lib/</code>, beside the Sen
+libraries it links. The <code>sen</code> application is in <code>build/gcc/Release/bin/</code>.</p>
 <h2 id="running-an-example">Running an example<a class="headerlink" href="#running-an-example" title="Permanent link">¶</a></h2>
 <p>From the repository root, with the tree built as above:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">source</span><span class="w"> </span>build/gcc/Release/generators/conanrun.sh<span class="w">          </span><span class="c1"># Third-party library paths</span>
-</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">:</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/build/gcc/Release/bin"</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">:</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/build/gcc/Release/lib"</span>
 </span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="nb">cd</span><span class="w"> </span>examples/packages/my_counter
 </span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>../../../build/gcc/Release/bin/sen<span class="w"> </span>run<span class="w"> </span>config.yaml
 </span></code></pre></div>
