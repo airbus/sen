@@ -15,8 +15,11 @@
 #     pre-commit autoupdate
 #
 
-# install both stages with a single `pre-commit install`
-default_install_hook_types: [pre-commit, commit-msg]
+# install every stage with a single `pre-commit install`
+#
+# An existing .git/hooks/pre-push is moved to pre-push.legacy and still runs, first, with
+# its exit code folded in. Why pre-push is here at all: see .github/scripts/precheck.sh.
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -109,6 +112,17 @@ repos:
 
 - repo: local
   hooks:
+    # Everything "Python checks" runs, before the push instead of after it. A hook cannot
+    # know the pull request title, so pass it by hand:
+    #     .github/scripts/precheck.sh "the pull request title"
+    - id: precheck
+      name: The checks main.yaml runs, before pushing
+      language: script
+      entry: .github/scripts/precheck.sh
+      stages: [pre-push]
+      pass_filenames: false
+      always_run: true
+
     - id: repository-script-tests
       name: Repository script tests
       language: python
