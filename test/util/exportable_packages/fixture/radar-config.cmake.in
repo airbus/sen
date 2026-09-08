@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+set(radar_FOUND TRUE)
+# The line the guides tell an author to write, and the one that breaks if the config's depth
+# changes: it must resolve to the prefix, not to the library directory inside it.
+set(radar_INSTALL_DIR "${PACKAGE_PREFIX_DIR}")
