@@ -189,21 +189,6 @@ jobs:
       # must not become the one every lane pulls. Only from main -- a pull request
       # cannot write the package, and the tag carries the Dockerfile's content, so
       # a schedule run republishes the current one against the day's packages.
-      # TEMPORARY, remove before merge. Proves the workflow token can push through
-      # the workflow_call chain from main.yaml, which is the one thing local testing
-      # cannot reach. A throwaway reference on purpose: the real tag carries the
-      # Dockerfile's content, this branch does not change it, so publishing the real
-      # tag from here would overwrite exactly what every lane pulls.
-      - name: Publish a throwaway tag from this branch
-        if: github.ref != 'refs/heads/main'
-        shell: bash
-        env:
-          PROBE_REF: ghcr.io/airbus/sen-ci:probe-from-branch
-        run: |
-          docker tag "$SEN_CI_IMAGE_BASE" "$PROBE_REF"
-          docker push "$PROBE_REF"
-          echo "pushed $PROBE_REF"
-
       - name: Publish the images
         if: github.ref == 'refs/heads/main'
         shell: bash
