@@ -170,6 +170,9 @@ jobs:
     permissions:
       contents: read
       actions: write
+      # Pulling the image the documentation is built in. A called workflow cannot
+      # request more than this grants, so leaving it out fails the run at startup.
+      packages: read
 
   # A change to the build environment has to prove the image still builds and
   # still holds the tools it promises. ci-ok needs this job, so a broken image
@@ -179,6 +182,11 @@ jobs:
     if: >-
       needs.detect-changes.outputs.image == 'true' &&
       (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    # A called workflow cannot hold more than its caller grants, so the push it
+    # does on main has to be allowed from here.
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/ci-image.yaml
 
   # Packaging is the only check that builds Sen as a package and consumes it
@@ -214,6 +222,9 @@ jobs:
     uses: ./.github/workflows/pr_sanitizers.yaml
     permissions:
       contents: read
+      # Pulling the image rather than building it. The package is private, so
+      # even reading needs this.
+      packages: read
       # The lane drops the cache entry its save replaces.
       actions: write
 

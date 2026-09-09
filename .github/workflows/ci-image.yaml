@@ -23,6 +23,12 @@ on:
 
 permissions:
   contents: read
+  # Pushing the built image. The organisation refuses public packages, not
+  # publishing, so the workflow token is enough and no personal token is needed.
+  packages: write
+
+env:
+  SEN_CI_REGISTRY: ghcr.io/airbus/
 
 jobs:
   build:
@@ -37,16 +43,29 @@ jobs:
       - name: Name the images
         shell: bash
         run: |
-          echo "SEN_CI_IMAGE_PROBE=$(.github/scripts/image_name.sh probe)" >> "$GITHUB_ENV"
-          echo "SEN_CI_IMAGE_DEV=$(.github/scripts/image_name.sh dev)" >> "$GITHUB_ENV"
+          {
+              echo "SEN_CI_IMAGE_BASE=$(.github/scripts/image_name.sh base)"
+              echo "SEN_CI_IMAGE_DEV=$(.github/scripts/image_name.sh dev)"
+              echo "SEN_CI_CACHE=$(.github/scripts/image_name.sh buildcache)"
+          } >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
 
-      # Proves the Dockerfile builds; no registry hosts the image, so the
-      # devcontainer and any self-hosted machine build it from this file.
+      # Before the build, not before the push: the layer cache is read from the
+      # registry as well, and the package is private so even reading needs this.
+      - name: Log in to the registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Proves the Dockerfile builds, and on main produces what the lanes pull.
       # Only the dev build below exports. dev is built on base, so its export
       # already carries these layers; a second export here would replace that
       # manifest with one the dev build cannot use.
+      # The layer cache lives in the registry rather than the Actions cache: it
+      # was 2.37 GB of a 10 GB quota that a compiler cache for MSVC needs.
       - name: Build image
         if: github.event_name != 'schedule'
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
@@ -58,8 +77,8 @@ jobs:
           target: base
           push: false
           load: true
-          tags: ${{ env.SEN_CI_IMAGE_PROBE }}
-          cache-from: type=gha
+          tags: ${{ env.SEN_CI_IMAGE_BASE }}
+          cache-from: type=registry,ref=${{ env.SEN_CI_CACHE }}
 
       # Every layer of the cached build is served from the Actions cache, so it
       # cannot see a dropped package or an unreachable apt.llvm.org. This one
@@ -77,7 +96,7 @@ jobs:
               docker buildx build --no-cache --pull --load \
                   --target dev -t "$SEN_CI_IMAGE_DEV" -f tools/ci/Dockerfile tools/ci &&
               docker buildx build --pull --load \
-                  --target base -t "$SEN_CI_IMAGE_PROBE" -f tools/ci/Dockerfile tools/ci
+                  --target base -t "$SEN_CI_IMAGE_BASE" -f tools/ci/Dockerfile tools/ci
           }
           build || { echo "cold build failed, retrying in 30s"; sleep 30; build; }
 
@@ -93,7 +112,7 @@ jobs:
           cmake_version=$(sed -n 's/^ARG CMAKE_VERSION=//p' tools/ci/Dockerfile)
           ninja_version=$(sed -n 's/^ARG NINJA_VERSION=//p' tools/ci/Dockerfile)
           test -n "$conan_version" && test -n "$cmake_version" && test -n "$ninja_version"
-          docker run --rm "$SEN_CI_IMAGE_PROBE" bash -lc '
+          docker run --rm "$SEN_CI_IMAGE_BASE" bash -lc '
             set -e
             for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
                         clang++-20 clang-tidy-20 gcovr lcov genhtml \
@@ -144,8 +163,10 @@ jobs:
           push: false
           load: true
           tags: ${{ env.SEN_CI_IMAGE_DEV }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=min
+          cache-from: type=registry,ref=${{ env.SEN_CI_CACHE }}
+          # Only main writes it: a pull request has no write access to the package,
+          # and a fork's token has none at all.
+          cache-to: ${{ github.ref == 'refs/heads/main' && format('type=registry,ref={0},mode=min', env.SEN_CI_CACHE) || '' }}
 
       - name: Check the editor tools are present
         shell: bash
@@ -163,3 +184,15 @@ jobs:
             test "$(id -un)" = sen || { echo "image runs as $(id -un)"; exit 1; }
             echo "editor tools present"
           '
+
+      # After the checks, never as part of the build: an image that fails them
+      # must not become the one every lane pulls. Only from main -- a pull request
+      # cannot write the package, and the tag carries the Dockerfile's content, so
+      # a schedule run republishes the current one against the day's packages.
+      - name: Publish the images
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          docker push "$SEN_CI_IMAGE_BASE"
+          docker push "$SEN_CI_IMAGE_DEV"
+          echo "published $SEN_CI_IMAGE_BASE and $SEN_CI_IMAGE_DEV"

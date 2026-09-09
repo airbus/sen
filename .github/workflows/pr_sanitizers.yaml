@@ -25,6 +25,11 @@ permissions:
   contents: read
   # Deleting the cache entry a save replaces.
   actions: write
+  # Reading the image this lane runs in, which is a private package.
+  packages: read
+
+env:
+  SEN_CI_REGISTRY: ghcr.io/airbus/
 
 jobs:
   sanitizers:
@@ -43,7 +48,7 @@ jobs:
 
       - name: Name the image
         shell: bash
-        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh lane)" >> "$GITHUB_ENV"
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base)" >> "$GITHUB_ENV"
 
       # prepare_build is not reused here: it keys on the runner and compiler, and this lane
       # needs the image instead, for the reason below. A cache written from a pull request is
@@ -67,15 +72,31 @@ jobs:
       # ordinary builds depend on. Same rule as the nightly's sanitizer lanes.
       # The lane runs in the image this repository builds, so what it uses is the
       # definition a developer can also run rather than a second one assembled on
-      # the runner. Built here rather than pulled: publishing to the registry is
-      # not available, and a runner builds for its own architecture anyway.
-      # One retry after a wait, for the same reason ci-image.yaml has one: the
-      # archives this pulls from do go quiet, and an immediate second attempt
-      # lands inside the same outage. The image also sets apt retries and
-      # timeouts, which the runner-side action this replaced did for itself.
-      - name: Build the image the lane runs in
+      # the runner. Pulled when the registry has this Dockerfile's image, built
+      # when it does not: the tag carries the content, so an edit to the Dockerfile
+      # misses and rebuilds rather than running the previous environment.
+      # The build stays because it is the fallback for a registry that is missing,
+      # unreachable or unauthorised. One retry after a wait, for the same reason
+      # ci-image.yaml has one: the archives it pulls from do go quiet, and an
+      # immediate second attempt lands inside the same outage. The image also sets
+      # apt retries and timeouts, which the runner-side action this replaced did
+      # for itself.
+      - name: Log in to the registry
+        continue-on-error: true
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get the image the lane runs in
         shell: bash
         run: |
+          if docker pull --quiet "$SEN_CI_IMAGE"; then
+              echo "pulled $SEN_CI_IMAGE"
+              exit 0
+          fi
+          echo "not in the registry, building it"
           build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
           build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 

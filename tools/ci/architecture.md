@@ -315,10 +315,14 @@ since a missing font is not a missing command and there is no fontconfig to ask.
 `main.yaml` calls it when a change touches the build environment,
 and `ci-ok` needs it, so a broken image blocks the merge instead of showing up
 as a red mark beside it. Documentation under `tools/ci/` does not trigger it:
-the Dockerfile copies nothing out of the repository. Docker layer caching in the Actions cache keeps
-rebuilds without changes fast. No registry hosts the image: the
-devcontainer and any self-hosted machine build it from this file, and the
-revision of the file identifies the environment. (The apt packages inside
+the Dockerfile copies nothing out of the repository. The layer cache lives in the
+registry rather than the Actions cache, which the compiler caches need the room in.
+A run on main publishes the image to `ghcr.io/airbus/sen-ci`, tagged with the
+Dockerfile's content, and the lanes pull that tag rather than building their own;
+an edit to the Dockerfile misses the tag and rebuilds. The package is private, so a
+fresh clone with no credentials builds from this file as it always has, and so does
+the devcontainer and any self-hosted machine. The revision of the file identifies
+the environment either way. (The apt packages inside
 the Dockerfile stay unpinned on purpose: the Ubuntu archive removes old
 package versions, so exact pins would break within weeks.)
 
