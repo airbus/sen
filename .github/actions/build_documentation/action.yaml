@@ -12,7 +12,7 @@ runs:
 
     - name: Name the image
       shell: bash
-      run: echo "SEN_CI_IMAGE=sen-ci:docs" >> "$GITHUB_ENV"
+      run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh docs)" >> "$GITHUB_ENV"
 
     # Keyed to the image rather than the runner: a conan package id does not record
     # which Ubuntu produced a binary, so a cache filled on a runner installs cleanly

@@ -32,6 +32,14 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      # Both variants named from one place, so publishing to a registry is one
+      # edit in image_name.sh rather than a search for every hardcoded tag.
+      - name: Name the images
+        shell: bash
+        run: |
+          echo "SEN_CI_IMAGE_PROBE=$(.github/scripts/image_name.sh probe)" >> "$GITHUB_ENV"
+          echo "SEN_CI_IMAGE_DEV=$(.github/scripts/image_name.sh dev)" >> "$GITHUB_ENV"
+
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
 
       # Proves the Dockerfile builds; no registry hosts the image, so the
@@ -50,7 +58,7 @@ jobs:
           target: base
           push: false
           load: true
-          tags: sen-ci:probe
+          tags: ${{ env.SEN_CI_IMAGE_PROBE }}
           cache-from: type=gha
 
       # Every layer of the cached build is served from the Actions cache, so it
@@ -66,9 +74,9 @@ jobs:
               # dev is built on base, so one cold build covers both stages and
               # the second command only tags the base it has already produced.
               docker buildx build --no-cache --pull --load \
-                  --target dev -t sen-ci:dev -f tools/ci/Dockerfile tools/ci &&
+                  --target dev -t "$SEN_CI_IMAGE_DEV" -f tools/ci/Dockerfile tools/ci &&
               docker buildx build --pull --load \
-                  --target base -t sen-ci:probe -f tools/ci/Dockerfile tools/ci
+                  --target base -t "$SEN_CI_IMAGE_PROBE" -f tools/ci/Dockerfile tools/ci
           }
           build || { echo "cold build failed, retrying once"; build; }
 
@@ -84,7 +92,7 @@ jobs:
           cmake_version=$(sed -n 's/^ARG CMAKE_VERSION=//p' tools/ci/Dockerfile)
           ninja_version=$(sed -n 's/^ARG NINJA_VERSION=//p' tools/ci/Dockerfile)
           test -n "$conan_version" && test -n "$cmake_version" && test -n "$ninja_version"
-          docker run --rm sen-ci:probe bash -lc '
+          docker run --rm "$SEN_CI_IMAGE_PROBE" bash -lc '
             set -e
             for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
                         clang++-20 clang-tidy-20 gcovr lcov genhtml \
@@ -134,14 +142,14 @@ jobs:
           target: dev
           push: false
           load: true
-          tags: sen-ci:dev
+          tags: ${{ env.SEN_CI_IMAGE_DEV }}
           cache-from: type=gha
           cache-to: type=gha,mode=min
 
       - name: Check the editor tools are present
         shell: bash
         run: |
-          docker run --rm sen-ci:dev bash -lc '
+          docker run --rm "$SEN_CI_IMAGE_DEV" bash -lc '
             set -e
             for tool in cmake ninja gdb dot; do
                 command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
