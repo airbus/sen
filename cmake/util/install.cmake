@@ -43,6 +43,10 @@ set(CMAKE_UTILS_FILES
     ${PROJECT_SOURCE_DIR}/cmake/util/git_info.cmake.in
 )
 
+# sen_package_utils.cmake configures these per target and resolves them relative to its own
+# directory, so they have to sit beside util/ wherever it does.
+set(CMAKE_TEMPLATE_FILES ${PROJECT_SOURCE_DIR}/cmake/templates/build_info.cpp.in)
+
 # -------------------------------------------------------------------------------------------------------------
 # export
 # -------------------------------------------------------------------------------------------------------------
@@ -83,12 +87,14 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake DESTINATION ${C
 
 # Install required sen utils cmake files
 install(FILES ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/util)
+install(FILES ${CMAKE_TEMPLATE_FILES} DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/templates)
 
 # Install spdlog
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/util/Findspdlog.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
 
 # We need the sen utils cmake files in the binary dir when working in conan editable mode
 file(COPY ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_BINARY_DIR}/util)
+file(COPY ${CMAKE_TEMPLATE_FILES} DESTINATION ${CMAKE_BINARY_DIR}/templates)
 
 # -------------------------------------------------------------------------------------------------------------
 # licenses
