@@ -9,9 +9,15 @@
 // quiet: without git the values are empty strings, and a crash report carrying an empty hash
 // still looks like a crash report. Asserts the values are well formed rather than pinning a
 // commit, which would fail on the next one for the wrong reason.
+//
+// The ref is not asserted. Every CI checkout is detached, so .git/HEAD holds a sha rather than
+// `ref: ...` and getGitRef is empty there by construction -- asserting it would test the runner.
 
 // kernel
 #include "sen/kernel/component.h"
+
+// stl
+#include "stl/sen/kernel/basic_types.stl.h"
 
 // gtest
 #include <gtest/gtest.h>
@@ -33,8 +39,6 @@ TEST(BuildProvenance, gitHashIsAFullHexSha)
   EXPECT_TRUE(std::all_of(hash.begin(), hash.end(), [](unsigned char c) { return std::isxdigit(c) != 0; }))
     << "not hexadecimal: " << hash;
 }
-
-TEST(BuildProvenance, gitRefIsNamed) { EXPECT_FALSE(std::string {sen::kernel::getGitRef()}.empty()); }
 
 TEST(BuildProvenance, buildTimeIsTheCommitTimestamp)
 {
