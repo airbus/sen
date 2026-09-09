@@ -19,23 +19,27 @@
 #include "sen/core/meta/custom_type.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/optional_type.h"
+#include "sen/core/meta/property.h"
 #include "sen/core/meta/quantity_type.h"
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
-#include "sen/core/meta/type_visitor.h"
+#include "sen/core/meta/type.h"
 #include "sen/core/meta/variant_type.h"
 
 // std
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstddef>
 #include <cstring>
 #include <functional>
 #include <map>
+#include <memory>
 #include <set>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace sen::gen
@@ -359,7 +363,13 @@ void forEachReferencedType(const sen::CustomType& type, const std::function<void
 {
   const auto package = sen::gen::detail::computePackageName(set);
   const std::string name {type.getName()};
-  return package.empty() ? name : package + "." + name;
+  if (package.empty())
+  {
+    return name;
+  }
+  std::string qualified {package};
+  qualified.append(".").append(name);
+  return qualified;
 }
 
 }  // namespace
@@ -374,6 +384,16 @@ public:
   [[nodiscard]] FileContents generate(const sen::lang::TypeSetContext& typeSets, const TypstOptions& options);
 
 private:
+  /// What the document renders, read out of the model before any of it is written.
+  struct Document
+  {
+    std::map<std::string, Entry> entries;
+    std::map<std::string, std::string> builtIns;
+    PackageIndex byPackage;
+  };
+
+  [[nodiscard]] Document read(const sen::lang::TypeSetContext& typeSets, const TypstOptions& options);
+
   // What the document contains. A reference may only point at a type in here: Typst
   // treats a link to an absent label as an error rather than a dangling link, so the
   // model is not the document and the difference has to be tracked.
@@ -702,7 +722,7 @@ std::string TypstGenerator::Impl::inlineReference(const std::string& qualified, 
 std::string TypstGenerator::Impl::local(const std::string& qualified, const std::string& package)
 {
   const auto prefix = package + ".";
-  return qualified.rfind(prefix, 0U) == 0U ? qualified.substr(prefix.size()) : qualified;
+  return qualified.compare(0U, prefix.size(), prefix) == 0 ? qualified.substr(prefix.size()) : qualified;
 }
 
 void TypstGenerator::Impl::emitHierarchy(std::ostringstream& out, const std::map<std::string, Entry>& entries) const
@@ -928,8 +948,9 @@ namespace
 
 }  // namespace
 
-TypstGenerator::FileContents TypstGenerator::Impl::generate(const sen::lang::TypeSetContext& typeSets,
-                                                            const TypstOptions& options)
+// What the document renders, read out of the model before any of it is written.
+TypstGenerator::Impl::Document TypstGenerator::Impl::read(const sen::lang::TypeSetContext& typeSets,
+                                                          const TypstOptions& options)
 {
   // Every type in the model, in one flat map keyed by qualified name.
   std::map<std::string, Entry> entries;
@@ -1049,6 +1070,7 @@ TypstGenerator::FileContents TypstGenerator::Impl::generate(const sen::lang::Typ
   }
 
   std::vector<std::vector<std::string>> packageSegments;
+  packageSegments.reserve(byPackage.size());
   for (const auto& [package, kinds]: byPackage)
   {
     packageSegments.push_back(segmentsOf(package));
@@ -1058,6 +1080,14 @@ TypstGenerator::FileContents TypstGenerator::Impl::generate(const sen::lang::Typ
     sharedRoot_ = join(
       {packageSegments.front().begin(), packageSegments.front().begin() + static_cast<std::ptrdiff_t>(shared)}, ".");
   }
+
+  return {std::move(entries), std::move(builtIns), std::move(byPackage)};
+}
+
+TypstGenerator::FileContents TypstGenerator::Impl::generate(const sen::lang::TypeSetContext& typeSets,
+                                                            const TypstOptions& options)
+{
+  auto [entries, builtIns, byPackage] = read(typeSets, options);
 
   std::ostringstream out;
   out << "#import " << literal(styleImport(options))

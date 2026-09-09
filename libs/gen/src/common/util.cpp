@@ -18,6 +18,7 @@
 #include "sen/core/meta/quantity_type.h"
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
+#include "sen/core/meta/type.h"
 #include "sen/core/meta/type_visitor.h"
 #include "sen/core/meta/variant_type.h"
 

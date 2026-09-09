@@ -29,9 +29,9 @@ struct TypstOptions
   std::string title {"Data model"};
 
   /// Packages to document. Empty means every package in the model.
-  std::vector<std::string> includePackages {};
+  std::vector<std::string> includePackages;
   /// Packages to leave out, applied after `includePackages`.
-  std::vector<std::string> excludePackages {};
+  std::vector<std::string> excludePackages;
 
   /// The overview: the package table and the class hierarchy across all packages.
   bool overview {true};
@@ -43,18 +43,20 @@ struct TypstOptions
   bool index {true};
   /// The "used by" line on each type.
   bool usedBy {true};
+  /// What the codes in the Flags column mean, before the first table that uses them.
   bool flagLegend {true};
+  /// The table of the built-in types the model names, at the back.
   bool builtIns {true};
 
   /// Typst files the document includes at named points. The generator never reads them:
   /// it emits `#include` and the paths resolve when the document is compiled.
-  std::filesystem::path frontMatter {};
-  std::filesystem::path beforeReference {};
-  std::filesystem::path afterReference {};
+  std::filesystem::path frontMatter;
+  std::filesystem::path beforeReference;
+  std::filesystem::path afterReference;
 
   /// Replaces the emitted `style.typ`. Every visual decision lives in that module,
   /// so a caller changing the look never edits generated output.
-  std::filesystem::path style {};
+  std::filesystem::path style;
 };
 
 /// Renders a Sen data model as a Typst document, in the shape of an interface control

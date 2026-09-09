@@ -18,6 +18,7 @@
 
 // cli11
 #include <CLI/App.hpp>
+#include <CLI/Validators.hpp>
 // NOLINTNEXTLINE (misc-include-cleaner): cli11 needs all headers to correctly link required vtables
 #include <CLI/CLI.hpp>
 
@@ -27,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace
 {

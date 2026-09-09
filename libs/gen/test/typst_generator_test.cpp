@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 // std
+#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -46,7 +47,9 @@ protected:
     std::filesystem::create_directories(directory);
     std::ofstream {directory / importedAs} << imported;
 
-    resolve(main, {.includePaths = {directory}});
+    sen::lang::ResolverContext resolverContext;
+    resolverContext.includePaths = {directory};
+    resolve(main, resolverContext);
     files_ = sen::gen::TypstGenerator {}.generate(context_, options);
   }
 
@@ -116,9 +119,16 @@ class Derived: extends Base
 
 using sen::gen::test::everyKindStl;
 
+[[nodiscard]] sen::gen::TypstOptions excluding(const std::string& package)
+{
+  sen::gen::TypstOptions options;
+  options.excludePackages = {package};
+  return options;
+}
+
 // A qualified name carries a break opportunity after each dot, so a long one can wrap in a
 // narrow column instead of overflowing it. Expectations on rendered names have to allow it.
-const std::string zeroWidthSpace {"\u200b"};
+[[nodiscard]] std::string zeroWidthSpace() { return "\u200b"; }
 
 TEST_F(ATypstGenerator, writesAReferenceAStyleAndASkeleton)
 {
@@ -179,7 +189,7 @@ TEST_F(ATypstGenerator, writesNamesUnqualifiedInsideTheirOwnPackage)
 
   // The index spans the document rather than one section, so there the package belongs.
   // Its needle carries the break opportunity a qualified name is written with.
-  EXPECT_TRUE(contains("reference.typ", "[#\"t." + zeroWidthSpace + "Base\"]"));
+  EXPECT_TRUE(contains("reference.typ", "[#\"t." + zeroWidthSpace() + "Base\"]"));
 }
 
 // The other half: shortening a name from elsewhere would hide that the link leaves the
@@ -202,7 +212,7 @@ class Holder
   var borrowed : a.Shared;
 }
 )");
-  EXPECT_TRUE(contains("reference.typ", "\"a." + zeroWidthSpace + "Shared\""))
+  EXPECT_TRUE(contains("reference.typ", "\"a." + zeroWidthSpace() + "Shared\""))
     << "b refers out to a, so the package must show";
 }
 
@@ -229,12 +239,12 @@ class Holder
   var borrowed : a.Shared;
 }
 )",
-           {.excludePackages = {"a"}});
+           excluding("a"));
 
   const auto& reference = file("reference.typ");
   EXPECT_NE(reference.find("Holder"), std::string::npos) << "b is still documented";
   EXPECT_EQ(reference.find("link(<t-a-Shared>)"), std::string::npos) << "but a is not, so nothing may link into it";
-  EXPECT_NE(reference.find("a." + zeroWidthSpace + "Shared"), std::string::npos)
+  EXPECT_NE(reference.find("a." + zeroWidthSpace() + "Shared"), std::string::npos)
     << "the name still shows, as plain text";
 }
 
