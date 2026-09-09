@@ -181,17 +181,20 @@ struct Entry
   const auto symbol = [](std::string_view token) -> std::string
   {
     // Micro and degree have no ASCII spelling, so the abbreviation approximates them.
+    // Spelt as UTF-8 bytes: MSVC encodes a \u escape into its own code page instead,
+    // which puts a byte the document cannot carry into the output.
     if (token == "um" || token == "us")
     {
-      return "\"\u00b5" + std::string {token.substr(1U)} + "\"";
+      return "\"\xc2\xb5" + std::string {token.substr(1U)} + "\"";
     }
     if (token == "deg")
     {
-      return "\"\u00b0\"";
+      return "\"\xc2\xb0\"";
     }
     if (token == "degC")
     {
-      return "\"\u00b0C\"";
+      return "\"\xc2\xb0"
+             "C\"";
     }
     return "\"" + std::string {token} + "\"";
   };

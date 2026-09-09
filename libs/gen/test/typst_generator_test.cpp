@@ -135,7 +135,9 @@ using sen::gen::test::everyKindStl;
 
 // A qualified name carries a break opportunity after each dot, so a long one can wrap in a
 // narrow column instead of overflowing it. Expectations on rendered names have to allow it.
-[[nodiscard]] std::string zeroWidthSpace() { return "\u200b"; }
+// As UTF-8 bytes rather than an escape: MSVC cannot represent this character in its code
+// page and substitutes another, so the needle stops matching what the generator wrote.
+[[nodiscard]] std::string zeroWidthSpace() { return "\xe2\x80\x8b"; }
 
 // For failure messages: a missing break opportunity is invisible in a log otherwise.
 [[nodiscard]] std::string visible(std::string text)
@@ -487,7 +489,10 @@ quantity<f32, degC> Temperature;
 
   const auto& reference = file("reference.typ");
   EXPECT_NE(reference.find(R"($"m"\/"s"^2$)"), std::string::npos) << "m_per_s_sq is metres per second squared";
-  EXPECT_NE(reference.find("$\"\u00b0C\"$"), std::string::npos) << "degC carries a degree sign";
+  EXPECT_NE(reference.find("$\"\xc2\xb0"
+                           "C\"$"),
+            std::string::npos)
+    << "degC carries a degree sign";
   EXPECT_EQ(reference.find("m_per_s_sq"), std::string::npos) << "and the machine spelling does not reach the page";
 }
 
