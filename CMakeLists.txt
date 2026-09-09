@@ -58,6 +58,10 @@ if(MSVC)
   add_compile_definitions(_WIN32_WINNT=0x0A00)
 endif()
 
+# Here rather than in sen_utils.cmake: it reads MSVC and the release flags, which project()
+# is what populates.
+sen_warn_if_the_compiler_cache_cannot_work()
+
 include(util/sen_internal_utils)
 include(util/sanitizers)
 include(util/test)
