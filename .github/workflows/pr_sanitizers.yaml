@@ -36,11 +36,14 @@ jobs:
     env:
       CC: clang-20
       CXX: clang++-20
-      SEN_CI_IMAGE: sen-ci:lane
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
+
+      - name: Name the image
+        shell: bash
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh lane)" >> "$GITHUB_ENV"
 
       # prepare_build is not reused here: it keys on the runner and compiler, and this lane
       # needs the image instead, for the reason below. A cache written from a pull request is
