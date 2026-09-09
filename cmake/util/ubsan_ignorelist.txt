@@ -1,0 +1,17 @@
+# Passed to clang as -fsanitize-ignorelist, so nothing named here is instrumented and no
+# check is emitted. This is not a runtime suppressions file: the sanitizer lane builds with
+# -fno-sanitize-recover=all, and under that flag UBSan aborts the process before it reads
+# suppressions, so a runtime entry cannot stop a finding failing a test.
+#
+# An entry costs real coverage -- the code below is not checked at all -- so it is for third
+# party code we cannot fix, not for our own.
+
+[undefined]
+# asio reads a member of a descriptor_state after another thread has nulled it. The null
+# check is already there and does not close the race: start_op tests the pointer, blocks
+# acquiring the descriptor mutex, and deregister_descriptor nulls the pointer while holding
+# that same lock, so the waiter wakes to a null. Open upstream since 2019 as
+# chriskohlhoff/asio#686, and the newest code has the same shape, so no version to move to.
+# A run that reaches this path aborts the process holding it, after the test's own
+# assertions have passed. Remove this if a release ever carries a fix.
+src:*asio/detail/impl/epoll_reactor.ipp

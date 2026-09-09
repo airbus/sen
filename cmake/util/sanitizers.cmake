@@ -26,10 +26,16 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
     get_filename_component(LSAN_SUPPRESSION_FILE cmake/util/lsan_ignorelist.txt ABSOLUTE)
     get_filename_component(ASAN_SUPPRESSION_FILE cmake/util/asan_ignorelist.txt ABSOLUTE)
-    get_filename_component(UBSAN_SUPPRESSION_FILE cmake/util/ubsan_ignorelist.txt ABSOLUTE)
+    get_filename_component(UBSAN_IGNORELIST_FILE cmake/util/ubsan_ignorelist.txt ABSOLUTE)
 
     add_compile_options(-fsanitize=address,undefined)
     add_link_options(-fsanitize=address,undefined)
+
+    # Compile time, not a runtime suppressions= entry: SEN_SANITIZER_FAIL_FAST below adds
+    # -fno-sanitize-recover=all, and under that flag UBSan aborts before it consults
+    # suppressions, so a runtime entry never fires on the lane that needs it. An ignorelist
+    # emits no check at all, which holds either way.
+    add_compile_options(-fsanitize-ignorelist=${UBSAN_IGNORELIST_FILE})
 
     if(SEN_SANITIZER_FAIL_FAST)
       add_compile_options(-fno-sanitize-recover=all)
