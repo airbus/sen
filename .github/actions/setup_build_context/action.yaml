@@ -52,7 +52,10 @@ runs:
       if: ${{ inputs.compiler-name == 'clang' }}
       shell: bash
       run: |
-        wget https://apt.llvm.org/llvm.sh
+        # wget already retries an unreachable host 20 times, but gives up on a refused
+        # connection instantly; --timeout bounds the wait, which otherwise runs to the
+        # OS connect timeout on each of those tries.
+        wget --retry-connrefused --timeout=30 https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
         # llvm.sh refreshes the apt metadata and installs the whole toolchain, so it is
         # slow by nature: 15 minutes killed a run that was still making progress. This is

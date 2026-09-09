@@ -56,8 +56,9 @@ jobs:
       # Every layer of the cached build is served from the Actions cache, so it
       # cannot see a dropped package or an unreachable apt.llvm.org. This one
       # imports no cache and exports none, which is the whole point of it.
-      # Both upstream failures in this repository's history were curl connect
-      # refusals that a plain re-run cleared, so one retry covers them.
+      # The upstream failures here have all been curl failing to resolve or to
+      # connect, and a later run cleared them, so one retry covers them -- but only
+      # with a wait: an immediate second attempt lands inside the same outage.
       - name: Build both stages cold
         if: github.event_name == 'schedule'
         shell: bash
@@ -70,7 +71,7 @@ jobs:
               docker buildx build --pull --load \
                   --target base -t sen-ci:probe -f tools/ci/Dockerfile tools/ci
           }
-          build || { echo "cold build failed, retrying once"; build; }
+          build || { echo "cold build failed, retrying in 30s"; sleep 30; build; }
 
       # Every tool below has been missing at some point, and a missing tool
       # shows up as a check that silently analysed nothing or a configure step

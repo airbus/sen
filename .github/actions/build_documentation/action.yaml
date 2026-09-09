@@ -40,12 +40,13 @@ runs:
 
     # The documentation is built in the image this repository ships rather than on a
     # runner assembling its own toolchain, so what CI uses is what a developer can
-    # run. One retry, as in ci-image.yaml: the archives this pulls from do go quiet.
+    # run. One retry after a wait, as in ci-image.yaml: the archives this pulls from
+    # do go quiet, and an immediate second attempt lands inside the same outage.
     - name: Build the image the documentation is built in
       shell: bash
       run: |
         build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
-        build || { echo "image build failed, retrying once"; build; }
+        build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 
     - name: Build the documentation
       shell: bash
