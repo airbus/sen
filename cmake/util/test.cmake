@@ -103,12 +103,11 @@ if(LSAN_SUPPRESSION_FILE)
   )
 endif()
 
-# Without print_stacktrace a finding is one line, often naming only a dependency.
-if(UBSAN_SUPPRESSION_FILE)
+# Without print_stacktrace a finding is one line, often naming only a dependency. No
+# suppressions= here: what UBSan ignores is decided at compile time, see sanitizers.cmake.
+if(UBSAN_IGNORELIST_FILE)
   target_compile_definitions(
-    sen_sanitizer_options
-    INTERFACE
-      SEN_UBSAN_DEFAULT_OPTIONS="suppressions=${UBSAN_SUPPRESSION_FILE}:print_stacktrace=1${SEN_SANITIZER_LOG_OPTION}"
+    sen_sanitizer_options INTERFACE SEN_UBSAN_DEFAULT_OPTIONS="print_stacktrace=1${SEN_SANITIZER_LOG_OPTION}"
   )
 endif()
 
@@ -311,7 +310,6 @@ function(add_sen_integration_test test_name)
 
   set(_lsan_suppressions ${LSAN_SUPPRESSION_FILE})
   set(_asan_suppressions ${ASAN_SUPPRESSION_FILE})
-  set(_ubsan_suppressions ${UBSAN_SUPPRESSION_FILE})
   set(_tsan_suppressions ${TSAN_SUPPRESSION_FILE})
   set(_sanitizer_log_option ${SEN_SANITIZER_LOG_OPTION})
 
@@ -326,7 +324,6 @@ function(add_sen_integration_test test_name)
     )
     set(_lsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/lsan_ignorelist.txt)
     set(_asan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/asan_ignorelist.txt)
-    set(_ubsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/ubsan_ignorelist.txt)
     set(_tsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/tsan_ignorelist.txt)
 
     # And where a finding is written, for the same reason. Left on the host's path the
@@ -364,10 +361,8 @@ function(add_sen_integration_test test_name)
     )
   endif()
 
-  if(UBSAN_SUPPRESSION_FILE)
-    append_test_env_modification(
-      ${test_name} "UBSAN_OPTIONS=set:suppressions=${_ubsan_suppressions}:print_stacktrace=1"
-    )
+  if(UBSAN_IGNORELIST_FILE)
+    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:print_stacktrace=1")
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
@@ -495,10 +490,8 @@ function(add_sanitizer_options test_name)
     )
   endif()
 
-  if(UBSAN_SUPPRESSION_FILE)
-    append_test_env_modification(
-      ${test_name} "UBSAN_OPTIONS=set:suppressions=${UBSAN_SUPPRESSION_FILE}:print_stacktrace=1"
-    )
+  if(UBSAN_IGNORELIST_FILE)
+    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:print_stacktrace=1")
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
