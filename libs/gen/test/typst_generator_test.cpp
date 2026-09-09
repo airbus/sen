@@ -43,9 +43,16 @@ protected:
                 const std::string& main,
                 sen::gen::TypstOptions options = {})
   {
-    const auto directory = std::filesystem::temp_directory_path() / "sen-typst-test";
+    // Tests run as concurrent processes, so the file has to be this test's own: sharing one
+    // path means one process truncating what another is reading.
+    const auto directory = std::filesystem::temp_directory_path() / "sen-typst-test" /
+                           ::testing::UnitTest::GetInstance()->current_test_info()->name();
     std::filesystem::create_directories(directory);
-    std::ofstream {directory / importedAs} << imported;
+    {
+      std::ofstream written {directory / importedAs};
+      written << imported;
+      ASSERT_TRUE(written.good()) << "could not write " << (directory / importedAs).string();
+    }
 
     sen::lang::ResolverContext resolverContext;
     resolverContext.includePaths = {directory};
@@ -225,7 +232,8 @@ class Holder
 }
 )");
   EXPECT_TRUE(contains("reference.typ", "\"a." + zeroWidthSpace() + "Shared\""))
-    << "b refers out to a, so the package must show";
+    << "b refers out to a, so the package must show\n"
+    << visible(file("reference.typ"));
 }
 
 // Typst treats a link to a label the document does not contain as an error rather than
