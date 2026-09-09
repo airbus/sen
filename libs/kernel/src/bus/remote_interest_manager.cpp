@@ -211,6 +211,11 @@ void RemoteInterestsManager::sendObjectUpdates()
 {
   SEN_TRACE_ZONE(owner_->getOwner()->getTracer());
 
+  // Before the return below, not after: dropping the last subscriber is what sets
+  // aRemoteParticipant_ to null, so an apply behind that guard would never run again and the
+  // recorded removals would accumulate for the life of the manager.
+  applyPendingUpdateRemovals();
+
   // only collect updates if there's at least one remote
   if (aRemoteParticipant_ == nullptr)
   {
@@ -383,21 +388,50 @@ void RemoteInterestsManager::objectsRemoved(std::shared_ptr<Interest> interest, 
 
 void RemoteInterestsManager::removeObjectUpdatesByInterest(ObjectId objectId, InterestId interestId)
 {
+  std::lock_guard lock(objectsMutex_);
+
   const auto updateItr = objectIdToUpdateItr_.find(objectId);
   if (updateItr == objectIdToUpdateItr_.end())
   {
     return;
   }
 
-  auto* updatePtr = &(*updateItr->second);
-
-  // only erase the object update if only one interest was linked to it
-  if (remoteInterestsHandler_.removeObjectUpdateByInterest(updatePtr, interestId))
+  // Unlinking here is what stops the update reaching a remote that has just unsubscribed. The
+  // erase is not done here: this runs on the thread that drops the interest, while another walks
+  // objectUpdates_, and erasing frees the node under that walk. It is recorded instead and the
+  // walking thread applies it.
+  if (remoteInterestsHandler_.removeObjectUpdateByInterest(&(*updateItr->second), interestId))
   {
+    updateRemovalsPending_.push_back(objectId);
+  }
+}
+
+void RemoteInterestsManager::applyPendingUpdateRemovals()
+{
+  std::lock_guard lock(objectsMutex_);
+
+  for (const auto objectId: updateRemovalsPending_)
+  {
+    const auto updateItr = objectIdToUpdateItr_.find(objectId);
+    if (updateItr == objectIdToUpdateItr_.end())
+    {
+      continue;
+    }
+
+    // A re-subscribe between the record and here relinks this same update rather than making a
+    // new one, so the recorded id is a hint. The handler is asked again, exactly as the recording
+    // side asked it, and only an update nothing links to is erased.
+    if (remoteInterestsHandler_.hasAnyInterest(&(*updateItr->second)))
+    {
+      continue;
+    }
+
     objectUpdates_.erase(updateItr->second);
     updatesObjectIdsBiMap_.remove(objectId);
     objectIdToUpdateItr_.erase(updateItr);
   }
+
+  updateRemovalsPending_.clear();
 }
 
 }  // namespace sen::kernel::impl
