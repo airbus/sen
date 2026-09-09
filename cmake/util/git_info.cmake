@@ -172,7 +172,10 @@ function(git_local_changes _var)
   find_package(Git QUIET)
 
   if(Git_FOUND)
-    get_git_head_revision(refspec hash)
+    # ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR, as every other caller passes. Without it the search
+    # fails from a subdirectory, the hash is empty, and the guard below returns "" -- which every
+    # binary then reports as an unknown git status.
+    get_git_head_revision(refspec hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
     if(NOT GIT_FOUND)
       set(${_var}
           ""
