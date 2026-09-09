@@ -12,7 +12,9 @@ runs:
 
     - name: Name the image
       shell: bash
-      run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh docs)" >> "$GITHUB_ENV"
+      env:
+        SEN_CI_REGISTRY: ghcr.io/airbus/
+      run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base)" >> "$GITHUB_ENV"
 
     # Keyed to the image rather than the runner: a conan package id does not record
     # which Ubuntu produced a binary, so a cache filled on a runner installs cleanly
@@ -45,11 +47,27 @@ runs:
 
     # The documentation is built in the image this repository ships rather than on a
     # runner assembling its own toolchain, so what CI uses is what a developer can
-    # run. One retry after a wait, as in ci-image.yaml: the archives this pulls from
-    # do go quiet, and an immediate second attempt lands inside the same outage.
-    - name: Build the image the documentation is built in
+    # run. Pulled when the registry has this Dockerfile's image, built when it does
+    # not. The login is allowed to fail: without it the pull misses and the build
+    # below runs, which is what happens today anyway.
+    # One retry after a wait, as in ci-image.yaml: the archives this pulls from do
+    # go quiet, and an immediate second attempt lands inside the same outage.
+    - name: Log in to the registry
+      continue-on-error: true
+      uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+
+    - name: Get the image the documentation is built in
       shell: bash
       run: |
+        if docker pull --quiet "$SEN_CI_IMAGE"; then
+            echo "pulled $SEN_CI_IMAGE"
+            exit 0
+        fi
+        echo "not in the registry, building it"
         build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
         build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 

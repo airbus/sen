@@ -26,6 +26,8 @@ permissions:
   contents: write
   # The documentation action drops the cache entry its save replaces.
   actions: write
+  # Pulling the image the documentation is built in, which is a private package.
+  packages: read
 
 jobs:
   deploy_docs:

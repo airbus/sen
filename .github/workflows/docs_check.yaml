@@ -18,6 +18,8 @@ permissions:
   contents: read
   # build_documentation drops the cache entries its saves replace.
   actions: write
+  # Pulling the image the documentation is built in, which is a private package.
+  packages: read
 
 jobs:
   build_docs:
