@@ -41,3 +41,9 @@ add_subdirectory(codegen_functions/sen_generate_cpp gen_cpp)
 add_subdirectory(codegen_functions/sen_generate_python gen_python)
 add_subdirectory(codegen_functions/sen_generate_uml gen_uml)
 add_subdirectory(codegen_functions/sen_generate_yaml gen_yaml)
+
+# misc tests
+add_subdirectory(misc_functions/sen_configure_target misc_configure)
+add_subdirectory(misc_functions/sen_enable_static_analysis misc_analysis)
+add_subdirectory(misc_functions/get_external_interfaces misc_interfaces)
+add_subdirectory(misc_functions/configure_exportable_packages misc_exports)

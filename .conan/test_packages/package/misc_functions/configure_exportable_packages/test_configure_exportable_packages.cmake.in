@@ -1,0 +1,33 @@
+set(install_root "@CONFIGURE_EXPORTABLE_PACKAGES_INSTALL_ROOT@")
+file(REMOVE_RECURSE "${install_root}")
+
+execute_process(
+  COMMAND
+    "@CMAKE_COMMAND@" "-DCMAKE_INSTALL_PREFIX=${install_root}" -P
+    "@CONFIGURE_EXPORTABLE_PACKAGES_INSTALL_SCRIPT@"
+  RESULT_VARIABLE install_result
+  OUTPUT_VARIABLE install_output
+  ERROR_VARIABLE install_error
+)
+if(NOT install_result EQUAL 0)
+  message(FATAL_ERROR "Package installation failed:\n${install_output}\n${install_error}")
+endif()
+
+get_filename_component(expected_prefix "${install_root}" REALPATH)
+set(package_dir "${install_root}/cmake/exportable_packages")
+
+function(assert_package_can_be_found package_name)
+  find_package(${package_name} REQUIRED CONFIG PATHS "${package_dir}" NO_DEFAULT_PATH)
+
+  if(NOT "${FIXTURE_CONFIGURED_VALUE}" STREQUAL "configured-by-helper")
+    message(FATAL_ERROR "${package_name} was not configured from its template")
+  endif()
+
+  get_filename_component(actual_prefix "${FIXTURE_PACKAGE_PREFIX}" REALPATH)
+  if(NOT "${actual_prefix}" STREQUAL "${expected_prefix}")
+    message(FATAL_ERROR "${package_name} is not relocatable")
+  endif()
+endfunction()
+
+assert_package_can_be_found(fixture_current)
+assert_package_can_be_found(fixture_additional)
