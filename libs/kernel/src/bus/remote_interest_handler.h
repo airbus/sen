@@ -92,6 +92,9 @@ struct RemoteInterestsHandler
   /// Removes object updates associated to a certain interest. There can be more than one interest mapped to a certain
   /// update. Returns true if the update was completely removed from the interest handler
   [[nodiscard]] bool removeObjectUpdateByInterest(ObjectUpdate* update, InterestId interestId);
+
+  /// Returns true while any interest still links to the update.
+  [[nodiscard]] bool hasAnyInterest(ObjectUpdate* update) const;
   void clear();
 
 private:
@@ -213,6 +216,13 @@ inline std::vector<ObjectUpdate*> RemoteInterestsHandler::removeInterest(Interes
   // Clear any orphans that may be left from previous removals (call to remove does not always clear them).
   interestsUpdatesBMMap.clearOrphans();
   return interestsUpdatesBMMap.remove(interestId).second;
+}
+
+inline bool RemoteInterestsHandler::hasAnyInterest(ObjectUpdate* update) const
+{
+  std::shared_lock lock(handlerMutex_);
+
+  return interestsUpdatesBMMap.contains(update);
 }
 
 inline void RemoteInterestsHandler::removeRejectedObject(RemoteParticipant* remote, ObjectUpdate* update)

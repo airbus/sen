@@ -121,6 +121,7 @@ protected:  // implements ObjectFilter
 private:
   /// Only removes updates linked to a certain interest (the updates could be linked to other interests as well)
   void removeObjectUpdatesByInterest(ObjectId objectId, InterestId interestId);
+  void applyPendingUpdateRemovals();
   void sendEvents(const std::list<::sen::impl::SerializableEvent>& events);
   void sendObjectUpdates();
   void updateRemoteReference();
@@ -136,6 +137,9 @@ private:
   std::mutex objectsMutex_;
   std::list<ObjectUpdate> objectUpdates_;
   std::unordered_map<ObjectId, decltype(objectUpdates_)::iterator> objectIdToUpdateItr_;
+  // Removals recorded by whoever drops the last interest, applied by the thread that walks
+  // objectUpdates_. Guarded by objectsMutex_ like the containers it names.
+  std::vector<ObjectId> updateRemovalsPending_;
   std::unordered_map<ObjectId, InterestId> objectIdToInterestIdMap_;
   std::shared_ptr<BestEffortPool> bestEffortPool_;
   Guarded<RemoteParticipant*> aRemoteParticipant_ {nullptr};
