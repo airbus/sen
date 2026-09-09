@@ -14,6 +14,7 @@
 
 // sen
 #include "sen/core/base/hash32.h"
+#include "sen/core/lang/stl_resolver.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/custom_type.h"
@@ -357,6 +358,23 @@ void forEachReferencedType(const sen::CustomType& type, const std::function<void
     return prefix + std::string {noun};
   }
   return prefix + (many.empty() ? std::string {noun} + "s" : std::string {many});
+}
+
+// Whether the document covers this package. The empty one holds the built-ins, which are
+// referenced rather than documented.
+[[nodiscard]] bool documented(const std::string& package, const TypstOptions& options)
+{
+  if (package.empty())
+  {
+    return false;
+  }
+  const auto& include = options.includePackages;
+  if (!include.empty() && std::find(include.begin(), include.end(), package) == include.end())
+  {
+    return false;
+  }
+  const auto& exclude = options.excludePackages;
+  return std::find(exclude.begin(), exclude.end(), package) == exclude.end();
 }
 
 [[nodiscard]] std::string qualifiedName(const sen::lang::TypeSet& set, const sen::CustomType& type)
@@ -979,18 +997,7 @@ TypstGenerator::Impl::Document TypstGenerator::Impl::read(const sen::lang::TypeS
   for (const auto* set: sen::gen::detail::collectAllTypeSets(typeSets))
   {
     const auto package = sen::gen::detail::computePackageName(*set);
-    if (package.empty())
-    {
-      continue;
-    }
-    if (!options.includePackages.empty() &&
-        std::find(options.includePackages.begin(), options.includePackages.end(), package) ==
-          options.includePackages.end())
-    {
-      continue;
-    }
-    if (std::find(options.excludePackages.begin(), options.excludePackages.end(), package) !=
-        options.excludePackages.end())
+    if (!documented(package, options))
     {
       continue;
     }
