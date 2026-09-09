@@ -130,6 +130,18 @@ using sen::gen::test::everyKindStl;
 // narrow column instead of overflowing it. Expectations on rendered names have to allow it.
 [[nodiscard]] std::string zeroWidthSpace() { return "\u200b"; }
 
+// For failure messages: a missing break opportunity is invisible in a log otherwise.
+[[nodiscard]] std::string visible(std::string text)
+{
+  const std::string marker {"<ZWSP>"};
+  const auto space = zeroWidthSpace();
+  for (auto at = text.find(space); at != std::string::npos; at = text.find(space, at + marker.size()))
+  {
+    text.replace(at, space.size(), marker);
+  }
+  return text;
+}
+
 TEST_F(ATypstGenerator, writesAReferenceAStyleAndASkeleton)
 {
   generate(twoClasses);
@@ -245,7 +257,8 @@ class Holder
   EXPECT_NE(reference.find("Holder"), std::string::npos) << "b is still documented";
   EXPECT_EQ(reference.find("link(<t-a-Shared>)"), std::string::npos) << "but a is not, so nothing may link into it";
   EXPECT_NE(reference.find("a." + zeroWidthSpace() + "Shared"), std::string::npos)
-    << "the name still shows, as plain text";
+    << "the name still shows, as plain text\n"
+    << visible(reference);
 }
 
 TEST_F(ATypstGenerator, tabulatesWhatAClassCarriesAndWhatItCanBeAsked)
