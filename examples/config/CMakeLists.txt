@@ -128,6 +128,12 @@ foreach(config_file ${configs})
   set(test_name ${config_dir_name}_${config}_smoke)
   add_sen_run_smoke_test(${test_name} CONFIG_FILE ${config_file})
 
+  # Standing up the webexplorer backend takes ~10s against ctest's 20s global; the same configs
+  # without it take 0.6s. One lane has exceeded 20s and the spread is not characterised.
+  if("webexplorer" IN_LIST _required_components)
+    set_tests_properties(${test_name} PROPERTIES TIMEOUT 120)
+  endif()
+
   append_test_env_modification(
     ${test_name} "PYTHONPATH=path_list_append:${PROJECT_SOURCE_DIR}/examples/config/10_python/scripts"
   )
