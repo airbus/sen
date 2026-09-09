@@ -86,16 +86,27 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: gitlint --commits "${BASE_SHA:-origin/main}..HEAD"
-      # The squash merge turns the title into the commit subject on main, with the
-      # pull request number appended. Linting the bare title passes a 71-character
-      # one and lands 79 on main, where it fails every later pull request.
-      - name: Lint the pull request title
+      # What a squash merge lands, with the pull request number appended, and the number
+      # is why a 71-character subject fails on main and then fails every later pull
+      # request. GitHub takes that subject from the ONE commit when a branch has one and
+      # from the title otherwise -- so linting only the title passed a 62-character one
+      # while the 71 it actually used went unchecked, and main's tip is 78 [#299].
+      - name: Lint what the squash will land
         if: github.event_name == 'pull_request'
         shell: bash
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | gitlint
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          count=$(git rev-list --count "${BASE_SHA}..HEAD")
+          if [ "$count" -eq 1 ]; then
+            subject=$(git log -1 --format=%s HEAD)
+          else
+            subject=$PR_TITLE
+          fi
+          printf 'linting the squash subject for %s commit(s): %s\n' "$count" "$subject"
+          printf '%s (#%s)\n' "$subject" "$PR_NUMBER" | gitlint
 
   conan-lock-check:
     name: "Check conan.lock"
