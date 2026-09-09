@@ -49,7 +49,7 @@ const BuildInfo& Kernel::getBuildInfo() noexcept
                              SEN_KERNEL_VERSION,
                              SEN_COMPILER_STRING,
                              getDebugEnabled(),
-                             std::string(__DATE__) + " " + __TIME__,
+                             getBuildTime(),
                              getWordSize(),
                              getGitRef(),
                              getGitHash(),

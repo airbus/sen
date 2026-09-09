@@ -7,6 +7,8 @@
 
 include_guard()
 
+get_filename_component(SEN_CMAKE_TEMPLATES_DIR "${CMAKE_CURRENT_LIST_DIR}/../templates" ABSOLUTE)
+
 # Creates a Sen package: a SHARED library that combines user-written sources with code
 # generated from STL or HLA FOM files, and registers the result with the Sen runtime.
 # The produced target can be loaded at runtime by sen and participates in the type system.
@@ -92,6 +94,18 @@ include_guard()
 #     If set, also creates a STATIC library with this name. It links the same
 #     sources as TARGET but exposes internal symbols, making them accessible
 #     from unit tests without needing a shared-library boundary.
+# Compiles a target's build provenance into one generated source, so a commit changes one object
+# per target rather than every object that includes component.h.
+function(sen_add_build_info _target _name)
+  get_git_head_revision(_git_ref_spec _git_hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
+  git_local_changes(_git_status)
+  get_git_commit_date(_git_commit_date)
+
+  set(_out "${CMAKE_CURRENT_BINARY_DIR}/${_name}_build_info.cpp")
+  configure_file("${SEN_CMAKE_TEMPLATES_DIR}/build_info.cpp.in" "${_out}" @ONLY)
+  target_sources(${_target} PRIVATE "${_out}")
+endfunction()
+
 function(add_sen_package)
 
   set(_options IS_COMPONENT NO_SCHEMA PUBLIC_SYMBOLS)
@@ -188,8 +202,7 @@ function(add_sen_package)
     ${_target_to_compile} PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN YES
   )
 
-  get_git_head_revision(git_ref_spec git_hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
-  git_local_changes(git_status_str)
+  # These do not change between commits, so they cost nothing on a command line.
   target_compile_definitions(
     ${_target_to_compile}
     PRIVATE SEN_TARGET_NAME="${_arg_TARGET}"
@@ -197,10 +210,12 @@ function(add_sen_package)
             SEN_TARGET_DESCRIPTION="${_arg_DESCRIPTION}"
             SEN_TARGET_VERSION="${_arg_VERSION}"
             SEN_COMPILER_STRING="${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
-            GIT_REF_SPEC="${git_ref_spec}"
-            GIT_HASH="${git_hash}"
-            GIT_STATUS="${git_status_str}"
   )
+
+  # The git values change every commit, so one generated source per target carries them instead
+  # of every compile line. Every package gets one: component.h is public and a wrong guess about
+  # who calls the accessors is a link error.
+  sen_add_build_info(${_target_to_compile} ${_arg_TARGET})
 
   # link the target to sen::kernel and sen::core
   target_link_libraries(${_target_to_compile} PUBLIC sen::kernel)
@@ -443,17 +458,15 @@ function(add_sen_interface_package)
 
   add_library(${_arg_TARGET} INTERFACE)
 
-  get_git_head_revision(git_ref_spec git_hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
-  git_local_changes(git_status_str)
+  # No git values here. They were INTERFACE, so they landed on every consumer's compile line and
+  # changed every commit; and an interface target has no source of its own to define them in.
+  # A consumer that calls the accessors gets them from its own package's build_info.
   target_compile_definitions(
     ${_arg_TARGET}
     INTERFACE SEN_TARGET_NAME="${_arg_TARGET}"
               SEN_TARGET_MAINTAINER="${_arg_MAINTAINER}"
               SEN_TARGET_DESCRIPTION="${_arg_DESCRIPTION}"
               SEN_TARGET_VERSION="${_arg_VERSION}"
-              GIT_REF_SPEC="${git_ref_spec}"
-              GIT_HASH="${git_hash}"
-              GIT_STATUS="${git_status_str}"
   )
 
   # Copy dependency import paths

@@ -170,7 +170,8 @@ def test_the_runtime_symbols_follow_the_flags_the_build_used():
 def test_a_branch_name_is_not_a_sanitizer_flag(tmp_path):
     """A flag is recognised by its prefix, not by the word "sanitize" anywhere in it.
 
-    This repository compiles with -DGIT_REF_SPEC=refs/heads/<branch>.
+    This repository no longer puts the branch on a compile line, but any define that carried
+    one would trip the same way, so the case stays covered.
     """
     database = tmp_path / "compile_commands.json"
     database.write_text(

@@ -168,11 +168,41 @@ function(get_git_head_revision _refspecvar _hashvar)
   )
 endfunction()
 
+# The commit's timestamp, ISO-8601, used as the build time. An up-to-date object is not
+# recompiled, so a wall-clock time is whenever it was last built rather than when the build ran.
+function(get_git_commit_date _var)
+  find_package(Git QUIET)
+  set(${_var}
+      ""
+      PARENT_SCOPE
+  )
+  if(NOT Git_FOUND)
+    return()
+  endif()
+
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" log -1 --format=%cI
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE out
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if(res EQUAL 0)
+    set(${_var}
+        "${out}"
+        PARENT_SCOPE
+    )
+  endif()
+endfunction()
+
 function(git_local_changes _var)
   find_package(Git QUIET)
 
   if(Git_FOUND)
-    get_git_head_revision(refspec hash)
+    # ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR, as every other caller passes. Without it the search
+    # fails from a subdirectory, the hash is empty, and the guard below returns "" -- which every
+    # binary then reports as an unknown git status.
+    get_git_head_revision(refspec hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
     if(NOT GIT_FOUND)
       set(${_var}
           ""
