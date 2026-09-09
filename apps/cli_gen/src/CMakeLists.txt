@@ -20,6 +20,7 @@ set(cli_gen_sources
     plantuml_cli.cpp
     python_cli.cpp
     typescript_cli.cpp
+    typst_cli.cpp
     main.cpp
 )
 

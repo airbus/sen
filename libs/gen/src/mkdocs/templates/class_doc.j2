@@ -5,7 +5,7 @@
 Parent: {{ toAnchor(nonInterfaceParent.senQual) }}
 
 *** endif
-{{ description }}
+{{ md(description) }}
 
 *** if hasOwnProperties
 **Properties**
@@ -13,7 +13,7 @@ Parent: {{ toAnchor(nonInterfaceParent.senQual) }}
 | Name      | Description |
 | :-------- | :---------- |
 *** for prop in props
-| **{{ prop.name }}** | {% if prop.writeAllowed %}:material-pencil:{ title="Writable" }{% else %}:material-pencil-lock:{ title="Read Only" }{% endif %}{% if prop.dynamic %}:material-clock-fast:{ title="Dynamic" }{% else %}:material-anvil:{ title="Static" }{% endif %}{% if prop.confirmed %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %} {{ toAnchor(prop.senQual) }} {{ prop.description }} |
+| **{{ prop.name }}** | {% if prop.writeAllowed %}:material-pencil:{ title="Writable" }{% else %}:material-pencil-lock:{ title="Read Only" }{% endif %}{% if prop.dynamic %}:material-clock-fast:{ title="Dynamic" }{% else %}:material-anvil:{ title="Static" }{% endif %}{% if prop.confirmed %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %} {{ toAnchor(prop.senQual) }} {{ md(prop.description) }} |
 *** endfor
 *** endif
 *** if hasOwnMethods
@@ -24,7 +24,7 @@ Parent: {{ toAnchor(nonInterfaceParent.senQual) }}
 
 :octicons-triangle-right-16: **{{ method.name }}** {% if method.confirmed %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %} {% if method.senQual != "void" %}{{ toAnchor(method.senQual) }}{% endif %}
 
-:   {{ method.description }}
+:   {{ md(method.description) }}
 
     Returns: {{ toAnchor(method.senQual) }}
 
@@ -32,7 +32,7 @@ Parent: {{ toAnchor(nonInterfaceParent.senQual) }}
     | Argument  | Type | Description |
     | :-------- | :--- | :---------- |
 *** for arg in method.args
-    | {{ arg.name }} | {{ toAnchor(arg.senQual) }} | {{ arg.description }} |
+    | {{ arg.name }} | {{ toAnchor(arg.senQual) }} | {{ md(arg.description) }} |
 *** endfor
 
 *** endif
@@ -44,13 +44,13 @@ Parent: {{ toAnchor(nonInterfaceParent.senQual) }}
 *** for event in events
 :octicons-triangle-right-16: **{{ event.name }}** {% if event.transportEnum == "::sen::TransportMode::confirmed" %}:material-truck-check:{ title="Confirmed" }{% else %}:material-email-fast-outline:{ title="Best Effort" }{% endif %}
 
-:   {{ event.description }}
+:   {{ md(event.description) }}
 
 *** if length(event.args) != 0
     | Argument  | Type | Description |
     | :-------- | :--- | :---------- |
 *** for arg in event.args
-    | {{ arg.name }} | {{ toAnchor(arg.senQual) }} | {{ arg.description }} |
+    | {{ arg.name }} | {{ toAnchor(arg.senQual) }} | {{ md(arg.description) }} |
 *** endfor
 *** endif
 

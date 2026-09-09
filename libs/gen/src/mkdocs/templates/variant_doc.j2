@@ -1,9 +1,9 @@
 ### {{ senQual }}
 
-{{ description }}
+{{ md(description) }}
 
 | Type |
 | :--- |
 *** for field in fields
-| {{ toAnchor(field.senQual) }} {{ field.description }} |
+| {{ toAnchor(field.senQual) }} {{ md(field.description) }} |
 *** endfor

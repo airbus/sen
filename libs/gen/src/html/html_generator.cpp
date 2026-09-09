@@ -5,6 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#include "../common/util.h"
 #include "sen/gen/html.h"
 
 // lib
@@ -71,70 +72,6 @@ constexpr std::array<KindName, 10> kindNames {{{"classes", "class", "classes"},
                                                {"quantities", "quantity", "quantities"},
                                                {"builtins", "built-in type", "built-in types"},
                                                {"types", "type", "types"}}};
-
-// The kind a type is presented as. Groups the tree and colours the filters.
-class KindVisitor: protected sen::TypeVisitor
-{
-public:
-  [[nodiscard]] static std::string kindOf(const sen::CustomType& type)
-  {
-    KindVisitor visitor;
-    type.accept(visitor);
-    return visitor.kind_;
-  }
-
-protected:
-  void apply(const sen::Type& /*type*/) override { kind_ = "types"; }
-  void apply(const sen::StructType& /*type*/) override { kind_ = "structures"; }
-  void apply(const sen::EnumType& /*type*/) override { kind_ = "enumerations"; }
-  void apply(const sen::VariantType& /*type*/) override { kind_ = "variants"; }
-  void apply(const sen::SequenceType& /*type*/) override { kind_ = "sequences"; }
-  void apply(const sen::AliasType& /*type*/) override { kind_ = "aliases"; }
-  void apply(const sen::OptionalType& /*type*/) override { kind_ = "optionals"; }
-  void apply(const sen::QuantityType& /*type*/) override { kind_ = "quantities"; }
-  void apply(const sen::ClassType& /*type*/) override { kind_ = "classes"; }
-
-private:
-  std::string kind_;
-};
-
-[[nodiscard]] std::string packageOf(const sen::lang::TypeSet& set)
-{
-  std::string result;
-  for (std::size_t i = 0U; i < set.package.size(); ++i)
-  {
-    result.append(set.package[i]);
-    if (i + 1U != set.package.size())
-    {
-      result.append(".");
-    }
-  }
-  return result;
-}
-
-// Description text as one run of prose; the source wraps and indents its sentences.
-[[nodiscard]] std::string prose(std::string_view text)
-{
-  std::string result;
-  result.reserve(text.size());
-  bool gap = false;
-  for (const auto character: text)
-  {
-    const bool space = character == ' ' || character == '\t' || character == '\n' || character == '\r';
-    if (space)
-    {
-      gap = !result.empty();
-      continue;
-    }
-    if (gap)
-    {
-      result.push_back(' ');
-      gap = false;
-    }
-    result.push_back(character);
-  }
-  return result;
-}
 
 // The title is the caller's and reaches the page as markup.
 [[nodiscard]] std::string escapeHtml(std::string_view text)
@@ -232,7 +169,7 @@ struct PrimitiveSink
   inja::json member;
   member["name"] = prop.getName();
   member["type"] = typeNameOf(*prop.getType(), sink);
-  member["desc"] = prose(prop.getDescription());
+  member["desc"] = sen::gen::detail::collapseWhitespace(prop.getDescription());
   member["flags"] = flagsOf(prop);
   return member;
 }
@@ -245,7 +182,7 @@ struct PrimitiveSink
     inja::json entry;
     entry["name"] = arg.name;
     entry["type"] = typeNameOf(*arg.type, sink);
-    entry["desc"] = prose(arg.description);
+    entry["desc"] = sen::gen::detail::collapseWhitespace(arg.description);
     out.emplace_back(std::move(entry));
   }
   return out;
@@ -255,7 +192,7 @@ struct PrimitiveSink
 {
   inja::json out;
   out["name"] = method.getName();
-  out["desc"] = prose(method.getDescription());
+  out["desc"] = sen::gen::detail::collapseWhitespace(method.getDescription());
   // A void return is the absence of a type, not a type.
   const auto& returned = *method.getReturnType();
   out["returns"] = returned.isVoidType() ? std::string {} : typeNameOf(returned, sink);
@@ -267,7 +204,7 @@ struct PrimitiveSink
 {
   inja::json out;
   out["name"] = event.getName();
-  out["desc"] = prose(event.getDescription());
+  out["desc"] = sen::gen::detail::collapseWhitespace(event.getDescription());
   out["args"] = argsOf(event.getArgs(), sink);
   return out;
 }
@@ -279,7 +216,7 @@ struct PrimitiveSink
   member["name"] = std::string(method.getName()) + "()";
   const auto& returned = *method.getReturnType();
   member["type"] = returned.isVoidType() ? std::string {} : typeNameOf(returned, sink);
-  member["desc"] = prose(method.getDescription());
+  member["desc"] = sen::gen::detail::collapseWhitespace(method.getDescription());
   member["flags"] = inja::json::array();
   return member;
 }
@@ -289,7 +226,7 @@ struct PrimitiveSink
   inja::json member;
   member["name"] = std::string(event.getName()) + "()";
   member["type"] = "";
-  member["desc"] = prose(event.getDescription());
+  member["desc"] = sen::gen::detail::collapseWhitespace(event.getDescription());
   member["flags"] = inja::json::array();
   return member;
 }
@@ -362,7 +299,7 @@ struct PrimitiveSink
   inja::json member;
   member["name"] = field.name;
   member["type"] = typeNameOf(*field.type, sink);
-  member["desc"] = prose(field.description);
+  member["desc"] = sen::gen::detail::collapseWhitespace(field.description);
   member["flags"] = inja::json::array();
   return member;
 }
@@ -466,14 +403,16 @@ void addFacts(const sen::CustomType& type, inja::json& entry, PrimitiveSink& sin
     // a fault in the page rather than an absence in the model.
     const auto& fields = type.asVariantType()->getFields();
     const bool described =
-      std::any_of(fields.begin(), fields.end(), [](const auto& field) { return !prose(field.description).empty(); });
+      std::any_of(fields.begin(),
+                  fields.end(),
+                  [](const auto& field) { return !sen::gen::detail::collapseWhitespace(field.description).empty(); });
 
     for (const auto& field: fields)
     {
       auto row = inja::json::array({typeNameOf(*field.type, sink)});
       if (described)
       {
-        row.push_back(prose(field.description));
+        row.push_back(sen::gen::detail::collapseWhitespace(field.description));
       }
       rows.push_back(std::move(row));
     }
@@ -491,8 +430,8 @@ void addFacts(const sen::CustomType& type, inja::json& entry, PrimitiveSink& sin
   inja::json entry;
   entry["name"] = name;
   entry["package"] = package;
-  entry["kind"] = KindVisitor::kindOf(type);
-  entry["desc"] = prose(type.getDescription());
+  entry["kind"] = sen::gen::detail::kindOf(type);
+  entry["desc"] = sen::gen::detail::collapseWhitespace(type.getDescription());
   entry["ancestry"] = inja::json::array();
   entry["groups"] = inja::json::array();
   entry["methods"] = inja::json::array();
@@ -563,7 +502,7 @@ void addPrimitives(inja::json& types, const PrimitiveSink& sink)
     // Built-in whatever their shape. Filing one by its real kind would promise facts that
     // are not gathered for it.
     entry["kind"] = "builtins";
-    entry["desc"] = prose(type->getDescription());
+    entry["desc"] = sen::gen::detail::collapseWhitespace(type->getDescription());
     entry["ancestry"] = inja::json::array();
     entry["groups"] = inja::json::array();
     entry["members"] = inja::json::array();
@@ -711,7 +650,7 @@ public:
 
     for (const auto& set: typeSets)
     {
-      const auto package = packageOf(set);
+      const auto package = sen::gen::detail::computePackageName(set);
       for (const auto& handle: set.types)
       {
         auto entry = entryFor(*handle, package, sink);

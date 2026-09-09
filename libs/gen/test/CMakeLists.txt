@@ -8,6 +8,7 @@
 set(gen_tests
     json_generator_test.cpp
     html_generator_test.cpp
+    typst_generator_test.cpp
     generators_test.cpp
     every_kind_model.h
 )

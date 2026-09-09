@@ -49,6 +49,24 @@ void configureEnv(inja::Environment& env);
 /// Transform a string_view to uppercase
 [[nodiscard]] std::string capitalize(std::string_view str);
 
+/// Refuses a type no template covers, in the one wording every generator used. Each had
+/// its own copy of these five lines, which is how six of them come to disagree.
+[[noreturn]] void throwUnsupportedType(const sen::Type& type);
+
+/// How a type is grouped in a document: "classes", "structures", "enumerations",
+/// "variants", "sequences", "quantities", "aliases", "optionals". Two documents
+/// describing one model have to agree about this, so there is one of it.
+[[nodiscard]] std::string kindOf(const sen::CustomType& type);
+
+/// Collapses a description to one run of prose. Model text wraps and indents its
+/// sentences in the source; a document renders it as a paragraph.
+[[nodiscard]] std::string collapseWhitespace(std::string_view text);
+
+/// Computes the dotted package name, as the language writes it: "sen.kernel", "rpr".
+/// Four generators each had their own copy of this; it is one function because a fix
+/// to one of four copies is a fix to one of four outputs.
+[[nodiscard]] std::string computePackageName(const sen::lang::TypeSet& set);
+
 /// Computes C++ namespace from a string package
 [[nodiscard]] std::string computeCppNamespace(const std::vector<std::string>& package);
 

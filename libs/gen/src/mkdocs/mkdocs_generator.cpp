@@ -76,6 +76,31 @@ void appendBlock(std::string& target, std::string_view rendered)
   target.append("\n\n");
 }
 
+// Model text lands in a markdown table cell, where a `|` ends the cell and a newline ends
+// the row, and in a link title, where a `"` ends the title. It is prose, never markup, so
+// the characters markdown reads are escaped rather than left to change what it says.
+[[nodiscard]] std::string markdownText(std::string_view text)
+{
+  static constexpr std::string_view inlineSpecial {"\\`*_[]<>|"};
+  const auto collapsed = sen::gen::detail::collapseWhitespace(text);
+
+  std::string result;
+  result.reserve(collapsed.size() + collapsed.size() / 8U);
+  for (const auto character: collapsed)
+  {
+    // A marker only opens a block at the start of the text; escaping it everywhere would
+    // put a backslash in front of every hyphen in the model.
+    const bool opensBlock = result.empty() && (character == '#' || character == '>' || character == '-' ||
+                                               character == '+' || character == '=');
+    if (opensBlock || inlineSpecial.find(character) != std::string_view::npos)
+    {
+      result.push_back('\\');
+    }
+    result.push_back(character);
+  }
+  return result;
+}
+
 [[nodiscard]] std::string toAnchorStr(std::string_view name, std::string_view link, std::string_view description = "")
 {
   std::string result = "[";
@@ -93,7 +118,14 @@ void appendBlock(std::string& target, std::string_view rendered)
   if (!description.empty())
   {
     result.append(" \"");
-    result.append(description);
+    for (const auto character: markdownText(description))
+    {
+      if (character == '"')
+      {
+        result.push_back('\\');
+      }
+      result.push_back(character);
+    }
     result.append("\"");
   }
 
@@ -143,14 +175,7 @@ public:
   }
 
 protected:
-  void apply(const sen::Type& type) override
-  {
-    std::string err;
-    err.append("unsupported type '");
-    err.append(type.getName());
-    err.append("'");
-    sen::throwRuntimeError(err);
-  }
+  void apply(const sen::Type& type) override { sen::gen::detail::throwUnsupportedType(type); }
 
   void apply(const sen::StructType& type) override
   {
@@ -241,21 +266,6 @@ void getClassPath(const sen::ClassType* current, std::vector<const sen::ClassTyp
     getClassPath(current->getParents().front().type(), path);
     path.push_back(current);
   }
-}
-
-[[nodiscard]] std::string computePackageName(const sen::lang::TypeSet& set)
-{
-  std::string result;
-  for (std::size_t i = 0U; i < set.package.size(); ++i)
-  {
-    result.append(set.package[i]);
-    if (i != set.package.size() - 1U)
-    {
-      result.append(".");
-    }
-  }
-
-  return result;
 }
 
 [[nodiscard]] uint32_t getLevel(const sen::ClassType* meta)
@@ -500,7 +510,7 @@ void append(const std::vector<T>& src, std::vector<T>& target)
   for (auto& storageElem: storage)
   {
     auto set = storageElem->getTypeSet();
-    auto packageName = computePackageName(set);
+    auto packageName = sen::gen::detail::computePackageName(set);
 
     detail::TemplateVisitorResult result;
 
@@ -588,6 +598,7 @@ public:
     detail::configureEnv(env_);
     env_.set_line_statement("***");
     env_.add_callback("toAnchor", 1, [](auto& args) { return toAnchor(*args.front()); });
+    env_.add_callback("md", 1, [](auto& args) { return markdownText(args.front()->template get<std::string>()); });
     templates_ = detail::makeMkDocsTemplates(env_);
     fileTemplate_ = env_.parse(sen::decompressSymbolToString(file_doc, file_docSize));
   }

@@ -56,6 +56,10 @@ ${sen_exec} generate html --help > ${snippets_dir}/sen_generate_html.sh\n\
 ${sen_exec} generate html stl --help > ${snippets_dir}/sen_generate_html_stl.sh\n\
 ${sen_exec} generate html fom --help > ${snippets_dir}/sen_generate_html_fom.sh\n\
 \n\
+${sen_exec} generate typst --help > ${snippets_dir}/sen_generate_typst.sh\n\
+${sen_exec} generate typst stl --help > ${snippets_dir}/sen_generate_typst_stl.sh\n\
+${sen_exec} generate typst fom --help > ${snippets_dir}/sen_generate_typst_fom.sh\n\
+\n\
 ${sen_exec} generate json package stl --help > ${snippets_dir}/sen_generate_json_package_stl.sh\n\
 ${sen_exec} generate json package fom --help > ${snippets_dir}/sen_generate_json_package_fom.sh\n\
 \n\
@@ -102,6 +106,67 @@ exit 0"
     HLA_FOM_DIRS ${fom_base_dir}/rpr ${fom_base_dir}/netn ${fom_base_dir}/link16
   )
 
+  # Two documents, because they show different things: a FOM is one deep class tree in two
+  # packages, and Sen's own API is fifteen packages three levels deep. PDF, so the pages can
+  # link to something a reader opens rather than to source they would have to compile.
+  set(typst_pages_dir ${PROJECT_SOURCE_DIR}/docs/typst)
+
+  sen_generate_typst(
+    TARGET
+    fom_document
+    OUT
+    ${snippets_dir}/fom-document
+    TITLE
+    "RPR, NETN and Link 16"
+    HLA_FOM_DIRS
+    ${fom_base_dir}/rpr
+    ${fom_base_dir}/netn
+    ${fom_base_dir}/link16
+    FRONT_MATTER
+    ${typst_pages_dir}/front-matter.typ
+    BEFORE_REFERENCE
+    ${typst_pages_dir}/about-this-example.typ
+    PDF
+  )
+
+  file(
+    GLOB
+    _sen_api_stl
+    CONFIGURE_DEPENDS
+    ${PROJECT_SOURCE_DIR}/libs/kernel/stl/sen/kernel/*.stl
+    ${PROJECT_SOURCE_DIR}/libs/db/stl/sen/db/*.stl
+    ${PROJECT_SOURCE_DIR}/components/*/stl/*.stl
+    ${PROJECT_SOURCE_DIR}/components/*/stl/sen/components/*/*.stl
+  )
+
+  # Each component roots its own imports, so one base path cannot resolve them all.
+  file(
+    GLOB _sen_api_imports
+    LIST_DIRECTORIES true
+    ${PROJECT_SOURCE_DIR}/components/* ${PROJECT_SOURCE_DIR}/components/*/stl
+  )
+
+  sen_generate_typst(
+    TARGET
+    api_document
+    OUT
+    ${snippets_dir}/api-document
+    TITLE
+    "The Sen API"
+    STL_FILES
+    ${_sen_api_stl}
+    BASE_PATH
+    ${PROJECT_SOURCE_DIR}/libs/kernel
+    IMPORT_PATHS
+    ${PROJECT_SOURCE_DIR}/libs/db
+    ${_sen_api_imports}
+    FRONT_MATTER
+    ${typst_pages_dir}/front-matter.typ
+    BEFORE_REFERENCE
+    ${typst_pages_dir}/about-this-example.typ
+    PDF
+  )
+
   sen_generate_uml(
     TARGET fom_uml
     OUT ${snippets_dir}/fom.plantuml
@@ -132,6 +197,9 @@ exit 0"
       ${snippets_dir}/sen_generate_html.sh
       ${snippets_dir}/sen_generate_html_stl.sh
       ${snippets_dir}/sen_generate_html_fom.sh
+      ${snippets_dir}/sen_generate_typst.sh
+      ${snippets_dir}/sen_generate_typst_stl.sh
+      ${snippets_dir}/sen_generate_typst_fom.sh
       ${snippets_dir}/sen_generate_json_package_stl.sh
       ${snippets_dir}/sen_generate_json_package_fom.sh
       ${snippets_dir}/sen_generate_json_component_stl.sh
@@ -195,6 +263,8 @@ exit 0"
     snippets_target
     fom_uml
     fom_reference
+    fom_document
+    api_document
     cli_sen
     cli_gen
     cli_run

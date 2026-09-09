@@ -30,6 +30,7 @@ void setupMkDocsCli(CLI::App& app);
 void setupPlantUMLCli(CLI::App& app);
 void setupPythonCli(CLI::App& app);
 void setupTypeScriptCli(CLI::App& app);
+void setupTypstCli(CLI::App& app);
 }  // namespace sen::cli_gen
 
 //--------------------------------------------------------------------------------------------------------------
@@ -56,6 +57,7 @@ int runApp(int argc, char* argv[])
     setupHtmlCli(app);
     setupJsonCli(app);
     setupTypeScriptCli(app);
+    setupTypstCli(app);
 
     app.footer("For help on specific commands run 'sen generate <command> --help'");
 

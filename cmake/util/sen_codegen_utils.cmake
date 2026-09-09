@@ -882,6 +882,222 @@ function(sen_generate_html)
   endif()
 endfunction()
 
+# Generates a typesettable reference from STL or HLA FOM files.
+# Creates a custom target that runs the generator on demand, and with PDF a second
+# step that compiles the result.
+#
+# sen_generate_typst(
+#   TARGET <name>
+#     Name of the custom CMake target that triggers generation.
+#
+#   OUT <dir>
+#     Directory the document is written into. Like the HTML generator this is a
+#     directory: document.typ, reference.typ and style.typ are written side by side.
+#
+#   [TITLE <text>]
+#     Name of the model, shown on the running header. Defaults to the generator's own.
+#
+#   [PDF]
+#     Also compile the document. Requires the typst program on PATH; without it the
+#     target still writes the .typ files and the compile step is skipped with a note,
+#     so a machine that cannot typeset is not a build failure.
+#
+#   [FRONT_MATTER <file>]
+#   [BEFORE_REFERENCE <file>]
+#   [AFTER_REFERENCE <file>]
+#     Typst files included at those points, for a title page and any pages of your own.
+#     Paths are resolved when the document is compiled, not when it is generated.
+#
+#   [STYLE <file>]
+#     Typst file defining the look, replacing the one Sen ships.
+#
+#   [BASE_PATH <path>]
+#     Root directory for import resolution. Defaults to CMAKE_CURRENT_SOURCE_DIR.
+#
+#   [IMPORT_PATHS <dirs...>]
+#     Further roots for import resolution, for a model whose packages are rooted in more
+#     than one place. Searched in addition to BASE_PATH.
+#
+#   [STL_FILES <files...>]
+#     Sen Type Language (.stl) files to document. Mutually exclusive with HLA_FOM_DIRS.
+#
+#   [HLA_FOM_DIRS <dirs...>]
+#     Directories containing HLA FOM XML files to document.
+#     Mutually exclusive with STL_FILES.
+#
+#   [HLA_MAPPINGS_FILE <files...>]
+#     HLA mapping files forwarded to the generator. Requires HLA_FOM_DIRS.
+function(sen_generate_typst)
+
+  set(_options PDF)
+  set(_one_value_args
+      TARGET
+      BASE_PATH
+      OUT
+      TITLE
+      FRONT_MATTER
+      BEFORE_REFERENCE
+      AFTER_REFERENCE
+      STYLE
+  )
+  set(_multi_value_args
+      STL_FILES
+      HLA_FOM_DIRS
+      HLA_MAPPINGS_FILE
+      IMPORT_PATHS
+  )
+
+  cmake_parse_arguments(
+    _arg
+    "${_options}"
+    "${_one_value_args}"
+    "${_multi_value_args}"
+    ${ARGN}
+  )
+
+  if(NOT _arg_TARGET)
+    message(FATAL_ERROR "sen_generate_typst: no TARGET set")
+  endif()
+
+  if(NOT _arg_OUT)
+    message(FATAL_ERROR "sen_generate_typst: no OUT set")
+  endif()
+
+  if(_arg_STL_FILES AND _arg_HLA_FOM_DIRS)
+    message(FATAL_ERROR "sen_generate_typst: STL_FILES and HLA_FOM_DIRS cannot be present at the same time")
+  endif()
+
+  if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(FATAL_ERROR "sen_generate_typst: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified")
+  endif()
+
+  set(_opts)
+  if(_arg_TITLE)
+    list(
+      APPEND
+      _opts
+      --title
+      ${_arg_TITLE}
+    )
+  endif()
+
+  # Absolute, so the page is found from the build directory. The generator copies it in
+  # beside the document, because typst resolves an include against the document's own
+  # directory and refuses a path that climbs out of it.
+  foreach(
+    _point
+    FRONT_MATTER
+    BEFORE_REFERENCE
+    AFTER_REFERENCE
+    STYLE
+  )
+    if(_arg_${_point})
+      get_filename_component(_abs_point ${_arg_${_point}} ABSOLUTE)
+      string(TOLOWER ${_point} _flag)
+      string(
+        REPLACE "_"
+                "-"
+                _flag
+                ${_flag}
+      )
+      list(
+        APPEND
+        _opts
+        --${_flag}
+        ${_abs_point}
+      )
+    endif()
+  endforeach()
+
+  if(_arg_BASE_PATH)
+    get_filename_component(_abs_base_path ${_arg_BASE_PATH} ABSOLUTE)
+  else()
+    set(_abs_base_path ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  # A model whose packages are rooted in more than one place needs more than one
+  # root: each component resolves its imports against its own directory. Repeating
+  # the flag rather than relying on one greedy -i, which would swallow what follows.
+  set(_abs_import_paths)
+  foreach(_import_path ${_arg_IMPORT_PATHS})
+    get_filename_component(_abs_import_path ${_import_path} ABSOLUTE)
+    list(
+      APPEND
+      _abs_import_paths
+      -i
+      ${_abs_import_path}
+    )
+  endforeach()
+
+  if(_arg_STL_FILES)
+    set(_input_files_list)
+
+    foreach(_stl_file ${_arg_STL_FILES})
+      get_filename_component(_abs_stl_file ${_stl_file} ABSOLUTE)
+      list(APPEND _input_files_list ${_abs_stl_file})
+    endforeach()
+
+    add_custom_target(
+      ${_arg_TARGET}
+      COMMAND sen::cli_gen typst stl ${_input_files_list} -i ${_abs_base_path} ${_abs_import_paths} --output
+              ${_arg_OUT} ${_opts}
+      DEPENDS sen::cli_gen ${_input_files_list}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating typst reference for ${_input_files_list} in ${_arg_OUT}"
+      VERBATIM COMMAND_EXPAND_LISTS
+    )
+  endif()
+
+  if(_arg_HLA_FOM_DIRS)
+    set(_input_xmls)
+    set(_abs_fom_dirs)
+
+    foreach(_fom_dir ${_arg_HLA_FOM_DIRS})
+      get_filename_component(_abs_fom_dir ${_fom_dir} ABSOLUTE)
+      list(APPEND _abs_fom_dirs ${_abs_fom_dir})
+
+      file(
+        GLOB _xml_files
+        LIST_DIRECTORIES false
+        "${_fom_dir}/*.xml"
+      )
+      list(APPEND _input_xmls ${_xml_files})
+    endforeach()
+
+    set(_mapping_opt)
+    if(_arg_HLA_MAPPINGS_FILE)
+      get_filename_component(_abs_mapping_file ${_arg_HLA_MAPPINGS_FILE} ABSOLUTE)
+      list(APPEND _input_xmls ${_abs_mapping_file})
+      set(_mapping_opt "--mappings=${_abs_mapping_file}")
+    endif()
+
+    add_custom_target(
+      ${_arg_TARGET}
+      COMMAND sen::cli_gen typst fom ${_mapping_opt} --directories=${_abs_fom_dirs} --output ${_arg_OUT}
+              ${_opts}
+      DEPENDS sen::cli_gen ${_input_xmls}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating typst reference for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
+      VERBATIM COMMAND_EXPAND_LISTS
+    )
+  endif()
+
+  if(_arg_PDF AND TARGET ${_arg_TARGET})
+    find_program(SEN_TYPST_EXECUTABLE typst)
+    if(SEN_TYPST_EXECUTABLE)
+      add_custom_command(
+        TARGET ${_arg_TARGET}
+        POST_BUILD
+        COMMAND ${SEN_TYPST_EXECUTABLE} compile ${_arg_OUT}/document.typ ${_arg_OUT}/reference.pdf
+        COMMENT "Compiling ${_arg_OUT}/reference.pdf"
+        VERBATIM
+      )
+    else()
+      message(STATUS "sen_generate_typst: typst not found, ${_arg_TARGET} writes .typ only")
+    endif()
+  endif()
+endfunction()
+
 # Invokes a Python script at build time to generate a YAML configuration file.
 # Creates a custom target that re-runs the script whenever its inputs change.
 # If mypy is found, also creates a <TARGET>_check target that type-checks the script.

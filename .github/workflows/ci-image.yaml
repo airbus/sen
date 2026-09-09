@@ -88,9 +88,15 @@ jobs:
             set -e
             for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
                         clang++-20 clang-tidy-20 gcovr lcov genhtml \
-                        pytest junitparser bats objdump; do
+                        pytest junitparser bats objdump plantuml typst; do
                 command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
             done
+            # The reference typst sets is set in Liberation Sans. Without it the document
+            # silently repaginates and the tree connectors stop lining up. A missing font
+            # is not a missing command, and there is no fontconfig here to ask, so the
+            # check is for the file typst reads.
+            test -f /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf \
+                || { echo "missing: Liberation Sans"; exit 1; }
             conan --version | grep -F "'"$conan_version"'"
             python3 -c "import junitparser, pytest"
             # The coverage report target calls these by their versioned names

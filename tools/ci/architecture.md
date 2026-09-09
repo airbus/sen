@@ -295,12 +295,24 @@ stage. `base` installs cmake from pip rather than from the distribution
 because Conan writes `CMakeUserPresets.json` at version 4, which Ubuntu
 22.04's cmake 3.22 refuses to read.
 
+The image also carries the tools the documentation build finds by name: `plantuml`
+for the diagram the handbook embeds, and `typst` with Liberation Sans for the
+reference the handbook publishes as a PDF. The Python side of the documentation is
+not baked in -- `build_documentation` pip-installs `docs/requirements.txt` into the
+image at job time, which is where mkdocs and its plugins come from. The rule the two
+follow: a binary CMake locates with `find_program` belongs in the image, a Python
+package belongs in the requirements file.
+
 `ci-image.yaml` builds both stages and then checks what is inside them. For
 `base`: the expected tools are present, cmake and ninja report the versions
 `conanfile.py` tool-requires, clang can link a sanitizer binary, and the image
 does not run as root. For `dev`: cmake, ninja, gdb and dot are present and
 cmake is new enough to read the presets. A Dockerfile that still builds but
-lost a tool therefore fails in the pull request that broke it. `main.yaml` calls it when a change touches the build environment,
+lost a tool therefore fails in the pull request that broke it -- which only holds
+for tools the list names, so anything added to the Dockerfile has to be added
+there too. Liberation Sans is checked as a file rather than with `command -v`,
+since a missing font is not a missing command and there is no fontconfig to ask.
+`main.yaml` calls it when a change touches the build environment,
 and `ci-ok` needs it, so a broken image blocks the merge instead of showing up
 as a red mark beside it. Documentation under `tools/ci/` does not trigger it:
 the Dockerfile copies nothing out of the repository. Docker layer caching in the Actions cache keeps

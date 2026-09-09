@@ -156,6 +156,31 @@ needs no server and no network, so the output opens straight from a file.
 --8<-- "snippets/sen_generate_html_fom.sh"
 ```
 
+### Typeset reference (PDF)
+
+Renders the data model as a Typst document, in the shape of an interface control document:
+an overview, a class hierarchy, a table per type and an index. It writes Typst source rather
+than a PDF, so producing one is a separate step with the [Typst](https://typst.app/) compiler.
+
+What the document contains, and what it looks like, is set by the options rather than inferred
+from the model.
+
+```title="sen generate typst"
+--8<-- "snippets/sen_generate_typst.sh"
+```
+
+#### Typst from STL
+
+```title="sen generate typst stl"
+--8<-- "snippets/sen_generate_typst_stl.sh"
+```
+
+#### Typst from HLA FOMs
+
+```title="sen generate typst fom"
+--8<-- "snippets/sen_generate_typst_fom.sh"
+```
+
 ### JSON schemas
 
 Generates json schemas from a Sen data model.
