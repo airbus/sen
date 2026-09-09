@@ -13,6 +13,8 @@ var namespacesen_1_1gen =
     [ "PlantUMLGenerator", "classsen_1_1gen_1_1_plant_u_m_l_generator.html", "classsen_1_1gen_1_1_plant_u_m_l_generator" ],
     [ "PythonGenerator", "classsen_1_1gen_1_1_python_generator.html", "classsen_1_1gen_1_1_python_generator" ],
     [ "TypeScriptGenerator", "classsen_1_1gen_1_1_type_script_generator.html", "classsen_1_1gen_1_1_type_script_generator" ],
+    [ "TypstGenerator", "classsen_1_1gen_1_1_typst_generator.html", "classsen_1_1gen_1_1_typst_generator" ],
+    [ "TypstOptions", "namespacesen_1_1gen.html#structsen_1_1gen_1_1_typst_options", "namespacesen_1_1gen_structsen_1_1gen_1_1_typst_options_dup" ],
     [ "PlantUMLGenerationMode", "group__gen.html#gabadbb903ca6457c63f0f06292c72f2c0", [
       [ "all", "group__gen.html#ggabadbb903ca6457c63f0f06292c72f2c0aa181a603769c1f98ad927e7367c7aa51", null ],
       [ "onlyClasses", "group__gen.html#ggabadbb903ca6457c63f0f06292c72f2c0afe3edd5e127c491fcf7e8a440c8421c5", null ],

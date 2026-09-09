@@ -21,5 +21,6 @@ var searchData=
   ['type_5fvisitor_2eh_18',['type_visitor.h',['../type__visitor_8h.html',1,'']]],
   ['types_5ffwd_2eh_19',['types_fwd.h',['../types__fwd_8h.html',1,'']]],
   ['typescript_2eh_20',['typescript.h',['../typescript_8h.html',1,'']]],
-  ['typescript_5ftemplates_2eh_21',['typescript_templates.h',['../typescript__templates_8h.html',1,'']]]
+  ['typescript_5ftemplates_2eh_21',['typescript_templates.h',['../typescript__templates_8h.html',1,'']]],
+  ['typst_2eh_22',['typst.h',['../typst_8h.html',1,'']]]
 ];

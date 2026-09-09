@@ -18,6 +18,7 @@ var searchData=
   ['eventhashseed_15',['eventHashSeed',['../group__hash.html#ga784106f033594a1b654be3ead9efce47',1,'sen']]],
   ['events_16',['events',['../group__lang.html#acce0f707610f3bfaf8b48767fe732615',1,'sen::lang::StlInterfaceStatement']]],
   ['everykindstl_17',['everyKindStl',['../namespacesen_1_1gen_1_1test.html#a1b0a08b5ce28372db3b8acd9d92e134a',1,'sen::gen::test']]],
-  ['expr_18',['expr',['../group__lang.html#a325f66eaef1c028e4e45da60830263e9',1,'sen::lang::StlUnaryExpr::expr'],['../group__lang.html#a2b110ab2675fa849c077d82b883d60da',1,'sen::lang::StlGroupingExpr::expr']]],
-  ['extends_19',['extends',['../group__lang.html#a534807854ed81c5f9951a38815809ea7',1,'sen::lang::StlClassStatement']]]
+  ['excludepackages_18',['excludePackages',['../namespacesen_1_1gen.html#a77571d5fd6c0948c473f2688927ce0eb',1,'sen::gen::TypstOptions']]],
+  ['expr_19',['expr',['../group__lang.html#a325f66eaef1c028e4e45da60830263e9',1,'sen::lang::StlUnaryExpr::expr'],['../group__lang.html#a2b110ab2675fa849c077d82b883d60da',1,'sen::lang::StlGroupingExpr::expr']]],
+  ['extends_20',['extends',['../group__lang.html#a534807854ed81c5f9951a38815809ea7',1,'sen::lang::StlClassStatement']]]
 ];

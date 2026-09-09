@@ -59,7 +59,9 @@ var annotated_dup =
         [ "PackageOptions", "group__gen.html#structsen_1_1gen_1_1_package_options", "group__gen_structsen_1_1gen_1_1_package_options" ],
         [ "PlantUMLGenerator", "classsen_1_1gen_1_1_plant_u_m_l_generator.html", "classsen_1_1gen_1_1_plant_u_m_l_generator" ],
         [ "PythonGenerator", "classsen_1_1gen_1_1_python_generator.html", "classsen_1_1gen_1_1_python_generator" ],
-        [ "TypeScriptGenerator", "classsen_1_1gen_1_1_type_script_generator.html", "classsen_1_1gen_1_1_type_script_generator" ]
+        [ "TypeScriptGenerator", "classsen_1_1gen_1_1_type_script_generator.html", "classsen_1_1gen_1_1_type_script_generator" ],
+        [ "TypstGenerator", "classsen_1_1gen_1_1_typst_generator.html", "classsen_1_1gen_1_1_typst_generator" ],
+        [ "TypstOptions", "namespacesen_1_1gen.html#structsen_1_1gen_1_1_typst_options", "namespacesen_1_1gen_structsen_1_1gen_1_1_typst_options_dup" ]
       ] ],
       [ "kernel", "namespacesen_1_1kernel.html", [
         [ "Bootloader", "classsen_1_1kernel_1_1_bootloader.html", "classsen_1_1kernel_1_1_bootloader" ],

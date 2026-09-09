@@ -114,13 +114,14 @@ var searchData=
   ['_7etypescriptgenerator_111',['~TypeScriptGenerator',['../classsen_1_1gen_1_1_type_script_generator.html#a6ce09668d63b145a65e3519ddb796ae5',1,'sen::gen::TypeScriptGenerator']]],
   ['_7etypestorage_112',['~TypeStorage',['../classsen_1_1gen_1_1detail_1_1_type_storage.html#ab8d3d70993bf27ac9fcd4fec8b683e89',1,'sen::gen::detail::TypeStorage']]],
   ['_7etypevisitor_113',['~TypeVisitor',['../classsen_1_1_type_visitor.html#aa8ab8d2094ee1d923be9d5c9b3f2dc69',1,'sen::TypeVisitor']]],
-  ['_7euniquebytebuffermanager_114',['~UniqueByteBufferManager',['../classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#acd991c9a934091391c704bb4aeb3a739',1,'sen::kernel::UniqueByteBufferManager']]],
-  ['_7eunit_115',['~Unit',['../classsen_1_1_unit.html#a233e1648ec0731e20c04e6c5fa46b861',1,'sen::Unit']]],
-  ['_7eunloadapi_116',['~UnloadApi',['../classsen_1_1kernel_1_1_unload_api.html#ad8d8297f8c6bfc0b944b912f5ac85961',1,'sen::kernel::UnloadApi']]],
-  ['_7euuid_117',['~Uuid',['../group__util.html#gaf7d4599e90e792cbb653972353ac04ee',1,'sen::Uuid']]],
-  ['_7evar_118',['~Var',['../structsen_1_1_var.html#a479097ea33a35a1c85331298922377c0',1,'sen::Var']]],
-  ['_7evarianttype_119',['~VariantType',['../classsen_1_1_variant_type.html#ab8381ce86b22301216f9c06065b82cc2',1,'sen::VariantType']]],
-  ['_7evec3_120',['~Vec3',['../classsen_1_1util_1_1_vec3.html#ad4e6010d134cffd3353acefc41e1ce34',1,'sen::util::Vec3']]],
-  ['_7evm_121',['~VM',['../classsen_1_1lang_1_1_v_m.html#a4f94775a8fe0045ae2ed8c4dd76d075c',1,'sen::lang::VM']]],
-  ['_7ewriter_122',['~Writer',['../classsen_1_1_writer.html#a2f82e210f14fcaca4dbd7ff26f1422a1',1,'sen::Writer']]]
+  ['_7etypstgenerator_114',['~TypstGenerator',['../classsen_1_1gen_1_1_typst_generator.html#a55be257fb08764d3b918c7b52918b2a3',1,'sen::gen::TypstGenerator']]],
+  ['_7euniquebytebuffermanager_115',['~UniqueByteBufferManager',['../classsen_1_1kernel_1_1_unique_byte_buffer_manager.html#acd991c9a934091391c704bb4aeb3a739',1,'sen::kernel::UniqueByteBufferManager']]],
+  ['_7eunit_116',['~Unit',['../classsen_1_1_unit.html#a233e1648ec0731e20c04e6c5fa46b861',1,'sen::Unit']]],
+  ['_7eunloadapi_117',['~UnloadApi',['../classsen_1_1kernel_1_1_unload_api.html#ad8d8297f8c6bfc0b944b912f5ac85961',1,'sen::kernel::UnloadApi']]],
+  ['_7euuid_118',['~Uuid',['../group__util.html#gaf7d4599e90e792cbb653972353ac04ee',1,'sen::Uuid']]],
+  ['_7evar_119',['~Var',['../structsen_1_1_var.html#a479097ea33a35a1c85331298922377c0',1,'sen::Var']]],
+  ['_7evarianttype_120',['~VariantType',['../classsen_1_1_variant_type.html#ab8381ce86b22301216f9c06065b82cc2',1,'sen::VariantType']]],
+  ['_7evec3_121',['~Vec3',['../classsen_1_1util_1_1_vec3.html#ad4e6010d134cffd3353acefc41e1ce34',1,'sen::util::Vec3']]],
+  ['_7evm_122',['~VM',['../classsen_1_1lang_1_1_v_m.html#a4f94775a8fe0045ae2ed8c4dd76d075c',1,'sen::lang::VM']]],
+  ['_7ewriter_123',['~Writer',['../classsen_1_1_writer.html#a2f82e210f14fcaca4dbd7ff26f1422a1',1,'sen::Writer']]]
 ];

@@ -1,7 +1,7 @@
 <map id="sen::HasValueType&lt; T, std::void_t&lt; typename T::ValueType &gt; &gt;" name="sen::HasValueType&lt; T, std::void_t&lt; typename T::ValueType &gt; &gt;">
-<area shape="rect" id="Node000001" title="return true if T has an &#39;using ValueType&#39; or a &#39;typedef ValueType&#39;" alt="" coords="35,119,217,213"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,116,71"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,82,104,117,99,120,81,84"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="141,5,245,71"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,84,153,120,148,117,167,82"/>
+<area shape="rect" id="Node000001" title="return true if T has an &#39;using ValueType&#39; or a &#39;typedef ValueType&#39;" alt="" coords="34,119,197,213"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,105,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,82,96,117,91,120,74,84"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="129,5,224,71"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="158,84,140,120,136,117,153,82"/>
 </map>

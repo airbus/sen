@@ -6,5 +6,6 @@ var dir_6604190d1993a0fa6d23fe5e913e3f41 =
     [ "mkdocs.h", "mkdocs_8h.html", null ],
     [ "plantuml.h", "plantuml_8h.html", "plantuml_8h" ],
     [ "python.h", "python_8h.html", null ],
-    [ "typescript.h", "typescript_8h.html", null ]
+    [ "typescript.h", "typescript_8h.html", null ],
+    [ "typst.h", "typst_8h.html", "typst_8h" ]
 ];

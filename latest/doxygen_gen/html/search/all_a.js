@@ -54,5 +54,6 @@ var searchData=
   ['keywordtrue_51',['keywordTrue',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a71713cc443eb34877d38a8eed91788a1',1,'sen::lang']]],
   ['keywordvar_52',['keywordVar',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a1cdc2ed378e552b460af0c0b99cd6233',1,'sen::lang']]],
   ['keywordvariant_53',['keywordVariant',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a620aca05588c7ea766aa1986c2766a5f',1,'sen::lang']]],
-  ['keywordwhere_54',['keywordWhere',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a497467a82b748664abd8b476fe8dc563',1,'sen::lang']]]
+  ['keywordwhere_54',['keywordWhere',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a497467a82b748664abd8b476fe8dc563',1,'sen::lang']]],
+  ['kindof_55',['kindOf',['../namespacesen_1_1gen_1_1detail.html#ae55e2168b2afe7eb7f48d2ac697c10f5',1,'sen::gen::detail']]]
 ];

@@ -1546,6 +1546,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_document.html">
+<span class="md-ellipsis">
+    
+  
+    Typeset reference (PDF)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../examples/generated_uml.html">
 <span class="md-ellipsis">
     
@@ -1667,6 +1679,11 @@ your configuration, a reference somebody else can read.</p>
 <td>A browsable reference that opens from a file: a tree, a search, and a view per type showing what it carries and what uses it.</td>
 <td><a href="../examples/generated_reference.html">HTML reference</a></td>
 </tr>
+<tr>
+<td><code>typst</code></td>
+<td>A tabular reference in the shape of an interface control document, ready to typeset as a PDF.</td>
+<td><a href="../examples/generated_document.html">Typeset reference (PDF)</a></td>
+</tr>
 </tbody>
 </table>
 <h2 id="getting-it-as-part-of-your-build">Getting it as part of your build<a class="headerlink" href="#getting-it-as-part-of-your-build" title="Permanent link">¶</a></h2>
@@ -1696,6 +1713,16 @@ target itself, for the reason <a href="cmake.html">CMake integration</a> gives.<
 output to a target that already exists. That target has to be a compilable C++ one: both call Sen's
 target setup, which requires C++17 of anything that links it, turns on warnings as errors and links
 <code>sen::core</code>. An interface library or a custom target is rejected.</p>
+<p><code>sen_generate_typst</code> works the same way, and <code>PDF</code> adds the compile step:</p>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">sen_generate_typst</span><span class="p">(</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">model_document</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="s">OUT</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span><span class="s">/document</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="s">STL_FILES</span><span class="w"> </span><span class="s">stl/my_package/my_class.stl</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="s">PDF</span>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="p">)</span>
+</span></code></pre></div>
+<p><code>PDF</code> needs the <code>typst</code> program on the path. Without it the target still writes the <code>.typ</code> files and
+says so, because a machine that cannot typeset should not fail your build.</p>
 <p>There is no CMake function for <code>mkdocs</code> or for <code>ts</code>, which does not mean you cannot generate them
 from a build: run <code>sen::cli_gen</code> from an <code>add_custom_command</code> instead, as Sen's own TypeScript
 client does. You have to name the output files yourself, because CMake cannot know in advance what
@@ -1706,8 +1733,8 @@ configuration, and <code>sen_combine_schemas</code> for merging schemas into the
 <h2 id="getting-it-from-the-command-line">Getting it from the command line<a class="headerlink" href="#getting-it-from-the-command-line" title="Permanent link">¶</a></h2>
 <p><code>sen generate</code> reaches every generator. Each takes <abbr title="Sen Type Language">STL</abbr> files as positional arguments, or <abbr title="Federation Object Model">FOM</abbr>
 directories behind <code>--directories</code>:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>sen<span class="w"> </span>generate<span class="w"> </span>html<span class="w"> </span>stl<span class="w"> </span>stl/my_package/my_class.stl<span class="w"> </span>-i<span class="w"> </span>stl<span class="w"> </span>--output<span class="w"> </span>reference
-</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>sen<span class="w"> </span>generate<span class="w"> </span>html<span class="w"> </span>fom<span class="w"> </span>--directories<span class="w"> </span>rpr<span class="w"> </span>netn<span class="w"> </span>--output<span class="w"> </span>reference
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>sen<span class="w"> </span>generate<span class="w"> </span>html<span class="w"> </span>stl<span class="w"> </span>stl/my_package/my_class.stl<span class="w"> </span>-i<span class="w"> </span>stl<span class="w"> </span>--output<span class="w"> </span>reference
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>sen<span class="w"> </span>generate<span class="w"> </span>html<span class="w"> </span>fom<span class="w"> </span>--directories<span class="w"> </span>rpr<span class="w"> </span>netn<span class="w"> </span>--output<span class="w"> </span>reference
 </span></code></pre></div>
 <p><code>-i</code> is where imported <abbr title="Sen Type Language">STL</abbr> files are looked up. Output options differ: most generators take
 <code>--output</code>, <code>ts</code> takes <code>--out-dir</code>, and <code>cpp</code> and <code>py</code> write into the current directory.</p>
@@ -1729,6 +1756,18 @@ generated, so calls into an object are still made by name.</p>
 <p><strong><code>mkdocs</code> writes one file, and expects Material.</strong> Everything lands in a single markdown document,
 and it uses content tabs and icon shortcodes that need
 <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> rather than plain MkDocs.</p>
+<p><strong><code>typst</code> writes a document, not a PDF.</strong> The output is Typst source: <code>document.typ</code>, the
+<code>reference.typ</code> it includes, and the <code>style.typ</code> that decides how it looks. Turning that into a PDF
+needs the <a href="https://typst.app/">Typst</a> compiler, one binary with nothing under it. Keeping the two
+apart is what lets you review the document as text, and lets a build machine without a typesetter
+still produce something.</p>
+<p><strong>What goes in the document is yours to say.</strong> Nothing is inferred from the shape of the model:
+<code>--front-matter</code>, <code>--before-reference</code> and <code>--after-reference</code> name Typst files of your own that the
+document includes at those points, and <code>--style</code> replaces the look entirely. The generator never
+reads any of them — it writes an <code>#include</code> and copies the file in beside the document — so a title
+page can be anything Typst can set. Each section can also be dropped: <code>--no-overview</code>,
+<code>--no-hierarchy</code>, <code>--no-summaries</code>, <code>--no-index</code>, <code>--no-used-by</code>, <code>--no-flag-legend</code>,
+<code>--no-built-ins</code>.</p>
 <p>The generators are also a library, <a href="gen_library.html"><code>sen::gen</code></a>, for a program that has to write any
 of this while it runs rather than while it builds.</p>
 <aside class="md-source-file">
@@ -1736,7 +1775,7 @@ of this while it runs rather than while it builds.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 22:39:10 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 9, 2026 15:30:33 UTC">September 9, 2026</span>
 </span>
 </aside>
 </article>

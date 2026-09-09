@@ -1,23 +1,23 @@
 <map id="sen::CustomType" name="sen::CustomType">
-<area shape="rect" id="Node000001" title="Represents a user&#45;defined type." alt="" coords="563,299,720,404"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_alias_type.html" title="Represents an aliased type." alt="" coords="5,512,163,737"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="549,366,449,380,340,399,242,424,204,439,176,454,149,481,127,513,123,510,145,477,173,450,201,434,240,419,339,394,448,374,549,360"/>
-<area shape="rect" id="Node000004" href="$classsen_1_1_enum_type.html" title="Represents an enumeration." alt="" coords="187,482,357,767"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="550,372,505,385,458,402,412,425,371,454,343,484,339,480,368,450,410,420,456,397,504,380,549,367"/>
-<area shape="rect" id="Node000005" href="$classsen_1_1_optional_type.html" title="Represents an optional type." alt="" coords="381,512,539,737"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="583,416,553,454,516,513,512,510,548,450,579,412"/>
-<area shape="rect" id="Node000006" href="$classsen_1_1_quantity_type.html" title="Represents a quantity." alt="" coords="563,452,720,797"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="644,418,644,452,639,452,639,418"/>
-<area shape="rect" id="Node000009" href="$classsen_1_1_sequence_type.html" title="Represents a sequence type." alt="" coords="744,492,901,757"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="704,412,734,450,760,490,755,493,730,454,700,416"/>
-<area shape="rect" id="Node000010" href="$classsen_1_1_struct_type.html" title="Represents a structure type." alt="" coords="925,482,1088,767"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="734,366,779,379,827,397,873,420,915,450,943,480,939,484,912,454,870,425,825,402,778,384,733,372"/>
-<area shape="rect" id="Node000011" href="$classsen_1_1_variant_type.html" title="Represents a variant type." alt="" coords="1112,502,1269,747"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="734,361,833,375,940,395,1036,420,1074,434,1102,450,1126,473,1146,500,1142,503,1122,476,1098,454,1072,439,1034,425,939,400,832,380,733,366"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_type.html" title="Represents a type that can be used to define variables and arguments for methods or functions...." alt="" coords="541,5,742,251"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="644,265,644,298,639,298,639,265"/>
-<area shape="rect" id="Node000007" href="$classsen_1_1_duration_type.html" title="Represents a sen::Duration (a time duration)." alt="" coords="489,845,625,971"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="589,811,578,846,573,844,584,810"/>
-<area shape="rect" id="Node000008" href="$classsen_1_1_timestamp_type.html" title="Represents a sen::TimeStamp (a point in time)." alt="" coords="650,845,803,971"/>
-<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="700,809,710,844,705,846,695,811"/>
+<area shape="rect" id="Node000001" title="Represents a user&#45;defined type." alt="" coords="507,299,645,404"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_alias_type.html" title="Represents an aliased type." alt="" coords="5,512,144,737"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="494,366,403,381,304,401,216,425,182,439,158,454,132,481,112,513,108,510,128,478,154,450,180,435,214,420,303,396,402,376,493,361"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1_enum_type.html" title="Represents an enumeration." alt="" coords="169,482,319,767"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="494,373,453,386,411,404,370,426,334,454,308,483,304,480,330,450,367,422,409,399,451,381,492,368"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1_optional_type.html" title="Represents an optional type." alt="" coords="344,512,483,737"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="523,417,497,453,464,513,459,511,492,451,519,414"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1_quantity_type.html" title="Represents a quantity." alt="" coords="507,452,645,797"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="579,418,579,452,573,452,573,418"/>
+<area shape="rect" id="Node000009" href="$classsen_1_1_sequence_type.html" title="Represents a sequence type." alt="" coords="669,492,808,757"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="633,414,660,451,683,491,678,493,655,453,629,417"/>
+<area shape="rect" id="Node000010" href="$classsen_1_1_struct_type.html" title="Represents a structure type." alt="" coords="833,482,978,767"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="660,368,701,381,743,399,785,422,822,450,848,480,844,483,818,454,782,426,741,404,699,386,658,373"/>
+<area shape="rect" id="Node000011" href="$classsen_1_1_variant_type.html" title="Represents a variant type." alt="" coords="1003,502,1141,747"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="659,350,736,356,823,372,868,385,912,402,953,424,991,450,1014,473,1032,500,1028,503,1010,476,988,454,950,428,909,407,866,390,822,378,735,362,659,355"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_type.html" title="Represents a type that can be used to define variables and arguments for methods or functions...." alt="" coords="486,5,666,251"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="579,265,579,298,573,298,573,265"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1_duration_type.html" title="Represents a sen::Duration (a time duration)." alt="" coords="440,845,560,971"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="529,811,519,846,514,844,524,810"/>
+<area shape="rect" id="Node000008" href="$classsen_1_1_timestamp_type.html" title="Represents a sen::TimeStamp (a point in time)." alt="" coords="584,845,720,971"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="628,810,638,844,633,846,623,811"/>
 </map>

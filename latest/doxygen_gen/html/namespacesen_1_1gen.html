@@ -164,6 +164,10 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders Python dataclasses out of sen type sets. Stateful (caches the loaded inja templates), so prefer reusing one instance across calls when possible.  <a href="classsen_1_1gen_1_1_python_generator.html#details">More...</a><br /></td></tr>
 <tr class="memitem:TypeScriptGenerator" id="r_TypeScriptGenerator"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1gen_1_1_type_script_generator.html">TypeScriptGenerator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders TypeScript modules out of sen type sets. Stateful (caches the loaded inja templates), so prefer reusing one instance across calls when possible.  <a href="classsen_1_1gen_1_1_type_script_generator.html#details">More...</a><br /></td></tr>
+<tr class="memitem:TypstGenerator" id="r_TypstGenerator"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1gen_1_1_typst_generator.html">TypstGenerator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders a Sen data model as a Typst document, in the shape of an interface control document. Writes Typst source; producing a PDF is a separate step, as with PlantUML.  <a href="classsen_1_1gen_1_1_typst_generator.html#details">More...</a><br /></td></tr>
+<tr class="memitem:TypstOptions_5Fstructsen_5F1_5F1gen_5F1_5F1_5Ftypst_5Foptions" id="r_TypstOptions_5Fstructsen_5F1_5F1gen_5F1_5F1_5Ftypst_5Foptions"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1gen_1_1_typst_options">TypstOptions</a></td></tr>
+<tr class="memdesc:structsen_1_1gen_1_1_typst_options"><td class="mdescLeft">&#160;</td><td class="mdescRight">What the document contains and how it is put together. Every field defaults to the whole model and the standard sections, so a default-constructed value produces a complete document and a caller who wants that need know none of this.  <a href="#structsen_1_1gen_1_1_typst_options">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -177,6 +181,109 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga2b7cee90271263164e23d3207efa8dd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Controls whether enum types contribute their enumerators to the rendered diagram.  <a href="group__gen.html#ga2b7cee90271263164e23d3207efa8dd7">More...</a><br /></td></tr>
 </table>
+<hr/><h2 id="header-inline_5Fclasses" class="groupheader">Class Documentation</h2>
+<a name="structsen_1_1gen_1_1_typst_options" id="structsen_1_1gen_1_1_typst_options"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structsen_1_1gen_1_1_typst_options">&#9670;&#160;</a></span>sen::gen::TypstOptions</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct sen::gen::TypstOptions</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>What the document contains and how it is put together. Every field defaults to the whole model and the standard sections, so a default-constructed value produces a complete document and a caller who wants that need know none of this. </p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a id="a4d1ab1ff3ffc46e28015c190298b1d6d" name="a4d1ab1ff3ffc46e28015c190298b1d6d"></a>string</td>
+<td class="fieldname">
+title {&quot;Data model&quot;}</td>
+<td class="fielddoc">
+Shown on the title page and in the running header. </td></tr>
+<tr><td class="fieldtype">
+<a id="a858aeee8aa41e1bd2eefa3aa973585f0" name="a858aeee8aa41e1bd2eefa3aa973585f0"></a>vector&lt; string &gt;</td>
+<td class="fieldname">
+includePackages</td>
+<td class="fielddoc">
+Packages to document. Empty means every package in the model. </td></tr>
+<tr><td class="fieldtype">
+<a id="a77571d5fd6c0948c473f2688927ce0eb" name="a77571d5fd6c0948c473f2688927ce0eb"></a>vector&lt; string &gt;</td>
+<td class="fieldname">
+excludePackages</td>
+<td class="fielddoc">
+Packages to leave out, applied after <span class="tt"><a class="el" href="#a858aeee8aa41e1bd2eefa3aa973585f0" title="Packages to document. Empty means every package in the model.">includePackages</a></span>. </td></tr>
+<tr><td class="fieldtype">
+<a id="af680d81e6325c83f0ce8fd6b5be92a54" name="af680d81e6325c83f0ce8fd6b5be92a54"></a>bool</td>
+<td class="fieldname">
+overview {true}</td>
+<td class="fielddoc">
+The overview: the package table and the class hierarchy across all packages. </td></tr>
+<tr><td class="fieldtype">
+<a id="aacfe7ece61865c11f27f72ad0a42cfb1" name="aacfe7ece61865c11f27f72ad0a42cfb1"></a>bool</td>
+<td class="fieldname">
+hierarchy {true}</td>
+<td class="fielddoc">
+The class hierarchy within the overview. Emitted only where classes inherit. </td></tr>
+<tr><td class="fieldtype">
+<a id="aef660266e5a5bfac39777fa66ab1fe4d" name="aef660266e5a5bfac39777fa66ab1fe4d"></a>bool</td>
+<td class="fieldname">
+summaries {true}</td>
+<td class="fielddoc">
+The per-section table of every type with its description and page. </td></tr>
+<tr><td class="fieldtype">
+<a id="a891a9a093812a93b0b66d6e18c4876dc" name="a891a9a093812a93b0b66d6e18c4876dc"></a>bool</td>
+<td class="fieldname">
+index {true}</td>
+<td class="fielddoc">
+The alphabetical index of every type, at the back. </td></tr>
+<tr><td class="fieldtype">
+<a id="a496b58f511cb89851a803de333946aac" name="a496b58f511cb89851a803de333946aac"></a>bool</td>
+<td class="fieldname">
+usedBy {true}</td>
+<td class="fielddoc">
+The "used by" line on each type. </td></tr>
+<tr><td class="fieldtype">
+<a id="aed76684d056440321c193f95eb9e4789" name="aed76684d056440321c193f95eb9e4789"></a>bool</td>
+<td class="fieldname">
+flagLegend {true}</td>
+<td class="fielddoc">
+What the codes in the Flags column mean, before the first table that uses them. </td></tr>
+<tr><td class="fieldtype">
+<a id="a306e0a875c9cd325c80aaf59b43a43a9" name="a306e0a875c9cd325c80aaf59b43a43a9"></a>bool</td>
+<td class="fieldname">
+builtIns {true}</td>
+<td class="fielddoc">
+The table of the built-in types the model names, at the back. </td></tr>
+<tr><td class="fieldtype">
+<a id="a4b28094c84ea33c84e73453315208946" name="a4b28094c84ea33c84e73453315208946"></a>path</td>
+<td class="fieldname">
+frontMatter</td>
+<td class="fielddoc">
+Typst files the document includes at named points. The generator never reads them: it emits <span class="tt">#include</span> and the paths resolve when the document is compiled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a98b22dbe4a15dc7228463ea41774a622" name="a98b22dbe4a15dc7228463ea41774a622"></a>path</td>
+<td class="fieldname">
+beforeReference</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a id="a1396295aa6b155d9bd1a829613a4a885" name="a1396295aa6b155d9bd1a829613a4a885"></a>path</td>
+<td class="fieldname">
+afterReference</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a id="a8496fc62b4d42d87da644d2b337e4563" name="a8496fc62b4d42d87da644d2b337e4563"></a>path</td>
+<td class="fieldname">
+style</td>
+<td class="fielddoc">
+Replaces the emitted <span class="tt">style.typ</span>. Every visual decision lives in that module, so a caller changing the look never edits generated output. </td></tr>
+</table>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div id="page-nav" class="page-nav-panel">

@@ -1,7 +1,7 @@
 <map id="sen::ObjectProvider" name="sen::ObjectProvider">
-<area shape="rect" id="Node000001" title="Base class for an entity that is able to produce objects." alt="" coords="5,133,263,533"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_object_mux.html" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="5,581,263,1076"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="137,547,137,581,131,581,131,547"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="29,5,239,85"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,99,137,133,131,133,131,99"/>
+<area shape="rect" id="Node000001" title="Base class for an entity that is able to produce objects." alt="" coords="5,133,236,533"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_object_mux.html" title="Converts multiple object providers into one. Providers might reside in different threads...." alt="" coords="5,581,236,1076"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,547,123,581,118,581,118,547"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="28,5,213,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,99,123,133,118,133,118,99"/>
 </map>

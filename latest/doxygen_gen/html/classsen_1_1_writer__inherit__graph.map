@@ -1,9 +1,9 @@
 <map id="sen::Writer" name="sen::Writer">
-<area shape="rect" id="Node000001" title="Interface for writing to a device." alt="" coords="209,5,302,131"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_buffer_writer.html" title="A writer that owns a fixed size buffer." alt="" coords="5,219,135,344"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,126,149,180,117,220,113,217,145,177,197,122"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_resizable_buffer_writer.html" title="A writer that owns a buffer that gets resized on demand." alt="" coords="159,211,351,351"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,145,258,211,253,211,253,145"/>
-<area shape="rect" id="Node000004" href="$classsen_1_1test_1_1_test_writer.html" title=" " alt="" coords="375,179,519,384"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="314,123,365,177,377,190,373,193,361,180,310,127"/>
+<area shape="rect" id="Node000001" title="Interface for writing to a device." alt="" coords="183,5,266,131"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_buffer_writer.html" title="A writer that owns a fixed size buffer." alt="" coords="5,219,116,344"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,125,129,180,101,220,97,217,125,177,172,121"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_resizable_buffer_writer.html" title="A writer that owns a buffer that gets resized on demand." alt="" coords="140,211,309,351"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="227,145,227,211,222,211,222,145"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1test_1_1_test_writer.html" title=" " alt="" coords="333,179,465,384"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="277,123,324,177,335,191,331,194,320,180,273,126"/>
 </map>

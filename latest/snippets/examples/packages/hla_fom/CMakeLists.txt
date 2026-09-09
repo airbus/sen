@@ -27,6 +27,16 @@ sen_generate_uml(
 )
 # --8<-- [end:uml]
 
+# --8<-- [start:typst]
+sen_generate_typst(
+  TARGET hla_fom_document
+  OUT ${CMAKE_CURRENT_BINARY_DIR}/document
+  TITLE "RPR, NETN and Link 16"
+  HLA_FOM_DIRS rpr netn link16
+  PDF
+)
+# --8<-- [end:typst]
+
 # --8<-- [start:html]
 sen_generate_html(
   TARGET hla_fom_reference

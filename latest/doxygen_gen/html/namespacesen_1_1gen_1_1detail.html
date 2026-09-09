@@ -174,6 +174,14 @@ Functions</h2></td></tr>
 <tr class="memdesc:a6360274d9168d81fe8ceb7cf49beec39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transform a string to uppercase.  <br /></td></tr>
 <tr class="memitem:a8f70147cc5131b258b00d53705853802" id="r_a8f70147cc5131b258b00d53705853802"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a8f70147cc5131b258b00d53705853802">capitalize</a> (std::string_view str)</td></tr>
 <tr class="memdesc:a8f70147cc5131b258b00d53705853802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transform a string_view to uppercase.  <br /></td></tr>
+<tr class="memitem:a52a416290d09c88af2effdaef9dbdbd5" id="r_a52a416290d09c88af2effdaef9dbdbd5"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a52a416290d09c88af2effdaef9dbdbd5">throwUnsupportedType</a> (const <a class="el" href="classsen_1_1_type.html">sen::Type</a> &amp;type)</td></tr>
+<tr class="memdesc:a52a416290d09c88af2effdaef9dbdbd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refuses a type no template covers, in the one wording every generator used. Each had its own copy of these five lines, which is how six of them come to disagree.  <br /></td></tr>
+<tr class="memitem:ae55e2168b2afe7eb7f48d2ac697c10f5" id="r_ae55e2168b2afe7eb7f48d2ac697c10f5"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ae55e2168b2afe7eb7f48d2ac697c10f5">kindOf</a> (const <a class="el" href="classsen_1_1_custom_type.html">sen::CustomType</a> &amp;type)</td></tr>
+<tr class="memdesc:ae55e2168b2afe7eb7f48d2ac697c10f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">How a type is grouped in a document: "classes", "structures", "enumerations", "variants", "sequences", "quantities", "aliases", "optionals". Two documents describing one model have to agree about this, so there is one of it.  <br /></td></tr>
+<tr class="memitem:a3eb80a01a7df7a6beb75dcb68b2bbc1a" id="r_a3eb80a01a7df7a6beb75dcb68b2bbc1a"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a3eb80a01a7df7a6beb75dcb68b2bbc1a">collapseWhitespace</a> (std::string_view text)</td></tr>
+<tr class="memdesc:a3eb80a01a7df7a6beb75dcb68b2bbc1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collapses a description to one run of prose. Model text wraps and indents its sentences in the source; a document renders it as a paragraph.  <br /></td></tr>
+<tr class="memitem:a820f41f7896596b496330f499f9b2cc9" id="r_a820f41f7896596b496330f499f9b2cc9"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a820f41f7896596b496330f499f9b2cc9">computePackageName</a> (const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">sen::lang::TypeSet</a> &amp;set)</td></tr>
+<tr class="memdesc:a820f41f7896596b496330f499f9b2cc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the dotted package name, as the language writes it: "sen.kernel", "rpr". Four generators each had their own copy of this; it is one function because a fix to one of four copies is a fix to one of four outputs.  <br /></td></tr>
 <tr class="memitem:ad1d9f543b27319663c5e5426ae50fb4f" id="r_ad1d9f543b27319663c5e5426ae50fb4f"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#ad1d9f543b27319663c5e5426ae50fb4f">computeCppNamespace</a> (const std::vector&lt; std::string &gt; &amp;package)</td></tr>
 <tr class="memdesc:ad1d9f543b27319663c5e5426ae50fb4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes C++ namespace from a string package.  <br /></td></tr>
 <tr class="memitem:a1070ed9111fc5d3f9a4cbce8ee5344c4" id="r_a1070ed9111fc5d3f9a4cbce8ee5344c4"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a1070ed9111fc5d3f9a4cbce8ee5344c4">computeCppNamespace</a> (const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">sen::lang::TypeSet</a> &amp;set)</td></tr>
@@ -940,6 +948,106 @@ quantityTemplate</td>
 </div><div class="memdoc">
 
 <p>Transform a string_view to uppercase. </p>
+
+</div>
+</div>
+<a id="a52a416290d09c88af2effdaef9dbdbd5" name="a52a416290d09c88af2effdaef9dbdbd5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52a416290d09c88af2effdaef9dbdbd5">&#9670;&#160;</a></span>throwUnsupportedType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::gen::detail::throwUnsupportedType </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classsen_1_1_type.html">sen::Type</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refuses a type no template covers, in the one wording every generator used. Each had its own copy of these five lines, which is how six of them come to disagree. </p>
+
+</div>
+</div>
+<a id="ae55e2168b2afe7eb7f48d2ac697c10f5" name="ae55e2168b2afe7eb7f48d2ac697c10f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae55e2168b2afe7eb7f48d2ac697c10f5">&#9670;&#160;</a></span>kindOf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::gen::detail::kindOf </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classsen_1_1_custom_type.html">sen::CustomType</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>How a type is grouped in a document: "classes", "structures", "enumerations", "variants", "sequences", "quantities", "aliases", "optionals". Two documents describing one model have to agree about this, so there is one of it. </p>
+
+</div>
+</div>
+<a id="a3eb80a01a7df7a6beb75dcb68b2bbc1a" name="a3eb80a01a7df7a6beb75dcb68b2bbc1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3eb80a01a7df7a6beb75dcb68b2bbc1a">&#9670;&#160;</a></span>collapseWhitespace()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::gen::detail::collapseWhitespace </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>text</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Collapses a description to one run of prose. Model text wraps and indents its sentences in the source; a document renders it as a paragraph. </p>
+
+</div>
+</div>
+<a id="a820f41f7896596b496330f499f9b2cc9" name="a820f41f7896596b496330f499f9b2cc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a820f41f7896596b496330f499f9b2cc9">&#9670;&#160;</a></span>computePackageName()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string sen::gen::detail::computePackageName </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">sen::lang::TypeSet</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>set</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Computes the dotted package name, as the language writes it: "sen.kernel", "rpr". Four generators each had their own copy of this; it is one function because a fix to one of four copies is a fix to one of four outputs. </p>
 
 </div>
 </div>

@@ -61,6 +61,12 @@ var group__gen =
       [ "~TypeScriptGenerator", "classsen_1_1gen_1_1_type_script_generator.html#a6ce09668d63b145a65e3519ddb796ae5", null ],
       [ "generate", "classsen_1_1gen_1_1_type_script_generator.html#a3b51b7e45ed984b42cc434cf3fab72f4", null ]
     ] ],
+    [ "sen::gen::TypstGenerator", "classsen_1_1gen_1_1_typst_generator.html", [
+      [ "FileContents", "classsen_1_1gen_1_1_typst_generator.html#ad25d89934d1695e11c7b536cf051716e", null ],
+      [ "TypstGenerator", "classsen_1_1gen_1_1_typst_generator.html#ab7b822afa05f67decb3b2b555bfd33c3", null ],
+      [ "~TypstGenerator", "classsen_1_1gen_1_1_typst_generator.html#a55be257fb08764d3b918c7b52918b2a3", null ],
+      [ "generate", "classsen_1_1gen_1_1_typst_generator.html#a3389d2736722c855910625cae4659883", null ]
+    ] ],
     [ "sen::gen::PlantUMLGenerationMode", "group__gen.html#gabadbb903ca6457c63f0f06292c72f2c0", [
       [ "sen::gen::PlantUMLGenerationMode::all", "group__gen.html#ggabadbb903ca6457c63f0f06292c72f2c0aa181a603769c1f98ad927e7367c7aa51", null ],
       [ "sen::gen::PlantUMLGenerationMode::onlyClasses", "group__gen.html#ggabadbb903ca6457c63f0f06292c72f2c0afe3edd5e127c491fcf7e8a440c8421c5", null ],

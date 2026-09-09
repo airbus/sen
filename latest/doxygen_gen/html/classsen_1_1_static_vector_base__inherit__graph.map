@@ -1,5 +1,5 @@
 <map id="sen::StaticVectorBase&lt; T &gt;" name="sen::StaticVectorBase&lt; T &gt;">
-<area shape="rect" id="Node000001" title="Base class for stack&#45;based, exception&#45;safe and resizable vector with fixed&#45;capacity." alt="" coords="5,5,217,431"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_static_vector.html" title="Stack&#45;based, exception&#45;free and resizable vector with fixed&#45;capacity." alt="" coords="44,479,179,799"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,444,114,478,109,478,109,444"/>
+<area shape="rect" id="Node000001" title="Base class for stack&#45;based, exception&#45;safe and resizable vector with fixed&#45;capacity." alt="" coords="5,5,197,431"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_static_vector.html" title="Stack&#45;based, exception&#45;free and resizable vector with fixed&#45;capacity." alt="" coords="40,479,163,799"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,444,104,478,99,478,99,444"/>
 </map>

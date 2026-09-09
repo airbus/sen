@@ -6,6 +6,8 @@ var searchData=
   ['filename_3',['fileName',['../group__util.html#a0e4a67682467838f4287fed6b3d17357',1,'sen::SourceLocation::fileName'],['../group__lang.html#a36ef40ea748240a6bad5903c51c1e365',1,'sen::lang::TypeSet::fileName'],['../group__lang.html#ae2238f9a044457acc07d3e7dff12e254',1,'sen::lang::StlImportStatement::fileName']]],
   ['filepath_4',['filePath',['../namespacesen_1_1lang.html#a6b804b796635de7a582a4065bba862a8',1,'sen::lang::FomDocument']]],
   ['fixedsize_5',['fixedSize',['../structsen_1_1_sequence_spec.html#a053a175309040b21e671468f96b6a56b',1,'sen::SequenceSpec']]],
-  ['functionname_6',['functionName',['../group__util.html#a1cce843bd0714bbc049b554809112664',1,'sen::SourceLocation']]],
-  ['functions_7',['functions',['../group__lang.html#a1880424a7fd540a7965555f9d9b45a90',1,'sen::lang::StlInterfaceStatement']]]
+  ['flaglegend_6',['flagLegend',['../namespacesen_1_1gen.html#aed76684d056440321c193f95eb9e4789',1,'sen::gen::TypstOptions']]],
+  ['frontmatter_7',['frontMatter',['../namespacesen_1_1gen.html#a4b28094c84ea33c84e73453315208946',1,'sen::gen::TypstOptions']]],
+  ['functionname_8',['functionName',['../group__util.html#a1cce843bd0714bbc049b554809112664',1,'sen::SourceLocation']]],
+  ['functions_9',['functions',['../group__lang.html#a1880424a7fd540a7965555f9d9b45a90',1,'sen::lang::StlInterfaceStatement']]]
 ];

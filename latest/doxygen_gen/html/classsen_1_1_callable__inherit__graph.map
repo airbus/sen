@@ -1,7 +1,7 @@
 <map id="sen::Callable" name="sen::Callable">
-<area shape="rect" id="Node000001" title="Represents something that can be called." alt="" coords="35,5,257,291"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_event.html" title="Represents an event." alt="" coords="5,399,121,564"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,305,86,399,81,398,105,304"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_method.html" title="Represents a method." alt="" coords="145,339,315,624"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,303,197,338,192,339,183,305"/>
+<area shape="rect" id="Node000001" title="Represents something that can be called." alt="" coords="27,5,227,291"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_event.html" title="Represents an event." alt="" coords="5,399,103,564"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,305,75,399,70,398,90,304"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_method.html" title="Represents a method." alt="" coords="127,339,277,624"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,304,173,338,167,339,160,305"/>
 </map>

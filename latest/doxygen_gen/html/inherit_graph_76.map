@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$group__templates.html#structsen_1_1_is_variant_member" title="Checks if T is on of the member types of the given VariantType." alt="" coords="5,5,169,45"/>
+<area shape="rect" id="Node000000" href="$classsen_1_1_input_stream_base.html" title="Base class for input streams." alt="" coords="5,45,157,70"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_input_stream_template.html" title=" " alt="" coords="205,5,380,45"/>
+<area shape="poly" id="edge15_Node000000_Node000001" title=" " alt="" coords="170,41,205,36,205,41,171,46"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_input_stream_template.html" title="Binary input stream. Deserializes values. In general, I/O operations throw on failure." alt="" coords="205,69,380,109"/>
+<area shape="poly" id="edge16_Node000000_Node000002" title=" " alt="" coords="171,68,205,73,205,79,170,73"/>
 </map>

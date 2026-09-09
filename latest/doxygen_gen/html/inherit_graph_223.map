@@ -1,3 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$group__dr.html#structsen_1_1util_1_1_dr_threshold" title="How far the extrapolation may drift from the data before the Spatial is written: a distance per axis,..." alt="" coords="5,5,167,31"/>
+<area shape="rect" id="Node000000" href="$classsen_1_1util_1_1_dead_reckoner_base.html" title="Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by default u..." alt="" coords="5,31,199,56"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1util_1_1_dead_reckoner_template_base.html" title="Base class for the DeadReckoner and SettableDeadReckoner classes." alt="" coords="247,23,463,63"/>
+<area shape="poly" id="edge64_Node000000_Node000001" title=" " alt="" coords="213,41,247,41,247,46,213,46"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1util_1_1_dead_reckoner.html" title="Enables the user to predict an object’s position and movement at any future time applying dead reckon..." alt="" coords="535,5,729,31"/>
+<area shape="poly" id="edge65_Node000001_Node000002" title=" " alt="" coords="476,30,534,24,535,30,477,35"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1util_1_1_settable_dead_reckoner.html" title="Allows the user to get the extrapolated situation of an object and to set the Spatial when the error ..." alt="" coords="511,55,753,80"/>
+<area shape="poly" id="edge66_Node000001_Node000003" title=" " alt="" coords="477,51,511,54,510,59,476,57"/>
 </map>

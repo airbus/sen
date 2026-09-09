@@ -60,6 +60,7 @@ var menudata={children:[
 {text:"g",url:"namespacemembers_func_g.html#index_g"},
 {text:"h",url:"namespacemembers_func_h.html#index_h"},
 {text:"i",url:"namespacemembers_func_i.html#index_i"},
+{text:"k",url:"namespacemembers_func_k.html#index_k"},
 {text:"m",url:"namespacemembers_func_m.html#index_m"},
 {text:"n",url:"namespacemembers_func_n.html#index_n"},
 {text:"o",url:"namespacemembers_func_o.html#index_o"},

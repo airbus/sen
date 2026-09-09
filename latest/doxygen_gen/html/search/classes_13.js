@@ -35,5 +35,7 @@ var searchData=
   ['typesettings_32',['TypeSettings',['../structsen_1_1lang_1_1_type_settings.html',1,'sen::lang']]],
   ['typesmatch_33',['TypesMatch',['../group__type__utils.html#structsen_1_1_types_match',1,'sen']]],
   ['typestorage_34',['TypeStorage',['../classsen_1_1gen_1_1detail_1_1_type_storage.html',1,'sen::gen::detail']]],
-  ['typevisitor_35',['TypeVisitor',['../classsen_1_1_type_visitor.html',1,'sen']]]
+  ['typevisitor_35',['TypeVisitor',['../classsen_1_1_type_visitor.html',1,'sen']]],
+  ['typstgenerator_36',['TypstGenerator',['../classsen_1_1gen_1_1_typst_generator.html',1,'sen::gen']]],
+  ['typstoptions_37',['TypstOptions',['../namespacesen_1_1gen.html#structsen_1_1gen_1_1_typst_options',1,'sen::gen']]]
 ];

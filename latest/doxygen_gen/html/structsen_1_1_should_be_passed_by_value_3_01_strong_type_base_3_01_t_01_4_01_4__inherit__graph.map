@@ -1,7 +1,7 @@
 <map id="sen::ShouldBePassedByValue&lt; StrongTypeBase&lt; T &gt; &gt;" name="sen::ShouldBePassedByValue&lt; StrongTypeBase&lt; T &gt; &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="24,119,228,199"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,116,71"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,81,107,117,102,120,82,84"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="141,5,245,71"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,84,150,120,146,117,166,81"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="20,119,211,199"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,105,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="80,82,98,117,93,120,75,84"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="129,5,224,71"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,84,138,120,133,117,152,82"/>
 </map>

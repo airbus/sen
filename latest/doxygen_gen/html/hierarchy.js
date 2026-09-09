@@ -453,6 +453,8 @@ var hierarchy =
     [ "sen::lang::TypeSettings", "structsen_1_1lang_1_1_type_settings.html", null ],
     [ "sen::TypesMatch", "group__type__utils.html#structsen_1_1_types_match", null ],
     [ "sen::gen::detail::TypeStorage", "classsen_1_1gen_1_1detail_1_1_type_storage.html", null ],
+    [ "sen::gen::TypstGenerator", "classsen_1_1gen_1_1_typst_generator.html", null ],
+    [ "sen::gen::TypstOptions", "namespacesen_1_1gen.html#structsen_1_1gen_1_1_typst_options", null ],
     [ "sen::kernel::UniqueByteBufferManager", "classsen_1_1kernel_1_1_unique_byte_buffer_manager.html", null ],
     [ "sen::Unit", "classsen_1_1_unit.html", null ],
     [ "sen::UnitRegistry", "classsen_1_1_unit_registry.html", null ],

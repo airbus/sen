@@ -1,7 +1,7 @@
 <map id="sen::StrongTypeBase&lt; T &gt;" name="sen::StrongTypeBase&lt; T &gt;">
-<area shape="rect" id="Node000001" title="Wraps T to make it a strong type." alt="" coords="91,5,277,211"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="5,259,171,579"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,225,140,259,135,258,146,223"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type.html" title="CRTP class that wraps T to make it a strong type." alt="" coords="195,286,368,551"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,223,242,285,237,286,218,225"/>
+<area shape="rect" id="Node000001" title="Wraps T to make it a strong type." alt="" coords="83,5,253,211"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="5,259,155,579"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,225,128,259,123,258,133,223"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type.html" title="CRTP class that wraps T to make it a strong type." alt="" coords="179,286,336,551"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,223,222,285,217,286,199,225"/>
 </map>

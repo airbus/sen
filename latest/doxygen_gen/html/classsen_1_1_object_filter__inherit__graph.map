@@ -1,7 +1,7 @@
 <map id="sen::ObjectFilter" name="sen::ObjectFilter">
-<area shape="rect" id="Node000001" title="Allows the discovery of objects based on different criteria." alt="" coords="5,239,224,604"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_object_source.html" title="Allows adding and receiving objects." alt="" coords="47,652,183,897"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,618,117,652,112,652,112,618"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_object_filter_base.html" title="Base class for object filters." alt="" coords="34,5,195,191"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,204,117,238,112,238,112,204"/>
+<area shape="rect" id="Node000001" title="Allows the discovery of objects based on different criteria." alt="" coords="5,239,200,604"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_object_source.html" title="Allows adding and receiving objects." alt="" coords="41,652,164,897"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="105,618,105,652,100,652,100,618"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object_filter_base.html" title="Base class for object filters." alt="" coords="30,5,175,191"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,204,105,238,100,238,100,204"/>
 </map>

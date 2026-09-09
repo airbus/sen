@@ -26,6 +26,8 @@ var searchData=
   ['structtype_23',['structType',['../namespacesen_1_1gen_1_1detail.html#a528816a73c87c4546fe072949e52ff31',1,'sen::gen::detail::CppTemplateSet::structType'],['../namespacesen_1_1gen_1_1detail.html#aef48d9b82856f4cb45b7071d1cddf4b8',1,'sen::gen::detail::JsonTemplateSet::structType'],['../namespacesen_1_1gen_1_1detail.html#aaedcbae02d53d8a7b36c187c88b703b7',1,'sen::gen::detail::PlantUmlTemplateSet::structType'],['../namespacesen_1_1gen_1_1detail.html#ae01abab15547472d59de041237462b10',1,'sen::gen::detail::PythonTemplateSet::structType']]],
   ['structtypes_24',['structTypes',['../namespacesen_1_1gen_1_1detail.html#a7b9d1de5e562cf3b7adae44c3c231206',1,'sen::gen::detail::TypeGroups']]],
   ['structuresdoc_25',['structuresDoc',['../namespacesen_1_1gen_1_1detail.html#a3f8aa8e5f11d80878beff1f8e43e2b20',1,'sen::gen::detail::TemplateVisitorResult']]],
-  ['styles_26',['styles',['../namespacesen_1_1gen_1_1detail.html#aefde87ca2ddf515b1204749637278a40',1,'sen::gen::detail::HtmlApp']]],
-  ['summaryfilename_27',['summaryFileName',['../namespacesen_1_1db.html#a2bb63c85ecea8cb6e7b477d6042bab64',1,'sen::db']]]
+  ['style_26',['style',['../namespacesen_1_1gen.html#a8496fc62b4d42d87da644d2b337e4563',1,'sen::gen::TypstOptions']]],
+  ['styles_27',['styles',['../namespacesen_1_1gen_1_1detail.html#aefde87ca2ddf515b1204749637278a40',1,'sen::gen::detail::HtmlApp']]],
+  ['summaries_28',['summaries',['../namespacesen_1_1gen.html#aef660266e5a5bfac39777fa66ab1fe4d',1,'sen::gen::TypstOptions']]],
+  ['summaryfilename_29',['summaryFileName',['../namespacesen_1_1db.html#a2bb63c85ecea8cb6e7b477d6042bab64',1,'sen::db']]]
 ];

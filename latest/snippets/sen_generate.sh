@@ -14,5 +14,6 @@ Subcommands:
   html                             Generate a browsable reference for the data model
   json                             Generate JSON schemas
   ts                               Generate per-input TypeScript modules + a barrel from STL inputs
+  typst                            Generate a typesettable reference for the data model
 
 For help on specific commands run 'sen generate <command> --help'

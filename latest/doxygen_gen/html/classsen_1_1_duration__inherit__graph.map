@@ -1,7 +1,7 @@
 <map id="sen::Duration" name="sen::Duration">
-<area shape="rect" id="Node000001" title="A time duration." alt="" coords="9,581,155,787"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="6,213,158,533"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,547,85,581,79,581,79,547"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type_base.html" title=" " alt="" coords="5,5,159,165"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="85,179,85,213,79,213,79,179"/>
+<area shape="rect" id="Node000001" title="A time duration." alt="" coords="9,581,141,787"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="5,213,144,533"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="77,547,77,581,72,581,72,547"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type_base.html" title=" " alt="" coords="5,5,144,165"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="77,179,77,213,72,213,72,179"/>
 </map>
