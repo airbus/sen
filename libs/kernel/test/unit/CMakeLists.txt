@@ -8,6 +8,7 @@
 add_sen_unit_test_suite(
   kernel_test
   bus/remote_interest_handler_test.cpp
+  build_provenance_test.cpp
   env_substitution_test.cpp
   pipeline_frequency_test.cpp
   precision_sleeper_test.cpp
@@ -22,6 +23,10 @@ add_sen_unit_test_suite(
 if(NOT WIN32)
   target_sources(kernel_test PRIVATE thread_priority_test.cpp)
 endif()
+
+# build_provenance_test calls the accessors, and they are SEN_PRIVATE, so this suite needs its
+# own generated source like any other target.
+sen_add_build_info(kernel_test kernel_test)
 
 sen_generate_cpp(
   TARGET kernel_test

@@ -106,7 +106,7 @@ extern "C" SEN_EXPORT const sen::kernel::ComponentInfo* getPackageInfo()
   info.buildInfo.compiler = SEN_COMPILER_STRING;
   info.buildInfo.debugMode = sen::kernel::getDebugEnabled();
   info.buildInfo.wordSize = sen::kernel::getWordSize();
-  info.buildInfo.buildTime = std::string(__DATE__) + " " + __TIME__;
+  info.buildInfo.buildTime = sen::kernel::getBuildTime();
   info.buildInfo.gitRef = sen::kernel::getGitRef();
   info.buildInfo.gitHash = sen::kernel::getGitHash();
   info.buildInfo.gitStatus = sen::kernel::getGitStatus();

@@ -46,7 +46,7 @@ struct BuildInfo
   version    : string,    // version string (format-agnostic)
   compiler   : string,    // vendor-specific compiler string
   debugMode  : bool,      // compiled in debug mode or not
-  buildTime  : string,    // when did this build took place
+  buildTime  : string,    // the commit's timestamp, ISO-8601; not the compiler's clock
   wordSize   : WordSize,  // architecture
   gitRef     : string,    // git ref spec
   gitHash    : string,    // git hash

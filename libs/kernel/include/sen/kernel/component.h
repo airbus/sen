@@ -120,44 +120,17 @@ constexpr auto* componentInfoMakerFuncName = SEN_STRINGIFY(SEN_COMPONENT_INFO_MA
   }
 }
 
-[[nodiscard]] constexpr const char* getGitRef() noexcept
-{
-#ifdef GIT_REF_SPEC
-  return GIT_REF_SPEC;
-#else
-  return "";
-#endif
-}
+// Defined in the target's generated build_info.cpp, never here: inline over macros they put the
+// git values on every compile line in the target, and those change every commit.
+// SEN_PRIVATE so each binary resolves its own copy. Exported, a target with no build_info of
+// its own links against the kernel's and reports the framework's hash as its own.
+[[nodiscard]] SEN_PRIVATE const char* getGitRef() noexcept;
+[[nodiscard]] SEN_PRIVATE const char* getGitHash() noexcept;
+[[nodiscard]] SEN_PRIVATE GitStatus getGitStatus() noexcept;
 
-[[nodiscard]] constexpr const char* getGitHash() noexcept
-{
-#ifdef GIT_HASH
-  return GIT_HASH;
-#else
-  return "";
-#endif
-}
-
-[[nodiscard]] inline GitStatus getGitStatus() noexcept
-{
-#ifdef GIT_STATUS
-  const auto* statusStr = GIT_STATUS;
-#else
-  const auto* statusStr = "";
-#endif
-
-  if (std::string(statusStr) == "clean")
-  {
-    return GitStatus::clean;
-  }
-
-  if (std::string(statusStr) == "dirty")
-  {
-    return GitStatus::modified;
-  }
-
-  return GitStatus::unknown;
-}
+// The commit's timestamp. A wall-clock build time is whenever the object was last recompiled,
+// which is not the same thing.
+[[nodiscard]] SEN_PRIVATE const char* getBuildTime() noexcept;
 
 }  // namespace sen::kernel
 
@@ -184,7 +157,7 @@ extern "C" SEN_EXPORT const sen::kernel::ComponentInfo* SEN_COMPONENT_INFO_MAKER
     info.buildInfo.compiler = SEN_COMPILER_STRING;                                                                     \
     info.buildInfo.debugMode = sen::kernel::getDebugEnabled();                                                         \
     info.buildInfo.wordSize = sen::kernel::getWordSize();                                                              \
-    info.buildInfo.buildTime = std::string(__DATE__) + " " + __TIME__;                                                 \
+    info.buildInfo.buildTime = sen::kernel::getBuildTime();                                                            \
     info.buildInfo.gitRef = sen::kernel::getGitRef();                                                                  \
     info.buildInfo.gitHash = sen::kernel::getGitHash();                                                                \
     info.buildInfo.gitStatus = sen::kernel::getGitStatus();                                                            \

@@ -151,19 +151,16 @@ if(WIN32)
   set_property(TARGET kernel PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS 1)
 endif()
 
-get_git_head_revision(git_ref_spec git_hash ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
-git_local_changes(git_status_str)
-
 set_target_properties(kernel PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_compile_definitions(
   kernel
   PUBLIC SEN_KERNEL_VERSION="0.0.1"
   PRIVATE SEN_COMPILER_STRING="${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
-  PRIVATE GIT_REF_SPEC="${git_ref_spec}"
-  PRIVATE GIT_HASH="${git_hash}"
-  PRIVATE GIT_STATUS="${git_status_str}"
 )
+
+# One generated source carries the git values, as for every package.
+sen_add_build_info(kernel kernel)
 
 target_include_directories(
   kernel

@@ -244,8 +244,10 @@ def build_flags(build_dir: Path, lane: dict) -> tuple[list[str], list[str]]:
     used: set[tuple[str, ...]] = set()
     for entry in json.loads(database.read_text(encoding="utf-8")):
         arguments = entry.get("arguments") or entry.get("command", "").split()
-        # By prefix, not by the word "sanitize" anywhere: this repository compiles with
-        # -DGIT_REF_SPEC=refs/heads/<branch>, and a branch named for this work matched.
+        # By prefix, not by the word "sanitize" anywhere. A branch named for this work once
+        # matched, back when every compile line carried -DGIT_REF_SPEC=refs/heads/<branch>.
+        # That define is gone, so nothing reaches this today -- the prefix stays because any
+        # define carrying a branch name would do it again.
         flags = tuple(a for a in arguments if a.startswith(("-fsanitize", "-fno-sanitize")))
         if flags:
             used.add(flags)

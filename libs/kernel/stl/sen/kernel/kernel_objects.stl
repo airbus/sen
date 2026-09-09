@@ -71,7 +71,7 @@ struct SenData
   version           : string,                  // the Sen version
   compiler          : string,                  // the compiler used to build Sen
   debugMode         : bool,                    // true if it was build in debug mode
-  buildTime         : string,                  // time of the build
+  buildTime         : string,                  // the commit's timestamp, not the compiler's clock
   wordSize          : WordSize,                // architecture
   gitRef            : string,                  // git ref
   gitHash           : string,                  // git hash
