@@ -393,6 +393,12 @@ endif()
 
 if(MSVC)
   add_compile_options(/bigobj)
+  # Without this MSVC reads a source file as the build machine's ANSI code page and encodes
+  # narrow literals back into it. Our sources are UTF-8 and carry no BOM, so their bytes survive
+  # only because CP1252 happens to map them one to one; a machine with a multi-byte code page
+  # would corrupt them with no diagnostic. /utf-8 sets both charsets, so the build no longer
+  # depends on the locale it runs in.
+  add_compile_options(/utf-8)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
