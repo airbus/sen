@@ -24,7 +24,7 @@ namespace weather_server  // NOLINT
 template <typename T = float32_t>
 [[nodiscard]] T getRand(T low, T high) noexcept
 {
-  static std::mt19937 rng {std::random_device {}()};
+  thread_local std::mt19937 rng {std::random_device {}()};
   std::uniform_real_distribution<T> dist {low, high};
   return dist(rng);
 }
