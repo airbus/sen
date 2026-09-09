@@ -73,12 +73,15 @@ jobs:
           path: ~/.conan2/p
           key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
 
-      # Sen's targets reach ccache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake), so
-      # the shims must not also be on PATH while it builds: the launcher would invoke a shim and
-      # store every object twice. 631 compile edges drew 1223 ccache calls, run 34117054695.
+      # Sen's targets reach the cache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake),
+      # so the shims must not also be on PATH while it builds: the launcher would invoke a shim
+      # and store every object twice. 631 compile edges drew 1223 ccache calls, run 34117054695.
+      # Windows takes sccache because no ccache builds for MSVC. Without one that leg recompiled
+      # 860 edges every run: 35.2 minutes of a 36.9 minute job, against 5.4 on gcc [34357828664].
+      # The key already carries the runner, so the two variants never share an entry.
       - uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
-        if: runner.os == 'Linux'
         with:
+          variant: ${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}
           key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
           max-size: 1G
           verbose: 1
