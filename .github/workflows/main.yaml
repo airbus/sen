@@ -170,6 +170,9 @@ jobs:
     permissions:
       contents: read
       actions: write
+      # Pulling the image the documentation is built in. A called workflow cannot
+      # request more than this grants, so leaving it out fails the run at startup.
+      packages: read
 
   # A change to the build environment has to prove the image still builds and
   # still holds the tools it promises. ci-ok needs this job, so a broken image
