@@ -80,8 +80,8 @@ var NAVTREEINDEX =
 "group__lang.html#gga93b0800803a4979d176a9470893ab868ab45cffe084dd3d20d928bee85e7b0f21",
 "group__util.html#ga82c73bd87e1b7007d5f2947c42496434",
 "namespacesen_1_1gen_1_1detail.html#a304cd6b6732ebfbd2be7272b4c7a7f80",
-"optional__traits_8h.html",
-"structsen_1_1_property_spec.html#a61bf4f39ddf3d1deb1c4a8f2fb5dc07d",
+"object__source_8h_source.html",
+"structsen_1_1_property_spec.html#a2119b1b2423564a9de9ab04c42dd9852",
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#af27b028bf58a3a316ab716792df73cbb"
 ];
 
