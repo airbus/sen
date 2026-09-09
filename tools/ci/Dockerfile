@@ -54,9 +54,9 @@ ENV LANG=C.UTF-8 \
 # dependency chain (SDL needs libXext, the explorer needs libGL). make
 # serves the autotools-style Conan recipes; python3-dev serves pybind11;
 # bats runs the installer test suite.
-# Every apt and curl call in this file talks to a mirror that can stall or refuse a
-# connection; one such refusal from apt.llvm.org failed an image build. Retries turn
-# those into a pause instead of a red pipeline.
+# Every apt and curl call in this file talks to a mirror that can stall, refuse a
+# connection or go unreachable. Plain --retry covers only the stall, and
+# --retry-connrefused adds the refusal; the unreachable host needs --retry-all-errors.
 RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
         > /etc/apt/apt.conf.d/99-sen-retries
 
@@ -106,7 +106,7 @@ RUN printf '%s\n' \
 # plantuml renders the diagram the handbook embeds. Ubuntu's package is from 2020 and
 # pulls a full JDK, 218 packages against 40 for a headless JRE and the jar. CMake finds it
 # with find_program by name, so the wrapper is what has to be on PATH.
-RUN curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused \
+RUN curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
         -o /opt/plantuml.jar \
         "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar" \
     && printf '%s\n' '#!/bin/sh' 'exec java -jar /opt/plantuml.jar "$@"' > /usr/local/bin/plantuml \
@@ -136,7 +136,7 @@ RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
 # both use this major version. The repository is added directly instead of
 # running llvm.sh, which needs add-apt-repository.
 RUN install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused \
+    && curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
         https://apt.llvm.org/llvm-snapshot.gpg.key -o /etc/apt/keyrings/llvm.asc \
     && echo "deb [signed-by=/etc/apt/keyrings/llvm.asc] https://apt.llvm.org/jammy/ llvm-toolchain-jammy-${LLVM_VERSION} main" \
         > /etc/apt/sources.list.d/llvm.list \
