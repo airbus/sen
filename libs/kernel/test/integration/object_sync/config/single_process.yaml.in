@@ -15,19 +15,27 @@ load:
           port: 65454
 
 build:
+  - name: terminatorComp
+    group: 2
+    freqHz: 10
+    imports: [test_helpers]
+    objects:
+      - name: terminator
+        class: sen.test.ProcessTerminatorImpl
+        bus: session.bus
   - name: myComponent
     group: 3
     freqHz: 30
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
       - name: publisher
-        class: object_sync.PublisherImpl
+        class: object_sync.PublisherObjectSync
         numOfListeners: 4
         bus: session.bus
   - name: listenerComp1
     group: 3
     freqHz: 60
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
       - name: listener1
         class: object_sync.@LISTENER_TYPE@
@@ -36,7 +44,7 @@ build:
   - name: listenerComp2
     group: 3
     freqHz: 60
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
       - name: listener2
         class: object_sync.@LISTENER_TYPE@
@@ -45,7 +53,7 @@ build:
   - name: listenerComp3
     group: 3
     freqHz: 60
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
       - name: listener3
         class: object_sync.@LISTENER_TYPE@
@@ -54,7 +62,7 @@ build:
   - name: listenerComp4
     group: 3
     freqHz: 60
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
       - name: listener4
         class: object_sync.@LISTENER_TYPE@

@@ -15,12 +15,20 @@ load:
           port: 65454
 
 build:
+  - name: terminatorComp1
+    group: 1
+    freqHz: 10
+    imports: [test_helpers]
+    objects:
+      - name: terminator
+        class: sen.test.ProcessTerminatorImpl
+        bus: session.bus
   - name: myComponent
     group: 1
     freqHz: 30
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
       - name: publisher
-        class: object_sync.PublisherImpl
+        class: object_sync.PublisherObjectSync
         numOfListeners: 4
         bus: session.bus
