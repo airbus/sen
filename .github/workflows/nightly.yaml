@@ -246,6 +246,9 @@ jobs:
     permissions:
       contents: read
       actions: write
+      # docs_check.yaml pulls the image it builds in. A called workflow cannot request
+      # more than this grants, and the whole nightly fails at startup when it does.
+      packages: read
 
   # Every packaged configuration, which a pull request does not run: it builds
   # only the configuration that ships.
