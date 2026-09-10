@@ -671,6 +671,14 @@ function(sen_configure_target target_name)
     target_link_options(${target_name} PRIVATE /MANIFEST:NO)
   else()
 
+    # -Og with compressed debug info builds smaller and runs faster than -O0, at the
+    # cost of some variables being optimised away.
+    if(SEN_OPTIMIZED_DEBUG)
+      set(debug_options_ -Og -gz)
+    else()
+      set(debug_options_ -O0 -g)
+    endif()
+
     set(common_clang_gcc_options_
         -Wall
         -Werror # warnings are errors
@@ -695,7 +703,7 @@ function(sen_configure_target target_name)
         -fexceptions
         -ftls-model=global-dynamic
         -fPIC
-        "$<$<CONFIG:Debug>:-O0;-g>"
+        "$<$<CONFIG:Debug>:${debug_options_};-fno-omit-frame-pointer>"
         "$<$<CONFIG:Release>:-O3>"
     )
 
