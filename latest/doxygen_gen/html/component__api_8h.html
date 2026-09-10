@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('component__api
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="compiler__macros_8h_source.html">sen/core/base/compiler_macros.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="duration_8h_source.html">sen/core/base/duration.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="move__only__function_8h_source.html">sen/core/base/move_only_function.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="mutex__utils_8h_source.html">sen/core/base/mutex_utils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="result_8h_source.html">sen/core/base/result.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="span_8h_source.html">sen/core/base/span.h</a>&quot;</code><br />
@@ -153,6 +154,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('component__api
 <code>#include &quot;<a class="el" href="tracer_8h_source.html">sen/kernel/tracer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="include_2sen_2kernel_2transport_8h_source.html">sen/kernel/transport.h</a>&quot;</code><br />
 <code>#include &quot;stl/sen/kernel/basic_types.stl.h&quot;</code><br />
+<code>#include &quot;stl/sen/kernel/network_footprint.stl.h&quot;</code><br />
 <code>#include &lt;spdlog/logger.h&gt;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
@@ -204,6 +206,8 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:a5c544f6448e7b5b484f3b6053e5e7019"><td class="mdescLeft">&#160;</td><td class="mdescRight">The result of operations that are called once.  <br /></td></tr>
 <tr class="memitem:a407b640414b54bf6d98c670c7b86ad67" id="r_a407b640414b54bf6d98c670c7b86ad67"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#a407b640414b54bf6d98c670c7b86ad67">sen::kernel::PassResult</a> = <a class="el" href="classsen_1_1_result.html">Result</a>&lt;OpState, ExecError&gt;</td></tr>
 <tr class="memdesc:a407b640414b54bf6d98c670c7b86ad67"><td class="mdescLeft">&#160;</td><td class="mdescRight">The result of operations that may be called multiple times.  <br /></td></tr>
+<tr class="memitem:aa49f73d5a95b7d2b2e638f45b4761e86" id="r_aa49f73d5a95b7d2b2e638f45b4761e86"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86">sen::kernel::NetworkFootprintReporter</a> = NetworkFootprint(<a class="el" href="classsen_1_1_span.html">Span</a>&lt;const BusAddress&gt;) const</td></tr>
+<tr class="memdesc:aa49f73d5a95b7d2b2e638f45b4761e86"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1_callable.html" title="Represents something that can be called.">Callable</a> that builds a network footprint from bus addresses.  <br /></td></tr>
 </table>
 <hr/><h2 id="header-inline_5Fclasses" class="groupheader">Class Documentation</h2>
 <a name="structsen_1_1kernel_1_1_component_monitoring_info" id="structsen_1_1kernel_1_1_component_monitoring_info"></a>

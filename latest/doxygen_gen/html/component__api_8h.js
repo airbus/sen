@@ -15,5 +15,6 @@ var component__api_8h =
     [ "sen::kernel::PreloadApi", "classsen_1_1kernel_1_1_preload_api.html", "classsen_1_1kernel_1_1_preload_api" ],
     [ "sen::kernel::LoadApi", "classsen_1_1kernel_1_1_load_api.html", "classsen_1_1kernel_1_1_load_api" ],
     [ "sen::kernel::FuncResult", "namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019", null ],
-    [ "sen::kernel::PassResult", "namespacesen_1_1kernel.html#a407b640414b54bf6d98c670c7b86ad67", null ]
+    [ "sen::kernel::PassResult", "namespacesen_1_1kernel.html#a407b640414b54bf6d98c670c7b86ad67", null ],
+    [ "sen::kernel::NetworkFootprintReporter", "namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86", null ]
 ];

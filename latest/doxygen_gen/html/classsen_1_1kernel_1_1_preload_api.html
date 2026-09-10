@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1ke
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_preload_api__inherit__graph.svg" width="395" height="550"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_preload_api__inherit__graph.svg" width="395" height="570"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -154,6 +154,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a6dda8e9cb94b9794a52d64c62a6dae87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Installs a transport factory for the kernel to use for sessions.  <br /></td></tr>
 <tr class="memitem:a60e6d9610d486fbb1d60ed12e7ada534" id="r_a60e6d9610d486fbb1d60ed12e7ada534"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a60e6d9610d486fbb1d60ed12e7ada534">installTracerFactory</a> (<a class="el" href="namespacesen_1_1kernel.html#a51e533f0161b87d1d5a5f9886ae831c1">TracerFactory</a> &amp;&amp;factory) const</td></tr>
 <tr class="memdesc:a60e6d9610d486fbb1d60ed12e7ada534"><td class="mdescLeft">&#160;</td><td class="mdescRight">Installs a tracer factory.  <br /></td></tr>
+<tr class="memitem:a11e988d6a69129bc4698a2c73979bb3f" id="r_a11e988d6a69129bc4698a2c73979bb3f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a11e988d6a69129bc4698a2c73979bb3f">installFootprintReporter</a> (<a class="el" href="namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70">sen::std_util::move_only_function</a>&lt; <a class="el" href="namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86">NetworkFootprintReporter</a> &gt; &amp;&amp;reporter)</td></tr>
+<tr class="memdesc:a11e988d6a69129bc4698a2c73979bb3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Installs a footprint reporter. The kernel stores a single reporter, installing another replaces the existing one.  <br /></td></tr>
 <tr class="memitem:a75812a18d2d0c81dee6aacc2705bc3f0" id="r_a75812a18d2d0c81dee6aacc2705bc3f0"><td class="memItemLeft">const <a class="el" href="group__type__utils.html#ga3ae50544ad34402f50a10a392ba495a2">VarMap</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_config_getter.html#a75812a18d2d0c81dee6aacc2705bc3f0">getConfig</a> () const noexcept</td></tr>
 <tr class="memdesc:a75812a18d2d0c81dee6aacc2705bc3f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the configuration associated with this component.  <br /></td></tr>
 <tr class="memitem:a7ba20735f5cad05911fb5c525d220561" id="r_a7ba20735f5cad05911fb5c525d220561"><td class="memItemLeft"><a class="el" href="classsen_1_1_custom_type_registry.html">CustomTypeRegistry</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a7ba20735f5cad05911fb5c525d220561">getTypes</a> () noexcept</td></tr>
@@ -295,6 +297,25 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Installs a tracer factory. </p>
+
+</div>
+</div>
+<a id="a11e988d6a69129bc4698a2c73979bb3f" name="a11e988d6a69129bc4698a2c73979bb3f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11e988d6a69129bc4698a2c73979bb3f">&#9670;&#160;</a></span>installFootprintReporter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::kernel::PreloadApi::installFootprintReporter </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70">sen::std_util::move_only_function</a>&lt; <a class="el" href="namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86">NetworkFootprintReporter</a> &gt; &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>reporter</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Installs a footprint reporter. The kernel stores a single reporter, installing another replaces the existing one. </p>
 
 </div>
 </div>

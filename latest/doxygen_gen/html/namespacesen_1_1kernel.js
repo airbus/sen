@@ -30,6 +30,7 @@ var namespacesen_1_1kernel =
     [ "UnloadApi", "classsen_1_1kernel_1_1_unload_api.html", "classsen_1_1kernel_1_1_unload_api" ],
     [ "FuncResult", "namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019", null ],
     [ "PassResult", "namespacesen_1_1kernel.html#a407b640414b54bf6d98c670c7b86ad67", null ],
+    [ "NetworkFootprintReporter", "namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86", null ],
     [ "TracerFactory", "namespacesen_1_1kernel.html#a51e533f0161b87d1d5a5f9886ae831c1", null ],
     [ "BestEffortBlockPtr", "group__kernel.html#ga33b6a382032094bd51254625848b347c", null ],
     [ "ReliableBlockPtr", "group__kernel.html#gafcf24306f222d884d6d6483f3f82bcab", null ],

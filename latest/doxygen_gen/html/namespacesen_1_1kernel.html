@@ -199,6 +199,8 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:a5c544f6448e7b5b484f3b6053e5e7019"><td class="mdescLeft">&#160;</td><td class="mdescRight">The result of operations that are called once.  <br /></td></tr>
 <tr class="memitem:a407b640414b54bf6d98c670c7b86ad67" id="r_a407b640414b54bf6d98c670c7b86ad67"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a407b640414b54bf6d98c670c7b86ad67">PassResult</a> = <a class="el" href="classsen_1_1_result.html">Result</a>&lt;OpState, ExecError&gt;</td></tr>
 <tr class="memdesc:a407b640414b54bf6d98c670c7b86ad67"><td class="mdescLeft">&#160;</td><td class="mdescRight">The result of operations that may be called multiple times.  <br /></td></tr>
+<tr class="memitem:aa49f73d5a95b7d2b2e638f45b4761e86" id="r_aa49f73d5a95b7d2b2e638f45b4761e86"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#aa49f73d5a95b7d2b2e638f45b4761e86">NetworkFootprintReporter</a> = NetworkFootprint(<a class="el" href="classsen_1_1_span.html">Span</a>&lt;const BusAddress&gt;) const</td></tr>
+<tr class="memdesc:aa49f73d5a95b7d2b2e638f45b4761e86"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1_callable.html" title="Represents something that can be called.">Callable</a> that builds a network footprint from bus addresses.  <br /></td></tr>
 <tr class="memitem:a51e533f0161b87d1d5a5f9886ae831c1" id="r_a51e533f0161b87d1d5a5f9886ae831c1"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a51e533f0161b87d1d5a5f9886ae831c1">TracerFactory</a> = std::function&lt;std::unique_ptr&lt;<a class="el" href="classsen_1_1kernel_1_1_tracer.html">Tracer</a>&gt;(std::string_view)&gt;</td></tr>
 <tr class="memdesc:a51e533f0161b87d1d5a5f9886ae831c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">A factory function for tracers.  <br /></td></tr>
 <tr class="memitem:ga33b6a382032094bd51254625848b347c" id="r_ga33b6a382032094bd51254625848b347c"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="group__kernel.html#ga33b6a382032094bd51254625848b347c">BestEffortBlockPtr</a> = std::shared_ptr&lt;FixedMemoryBlock&gt;</td></tr>
@@ -384,6 +386,22 @@ components</td>
 </div><div class="memdoc">
 
 <p>The result of operations that may be called multiple times. </p>
+
+</div>
+</div>
+<a id="aa49f73d5a95b7d2b2e638f45b4761e86" name="aa49f73d5a95b7d2b2e638f45b4761e86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa49f73d5a95b7d2b2e638f45b4761e86">&#9670;&#160;</a></span>NetworkFootprintReporter</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#aa49f73d5a95b7d2b2e638f45b4761e86">sen::kernel::NetworkFootprintReporter</a> = NetworkFootprint(<a class="el" href="classsen_1_1_span.html">Span</a>&lt;const BusAddress&gt;) const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classsen_1_1_callable.html" title="Represents something that can be called.">Callable</a> that builds a network footprint from bus addresses. </p>
 
 </div>
 </div>

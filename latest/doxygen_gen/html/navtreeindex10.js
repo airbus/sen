@@ -1,5 +1,7 @@
 var NAVTREEINDEX10 =
 {
+"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[1,0,1,7,21,11],
+"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[2,0,1,7,20,11],
 "classsen_1_1util_1_1_vec3.html#a0adb6dfc709cd4612a03a686fa8e8fb2":[1,0,1,7,21,29],
 "classsen_1_1util_1_1_vec3.html#a0adb6dfc709cd4612a03a686fa8e8fb2":[2,0,1,7,20,29],
 "classsen_1_1util_1_1_vec3.html#a1a2533fe2c1ebb351f8ac66e1bc7fc34":[1,0,1,7,21,22],
@@ -247,7 +249,5 @@ var NAVTREEINDEX10 =
 "functions_func_s.html":[2,3,1,18],
 "functions_func_t.html":[2,3,1,19],
 "functions_func_u.html":[2,3,1,20],
-"functions_func_v.html":[2,3,1,21],
-"functions_func_w.html":[2,3,1,22],
-"functions_func_z.html":[2,3,1,23]
+"functions_func_v.html":[2,3,1,21]
 };

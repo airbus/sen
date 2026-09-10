@@ -2,7 +2,7 @@
 
 = Model overview
 
-#prose("314 types in 13 packages. 13 classes in 11 independent hierarchies.")
+#prose("335 types in 13 packages. 13 classes in 11 independent hierarchies.")
 
 *Packages*
 
@@ -20,7 +20,7 @@
   ([#h(10pt)#"rest"], [37], [—], [20], [5], [—], [9], [3]),
   ([#h(10pt)#"shell"], [27], [1], [20], [3], [1], [2], [—]),
   ([#h(0pt)#"db"], [3], [—], [3], [—], [—], [—], [—]),
-  ([#h(0pt)#"kernel"], [139], [4], [70], [20], [7], [32], [6]),
+  ([#h(0pt)#"kernel"], [160], [4], [80], [23], [8], [37], [8]),
   ([#h(10pt)#"log"], [16], [—], [11], [1], [1], [3], [—]),
 )
 
@@ -1748,7 +1748,7 @@
 
 = #"kernel"
 
-#prose[139 types.]
+#prose[160 types.]
 
 #section("Object classes", "classes")
 
@@ -1840,6 +1840,16 @@
   (link(<t-sen-kernel-MethodSpec>)[#"Method​Spec"], "spec for methods", <t-sen-kernel-MethodSpec>),
   (link(<t-sen-kernel-MethodSpecV4>)[#"Method​Spec​V4"], "", <t-sen-kernel-MethodSpecV4>),
   (link(<t-sen-kernel-MethodSpecV5>)[#"Method​Spec​V5"], "", <t-sen-kernel-MethodSpecV5>),
+  (link(<t-sen-kernel-NetworkFootprint>)[#"Network​Footprint"], "Network endpoints predicted offline or observed at runtime for one process", <t-sen-kernel-NetworkFootprint>),
+  (link(<t-sen-kernel-NetworkFootprintAddressRange>)[#"Network​Footprint​Address​Range"], "Inclusive IPv4 address range excluded from multicast allocation", <t-sen-kernel-NetworkFootprintAddressRange>),
+  (link(<t-sen-kernel-NetworkFootprintBus>)[#"Network​Footprint​Bus"], "Multicast endpoint allocated to a bus", <t-sen-kernel-NetworkFootprintBus>),
+  (link(<t-sen-kernel-NetworkFootprintBusIdentity>)[#"Network​Footprint​Bus​Identity"], "Names and IDs that identify a bus", <t-sen-kernel-NetworkFootprintBusIdentity>),
+  (link(<t-sen-kernel-NetworkFootprintCollision>)[#"Network​Footprint​Collision"], "Multicast allocation capacity and collision information", <t-sen-kernel-NetworkFootprintCollision>),
+  (link(<t-sen-kernel-NetworkFootprintMulticast>)[#"Network​Footprint​Multicast"], "Multicast information in the network footprint", <t-sen-kernel-NetworkFootprintMulticast>),
+  (link(<t-sen-kernel-NetworkFootprintPort>)[#"Network​Footprint​Port"], "Socket type, port selection mode and port value", <t-sen-kernel-NetworkFootprintPort>),
+  (link(<t-sen-kernel-NetworkFootprintPortExclusions>)[#"Network​Footprint​Port​Exclusions"], "Port ranges that cannot be used", <t-sen-kernel-NetworkFootprintPortExclusions>),
+  (link(<t-sen-kernel-NetworkFootprintPortRange>)[#"Network​Footprint​Port​Range"], "Inclusive range from which a port may be selected", <t-sen-kernel-NetworkFootprintPortRange>),
+  (link(<t-sen-kernel-NetworkFootprintSelfCollision>)[#"Network​Footprint​Self​Collision"], "Two buses allocated to the same multicast group", <t-sen-kernel-NetworkFootprintSelfCollision>),
   (link(<t-sen-kernel-OpFinished>)[#"Op​Finished"], "An operation is complete", <t-sen-kernel-OpFinished>),
   (link(<t-sen-kernel-OpNotFinished>)[#"Op​Not​Finished"], "An operation is not complete", <t-sen-kernel-OpNotFinished>),
   (link(<t-sen-kernel-OptionalTypeSpec>)[#"Optional​Type​Spec"], "data of an optional type", <t-sen-kernel-OptionalTypeSpec>),
@@ -2292,6 +2302,120 @@
 )
 #facts[Named by #link(<t-sen-kernel-ClassTypeSpecV5>)[#"Class​Type​Spec​V5"], #link(<t-sen-kernel-MethodSpecListV5>)[#"Method​Spec​List​V5"].]
 
+==== #"NetworkFootprint" #chip("structures", "structure") <t-sen-kernel-NetworkFootprint>
+#prose("Network endpoints predicted offline or observed at runtime for one process")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("discovery​Port")], link(<t-u16>)[#"u16"], "Discovery port used to calculate multicast addresses",
+  [#mono("multicast")], link(<t-sen-kernel-NetworkFootprintMulticast>)[#"Network​Footprint​Multicast"], "Multicast allocation details",
+  [#mono("ports")], link(<t-sen-kernel-NetworkFootprintPortList>)[#"Network​Footprint​Port​List"], "Port settings",
+  [#mono("port​Exclusions")], link(<t-sen-kernel-NetworkFootprintPortExclusions>)[#"Network​Footprint​Port​Exclusions"], "Port ranges that cannot be used",
+)
+
+==== #"NetworkFootprintAddressRange" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintAddressRange>
+#prose("Inclusive IPv4 address range excluded from multicast allocation")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("min")], link(<t-string>)[#"string"], "",
+  [#mono("max")], link(<t-string>)[#"string"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintAddressRangeList>)[#"Network​Footprint​Address​Range​List"].]
+
+==== #"NetworkFootprintBus" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintBus>
+#prose("Multicast endpoint allocated to a bus")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("session​Name")], link(<t-string>)[#"string"], "",
+  [#mono("bus​Name")], link(<t-string>)[#"string"], "",
+  [#mono("session​Id")], link(<t-u32>)[#"u32"], "",
+  [#mono("bus​Id")], link(<t-u32>)[#"u32"], "",
+  [#mono("group​Address")], link(<t-string>)[#"string"], "",
+  [#mono("source")], link(<t-sen-kernel-NetworkFootprintBusSource>)[#"Network​Footprint​Bus​Source"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintBusList>)[#"Network​Footprint​Bus​List"].]
+
+==== #"NetworkFootprintBusIdentity" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintBusIdentity>
+#prose("Names and IDs that identify a bus")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("session​Name")], link(<t-string>)[#"string"], "",
+  [#mono("bus​Name")], link(<t-string>)[#"string"], "",
+  [#mono("session​Id")], link(<t-u32>)[#"u32"], "",
+  [#mono("bus​Id")], link(<t-u32>)[#"u32"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintSelfCollision>)[#"Network​Footprint​Self​Collision"].]
+
+==== #"NetworkFootprintCollision" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintCollision>
+#prose("Multicast allocation capacity and collision information")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("usable​Space​Size")], link(<t-u64>)[#"u64"], "Number of addresses available",
+  [#mono("bus​Count")], link(<t-u64>)[#"u64"], "Number of reported buses",
+  [#mono("probability")], link(<t-f64>)[#"f64"], "Estimated conflict from 0 to 1",
+  [#mono("self​Collisions")], link(<t-sen-kernel-NetworkFootprintSelfCollisionList>)[#"Network​Footprint​Self​Collision​List"], "Collisions in the reported buses",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintMulticast>)[#"Network​Footprint​Multicast"].]
+
+==== #"NetworkFootprintMulticast" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintMulticast>
+#prose("Multicast information in the network footprint")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("port")], link(<t-u16>)[#"u16"], "Shared multicast port used by every bus",
+  [#mono("buses")], link(<t-sen-kernel-NetworkFootprintBusList>)[#"Network​Footprint​Bus​List"], "Multicast address used by each bus",
+  [#mono("exclusions")], link(<t-sen-kernel-NetworkFootprintAddressRangeList>)[#"Network​Footprint​Address​Range​List"], "Addresses that cannot be used",
+  [#mono("collision")], link(<t-sen-kernel-NetworkFootprintCollision>)[#"Network​Footprint​Collision"], "Available addresses and conflict information",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprint>)[#"Network​Footprint"].]
+
+==== #"NetworkFootprintPort" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintPort>
+#prose("Socket type, port selection mode and port value")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("kind")], link(<t-sen-kernel-NetworkFootprintPortKind>)[#"Network​Footprint​Port​Kind"], "",
+  [#mono("mode")], link(<t-sen-kernel-NetworkFootprintPortMode>)[#"Network​Footprint​Port​Mode"], "",
+  [#mono("value")], link(<t-sen-kernel-NetworkFootprintPortValue>)[#"Network​Footprint​Port​Value"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintPortList>)[#"Network​Footprint​Port​List"].]
+
+==== #"NetworkFootprintPortExclusions" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintPortExclusions>
+#prose("Port ranges that cannot be used")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("built​In")], link(<t-sen-kernel-NetworkFootprintPortRangeList>)[#"Network​Footprint​Port​Range​List"], "",
+  [#mono("configured")], link(<t-sen-kernel-NetworkFootprintPortRangeList>)[#"Network​Footprint​Port​Range​List"], "",
+  [#mono("operating​System")], link(<t-sen-kernel-NetworkFootprintPortRangeList>)[#"Network​Footprint​Port​Range​List"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprint>)[#"Network​Footprint"].]
+
+==== #"NetworkFootprintPortRange" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintPortRange>
+#prose("Inclusive range from which a port may be selected")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("min")], link(<t-u16>)[#"u16"], "",
+  [#mono("max")], link(<t-u16>)[#"u16"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintPortRangeList>)[#"Network​Footprint​Port​Range​List"], #link(<t-sen-kernel-NetworkFootprintPortValue>)[#"Network​Footprint​Port​Value"].]
+
+==== #"NetworkFootprintSelfCollision" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintSelfCollision>
+#prose("Two buses allocated to the same multicast group")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("first​Bus")], link(<t-sen-kernel-NetworkFootprintBusIdentity>)[#"Network​Footprint​Bus​Identity"], "",
+  [#mono("second​Bus")], link(<t-sen-kernel-NetworkFootprintBusIdentity>)[#"Network​Footprint​Bus​Identity"], "",
+  [#mono("group​Address")], link(<t-string>)[#"string"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintSelfCollisionList>)[#"Network​Footprint​Self​Collision​List"].]
+
 ==== #"OpFinished" #chip("structures", "structure") <t-sen-kernel-OpFinished>
 #prose("An operation is complete")
 #facts[Named by #link(<t-sen-kernel-OpState>)[#"Op​State"].]
@@ -2676,6 +2800,9 @@
   (link(<t-sen-kernel-GitStatus>)[#"Git​Status"], "Status of git", <t-sen-kernel-GitStatus>),
   (link(<t-sen-kernel-IntegralType>)[#"Integral​Type"], "built-in integrals", <t-sen-kernel-IntegralType>),
   (link(<t-sen-kernel-MethodConstnessSpec>)[#"Method​Constness​Spec"], "method constness", <t-sen-kernel-MethodConstnessSpec>),
+  (link(<t-sen-kernel-NetworkFootprintBusSource>)[#"Network​Footprint​Bus​Source"], "Bus source", <t-sen-kernel-NetworkFootprintBusSource>),
+  (link(<t-sen-kernel-NetworkFootprintPortKind>)[#"Network​Footprint​Port​Kind"], "Type of socket opened by the process", <t-sen-kernel-NetworkFootprintPortKind>),
+  (link(<t-sen-kernel-NetworkFootprintPortMode>)[#"Network​Footprint​Port​Mode"], "Port allocation policy", <t-sen-kernel-NetworkFootprintPortMode>),
   (link(<t-sen-kernel-OsKind>)[#"Os​Kind"], "Type of operating system", <t-sen-kernel-OsKind>),
   (link(<t-sen-kernel-Priority>)[#"Priority"], "Thread execution priorities", <t-sen-kernel-Priority>),
   (link(<t-sen-kernel-PropertyCategorySpec>)[#"Property​Category​Spec"], "how a property is seen by others", <t-sen-kernel-PropertyCategorySpec>),
@@ -2809,6 +2936,36 @@
   ("non​Constant", [1]),
 )
 #facts[Named by #link(<t-sen-kernel-MethodSpec>)[#"Method​Spec"], #link(<t-sen-kernel-MethodSpecV4>)[#"Method​Spec​V4"], #link(<t-sen-kernel-MethodSpecV5>)[#"Method​Spec​V5"].]
+
+==== #"NetworkFootprintBusSource" #chip("enumerations", "enumeration") <t-sen-kernel-NetworkFootprintBusSource>
+#prose("Bus source")
+#facts[Held as #mono("u8").]
+#enum-columns(3,
+  ("configured", [0]),
+  ("supplied", [1]),
+  ("runtime", [2]),
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintBus>)[#"Network​Footprint​Bus"].]
+
+==== #"NetworkFootprintPortKind" #chip("enumerations", "enumeration") <t-sen-kernel-NetworkFootprintPortKind>
+#prose("Type of socket opened by the process")
+#facts[Held as #mono("u8").]
+#enum-columns(3,
+  ("tcp​Acceptor", [0]),
+  ("udp​Unicast", [1]),
+  ("tcp​Source", [2]),
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintPort>)[#"Network​Footprint​Port"].]
+
+==== #"NetworkFootprintPortMode" #chip("enumerations", "enumeration") <t-sen-kernel-NetworkFootprintPortMode>
+#prose("Port allocation policy")
+#facts[Held as #mono("u8").]
+#enum-columns(3,
+  ("ephemeral", [0]),
+  ("probe", [1]),
+  ("pinned", [2]),
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintPort>)[#"Network​Footprint​Port"].]
 
 ==== #"OsKind" #chip("enumerations", "enumeration") <t-sen-kernel-OsKind>
 #prose("Type of operating system")
@@ -2946,6 +3103,7 @@
   (link(<t-sen-kernel-CustomTypeData>)[#"Custom​Type​Data"], "all custom types", <t-sen-kernel-CustomTypeData>),
   (link(<t-sen-kernel-CustomTypeDataV4>)[#"Custom​Type​Data​V4"], "", <t-sen-kernel-CustomTypeDataV4>),
   (link(<t-sen-kernel-CustomTypeDataV5>)[#"Custom​Type​Data​V5"], "", <t-sen-kernel-CustomTypeDataV5>),
+  (link(<t-sen-kernel-NetworkFootprintPortValue>)[#"Network​Footprint​Port​Value"], "Known port number or range", <t-sen-kernel-NetworkFootprintPortValue>),
   (link(<t-sen-kernel-NumericType>)[#"Numeric​Type"], "all built-in numeric types", <t-sen-kernel-NumericType>),
   (link(<t-sen-kernel-OpState>)[#"Op​State"], "The status of an operation", <t-sen-kernel-OpState>),
   (link(<t-sen-kernel-SleepPolicy>)[#"Sleep​Policy"], "Component sleep policy", <t-sen-kernel-SleepPolicy>),
@@ -3006,6 +3164,16 @@
 )
 #facts[Named by #link(<t-sen-kernel-CustomTypeSpecV5>)[#"Custom​Type​Spec​V5"].]
 
+==== #"NetworkFootprintPortValue" #chip("variants", "variant") <t-sen-kernel-NetworkFootprintPortValue>
+#prose("Known port number or range")
+#sen-table(
+  columns: (COL-NAME, 1fr),
+  table.header([*Type*], [*Description*]),
+  link(<t-u16>)[#"u16"], "",
+  link(<t-sen-kernel-NetworkFootprintPortRange>)[#"Network​Footprint​Port​Range"], "",
+)
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintPort>)[#"Network​Footprint​Port"].]
+
 ==== #"NumericType" #chip("variants", "variant") <t-sen-kernel-NumericType>
 #prose("all built-in numeric types")
 #sen-table(
@@ -3057,6 +3225,11 @@
   (link(<t-sen-kernel-MethodSpecList>)[#"Method​Spec​List"], "list of method specs", <t-sen-kernel-MethodSpecList>),
   (link(<t-sen-kernel-MethodSpecListV4>)[#"Method​Spec​List​V4"], "", <t-sen-kernel-MethodSpecListV4>),
   (link(<t-sen-kernel-MethodSpecListV5>)[#"Method​Spec​List​V5"], "", <t-sen-kernel-MethodSpecListV5>),
+  (link(<t-sen-kernel-NetworkFootprintAddressRangeList>)[#"Network​Footprint​Address​Range​List"], "", <t-sen-kernel-NetworkFootprintAddressRangeList>),
+  (link(<t-sen-kernel-NetworkFootprintBusList>)[#"Network​Footprint​Bus​List"], "Buses included in a network footprint", <t-sen-kernel-NetworkFootprintBusList>),
+  (link(<t-sen-kernel-NetworkFootprintPortList>)[#"Network​Footprint​Port​List"], "Ports used by the process", <t-sen-kernel-NetworkFootprintPortList>),
+  (link(<t-sen-kernel-NetworkFootprintPortRangeList>)[#"Network​Footprint​Port​Range​List"], "", <t-sen-kernel-NetworkFootprintPortRangeList>),
+  (link(<t-sen-kernel-NetworkFootprintSelfCollisionList>)[#"Network​Footprint​Self​Collision​List"], "Multicast address conflicts found in the reported buses", <t-sen-kernel-NetworkFootprintSelfCollisionList>),
   (link(<t-sen-kernel-Processes>)[#"Processes"], "Unbounded sequence of ProcessInfo", <t-sen-kernel-Processes>),
   (link(<t-sen-kernel-PropertySpecList>)[#"Property​Spec​List"], "list of property specs", <t-sen-kernel-PropertySpecList>),
   (link(<t-sen-kernel-PropertySpecListV4>)[#"Property​Spec​List​V4"], "", <t-sen-kernel-PropertySpecListV4>),
@@ -3152,6 +3325,29 @@
 #declared[#kw[sequence]\<#link(<t-sen-kernel-MethodSpecV5>)[#"Method​Spec​V5"]\> #"Method​Spec​List​V5"#";"]
 #facts[Named by #link(<t-sen-kernel-ClassTypeSpecV5>)[#"Class​Type​Spec​V5"].]
 
+==== #"NetworkFootprintAddressRangeList" #chip("sequences", "sequence") <t-sen-kernel-NetworkFootprintAddressRangeList>
+#declared[#kw[sequence]\<#link(<t-sen-kernel-NetworkFootprintAddressRange>)[#"Network​Footprint​Address​Range"]\> #"Network​Footprint​Address​Range​List"#";"]
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintMulticast>)[#"Network​Footprint​Multicast"].]
+
+==== #"NetworkFootprintBusList" #chip("sequences", "sequence") <t-sen-kernel-NetworkFootprintBusList>
+#prose("Buses included in a network footprint")
+#declared[#kw[sequence]\<#link(<t-sen-kernel-NetworkFootprintBus>)[#"Network​Footprint​Bus"]\> #"Network​Footprint​Bus​List"#";"]
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintMulticast>)[#"Network​Footprint​Multicast"].]
+
+==== #"NetworkFootprintPortList" #chip("sequences", "sequence") <t-sen-kernel-NetworkFootprintPortList>
+#prose("Ports used by the process")
+#declared[#kw[sequence]\<#link(<t-sen-kernel-NetworkFootprintPort>)[#"Network​Footprint​Port"]\> #"Network​Footprint​Port​List"#";"]
+#facts[Named by #link(<t-sen-kernel-NetworkFootprint>)[#"Network​Footprint"].]
+
+==== #"NetworkFootprintPortRangeList" #chip("sequences", "sequence") <t-sen-kernel-NetworkFootprintPortRangeList>
+#declared[#kw[sequence]\<#link(<t-sen-kernel-NetworkFootprintPortRange>)[#"Network​Footprint​Port​Range"]\> #"Network​Footprint​Port​Range​List"#";"]
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintPortExclusions>)[#"Network​Footprint​Port​Exclusions"].]
+
+==== #"NetworkFootprintSelfCollisionList" #chip("sequences", "sequence") <t-sen-kernel-NetworkFootprintSelfCollisionList>
+#prose("Multicast address conflicts found in the reported buses")
+#declared[#kw[sequence]\<#link(<t-sen-kernel-NetworkFootprintSelfCollision>)[#"Network​Footprint​Self​Collision"]\> #"Network​Footprint​Self​Collision​List"#";"]
+#facts[Named by #link(<t-sen-kernel-NetworkFootprintCollision>)[#"Network​Footprint​Collision"].]
+
 ==== #"Processes" #chip("sequences", "sequence") <t-sen-kernel-Processes>
 #prose("Unbounded sequence of ProcessInfo")
 #declared[#kw[sequence]\<#link(<t-sen-kernel-ProcessInfo>)[#"Process​Info"]\> #"Processes"#";"]
@@ -3213,6 +3409,8 @@
 #summary(
   (link(<t-sen-kernel-MaybeException>)[#"Maybe​Exception"], "", <t-sen-kernel-MaybeException>),
   (link(<t-sen-kernel-MaybeF64>)[#"Maybe​F64"], "optional value for a f64", <t-sen-kernel-MaybeF64>),
+  (link(<t-sen-kernel-MaybeNetworkFootprintMulticast>)[#"Maybe​Network​Footprint​Multicast"], "", <t-sen-kernel-MaybeNetworkFootprintMulticast>),
+  (link(<t-sen-kernel-MaybeNetworkFootprintPortValue>)[#"Maybe​Network​Footprint​Port​Value"], "The value is not present when the port number is not known", <t-sen-kernel-MaybeNetworkFootprintPortValue>),
   (link(<t-sen-kernel-MaybeSignal>)[#"Maybe​Signal"], "", <t-sen-kernel-MaybeSignal>),
   (link(<t-sen-kernel-MaybeStacktrace>)[#"Maybe​Stacktrace"], "", <t-sen-kernel-MaybeStacktrace>),
   (link(<t-sen-kernel-MaybeTransportProtocol>)[#"Maybe​Transport​Protocol"], "", <t-sen-kernel-MaybeTransportProtocol>),
@@ -3225,6 +3423,13 @@
 ==== #"MaybeF64" #chip("optionals", "optional") <t-sen-kernel-MaybeF64>
 #prose("optional value for a f64")
 #declared[#kw[optional]\<#link(<t-f64>)[#"f64"]\> #"Maybe​F64"#";"]
+
+==== #"MaybeNetworkFootprintMulticast" #chip("optionals", "optional") <t-sen-kernel-MaybeNetworkFootprintMulticast>
+#declared[#kw[optional]\<#link(<t-sen-kernel-NetworkFootprintMulticast>)[#"Network​Footprint​Multicast"]\> #"Maybe​Network​Footprint​Multicast"#";"]
+
+==== #"MaybeNetworkFootprintPortValue" #chip("optionals", "optional") <t-sen-kernel-MaybeNetworkFootprintPortValue>
+#prose("The value is not present when the port number is not known")
+#declared[#kw[optional]\<#link(<t-sen-kernel-NetworkFootprintPortValue>)[#"Network​Footprint​Port​Value"]\> #"Maybe​Network​Footprint​Port​Value"#";"]
 
 ==== #"MaybeSignal" #chip("optionals", "optional") <t-sen-kernel-MaybeSignal>
 #declared[#kw[optional]\<#link(<t-sen-kernel-SignalData>)[#"Signal​Data"]\> #"Maybe​Signal"#";"]
@@ -3657,6 +3862,8 @@
   (link(<t-sen-kernel-LoadedComponentParams>)[#"kernel.​Loaded​Component​Params"], <t-sen-kernel-LoadedComponentParams>),
   (link(<t-sen-kernel-MaybeException>)[#"kernel.​Maybe​Exception"], <t-sen-kernel-MaybeException>),
   (link(<t-sen-kernel-MaybeF64>)[#"kernel.​Maybe​F64"], <t-sen-kernel-MaybeF64>),
+  (link(<t-sen-kernel-MaybeNetworkFootprintMulticast>)[#"kernel.​Maybe​Network​Footprint​Multicast"], <t-sen-kernel-MaybeNetworkFootprintMulticast>),
+  (link(<t-sen-kernel-MaybeNetworkFootprintPortValue>)[#"kernel.​Maybe​Network​Footprint​Port​Value"], <t-sen-kernel-MaybeNetworkFootprintPortValue>),
   (link(<t-sen-kernel-MaybeSignal>)[#"kernel.​Maybe​Signal"], <t-sen-kernel-MaybeSignal>),
   (link(<t-sen-kernel-MaybeStacktrace>)[#"kernel.​Maybe​Stacktrace"], <t-sen-kernel-MaybeStacktrace>),
   (link(<t-sen-kernel-MaybeTransportProtocol>)[#"kernel.​Maybe​Transport​Protocol"], <t-sen-kernel-MaybeTransportProtocol>),
@@ -3668,6 +3875,25 @@
   (link(<t-sen-kernel-MethodSpecListV5>)[#"kernel.​Method​Spec​List​V5"], <t-sen-kernel-MethodSpecListV5>),
   (link(<t-sen-kernel-MethodSpecV4>)[#"kernel.​Method​Spec​V4"], <t-sen-kernel-MethodSpecV4>),
   (link(<t-sen-kernel-MethodSpecV5>)[#"kernel.​Method​Spec​V5"], <t-sen-kernel-MethodSpecV5>),
+  (link(<t-sen-kernel-NetworkFootprint>)[#"kernel.​Network​Footprint"], <t-sen-kernel-NetworkFootprint>),
+  (link(<t-sen-kernel-NetworkFootprintAddressRange>)[#"kernel.​Network​Footprint​Address​Range"], <t-sen-kernel-NetworkFootprintAddressRange>),
+  (link(<t-sen-kernel-NetworkFootprintAddressRangeList>)[#"kernel.​Network​Footprint​Address​Range​List"], <t-sen-kernel-NetworkFootprintAddressRangeList>),
+  (link(<t-sen-kernel-NetworkFootprintBus>)[#"kernel.​Network​Footprint​Bus"], <t-sen-kernel-NetworkFootprintBus>),
+  (link(<t-sen-kernel-NetworkFootprintBusIdentity>)[#"kernel.​Network​Footprint​Bus​Identity"], <t-sen-kernel-NetworkFootprintBusIdentity>),
+  (link(<t-sen-kernel-NetworkFootprintBusList>)[#"kernel.​Network​Footprint​Bus​List"], <t-sen-kernel-NetworkFootprintBusList>),
+  (link(<t-sen-kernel-NetworkFootprintBusSource>)[#"kernel.​Network​Footprint​Bus​Source"], <t-sen-kernel-NetworkFootprintBusSource>),
+  (link(<t-sen-kernel-NetworkFootprintCollision>)[#"kernel.​Network​Footprint​Collision"], <t-sen-kernel-NetworkFootprintCollision>),
+  (link(<t-sen-kernel-NetworkFootprintMulticast>)[#"kernel.​Network​Footprint​Multicast"], <t-sen-kernel-NetworkFootprintMulticast>),
+  (link(<t-sen-kernel-NetworkFootprintPort>)[#"kernel.​Network​Footprint​Port"], <t-sen-kernel-NetworkFootprintPort>),
+  (link(<t-sen-kernel-NetworkFootprintPortExclusions>)[#"kernel.​Network​Footprint​Port​Exclusions"], <t-sen-kernel-NetworkFootprintPortExclusions>),
+  (link(<t-sen-kernel-NetworkFootprintPortKind>)[#"kernel.​Network​Footprint​Port​Kind"], <t-sen-kernel-NetworkFootprintPortKind>),
+  (link(<t-sen-kernel-NetworkFootprintPortList>)[#"kernel.​Network​Footprint​Port​List"], <t-sen-kernel-NetworkFootprintPortList>),
+  (link(<t-sen-kernel-NetworkFootprintPortMode>)[#"kernel.​Network​Footprint​Port​Mode"], <t-sen-kernel-NetworkFootprintPortMode>),
+  (link(<t-sen-kernel-NetworkFootprintPortRange>)[#"kernel.​Network​Footprint​Port​Range"], <t-sen-kernel-NetworkFootprintPortRange>),
+  (link(<t-sen-kernel-NetworkFootprintPortRangeList>)[#"kernel.​Network​Footprint​Port​Range​List"], <t-sen-kernel-NetworkFootprintPortRangeList>),
+  (link(<t-sen-kernel-NetworkFootprintPortValue>)[#"kernel.​Network​Footprint​Port​Value"], <t-sen-kernel-NetworkFootprintPortValue>),
+  (link(<t-sen-kernel-NetworkFootprintSelfCollision>)[#"kernel.​Network​Footprint​Self​Collision"], <t-sen-kernel-NetworkFootprintSelfCollision>),
+  (link(<t-sen-kernel-NetworkFootprintSelfCollisionList>)[#"kernel.​Network​Footprint​Self​Collision​List"], <t-sen-kernel-NetworkFootprintSelfCollisionList>),
   (link(<t-sen-kernel-NumericType>)[#"kernel.​Numeric​Type"], <t-sen-kernel-NumericType>),
   (link(<t-sen-kernel-OpFinished>)[#"kernel.​Op​Finished"], <t-sen-kernel-OpFinished>),
   (link(<t-sen-kernel-OpNotFinished>)[#"kernel.​Op​Not​Finished"], <t-sen-kernel-OpNotFinished>),

@@ -1,5 +1,7 @@
 var NAVTREEINDEX9 =
 {
+"classsen_1_1util_1_1_dead_reckoner.html#a537b4c716b061890068d73b0ec9f8b36":[0,2,0,10,20],
+"classsen_1_1util_1_1_dead_reckoner.html#a55657a2c3777834fb12a0b75f0d93b5d":[0,2,0,10,12],
 "classsen_1_1util_1_1_dead_reckoner.html#a55809395957679b2ffab8c6226a24487":[0,2,0,10,22],
 "classsen_1_1util_1_1_dead_reckoner.html#a58ed975590ae7753019f1ac9e0159f99":[0,2,0,10,11],
 "classsen_1_1util_1_1_dead_reckoner.html#a6984535ffeae7aefbad14a8ff763d976":[0,2,0,10,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX9 =
 "classsen_1_1util_1_1_settable_dead_reckoner.html#ae62b54cd52aeec6a1f976b95d680358e":[0,2,0,14,15],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#af838391974b91f671051ffc8e901d626":[0,2,0,14,4],
 "classsen_1_1util_1_1_vec3.html":[1,0,1,7,21],
-"classsen_1_1util_1_1_vec3.html":[2,0,1,7,20],
-"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[1,0,1,7,21,11],
-"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[2,0,1,7,20,11]
+"classsen_1_1util_1_1_vec3.html":[2,0,1,7,20]
 };

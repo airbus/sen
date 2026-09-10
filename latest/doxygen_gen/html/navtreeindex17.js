@@ -1,5 +1,8 @@
 var NAVTREEINDEX17 =
 {
+"structsen_1_1_object_list_1_1_iterators.html#afb9c4b8507296a132b5f70483d5111fc":[0,0,4,14,0,3],
+"structsen_1_1_optional_spec.html":[0,0,2,1,20],
+"structsen_1_1_optional_spec.html#a0f283fbde3633046b09009041985ce51":[0,0,2,1,20,5],
 "structsen_1_1_optional_spec.html#a37f4bbca32787c077a2751536263f7db":[0,0,2,1,20,4],
 "structsen_1_1_optional_spec.html#a46b18fbaa8fd1d1c4511402295fbd607":[0,0,2,1,20,2],
 "structsen_1_1_optional_spec.html#a55655bfa8d223f57d846b1d4f0d098f1":[0,0,2,1,20,6],
@@ -246,8 +249,5 @@ var NAVTREEINDEX17 =
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a1d568e9970831de6f57f668ae375ba36":[1,0,1,7,20,0],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a1d568e9970831de6f57f668ae375ba36":[2,0,1,7,19,0],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a39562c8576ae6ff820e56924b51d7c62":[1,0,1,7,20,1],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a39562c8576ae6ff820e56924b51d7c62":[2,0,1,7,19,1],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a56804e5c64ddeb5e8077347d39181bab":[1,0,1,7,20,8],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a56804e5c64ddeb5e8077347d39181bab":[2,0,1,7,19,8],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a5dc5b61b7ec1e9adc2d2722dcc35be0c":[1,0,1,7,20,11]
+"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a39562c8576ae6ff820e56924b51d7c62":[2,0,1,7,19,1]
 };

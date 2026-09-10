@@ -4,6 +4,7 @@ var classsen_1_1kernel_1_1_preload_api =
     [ "~PreloadApi", "classsen_1_1kernel_1_1_preload_api.html#a3266aff1eeec77cc9830896c6f4974ad", null ],
     [ "installTransportFactory", "classsen_1_1kernel_1_1_preload_api.html#a6dda8e9cb94b9794a52d64c62a6dae87", null ],
     [ "installTracerFactory", "classsen_1_1kernel_1_1_preload_api.html#a60e6d9610d486fbb1d60ed12e7ada534", null ],
+    [ "installFootprintReporter", "classsen_1_1kernel_1_1_preload_api.html#a11e988d6a69129bc4698a2c73979bb3f", null ],
     [ "getConfig", "classsen_1_1kernel_1_1_preload_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],
     [ "getTypes", "classsen_1_1kernel_1_1_preload_api.html#a7ba20735f5cad05911fb5c525d220561", null ],
     [ "requestKernelStop", "classsen_1_1kernel_1_1_preload_api.html#ae07f49618cc8899602c860df5592429f", null ],
