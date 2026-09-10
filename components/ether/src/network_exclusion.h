@@ -140,6 +140,17 @@ struct NetworkExclusions
 /// Returns an error for invalid input.
 [[nodiscard]] Result<NetworkExclusions, std::string> makeNetworkExclusions(const Configuration& config);
 
+/// Returns the number of non-excluded addresses covered by the multicast range.
+[[nodiscard]] uint64_t usableMulticastAddressCount(const MulticastRange& range, const MulticastExclusions& exclusions);
+
+/// Returns the usable multicast address at a zero-based index, ordered by its numeric IPv4 value.
+/// The indexed address space contains the configured multicast range after removing all exclusions.
+/// Returns nullopt when usableIndex is outside that address space.
+[[nodiscard]] std::optional<asio::ip::address_v4> getUsableMulticastAddressAtIndex(
+  uint64_t usableIndex,
+  const MulticastRange& range,
+  const MulticastExclusions& exclusions);
+
 /// Returns true if the multicast range has a usable address.
 [[nodiscard]] bool hasUsableMulticastAddress(const MulticastRange& range, const MulticastExclusions& exclusions);
 

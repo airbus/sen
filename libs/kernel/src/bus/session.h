@@ -27,10 +27,14 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace sen::kernel::impl
 {
+
+/// Session reserved for buses that do not use a network transport
+inline constexpr std::string_view localSessionName = "local";
 
 class SessionManager;
 class RemoteParticipant;

@@ -7,11 +7,14 @@
 
 add_sen_unit_test_suite(
   ether_test
+  bus_handler_test.cpp
   network_exclusion_test.cpp
   port_binding_test.cpp
   LINK_DEPS
   sen::core
   asio::asio
+  concurrentqueue::concurrentqueue
+  spdlog::spdlog
   ether_for_testing
 )
 

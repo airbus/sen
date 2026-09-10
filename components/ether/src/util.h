@@ -36,6 +36,7 @@ class ProcessHandler;
 class Acceptor;
 
 constexpr uint32_t etherProtocolVersion = 2;
+constexpr uint16_t defaultDiscoveryPort = 60543;
 
 struct NetworkInterfaceInfo
 {
@@ -58,6 +59,12 @@ template <typename T, typename B>
 }
 
 [[nodiscard]] std::vector<NetworkInterfaceInfo> getLocalInterfaces(const Configuration& config);
+
+/// Gets the discovery port used to compute bus multicast address allocation.
+///
+/// @param config: ether configuration containing the discovery settings
+/// @return configured multicast discovery port
+[[nodiscard]] uint16_t getBusDiscoveryPort(const Configuration& config) noexcept;
 
 void configureMulticastSocket(asio::ip::udp::socket& socket,
                               asio::ip::udp::endpoint multicastEndpoint,
