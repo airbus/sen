@@ -13,11 +13,13 @@
 #include "operating_system.h"
 
 // sen
+#include "sen/core/base/span.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/kernel_config.h"
 
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // std
 #include <filesystem>
@@ -42,6 +44,11 @@ std::filesystem::path Kernel::getConfigPath() const noexcept { return pimpl_->ge
 int Kernel::run(KernelBlockMode blockMode) { return pimpl_->run(blockMode); }
 
 void Kernel::requestStop(int exitCode) { pimpl_->requestStop(exitCode); }
+
+NetworkFootprint Kernel::getNetworkFootprint(Span<const BusAddress> suppliedBusAddresses)
+{
+  return pimpl_->generateOfflineNetworkFootprint(suppliedBusAddresses);
+}
 
 const BuildInfo& Kernel::getBuildInfo() noexcept
 {
