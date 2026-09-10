@@ -48,18 +48,27 @@ if(SEN_COMPILER_CACHE)
     )
   endforeach()
 
-  # A compiler cache stores nothing against MSVC's separate program database, so a lane that
-  # gained one would report hits of zero and no reason. Say so at configure time rather than
-  # leaving it to be measured: the flags are not in the build log, which prints only objects.
-  if(MSVC)
-    message(NOTICE "-- MSVC release flags seen by the cache: ${CMAKE_CXX_FLAGS_RELEASE}")
-    if(CMAKE_CXX_FLAGS_RELEASE MATCHES "/Zi" OR CMAKE_MSVC_DEBUG_INFORMATION_FORMAT MATCHES "ProgramDatabase")
-      message(WARNING "MSVC is producing a program database; ${_sen_cache_name} will not cache. "
-                      "Set CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded with CMP0141 NEW."
-      )
-    endif()
-  endif()
 endif()
+
+# A compiler cache stores nothing against MSVC's separate program database, so a lane that
+# gained one would report hits of zero and give no reason. The flags are not in the build log
+# either -- Ninja prints the object it is building, never the command line.
+#
+# A function called after project(), not a check up here: MSVC and CMAKE_CXX_FLAGS_RELEASE are
+# both empty until the compiler has been detected, so an if(MSVC) at this point never runs and
+# reports nothing while looking like a check that passed.
+function(sen_warn_if_the_compiler_cache_cannot_work)
+  if(NOT SEN_COMPILER_CACHE OR NOT MSVC)
+    return()
+  endif()
+
+  message(NOTICE "-- MSVC release flags seen by the compiler cache: ${CMAKE_CXX_FLAGS_RELEASE}")
+  if(CMAKE_CXX_FLAGS_RELEASE MATCHES "/Zi" OR CMAKE_MSVC_DEBUG_INFORMATION_FORMAT MATCHES "ProgramDatabase")
+    message(WARNING "MSVC is producing a program database, so the compiler cache stores nothing. "
+                    "Set CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded with CMP0141 NEW."
+    )
+  endif()
+endfunction()
 
 if(NOT SEN_DISABLE_CLANG_TIDY)
   find_program(clang_tidy_cache_path NAMES "cltcache")
