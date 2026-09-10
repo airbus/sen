@@ -1,0 +1,24 @@
+load:
+  - name: ether
+    group: 10
+    runDiscoveryHub: 65454
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 100 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65454
+  - name: shell
+    group: 5
+
+build:
+  - name: publisher
+    group: 3
+    freqHz: 10
+    imports: [ls_command_test]
+    objects:
+      - name: publisher
+        class: ls_command_test.PublisherImpl
+        bus: base_session.base_bus
