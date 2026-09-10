@@ -27,6 +27,8 @@ add_sen_package(
 
 set_target_properties(logmaster PROPERTIES FOLDER "components/logmaster")
 
+sen_internal_configure_component(logmaster)
+
 sen_internal_install(logmaster)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/logmaster.json DESTINATION schemas)

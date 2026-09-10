@@ -37,6 +37,8 @@ add_sen_package(
 
 set_target_properties(replayer PROPERTIES FOLDER "components/replayer")
 
+sen_internal_configure_component(replayer)
+
 # install interfaces files
 install(FILES ${_replayer_stl_files} DESTINATION interfaces/stl/sen/components/replayer)
 

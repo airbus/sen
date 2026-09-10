@@ -31,6 +31,8 @@ add_sen_package(
 
 set_target_properties(recorder PROPERTIES FOLDER "components/recorder")
 
+sen_internal_configure_component(recorder)
+
 # install interfaces files
 install(FILES ${_recorder_stl_files} DESTINATION interfaces/stl/sen/components/recorder)
 
