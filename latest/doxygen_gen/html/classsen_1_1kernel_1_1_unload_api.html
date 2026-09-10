@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1ke
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_unload_api__inherit__graph.svg" width="366" height="490"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_unload_api__inherit__graph.svg" width="395" height="510"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -166,6 +166,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a966965b6760115b7ed38c8f4d8de8754"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets information about the process where an object is. Returns nullptr if the object resides in the current process.  <br /></td></tr>
 <tr class="memitem:a97a00c770b6dc3b7482becb52027a442" id="r_a97a00c770b6dc3b7482becb52027a442"><td class="memItemLeft">const std::string &amp;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a97a00c770b6dc3b7482becb52027a442">getAppName</a> () const noexcept</td></tr>
 <tr class="memdesc:a97a00c770b6dc3b7482becb52027a442"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the (optional) application name passed to the kernel as a configuration parameter.  <br /></td></tr>
+<tr class="memitem:ad3cd09a484dcfacfd5e3d218002b3122" id="r_ad3cd09a484dcfacfd5e3d218002b3122"><td class="memItemLeft">std::vector&lt; BusAddress &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#ad3cd09a484dcfacfd5e3d218002b3122">getConfiguredBusAddresses</a> () const</td></tr>
+<tr class="memdesc:ad3cd09a484dcfacfd5e3d218002b3122"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets configured non-local bus addresses.  <br /></td></tr>
 <tr class="memitem:a0caf9e63c9e12af2c9f30864816dad08" id="r_a0caf9e63c9e12af2c9f30864816dad08"><td class="memItemLeft">::sen::impl::WorkQueue *&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a0caf9e63c9e12af2c9f30864816dad08">getWorkQueue</a> () const noexcept</td></tr>
 <tr class="memdesc:a0caf9e63c9e12af2c9f30864816dad08"><td class="mdescLeft">&#160;</td><td class="mdescRight">The work queue of this runner.  <br /></td></tr>
 <tr class="memitem:af75a3b9ae703e6809b71802a85aee6bf" id="r_af75a3b9ae703e6809b71802a85aee6bf"><td class="memTemplParams" colspan="2">template&lt;typename T, typename Bus&gt; </td></tr>
@@ -463,6 +465,33 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Gets the (optional) application name passed to the kernel as a configuration parameter. </p>
+
+</div>
+</div>
+<a id="ad3cd09a484dcfacfd5e3d218002b3122" name="ad3cd09a484dcfacfd5e3d218002b3122"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3cd09a484dcfacfd5e3d218002b3122">&#9670;&#160;</a></span>getConfiguredBusAddresses()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; BusAddress &gt; sen::kernel::KernelApi::getConfiguredBusAddresses </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Gets configured non-local bus addresses. </p>
 
 </div>
 </div>

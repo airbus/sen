@@ -1,5 +1,14 @@
 var NAVTREEINDEX17 =
 {
+"structsen_1_1_optional_spec.html#a37f4bbca32787c077a2751536263f7db":[0,0,2,1,20,4],
+"structsen_1_1_optional_spec.html#a46b18fbaa8fd1d1c4511402295fbd607":[0,0,2,1,20,2],
+"structsen_1_1_optional_spec.html#a55655bfa8d223f57d846b1d4f0d098f1":[0,0,2,1,20,6],
+"structsen_1_1_optional_spec.html#a686b8d78e5a6d36bf605b07e63c8936a":[0,0,2,1,20,1],
+"structsen_1_1_optional_spec.html#ac3760b419790e1e71415e81b6b8dc1f4":[0,0,2,1,20,3],
+"structsen_1_1_optional_spec.html#adf179bdc30627ff795246b7e72133986":[0,0,2,1,20,0],
+"structsen_1_1_optional_traits_base.html":[0,0,2,0,3],
+"structsen_1_1_overloaded.html":[0,0,0,2,4],
+"structsen_1_1_property_spec.html":[0,0,2,1,22],
 "structsen_1_1_property_spec.html#a2119b1b2423564a9de9ab04c42dd9852":[0,0,2,1,22,5],
 "structsen_1_1_property_spec.html#a61bf4f39ddf3d1deb1c4a8f2fb5dc07d":[0,0,2,1,22,7],
 "structsen_1_1_property_spec.html#a71ddab02af15957d4cb15d3be4ed4656":[0,0,2,1,22,6],
@@ -240,14 +249,5 @@ var NAVTREEINDEX17 =
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a39562c8576ae6ff820e56924b51d7c62":[2,0,1,7,19,1],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a56804e5c64ddeb5e8077347d39181bab":[1,0,1,7,20,8],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a56804e5c64ddeb5e8077347d39181bab":[2,0,1,7,19,8],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a5dc5b61b7ec1e9adc2d2722dcc35be0c":[1,0,1,7,20,11],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a5dc5b61b7ec1e9adc2d2722dcc35be0c":[2,0,1,7,19,11],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a66f0f9353bec169aa4c62bdcb40a83dd":[1,0,1,7,20,10],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a66f0f9353bec169aa4c62bdcb40a83dd":[2,0,1,7,19,10],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a70075cb2d5dbcd3614c320f1f61f0699":[1,0,1,7,20,5],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a70075cb2d5dbcd3614c320f1f61f0699":[2,0,1,7,19,5],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a85d478e601435cdabe7b2da9ca7d4b12":[1,0,1,7,20,2],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a85d478e601435cdabe7b2da9ca7d4b12":[2,0,1,7,19,2],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#ac0b2ed63b40d5126f026565e11c5a1a3":[1,0,1,7,20,7],
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#ac0b2ed63b40d5126f026565e11c5a1a3":[2,0,1,7,19,7]
+"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a5dc5b61b7ec1e9adc2d2722dcc35be0c":[1,0,1,7,20,11]
 };

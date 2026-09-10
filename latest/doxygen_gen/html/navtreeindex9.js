@@ -1,5 +1,14 @@
 var NAVTREEINDEX9 =
 {
+"classsen_1_1util_1_1_dead_reckoner.html#a55809395957679b2ffab8c6226a24487":[0,2,0,10,22],
+"classsen_1_1util_1_1_dead_reckoner.html#a58ed975590ae7753019f1ac9e0159f99":[0,2,0,10,11],
+"classsen_1_1util_1_1_dead_reckoner.html#a6984535ffeae7aefbad14a8ff763d976":[0,2,0,10,3],
+"classsen_1_1util_1_1_dead_reckoner.html#a6ca1bc4d6b5284f5b211a28804e73ec0":[0,2,0,10,15],
+"classsen_1_1util_1_1_dead_reckoner.html#a829b3eaa309e421723c823c4961ffe1c":[0,2,0,10,25],
+"classsen_1_1util_1_1_dead_reckoner.html#a898fc1d58009c259308f537348ade48b":[0,2,0,10,14],
+"classsen_1_1util_1_1_dead_reckoner.html#a8f5125925e682f3499fd9dac57cdcf50":[0,2,0,10,31],
+"classsen_1_1util_1_1_dead_reckoner.html#a9edf40bb3c81bdf54024d03e784c7bf0":[0,2,0,10,30],
+"classsen_1_1util_1_1_dead_reckoner.html#ab1dc3cac5fb0080c0f0f30385ba3bca8":[0,2,0,10,1],
 "classsen_1_1util_1_1_dead_reckoner.html#ab37e49b13eaba974fd4f05a557c92499":[0,2,0,10,4],
 "classsen_1_1util_1_1_dead_reckoner.html#abe50236146d39a1f20db2ca6caaefd52":[0,2,0,10,27],
 "classsen_1_1util_1_1_dead_reckoner.html#abf226d3738e90968df6db594febe708c":[0,2,0,10,9],
@@ -240,14 +249,5 @@ var NAVTREEINDEX9 =
 "classsen_1_1util_1_1_vec3.html":[1,0,1,7,21],
 "classsen_1_1util_1_1_vec3.html":[2,0,1,7,20],
 "classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[1,0,1,7,21,11],
-"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[2,0,1,7,20,11],
-"classsen_1_1util_1_1_vec3.html#a0adb6dfc709cd4612a03a686fa8e8fb2":[1,0,1,7,21,29],
-"classsen_1_1util_1_1_vec3.html#a0adb6dfc709cd4612a03a686fa8e8fb2":[2,0,1,7,20,29],
-"classsen_1_1util_1_1_vec3.html#a1a2533fe2c1ebb351f8ac66e1bc7fc34":[1,0,1,7,21,22],
-"classsen_1_1util_1_1_vec3.html#a1a2533fe2c1ebb351f8ac66e1bc7fc34":[2,0,1,7,20,22],
-"classsen_1_1util_1_1_vec3.html#a1f2c3a4745478ee13475b3ddc1056472":[1,0,1,7,21,15],
-"classsen_1_1util_1_1_vec3.html#a1f2c3a4745478ee13475b3ddc1056472":[2,0,1,7,20,15],
-"classsen_1_1util_1_1_vec3.html#a22ff80d3ef072a850bae78ffe6260b20":[1,0,1,7,21,18],
-"classsen_1_1util_1_1_vec3.html#a22ff80d3ef072a850bae78ffe6260b20":[2,0,1,7,20,18],
-"classsen_1_1util_1_1_vec3.html#a2dd543010647cbc0a79d96d9ea85344c":[1,0,1,7,21,9]
+"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050":[2,0,1,7,20,11]
 };
