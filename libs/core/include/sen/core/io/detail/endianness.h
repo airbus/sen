@@ -9,6 +9,7 @@
 #define SEN_CORE_IO_DETAIL_ENDIANNESS_H
 
 // sen
+#include "sen/core/base/bits.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
 
@@ -110,9 +111,17 @@ namespace impl
 #endif
 }
 
-[[nodiscard]] SEN_ALWAYS_INLINE float32_t swapBytes(float32_t value) noexcept { return value; }
+// Through the same-width integer, because IEEE 754 fixes the bit pattern and not the order those
+// bytes sit in. Returning the value unchanged made the stream little-endian for integers only.
+[[nodiscard]] SEN_ALWAYS_INLINE float32_t swapBytes(float32_t value) noexcept
+{
+  return std_util::bit_cast<float32_t>(swapBytes(std_util::bit_cast<uint32_t>(value)));
+}
 
-[[nodiscard]] SEN_ALWAYS_INLINE float64_t swapBytes(float64_t value) noexcept { return value; }
+[[nodiscard]] SEN_ALWAYS_INLINE float64_t swapBytes(float64_t value) noexcept
+{
+  return std_util::bit_cast<float64_t>(swapBytes(std_util::bit_cast<uint64_t>(value)));
+}
 
 /// Swaps the bytes of val if this host is big endian
 template <typename T>

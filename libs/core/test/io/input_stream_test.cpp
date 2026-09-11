@@ -32,6 +32,7 @@
 
 using sen::InputStream;
 using sen::test::BufferedTestReader;
+using sen::test::TestReader;
 
 namespace
 {
@@ -426,4 +427,49 @@ TEST(InputStream, tryAdvance)
   EXPECT_TRUE(in.atEnd());
 
   EXPECT_ANY_THROW(std::ignore = in.tryAdvance(1U));
+}
+
+// The read side had its own float overloads that memcpy'd, so it never reached the swap at all.
+// Fixing swapBytes alone would have left a big-endian host unable to read back what it wrote.
+TEST(InputStream, FloatsAreReadInTheBufferByteOrder)
+{
+  // float32_t big endian
+  {
+    const std::vector<uint8_t> buffer {0x40U, 0x49U, 0x0FU, 0xD0U};
+    TestReader reader(buffer);
+    sen::InputStreamTemplate<sen::BigEndian> in(reader.getBuffer());
+    float32_t val = 0.0F;
+    in.readFloat32(val);
+    EXPECT_FLOAT_EQ(3.14159F, val);
+  }
+
+  // float32_t little endian
+  {
+    const std::vector<uint8_t> buffer {0xD0U, 0x0FU, 0x49U, 0x40U};
+    TestReader reader(buffer);
+    sen::InputStreamTemplate<sen::LittleEndian> in(reader.getBuffer());
+    float32_t val = 0.0F;
+    in.readFloat32(val);
+    EXPECT_FLOAT_EQ(3.14159F, val);
+  }
+
+  // float64_t big endian
+  {
+    const std::vector<uint8_t> buffer {0x40U, 0x09U, 0x21U, 0xF9U, 0xF0U, 0x1BU, 0x86U, 0x6EU};
+    TestReader reader(buffer);
+    sen::InputStreamTemplate<sen::BigEndian> in(reader.getBuffer());
+    float64_t val = 0.0;
+    in.readFloat64(val);
+    EXPECT_DOUBLE_EQ(3.14159, val);
+  }
+
+  // float64_t little endian
+  {
+    const std::vector<uint8_t> buffer {0x6EU, 0x86U, 0x1BU, 0xF0U, 0xF9U, 0x21U, 0x09U, 0x40U};
+    TestReader reader(buffer);
+    sen::InputStreamTemplate<sen::LittleEndian> in(reader.getBuffer());
+    float64_t val = 0.0;
+    in.readFloat64(val);
+    EXPECT_DOUBLE_EQ(3.14159, val);
+  }
 }
