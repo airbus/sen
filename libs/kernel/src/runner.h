@@ -36,6 +36,11 @@
 // generated
 #include "stl/sen/kernel/basic_types.stl.h"
 
+// xenium
+#include <xenium/harris_michael_list_based_set.hpp>
+#include <xenium/policy.hpp>
+#include <xenium/reclamation/generic_epoch_based.hpp>
+
 // std
 #include <atomic>
 #include <chrono>
@@ -202,7 +207,10 @@ private:
 
 private:
   using NativeObjectPtrList = std::list<NativeObject*>;
-
+  using ConcurrentLocalParticipantList =
+    xenium::harris_michael_list_based_set<std::weak_ptr<LocalParticipant>,
+                                          xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
+                                          xenium::policy::compare<std::owner_less<std::weak_ptr<LocalParticipant>>>>;
   KernelImpl& kernel_;
   OperatingSystem& os_;
   ComponentContext component_;
@@ -215,7 +223,7 @@ private:
   ::sen::impl::WorkQueue workQueue_;
   ::sen::impl::SerializableEventQueue serializableEvents_;
   std::mutex serializableEventsMutex_;  // TODO: needed for clear and participants
-  std::vector<std::weak_ptr<LocalParticipant>> localParticipants_;
+  ConcurrentLocalParticipantList localParticipants_;
   std::unordered_map<std::shared_ptr<NativeObject>, NativeObjectPtrList::iterator> objectsMap_;
   NativeObjectPtrList objectsList_;
   NativeObjectPtrList objectsThatNeedPreAndPostUpdateCalls_;
@@ -266,9 +274,7 @@ inline void Runner::drainInputs()
   sessionsDiscoverer_.drainInputs();
 
   // drain the inputs on all our participants
-  // explicit copy to prevent modifications
-  auto localParticipants = localParticipants_;
-  for (auto& participant: localParticipants)
+  for (auto& participant: localParticipants_)
   {
     if (auto p = participant.lock(); p)
     {
@@ -288,9 +294,7 @@ inline void Runner::drainUntilEventOrTimeout(const Duration& timeout)
   sessionsDiscoverer_.drainInputs();
 
   // drain the inputs on all our participants
-  // explicit copy to prevent modifications
-  auto localParticipants = localParticipants_;
-  for (auto& participant: localParticipants)
+  for (auto& participant: localParticipants_)
   {
     if (auto p = participant.lock(); p)
     {
@@ -342,12 +346,10 @@ inline void Runner::commit()
   tracer_->plot(eventQueueName_, static_cast<int64_t>(serializableEvents_.getContents().size()));
 
   // call commit on all local participants
-  // explicit copy to prevent modifications
   {
     SEN_TRACE_ZONE_NAMED(*tracer_, "flush");
 
-    auto localParticipants = localParticipants_;
-    for (auto& participant: localParticipants)
+    for (auto& participant: localParticipants_)
     {
       if (auto p = participant.lock(); p)
       {

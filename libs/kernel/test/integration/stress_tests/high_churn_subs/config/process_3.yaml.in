@@ -17,63 +17,63 @@ build:
   - name: terminatorComponent2
     group: 3
     freqHz: 30
-    imports: [test_helpers, high_churn_subs]
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: terminator2
         class: sen.test.ProcessTerminatorImpl
         bus: session.bus
-  - name: consComp1
+  - name: consComp6
     group: 3
-    freqHz: 100
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
-      - name: consumer1
+      - name: consumer11
         class: high_churn_subs.Consumer
         bus: session.bus
-      - name: consumer2
+      - name: consumer12
         class: high_churn_subs.Consumer
         bus: session.bus
-      - name: consumer3
+      - name: consumer13
         class: high_churn_subs.Consumer
         bus: session.bus
-  - name: consComp2
+  - name: consComp7
     group: 3
-    freqHz: 100
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
-      - name: consumer4
+      - name: consumer14
         class: high_churn_subs.Consumer
         bus: session.bus
-      - name: consumer5
+      - name: consumer15
         class: high_churn_subs.Consumer
         bus: session.bus
-  - name: consComp3
+  - name: consComp8
     group: 3
-    freqHz: 100
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
-      - name: consumer6
+      - name: consumer16
         class: high_churn_subs.Consumer
         bus: session.bus
-  - name: consComp4
+  - name: consComp9
     group: 3
-    freqHz: 100
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
-      - name: consumer7
+      - name: consumer17
         class: high_churn_subs.Consumer
         bus: session.bus
-      - name: consumer8
+      - name: consumer18
         class: high_churn_subs.Consumer
         bus: session.bus
-  - name: consComp5
+  - name: consComp10
     group: 3
-    freqHz: 100
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
-      - name: consumer9
+      - name: consumer19
         class: high_churn_subs.Consumer
         bus: session.bus
-      - name: consumer10
+      - name: consumer20
         class: high_churn_subs.Consumer
         bus: session.bus
