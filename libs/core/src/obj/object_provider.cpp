@@ -52,7 +52,10 @@ ObjectProviderListener::~ObjectProviderListener()
     return;
   }
 
-  for (auto* provider: *providers_)
+  // Explicit copy before notifying, as the vector version did: listenerDeleted() erases from
+  // this very container, so iterating it live walks a set the callback is mutating.
+  const std::vector<ObjectProvider*> providers(providers_->begin(), providers_->end());
+  for (auto* provider: providers)
   {
     if (provider != nullptr)
     {
@@ -86,7 +89,9 @@ ObjectProvider::ObjectProvider(): listeners_(std::make_unique<ConcurrentListener
 
 ObjectProvider::~ObjectProvider()
 {
-  for (auto* listener: *listeners_)
+  // Explicit copy, as above: removeProvider() erases from this container.
+  const std::vector<ObjectProviderListener*> listeners(listeners_->begin(), listeners_->end());
+  for (auto* listener: listeners)
   {
     if (listener != nullptr)
     {
@@ -97,7 +102,9 @@ ObjectProvider::~ObjectProvider()
 
 void ObjectProvider::notifyRemovedOnExistingObjectsForAllListeners()
 {
-  for (auto* listener: *listeners_)
+  // Explicit copy, as above.
+  const std::vector<ObjectProviderListener*> listeners(listeners_->begin(), listeners_->end());
+  for (auto* listener: listeners)
   {
     notifyRemovedOnExistingObjects(listener);
   }
@@ -105,8 +112,10 @@ void ObjectProvider::notifyRemovedOnExistingObjectsForAllListeners()
 
 void ObjectProvider::replaceListener(ObjectProviderListener* oldListener, ObjectProviderListener* newListener)
 {
-  listeners_->erase(oldListener);
-  listeners_->emplace(newListener);
+  if (listeners_->erase(oldListener))
+  {
+    listeners_->emplace(newListener);
+  }
   // NOTE: the links to the providers in the listeners are NOT updated in this method (the old listener cannot be
   // modified after moving it in the Subscription move constructor)
 }
