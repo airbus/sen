@@ -212,6 +212,11 @@ void EtherTransport::stop() noexcept
   }
 
   {
+    std::scoped_lock timersLock(timersMutex_);
+    timers_.clear();
+  }
+
+  {
     std::lock_guard lock(ioMutex_);
     io_ = {};  // free all i/o resources
   }
