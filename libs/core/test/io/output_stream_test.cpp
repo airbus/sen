@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <vector>
 
 using sen::OutputStream;
 using sen::test::TestWriter;
@@ -338,5 +339,43 @@ TEST(OutputStream, BigEndian)
 
     EXPECT_EQ(valueAsBytes, writer.getBuffer());
     EXPECT_EQ(sizeof(float32_t), writer.getBuffer().size() * sizeof(uint8_t));
+  }
+}
+
+// Against literal byte patterns rather than against swapBytes. The BigEndian float cases above
+// compute their expectation with the same function they exercise, so they agreed with the old
+// unswapped output and could not have caught it. These are IEEE 754 for 3.14159, written out.
+TEST(OutputStream, FloatsCrossInTheBufferByteOrder)
+{
+  // float32_t little endian
+  {
+    TestWriter writer;
+    sen::OutputStreamTemplate<sen::LittleEndian> out(writer);
+    out.writeFloat32(3.14159F);
+    EXPECT_EQ((std::vector<uint8_t> {0xD0U, 0x0FU, 0x49U, 0x40U}), writer.getBuffer());
+  }
+
+  // float32_t big endian
+  {
+    TestWriter writer;
+    sen::OutputStreamTemplate<sen::BigEndian> out(writer);
+    out.writeFloat32(3.14159F);
+    EXPECT_EQ((std::vector<uint8_t> {0x40U, 0x49U, 0x0FU, 0xD0U}), writer.getBuffer());
+  }
+
+  // float64_t little endian
+  {
+    TestWriter writer;
+    sen::OutputStreamTemplate<sen::LittleEndian> out(writer);
+    out.writeFloat64(3.14159);
+    EXPECT_EQ((std::vector<uint8_t> {0x6EU, 0x86U, 0x1BU, 0xF0U, 0xF9U, 0x21U, 0x09U, 0x40U}), writer.getBuffer());
+  }
+
+  // float64_t big endian
+  {
+    TestWriter writer;
+    sen::OutputStreamTemplate<sen::BigEndian> out(writer);
+    out.writeFloat64(3.14159);
+    EXPECT_EQ((std::vector<uint8_t> {0x40U, 0x09U, 0x21U, 0xF9U, 0xF0U, 0x1BU, 0x86U, 0x6EU}), writer.getBuffer());
   }
 }

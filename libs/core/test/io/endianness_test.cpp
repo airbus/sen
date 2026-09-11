@@ -7,6 +7,7 @@
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/bits.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/io/detail/endianness.h"
 
@@ -16,6 +17,7 @@
 // std
 #include <cstdint>
 #include <iterator>
+#include <limits>
 
 namespace
 {
@@ -119,39 +121,30 @@ TEST(Endianness, swap64)
 /// @requirements(SEN-893)
 TEST(Endianness, swapFloats)
 {
-  constexpr auto pi = 3.141592653589793238462643383279503f;
-
-  float32_t val1;
-  float32_t result1;
-
-  float64_t val2;
-  float64_t result2;
-
+  // This asserted that swapping a float returned it unchanged, which is what the two overloads
+  // did and is why the stream was little-endian for integers only. IEEE 754 fixes the bit
+  // pattern, not the order its bytes sit in, so a float swaps like the integer of its width.
   {
-    val1 = pi;
-    result1 = sen::impl::swapBytes(val1);
-    EXPECT_EQ(sizeof(result1), sizeof(val1));
-    EXPECT_EQ(result1, val1);
+    const auto swapped = sen::impl::swapBytes(3.14159F);
+    EXPECT_EQ(0xD00F4940U, sen::std_util::bit_cast<uint32_t>(swapped));
+    EXPECT_EQ(0x40490FD0U, sen::std_util::bit_cast<uint32_t>(3.14159F));
   }
 
   {
-    val1 = -pi;
-    result1 = sen::impl::swapBytes(val1);
-    EXPECT_EQ(sizeof(result1), sizeof(val1));
-    EXPECT_EQ(result1, val1);
+    const auto swapped = sen::impl::swapBytes(3.14159);
+    EXPECT_EQ(0x6E861BF0F9210940ULL, sen::std_util::bit_cast<uint64_t>(swapped));
+    EXPECT_EQ(0x400921F9F01B866EULL, sen::std_util::bit_cast<uint64_t>(3.14159));
   }
 
+  // Swapping twice is the identity, which also covers the negative and the denormal without
+  // hard-coding their patterns.
+  for (const auto value: {3.14159F, -3.14159F, 0.0F, std::numeric_limits<float32_t>::min()})
   {
-    val2 = pi;
-    result2 = sen::impl::swapBytes(val2);
-    EXPECT_EQ(sizeof(result2), sizeof(val2));
-    EXPECT_EQ(result2, val2);
+    EXPECT_EQ(value, sen::impl::swapBytes(sen::impl::swapBytes(value)));
   }
 
+  for (const auto value: {3.14159, -3.14159, 0.0, std::numeric_limits<float64_t>::min()})
   {
-    val2 = -pi;
-    result2 = sen::impl::swapBytes(val2);
-    EXPECT_EQ(sizeof(result2), sizeof(val2));
-    EXPECT_EQ(result2, val2);
+    EXPECT_EQ(value, sen::impl::swapBytes(sen::impl::swapBytes(value)));
   }
 }

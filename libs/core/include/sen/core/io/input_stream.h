@@ -71,8 +71,8 @@ public:
   void readUInt32(uint32_t& val) { readBasic(val); }
   void readInt64(int64_t& val) { readBasic(val); }
   void readUInt64(uint64_t& val) { readBasic(val); }
-  void readFloat32(float32_t& val);
-  void readFloat64(float64_t& val);
+  void readFloat32(float32_t& val) { readBasic(val); }
+  void readFloat64(float64_t& val) { readBasic(val); }
   void readString(std::string& val);
   void readTimeStamp(TimeStamp& val);
 
@@ -95,20 +95,6 @@ inline void InputStreamTemplate<BufferEndian>::readBool(bool& val)
   impl::BoolTransportType tmp;
   readBasic(tmp);
   val = (tmp != 0U);
-}
-
-template <typename BufferEndian>
-inline void InputStreamTemplate<BufferEndian>::readFloat32(float32_t& val)
-{
-  constexpr std::size_t size = sizeof(val);
-  std::memcpy(&val, advance(size), size);
-}
-
-template <typename BufferEndian>
-inline void InputStreamTemplate<BufferEndian>::readFloat64(float64_t& val)
-{
-  constexpr std::size_t size = sizeof(val);
-  std::memcpy(&val, advance(size), size);
 }
 
 template <typename BufferEndian>
