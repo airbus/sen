@@ -253,8 +253,7 @@ typename DeadReckoner<T>::SituationProcessor DeadReckoner<T>::getSituationProces
   {
     updateSpatial(time);
     const auto update = Parent::extrapolate(lastSpatial_, time, lastTimeStamp_);
-    DeadReckonerBase::smooth(update);
-    return DeadReckonerBase::getConfig().smoothing ? DeadReckonerBase::getSmoothSituation() : update;
+    return DeadReckonerBase::smoothIfEnabled(update);
   };
 }
 

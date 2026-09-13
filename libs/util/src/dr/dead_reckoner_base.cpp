@@ -25,15 +25,7 @@ Situation DeadReckonerBase::situation(sen::TimeStamp timeStamp)
   if (!isSituationCached(timeStamp))
   {
     const auto update = drRvw(lastSituation_, timeStamp);
-
-    if (!config_.smoothing)
-    {
-      setCachedSituation(update);
-      return cachedSituation_;
-    }
-
-    smooth(update);
-    setCachedSituation(smoothSituation_);
+    setCachedSituation(smoothIfEnabled(update));
   }
 
   return cachedSituation_;
@@ -66,6 +58,18 @@ const DrConfig& DeadReckonerBase::getConfig() const noexcept { return config_; }
 void DeadReckonerBase::setConfig(const DrConfig& config) { config_ = config; }
 
 const Situation& DeadReckonerBase::getSmoothSituation() const noexcept { return smoothSituation_; }
+
+const Situation& DeadReckonerBase::smoothIfEnabled(const Situation& update)
+{
+  // The walk costs around 250 ns per fresh query; see dead_reckoner_benchmark.
+  if (!config_.smoothing)
+  {
+    return update;
+  }
+
+  smooth(update);
+  return smoothSituation_;
+}
 
 void DeadReckonerBase::smooth(const Situation& update)
 {

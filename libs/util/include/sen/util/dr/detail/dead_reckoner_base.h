@@ -76,6 +76,10 @@ protected:
   [[nodiscard]] const Situation& getSmoothSituation() const noexcept;
   void smooth(const Situation& update);
 
+  /// Smooths the update when configured to and returns what to publish. With smoothing off the walk
+  /// is skipped and the returned reference is the argument itself.
+  [[nodiscard]] const Situation& smoothIfEnabled(const Situation& update);
+
   void invalidateCache();
 
   [[nodiscard]] bool isSituationCached(sen::TimeStamp timeStamp) const noexcept;
