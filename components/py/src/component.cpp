@@ -181,6 +181,14 @@ struct PyComponent: public kernel::Component
       }
     }
 
+    // The bus holds a reference, so leaving it registered outlives the interpreter guard below
+    // and every method on it takes the GIL.
+    if (interpreterObj)
+    {
+      bus->remove(interpreterObj);
+      interpreterObj.reset();
+    }
+
     // clear the created submodules
     userModule_ = {};
     senModule_.subModules = {};
