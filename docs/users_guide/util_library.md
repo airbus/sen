@@ -123,6 +123,21 @@ to be coming from the RPR `Spatial` attribute.
 The `DeadReckonerTemplateBase<T>` class particularizes this functionality for RPR object instances
 and the `DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
 
+!!! note "Standing in for the RPR type"
+
+    If you put your own type in place of the RPR one, for a test or a benchmark, the signatures
+    do not tell you the whole of what it has to provide.
+
+    The fields are read by name, not by shape. A world location needs `x`, `y` and `z`; an
+    orientation needs `psi`, `theta` and `phi`; a velocity needs `xVelocity`, `yVelocity` and
+    `zVelocity`, and acceleration and angular velocity follow the same pattern. A type carrying
+    the same numbers under different names will not compile.
+
+    The spatial variant has nine alternatives but only five distinct types, because each
+    body-referenced algorithm reuses the struct of its world-referenced counterpart. A stand-in
+    needs those five types across the nine positions. Making all nine the same type leaves the
+    conversion ambiguous and will not compile either.
+
 #### Data models and configuration
 
 The dead reckoning library extrapolates the position and orientation of an entity from a
