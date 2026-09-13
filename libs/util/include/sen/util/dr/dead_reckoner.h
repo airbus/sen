@@ -74,13 +74,13 @@ public:  // situation translation helpers
                                                              sen::TimeStamp timeStamp = {});
 
 private:
-  /// Provides the situation processor that will be executed depending on the type of DR algorithm used
-  /// (body-centered or world-centered). NOTE: Smoothing is only available for world centered algorithms.
-  [[nodiscard]] SituationProcessor getSituationProcessor(bool bodyReferenced);
+  /// Extrapolates the held spatial to the given instant. Smoothing is only available for world
+  /// centered algorithms, so a body referenced spatial is returned unsmoothed.
+  [[nodiscard]] Situation extrapolateAt(sen::TimeStamp time);
 
-  /// Provides the geodetic situation processor that will be executed depending on the type of DR algorithm used
-  /// (body-centered or world-centered). NOTE: Smoothing is only available for world centered algorithms.
-  [[nodiscard]] GeodeticSituationProcessor getGeodeticSituationProcessor(bool bodyReferenced);
+  /// True when the spatial's algorithm is body referenced, which decides how velocities are
+  /// converted and whether smoothing applies.
+  [[nodiscard]] static bool isBodyReferenced(const SpatialVariant& spatial) noexcept;
 
   /// Updates the lastSpatial and lastTimeStamp members when a new Spatial is received
   void updateSpatial(sen::TimeStamp time);
@@ -91,8 +91,6 @@ private:
 
 private:
   const T& object_;
-  SituationProcessor processSituation_;
-  GeodeticSituationProcessor processGeodeticSituation_;
   sen::TimeStamp lastTimeStamp_;
   SpatialVariant lastSpatial_;
 };
@@ -121,16 +119,7 @@ template <typename T>
 inline DeadReckoner<T>::DeadReckoner(const T& object, DrConfig config)
   : DeadReckonerTemplateBase<T>(config), object_ {object}
 {
-  const auto& objSpatial = object_.getSpatial();
-  // true if the DR algorithm used is body-centered
-  auto isBody =
-    std::find(bodyAlgorithms.begin(), bodyAlgorithms.end(), static_cast<SpatialAlgorithm>(objSpatial.index())) !=
-    bodyAlgorithms.end();
-
-  // initialize situation and geodetic situation processors
-  processSituation_ = getSituationProcessor(isBody);
-  processGeodeticSituation_ = getGeodeticSituationProcessor(isBody);
-  DeadReckonerBase::setCachedSituation(toSituation(objSpatial));
+  DeadReckonerBase::setCachedSituation(toSituation(object_.getSpatial()));
 }
 
 template <typename T>
@@ -138,7 +127,7 @@ inline Situation DeadReckoner<T>::situation(sen::TimeStamp timeStamp)
 {
   if (!this->isSituationCached(timeStamp))
   {
-    this->setCachedSituation(processSituation_(timeStamp));
+    this->setCachedSituation(extrapolateAt(timeStamp));
   }
   return this->getCachedSituation();
 }
@@ -148,7 +137,25 @@ inline GeodeticSituation DeadReckoner<T>::geodeticSituation(sen::TimeStamp timeS
 {
   if (!this->isGeodeticSituationCached(timeStamp))
   {
-    this->setCachedGeodeticSituation(processGeodeticSituation_(timeStamp));
+    const auto situation = extrapolateAt(timeStamp);
+
+    if (!isBodyReferenced(lastSpatial_))
+    {
+      this->setCachedGeodeticSituation(impl::toGeodeticSituation(situation));
+    }
+    else
+    {
+      const auto geoLocation = impl::toLla(situation.worldLocation);
+      const auto nedOrientation = impl::ecefToNed(situation.orientation, geoLocation);
+      this->setCachedGeodeticSituation(GeodeticSituation {situation.isFrozen,
+                                                          situation.timeStamp,
+                                                          geoLocation,
+                                                          nedOrientation,
+                                                          impl::bodyToNed(situation.velocityVector, nedOrientation),
+                                                          situation.angularVelocity,
+                                                          impl::bodyToNed(situation.accelerationVector, nedOrientation),
+                                                          situation.angularAcceleration});
+    }
   }
   return this->getCachedGeodeticSituation();
 }
@@ -242,47 +249,20 @@ inline GeodeticSituation DeadReckoner<T>::toGeodeticSituation(const SpatialVaria
 }
 
 template <typename T>
-typename DeadReckoner<T>::SituationProcessor DeadReckoner<T>::getSituationProcessor(bool bodyReferenced)
+inline Situation DeadReckoner<T>::extrapolateAt(sen::TimeStamp time)
 {
-  if (bodyReferenced)
-  {
-    return [this](sen::TimeStamp time)
-    {
-      updateSpatial(time);
-      return Parent::extrapolate(lastSpatial_, time, lastTimeStamp_);
-    };
-  }
+  updateSpatial(time);
+  const auto update = Parent::extrapolate(lastSpatial_, time, lastTimeStamp_);
 
-  return [this](sen::TimeStamp time)
-  {
-    updateSpatial(time);
-    const auto update = Parent::extrapolate(lastSpatial_, time, lastTimeStamp_);
-    return DeadReckonerBase::smoothIfEnabled(update);
-  };
+  // A producer may publish a different algorithm at any time, so the frame is read each query.
+  return isBodyReferenced(lastSpatial_) ? update : DeadReckonerBase::smoothIfEnabled(update);
 }
 
 template <typename T>
-typename DeadReckoner<T>::GeodeticSituationProcessor DeadReckoner<T>::getGeodeticSituationProcessor(bool bodyReferenced)
+inline bool DeadReckoner<T>::isBodyReferenced(const SpatialVariant& spatial) noexcept
 {
-  if (bodyReferenced)
-  {
-    return [this](sen::TimeStamp time)
-    {
-      const auto situation = processSituation_(time);
-      const auto geoLocation = impl::toLla(situation.worldLocation);
-      const auto nedOrientation = impl::ecefToNed(situation.orientation, geoLocation);
-      return GeodeticSituation {situation.isFrozen,
-                                situation.timeStamp,
-                                geoLocation,
-                                nedOrientation,
-                                impl::bodyToNed(situation.velocityVector, nedOrientation),
-                                situation.angularVelocity,
-                                impl::bodyToNed(situation.accelerationVector, nedOrientation),
-                                situation.angularAcceleration};
-    };
-  }
-
-  return [this](sen::TimeStamp time) { return impl::toGeodeticSituation(processSituation_(time)); };
+  const auto algorithm = static_cast<SpatialAlgorithm>(spatial.index());
+  return std::find(bodyAlgorithms.begin(), bodyAlgorithms.end(), algorithm) != bodyAlgorithms.end();
 }
 
 template <typename T>
