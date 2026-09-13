@@ -53,6 +53,25 @@ SEN_NON_RANGED_QUANTITY(TimeSeconds, f64)
 /// Non-dimensional damping coefficient
 SEN_NON_RANGED_QUANTITY(DampingCoefficient, f64)
 
+/// Enumeration of the different Spatial algorithms
+enum class SpatialAlgorithm
+{
+  drStatic = 0,
+  drFPW = 1,
+  drRPW = 2,
+  drRVW = 3,
+  drFVW = 4,
+  drFPB = 5,
+  drRPB = 6,
+  drRVB = 7,
+  drFVB = 8,
+};
+
+constexpr std::array<SpatialAlgorithm, 4U> bodyAlgorithms {SpatialAlgorithm::drFPB,
+                                                           SpatialAlgorithm::drRPB,
+                                                           SpatialAlgorithm::drRVB,
+                                                           SpatialAlgorithm::drFVB};
+
 // The structs below are also tabulated in docs/users_guide/util_library.md, with their
 // units and frames spelled out for readers who do not read C++. Update both together.
 // --8<-- [start:dr_config]
@@ -87,6 +106,11 @@ struct DrConfig
   /// Measure the extrapolation from the instant the producer committed the data rather than from
   /// the instant it was first read. Set to false when the producer's clock is not the caller's.
   bool useCommitTimeAsOrigin = true;
+
+  /// Which algorithm DeadReckonerBase applies. A Situation does not carry one, so it has to be told;
+  /// the classes taking an RPR Spatial read it from the data and ignore this. Leave the fields the
+  /// chosen algorithm does not own at zero: world position always applies the acceleration term.
+  SpatialAlgorithm algorithm = SpatialAlgorithm::drRVW;
 };
 // --8<-- [end:dr_config]
 
@@ -208,25 +232,6 @@ struct GeodeticSituation
   AngularAcceleration angularAcceleration {};
 };
 // --8<-- [end:geodetic_situation]
-
-/// Enumeration of the different Spatial algorithms
-enum class SpatialAlgorithm
-{
-  drStatic = 0,
-  drFPW = 1,
-  drRPW = 2,
-  drRVW = 3,
-  drFVW = 4,
-  drFPB = 5,
-  drRPB = 6,
-  drRVB = 7,
-  drFVB = 8,
-};
-
-constexpr std::array<SpatialAlgorithm, 4U> bodyAlgorithms {SpatialAlgorithm::drFPB,
-                                                           SpatialAlgorithm::drRPB,
-                                                           SpatialAlgorithm::drRVB,
-                                                           SpatialAlgorithm::drFVB};
 
 /// Returns the extrapolated situation using the FPW algorithm
 [[nodiscard]] Situation drFpw(const Situation& value, sen::TimeStamp time) noexcept;
