@@ -108,6 +108,18 @@ The `DeadReckonerBase` class encapsulates the core functionality of the dead rec
 class can be directly used to extrapolate (and optionally smooth) any `Situation` that does not need
 to be coming from the RPR `Spatial` attribute.
 
+!!! warning "`DeadReckonerBase` extrapolates with RVW only"
+
+    A `Situation` says where an entity is and how it is moving, but not which of the nine
+    algorithms describes that movement. `DeadReckonerBase` applies `drRvw` (rate and velocity,
+    world referenced) to whatever it is given, so data another algorithm describes is extrapolated
+    wrongly, with no error and no warning.
+
+    The algorithm is carried by the RPR `Spatial` attribute, which this class does not take.
+    `DeadReckonerTemplateBase<T>` and the two classes below do take it and select from it. If you
+    convert a `Spatial` with `DeadReckoner<T>::toSituation` first, that conversion discards the
+    algorithm — use `DeadReckoner<T>` directly instead.
+
 The `DeadReckonerTemplateBase<T>` class particularizes this functionality for RPR object instances
 and the `DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
 
