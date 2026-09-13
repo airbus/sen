@@ -83,6 +83,10 @@ struct DrConfig
 
   /// Damping coefficient for the smoothed orientation solution.
   DampingCoefficient orientationDamping = 20.0;
+
+  /// Measure the extrapolation from the instant the producer committed the data rather than from
+  /// the instant it was first read. Set to false when the producer's clock is not the caller's.
+  bool useCommitTimeAsOrigin = true;
 };
 // --8<-- [end:dr_config]
 

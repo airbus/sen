@@ -292,4 +292,133 @@ TEST(SettableDeadReckonerTest, setFrozenIsIdempotent)
   EXPECT_EQ(entity.writes(), 1);
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Extrapolation origin
+//---------------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+constexpr sen::TimeStamp t3 {std::chrono::seconds(3)};
+}  // namespace
+
+/// The commit instant is reached through asObject() on a generated RPR type. The dead reckoner only
+/// needs that expression to be valid, so this stands in for it without being a Sen object.
+class TestCommitSource
+{
+public:
+  [[nodiscard]] sen::TimeStamp getLastCommitTime() const noexcept { return commitTime_; }
+  void setCommitTime(sen::TimeStamp value) noexcept { commitTime_ = value; }
+
+private:
+  sen::TimeStamp commitTime_ {};
+};
+
+/// Stands in for a generated RPR entity that reports when its data was committed.
+class TestEntityWithCommitTime: public TestEntity
+{
+public:
+  [[nodiscard]] const TestCommitSource& asObject() const noexcept { return source_; }
+  [[nodiscard]] TestCommitSource& commitSource() noexcept { return source_; }
+
+private:
+  TestCommitSource source_ {};
+};
+
+namespace
+{
+
+/// A spatial moving along x at ten metres per second, tagged as the world-referenced constant
+/// velocity algorithm.
+TestSpatialVariant movingAlongX()
+{
+  return TestSpatialVariant {std::in_place_index<static_cast<size_t>(SpatialAlgorithm::drFPW)>,
+                             TestFpsSpatial {{6378137.0, 0.0, 0.0}, false, {}, {10.0F, 0.0F, 0.0F}}};
+}
+
+}  // namespace
+
+/// @test
+/// The commit instant is detected and never required: a stand-in without one still compiles and is
+/// simply treated as unable to report it.
+/// @requirements(SEN-1058)
+TEST(DeadReckonerOriginTest, theCommitInstantIsDetectedAndNotRequired)
+{
+  EXPECT_FALSE(impl::HasCommitTime<TestEntity>::value);
+  EXPECT_TRUE(impl::HasCommitTime<TestEntityWithCommitTime>::value);
+}
+
+/// @test
+/// When the object reports when its data was committed, the extrapolation is measured from that
+/// instant rather than from the instant a consumer first read it.
+/// @requirements(SEN-1058)
+TEST(DeadReckonerOriginTest, theOriginIsTheInstantTheProducerCommitted)
+{
+  TestEntityWithCommitTime entity;
+  entity.seed(movingAlongX());
+  entity.commitSource().setCommitTime(t1);
+
+  DrConfig config {};
+  config.smoothing = false;
+  DeadReckoner<TestEntityWithCommitTime> reckoner {entity, config};
+
+  const auto situation = reckoner.situation(t3);
+
+  // Two seconds at ten metres per second, measured from the commit and not from this first read.
+  EXPECT_NEAR(static_cast<f64>(situation.worldLocation.x), 6378157.0, 0.5);
+}
+
+/// @test
+/// Without a reported commit instant the origin stays the instant of the first read, so a stand-in
+/// keeps the behaviour it had before.
+/// @requirements(SEN-1058)
+TEST(DeadReckonerOriginTest, withoutACommitInstantTheFirstReadIsTheOrigin)
+{
+  TestEntity entity;
+  entity.seed(movingAlongX());
+
+  DrConfig config {};
+  config.smoothing = false;
+  DeadReckoner<TestEntity> reckoner {entity, config};
+
+  const auto situation = reckoner.situation(t3);
+
+  EXPECT_NEAR(static_cast<f64>(situation.worldLocation.x), 6378137.0, 0.5);
+}
+
+/// @test
+/// An object that has never been committed reports the epoch, which is not a usable origin.
+/// @requirements(SEN-1058)
+TEST(DeadReckonerOriginTest, anObjectThatHasNeverCommittedFallsBackToTheReadInstant)
+{
+  TestEntityWithCommitTime entity;
+  entity.seed(movingAlongX());
+
+  DrConfig config {};
+  config.smoothing = false;
+  DeadReckoner<TestEntityWithCommitTime> reckoner {entity, config};
+
+  const auto situation = reckoner.situation(t3);
+
+  EXPECT_NEAR(static_cast<f64>(situation.worldLocation.x), 6378137.0, 0.5);
+}
+
+/// @test
+/// The switch restores the old origin for a producer whose clock is not the caller's.
+/// @requirements(SEN-1058)
+TEST(DeadReckonerOriginTest, theSwitchRestoresTheReadInstantAsOrigin)
+{
+  TestEntityWithCommitTime entity;
+  entity.seed(movingAlongX());
+  entity.commitSource().setCommitTime(t1);
+
+  DrConfig config {};
+  config.smoothing = false;
+  config.useCommitTimeAsOrigin = false;
+  DeadReckoner<TestEntityWithCommitTime> reckoner {entity, config};
+
+  const auto situation = reckoner.situation(t3);
+
+  EXPECT_NEAR(static_cast<f64>(situation.worldLocation.x), 6378137.0, 0.5);
+}
+
 }  // namespace sen::util

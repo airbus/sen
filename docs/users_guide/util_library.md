@@ -165,6 +165,7 @@ one.
 | `positionDamping` | `f64` | — | `1.0` | Damping of the smoothed position |
 | `orientationConvergenceTime` | `sen::Duration` | — | `50 ms` | How long the smoothed orientation takes to reach the updated orientation |
 | `orientationDamping` | `f64` | — | `20.0` | Damping of the smoothed orientation |
+| `useCommitTimeAsOrigin` | `bool` | — | `true` | Measure the extrapolation from the instant the producer committed the data, rather than from the instant it was first read. Set it to `false` when the producer's clock is not yours |
 
 The lengths, angles and rates above are quantity types (`LengthMeters`, `AngleRadians`,
 `VelocityMetersPerSecond` and so on), so the unit is part of the type rather than a convention you

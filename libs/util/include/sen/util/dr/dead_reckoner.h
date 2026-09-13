@@ -85,6 +85,10 @@ private:
   /// Updates the lastSpatial and lastTimeStamp members when a new Spatial is received
   void updateSpatial(sen::TimeStamp time);
 
+  /// The instant the held spatial was produced, which is what the extrapolation measures from.
+  /// Falls back to the query instant when the object cannot report a usable one.
+  [[nodiscard]] sen::TimeStamp spatialOrigin(sen::TimeStamp time) const noexcept;
+
 private:
   const T& object_;
   SituationProcessor processSituation_;
@@ -287,9 +291,29 @@ void DeadReckoner<T>::updateSpatial(sen::TimeStamp time)
   if (const auto& newSpatial = object_.getSpatial(); newSpatial != lastSpatial_)
   {
     lastSpatial_ = newSpatial;
-    lastTimeStamp_ = time;
+    lastTimeStamp_ = spatialOrigin(time);
     this->invalidateCache();
   }
+}
+
+template <typename T>
+inline sen::TimeStamp DeadReckoner<T>::spatialOrigin(sen::TimeStamp time) const noexcept
+{
+  if constexpr (impl::HasCommitTime<T>::value)
+  {
+    if (DeadReckonerBase::getConfig().useCommitTimeAsOrigin)
+    {
+      // A producer that never advances its commit time would freeze the origin and grow the delta
+      // without bound, and one ahead of the query would extrapolate backwards.
+      if (const auto committed = object_.asObject().getLastCommitTime();
+          committed > lastTimeStamp_ && committed <= time)
+      {
+        return committed;
+      }
+    }
+  }
+
+  return time;
 }
 
 }  // namespace sen::util
