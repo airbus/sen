@@ -546,4 +546,60 @@ TEST(DeadReckonerAlgorithmTest, aBodyAlgorithmIsNotSmoothed)
   EXPECT_DOUBLE_EQ(got, raw);
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Reference frame
+//---------------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+
+// At the origin with no rotation the body and world conversions coincide, so a test placed there
+// passes either way. This sits off the equator and the meridian, with an attitude.
+constexpr TestLocation offAxisLocation {3189068.0, 3189068.0, 4487348.0};
+constexpr TestOrientation offAxisOrientation {0.5F, 0.3F, 0.2F};
+
+TestSpatialVariant offAxisWorldReferenced()
+{
+  return TestSpatialVariant {
+    std::in_place_index<static_cast<size_t>(SpatialAlgorithm::drRVW)>,
+    TestRvsSpatial {offAxisLocation, false, offAxisOrientation, {10.0F, 20.0F, 30.0F}, {}, {}}};
+}
+
+TestSpatialVariant offAxisBodyReferenced()
+{
+  return TestSpatialVariant {
+    std::in_place_index<static_cast<size_t>(SpatialAlgorithm::drRVB)>,
+    TestRvsSpatial {offAxisLocation, false, offAxisOrientation, {10.0F, 20.0F, 30.0F}, {}, {}}};
+}
+
+}  // namespace
+
+/// @test
+/// A reckoner whose object changes algorithm reads it as one built on that algorithm would. The two
+/// frames convert velocity differently, so getting this wrong is visible there.
+/// @requirements(SEN-1058)
+TEST(DeadReckonerFrameTest, theFrameFollowsTheSpatial)
+{
+  DrConfig config {};
+  config.smoothing = false;
+
+  TestEntity changed;
+  changed.seed(offAxisWorldReferenced());
+  DeadReckoner<TestEntity> overChanged {changed, config};
+  overChanged.geodeticSituation(tHalf);
+  changed.seed(offAxisBodyReferenced());
+
+  TestEntity fresh;
+  fresh.seed(offAxisBodyReferenced());
+  DeadReckoner<TestEntity> overFresh {fresh, config};
+
+  const auto changedResult = overChanged.geodeticSituation(tSixTenths);
+  const auto freshResult = overFresh.geodeticSituation(tSixTenths);
+
+  // A frame error shows up as metres per second, so the tolerance only has to exclude float noise.
+  EXPECT_NEAR(static_cast<f64>(changedResult.velocityVector.x), static_cast<f64>(freshResult.velocityVector.x), 1e-3);
+  EXPECT_NEAR(static_cast<f64>(changedResult.velocityVector.y), static_cast<f64>(freshResult.velocityVector.y), 1e-3);
+  EXPECT_NEAR(static_cast<f64>(changedResult.velocityVector.z), static_cast<f64>(freshResult.velocityVector.z), 1e-3);
+}
+
 }  // namespace sen::util
