@@ -284,7 +284,8 @@ $$
   `GeodeticSituation` overload converts its position, orientation, velocity and acceleration to
   ECEF before writing them, so leaving this at its `world` default is what matches that data;
   setting it to `body` on that path produces a `Spatial` holding world vectors under a body-frame
-  algorithm.
+  algorithm. It does not change what the two thresholds above are compared in: those are always
+  measured per axis in ECEF, whichever reference system you choose.
 
 The two main methods of the `SettableDeadReckoner<T>` class are the two overloads of the
 `setSpatial` method, which take a Situation and a GeodeticSituation as inputs. These two overloads

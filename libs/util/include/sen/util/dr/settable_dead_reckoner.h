@@ -33,8 +33,9 @@ enum class ReferenceSystem : u32
 };
 
 // --8<-- [start:dr_threshold]
-/// How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle
-/// between orientations, and the reference system both are measured in.
+/// How far the extrapolation may drift from the data before the Spatial is written: a distance per axis and an angle
+/// between orientations, both compared in ECEF. The reference system selects which algorithm family the written
+/// Spatial is tagged with, not the frame of the comparison.
 struct DrThreshold
 {
   LengthMeters distanceThreshold {1.0};
@@ -165,6 +166,11 @@ template <typename T>
 inline void SettableDeadReckoner<T>::setFrozen(sen::TimeStamp timeStamp, bool value)
 {
   auto situation = Parent::extrapolate(obj_.getNextSpatial(), timeStamp, lastTimeStamp_);
+  if (situation.isFrozen == value)
+  {
+    return;
+  }
+
   situation.isFrozen = value;
   lastTimeStamp_ = timeStamp;
 
@@ -178,8 +184,10 @@ inline typename SettableDeadReckoner<T>::SpatialVariant SettableDeadReckoner<T>:
 {
   const auto isMoving = impl::isMoving(situation.velocityVector);
   const auto isAccelerating = impl::isAccelerating(situation.accelerationVector);
+  const auto isRotating = impl::isRotating(situation.angularVelocity);
 
-  if (!isMoving && !isAccelerating)
+  // A static spatial carries no angular velocity, so an entity turning on the spot must not take it.
+  if (!isMoving && !isAccelerating && !isRotating)
   {
     return SpatialVariant {std::in_place_index<static_cast<size_t>(SpatialAlgorithm::drStatic)>,
                            StaticSpatial {impl::toRpr<RprLocation>(situation.worldLocation),
@@ -187,11 +195,10 @@ inline typename SettableDeadReckoner<T>::SpatialVariant SettableDeadReckoner<T>:
                                           impl::toRpr<RprOrientation>(situation.orientation)}};
   }
 
-  const auto isRotating = impl::isRotating(situation.angularVelocity);
   const auto isWorld = threshold.referenceSystem == ReferenceSystem::world;
 
-  // slow moving
-  if (isMoving && !isAccelerating)
+  // not accelerating; a motionless entity has already gone to the static case
+  if (!isAccelerating)
   {
     // not rotating
     if (!isRotating)
