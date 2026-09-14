@@ -593,13 +593,19 @@ void TypstGenerator::Impl::emitCallables(std::ostringstream& out,
           signature += ", ";
         }
         first = false;
-        signature += "#" + literal(breakable(argument.name)) + ": " + inlineReference(typeNameOf(*argument.type), here);
+        // Appended a piece at a time rather than concatenated: "text" + std::string{} prepends to
+        // a temporary in place, and gcc 12 reads that as a possible overlap and fails the build.
+        signature += "#";
+        signature += literal(breakable(argument.name));
+        signature += ": ";
+        signature += inlineReference(typeNameOf(*argument.type), here);
       }
       signature += ")";
       // A void return is the absence of a type, not a null handle.
       if (const auto& returned = *method->getReturnType(); !returned.isVoidType())
       {
-        signature += " " + std::string {"\\u{2192}"} + " " + inlineReference(typeNameOf(returned), here);
+        signature += " \\u{2192} ";
+        signature += inlineReference(typeNameOf(returned), here);
       }
       out << "  [#mono(" << literal(breakable(std::string {method->getName()})) << ")], [#mono[" << signature << "]], "
           << literal(method->getDescription()) << ",\n";
@@ -639,8 +645,15 @@ void TypstGenerator::Impl::emitEvents(std::ostringstream& out,
     bool first = true;
     for (const auto& argument: event->getArgs())
     {
-      payload += (first ? "" : ", ") + ("#" + literal(breakable(argument.name))) + ": " +
-                 inlineReference(typeNameOf(*argument.type), here);
+      // Appended a piece at a time for the same reason as emitCallables above.
+      if (!first)
+      {
+        payload += ", ";
+      }
+      payload += "#";
+      payload += literal(breakable(argument.name));
+      payload += ": ";
+      payload += inlineReference(typeNameOf(*argument.type), here);
       first = false;
     }
     payload += ")";
