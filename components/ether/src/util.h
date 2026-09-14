@@ -25,6 +25,8 @@
 #include <asio/ip/udp.hpp>
 
 // std
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -36,6 +38,26 @@ class ProcessHandler;
 class Acceptor;
 
 constexpr uint32_t etherProtocolVersion = 2;
+
+// A stream socket has no message boundaries: one read can return part of a beam, or several. Each
+// beam is written with its length in front so a reader can take exactly one, which is how the data
+// channel already frames its own messages.
+constexpr std::size_t beamHeaderSize = 4U;
+
+inline std::array<uint8_t, beamHeaderSize> encodeBeamHeader(std::size_t payloadSize)
+{
+  const auto size = static_cast<uint32_t>(payloadSize);
+  return {static_cast<uint8_t>(size & 0xFFU),
+          static_cast<uint8_t>((size >> 8U) & 0xFFU),
+          static_cast<uint8_t>((size >> 16U) & 0xFFU),
+          static_cast<uint8_t>((size >> 24U) & 0xFFU)};
+}
+
+inline uint32_t decodeBeamHeader(const std::array<uint8_t, beamHeaderSize>& header)
+{
+  return static_cast<uint32_t>(header[0]) | (static_cast<uint32_t>(header[1]) << 8U) |
+         (static_cast<uint32_t>(header[2]) << 16U) | (static_cast<uint32_t>(header[3]) << 24U);
+}
 constexpr uint16_t defaultDiscoveryPort = 60543;
 
 struct NetworkInterfaceInfo

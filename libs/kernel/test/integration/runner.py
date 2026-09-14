@@ -7,6 +7,7 @@
 """Module to orchestrate multiple sen processes to run the test setup."""
 
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -23,6 +24,9 @@ TESTER_BUDGET_SECONDS = int(os.environ.get("SEN_RUNNER_BUDGET_SECONDS", "12"))
 
 # Exit status for a tester that had to be killed, distinct from anything it returns itself.
 TESTER_HUNG_STATUS = 124
+
+# Reading the stacks has to finish inside what is left of ctest's own timeout.
+GDB_BUDGET_SECONDS = 5
 
 # An instance that ended before it was asked to makes the tester's own failure a
 # consequence rather than a cause. The verdict stays the tester's either way.
@@ -46,6 +50,15 @@ def run_sen_command(args):
         return subprocess.Popen(["./sen", "run", args], start_new_session=True)
 
 
+def read_thread_file(pid, tid, name):
+    """Reads one /proc file for a thread, empty when it has gone or this is not Linux."""
+    try:
+        with open(f"/proc/{pid}/task/{tid}/{name}", encoding="utf-8") as handle:
+            return handle.read().strip()
+    except OSError:
+        return ""
+
+
 def report_threads(pid, label):
     """Says what every thread of a process is blocked in, from /proc.
 
@@ -60,18 +73,50 @@ def report_threads(pid, label):
 
     blocked = {}
     for tid in tasks:
-        try:
-            with open(f"/proc/{pid}/task/{tid}/wchan", encoding="utf-8") as handle:
-                where = handle.read().strip() or "(running)"
-            with open(f"/proc/{pid}/task/{tid}/comm", encoding="utf-8") as handle:
-                name = handle.read().strip()
-        except OSError:
-            continue
-        blocked.setdefault((name, where), []).append(tid)
+        name = read_thread_file(pid, tid, "comm")
+        if not name:
+            continue  # it exited while this was walking them
+
+        # A thread on the CPU has no wait channel; this kernel writes "0" rather than nothing,
+        # which prints as noise.
+        where = read_thread_file(pid, tid, "wchan")
+        if where in {"", "0"}:
+            where = "(on cpu)"
+
+        # The state letter follows the parenthesised name, which may itself contain spaces.
+        stat = read_thread_file(pid, tid, "stat")
+        state = stat.rsplit(")", 1)[1].split()[0] if ")" in stat else "?"
+
+        blocked.setdefault((name, f"{where} [{state}]"), []).append(tid)
 
     print(f"{label}: {len(tasks)} threads", flush=True)
     for (name, where), tids in sorted(blocked.items(), key=lambda item: -len(item[1])):
-        print(f"{label}:   {len(tids):3d} in {where:24s} [{name}] tid {tids[0]}", flush=True)
+        print(f"{label}:   {len(tids):3d} in {where:30s} [{name}] tid {tids[0]}", flush=True)
+
+
+def report_stacks(pid, label):
+    """Prints every thread's stack, when gdb is there to read it.
+
+    A wait channel names the kernel function a thread is parked in, which cannot separate a
+    finalisation deadlock from an ordinary wait. gdb is in the dev image and not in the lane's,
+    so this adds nothing on CI and is never allowed to fail a test by itself.
+    """
+    if shutil.which("gdb") is None:
+        return
+
+    try:
+        dump = subprocess.run(  # noqa: S603
+            ["gdb", "-p", str(pid), "-batch", "-nx", "-ex", "thread apply all bt 60"],  # noqa: S607
+            capture_output=True,
+            text=True,
+            timeout=GDB_BUDGET_SECONDS,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return
+
+    for line in dump.stdout.splitlines():
+        print(f"{label}:   {line}", flush=True)
 
 
 def end(instance, hard=False):
@@ -145,6 +190,7 @@ def main():
         # killed process has nothing left to say about where it was stuck.
         print(f"{TESTER}: still running after {TESTER_BUDGET_SECONDS}s", flush=True)
         report_threads(tester.pid, TESTER)
+        report_stacks(tester.pid, TESTER)
         end(tester, hard=True)
         tester.wait()
         return TESTER_HUNG_STATUS

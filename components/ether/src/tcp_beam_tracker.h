@@ -20,7 +20,9 @@
 #include <asio/io_context.hpp>
 
 // std
+#include <array>
 #include <memory>
+#include <string>
 
 namespace sen::components::ether
 {
@@ -48,6 +50,15 @@ private:
   void connect();
   void receive();
 
+  /// Reads the payload the header just announced, which is one whole beam and no more.
+  void receiveBeam(std::size_t length);
+
+  /// Closes the connection, tells anyone listening, and starts connecting again.
+  ///
+  /// Every way of losing the hub ends here, so a drop while reading a beam is handled the same as
+  /// one while reading a header.
+  void handleLostConnection(const std::string& reason);
+
 private:
   asio::io_context& io_;
   Configuration config_;
@@ -55,6 +66,7 @@ private:
   std::vector<SessionPresenceBeam> tracks_;
   asio::steady_timer timer_;
   std::vector<uint8_t> buffer_;
+  std::array<uint8_t, beamHeaderSize> header_ {};
   kernel::RunApi* api_ = nullptr;
   asio::ip::tcp::endpoint endpoint_;
   std::function<void()> onConnected_;

@@ -24,6 +24,7 @@
 #include <asio/error_code.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
+#include <asio/read.hpp>
 #include <asio/socket_base.hpp>
 
 // std
@@ -187,62 +188,90 @@ void TcpBeamTracker::connect()
 
 void TcpBeamTracker::receive()
 {
-  auto receive = [us = shared_from_this()](std::error_code ec, std::size_t length)
+  auto receive = [us = shared_from_this()](std::error_code ec, std::size_t /*length*/)
   {
     if (ec)
     {
-      asio::error_code closeError;
-      us->socket_.close(closeError);  // NOLINT(bugprone-unused-return-value)
-      getLogger()->info("lost connection to discovery hub {}:{} : {} ({})",
-                        us->endpoint_.address().to_string(),
-                        us->endpoint_.port(),
-                        ec.message(),
-                        ec.value());
-
-      if (us->onDisconnected_)
-      {
-        try
-        {
-          us->onDisconnected_();
-        }
-        catch (const std::exception& error)
-        {
-          getLogger()->error("discovery hub disconnect callback failed: {}", error.what());
-          throw;
-        }
-        catch (...)
-        {
-          getLogger()->error("discovery hub disconnect callback failed");
-          throw;
-        }
-      }
-
-      us->connect();
+      us->handleLostConnection(ec.message() + " (" + std::to_string(ec.value()) + ")");
     }
     else
     {
-      try
+      const auto beamLength = decodeBeamHeader(us->header_);
+      if (beamLength == 0U || beamLength > BeamerBase::maxBeamSize)
       {
-        const std::vector<uint8_t> beamData(us->buffer_.begin(),
-                                            us->buffer_.begin() + static_cast<std::ptrdiff_t>(length));
-        us->beamReceived(*us->api_, readFromBuffer<SessionPresenceBeam>(beamData));
-      }
-      catch (const std::exception& error)
-      {
-        getLogger()->error("could not process discovery beam from hub: {}", error.what());
-        throw;
-      }
-      catch (...)
-      {
-        getLogger()->error("could not process discovery beam from hub");
-        throw;
+        // Zero, or larger than a beam can be, means the stream is out of step. Reading on would
+        // take the rest of it as payload.
+        us->handleLostConnection("it announced a beam of " + std::to_string(beamLength) + " bytes");
+        return;
       }
 
-      us->receive();
+      us->receiveBeam(beamLength);
     }
   };
 
-  socket_.async_receive(asio::buffer(buffer_), std::move(receive));
+  // Header first, then exactly the beam it announces. See beamHeaderSize in util.h.
+  asio::async_read(socket_, asio::buffer(header_), std::move(receive));
+}
+
+void TcpBeamTracker::handleLostConnection(const std::string& reason)
+{
+  asio::error_code closeError;
+  socket_.close(closeError);  // NOLINT(bugprone-unused-return-value)
+  getLogger()->info(
+    "lost connection to discovery hub {}:{} : {}", endpoint_.address().to_string(), endpoint_.port(), reason);
+
+  if (onDisconnected_)
+  {
+    try
+    {
+      onDisconnected_();
+    }
+    catch (const std::exception& error)
+    {
+      getLogger()->error("discovery hub disconnect callback failed: {}", error.what());
+      throw;
+    }
+    catch (...)
+    {
+      getLogger()->error("discovery hub disconnect callback failed");
+      throw;
+    }
+  }
+
+  connect();
+}
+
+void TcpBeamTracker::receiveBeam(std::size_t length)
+{
+  auto onBeam = [us = shared_from_this(), length](std::error_code ec, std::size_t /*received*/)
+  {
+    if (ec)
+    {
+      us->handleLostConnection("reading a beam: " + ec.message() + " (" + std::to_string(ec.value()) + ")");
+      return;
+    }
+
+    try
+    {
+      const std::vector<uint8_t> beamData(us->buffer_.begin(),
+                                          us->buffer_.begin() + static_cast<std::ptrdiff_t>(length));
+      us->beamReceived(*us->api_, readFromBuffer<SessionPresenceBeam>(beamData));
+    }
+    catch (const std::exception& error)
+    {
+      // Logged and swallowed: one unreadable beam is not a reason to take the component down, and
+      // throwing here leaves asio's run loop through a handler.
+      getLogger()->error("could not process discovery beam from hub: {}", error.what());
+    }
+    catch (...)
+    {
+      getLogger()->error("could not process discovery beam from hub");
+    }
+
+    us->receive();
+  };
+
+  asio::async_read(socket_, asio::buffer(buffer_.data(), length), std::move(onBeam));
 }
 
 }  // namespace sen::components::ether
