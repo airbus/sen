@@ -16,7 +16,6 @@
 #include "python_templates/file_decl.h"
 
 // sen
-#include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/lang/stl_resolver.h"
@@ -39,7 +38,6 @@
 
 // std
 #include <algorithm>
-#include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <string>
