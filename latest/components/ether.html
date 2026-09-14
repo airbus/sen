@@ -1001,6 +1001,15 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#changing-the-port-for-bus-traffic">
+<span class="md-ellipsis">
+      
+        Changing the port for bus traffic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#disabling-multicast-entirely">
 <span class="md-ellipsis">
       
@@ -2068,6 +2077,16 @@ for this purpose. You can also set the <code>SEN_ETHER_DISABLE_BUS_MULTICAST</co
 <code>true</code> (or <code>yes</code>, or a number != <code>0</code>). <abbr title="Transmission Control Protocol">TCP</abbr> is resilient to message drops or re-ordering, but it does
 not scale in regard to the number of participants, as emitters will have to send dedicated messages
 to all receivers.</p>
+<h3 id="changing-the-port-for-bus-traffic">Changing the port for bus traffic<a class="headerlink" href="#changing-the-port-for-bus-traffic" title="Permanent link">¶</a></h3>
+<p>Bus traffic uses port 50985 by default. Every participant has to use the same one, so changing it
+moves an instance rather than the protocol: set it everywhere or they will not hear each other. The
+<code>SEN_ETHER_BUS_MULTICAST_PORT</code> environment variable overrides it, as <code>SEN_ETHER_DISCOVERY_PORT</code>
+does for discovery.</p>
+<p>This matters most on Windows, where the Host Network Service reserves blocks of ports for itself
+even when nothing is listening on them. If a reserved block contains 50985, the bind fails with
+"an attempt was made to access a socket in a way forbidden by its access permissions" and Sen does
+not start. <code>netsh int ipv4 show excludedportrange protocol=udp</code> lists the reserved blocks. Pick a
+port below 49152, which is outside the range Windows reserves from.</p>
 <h3 id="disabling-multicast-entirely">Disabling multicast entirely<a class="headerlink" href="#disabling-multicast-entirely" title="Permanent link">¶</a></h3>
 <p>By default, Sen relies on multicast for kernels to discover each other. If your infrastructure does
 not allow multicast traffic at all, you will need to disable it for bus traffic (see previous
@@ -2148,7 +2167,7 @@ the following commands as root:</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 8, 2026 15:07:54 UTC">September 8, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 14, 2026 17:44:06 UTC">September 14, 2026</span>
 </span>
 </aside>
 </article>
