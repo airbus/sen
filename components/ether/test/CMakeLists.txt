@@ -10,6 +10,7 @@ add_sen_unit_test_suite(
   bus_handler_test.cpp
   network_exclusion_test.cpp
   network_footprint_test.cpp
+  beam_framing_test.cpp
   port_binding_test.cpp
   LINK_DEPS
   sen::core
