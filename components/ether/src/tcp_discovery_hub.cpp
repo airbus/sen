@@ -24,10 +24,12 @@
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <asio/ip/tcp.hpp>
+#include <asio/read.hpp>
 #include <asio/socket_base.hpp>
 #include <asio/write.hpp>
 
 // std
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -79,16 +81,25 @@ public:
 
   void receive()
   {
-    socket_.async_receive(
-      asio::buffer(buffer_),
-      [us = shared_from_this()](auto ec, auto length)
+    // Header first, then exactly the beam it announces, so what this relays is one whole beam.
+    asio::async_read(
+      socket_,
+      asio::buffer(header_),
+      [us = shared_from_this()](auto ec, auto /*length*/)
       {
         try
         {
           if (!ec)
           {
-            us->hub_.broadcast(us, us->buffer_, length);
-            us->receive();
+            const auto beamLength = decodeBeamHeader(us->header_);
+            if (beamLength == 0U || beamLength > BeamerBase::maxBeamSize)
+            {
+              getLogger()->error(
+                "discovery hub client {} announced a beam of {} bytes; disconnecting", us->peerName_, beamLength);
+              us->hub_.disconnect(us);
+              return;
+            }
+            us->receiveBeam(beamLength);
           }
           else
           {
@@ -111,13 +122,45 @@ public:
       });
   }
 
+  void receiveBeam(std::size_t length)
+  {
+    asio::async_read(socket_,
+                     asio::buffer(buffer_.data(), length),
+                     [us = shared_from_this(), length](auto ec, auto /*received*/)
+                     {
+                       if (ec)
+                       {
+                         getLogger()->info(
+                           "discovery hub client {} read failed: {} ({})", us->peerName_, ec.message(), ec.value());
+                         us->hub_.disconnect(us);
+                         return;
+                       }
+
+                       try
+                       {
+                         us->hub_.broadcast(us, us->buffer_, length);
+                       }
+                       catch (const std::exception& error)
+                       {
+                         getLogger()->error("discovery hub client {} relay failed: {}", us->peerName_, error.what());
+                         us->hub_.disconnect(us);
+                         return;
+                       }
+
+                       us->receive();
+                     });
+  }
+
   void send(std::shared_ptr<std::vector<uint8_t>> buffer)
   {
-    const auto data = asio::buffer(*buffer);
+    // Framed the same way it arrived.
+    auto header = std::make_shared<std::array<uint8_t, beamHeaderSize>>(encodeBeamHeader(buffer->size()));
+    const std::array<asio::const_buffer, 2U> data {asio::buffer(*header), asio::buffer(*buffer)};
+
     asio::async_write(
       socket_,
       data,
-      [buffer = std::move(buffer), us = shared_from_this()](auto ec, auto /*len*/)
+      [buffer = std::move(buffer), header, us = shared_from_this()](auto ec, auto /*len*/)
       {
         (void)buffer;  // keep buffer alive until async_write completes
         try
@@ -156,6 +199,7 @@ private:
   TcpDiscoveryHub& hub_;
   std::string peerName_;
   std::vector<uint8_t> buffer_;
+  std::array<uint8_t, beamHeaderSize> header_ {};
   asio::ip::tcp::socket socket_;
 };
 
