@@ -58,6 +58,7 @@ constexpr const char* defaultDiscoveryGroup = "239.255.0.44";
 constexpr auto defaultBeamingPeriod = std::chrono::milliseconds(1000);
 constexpr uint64_t defaultBusWarningLevel = 100U;
 constexpr uint16_t defaultMulticastPort = 50985;
+constexpr unsigned long maxPortNumber = 65535UL;  // NOLINT(google-runtime-int): strtoul returns this type
 constexpr uint8_t multicastByteZero = 239;
 constexpr uint8_t multicastByteOneMin = 192;
 constexpr uint8_t multicastByteOneMax = 195;
@@ -318,6 +319,28 @@ private:
       {
         config_.busConfig.multicastDisabled = false;
         getLogger()->warn("allowing multicast bus communication via environment variable");
+      }
+    }
+
+    // SEN_ETHER_BUS_MULTICAST_PORT environment variable handling
+    if (const auto* envBusPort = std::getenv("SEN_ETHER_BUS_MULTICAST_PORT"); envBusPort)
+    {
+      // The default sits in the range Windows reserves for its own services, so a machine can refuse
+      // the bind. Every participant needs the same port: this moves an instance, not the protocol.
+      char* end = nullptr;
+      const auto value = std::strtoul(envBusPort, &end, 10);
+
+      if ((end != envBusPort) && (*end == '\0') && (value > 0U) && (value <= maxPortNumber))
+      {
+        config_.busConfig.multicastPort = static_cast<uint16_t>(value);
+        getLogger()->warn("overriding bus multicast port with environment variable ({})",
+                          config_.busConfig.multicastPort);
+      }
+      else
+      {
+        getLogger()->warn("SEN_ETHER_BUS_MULTICAST_PORT is not a port number ({}); keeping {}",
+                          envBusPort,
+                          config_.busConfig.multicastPort);
       }
     }
 
