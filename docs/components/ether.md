@@ -207,6 +207,19 @@ for this purpose. You can also set the `SEN_ETHER_DISABLE_BUS_MULTICAST` environ
 not scale in regard to the number of participants, as emitters will have to send dedicated messages
 to all receivers.
 
+### Changing the port for bus traffic
+
+Bus traffic uses port 50985 by default. Every participant has to use the same one, so changing it
+moves an instance rather than the protocol: set it everywhere or they will not hear each other. The
+`SEN_ETHER_BUS_MULTICAST_PORT` environment variable overrides it, as `SEN_ETHER_DISCOVERY_PORT`
+does for discovery.
+
+This matters most on Windows, where the Host Network Service reserves blocks of ports for itself
+even when nothing is listening on them. If a reserved block contains 50985, the bind fails with
+"an attempt was made to access a socket in a way forbidden by its access permissions" and Sen does
+not start. `netsh int ipv4 show excludedportrange protocol=udp` lists the reserved blocks. Pick a
+port below 49152, which is outside the range Windows reserves from.
+
 ### Disabling multicast entirely
 
 By default, Sen relies on multicast for kernels to discover each other. If your infrastructure does
