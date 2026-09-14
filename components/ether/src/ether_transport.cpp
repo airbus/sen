@@ -178,6 +178,19 @@ void EtherTransport::stop() noexcept
         io_->stop();  // stop all requests
       }
     }
+  }
+
+  // io_->stop() only asks: a handler already running carries on. So join before closing any socket
+  // below, or the reactor state an operation is reading is freed under it. Outside procMutex_,
+  // which an i/o handler may be waiting for.
+  if (std::this_thread::get_id() != executor_.get_id() && executor_.joinable())
+  {
+    logger_->debug("transport: waiting for thread");
+    executor_.join();
+  }
+
+  {
+    Lock procLock(procMutex_);
 
     // stop bus activity
     logger_->debug("transport: stopping bus handlers");
@@ -203,12 +216,6 @@ void EtherTransport::stop() noexcept
       processes_.clear();
       busMap_.clear();
     }
-  }
-
-  if (std::this_thread::get_id() != executor_.get_id() && executor_.joinable())
-  {
-    logger_->debug("transport: waiting for thread");
-    executor_.join();
   }
 
   {
