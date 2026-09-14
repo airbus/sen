@@ -16,7 +16,6 @@
 #include "plantuml_templates/file_decl.h"
 
 // sen
-#include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/lang/stl_resolver.h"
@@ -38,7 +37,6 @@
 #include <inja/template.hpp>
 
 // std
-#include <cstddef>
 #include <memory>
 #include <string>
 #include <tuple>
