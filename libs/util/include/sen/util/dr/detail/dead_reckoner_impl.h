@@ -11,11 +11,26 @@
 // sen
 #include "sen/util/dr/algorithms.h"
 
+// std
+#include <type_traits>
+
 namespace sen::util::impl
 {
 
 /// \addtogroup dr
 /// @{
+
+/// True when T can report when its data was committed. Generated RPR types can, through asObject();
+/// a hand-written stand-in usually cannot, so it is detected rather than required.
+template <typename T, typename = void>
+struct HasCommitTime: std::false_type
+{
+};
+
+template <typename T>
+struct HasCommitTime<T, std::void_t<decltype(std::declval<const T&>().asObject().getLastCommitTime())>>: std::true_type
+{
+};
 
 /// Translates a Location struct to a RPR WorldLocation given as template argument
 template <typename T>

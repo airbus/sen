@@ -10,6 +10,7 @@ set(dr_tests
     dead_reckoner_test.cpp
     mat3_test.cpp
     quat_test.cpp
+    settable_dead_reckoner_test.cpp
     utils/kernel_fixture.cpp
     utils/kernel_fixture.h
     utils_test.cpp

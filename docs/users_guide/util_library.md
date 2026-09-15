@@ -108,8 +108,43 @@ The `DeadReckonerBase` class encapsulates the core functionality of the dead rec
 class can be directly used to extrapolate (and optionally smooth) any `Situation` that does not need
 to be coming from the RPR `Spatial` attribute.
 
+!!! warning "`DeadReckonerBase` has to be told which algorithm to use"
+
+    A `Situation` says where an entity is and how it is moving, but not which of the nine
+    algorithms describes that movement. `DeadReckonerBase` applies the one named in
+    `DrConfig::algorithm`, which defaults to `drRVW` (rate and velocity, world referenced). Set it
+    to match your data: the class cannot detect a mismatch, and the wrong algorithm gives a wrong
+    answer with no error and no warning.
+
+    The algorithm is carried by the RPR `Spatial` attribute, which this class does not take.
+    `DeadReckonerTemplateBase<T>` and the two classes below do take it and select from it, ignoring
+    the configured value. If you convert a `Spatial` with `DeadReckoner<T>::toSituation` first, that
+    conversion discards the algorithm — use `DeadReckoner<T>` directly instead.
+
+    Leave the fields your chosen algorithm does not own at zero, as RPR data does. The world
+    position is extrapolated by one shared expression that always includes the acceleration term, so
+    a `Situation` carrying an acceleration is accelerated even under an algorithm that has none.
+
+    Smoothing applies only to world referenced algorithms, here as everywhere else, so choosing a
+    body referenced one turns it off.
+
 The `DeadReckonerTemplateBase<T>` class particularizes this functionality for RPR object instances
 and the `DeadReckoner<T>` and `SettableDeadReckoner<T>` classes inherit from it.
+
+!!! note "Standing in for the RPR type"
+
+    If you put your own type in place of the RPR one, for a test or a benchmark, the signatures
+    do not tell you the whole of what it has to provide.
+
+    The fields are read by name, not by shape. A world location needs `x`, `y` and `z`; an
+    orientation needs `psi`, `theta` and `phi`; a velocity needs `xVelocity`, `yVelocity` and
+    `zVelocity`, and acceleration and angular velocity follow the same pattern. A type carrying
+    the same numbers under different names will not compile.
+
+    The spatial variant has nine alternatives but only five distinct types, because each
+    body-referenced algorithm reuses the struct of its world-referenced counterpart. A stand-in
+    needs those five types across the nine positions. Making all nine the same type leaves the
+    conversion ambiguous and will not compile either.
 
 #### Data models and configuration
 
@@ -153,6 +188,8 @@ one.
 | `positionDamping` | `f64` | — | `1.0` | Damping of the smoothed position |
 | `orientationConvergenceTime` | `sen::Duration` | — | `50 ms` | How long the smoothed orientation takes to reach the updated orientation |
 | `orientationDamping` | `f64` | — | `20.0` | Damping of the smoothed orientation |
+| `useCommitTimeAsOrigin` | `bool` | — | `true` | Measure the extrapolation from the instant the producer committed the data, rather than from the instant it was first read. Set it to `false` when the producer's clock is not yours |
+| `algorithm` | `SpatialAlgorithm` | — | `drRVW` | Which algorithm `DeadReckonerBase` applies. The classes taking an RPR `Spatial` read it from the data and ignore this |
 
 The lengths, angles and rates above are quantity types (`LengthMeters`, `AngleRadians`,
 `VelocityMetersPerSecond` and so on), so the unit is part of the type rather than a convention you
@@ -272,7 +309,8 @@ $$
   `GeodeticSituation` overload converts its position, orientation, velocity and acceleration to
   ECEF before writing them, so leaving this at its `world` default is what matches that data;
   setting it to `body` on that path produces a `Spatial` holding world vectors under a body-frame
-  algorithm.
+  algorithm. It does not change what the two thresholds above are compared in: those are always
+  measured per axis in ECEF, whichever reference system you choose.
 
 The two main methods of the `SettableDeadReckoner<T>` class are the two overloads of the
 `setSpatial` method, which take a Situation and a GeodeticSituation as inputs. These two overloads

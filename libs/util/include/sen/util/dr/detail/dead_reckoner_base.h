@@ -22,6 +22,9 @@ namespace sen::util
 // --8<-- [start:dead_reckoner_base]
 /// Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by
 /// default unless the user specifies otherwise.
+///
+/// Extrapolates with drRvw only: a Situation does not carry which of the nine algorithms describes
+/// its movement. DeadReckonerTemplateBase takes the Spatial variant, which does, and selects from it.
 class DeadReckonerBase
 {
 
@@ -72,6 +75,10 @@ public:  // config
 protected:
   [[nodiscard]] const Situation& getSmoothSituation() const noexcept;
   void smooth(const Situation& update);
+
+  /// Smooths the update when configured to and returns what to publish. With smoothing off the walk
+  /// is skipped and the returned reference is the argument itself.
+  [[nodiscard]] const Situation& smoothIfEnabled(const Situation& update);
 
   void invalidateCache();
 
