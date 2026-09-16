@@ -17,7 +17,6 @@
 #include "mkdocs_templates/file_doc.h"
 
 // sen
-#include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/hash32.h"
 #include "sen/core/base/u8string_util.h"
