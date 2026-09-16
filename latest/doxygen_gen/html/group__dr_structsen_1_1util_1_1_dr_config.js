@@ -7,5 +7,7 @@ var group__dr_structsen_1_1util_1_1_dr_config =
     [ "positionConvergenceTime", "group__dr.html#a13b6c6de20870a59e9a5aa6fabdcb3a1", null ],
     [ "positionDamping", "group__dr.html#aa7285fccc926528c78f91471cc11e3ae", null ],
     [ "orientationConvergenceTime", "group__dr.html#acf32e157eb5bdf3621d85b08bcb43d5f", null ],
-    [ "orientationDamping", "group__dr.html#a3ce73a6f0eb8f5725531b1ecd2f6bdc4", null ]
+    [ "orientationDamping", "group__dr.html#a3ce73a6f0eb8f5725531b1ecd2f6bdc4", null ],
+    [ "useCommitTimeAsOrigin", "group__dr.html#a0b2087004416ae13c8fbaa923137601d", null ],
+    [ "algorithm", "group__dr.html#a3c30982d64a76790bb6a05b848894e08", null ]
 ];

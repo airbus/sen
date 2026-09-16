@@ -186,6 +186,10 @@ var annotated_dup =
         [ "TestWriter", "classsen_1_1test_1_1_test_writer.html", "classsen_1_1test_1_1_test_writer" ]
       ] ],
       [ "util", "namespacesen_1_1util.html", [
+        [ "impl", "namespacesen_1_1util_1_1impl.html", [
+          [ "HasCommitTime", "structsen_1_1util_1_1impl_1_1_has_commit_time.html", null ],
+          [ "HasCommitTime&lt; T, std::void_t&lt; decltype(std::declval&lt; const T &amp; &gt;().asObject().getLastCommitTime())&gt; &gt;", "structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html", null ]
+        ] ],
         [ "Acceleration", "group__dr.html#structsen_1_1util_1_1_acceleration", "group__dr_structsen_1_1util_1_1_acceleration" ],
         [ "AngularAcceleration", "group__dr.html#structsen_1_1util_1_1_angular_acceleration", "group__dr_structsen_1_1util_1_1_angular_acceleration" ],
         [ "AngularVelocity", "group__dr.html#structsen_1_1util_1_1_angular_velocity", "group__dr_structsen_1_1util_1_1_angular_velocity" ],

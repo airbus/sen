@@ -1,5 +1,13 @@
 var NAVTREEINDEX16 =
 {
+"native__object__proxy_8h_source.html":[3,0,0,0,0,0,0,4,0,3],
+"native__types_8h.html":[3,0,0,0,0,0,0,3,10],
+"native__types_8h_source.html":[3,0,0,0,0,0,0,3,10],
+"native__types__impl_8h.html":[3,0,0,0,0,0,0,3,0,0],
+"native__types__impl_8h_source.html":[3,0,0,0,0,0,0,3,0,0],
+"numbers_8h.html":[3,0,0,0,0,0,0,0,14],
+"numbers_8h_source.html":[3,0,0,0,0,0,0,0,14],
+"object_8h.html":[3,0,0,0,0,0,0,4,5],
 "object_8h_source.html":[3,0,0,0,0,0,0,4,5],
 "object__filter_8h.html":[3,0,0,0,0,0,0,4,6],
 "object__filter_8h_source.html":[3,0,0,0,0,0,0,4,6],
@@ -82,8 +90,8 @@ var NAVTREEINDEX16 =
 "sequence__type_8h_source.html":[3,0,0,0,0,0,0,3,17],
 "serialization__traits_8h.html":[3,0,0,0,0,0,0,1,0,1],
 "serialization__traits_8h_source.html":[3,0,0,0,0,0,0,1,0,1],
-"settable__dead__reckoner_8h.html":[3,0,0,4,0,0,0,0,3],
-"settable__dead__reckoner_8h_source.html":[3,0,0,4,0,0,0,0,3],
+"settable__dead__reckoner_8h.html":[3,0,0,4,0,0,0,0,4],
+"settable__dead__reckoner_8h_source.html":[3,0,0,4,0,0,0,0,4],
 "settable__dead__reckoner__impl_8h.html":[3,0,0,4,0,0,0,0,0,2],
 "settable__dead__reckoner__impl_8h_source.html":[3,0,0,4,0,0,0,0,0,2],
 "snapshot_8h.html":[3,0,0,1,1,0,0,9],
@@ -241,13 +249,5 @@ var NAVTREEINDEX16 =
 "structsen_1_1_object_filter_1_1_object_set.html":[0,0,4,13,0],
 "structsen_1_1_object_filter_1_1_object_set.html#a76647bda133a061e70f7bb228f19c58b":[0,0,4,13,0,0],
 "structsen_1_1_object_filter_1_1_object_set.html#acee97ae6b1f7ab3f015bab435e4c1625":[0,0,4,13,0,2],
-"structsen_1_1_object_filter_1_1_object_set.html#ae3d542cc47ace04c36f5a600a84a5f6f":[0,0,4,13,0,1],
-"structsen_1_1_object_list_1_1_iterators.html":[0,0,4,14,0],
-"structsen_1_1_object_list_1_1_iterators.html#a08e900e63ad80b22ee23a00305b7e42b":[0,0,4,14,0,4],
-"structsen_1_1_object_list_1_1_iterators.html#a76cbcb11dc614b21797fc46fe4bec48c":[0,0,4,14,0,7],
-"structsen_1_1_object_list_1_1_iterators.html#a84cef9a81f3312953d16af9ff4d6f8e7":[0,0,4,14,0,2],
-"structsen_1_1_object_list_1_1_iterators.html#aa24b009bfb450aa9833469b426b4a063":[0,0,4,14,0,0],
-"structsen_1_1_object_list_1_1_iterators.html#ad43b20250cc4ddc2373d3a3277abd00c":[0,0,4,14,0,6],
-"structsen_1_1_object_list_1_1_iterators.html#af57a167d4612912553d836918e80ca08":[0,0,4,14,0,1],
-"structsen_1_1_object_list_1_1_iterators.html#af8301965395e27bce0348467e076308a":[0,0,4,14,0,5]
+"structsen_1_1_object_filter_1_1_object_set.html#ae3d542cc47ace04c36f5a600a84a5f6f":[0,0,4,13,0,1]
 };

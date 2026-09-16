@@ -74,15 +74,15 @@ var NAVTREEINDEX =
 "classsen_1_1kernel_1_1_transport.html#a44d458607c78c226de532b44e140aab9",
 "classsen_1_1test_1_1_test_class_impl.html#a0eaaa976182171648814ad908bf89556",
 "classsen_1_1util_1_1_dead_reckoner.html#a537b4c716b061890068d73b0ec9f8b36",
-"classsen_1_1util_1_1_vec3.html#a00836b8f00d243a9dfc27cc80199d050",
-"functions_func_w.html",
-"group__gen.html#ggabadbb903ca6457c63f0f06292c72f2c0afe3edd5e127c491fcf7e8a440c8421c5",
-"group__lang.html#gga93b0800803a4979d176a9470893ab868a8afe6e6e95a91a8b14d4864f288e2c28",
-"group__util.html#ga6864aa0d31be31bb049a7fe7826d20c4",
-"namespacesen_1_1gen_1_1detail.html#a0dbc70df13ae421fdd3ef6c9a13a14ed",
-"object_8h_source.html",
-"structsen_1_1_object_list_1_1_iterators.html#afb9c4b8507296a132b5f70483d5111fc",
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a56804e5c64ddeb5e8077347d39181bab"
+"classsen_1_1util_1_1_settable_dead_reckoner.html#ae62b54cd52aeec6a1f976b95d680358e",
+"functions_func_q.html",
+"group__gen.html#abd4f607502493cd29eb528a72ab108bf",
+"group__lang.html#gga93b0800803a4979d176a9470893ab868a6734439c39d28cdc0a99c3cb6666a543",
+"group__util.html#ga48b082a64f8e2c7ea9d406b79d556d23",
+"namespacesen_1_1gen_1_1detail.html#a02ee8431492e6324f16bfb42675adbbb",
+"native__object__proxy_8h_source.html",
+"structsen_1_1_object_list_1_1_iterators.html",
+"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

@@ -8,5 +8,6 @@ var searchData=
   ['dead_5freckoner_5fbase_2eh_5',['dead_reckoner_base.h',['../dead__reckoner__base_8h.html',1,'']]],
   ['dead_5freckoner_5fimpl_2eh_6',['dead_reckoner_impl.h',['../dead__reckoner__impl_8h.html',1,'']]],
   ['deletion_2eh_7',['deletion.h',['../deletion_8h.html',1,'']]],
-  ['duration_2eh_8',['duration.h',['../duration_8h.html',1,'']]]
+  ['detail_2fdead_5freckoner_5fbase_2eh_8',['dead_reckoner_base.h',['../detail_2dead__reckoner__base_8h.html',1,'']]],
+  ['duration_2eh_9',['duration.h',['../duration_8h.html',1,'']]]
 ];

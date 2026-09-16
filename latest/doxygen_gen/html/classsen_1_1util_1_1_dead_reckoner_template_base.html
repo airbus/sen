@@ -138,12 +138,12 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1ut
 <p>Base class for the <a class="el" href="classsen_1_1util_1_1_dead_reckoner.html" title="Enables the user to predict an object’s position and movement at any future time applying dead reckon...">DeadReckoner</a> and <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html" title="Allows the user to get the extrapolated situation of an object and to set the Spatial when the error ...">SettableDeadReckoner</a> classes.  
  <a href="#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="dead__reckoner__base_8h_source.html">dead_reckoner_base.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="detail_2dead__reckoner__base_8h_source.html">dead_reckoner_base.h</a>&gt;</code></p>
 <div id="dynsection-0" onclick="return dynsection.toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;"><span class="dynarrow"><span class="arrowhead closed"></span></span>Inheritance diagram for sen::util::DeadReckonerTemplateBase&lt; T &gt;:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1util_1_1_dead_reckoner_template_base__inherit__graph.svg" width="456" height="798"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1util_1_1_dead_reckoner_template_base__inherit__graph.svg" width="456" height="818"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
@@ -179,6 +179,8 @@ Public Member Functions</h2></td></tr>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:ad0a975efa5993cb390f53ae86e3408c2" id="r_ad0a975efa5993cb390f53ae86e3408c2"><td class="memItemLeft">const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#ad0a975efa5993cb390f53ae86e3408c2">getSmoothSituation</a> () const noexcept</td></tr>
 <tr class="memitem:acf9d0a4ffca5cf416273318fa5cbcd95" id="r_acf9d0a4ffca5cf416273318fa5cbcd95"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#acf9d0a4ffca5cf416273318fa5cbcd95">smooth</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;update)</td></tr>
+<tr class="memitem:a561647fefe42c55c26143b4fab24fd70" id="r_a561647fefe42c55c26143b4fab24fd70"><td class="memItemLeft">const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#a561647fefe42c55c26143b4fab24fd70">smoothIfEnabled</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;update)</td></tr>
+<tr class="memdesc:a561647fefe42c55c26143b4fab24fd70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Smooths the update when configured to and returns what to publish. With smoothing off the walk is skipped and the returned reference is the argument itself.  <br /></td></tr>
 <tr class="memitem:a829b3eaa309e421723c823c4961ffe1c" id="r_a829b3eaa309e421723c823c4961ffe1c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#a829b3eaa309e421723c823c4961ffe1c">invalidateCache</a> ()</td></tr>
 <tr class="memitem:ac673dbf58cfca43f586ee667e616bd1d" id="r_ac673dbf58cfca43f586ee667e616bd1d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#ac673dbf58cfca43f586ee667e616bd1d">isSituationCached</a> (<a class="el" href="classsen_1_1_time_stamp.html">sen::TimeStamp</a> timeStamp) const noexcept</td></tr>
 <tr class="memitem:abe50236146d39a1f20db2ca6caaefd52" id="r_abe50236146d39a1f20db2ca6caaefd52"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html#abe50236146d39a1f20db2ca6caaefd52">setCachedSituation</a> (const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;situation)</td></tr>
@@ -694,6 +696,33 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
+<a id="a561647fefe42c55c26143b4fab24fd70" name="a561647fefe42c55c26143b4fab24fd70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a561647fefe42c55c26143b4fab24fd70">&#9670;&#160;</a></span>smoothIfEnabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp; sen::util::DeadReckonerBase::smoothIfEnabled </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__dr.html#structsen_1_1util_1_1_situation">Situation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>update</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel protected">protected</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Smooths the update when configured to and returns what to publish. With smoothing off the walk is skipped and the returned reference is the argument itself. </p>
+
+</div>
+</div>
 <a id="a829b3eaa309e421723c823c4961ffe1c" name="a829b3eaa309e421723c823c4961ffe1c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a829b3eaa309e421723c823c4961ffe1c">&#9670;&#160;</a></span>invalidateCache()</h2>
 
@@ -870,7 +899,7 @@ template&lt;typename T&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="dead__reckoner__base_8h_source.html">dead_reckoner_base.h</a></li>
+<li><a class="el" href="detail_2dead__reckoner__base_8h_source.html">detail/dead_reckoner_base.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

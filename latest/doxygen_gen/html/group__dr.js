@@ -8,7 +8,9 @@ var group__dr =
       [ "positionConvergenceTime", "group__dr.html#a13b6c6de20870a59e9a5aa6fabdcb3a1", null ],
       [ "positionDamping", "group__dr.html#aa7285fccc926528c78f91471cc11e3ae", null ],
       [ "orientationConvergenceTime", "group__dr.html#acf32e157eb5bdf3621d85b08bcb43d5f", null ],
-      [ "orientationDamping", "group__dr.html#a3ce73a6f0eb8f5725531b1ecd2f6bdc4", null ]
+      [ "orientationDamping", "group__dr.html#a3ce73a6f0eb8f5725531b1ecd2f6bdc4", null ],
+      [ "useCommitTimeAsOrigin", "group__dr.html#a0b2087004416ae13c8fbaa923137601d", null ],
+      [ "algorithm", "group__dr.html#a3c30982d64a76790bb6a05b848894e08", null ]
     ] ],
     [ "sen::util::Location", "group__dr.html#structsen_1_1util_1_1_location", [
       [ "x", "group__dr.html#a77380035870047d6269f7078320b896a", null ],
@@ -91,6 +93,7 @@ var group__dr =
       [ "setConfig", "classsen_1_1util_1_1_dead_reckoner.html#a55809395957679b2ffab8c6226a24487", null ],
       [ "getSmoothSituation", "classsen_1_1util_1_1_dead_reckoner.html#ad0a975efa5993cb390f53ae86e3408c2", null ],
       [ "smooth", "classsen_1_1util_1_1_dead_reckoner.html#acf9d0a4ffca5cf416273318fa5cbcd95", null ],
+      [ "smoothIfEnabled", "classsen_1_1util_1_1_dead_reckoner.html#a561647fefe42c55c26143b4fab24fd70", null ],
       [ "invalidateCache", "classsen_1_1util_1_1_dead_reckoner.html#a829b3eaa309e421723c823c4961ffe1c", null ],
       [ "isSituationCached", "classsen_1_1util_1_1_dead_reckoner.html#ac673dbf58cfca43f586ee667e616bd1d", null ],
       [ "setCachedSituation", "classsen_1_1util_1_1_dead_reckoner.html#abe50236146d39a1f20db2ca6caaefd52", null ],
@@ -110,6 +113,7 @@ var group__dr =
       [ "setConfig", "classsen_1_1util_1_1_dead_reckoner_base.html#a55809395957679b2ffab8c6226a24487", null ],
       [ "getSmoothSituation", "classsen_1_1util_1_1_dead_reckoner_base.html#ad0a975efa5993cb390f53ae86e3408c2", null ],
       [ "smooth", "classsen_1_1util_1_1_dead_reckoner_base.html#acf9d0a4ffca5cf416273318fa5cbcd95", null ],
+      [ "smoothIfEnabled", "classsen_1_1util_1_1_dead_reckoner_base.html#a561647fefe42c55c26143b4fab24fd70", null ],
       [ "invalidateCache", "classsen_1_1util_1_1_dead_reckoner_base.html#a829b3eaa309e421723c823c4961ffe1c", null ],
       [ "isSituationCached", "classsen_1_1util_1_1_dead_reckoner_base.html#ac673dbf58cfca43f586ee667e616bd1d", null ],
       [ "setCachedSituation", "classsen_1_1util_1_1_dead_reckoner_base.html#abe50236146d39a1f20db2ca6caaefd52", null ],
@@ -140,6 +144,7 @@ var group__dr =
       [ "setConfig", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a55809395957679b2ffab8c6226a24487", null ],
       [ "getSmoothSituation", "classsen_1_1util_1_1_dead_reckoner_template_base.html#ad0a975efa5993cb390f53ae86e3408c2", null ],
       [ "smooth", "classsen_1_1util_1_1_dead_reckoner_template_base.html#acf9d0a4ffca5cf416273318fa5cbcd95", null ],
+      [ "smoothIfEnabled", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a561647fefe42c55c26143b4fab24fd70", null ],
       [ "invalidateCache", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a829b3eaa309e421723c823c4961ffe1c", null ],
       [ "isSituationCached", "classsen_1_1util_1_1_dead_reckoner_template_base.html#ac673dbf58cfca43f586ee667e616bd1d", null ],
       [ "setCachedSituation", "classsen_1_1util_1_1_dead_reckoner_template_base.html#abe50236146d39a1f20db2ca6caaefd52", null ],
@@ -148,6 +153,8 @@ var group__dr =
       [ "setCachedGeodeticSituation", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a9edf40bb3c81bdf54024d03e784c7bf0", null ],
       [ "getCachedGeodeticSituation", "classsen_1_1util_1_1_dead_reckoner_template_base.html#a8f5125925e682f3499fd9dac57cdcf50", null ]
     ] ],
+    [ "sen::util::impl::HasCommitTime&lt; T, typename &gt;", "structsen_1_1util_1_1impl_1_1_has_commit_time.html", null ],
+    [ "sen::util::impl::HasCommitTime&lt; T, std::void_t&lt; decltype(std::declval&lt; const T &amp; &gt;().asObject().getLastCommitTime())&gt; &gt;", "structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html", null ],
     [ "sen::util::DrThreshold", "group__dr.html#structsen_1_1util_1_1_dr_threshold", [
       [ "distanceThreshold", "group__dr.html#ae0114b6f4e282c8bba2b504a74cd4e77", null ],
       [ "orientationThreshold", "group__dr.html#a999a824eb69d17300fb8fb878a5520dd", null ],
@@ -181,6 +188,7 @@ var group__dr =
       [ "setConfig", "classsen_1_1util_1_1_settable_dead_reckoner.html#a55809395957679b2ffab8c6226a24487", null ],
       [ "getSmoothSituation", "classsen_1_1util_1_1_settable_dead_reckoner.html#ad0a975efa5993cb390f53ae86e3408c2", null ],
       [ "smooth", "classsen_1_1util_1_1_settable_dead_reckoner.html#acf9d0a4ffca5cf416273318fa5cbcd95", null ],
+      [ "smoothIfEnabled", "classsen_1_1util_1_1_settable_dead_reckoner.html#a561647fefe42c55c26143b4fab24fd70", null ],
       [ "invalidateCache", "classsen_1_1util_1_1_settable_dead_reckoner.html#a829b3eaa309e421723c823c4961ffe1c", null ],
       [ "isSituationCached", "classsen_1_1util_1_1_settable_dead_reckoner.html#ac673dbf58cfca43f586ee667e616bd1d", null ],
       [ "setCachedSituation", "classsen_1_1util_1_1_settable_dead_reckoner.html#abe50236146d39a1f20db2ca6caaefd52", null ],

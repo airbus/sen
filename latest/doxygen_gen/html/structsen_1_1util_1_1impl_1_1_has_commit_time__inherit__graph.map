@@ -1,0 +1,5 @@
+<map id="sen::util::impl::HasCommitTime&lt; T, typename &gt;" name="sen::util::impl::HasCommitTime&lt; T, typename &gt;">
+<area shape="rect" id="Node000001" title="True when T can report when its data was committed. Generated RPR types can, through asObject(); a ha..." alt="" coords="5,119,176,199"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="41,5,141,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,85,93,118,88,118,88,85"/>
+</map>

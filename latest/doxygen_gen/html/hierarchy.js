@@ -131,10 +131,12 @@ var hierarchy =
       [ "sen::ShouldBePassedByValue< kernel::ProcessId >", "structsen_1_1_should_be_passed_by_value_3_01kernel_1_1_process_id_01_4.html", null ],
       [ "sen::std_util::IsInstantiationOf< Template, Template< Args... > >", "structsen_1_1std__util_1_1_is_instantiation_of_3_01_template_00_01_template_3_01_args_8_8_8_01_4_01_4.html", null ],
       [ "sen::std_util::detail::IsInPlaceType< std::in_place_type_t< T > >", "structsen_1_1std__util_1_1detail_1_1_is_in_place_type_3_01std_1_1in__place__type__t_3_01_t_01_4_01_4.html", null ],
+      [ "sen::util::impl::HasCommitTime< T, std::void_t< decltype(std::declval< const T & >().asObject().getLastCommitTime())> >", "structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html", null ],
       [ "sen::HasValueType< typename, typename >", "structsen_1_1_has_value_type.html", null ],
       [ "sen::ShouldBePassedByValue< T >", "structsen_1_1_should_be_passed_by_value.html", null ],
       [ "sen::std_util::IsInstantiationOf< Template, T >", "structsen_1_1std__util_1_1_is_instantiation_of.html", null ],
-      [ "sen::std_util::detail::IsInPlaceType< T >", "structsen_1_1std__util_1_1detail_1_1_is_in_place_type.html", null ]
+      [ "sen::std_util::detail::IsInPlaceType< T >", "structsen_1_1std__util_1_1detail_1_1_is_in_place_type.html", null ],
+      [ "sen::util::impl::HasCommitTime< T, typename >", "structsen_1_1util_1_1impl_1_1_has_commit_time.html", null ]
     ] ],
     [ "sen::lang::FomDocument", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document", null ],
     [ "sen::lang::FomDocumentSet", "classsen_1_1lang_1_1_fom_document_set.html", null ],
@@ -415,7 +417,8 @@ var hierarchy =
       [ "sen::ShouldBePassedByValue< kernel::BusId >", "structsen_1_1_should_be_passed_by_value_3_01kernel_1_1_bus_id_01_4.html", null ],
       [ "sen::ShouldBePassedByValue< kernel::ProcessId >", "structsen_1_1_should_be_passed_by_value_3_01kernel_1_1_process_id_01_4.html", null ],
       [ "sen::std_util::IsInstantiationOf< Template, Template< Args... > >", "structsen_1_1std__util_1_1_is_instantiation_of_3_01_template_00_01_template_3_01_args_8_8_8_01_4_01_4.html", null ],
-      [ "sen::std_util::detail::IsInPlaceType< std::in_place_type_t< T > >", "structsen_1_1std__util_1_1detail_1_1_is_in_place_type_3_01std_1_1in__place__type__t_3_01_t_01_4_01_4.html", null ]
+      [ "sen::std_util::detail::IsInPlaceType< std::in_place_type_t< T > >", "structsen_1_1std__util_1_1detail_1_1_is_in_place_type_3_01std_1_1in__place__type__t_3_01_t_01_4_01_4.html", null ],
+      [ "sen::util::impl::HasCommitTime< T, std::void_t< decltype(std::declval< const T & >().asObject().getLastCommitTime())> >", "structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html", null ]
     ] ],
     [ "Ts...", null, [
       [ "sen::Overloaded< Ts >", "structsen_1_1_overloaded.html", null ]

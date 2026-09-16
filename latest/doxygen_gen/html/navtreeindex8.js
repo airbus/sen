@@ -248,6 +248,6 @@ var NAVTREEINDEX8 =
 "classsen_1_1util_1_1_dead_reckoner.html#a2e95294ecb2c5ed26d9e338ebf7e50e0":[0,2,0,10,2],
 "classsen_1_1util_1_1_dead_reckoner.html#a3e4a645df121b021b0e29ac42f800b50":[0,2,0,10,18],
 "classsen_1_1util_1_1_dead_reckoner.html#a503c383f84e8d90c95ec44098c12ad07":[0,2,0,10,16],
-"classsen_1_1util_1_1_dead_reckoner.html#a513037af2d25f406b5867fcc0d08523f":[0,2,0,10,28],
+"classsen_1_1util_1_1_dead_reckoner.html#a513037af2d25f406b5867fcc0d08523f":[0,2,0,10,29],
 "classsen_1_1util_1_1_dead_reckoner.html#a5163dbd7225bcca0dd39cf98f191f9d5":[0,2,0,10,19]
 };

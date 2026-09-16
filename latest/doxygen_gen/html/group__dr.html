@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('group__dr.html
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ADrConfig_5Fstructsen_5F1_5F1util_5F1_5F1_5Fdr_5Fconfig" id="r_sen_3A_3Autil_3A_3ADrConfig_5Fstructsen_5F1_5F1util_5F1_5F1_5Fdr_5Fconfig"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1util_1_1_dr_config">sen::util::DrConfig</a></td></tr>
-<tr class="memdesc:structsen_1_1util_1_1_dr_config"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length in meters.  <a href="#structsen_1_1util_1_1_dr_config">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1util_1_1_dr_config"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dead Reckoning configuration.  <a href="#structsen_1_1util_1_1_dr_config">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ALocation_5Fstructsen_5F1_5F1util_5F1_5F1_5Flocation" id="r_sen_3A_3Autil_3A_3ALocation_5Fstructsen_5F1_5F1util_5F1_5F1_5Flocation"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1util_1_1_location">sen::util::Location</a></td></tr>
 <tr class="memdesc:structsen_1_1util_1_1_location"><td class="mdescLeft">&#160;</td><td class="mdescRight">World <a class="el" href="#structsen_1_1util_1_1_location" title="World Location struct.">Location</a> struct.  <a href="#structsen_1_1util_1_1_location">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3AGeodeticWorldLocation_5Fstructsen_5F1_5F1util_5F1_5F1_5Fgeodetic_5Fworld_5Flocation" id="r_sen_3A_3Autil_3A_3AGeodeticWorldLocation_5Fstructsen_5F1_5F1util_5F1_5F1_5Fgeodetic_5Fworld_5Flocation"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1util_1_1_geodetic_world_location">sen::util::GeodeticWorldLocation</a></td></tr>
@@ -169,8 +169,11 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extrapolates the <a class="el" href="#structsen_1_1util_1_1_situation" title="Situation structure with the following parameters:">Situation</a> of an entity at a certain time. The extrapolation is smoothed by default unless the user specifies otherwise.  <a href="classsen_1_1util_1_1_dead_reckoner_base.html#details">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ADeadReckonerTemplateBase_3C_20T_20_3E" id="r_sen_3A_3Autil_3A_3ADeadReckonerTemplateBase_3C_20T_20_3E"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_dead_reckoner_template_base.html">sen::util::DeadReckonerTemplateBase&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class for the <a class="el" href="classsen_1_1util_1_1_dead_reckoner.html" title="Enables the user to predict an object’s position and movement at any future time applying dead reckon...">DeadReckoner</a> and <a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html" title="Allows the user to get the extrapolated situation of an object and to set the Spatial when the error ...">SettableDeadReckoner</a> classes.  <a href="classsen_1_1util_1_1_dead_reckoner_template_base.html#details">More...</a><br /></td></tr>
+<tr class="memitem:sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20typename_20_3E" id="r_sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20typename_20_3E"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structsen_1_1util_1_1impl_1_1_has_commit_time.html">sen::util::impl::HasCommitTime&lt; T, typename &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when T can report when its data was committed. Generated RPR types can, through asObject(); a hand-written stand-in usually cannot, so it is detected rather than required.  <a href="structsen_1_1util_1_1impl_1_1_has_commit_time.html#details">More...</a><br /></td></tr>
+<tr class="memitem:sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20std_3A_3Avoid_5Ft_3C_20decltype_28std_3A_3Adeclval_3C_20const_20T_20_26_20_3E_28_29_2EasObject_28_29_2EgetLastCommitTime_28_29_29_3E_20_3E" id="r_sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20std_3A_3Avoid_5Ft_3C_20decltype_28std_3A_3Adeclval_3C_20const_20T_20_26_20_3E_28_29_2EasObject_28_29_2EgetLastCommitTime_28_29_29_3E_20_3E"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html">sen::util::impl::HasCommitTime&lt; T, std::void_t&lt; decltype(std::declval&lt; const T &amp; &gt;().asObject().getLastCommitTime())&gt; &gt;</a></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ADrThreshold_5Fstructsen_5F1_5F1util_5F1_5F1_5Fdr_5Fthreshold" id="r_sen_3A_3Autil_3A_3ADrThreshold_5Fstructsen_5F1_5F1util_5F1_5F1_5Fdr_5Fthreshold"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="#structsen_1_1util_1_1_dr_threshold">sen::util::DrThreshold</a></td></tr>
-<tr class="memdesc:structsen_1_1util_1_1_dr_threshold"><td class="mdescLeft">&#160;</td><td class="mdescRight">How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle between orientations, and the reference system both are measured in.  <a href="#structsen_1_1util_1_1_dr_threshold">More...</a><br /></td></tr>
+<tr class="memdesc:structsen_1_1util_1_1_dr_threshold"><td class="mdescLeft">&#160;</td><td class="mdescRight">How far the extrapolation may drift from the data before the Spatial is written: a distance per axis and an angle between orientations, both compared in ECEF. The reference system selects which algorithm family the written Spatial is tagged with, not the frame of the comparison.  <a href="#structsen_1_1util_1_1_dr_threshold">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Autil_3A_3ASettableDeadReckoner_3C_20T_20_3E" id="r_sen_3A_3Autil_3A_3ASettableDeadReckoner_3C_20T_20_3E"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1util_1_1_settable_dead_reckoner.html">sen::util::SettableDeadReckoner&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allows the user to get the extrapolated situation of an object and to set the Spatial when the error of the extrapolation exceeds a configurable threshold.  <a href="classsen_1_1util_1_1_settable_dead_reckoner.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
@@ -190,7 +193,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="#ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62">sen::util::SpatialAlgorithm::drFVB</a> = 8
 <br />
  }</td></tr>
-<tr class="memdesc:gae590e1953e07eedfe043f716be48ef74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of the different Spatial algorithms.  <a href="#gae590e1953e07eedfe043f716be48ef74">More...</a><br /></td></tr>
+<tr class="memdesc:gae590e1953e07eedfe043f716be48ef74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length in meters.  <a href="#gae590e1953e07eedfe043f716be48ef74">More...</a><br /></td></tr>
 <tr class="memitem:gad7db75a8f16bcb376158ae9a50a6fb8d" id="r_gad7db75a8f16bcb376158ae9a50a6fb8d"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#gad7db75a8f16bcb376158ae9a50a6fb8d">sen::util::ReferenceSystem</a> : u32 { <a class="el" href="#ggad7db75a8f16bcb376158ae9a50a6fb8da7d793037a0760186574b0282f2f435e7">sen::util::ReferenceSystem::world</a>
 , <a class="el" href="#ggad7db75a8f16bcb376158ae9a50a6fb8da841a2d689ad86bd1611447453c22c6fc">sen::util::ReferenceSystem::body</a>
  }</td></tr>
@@ -308,8 +311,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>Length in meters. </p>
-<p><a class="el" href="#structsen_1_1util_1_1_velocity" title="Velocity struct.">Velocity</a> in meters per second <a class="el" href="#structsen_1_1util_1_1_acceleration" title="Acceleration struct.">Acceleration</a> in meters per second squared Angle in radians <a class="el" href="#structsen_1_1util_1_1_angular_velocity" title="AngularVelocity struct.">AngularVelocity</a> in radians per second <a class="el" href="#structsen_1_1util_1_1_angular_acceleration" title="AngularAcceleration struct.">AngularAcceleration</a> in radians per second squared Latitude in degrees Longitude in degrees Time quantity in seconds Non-dimensional damping coefficient Dead Reckoning configuration. </p>
+<div class="textblock"><p>Dead Reckoning configuration. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
@@ -360,6 +362,18 @@ Convergence time for the smoothed orientation to match the updated orientation. 
 orientationDamping = 20.0</td>
 <td class="fielddoc">
 Damping coefficient for the smoothed orientation solution. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0b2087004416ae13c8fbaa923137601d" name="a0b2087004416ae13c8fbaa923137601d"></a>bool</td>
+<td class="fieldname">
+useCommitTimeAsOrigin = true</td>
+<td class="fielddoc">
+Measure the extrapolation from the instant the producer committed the data rather than from the instant it was first read. Set to false when the producer's clock is not the caller's. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3c30982d64a76790bb6a05b848894e08" name="a3c30982d64a76790bb6a05b848894e08"></a><a class="el" href="#gae590e1953e07eedfe043f716be48ef74">SpatialAlgorithm</a></td>
+<td class="fieldname">
+algorithm = <a class="el" href="#ggae590e1953e07eedfe043f716be48ef74a652b274d9b7e2a27d3d23378d6e782b5">SpatialAlgorithm::drRVW</a></td>
+<td class="fielddoc">
+Which algorithm <a class="el" href="classsen_1_1util_1_1_dead_reckoner_base.html" title="Extrapolates the Situation of an entity at a certain time. The extrapolation is smoothed by default u...">DeadReckonerBase</a> applies. A <a class="el" href="#structsen_1_1util_1_1_situation" title="Situation structure with the following parameters:">Situation</a> does not carry one, so it has to be told; the classes taking an RPR Spatial read it from the data and ignore this. Leave the fields the chosen algorithm does not own at zero: world position always applies the acceleration term. </td></tr>
 </table>
 
 </div>
@@ -759,7 +773,7 @@ Angular acceleration vector with respect to body-reference system. </td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="textblock"><p>How far the extrapolation may drift from the data before the Spatial is written: a distance per axis, an angle between orientations, and the reference system both are measured in. </p>
+<div class="textblock"><p>How far the extrapolation may drift from the data before the Spatial is written: a distance per axis and an angle between orientations, both compared in ECEF. The reference system selects which algorithm family the written Spatial is tagged with, not the frame of the comparison. </p>
 </div><table class="fieldtable">
 <tr><th colspan="3">Class Members</th></tr>
 <tr><td class="fieldtype">
@@ -805,7 +819,8 @@ referenceSystem {<a class="el" href="#ggad7db75a8f16bcb376158ae9a50a6fb8da7d7930
 </table>
 </div><div class="memdoc">
 
-<p>Enumeration of the different Spatial algorithms. </p>
+<p>Length in meters. </p>
+<p><a class="el" href="#structsen_1_1util_1_1_velocity" title="Velocity struct.">Velocity</a> in meters per second <a class="el" href="#structsen_1_1util_1_1_acceleration" title="Acceleration struct.">Acceleration</a> in meters per second squared Angle in radians <a class="el" href="#structsen_1_1util_1_1_angular_velocity" title="AngularVelocity struct.">AngularVelocity</a> in radians per second <a class="el" href="#structsen_1_1util_1_1_angular_acceleration" title="AngularAcceleration struct.">AngularAcceleration</a> in radians per second squared Latitude in degrees Longitude in degrees Time quantity in seconds Non-dimensional damping coefficient Enumeration of the different Spatial algorithms </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggae590e1953e07eedfe043f716be48ef74ad9aa85b29f2c438d871edd464a71a149" name="ggae590e1953e07eedfe043f716be48ef74ad9aa85b29f2c438d871edd464a71a149"></a>drStatic&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ggae590e1953e07eedfe043f716be48ef74a149d60b49741aa83959b29925db1b59c" name="ggae590e1953e07eedfe043f716be48ef74a149d60b49741aa83959b29925db1b59c"></a>drFPW&#160;</td><td class="fielddoc"></td></tr>
@@ -2111,10 +2126,10 @@ template&lt;typename T&gt; </div>
 <div class="line">                                                           <a class="code hl_enumvalue" href="#ggae590e1953e07eedfe043f716be48ef74ad002eb592feb9417277256a1fe5ebc60">SpatialAlgorithm::drRPB</a>,</div>
 <div class="line">                                                           <a class="code hl_enumvalue" href="#ggae590e1953e07eedfe043f716be48ef74a1f897ed22b6003ac12f7be238d5d71d0">SpatialAlgorithm::drRVB</a>,</div>
 <div class="line">                                                           <a class="code hl_enumvalue" href="#ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62">SpatialAlgorithm::drFVB</a>}</div>
-<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74a1f897ed22b6003ac12f7be238d5d71d0"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74a1f897ed22b6003ac12f7be238d5d71d0">sen::util::SpatialAlgorithm::drRVB</a></div><div class="ttdeci">@ drRVB</div><div class="ttdef"><b>Definition</b> algorithms.h:218</div></div>
-<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74a2e138f7ecd7403b0180fbd09aee586a6"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74a2e138f7ecd7403b0180fbd09aee586a6">sen::util::SpatialAlgorithm::drFPB</a></div><div class="ttdeci">@ drFPB</div><div class="ttdef"><b>Definition</b> algorithms.h:216</div></div>
-<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62">sen::util::SpatialAlgorithm::drFVB</a></div><div class="ttdeci">@ drFVB</div><div class="ttdef"><b>Definition</b> algorithms.h:219</div></div>
-<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74ad002eb592feb9417277256a1fe5ebc60"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74ad002eb592feb9417277256a1fe5ebc60">sen::util::SpatialAlgorithm::drRPB</a></div><div class="ttdeci">@ drRPB</div><div class="ttdef"><b>Definition</b> algorithms.h:217</div></div>
+<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74a1f897ed22b6003ac12f7be238d5d71d0"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74a1f897ed22b6003ac12f7be238d5d71d0">sen::util::SpatialAlgorithm::drRVB</a></div><div class="ttdeci">@ drRVB</div><div class="ttdef"><b>Definition</b> algorithms.h:66</div></div>
+<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74a2e138f7ecd7403b0180fbd09aee586a6"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74a2e138f7ecd7403b0180fbd09aee586a6">sen::util::SpatialAlgorithm::drFPB</a></div><div class="ttdeci">@ drFPB</div><div class="ttdef"><b>Definition</b> algorithms.h:64</div></div>
+<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74a7a824eb9d317c785b745de5849fefa62">sen::util::SpatialAlgorithm::drFVB</a></div><div class="ttdeci">@ drFVB</div><div class="ttdef"><b>Definition</b> algorithms.h:67</div></div>
+<div class="ttc" id="agroup__dr_html_ggae590e1953e07eedfe043f716be48ef74ad002eb592feb9417277256a1fe5ebc60"><div class="ttname"><a href="#ggae590e1953e07eedfe043f716be48ef74ad002eb592feb9417277256a1fe5ebc60">sen::util::SpatialAlgorithm::drRPB</a></div><div class="ttdeci">@ drRPB</div><div class="ttdef"><b>Definition</b> algorithms.h:65</div></div>
 </div><!-- fragment -->
 </div>
 </div>

@@ -135,9 +135,16 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('dead__reckoner
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="algorithms_8h_source.html">sen/util/dr/algorithms.h</a>&quot;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
 </div>
 <p><a href="dead__reckoner__impl_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20typename_20_3E" id="r_sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20typename_20_3E"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structsen_1_1util_1_1impl_1_1_has_commit_time.html">sen::util::impl::HasCommitTime&lt; T, typename &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when T can report when its data was committed. Generated RPR types can, through asObject(); a hand-written stand-in usually cannot, so it is detected rather than required.  <a href="structsen_1_1util_1_1impl_1_1_has_commit_time.html#details">More...</a><br /></td></tr>
+<tr class="memitem:sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20std_3A_3Avoid_5Ft_3C_20decltype_28std_3A_3Adeclval_3C_20const_20T_20_26_20_3E_28_29_2EasObject_28_29_2EgetLastCommitTime_28_29_29_3E_20_3E" id="r_sen_3A_3Autil_3A_3Aimpl_3A_3AHasCommitTime_3C_20T_2C_20std_3A_3Avoid_5Ft_3C_20decltype_28std_3A_3Adeclval_3C_20const_20T_20_26_20_3E_28_29_2EasObject_28_29_2EgetLastCommitTime_28_29_29_3E_20_3E"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html">sen::util::impl::HasCommitTime&lt; T, std::void_t&lt; decltype(std::declval&lt; const T &amp; &gt;().asObject().getLastCommitTime())&gt; &gt;</a></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:sen" id="r_sen"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html">sen</a></td></tr>

@@ -10,6 +10,7 @@ var classsen_1_1util_1_1_dead_reckoner_base =
     [ "setConfig", "classsen_1_1util_1_1_dead_reckoner_base.html#a55809395957679b2ffab8c6226a24487", null ],
     [ "getSmoothSituation", "classsen_1_1util_1_1_dead_reckoner_base.html#ad0a975efa5993cb390f53ae86e3408c2", null ],
     [ "smooth", "classsen_1_1util_1_1_dead_reckoner_base.html#acf9d0a4ffca5cf416273318fa5cbcd95", null ],
+    [ "smoothIfEnabled", "classsen_1_1util_1_1_dead_reckoner_base.html#a561647fefe42c55c26143b4fab24fd70", null ],
     [ "invalidateCache", "classsen_1_1util_1_1_dead_reckoner_base.html#a829b3eaa309e421723c823c4961ffe1c", null ],
     [ "isSituationCached", "classsen_1_1util_1_1_dead_reckoner_base.html#ac673dbf58cfca43f586ee667e616bd1d", null ],
     [ "setCachedSituation", "classsen_1_1util_1_1_dead_reckoner_base.html#abe50236146d39a1f20db2ca6caaefd52", null ],
