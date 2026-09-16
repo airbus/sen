@@ -219,12 +219,17 @@ class SenConan(ConanFile):
         """Define the folder layout for building Sen."""
         cmake_layout(self)
 
-        # used in the conan editable package mode
+        # Used in the conan editable package mode (adds the build folder to CMAKE_PREFIX_PATH)
         self.cpp.build.builddirs = ["."]
         # The build tree is split like the install tree, so an editable consumer's PATH and
         # library path name the two directories rather than the build root.
         self.cpp.build.bindirs = ["bin"]
         self.cpp.build.libdirs = ["lib"]
+
+        # Adjust PATH and LD_LIBRARY path for conan editable mode
+        self.layouts.build.runenv_info.prepend_path("PATH", "bin")
+        if self.settings.os == "Linux":
+            self.layouts.build.runenv_info.prepend_path("LD_LIBRARY_PATH", "lib")
 
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
@@ -278,6 +283,10 @@ class SenConan(ConanFile):
 
         tc.generate()
 
+        # These files are expected at the build folder level in editable mode builds
+        copy(self, "cmake/util/sen_utils.cmake", self.source_folder, self.build_folder, keep_path=False)
+        copy(self, "cmake/util/git_info.cmake", self.source_folder, self.build_folder, keep_path=False)
+
     def build(self):
         """Configure and build Sen."""
         cmake = CMake(self)
@@ -291,7 +300,11 @@ class SenConan(ConanFile):
 
     def package_info(self):
         """Calculate the conan package info."""
-        self.cpp_info.set_property("cmake_find_mode", "none")
+        if not self.package_folder:  # in editable mode conan generates the cmake stuff
+            # https://github.com/conan-io/conan/issues/19490#issuecomment-3774503979
+            self.cpp_info.set_property("cmake_find_mode", "config")
+        else:
+            self.cpp_info.set_property("cmake_find_mode", "none")
         self.cpp_info.builddirs = [join("cmake", "sen")]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 
