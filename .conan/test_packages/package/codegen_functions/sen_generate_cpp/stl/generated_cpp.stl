@@ -1,0 +1,6 @@
+package cmake_generate_cpp;
+
+class GeneratedClass
+{
+  var value : string [static];
+}

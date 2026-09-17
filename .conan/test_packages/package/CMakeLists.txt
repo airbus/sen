@@ -29,7 +29,14 @@ function(add_generated_file_test test_name generated_file)
   )
 endfunction()
 
+# package tests
 add_subdirectory(package_functions/add_sen_package package)
 add_subdirectory(package_functions/add_sen_component interface)
 add_subdirectory(package_functions/add_sen_interface_package i_package)
 add_subdirectory(package_functions/sen_generate_package component)
+
+# codegen tests
+add_subdirectory(codegen_functions/sen_generate_cpp gen_cpp)
+add_subdirectory(codegen_functions/sen_generate_python gen_python)
+add_subdirectory(codegen_functions/sen_generate_uml gen_uml)
+add_subdirectory(codegen_functions/sen_generate_yaml gen_yaml)
