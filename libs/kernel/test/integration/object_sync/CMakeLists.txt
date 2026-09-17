@@ -10,7 +10,7 @@ add_sen_package(
   STL_FILES stl/object_sync.stl
   SOURCES src/object_sync.cpp
   NO_SCHEMA
-  PRIVATE_DEPS spdlog::spdlog
+  PRIVATE_DEPS spdlog::spdlog test_helpers
 )
 
 find_package(Python REQUIRED COMPONENTS Interpreter)
@@ -374,8 +374,7 @@ add_sen_integration_test(
   ${Python_EXECUTABLE}
   ${_script_file}
   ${_working_dir}
-  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/publisher.yaml
-  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/listener.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events/single_component.yaml
   REQ_DEPS
     object_sync py ether
     kernel
@@ -469,6 +468,98 @@ add_sen_integration_test(
   ${_working_dir}
   ${CMAKE_CURRENT_BINARY_DIR}/10_const_method/publisher.yaml
   ${CMAKE_CURRENT_BINARY_DIR}/10_const_method/listener.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+    USE_TESTCONTAINERS
+)
+
+set(LISTENER_TYPE ListenerConfirmedMethod)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/11_confirmed_method)
+
+add_sen_integration_test(
+  object_sync_confirmed_method_local
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/11_confirmed_method/single_component.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+    USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_confirmed_method_single_process
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/11_confirmed_method/single_process.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+    USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_confirmed_method_two_processes
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/11_confirmed_method/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/11_confirmed_method/listener.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+    USE_TESTCONTAINERS
+)
+
+set(LISTENER_TYPE ListenerBestEffortMethod)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/12_best_effort_method)
+
+add_sen_integration_test(
+  object_sync_best_effort_method_local
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/12_best_effort_method/single_component.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+    USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_best_effort_method_single_process
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/12_best_effort_method/single_process.yaml
+  REQ_DEPS
+    object_sync py ether
+    kernel
+    FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
+    USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_best_effort_method_two_processes
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/12_best_effort_method/publisher.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/12_best_effort_method/listener.yaml
   REQ_DEPS
     object_sync py ether
     kernel
