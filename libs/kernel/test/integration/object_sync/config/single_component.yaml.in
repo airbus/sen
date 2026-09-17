@@ -5,10 +5,13 @@ build:
   - name: myComponent
     group: 3
     freqHz: 50
-    imports: [object_sync]
+    imports: [test_helpers, object_sync]
     objects:
+      - name: terminator
+        class: sen.test.ProcessTerminatorImpl
+        bus: session.bus
       - name: publisher
-        class: object_sync.PublisherImpl
+        class: object_sync.PublisherObjectSync
         numOfListeners: 4
         bus: session.bus
       - name: listener1
