@@ -13,12 +13,14 @@
 #include <gtest/gtest.h>
 
 // std
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <thread>
 #include <utility>
+#include <vector>
 
 using sen::impl::Call;
 using sen::impl::WorkQueue;
@@ -260,4 +262,67 @@ TEST(WorkQueue, waitExecuteOne)
 
   EXPECT_EQ(counter, 1);
   EXPECT_EQ(queue.getCurrentSize(), 0);
+}
+
+/// @test
+/// Left enabled, which is the widest form: nothing stops a push starting mid-clear.
+TEST(WorkQueue, clearDoesNotFreeUnderAConcurrentPush)
+{
+  for (auto round = 0; round < 100; ++round)
+  {
+    WorkQueue queue(0U, true);  // maxSize 0: every push enqueues
+    queue.enable();
+
+    std::atomic_bool stop {false};
+    std::thread pusher(
+      [&queue, &stop]()
+      {
+        while (!stop.load(std::memory_order_relaxed))
+        {
+          queue.push([]() {}, true);
+        }
+      });
+
+    std::this_thread::sleep_for(std::chrono::microseconds(200));
+    queue.clear();
+
+    stop.store(true);
+    pusher.join();
+  }
+}
+
+/// @test
+/// The kernel's sequence: disable() then clear() with other runners still pushing, since
+/// Runner::stopThread() joins only its own thread. Only a push past its check can race.
+TEST(WorkQueue, clearAfterDisableDoesNotFreeUnderAnInFlightPush)
+{
+  for (auto round = 0; round < 100; ++round)
+  {
+    WorkQueue queue(0U, true);
+    queue.enable();
+
+    std::atomic_bool stop {false};
+    std::vector<std::thread> pushers;
+    for (auto i = 0; i < 4; ++i)
+    {
+      pushers.emplace_back(
+        [&queue, &stop]()
+        {
+          while (!stop.load(std::memory_order_relaxed))
+          {
+            queue.push([]() {}, true);
+          }
+        });
+    }
+
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    queue.disable();
+    queue.clear();
+
+    stop.store(true);
+    for (auto& t: pushers)
+    {
+      t.join();
+    }
+  }
 }

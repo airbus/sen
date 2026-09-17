@@ -129,7 +129,13 @@ public:
 
   SEN_ALWAYS_INLINE void clear()  // NOSONAR
   {
-    queue_ = BlockingQueue();
+    // Assigning a fresh queue is a swap, so the temporary frees blocks a push on another thread
+    // may still be writing into. Bounded, or a live producer never lets the drain end.
+    Call discarded;
+    for (auto remaining = queue_.size_approx(); remaining != 0U && queue_.try_dequeue(discarded); --remaining)
+    {
+    }
+
     callBuffer_.clear();
   }
 
