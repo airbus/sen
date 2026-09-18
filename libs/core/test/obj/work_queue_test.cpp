@@ -30,6 +30,11 @@ namespace
 
 int64_t counter;
 
+/// Bounded so a producer cannot make the test's cost a function of how long the main thread
+/// happens to wait, and force=false so the bound actually applies.
+constexpr std::size_t queueBound = 64U;
+constexpr int pusherCount = 4;
+
 Call incrementCounter = []() { counter++; };  // NOLINT(cert-err58-cpp)
 Call decrementCounter = []() { counter--; };  // NOLINT(cert-err58-cpp)
 
@@ -268,22 +273,30 @@ TEST(WorkQueue, waitExecuteOne)
 /// Left enabled, which is the widest form: nothing stops a push starting mid-clear.
 TEST(WorkQueue, clearDoesNotFreeUnderAConcurrentPush)
 {
+  // Bounded, and the clear waits for a push to be observed rather than for a duration: an
+  // unbounded producer plus a sleep makes the cost depend on the host's timer granularity, which
+  // on Windows is coarse enough to turn 200 microseconds into tens of milliseconds of allocation.
   for (auto round = 0; round < 100; ++round)
   {
-    WorkQueue queue(0U, true);  // maxSize 0: every push enqueues
+    WorkQueue queue(queueBound, true);
     queue.enable();
 
     std::atomic_bool stop {false};
+    std::atomic<int> pushes {0};
     std::thread pusher(
-      [&queue, &stop]()
+      [&queue, &stop, &pushes]()
       {
         while (!stop.load(std::memory_order_relaxed))
         {
-          queue.push([]() {}, true);
+          queue.push([]() {}, false);
+          pushes.fetch_add(1, std::memory_order_relaxed);
         }
       });
 
-    std::this_thread::sleep_for(std::chrono::microseconds(200));
+    while (pushes.load(std::memory_order_relaxed) == 0)
+    {
+      std::this_thread::yield();
+    }
     queue.clear();
 
     stop.store(true);
@@ -298,24 +311,30 @@ TEST(WorkQueue, clearAfterDisableDoesNotFreeUnderAnInFlightPush)
 {
   for (auto round = 0; round < 100; ++round)
   {
-    WorkQueue queue(0U, true);
+    WorkQueue queue(queueBound, true);
     queue.enable();
 
     std::atomic_bool stop {false};
+    std::atomic<int> pushes {0};
     std::vector<std::thread> pushers;
-    for (auto i = 0; i < 4; ++i)
+    pushers.reserve(pusherCount);
+    for (auto i = 0; i < pusherCount; ++i)
     {
       pushers.emplace_back(
-        [&queue, &stop]()
+        [&queue, &stop, &pushes]()
         {
           while (!stop.load(std::memory_order_relaxed))
           {
-            queue.push([]() {}, true);
+            queue.push([]() {}, false);
+            pushes.fetch_add(1, std::memory_order_relaxed);
           }
         });
     }
 
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    while (pushes.load(std::memory_order_relaxed) < pusherCount)
+    {
+      std::this_thread::yield();
+    }
     queue.disable();
     queue.clear();
 
