@@ -1,16 +1,22 @@
 # Using the Dead Reckoning library
 
-The aircraft example uses both `DeadReckoner<T>` and `SettableDeadReckoner<T>`, the first to move
-the entity at its configured speed, the second to write the result into the RPR `Spatial` attribute.
-This is the whole of it:
+The aircraft example uses both `DeadReckonerBase` and `SettableDeadReckoner<T>`, the first to
+extrapolate the entity's position from the speed it was given, the second to write the result into
+the RPR `Spatial` attribute. This is the whole of it:
 
 ```c++ title="examples/packages/aircrafts/src/dummy_aircraft_impl.cpp"
 --8<-- "examples/packages/aircrafts/src/dummy_aircraft_impl.cpp:dead_reckoning"
 ```
 
-Both are constructed with `*this`, so the reckoner reads the object's own spatial properties. Note
-that driving the entity with a `DeadReckoner` is not what the class is for, since it extrapolates a
-remote entity between updates, but it makes for a compact example.
+`SettableDeadReckoner<T>` is constructed with `*this`, so it writes into the object's own spatial
+properties, and with a `DrThreshold` saying how far the extrapolation may drift from the data before
+the `Spatial` is written. The example passes zeros there, so it writes on every cycle.
+
+`DeadReckonerBase` is not bound to an object: you give it a situation and ask for one back. That is
+why the example seeds it on the first cycle with a world location and the commanded velocity, and
+feeds it again whenever `speed` changes. Extrapolating an entity you own is not what these classes
+are for, since they exist to fill the gaps between updates from somewhere else, but it makes for a
+compact example.
 
 A second, larger example lives in the **Sen Sim Tools** repository, which is a separate project and
 not part of this distribution. It adds a Dead Reckoning Viewer package that finds FOM objects on a
