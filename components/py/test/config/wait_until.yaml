@@ -1,0 +1,6 @@
+load:
+  - name: py
+    group: 3
+    freqHz: 0
+    module: wait_until
+    imports: [py_open_query]
