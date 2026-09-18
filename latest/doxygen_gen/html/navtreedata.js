@@ -80,9 +80,9 @@ var NAVTREEINDEX =
 "group__lang.html#gga93b0800803a4979d176a9470893ab868a6734439c39d28cdc0a99c3cb6666a543",
 "group__util.html#ga48b082a64f8e2c7ea9d406b79d556d23",
 "namespacesen_1_1gen_1_1detail.html#a02ee8431492e6324f16bfb42675adbbb",
-"native__object__proxy_8h_source.html",
-"structsen_1_1_object_list_1_1_iterators.html",
-"structsen_1_1util_1_1_smart_ptr_iterator_adapter.html"
+"native__object__proxy_8h.html",
+"structsen_1_1_object_filter_1_1_object_set.html#ae3d542cc47ace04c36f5a600a84a5f6f",
+"structsen_1_1util_1_1_iterator_range.html#abcf01909487c3a630e90c42dddd6f1d1"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

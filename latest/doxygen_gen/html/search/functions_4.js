@@ -24,8 +24,9 @@ var searchData=
   ['extractqualifiedtypename_21',['extractQualifiedTypeName',['../group__obj.html#ga93f1cf412193435645a7be37065579b5',1,'sen']]],
   ['extramethodimpl_22',['extraMethodImpl',['../classsen_1_1test_1_1runtime_1_1_test_class_impl.html#af6e076909f0853b157ef08e2c4207bb6',1,'sen::test::runtime::TestClassImpl']]],
   ['extrapolate_23',['extrapolate',['../classsen_1_1util_1_1_dead_reckoner_template_base.html#a6b498dd1edbe55642603bfc179c8ea51',1,'sen::util::DeadReckonerTemplateBase']]],
-  ['extrapolatelocationbody_24',['extrapolateLocationBody',['../namespacesen_1_1util.html#a9e4cb73d7406c316a969802aebd106f3',1,'sen::util']]],
-  ['extrapolatelocationworld_25',['extrapolateLocationWorld',['../namespacesen_1_1util.html#a27122068b02a230c52e7f3b27aa5ab26',1,'sen::util']]],
-  ['extrapolateorientation_26',['extrapolateOrientation',['../namespacesen_1_1util.html#aa53588ec316713970ef72909e311fef9',1,'sen::util']]],
-  ['extrapolatevelocity_27',['extrapolateVelocity',['../namespacesen_1_1util.html#ad487ec3394f61aa3478ebb563c725209',1,'sen::util']]]
+  ['extrapolateangularvelocity_24',['extrapolateAngularVelocity',['../namespacesen_1_1util.html#ada990e52276240dc7da4c7d612ff510c',1,'sen::util']]],
+  ['extrapolatelocationbody_25',['extrapolateLocationBody',['../namespacesen_1_1util.html#a9e4cb73d7406c316a969802aebd106f3',1,'sen::util']]],
+  ['extrapolatelocationworld_26',['extrapolateLocationWorld',['../namespacesen_1_1util.html#a27122068b02a230c52e7f3b27aa5ab26',1,'sen::util']]],
+  ['extrapolateorientation_27',['extrapolateOrientation',['../namespacesen_1_1util.html#aa53588ec316713970ef72909e311fef9',1,'sen::util']]],
+  ['extrapolatevelocity_28',['extrapolateVelocity',['../namespacesen_1_1util.html#ad487ec3394f61aa3478ebb563c725209',1,'sen::util']]]
 ];

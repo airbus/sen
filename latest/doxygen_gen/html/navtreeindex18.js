@@ -1,5 +1,6 @@
 var NAVTREEINDEX18 =
 {
+"structsen_1_1util_1_1_iterator_range.html#abcf01909487c3a630e90c42dddd6f1d1":[2,0,1,7,12,0],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html":[1,0,1,7,20],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html":[2,0,1,7,20],
 "structsen_1_1util_1_1_smart_ptr_iterator_adapter.html#a16a1ff6d2f9ec97525ae5950d3d7c072":[1,0,1,7,20,6],

@@ -31,6 +31,7 @@ var util_2src_2dr_2utils_8h =
     [ "sen::util::extrapolateLocationWorld", "namespacesen_1_1util.html#a27122068b02a230c52e7f3b27aa5ab26", null ],
     [ "sen::util::extrapolateLocationBody", "namespacesen_1_1util.html#a9e4cb73d7406c316a969802aebd106f3", null ],
     [ "sen::util::extrapolateVelocity", "namespacesen_1_1util.html#ad487ec3394f61aa3478ebb563c725209", null ],
+    [ "sen::util::extrapolateAngularVelocity", "namespacesen_1_1util.html#ada990e52276240dc7da4c7d612ff510c", null ],
     [ "sen::util::extrapolateOrientation", "namespacesen_1_1util.html#aa53588ec316713970ef72909e311fef9", null ],
     [ "sen::util::getNedTrihedron", "namespacesen_1_1util.html#a0b4f8741b3f09dcca99e610bab2b2d59", null ],
     [ "sen::util::eulerAnglesFromTrihedrons", "namespacesen_1_1util.html#a205ab435df4edd8dee15239807a00989", null ],
