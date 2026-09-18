@@ -78,6 +78,9 @@ add_sen_package(
 )
 
 set_target_properties(shell PROPERTIES FOLDER "components/shell")
+
+sen_internal_configure_component(shell)
+
 sen_enable_static_analysis(shell)
 
 sen_internal_install(shell)

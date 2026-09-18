@@ -187,7 +187,7 @@ public:
         for (auto* listener: addedObjects)
         {
           listenerStates_[listener->asObject().getId()] = listener->getState();
-          guards_.emplace_back(
+          guards_[listener->asObject().getId()] =
             listener->onStateChanged({this,
                                       [this, &api, listener]()
                                       {
@@ -213,11 +213,7 @@ public:
                                         }
 
                                         // shutdown the process kernel if all listeners are finished
-                                        if (allListenersWithState(ListenerState::finished))
-                                        {
-                                          logger_->info("{} commanding kernel stop", getName());
-                                          api.requestKernelStop();
-                                        }
+                                        stopIfAllListenersFinished(api);
 
                                         if (allListenersWithState(ListenerState::ready))
                                         {
@@ -225,7 +221,7 @@ public:
                                           object_->doUpdate();
                                           logger_->info("listeners ready");
                                         }
-                                      }}));
+                                      }});
         }
 
         // publish the test object when all expected listeners have been detected
@@ -238,9 +234,32 @@ public:
           bus_->add(object_);
         }
       });
+
+    std::ignore = listenerSub_->list.onRemoved(
+      [this, &api](const auto& removedObjects)
+      {
+        for (auto* listener: removedObjects)
+        {
+          const auto& id = listener->asObject().getId();
+          guards_.erase(id);
+
+          listenerStates_[id] = ListenerState::finished;
+        }
+
+        stopIfAllListenersFinished(api);
+      });
   }
 
 private:
+  void stopIfAllListenersFinished(sen::kernel::RegistrationApi& api)
+  {
+    if (allListenersWithState(ListenerState::finished))
+    {
+      logger_->info("{} commanding kernel stop", getName());
+      api.requestKernelStop();
+    }
+  }
+
   [[nodiscard]] bool allListenersWithState(const ListenerState state)
   {
     return listenerStates_.size() == getNumOfListeners() &&
@@ -255,7 +274,7 @@ private:
   std::shared_ptr<TestObjectImpl> object_;
   std::shared_ptr<sen::Subscription<ListenerInterface>> listenerSub_;
   std::unordered_map<sen::ObjectId, ListenerState> listenerStates_;
-  std::vector<sen::ConnectionGuard> guards_;
+  std::unordered_map<sen::ObjectId, sen::ConnectionGuard> guards_;
   uint32_t detectedListeners_ = 0U;
 };
 

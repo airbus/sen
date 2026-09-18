@@ -11,7 +11,10 @@ build:
       - class: aircrafts.DummyAircraftImpl
         name: myAircraft
         bus: my.tutorial
-        speed: 250
+        speed:
+          north: 250
+          east: 0
+          down: 0
         entityType: &theType
           entityKind: 1
           domain: 2

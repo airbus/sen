@@ -182,6 +182,13 @@ Velocity extrapolateVelocity(const Velocity& value, const Acceleration& accelera
   return toVelocity(fromVelocity(value) + fromAcceleration(acceleration) * delta.toSeconds());
 }
 
+AngularVelocity extrapolateAngularVelocity(const AngularVelocity& value,
+                                           const AngularAcceleration& acceleration,
+                                           sen::Duration delta) noexcept
+{
+  return toAngularVelocity(fromAngularVelocity(value) + fromAngularAcceleration(acceleration) * delta.toSeconds());
+}
+
 Orientation extrapolateOrientation(const Orientation& value,
                                    sen::Duration delta,
                                    const AngularVelocity& angularVelocity,
