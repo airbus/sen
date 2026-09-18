@@ -78,6 +78,25 @@ TEST_F(AnEnvPattern, expandsAVariableThatExists)
 }
 
 /// @test
+/// A pattern is replaced where it sits, so it can be part of a value rather than the whole of it.
+TEST_F(AnEnvPattern, expandsAPatternThatIsPartOfALargerValue)
+{
+  EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_VAR).cucu"), "value: expanded.cucu");
+  EXPECT_EQ(replaceEnvPattern("value: before-@env(SEN_TEST_VAR)-after"), "value: before-expanded-after");
+  EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_VAR)@env(SEN_TEST_VAR)"), "value: expandedexpanded");
+}
+
+/// @test
+/// The shape users ask for: a pattern with a default, inside a quoted scalar, with text after it.
+TEST_F(AnEnvPattern, expandsInsideAQuotedScalarWithADefault)
+{
+  EXPECT_EQ(replaceEnvPattern(R"(query: "SELECT * FROM @env(SEN_TEST_VAR, fallback).myBus")"),
+            R"(query: "SELECT * FROM expanded.myBus")");
+  EXPECT_EQ(replaceEnvPattern(R"(query: "SELECT * FROM @env(SEN_TEST_UNSET, fallback).myBus")"),
+            R"(query: "SELECT * FROM fallback.myBus")");
+}
+
+/// @test
 /// Text carrying no pattern is returned unchanged.
 TEST_F(AnEnvPattern, leavesTextWithoutAPatternAlone)
 {
@@ -175,6 +194,10 @@ TEST_F(AnEnvPattern, doesNotMatchAcrossLines)
 /// An included file gets the same expansion as the top-level one. It used to reach
 /// the tree as literal text, so a pattern there never resolved and an unset variable
 /// raised nothing.
+///
+/// It also depends, without meaning to, on text after a pattern surviving: the closing quote and
+/// newline follow the match. That makes it a second witness to the behaviour above, so keep the
+/// quoting rather than simplifying it.
 TEST_F(AnEnvPattern, expandsPatternsInsideAnIncludedFile)
 {
   const auto directory = std::filesystem::temp_directory_path() / "sen_env_include_test";
