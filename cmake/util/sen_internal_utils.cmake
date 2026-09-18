@@ -87,6 +87,15 @@ function(sen_internal_configure_app target_name)
   endif()
 endfunction()
 
+# Internal function that registers a component target so coverage can find it. Unlike the lib and
+# app versions it sets no target properties: each component already sets its own
+# FOLDER "components/<name>", and setting VERSION here would start versioning the component
+# shared objects, which are unversioned today.
+function(sen_internal_configure_component target_name)
+  sen_configure_target(${target_name})
+  set_property(GLOBAL APPEND PROPERTY SEN_INTERNAL_COMPONENT_TARGETS ${target_name})
+endfunction()
+
 # Helper to add a bunch of files to a target as private sources
 function(sen_internal_add_resources)
   set(_options)
