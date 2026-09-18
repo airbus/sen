@@ -150,7 +150,7 @@ function(sen_generate_code)
            )
     )
       set(_schema_type "component")
-      set(_component_name_opt "-n ${_arg_SCHEMA_COMPONENT_NAME}")
+      set(_component_name_opt -n "${_arg_SCHEMA_COMPONENT_NAME}")
     endif()
   endif()
 

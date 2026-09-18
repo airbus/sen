@@ -1,0 +1,6 @@
+package cmake_generated_package;
+
+class ExportedClass
+{
+  var value : string [static];
+}

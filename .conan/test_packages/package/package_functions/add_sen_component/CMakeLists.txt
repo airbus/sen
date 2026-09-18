@@ -5,25 +5,36 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-find_package(spdlog REQUIRED)
-
-add_sen_package(
-  TARGET my_package
+add_sen_component(
+  TARGET cmake_component
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
+  DESCRIPTION "Component generated through add_sen_component"
   VERSION "0.0.1"
-  DESCRIPTION "Example package skeleton"
-  SOURCES src/my_class.h src/my_class.cpp
-  STL_FILES stl/my_package/my_class.stl
-            stl/my_package/basic_types.stl
-            stl/my_package/config.stl
-            stl/my_package/my_abstract_class.stl
-  CODEGEN_SETTINGS src/codegen_settings.json
+  STL_FILES stl/component_types.stl
+  GEN_HDR_FILES generated_headers
   SCHEMA_PATH ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_sources(my_package PRIVATE ${_combined_schema})
-target_link_libraries(my_package PRIVATE $<BUILD_INTERFACE:spdlog::spdlog>)
-set_target_properties(my_package PROPERTIES FOLDER "examples/basic")
+list(LENGTH generated_headers generated_header_count)
+if(NOT
+   generated_header_count
+   EQUAL
+   1
+)
+  message(FATAL_ERROR "add_sen_component() did not return its generated header")
+endif()
 
-# TODO(SEN-1185): enable tests when possible
-configure_file(config/my_package.yaml ${CMAKE_BINARY_DIR}/test_configs/my_package.yaml COPYONLY)
+get_target_property(component_schema cmake_component SCHEMA)
+list(
+  GET
+  generated_headers
+  0
+  generated_header
+)
+add_generated_file_test(cmake.add_sen_component.header "${generated_header}")
+add_generated_file_test(
+  cmake.add_sen_component.schema
+  "${component_schema}"
+  REQUIRED_TEXT
+  "\"component\": \"cmake_component\""
+)

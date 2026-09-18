@@ -1,0 +1,6 @@
+package cmake_interface;
+
+struct InterfaceValue
+{
+  value : i32
+}

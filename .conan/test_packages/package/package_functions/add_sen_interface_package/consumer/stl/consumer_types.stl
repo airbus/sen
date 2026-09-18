@@ -1,0 +1,8 @@
+import "stl/interface_types.stl"
+
+package cmake_interface_consumer;
+
+struct ConsumerValue
+{
+  value : cmake_interface.InterfaceValue
+}
