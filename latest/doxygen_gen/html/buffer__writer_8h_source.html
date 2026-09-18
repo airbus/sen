@@ -207,58 +207,60 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('buffer__writer
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="classsen_1_1_resizable_buffer_writer.html#a4bcea75f2ba65bb63843132e60ba866f">   68</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classsen_1_1_resizable_buffer_writer.html#a4bcea75f2ba65bb63843132e60ba866f">reverse</a>(<span class="keywordtype">size_t</span> size)<span class="keyword"> override</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keyword">  </span>{</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <a class="code hl_define" href="group__error__handling.html#ga3efb47f576c2155c4b4109b6c0e07c8f">SEN_ASSERT</a>(buffer_.size() &gt;= size);</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    buffer_.resize(buffer_.size() - size);</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  }</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">// Clamped rather than trusted: a replaced check handler returns, which the assertion tests</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="comment">// rely on, and the subtraction would then underflow into an enormous resize.</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    buffer_.resize(size &gt;= buffer_.size() ? 0U : buffer_.size() - size);</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  }</div>
 </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  Container&amp; buffer_;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>};</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  Container&amp; buffer_;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>};</div>
 </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment">//----------------------------------------------------------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment">// Inline implementation</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">//----------------------------------------------------------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="comment">//--------------------------------------------------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="comment">// BufferWriter</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment">// Inline implementation</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="comment">//----------------------------------------------------------------------------------------------------------------------</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="comment">//--------------------------------------------------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="foldopen" id="foldopen00086" data-start="{" data-end="}">
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno"><a class="line" href="classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25">   86</a></span><span class="keyword">inline</span> uint8_t* <a class="code hl_function" href="classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25">BufferWriter::advance</a>(<span class="keywordtype">size_t</span> size)</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>{</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keyword">auto</span>* oldCursor = cursor_;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>  cursor_ += size;  <span class="comment">// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <span class="keywordflow">return</span> oldCursor;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>}</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="comment">// BufferWriter</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="comment">//--------------------------------------------------------------------------------------------------------------</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="foldopen" id="foldopen00088" data-start="{" data-end="}">
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25">   88</a></span><span class="keyword">inline</span> uint8_t* <a class="code hl_function" href="classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25">BufferWriter::advance</a>(<span class="keywordtype">size_t</span> size)</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>{</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <span class="keyword">auto</span>* oldCursor = cursor_;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  cursor_ += size;  <span class="comment">// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>  <span class="keywordflow">return</span> oldCursor;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>}</div>
 </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="comment">//--------------------------------------------------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment">// ResizableBufferWriter</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="comment">//--------------------------------------------------------------------------------------------------------------</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Container&gt;</div>
-<div class="foldopen" id="foldopen00098" data-start="{" data-end="}">
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1">   98</a></span><span class="keyword">inline</span> uint8_t* <a class="code hl_function" href="classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1">ResizableBufferWriter&lt;Container&gt;::advance</a>(<span class="keywordtype">size_t</span> size)</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>{</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  <span class="keyword">const</span> <span class="keyword">auto</span> cursor = buffer_.size();</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>  buffer_.resize(buffer_.size() + size);</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keywordflow">return</span> buffer_.data() + cursor;  <span class="comment">// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)</span></div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="comment">// ResizableBufferWriter</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="comment">//--------------------------------------------------------------------------------------------------------------</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Container&gt;</div>
+<div class="foldopen" id="foldopen00100" data-start="{" data-end="}">
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1">  100</a></span><span class="keyword">inline</span> uint8_t* <a class="code hl_function" href="classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1">ResizableBufferWriter&lt;Container&gt;::advance</a>(<span class="keywordtype">size_t</span> size)</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>{</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keyword">const</span> <span class="keyword">auto</span> cursor = buffer_.size();</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  buffer_.resize(buffer_.size() + size);</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keywordflow">return</span> buffer_.data() + cursor;  <span class="comment">// NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)</span></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}</div>
 </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}  <span class="comment">// namespace sen</span></div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_IO_BUFFER_WRITER_H</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>}  <span class="comment">// namespace sen</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_IO_BUFFER_WRITER_H</span></div>
 <div class="ttc" id="aassert_8h_html"><div class="ttname"><a href="assert_8h.html">assert.h</a></div><div class="ttdoc">The following macros implement a replacement of assert that is connected to the overall fault handlin...</div></div>
 <div class="ttc" id="aclasssen_1_1_buffer_writer_html_a6b590175c2c54b789b878d467c62ada1"><div class="ttname"><a href="classsen_1_1_buffer_writer.html#a6b590175c2c54b789b878d467c62ada1">sen::BufferWriter::~BufferWriter</a></div><div class="ttdeci">~BufferWriter() override=default</div></div>
 <div class="ttc" id="aclasssen_1_1_buffer_writer_html_a92c55a7dcb238ea40301b4c767565321"><div class="ttname"><a href="classsen_1_1_buffer_writer.html#a92c55a7dcb238ea40301b4c767565321">sen::BufferWriter::BufferWriter</a></div><div class="ttdeci">BufferWriter(Span&lt; uint8_t &gt; buffer) noexcept</div><div class="ttdef"><b>Definition</b> buffer_writer.h:42</div></div>
 <div class="ttc" id="aclasssen_1_1_buffer_writer_html_a95517c19415249e9a642369e44989c28"><div class="ttname"><a href="classsen_1_1_buffer_writer.html#a95517c19415249e9a642369e44989c28">sen::BufferWriter::reverse</a></div><div class="ttdeci">void reverse(size_t size) override</div><div class="ttdoc">Moves the cursor &#39;size&#39; bytes.</div><div class="ttdef"><b>Definition</b> buffer_writer.h:47</div></div>
-<div class="ttc" id="aclasssen_1_1_buffer_writer_html_a9837e0e9e26559da5cd860c778098d25"><div class="ttname"><a href="classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25">sen::BufferWriter::advance</a></div><div class="ttdeci">uint8_t * advance(size_t size) override</div><div class="ttdoc">Returns a buffer of &#39;size&#39; bytes, owned by the writer.</div><div class="ttdef"><b>Definition</b> buffer_writer.h:86</div></div>
+<div class="ttc" id="aclasssen_1_1_buffer_writer_html_a9837e0e9e26559da5cd860c778098d25"><div class="ttname"><a href="classsen_1_1_buffer_writer.html#a9837e0e9e26559da5cd860c778098d25">sen::BufferWriter::advance</a></div><div class="ttdeci">uint8_t * advance(size_t size) override</div><div class="ttdoc">Returns a buffer of &#39;size&#39; bytes, owned by the writer.</div><div class="ttdef"><b>Definition</b> buffer_writer.h:88</div></div>
 <div class="ttc" id="aclasssen_1_1_resizable_buffer_writer_html_a17442ab9b083ef020aee35c9f235fb5b"><div class="ttname"><a href="classsen_1_1_resizable_buffer_writer.html#a17442ab9b083ef020aee35c9f235fb5b">sen::ResizableBufferWriter::~ResizableBufferWriter</a></div><div class="ttdeci">~ResizableBufferWriter() override=default</div></div>
 <div class="ttc" id="aclasssen_1_1_resizable_buffer_writer_html_a2945f644f76a2556c709553a31175dfa"><div class="ttname"><a href="classsen_1_1_resizable_buffer_writer.html#a2945f644f76a2556c709553a31175dfa">sen::ResizableBufferWriter::ResizableBufferWriter</a></div><div class="ttdeci">ResizableBufferWriter(Container &amp;buffer) noexcept</div><div class="ttdef"><b>Definition</b> buffer_writer.h:63</div></div>
 <div class="ttc" id="aclasssen_1_1_resizable_buffer_writer_html_a4bcea75f2ba65bb63843132e60ba866f"><div class="ttname"><a href="classsen_1_1_resizable_buffer_writer.html#a4bcea75f2ba65bb63843132e60ba866f">sen::ResizableBufferWriter::reverse</a></div><div class="ttdeci">void reverse(size_t size) override</div><div class="ttdoc">Moves the cursor &#39;size&#39; bytes.</div><div class="ttdef"><b>Definition</b> buffer_writer.h:68</div></div>
-<div class="ttc" id="aclasssen_1_1_resizable_buffer_writer_html_ae4f7dce9284944a04e1efd7f60f05ed1"><div class="ttname"><a href="classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1">sen::ResizableBufferWriter::advance</a></div><div class="ttdeci">uint8_t * advance(size_t size) override</div><div class="ttdoc">Returns a buffer of &#39;size&#39; bytes, owned by the writer.</div><div class="ttdef"><b>Definition</b> buffer_writer.h:98</div></div>
+<div class="ttc" id="aclasssen_1_1_resizable_buffer_writer_html_ae4f7dce9284944a04e1efd7f60f05ed1"><div class="ttname"><a href="classsen_1_1_resizable_buffer_writer.html#ae4f7dce9284944a04e1efd7f60f05ed1">sen::ResizableBufferWriter::advance</a></div><div class="ttdeci">uint8_t * advance(size_t size) override</div><div class="ttdoc">Returns a buffer of &#39;size&#39; bytes, owned by the writer.</div><div class="ttdef"><b>Definition</b> buffer_writer.h:100</div></div>
 <div class="ttc" id="aclasssen_1_1_span_html"><div class="ttname"><a href="classsen_1_1_span.html">sen::Span</a></div><div class="ttdoc">Contiguous view of elements of type T. Inspired by http://www.open-std.org/jtc1/sc22/wg21/docs/papers...</div><div class="ttdef"><b>Definition</b> span.h:34</div></div>
 <div class="ttc" id="aclasssen_1_1_writer_html_a4fedec8387648de6c00d1a06c0a06909"><div class="ttname"><a href="classsen_1_1_writer.html#a4fedec8387648de6c00d1a06c0a06909">sen::Writer::advance</a></div><div class="ttdeci">virtual uint8_t * advance(size_t size)=0</div><div class="ttdoc">Returns a buffer of &#39;size&#39; bytes, owned by the writer.</div></div>
 <div class="ttc" id="aclasssen_1_1_writer_html_a7e0d56be80590e0069829119777f3f5f"><div class="ttname"><a href="classsen_1_1_writer.html#a7e0d56be80590e0069829119777f3f5f">sen::Writer::reverse</a></div><div class="ttdeci">virtual void reverse(size_t size)=0</div><div class="ttdoc">Moves the cursor &#39;size&#39; bytes.</div></div>
