@@ -123,11 +123,77 @@ def test_a_suite_whose_executable_was_never_built_is_not_blamed_on_the_suite(tmp
     assert check.suites_that_vanished(tmp_path, set()) == []
 
 
+def _whole_suite():
+    """A suite large enough to clear the floor, every test with somewhere to write."""
+    return {f"test_{index}": {"ASAN_OPTIONS": "log_path=/r/report"} for index in range(1589)}
+
+
+def _modification(name, entries):
+    """One ctest test registered the way the integration suites register them."""
+    return {"name": name, "properties": [{"name": "ENVIRONMENT_MODIFICATION", "value": entries}]}
+
+
 def test_an_unreadable_option_is_reported_as_that_and_not_as_a_blind_lane():
     """Naming the operation sends a reader to the registration, not to the sanitizer."""
-    whole = {f"test_{index}": {"ASAN_OPTIONS": "log_path=/r/report"} for index in range(1589)}
-    problems = check.reporting_problems(whole, ["some_test sets ASAN_OPTIONS with string_append:"])
-    assert any("cannot read the options" in problem for problem in problems), problems
+    problems = check.reporting_problems(_whole_suite(), ["some_test sets ASAN_OPTIONS with string_append:"])
+    assert any("cannot read" in problem for problem in problems), problems
+
+
+def test_an_append_that_could_redirect_the_log_path_fails_the_lane():
+    """Appended text lands last, so a log_path it names is where findings actually go."""
+    _, unreadable, unverified, _ = check.options_of(
+        _modification("redirecting", ["ASAN_OPTIONS=string_append:handle_abort=0:log_path=/elsewhere/r"])
+    )
+    assert unreadable and not unverified, (unreadable, unverified)
+
+
+def test_an_append_that_touches_neither_is_unverified_rather_than_wrong():
+    """It cannot reach the log path or the suppressions, so the lane still stands."""
+    _, unreadable, unverified, _ = check.options_of(
+        _modification("harmless", ["ASAN_OPTIONS=string_append:handle_sigfpe=0:handle_abort=0:detect_leaks=0"])
+    )
+    assert unverified and not unreadable, (unreadable, unverified)
+
+
+def test_a_prepend_is_safe_by_construction():
+    """It lands first and loses to every key the inherited value already sets.
+
+    A log path it names applies only where none was inherited, so detection cannot worsen.
+    """
+    _, unreadable, unverified, _ = check.options_of(
+        _modification("prepending", ["TSAN_OPTIONS=string_prepend:report_signal_unsafe=0:log_path=/elsewhere/r"])
+    )
+    assert unverified and not unreadable, (unreadable, unverified)
+
+
+def test_discarding_the_inherited_value_still_fails_the_lane():
+    """Unset and reset take the log path and the suppressions with them."""
+    for operation in check.DESTRUCTIVE_OPERATIONS:
+        _, unreadable, _, _ = check.options_of(_modification("wiping", [f"ASAN_OPTIONS={operation}:"]))
+        assert unreadable, operation
+
+
+def test_an_unverified_test_is_not_then_reported_as_having_no_log_path():
+    """Its options are empty because the edit was unreadable, not because it has none.
+
+    Without this the same test fails as silent instead, for the same missing value.
+    """
+    suite = _whole_suite() | {"crash_reporter_test": {}}
+    problems = check.reporting_problems(suite, [], unverified={"crash_reporter_test"})
+    assert not any("log_path" in problem for problem in problems), problems
+    assert not problems, problems
+
+
+def test_the_unverified_set_is_capped_so_a_blind_spot_cannot_become_an_outage():
+    """The cap is what keeps the hole small enough to hold in mind."""
+    many = {f"unreadable_{index}" for index in range(check.MAX_UNVERIFIED + 1)}
+    suite = _whole_suite() | {name: {} for name in many}
+    problems = check.reporting_problems(suite, [], unverified=many)
+    assert any("above the" in problem for problem in problems), problems
+
+    # One fewer passes, so it is the size that fails the lane.
+    under = set(sorted(many)[:-1])
+    assert not check.reporting_problems(_whole_suite() | {name: {} for name in under}, [], unverified=under)
 
 
 def test_redirecting_the_log_path_keeps_the_rest_of_the_options():

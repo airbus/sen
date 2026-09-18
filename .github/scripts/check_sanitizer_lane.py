@@ -195,16 +195,13 @@ RUNTIME_SYMBOLS = {"address": "__asan_init", "undefined": "__ubsan_handle", "thr
 # others edit something inherited that cannot be reconstructed from here, so they are
 # named in the failure rather than silently misread as a value.
 COMPLETE_OPERATIONS = ("set",)
-PARTIAL_OPERATIONS = (
-    "unset",
-    "reset",
-    "string_append",
-    "string_prepend",
-    "path_list_append",
-    "path_list_prepend",
-    "cmake_list_append",
-    "cmake_list_prepend",
-)
+# The partial ones edit an inherited value this check cannot see. Which of them can do
+# harm follows from a key repeated in an option string taking its last occurrence
+# (measured 2026-09-18): an append wins over what it edits, a prepend loses to it.
+APPEND_OPERATIONS = ("string_append", "path_list_append", "cmake_list_append")
+PREPEND_OPERATIONS = ("string_prepend", "path_list_prepend", "cmake_list_prepend")
+DESTRUCTIVE_OPERATIONS = ("unset", "reset")
+PARTIAL_OPERATIONS = DESTRUCTIVE_OPERATIONS + APPEND_OPERATIONS + PREPEND_OPERATIONS
 
 OPTIONS = re.compile(r"^([A-Z]+SAN_OPTIONS)=(.*)$")
 OPERATION = re.compile(rf"^({'|'.join(COMPLETE_OPERATIONS + PARTIAL_OPERATIONS)}):(.*)$", re.S)
@@ -218,6 +215,10 @@ MINIMUM_TESTS = 1000
 
 # Named so a missing tool cannot be excused as "the lane does not claim it".
 MISSING_SHOWN = 5
+
+# Tests this check cannot read are a hole in what the lane is shown to do, so the count is
+# capped rather than left to grow.
+MAX_UNVERIFIED = 12
 
 
 def run_tool(command: list[str], **arguments) -> subprocess.CompletedProcess:
@@ -328,11 +329,29 @@ def binaries(build_dir: Path) -> list[Path] | None:
     return [build_dir / output for output in outputs if (build_dir / output).is_file()]
 
 
-def options_of(test: dict) -> tuple[dict[str, str], list[str], str | None]:
-    """The sanitizer options one test is given, what cannot be read, and its mount if any."""
+def reaches_detection(operation: str, fragment: str) -> bool:
+    """Whether a partial edit could reach the log path or the suppressions.
+
+    Nothing else decides whether a finding is seen, so an edit naming neither is safe to
+    leave unread however much else it sets.
+    """
+    if operation in DESTRUCTIVE_OPERATIONS:
+        return True
+    if operation in PREPEND_OPERATIONS:
+        return False
+    return bool(LOG_PATH.search(fragment) or SUPPRESSIONS.search(fragment))
+
+
+def options_of(test: dict) -> tuple[dict[str, str], list[str], bool, str | None]:
+    """The sanitizer options one test is given, what cannot be read, and its mount if any.
+
+    An unreadable edit that could reach detection fails the lane. One that could not
+    leaves the test unverified, which the caller counts and reports separately.
+    """
     properties = {entry["name"]: entry["value"] for entry in test.get("properties", [])}
     found: dict[str, str] = {}
     unreadable: list[str] = []
+    unverified = False
     mount: str | None = None
     for key in ("ENVIRONMENT", "ENVIRONMENT_MODIFICATION"):
         for entry in properties.get(key, []):
@@ -351,14 +370,16 @@ def options_of(test: dict) -> tuple[dict[str, str], list[str], str | None]:
                 found[name] = value
             elif operation.group(1) in COMPLETE_OPERATIONS:
                 found[name] = operation.group(2)
-            else:
+            elif reaches_detection(operation.group(1), operation.group(2)):
                 unreadable.append(f"{test['name']} sets {name} with {operation.group(1)}:")
-    return found, unreadable, mount
+            else:
+                unverified = True
+    return found, unreadable, unverified, mount
 
 
 def registered_options(
     build_dir: Path,
-) -> tuple[dict[str, dict[str, str]], list[str], set[str], dict[str, str], dict[str, dict[str, str]]]:
+) -> tuple[dict[str, dict[str, str]], list[str], set[str], set[str], dict[str, str], dict[str, dict[str, str]]]:
     """The sanitizer options ctest hands each test, read from ctest rather than assumed.
 
     Both registration paths land here: gtest_discover_tests writes ENVIRONMENT, the
@@ -370,6 +391,7 @@ def registered_options(
 
     tests: dict[str, dict[str, str]] = {}
     uninterpretable: list[str] = []
+    unverified: set[str] = set()
     running: set[str] = set()
     parked: dict[str, dict[str, str]] = {}
     mounts: dict[str, str] = {}
@@ -382,12 +404,14 @@ def registered_options(
             continue
         if test.get("command"):
             running.add(Path(test["command"][0]).name)
-        found, unreadable, mount = options_of(test)
+        found, unreadable, unreadable_but_harmless, mount = options_of(test)
         uninterpretable.extend(unreadable)
+        if unreadable_but_harmless:
+            unverified.add(test["name"])
         tests[test["name"]] = found
         if mount:
             mounts[test["name"]] = mount
-    return tests, sorted(set(uninterpretable)), running, mounts, parked
+    return tests, sorted(set(uninterpretable)), unverified, running, mounts, parked
 
 
 def writing_into_a_container(tests: dict[str, dict[str, str]], mounts: dict[str, str]) -> list[str]:
@@ -612,8 +636,14 @@ def reporting_problems(
     vanished: list[str] | None = None,
     mounts: dict[str, str] | None = None,
     parked: dict[str, dict[str, str]] | None = None,
+    unverified: set[str] | None = None,
 ) -> list[str]:
-    """Whether there is a suite, and whether every test in it has somewhere to write."""
+    """Whether there is a suite, and whether every test in it has somewhere to write.
+
+    Unverified tests are held out: their options are empty because the edit was unreadable,
+    and the per-test checks would read that as a log path nobody set.
+    """
+    unverified = unverified or set()
     problems = list(vanished or [])
 
     # A count cannot see this: switching off every integration and smoke test moves the
@@ -632,9 +662,20 @@ def reporting_problems(
         )
     if uninterpretable:
         shown = "; ".join(uninterpretable[:MISSING_SHOWN])
-        problems.append(f"this check cannot read the options {len(uninterpretable)} test(s) are given: {shown}")
+        problems.append(
+            f"{len(uninterpretable)} test(s) edit the options in a way that could redirect the log path "
+            f"or widen the suppressions, which this check cannot read: {shown}"
+        )
+    if len(unverified) > MAX_UNVERIFIED:
+        shown = ", ".join(sorted(unverified)[:MISSING_SHOWN])
+        problems.append(
+            f"{len(unverified)} test(s) carry options this check cannot read, above the {MAX_UNVERIFIED} "
+            f"allowed: the lane is certified on the rest, and this many is no longer a blind spot "
+            f"anyone is holding in mind: {shown}"
+        )
 
-    stranded = writing_into_a_container(tests, mounts or {})
+    readable = {name: options for name, options in tests.items() if name not in unverified}
+    stranded = writing_into_a_container(readable, mounts or {})
     if stranded:
         shown = ", ".join(stranded[:MISSING_SHOWN])
         more = f" and {len(stranded) - MISSING_SHOWN} more" if len(stranded) > MISSING_SHOWN else ""
@@ -646,7 +687,7 @@ def reporting_problems(
     absent = sorted(name for name in tests if name.endswith("_NOT_BUILT"))
     if absent:
         problems.append(f"{len(absent)} test executable(s) were never built: {', '.join(absent[:MISSING_SHOWN])}")
-    silent = [name for name in silent_tests(tests) if not name.endswith("_NOT_BUILT")]
+    silent = [name for name in silent_tests(readable) if not name.endswith("_NOT_BUILT")]
     if silent:
         shown = ", ".join(silent[:MISSING_SHOWN])
         more = f" and {len(silent) - MISSING_SHOWN} more" if len(silent) > MISSING_SHOWN else ""
@@ -701,11 +742,13 @@ def main() -> int:
     compiler = arguments.compiler or build_compiler(build_dir, "clang++-20")
 
     try:
-        tests, uninterpretable, running, mounts, parked = registered_options(build_dir)
+        tests, uninterpretable, unverified, running, mounts, parked = registered_options(build_dir)
         problems = [
             *flag_problems,
             *instrumentation_problems(build_dir, required_symbols(flags) or ["__asan_init"]),
-            *reporting_problems(tests, uninterpretable, suites_that_vanished(build_dir, running), mounts, parked),
+            *reporting_problems(
+                tests, uninterpretable, suites_that_vanished(build_dir, running), mounts, parked, unverified
+            ),
             *detection_problems(lane, flags, compiler, tests),
         ]
     except (RuntimeError, json.JSONDecodeError) as error:
@@ -720,10 +763,16 @@ def main() -> int:
 
     distinct = len(option_sets(tests))
     print(
-        f"lane checked: {len(tests)} tests carry a log path, {' '.join(flags)} reached every binary, "
-        f"and a deliberate finding reached the summary under {distinct} option set(s) "
+        f"lane checked: {len(tests) - len(unverified)} tests carry a log path, {' '.join(flags)} reached "
+        f"every binary, and a deliberate finding reached the summary under {distinct} option set(s) "
         f"for {', '.join(lane['tools'])}"
     )
+    if unverified:
+        # On a green run too, or the set could grow unseen.
+        print(
+            f"not verified: {len(unverified)} test(s) edit their options in a way this check cannot read, "
+            f"none of which can reach the log path or the suppressions: {', '.join(sorted(unverified))}"
+        )
     return 0
 
 
