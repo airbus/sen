@@ -1,5 +1,7 @@
 kernel:
   crashReportDisabled: true
+  logConfig:
+    level: warn
 
 load:
   - name: ether
@@ -18,15 +20,15 @@ build:
   - name: terminatorComponent1
     group: 3
     freqHz: 30
-    imports: [test_helpers, high_churn_subs]
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: terminator1
         class: sen.test.ProcessTerminatorImpl
         bus: session.bus
   - name: prodComp1
     group: 3
-    freqHz: 1000
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: producer1
         class: high_churn_subs.Producer
@@ -42,8 +44,8 @@ build:
         bus: session.bus
   - name: prodComp2
     group: 3
-    freqHz: 1000
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: producer4
         class: high_churn_subs.Producer
@@ -55,8 +57,8 @@ build:
         bus: session.bus
   - name: prodComp3
     group: 3
-    freqHz: 1000
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: producer6
         class: high_churn_subs.Producer
@@ -64,8 +66,8 @@ build:
         bus: session.bus
   - name: prodComp4
     group: 3
-    freqHz: 1000
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: producer7
         class: high_churn_subs.Producer
@@ -73,8 +75,8 @@ build:
         bus: session.bus
   - name: prodComp5
     group: 3
-    freqHz: 1000
-    imports: [test_helpers, high_churn_subs]
+    freqHz: @FREQUENCY@
+    imports: [ test_helpers, high_churn_subs ]
     objects:
       - name: producer8
         class: high_churn_subs.Producer
