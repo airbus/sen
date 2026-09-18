@@ -13,12 +13,14 @@
 #include <gtest/gtest.h>
 
 // std
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <thread>
 #include <utility>
+#include <vector>
 
 using sen::impl::Call;
 using sen::impl::WorkQueue;
@@ -27,6 +29,11 @@ namespace
 {
 
 int64_t counter;
+
+/// Bounded so a producer cannot make the test's cost a function of how long the main thread
+/// happens to wait, and force=false so the bound actually applies.
+constexpr std::size_t queueBound = 64U;
+constexpr int pusherCount = 4;
 
 Call incrementCounter = []() { counter++; };  // NOLINT(cert-err58-cpp)
 Call decrementCounter = []() { counter--; };  // NOLINT(cert-err58-cpp)
@@ -260,4 +267,81 @@ TEST(WorkQueue, waitExecuteOne)
 
   EXPECT_EQ(counter, 1);
   EXPECT_EQ(queue.getCurrentSize(), 0);
+}
+
+/// @test
+/// Left enabled, which is the widest form: nothing stops a push starting mid-clear.
+TEST(WorkQueue, clearDoesNotFreeUnderAConcurrentPush)
+{
+  // Bounded, and the clear waits for a push to be observed rather than for a duration: an
+  // unbounded producer plus a sleep makes the cost depend on the host's timer granularity, which
+  // on Windows is coarse enough to turn 200 microseconds into tens of milliseconds of allocation.
+  for (auto round = 0; round < 100; ++round)
+  {
+    WorkQueue queue(queueBound, true);
+    queue.enable();
+
+    std::atomic_bool stop {false};
+    std::atomic<int> pushes {0};
+    std::thread pusher(
+      [&queue, &stop, &pushes]()
+      {
+        while (!stop.load(std::memory_order_relaxed))
+        {
+          queue.push([]() {}, false);
+          pushes.fetch_add(1, std::memory_order_relaxed);
+        }
+      });
+
+    while (pushes.load(std::memory_order_relaxed) == 0)
+    {
+      std::this_thread::yield();
+    }
+    queue.clear();
+
+    stop.store(true);
+    pusher.join();
+  }
+}
+
+/// @test
+/// The kernel's sequence: disable() then clear() with other runners still pushing, since
+/// Runner::stopThread() joins only its own thread. Only a push past its check can race.
+TEST(WorkQueue, clearAfterDisableDoesNotFreeUnderAnInFlightPush)
+{
+  for (auto round = 0; round < 100; ++round)
+  {
+    WorkQueue queue(queueBound, true);
+    queue.enable();
+
+    std::atomic_bool stop {false};
+    std::atomic<int> pushes {0};
+    std::vector<std::thread> pushers;
+    pushers.reserve(pusherCount);
+    for (auto i = 0; i < pusherCount; ++i)
+    {
+      pushers.emplace_back(
+        [&queue, &stop, &pushes]()
+        {
+          while (!stop.load(std::memory_order_relaxed))
+          {
+            queue.push([]() {}, false);
+            pushes.fetch_add(1, std::memory_order_relaxed);
+          }
+        });
+    }
+
+    while (pushes.load(std::memory_order_relaxed) < pusherCount)
+    {
+      std::this_thread::yield();
+    }
+    queue.disable();
+    queue.clear();
+
+    stop.store(true);
+    for (auto& t: pushers)
+    {
+      t.join();
+    }
+  }
 }
