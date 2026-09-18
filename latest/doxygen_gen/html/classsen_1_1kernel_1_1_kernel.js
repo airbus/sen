@@ -4,6 +4,7 @@ var classsen_1_1kernel_1_1_kernel =
     [ "~Kernel", "classsen_1_1kernel_1_1_kernel.html#add3880cfb0a92d06bf9c63acb34c0ccf", null ],
     [ "run", "classsen_1_1kernel_1_1_kernel.html#a6ded4df83f90b6c10269dd4110419c63", null ],
     [ "requestStop", "classsen_1_1kernel_1_1_kernel.html#a7d0b75d865a19ae2f2a4c1cc1bf234ba", null ],
+    [ "getNetworkFootprint", "classsen_1_1kernel_1_1_kernel.html#acda1b6a91316c7ed5a5c1f9abcf14ac9", null ],
     [ "getConfig", "classsen_1_1kernel_1_1_kernel.html#a13f6fb563ed83d0d58d6d51958097e03", null ],
     [ "getConfigPath", "classsen_1_1kernel_1_1_kernel.html#ac7dce8780c92b520f76367ba1f1aeb67", null ],
     [ "KernelApi", "classsen_1_1kernel_1_1_kernel.html#a02e6d4bce74f843d939fd4535cda4e65", null ],

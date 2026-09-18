@@ -148,6 +148,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a6ded4df83f90b6c10269dd4110419c63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fire up the execution of the kernel. In case the is already running, -1 is returned. This method is thread-safe.  <br /></td></tr>
 <tr class="memitem:a7d0b75d865a19ae2f2a4c1cc1bf234ba" id="r_a7d0b75d865a19ae2f2a4c1cc1bf234ba"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a7d0b75d865a19ae2f2a4c1cc1bf234ba">requestStop</a> (int exitCode=0)</td></tr>
 <tr class="memdesc:a7d0b75d865a19ae2f2a4c1cc1bf234ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the execution and deallocates runtime resources. This method is thread-safe.  <br /></td></tr>
+<tr class="memitem:acda1b6a91316c7ed5a5c1f9abcf14ac9" id="r_acda1b6a91316c7ed5a5c1f9abcf14ac9"><td class="memItemLeft">NetworkFootprint&#160;</td><td class="memItemRight"><a class="el" href="#acda1b6a91316c7ed5a5c1f9abcf14ac9">getNetworkFootprint</a> (<a class="el" href="classsen_1_1_span.html">Span</a>&lt; const BusAddress &gt; suppliedBusAddresses)</td></tr>
+<tr class="memdesc:acda1b6a91316c7ed5a5c1f9abcf14ac9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds the process network footprint after preloading the configured components.  <br /></td></tr>
 <tr class="memitem:a13f6fb563ed83d0d58d6d51958097e03" id="r_a13f6fb563ed83d0d58d6d51958097e03"><td class="memItemLeft">const <a class="el" href="classsen_1_1kernel_1_1_kernel_config.html">KernelConfig</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a13f6fb563ed83d0d58d6d51958097e03">getConfig</a> () const noexcept</td></tr>
 <tr class="memdesc:a13f6fb563ed83d0d58d6d51958097e03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the configuration used to construct the kernel. This method is thread-safe.  <br /></td></tr>
 <tr class="memitem:ac7dce8780c92b520f76367ba1f1aeb67" id="r_ac7dce8780c92b520f76367ba1f1aeb67"><td class="memItemLeft">std::filesystem::path&#160;</td><td class="memItemRight"><a class="el" href="#ac7dce8780c92b520f76367ba1f1aeb67">getConfigPath</a> () const noexcept</td></tr>
@@ -265,6 +267,39 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Stops the execution and deallocates runtime resources. This method is thread-safe. </p>
+
+</div>
+</div>
+<a id="acda1b6a91316c7ed5a5c1f9abcf14ac9" name="acda1b6a91316c7ed5a5c1f9abcf14ac9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acda1b6a91316c7ed5a5c1f9abcf14ac9">&#9670;&#160;</a></span>getNetworkFootprint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">NetworkFootprint sen::kernel::Kernel::getNetworkFootprint </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const BusAddress &gt;</td>          <td class="paramname"><span class="paramname"><em>suppliedBusAddresses</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Builds the process network footprint after preloading the configured components. </p>
+<p>Returns the generated network footprint. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">suppliedBusAddresses</td><td>additional bus addresses to include in the footprint. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

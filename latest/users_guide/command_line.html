@@ -590,6 +590,19 @@
       
     </span>
 </a>
+<nav aria-label="Run" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#offline-network-footprint">
+<span class="md-ellipsis">
+      
+        Offline network footprint
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#code-generator">
@@ -2030,10 +2043,23 @@ the approach taken by <code>git</code>.</p>
 </span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>  --preset TEXT:{shell,replay,explorer,web-explorer}
 </span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>                                   Preset name
-</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>  --start-stop                     Stop execution after all components are running
-</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>  --no-browser                     With --preset web-explorer: don't auto-open the URL in a browser
-</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>  --stopped                        With --preset replay: start paused
-</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>  --print-config                   Print the configuration that will be used
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>  --no-browser                     With --preset web-explorer: don't auto-open the URL in a browser
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>  --stopped                        With --preset replay: start paused
+</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>  --start-stop Excludes: --print-network-footprint
+</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>                                   Stop execution after all components are running
+</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a>  --print-config Excludes: --print-network-footprint
+</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a>                                   Print the configuration that will be used
+</span><span id="__span-2-18"><a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a>
+</span><span id="__span-2-19"><a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a>
+</span><span id="__span-2-20"><a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a>Network footprint:
+</span><span id="__span-2-21"><a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a>  --print-network-footprint Excludes: --start-stop --print-config
+</span><span id="__span-2-22"><a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a>                                   Print the offline footprint and exit
+</span><span id="__span-2-23"><a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a>  --bus TEXT Needs: --print-network-footprint
+</span><span id="__span-2-24"><a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a>                                   Include a session.bus; repeat to include more
+</span><span id="__span-2-25"><a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a>  --bus-file TEXT:FILE Needs: --print-network-footprint
+</span><span id="__span-2-26"><a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a>                                   Read one session.bus per line; # starts a comment
+</span><span id="__span-2-27"><a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a>  --format TEXT:{text,json} [text]  Needs: --print-network-footprint
+</span><span id="__span-2-28"><a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a>                                   Set output format to readable text or json
 </span></code></pre></div>
 <p>The configuration file uses YAML. Its sections, every key the kernel understands,
 environment-variable substitution and the <code>include</code> merging rules are documented in
@@ -2055,209 +2081,243 @@ environment-variable substitution and the <code>include</code> merging rules are
 </span><span id="__span-3-14"><a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">        </span><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local.counters</span>
 </span><span id="__span-3-15"><a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="w">        </span><span class="nt">step</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
 </span></code></pre></div>
+<h3 id="offline-network-footprint">Offline network footprint<a class="headerlink" href="#offline-network-footprint" title="Permanent link">¶</a></h3>
+<p>Use <code>--print-network-footprint</code> to inspect the network addresses and ports that one process is
+expected to use without running the application.
+Sen configures and preloads the components, builds the report and exits before starting the
+application.
+The configuration must load the <a href="../components/ether.html">Ether component</a>,
+which provides the report.</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="go">sen run config.yaml --print-network-footprint</span>
+</span></code></pre></div>
+<p>The report includes the non-local buses declared in the process configuration.
+Since Sen doesn't start the application when generating the offline report, it cannot discover
+buses that the application would create at runtime.
+To include one of these buses, specify its <code>session.bus</code> address using <code>--bus &lt;session.bus&gt;</code>:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="go">sen run config.yaml --print-network-footprint --bus session.one --bus session.two</span>
+</span></code></pre></div>
+<p>As an alternative, you can declare the buses in a file and pass it with <code>--bus-file</code>.
+The file accepts one <code>session.bus</code> per line and <code>#</code> starts a comment.
+<code>--bus-file</code> can also be repeated to add more files.</p>
+<div class="language-text highlight"><span class="filename">buses.txt</span><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a># Buses
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>session.one
+</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>session.two  # Inline comment
+</span></code></pre></div>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="go">sen run config.yaml --print-network-footprint --bus-file buses.txt</span>
+</span></code></pre></div>
+<p>Sen combines the buses found in the configuration with those supplied through <code>--bus</code> or
+<code>--bus-file</code> and removes duplicates.</p>
+<p>By default, Sen displays the report in a format designed to be read in the terminal.
+You can select a JSON output with <code>--format json</code> option and save it:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="go">sen run config.yaml --print-network-footprint --format json &gt; footprint.json</span>
+</span></code></pre></div>
+<p>When JSON output is selected, Sen writes only the JSON document to standard output, which is the
+stream redirected by <code>&gt; footprint.json</code> in the example above.
+Diagnostic and error messages are written to standard error instead, so they do not make the saved
+JSON invalid.</p>
 <h2 id="code-generator">Code generator<a class="headerlink" href="#code-generator" title="Permanent link">¶</a></h2>
 <p><code>sen generate</code> is a thin command-line front-end over the
 <a href="gen_library.html"><code>sen::gen</code></a> library, which implements the underlying
 generators.</p>
-<div class="language-text highlight"><span class="filename">sen generate</span><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>sen code generator
-</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>Usage: sen generate [OPTIONS] SUBCOMMAND
-</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a>Options:
-</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a>  --expect-failure                 Expect a failure in the generation process (for testing purposes)
-</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a>
-</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a>Subcommands:
-</span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a>  cpp                              Generate C++ code
-</span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a>  uml                              Generate UML diagrams
-</span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a>  py                               Generate Python dataclasses
-</span><span id="__span-4-13"><a href="#__codelineno-4-13" id="__codelineno-4-13" name="__codelineno-4-13"></a>  mkdocs                           Generate MkDocs documentation
-</span><span id="__span-4-14"><a href="#__codelineno-4-14" id="__codelineno-4-14" name="__codelineno-4-14"></a>  html                             Generate a browsable reference for the data model
-</span><span id="__span-4-15"><a href="#__codelineno-4-15" id="__codelineno-4-15" name="__codelineno-4-15"></a>  json                             Generate JSON schemas
-</span><span id="__span-4-16"><a href="#__codelineno-4-16" id="__codelineno-4-16" name="__codelineno-4-16"></a>  ts                               Generate per-input TypeScript modules + a barrel from STL inputs
-</span><span id="__span-4-17"><a href="#__codelineno-4-17" id="__codelineno-4-17" name="__codelineno-4-17"></a>  typst                            Generate a typesettable reference for the data model
-</span><span id="__span-4-18"><a href="#__codelineno-4-18" id="__codelineno-4-18" name="__codelineno-4-18"></a>
-</span><span id="__span-4-19"><a href="#__codelineno-4-19" id="__codelineno-4-19" name="__codelineno-4-19"></a>For help on specific commands run 'sen generate &lt;command&gt; --help'
+<div class="language-text highlight"><span class="filename">sen generate</span><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sen code generator
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>Usage: sen generate [OPTIONS] SUBCOMMAND
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>Options:
+</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a>  --expect-failure                 Expect a failure in the generation process (for testing purposes)
+</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a>Subcommands:
+</span><span id="__span-9-10"><a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a>  cpp                              Generate C++ code
+</span><span id="__span-9-11"><a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a>  uml                              Generate UML diagrams
+</span><span id="__span-9-12"><a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a>  py                               Generate Python dataclasses
+</span><span id="__span-9-13"><a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a>  mkdocs                           Generate MkDocs documentation
+</span><span id="__span-9-14"><a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a>  html                             Generate a browsable reference for the data model
+</span><span id="__span-9-15"><a href="#__codelineno-9-15" id="__codelineno-9-15" name="__codelineno-9-15"></a>  json                             Generate JSON schemas
+</span><span id="__span-9-16"><a href="#__codelineno-9-16" id="__codelineno-9-16" name="__codelineno-9-16"></a>  ts                               Generate per-input TypeScript modules + a barrel from STL inputs
+</span><span id="__span-9-17"><a href="#__codelineno-9-17" id="__codelineno-9-17" name="__codelineno-9-17"></a>  typst                            Generate a typesettable reference for the data model
+</span><span id="__span-9-18"><a href="#__codelineno-9-18" id="__codelineno-9-18" name="__codelineno-9-18"></a>
+</span><span id="__span-9-19"><a href="#__codelineno-9-19" id="__codelineno-9-19" name="__codelineno-9-19"></a>For help on specific commands run 'sen generate &lt;command&gt; --help'
 </span></code></pre></div>
 <h3 id="c">C++<a class="headerlink" href="#c" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><span class="filename">sen generate cpp</span><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>Generate C++ code
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>Usage: sen generate cpp [OPTIONS] SUBCOMMAND
-</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a>Options:
-</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a>  -r,--recursive BOOLEAN           Recursively generate imported packages
-</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a>  --public-symbols                 Make generated classes public
-</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a>Subcommands:
-</span><span id="__span-5-10"><a href="#__codelineno-5-10" id="__codelineno-5-10" name="__codelineno-5-10"></a>  stl                              Process STL files
-</span><span id="__span-5-11"><a href="#__codelineno-5-11" id="__codelineno-5-11" name="__codelineno-5-11"></a>  fom                              Process HLA FOM files
-</span><span id="__span-5-12"><a href="#__codelineno-5-12" id="__codelineno-5-12" name="__codelineno-5-12"></a>  exports                          Generate the export symbols file for a sen STL package
+<div class="language-text highlight"><span class="filename">sen generate cpp</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>Generate C++ code
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>Usage: sen generate cpp [OPTIONS] SUBCOMMAND
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>Options:
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a>  -r,--recursive BOOLEAN           Recursively generate imported packages
+</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a>  --public-symbols                 Make generated classes public
+</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a>Subcommands:
+</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a>  stl                              Process STL files
+</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a>  fom                              Process HLA FOM files
+</span><span id="__span-10-12"><a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a>  exports                          Generate the export symbols file for a sen STL package
 </span></code></pre></div>
 <h4 id="c-from-stl">C++ from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#c-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate cpp stl</span><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>Process STL files
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>Usage: sen generate cpp stl [OPTIONS] stl_files...
-</span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a>Positionals:
-</span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-6-6"><a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a>Options:
-</span><span id="__span-6-8"><a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-6-9"><a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-6-10"><a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-6-11"><a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+<div class="language-text highlight"><span class="filename">sen generate cpp stl</span><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>Process STL files
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>Usage: sen generate cpp stl [OPTIONS] stl_files...
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>Positionals:
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>
+</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a>Options:
+</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-11-11"><a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h4 id="c-from-hla-foms">C++ from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#c-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate cpp fom</span><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>Process HLA FOM files
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>Usage: sen generate cpp fom [OPTIONS]
-</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a>Options:
-</span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
-</span><span id="__span-7-7"><a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
-</span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-7-9"><a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span></code></pre></div>
-<h4 id="c-exports">C++ exports<a class="headerlink" href="#c-exports" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate cpp exports</span><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>Generate the export symbols file for a sen STL package
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>Usage: sen generate cpp exports [OPTIONS]
-</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>Options:
-</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>  -p,--package TEXT                Name of the package to create the exports for
-</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a>  -f,--file TEXT ...               Name of the STL file containing types
-</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a>  -d,--depends TEXT ...            Names of the packages we depend on
-</span><span id="__span-8-9"><a href="#__codelineno-8-9" id="__codelineno-8-9" name="__codelineno-8-9"></a>  -i,--implements TEXT ...         Names of types implemented in this package
-</span></code></pre></div>
-<h3 id="uml"><abbr title="Unified Modeling Language">UML</abbr><a class="headerlink" href="#uml" title="Permanent link">¶</a></h3>
-<p>Works the same way as C++, but with slightly different options.</p>
-<div class="language-text highlight"><span class="filename">sen generate uml</span><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>Generate UML diagrams
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>Usage: sen generate uml [OPTIONS] SUBCOMMAND
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>Options:
-</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a>Subcommands:
-</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a>  stl                              Process STL files
-</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a>  fom                              Process HLA FOM files
-</span></code></pre></div>
-<h4 id="uml-from-stl"><abbr title="Unified Modeling Language">UML</abbr> from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#uml-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate uml stl</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>Process STL files
-</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>Usage: sen generate uml stl [OPTIONS] stl_files...
-</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>Positionals:
-</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a>Options:
-</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-10-12"><a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a>  -o,--output TEXT                 Output PlantUML file
-</span><span id="__span-10-13"><a href="#__codelineno-10-13" id="__codelineno-10-13" name="__codelineno-10-13"></a>  --only-classes Excludes: --only-types --no-enumerators
-</span><span id="__span-10-14"><a href="#__codelineno-10-14" id="__codelineno-10-14" name="__codelineno-10-14"></a>                                   Only generate class diagrams
-</span><span id="__span-10-15"><a href="#__codelineno-10-15" id="__codelineno-10-15" name="__codelineno-10-15"></a>  --only-types Excludes: --only-classes
-</span><span id="__span-10-16"><a href="#__codelineno-10-16" id="__codelineno-10-16" name="__codelineno-10-16"></a>                                   Only generate diagrams for basic types
-</span><span id="__span-10-17"><a href="#__codelineno-10-17" id="__codelineno-10-17" name="__codelineno-10-17"></a>  --no-enumerators Excludes: --only-classes
-</span><span id="__span-10-18"><a href="#__codelineno-10-18" id="__codelineno-10-18" name="__codelineno-10-18"></a>                                   Do not generate enumerations
-</span></code></pre></div>
-<h4 id="uml-from-hla-foms"><abbr title="Unified Modeling Language">UML</abbr> from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#uml-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate uml fom</span><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>Process HLA FOM files
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>Usage: sen generate uml fom [OPTIONS]
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>
-</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>Options:
-</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
-</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
-</span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a>  -o,--output TEXT                 Output PlantUML file
-</span><span id="__span-11-11"><a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a>  --only-classes Excludes: --only-types --no-enumerators
-</span><span id="__span-11-12"><a href="#__codelineno-11-12" id="__codelineno-11-12" name="__codelineno-11-12"></a>                                   Only generate class diagrams
-</span><span id="__span-11-13"><a href="#__codelineno-11-13" id="__codelineno-11-13" name="__codelineno-11-13"></a>  --only-types Excludes: --only-classes
-</span><span id="__span-11-14"><a href="#__codelineno-11-14" id="__codelineno-11-14" name="__codelineno-11-14"></a>                                   Only generate diagrams for basic types
-</span><span id="__span-11-15"><a href="#__codelineno-11-15" id="__codelineno-11-15" name="__codelineno-11-15"></a>  --no-enumerators Excludes: --only-classes
-</span><span id="__span-11-16"><a href="#__codelineno-11-16" id="__codelineno-11-16" name="__codelineno-11-16"></a>                                   Do not generate enumerations
-</span></code></pre></div>
-<h3 id="mkdocs-markdown">MKDocs markdown<a class="headerlink" href="#mkdocs-markdown" title="Permanent link">¶</a></h3>
-<p>Works the same way as C++, but with slightly different options.</p>
-<div class="language-text highlight"><span class="filename">sen generate mkdocs</span><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>Generate MkDocs documentation
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>Usage: sen generate mkdocs [OPTIONS] SUBCOMMAND
+<div class="language-text highlight"><span class="filename">sen generate cpp fom</span><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>Process HLA FOM files
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>Usage: sen generate cpp fom [OPTIONS]
 </span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a>
 </span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a>Options:
 </span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a>
-</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a>Subcommands:
-</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a>  stl                              Process STL files
-</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>  fom                              Process HLA FOM files
+</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
+</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
+</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a>                                   Directories containing FOM XML files
+</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
-<h4 id="mkdocs-from-stl">MKDocs from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#mkdocs-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate mkdocs stl</span><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>Process STL files
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>Usage: sen generate mkdocs stl [OPTIONS] stl_files...
+<h4 id="c-exports">C++ exports<a class="headerlink" href="#c-exports" title="Permanent link">¶</a></h4>
+<div class="language-text highlight"><span class="filename">sen generate cpp exports</span><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>Generate the export symbols file for a sen STL package
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>Usage: sen generate cpp exports [OPTIONS]
 </span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>
-</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>Positionals:
-</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a>
-</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a>Options:
-</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-13-10"><a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-13-11"><a href="#__codelineno-13-11" id="__codelineno-13-11" name="__codelineno-13-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-13-12"><a href="#__codelineno-13-12" id="__codelineno-13-12" name="__codelineno-13-12"></a>  -o,--output TEXT                 Output file
-</span><span id="__span-13-13"><a href="#__codelineno-13-13" id="__codelineno-13-13" name="__codelineno-13-13"></a>  -t,--title TEXT                  Document title
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>Options:
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a>  -p,--package TEXT                Name of the package to create the exports for
+</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a>  -f,--file TEXT ...               Name of the STL file containing types
+</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a>  -d,--depends TEXT ...            Names of the packages we depend on
+</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a>  -i,--implements TEXT ...         Names of types implemented in this package
 </span></code></pre></div>
-<h4 id="mkdocs-from-hla-foms">MKDocs from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#mkdocs-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate mkdocs fom</span><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>Process HLA FOM files
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>Usage: sen generate mkdocs fom [OPTIONS]
+<h3 id="uml"><abbr title="Unified Modeling Language">UML</abbr><a class="headerlink" href="#uml" title="Permanent link">¶</a></h3>
+<p>Works the same way as C++, but with slightly different options.</p>
+<div class="language-text highlight"><span class="filename">sen generate uml</span><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>Generate UML diagrams
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>Usage: sen generate uml [OPTIONS] SUBCOMMAND
 </span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a>
 </span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a>Options:
 </span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
-</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
-</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-14-9"><a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-14-10"><a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a>  -o,--output TEXT                 Output file
-</span><span id="__span-14-11"><a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a>  -t,--title TEXT                  Document title
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a>Subcommands:
+</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a>  stl                              Process STL files
+</span><span id="__span-14-9"><a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a>  fom                              Process HLA FOM files
+</span></code></pre></div>
+<h4 id="uml-from-stl"><abbr title="Unified Modeling Language">UML</abbr> from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#uml-from-stl" title="Permanent link">¶</a></h4>
+<div class="language-text highlight"><span class="filename">sen generate uml stl</span><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>Process STL files
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>Usage: sen generate uml stl [OPTIONS] stl_files...
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a>Positionals:
+</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a>
+</span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a>Options:
+</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>  -o,--output TEXT                 Output PlantUML file
+</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a>  --only-classes Excludes: --only-types --no-enumerators
+</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>                                   Only generate class diagrams
+</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>  --only-types Excludes: --only-classes
+</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a>                                   Only generate diagrams for basic types
+</span><span id="__span-15-17"><a href="#__codelineno-15-17" id="__codelineno-15-17" name="__codelineno-15-17"></a>  --no-enumerators Excludes: --only-classes
+</span><span id="__span-15-18"><a href="#__codelineno-15-18" id="__codelineno-15-18" name="__codelineno-15-18"></a>                                   Do not generate enumerations
+</span></code></pre></div>
+<h4 id="uml-from-hla-foms"><abbr title="Unified Modeling Language">UML</abbr> from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#uml-from-hla-foms" title="Permanent link">¶</a></h4>
+<div class="language-text highlight"><span class="filename">sen generate uml fom</span><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a>Process HLA FOM files
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>Usage: sen generate uml fom [OPTIONS]
+</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a>Options:
+</span><span id="__span-16-5"><a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
+</span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
+</span><span id="__span-16-8"><a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a>                                   Directories containing FOM XML files
+</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-16-10"><a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a>  -o,--output TEXT                 Output PlantUML file
+</span><span id="__span-16-11"><a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a>  --only-classes Excludes: --only-types --no-enumerators
+</span><span id="__span-16-12"><a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a>                                   Only generate class diagrams
+</span><span id="__span-16-13"><a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a>  --only-types Excludes: --only-classes
+</span><span id="__span-16-14"><a href="#__codelineno-16-14" id="__codelineno-16-14" name="__codelineno-16-14"></a>                                   Only generate diagrams for basic types
+</span><span id="__span-16-15"><a href="#__codelineno-16-15" id="__codelineno-16-15" name="__codelineno-16-15"></a>  --no-enumerators Excludes: --only-classes
+</span><span id="__span-16-16"><a href="#__codelineno-16-16" id="__codelineno-16-16" name="__codelineno-16-16"></a>                                   Do not generate enumerations
+</span></code></pre></div>
+<h3 id="mkdocs-markdown">MKDocs markdown<a class="headerlink" href="#mkdocs-markdown" title="Permanent link">¶</a></h3>
+<p>Works the same way as C++, but with slightly different options.</p>
+<div class="language-text highlight"><span class="filename">sen generate mkdocs</span><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>Generate MkDocs documentation
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a>Usage: sen generate mkdocs [OPTIONS] SUBCOMMAND
+</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a>Options:
+</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-17-6"><a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a>Subcommands:
+</span><span id="__span-17-8"><a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a>  stl                              Process STL files
+</span><span id="__span-17-9"><a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a>  fom                              Process HLA FOM files
+</span></code></pre></div>
+<h4 id="mkdocs-from-stl">MKDocs from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#mkdocs-from-stl" title="Permanent link">¶</a></h4>
+<div class="language-text highlight"><span class="filename">sen generate mkdocs stl</span><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a>Process STL files
+</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a>Usage: sen generate mkdocs stl [OPTIONS] stl_files...
+</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a>Positionals:
+</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a>Options:
+</span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-18-9"><a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-18-10"><a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-18-11"><a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-18-12"><a href="#__codelineno-18-12" id="__codelineno-18-12" name="__codelineno-18-12"></a>  -o,--output TEXT                 Output file
+</span><span id="__span-18-13"><a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a>  -t,--title TEXT                  Document title
+</span></code></pre></div>
+<h4 id="mkdocs-from-hla-foms">MKDocs from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#mkdocs-from-hla-foms" title="Permanent link">¶</a></h4>
+<div class="language-text highlight"><span class="filename">sen generate mkdocs fom</span><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a>Process HLA FOM files
+</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a>Usage: sen generate mkdocs fom [OPTIONS]
+</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>
+</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a>Options:
+</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
+</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
+</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a>                                   Directories containing FOM XML files
+</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-19-10"><a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a>  -o,--output TEXT                 Output file
+</span><span id="__span-19-11"><a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a>  -t,--title TEXT                  Document title
 </span></code></pre></div>
 <h3 id="html-reference">HTML reference<a class="headerlink" href="#html-reference" title="Permanent link">¶</a></h3>
 <p>Renders the data model as a small web application: a tree, a search, and a page per type. It
 needs no server and no network, so the output opens straight from a file.</p>
-<div class="language-text highlight"><span class="filename">sen generate html</span><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>Generate a browsable reference for the data model
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>Usage: sen generate html [OPTIONS] SUBCOMMAND
-</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a>
-</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a>Options:
-</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a>
-</span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a>Subcommands:
-</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>  stl                              Process STL files
-</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>  fom                              Process HLA FOM files
+<div class="language-text highlight"><span class="filename">sen generate html</span><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a>Generate a browsable reference for the data model
+</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a>Usage: sen generate html [OPTIONS] SUBCOMMAND
+</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a>Options:
+</span><span id="__span-20-5"><a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-20-6"><a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a>
+</span><span id="__span-20-7"><a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a>Subcommands:
+</span><span id="__span-20-8"><a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a>  stl                              Process STL files
+</span><span id="__span-20-9"><a href="#__codelineno-20-9" id="__codelineno-20-9" name="__codelineno-20-9"></a>  fom                              Process HLA FOM files
 </span></code></pre></div>
 <h4 id="html-from-stl">HTML from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#html-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate html stl</span><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a>Process STL files
-</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>Usage: sen generate html stl [OPTIONS] stl_files...
-</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a>Positionals:
-</span><span id="__span-16-5"><a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a>Options:
-</span><span id="__span-16-8"><a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-16-10"><a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-16-11"><a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-16-12"><a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
-</span><span id="__span-16-13"><a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a>  -t,--title TEXT                  Name of the model, shown on screen
+<div class="language-text highlight"><span class="filename">sen generate html stl</span><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a>Process STL files
+</span><span id="__span-21-2"><a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a>Usage: sen generate html stl [OPTIONS] stl_files...
+</span><span id="__span-21-3"><a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a>
+</span><span id="__span-21-4"><a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a>Positionals:
+</span><span id="__span-21-5"><a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-21-6"><a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a>
+</span><span id="__span-21-7"><a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a>Options:
+</span><span id="__span-21-8"><a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-21-9"><a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-21-10"><a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-21-11"><a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-21-12"><a href="#__codelineno-21-12" id="__codelineno-21-12" name="__codelineno-21-12"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
+</span><span id="__span-21-13"><a href="#__codelineno-21-13" id="__codelineno-21-13" name="__codelineno-21-13"></a>  -t,--title TEXT                  Name of the model, shown on screen
 </span></code></pre></div>
 <h4 id="html-from-hla-foms">HTML from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#html-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate html fom</span><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a>Process HLA FOM files
-</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a>Usage: sen generate html fom [OPTIONS]
-</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a>
-</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a>Options:
-</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-17-6"><a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
-</span><span id="__span-17-7"><a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
-</span><span id="__span-17-8"><a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-17-9"><a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-17-10"><a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
-</span><span id="__span-17-11"><a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a>  -t,--title TEXT                  Name of the model, shown on screen
+<div class="language-text highlight"><span class="filename">sen generate html fom</span><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a>Process HLA FOM files
+</span><span id="__span-22-2"><a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a>Usage: sen generate html fom [OPTIONS]
+</span><span id="__span-22-3"><a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a>Options:
+</span><span id="__span-22-5"><a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-22-6"><a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
+</span><span id="__span-22-7"><a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
+</span><span id="__span-22-8"><a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a>                                   Directories containing FOM XML files
+</span><span id="__span-22-9"><a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-22-10"><a href="#__codelineno-22-10" id="__codelineno-22-10" name="__codelineno-22-10"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
+</span><span id="__span-22-11"><a href="#__codelineno-22-11" id="__codelineno-22-11" name="__codelineno-22-11"></a>  -t,--title TEXT                  Name of the model, shown on screen
 </span></code></pre></div>
 <h3 id="typeset-reference-pdf">Typeset reference (PDF)<a class="headerlink" href="#typeset-reference-pdf" title="Permanent link">¶</a></h3>
 <p>Renders the data model as a Typst document, in the shape of an interface control document:
@@ -2265,292 +2325,292 @@ an overview, a class hierarchy, a table per type and an index. It writes Typst s
 than a PDF, so producing one is a separate step with the <a href="https://typst.app/">Typst</a> compiler.</p>
 <p>What the document contains, and what it looks like, is set by the options rather than inferred
 from the model.</p>
-<div class="language-text highlight"><span class="filename">sen generate typst</span><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a>Generate a typesettable reference for the data model
-</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a>Usage: sen generate typst [OPTIONS] SUBCOMMAND
-</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a>
-</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a>Options:
-</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a>
-</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a>Subcommands:
-</span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a>  stl                              Process STL files
-</span><span id="__span-18-9"><a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a>  fom                              Process HLA FOM files
+<div class="language-text highlight"><span class="filename">sen generate typst</span><pre><span></span><code><span id="__span-23-1"><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a>Generate a typesettable reference for the data model
+</span><span id="__span-23-2"><a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a>Usage: sen generate typst [OPTIONS] SUBCOMMAND
+</span><span id="__span-23-3"><a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a>
+</span><span id="__span-23-4"><a href="#__codelineno-23-4" id="__codelineno-23-4" name="__codelineno-23-4"></a>Options:
+</span><span id="__span-23-5"><a href="#__codelineno-23-5" id="__codelineno-23-5" name="__codelineno-23-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-23-6"><a href="#__codelineno-23-6" id="__codelineno-23-6" name="__codelineno-23-6"></a>
+</span><span id="__span-23-7"><a href="#__codelineno-23-7" id="__codelineno-23-7" name="__codelineno-23-7"></a>Subcommands:
+</span><span id="__span-23-8"><a href="#__codelineno-23-8" id="__codelineno-23-8" name="__codelineno-23-8"></a>  stl                              Process STL files
+</span><span id="__span-23-9"><a href="#__codelineno-23-9" id="__codelineno-23-9" name="__codelineno-23-9"></a>  fom                              Process HLA FOM files
 </span></code></pre></div>
 <h4 id="typst-from-stl">Typst from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#typst-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate typst stl</span><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a>Process STL files
-</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a>Usage: sen generate typst stl [OPTIONS] stl_files...
-</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>
-</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a>Positionals:
-</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a>
-</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a>Options:
-</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-19-10"><a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-19-11"><a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-19-12"><a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
-</span><span id="__span-19-13"><a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a>  -t,--title TEXT                  Name of the model, shown on the running header
-</span><span id="__span-19-14"><a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a>  --include-package TEXT ...       Only document this package; repeatable
-</span><span id="__span-19-15"><a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
-</span><span id="__span-19-16"><a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a>  --no-overview{false}             Drop the model overview
-</span><span id="__span-19-17"><a href="#__codelineno-19-17" id="__codelineno-19-17" name="__codelineno-19-17"></a>  --no-hierarchy{false}            Drop the class hierarchy
-</span><span id="__span-19-18"><a href="#__codelineno-19-18" id="__codelineno-19-18" name="__codelineno-19-18"></a>  --no-summaries{false}            Drop the per-package summary lists
-</span><span id="__span-19-19"><a href="#__codelineno-19-19" id="__codelineno-19-19" name="__codelineno-19-19"></a>  --no-index{false}                Drop the index of every type
-</span><span id="__span-19-20"><a href="#__codelineno-19-20" id="__codelineno-19-20" name="__codelineno-19-20"></a>  --no-used-by{false}              Drop the list of what refers to each type
-</span><span id="__span-19-21"><a href="#__codelineno-19-21" id="__codelineno-19-21" name="__codelineno-19-21"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
-</span><span id="__span-19-22"><a href="#__codelineno-19-22" id="__codelineno-19-22" name="__codelineno-19-22"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
-</span><span id="__span-19-23"><a href="#__codelineno-19-23" id="__codelineno-19-23" name="__codelineno-19-23"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
-</span><span id="__span-19-24"><a href="#__codelineno-19-24" id="__codelineno-19-24" name="__codelineno-19-24"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
-</span><span id="__span-19-25"><a href="#__codelineno-19-25" id="__codelineno-19-25" name="__codelineno-19-25"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
-</span><span id="__span-19-26"><a href="#__codelineno-19-26" id="__codelineno-19-26" name="__codelineno-19-26"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
+<div class="language-text highlight"><span class="filename">sen generate typst stl</span><pre><span></span><code><span id="__span-24-1"><a href="#__codelineno-24-1" id="__codelineno-24-1" name="__codelineno-24-1"></a>Process STL files
+</span><span id="__span-24-2"><a href="#__codelineno-24-2" id="__codelineno-24-2" name="__codelineno-24-2"></a>Usage: sen generate typst stl [OPTIONS] stl_files...
+</span><span id="__span-24-3"><a href="#__codelineno-24-3" id="__codelineno-24-3" name="__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a href="#__codelineno-24-4" id="__codelineno-24-4" name="__codelineno-24-4"></a>Positionals:
+</span><span id="__span-24-5"><a href="#__codelineno-24-5" id="__codelineno-24-5" name="__codelineno-24-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-24-6"><a href="#__codelineno-24-6" id="__codelineno-24-6" name="__codelineno-24-6"></a>
+</span><span id="__span-24-7"><a href="#__codelineno-24-7" id="__codelineno-24-7" name="__codelineno-24-7"></a>Options:
+</span><span id="__span-24-8"><a href="#__codelineno-24-8" id="__codelineno-24-8" name="__codelineno-24-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-24-9"><a href="#__codelineno-24-9" id="__codelineno-24-9" name="__codelineno-24-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-24-11"><a href="#__codelineno-24-11" id="__codelineno-24-11" name="__codelineno-24-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-24-12"><a href="#__codelineno-24-12" id="__codelineno-24-12" name="__codelineno-24-12"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
+</span><span id="__span-24-13"><a href="#__codelineno-24-13" id="__codelineno-24-13" name="__codelineno-24-13"></a>  -t,--title TEXT                  Name of the model, shown on the running header
+</span><span id="__span-24-14"><a href="#__codelineno-24-14" id="__codelineno-24-14" name="__codelineno-24-14"></a>  --include-package TEXT ...       Only document this package; repeatable
+</span><span id="__span-24-15"><a href="#__codelineno-24-15" id="__codelineno-24-15" name="__codelineno-24-15"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
+</span><span id="__span-24-16"><a href="#__codelineno-24-16" id="__codelineno-24-16" name="__codelineno-24-16"></a>  --no-overview{false}             Drop the model overview
+</span><span id="__span-24-17"><a href="#__codelineno-24-17" id="__codelineno-24-17" name="__codelineno-24-17"></a>  --no-hierarchy{false}            Drop the class hierarchy
+</span><span id="__span-24-18"><a href="#__codelineno-24-18" id="__codelineno-24-18" name="__codelineno-24-18"></a>  --no-summaries{false}            Drop the per-package summary lists
+</span><span id="__span-24-19"><a href="#__codelineno-24-19" id="__codelineno-24-19" name="__codelineno-24-19"></a>  --no-index{false}                Drop the index of every type
+</span><span id="__span-24-20"><a href="#__codelineno-24-20" id="__codelineno-24-20" name="__codelineno-24-20"></a>  --no-used-by{false}              Drop the list of what refers to each type
+</span><span id="__span-24-21"><a href="#__codelineno-24-21" id="__codelineno-24-21" name="__codelineno-24-21"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
+</span><span id="__span-24-22"><a href="#__codelineno-24-22" id="__codelineno-24-22" name="__codelineno-24-22"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
+</span><span id="__span-24-23"><a href="#__codelineno-24-23" id="__codelineno-24-23" name="__codelineno-24-23"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
+</span><span id="__span-24-24"><a href="#__codelineno-24-24" id="__codelineno-24-24" name="__codelineno-24-24"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
+</span><span id="__span-24-25"><a href="#__codelineno-24-25" id="__codelineno-24-25" name="__codelineno-24-25"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
+</span><span id="__span-24-26"><a href="#__codelineno-24-26" id="__codelineno-24-26" name="__codelineno-24-26"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
 </span></code></pre></div>
 <h4 id="typst-from-hla-foms">Typst from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#typst-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate typst fom</span><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a>Process HLA FOM files
-</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a>Usage: sen generate typst fom [OPTIONS]
-</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a>
-</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a>Options:
-</span><span id="__span-20-5"><a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-20-6"><a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
-</span><span id="__span-20-7"><a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
-</span><span id="__span-20-8"><a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-20-9"><a href="#__codelineno-20-9" id="__codelineno-20-9" name="__codelineno-20-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-20-10"><a href="#__codelineno-20-10" id="__codelineno-20-10" name="__codelineno-20-10"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
-</span><span id="__span-20-11"><a href="#__codelineno-20-11" id="__codelineno-20-11" name="__codelineno-20-11"></a>  -t,--title TEXT                  Name of the model, shown on the running header
-</span><span id="__span-20-12"><a href="#__codelineno-20-12" id="__codelineno-20-12" name="__codelineno-20-12"></a>  --include-package TEXT ...       Only document this package; repeatable
-</span><span id="__span-20-13"><a href="#__codelineno-20-13" id="__codelineno-20-13" name="__codelineno-20-13"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
-</span><span id="__span-20-14"><a href="#__codelineno-20-14" id="__codelineno-20-14" name="__codelineno-20-14"></a>  --no-overview{false}             Drop the model overview
-</span><span id="__span-20-15"><a href="#__codelineno-20-15" id="__codelineno-20-15" name="__codelineno-20-15"></a>  --no-hierarchy{false}            Drop the class hierarchy
-</span><span id="__span-20-16"><a href="#__codelineno-20-16" id="__codelineno-20-16" name="__codelineno-20-16"></a>  --no-summaries{false}            Drop the per-package summary lists
-</span><span id="__span-20-17"><a href="#__codelineno-20-17" id="__codelineno-20-17" name="__codelineno-20-17"></a>  --no-index{false}                Drop the index of every type
-</span><span id="__span-20-18"><a href="#__codelineno-20-18" id="__codelineno-20-18" name="__codelineno-20-18"></a>  --no-used-by{false}              Drop the list of what refers to each type
-</span><span id="__span-20-19"><a href="#__codelineno-20-19" id="__codelineno-20-19" name="__codelineno-20-19"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
-</span><span id="__span-20-20"><a href="#__codelineno-20-20" id="__codelineno-20-20" name="__codelineno-20-20"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
-</span><span id="__span-20-21"><a href="#__codelineno-20-21" id="__codelineno-20-21" name="__codelineno-20-21"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
-</span><span id="__span-20-22"><a href="#__codelineno-20-22" id="__codelineno-20-22" name="__codelineno-20-22"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
-</span><span id="__span-20-23"><a href="#__codelineno-20-23" id="__codelineno-20-23" name="__codelineno-20-23"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
-</span><span id="__span-20-24"><a href="#__codelineno-20-24" id="__codelineno-20-24" name="__codelineno-20-24"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
+<div class="language-text highlight"><span class="filename">sen generate typst fom</span><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a>Process HLA FOM files
+</span><span id="__span-25-2"><a href="#__codelineno-25-2" id="__codelineno-25-2" name="__codelineno-25-2"></a>Usage: sen generate typst fom [OPTIONS]
+</span><span id="__span-25-3"><a href="#__codelineno-25-3" id="__codelineno-25-3" name="__codelineno-25-3"></a>
+</span><span id="__span-25-4"><a href="#__codelineno-25-4" id="__codelineno-25-4" name="__codelineno-25-4"></a>Options:
+</span><span id="__span-25-5"><a href="#__codelineno-25-5" id="__codelineno-25-5" name="__codelineno-25-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
+</span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
+</span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a>                                   Directories containing FOM XML files
+</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-25-10"><a href="#__codelineno-25-10" id="__codelineno-25-10" name="__codelineno-25-10"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
+</span><span id="__span-25-11"><a href="#__codelineno-25-11" id="__codelineno-25-11" name="__codelineno-25-11"></a>  -t,--title TEXT                  Name of the model, shown on the running header
+</span><span id="__span-25-12"><a href="#__codelineno-25-12" id="__codelineno-25-12" name="__codelineno-25-12"></a>  --include-package TEXT ...       Only document this package; repeatable
+</span><span id="__span-25-13"><a href="#__codelineno-25-13" id="__codelineno-25-13" name="__codelineno-25-13"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
+</span><span id="__span-25-14"><a href="#__codelineno-25-14" id="__codelineno-25-14" name="__codelineno-25-14"></a>  --no-overview{false}             Drop the model overview
+</span><span id="__span-25-15"><a href="#__codelineno-25-15" id="__codelineno-25-15" name="__codelineno-25-15"></a>  --no-hierarchy{false}            Drop the class hierarchy
+</span><span id="__span-25-16"><a href="#__codelineno-25-16" id="__codelineno-25-16" name="__codelineno-25-16"></a>  --no-summaries{false}            Drop the per-package summary lists
+</span><span id="__span-25-17"><a href="#__codelineno-25-17" id="__codelineno-25-17" name="__codelineno-25-17"></a>  --no-index{false}                Drop the index of every type
+</span><span id="__span-25-18"><a href="#__codelineno-25-18" id="__codelineno-25-18" name="__codelineno-25-18"></a>  --no-used-by{false}              Drop the list of what refers to each type
+</span><span id="__span-25-19"><a href="#__codelineno-25-19" id="__codelineno-25-19" name="__codelineno-25-19"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
+</span><span id="__span-25-20"><a href="#__codelineno-25-20" id="__codelineno-25-20" name="__codelineno-25-20"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
+</span><span id="__span-25-21"><a href="#__codelineno-25-21" id="__codelineno-25-21" name="__codelineno-25-21"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
+</span><span id="__span-25-22"><a href="#__codelineno-25-22" id="__codelineno-25-22" name="__codelineno-25-22"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
+</span><span id="__span-25-23"><a href="#__codelineno-25-23" id="__codelineno-25-23" name="__codelineno-25-23"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
+</span><span id="__span-25-24"><a href="#__codelineno-25-24" id="__codelineno-25-24" name="__codelineno-25-24"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
 </span></code></pre></div>
 <h3 id="json-schemas">JSON schemas<a class="headerlink" href="#json-schemas" title="Permanent link">¶</a></h3>
 <p>Generates json schemas from a Sen data model.</p>
 <h4 id="json-schemas-for-sen-components-from-stl">JSON schemas for Sen components from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#json-schemas-for-sen-components-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a>Process<span class="w"> </span>STL<span class="w"> </span>files
-</span><span id="__span-21-2"><a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>component<span class="w"> </span>stl<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>stl_files...
-</span><span id="__span-21-3"><a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a>
-</span><span id="__span-21-4"><a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a>Positionals:
-</span><span id="__span-21-5"><a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="w">  </span>stl_files<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w"> </span>REQUIRED<span class="w"> </span>STL<span class="w"> </span>files
-</span><span id="__span-21-6"><a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a>
-</span><span id="__span-21-7"><a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a>Options:
-</span><span id="__span-21-8"><a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
-</span><span id="__span-21-9"><a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="w">  </span>-i,--import<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">             </span>Paths<span class="w"> </span>where<span class="w"> </span>other<span class="w"> </span>STL<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>found
-</span><span id="__span-21-10"><a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
-</span><span id="__span-21-11"><a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-21-12"><a href="#__codelineno-21-12" id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-21-13"><a href="#__codelineno-21-13" id="__codelineno-21-13" name="__codelineno-21-13"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-26-1"><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a>Process<span class="w"> </span>STL<span class="w"> </span>files
+</span><span id="__span-26-2"><a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>component<span class="w"> </span>stl<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>stl_files...
+</span><span id="__span-26-3"><a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a>
+</span><span id="__span-26-4"><a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a>Positionals:
+</span><span id="__span-26-5"><a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="w">  </span>stl_files<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w"> </span>REQUIRED<span class="w"> </span>STL<span class="w"> </span>files
+</span><span id="__span-26-6"><a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a>
+</span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a>Options:
+</span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-26-9"><a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">  </span>-i,--import<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">             </span>Paths<span class="w"> </span>where<span class="w"> </span>other<span class="w"> </span>STL<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>found
+</span><span id="__span-26-10"><a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
+</span><span id="__span-26-11"><a href="#__codelineno-26-11" id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-26-12"><a href="#__codelineno-26-12" id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-26-13"><a href="#__codelineno-26-13" id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
 </span></code></pre></div>
 <h4 id="json-schemas-for-sen-components-from-hla-foms">JSON schemas for Sen components from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#json-schemas-for-sen-components-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a>Process<span class="w"> </span>HLA<span class="w"> </span>FOM<span class="w"> </span>files
-</span><span id="__span-22-2"><a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>component<span class="w"> </span>fom<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</span><span id="__span-22-3"><a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a>
-</span><span id="__span-22-4"><a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a>Options:
-</span><span id="__span-22-5"><a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
-</span><span id="__span-22-6"><a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="w">  </span>-m,--mappings<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w">      </span>XML<span class="w"> </span>defining<span class="w"> </span>custom<span class="w"> </span>mappings<span class="w"> </span>between<span class="w"> </span>sen<span class="w"> </span>and<span class="w"> </span>HLA
-</span><span id="__span-22-7"><a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="w">  </span>-d,--directories<span class="w"> </span>TEXT:DIR<span class="w"> </span>...<span class="w"> </span>REQUIRED
-</span><span id="__span-22-8"><a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="w">                                   </span>Directories<span class="w"> </span>containing<span class="w"> </span>FOM<span class="w"> </span>XML<span class="w"> </span>files
-</span><span id="__span-22-9"><a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-22-10"><a href="#__codelineno-22-10" id="__codelineno-22-10" name="__codelineno-22-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-22-11"><a href="#__codelineno-22-11" id="__codelineno-22-11" name="__codelineno-22-11"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a>Process<span class="w"> </span>HLA<span class="w"> </span>FOM<span class="w"> </span>files
+</span><span id="__span-27-2"><a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>component<span class="w"> </span>fom<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-27-3"><a href="#__codelineno-27-3" id="__codelineno-27-3" name="__codelineno-27-3"></a>
+</span><span id="__span-27-4"><a href="#__codelineno-27-4" id="__codelineno-27-4" name="__codelineno-27-4"></a>Options:
+</span><span id="__span-27-5"><a href="#__codelineno-27-5" id="__codelineno-27-5" name="__codelineno-27-5"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-27-6"><a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="w">  </span>-m,--mappings<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w">      </span>XML<span class="w"> </span>defining<span class="w"> </span>custom<span class="w"> </span>mappings<span class="w"> </span>between<span class="w"> </span>sen<span class="w"> </span>and<span class="w"> </span>HLA
+</span><span id="__span-27-7"><a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a><span class="w">  </span>-d,--directories<span class="w"> </span>TEXT:DIR<span class="w"> </span>...<span class="w"> </span>REQUIRED
+</span><span id="__span-27-8"><a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a><span class="w">                                   </span>Directories<span class="w"> </span>containing<span class="w"> </span>FOM<span class="w"> </span>XML<span class="w"> </span>files
+</span><span id="__span-27-9"><a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-27-10"><a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-27-11"><a href="#__codelineno-27-11" id="__codelineno-27-11" name="__codelineno-27-11"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
 </span></code></pre></div>
 <h4 id="json-schemas-for-sen-packages-from-stl">JSON schemas for Sen packages from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#json-schemas-for-sen-packages-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-23-1"><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a>Process<span class="w"> </span>STL<span class="w"> </span>files
-</span><span id="__span-23-2"><a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>package<span class="w"> </span>stl<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>stl_files...
-</span><span id="__span-23-3"><a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a>
-</span><span id="__span-23-4"><a href="#__codelineno-23-4" id="__codelineno-23-4" name="__codelineno-23-4"></a>Positionals:
-</span><span id="__span-23-5"><a href="#__codelineno-23-5" id="__codelineno-23-5" name="__codelineno-23-5"></a><span class="w">  </span>stl_files<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w"> </span>REQUIRED<span class="w"> </span>STL<span class="w"> </span>files
-</span><span id="__span-23-6"><a href="#__codelineno-23-6" id="__codelineno-23-6" name="__codelineno-23-6"></a>
-</span><span id="__span-23-7"><a href="#__codelineno-23-7" id="__codelineno-23-7" name="__codelineno-23-7"></a>Options:
-</span><span id="__span-23-8"><a href="#__codelineno-23-8" id="__codelineno-23-8" name="__codelineno-23-8"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
-</span><span id="__span-23-9"><a href="#__codelineno-23-9" id="__codelineno-23-9" name="__codelineno-23-9"></a><span class="w">  </span>-i,--import<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">             </span>Paths<span class="w"> </span>where<span class="w"> </span>other<span class="w"> </span>STL<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>found
-</span><span id="__span-23-10"><a href="#__codelineno-23-10" id="__codelineno-23-10" name="__codelineno-23-10"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
-</span><span id="__span-23-11"><a href="#__codelineno-23-11" id="__codelineno-23-11" name="__codelineno-23-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-23-12"><a href="#__codelineno-23-12" id="__codelineno-23-12" name="__codelineno-23-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-23-13"><a href="#__codelineno-23-13" id="__codelineno-23-13" name="__codelineno-23-13"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a>Process<span class="w"> </span>STL<span class="w"> </span>files
+</span><span id="__span-28-2"><a href="#__codelineno-28-2" id="__codelineno-28-2" name="__codelineno-28-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>package<span class="w"> </span>stl<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>stl_files...
+</span><span id="__span-28-3"><a href="#__codelineno-28-3" id="__codelineno-28-3" name="__codelineno-28-3"></a>
+</span><span id="__span-28-4"><a href="#__codelineno-28-4" id="__codelineno-28-4" name="__codelineno-28-4"></a>Positionals:
+</span><span id="__span-28-5"><a href="#__codelineno-28-5" id="__codelineno-28-5" name="__codelineno-28-5"></a><span class="w">  </span>stl_files<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w"> </span>REQUIRED<span class="w"> </span>STL<span class="w"> </span>files
+</span><span id="__span-28-6"><a href="#__codelineno-28-6" id="__codelineno-28-6" name="__codelineno-28-6"></a>
+</span><span id="__span-28-7"><a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a>Options:
+</span><span id="__span-28-8"><a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-28-9"><a href="#__codelineno-28-9" id="__codelineno-28-9" name="__codelineno-28-9"></a><span class="w">  </span>-i,--import<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">             </span>Paths<span class="w"> </span>where<span class="w"> </span>other<span class="w"> </span>STL<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>found
+</span><span id="__span-28-10"><a href="#__codelineno-28-10" id="__codelineno-28-10" name="__codelineno-28-10"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
+</span><span id="__span-28-11"><a href="#__codelineno-28-11" id="__codelineno-28-11" name="__codelineno-28-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-28-12"><a href="#__codelineno-28-12" id="__codelineno-28-12" name="__codelineno-28-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-28-13"><a href="#__codelineno-28-13" id="__codelineno-28-13" name="__codelineno-28-13"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
 </span></code></pre></div>
 <h4 id="json-schemas-for-sen-packages-from-hla-foms">JSON schemas for Sen packages from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#json-schemas-for-sen-packages-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-24-1"><a href="#__codelineno-24-1" id="__codelineno-24-1" name="__codelineno-24-1"></a>Process<span class="w"> </span>HLA<span class="w"> </span>FOM<span class="w"> </span>files
-</span><span id="__span-24-2"><a href="#__codelineno-24-2" id="__codelineno-24-2" name="__codelineno-24-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>package<span class="w"> </span>fom<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</span><span id="__span-24-3"><a href="#__codelineno-24-3" id="__codelineno-24-3" name="__codelineno-24-3"></a>
-</span><span id="__span-24-4"><a href="#__codelineno-24-4" id="__codelineno-24-4" name="__codelineno-24-4"></a>Options:
-</span><span id="__span-24-5"><a href="#__codelineno-24-5" id="__codelineno-24-5" name="__codelineno-24-5"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
-</span><span id="__span-24-6"><a href="#__codelineno-24-6" id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="w">  </span>-m,--mappings<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w">      </span>XML<span class="w"> </span>defining<span class="w"> </span>custom<span class="w"> </span>mappings<span class="w"> </span>between<span class="w"> </span>sen<span class="w"> </span>and<span class="w"> </span>HLA
-</span><span id="__span-24-7"><a href="#__codelineno-24-7" id="__codelineno-24-7" name="__codelineno-24-7"></a><span class="w">  </span>-d,--directories<span class="w"> </span>TEXT:DIR<span class="w"> </span>...<span class="w"> </span>REQUIRED
-</span><span id="__span-24-8"><a href="#__codelineno-24-8" id="__codelineno-24-8" name="__codelineno-24-8"></a><span class="w">                                   </span>Directories<span class="w"> </span>containing<span class="w"> </span>FOM<span class="w"> </span>XML<span class="w"> </span>files
-</span><span id="__span-24-9"><a href="#__codelineno-24-9" id="__codelineno-24-9" name="__codelineno-24-9"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-24-11"><a href="#__codelineno-24-11" id="__codelineno-24-11" name="__codelineno-24-11"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-29-1"><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a>Process<span class="w"> </span>HLA<span class="w"> </span>FOM<span class="w"> </span>files
+</span><span id="__span-29-2"><a href="#__codelineno-29-2" id="__codelineno-29-2" name="__codelineno-29-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>package<span class="w"> </span>fom<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-29-3"><a href="#__codelineno-29-3" id="__codelineno-29-3" name="__codelineno-29-3"></a>
+</span><span id="__span-29-4"><a href="#__codelineno-29-4" id="__codelineno-29-4" name="__codelineno-29-4"></a>Options:
+</span><span id="__span-29-5"><a href="#__codelineno-29-5" id="__codelineno-29-5" name="__codelineno-29-5"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-29-6"><a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a><span class="w">  </span>-m,--mappings<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w">      </span>XML<span class="w"> </span>defining<span class="w"> </span>custom<span class="w"> </span>mappings<span class="w"> </span>between<span class="w"> </span>sen<span class="w"> </span>and<span class="w"> </span>HLA
+</span><span id="__span-29-7"><a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">  </span>-d,--directories<span class="w"> </span>TEXT:DIR<span class="w"> </span>...<span class="w"> </span>REQUIRED
+</span><span id="__span-29-8"><a href="#__codelineno-29-8" id="__codelineno-29-8" name="__codelineno-29-8"></a><span class="w">                                   </span>Directories<span class="w"> </span>containing<span class="w"> </span>FOM<span class="w"> </span>XML<span class="w"> </span>files
+</span><span id="__span-29-9"><a href="#__codelineno-29-9" id="__codelineno-29-9" name="__codelineno-29-9"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-29-10"><a href="#__codelineno-29-10" id="__codelineno-29-10" name="__codelineno-29-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-29-11"><a href="#__codelineno-29-11" id="__codelineno-29-11" name="__codelineno-29-11"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
 </span></code></pre></div>
 <h4 id="combine-multiple-json-schemas-to-create-a-kernel-configuration-schema">Combine multiple JSON schemas to create a kernel configuration schema<a class="headerlink" href="#combine-multiple-json-schemas-to-create-a-kernel-configuration-schema" title="Permanent link">¶</a></h4>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a>Generate<span class="w"> </span>JSON<span class="w"> </span>schemas<span class="w"> </span><span class="k">for</span><span class="w"> </span>sen<span class="w"> </span>configurations
-</span><span id="__span-25-2"><a href="#__codelineno-25-2" id="__codelineno-25-2" name="__codelineno-25-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>schema<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>schema_files...
-</span><span id="__span-25-3"><a href="#__codelineno-25-3" id="__codelineno-25-3" name="__codelineno-25-3"></a>
-</span><span id="__span-25-4"><a href="#__codelineno-25-4" id="__codelineno-25-4" name="__codelineno-25-4"></a>Positionals:
-</span><span id="__span-25-5"><a href="#__codelineno-25-5" id="__codelineno-25-5" name="__codelineno-25-5"></a><span class="w">  </span>schema_files<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w"> </span>REQUIRED
-</span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a><span class="w">                                   </span>JSON<span class="w"> </span>schema<span class="w"> </span>files
-</span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a>
-</span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a>Options:
-</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
-</span><span id="__span-25-10"><a href="#__codelineno-25-10" id="__codelineno-25-10" name="__codelineno-25-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-30-1"><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a>Generate<span class="w"> </span>JSON<span class="w"> </span>schemas<span class="w"> </span><span class="k">for</span><span class="w"> </span>sen<span class="w"> </span>configurations
+</span><span id="__span-30-2"><a href="#__codelineno-30-2" id="__codelineno-30-2" name="__codelineno-30-2"></a>Usage:<span class="w"> </span>sen<span class="w"> </span>generate<span class="w"> </span>json<span class="w"> </span>schema<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>schema_files...
+</span><span id="__span-30-3"><a href="#__codelineno-30-3" id="__codelineno-30-3" name="__codelineno-30-3"></a>
+</span><span id="__span-30-4"><a href="#__codelineno-30-4" id="__codelineno-30-4" name="__codelineno-30-4"></a>Positionals:
+</span><span id="__span-30-5"><a href="#__codelineno-30-5" id="__codelineno-30-5" name="__codelineno-30-5"></a><span class="w">  </span>schema_files<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w"> </span>REQUIRED
+</span><span id="__span-30-6"><a href="#__codelineno-30-6" id="__codelineno-30-6" name="__codelineno-30-6"></a><span class="w">                                   </span>JSON<span class="w"> </span>schema<span class="w"> </span>files
+</span><span id="__span-30-7"><a href="#__codelineno-30-7" id="__codelineno-30-7" name="__codelineno-30-7"></a>
+</span><span id="__span-30-8"><a href="#__codelineno-30-8" id="__codelineno-30-8" name="__codelineno-30-8"></a>Options:
+</span><span id="__span-30-9"><a href="#__codelineno-30-9" id="__codelineno-30-9" name="__codelineno-30-9"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-30-10"><a href="#__codelineno-30-10" id="__codelineno-30-10" name="__codelineno-30-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
 </span></code></pre></div>
 <h3 id="python">Python<a class="headerlink" href="#python" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><span class="filename">sen generate py</span><pre><span></span><code><span id="__span-26-1"><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a>Generate Python dataclasses
-</span><span id="__span-26-2"><a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a>Usage: sen generate py [OPTIONS] SUBCOMMAND
-</span><span id="__span-26-3"><a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a>
-</span><span id="__span-26-4"><a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a>Options:
-</span><span id="__span-26-5"><a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-26-6"><a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a>
-</span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a>Subcommands:
-</span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a>  stl                              Process STL files
-</span><span id="__span-26-9"><a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a>  fom                              Process HLA FOM files
+<div class="language-text highlight"><span class="filename">sen generate py</span><pre><span></span><code><span id="__span-31-1"><a href="#__codelineno-31-1" id="__codelineno-31-1" name="__codelineno-31-1"></a>Generate Python dataclasses
+</span><span id="__span-31-2"><a href="#__codelineno-31-2" id="__codelineno-31-2" name="__codelineno-31-2"></a>Usage: sen generate py [OPTIONS] SUBCOMMAND
+</span><span id="__span-31-3"><a href="#__codelineno-31-3" id="__codelineno-31-3" name="__codelineno-31-3"></a>
+</span><span id="__span-31-4"><a href="#__codelineno-31-4" id="__codelineno-31-4" name="__codelineno-31-4"></a>Options:
+</span><span id="__span-31-5"><a href="#__codelineno-31-5" id="__codelineno-31-5" name="__codelineno-31-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-31-6"><a href="#__codelineno-31-6" id="__codelineno-31-6" name="__codelineno-31-6"></a>
+</span><span id="__span-31-7"><a href="#__codelineno-31-7" id="__codelineno-31-7" name="__codelineno-31-7"></a>Subcommands:
+</span><span id="__span-31-8"><a href="#__codelineno-31-8" id="__codelineno-31-8" name="__codelineno-31-8"></a>  stl                              Process STL files
+</span><span id="__span-31-9"><a href="#__codelineno-31-9" id="__codelineno-31-9" name="__codelineno-31-9"></a>  fom                              Process HLA FOM files
 </span></code></pre></div>
 <h4 id="python-from-stl">Python from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#python-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate py stl</span><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a>Process STL files
-</span><span id="__span-27-2"><a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a>Usage: sen generate py stl [OPTIONS] stl_files...
-</span><span id="__span-27-3"><a href="#__codelineno-27-3" id="__codelineno-27-3" name="__codelineno-27-3"></a>
-</span><span id="__span-27-4"><a href="#__codelineno-27-4" id="__codelineno-27-4" name="__codelineno-27-4"></a>Positionals:
-</span><span id="__span-27-5"><a href="#__codelineno-27-5" id="__codelineno-27-5" name="__codelineno-27-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-27-6"><a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a>
-</span><span id="__span-27-7"><a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a>Options:
-</span><span id="__span-27-8"><a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-27-9"><a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-27-10"><a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-27-11"><a href="#__codelineno-27-11" id="__codelineno-27-11" name="__codelineno-27-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+<div class="language-text highlight"><span class="filename">sen generate py stl</span><pre><span></span><code><span id="__span-32-1"><a href="#__codelineno-32-1" id="__codelineno-32-1" name="__codelineno-32-1"></a>Process STL files
+</span><span id="__span-32-2"><a href="#__codelineno-32-2" id="__codelineno-32-2" name="__codelineno-32-2"></a>Usage: sen generate py stl [OPTIONS] stl_files...
+</span><span id="__span-32-3"><a href="#__codelineno-32-3" id="__codelineno-32-3" name="__codelineno-32-3"></a>
+</span><span id="__span-32-4"><a href="#__codelineno-32-4" id="__codelineno-32-4" name="__codelineno-32-4"></a>Positionals:
+</span><span id="__span-32-5"><a href="#__codelineno-32-5" id="__codelineno-32-5" name="__codelineno-32-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-32-6"><a href="#__codelineno-32-6" id="__codelineno-32-6" name="__codelineno-32-6"></a>
+</span><span id="__span-32-7"><a href="#__codelineno-32-7" id="__codelineno-32-7" name="__codelineno-32-7"></a>Options:
+</span><span id="__span-32-8"><a href="#__codelineno-32-8" id="__codelineno-32-8" name="__codelineno-32-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-32-9"><a href="#__codelineno-32-9" id="__codelineno-32-9" name="__codelineno-32-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-32-10"><a href="#__codelineno-32-10" id="__codelineno-32-10" name="__codelineno-32-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-32-11"><a href="#__codelineno-32-11" id="__codelineno-32-11" name="__codelineno-32-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h4 id="python-from-hla-foms">Python from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#python-from-hla-foms" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate py fom</span><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a>Process HLA FOM files
-</span><span id="__span-28-2"><a href="#__codelineno-28-2" id="__codelineno-28-2" name="__codelineno-28-2"></a>Usage: sen generate py fom [OPTIONS]
-</span><span id="__span-28-3"><a href="#__codelineno-28-3" id="__codelineno-28-3" name="__codelineno-28-3"></a>
-</span><span id="__span-28-4"><a href="#__codelineno-28-4" id="__codelineno-28-4" name="__codelineno-28-4"></a>Options:
-</span><span id="__span-28-5"><a href="#__codelineno-28-5" id="__codelineno-28-5" name="__codelineno-28-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-28-6"><a href="#__codelineno-28-6" id="__codelineno-28-6" name="__codelineno-28-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
-</span><span id="__span-28-7"><a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
-</span><span id="__span-28-8"><a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-28-9"><a href="#__codelineno-28-9" id="__codelineno-28-9" name="__codelineno-28-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+<div class="language-text highlight"><span class="filename">sen generate py fom</span><pre><span></span><code><span id="__span-33-1"><a href="#__codelineno-33-1" id="__codelineno-33-1" name="__codelineno-33-1"></a>Process HLA FOM files
+</span><span id="__span-33-2"><a href="#__codelineno-33-2" id="__codelineno-33-2" name="__codelineno-33-2"></a>Usage: sen generate py fom [OPTIONS]
+</span><span id="__span-33-3"><a href="#__codelineno-33-3" id="__codelineno-33-3" name="__codelineno-33-3"></a>
+</span><span id="__span-33-4"><a href="#__codelineno-33-4" id="__codelineno-33-4" name="__codelineno-33-4"></a>Options:
+</span><span id="__span-33-5"><a href="#__codelineno-33-5" id="__codelineno-33-5" name="__codelineno-33-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-33-6"><a href="#__codelineno-33-6" id="__codelineno-33-6" name="__codelineno-33-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
+</span><span id="__span-33-7"><a href="#__codelineno-33-7" id="__codelineno-33-7" name="__codelineno-33-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
+</span><span id="__span-33-8"><a href="#__codelineno-33-8" id="__codelineno-33-8" name="__codelineno-33-8"></a>                                   Directories containing FOM XML files
+</span><span id="__span-33-9"><a href="#__codelineno-33-9" id="__codelineno-33-9" name="__codelineno-33-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h3 id="typescript">TypeScript<a class="headerlink" href="#typescript" title="Permanent link">¶</a></h3>
 <p>TypeScript generation reads <abbr title="Sen Type Language">STL</abbr> only; there is no <abbr title="Federation Object Model">FOM</abbr> subcommand today.</p>
-<div class="language-text highlight"><span class="filename">sen generate ts</span><pre><span></span><code><span id="__span-29-1"><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a>Generate per-input TypeScript modules + a barrel from STL inputs
-</span><span id="__span-29-2"><a href="#__codelineno-29-2" id="__codelineno-29-2" name="__codelineno-29-2"></a>Usage: sen generate ts [OPTIONS] SUBCOMMAND
-</span><span id="__span-29-3"><a href="#__codelineno-29-3" id="__codelineno-29-3" name="__codelineno-29-3"></a>
-</span><span id="__span-29-4"><a href="#__codelineno-29-4" id="__codelineno-29-4" name="__codelineno-29-4"></a>Options:
-</span><span id="__span-29-5"><a href="#__codelineno-29-5" id="__codelineno-29-5" name="__codelineno-29-5"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-29-6"><a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a>
-</span><span id="__span-29-7"><a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a>Subcommands:
-</span><span id="__span-29-8"><a href="#__codelineno-29-8" id="__codelineno-29-8" name="__codelineno-29-8"></a>  stl                              Process STL files
+<div class="language-text highlight"><span class="filename">sen generate ts</span><pre><span></span><code><span id="__span-34-1"><a href="#__codelineno-34-1" id="__codelineno-34-1" name="__codelineno-34-1"></a>Generate per-input TypeScript modules + a barrel from STL inputs
+</span><span id="__span-34-2"><a href="#__codelineno-34-2" id="__codelineno-34-2" name="__codelineno-34-2"></a>Usage: sen generate ts [OPTIONS] SUBCOMMAND
+</span><span id="__span-34-3"><a href="#__codelineno-34-3" id="__codelineno-34-3" name="__codelineno-34-3"></a>
+</span><span id="__span-34-4"><a href="#__codelineno-34-4" id="__codelineno-34-4" name="__codelineno-34-4"></a>Options:
+</span><span id="__span-34-5"><a href="#__codelineno-34-5" id="__codelineno-34-5" name="__codelineno-34-5"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-34-6"><a href="#__codelineno-34-6" id="__codelineno-34-6" name="__codelineno-34-6"></a>
+</span><span id="__span-34-7"><a href="#__codelineno-34-7" id="__codelineno-34-7" name="__codelineno-34-7"></a>Subcommands:
+</span><span id="__span-34-8"><a href="#__codelineno-34-8" id="__codelineno-34-8" name="__codelineno-34-8"></a>  stl                              Process STL files
 </span></code></pre></div>
 <h4 id="typescript-from-stl">TypeScript from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#typescript-from-stl" title="Permanent link">¶</a></h4>
-<div class="language-text highlight"><span class="filename">sen generate ts stl</span><pre><span></span><code><span id="__span-30-1"><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a>Process STL files
-</span><span id="__span-30-2"><a href="#__codelineno-30-2" id="__codelineno-30-2" name="__codelineno-30-2"></a>Usage: sen generate ts stl [OPTIONS] stl_files...
-</span><span id="__span-30-3"><a href="#__codelineno-30-3" id="__codelineno-30-3" name="__codelineno-30-3"></a>
-</span><span id="__span-30-4"><a href="#__codelineno-30-4" id="__codelineno-30-4" name="__codelineno-30-4"></a>Positionals:
-</span><span id="__span-30-5"><a href="#__codelineno-30-5" id="__codelineno-30-5" name="__codelineno-30-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
-</span><span id="__span-30-6"><a href="#__codelineno-30-6" id="__codelineno-30-6" name="__codelineno-30-6"></a>
-</span><span id="__span-30-7"><a href="#__codelineno-30-7" id="__codelineno-30-7" name="__codelineno-30-7"></a>Options:
-</span><span id="__span-30-8"><a href="#__codelineno-30-8" id="__codelineno-30-8" name="__codelineno-30-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-30-9"><a href="#__codelineno-30-9" id="__codelineno-30-9" name="__codelineno-30-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-30-10"><a href="#__codelineno-30-10" id="__codelineno-30-10" name="__codelineno-30-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-30-11"><a href="#__codelineno-30-11" id="__codelineno-30-11" name="__codelineno-30-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-30-12"><a href="#__codelineno-30-12" id="__codelineno-30-12" name="__codelineno-30-12"></a>  -d,--out-dir TEXT REQUIRED       Output directory for the generated .ts files
+<div class="language-text highlight"><span class="filename">sen generate ts stl</span><pre><span></span><code><span id="__span-35-1"><a href="#__codelineno-35-1" id="__codelineno-35-1" name="__codelineno-35-1"></a>Process STL files
+</span><span id="__span-35-2"><a href="#__codelineno-35-2" id="__codelineno-35-2" name="__codelineno-35-2"></a>Usage: sen generate ts stl [OPTIONS] stl_files...
+</span><span id="__span-35-3"><a href="#__codelineno-35-3" id="__codelineno-35-3" name="__codelineno-35-3"></a>
+</span><span id="__span-35-4"><a href="#__codelineno-35-4" id="__codelineno-35-4" name="__codelineno-35-4"></a>Positionals:
+</span><span id="__span-35-5"><a href="#__codelineno-35-5" id="__codelineno-35-5" name="__codelineno-35-5"></a>  stl_files TEXT:FILE ... REQUIRED STL files
+</span><span id="__span-35-6"><a href="#__codelineno-35-6" id="__codelineno-35-6" name="__codelineno-35-6"></a>
+</span><span id="__span-35-7"><a href="#__codelineno-35-7" id="__codelineno-35-7" name="__codelineno-35-7"></a>Options:
+</span><span id="__span-35-8"><a href="#__codelineno-35-8" id="__codelineno-35-8" name="__codelineno-35-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-35-9"><a href="#__codelineno-35-9" id="__codelineno-35-9" name="__codelineno-35-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
+</span><span id="__span-35-10"><a href="#__codelineno-35-10" id="__codelineno-35-10" name="__codelineno-35-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-35-11"><a href="#__codelineno-35-11" id="__codelineno-35-11" name="__codelineno-35-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-35-12"><a href="#__codelineno-35-12" id="__codelineno-35-12" name="__codelineno-35-12"></a>  -d,--out-dir TEXT REQUIRED       Output directory for the generated .ts files
 </span></code></pre></div>
 <h2 id="archiving-utility">Archiving utility<a class="headerlink" href="#archiving-utility" title="Permanent link">¶</a></h2>
 <p>Helps you interact with archives. "Archive" and "recording" are the same thing here: the recorder
 writes a recording, and <code>sen archive</code> is the command that inspects one.</p>
-<div class="language-text highlight"><span class="filename">sen archive</span><pre><span></span><code><span id="__span-31-1"><a href="#__codelineno-31-1" id="__codelineno-31-1" name="__codelineno-31-1"></a>Recording inspection utility
-</span><span id="__span-31-2"><a href="#__codelineno-31-2" id="__codelineno-31-2" name="__codelineno-31-2"></a>
-</span><span id="__span-31-3"><a href="#__codelineno-31-3" id="__codelineno-31-3" name="__codelineno-31-3"></a>Usage: sen archive [OPTIONS] [SUBCOMMAND]
-</span><span id="__span-31-4"><a href="#__codelineno-31-4" id="__codelineno-31-4" name="__codelineno-31-4"></a>
-</span><span id="__span-31-5"><a href="#__codelineno-31-5" id="__codelineno-31-5" name="__codelineno-31-5"></a>Options:
-</span><span id="__span-31-6"><a href="#__codelineno-31-6" id="__codelineno-31-6" name="__codelineno-31-6"></a>  -h,--help Print this help message and exit
-</span><span id="__span-31-7"><a href="#__codelineno-31-7" id="__codelineno-31-7" name="__codelineno-31-7"></a>
-</span><span id="__span-31-8"><a href="#__codelineno-31-8" id="__codelineno-31-8" name="__codelineno-31-8"></a>Subcommands:
-</span><span id="__span-31-9"><a href="#__codelineno-31-9" id="__codelineno-31-9" name="__codelineno-31-9"></a>  info      Print basic information about an archive
-</span><span id="__span-31-10"><a href="#__codelineno-31-10" id="__codelineno-31-10" name="__codelineno-31-10"></a>  indexed   Print basic info about the indexed objects
-</span><span id="__span-31-11"><a href="#__codelineno-31-11" id="__codelineno-31-11" name="__codelineno-31-11"></a>
-</span><span id="__span-31-12"><a href="#__codelineno-31-12" id="__codelineno-31-12" name="__codelineno-31-12"></a>For help on specific commands run 'sen archive &lt;command&gt; --help'
+<div class="language-text highlight"><span class="filename">sen archive</span><pre><span></span><code><span id="__span-36-1"><a href="#__codelineno-36-1" id="__codelineno-36-1" name="__codelineno-36-1"></a>Recording inspection utility
+</span><span id="__span-36-2"><a href="#__codelineno-36-2" id="__codelineno-36-2" name="__codelineno-36-2"></a>
+</span><span id="__span-36-3"><a href="#__codelineno-36-3" id="__codelineno-36-3" name="__codelineno-36-3"></a>Usage: sen archive [OPTIONS] [SUBCOMMAND]
+</span><span id="__span-36-4"><a href="#__codelineno-36-4" id="__codelineno-36-4" name="__codelineno-36-4"></a>
+</span><span id="__span-36-5"><a href="#__codelineno-36-5" id="__codelineno-36-5" name="__codelineno-36-5"></a>Options:
+</span><span id="__span-36-6"><a href="#__codelineno-36-6" id="__codelineno-36-6" name="__codelineno-36-6"></a>  -h,--help Print this help message and exit
+</span><span id="__span-36-7"><a href="#__codelineno-36-7" id="__codelineno-36-7" name="__codelineno-36-7"></a>
+</span><span id="__span-36-8"><a href="#__codelineno-36-8" id="__codelineno-36-8" name="__codelineno-36-8"></a>Subcommands:
+</span><span id="__span-36-9"><a href="#__codelineno-36-9" id="__codelineno-36-9" name="__codelineno-36-9"></a>  info      Print basic information about an archive
+</span><span id="__span-36-10"><a href="#__codelineno-36-10" id="__codelineno-36-10" name="__codelineno-36-10"></a>  indexed   Print basic info about the indexed objects
+</span><span id="__span-36-11"><a href="#__codelineno-36-11" id="__codelineno-36-11" name="__codelineno-36-11"></a>
+</span><span id="__span-36-12"><a href="#__codelineno-36-12" id="__codelineno-36-12" name="__codelineno-36-12"></a>For help on specific commands run 'sen archive &lt;command&gt; --help'
 </span></code></pre></div>
 <h3 id="basic-information">Basic information<a class="headerlink" href="#basic-information" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><span class="filename">sen archive info</span><pre><span></span><code><span id="__span-32-1"><a href="#__codelineno-32-1" id="__codelineno-32-1" name="__codelineno-32-1"></a>Print basic information about an archive
-</span><span id="__span-32-2"><a href="#__codelineno-32-2" id="__codelineno-32-2" name="__codelineno-32-2"></a>Usage: sen archive info [OPTIONS] archive_path
-</span><span id="__span-32-3"><a href="#__codelineno-32-3" id="__codelineno-32-3" name="__codelineno-32-3"></a>
-</span><span id="__span-32-4"><a href="#__codelineno-32-4" id="__codelineno-32-4" name="__codelineno-32-4"></a>Positionals:
-</span><span id="__span-32-5"><a href="#__codelineno-32-5" id="__codelineno-32-5" name="__codelineno-32-5"></a>  archive_path TEXT:DIR REQUIRED
-</span><span id="__span-32-6"><a href="#__codelineno-32-6" id="__codelineno-32-6" name="__codelineno-32-6"></a>            Archive path
-</span><span id="__span-32-7"><a href="#__codelineno-32-7" id="__codelineno-32-7" name="__codelineno-32-7"></a>
-</span><span id="__span-32-8"><a href="#__codelineno-32-8" id="__codelineno-32-8" name="__codelineno-32-8"></a>Options:
-</span><span id="__span-32-9"><a href="#__codelineno-32-9" id="__codelineno-32-9" name="__codelineno-32-9"></a>  -h,--help Print this help message and exit
+<div class="language-text highlight"><span class="filename">sen archive info</span><pre><span></span><code><span id="__span-37-1"><a href="#__codelineno-37-1" id="__codelineno-37-1" name="__codelineno-37-1"></a>Print basic information about an archive
+</span><span id="__span-37-2"><a href="#__codelineno-37-2" id="__codelineno-37-2" name="__codelineno-37-2"></a>Usage: sen archive info [OPTIONS] archive_path
+</span><span id="__span-37-3"><a href="#__codelineno-37-3" id="__codelineno-37-3" name="__codelineno-37-3"></a>
+</span><span id="__span-37-4"><a href="#__codelineno-37-4" id="__codelineno-37-4" name="__codelineno-37-4"></a>Positionals:
+</span><span id="__span-37-5"><a href="#__codelineno-37-5" id="__codelineno-37-5" name="__codelineno-37-5"></a>  archive_path TEXT:DIR REQUIRED
+</span><span id="__span-37-6"><a href="#__codelineno-37-6" id="__codelineno-37-6" name="__codelineno-37-6"></a>            Archive path
+</span><span id="__span-37-7"><a href="#__codelineno-37-7" id="__codelineno-37-7" name="__codelineno-37-7"></a>
+</span><span id="__span-37-8"><a href="#__codelineno-37-8" id="__codelineno-37-8" name="__codelineno-37-8"></a>Options:
+</span><span id="__span-37-9"><a href="#__codelineno-37-9" id="__codelineno-37-9" name="__codelineno-37-9"></a>  -h,--help Print this help message and exit
 </span></code></pre></div>
 <h3 id="indexed-objects">Indexed objects<a class="headerlink" href="#indexed-objects" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><span class="filename">sen archive indexed</span><pre><span></span><code><span id="__span-33-1"><a href="#__codelineno-33-1" id="__codelineno-33-1" name="__codelineno-33-1"></a>Print basic info about the indexed objects
-</span><span id="__span-33-2"><a href="#__codelineno-33-2" id="__codelineno-33-2" name="__codelineno-33-2"></a>Usage: sen archive indexed [OPTIONS] archive_path
-</span><span id="__span-33-3"><a href="#__codelineno-33-3" id="__codelineno-33-3" name="__codelineno-33-3"></a>
-</span><span id="__span-33-4"><a href="#__codelineno-33-4" id="__codelineno-33-4" name="__codelineno-33-4"></a>Positionals:
-</span><span id="__span-33-5"><a href="#__codelineno-33-5" id="__codelineno-33-5" name="__codelineno-33-5"></a>  archive_path TEXT:DIR REQUIRED
-</span><span id="__span-33-6"><a href="#__codelineno-33-6" id="__codelineno-33-6" name="__codelineno-33-6"></a>            Archive path
-</span><span id="__span-33-7"><a href="#__codelineno-33-7" id="__codelineno-33-7" name="__codelineno-33-7"></a>
-</span><span id="__span-33-8"><a href="#__codelineno-33-8" id="__codelineno-33-8" name="__codelineno-33-8"></a>Options:
-</span><span id="__span-33-9"><a href="#__codelineno-33-9" id="__codelineno-33-9" name="__codelineno-33-9"></a>  -h,--help Print this help message and exit
+<div class="language-text highlight"><span class="filename">sen archive indexed</span><pre><span></span><code><span id="__span-38-1"><a href="#__codelineno-38-1" id="__codelineno-38-1" name="__codelineno-38-1"></a>Print basic info about the indexed objects
+</span><span id="__span-38-2"><a href="#__codelineno-38-2" id="__codelineno-38-2" name="__codelineno-38-2"></a>Usage: sen archive indexed [OPTIONS] archive_path
+</span><span id="__span-38-3"><a href="#__codelineno-38-3" id="__codelineno-38-3" name="__codelineno-38-3"></a>
+</span><span id="__span-38-4"><a href="#__codelineno-38-4" id="__codelineno-38-4" name="__codelineno-38-4"></a>Positionals:
+</span><span id="__span-38-5"><a href="#__codelineno-38-5" id="__codelineno-38-5" name="__codelineno-38-5"></a>  archive_path TEXT:DIR REQUIRED
+</span><span id="__span-38-6"><a href="#__codelineno-38-6" id="__codelineno-38-6" name="__codelineno-38-6"></a>            Archive path
+</span><span id="__span-38-7"><a href="#__codelineno-38-7" id="__codelineno-38-7" name="__codelineno-38-7"></a>
+</span><span id="__span-38-8"><a href="#__codelineno-38-8" id="__codelineno-38-8" name="__codelineno-38-8"></a>Options:
+</span><span id="__span-38-9"><a href="#__codelineno-38-9" id="__codelineno-38-9" name="__codelineno-38-9"></a>  -h,--help Print this help message and exit
 </span></code></pre></div>
 <h2 id="packaging-utility">Packaging utility<a class="headerlink" href="#packaging-utility" title="Permanent link">¶</a></h2>
-<div class="language-text highlight"><span class="filename">sen package</span><pre><span></span><code><span id="__span-34-1"><a href="#__codelineno-34-1" id="__codelineno-34-1" name="__codelineno-34-1"></a>Create or manipulate sen packages
-</span><span id="__span-34-2"><a href="#__codelineno-34-2" id="__codelineno-34-2" name="__codelineno-34-2"></a>
-</span><span id="__span-34-3"><a href="#__codelineno-34-3" id="__codelineno-34-3" name="__codelineno-34-3"></a>Usage: sen package [OPTIONS] [SUBCOMMAND]
-</span><span id="__span-34-4"><a href="#__codelineno-34-4" id="__codelineno-34-4" name="__codelineno-34-4"></a>
-</span><span id="__span-34-5"><a href="#__codelineno-34-5" id="__codelineno-34-5" name="__codelineno-34-5"></a>Options:
-</span><span id="__span-34-6"><a href="#__codelineno-34-6" id="__codelineno-34-6" name="__codelineno-34-6"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-34-7"><a href="#__codelineno-34-7" id="__codelineno-34-7" name="__codelineno-34-7"></a>
-</span><span id="__span-34-8"><a href="#__codelineno-34-8" id="__codelineno-34-8" name="__codelineno-34-8"></a>Subcommands:
-</span><span id="__span-34-9"><a href="#__codelineno-34-9" id="__codelineno-34-9" name="__codelineno-34-9"></a>  init                             Start a package working area
-</span><span id="__span-34-10"><a href="#__codelineno-34-10" id="__codelineno-34-10" name="__codelineno-34-10"></a>  init-component                   Start a component working area
+<div class="language-text highlight"><span class="filename">sen package</span><pre><span></span><code><span id="__span-39-1"><a href="#__codelineno-39-1" id="__codelineno-39-1" name="__codelineno-39-1"></a>Create or manipulate sen packages
+</span><span id="__span-39-2"><a href="#__codelineno-39-2" id="__codelineno-39-2" name="__codelineno-39-2"></a>
+</span><span id="__span-39-3"><a href="#__codelineno-39-3" id="__codelineno-39-3" name="__codelineno-39-3"></a>Usage: sen package [OPTIONS] [SUBCOMMAND]
+</span><span id="__span-39-4"><a href="#__codelineno-39-4" id="__codelineno-39-4" name="__codelineno-39-4"></a>
+</span><span id="__span-39-5"><a href="#__codelineno-39-5" id="__codelineno-39-5" name="__codelineno-39-5"></a>Options:
+</span><span id="__span-39-6"><a href="#__codelineno-39-6" id="__codelineno-39-6" name="__codelineno-39-6"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-39-7"><a href="#__codelineno-39-7" id="__codelineno-39-7" name="__codelineno-39-7"></a>
+</span><span id="__span-39-8"><a href="#__codelineno-39-8" id="__codelineno-39-8" name="__codelineno-39-8"></a>Subcommands:
+</span><span id="__span-39-9"><a href="#__codelineno-39-9" id="__codelineno-39-9" name="__codelineno-39-9"></a>  init                             Start a package working area
+</span><span id="__span-39-10"><a href="#__codelineno-39-10" id="__codelineno-39-10" name="__codelineno-39-10"></a>  init-component                   Start a component working area
 </span></code></pre></div>
 <h3 id="package-skeleton-creation">Package skeleton creation<a class="headerlink" href="#package-skeleton-creation" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><span class="filename">sen package init</span><pre><span></span><code><span id="__span-35-1"><a href="#__codelineno-35-1" id="__codelineno-35-1" name="__codelineno-35-1"></a>Start a package working area
-</span><span id="__span-35-2"><a href="#__codelineno-35-2" id="__codelineno-35-2" name="__codelineno-35-2"></a>Usage: sen package init [OPTIONS] path
-</span><span id="__span-35-3"><a href="#__codelineno-35-3" id="__codelineno-35-3" name="__codelineno-35-3"></a>
-</span><span id="__span-35-4"><a href="#__codelineno-35-4" id="__codelineno-35-4" name="__codelineno-35-4"></a>Positionals:
-</span><span id="__span-35-5"><a href="#__codelineno-35-5" id="__codelineno-35-5" name="__codelineno-35-5"></a>  path TEXT REQUIRED               Path
-</span><span id="__span-35-6"><a href="#__codelineno-35-6" id="__codelineno-35-6" name="__codelineno-35-6"></a>
-</span><span id="__span-35-7"><a href="#__codelineno-35-7" id="__codelineno-35-7" name="__codelineno-35-7"></a>Options:
-</span><span id="__span-35-8"><a href="#__codelineno-35-8" id="__codelineno-35-8" name="__codelineno-35-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-35-9"><a href="#__codelineno-35-9" id="__codelineno-35-9" name="__codelineno-35-9"></a>  --class TEXT REQUIRED            Name of a class
+<div class="language-text highlight"><span class="filename">sen package init</span><pre><span></span><code><span id="__span-40-1"><a href="#__codelineno-40-1" id="__codelineno-40-1" name="__codelineno-40-1"></a>Start a package working area
+</span><span id="__span-40-2"><a href="#__codelineno-40-2" id="__codelineno-40-2" name="__codelineno-40-2"></a>Usage: sen package init [OPTIONS] path
+</span><span id="__span-40-3"><a href="#__codelineno-40-3" id="__codelineno-40-3" name="__codelineno-40-3"></a>
+</span><span id="__span-40-4"><a href="#__codelineno-40-4" id="__codelineno-40-4" name="__codelineno-40-4"></a>Positionals:
+</span><span id="__span-40-5"><a href="#__codelineno-40-5" id="__codelineno-40-5" name="__codelineno-40-5"></a>  path TEXT REQUIRED               Path
+</span><span id="__span-40-6"><a href="#__codelineno-40-6" id="__codelineno-40-6" name="__codelineno-40-6"></a>
+</span><span id="__span-40-7"><a href="#__codelineno-40-7" id="__codelineno-40-7" name="__codelineno-40-7"></a>Options:
+</span><span id="__span-40-8"><a href="#__codelineno-40-8" id="__codelineno-40-8" name="__codelineno-40-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-40-9"><a href="#__codelineno-40-9" id="__codelineno-40-9" name="__codelineno-40-9"></a>  --class TEXT REQUIRED            Name of a class
 </span></code></pre></div>
 <h3 id="component-skeleton-creation">Component skeleton creation<a class="headerlink" href="#component-skeleton-creation" title="Permanent link">¶</a></h3>
-<div class="language-text highlight"><span class="filename">sen package init-component</span><pre><span></span><code><span id="__span-36-1"><a href="#__codelineno-36-1" id="__codelineno-36-1" name="__codelineno-36-1"></a>Start a component working area
-</span><span id="__span-36-2"><a href="#__codelineno-36-2" id="__codelineno-36-2" name="__codelineno-36-2"></a>Usage: sen package init-component [OPTIONS] path
-</span><span id="__span-36-3"><a href="#__codelineno-36-3" id="__codelineno-36-3" name="__codelineno-36-3"></a>
-</span><span id="__span-36-4"><a href="#__codelineno-36-4" id="__codelineno-36-4" name="__codelineno-36-4"></a>Positionals:
-</span><span id="__span-36-5"><a href="#__codelineno-36-5" id="__codelineno-36-5" name="__codelineno-36-5"></a>  path TEXT REQUIRED               Path
-</span><span id="__span-36-6"><a href="#__codelineno-36-6" id="__codelineno-36-6" name="__codelineno-36-6"></a>
-</span><span id="__span-36-7"><a href="#__codelineno-36-7" id="__codelineno-36-7" name="__codelineno-36-7"></a>Options:
-</span><span id="__span-36-8"><a href="#__codelineno-36-8" id="__codelineno-36-8" name="__codelineno-36-8"></a>  -h,--help                        Print this help message and exit
-</span><span id="__span-36-9"><a href="#__codelineno-36-9" id="__codelineno-36-9" name="__codelineno-36-9"></a>  --with-config Excludes: --full   Include STL and template for configuration
-</span><span id="__span-36-10"><a href="#__codelineno-36-10" id="__codelineno-36-10" name="__codelineno-36-10"></a>  --full Excludes: --with-config   Include configuration and implementation of all methods
+<div class="language-text highlight"><span class="filename">sen package init-component</span><pre><span></span><code><span id="__span-41-1"><a href="#__codelineno-41-1" id="__codelineno-41-1" name="__codelineno-41-1"></a>Start a component working area
+</span><span id="__span-41-2"><a href="#__codelineno-41-2" id="__codelineno-41-2" name="__codelineno-41-2"></a>Usage: sen package init-component [OPTIONS] path
+</span><span id="__span-41-3"><a href="#__codelineno-41-3" id="__codelineno-41-3" name="__codelineno-41-3"></a>
+</span><span id="__span-41-4"><a href="#__codelineno-41-4" id="__codelineno-41-4" name="__codelineno-41-4"></a>Positionals:
+</span><span id="__span-41-5"><a href="#__codelineno-41-5" id="__codelineno-41-5" name="__codelineno-41-5"></a>  path TEXT REQUIRED               Path
+</span><span id="__span-41-6"><a href="#__codelineno-41-6" id="__codelineno-41-6" name="__codelineno-41-6"></a>
+</span><span id="__span-41-7"><a href="#__codelineno-41-7" id="__codelineno-41-7" name="__codelineno-41-7"></a>Options:
+</span><span id="__span-41-8"><a href="#__codelineno-41-8" id="__codelineno-41-8" name="__codelineno-41-8"></a>  -h,--help                        Print this help message and exit
+</span><span id="__span-41-9"><a href="#__codelineno-41-9" id="__codelineno-41-9" name="__codelineno-41-9"></a>  --with-config Excludes: --full   Include STL and template for configuration
+</span><span id="__span-41-10"><a href="#__codelineno-41-10" id="__codelineno-41-10" name="__codelineno-41-10"></a>  --full Excludes: --with-config   Include configuration and implementation of all methods
 </span></code></pre></div>
 <h2 id="file-to-array-utility">File to array utility<a class="headerlink" href="#file-to-array-utility" title="Permanent link">¶</a></h2>
-<div class="language-text highlight"><span class="filename">sen file-to-array</span><pre><span></span><code><span id="__span-37-1"><a href="#__codelineno-37-1" id="__codelineno-37-1" name="__codelineno-37-1"></a>Simple utility to convert a file to a C++ array
-</span><span id="__span-37-2"><a href="#__codelineno-37-2" id="__codelineno-37-2" name="__codelineno-37-2"></a>Usage: sen file-to-array [OPTIONS]
-</span><span id="__span-37-3"><a href="#__codelineno-37-3" id="__codelineno-37-3" name="__codelineno-37-3"></a>
-</span><span id="__span-37-4"><a href="#__codelineno-37-4" id="__codelineno-37-4" name="__codelineno-37-4"></a>Options:
-</span><span id="__span-37-5"><a href="#__codelineno-37-5" id="__codelineno-37-5" name="__codelineno-37-5"></a>  -h,--help    Print this help message and exit
-</span><span id="__span-37-6"><a href="#__codelineno-37-6" id="__codelineno-37-6" name="__codelineno-37-6"></a>  -i TEXT:FILE REQUIRED
-</span><span id="__span-37-7"><a href="#__codelineno-37-7" id="__codelineno-37-7" name="__codelineno-37-7"></a>               File to read
-</span><span id="__span-37-8"><a href="#__codelineno-37-8" id="__codelineno-37-8" name="__codelineno-37-8"></a>  -o TEXT REQUIRED
-</span><span id="__span-37-9"><a href="#__codelineno-37-9" id="__codelineno-37-9" name="__codelineno-37-9"></a>               File to write
-</span><span id="__span-37-10"><a href="#__codelineno-37-10" id="__codelineno-37-10" name="__codelineno-37-10"></a>  -v TEXT REQUIRED
-</span><span id="__span-37-11"><a href="#__codelineno-37-11" id="__codelineno-37-11" name="__codelineno-37-11"></a>               Name of the variable that will hold the data
+<div class="language-text highlight"><span class="filename">sen file-to-array</span><pre><span></span><code><span id="__span-42-1"><a href="#__codelineno-42-1" id="__codelineno-42-1" name="__codelineno-42-1"></a>Simple utility to convert a file to a C++ array
+</span><span id="__span-42-2"><a href="#__codelineno-42-2" id="__codelineno-42-2" name="__codelineno-42-2"></a>Usage: sen file-to-array [OPTIONS]
+</span><span id="__span-42-3"><a href="#__codelineno-42-3" id="__codelineno-42-3" name="__codelineno-42-3"></a>
+</span><span id="__span-42-4"><a href="#__codelineno-42-4" id="__codelineno-42-4" name="__codelineno-42-4"></a>Options:
+</span><span id="__span-42-5"><a href="#__codelineno-42-5" id="__codelineno-42-5" name="__codelineno-42-5"></a>  -h,--help    Print this help message and exit
+</span><span id="__span-42-6"><a href="#__codelineno-42-6" id="__codelineno-42-6" name="__codelineno-42-6"></a>  -i TEXT:FILE REQUIRED
+</span><span id="__span-42-7"><a href="#__codelineno-42-7" id="__codelineno-42-7" name="__codelineno-42-7"></a>               File to read
+</span><span id="__span-42-8"><a href="#__codelineno-42-8" id="__codelineno-42-8" name="__codelineno-42-8"></a>  -o TEXT REQUIRED
+</span><span id="__span-42-9"><a href="#__codelineno-42-9" id="__codelineno-42-9" name="__codelineno-42-9"></a>               File to write
+</span><span id="__span-42-10"><a href="#__codelineno-42-10" id="__codelineno-42-10" name="__codelineno-42-10"></a>  -v TEXT REQUIRED
+</span><span id="__span-42-11"><a href="#__codelineno-42-11" id="__codelineno-42-11" name="__codelineno-42-11"></a>               Name of the variable that will hold the data
 </span></code></pre></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 9, 2026 15:30:33 UTC">September 9, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 18, 2026 20:26:40 UTC">September 18, 2026</span>
 </span>
 </aside>
 </article>
