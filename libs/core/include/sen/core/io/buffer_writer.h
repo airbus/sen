@@ -68,7 +68,9 @@ public:  // implements sen::Writer
   void reverse(size_t size) override
   {
     SEN_ASSERT(buffer_.size() >= size);
-    buffer_.resize(buffer_.size() - size);
+    // Clamped rather than trusted: a replaced check handler returns, which the assertion tests
+    // rely on, and the subtraction would then underflow into an enormous resize.
+    buffer_.resize(size >= buffer_.size() ? 0U : buffer_.size() - size);
   }
 
 private:

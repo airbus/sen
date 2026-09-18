@@ -134,6 +134,12 @@ private:
 inline Uuid::Uuid(Span<const uint8_t> bytes) noexcept
 {
   SEN_ASSERT(bytes.size() >= 16);
+  // Checked rather than trusted: a replaced check handler returns, which the assertion tests rely
+  // on, and the copies below read 16 bytes whatever the span holds. Leaves a nil Uuid.
+  if (bytes.size() < 2U * sizeof(uint64_t))
+  {
+    return;
+  }
   std::memcpy(&hi_, bytes.data(), sizeof(uint64_t));
   std::memcpy(&lo_, bytes.data() + sizeof(uint64_t), sizeof(uint64_t));
 }

@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/detail/assert_impl.h"
 #include "sen/core/base/memory_block.h"
 #include "sen/core/base/span.h"
 #include "sen/core/io/buffer_writer.h"
@@ -16,6 +17,7 @@
 
 // std
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <memory>
@@ -127,4 +129,26 @@ TYPED_TEST(ResizableBufferWriterTypedTest, ReverseUnderflowTriggersAssert)
   std::ignore = writer.advance(5);
 
   EXPECT_DEATH(writer.reverse(6), "");
+}
+
+/// @test
+/// Verifies that the assertion above is not the only thing standing in front of the subtraction: a
+/// replaced check handler returns, and the size then has to be clamped rather than underflowed
+/// @requirements(SEN-1051)
+TYPED_TEST(ResizableBufferWriterTypedTest, ReverseClampsWhenTheCheckHandlerReturns)
+{
+  auto& buffer = this->getBuffer();
+  sen::ResizableBufferWriter<TypeParam> writer {buffer};
+
+  std::ignore = writer.advance(5);
+
+  std::size_t calls = 0U;
+  auto oldHandler = sen::impl::setFailedCheckHandler([&calls](const sen::impl::CheckInfo&) { ++calls; });
+  ASSERT_NE(oldHandler, nullptr);
+  writer.reverse(6);
+  std::ignore = sen::impl::setFailedCheckHandler(oldHandler);
+
+  // Asserted before the result: a handler that aborted would never reach the expectation below.
+  ASSERT_EQ(calls, 1U);
+  EXPECT_EQ(buffer.size(), 0U);
 }
