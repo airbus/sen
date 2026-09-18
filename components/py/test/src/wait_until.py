@@ -13,7 +13,7 @@ import sen
 
 test_bus = test_query = None
 
-test_objects = []
+test_objects: list = []
 
 cycle = 0
 
@@ -39,10 +39,13 @@ def run():
     """Sen run: to set up the initial component state."""
     global test_bus, test_query  # noqa: PLW0603
 
-    # check waitUntil unblocks before the timeout is reached
+    # check waitUntil unblocks before the timeout is reached. This condition is already true, so a
+    # tight bound is safe here; the waits below depend on a thread being scheduled and take a
+    # generous one, which bounds a failure rather than measuring anything.
     timeout = timedelta(seconds=1)
+    thread_timeout = timedelta(seconds=30)
     not_timed_out = sen.api.waitUntil(change_condition, timeout)
-    assert not_timed_out is True, f"waitUntil timed out after {timeout}s waiting for change_condition"
+    assert not_timed_out is True, f"waitUntil timed out after {timeout} waiting for change_condition"
 
     test_bus = sen.api.getBus("my.test")
 
@@ -55,16 +58,20 @@ def run():
     t.start()
 
     # check waitUntilNotEmpty unblocks before the timeout is reached
-    not_timed_out = test_query.waitUntilNotEmpty()
-    assert not_timed_out is True, f"waitUntilNotEmpty timed out after {timeout}s waiting for an object to be added"
+    not_timed_out = test_query.waitUntilNotEmpty(thread_timeout)
+    assert not_timed_out is True, (
+        f"waitUntilNotEmpty timed out after {thread_timeout} waiting for an object to be added"
+    )
 
     # create and start a new thread to add an object
     t = threading.Thread(target=add_object, kwargs={"name": "test_object2"})
     t.start()
 
     # check waitUntilSizeIs unblocks before the timeout is reached
-    not_timed_out = test_query.waitUntilSizeIs(2)
-    assert not_timed_out is True, f"waitUntilNotEmpty timed out after {timeout}s waiting for two objects to be added"
+    not_timed_out = test_query.waitUntilSizeIs(2, thread_timeout)
+    assert not_timed_out is True, (
+        f"waitUntilSizeIs timed out after {thread_timeout} waiting for two objects to be added"
+    )
 
     # create and start new threads to remove objects
     t1 = threading.Thread(target=remove_object, kwargs={"position": 0})
@@ -73,8 +80,10 @@ def run():
     t2.start()
 
     # check waitUntilEmpty unblocks before the timeout is reached
-    not_timed_out = test_query.waitUntilEmpty()
-    assert not_timed_out is True, f"waitUntilNotEmpty timed out after {timeout}s waiting for two objects to be removed"
+    not_timed_out = test_query.waitUntilEmpty(thread_timeout)
+    assert not_timed_out is True, (
+        f"waitUntilEmpty timed out after {thread_timeout} waiting for two objects to be removed"
+    )
 
 
 def update():
