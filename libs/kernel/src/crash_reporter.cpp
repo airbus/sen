@@ -38,8 +38,15 @@
 
 // linux
 #ifdef __linux__
+#  include <execinfo.h>
+#  include <fcntl.h>
+// sigaction, siginfo_t and stack_t are POSIX, and <csignal> declares none of them.
+// NOLINTNEXTLINE(hicpp-deprecated-headers,modernize-deprecated-headers)
+#  include <signal.h>
+#  include <unistd.h>
+
 #  include <climits>
-#  include <csignal>
+#  include <cstring>
 #endif
 
 // windows
@@ -54,6 +61,8 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <csignal>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -69,6 +78,8 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <string_view>
+#include <system_error>
 #include <utility>
 
 // with Apple we need to explicitly declare this as an external symbol
@@ -78,6 +89,16 @@
 
 namespace sen::kernel::impl
 {
+
+namespace
+{
+// Read by the signal handler where nothing richer is allowed, and written from anywhere. Kept out of
+// the platform blocks below: the phase is worth recording on every platform, and only the handler
+// that reads it is Linux-only.
+volatile std::sig_atomic_t currentPhase = 0;
+}  // namespace
+
+void CrashReporter::setPhase(Phase phase) noexcept { currentPhase = static_cast<std::sig_atomic_t>(phase); }
 
 //--------------------------------------------------------------------------------------------------------------
 // Constants
@@ -89,6 +110,110 @@ namespace
 #ifdef __linux__
 // NOLINTNEXTLINE(misc-include-cleaner)
 constexpr std::array<int, 5U> signalsToHandle = {SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS};
+
+// Everything the handler touches is prepared in prepareSignalHandling(), because none of it may be
+// created once a signal has arrived.
+constexpr std::size_t maxRecordedFrames = 64U;
+constexpr std::size_t recordPathSize = 512U;
+constexpr std::size_t recordSize = 64U + (maxRecordedFrames * 24U);
+
+// The record's path. Empty means the handler writes to stderr instead.
+std::array<char, recordPathSize> crashRecordPath {};
+
+// A stack overflow leaves no stack to run a handler on, so the handler gets its own. Sized by hand
+// because SIGSTKSZ is a sysconf() call on current glibc rather than a constant.
+constexpr std::size_t alternateStackSize = 64U * 1024U;
+std::array<char, alternateStackSize> alternateStack {};
+
+// A signal handler may not allocate and may not throw, which rules out the usual answers to the
+// three checks below: at() throws, a std::span still indexes, and an address cannot be recorded
+// without converting it. Bounds are checked by hand instead, which is what the writer below is for.
+// include-cleaner is also off here: glibc splits the POSIX signal declarations across internal
+// headers, so it names those rather than <signal.h>, which is the header a reader should include.
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index,cppcoreguidelines-pro-bounds-pointer-arithmetic,cppcoreguidelines-pro-type-reinterpret-cast,misc-include-cleaner)
+
+/// Builds the crash record in a fixed buffer, by index rather than by pointer, and never throws or
+/// allocates. Truncates in silence: a record missing its tail beats a handler that gives up.
+class RecordWriter
+{
+public:
+  explicit RecordWriter(std::array<char, recordSize>& buffer) noexcept: buffer_ {buffer} {}
+
+  void append(std::string_view text) noexcept
+  {
+    for (const auto character: text)
+    {
+      if (used_ == buffer_.size())
+      {
+        return;
+      }
+      buffer_[used_++] = character;
+    }
+  }
+
+  /// No locale, no stdio: everything printf does is out of bounds here, so the few numbers in a
+  /// crash record are written by hand.
+  void appendHex(std::uintptr_t value) noexcept
+  {
+    constexpr std::string_view digits = "0123456789abcdef";
+    std::array<char, 2U * sizeof(std::uintptr_t)> reversed {};
+    std::size_t digitCount = 0U;
+
+    do
+    {
+      reversed[digitCount++] = digits[value & 0xFU];
+      value >>= 4U;
+    } while (value != 0U && digitCount < reversed.size());
+
+    append("0x");
+    while (digitCount != 0U)
+    {
+      append(std::string_view(&reversed[--digitCount], 1U));
+    }
+  }
+
+  [[nodiscard]] std::size_t used() const noexcept { return used_; }
+
+private:
+  std::array<char, recordSize>& buffer_;
+  std::size_t used_ {0U};
+};
+
+/// Writes the whole buffer, retrying a short write. write() is async-signal-safe; fwrite is not.
+void writeAll(int fd, const char* data, std::size_t size)
+{
+  while (size != 0U)
+  {
+    const auto written = ::write(fd, data, size);
+    if (written <= 0)
+    {
+      return;
+    }
+    data += written;
+    size -= static_cast<std::size_t>(written);
+  }
+}
+
+/// Copies one file to another descriptor with only open, read, write and close, which a handler
+/// may call. Silent on failure: a crash record missing a section beats a handler that gives up.
+void copyFile(const char* path, int fd)
+{
+  // NOLINTNEXTLINE(hicpp-vararg,cppcoreguidelines-pro-type-vararg): open is variadic by definition
+  const auto source = ::open(path, O_RDONLY | O_CLOEXEC);
+  if (source < 0)
+  {
+    return;
+  }
+
+  std::array<char, 4096U> buffer {};
+  for (auto read = ::read(source, buffer.data(), buffer.size()); read > 0;
+       read = ::read(source, buffer.data(), buffer.size()))
+  {
+    writeAll(fd, buffer.data(), static_cast<std::size_t>(read));
+  }
+
+  std::ignore = ::close(source);
+}
 #endif
 
 }  // namespace
@@ -159,9 +284,16 @@ void CrashReporter::install(spdlog::logger* kernelLogger)
   previousHandler_ = std::set_terminate(terminationHandler);
 
 #ifdef __linux__
+  prepareSignalHandling();
+
+  struct sigaction action {};
+  action.sa_sigaction = linuxSignalHandler;
+  action.sa_flags = SA_SIGINFO | SA_ONSTACK;
+  std::ignore = sigemptyset(&action.sa_mask);
+
   for (auto sig: signalsToHandle)
   {
-    signal(sig, linuxSignalHandler);
+    std::ignore = sigaction(sig, &action, nullptr);
   }
 #endif
 }
@@ -170,6 +302,25 @@ void CrashReporter::registerKernel(const KernelConfig& config)
 {
   report_.senData.kernelParams = config.getParams();
   report_.senData.kernelProtocol = getKernelProtocolVersion();
+
+#ifdef __linux__
+  {
+    // Built now because the handler may only open() it. Empty falls back to stderr.
+    const auto directory = report_.senData.kernelParams.crashReportDir.empty()
+                             ? std::filesystem::temp_directory_path()
+                             : std::filesystem::path(report_.senData.kernelParams.crashReportDir);
+    const auto path = (directory / (report_.senData.kernelParams.appName + ".sen-crash")).string();
+    if (path.size() + 1U <= crashRecordPath.size())
+    {
+      std::copy(path.begin(), path.end(), crashRecordPath.begin());
+      crashRecordPath.at(path.size()) = '\0';
+    }
+
+    crashContextPath_ = (directory / (report_.senData.kernelParams.appName + ".sen-context.json")).string();
+  }
+#endif
+
+  writeCrashContext();
 
   // loaded components
   for (const auto& elem: config.getPluginsToLoad())
@@ -192,6 +343,14 @@ void CrashReporter::registerKernel(const KernelConfig& config)
 
 void CrashReporter::uninstall()
 {
+  // A clean shutdown means the context describes nothing, so it goes rather than accumulating.
+  if (!crashContextPath_.empty())
+  {
+    std::error_code ec;
+    std::ignore = std::filesystem::remove(crashContextPath_, ec);
+    crashContextPath_.clear();
+  }
+
 #ifdef __linux__
   for (auto sig: signalsToHandle)
   {
@@ -421,6 +580,22 @@ std::filesystem::path CrashReporter::computeCrashReportFile() const
   return result;
 }
 
+void CrashReporter::writeCrashContext()
+{
+  if (report_.senData.kernelParams.crashReportDisabled || crashContextPath_.empty())
+  {
+    return;
+  }
+
+  auto reportVariant = toVariant(report_);
+  auto meta = MetaTypeTrait<ErrorReport>::meta();  // NOLINT(misc-include-cleaner)
+  std::ignore = sen::impl::adaptVariant(*meta, reportVariant, meta, true);
+
+  std::ofstream out;
+  out.open(crashContextPath_);
+  out << toJson(reportVariant) << std::endl;
+}
+
 void CrashReporter::writeReport()
 {
   if (!report_.senData.kernelParams.crashReportDisabled)
@@ -480,19 +655,73 @@ void CrashReporter::writeReport()
 }
 
 #ifdef __linux__
-void CrashReporter::collectSignalData(int signum)
+void CrashReporter::linuxSignalHandler(int signum, siginfo_t* info, void* /*context*/)
 {
-  SignalData sigData;
-  sigData.signalName = strsignal(signum);  // NOLINT(misc-include-cleaner)
-  sigData.signalNumber = signum;
-  report_.errorData.signalData = std::move(sigData);
+  std::array<void*, maxRecordedFrames> frames {};
+  const auto count = ::backtrace(frames.data(), static_cast<int>(frames.size()));
+
+  std::array<char, recordSize> buffer {};
+  RecordWriter record {buffer};
+
+  record.append("sen-crash 1\nsignal ");
+  record.appendHex(static_cast<std::uintptr_t>(signum));
+  record.append("\nphase ");
+  record.appendHex(static_cast<std::uintptr_t>(currentPhase));
+  record.append("\nfault ");
+  record.appendHex(reinterpret_cast<std::uintptr_t>(info != nullptr ? info->si_addr : nullptr));
+  record.append("\n");
+
+  for (std::size_t i = 0U; i < static_cast<std::size_t>(count); ++i)
+  {
+    record.append("frame ");
+    record.appendHex(reinterpret_cast<std::uintptr_t>(frames[i]));
+    record.append("\n");
+  }
+
+  auto fd = STDERR_FILENO;
+  auto opened = -1;
+  if (crashRecordPath[0] != '\0')
+  {
+    // NOLINTNEXTLINE(hicpp-vararg,cppcoreguidelines-pro-type-vararg): open is variadic by definition
+    opened = ::open(crashRecordPath.data(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0640);
+  }
+  if (opened >= 0)
+  {
+    fd = opened;
+  }
+
+  writeAll(fd, buffer.data(), record.used());
+
+  // Sen builds position independent, so the loader places every module somewhere different on each
+  // run and the addresses above mean nothing without knowing where each one started.
+  writeAll(fd, "maps\n", 5U);
+  copyFile("/proc/self/maps", fd);
+
+  if (opened >= 0)
+  {
+    std::ignore = ::close(opened);
+  }
+
+  // Die of the signal rather than of _Exit, so the status is truthful and the operating system can
+  // still write a core file.
+  std::ignore = std::signal(signum, SIG_DFL);
+  std::ignore = std::raise(signum);
 }
 
-void CrashReporter::linuxSignalHandler(int signum)
+void CrashReporter::prepareSignalHandling()
 {
-  get().collectSignalData(signum);
-  terminationHandler();
+  stack_t signalStack {};
+  signalStack.ss_sp = alternateStack.data();
+  signalStack.ss_size = alternateStack.size();
+  signalStack.ss_flags = 0;
+  std::ignore = sigaltstack(&signalStack, nullptr);
+
+  // backtrace() may load libgcc on first use, which allocates; do it while that is allowed.
+  std::array<void*, 4U> warm {};
+  std::ignore = ::backtrace(warm.data(), static_cast<int>(warm.size()));
 }
+
+// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index,cppcoreguidelines-pro-bounds-pointer-arithmetic,cppcoreguidelines-pro-type-reinterpret-cast,misc-include-cleaner)
 
 #endif
 

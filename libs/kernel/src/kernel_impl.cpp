@@ -101,6 +101,7 @@ int KernelImpl::run(KernelBlockMode blockMode)
 
   getKernelLogger()->debug("running");
 
+  CrashReporter::setPhase(CrashReporter::Phase::running);
   isRunning_ = true;
   return applyRunMode(blockMode);
 }
@@ -189,6 +190,7 @@ void KernelImpl::configureCrashReporting()
 
 void KernelImpl::doStop()
 {
+  CrashReporter::setPhase(CrashReporter::Phase::stopping);
   isStopping_.store(true);
   {
     Lock lock(usageMutex_);
@@ -197,6 +199,7 @@ void KernelImpl::doStop()
 
   isRunning_.store(false);
   isStopping_.store(false);
+  CrashReporter::setPhase(CrashReporter::Phase::stopped);
   stoppedCondition_.notify_all();
 }
 
