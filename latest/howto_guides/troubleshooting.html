@@ -6,7 +6,7 @@
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
 <link href="https://airbus.github.io/sen/latest/howto_guides/troubleshooting.html" rel="canonical"/>
 <link href="generate_interface_packages.html" rel="prev"/>
-<link href="building_from_source.html" rel="next"/>
+<link href="networking_wsl2_virtual_machines.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Troubleshooting - Sen</title>
@@ -1450,9 +1450,21 @@
 </ul>
 </nav>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="networking_wsl2_virtual_machines.html">
+<span class="md-ellipsis">
+    
+  
+    Networking with WSL2 and virtual machines
+  
+
+    
+  </span>
+</a>
+</li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_5_18" type="checkbox"/>
-<label class="md-nav__link" for="__nav_5_18" id="__nav_5_18_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_5_19" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_19" id="__nav_5_19_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -1463,8 +1475,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_5_18_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_5_18">
+<nav aria-expanded="false" aria-labelledby="__nav_5_19_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_19">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -2049,16 +2061,19 @@ objects do not see each other.</p>
 <p><strong>Fix:</strong> Add the <code>ether</code> component to both process configs and configure matching addresses. See
 the <a href="../components/ether.html">Ether component documentation</a> for the full configuration reference.</p>
 <h3 id="wsl2-networking-issues">WSL2 networking issues<a class="headerlink" href="#wsl2-networking-issues" title="Permanent link">¶</a></h3>
-<p>Multi-process or multi-machine discovery can fail on WSL2 due to how it handles multicast. The
-workaround is the same as for any network without usable multicast: force bus traffic onto <abbr title="Transmission Control Protocol">TCP</abbr> and
-switch discovery to <code>TcpDiscovery</code>. See the <a href="../users_guide/faq.html#networking">networking FAQ</a>
-and <a href="../components/ether.html#disabling-multicast-entirely">Disabling multicast entirely</a>.</p>
+<p><strong>Symptom:</strong> Sen processes in WSL2 or a virtual machine do not discover processes on other hosts,
+even though ordinary <abbr title="Transmission Control Protocol">TCP</abbr> connections work.</p>
+<p><strong>Cause:</strong> The virtualized network interface, host firewall, or virtual switch is not forwarding
+multicast traffic. WSL2 also needs mirrored networking and a sufficiently high open-file limit.</p>
+<p><strong>Fix:</strong> Follow <a href="networking_wsl2_virtual_machines.html">Networking with WSL2 and virtual machines</a>.
+It covers the verified WSL2 setup, network-interface selection, socket limits, firewalls, known
+connectivity limitations, and the <abbr title="Transmission Control Protocol">TCP</abbr>-only fallback.</p>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 8, 2026 12:44:55 UTC">September 8, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 18, 2026 14:45:38 UTC">September 18, 2026</span>
 </span>
 </aside>
 </article>
@@ -2085,13 +2100,13 @@ and <a href="../components/ether.html#disabling-multicast-entirely">Disabling mu
               </div>
 </div>
 </a>
-<a aria-label="Next: Building Sen from source" class="md-footer__link md-footer__link--next" href="building_from_source.html">
+<a aria-label="Next: Networking with WSL2 and virtual machines" class="md-footer__link md-footer__link--next" href="networking_wsl2_virtual_machines.html">
 <div class="md-footer__title">
 <span class="md-footer__direction">
                 Next
               </span>
 <div class="md-ellipsis">
-                Building Sen from source
+                Networking with WSL2 and virtual machines
               </div>
 </div>
 <div class="md-footer__button md-icon">
