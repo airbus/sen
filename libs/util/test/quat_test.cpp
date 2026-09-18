@@ -11,6 +11,9 @@
 #include "utils.h"
 #include "vec3.h"
 
+// sen
+#include "sen/core/base/numbers.h"
+
 // gtest
 #include <gtest/gtest.h>
 
