@@ -70,7 +70,10 @@ KernelImpl::KernelImpl(std::shared_ptr<kernel::OperatingSystem> os, Kernel& subj
 {
 }
 
-KernelImpl::~KernelImpl() { CrashReporter::get().uninstall(); }
+// Out of line because the members declared in the header are incomplete there. The crash reporter
+// is deliberately not disarmed here: it is armed once for the process by whoever owns the process,
+// so one kernel going would otherwise leave every other kernel, and the host, unreported.
+KernelImpl::~KernelImpl() = default;
 
 int KernelImpl::run(KernelBlockMode blockMode)
 {

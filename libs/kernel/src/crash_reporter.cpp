@@ -192,6 +192,13 @@ void CrashReporter::registerKernel(const KernelConfig& config)
 
 void CrashReporter::uninstall()
 {
+  // Only whoever called install() may undo it. Without this a caller that never installed would
+  // still reach set_terminate below, and previousHandler_ being empty would hand the process abort.
+  if (!previousHandler_)
+  {
+    return;
+  }
+
 #ifdef __linux__
   for (auto sig: signalsToHandle)
   {
@@ -199,7 +206,8 @@ void CrashReporter::uninstall()
   }
 #endif
 
-  std::set_terminate(previousHandler_.value_or(std::abort));
+  std::set_terminate(*previousHandler_);
+  previousHandler_.reset();
 }
 
 void CrashReporter::setTransportVersion(uint32_t transportVersion)
