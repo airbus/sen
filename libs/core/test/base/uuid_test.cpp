@@ -7,17 +7,20 @@
 
 // sen
 #include "sen/core/base/checked_conversions.h"
+#include "sen/core/base/detail/assert_impl.h"
 #include "sen/core/base/span.h"
 #include "sen/core/base/static_vector.h"
 #include "sen/core/base/uuid.h"
 
 // std
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 // gtest
@@ -317,4 +320,24 @@ TEST(UuidTest, RandomGeneratorProducesCorrectSpec)
 
   EXPECT_EQ(randomId.getVersion(), UuidVersion::randomNumberBased);
   EXPECT_EQ(randomId.getVariant(), UuidVariant::rfc);
+}
+
+/// @test
+/// A span shorter than a Uuid must be rejected before the copies, not by the assertion alone: a
+/// replaced check handler returns, and the copies read sixteen bytes whatever the span holds.
+/// @requirements(SEN-584)
+TEST(UuidTest, ShortSpanIsNotReadPastItsEndWhenTheCheckHandlerReturns)
+{
+  const std::array<uint8_t, 8U> shortBytes {};
+  std::size_t calls = 0U;
+
+  auto oldHandler = sen::impl::setFailedCheckHandler([&calls](const sen::impl::CheckInfo&) { ++calls; });
+  ASSERT_NE(oldHandler, nullptr);
+  const Uuid uuid(sen::Span(shortBytes.data(), shortBytes.size()));
+  std::ignore = sen::impl::setFailedCheckHandler(oldHandler);
+
+  // Asserted before the result: without it a passing test would say nothing, since a handler that
+  // aborted would never reach the expectation below.
+  ASSERT_EQ(calls, 1U);
+  EXPECT_TRUE(uuid.isNil());
 }
