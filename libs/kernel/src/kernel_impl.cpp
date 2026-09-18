@@ -302,6 +302,14 @@ void KernelImpl::installTracerFactory(TracerFactory&& factory) { tracerFactory_ 
 
 void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter)
 {
+  // The installer owns it. A second component replacing this silently would leave the first one's
+  // report unreachable, and the failure would surface later as a report that is simply wrong about
+  // the process rather than here, where the second installer is.
+  if (networkReport_)
+  {
+    throwRuntimeError("a network footprint reporter is already installed; only one component may provide it");
+  }
+
   networkReport_ = std::move(reporter);
 }
 
