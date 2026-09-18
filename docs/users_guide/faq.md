@@ -46,7 +46,8 @@ infrastructural problem that would cause it.
 
 > Can I use Sen with WSL2?
 
-: Yes, you can use it but WSL2 imposes restrictive user hard limits that cannot be changed with
-`ulimit`. The only workaround for now is to run from your shell `su [your_username]` before starting
-Sen. You can find more info about this in this
-[WSL issue](https://github.com/microsoft/WSL/issues/6564)
+: Yes, with some networking limitations. Configure WSL2 to use mirrored networking, ensure the
+selected interface and firewalls allow multicast, and raise the open-file limit. Communication has
+been verified with remote Linux and Windows hosts, but not between WSL2 and the Windows host running
+it. See [Networking with WSL2 and virtual machines](../howto_guides/networking_wsl2_virtual_machines.md)
+for the complete setup and the TCP-only fallback.

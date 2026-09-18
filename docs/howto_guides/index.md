@@ -43,6 +43,8 @@ objects can be tested without a running system.
 ## When something does not work
 
 [Troubleshooting](troubleshooting.md) collects the failures people actually hit and what they mean.
+[Networking with WSL2 and virtual machines](networking_wsl2_virtual_machines.md) covers multicast,
+interface and firewall setup in virtualized environments, together with the TCP-only fallback.
 
 ## Fitting Sen to a system you already have
 

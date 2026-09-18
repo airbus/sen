@@ -364,7 +364,12 @@ the [Ether component documentation](../components/ether.md) for the full configu
 
 ### WSL2 networking issues
 
-Multi-process or multi-machine discovery can fail on WSL2 due to how it handles multicast. The
-workaround is the same as for any network without usable multicast: force bus traffic onto TCP and
-switch discovery to `TcpDiscovery`. See the [networking FAQ](../users_guide/faq.md#networking)
-and [Disabling multicast entirely](../components/ether.md#disabling-multicast-entirely).
+**Symptom:** Sen processes in WSL2 or a virtual machine do not discover processes on other hosts,
+even though ordinary TCP connections work.
+
+**Cause:** The virtualized network interface, host firewall, or virtual switch is not forwarding
+multicast traffic. WSL2 also needs mirrored networking and a sufficiently high open-file limit.
+
+**Fix:** Follow [Networking with WSL2 and virtual machines](networking_wsl2_virtual_machines.md).
+It covers the verified WSL2 setup, network-interface selection, socket limits, firewalls, known
+connectivity limitations, and the TCP-only fallback.
