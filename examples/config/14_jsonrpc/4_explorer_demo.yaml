@@ -63,7 +63,10 @@ build:
       - class: aircrafts.DummyAircraftImpl
         name: alpha
         bus: world.fleet
-        speed: 180
+        speed:
+          north: 180
+          east: 0
+          down: 0
         entityType: &fleetType
           entityKind: 1
           domain: 2
@@ -81,7 +84,10 @@ build:
       - class: aircrafts.DummyAircraftImpl
         name: bravo
         bus: world.fleet
-        speed: 240
+        speed:
+          north: 240
+          east: 0
+          down: 0
         entityType: *fleetType
         alternateEntityType: *fleetType
         entityIdentifier:
@@ -92,7 +98,10 @@ build:
       - class: aircrafts.DummyAircraftImpl
         name: charlie
         bus: world.fleet
-        speed: 310
+        speed:
+          north: 310
+          east: 0
+          down: 0
         entityType: *fleetType
         alternateEntityType: *fleetType
         entityIdentifier:
