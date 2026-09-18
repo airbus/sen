@@ -43,31 +43,31 @@ else
   say "gitlint --commits origin/main..HEAD" "FAILED"; sed 's/^/    /' "$log/commits"; fail=1
 fi
 
-# 3. What the merge queue will actually lint: each subject as a squash subject.
-#    This is the check with no local equivalent, and the one that cost the pipeline runs.
-while read -r sha; do
-  [ -z "$sha" ] && continue
-  subj=$(git log -1 --format='%s' "$sha")
-  if printf '%s (#9999)\n' "$subj" | "$gitlint" >"$log/squash" 2>&1; then
-    say "squash subject $(git log -1 --format=%h "$sha")" "ok  $(( ${#subj} + SUFFIX_BUDGET )) chars worst case"
+# 3. The one subject the queue lints with the suffix: a one-commit branch squashes under that
+#    commit's subject, a longer one under the pull request title. main.yaml chooses the same
+#    way, and step 2 lints every subject bare regardless. Adding a second commit moves the
+#    target, so the rule in force is printed rather than left to be inferred.
+budget() {
+  if printf '%s (#9999)\n' "$2" | "$gitlint" >"$log/squash" 2>&1; then
+    say "$1" "ok  $(( ${#2} + SUFFIX_BUDGET )) chars worst case"
   else
-    say "squash subject $(git log -1 --format=%h "$sha")" "FAILED at $(( ${#subj} + SUFFIX_BUDGET )) chars"
+    say "$1" "FAILED at $(( ${#2} + SUFFIX_BUDGET )) chars"
     sed 's/^/    /' "$log/squash"
-    echo "    trim the subject to $(( 72 - SUFFIX_BUDGET )) characters or fewer"
+    echo "    trim it to $(( 72 - SUFFIX_BUDGET )) characters or fewer"
     fail=1
   fi
-done < <(git rev-list origin/main..HEAD)
+}
 
-# 4. The pull request title, if one was given, the same way.
-if [ $# -ge 1 ] && [ -n "$1" ]; then
-  if printf '%s (#9999)\n' "$1" | "$gitlint" >"$log/title" 2>&1; then
-    say "pull request title" "ok  $(( ${#1} + SUFFIX_BUDGET )) chars worst case"
-  else
-    say "pull request title" "FAILED at $(( ${#1} + SUFFIX_BUDGET )) chars"
-    sed 's/^/    /' "$log/title"; fail=1
-  fi
+count=$(git rev-list --count origin/main..HEAD)
+if [ "$count" -eq 0 ]; then
+  say "squash subject" "nothing to push: no commits ahead of origin/main"
+elif [ "$count" -eq 1 ]; then
+  budget "squash subject (1 commit, so the commit's own)" "$(git log -1 --format='%s' HEAD)"
+  [ $# -ge 1 ] && [ -n "$1" ] && say "pull request title" "not the squash subject with 1 commit"
+elif [ $# -ge 1 ] && [ -n "$1" ]; then
+  budget "squash subject ($count commits, so the title)" "$1"
 else
-  say "pull request title" "not checked: pass it as an argument"
+  say "squash subject" "NOT CHECKED: $count commits squash under the title; pass it as an argument"
 fi
 
 echo
