@@ -1,0 +1,6 @@
+package cmake_external_first;
+
+struct FirstValue
+{
+  value : i32
+}
