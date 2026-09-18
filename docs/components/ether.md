@@ -149,6 +149,9 @@ Sen uses multicast to distribute information to multiple receivers with minimum 
 multicast groups are generated based on an internal algorithm. In some cases, you might need to
 deploy Sen applications in a context where multicast support is limited.
 
+Use the [network footprint report](../users_guide/command_line.md#offline-network-footprint)
+to inspect the addresses and ports that each process configuration is expected to use.
+
 ### Setting the network interface
 
 You can set the `networkDevice` attribute to force Sen to use a particular network interface. If

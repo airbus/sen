@@ -302,6 +302,37 @@ void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<Netw
   networkReport_ = std::move(reporter);
 }
 
+NetworkFootprint KernelImpl::generateOfflineNetworkFootprint(Span<const BusAddress> suppliedBusAddresses)
+{
+  Lock lock(usageMutex_);
+
+  if (!configured_)
+  {
+    configure();
+    configured_ = true;
+  }
+
+  bool shutdownStarted = false;
+  try
+  {
+    executor_.preloadOnly();
+    auto footprint = getNetworkFootprint(suppliedBusAddresses);
+
+    // do not retry final component cleanup if shutDown() itself throws.
+    shutdownStarted = true;
+    executor_.shutDown();
+    return footprint;
+  }
+  catch (...)
+  {
+    if (!shutdownStarted)
+    {
+      executor_.shutDown();
+    }
+    throw;
+  }
+}
+
 NetworkFootprint KernelImpl::getNetworkFootprint(Span<const BusAddress> busAddresses) const
 {
   if (!networkReport_)
