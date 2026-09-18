@@ -29,6 +29,7 @@
 #include <functional>
 #include <list>
 #include <memory>
+#include <mutex>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -162,6 +163,10 @@ private:
     ConnId id_;
     CallbackStorageType callback_;
   };
+  /// Consumer runners register on one shared object's events concurrently, and two appends
+  /// reallocating this vector at once free a buffer twice. Guards the mutators only: the walks
+  /// are still unguarded, so this reduces the failure rather than removing it. SEN-1706.
+  mutable std::mutex callbacksMutex_;
   std::vector<CallbackEntry> eventCallbacks_;
 };
 
@@ -230,13 +235,18 @@ inline EventBuffer<T...>::~EventBuffer()
 template <typename... T>
 inline ConnectionGuard EventBuffer<T...>::addConnection(Object* source, Callback callback, ConnId id)
 {
-  eventCallbacks_.emplace_back(id, std::make_shared<decltype(callback)>(std::move(callback)));
+  {
+    std::lock_guard lock(callbacksMutex_);
+    eventCallbacks_.emplace_back(id, std::make_shared<decltype(callback)>(std::move(callback)));
+  }
   return {source, id.get(), 0U, true};
 }
 
 template <typename... T>
 inline bool EventBuffer<T...>::removeConnection(ConnId id)
 {
+  std::lock_guard lock(callbacksMutex_);
+
   for (auto itr = eventCallbacks_.begin(); itr != eventCallbacks_.end(); ++itr)
   {
     if (itr->getConnectionId() == id)
