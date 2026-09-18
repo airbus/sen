@@ -248,6 +248,7 @@ nav:
           - Use interfaces from imported packages: howto_guides/consuming_interfaces.md
           - Generate and consume specific CMake packages for interfaces: howto_guides/generate_interface_packages.md
       - Troubleshooting: howto_guides/troubleshooting.md
+      - Networking with WSL2 and virtual machines: howto_guides/networking_wsl2_virtual_machines.md
       - Working on Sen itself:
           - Building Sen from source: howto_guides/building_from_source.md
           - Running Sen's own tests: getting_started/testing.md
