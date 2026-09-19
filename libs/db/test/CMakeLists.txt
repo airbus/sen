@@ -14,6 +14,7 @@ set(db_tests
     keyframe_test.cpp
     output_test.cpp
     property_change_test.cpp
+    recording_merger_test.cpp
     snapshot_test.cpp
     util_test.cpp
 )
