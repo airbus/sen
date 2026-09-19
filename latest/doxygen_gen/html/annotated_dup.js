@@ -26,6 +26,13 @@ var annotated_dup =
         [ "ObjectInfo", "group__db.html#structsen_1_1db_1_1_object_info", "group__db_structsen_1_1db_1_1_object_info" ],
         [ "Output", "classsen_1_1db_1_1_output.html", "classsen_1_1db_1_1_output" ],
         [ "PropertyChange", "classsen_1_1db_1_1_property_change.html", "classsen_1_1db_1_1_property_change" ],
+        [ "RecordingMergeDuplicateObject", "group__db.html#structsen_1_1db_1_1_recording_merge_duplicate_object", "group__db_structsen_1_1db_1_1_recording_merge_duplicate_object" ],
+        [ "RecordingMergeInput", "group__db.html#structsen_1_1db_1_1_recording_merge_input", "group__db_structsen_1_1db_1_1_recording_merge_input" ],
+        [ "RecordingMergeKeepSelectedObject", "group__db.html#structsen_1_1db_1_1_recording_merge_keep_selected_object", "group__db_structsen_1_1db_1_1_recording_merge_keep_selected_object" ],
+        [ "RecordingMergeObject", "classsen_1_1db_1_1_recording_merge_object.html", "classsen_1_1db_1_1_recording_merge_object" ],
+        [ "RecordingMergeObjectRename", "group__db.html#structsen_1_1db_1_1_recording_merge_object_rename", "group__db_structsen_1_1db_1_1_recording_merge_object_rename" ],
+        [ "RecordingMergeRenameObjects", "group__db.html#structsen_1_1db_1_1_recording_merge_rename_objects", "group__db_structsen_1_1db_1_1_recording_merge_rename_objects" ],
+        [ "RecordingMergeSettings", "group__db.html#structsen_1_1db_1_1_recording_merge_settings", "group__db_structsen_1_1db_1_1_recording_merge_settings" ],
         [ "Snapshot", "classsen_1_1db_1_1_snapshot.html", "classsen_1_1db_1_1_snapshot" ]
       ] ],
       [ "detail", "namespacesen_1_1detail.html", [

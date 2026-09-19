@@ -18,12 +18,13 @@ var searchData=
   ['positiondamping_15',['positionDamping',['../group__dr.html#aa7285fccc926528c78f91471cc11e3ae',1,'sen::util::DrConfig']]],
   ['problem_16',['problem',['../group__type__utils.html#acf716db9bb70aa535201042ad9fb2828',1,'sen::TypeMatchIssue']]],
   ['proc_17',['proc',['../group__kernel.html#a56d932000a8c7205f08b7e79c6980c00',1,'sen::kernel::ParticipantAddr']]],
-  ['properties_18',['properties',['../group__lang.html#a2ed4ec7a25718ca3ae71fd6ccb24dd4f',1,'sen::lang::StlInterfaceStatement']]],
-  ['property_19',['property',['../group__types.html#aa1560a9f80f51216717011684f46a92f',1,'sen::PropertyGetter::property'],['../group__types.html#ac4d8e2bfa9c9e249e07d0a8756d160d2',1,'sen::PropertySetter::property'],['../group__obj.html#a55815ec47cb07e9cdd5c8069bde96727',1,'sen::VarInfo::property']]],
-  ['propertyhashseed_20',['propertyHashSeed',['../group__hash.html#ga4495941bb8b245a643044fcc26c2e057',1,'sen']]],
-  ['propertyrelation_21',['propertyRelation',['../structsen_1_1_method_spec.html#a3ab3c88660bb0fb45b002c35c7e13954',1,'sen::MethodSpec']]],
-  ['proxymaker_22',['proxyMaker',['../structsen_1_1_remote_object_discovery.html#a0abd9d0273dacd6e091a23dd088337b1',1,'sen::RemoteObjectDiscovery']]],
-  ['psi_23',['psi',['../group__dr.html#a7e1f7253a832869ece20ffeed865231f',1,'sen::util::Orientation']]],
-  ['ptrtostoredcallable_24',['ptrToStoredCallable',['../classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#a306f79b70241629fe66c9452c4b522a9',1,'sen::std_util::detail::MoveOnlyFunctionBase::SmallSizeBuffer.__unnamed0__']]],
-  ['publicsymbols_25',['publicSymbols',['../group__gen.html#a536b85d84a612d1ce8c008b6a5440213',1,'sen::gen::CppOptions']]]
+  ['progressreporter_18',['progressReporter',['../group__db.html#a6d9b5d436237d1d57d554a654af0f2e9',1,'sen::db::RecordingMergeSettings']]],
+  ['properties_19',['properties',['../group__lang.html#a2ed4ec7a25718ca3ae71fd6ccb24dd4f',1,'sen::lang::StlInterfaceStatement']]],
+  ['property_20',['property',['../group__types.html#aa1560a9f80f51216717011684f46a92f',1,'sen::PropertyGetter::property'],['../group__types.html#ac4d8e2bfa9c9e249e07d0a8756d160d2',1,'sen::PropertySetter::property'],['../group__obj.html#a55815ec47cb07e9cdd5c8069bde96727',1,'sen::VarInfo::property']]],
+  ['propertyhashseed_21',['propertyHashSeed',['../group__hash.html#ga4495941bb8b245a643044fcc26c2e057',1,'sen']]],
+  ['propertyrelation_22',['propertyRelation',['../structsen_1_1_method_spec.html#a3ab3c88660bb0fb45b002c35c7e13954',1,'sen::MethodSpec']]],
+  ['proxymaker_23',['proxyMaker',['../structsen_1_1_remote_object_discovery.html#a0abd9d0273dacd6e091a23dd088337b1',1,'sen::RemoteObjectDiscovery']]],
+  ['psi_24',['psi',['../group__dr.html#a7e1f7253a832869ece20ffeed865231f',1,'sen::util::Orientation']]],
+  ['ptrtostoredcallable_25',['ptrToStoredCallable',['../classsen_1_1std__util_1_1detail_1_1_move_only_function_base.html#a306f79b70241629fe66c9452c4b522a9',1,'sen::std_util::detail::MoveOnlyFunctionBase::SmallSizeBuffer.__unnamed0__']]],
+  ['publicsymbols_26',['publicSymbols',['../group__gen.html#a536b85d84a612d1ce8c008b6a5440213',1,'sen::gen::CppOptions']]]
 ];

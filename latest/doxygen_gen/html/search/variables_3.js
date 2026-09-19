@@ -14,5 +14,6 @@ var searchData=
   ['discardcount_11',['discardCount',['../classsen_1_1_gradient_noise.html#a62eb12b2a649f258690808a70a913cfc',1,'sen::GradientNoise']]],
   ['distance_12',['distance',['../namespacesen_1_1util.html#af9acd2d3a2d197f22be553af3c7ff553',1,'sen::util::HaversineData']]],
   ['distancethreshold_13',['distanceThreshold',['../group__dr.html#ae0114b6f4e282c8bba2b504a74cd4e77',1,'sen::util::DrThreshold']]],
-  ['doc_14',['doc',['../namespacesen_1_1lang.html#a3760b8c17a5d39aca15060c0e4bb04c2',1,'sen::lang::ParsedDoc']]]
+  ['doc_14',['doc',['../namespacesen_1_1lang.html#a3760b8c17a5d39aca15060c0e4bb04c2',1,'sen::lang::ParsedDoc']]],
+  ['duplicateobjectresolver_15',['duplicateObjectResolver',['../group__db.html#a8f42c41e5e193312406b4b255a9fe381',1,'sen::db::RecordingMergeSettings']]]
 ];

@@ -72,10 +72,11 @@ var searchData=
   ['drstatic_69',['drStatic',['../group__dr.html#ggae590e1953e07eedfe043f716be48ef74ad9aa85b29f2c438d871edd464a71a149',1,'sen::util']]],
   ['drthreshold_70',['DrThreshold',['../group__dr.html#structsen_1_1util_1_1_dr_threshold',1,'sen::util']]],
   ['dualclasssetup_71',['DualClassSetup',['../structsen_1_1db_1_1test_1_1_dual_class_setup.html',1,'sen::db::test::DualClassSetup'],['../structsen_1_1db_1_1test_1_1_dual_class_setup.html#a51970ee03701c0340ae9fd1a25196288',1,'sen::db::test::DualClassSetup::DualClassSetup()']]],
-  ['duration_72',['Duration',['../classsen_1_1_duration.html',1,'sen::Duration'],['../classsen_1_1_duration.html#a3fe4cce2f7e0dafad89c940bc205e8d9',1,'sen::Duration::Duration(std::chrono::nanoseconds value) noexcept'],['../classsen_1_1_duration.html#a2fef572142216e92a55c22434773f1ef',1,'sen::Duration::Duration(std::chrono::duration&lt; Rep, Period &gt; value) noexcept']]],
-  ['duration_2eh_73',['duration.h',['../duration_8h.html',1,'']]],
-  ['durationtype_74',['DurationType',['../classsen_1_1_duration_type.html',1,'sen::DurationType'],['../classsen_1_1_duration_type.html#afa3f067f873ce55301ea7888f936ce6b',1,'sen::DurationType::DurationType()']]],
-  ['dynamicro_75',['dynamicRO',['../group__types.html#ggad06a67ac8910f294ccae3c2e4d04a6fca91fb5f75a7f264f864591f16f8477828',1,'sen']]],
-  ['dynamicrw_76',['dynamicRW',['../group__types.html#ggad06a67ac8910f294ccae3c2e4d04a6fcab8d8c4500b234b332e6afe5bed7dbd19',1,'sen']]],
-  ['dynamictypehandlecast_77',['dynamicTypeHandleCast',['../classsen_1_1_type_handle.html#a1b32d1e260318392d2fecd2904561d7e',1,'sen::TypeHandle::dynamicTypeHandleCast()'],['../group__types.html#ga9e4e0a4d70ae8b0a35d8b01afed15256',1,'sen::dynamicTypeHandleCast()']]]
+  ['duplicateobjectresolver_72',['duplicateObjectResolver',['../group__db.html#a8f42c41e5e193312406b4b255a9fe381',1,'sen::db::RecordingMergeSettings']]],
+  ['duration_73',['Duration',['../classsen_1_1_duration.html',1,'sen::Duration'],['../classsen_1_1_duration.html#a3fe4cce2f7e0dafad89c940bc205e8d9',1,'sen::Duration::Duration(std::chrono::nanoseconds value) noexcept'],['../classsen_1_1_duration.html#a2fef572142216e92a55c22434773f1ef',1,'sen::Duration::Duration(std::chrono::duration&lt; Rep, Period &gt; value) noexcept']]],
+  ['duration_2eh_74',['duration.h',['../duration_8h.html',1,'']]],
+  ['durationtype_75',['DurationType',['../classsen_1_1_duration_type.html',1,'sen::DurationType'],['../classsen_1_1_duration_type.html#afa3f067f873ce55301ea7888f936ce6b',1,'sen::DurationType::DurationType()']]],
+  ['dynamicro_76',['dynamicRO',['../group__types.html#ggad06a67ac8910f294ccae3c2e4d04a6fca91fb5f75a7f264f864591f16f8477828',1,'sen']]],
+  ['dynamicrw_77',['dynamicRW',['../group__types.html#ggad06a67ac8910f294ccae3c2e4d04a6fcab8d8c4500b234b332e6afe5bed7dbd19',1,'sen']]],
+  ['dynamictypehandlecast_78',['dynamicTypeHandleCast',['../classsen_1_1_type_handle.html#a1b32d1e260318392d2fecd2904561d7e',1,'sen::TypeHandle::dynamicTypeHandleCast()'],['../group__types.html#ga9e4e0a4d70ae8b0a35d8b01afed15256',1,'sen::dynamicTypeHandleCast()']]]
 ];

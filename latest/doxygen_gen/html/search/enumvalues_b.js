@@ -8,5 +8,6 @@ var searchData=
   ['noenumerators_5',['noEnumerators',['../group__gen.html#gga2b7cee90271263164e23d3207efa8dd7a6d2a5a5dca6a8b1fb6d66cfc38cbec60',1,'sen::gen']]],
   ['nonconstant_6',['nonConstant',['../group__types.html#gga4f615168817be20467fd4a560d45e040a5b21749e2da316ad20d8dce752910735',1,'sen']]],
   ['none_7',['none',['../group__util.html#ggaa4be30d67a751121185e3cdd62a94065a334c4a4c42fdb79d7ebc3e73b517e6f8',1,'sen']]],
-  ['now_8',['now',['../group__obj.html#gga3e6163dd3ea61144d97f1927d2fb4617a97bc592b27a9ada2d9a4bb418ed0ebed',1,'sen']]]
+  ['normalmerge_8',['normalMerge',['../group__db.html#gga0169ab5c17944c66127fc6d570cf6cfaad7c7a0d7926e3d51491bbf4f964ddf61',1,'sen::db']]],
+  ['now_9',['now',['../group__obj.html#gga3e6163dd3ea61144d97f1927d2fb4617a97bc592b27a9ada2d9a4bb418ed0ebed',1,'sen']]]
 ];

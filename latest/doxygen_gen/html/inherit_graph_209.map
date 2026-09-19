@@ -1,5 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classsen_1_1test_1_1_test_reader.html" title=" " alt="" coords="5,5,153,31"/>
-<area shape="rect" id="Node000001" href="$classsen_1_1test_1_1_buffered_test_reader.html" title=" " alt="" coords="201,5,397,31"/>
-<area shape="poly" id="edge48_Node000000_Node000001" title=" " alt="" coords="167,15,201,15,201,21,167,21"/>
+<area shape="rect" id="Node000000" href="$classsen_1_1_strong_type_base.html" title=" " alt="" coords="5,5,152,45"/>
+<area shape="rect" id="Node000001" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="200,5,347,45"/>
+<area shape="poly" id="edge40_Node000000_Node000001" title=" " alt="" coords="166,23,200,23,200,28,166,28"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_duration.html" title="A time duration." alt="" coords="395,13,495,38"/>
+<area shape="poly" id="edge41_Node000001_Node000002" title=" " alt="" coords="360,23,394,23,394,28,360,28"/>
 </map>

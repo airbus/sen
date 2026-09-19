@@ -9,5 +9,6 @@ var dir_9ea6da386a045086221237240f1ced81 =
     [ "keyframe.h", "keyframe_8h.html", null ],
     [ "output.h", "output_8h.html", "output_8h" ],
     [ "property_change.h", "property__change_8h.html", null ],
+    [ "recording_merger.h", "recording__merger_8h.html", "recording__merger_8h" ],
     [ "snapshot.h", "snapshot_8h.html", null ]
 ];

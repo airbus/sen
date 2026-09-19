@@ -1,7 +1,62 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,35,93,60"/>
-<area shape="rect" id="Node000001" href="$classsen_1_1test_1_1_tester_impl.html" title=" " alt="" coords="141,5,284,31"/>
-<area shape="poly" id="edge139_Node000000_Node000001" title=" " alt="" coords="106,34,141,28,142,33,107,40"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1test_1_1runtime_1_1_tester_impl.html" title=" " alt="" coords="151,55,275,95"/>
-<area shape="poly" id="edge140_Node000000_Node000002" title=" " alt="" coords="107,55,151,62,150,67,106,60"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,714,113,739"/>
+<area shape="rect" id="Node000001" href="$structsen_1_1_has_value_type_3_01_t_00_01std_1_1void__t_3_01typename_01_t_1_1_value_type_01_4_01_4.html" title="return true if T has an &#39;using ValueType&#39; or a &#39;typedef ValueType&#39;" alt="" coords="196,371,367,426"/>
+<area shape="poly" id="edge99_Node000000_Node000001" title=" " alt="" coords="69,700,111,591,121,546,125,509,134,474,144,456,159,437,176,423,194,414,197,418,179,428,163,441,148,459,139,476,130,510,126,547,116,593,74,702"/>
+<area shape="rect" id="Node000003" href="$structsen_1_1_should_be_passed_by_value_3_01_conn_id_01_4.html" title=" " alt="" coords="182,451,381,491"/>
+<area shape="poly" id="edge100_Node000000_Node000003" title=" " alt="" coords="68,700,116,585,141,530,159,501,180,487,183,492,163,505,146,533,121,587,73,702"/>
+<area shape="rect" id="Node000004" href="$structsen_1_1_should_be_passed_by_value_3_01_duration_01_4.html" title=" " alt="" coords="182,515,381,555"/>
+<area shape="poly" id="edge101_Node000000_Node000004" title=" " alt="" coords="67,700,101,632,127,596,160,565,181,552,183,557,163,569,131,599,106,635,72,702"/>
+<area shape="rect" id="Node000005" href="$structsen_1_1_should_be_passed_by_value_3_01_interest_id_01_4.html" title="Unique identifier that represents the interest." alt="" coords="182,579,381,619"/>
+<area shape="poly" id="edge102_Node000000_Node000005" title=" " alt="" coords="77,702,113,664,160,628,186,616,189,621,163,633,116,668,81,705"/>
+<area shape="rect" id="Node000006" href="$structsen_1_1_should_be_passed_by_value_3_01_member_hash_01_4.html" title=" " alt="" coords="182,643,381,683"/>
+<area shape="poly" id="edge103_Node000000_Node000006" title=" " alt="" coords="111,707,161,692,203,680,204,685,162,697,113,712"/>
+<area shape="rect" id="Node000007" href="$structsen_1_1_should_be_passed_by_value_3_01_object_id_01_4.html" title="Unique identifier for any object instance." alt="" coords="182,707,381,747"/>
+<area shape="poly" id="edge104_Node000000_Node000007" title=" " alt="" coords="127,724,182,724,182,729,127,729"/>
+<area shape="rect" id="Node000008" href="$structsen_1_1_should_be_passed_by_value_3_01_object_owner_id_01_4.html" title="Identifies the owner of an object." alt="" coords="182,771,381,811"/>
+<area shape="poly" id="edge105_Node000000_Node000008" title=" " alt="" coords="113,741,162,756,204,768,203,773,161,761,111,746"/>
+<area shape="rect" id="Node000009" href="$structsen_1_1_should_be_passed_by_value_3_01_quantity_3_01_t_00_01_d_01_4_01_4.html" title=" " alt="" coords="182,835,381,875"/>
+<area shape="poly" id="edge106_Node000000_Node000009" title=" " alt="" coords="81,748,116,785,163,820,189,832,186,837,160,825,113,789,77,752"/>
+<area shape="rect" id="Node000010" href="$structsen_1_1_should_be_passed_by_value_3_01_strong_type_3_01_t_00_01_d_01_4_01_4.html" title=" " alt="" coords="182,899,381,939"/>
+<area shape="poly" id="edge107_Node000000_Node000010" title=" " alt="" coords="72,751,106,818,131,854,163,885,183,896,181,901,160,889,127,858,101,821,67,753"/>
+<area shape="rect" id="Node000011" href="$structsen_1_1_should_be_passed_by_value_3_01_strong_type_base_3_01_t_01_4_01_4.html" title=" " alt="" coords="182,963,381,1003"/>
+<area shape="poly" id="edge108_Node000000_Node000011" title=" " alt="" coords="68,752,78,795,96,849,124,903,142,927,163,949,183,962,180,966,160,953,138,931,119,906,91,851,73,797,62,753"/>
+<area shape="rect" id="Node000012" href="$structsen_1_1_should_be_passed_by_value_3_01_time_stamp_01_4.html" title=" " alt="" coords="182,1027,381,1067"/>
+<area shape="poly" id="edge109_Node000000_Node000012" title=" " alt="" coords="65,753,71,808,87,878,100,915,116,950,137,984,163,1013,183,1027,180,1031,160,1017,133,987,112,953,95,917,82,879,66,809,59,754"/>
+<area shape="rect" id="Node000013" href="$structsen_1_1_should_be_passed_by_value_3_01kernel_1_1_bus_id_01_4.html" title=" " alt="" coords="182,5,381,45"/>
+<area shape="poly" id="edge110_Node000000_Node000013" title=" " alt="" coords="71,700,92,651,111,591,117,539,119,472,116,315,117,236,123,163,136,101,146,76,159,56,180,39,184,43,163,59,151,78,141,103,128,163,122,236,121,315,124,472,123,540,116,593,97,653,75,702"/>
+<area shape="rect" id="Node000014" href="$structsen_1_1_should_be_passed_by_value_3_01kernel_1_1_process_id_01_4.html" title=" " alt="" coords="182,69,381,109"/>
+<area shape="poly" id="edge111_Node000000_Node000014" title=" " alt="" coords="70,700,92,651,111,591,117,545,119,487,118,348,120,278,126,214,138,160,147,137,159,120,180,103,183,107,163,123,152,140,143,161,131,215,125,279,124,348,124,487,122,546,116,593,97,652,75,702"/>
+<area shape="rect" id="Node000015" href="$structsen_1_1std__util_1_1_is_instantiation_of_3_01_template_00_01_template_3_01_args_8_8_8_01_4_01_4.html" title=" " alt="" coords="164,133,399,173"/>
+<area shape="poly" id="edge112_Node000000_Node000015" title=" " alt="" coords="70,700,91,651,111,591,117,552,119,501,121,381,123,321,129,265,141,218,159,184,173,172,176,175,163,187,146,220,134,266,128,321,126,381,124,501,122,552,116,593,96,652,75,702"/>
+<area shape="rect" id="Node000016" href="$structsen_1_1std__util_1_1detail_1_1_is_in_place_type_3_01std_1_1in__place__type__t_3_01_t_01_4_01_4.html" title=" " alt="" coords="199,198,363,253"/>
+<area shape="poly" id="edge113_Node000000_Node000016" title=" " alt="" coords="70,701,91,651,111,591,120,542,121,497,114,418,112,381,117,343,131,305,159,264,177,248,198,237,200,242,180,252,163,267,136,307,122,345,117,381,119,418,126,497,125,542,116,593,96,653,75,703"/>
+<area shape="rect" id="Node000017" href="$structsen_1_1util_1_1impl_1_1_has_commit_time_3_01_t_00_01std_1_1void__t_3_01decltype_07std_1_1d44db28795768209c887351b322a0b497.html" title=" " alt="" coords="161,277,401,347"/>
+<area shape="poly" id="edge114_Node000000_Node000017" title=" " alt="" coords="69,701,90,651,111,591,119,556,121,524,120,468,121,441,127,414,139,386,159,357,171,345,175,349,163,360,143,389,132,416,127,442,126,468,127,524,124,557,116,593,95,652,74,703"/>
+<area shape="rect" id="Node000018" href="$structsen_1_1_has_value_type.html" title="return false if T has not an &#39;using ValueType&#39; or a &#39;typedef ValueType&#39;" alt="" coords="201,1283,361,1323"/>
+<area shape="poly" id="edge115_Node000000_Node000018" title=" " alt="" coords="65,753,72,864,89,1019,103,1098,119,1170,139,1229,163,1269,181,1283,202,1292,200,1297,178,1287,159,1272,134,1231,114,1172,97,1099,84,1020,67,865,59,753"/>
+<area shape="rect" id="Node000019" href="$structsen_1_1_should_be_passed_by_value.html" title="Utility to indicate that your class wants to be passed by value in some of the library calls." alt="" coords="166,1347,397,1373"/>
+<area shape="poly" id="edge116_Node000000_Node000019" title=" " alt="" coords="64,753,69,877,84,1051,97,1141,114,1222,136,1289,149,1314,163,1333,179,1345,176,1349,159,1337,145,1317,131,1291,109,1223,92,1142,79,1052,64,877,59,753"/>
+<area shape="rect" id="Node000020" href="$structsen_1_1std__util_1_1_is_instantiation_of.html" title=" " alt="" coords="190,1091,373,1131"/>
+<area shape="poly" id="edge117_Node000000_Node000020" title=" " alt="" coords="63,753,65,818,79,905,91,952,109,997,133,1040,163,1077,191,1095,188,1099,160,1081,128,1043,104,1000,86,954,73,907,60,819,57,753"/>
+<area shape="rect" id="Node000021" href="$structsen_1_1std__util_1_1detail_1_1_is_in_place_type.html" title=" " alt="" coords="209,1155,353,1195"/>
+<area shape="poly" id="edge118_Node000000_Node000021" title=" " alt="" coords="66,753,78,840,98,957,127,1069,144,1112,163,1141,185,1156,210,1166,208,1171,182,1161,159,1145,139,1114,122,1070,93,958,72,841,61,753"/>
+<area shape="rect" id="Node000022" href="$structsen_1_1util_1_1impl_1_1_has_commit_time.html" title="True when T can report when its data was committed. Generated RPR types can, through asObject(); a ha..." alt="" coords="192,1219,371,1259"/>
+<area shape="poly" id="edge119_Node000000_Node000022" title=" " alt="" coords="65,753,75,853,94,989,107,1057,123,1120,142,1171,163,1205,177,1216,193,1224,190,1229,174,1220,159,1208,137,1173,118,1121,102,1058,88,989,70,853,60,754"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="8,554,111,579"/>
+<area shape="poly" id="edge120_Node000002_Node000001" title=" " alt="" coords="72,540,107,488,132,460,160,436,195,418,197,422,163,441,135,464,111,492,76,543"/>
+<area shape="poly" id="edge121_Node000002_Node000003" title=" " alt="" coords="87,544,121,521,160,500,192,488,194,493,162,505,124,526,90,548"/>
+<area shape="poly" id="edge122_Node000002_Node000004" title=" " alt="" coords="124,555,182,546,182,552,125,560"/>
+<area shape="poly" id="edge123_Node000002_Node000005" title=" " alt="" coords="125,573,182,582,182,587,124,579"/>
+<area shape="poly" id="edge124_Node000002_Node000006" title=" " alt="" coords="90,585,124,608,162,628,194,640,192,645,160,633,121,612,87,590"/>
+<area shape="poly" id="edge125_Node000002_Node000007" title=" " alt="" coords="76,590,111,642,135,670,163,692,185,704,182,709,160,697,131,673,106,646,71,593"/>
+<area shape="poly" id="edge126_Node000002_Node000008" title=" " alt="" coords="70,592,81,629,100,674,127,719,163,757,183,769,180,774,160,761,123,722,96,676,76,631,64,593"/>
+<area shape="poly" id="edge127_Node000002_Node000009" title=" " alt="" coords="73,591,163,821,183,834,180,839,159,824,68,593"/>
+<area shape="poly" id="edge128_Node000002_Node000010" title=" " alt="" coords="74,591,116,702,123,731,126,757,127,802,129,823,135,843,145,863,163,885,184,900,180,904,160,889,141,866,130,845,124,824,122,802,121,757,118,732,111,703,69,593"/>
+<area shape="poly" id="edge129_Node000002_Node000011" title=" " alt="" coords="74,591,95,642,116,702,124,741,126,775,123,836,123,864,128,892,141,919,163,949,183,964,180,968,159,953,136,922,123,893,118,865,118,836,121,775,119,741,111,703,90,644,70,593"/>
+<area shape="poly" id="edge130_Node000002_Node000012" title=" " alt="" coords="75,591,96,641,116,702,125,750,126,794,118,870,117,906,122,940,136,976,163,1013,183,1029,180,1033,159,1017,132,978,117,942,112,906,113,870,120,794,119,751,111,703,91,643,70,593"/>
+<area shape="poly" id="edge131_Node000002_Node000013" title=" " alt="" coords="60,540,68,435,86,290,100,216,116,149,136,94,159,56,180,40,183,44,163,59,141,96,121,151,105,217,92,291,74,435,65,541"/>
+<area shape="poly" id="edge132_Node000002_Node000014" title=" " alt="" coords="60,540,71,447,91,321,104,258,120,200,138,152,159,120,180,104,183,108,163,123,143,155,125,201,109,259,96,322,76,447,66,541"/>
+<area shape="poly" id="edge133_Node000002_Node000015" title=" " alt="" coords="62,540,74,459,95,352,124,251,141,211,159,184,175,171,178,176,163,187,145,213,129,252,100,353,79,460,67,541"/>
+<area shape="poly" id="edge134_Node000002_Node000016" title=" " alt="" coords="59,540,66,483,81,410,94,370,111,332,133,296,159,263,177,249,198,239,200,244,180,254,163,267,137,299,116,334,99,372,87,411,71,484,65,541"/>
+<area shape="poly" id="edge135_Node000002_Node000017" title=" " alt="" coords="64,540,76,500,95,451,123,401,159,357,175,345,178,349,163,361,127,404,100,454,81,502,69,541"/>
 </map>

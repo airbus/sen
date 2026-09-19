@@ -98,6 +98,41 @@ var group__db =
       [ "getValueAsVariant", "classsen_1_1db_1_1_property_change.html#afcb9642e54ca6e8f5862389a0ad0f9cd", null ],
       [ "Input", "classsen_1_1db_1_1_property_change.html#a9732a2f3b51c8d069f54b1a13fb64c68", null ]
     ] ],
+    [ "sen::db::RecordingMergeObject", "classsen_1_1db_1_1_recording_merge_object.html", [
+      [ "RecordingMergeObject", "classsen_1_1db_1_1_recording_merge_object.html#a241e812720ebbe540d10c4f20d466a92", null ],
+      [ "getArchivePath", "classsen_1_1db_1_1_recording_merge_object.html#a44bfa711980510ccd422fd9d1a84b66f", null ],
+      [ "getObjectId", "classsen_1_1db_1_1_recording_merge_object.html#ad7096585440be505b619572a34b2d937", null ],
+      [ "getSession", "classsen_1_1db_1_1_recording_merge_object.html#a5b71ced3a0e82cc1704f50d1b1be1faa", null ],
+      [ "getBus", "classsen_1_1db_1_1_recording_merge_object.html#a998de46b77b5a92860accc57d87f0d97", null ],
+      [ "getName", "classsen_1_1db_1_1_recording_merge_object.html#a631de4ee874a04d9e203763d1ed5340b", null ],
+      [ "getType", "classsen_1_1db_1_1_recording_merge_object.html#a44ce27c1d113f7dc0bf4c99a6d735b92", null ],
+      [ "formatFullName", "classsen_1_1db_1_1_recording_merge_object.html#a90979dcb7e86255f511312be8e1f11ae", null ]
+    ] ],
+    [ "sen::db::RecordingMergeDuplicateObject", "group__db.html#structsen_1_1db_1_1_recording_merge_duplicate_object", [
+      [ "objects", "group__db.html#a998bedc508dfb857c9f6c2aaf6b5e760", null ]
+    ] ],
+    [ "sen::db::RecordingMergeObjectRename", "group__db.html#structsen_1_1db_1_1_recording_merge_object_rename", [
+      [ "objectIndex", "group__db.html#a696b5fe71b6c01ea66ddb8d5f0058b91", null ],
+      [ "name", "group__db.html#a033dd84eef8a0e21f472c597fdd8d052", null ]
+    ] ],
+    [ "sen::db::RecordingMergeKeepSelectedObject", "group__db.html#structsen_1_1db_1_1_recording_merge_keep_selected_object", [
+      [ "selectedObjectIndex", "group__db.html#a54cede49e0002f51f9a82ba054a38b37", null ]
+    ] ],
+    [ "sen::db::RecordingMergeRenameObjects", "group__db.html#structsen_1_1db_1_1_recording_merge_rename_objects", [
+      [ "renamedObjects", "group__db.html#aec24473c9220e3fe068fc99251bdf707", null ]
+    ] ],
+    [ "sen::db::RecordingMergeInput", "group__db.html#structsen_1_1db_1_1_recording_merge_input", [
+      [ "archivePath", "group__db.html#a1674506a996d9d1e04e2c35363f068d6", null ],
+      [ "offset", "group__db.html#a6b2ff92ce1f4d18a8abc72edb2c2f64f", null ]
+    ] ],
+    [ "sen::db::RecordingMergeSettings", "group__db.html#structsen_1_1db_1_1_recording_merge_settings", [
+      [ "inputArchives", "group__db.html#a30d2672558f29a603b86e8c77a160d85", null ],
+      [ "outputArchive", "group__db.html#a05ed73fef0ed1c225edad9a24b00e131", null ],
+      [ "mode", "group__db.html#a2193cb22d2fa2ca90e8559264af299e5", null ],
+      [ "duplicateObjectResolver", "group__db.html#a8f42c41e5e193312406b4b255a9fe381", null ],
+      [ "force", "group__db.html#aa881ee6ee221566eb6a2edabf7b91321", null ],
+      [ "progressReporter", "group__db.html#a6d9b5d436237d1d57d554a654af0f2e9", null ]
+    ] ],
     [ "sen::db::Snapshot", "classsen_1_1db_1_1_snapshot.html", [
       [ "~Snapshot", "classsen_1_1db_1_1_snapshot.html#a3728e696dba546dc2b64ea0a8a03291d", null ],
       [ "getObjectId", "classsen_1_1db_1_1_snapshot.html#a6a0d9ac4f6843e184e149dd590bd7922", null ],
@@ -113,5 +148,13 @@ var group__db =
     [ "sen::db::DataCursor", "group__db.html#ga1282506e3e6fe58d1397620d262774a3", null ],
     [ "sen::db::AnnotationCursor", "group__db.html#ga3dc4b7b3b64103e8f79b49aba36ea46c", null ],
     [ "sen::db::ErrorHandler", "group__db.html#gaac91ac50c14cdb3ae26db21bd27475cf", null ],
-    [ "sen::db::ObjectInfoList", "group__db.html#gaf639b0f6a3f3654eb5db87147067cb2b", null ]
+    [ "sen::db::ObjectInfoList", "group__db.html#gaf639b0f6a3f3654eb5db87147067cb2b", null ],
+    [ "sen::db::RecordingMergeDuplicateObjectResolution", "group__db.html#ga96db27f3a9c8e26c1a18c24d7bdebd41", null ],
+    [ "sen::db::RecordingMergeDuplicateObjectResolver", "group__db.html#ga79429b6ef3bfb4df545bab5012f5c815", null ],
+    [ "sen::db::RecordingMergeProgressReporter", "group__db.html#ga5dcfb08922e48a41d8900551c67e75d3", null ],
+    [ "sen::db::RecordingMergeMode", "group__db.html#ga0169ab5c17944c66127fc6d570cf6cfa", [
+      [ "sen::db::RecordingMergeMode::normalMerge", "group__db.html#gga0169ab5c17944c66127fc6d570cf6cfaad7c7a0d7926e3d51491bbf4f964ddf61", null ],
+      [ "sen::db::RecordingMergeMode::zeroAligned", "group__db.html#gga0169ab5c17944c66127fc6d570cf6cfaa9407fdabe37194f1827e8d37f88a3b49", null ],
+      [ "sen::db::RecordingMergeMode::offsetAligned", "group__db.html#gga0169ab5c17944c66127fc6d570cf6cfaa9ee5aa9af7837b230bd3809215f3746e", null ]
+    ] ]
 ];

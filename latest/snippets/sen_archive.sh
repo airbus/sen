@@ -1,4 +1,4 @@
-Recording inspection utility
+Recording inspection and manipulation utility
 
 Usage: sen archive [OPTIONS] [SUBCOMMAND]
 
@@ -8,5 +8,6 @@ Options:
 Subcommands:
   info      Print basic information about an archive
   indexed   Print basic info about the indexed objects
+  merge     combine multiple archives into one
 
 For help on specific commands run 'sen archive <command> --help'
