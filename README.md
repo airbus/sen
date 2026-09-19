@@ -238,8 +238,8 @@ third-party packages from Conan Center and the npm registry.
 [Building from source](docs/howto_guides/building_from_source.md) covers the rest: prerequisites on
 other distributions, driving CMake yourself, Conan editable mode for building a consumer project
 against your working copy, and the errors a first build usually hits.
-[Building Sen](docs/getting_started/install.md#building-from-source) explains the `mode` option and the
-developer flags, and [Running the tests](docs/getting_started/testing.md) covers the suite.
+The same page explains the `mode` option and the developer flags, and
+[Running the tests](docs/getting_started/testing.md) covers the suite.
 
 Once it builds, the [tutorials](docs/tutorials/index.md) start with one object that counts and
 publishes itself, then two objects calling each other. For a tour of a running system, try the

@@ -310,118 +310,15 @@ does not reach that from `<prefix>` alone, so the `/cmake` suffix is required.
 ## Building from source
 
 If you want to compile Sen yourself (to track `main`, patch the code, or run on a platform without a
-release artifact), see [Building Sen from source](../howto_guides/building_from_source.md).
+release artifact), see [Building Sen from source](../howto_guides/building_from_source.md). It has
+the profile to install, the component modes, the developer flags, what the build needs from the
+network, and how long a first build takes.
 
 If your editor supports devcontainers, the repository ships one under `.devcontainer/`. It builds
 the same environment the pipeline uses, from `tools/ci/Dockerfile`, so you do not have to install
 compilers or Conan yourself.
 
-??? note "Build options"
-
-    **Component selection**
-
-     `mode` is the Conan-level switch; it picks which components compile and which
-     deps Conan fetches.
-
-     | Mode        | Components enabled                                                                |
-     | ----------- | --------------------------------------------------------------------------------- |
-     | `barebones` | none (libs only, for embedding Sen as a library)                                   |
-     | `basic`     | `shell`, `ether` (minimum interactive set)                                         |
-     | `full`      | every component (default)                                                         |
-
-     ```shell
-     conan install . --profile:all=sen_gcc -o sen/*:mode=barebones --build=missing
-     conan install . --profile:all=sen_gcc -o sen/*:mode=basic --build=missing
-     ```
-
-     Per-component Conan options are deliberately not exposed (combinatorial
-     package_id). Developers skip building specific components at the CMake step:
-
-     ```shell
-     conan install . --profile:all=sen_gcc --build=missing
-     cmake --preset conan-gcc-release -DSEN_BUILD_TRACY=OFF -DSEN_BUILD_EXPLORER=OFF
-     ```
-
-     The CMake override doesn't change what Conan fetched. Components beyond `mode`
-     can't be enabled this way (their deps weren't fetched).
-
-     **Developer-facing flags**
-
-     Examples, tests, static analysis, coverage, sanitizers, and documentation are exposed as Conan
-     options. All default to off. Turn on what you need with `-o sen/*:…=True`.
-
-     | Option            | Default  | Maps to |
-     | ----------------- | -------- | ----------------------------------------------------------------------------- |
-     | `with_examples`   | `False`  | `-DSEN_BUILD_EXAMPLES=ON` |
-     | `with_tests`      | `False`  | `-DSEN_BUILD_TESTS=ON` |
-     | `with_clang_tidy` | `False`  | `-DSEN_DISABLE_CLANG_TIDY=OFF` (polarity flipped) |
-     | `with_coverage`   | `False`  | `-DSEN_COVERAGE_ENABLE=ON` |
-     | `with_docs`       | `False`  | `-DSEN_BUILD_DOCS=ON` and pulls `doxygen` as a tool requirement               |
-     | `sanitizer`       | `"none"` | `-DSEN_USE_SANITIZER=None`/`ASanUBSan`/`Thread` for `none`/`address`/`thread` |
-
-     Options are applied at `conan install` time, the step that generates the build files. The
-     subsequent `conan build` (or a direct `cmake --build`) just compiles with the settings already
-     baked in; the `-D` mappings above are for users invoking CMake without Conan.
-
-     ```shell
-     # Configure a build that compiles the test suite with the address sanitizer
-     conan install . --profile:all=sen_gcc -o sen/*:with_tests=True -o sen/*:sanitizer=address --build=missing
-     ```
-
-     **Building the docs**
-
-     `with_docs=True` pulls `doxygen` automatically, but `doxygen` itself needs `compiler.cppstd=20`
-     (set per-dep), which has to come from a profile rather than from the recipe. Sen ships a
-     `sen_build_docs` profile that sets both, so the one-liner for docs is:
-
-     ```shell
-     conan install . --profile:all=sen_build_docs --build=missing
-     ```
-
-     `mkdocs` and `graphviz` are not Conan-managed. `graphviz` comes from your platform
-     package manager; the pinned Python set goes in a virtual environment, because current
-     Debian and Ubuntu refuse to install it into the system Python:
-
-     ```shell
-     python3 -m venv .venv-docs
-     .venv-docs/bin/pip install -r docs/requirements.txt
-     ```
-
-     A virtual environment rather than `pipx` because the file pins eleven plugins that
-     `mkdocs` imports, and they have to share its environment. `python3-venv` is a separate
-     apt package and `python3 -m venv` fails without it.
-
-??? note "What the build needs (toolchain, network, time)"
-
-    **Toolchain.** Sen's own build gets its tools as Conan tool requirements: CMake, Ninja,
-    GTest, and Node.js 22 whenever the `jsonrpc` component is enabled (any mode above `basic`),
-    because the build generates the `@sen/client` TypeScript types, installs its npm
-    dependencies, and bakes the web explorer bundle into the binary. Building the third-party
-    packages from source is different: their recipes use the system's `cmake` and `pkg-config`,
-    so have both installed before the first `conan install`.
-    Don't install Node for the build; the pinned toolchain version comes with `conan install`.
-    (The TS packages' *dev loops*, `npm run dev` and `vitest` on the host, do use your own
-    Node >= 22; see `components/jsonrpc/clients/typescript/README.md`.)
-
-    **Network.** The first `conan install`/`conan build` fetches from Conan Center **and**, for
-    the browser stack, from the npm registry during the build itself (`npm ci`). Behind a
-    proxy, make both reachable, or skip the web stack entirely: build `-o "sen/*:mode=basic"`,
-    or stay in `full` mode and pass `-DSEN_BUILD_JSONRPC_TS_CLIENT=OFF -DSEN_BUILD_WEBEXPLORER=OFF`
-    at the CMake step.
-
-    **Time.** The first full-mode build compiles every third-party dependency plus the whole
-    tree; on a typical developer machine expect on the order of half an hour to an hour.
-    Subsequent builds are incremental. Sen's own tree wires `ccache` in through
-    `CMAKE_<LANG>_COMPILER_LAUNCHER` whenever it is installed, so there is nothing to
-    configure. Dependencies build inside their own projects and never see that, so to
-    cache them too, put your distribution's ccache shim directory — `/usr/lib/ccache` on
-    Debian and Ubuntu — ahead of the compilers on `PATH` for the `conan install` step
-    only, which is what CI does.
-
-    **Windows.** The C++ tree and the browser stack both build with MSVC, and projects run on it.
-    The test suite runs there too, though on fewer configurations than Linux.
-
-    For enabling and running the test suite, see [Running the tests](testing.md).
+For enabling and running the test suite, see [Running the tests](testing.md).
 
 ## Next steps
 
