@@ -12,6 +12,7 @@
 #include "containers.h"
 
 // sen
+#include "sen/core/base/compiler_macros.h"
 #include "sen/core/obj/interest.h"
 
 // std
@@ -36,6 +37,7 @@ class InterestsHandler
 public:
   InterestsHandler() = default;
   ~InterestsHandler() = default;
+  SEN_NOCOPY_NOMOVE(InterestsHandler)
 
 public:
   /// Adds a reference to an interest and returns true when it was not registered before.
