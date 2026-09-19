@@ -9,6 +9,7 @@
 #include "discovery.h"
 #include "ether_transport.h"
 #include "network_exclusion.h"
+#include "network_footprint.h"
 
 // generated code
 #include "stl/configuration.stl.h"
@@ -21,6 +22,7 @@
 
 // std
 #include <chrono>
+#include <memory>
 
 namespace sen::components::ether
 {
@@ -37,7 +39,13 @@ TEST(EtherTransport, ClearPendingTimers)
   asio::io_context io;
   auto discovery = DiscoverySystem::make(config, io);
 
-  EtherTransport transport(config, "etherTransportTest", "etherTransportTest", discovery, nullptr, exclusions);
+  EtherTransport transport(config,
+                           "etherTransportTest",
+                           "etherTransportTest",
+                           discovery,
+                           nullptr,
+                           exclusions,
+                           std::make_shared<RuntimeNetworkFootprintState>(config, exclusions));
   transport.start(nullptr);
 
   auto timerId = transport.startTimer(std::chrono::hours(1), []() {});

@@ -125,13 +125,17 @@ public:
   void installTracerFactory(TracerFactory&& factory);
 
   /// Set the reporter used to build process network footprint
-  void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter);
+  void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& offlineReporter,
+                                sen::std_util::move_only_function<NetworkFootprint() const>&& runtimeReporter);
 
   /// Configures and preloads the kernel, builds the offline network footprint, and performs final cleanup.
   [[nodiscard]] NetworkFootprint generateOfflineNetworkFootprint(Span<const BusAddress> suppliedBusAddresses);
 
-  /// Builds a network footprint for the supplied bus addresses
-  [[nodiscard]] NetworkFootprint getNetworkFootprint(Span<const BusAddress> busAddresses) const;
+  /// Builds an offline network footprint for the supplied bus addresses
+  [[nodiscard]] NetworkFootprint getOfflineNetworkFootprint(Span<const BusAddress> busAddresses) const;
+
+  /// Returns current network allocations
+  [[nodiscard]] NetworkFootprint getRuntimeNetworkFootprint() const;
 
 private:
   /// Implementation of run() depending on the run mode stated in the configuration.
@@ -180,7 +184,8 @@ private:
   CustomTypeRegistry types_;
   SessionManager sessionManager_;
   std::function<std::unique_ptr<Tracer>(std::string_view)> tracerFactory_;
-  sen::std_util::move_only_function<NetworkFootprintReporter> networkReport_;
+  sen::std_util::move_only_function<NetworkFootprint(Span<const BusAddress>) const> networkOfflineReport_;
+  sen::std_util::move_only_function<NetworkFootprint() const> networkRuntimeReport_;
   std::vector<ComponentInfo> importedPackages_;
   std::vector<ComponentInfo> loadedComponents_;
 };

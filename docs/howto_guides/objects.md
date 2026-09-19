@@ -284,6 +284,9 @@ The kernel can give you the following information:
 - Your application name via `KernelApi::getAppName()`.
 - The known types via `KernelApi::getTypes()` (You won't normally need to use this, as it is aimed
   at tooling).
+- The network addresses and ports the process has bound, via
+  `KernelApi::getRuntimeNetworkFootprint()`. See
+  [the runtime network footprint](../users_guide/command_line.md#runtime-network-footprint).
 - The configuration passed by the user via `ConfigGetter::getConfig()`.
 - Whether you are required to stop, via `RunApi::stopRequested()`.
 - The current (virtualized) time via `RunApi::getTime()`.

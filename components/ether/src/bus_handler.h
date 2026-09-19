@@ -76,6 +76,11 @@ struct MulticastCollisionAnalysis
   double collisionProbability = 0.0;
 };
 
+/// Analyzes known multicast allocations.
+[[nodiscard]] MulticastCollisionAnalysis analyzeMulticastAllocations(
+  std::vector<ConfiguredBusMulticastAllocation> allocations,
+  uint64_t usableAddressCount);
+
 /// Analyzes multicast allocations for configured buses.
 ///
 /// @param configuredBusAddresses: bus addresses to analyze
@@ -119,11 +124,8 @@ public:
   void startReading();
   void broadcast(MemBlockPtr&& data);
   void broadcast(MemBlockPtr&& data1, MemBlockPtr&& data2);
-  void saveLocalParticipantId(ObjectOwnerId id);
-  void removeLocalParticipantId(ObjectOwnerId id);
-  [[nodiscard]] bool hasLocalParticipants() const noexcept;
-  [[nodiscard]] const std::vector<ObjectOwnerId>& getLocalParticipants() const noexcept;
   [[nodiscard]] const std::string& getName() const noexcept;
+  [[nodiscard]] asio::ip::address_v4 getGroupAddress() const;
 
 private:
   BusHandler(uint32_t sessionId,
@@ -158,7 +160,6 @@ private:
   kernel::TransportListener::ByteBufferManager* transportListenerBufferManager_;
   asio::ip::udp::socket socket_;
   std::vector<uint8_t> readBuffer_;
-  std::vector<ObjectOwnerId> localParticipants_;
   std::shared_ptr<HeaderPool> headerPool_;
   std::shared_ptr<spdlog::logger> logger_;
   OutputQueue<OutMessage> outQueue_;

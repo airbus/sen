@@ -30,6 +30,7 @@
 
 // generated code
 #include "stl/sen/kernel/basic_types.stl.h"
+#include "stl/sen/kernel/network_footprint.stl.h"
 
 // spdlog
 #include <spdlog/details/registry.h>
@@ -273,9 +274,15 @@ void PreloadApi::installTracerFactory(TracerFactory&& factory) const
   kernel_.pimpl_->installTracerFactory(std::move(factory));
 }
 
-void PreloadApi::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter)
+void PreloadApi::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& offlineReporter)
 {
-  kernel_.pimpl_->installFootprintReporter(std::move(reporter));
+  installFootprintReporter(std::move(offlineReporter), sen::std_util::move_only_function<NetworkFootprint() const> {});
+}
+
+void PreloadApi::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& offlineReporter,
+                                          sen::std_util::move_only_function<NetworkFootprint() const>&& runtimeReporter)
+{
+  kernel_.pimpl_->installFootprintReporter(std::move(offlineReporter), std::move(runtimeReporter));
 }
 
 //--------------------------------------------------------------------------------------------------------------

@@ -362,6 +362,22 @@ objects do not see each other.
 **Fix:** Add the `ether` component to both process configs and configure matching addresses. See
 the [Ether component documentation](../components/ether.md) for the full configuration reference.
 
+### A firewall or a restricted environment blocks Sen
+
+**Symptom:** Processes work on a development machine and stop discovering each other once deployed,
+or a security team asks which ports and addresses Sen needs before they will allow it.
+
+**Cause:** Sen uses a discovery port, a multicast address per bus, and a TCP and UDP port per
+process. In a restricted environment none of these are open by default, and some are chosen at
+runtime rather than written in the configuration.
+
+**Fix:** Get the list from Sen rather than reading it off the configuration by hand. Before
+deploying, the [offline network footprint](../users_guide/command_line.md#offline-network-footprint)
+reports what a process expects to use. That is the list a security team needs in order to open it.
+Once deployed, the [runtime network footprint](../users_guide/command_line.md#runtime-network-footprint)
+reports what the process has bound, including the ephemeral ports the operating system chose, so you
+can check that what was opened matches what is used.
+
 ### WSL2 networking issues
 
 **Symptom:** Sen processes in WSL2 or a virtual machine do not discover processes on other hosts,

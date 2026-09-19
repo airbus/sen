@@ -48,6 +48,7 @@
 #include <exception>
 #include <iterator>
 #include <memory>
+#include <mutex>
 #include <string_view>
 #include <system_error>
 #include <tuple>
@@ -152,7 +153,7 @@ void ProcessHandler::startConnection(std::vector<asio::ip::basic_endpoint<asio::
       }
       else
       {
-        us->tcpSocket_.close();
+        us->closeTcpSocket();
         us->startConnection(points);
       }
     }
@@ -166,7 +167,11 @@ void ProcessHandler::startConnection(std::vector<asio::ip::basic_endpoint<asio::
   tcpSocket_.async_connect(endpoint, std::move(callback));
 }
 
-ProcessHandler::~ProcessHandler() { logger_->debug("process handler: deleted"); }
+ProcessHandler::~ProcessHandler()
+{
+  unregisterRuntimePorts();
+  logger_->debug("process handler: deleted");
+}
 
 void ProcessHandler::stop() noexcept
 {
@@ -201,8 +206,9 @@ void ProcessHandler::shutdownSockets()
   std::ignore = udpSocket_.shutdown(asio::socket_base::shutdown_both, ec);
   std::ignore = tcpSocket_.shutdown(asio::socket_base::shutdown_both, ec);
 
-  std::ignore = tcpSocket_.close(ec);
+  closeTcpSocket();
   std::ignore = udpSocket_.close(ec);
+  unregisterRuntimePorts();
 }
 
 void ProcessHandler::localParticipantJoinedBus(ObjectOwnerId participantId,
@@ -236,7 +242,8 @@ void ProcessHandler::operator()(Hello&& msg)
   // check if the other was mistakenly connecting to another session
   if (msg.info.sessionId != transport_->getOwnInfo().sessionId)
   {
-    tcpSocket_.close();
+    onDisconnected(asio::error::operation_aborted);
+    return;
   }
 
   // kernel protocol version 9 is not retro-compatible
@@ -387,12 +394,24 @@ void ProcessHandler::prepareTcpSourceSocket()
                        std::ignore = tcpSocket_.bind(asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port), error);
                        return error;
                      });
+  const auto port = tcpSocket_.local_endpoint().port();
+  std::scoped_lock lock(runtimePortsMutex_);
+  tcpSourcePortId_ = transport_->addRuntimePort(PortKind::tcpSource, port);
+}
+
+void ProcessHandler::closeTcpSocket()
+{
+  asio::error_code error;
+  std::ignore = tcpSocket_.close(error);
+  std::scoped_lock lock(runtimePortsMutex_);
+  transport_->removeRuntimePort(tcpSourcePortId_);
 }
 
 void ProcessHandler::onConnected()
 {
   logger_->debug("ProcessHandler: onConnected()");
 
+  uint16_t udpPort = 0;
   try
   {
     udpSocket_.open(asio::ip::udp::v4());
@@ -406,6 +425,9 @@ void ProcessHandler::onConnected()
                            udpSocket_.bind(asio::ip::udp::endpoint(asio::ip::address_v4::any(), port), error);
                          return error;
                        });
+    udpPort = udpSocket_.local_endpoint().port();
+    std::scoped_lock lock(runtimePortsMutex_);
+    udpUnicastPortId_ = transport_->addRuntimePort(PortKind::udpUnicast, udpPort);
   }
   catch (const std::exception& error)
   {
@@ -417,7 +439,7 @@ void ProcessHandler::onConnected()
 
   Hello hello {};
   hello.info = transport_->getOwnInfo();
-  hello.udpPort = udpSocket_.local_endpoint().port();
+  hello.udpPort = udpPort;
   hello.version.kernel = kernel::getKernelProtocolVersion();
   hello.version.ether = etherProtocolVersion;
 
@@ -435,6 +457,13 @@ void ProcessHandler::onDisconnected(const asio::error_code& err)
   std::ignore = err;
   shutdownSockets();
   transport_->processDisconnected(this);  // this will delete us
+}
+
+void ProcessHandler::unregisterRuntimePorts()
+{
+  std::scoped_lock lock(runtimePortsMutex_);
+  transport_->removeRuntimePort(tcpSourcePortId_);
+  transport_->removeRuntimePort(udpUnicastPortId_);
 }
 
 //--------------------------------------------------------------------------------------------------------------

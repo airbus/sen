@@ -300,17 +300,19 @@ std::unique_ptr<Tracer> KernelImpl::makeTracer(std::string_view contextName) { r
 
 void KernelImpl::installTracerFactory(TracerFactory&& factory) { tracerFactory_ = std::move(factory); }
 
-void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter)
+void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& offlineReporter,
+                                          sen::std_util::move_only_function<NetworkFootprint() const>&& runtimeReporter)
 {
-  // The installer owns it. A second component replacing this silently would leave the first one's
-  // report unreachable, and the failure would surface later as a report that is simply wrong about
+  // The installer owns both. A second component replacing these silently would leave the first one's
+  // reports unreachable, and the failure would surface later as a report that is simply wrong about
   // the process rather than here, where the second installer is.
-  if (networkReport_)
+  if (networkOfflineReport_ || networkRuntimeReport_)
   {
     throwRuntimeError("a network footprint reporter is already installed; only one component may provide it");
   }
 
-  networkReport_ = std::move(reporter);
+  networkOfflineReport_ = std::move(offlineReporter);
+  networkRuntimeReport_ = std::move(runtimeReporter);
 }
 
 NetworkFootprint KernelImpl::generateOfflineNetworkFootprint(Span<const BusAddress> suppliedBusAddresses)
@@ -327,7 +329,7 @@ NetworkFootprint KernelImpl::generateOfflineNetworkFootprint(Span<const BusAddre
   try
   {
     executor_.preloadOnly();
-    auto footprint = getNetworkFootprint(suppliedBusAddresses);
+    auto footprint = getOfflineNetworkFootprint(suppliedBusAddresses);
 
     // do not retry final component cleanup if shutDown() itself throws.
     shutdownStarted = true;
@@ -344,13 +346,22 @@ NetworkFootprint KernelImpl::generateOfflineNetworkFootprint(Span<const BusAddre
   }
 }
 
-NetworkFootprint KernelImpl::getNetworkFootprint(Span<const BusAddress> busAddresses) const
+NetworkFootprint KernelImpl::getOfflineNetworkFootprint(Span<const BusAddress> busAddresses) const
 {
-  if (!networkReport_)
+  if (!networkOfflineReport_)
   {
     throwRuntimeError("network footprint reporter is not installed; ensure the ether component is configured");
   }
-  return networkReport_(busAddresses);
+  return networkOfflineReport_(busAddresses);
+}
+
+NetworkFootprint KernelImpl::getRuntimeNetworkFootprint() const
+{
+  if (!networkRuntimeReport_)
+  {
+    throwRuntimeError("runtime network footprint reporter is not installed; ensure the ether component is configured");
+  }
+  return networkRuntimeReport_();
 }
 
 Span<const ComponentInfo> KernelImpl::getImportedPackages() const noexcept { return importedPackages_; }

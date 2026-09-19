@@ -9,6 +9,7 @@
 
 // component
 #include "network_exclusion.h"
+#include "port_binding.h"
 
 // sen
 #include "sen/core/base/hash32.h"
@@ -29,6 +30,7 @@
 #include <cstdint>
 #include <exception>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -218,6 +220,109 @@ TEST(NetworkFootprint, RejectsMulticastWithoutUsableAddress)
   {
     EXPECT_NE(std::string(error.what()).find("no usable addresses"), std::string::npos);
   }
+}
+
+/// @test
+/// Checks that a state with no transports reports no buses and no ports.
+/// @requirements(SEN-909)
+TEST(RuntimeNetworkFootprint, StartsEmpty)
+{
+  const RuntimeNetworkFootprintState state(makeConfiguration(), makeExclusions());
+
+  const auto footprint = state.snapshot();
+
+  EXPECT_TRUE(footprint.ports.empty());
+  ASSERT_TRUE(footprint.multicast.has_value());
+  EXPECT_TRUE(footprint.multicast.value().buses.empty());
+}
+
+/// @test
+/// Checks that a live transport's bus and ports reach the snapshot, marked as runtime.
+/// @requirements(SEN-909)
+TEST(RuntimeNetworkFootprint, ReportsTheBusesAndPortsOfALiveTransport)
+{
+  RuntimeNetworkFootprintState state(makeConfiguration(), makeExclusions());
+
+  const auto transportId = state.addTransport("session", 7U);
+  state.addBus(transportId, 3U, "bus", asio::ip::make_address_v4(multicastAddress));
+  std::ignore = state.addPort(transportId, PortKind::tcpAcceptor, pinnedPort);
+
+  const auto footprint = state.snapshot();
+
+  ASSERT_EQ(footprint.ports.size(), 1U);
+  ASSERT_TRUE(footprint.multicast.has_value());
+  ASSERT_EQ(footprint.multicast.value().buses.size(), 1U);
+
+  const auto& bus = footprint.multicast.value().buses.front();
+  EXPECT_EQ(bus.sessionName, "session");
+  EXPECT_EQ(bus.busName, "bus");
+  EXPECT_EQ(bus.sessionId, 7U);
+  EXPECT_EQ(bus.busId, 3U);
+  EXPECT_EQ(bus.source, kernel::NetworkFootprintBusSource::runtime);
+}
+
+/// @test
+/// Checks that removing a transport drops its entries, so a stopped transport leaves nothing behind.
+/// @requirements(SEN-909)
+TEST(RuntimeNetworkFootprint, ForgetsARemovedTransport)
+{
+  RuntimeNetworkFootprintState state(makeConfiguration(), makeExclusions());
+
+  const auto transportId = state.addTransport("session", 7U);
+  state.addBus(transportId, 3U, "bus", asio::ip::make_address_v4(multicastAddress));
+  std::ignore = state.addPort(transportId, PortKind::tcpAcceptor, pinnedPort);
+  ASSERT_FALSE(state.snapshot().ports.empty());
+
+  state.removeTransport(transportId);
+
+  const auto footprint = state.snapshot();
+  EXPECT_TRUE(footprint.ports.empty());
+  ASSERT_TRUE(footprint.multicast.has_value());
+  EXPECT_TRUE(footprint.multicast.value().buses.empty());
+}
+
+/// @test
+/// Checks that removing an already-removed transport is harmless. The transport is removed once on
+/// stop and again in the destructor, so this pair really happens.
+/// @requirements(SEN-909)
+TEST(RuntimeNetworkFootprint, ToleratesRemovingATransportTwice)
+{
+  RuntimeNetworkFootprintState state(makeConfiguration(), makeExclusions());
+
+  const auto keptId = state.addTransport("kept", 1U);
+  state.addBus(keptId, 1U, "keptBus", asio::ip::make_address_v4(multicastAddress));
+
+  const auto goneId = state.addTransport("gone", 2U);
+  // The gone transport needs a bus of its own, or the assertion below holds whether or not the
+  // removal happened.
+  state.addBus(goneId, 2U, "goneBus", asio::ip::make_address_v4(multicastAddress));
+  std::ignore = state.addPort(goneId, PortKind::tcpAcceptor, pinnedPort);
+  state.removeTransport(goneId);
+  state.removeTransport(goneId);
+  state.removeTransport(invalidRuntimeFootprintTransportId);
+
+  const auto footprint = state.snapshot();
+  EXPECT_TRUE(footprint.ports.empty());
+  ASSERT_TRUE(footprint.multicast.has_value());
+  ASSERT_EQ(footprint.multicast.value().buses.size(), 1U);
+  EXPECT_EQ(footprint.multicast.value().buses.front().sessionName, "kept");
+}
+
+/// @test
+/// Checks that removing one port leaves the transport's other ports reported.
+/// @requirements(SEN-909)
+TEST(RuntimeNetworkFootprint, RemovesOnlyTheNamedPort)
+{
+  RuntimeNetworkFootprintState state(makeConfiguration(), makeExclusions());
+
+  const auto transportId = state.addTransport("session", 7U);
+  const auto firstPortId = state.addPort(transportId, PortKind::tcpAcceptor, pinnedPort);
+  std::ignore = state.addPort(transportId, PortKind::udpUnicast, probePortMin);
+  ASSERT_EQ(state.snapshot().ports.size(), 2U);
+
+  state.removePort(transportId, firstPortId);
+
+  EXPECT_EQ(state.snapshot().ports.size(), 1U);
 }
 
 }  // namespace sen::components::ether
