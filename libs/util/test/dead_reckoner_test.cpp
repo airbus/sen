@@ -29,7 +29,7 @@
 namespace sen::util
 {
 
-constexpr f64 error = 1e-2;
+constexpr f64 absoluteError = 1e-2;
 
 // timestamps used for the extrapolations of the tests
 constexpr sen::TimeStamp initialTimeStamp {std::chrono::seconds(0)};
@@ -55,9 +55,9 @@ TEST(DeadReckonerTest, drFpw)
 
   const auto situation = drFpw(input, currentTimeStamp);
 
-  EXPECT_NEAR(20, situation.worldLocation.x, error);
-  EXPECT_NEAR(-40, situation.worldLocation.y, error);
-  EXPECT_NEAR(70, situation.worldLocation.z, error);
+  EXPECT_NEAR(20, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(-40, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(70, situation.worldLocation.z, absoluteError);
 }
 
 /// @test
@@ -70,12 +70,12 @@ TEST(DeadReckonerTest, drRpw)
 
   const auto situation = drRpw(input, currentTimeStamp);
 
-  EXPECT_NEAR(-20, situation.worldLocation.x, error);
-  EXPECT_NEAR(20, situation.worldLocation.y, error);
-  EXPECT_NEAR(60, situation.worldLocation.z, error);
-  EXPECT_NEAR(5, toDeg(situation.orientation.psi), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), error);
+  EXPECT_NEAR(-20, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(20, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(60, situation.worldLocation.z, absoluteError);
+  EXPECT_NEAR(5, toDeg(situation.orientation.psi), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.phi), absoluteError);
 }
 
 /// @test
@@ -88,12 +88,12 @@ TEST(DeadReckonerTest, drRvw)
 
   const auto situation = drRvw(input, currentTimeStamp);
 
-  EXPECT_NEAR(-16, situation.worldLocation.x, error);
-  EXPECT_NEAR(24, situation.worldLocation.y, error);
-  EXPECT_NEAR(64, situation.worldLocation.z, error);
-  EXPECT_NEAR(5, toDeg(situation.orientation.psi), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), error);
+  EXPECT_NEAR(-16, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(24, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(64, situation.worldLocation.z, absoluteError);
+  EXPECT_NEAR(5, toDeg(situation.orientation.psi), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.phi), absoluteError);
 }
 
 /// @test
@@ -106,9 +106,9 @@ TEST(DeadReckonerTest, drFvw)
 
   const auto situation = drFvw(input, currentTimeStamp);
 
-  EXPECT_NEAR(-24, situation.worldLocation.x, error);
-  EXPECT_NEAR(24, situation.worldLocation.y, error);
-  EXPECT_NEAR(64, situation.worldLocation.z, error);
+  EXPECT_NEAR(-24, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(24, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(64, situation.worldLocation.z, absoluteError);
 }
 
 /// @test
@@ -121,9 +121,9 @@ TEST(DeadReckonerTest, drFpb)
 
   const auto situation = drFpb(input, currentTimeStamp);
 
-  EXPECT_NEAR(-20, situation.worldLocation.x, error);
-  EXPECT_NEAR(-20, situation.worldLocation.y, error);
-  EXPECT_NEAR(60, situation.worldLocation.z, error);
+  EXPECT_NEAR(-20, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(-20, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(60, situation.worldLocation.z, absoluteError);
 }
 
 /// @test
@@ -136,9 +136,9 @@ TEST(DeadReckonerTest, drFvb)
 
   const auto situation = drFvb(input, currentTimeStamp);
 
-  EXPECT_NEAR(-16, situation.worldLocation.x, error);
-  EXPECT_NEAR(-64, situation.worldLocation.y, error);
-  EXPECT_NEAR(24, situation.worldLocation.z, error);
+  EXPECT_NEAR(-16, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(-64, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(24, situation.worldLocation.z, absoluteError);
 }
 
 /// @test
@@ -151,12 +151,12 @@ TEST(DeadReckonerTest, drRpb)
 
   const auto situation = drRpb(input, currentTimeStamp);
 
-  EXPECT_NEAR(0, situation.worldLocation.x, error);
-  EXPECT_NEAR(0, situation.worldLocation.y, error);
-  EXPECT_NEAR(-(20 / pi) * 2, situation.worldLocation.z, error);
-  EXPECT_NEAR(180, toDeg(situation.orientation.psi), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
-  EXPECT_NEAR(180, toDeg(situation.orientation.phi), error);
+  EXPECT_NEAR(0, situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(0, situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(-(20 / pi) * 2, situation.worldLocation.z, absoluteError);
+  EXPECT_NEAR(180, toDeg(situation.orientation.psi), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
+  EXPECT_NEAR(180, toDeg(situation.orientation.phi), absoluteError);
 }
 
 /// @test
@@ -169,12 +169,12 @@ TEST(DeadReckonerTest, drRvb)
 
   const auto situation = drRvb(input, currentTimeStamp);
 
-  EXPECT_NEAR(48 / pi - 32 / (pi * pi), situation.worldLocation.x, error);
-  EXPECT_NEAR(32 / pi + 32 / (pi * pi), situation.worldLocation.y, error);
-  EXPECT_NEAR(0, situation.worldLocation.z, error);
-  EXPECT_NEAR(90, toDeg(situation.orientation.psi), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), error);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), error);
+  EXPECT_NEAR(48 / pi - 32 / (pi * pi), situation.worldLocation.x, absoluteError);
+  EXPECT_NEAR(32 / pi + 32 / (pi * pi), situation.worldLocation.y, absoluteError);
+  EXPECT_NEAR(0, situation.worldLocation.z, absoluteError);
+  EXPECT_NEAR(90, toDeg(situation.orientation.psi), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
+  EXPECT_NEAR(0, toDeg(situation.orientation.phi), absoluteError);
 }
 
 /// @test
@@ -197,12 +197,12 @@ TEST(DeadReckonerTest, ecefToNedOrientation)
   const auto result2 = impl::ecefToNed(ecef2, worldLocation2);
 
   // check expected euler angles with respect to ned
-  EXPECT_NEAR(result1.psi, ned1.psi, error);
-  EXPECT_NEAR(result1.theta, ned1.theta, error);
-  EXPECT_NEAR(result1.phi, ned1.phi, error);
-  EXPECT_NEAR(result2.psi, ned2.psi, error);
-  EXPECT_NEAR(result2.theta, ned2.theta, error);
-  EXPECT_NEAR(result2.phi, ned2.phi, error);
+  EXPECT_NEAR(result1.psi, ned1.psi, absoluteError);
+  EXPECT_NEAR(result1.theta, ned1.theta, absoluteError);
+  EXPECT_NEAR(result1.phi, ned1.phi, absoluteError);
+  EXPECT_NEAR(result2.psi, ned2.psi, absoluteError);
+  EXPECT_NEAR(result2.theta, ned2.theta, absoluteError);
+  EXPECT_NEAR(result2.phi, ned2.phi, absoluteError);
 }
 
 /// @test
