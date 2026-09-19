@@ -50,13 +50,16 @@ The `sen.Bus` class has the following members:
 
 The `sen.ObjectList` is a regular Python sequence with the following extra members:
 
-| Name                   | Description                                                     |
-| :--------------------- | --------------------------------------------------------------- |
-| onAdded(callback)      | Registers a function to be called when a new object gets added. |
-| onRemoved(callback)    | Registers a function to be called when an object gets removed.  |
-| waitUntilEmpty()       | Holds the execution until the list is empty.                    |
-| waitUntilNotEmpty()    | Holds the execution until the list is not empty.                |
-| waitUntilSizeIs(count) | Holds the execution until the list size is equal to count.      |
+| Name                            | Description                                                     |
+| :------------------------------ | --------------------------------------------------------------- |
+| onAdded(callback)               | Registers a function to be called when a new object gets added. |
+| onRemoved(callback)             | Registers a function to be called when an object gets removed.  |
+| waitUntilEmpty(timeout)         | Holds the execution until the list is empty.                    |
+| waitUntilNotEmpty(timeout)      | Holds the execution until the list is not empty.                |
+| waitUntilSizeIs(count, timeout) | Holds the execution until the list size is equal to count.      |
+
+The three `waitUntil` members take the same optional `timeout` as `sen.api.waitUntil()`,
+and return `False` when it elapses.
 
 The `sen.Object` class contains all the properties and methods of the corresponding class. In
 addition, you can register callbacks to react to events and property changes:
