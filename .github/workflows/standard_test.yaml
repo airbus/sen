@@ -167,6 +167,18 @@ jobs:
               -N -L unit | grep -q mcp_gateway_unit
           fi
 
+      # Windows reserves blocks of UDP ports for its own services, and both ether
+      # defaults sit in that range, so a bind intermittently fails and the run dies
+      # (#52). Below 49152 is outside it. Set here rather than in the step's env,
+      # because an expression that evaluates to empty still sets the variable and
+      # the component warns on every Linux run about a non-numeric port.
+      - name: Move the ether ports out of the range Windows reserves
+        if: ${{ runner.os == 'Windows' }}
+        shell: bash
+        run: |
+          echo "SEN_ETHER_BUS_MULTICAST_PORT=30985" >> "$GITHUB_ENV"
+          echo "SEN_ETHER_DISCOVERY_PORT=40543" >> "$GITHUB_ENV"
+
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}
         # The suite runs in minutes. The bound is for what happens after it: a
