@@ -30,6 +30,8 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <exception>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -67,6 +69,36 @@ void runKernelStepAndDestroy(sen::kernel::TestComponent& component)
 /// Checks correct creation of kernel class in virtual time mode from an empty yaml file
 /// @requirements(SEN-361)
 TEST(TestKernel, emptyConfig) { EXPECT_NO_THROW(auto kernel = sen::kernel::TestKernel::fromYamlString("")); }
+
+// Distinct from std::abort so the check below cannot pass by the two being folded together.
+volatile int terminateHandlerCalls = 0;
+
+[[noreturn]] void testTerminateHandler()
+{
+  terminateHandlerCalls++;
+  std::abort();
+}
+
+/// @test
+/// Destroying a kernel must leave crash reporting alone. It is armed once for the whole process by
+/// whoever owns the process, so a kernel that never armed it must not disarm it on the way out.
+/// @requirements(SEN-361)
+TEST(TestKernel, destroyingAKernelLeavesTheProcessTerminateHandlerAlone)
+{
+  // Installing our own first, rather than reading whatever is there: a kernel destroyed by an
+  // earlier test in this binary would already have changed it, and the check would then hold
+  // whether or not the defect is present.
+  auto* const previous = std::set_terminate(testTerminateHandler);
+
+  {
+    auto kernel = sen::kernel::TestKernel::fromYamlString("");
+  }
+
+  auto* const after = std::get_terminate();
+  std::set_terminate(previous);
+
+  EXPECT_EQ(after, testTerminateHandler);
+}
 
 /// @test
 /// Check correctness of a kernel instance that register an object and set up his callback on init, tracking the

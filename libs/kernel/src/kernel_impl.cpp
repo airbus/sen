@@ -70,7 +70,10 @@ KernelImpl::KernelImpl(std::shared_ptr<kernel::OperatingSystem> os, Kernel& subj
 {
 }
 
-KernelImpl::~KernelImpl() { CrashReporter::get().uninstall(); }
+// Out of line because the members declared in the header are incomplete there. The crash reporter
+// is deliberately not disarmed here: it is armed once for the process by whoever owns the process,
+// so one kernel going would otherwise leave every other kernel, and the host, unreported.
+KernelImpl::~KernelImpl() = default;
 
 int KernelImpl::run(KernelBlockMode blockMode)
 {
@@ -299,6 +302,14 @@ void KernelImpl::installTracerFactory(TracerFactory&& factory) { tracerFactory_ 
 
 void KernelImpl::installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter)
 {
+  // The installer owns it. A second component replacing this silently would leave the first one's
+  // report unreachable, and the failure would surface later as a report that is simply wrong about
+  // the process rather than here, where the second installer is.
+  if (networkReport_)
+  {
+    throwRuntimeError("a network footprint reporter is already installed; only one component may provide it");
+  }
+
   networkReport_ = std::move(reporter);
 }
 
