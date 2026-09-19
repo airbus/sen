@@ -29,6 +29,9 @@
 // std
 #include <algorithm>
 #include <cstdint>
+#include <mutex>
+#include <string>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -154,38 +157,43 @@ namespace
   sen::throwRuntimeError("unknown port kind");
 }
 
+[[nodiscard]] kernel::NetworkFootprintPortMode toFootprintPortMode(const PortBinding& binding)
+{
+  return std::visit(
+    ::sen::Overloaded {
+      [](const Ephemeral&) { return kernel::NetworkFootprintPortMode::ephemeral; },
+      [](const PinnedPort&) { return kernel::NetworkFootprintPortMode::pinned; },
+      [](const ProbePortRange&) { return kernel::NetworkFootprintPortMode::probe; },
+    },
+    binding);
+}
+
 /// Converts a configured port binding into a footprint port entry.
 [[nodiscard]] kernel::NetworkFootprintPort toFootprintPort(PortKind kind, const PortBinding& binding)
 {
-  const auto footprintKind = toFootprintPortKind(kind);
-  return std::visit(
+  auto value = std::visit(
     ::sen::Overloaded {
-      [footprintKind](const Ephemeral&) -> kernel::NetworkFootprintPort
+      [](const Ephemeral&) -> kernel::MaybeNetworkFootprintPortValue { return {}; },
+      [](const PinnedPort& pinnedPort) -> kernel::MaybeNetworkFootprintPortValue
+      { return kernel::NetworkFootprintPortValue {pinnedPort.port}; },
+      [](const ProbePortRange& probeRange) -> kernel::MaybeNetworkFootprintPortValue
       {
-        return {
-          footprintKind,
-          kernel::NetworkFootprintPortMode::ephemeral,
-          kernel::MaybeNetworkFootprintPortValue {},
-        };
-      },
-      [footprintKind](const PinnedPort& pinnedPort) -> kernel::NetworkFootprintPort
-      {
-        return {
-          footprintKind,
-          kernel::NetworkFootprintPortMode::pinned,
-          kernel::NetworkFootprintPortValue {pinnedPort.port},
-        };
-      },
-      [footprintKind](const ProbePortRange& probeRange) -> kernel::NetworkFootprintPort
-      {
-        return {
-          footprintKind,
-          kernel::NetworkFootprintPortMode::probe,
-          kernel::NetworkFootprintPortRange {probeRange.min, probeRange.max},
-        };
+        return kernel::NetworkFootprintPortValue {kernel::NetworkFootprintPortRange {probeRange.min, probeRange.max}};
       },
     },
     binding);
+  return {toFootprintPortKind(kind), toFootprintPortMode(binding), std::move(value)};
+}
+
+[[nodiscard]] kernel::NetworkFootprintPort toRuntimeFootprintPort(PortKind kind,
+                                                                  const PortBinding& binding,
+                                                                  uint16_t port)
+{
+  return {
+    toFootprintPortKind(kind),
+    toFootprintPortMode(binding),
+    kernel::NetworkFootprintPortValue {port},
+  };
 }
 
 /// Converts one source of port exclusions into footprint ranges.
@@ -274,6 +282,157 @@ kernel::NetworkFootprint makeNetworkFootprint(Span<const kernel::BusAddress> con
     std::move(multicast),
     buildPortFootprints(config),
     toFootprintPortExclusions(exclusions.ports),
+  };
+}
+
+RuntimeNetworkFootprintState::RuntimeNetworkFootprintState(Configuration config, NetworkExclusions exclusions)
+  : config_(std::move(config)), exclusions_(std::move(exclusions))
+{
+}
+
+RuntimeFootprintTransportId RuntimeNetworkFootprintState::addTransport(std::string sessionName, uint32_t sessionId)
+{
+  std::scoped_lock lock(mutex_);
+  const auto transportId = nextTransportId_++;
+  RuntimeTransport transport;
+  transport.sessionName = std::move(sessionName);
+  transport.sessionId = sessionId;
+  transports_.emplace(transportId, std::move(transport));
+  return transportId;
+}
+
+void RuntimeNetworkFootprintState::removeTransport(RuntimeFootprintTransportId transportId)
+{
+  if (transportId == invalidRuntimeFootprintTransportId)
+  {
+    return;
+  }
+  std::scoped_lock lock(mutex_);
+  transports_.erase(transportId);
+}
+
+void RuntimeNetworkFootprintState::addBus(RuntimeFootprintTransportId transportId,
+                                          uint32_t busId,
+                                          std::string busName,
+                                          asio::ip::address_v4 groupAddress)
+{
+  std::scoped_lock lock(mutex_);
+  if (auto transportItr = transports_.find(transportId); transportItr != transports_.end())
+  {
+    transportItr->second.buses.insert_or_assign(busId, RuntimeBus {busId, std::move(busName), groupAddress});
+  }
+}
+
+void RuntimeNetworkFootprintState::removeBus(RuntimeFootprintTransportId transportId, uint32_t busId)
+{
+  std::scoped_lock lock(mutex_);
+  if (auto transportItr = transports_.find(transportId); transportItr != transports_.end())
+  {
+    transportItr->second.buses.erase(busId);
+  }
+}
+
+RuntimeFootprintPortId RuntimeNetworkFootprintState::addPort(RuntimeFootprintTransportId transportId,
+                                                             PortKind kind,
+                                                             uint16_t port)
+{
+  std::scoped_lock lock(mutex_);
+  auto transportItr = transports_.find(transportId);
+  if (transportItr == transports_.end())
+  {
+    return invalidRuntimeFootprintPortId;
+  }
+
+  const auto portId = nextPortId_++;
+  transportItr->second.ports.emplace(portId, RuntimePort {kind, port});
+  return portId;
+}
+
+void RuntimeNetworkFootprintState::removePort(RuntimeFootprintTransportId transportId, RuntimeFootprintPortId portId)
+{
+  if (portId == invalidRuntimeFootprintPortId)
+  {
+    return;
+  }
+  std::scoped_lock lock(mutex_);
+  if (auto transportItr = transports_.find(transportId); transportItr != transports_.end())
+  {
+    transportItr->second.ports.erase(portId);
+  }
+}
+
+kernel::NetworkFootprint RuntimeNetworkFootprintState::snapshot() const
+{
+  std::vector<ConfiguredBusMulticastAllocation> allocations;
+  std::vector<RuntimePort> runtimePorts;
+  {
+    std::scoped_lock lock(mutex_);
+    for (const auto& [transportId, transport]: transports_)
+    {
+      std::ignore = transportId;
+      for (const auto& [busId, bus]: transport.buses)
+      {
+        std::ignore = busId;
+        allocations.push_back({
+          {transport.sessionName, bus.busName},
+          transport.sessionId,
+          bus.busId,
+          bus.groupAddress,
+        });
+      }
+      for (const auto& [portId, port]: transport.ports)
+      {
+        std::ignore = portId;
+        runtimePorts.push_back(port);
+      }
+    }
+  }
+
+  std::sort(allocations.begin(),
+            allocations.end(),
+            [](const auto& lhs, const auto& rhs)
+            {
+              return std::tie(lhs.busAddress.sessionName, lhs.busAddress.busName, lhs.sessionId, lhs.busId) <
+                     std::tie(rhs.busAddress.sessionName, rhs.busAddress.busName, rhs.sessionId, rhs.busId);
+            });
+  std::sort(runtimePorts.begin(),
+            runtimePorts.end(),
+            [](const auto& lhs, const auto& rhs)
+            { return std::tie(lhs.kind, lhs.port) < std::tie(rhs.kind, rhs.port); });
+
+  kernel::MaybeNetworkFootprintMulticast multicast;
+  if (!config_.busConfig.multicastDisabled)
+  {
+    const auto usableAddressCount =
+      usableMulticastAddressCount(config_.busConfig.multicastRange, exclusions_.multicast);
+    const auto analysis = analyzeMulticastAllocations(std::move(allocations), usableAddressCount);
+    kernel::NetworkFootprintBusList buses;
+    buses.reserve(analysis.allocations.size());
+    for (const auto& allocation: analysis.allocations)
+    {
+      buses.push_back(toFootprintBus(allocation, kernel::NetworkFootprintBusSource::runtime));
+    }
+    multicast = kernel::NetworkFootprintMulticast {
+      config_.busConfig.multicastPort,
+      std::move(buses),
+      toFootprintAddressRanges(exclusions_.multicast),
+      toFootprintCollision(analysis),
+    };
+  }
+
+  kernel::NetworkFootprintPortList ports;
+  ports.reserve(runtimePorts.size());
+  for (const auto& runtimePort: runtimePorts)
+  {
+    ports.push_back(
+      toRuntimeFootprintPort(runtimePort.kind, getPortBinding(config_, runtimePort.kind), runtimePort.port));
+  }
+
+  return {
+    getBusDiscoveryPort(config_),
+    std::move(multicast),
+    std::move(ports),
+    toFootprintPortExclusions(exclusions_.ports),
   };
 }
 

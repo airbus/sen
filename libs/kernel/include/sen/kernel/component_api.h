@@ -247,6 +247,10 @@ public:
   /// The kernel stores a single reporter, installing another replaces the existing one.
   void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& reporter);
 
+  /// Installs the offline reporter and runtime snapshot reporter.
+  void installFootprintReporter(sen::std_util::move_only_function<NetworkFootprintReporter>&& offlineReporter,
+                                sen::std_util::move_only_function<NetworkFootprint() const>&& runtimeReporter);
+
 private:
   Kernel& kernel_;
 };

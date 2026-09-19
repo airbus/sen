@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_ETHER_SRC_PROCESS_HANDLER_H
 
 // component
+#include "network_footprint.h"
 #include "output_queue.h"
 #include "shared_buffer_sequence.h"
 #include "util.h"
@@ -24,6 +25,7 @@
 // std
 #include <atomic>
 #include <cstdint>
+#include <mutex>
 #include <utility>
 
 namespace sen::components::ether
@@ -100,8 +102,10 @@ private:
 
 private:
   void prepareTcpSourceSocket();
+  void closeTcpSocket();
   void onConnected();
   void onDisconnected(const asio::error_code& err);
+  void unregisterRuntimePorts();
 
 private:
   void readTcpHeader();
@@ -167,6 +171,9 @@ private:
   std::array<OutMessage, udpBulkBufferSize> udpBulkBuffer_ {};
   std::atomic_bool sendingTcp_ {false};
   sen::kernel::Tracer& tracer_;
+  std::mutex runtimePortsMutex_;
+  RuntimeFootprintPortId tcpSourcePortId_ = invalidRuntimeFootprintPortId;
+  RuntimeFootprintPortId udpUnicastPortId_ = invalidRuntimeFootprintPortId;
 };
 
 }  // namespace sen::components::ether

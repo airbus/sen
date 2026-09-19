@@ -10,6 +10,7 @@
 
 // component
 #include "network_exclusion.h"
+#include "port_binding.h"
 
 // sen
 #include "sen/core/base/span.h"
@@ -18,6 +19,15 @@
 #include "stl/configuration.stl.h"
 #include "stl/sen/kernel/basic_types.stl.h"
 #include "stl/sen/kernel/network_footprint.stl.h"
+
+// asio
+#include <asio/ip/address_v4.hpp>
+
+// std
+#include <cstdint>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 
 namespace sen::components::ether
 {
@@ -33,6 +43,61 @@ namespace sen::components::ether
                                                             Span<const kernel::BusAddress> suppliedBusAddresses,
                                                             const Configuration& config,
                                                             const NetworkExclusions& exclusions);
+
+using RuntimeFootprintTransportId = uint64_t;
+using RuntimeFootprintPortId = uint64_t;
+
+constexpr RuntimeFootprintTransportId invalidRuntimeFootprintTransportId = 0U;
+constexpr RuntimeFootprintPortId invalidRuntimeFootprintPortId = 0U;
+
+/// Stores the ports and multicast buses currently allocated by Ether transports.
+class RuntimeNetworkFootprintState final
+{
+public:
+  RuntimeNetworkFootprintState(Configuration config, NetworkExclusions exclusions);
+
+  [[nodiscard]] RuntimeFootprintTransportId addTransport(std::string sessionName, uint32_t sessionId);
+  void removeTransport(RuntimeFootprintTransportId transportId);
+  void addBus(RuntimeFootprintTransportId transportId,
+              uint32_t busId,
+              std::string busName,
+              asio::ip::address_v4 groupAddress);
+  void removeBus(RuntimeFootprintTransportId transportId, uint32_t busId);
+  [[nodiscard]] RuntimeFootprintPortId addPort(RuntimeFootprintTransportId transportId, PortKind kind, uint16_t port);
+  void removePort(RuntimeFootprintTransportId transportId, RuntimeFootprintPortId portId);
+
+  [[nodiscard]] kernel::NetworkFootprint snapshot() const;
+
+private:
+  struct RuntimeBus
+  {
+    uint32_t busId = 0;
+    std::string busName;
+    asio::ip::address_v4 groupAddress;
+  };
+
+  struct RuntimePort
+  {
+    PortKind kind = PortKind::tcpAcceptor;
+    uint16_t port = 0;
+  };
+
+  struct RuntimeTransport
+  {
+    std::string sessionName;
+    uint32_t sessionId = 0;
+    std::unordered_map<uint32_t, RuntimeBus> buses;
+    std::unordered_map<RuntimeFootprintPortId, RuntimePort> ports;
+  };
+
+private:
+  Configuration config_;
+  NetworkExclusions exclusions_;
+  mutable std::mutex mutex_;
+  std::unordered_map<RuntimeFootprintTransportId, RuntimeTransport> transports_;
+  RuntimeFootprintTransportId nextTransportId_ = 1U;
+  RuntimeFootprintPortId nextPortId_ = 1U;
+};
 
 }  // namespace sen::components::ether
 

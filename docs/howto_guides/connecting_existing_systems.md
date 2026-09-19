@@ -266,3 +266,7 @@ the wrong shape and discover it later.
 - [The execution model](../users_guide/execution_model.md), for the cycle and how it is
   advanced
 - [Using HLA FOMs](../users_guide/hla.md), for what FOM support means and does not mean
+- [The network footprint](../users_guide/command_line.md#offline-network-footprint), for the
+  addresses and ports a deployment needs opened, and
+  [its runtime counterpart](../users_guide/command_line.md#runtime-network-footprint) for what a
+  live process has bound

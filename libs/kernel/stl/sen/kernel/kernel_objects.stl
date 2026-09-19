@@ -1,4 +1,5 @@
 import "stl/sen/kernel/basic_types.stl"
+import "stl/sen/kernel/network_footprint.stl"
 
 package sen.kernel;
 
@@ -126,6 +127,9 @@ class KernelApi
 
   // configuration of the kernel execution
   fn getConfig() -> KernelParams [const];
+
+  // actual network addresses and ports currently used by this process
+  fn getRuntimeNetworkFootprint() -> NetworkFootprint [const];
 }
 
 // --8<-- [start:clocks]
