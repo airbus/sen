@@ -54,7 +54,18 @@ jobs:
 
       - name: Install additional python dependencies
         shell: bash
-        run: pip install junitparser==5.0.1
+        run: pip install junitparser==5.0.1 docker==7.2.0 testcontainers==4.15.0
+
+      # The container suites are the only tests that cross a process boundary, and no
+      # sanitizer lane has ever registered them. conanfile.py reads this variable and
+      # hands it to CMake, which is what libs/kernel/test/CMakeLists.txt gates on.
+      # BASE tracks the runner: the image runs the binaries built here.
+      - name: Build the runtime image for the container-based tests
+        shell: bash
+        run: |
+          docker build --file tools/ci/runtime.Dockerfile \
+            --build-arg "BASE=ubuntu:24.04" --tag "sen-runtime:ubuntu-24.04" tools/ci
+          echo "SEN_INTEGRATION_TEST_IMAGE=sen-runtime:ubuntu-24.04" >> "$GITHUB_ENV"
 
       # Debug also compiles the SEN_DEBUG_ASSERT invariant checks, which
       # RelWithDebInfo builds leave out.
