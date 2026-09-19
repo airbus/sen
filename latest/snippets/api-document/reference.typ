@@ -1773,6 +1773,7 @@
   [#mono("get​Units")], [#mono[() \u{2192} #link(<t-sen-kernel-UnitList>)[#"Unit​List"]]], "registered units",
   [#mono("get​Types")], [#mono[() \u{2192} #link(<t-sen-kernel-StringList>)[#"String​List"]]], "registered types, by name",
   [#mono("get​Config")], [#mono[() \u{2192} #link(<t-sen-kernel-KernelParams>)[#"Kernel​Params"]]], "configuration of the kernel execution",
+  [#mono("get​Runtime​Network​Footprint")], [#mono[() \u{2192} #link(<t-sen-kernel-NetworkFootprint>)[#"Network​Footprint"]]], "actual network addresses and ports currently used by this process",
 )
 
 ==== #"VirtualClock" #chip("classes", "class") <t-sen-kernel-VirtualClock>
@@ -2312,6 +2313,7 @@
   [#mono("ports")], link(<t-sen-kernel-NetworkFootprintPortList>)[#"Network​Footprint​Port​List"], "Port settings",
   [#mono("port​Exclusions")], link(<t-sen-kernel-NetworkFootprintPortExclusions>)[#"Network​Footprint​Port​Exclusions"], "Port ranges that cannot be used",
 )
+#facts[Named by #link(<t-sen-kernel-KernelApi>)[#"Kernel​Api"].]
 
 ==== #"NetworkFootprintAddressRange" #chip("structures", "structure") <t-sen-kernel-NetworkFootprintAddressRange>
 #prose("Inclusive IPv4 address range excluded from multicast allocation")

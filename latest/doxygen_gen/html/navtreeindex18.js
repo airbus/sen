@@ -1,5 +1,7 @@
 var NAVTREEINDEX18 =
 {
+"structsen_1_1kernel_1_1_bus_id.html#a736d6b4341d3fd7fbd0e14eba3a8d332":[0,1,13,22],
+"structsen_1_1kernel_1_1_bus_id.html#a75b490d1d7e0de26d35fad289e07e7bf":[0,1,13,11],
 "structsen_1_1kernel_1_1_bus_id.html#a9f8d78683e0de6397819f305380da90a":[0,1,13,21],
 "structsen_1_1kernel_1_1_bus_id.html#aba48aeead96659702f77dcb27f3e9945":[0,1,13,0],
 "structsen_1_1kernel_1_1_bus_id.html#abf3dffb6fdd5127f3cca51fc323a534e":[0,1,13,5],

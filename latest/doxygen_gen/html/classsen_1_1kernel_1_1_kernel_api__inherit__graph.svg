@@ -109,22 +109,24 @@
 <g id="Node000004" class="node">
 <title>Node4</title>
 <g id="a_Node000004"><a xlink:href="classsen_1_1kernel_1_1_preload_api.html" target="_top" xlink:title="What can be done when preloading a component.">
-<polygon fill="white" stroke="transparent" points="355.5,-184 228.5,-184 228.5,-75 355.5,-75 355.5,-184"/>
-<text text-anchor="start" x="241.5" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::kernel::PreloadApi</text>
-<text text-anchor="start" x="290.5" y="-156.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
-<text text-anchor="start" x="233" y="-141.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="244" y="-141.5" font-family="Helvetica,sans-Serif" font-size="10.00">PreloadApi()</text>
-<text text-anchor="start" x="233" y="-126.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="244" y="-126.5" font-family="Helvetica,sans-Serif" font-size="10.00">~PreloadApi()</text>
-<text text-anchor="start" x="233" y="-111.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="244" y="-111.5" font-family="Helvetica,sans-Serif" font-size="10.00">installTransportFactory()</text>
-<text text-anchor="start" x="233" y="-96.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="244" y="-96.5" font-family="Helvetica,sans-Serif" font-size="10.00">installTracerFactory()</text>
-<text text-anchor="start" x="233" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="244" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">installFootprintReporter()</text>
-<polygon fill="#666666" stroke="#666666" points="229,-166.5 229,-166.5 356,-166.5 356,-166.5 229,-166.5"/>
-<polygon fill="#666666" stroke="#666666" points="229,-151.5 229,-151.5 356,-151.5 356,-151.5 229,-151.5"/>
-<polygon fill="none" stroke="#666666" points="228.5,-75 228.5,-184 355.5,-184 355.5,-75 228.5,-75"/>
+<polygon fill="white" stroke="transparent" points="355.5,-191.5 228.5,-191.5 228.5,-67.5 355.5,-67.5 355.5,-191.5"/>
+<text text-anchor="start" x="241.5" y="-179.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::kernel::PreloadApi</text>
+<text text-anchor="start" x="290.5" y="-164.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
+<text text-anchor="start" x="233" y="-149.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="244" y="-149.5" font-family="Helvetica,sans-Serif" font-size="10.00">PreloadApi()</text>
+<text text-anchor="start" x="233" y="-134.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="244" y="-134.5" font-family="Helvetica,sans-Serif" font-size="10.00">~PreloadApi()</text>
+<text text-anchor="start" x="233" y="-119.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="244" y="-119.5" font-family="Helvetica,sans-Serif" font-size="10.00">installTransportFactory()</text>
+<text text-anchor="start" x="233" y="-104.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="244" y="-104.5" font-family="Helvetica,sans-Serif" font-size="10.00">installTracerFactory()</text>
+<text text-anchor="start" x="233" y="-89.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="244" y="-89.5" font-family="Helvetica,sans-Serif" font-size="10.00">installFootprintReporter()</text>
+<text text-anchor="start" x="233" y="-74.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="244" y="-74.5" font-family="Helvetica,sans-Serif" font-size="10.00">installFootprintReporter()</text>
+<polygon fill="#666666" stroke="#666666" points="229,-174.5 229,-174.5 356,-174.5 356,-174.5 229,-174.5"/>
+<polygon fill="#666666" stroke="#666666" points="229,-159.5 229,-159.5 356,-159.5 356,-159.5 229,-159.5"/>
+<polygon fill="none" stroke="#666666" points="228.5,-67.5 228.5,-191.5 355.5,-191.5 355.5,-67.5 228.5,-67.5"/>
 </a>
 </g>
 </g>
@@ -132,7 +134,7 @@
 <g id="edge3_Node000001_Node000004" class="edge">
 <title>Node1&#45;&gt;Node4</title>
 <g id="a_edge3_Node000001_Node000004"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M329.46,-284.71C320.74,-248.81 311.95,-212.61 305.07,-184.31"/>
+<path fill="none" stroke="#63b8ff" d="M329.55,-285.09C321.56,-252.18 313.5,-219 306.9,-191.85"/>
 <polygon fill="none" stroke="#63b8ff" points="326.16,-285.93 331.92,-294.82 332.96,-284.27 326.16,-285.93"/>
 </a>
 </g>

@@ -1,5 +1,7 @@
 var NAVTREEINDEX16 =
 {
+"namespacesen_1_1util.html#a617198ab5d6a6a395021af2a1cbb748f":[1,0,1,7,82],
+"namespacesen_1_1util.html#a67629569ac3c83c4c985436eac8c2c27":[1,0,1,7,51],
 "namespacesen_1_1util.html#a69c64bfafe3082b8b012472ab45d52f0":[1,0,1,7,28],
 "namespacesen_1_1util.html#a6cc25c968f83350a1ef525b05259e936":[1,0,1,7,66],
 "namespacesen_1_1util.html#a8abc31ab9ea33a5cd77efe64b750a439":[1,0,1,7,45],
@@ -247,7 +249,5 @@ var NAVTREEINDEX16 =
 "structsen_1_1_guarded.html#adb72cc63310f5e1f5427803919a390ff":[2,0,1,33,11],
 "structsen_1_1_guarded_1_1_temporary_access_token.html":[1,0,1,33,0],
 "structsen_1_1_guarded_1_1_temporary_access_token.html":[2,0,1,33,0],
-"structsen_1_1_guarded_1_1_temporary_access_token.html#a0f6a1f1547e252dc747f78fdb478ade8":[1,0,1,33,0,1],
-"structsen_1_1_guarded_1_1_temporary_access_token.html#a0f6a1f1547e252dc747f78fdb478ade8":[2,0,1,33,0,1],
-"structsen_1_1_guarded_1_1_temporary_access_token.html#a9c0e42a350082bc7b52fbb167d08e31d":[1,0,1,33,0,0]
+"structsen_1_1_guarded_1_1_temporary_access_token.html#a0f6a1f1547e252dc747f78fdb478ade8":[1,0,1,33,0,1]
 };
