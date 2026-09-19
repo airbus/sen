@@ -312,6 +312,7 @@ function(add_sen_integration_test test_name)
   set(_asan_suppressions ${ASAN_SUPPRESSION_FILE})
   set(_tsan_suppressions ${TSAN_SUPPRESSION_FILE})
   set(_sanitizer_log_option ${SEN_SANITIZER_LOG_OPTION})
+  set(_symbolizer_option "")
 
   # the USE_TESTCONTAINERS argument indicates that the integration test will use python testcontainers
   if(${_arg_USE_TESTCONTAINERS})
@@ -325,6 +326,11 @@ function(add_sen_integration_test test_name)
     set(_lsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/lsan_ignorelist.txt)
     set(_asan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/asan_ignorelist.txt)
     set(_tsan_suppressions ${SEN_INTEGRATION_TEST_MOUNT}/cmake/util/tsan_ignorelist.txt)
+
+    # The runtime image carries addr2line, not the llvm-symbolizer the sanitizers look for
+    # by name on PATH. Without a symbolizer they print every frame as <null> and refuse to
+    # fall back, and since suppressions match on function names, none of them can bite.
+    set(_symbolizer_option ":external_symbolizer_path=/usr/bin/addr2line")
 
     # And where a finding is written, for the same reason. Left on the host's path the
     # sanitizer creates it inside the container and the container is deleted with it, and a
@@ -350,24 +356,25 @@ function(add_sen_integration_test test_name)
   if(LSAN_SUPPRESSION_FILE)
     append_test_env_modification(
       ${test_name}
-      "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1${_sanitizer_log_option}"
+      "LSAN_OPTIONS=set:suppressions=${_lsan_suppressions}:report_objects=1${_symbolizer_option}${_sanitizer_log_option}"
     )
   endif()
 
   if(ASAN_SUPPRESSION_FILE)
     append_test_env_modification(
       ${test_name}
-      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100${_sanitizer_log_option}"
+      "ASAN_OPTIONS=set:suppressions=${_asan_suppressions}:fast_unwind_on_malloc=0:malloc_context_size=100${_symbolizer_option}${_sanitizer_log_option}"
     )
   endif()
 
   if(UBSAN_IGNORELIST_FILE)
-    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:print_stacktrace=1")
+    append_test_env_modification(${test_name} "UBSAN_OPTIONS=set:print_stacktrace=1${_symbolizer_option}")
   endif()
 
   if(TSAN_SUPPRESSION_FILE)
     append_test_env_modification(
-      ${test_name} "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}${_sanitizer_log_option}"
+      ${test_name}
+      "TSAN_OPTIONS=set:suppressions=${_tsan_suppressions}${_symbolizer_option}${_sanitizer_log_option}"
     )
   endif()
 
