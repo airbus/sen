@@ -1,5 +1,7 @@
 var NAVTREEINDEX15 =
 {
+"namespacesen_1_1gen.html#af680d81e6325c83f0ce8fd6b5be92a54":[3,0,0,2,0,0,0,7,0,3],
+"namespacesen_1_1gen.html#structsen_1_1gen_1_1_typst_options":[3,0,0,2,0,0,0,7,0],
 "namespacesen_1_1gen_1_1detail.html":[1,0,1,2,0],
 "namespacesen_1_1gen_1_1detail.html#a02ee8431492e6324f16bfb42675adbbb":[1,0,1,2,0,27],
 "namespacesen_1_1gen_1_1detail.html#a0368a67e233452c0f6d25818725a0a2e":[3,0,0,2,1,7,0,0,2],
@@ -247,7 +249,5 @@ var NAVTREEINDEX15 =
 "namespacesen_1_1util.html#structsen_1_1util_1_1_haversine_data":[3,0,0,4,1,0,3,0],
 "namespacesen_1_1util_1_1impl.html":[1,0,1,7,0],
 "namespacestd.html":[1,0,2],
-"native__object_8h.html":[3,0,0,0,0,0,0,4,4],
-"native__object_8h_source.html":[3,0,0,0,0,0,0,4,4],
-"native__object__impl_8h.html":[3,0,0,0,0,0,0,4,0,2]
+"native__object_8h.html":[3,0,0,0,0,0,0,4,4]
 };

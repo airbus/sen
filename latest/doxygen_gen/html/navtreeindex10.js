@@ -1,5 +1,7 @@
 var NAVTREEINDEX10 =
 {
+"classsen_1_1util_1_1_settable_dead_reckoner.html#acf9d0a4ffca5cf416273318fa5cbcd95":[0,2,0,16,26],
+"classsen_1_1util_1_1_settable_dead_reckoner.html#ad0a975efa5993cb390f53ae86e3408c2":[0,2,0,16,25],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#ad9aa3731b8edefe57f46f5318646bebf":[0,2,0,16,32],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#ae62b54cd52aeec6a1f976b95d680358e":[0,2,0,16,15],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#af838391974b91f671051ffc8e901d626":[0,2,0,16,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX10 =
 "functions_func_j.html":[2,3,1,9],
 "functions_func_k.html":[2,3,1,10],
 "functions_func_l.html":[2,3,1,11],
-"functions_func_m.html":[2,3,1,12],
-"functions_func_n.html":[2,3,1,13],
-"functions_func_o.html":[2,3,1,14]
+"functions_func_m.html":[2,3,1,12]
 };
