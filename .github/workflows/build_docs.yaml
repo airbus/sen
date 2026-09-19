@@ -29,6 +29,12 @@ permissions:
   # Pulling the image the documentation is built in, which is a private package.
   packages: read
 
+# Without this a run step gets GitHub's implicit `bash -e`, which has no pipefail, so a
+# failed command in a pipeline is reported as success. The other workflows say it per step.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy_docs:
     runs-on: ubuntu-24.04

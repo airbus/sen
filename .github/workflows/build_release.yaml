@@ -18,6 +18,12 @@ on:
 permissions:
   contents: read
 
+# Without this a run step gets GitHub's implicit `bash -e`, which has no pipefail, so a
+# failed command in a pipeline is reported as success. The other workflows say it per step.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   compute-matrix-jobs:
     name: "Generate build matrix"
