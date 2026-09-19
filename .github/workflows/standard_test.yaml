@@ -304,12 +304,15 @@ jobs:
 
       # After the clean, so build folders stay out. always() keeps what a
       # cancelled run already built.
-      - name: Drop the ccache entry this run replaces
-        if: ${{ !cancelled() && runner.os == 'Linux' && github.ref == 'refs/heads/main' }}
+      # The prefix has to follow the variant the action used, or the key matches nothing and
+      # every merge leaves another copy behind. Windows went unpruned on both counts and
+      # reached six entries at 4.8 GB while each Linux lane held one.
+      - name: Drop the compiler cache entry this run replaces
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/drop_cache_key.sh "ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}"
+        run: bash .github/scripts/drop_cache_key.sh "${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}"
 
       - name: Drop the entry this save replaces
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
