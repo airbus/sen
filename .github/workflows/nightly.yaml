@@ -100,6 +100,16 @@ jobs:
           source build/clang/Debug/generators/conanbuild.sh
           cmake --build build/clang/Debug/ --target run_tests
 
+      # The container suites run as root and write their reports into the mounted tree, where
+      # the runner cannot read them. The summary lists those as unreadable and still exits
+      # clean; the upload fails on the first one.
+      - name: Take ownership of the reports the containers wrote
+        if: always()
+        shell: bash
+        run: |
+          [ -d sanitizer-reports ] || exit 0
+          sudo chown -R "$(id -u):$(id -g)" sanitizer-reports
+
       # Always: a run that failed for an unrelated reason still collected them.
       - name: Report the ${{ matrix.lane }} findings
         if: always()
