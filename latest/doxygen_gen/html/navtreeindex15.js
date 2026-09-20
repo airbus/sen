@@ -1,5 +1,7 @@
 var NAVTREEINDEX15 =
 {
+"namespacesen_1_1db.html#a2d591d27b9814e450bf501b89240e5d4":[1,0,1,0,49],
+"namespacesen_1_1db.html#a2df88d8740b1b0ba009646df3a2da80b":[1,0,1,0,40],
 "namespacesen_1_1db.html#a379dd686ff2456fda1ba2aea7005129d":[1,0,1,0,38],
 "namespacesen_1_1db.html#a37ca93e3e6c59ec234a9250f27f09c38":[1,0,1,0,33],
 "namespacesen_1_1db.html#a456a315672fe1749009491ebf860013c":[1,0,1,0,45],
@@ -247,7 +249,5 @@ var NAVTREEINDEX15 =
 "namespacesen_1_1util.html#a48191025bc17f2c739af1e1f6332d27b":[1,0,1,7,32],
 "namespacesen_1_1util.html#a4d94d0e2f28dc33d5babf59a2d8adae8":[1,0,1,7,33],
 "namespacesen_1_1util.html#a506e5fdbe6554badaad7d8850cb38ed4":[1,0,1,7,23],
-"namespacesen_1_1util.html#a51268113ace693c6e25684efe45451c1":[1,0,1,7,61],
-"namespacesen_1_1util.html#a54425e07bf5c4cdc060539e8b811ea79":[1,0,1,7,44],
-"namespacesen_1_1util.html#a58fde0ce03889983754e04dec673c56e":[1,0,1,7,24]
+"namespacesen_1_1util.html#a51268113ace693c6e25684efe45451c1":[1,0,1,7,61]
 };

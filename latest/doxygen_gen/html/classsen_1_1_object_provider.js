@@ -1,6 +1,6 @@
 var classsen_1_1_object_provider =
 [
-    [ "ObjectProvider", "classsen_1_1_object_provider.html#a91615e694c5740756b56e6e9e40bce6c", null ],
+    [ "ObjectProvider", "classsen_1_1_object_provider.html#afbea50fda5e8e3b11bd34596798a1d9e", null ],
     [ "~ObjectProvider", "classsen_1_1_object_provider.html#a4413fb7d1c2b497ca855f4474bad7a52", null ],
     [ "addListener", "classsen_1_1_object_provider.html#a0eae5fc4c1d9a44786fd4b11c398a40a", null ],
     [ "removeListener", "classsen_1_1_object_provider.html#a8a21f6632893a460a9e6cf6ccb505bf8", null ],
@@ -16,6 +16,5 @@ var classsen_1_1_object_provider =
     [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_provider.html#a23091bb757474423418652354cce723d", null ],
     [ "callOnObjectsAdded", "classsen_1_1_object_provider.html#a3bb3c1206797605b441ff38af4b7714c", null ],
     [ "callOnObjectsRemoved", "classsen_1_1_object_provider.html#a7aa8f74825f0004085e3eb6454e41a92", null ],
-    [ "getListeners", "classsen_1_1_object_provider.html#aec793a4558ecc54f5e881d8057378697", null ],
     [ "ObjectFilter", "classsen_1_1_object_provider.html#ab1edf6bdf2d81a1c0c396fbc47c3a2f6", null ]
 ];

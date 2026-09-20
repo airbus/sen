@@ -29,6 +29,5 @@ var classsen_1_1_object_mux =
     [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_mux.html#a23091bb757474423418652354cce723d", null ],
     [ "callOnObjectsAdded", "classsen_1_1_object_mux.html#a3bb3c1206797605b441ff38af4b7714c", null ],
     [ "callOnObjectsRemoved", "classsen_1_1_object_mux.html#a7aa8f74825f0004085e3eb6454e41a92", null ],
-    [ "getListeners", "classsen_1_1_object_mux.html#aec793a4558ecc54f5e881d8057378697", null ],
     [ "MuxedProviderListener", "classsen_1_1_object_mux.html#ac5218a902868d2d591654735eee54671", null ]
 ];

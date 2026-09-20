@@ -143,19 +143,19 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1_o
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_provider__inherit__graph.svg" width="242" height="1082"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_provider__inherit__graph.svg" width="242" height="1062"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a91615e694c5740756b56e6e9e40bce6c" id="r_a91615e694c5740756b56e6e9e40bce6c"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a91615e694c5740756b56e6e9e40bce6c">ObjectProvider</a> ()=default</td></tr>
+<tr class="memitem:afbea50fda5e8e3b11bd34596798a1d9e" id="r_afbea50fda5e8e3b11bd34596798a1d9e"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#afbea50fda5e8e3b11bd34596798a1d9e">ObjectProvider</a> ()</td></tr>
 <tr class="memitem:a4413fb7d1c2b497ca855f4474bad7a52" id="r_a4413fb7d1c2b497ca855f4474bad7a52"><td class="memItemLeft">virtual&#160;</td><td class="memItemRight"><a class="el" href="#a4413fb7d1c2b497ca855f4474bad7a52">~ObjectProvider</a> ()</td></tr>
 <tr class="memitem:a0eae5fc4c1d9a44786fd4b11c398a40a" id="r_a0eae5fc4c1d9a44786fd4b11c398a40a"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a0eae5fc4c1d9a44786fd4b11c398a40a">addListener</a> (ObjectProviderListener *listener, bool notifyAboutExistingObjects)</td></tr>
 <tr class="memdesc:a0eae5fc4c1d9a44786fd4b11c398a40a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an event listener.  <br /></td></tr>
 <tr class="memitem:a8a21f6632893a460a9e6cf6ccb505bf8" id="r_a8a21f6632893a460a9e6cf6ccb505bf8"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a8a21f6632893a460a9e6cf6ccb505bf8">removeListener</a> (ObjectProviderListener *listener, bool notifyAboutExistingObjects)</td></tr>
 <tr class="memdesc:a8a21f6632893a460a9e6cf6ccb505bf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Un-registers an event listener.  <br /></td></tr>
 <tr class="memitem:a27ccf51d0b2b4f0ac1401608444b4e61" id="r_a27ccf51d0b2b4f0ac1401608444b4e61"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a27ccf51d0b2b4f0ac1401608444b4e61">replaceListener</a> (ObjectProviderListener *oldListener, ObjectProviderListener *newListener)</td></tr>
-<tr class="memdesc:a27ccf51d0b2b4f0ac1401608444b4e61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces an existing listener with a new one without triggering notifications.  <br /></td></tr>
+<tr class="memdesc:a27ccf51d0b2b4f0ac1401608444b4e61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces an existing listener with a new one without triggering notifications. Keep in mind that the links to the providers in the listeners are not updated during this operation. Used in move constructors of the <a class="el" href="classsen_1_1_object_filter.html" title="Allows the discovery of objects based on different criteria.">ObjectFilter</a>.  <br /></td></tr>
 <tr class="memitem:a6abcc93c360d9553f2b28c34aaf27839" id="r_a6abcc93c360d9553f2b28c34aaf27839"><td class="memItemLeft">virtual bool&#160;</td><td class="memItemRight"><a class="el" href="#a6abcc93c360d9553f2b28c34aaf27839">hasListener</a> (ObjectProviderListener *listener) const noexcept</td></tr>
 <tr class="memdesc:a6abcc93c360d9553f2b28c34aaf27839"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the listener has been added.  <br /></td></tr>
 <tr class="memitem:ad069e99d860bb03dd6e32ae0997cee70" id="r_ad069e99d860bb03dd6e32ae0997cee70"><td class="memItemLeft">virtual bool&#160;</td><td class="memItemRight"><a class="el" href="#ad069e99d860bb03dd6e32ae0997cee70">hasListeners</a> () const noexcept</td></tr>
@@ -179,7 +179,6 @@ Protected Member Functions</h2></td></tr>
 <tr class="memdesc:a23091bb757474423418652354cce723d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as notifyRemovedOnExistingObjects but for all registered listeners.  <br /></td></tr>
 <tr class="memitem:a3bb3c1206797605b441ff38af4b7714c" id="r_a3bb3c1206797605b441ff38af4b7714c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a3bb3c1206797605b441ff38af4b7714c">callOnObjectsAdded</a> (ObjectProviderListener *listener, const <a class="el" href="group__obj.html#ga82d17aa351823e354aec2c433af928fc">ObjectAdditionList</a> &amp;additions) const</td></tr>
 <tr class="memitem:a7aa8f74825f0004085e3eb6454e41a92" id="r_a7aa8f74825f0004085e3eb6454e41a92"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a7aa8f74825f0004085e3eb6454e41a92">callOnObjectsRemoved</a> (ObjectProviderListener *listener, const <a class="el" href="group__obj.html#gae6b18640f36ffbe217cebe76ae4ad0f3">ObjectRemovalList</a> &amp;removals) const</td></tr>
-<tr class="memitem:aec793a4558ecc54f5e881d8057378697" id="r_aec793a4558ecc54f5e881d8057378697"><td class="memItemLeft">const std::vector&lt; ObjectProviderListener * &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#aec793a4558ecc54f5e881d8057378697">getListeners</a> () const noexcept</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-friends" class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -188,14 +187,11 @@ Friends</h2></td></tr>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Base class for an entity that is able to produce objects. </p>
 </div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a91615e694c5740756b56e6e9e40bce6c" name="a91615e694c5740756b56e6e9e40bce6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a91615e694c5740756b56e6e9e40bce6c">&#9670;&#160;</a></span>ObjectProvider()</h2>
+<a id="afbea50fda5e8e3b11bd34596798a1d9e" name="afbea50fda5e8e3b11bd34596798a1d9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbea50fda5e8e3b11bd34596798a1d9e">&#9670;&#160;</a></span>ObjectProvider()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">sen::ObjectProvider::ObjectProvider </td>
@@ -204,11 +200,6 @@ Friends</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -350,7 +341,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Replaces an existing listener with a new one without triggering notifications. </p>
+<p>Replaces an existing listener with a new one without triggering notifications. Keep in mind that the links to the providers in the listeners are not updated during this operation. Used in move constructors of the <a class="el" href="classsen_1_1_object_filter.html" title="Allows the discovery of objects based on different criteria.">ObjectFilter</a>. </p>
 <p>Does nothing if the old listener is not found.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -677,31 +668,6 @@ Friends</h2></td></tr>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel protected">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aec793a4558ecc54f5e881d8057378697" name="aec793a4558ecc54f5e881d8057378697"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec793a4558ecc54f5e881d8057378697">&#9670;&#160;</a></span>getListeners()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const std::vector&lt; ObjectProviderListener * &gt; &amp; sen::ObjectProvider::getListeners </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel protected">protected</span><span class="mlabel noexcept">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

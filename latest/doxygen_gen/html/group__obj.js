@@ -202,7 +202,7 @@ var group__obj =
       [ "isLocalParticipant", "classsen_1_1_object_list.html#aeae59a2acebe4bbd3dda012d9fb457b3", null ]
     ] ],
     [ "sen::MuxedProviderListener", "classsen_1_1_muxed_provider_listener.html", [
-      [ "MuxedProviderListener", "classsen_1_1_muxed_provider_listener.html#adad327db1785445c34c17e4c739dc0ec", null ],
+      [ "MuxedProviderListener", "classsen_1_1_muxed_provider_listener.html#a8aa21ccc8074d540620966e71a6d6b9b", null ],
       [ "~MuxedProviderListener", "classsen_1_1_muxed_provider_listener.html#a052d359192be3edaa2b5b2b5fd5af415", null ],
       [ "onExistingObjectsReadded", "classsen_1_1_muxed_provider_listener.html#a82e61fe2698a193b92964cac8cc6601f", null ],
       [ "onObjectsRefCountReduced", "classsen_1_1_muxed_provider_listener.html#a47df6fb967b39d5e98614528100af1b0", null ],
@@ -242,7 +242,6 @@ var group__obj =
       [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_mux.html#a23091bb757474423418652354cce723d", null ],
       [ "callOnObjectsAdded", "classsen_1_1_object_mux.html#a3bb3c1206797605b441ff38af4b7714c", null ],
       [ "callOnObjectsRemoved", "classsen_1_1_object_mux.html#a7aa8f74825f0004085e3eb6454e41a92", null ],
-      [ "getListeners", "classsen_1_1_object_mux.html#aec793a4558ecc54f5e881d8057378697", null ],
       [ "MuxedProviderListener", "classsen_1_1_object_mux.html#ac5218a902868d2d591654735eee54671", null ]
     ] ],
     [ "sen::ShouldBePassedByValue&lt; ObjectOwnerId &gt;", "structsen_1_1_should_be_passed_by_value_3_01_object_owner_id_01_4.html", null ],
@@ -266,8 +265,12 @@ var group__obj =
       [ "ownerId", "group__obj.html#a359c16d408f15641cbc3049db1900d95", null ]
     ] ],
     [ "sen::ObjectProviderListener", "classsen_1_1_object_provider_listener.html", [
-      [ "ObjectProviderListener", "classsen_1_1_object_provider_listener.html#a6b0bb1d2be6d5f3017a0062e71a2d9d5", null ],
+      [ "ObjectProviderListener", "classsen_1_1_object_provider_listener.html#ad543c105b49ed571510e13f5f35eb7e3", null ],
       [ "~ObjectProviderListener", "classsen_1_1_object_provider_listener.html#a857733984e4afb02f3ec27ed248fff4c", null ],
+      [ "ObjectProviderListener", "classsen_1_1_object_provider_listener.html#a4351929cf40c0788b67a871b5e5faa58", null ],
+      [ "ObjectProviderListener", "classsen_1_1_object_provider_listener.html#affd9b8e15691037ce39bb35c376243c4", null ],
+      [ "operator=", "classsen_1_1_object_provider_listener.html#a84d414812f111c0d316ade950ca559bf", null ],
+      [ "operator=", "classsen_1_1_object_provider_listener.html#a8b909e43384cd89679c4669a04d56d60", null ],
       [ "isRemoteParticipant", "classsen_1_1_object_provider_listener.html#a8a6692aebb6bcb5fda418532cb042ada", null ],
       [ "isLocalParticipant", "classsen_1_1_object_provider_listener.html#aeae59a2acebe4bbd3dda012d9fb457b3", null ],
       [ "onObjectsAdded", "classsen_1_1_object_provider_listener.html#a2aa2ec0cee0f922c43c97e810e74ac30", null ],
@@ -275,7 +278,7 @@ var group__obj =
       [ "ObjectProvider", "classsen_1_1_object_provider_listener.html#aa38c004b2cf4495069643b6f48fd70b1", null ]
     ] ],
     [ "sen::ObjectProvider", "classsen_1_1_object_provider.html", [
-      [ "ObjectProvider", "classsen_1_1_object_provider.html#a91615e694c5740756b56e6e9e40bce6c", null ],
+      [ "ObjectProvider", "classsen_1_1_object_provider.html#afbea50fda5e8e3b11bd34596798a1d9e", null ],
       [ "~ObjectProvider", "classsen_1_1_object_provider.html#a4413fb7d1c2b497ca855f4474bad7a52", null ],
       [ "addListener", "classsen_1_1_object_provider.html#a0eae5fc4c1d9a44786fd4b11c398a40a", null ],
       [ "removeListener", "classsen_1_1_object_provider.html#a8a21f6632893a460a9e6cf6ccb505bf8", null ],
@@ -291,7 +294,6 @@ var group__obj =
       [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_provider.html#a23091bb757474423418652354cce723d", null ],
       [ "callOnObjectsAdded", "classsen_1_1_object_provider.html#a3bb3c1206797605b441ff38af4b7714c", null ],
       [ "callOnObjectsRemoved", "classsen_1_1_object_provider.html#a7aa8f74825f0004085e3eb6454e41a92", null ],
-      [ "getListeners", "classsen_1_1_object_provider.html#aec793a4558ecc54f5e881d8057378697", null ],
       [ "ObjectFilter", "classsen_1_1_object_provider.html#ab1edf6bdf2d81a1c0c396fbc47c3a2f6", null ]
     ] ],
     [ "sen::ObjectRef&lt; T &gt;", "classsen_1_1_object_ref.html", [
