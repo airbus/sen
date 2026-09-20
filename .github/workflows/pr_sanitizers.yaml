@@ -68,8 +68,17 @@ jobs:
           restore-keys: |
             conanp-image-clang-20-17-
 
-      # No ccache: sanitized object files must not land in the entries the
-      # ordinary builds depend on. Same rule as the nightly's sanitizer lanes.
+      # in_image.sh mounts ~/.ccache into the container and cmake wires the launcher, so
+      # this lane already compiles through ccache -- it simply never kept the directory,
+      # and every run was a cold build of all 953 steps at 25 minutes against 9 for the
+      # cached lanes. Its own key: an entry is per lane, and ccache hashes the sanitizer
+      # flags, so instrumented objects can neither reach nor be reached by another lane's.
+      - name: Restore the compiler cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.ccache
+          key: ccache-sanitizers-clang-20-17-Debug
+
       # The lane runs in the image this repository builds, so what it uses is the
       # definition a developer can also run rather than a second one assembled on
       # the runner. Pulled when the registry has this Dockerfile's image, built
@@ -184,6 +193,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .github/scripts/drop_cache_key.sh "conanp-image-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}"
+
+      # A key that varied per run would leave an entry behind on every merge, which is
+      # what took the Windows compiler cache to six entries and 4.8 GB. Fixed key, dropped
+      # before the save, because a key is immutable and a save cannot overwrite one.
+      - name: Drop the compiler cache entry this run replaces
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/drop_cache_key.sh "ccache-sanitizers-clang-20-17-Debug"
+
+      - name: Save the compiler cache
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.ccache
+          key: ccache-sanitizers-clang-20-17-Debug
 
       - name: Save conan packages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
