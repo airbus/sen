@@ -8,6 +8,7 @@
 // sen
 #include "sen/core/base/checked_conversions.h"
 #include "sen/util/dr/algorithms.h"
+#include "sen/util/dr/dead_reckoner.h"
 #include "sen/util/dr/detail/dead_reckoner_base.h"
 #include "sen/util/dr/detail/dead_reckoner_impl.h"
 
@@ -24,6 +25,8 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <utility>
+#include <variant>
 
 namespace sen::util
 {
@@ -474,6 +477,225 @@ void reckonerReadByInterval(benchmark::State& state)
 }
 
 BENCHMARK(reckonerReadByInterval)->Arg(16)->Arg(40)->Arg(100)->Arg(200)->Arg(500)->Arg(1000);
+
+//----------------------------------------------------------------------------------------------------------------
+// The templated reckoner, which is the layer a consumer over a Sen object actually uses
+//----------------------------------------------------------------------------------------------------------------
+
+// Every other reckoner case in this file drives DeadReckonerBase, one layer down: it takes a
+// Situation directly, dispatches to one algorithm and never sees a spatial variant.
+//
+// What this case adds, per query, traced through the code rather than assumed: the variant
+// comparison in updateSpatial, the algorithm switch on the variant's index, the five fromRpr
+// conversions the chosen arm performs on its way into the algorithm, and the body-reference check
+// that decides whether smoothing is offered at all.
+//
+// What it does NOT exercise, stated because the difference is invisible from the numbers: this
+// stub's spatial never changes, so updateSpatial compares and returns. The copy, the cache
+// invalidation and the origin selection behind them are the update path, and a case whose entity
+// stands still never enters it. This measures the steady-state query, which is the common one, and
+// not the cost of an arriving update.
+//
+// The stub is all the templated class needs to compile: anything offering getSpatial(), with the
+// conversion helpers templated over the member names, so no generated code and no Sen object are
+// required.
+
+// One struct per FIELD, because each fromRpr helper reads the member names its RPR counterpart has:
+// a location is x/y/z, an orientation psi/theta/phi, a velocity xVelocity and siblings, an
+// acceleration xAcceleration, an angular velocity xAngularVelocity. One struct of three doubles for
+// all five does not compile: the coupling is to the names, not to the shape.
+struct BenchLocation
+{
+  double x, y, z;
+};
+
+struct BenchOrientation
+{
+  double psi, theta, phi;
+};
+
+struct BenchVelocity
+{
+  double xVelocity, yVelocity, zVelocity;
+};
+
+struct BenchAcceleration
+{
+  double xAcceleration, yAcceleration, zAcceleration;
+};
+
+struct BenchAngularVelocity
+{
+  double xAngularVelocity, yAngularVelocity, zAngularVelocity;
+};
+
+// And one struct per SPATIAL KIND, five of them, because toSituation visits the variant with an
+// overload set of five lambdas while extrapolate indexes nine alternatives: the body-referenced
+// algorithms reuse the world-referenced structs, so five types cover all nine positions. Making all
+// nine the same type leaves the overload set ambiguous.
+//
+// Each carries the full member set. A lambda reads only what its algorithm needs, so the extra
+// members cost nothing.
+struct BenchStaticSpatial
+{
+  bool isFrozen;
+  BenchLocation worldLocation;
+  BenchOrientation orientation;
+  BenchVelocity velocityVector;
+  BenchAngularVelocity angularVelocity;
+  BenchAcceleration accelerationVector;
+
+  bool operator==(const BenchStaticSpatial& other) const noexcept
+  {
+    return isFrozen == other.isFrozen && worldLocation.x == other.worldLocation.x
+           && worldLocation.y == other.worldLocation.y && worldLocation.z == other.worldLocation.z;
+  }
+
+  bool operator!=(const BenchStaticSpatial& other) const noexcept { return !(*this == other); }
+};
+
+struct BenchFpsSpatial
+{
+  bool isFrozen;
+  BenchLocation worldLocation;
+  BenchOrientation orientation;
+  BenchVelocity velocityVector;
+  BenchAngularVelocity angularVelocity;
+  BenchAcceleration accelerationVector;
+
+  bool operator==(const BenchFpsSpatial& other) const noexcept
+  {
+    return isFrozen == other.isFrozen && worldLocation.x == other.worldLocation.x
+           && worldLocation.y == other.worldLocation.y && worldLocation.z == other.worldLocation.z;
+  }
+
+  bool operator!=(const BenchFpsSpatial& other) const noexcept { return !(*this == other); }
+};
+
+struct BenchRpsSpatial
+{
+  bool isFrozen;
+  BenchLocation worldLocation;
+  BenchOrientation orientation;
+  BenchVelocity velocityVector;
+  BenchAngularVelocity angularVelocity;
+  BenchAcceleration accelerationVector;
+
+  bool operator==(const BenchRpsSpatial& other) const noexcept
+  {
+    return isFrozen == other.isFrozen && worldLocation.x == other.worldLocation.x
+           && worldLocation.y == other.worldLocation.y && worldLocation.z == other.worldLocation.z;
+  }
+
+  bool operator!=(const BenchRpsSpatial& other) const noexcept { return !(*this == other); }
+};
+
+struct BenchRvsSpatial
+{
+  bool isFrozen;
+  BenchLocation worldLocation;
+  BenchOrientation orientation;
+  BenchVelocity velocityVector;
+  BenchAngularVelocity angularVelocity;
+  BenchAcceleration accelerationVector;
+
+  bool operator==(const BenchRvsSpatial& other) const noexcept
+  {
+    return isFrozen == other.isFrozen && worldLocation.x == other.worldLocation.x
+           && worldLocation.y == other.worldLocation.y && worldLocation.z == other.worldLocation.z;
+  }
+
+  bool operator!=(const BenchRvsSpatial& other) const noexcept { return !(*this == other); }
+};
+
+struct BenchFvsSpatial
+{
+  bool isFrozen;
+  BenchLocation worldLocation;
+  BenchOrientation orientation;
+  BenchVelocity velocityVector;
+  BenchAngularVelocity angularVelocity;
+  BenchAcceleration accelerationVector;
+
+  bool operator==(const BenchFvsSpatial& other) const noexcept
+  {
+    return isFrozen == other.isFrozen && worldLocation.x == other.worldLocation.x
+           && worldLocation.y == other.worldLocation.y && worldLocation.z == other.worldLocation.z;
+  }
+
+  bool operator!=(const BenchFvsSpatial& other) const noexcept { return !(*this == other); }
+};
+
+// The variant's ORDER is the algorithm selector: DeadReckonerTemplateBase switches on index().
+// Index three is RVW, which is what the base-class cases above measure, so the two layers are
+// comparable rather than merely adjacent.
+using BenchSpatialVariant = std::variant<BenchStaticSpatial,   // 0 static
+                                         BenchFpsSpatial,      // 1 FPW
+                                         BenchRpsSpatial,      // 2 RPW
+                                         BenchRvsSpatial,      // 3 RVW -- the arm exercised here
+                                         BenchFvsSpatial,      // 4 FVW
+                                         BenchFpsSpatial,      // 5 FPB
+                                         BenchRpsSpatial,      // 6 RPB
+                                         BenchRvsSpatial,      // 7 RVB
+                                         BenchFvsSpatial>;     // 8 FVB
+
+// The minimum an entity must offer for DeadReckoner<T> to compile against it.
+class BenchEntity
+{
+public:
+  [[nodiscard]] const BenchSpatialVariant& getSpatial() const noexcept { return spatial_; }
+
+private:
+  BenchSpatialVariant spatial_ {std::in_place_index<3U>,
+                                BenchRvsSpatial {false,
+                                                 {4200946.0, 172458.0, 4780110.0},
+                                                 {0.4, -0.2, 1.1},
+                                                 {120.0, -45.0, 8.0},
+                                                 {0.0, 0.0, 0.0},
+                                                 {1.5, 0.25, -0.75}}};
+};
+
+// Smoothing off and smoothing on, on the templated path. THESE TWO MUST DIFFER.
+//
+// Smoothing walks back over the recorded history on every fresh query, so switching it off has to
+// cost visibly less than leaving it on. Two arms that cost the same mean the flag is not reaching
+// the guard that honours it. On this path the guard is smoothIfEnabled, reached from extrapolateAt:
+// the templated class overrides situation(), so it never goes through the base's, and a path that
+// smooths first and only then chooses which answer to return never arrives at the guard at all.
+//
+// Reached only for a world-referenced algorithm. The body-referenced arms return the update
+// unsmoothed, so a case pointed at one of those would compare two identical paths and read the flag
+// as having no cost.
+//
+// The templated class is what a consumer holding a Sen object uses, and nothing else in this file
+// measures it -- every other reckoner case drives DeadReckonerBase directly.
+void templatedReckonerRead(benchmark::State& state)
+{
+  BenchEntity entity;
+  DrConfig config {};
+  config.smoothing = state.range(0) != 0;
+  DeadReckoner<BenchEntity> reckoner {entity, config};
+
+  int64_t tick = 1;
+
+  for (auto _: state)
+  {
+    auto result = reckoner.situation(sen::TimeStamp {std::chrono::milliseconds(16 * tick)});
+    ++tick;
+    benchmark::DoNotOptimize(result);
+  }
+}
+
+// Repetitions rather than one shot, and the spread reported, because the claim is about a
+// DIFFERENCE between two arms: a quiet machine can manufacture one as easily as a noisy one can
+// hide it. If the difference between the arms does not exceed the run-to-run spread, the honest
+// reading is "cannot tell on this machine" rather than a number.
+BENCHMARK(templatedReckonerRead)->Arg(0)->Arg(1)->Repetitions(9)->ReportAggregatesOnly(false);
+
+// The control for this case is `reckonerReadFresh`, above: the same two arms on DeadReckonerBase,
+// where the flag is guarded, plus a third pinning maxDeltaTime to zero so smooth() takes its early
+// return and the smoothing cost stands alone. Nothing done to the templated path can move it, which
+// is what makes it the control.
 
 }  // namespace
 }  // namespace sen::util
