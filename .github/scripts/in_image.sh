@@ -24,7 +24,19 @@ set -euo pipefail
 
 mkdir -p "$HOME/.conan2" "$HOME/.ccache"
 
-docker run --rm --interactive \
+# Docker names a container at random unless told otherwise, so on a machine running
+# several builds at once there is no way to tell which belongs to what. Set
+# SEN_BOX_CONTAINER to name it. The pid is appended because the same caller may have
+# more than one running, and a repeated name would fail the second `docker run`.
+name=()
+if [ -n "${SEN_BOX_CONTAINER:-}" ]; then
+    name=(--name "${SEN_BOX_CONTAINER}-$$")
+fi
+
+# ${name[@]+...} rather than the plain "${name[@]}": under set -u, bash 3.2 treats an
+# empty array as unset and exits, and macOS still ships 3.2. The plain form would break
+# every caller that does not set the variable, which is most of them.
+docker run --rm --interactive ${name[@]+"${name[@]}"} \
     --user "$(id -u):$(id -g)" \
     --volume "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
     --volume "$HOME/.conan2:/conan" \
