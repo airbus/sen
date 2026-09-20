@@ -262,6 +262,9 @@ void Session::remoteParticipantLeftBus(ParticipantAddr addr, BusId bus, std::str
   messageDispatcher_.enqueueMessage(MessageDispatcher::Work(
     [this, addr, bus, busName = std::move(busName)]() mutable
     {
+      // ~RemoteParticipant calls back into the bus. Declared before the lock so it is destroyed
+      // after it, with no lock of ours held.
+      std::shared_ptr<RemoteParticipant> leaving;
       Lock busesLock(busesMutex_);
 
       // find the bus
@@ -290,7 +293,7 @@ void Session::remoteParticipantLeftBus(ParticipantAddr addr, BusId bus, std::str
       }
 
       // notify the bus
-      busItr->second->remoteParticipantLeft(addr);
+      leaving = busItr->second->remoteParticipantLeft(addr);
     },
     /*ensureNotDropped=*/true));
 }
