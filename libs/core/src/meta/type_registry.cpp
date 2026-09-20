@@ -340,9 +340,19 @@ std::shared_ptr<NativeObject> CustomTypeRegistry::makeInstance(const ClassType* 
     throwRuntimeError(err);
   }
 
-  std::scoped_lock<std::recursive_mutex> usageLock(usageMutex_);
-  auto maker = instanceMakers_.find(std::string(type->getQualifiedName()));
-  if (maker == instanceMakers_.end())
+  // The maker is component code and may take any lock the component uses, so holding usageMutex_
+  // across it puts this registry underneath those locks. instanceMakers_ is insert-only and the
+  // entry is a function pointer, so copy it out and call it with the lock released.
+  InstanceMakerFunc maker = nullptr;
+  {
+    std::scoped_lock<std::recursive_mutex> usageLock(usageMutex_);
+    if (const auto itr = instanceMakers_.find(std::string(type->getQualifiedName())); itr != instanceMakers_.end())
+    {
+      maker = itr->second;
+    }
+  }
+
+  if (maker == nullptr)
   {
     std::string err;
     err.append("factory function for object '");
@@ -354,7 +364,7 @@ std::shared_ptr<NativeObject> CustomTypeRegistry::makeInstance(const ClassType* 
   }
 
   InstanceStorageType createdNativeObject;
-  (*maker->second)(name, properties, createdNativeObject);
+  maker(name, properties, createdNativeObject);
 
   if (createdNativeObject == nullptr)
   {

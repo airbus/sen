@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace sen::components::logmaster
@@ -109,19 +110,22 @@ void LogMasterImpl::setLevelImpl(const ::sen::kernel::log::LogLevel& level)
 
 void LogMasterImpl::checkForLoggers()
 {
-  kernel::KernelApi::applyToAllLoggers(
-    [this](auto logger)
-    {
-      const auto name = getLoggerName(logger);
+  // applyToAllLoggers holds spdlog's registry lock across the walk, and publishing a logger
+  // registers its type, which takes the type registry's. Collect here, publish after.
+  std::vector<std::pair<std::string, std::shared_ptr<spdlog::logger>>> found;
+  kernel::KernelApi::applyToAllLoggers([&found](auto logger)
+                                       { found.emplace_back(getLoggerName(logger), std::move(logger)); });
 
-      // ensure the logger object is not repeated
-      if (loggers_.find(name) == loggers_.end())
-      {
-        auto loggerObject = std::make_shared<LoggerImpl>(name, logger);
-        loggers_.emplace(name, loggerObject);
-        targetBus_->add(loggerObject);
-      }
-    });
+  for (auto& [name, logger]: found)
+  {
+    // ensure the logger object is not repeated
+    if (loggers_.find(name) == loggers_.end())
+    {
+      auto loggerObject = std::make_shared<LoggerImpl>(name, std::move(logger));
+      loggers_.emplace(name, loggerObject);
+      targetBus_->add(loggerObject);
+    }
+  }
 }
 
 template <typename F>
