@@ -195,8 +195,13 @@ if __name__ == "__main__":
                 for w in wrapped:
                     w.reload()
 
-                # abort if any of the processes has exited with error
-                if any(w.status == "exited" and w.wait()["StatusCode"] != 0 for w in wrapped):
+                # abort if any of the processes has exited with error. The exit code is the only
+                # record of that failure: the logs above it can read as an ordinary stop.
+                exited = [(w, w.wait()["StatusCode"]) for w in wrapped if w.status == "exited"]
+                failed = [(w, code) for w, code in exited if code != 0]
+                if failed:
+                    for w, code in failed:
+                        print(f"\nError: [{w.short_id}] exited with {code}")
                     abort(containers, log_threads)
 
                 # pass the test if all processes have exited successfully
