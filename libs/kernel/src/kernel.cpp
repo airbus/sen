@@ -24,7 +24,6 @@
 // std
 #include <filesystem>
 #include <memory>
-#include <string>
 #include <utility>
 
 namespace sen::kernel
