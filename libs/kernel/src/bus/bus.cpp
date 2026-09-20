@@ -156,7 +156,7 @@ void Bus::remoteParticipantJoined(ParticipantAddr address, ProcessInfo processIn
   }
 }
 
-void Bus::remoteParticipantLeft(const ParticipantAddr& addr)
+std::shared_ptr<RemoteParticipant> Bus::remoteParticipantLeft(const ParticipantAddr& addr)
 {
   logger_->debug("Bus {}.{}: remote participant {} left", address_.sessionName, address_.busName, addr.id.get());
 
@@ -168,10 +168,14 @@ void Bus::remoteParticipantLeft(const ParticipantAddr& addr)
     {
       // prevent this remote participant object from sending messages back to the remote process
       remote->markRemoved();
-      remotes_.erase(ownerId);
-      return;
+      // extract, not erase: erase destroys it here, under this lock and the caller's, and the
+      // destructor calls back into the bus.
+      auto node = remotes_.extract(ownerId);
+      return std::move(node.mapped());
     }
   }
+
+  return nullptr;
 }
 
 void Bus::remoteParticipantRemoved(RemoteParticipant* remote)

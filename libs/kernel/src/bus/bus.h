@@ -88,7 +88,9 @@ public:
 public:
   void remoteParticipantJoined(ParticipantAddr address, ProcessInfo processInfo);
 
-  void remoteParticipantLeft(const ParticipantAddr& addr);
+  /// Hands the departing participant back rather than destroying it here: its destructor calls
+  /// into the bus, so releasing it under a lock the bus takes deadlocks.
+  [[nodiscard]] std::shared_ptr<RemoteParticipant> remoteParticipantLeft(const ParticipantAddr& addr);
 
   void remoteParticipantRemoved(RemoteParticipant* remote);
 
