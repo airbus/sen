@@ -1515,9 +1515,9 @@ void RemoteParticipant::objectsStateResponse(const ObjectsStateResponse& msg)
       {
         additions.emplace_back(makeRemoteObjectDiscovery(*additionData, interestId));
       }
-      else
+      else if (auto discovery = makeRemoteObjectDiscoveryFromProxy(objectState.id, interestId))
       {
-        additions.emplace_back(makeRemoteObjectDiscoveryFromProxy(objectState.id, interestId));
+        additions.emplace_back(std::move(discovery).value());
       }
     }
 
@@ -1879,25 +1879,38 @@ RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscovery(const ObjectA
     addition.id, addition.name, std::move(proxyClass).value(), std::move(proxyMaker), interestId, ownerAddress_.id};
 }
 
-RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscoveryFromProxy(ObjectId objectId, InterestId interestId)
+// An object can go away between the state request and its response. A throw here ends the process:
+// this runs on a dispatcher worker with no handler above it.
+std::optional<RemoteObjectDiscovery> RemoteParticipant::makeRemoteObjectDiscoveryFromProxy(ObjectId objectId,
+                                                                                           InterestId interestId)
 {
-  if (const auto it = trackedProxies_.find(objectId); it != trackedProxies_.end())
+  const auto it = trackedProxies_.find(objectId);
+  if (it == trackedProxies_.end())
   {
-    if (const auto proxyPtr = it->second->front().lock())
+    logger_->debug("RP {}: no proxy tracked for object {} in the state response for interest {}",
+                   getDebugName(),
+                   objectId.get(),
+                   interestId.get());
+    return std::nullopt;
+  }
+
+  // the first entry can be expired while a later one is still alive
+  for (const auto& proxy: *it->second)
+  {
+    if (const auto proxyPtr = proxy.lock())
     {
       auto proxyMaker =
         createProxyMaker(proxyPtr->getName(), proxyPtr->getId(), proxyPtr->getClass(), proxyPtr->getWriterSchema());
-      return {objectId, proxyPtr->getName(), proxyPtr->getClass(), std::move(proxyMaker), interestId, ownerAddress_.id};
+      return RemoteObjectDiscovery {
+        objectId, proxyPtr->getName(), proxyPtr->getClass(), std::move(proxyMaker), interestId, ownerAddress_.id};
     }
   }
 
-  std::string err = "Could not make remote object discovery (interest ID: ";
-  err.append(std::to_string(interestId.get()));
-  err.append(" | objectId: ");
-  err.append(std::to_string(objectId.get()));
-  err.append(") from existing proxy");
-
-  throwRuntimeError(std::move(err));
+  logger_->debug("RP {}: every proxy for object {} has expired; nothing to announce for interest {}",
+                 getDebugName(),
+                 objectId.get(),
+                 interestId.get());
+  return std::nullopt;
 }
 
 std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy(const ClassType& proxyClass,

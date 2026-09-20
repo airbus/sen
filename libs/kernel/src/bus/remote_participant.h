@@ -52,6 +52,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -301,7 +302,8 @@ private:
                    MaybeConstTypeHandle<ClassType> proxyClassType,
                    MaybeConstTypeHandle<ClassType> writerSchema);
   [[nodiscard]] RemoteObjectDiscovery makeRemoteObjectDiscovery(const ObjectAdded& addition, InterestId interestId);
-  [[nodiscard]] RemoteObjectDiscovery makeRemoteObjectDiscoveryFromProxy(ObjectId objectId, InterestId interestId);
+  [[nodiscard]] std::optional<RemoteObjectDiscovery> makeRemoteObjectDiscoveryFromProxy(ObjectId objectId,
+                                                                                        InterestId interestId);
   [[nodiscard]] MemBlockPtr makeObjectUpdateHdr(const NativeObject* object, uint32_t propertiesBufferSize) const;
   [[nodiscard]] MemBlockPtr makeEventsHeader() const;
   [[nodiscard]] MemBlockPtr makeObjectNotFoundResponseHeader(ObjectId objectId, uint32_t ticketId) const;
