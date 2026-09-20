@@ -52,7 +52,12 @@ add_sen_integration_test(
   REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
 )
 
-# Off until it can hold green: it times out under the contention of a shared runner. CI OK is the
-# only required check, so every merge waits on it. It comes back with the concurrency rework, which
-# lands with this enabled and passing. Registered but disabled, so ctest -N still lists it.
-set_tests_properties(stress_test_high_churn_subs PROPERTIES DISABLED TRUE)
+# ctest's global --timeout is 20s. Measured on the CI runner: 12.1s in Release, 19.4s in Debug,
+# so Debug clears the limit by 3% and ordinary jitter reads as a hang. Two cores are what makes
+# the difference -- on a fourteen-core machine both build types take 11.5s.
+#
+# The driver's own deadline stays under ctest's, so a run that really does hang is reported by the
+# driver, which names the participants, rather than killed by ctest, which says only that time ran
+# out.
+set_tests_properties(stress_test_high_churn_subs PROPERTIES TIMEOUT 120)
+append_test_env_modification(stress_test_high_churn_subs "SEN_INTEGRATION_TEST_TIMEOUT=set:90")
