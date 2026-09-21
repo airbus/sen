@@ -240,6 +240,10 @@ jobs:
       # The lane posts its findings as review comments. A reusable workflow cannot hold more
       # than its caller grants, and the mismatch fails at startup with no jobs and no log.
       pull-requests: write
+      # Pulling the image it runs in, which is a private package.
+      packages: read
+      # Dropping the cache entry its save replaces.
+      actions: write
 
   # The only required check: every other job is skipped in some legitimate
   # case, and a required check that never reports blocks the merge forever.
