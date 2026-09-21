@@ -222,7 +222,7 @@ TEST_F(PrinterTest, PrintMethodCallResultAllPaths)
 
   const sen::MethodResult<Var> resValid {sen::impl::Ok {Var(sen::std_util::checkedConversion<uint32_t>(42))}};
   printer->printMethodCallResult(resValid, methodU32.get(), "cmd");
-  EXPECT_EQ(mockTerminal->getOutputBuffer(), "\n42\n");
+  EXPECT_EQ(mockTerminal->getOutputBuffer(), "42\n");
 
   mockTerminal->clearOutputBuffer();
 
@@ -552,4 +552,28 @@ TEST_F(PrinterTest, PrintDescriptionAliasType)
   const std::string out = mockTerminal->getOutputBuffer();
   EXPECT_THAT(out, testing::HasSubstr("ALIAS TYPE"));
   EXPECT_THAT(out, testing::HasSubstr("aliased type:  i32"));
+}
+
+/// @test
+/// Verifies that derived struct types print both base and derived fields
+/// @requirements(SEN-369)
+TEST_F(PrinterTest, PrintValueDerivedStructType)
+{
+  const sen::StructSpec baseSpec("BaseData", "sen.BaseData", "Desc", {{"baseInfo", "Desc", sen::StringType::get()}});
+  const auto baseType = sen::StructType::make(baseSpec);
+
+  sen::StructSpec derivedSpec(
+    "DerivedData", "sen.DerivedData", "Desc", {{"derivedInfo", "Desc", sen::StringType::get()}});
+  derivedSpec.parent = baseType;
+  const auto derivedType = sen::StructType::make(derivedSpec);
+
+  sen::VarMap varMap;
+  varMap["baseInfo"] = sen::Var("base value");
+  varMap["derivedInfo"] = sen::Var("derived value");
+
+  printer->printValue(sen::Var(varMap), 0, derivedType.type());
+
+  const std::string out = mockTerminal->getOutputBuffer();
+  EXPECT_THAT(out, testing::HasSubstr("baseInfo: \"base value\""));
+  EXPECT_THAT(out, testing::HasSubstr("derivedInfo: \"derived value\""));
 }
