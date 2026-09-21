@@ -48,7 +48,7 @@ jobs:
 
       - name: Name the image
         shell: bash
-        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base)" >> "$GITHUB_ENV"
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base 22.04)" >> "$GITHUB_ENV"
 
       # prepare_build is not reused here: it keys on the runner and compiler, and this lane
       # needs the image instead, for the reason below. A cache written from a pull request is
@@ -61,11 +61,15 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-image-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
+          key: conanp-image-22.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
           # Hash after the suffix, because a restore key is a prefix: with it in the middle
           # nothing could match "this lane, any image", so one Dockerfile line sent the lane
           # cold and it built every dependency from source. 2026-09-08.
+          # The second rung is transitional, for the same reason as the documentation lane:
+          # every entry written before the base entered the key is 22.04. Remove it once main
+          # has written one under the new prefix.
           restore-keys: |
+            conanp-image-22.04-clang-20-17-
             conanp-image-clang-20-17-
 
       # in_image.sh mounts ~/.ccache into the container and cmake wires the launcher, so
@@ -106,7 +110,10 @@ jobs:
               exit 0
           fi
           echo "not in the registry, building it"
-          build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
+          args=()
+          while IFS= read -r a; do args+=(--build-arg "$a"); done \
+              < <(.github/scripts/image_build_args.sh 22.04)
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
           build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 
       - name: Install the conan profiles
@@ -192,7 +199,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/drop_cache_key.sh "conanp-image-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}"
+        run: bash .github/scripts/drop_cache_key.sh "conanp-image-22.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}"
 
       # A key that varied per run would leave an entry behind on every merge, which is
       # what took the Windows compiler cache to six entries and 4.8 GB. Fixed key, dropped
@@ -216,4 +223,4 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-image-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
+          key: conanp-image-22.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}

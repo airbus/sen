@@ -22,7 +22,18 @@
 # Pinned by digest: the tag moves whenever Canonical republishes it, which made
 # two developers building a fortnight apart hold different toolchains. Update it
 # deliberately; the scheduled cold build is what notices when it should be.
-FROM ubuntu:22.04@sha256:2edbbc5dc405e9612ba3584ce95480277e3eb374407b5505fe26f17df77c7dbc AS base
+# One value rather than a version and a digest side by side, so there is one thing to get right.
+ARG UBUNTU_REF=ubuntu:22.04@sha256:2edbbc5dc405e9612ba3584ce95480277e3eb374407b5505fe26f17df77c7dbc
+FROM ${UBUNTU_REF} AS base
+
+# Names the LLVM archive below, and catches a UBUNTU_REF whose digest and tag disagree, since a
+# digest wins over the tag beside it. Read into a variable first, and not called UBUNTU_CODENAME:
+# /etc/os-release sets that name itself, so the obvious spelling compares the base against itself.
+ARG SEN_UBUNTU_CODENAME=jammy
+RUN expected="${SEN_UBUNTU_CODENAME}" \
+    && . /etc/os-release \
+    && { [ "$VERSION_CODENAME" = "$expected" ] \
+         || { echo "base is $VERSION_CODENAME, expected $expected" >&2; exit 1; }; }
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG LLVM_VERSION=20
@@ -92,6 +103,7 @@ RUN printf '%s\n' \
         python3 \
         python3-dev \
         python3-pip \
+        python3-venv \
         sudo \
         # Liberation Sans carries Helvetica's metrics, for the reference typst
         # typesets. Without a sans installed the document falls back to a serif and
@@ -138,7 +150,7 @@ RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
 RUN install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
         https://apt.llvm.org/llvm-snapshot.gpg.key -o /etc/apt/keyrings/llvm.asc \
-    && echo "deb [signed-by=/etc/apt/keyrings/llvm.asc] https://apt.llvm.org/jammy/ llvm-toolchain-jammy-${LLVM_VERSION} main" \
+    && echo "deb [signed-by=/etc/apt/keyrings/llvm.asc] https://apt.llvm.org/${SEN_UBUNTU_CODENAME}/ llvm-toolchain-${SEN_UBUNTU_CODENAME}-${LLVM_VERSION} main" \
         > /etc/apt/sources.list.d/llvm.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -159,7 +171,13 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # baked at build time, which would reintroduce that drift; the environments are cached in
 # a volume instead, because building them clones a repository per hook and GitHub refuses
 # a burst of unauthenticated clones.
-RUN pip3 install --no-cache-dir \
+# Into a virtual environment, because 24.04 marks the system one externally managed and
+# refuses the install (PEP 668), while 22.04's pip is too old to know the flag that would
+# override it. On PATH, so every caller still finds these by name.
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+RUN python3 -m venv "$VIRTUAL_ENV" \
+    && pip3 install --no-cache-dir \
         cmake==${CMAKE_VERSION} \
         conan==${CONAN_VERSION} \
         junitparser==${JUNITPARSER_VERSION} \
@@ -173,7 +191,11 @@ RUN pip3 install --no-cache-dir \
 # user's home, which is where the devcontainer mounts its volumes. sudo is
 # here because that remapping can leave the mounted volumes owned by the
 # original ids, and the container then has to correct them itself.
-RUN groupadd --gid 1000 sen \
+# 24.04 ships an ubuntu user at 1000 and 22.04 ships none, so the id this image wants is
+# already taken on one of the two. Removing it keeps 1000, which is what makes a Linux
+# host's own developer map onto this user.
+RUN { userdel --remove ubuntu 2>/dev/null || true; } \
+    && groupadd --gid 1000 sen \
     && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash sen \
     && mkdir -p /home/sen/.conan2 /home/sen/.ccache /home/sen/.cache/pre-commit \
     && chown -R sen:sen /home/sen \

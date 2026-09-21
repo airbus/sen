@@ -14,7 +14,7 @@ runs:
       shell: bash
       env:
         SEN_CI_REGISTRY: ghcr.io/airbus/
-      run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base)" >> "$GITHUB_ENV"
+      run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base 22.04)" >> "$GITHUB_ENV"
 
     # Keyed to the image rather than the runner: a conan package id does not record
     # which Ubuntu produced a binary, so a cache filled on a runner installs cleanly
@@ -28,11 +28,15 @@ runs:
       uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
-        key: conanp-image-docs-${{ hashFiles('tools/ci/Dockerfile') }}
+        key: conanp-image-docs-22.04-${{ hashFiles('tools/ci/Dockerfile') }}
         # Hash after the suffix, because a restore key is a prefix: with it in the middle
         # nothing could match "this lane, any image", so one Dockerfile line sent the lane
         # cold and it built every dependency from source. 2026-09-08.
+        # The second rung is transitional: every entry written before the base entered the key
+        # is 22.04, so this lane can still reach one. Remove it once main has written an entry
+        # under the new prefix.
         restore-keys: |
+          conanp-image-docs-22.04-
           conanp-image-docs-
 
     # This keeps its cache inside the workspace, which the container mounts at the same
@@ -68,16 +72,23 @@ runs:
             exit 0
         fi
         echo "not in the registry, building it"
-        build() { docker build --target base --tag "$SEN_CI_IMAGE" tools/ci; }
+        args=()
+        while IFS= read -r a; do args+=(--build-arg "$a"); done \
+            < <(.github/scripts/image_build_args.sh 22.04)
+        build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
         build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 
     - name: Build the documentation
       shell: bash
       run: |
         .github/scripts/in_image.sh <<'IN'
-        export PATH="$HOME/.local/bin:$PATH"
         export CCACHE_DIR="$PWD/.ccache"
-        pip install --user --quiet -r docs/requirements.txt
+        # The image's own environment belongs to root and this runs as the caller, so the
+        # documentation's requirements go into a second one. --user is refused inside a virtual
+        # environment, which is where the image's python tools now live.
+        python3 -m venv "$HOME/docs-venv"
+        export PATH="$HOME/docs-venv/bin:$PATH"
+        pip install --quiet -r docs/requirements.txt
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
         # A dependency's upstream tarball host going down fails any build with a cold cache.
         # xapian-core, under doxygen, did on 2026-09-08 and blocked the merge queue. Conan
@@ -120,11 +131,11 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-      run: bash .github/scripts/drop_cache_key.sh "conanp-image-docs-${{ hashFiles('tools/ci/Dockerfile') }}"
+      run: bash .github/scripts/drop_cache_key.sh "conanp-image-docs-22.04-${{ hashFiles('tools/ci/Dockerfile') }}"
 
     - name: Save conan packages
       if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
       uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25  # v5
       with:
         path: ~/.conan2/p
-        key: conanp-image-docs-${{ hashFiles('tools/ci/Dockerfile') }}
+        key: conanp-image-docs-22.04-${{ hashFiles('tools/ci/Dockerfile') }}

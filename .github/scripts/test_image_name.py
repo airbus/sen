@@ -55,19 +55,19 @@ def repo(tmp_path):
 
 def test_a_local_build_gets_a_bare_tag(repo):
     """A developer without a registry gets a local tag."""
-    out = _run(repo, "base").stdout.strip()
-    assert out.startswith("sen-ci:base-"), out
+    out = _run(repo, "base", "22.04").stdout.strip()
+    assert out.startswith("sen-ci:base-22.04-"), out
 
 
 def test_the_registry_prefixes_every_variant(repo):
     """Setting the registry moves every caller at once."""
-    out = _run(repo, "dev", registry="ghcr.io/airbus/").stdout.strip()
+    out = _run(repo, "dev", "22.04", registry="ghcr.io/airbus/").stdout.strip()
     assert out.startswith("ghcr.io/airbus/sen-ci:dev-"), out
 
 
 def test_a_registry_without_a_trailing_slash_is_refused(repo):
     """It would silently produce a wrong reference."""
-    result = _run(repo, "dev", registry="ghcr.io/airbus")
+    result = _run(repo, "dev", "22.04", registry="ghcr.io/airbus")
     assert result.returncode == 2
     assert "must end in a slash" in result.stderr
 
@@ -77,24 +77,39 @@ def test_a_missing_variant_is_refused(repo):
     assert _run(repo).returncode != 0
 
 
+def test_a_missing_ubuntu_version_is_refused(repo):
+    """One Dockerfile builds both, so its content cannot say which was meant."""
+    assert _run(repo, "base").returncode != 0
+
+
+def test_the_two_bases_do_not_collide(repo):
+    """The load-bearing one for two images.
+
+    The Dockerfile is identical for both, so content alone gives them the same tag and a lane
+    asking for one would pull the other.
+    """
+    assert _run(repo, "base", "22.04").stdout.strip() != _run(repo, "base", "24.04").stdout.strip()
+    assert _run(repo, "buildcache", "22.04").stdout.strip() != _run(repo, "buildcache", "24.04").stdout.strip()
+
+
 def test_editing_the_dockerfile_moves_the_tag(repo):
     """The load-bearing one.
 
     Without this a consumer pulls the previous environment and reports nothing.
     """
-    before = _run(repo, "base").stdout.strip()
+    before = _run(repo, "base", "22.04").stdout.strip()
 
     (repo / "tools" / "ci" / "Dockerfile").write_text("FROM ubuntu:22.04\nRUN true\n")
-    after = _run(repo, "base").stdout.strip()
+    after = _run(repo, "base", "22.04").stdout.strip()
     assert before != after, f"the tag did not move: {before}"
 
     (repo / "tools" / "ci" / "Dockerfile").write_text("FROM ubuntu:22.04\n")
-    assert _run(repo, "base").stdout.strip() == before, "the tag did not come back"
+    assert _run(repo, "base", "22.04").stdout.strip() == before, "the tag did not come back"
 
 
 def test_variants_do_not_collide(repo):
     """The base and dev stages are different images."""
-    assert _run(repo, "base").stdout.strip() != _run(repo, "dev").stdout.strip()
+    assert _run(repo, "base", "22.04").stdout.strip() != _run(repo, "dev", "22.04").stdout.strip()
 
 
 def test_the_layer_cache_reference_is_stable_across_content(repo):
@@ -102,13 +117,13 @@ def test_the_layer_cache_reference_is_stable_across_content(repo):
 
     A build imports it to skip work the last content already did.
     """
-    before = _run(repo, "buildcache").stdout.strip()
-    assert before == "sen-ci:buildcache", before
+    before = _run(repo, "buildcache", "22.04").stdout.strip()
+    assert before == "sen-ci:buildcache-22.04", before
 
     (repo / "tools" / "ci" / "Dockerfile").write_text("FROM ubuntu:22.04\nRUN true\n")
-    assert _run(repo, "buildcache").stdout.strip() == before
+    assert _run(repo, "buildcache", "22.04").stdout.strip() == before
 
 
 def test_the_layer_cache_is_not_confused_with_an_image(repo):
     """One is content-tagged and the other is not."""
-    assert _run(repo, "buildcache").stdout.strip() != _run(repo, "base").stdout.strip()
+    assert _run(repo, "buildcache", "22.04").stdout.strip() != _run(repo, "base", "22.04").stdout.strip()

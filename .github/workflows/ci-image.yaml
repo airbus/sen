@@ -32,9 +32,14 @@ env:
 
 jobs:
   build:
-    name: "Build and check the image"
+    name: "Build and check the image (ubuntu ${{ matrix.ubuntu }})"
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      # fail-fast would hide the second base's result behind the first one's failure.
+      fail-fast: false
+      matrix:
+        ubuntu: ["22.04", "24.04"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
@@ -44,10 +49,15 @@ jobs:
         shell: bash
         run: |
           {
-              echo "SEN_CI_IMAGE_BASE=$(.github/scripts/image_name.sh base)"
-              echo "SEN_CI_IMAGE_DEV=$(.github/scripts/image_name.sh dev)"
-              echo "SEN_CI_CACHE=$(.github/scripts/image_name.sh buildcache)"
+              echo "SEN_CI_IMAGE_BASE=$(.github/scripts/image_name.sh base ${{ matrix.ubuntu }})"
+              echo "SEN_CI_IMAGE_DEV=$(.github/scripts/image_name.sh dev ${{ matrix.ubuntu }})"
+              echo "SEN_CI_CACHE=$(.github/scripts/image_name.sh buildcache ${{ matrix.ubuntu }})"
           } >> "$GITHUB_ENV"
+
+      # Both from image_build_args.sh, which says why they must not be written apart.
+      - name: Pin the base
+        shell: bash
+        run: .github/scripts/image_build_args.sh ${{ matrix.ubuntu }} >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
 
@@ -78,6 +88,9 @@ jobs:
           push: false
           load: true
           tags: ${{ env.SEN_CI_IMAGE_BASE }}
+          build-args: |
+            UBUNTU_REF=${{ env.UBUNTU_REF }}
+            SEN_UBUNTU_CODENAME=${{ env.SEN_UBUNTU_CODENAME }}
           cache-from: type=registry,ref=${{ env.SEN_CI_CACHE }}
 
       # Every layer of the cached build is served from the Actions cache, so it
@@ -94,8 +107,12 @@ jobs:
               # dev is built on base, so one cold build covers both stages and
               # the second command only tags the base it has already produced.
               docker buildx build --no-cache --pull --load \
+                  --build-arg "UBUNTU_REF=$UBUNTU_REF" \
+                  --build-arg "SEN_UBUNTU_CODENAME=$SEN_UBUNTU_CODENAME" \
                   --target dev -t "$SEN_CI_IMAGE_DEV" -f tools/ci/Dockerfile tools/ci &&
               docker buildx build --pull --load \
+                  --build-arg "UBUNTU_REF=$UBUNTU_REF" \
+                  --build-arg "SEN_UBUNTU_CODENAME=$SEN_UBUNTU_CODENAME" \
                   --target base -t "$SEN_CI_IMAGE_BASE" -f tools/ci/Dockerfile tools/ci
           }
           build || { echo "cold build failed, retrying in 30s"; sleep 30; build; }
@@ -163,6 +180,9 @@ jobs:
           push: false
           load: true
           tags: ${{ env.SEN_CI_IMAGE_DEV }}
+          build-args: |
+            UBUNTU_REF=${{ env.UBUNTU_REF }}
+            SEN_UBUNTU_CODENAME=${{ env.SEN_UBUNTU_CODENAME }}
           cache-from: type=registry,ref=${{ env.SEN_CI_CACHE }}
           # Only main writes it: a pull request has no write access to the package,
           # and a fork's token has none at all.
