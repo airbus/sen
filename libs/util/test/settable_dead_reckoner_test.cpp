@@ -522,7 +522,7 @@ TEST(DeadReckonerAlgorithmTest, aWorldAlgorithmIsSmoothed)
   DeadReckonerBase reckoner {config};
   reckoner.updateSituation(movingAndAccelerating());
 
-  reckoner.situation(tHalf);
+  std::ignore = reckoner.situation(tHalf);
   const auto got = static_cast<f64>(reckoner.situation(tSixTenths).worldLocation.y);
   const auto raw = static_cast<f64>(drRvw(movingAndAccelerating(), tSixTenths).worldLocation.y);
 
@@ -539,7 +539,7 @@ TEST(DeadReckonerAlgorithmTest, aBodyAlgorithmIsNotSmoothed)
   DeadReckonerBase reckoner {config};
   reckoner.updateSituation(movingAndAccelerating());
 
-  reckoner.situation(tHalf);
+  std::ignore = reckoner.situation(tHalf);
   const auto got = static_cast<f64>(reckoner.situation(tSixTenths).worldLocation.y);
   const auto raw = static_cast<f64>(drRvb(movingAndAccelerating(), tSixTenths).worldLocation.y);
 
@@ -586,7 +586,7 @@ TEST(DeadReckonerFrameTest, theFrameFollowsTheSpatial)
   TestEntity changed;
   changed.seed(offAxisWorldReferenced());
   DeadReckoner<TestEntity> overChanged {changed, config};
-  overChanged.geodeticSituation(tHalf);
+  std::ignore = overChanged.geodeticSituation(tHalf);
   changed.seed(offAxisBodyReferenced());
 
   TestEntity fresh;
