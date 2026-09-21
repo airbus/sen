@@ -32,10 +32,11 @@ runs:
         # Hash after the suffix, because a restore key is a prefix: with it in the middle
         # nothing could match "this lane, any image", so one Dockerfile line sent the lane
         # cold and it built every dependency from source. 2026-09-08.
+        # The second rung is transitional: every entry written before the base entered the key
+        # is 22.04, so this lane can still reach one. Remove it once main has written an entry
+        # under the new prefix.
         restore-keys: |
           conanp-image-docs-22.04-
-          # Transitional: every entry written before the base entered the key is 22.04, so this
-          # lane can still reach one. Remove once main has written an entry under the new prefix.
           conanp-image-docs-
 
     # This keeps its cache inside the workspace, which the container mounts at the same
