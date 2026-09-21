@@ -11,7 +11,10 @@ set -euo pipefail
 SEN_CI_REGISTRY="${SEN_CI_REGISTRY-}"
 SEN_CI_REPOSITORY="sen-ci"
 
-variant="${1:?usage: image_name.sh <variant>   base, dev, or buildcache}"
+variant="${1:?usage: image_name.sh <variant> <ubuntu>   base, dev, or buildcache}"
+# Required rather than defaulted: one Dockerfile builds both bases, so its content cannot
+# tell them apart and a caller that forgot which it wanted would silently get the other.
+ubuntu="${2:?usage: image_name.sh <variant> <ubuntu>   22.04 or 24.04}"
 
 case "$SEN_CI_REGISTRY" in
     "" | */) ;;
@@ -21,8 +24,9 @@ esac
 # The layer cache is the one reference that must NOT carry the content: a build
 # imports it to avoid repeating work the last content already did, so tagging it
 # by content would mean never reusing it.
+# It still carries the base, because two bases share no layers worth importing.
 if [ "$variant" = buildcache ]; then
-    printf '%s%s:buildcache\n' "$SEN_CI_REGISTRY" "$SEN_CI_REPOSITORY"
+    printf '%s%s:buildcache-%s\n' "$SEN_CI_REGISTRY" "$SEN_CI_REPOSITORY" "$ubuntu"
     exit 0
 fi
 
@@ -33,4 +37,4 @@ fi
 root=$(git rev-parse --show-toplevel)
 content=$(git hash-object "$root/tools/ci/Dockerfile" | cut -c1-12)
 
-printf '%s%s:%s-%s\n' "$SEN_CI_REGISTRY" "$SEN_CI_REPOSITORY" "$variant" "$content"
+printf '%s%s:%s-%s-%s\n' "$SEN_CI_REGISTRY" "$SEN_CI_REPOSITORY" "$variant" "$ubuntu" "$content"

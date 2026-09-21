@@ -97,9 +97,15 @@ def test_the_key_families_are_the_ones_this_repository_uses():
         "conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-",  # prepare_build's restore ladder
         # Hash last, so a prefix can reach the family; the bare prefixes are the
         # restore ladders that reach the previous image's entry.
-        "conanp-image-docs-{IMAGE}",
+        # The Ubuntu release is in the key because one Dockerfile builds both images now, so its
+        # content no longer tells them apart and the two would otherwise share an entry.
+        "conanp-image-docs-22.04-{IMAGE}",
+        "conanp-image-docs-22.04-",
+        "conanp-image-22.04-clang-20-17-{IMAGE}",
+        "conanp-image-22.04-clang-20-17-",
+        # Transitional rungs, reaching the entries written before the base entered the key.
+        # The lanes that carry them say when they come out.
         "conanp-image-docs-",
-        "conanp-image-clang-20-17-{IMAGE}",
         "conanp-image-clang-20-17-",
     }
     found = set(keys())
@@ -116,6 +122,6 @@ def test_each_family_is_spelled_in_more_than_one_place():
     family found in a single file is one nobody is comparing.
     """
     found = keys()
-    for family in ("conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-{STD}", "conanp-image-docs-{IMAGE}"):
+    for family in ("conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-{STD}", "conanp-image-docs-22.04-{IMAGE}"):
         assert family in found, f"{family} is no longer found by the key scan"
         assert len(found[family]) >= 2, f"{family} is spelled once, in {found[family]}, so nothing is compared"
