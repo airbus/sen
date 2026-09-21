@@ -47,6 +47,8 @@ ARG TYPST_VERSION=0.15.1
 # they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.31.10
 ARG NINJA_VERSION=1.13.2
+# matus-chochlik/ctcache, pinned to the commit tag 1.2.0 carries. It is not on PyPI.
+ARG CTCACHE_COMMIT=e33c063ca6e5
 
 LABEL org.opencontainers.image.source="https://github.com/airbus/sen" \
       org.opencontainers.image.description="Sen CI build environment" \
@@ -173,7 +175,9 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # a burst of unauthenticated clones.
 # Into a virtual environment, because 24.04 marks the system one externally managed and
 # refuses the install (PEP 668), while 22.04's pip is too old to know the flag that would
-# override it. On PATH, so every caller still finds these by name.
+# override it. On PATH, so every caller still finds these by name. ctcache comes in a second
+# call because --no-deps is only right for it: its client imports nothing outside the standard
+# library, and the flask it declares belongs to the server half.
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
 RUN python3 -m venv "$VIRTUAL_ENV" \
@@ -183,7 +187,9 @@ RUN python3 -m venv "$VIRTUAL_ENV" \
         junitparser==${JUNITPARSER_VERSION} \
         ninja==${NINJA_VERSION} \
         pre-commit==${PRECOMMIT_VERSION} \
-        pytest==${PYTEST_VERSION}
+        pytest==${PYTEST_VERSION} \
+    && pip3 install --no-cache-dir --no-deps \
+        "ctcache @ git+https://github.com/matus-chochlik/ctcache@${CTCACHE_COMMIT}"
 
 # Work as a normal user: on a Linux host the editor remaps this user's ids to
 # the developer's own, so files written into the mounted checkout belong to

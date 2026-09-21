@@ -104,6 +104,7 @@ function(sen_add_build_info _target _name)
   set(_out "${CMAKE_CURRENT_BINARY_DIR}/${_name}_build_info.cpp")
   configure_file("${SEN_CMAKE_TEMPLATES_DIR}/build_info.cpp.in" "${_out}" @ONLY)
   target_sources(${_target} PRIVATE "${_out}")
+  sen_skip_linting("${_out}")
 endfunction()
 
 function(add_sen_package)
@@ -316,6 +317,7 @@ function(add_sen_package)
 
     # add the generated sources to the library
     target_sources(${_target_to_compile} PRIVATE ${_exports_file})
+    sen_skip_linting(${_exports_file})
   endif()
 
   # output the list of generated header files

@@ -756,3 +756,10 @@ function(sen_configure_target target_name)
     target_link_libraries(${target_name} PRIVATE sen_coverage_flags)
   endif()
 endfunction()
+
+# A clang-tidy finding in generated code belongs to the generator, repeats once per consumer, and
+# cannot be silenced where it is reported. SKIP_LINTING needs CMake 3.27; the conan profile pins a
+# newer one, so a build configured any other way keeps the old behaviour and lints everything.
+function(sen_skip_linting)
+  set_source_files_properties(${ARGN} PROPERTIES SKIP_LINTING YES)
+endfunction()

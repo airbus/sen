@@ -126,11 +126,21 @@ jobs:
           path: sanitizer-reports/
           if-no-files-found: ignore
 
+  # Inside the image, which D-2026-09-03d asks for and which is also what puts the clang-tidy
+  # cache on the path: sen_utils.cmake picks it up by name and no runner carries one.
   clang-tidy:
     name: "clang-tidy (targets that opted in)"
     runs-on: ubuntu-24.04
     timeout-minutes: 150
+    permissions:
+      contents: read
+      # Reading the image, which is a private package.
+      packages: read
+      # Deleting the cache entry a save replaces.
+      actions: write
     env:
+      SEN_CI_REGISTRY: ghcr.io/airbus/
+      BUILD_DIR: build/clang/Release
       CC: clang-20
       CXX: clang++-20
     steps:
@@ -138,23 +148,101 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Prepare the build
-        uses: ./.github/actions/prepare_build
-        with:
-          compiler-name: clang
-          compiler-version: 20
-          runner-label: ubuntu-24.04
+      - name: Name the image
+        shell: bash
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base 24.04)" >> "$GITHUB_ENV"
 
-      # Analysis is opt-in per target, so this covers the targets that called
-      # sen_enable_static_analysis, not the whole tree: eight directories opt in
-      # nowhere. Examples are excluded too, since with_examples is off here.
-      - name: Build with clang-tidy
+      # Keyed to the image rather than the runner, for the reason pr_sanitizers.yaml gives: a
+      # conan package id does not tell one Ubuntu from another, and the runner's libstdc++ is
+      # newer than the image's, so its binaries install here and fail at link.
+      - name: Restore conan packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.conan2/p
+          key: conanp-image-24.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
+          restore-keys: |
+            conanp-image-24.04-clang-20-17-
+
+      # One empty file per analysed unit, touched on every hit, so age is a least-recently-used
+      # order and the prune below is what bounds it. Under .cache, which is already ignored, and
+      # inside the workspace so the container reaches it through the mount it already has.
+      - name: Restore the clang-tidy cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: .cache/ctcache
+          key: ctcache-clang-20-17-Release
+
+      - name: Log in to the registry
+        continue-on-error: true
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get the image the lane runs in
         shell: bash
         run: |
-          conan install . -s "&:build_type=Release" --build=missing \
-            -o "sen/*:with_tests=True" -o "sen/*:with_clang_tidy=True"
-          conan build . -s "&:build_type=Release" \
-            -o "sen/*:with_tests=True" -o "sen/*:with_clang_tidy=True"
+          if docker pull --quiet "$SEN_CI_IMAGE"; then
+              echo "pulled $SEN_CI_IMAGE"
+              exit 0
+          fi
+          echo "not in the registry, building it"
+          args=()
+          while IFS= read -r a; do args+=(--build-arg "$a"); done \
+              < <(.github/scripts/image_build_args.sh 24.04)
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
+          build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
+
+      - name: Install the conan profiles
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+          IN
+
+      # ninja -k 0 rather than conan build: analysis is opt-in per target and a finding fails the
+      # compile, so stopping at the first one reported one violation a night. GITHUB_WORKSPACE is
+      # not forwarded into the container; $PWD is the same directory.
+      - name: Analyse with clang-tidy
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          export CTCACHE_DIR="$PWD/.cache/ctcache"
+          options='-o sen/*:with_tests=True -o sen/*:with_clang_tidy=True'
+          conan install . --profile:all=sen_clang_x86 -s "&:build_type=Release" --build=missing $options
+          source build/clang/Release/generators/conanbuild.sh
+          cmake --preset conan-clang-release
+          ninja -C build/clang/Release -k 0
+          IN
+
+      # A lane that caches nothing looks exactly like one that caches everything, so say which.
+      - name: Report the cache size
+        if: always()
+        shell: bash
+        run: |
+          printf 'cached results: %s\n' "$(find .cache/ctcache -type f 2>/dev/null | wc -l | tr -d ' ')"
+
+      # The cache only grows: a hit refreshes the file's timestamp, and nothing removes the
+      # entries that stop being hit.
+      - name: Prune the entries nothing has asked for
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: find .cache/ctcache -type f -mtime +14 -delete 2>/dev/null || true
+
+      - name: Drop the entry this save replaces
+        if: ${{ !cancelled() }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/drop_cache_key.sh "ctcache-clang-20-17-Release"
+
+      - name: Save the clang-tidy cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: .cache/ctcache
+          key: ctcache-clang-20-17-Release
 
   flake-hunt:
     name: "Unit test repeat loop"

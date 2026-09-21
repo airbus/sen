@@ -283,6 +283,7 @@ function(sen_generate_code)
       list(APPEND _gen_hdr_files ${_file_output_headers})
       list(APPEND _stl_files ${_abs_stl_file})
       target_sources(${_arg_TARGET} PRIVATE ${_abs_stl_file} ${_file_output_files})
+      sen_skip_linting(${_file_output_files})
       set_property(
         TARGET ${_arg_TARGET}
         APPEND
@@ -393,6 +394,7 @@ function(sen_generate_code)
 
         list(APPEND _gen_hdr_files ${_file_output_headers})
         target_sources(${_arg_TARGET} PRIVATE ${_file_output_files})
+        sen_skip_linting(${_file_output_files})
         list(APPEND _fom_generated_files ${_file_output_files})
         set_property(
           TARGET ${_arg_TARGET}
@@ -406,6 +408,7 @@ function(sen_generate_code)
     if(${_arg_LANG} STREQUAL cpp)
       set(_hla_root_files ${_output_dir}/hla.stl.cpp ${_output_dir}/hla.stl.h)
       target_sources(${_arg_TARGET} PRIVATE ${_hla_root_files})
+      sen_skip_linting(${_hla_root_files})
       list(APPEND _fom_generated_files ${_hla_root_files})
     endif()
 
