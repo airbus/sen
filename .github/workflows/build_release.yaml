@@ -53,7 +53,19 @@ jobs:
           fetch-depth: 0
 
       - name: Compute changelog
-        run: python .github/scripts/create_changelog.py > ${{ github.workspace }}-CHANGELOG.txt
+        shell: bash
+        # if-no-files-found on the upload below cannot fire: the generator always writes the
+        # header, so the file always exists and a release with no entries would ship that header
+        # and nothing else. Entries are the lines beginning "- ".
+        run: |
+          changelog="${{ github.workspace }}-CHANGELOG.txt"
+          python .github/scripts/create_changelog.py > "$changelog"
+          if ! grep -qE '^- ' "$changelog"; then
+              echo "::error::the changelog has no entries, only its header"
+              cat "$changelog"
+              exit 1
+          fi
+          echo "changelog entries: $(grep -cE '^- ' "$changelog")"
 
       - name: Archive the generated changelog
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -123,7 +135,6 @@ jobs:
 
       - name: Print context
         run: |
-          timeout 600 sudo apt-get -o DPkg::Lock::Timeout=120 install -y file
           ls -rlisa
           cat changelog/sen-CHANGELOG.txt
 

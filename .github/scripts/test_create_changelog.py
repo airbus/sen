@@ -139,3 +139,19 @@ def test_a_type_without_a_section_is_listed_rather_than_dropped():
     text = build_changelog(["wip: half of a thing\n\n"])
     assert "### 🧾 Other" in text
     assert "- wip: half of a thing" in text
+
+
+def test_an_entry_is_a_line_beginning_with_a_dash():
+    """The release workflow greps for that shape to tell a real changelog from a header.
+
+    A renderer that stopped emitting it would leave the workflow's check unable to fail,
+    which is the state this test exists to prevent returning to.
+    """
+    text = build_changelog(["feat: add the flux\n\n"])
+    assert any(line.startswith("- ") for line in text.splitlines())
+
+
+def test_a_changelog_with_no_commits_has_no_entries():
+    """The other half: the check must have something to fail on."""
+    text = build_changelog([])
+    assert not any(line.startswith("- ") for line in text.splitlines())
