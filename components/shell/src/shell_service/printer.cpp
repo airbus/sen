@@ -560,7 +560,7 @@ public:
 
   void apply(const StructType& type) override
   {
-    if (type.getFields().empty())
+    if (type.getAllFields().empty())
     {
       term_->cprint(emptyValueStyle, "<empty>");
     }
@@ -666,7 +666,7 @@ private:
       return;
     }
 
-    const auto& fields = t.getFields();
+    const auto fields = t.getAllFields();
 
     auto finalIter = fields.end();
     --finalIter;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -853,7 +853,7 @@ public:
     header.emplace_back("type");
     header.emplace_back("desc");
 
-    for (const auto& field: type.getFields())
+    for (const auto& field: type.getAllFields())
     {
       std::vector<std::string> row;
       row.emplace_back("-");
@@ -1170,7 +1170,6 @@ void Printer::printMethodCallResult(const MethodResult<Var>& var, const Method* 
       return;
     }
 
-    terminal_->newLine();
     printValue(var.getValue(), type->isSequenceType() ? 1U : 0U, type.type());
     terminal_->newLine();
   }
