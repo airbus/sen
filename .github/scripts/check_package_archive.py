@@ -47,7 +47,7 @@ REQUIRED_LIBRARIES = ("core", "shell")
 
 # sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower
 # case. The version is a tag or "latest", and a tag may carry an -rc suffix.
-NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug)$")
+NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo)$")
 
 
 def list_entries(archive: Path) -> list[str]:
@@ -86,7 +86,7 @@ def archive_stem(archive: Path) -> str:
     raise SystemExit(f"Error: unsupported archive type: {name}")
 
 
-def missing_entries(entries: list[str]) -> list[str]:
+def missing_entries(entries: list[str], stem: str = "") -> list[str]:
     """Returns the required files and directories the archive does not hold."""
     present = set(entries)
     missing = [name for name in REQUIRED_FILES if name not in present and f"{name}.exe" not in present]
@@ -96,6 +96,11 @@ def missing_entries(entries: list[str]) -> list[str]:
         for name in REQUIRED_LIBRARIES
         if not any(_is_shared_library(entry, name) for entry in entries)
     ]
+    # MSVC keeps debug information outside the binary, so a Windows archive built for it and
+    # shipping no .pdb has nothing to debug with while satisfying every entry above.
+    if "relwithdebinfo" in stem and "-windows-" in stem:
+        if not any(entry.lower().endswith(".pdb") for entry in entries):
+            missing.append("a .pdb (debug information for Windows)")
     return missing
 
 
@@ -119,10 +124,11 @@ def _is_shared_library(entry: str, name: str) -> bool:
 def check_archive(archive: Path) -> list[str]:
     """Returns the problems found in the archive, empty when it is complete."""
     problems = []
-    if not NAME_PATTERN.match(archive_stem(archive)):
+    stem = archive_stem(archive)
+    if not NAME_PATTERN.match(stem):
         problems.append(f"name does not match the expected pattern: {archive.name}")
 
-    problems.extend(f"missing entry: {entry}" for entry in missing_entries(list_entries(archive)))
+    problems.extend(f"missing entry: {entry}" for entry in missing_entries(list_entries(archive), stem))
     return problems
 
 

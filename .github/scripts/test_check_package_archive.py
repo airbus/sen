@@ -106,6 +106,7 @@ def test_unexpected_name_is_reported(tmp_path):
         "sen-0.6.0-rc1-x86_64-linux-gnu-12.4.0-release",
         "sen-latest-aarch64-linux-gnu-12.3.0-release",
         "sen-0.6.0-x86_64-linux-gnu-12.4.0-debug",
+        "sen-0.6.0-x86_64-linux-gnu-12.4.0-relwithdebinfo",
     ],
 )
 def test_names_cpack_really_produces_are_accepted(tmp_path, stem):
@@ -168,3 +169,27 @@ def test_a_library_outside_the_library_directory_does_not_count(tmp_path):
     members = tuple(m for m in LINUX_MEMBERS if not m.startswith("lib/libcore")) + ("bin/libcore.so",)
     problems = check_archive(write_archive(tmp_path, LINUX_NAME, members))
     assert any("shared library" in problem for problem in problems)
+
+
+WINDOWS_DEBUG_STEM = "sen-0.6.0-amd64-windows-msvc-19.44.0-relwithdebinfo"
+
+
+def test_a_windows_debug_archive_without_symbols_is_reported(tmp_path):
+    """An archive can satisfy every other entry and still have nothing to debug with.
+
+    MSVC keeps debug information outside the binary, so the symbols are a separate file.
+    """
+    problems = check_archive(write_archive(tmp_path, WINDOWS_DEBUG_STEM, WINDOWS_MEMBERS, ".zip"))
+    assert any(".pdb" in problem for problem in problems), problems
+
+
+def test_a_windows_debug_archive_with_symbols_passes(tmp_path):
+    """The same archive carrying a .pdb beside the binary is complete."""
+    members = WINDOWS_MEMBERS + ("bin/sen.pdb",)
+    assert check_archive(write_archive(tmp_path, WINDOWS_DEBUG_STEM, members, ".zip")) == []
+
+
+def test_symbols_are_only_required_where_they_live_outside_the_binary(tmp_path):
+    """Linux embeds them, so the same archive without a .pdb is complete there."""
+    stem = "sen-0.6.0-x86_64-linux-gnu-12.4.0-relwithdebinfo"
+    assert check_archive(write_archive(tmp_path, stem, LINUX_MEMBERS)) == []

@@ -268,6 +268,15 @@ For Windows or environments where the quick installer is not an option, download
 for your platform from the [Releases page](https://github.com/airbus/sen/releases) and extract it
 anywhere. The extracted directory is `<sen_path>` in the snippets below.
 
+Each platform has two archives. The one ending `-release` is what you want to run. The one ending
+`-relwithdebinfo` is the same build carrying debug information, for getting a usable stack out of a
+crash; it is a much larger download and is not faster or slower to run. The installer script takes
+the `-release` archive unless you pass `--debug-symbols`.
+
+On Windows the debug information lives in `.pdb` files rather than inside the binaries. They are
+installed next to the executables and DLLs in `bin`, which is where a debugger looks for them, so
+keep them beside the binaries when you copy anything out of the archive.
+
 === "Linux"
 
     ```shell
