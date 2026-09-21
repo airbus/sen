@@ -59,6 +59,12 @@ if(MSVC)
   add_compile_definitions(_WIN32_WINNT=0x0A00)
 endif()
 
+# The build id ties a crash report to the binary that produced it. Set here because the linkers
+# emit one by default and a default can change. MSVC and Apple use identifiers of their own.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_link_options(-Wl,--build-id=sha1)
+endif()
+
 # Here rather than in sen_utils.cmake: it reads MSVC and the release flags, which project()
 # is what populates.
 sen_warn_if_the_compiler_cache_cannot_work()
