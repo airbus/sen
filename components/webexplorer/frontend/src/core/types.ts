@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import type { Client, CustomTypeSpec, Var } from "@sen/client";
+import type { Client, CustomTypeSpec, Var, StructTypeFieldSpec, StructTypeSpec } from "@sen/client";
 import { Quantity, Variant } from "@sen/client";
 
 // Mirrors `spec.data.type` plus `"primitive"` for built-ins without a CustomTypeSpec
@@ -78,6 +78,34 @@ export function isComposite(client: Client | null, declaredType: string): boolea
   return k === "struct" || k === "sequence" || k === "variant";
 }
 
+/** Retrieves all fields of a struct, including those inherited from base structs. */
+export function getAllStructFields(client: Client | null, structSpec: StructTypeSpec): StructTypeFieldSpec[] {
+  const fields: StructTypeFieldSpec[] = [];
+  const specs: StructTypeSpec[] = [];
+  const seen = new Set<string>();
+
+  let curSpec: StructTypeSpec | null = structSpec;
+  while (curSpec) {
+    specs.push(curSpec);
+    if (curSpec.parent && !seen.has(curSpec.parent)) {
+      seen.add(curSpec.parent);
+      const parentTypeSpec = specOf(client, curSpec.parent);
+      if (parentTypeSpec && parentTypeSpec.data.type === "sen.kernel.StructTypeSpec") {
+        curSpec = parentTypeSpec.data.value;
+      } else {
+        curSpec = null;
+      }
+    } else {
+      curSpec = null;
+    }
+  }
+
+  for (const spec of specs.reverse()) {
+    fields.push(...spec.fields);
+  }
+  return fields;
+}
+
 /** Seeds new sequence elements, struct fields, variant arms, etc. Returns `null` for
  *  types whose default is meaningfully "absent" (optional, class, unknown). */
 export function defaultFor(client: Client | null, declaredType: string): Var {
@@ -104,7 +132,7 @@ export function defaultFor(client: Client | null, declaredType: string): Var {
       return [];
     case "sen.kernel.StructTypeSpec": {
       const out: Record<string, Var> = {};
-      for (const field of spec.data.value.fields) {
+      for (const field of getAllStructFields(client, spec.data.value)) {
         out[field.name] = defaultFor(client, field.type);
       }
       return out;

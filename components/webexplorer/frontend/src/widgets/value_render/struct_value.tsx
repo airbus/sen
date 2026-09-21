@@ -9,7 +9,7 @@ import { useContext, useMemo } from "react";
 
 import type { Client, Var } from "@sen/client";
 
-import { isComposite } from "../../core/types.js";
+import { isComposite, getAllStructFields } from "../../core/types.js";
 import { collectTypeSearchTerms } from "../../core/value_walk.js";
 import { HelpButton } from "../../ui/buttons.js";
 import { Muted } from "../../ui/text_primitives.js";
@@ -40,7 +40,7 @@ export function StructValue({
     if (!spec || spec.data.type !== "sen.kernel.StructTypeSpec") {
       return { fieldTypes: {}, fieldDescriptions: {}, specFieldOrder: null };
     }
-    const fields = spec.data.value.fields;
+    const fields = getAllStructFields(client, spec.data.value);
     const types: Record<string, string> = {};
     const descriptions: Record<string, string> = {};
     const order: string[] = [];
