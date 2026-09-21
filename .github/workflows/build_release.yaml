@@ -95,8 +95,8 @@ jobs:
         run: |
           conan install . --build=missing
           conan build .
-          cmake --build build/${{ matrix.compiler.name }}/Release/ --target package
-          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/Release/
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
+          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 
       - name: Archive generated release package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -106,7 +106,7 @@ jobs:
           name: release-${{ matrix.compiler.name }}
           # sen-0.1.0-x86_64-linux-gnu-12.4.0-release.tar.gz
           # sen-0.1.0-amd64-windows-msvc-19.44.35223.0-release.zip
-          path: build/${{ matrix.compiler.name }}/Release/sen-${{ github.ref_name }}-*
+          path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/sen-${{ github.ref_name }}-*
 
   attach_release_artifacts:
     name: "Create Release Draft"

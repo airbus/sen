@@ -16,6 +16,8 @@ GCC_DEBUG = ("Basic GCC", "gcc-12", "Debug", "ubuntu-22.04", "x86")
 GCC_RELEASE = ("Basic GCC", "gcc-12", "Release", "ubuntu-22.04", "x86")
 CLANG_COVERAGE = ("Basic Clang", "clang-20", "Debug", "ubuntu-24.04", "x86")
 MSVC_RELEASE = ("Basic Windows", "cl", "Release", "windows-2022", "x86")
+GCC_RELWITHDEBINFO = ("Basic GCC (debug information)", "gcc-12", "RelWithDebInfo", "ubuntu-22.04", "x86")
+MSVC_RELWITHDEBINFO = ("Basic Windows (debug information)", "cl", "RelWithDebInfo", "windows-2022", "x86")
 ARM_DEBUG = ("Basic Ubuntu arm", "gcc-12", "Debug", "ubuntu-24.04-arm", "arm")
 
 
@@ -50,9 +52,9 @@ def test_conan_job_set():
 
 
 def test_release_job_set():
-    """Releases build gcc and MSVC, Release only."""
+    """Releases build gcc and MSVC, each twice: what ships, and what carries debug information."""
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
-    assert job_keys(jobs) == [GCC_RELEASE, MSVC_RELEASE]
+    assert job_keys(jobs) == [GCC_RELEASE, GCC_RELWITHDEBINFO, MSVC_RELEASE, MSVC_RELWITHDEBINFO]
 
 
 def test_only_coverage_leg_enables_coverage():

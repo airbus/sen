@@ -239,6 +239,8 @@ $(paint bold "Usage:") sh install.sh [<version>] [options]
 $(paint bold "Options:")
   --compiler <name>-<ver>     pick a specific toolchain (gcc-12.4.0, clang-16.0.0, msvc-19.X)
   --compiler=<name>-<ver>     same, equals form
+  --debug-symbols             fetch the build carrying debug information, for diagnosing a
+                              crash rather than for running; a much larger download
   -y, --yes                   non-interactive (refuse rather than open the menu)
   --allow-root                allow running as root (containers)
   -h, --help                  show this help
@@ -255,6 +257,9 @@ parse_args() {
     SENV_COMPILER=""
     SENV_NON_INTERACTIVE=0
     SENV_ALLOW_ROOT=0
+    # What a release ships for running. The other archive carries debug information and is
+    # much larger, so it is asked for rather than offered by default.
+    SENV_BUILD_TYPE="release"
     while [ $# -gt 0 ]; do
         case "$1" in
             --compiler)     SENV_COMPILER="${2:-}"
@@ -263,6 +268,7 @@ parse_args() {
             --compiler=*)   SENV_COMPILER="${1#*=}"
                             [ -n "$SENV_COMPILER" ] || { err "install.sh:" "--compiler needs a value."; return 1; }
                             shift ;;
+            --debug-symbols) SENV_BUILD_TYPE="relwithdebinfo"; shift ;;
             -y|--yes)       SENV_NON_INTERACTIVE=1; shift ;;
             --allow-root)   SENV_ALLOW_ROOT=1; shift ;;
             -h|--help)      print_usage; exit 0 ;;
@@ -372,12 +378,16 @@ ls_remote() {
 
 # Reads a GitHub Releases API response on stdin. Emits one tarball download URL per line, filtered by (arch, os).
 extract_assets() {
-    local arch os
+    local arch os build_type
     arch=$(host_arch)
     os=$(host_os)
+    # Defaulted here rather than relied on from parse_args: this function is called directly by
+    # the tests, and an unset build type filtered every asset away while looking like no release
+    # matched the host.
+    build_type="${SENV_BUILD_TYPE:-release}"
     grep -o '"browser_download_url"[[:space:]]*:[[:space:]]*"[^"]*"' \
         | sed -E 's/.*"(https:[^"]+)".*/\1/' \
-        | grep -E "sen-.*-${arch}-${os}-.*-release\.tar\.gz$" \
+        | grep -E "sen-.*-${arch}-${os}-.*-${build_type}\.(tar\.gz|zip)$" \
         || true
 }
 
@@ -386,8 +396,11 @@ extract_assets() {
 parse_toolchain() {
     local name stem ver rest tag
     name="${1##*/}"
-    stem="${name%-release.tar.gz}"
-    stem="${stem%-release.zip}"
+    stem="${name%.tar.gz}"
+    stem="${stem%.zip}"
+    # Drop the build type, whichever it is: naming it here meant a debug archive parsed as a
+    # toolchain called "relwithdebinfo".
+    stem="${stem%-*}"
     ver="${stem##*-}"
     rest="${stem%-*}"
     tag="${rest##*-}"

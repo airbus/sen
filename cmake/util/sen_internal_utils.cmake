@@ -251,6 +251,21 @@ function(sen_internal_install target_name)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
+  # MSVC keeps debug information in a separate file and the binary records where it was at link
+  # time, which is a path on the build machine. What a debugger resolves on a user's machine is
+  # the .pdb sitting beside the binary, so it ships to the same place. Only the target kinds a
+  # linker produces one for; OPTIONAL because a configuration without debug information has none.
+  if(MSVC)
+    get_target_property(_kind ${target_name} TYPE)
+    if(_kind MATCHES "^(SHARED_LIBRARY|MODULE_LIBRARY|EXECUTABLE)$")
+      install(
+        FILES $<TARGET_PDB_FILE:${target_name}>
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        OPTIONAL
+      )
+    endif()
+  endif()
+
 endfunction()
 
 # Bake a consumer's npm prod-dep licenses into ${CMAKE_BINARY_DIR}/foss_licenses/<target>/.

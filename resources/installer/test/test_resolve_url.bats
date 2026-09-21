@@ -184,3 +184,25 @@ EOF
     [[ "$_NOTES_QUEUE" == *"clang 16.0.0"* ]]
     [[ "$_NOTES_QUEUE" == *"not on your PATH"* ]]
 }
+
+@test "resolve_url: the release build is what a plain run picks" {
+    load_install
+    mock_curl_resolve "$(fixture_path release-with-debug-symbols.json)"
+    resolve_url "0.5.2" "" "0"
+    [[ "$SENV_RESOLVED_URL" == *"-release.tar.gz" ]]
+}
+
+@test "resolve_url: --debug-symbols picks the archive carrying them" {
+    load_install
+    mock_curl_resolve "$(fixture_path release-with-debug-symbols.json)"
+    SENV_BUILD_TYPE=relwithdebinfo
+    resolve_url "0.5.2" "" "0"
+    [[ "$SENV_RESOLVED_URL" == *"-relwithdebinfo.tar.gz" ]]
+}
+
+@test "resolve_url: two archives per platform do not force a menu" {
+    load_install
+    mock_curl_resolve "$(fixture_path release-with-debug-symbols.json)"
+    resolve_url "0.5.2" "" "0"
+    [ "$SENV_RESOLVED_USED_MENU" = "0" ]
+}

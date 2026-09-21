@@ -41,7 +41,7 @@ class JobSpecification:
     compiler: Compiler
     arch: tp.Literal["x86", "arm"]
     std: tp.Literal[17, 20, 23]
-    build_type: tp.Literal["Release", "Debug"]
+    build_type: tp.Literal["Release", "Debug", "RelWithDebInfo"]
     enable_coverage: bool = False
     enable_examples: bool = False
     # Docker base image for the container-based integration tests. A non-empty
@@ -185,6 +185,48 @@ SPECIFIED_JOBS = [
         include_in_conan_workflow=False,
         include_in_conan_workflow_on_pull_requests=False,
         include_in_standard_test_workflow=True,
+        include_in_standard_test_workflow_also_main=True,
+    ),
+    # A release also ships a build carrying debug information, so a user can get a usable stack out
+    # of a crash in what they installed. Release-only: nothing else needs it, and the archive is much
+    # larger than the stripped one. Windows keeps its symbols in separate .pdb files, which
+    # sen_internal_utils.cmake installs beside the binaries for a debugger to find.
+    JobSelector(
+        job_spec=JobSpecification(
+            name="Basic GCC (debug information)",
+            os="ubuntu-22.04",
+            runner="ubuntu-22.04",
+            container=None,
+            compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
+            arch="x86",
+            std=17,
+            build_type="RelWithDebInfo",
+            enable_examples=True,
+            check_package=True,
+        ),
+        include_in_release_workflow=True,
+        include_in_conan_workflow=False,
+        include_in_conan_workflow_on_pull_requests=False,
+        include_in_standard_test_workflow=False,
+        include_in_standard_test_workflow_also_main=True,
+    ),
+    JobSelector(
+        job_spec=JobSpecification(
+            name="Basic Windows (debug information)",
+            os="windows-2022",
+            runner="windows-2022",
+            container=None,
+            compiler=Compiler(name="msvc", version=194, cc="cl", cxx="cl"),
+            arch="x86",
+            std=17,
+            build_type="RelWithDebInfo",
+            enable_examples=True,
+            check_package=True,
+        ),
+        include_in_release_workflow=True,
+        include_in_conan_workflow=False,
+        include_in_conan_workflow_on_pull_requests=False,
+        include_in_standard_test_workflow=False,
         include_in_standard_test_workflow_also_main=True,
     ),
 ]
