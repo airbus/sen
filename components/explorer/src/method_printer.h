@@ -13,11 +13,23 @@
 
 // sen
 #include "sen/core/meta/method.h"
+#include "sen/core/meta/var.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/object.h"
 
 // std
+#include <map>
 #include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
+
+struct MethodResultState
+{
+  sen::Var lastResult;
+  bool hasResult = false;
+  std::string lastError;
+};
 
 class MethodPrinter
 {
@@ -41,8 +53,12 @@ private:
   std::string methodName_;
   std::shared_ptr<const sen::Method> method_ = nullptr;
   std::shared_ptr<sen::Object> owner_ = nullptr;
+  sen::impl::WorkQueue* queue_ = nullptr;
   std::vector<std::tuple<sen::Arg, sen::Var, EditablePrinterFunc, bool>> argDrawers_;
   EditablePrinterMaker::PropertiesStateMap propertiesStateMap_;
+
+  std::shared_ptr<MethodResultState> resultState_;
+  EditablePrinterFunc resultPrinter_;
 
 private:
   enum ButtonState

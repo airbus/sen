@@ -9,12 +9,14 @@
 
 // component
 #include "editable_printer_maker.h"
+#include "value.h"
 
 // sen
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/meta/variant_type.h"
+#include "sen/core/obj/callback.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/object.h"
 
@@ -22,6 +24,7 @@
 #include "imgui.h"
 
 // std
+#include <exception>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -30,7 +33,11 @@
 MethodPrinter::MethodPrinter(std::shared_ptr<const sen::Method> method,
                              std::shared_ptr<sen::Object> owner,
                              sen::impl::WorkQueue* queue)
-  : methodName_(method->getName()), method_(method), owner_(std::move(owner))
+  : methodName_(method->getName())
+  , method_(method)
+  , owner_(std::move(owner))
+  , queue_(queue)
+  , resultState_(std::make_shared<MethodResultState>())
 {
   const auto args = method->getArgs();
   for (const auto& arg: args)
@@ -48,6 +55,11 @@ MethodPrinter::MethodPrinter(std::shared_ptr<const sen::Method> method,
       std::make_tuple(arg, initialVar, getOrCreateEditablePrinter(queue, &propertiesStateMap_, *arg.type), false);
     argDrawers_.emplace_back(std::move(tup));
   }
+
+  if (!method_->getReturnType()->isVoidType())
+  {
+    resultPrinter_ = getOrCreateEditablePrinter(queue_, &propertiesStateMap_, *method_->getReturnType());
+  }
 }
 
 void MethodPrinter::draw()
@@ -56,6 +68,50 @@ void MethodPrinter::draw()
   methodLabel();
   methodArguments();
   executeButton();
+
+  if (resultState_->hasResult)
+  {
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::AlignTextToFramePadding();
+
+    if (ImGui::Button(" X ##clear_res"))
+    {
+      resultState_->hasResult = false;
+      resultState_->lastResult = sen::Var();
+    }
+    ImGui::SameLine();
+    ImGui::TextColored(Value::getStringColor(), "Returned:");  // NOLINT(hicpp-vararg)
+
+    ImGui::TableSetColumnIndex(1);
+    if (resultPrinter_)
+    {
+      ImGui::BeginDisabled();
+      resultPrinter_(resultState_->lastResult, "", nullptr);
+      ImGui::EndDisabled();
+    }
+    else
+    {
+      ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Success");  // NOLINT(hicpp-vararg)
+    }
+  }
+  else if (!resultState_->lastError.empty())
+  {
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::AlignTextToFramePadding();
+
+    if (ImGui::Button(" X ##clear_err"))
+    {
+      resultState_->lastError.clear();
+    }
+    ImGui::SameLine();
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error:");  // NOLINT(hicpp-vararg)
+
+    ImGui::TableSetColumnIndex(1);
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", resultState_->lastError.c_str());  // NOLINT(hicpp-vararg)
+  }
+
   ImGui::PopID();
 }
 
@@ -110,8 +166,37 @@ void MethodPrinter::executeButton() const
     {
       args.emplace_back(std::get<1>(argDrawer));
     }
-    owner_->invokeUntyped(method_.get(), args);
+
+    auto state = resultState_;
+    auto cb = [state](const sen::MethodCallInfo& /*info*/, const sen::MethodResult<sen::Var>& result)
+    {
+      if (result.isOk())
+      {
+        state->lastResult = result.getValue();
+        state->hasResult = true;
+        state->lastError.clear();
+      }
+      else
+      {
+        state->hasResult = false;
+        try
+        {
+          std::rethrow_exception(result.getError());
+        }
+        catch (const std::exception& e)
+        {
+          state->lastError = e.what();
+        }
+        catch (...)
+        {
+          state->lastError = "Unknown error";
+        }
+      }
+    };
+
+    owner_->invokeUntyped(method_.get(), args, {queue_, cb});
   }
+
   if (method_->getLocalOnly())
   {
     ImGui::EndDisabled();
