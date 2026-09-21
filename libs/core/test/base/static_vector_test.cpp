@@ -1101,14 +1101,13 @@ TYPED_TEST(VectorTestTemplate, insertPositionValue)
 
   for (std::size_t offset = 0; offset <= 5; ++offset)
   {
-    std::vector<T> compareData;
     Vec data;
 
     // assign elements to the 2 vectors
 
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
 
-    compareData.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
 
     // insert at the offset
     EXPECT_TRUE(data.insert(data.begin() + offset, this->testValue));
@@ -1145,12 +1144,11 @@ TYPED_TEST(VectorTestTemplate, insertPositionValueMoved)
 
   for (std::size_t offset = 0; offset <= 5; ++offset)
   {
-    std::vector<T> compareData;
     Vec data;
 
     // assign elements to the 2 vectors
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
-    compareData.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
 
     // insert at the offset
     EXPECT_TRUE(data.insert(data.begin() + offset, T {}));
@@ -1208,12 +1206,11 @@ TYPED_TEST(VectorTestTemplate, insertPositionNValue)
 
   for (std::size_t offset = 0; offset <= startingPoint; ++offset)
   {
-    std::vector<T> compareData;
     Vec data;
 
     // assign elements to the 2 vectors
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
-    compareData.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
 
     // insert some elements
     EXPECT_TRUE(data.insert(data.begin() + offset, insertSize, this->testValue));
@@ -1265,14 +1262,13 @@ TYPED_TEST(VectorTestTemplate, insertPositionRange)
 
   for (std::size_t offset = 0; offset <= startingPoint; ++offset)
   {
-    std::vector<T> compareData;
     Vec data;
 
     EXPECT_TRUE(data.resize(data.maxSize(), T {}));
 
     // assign elements to the 2 vectors
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
-    compareData.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
 
     // insert some elements
     EXPECT_TRUE(data.insert(data.begin() + offset, this->insertData.begin(), this->insertData.end()));
