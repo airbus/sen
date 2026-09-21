@@ -33,7 +33,12 @@ jobs:
       # Only the posting step needs this. A pull request from a fork gets a read-only token
       # whatever this says, so that step tolerates failure and the findings stay in the job log.
       pull-requests: write
+      # Reading the image, which is a private package.
+      packages: read
+      # Deleting the cache entry a save replaces.
+      actions: write
     env:
+      SEN_CI_REGISTRY: ghcr.io/airbus/
       CC: clang-20
       CXX: clang++-20
       # Release to match the nightly. Debug compiles different code -- SEN_DEBUG_ASSERT and the
@@ -45,37 +50,88 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Prepare the build
-        uses: ./.github/actions/prepare_build
+      # In the image rather than on the runner, so the analysis runs against the toolchain the
+      # repository defines. Not `container:`: the image's user is 1000 and the workspace belongs
+      # to the runner's 1001, and only a wrapper can read the caller's id at run time.
+      - name: Name the image
+        shell: bash
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base 24.04)" >> "$GITHUB_ENV"
+
+      # Keyed to the image, as pr_sanitizers.yaml explains. This lane used to read the entry the
+      # clang standard test writes; inside the image that entry's binaries are the wrong ones, so
+      # it keeps its own and writes it from main.
+      - name: Restore conan packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          compiler-name: clang
-          compiler-version: 20
-          runner-label: ubuntu-24.04
+          path: ~/.conan2/p
+          key: conanp-image-24.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
+          restore-keys: |
+            conanp-image-24.04-clang-20-17-
+
+      - name: Log in to the registry
+        continue-on-error: true
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get the image the lane runs in
+        shell: bash
+        run: |
+          if docker pull --quiet "$SEN_CI_IMAGE"; then
+              echo "pulled $SEN_CI_IMAGE"
+              exit 0
+          fi
+          echo "not in the registry, building it"
+          args=()
+          while IFS= read -r a; do args+=(--build-arg "$a"); done \
+              < <(.github/scripts/image_build_args.sh 24.04)
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
+          build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
+
+      - name: Install the conan profiles
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+          IN
 
       # The scripts ship with the clang-tidy package. Checked rather than assumed: absent, every
       # command below would report nothing and pass.
       - name: Locate the clang-tidy helpers
         shell: bash
+        # Into a file rather than GITHUB_ENV, which lives on the runner and is not visible from
+        # inside. Under .cache, which is already ignored, so the tree stays clean.
         run: |
+          mkdir -p .cache
+          .github/scripts/in_image.sh <<'IN'
           llvm_share=/usr/lib/llvm-20/share/clang
           command -v clang-tidy-20 > /dev/null
           test -f "$llvm_share/clang-tidy-diff.py"
-          echo "CLANG_TIDY_DIFF=$llvm_share/clang-tidy-diff.py" >> "$GITHUB_ENV"
-          # Packaged as a binary on the path in some releases and as a script in others; the
-          # whole-tree scope below needs whichever is here.
-          if command -v run-clang-tidy-20 > /dev/null; then
-            echo "RUN_CLANG_TIDY=run-clang-tidy-20" >> "$GITHUB_ENV"
-          else
-            test -f "$llvm_share/run-clang-tidy.py"
-            echo "RUN_CLANG_TIDY=python3 $llvm_share/run-clang-tidy.py" >> "$GITHUB_ENV"
-          fi
+          {
+              echo "CLANG_TIDY_DIFF=$llvm_share/clang-tidy-diff.py"
+              # Packaged as a binary on the path in some releases and as a script in others; the
+              # whole-tree scope below needs whichever is here.
+              if command -v run-clang-tidy-20 > /dev/null; then
+                  echo "RUN_CLANG_TIDY=run-clang-tidy-20"
+              else
+                  test -f "$llvm_share/run-clang-tidy.py"
+                  echo "RUN_CLANG_TIDY=python3 $llvm_share/run-clang-tidy.py"
+              fi
+          } > .cache/clang-tidy-helpers
+          IN
+          cat .cache/clang-tidy-helpers
 
       # The generators script puts Conan's cmake and ninja on the path -- a bare cmake is
       # whatever the runner image carries, and is a different major version.
       - name: Configure and build the generated headers
         shell: bash
         run: |
-          conan install . -s "&:build_type=Release" --build=missing -o "sen/*:with_tests=True"
+          .github/scripts/in_image.sh <<'IN'
+          BUILD_DIR=build/clang/Release
+          conan install . --profile:all=sen_clang_x86 -s "&:build_type=Release" \
+              --build=missing -o "sen/*:with_tests=True"
           source "$BUILD_DIR/generators/conanbuild.sh"
           cmake --preset conan-clang-release
           # There is no aggregate target for these, so they are enumerated -- by output path,
@@ -90,6 +146,7 @@ jobs:
           echo "generated headers: ${#generated[@]}"
           test "${#generated[@]}" -gt 0
           ninja -C "$BUILD_DIR" "${generated[@]}"
+          IN
 
       # The compile database is what both scopes below read. Absent, clang-tidy-diff reports
       # nothing for every file and the lane passes without analysing a line.
@@ -134,23 +191,36 @@ jobs:
             exit 0
           fi
           echo "analysing ${#analysable[@]} changed translation units"
-          git diff -U0 "$BASE_SHA...HEAD" -- "${analysable[@]}" \
-            | python3 "$CLANG_TIDY_DIFF" \
-                -p1 -path "$BUILD_DIR" \
-                -clang-tidy-binary clang-tidy-20 \
-                -export-fixes clang-tidy-fixes.yaml \
-                -j "$(nproc)" \
+          mkdir -p .cache
+          git diff -U0 "$BASE_SHA...HEAD" -- "${analysable[@]}" > .cache/changed.diff
+          .github/scripts/in_image.sh <<'IN'
+          . .cache/clang-tidy-helpers
+          python3 "$CLANG_TIDY_DIFF" \
+              -p1 -path build/clang/Release \
+              -clang-tidy-binary clang-tidy-20 \
+              -export-fixes clang-tidy-fixes.yaml \
+              -j "$(nproc)" \
+              < .cache/changed.diff \
             | tee clang-tidy-output.txt
+          IN
 
       - name: Run clang-tidy over the whole tree
         if: steps.scope.outputs.full == 'true'
         shell: bash
         run: |
           echo "::notice::.clang-tidy changed, so every file is analysed rather than the diff."
-          $RUN_CLANG_TIDY -p "$BUILD_DIR" \
-            -export-fixes clang-tidy-fixes.yaml \
-            -j "$(nproc)" \
+          .github/scripts/in_image.sh <<'IN'
+          . .cache/clang-tidy-helpers
+          # The regex keeps generated sources out: run-clang-tidy reads the compile database,
+          # which lists them, and a finding there belongs to the generator. $PWD rather than
+          # GITHUB_WORKSPACE, which is not forwarded into the container and would leave a regex
+          # matching nothing, analysing nothing, and passing.
+          $RUN_CLANG_TIDY -p build/clang/Release \
+              -export-fixes clang-tidy-fixes.yaml \
+              -j "$(nproc)" \
+              "^$PWD/(libs|components|apps|test)/" \
             | tee clang-tidy-output.txt
+          IN
 
       # The steps above pipe into tee, so their status is tee's unless pipefail is set. Asserting
       # on the output too, because a checker that finds defects and exits zero is the worst case.
@@ -180,6 +250,30 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clang_tidy_fixes: clang-tidy-fixes.yaml
           request_changes: false
+
+      # Nothing else writes this lane's entry, so it saves its own. From main only: an entry
+      # written on a pull request is private to it and every open one would keep a slice.
+      - name: Clean the conan cache before saving
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          conan cache clean "*" -s -b -d -t
+          IN
+
+      - name: Drop the entry this save replaces
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/drop_cache_key.sh "conanp-image-24.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}"
+
+      - name: Save conan packages
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.conan2/p
+          key: conanp-image-24.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
 
       - name: Archive the findings
         if: always()

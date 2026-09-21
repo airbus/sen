@@ -103,6 +103,8 @@ def test_the_key_families_are_the_ones_this_repository_uses():
         "conanp-image-docs-22.04-",
         "conanp-image-22.04-clang-20-17-{IMAGE}",
         "conanp-image-22.04-clang-20-17-",
+        "conanp-image-24.04-clang-20-17-{IMAGE}",
+        "conanp-image-24.04-clang-20-17-",
         # Transitional rungs, reaching the entries written before the base entered the key.
         # The lanes that carry them say when they come out.
         "conanp-image-docs-",
