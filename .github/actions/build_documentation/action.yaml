@@ -82,9 +82,13 @@ runs:
       shell: bash
       run: |
         .github/scripts/in_image.sh <<'IN'
-        export PATH="$HOME/.local/bin:$PATH"
         export CCACHE_DIR="$PWD/.ccache"
-        pip install --user --quiet -r docs/requirements.txt
+        # The image's own environment belongs to root and this runs as the caller, so the
+        # documentation's requirements go into a second one. --user is refused inside a virtual
+        # environment, which is where the image's python tools now live.
+        python3 -m venv "$HOME/docs-venv"
+        export PATH="$HOME/docs-venv/bin:$PATH"
+        pip install --quiet -r docs/requirements.txt
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
         # A dependency's upstream tarball host going down fails any build with a cold cache.
         # xapian-core, under doxygen, did on 2026-09-08 and blocked the merge queue. Conan
