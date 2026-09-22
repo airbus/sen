@@ -1,0 +1,55 @@
+name: "Prepare a build in the CI image"
+description: >-
+  What prepare_build does for a job that builds on the runner, for one that
+  builds in the image: the image itself, the dependency cache, and the conan
+  profiles inside it.
+
+inputs:
+  ubuntu:
+    description: "The Ubuntu release whose image to use."
+    required: true
+  cache-scope:
+    description: >-
+      What built the cached packages, which is the image here. Spelled by the
+      caller and not derived, so that the key this reads is the same string
+      standard_test.yaml and conan.yaml write, and the cache-key guard can see
+      that it is.
+    required: true
+  compiler-name:
+    required: true
+  compiler-version:
+    required: true
+  std:
+    required: false
+    default: "17"
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/use_ci_image
+      with:
+        ubuntu: ${{ inputs.ubuntu }}
+
+    # Restore only, under the key a push to main writes, so a lane reads what a
+    # merge already built. These lanes compile Sen's tree once per run and their
+    # objects are sanitized or instrumented, so no ccache and no save.
+    - name: Restore conan packages
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+      with:
+        path: ~/.conan2/p
+        key: conanp-${{ inputs.cache-scope }}-${{ inputs.compiler-name }}-${{ inputs.compiler-version }}-${{ inputs.std }}
+
+    # The profile is copied over `default` so a job's conan commands read the
+    # same as they do on a runner leg, and global.conf carries the source mirror
+    # for the reason setup_build_context sets it: an upstream tarball host going
+    # quiet fails any build with a cold cache.
+    - name: Install the conan profiles
+      shell: bash
+      run: |
+        bash .github/scripts/in_environment.sh <<'IN'
+        conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+        cp "$CONAN_HOME/profiles/sen_${{ inputs.compiler-name }}_x86" "$CONAN_HOME/profiles/default"
+        printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
+            >> "$CONAN_HOME/global.conf"
+        conan profile show -pr default
+        IN

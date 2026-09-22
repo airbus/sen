@@ -1,0 +1,49 @@
+name: "Use the CI image"
+description: >-
+  Names the image a job builds in and puts it on the machine, exporting
+  SEN_CI_IMAGE for the steps that follow.
+
+inputs:
+  ubuntu:
+    description: "The Ubuntu release whose image to use, as image_build_args.sh spells it."
+    required: true
+  variant:
+    description: "Which image, as image_name.sh spells it."
+    required: false
+    default: base
+
+runs:
+  using: composite
+  steps:
+    - name: Name the image the job builds in
+      shell: bash
+      run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh ${{ inputs.variant }} ${{ inputs.ubuntu }})" >> "$GITHUB_ENV"
+
+    # continue-on-error: a registry that refuses the login still leaves the build
+    # below as a way to get the image, so this must not end the job.
+    - name: Log in to the registry
+      continue-on-error: true
+      uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+
+    # Pulled when the registry holds this Dockerfile's image, built when it does
+    # not: the tag carries the content, so an edit misses and rebuilds rather than
+    # running the previous environment. The build stays for a registry that is
+    # missing, unreachable or unauthorised, with one retry for an archive that has
+    # gone quiet.
+    - name: Get the image the job builds in
+      shell: bash
+      run: |
+        if docker pull --quiet "$SEN_CI_IMAGE"; then
+            echo "pulled $SEN_CI_IMAGE"
+            exit 0
+        fi
+        echo "not in the registry, building it"
+        args=()
+        while IFS= read -r a; do args+=(--build-arg "$a"); done \
+            < <(.github/scripts/image_build_args.sh ${{ inputs.ubuntu }})
+        build() { docker build --target ${{ inputs.variant }} --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
+        build || { echo "image build failed, retrying in 30s"; sleep 30; build; }

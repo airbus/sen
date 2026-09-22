@@ -23,6 +23,10 @@ on:
 
 permissions:
   contents: read
+  # The lanes that build in the image pull it, and it is a private package. Here
+  # rather than per job: a job that declares its own block replaces this one, and
+  # the six that do already name what they need.
+  packages: read
 
 jobs:
   sanitizers:
@@ -46,15 +50,12 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare the build
-        uses: ./.github/actions/prepare_build
+        uses: ./.github/actions/prepare_build_in_image
         with:
+          ubuntu: "24.04"
+          cache-scope: image-24.04
           compiler-name: clang
           compiler-version: 20
-          runner-label: ubuntu-24.04
-
-      - name: Install additional python dependencies
-        shell: bash
-        run: pip install junitparser==5.0.1 docker==7.2.0 testcontainers==4.15.0
 
       # The container suites are the only tests that cross a process boundary, and no
       # sanitizer lane has ever registered them. conanfile.py reads this variable and
@@ -72,6 +73,7 @@ jobs:
       - name: Build with ${{ matrix.lane }}
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan install . -s "&:build_type=Debug" --build=missing \
             -o "sen/*:with_tests=True" \
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
@@ -81,6 +83,7 @@ jobs:
             -o "sen/*:with_tests=True" \
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
             -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
+          IN
 
       # Without this the lane cannot tell having found nothing from having looked at
       # nothing, which is the state it has been in: no thread report has ever been
@@ -88,17 +91,28 @@ jobs:
       - name: Check the sanitizers detect
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the "Run tests" step below: the check calls ctest, which comes
           # from Conan rather than from the runner.
           source build/clang/Debug/generators/conanbuild.sh
           python3 .github/scripts/check_sanitizer_lane.py build/clang/Debug ${{ matrix.sanitizer }}
+          IN
 
       - name: Run tests
         shell: bash
+        env:
+          # The container suites run here, and their driver needs the daemon.
+          SEN_IN_IMAGE_DOCKER: "1"
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          # The container suites start containers of their own, and the driver takes the
+          # repository's host path from here rather than inferring it from mountinfo.
+          export TESTCONTAINERS_RYUK_DISABLED=true
+          export WORKSPACE="$PWD"
           # Same reason as the first of these, in standard_test.yaml.
           source build/clang/Debug/generators/conanbuild.sh
           cmake --build build/clang/Debug/ --target run_tests
+          IN
 
       # The container suites run as root and write their reports into the mounted tree, where
       # the runner cannot read them. The summary lists those as unreadable and still exits
@@ -257,31 +271,32 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare the build
-        uses: ./.github/actions/prepare_build
+        uses: ./.github/actions/prepare_build_in_image
         with:
+          ubuntu: "22.04"
+          cache-scope: image-22.04
           compiler-name: gcc
           compiler-version: 12
-          runner-label: ubuntu-22.04
-
-      - name: Install additional python dependencies
-        shell: bash
-        run: pip install junitparser==5.0.1
 
       - name: Build
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan install . -s "&:build_type=Release" --build=missing -o "sen/*:with_tests=True"
           conan build . -s "&:build_type=Release" -o "sen/*:with_tests=True"
+          IN
 
       # An intermittent test is a defect: this loop exists to catch it, not
       # to retry it away.
       - name: Repeat the unit suite until a failure
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the first of these, in standard_test.yaml.
           source build/gcc/Release/generators/conanbuild.sh
           ctest --test-dir build/gcc/Release --parallel "$(nproc)" \
               -L unit -LE flaky --repeat until-fail:5 --output-on-failure
+          IN
 
       - name: Archive test logs on failure
         if: failure()
@@ -303,24 +318,29 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare the build
-        uses: ./.github/actions/prepare_build
+        uses: ./.github/actions/prepare_build_in_image
         with:
+          ubuntu: "22.04"
+          cache-scope: image-22.04
           compiler-name: gcc
           compiler-version: 12
-          runner-label: ubuntu-22.04
 
       - name: Build benchmarks
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan install . -s "&:build_type=Release" --build=missing
           conan build . -s "&:build_type=Release"
+          IN
 
       - name: Run benchmarks
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the first of these, in standard_test.yaml.
           source build/gcc/Release/generators/conanbuild.sh
           cmake --build build/gcc/Release/ --target run_benchmarks
+          IN
 
       # Result history lives in these artifacts until a baseline comparison
       # exists to fail on.
@@ -389,18 +409,21 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare the build
-        uses: ./.github/actions/prepare_build
+        uses: ./.github/actions/prepare_build_in_image
         with:
+          ubuntu: "22.04"
+          cache-scope: image-22.04
           compiler-name: gcc
           compiler-version: 12
-          runner-label: ubuntu-22.04
 
       - name: Build the package and its consumer with C++20 headers
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan create . --user airbus --channel dev \
               --test-folder .conan/test_packages/package \
               --build=missing -s "sen/*:compiler.cppstd=20"
+          IN
 
   # Pull requests build with gcc-12, the oldest compiler the project supports.
   # A newer release rejects code the older one accepts and warns about more, so
@@ -505,20 +528,18 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare the build
-        uses: ./.github/actions/prepare_build
+        uses: ./.github/actions/prepare_build_in_image
         with:
+          ubuntu: "24.04"
+          cache-scope: image-24.04
           compiler-name: clang
           compiler-version: 20
-          runner-label: ubuntu-24.04
-
-      - name: Install additional python dependencies
-        shell: bash
-        run: pip install junitparser==5.0.1
 
       # The report target runs the suite as it measures it.
       - name: Build and measure
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan install . -s "&:build_type=Debug" -s "&:compiler.cppstd=17" --build=missing \
             -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
           conan build . -s "&:build_type=Debug" -s "&:compiler.cppstd=17" \
@@ -526,6 +547,7 @@ jobs:
           # Same reason as the first of these, in standard_test.yaml.
           source build/clang/Debug/generators/conanbuild.sh
           cmake --build build/clang/Debug/ --target generate-coverage-report
+          IN
 
       - name: Publish the coverage report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
