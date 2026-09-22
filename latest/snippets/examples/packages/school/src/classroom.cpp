@@ -29,7 +29,6 @@
 #include <memory>
 #include <random>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace school

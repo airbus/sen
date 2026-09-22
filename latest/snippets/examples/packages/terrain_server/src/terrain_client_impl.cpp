@@ -20,7 +20,6 @@
 #include <cstdio>
 #include <iostream>
 #include <memory>
-#include <utility>
 
 namespace terrain_server
 {

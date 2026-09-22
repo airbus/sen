@@ -10,12 +10,16 @@
 
 // sen
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/numbers.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/core/obj/callback.h"
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
 // std
 #include <iostream>
+#include <memory>
+#include <string>
 
 namespace calculators
 {

@@ -11,6 +11,7 @@
 // sen
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/numbers.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/kernel/component_api.h"
 

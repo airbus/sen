@@ -8,12 +8,12 @@
 // generated code
 #include "netn/netn-base.xml.h"
 #include "netn/netn-metoc.xml.h"
+#include "stl/basic_types.stl.h"
 #include "stl/terrain_server.stl.h"
 
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
-#include "sen/core/base/uuid.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/obj/native_object.h"
 #include "sen/core/obj/object_source.h"
@@ -23,7 +23,6 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace terrain_server
