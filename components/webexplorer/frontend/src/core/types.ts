@@ -100,7 +100,7 @@ export function getAllStructFields(client: Client | null, structSpec: StructType
     }
   }
 
-  for (const spec of specs.reverse()) {
+  for (const spec of specs) {
     fields.push(...spec.fields);
   }
   return fields;
