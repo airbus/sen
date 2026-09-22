@@ -105,8 +105,12 @@ jobs:
 
       - name: Generate release package
         run: |
-          conan install . --build=missing
-          conan build .
+          # Nothing else carries the build type into the build, and the matrix has two
+          # per compiler. Scoped with &: so the dependencies stay Release instead of
+          # being rebuilt for each leg.
+          conan install . --build=missing -s "&:build_type=${{ matrix.build_type }}"
+          # conan build regenerates the toolchain, so it needs the same setting.
+          conan build . -s "&:build_type=${{ matrix.build_type }}"
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
 
@@ -115,7 +119,9 @@ jobs:
         with:
           # An archive that does not match is a broken release, not a warning.
           if-no-files-found: error
-          name: release-${{ matrix.compiler.name }}
+          # The build type belongs in the name: both legs of a compiler would otherwise
+          # upload to one artifact, and a name cannot be written twice.
+          name: release-${{ matrix.compiler.name }}-${{ matrix.build_type }}
           # sen-0.1.0-x86_64-linux-gnu-12.4.0-release.tar.gz
           # sen-0.1.0-amd64-windows-msvc-19.44.35223.0-release.zip
           path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/sen-${{ github.ref_name }}-*
