@@ -51,8 +51,6 @@ class TestPackageConan(ConanFile):
             # not hand the loader the answer: LD_LIBRARY_PATH names only my_package's own directory,
             # and the binary is invoked by full path so conanrun does not put the package's library
             # directory back.
-            _exe = "sen.exe" if self.settings.os == "Windows" else "sen"
-            sen_binary = join(self.dependencies["sen"].package_folder, "bin", _exe)
             env = Environment()
             env.define_path("LD_LIBRARY_PATH", join(self.build_folder, "lib"))
 
@@ -62,4 +60,4 @@ class TestPackageConan(ConanFile):
                 env.prepend_path("PATH", output_dir)
 
             with env.vars(self, scope="run").apply():
-                self.run(f'"{sen_binary}" run test_configs/my_package.yaml --start-stop')
+                self.run(f'sen run test_configs/my_package.yaml --start-stop', env="conanrun")

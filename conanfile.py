@@ -219,15 +219,19 @@ class SenConan(ConanFile):
         """Define the folder layout for building Sen."""
         cmake_layout(self)
 
-        # Used in the conan editable package mode (adds the build folder to CMAKE_PREFIX_PATH)
-        self.cpp.build.builddirs = ["."]
+        # Used in the conan editable package mode:
+        # adds the build folder and the util subfolder to CMAKE_PREFIX_PATH.
+        self.cpp.build.builddirs = [".", "util"]
+
         # The build tree is split like the install tree, so an editable consumer's PATH and
         # library path name the two directories rather than the build root.
         self.cpp.build.bindirs = ["bin"]
         self.cpp.build.libdirs = ["lib"]
 
         # Adjust PATH and LD_LIBRARY path for conan editable mode
-        self.layouts.build.runenv_info.prepend_path("PATH", "bin")
+        self.layouts.build.runenv_info.prepend_path("PATH", "bin")  # Already covers Windows DLLs
+        if self.settings.os == "Macos":
+            self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "lib"))
         if self.settings.os == "Linux":
             self.layouts.build.runenv_info.prepend_path("LD_LIBRARY_PATH", "lib")
 
@@ -283,10 +287,6 @@ class SenConan(ConanFile):
 
         tc.generate()
 
-        # These files are expected at the build folder level in editable mode builds
-        copy(self, "cmake/util/sen_utils.cmake", self.source_folder, self.build_folder, keep_path=False)
-        copy(self, "cmake/util/git_info.cmake", self.source_folder, self.build_folder, keep_path=False)
-
     def build(self):
         """Configure and build Sen."""
         cmake = CMake(self)
@@ -311,7 +311,9 @@ class SenConan(ConanFile):
         # runenv library paths. Executables are in bin, shared objects in lib, which is also
         # what cpp_info.libdirs says by default -- these are explicit so the two cannot drift.
         self.runenv_info.prepend_path("PATH", join(self.package_folder, "bin"))
-        if self.settings.os == "Linux":
-            self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "lib"))
 
         # Windows: a DLL is a runtime artefact and is in bin, which PATH already covers.
+        if self.settings.os == "Macos":
+            self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "lib"))
+        if self.settings.os == "Linux":
+            self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "lib"))
