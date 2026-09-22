@@ -1587,9 +1587,9 @@
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
 <h1 id="using-the-dead-reckoning-library">Using the Dead Reckoning library<a class="headerlink" href="#using-the-dead-reckoning-library" title="Permanent link">¶</a></h1>
-<p>The aircraft example uses both <code>DeadReckoner&lt;T&gt;</code> and <code>SettableDeadReckoner&lt;T&gt;</code>, the first to move
-the entity at its configured speed, the second to write the result into the <abbr title="Real-time Platform Reference">RPR</abbr> <code>Spatial</code> attribute.
-This is the whole of it:</p>
+<p>The aircraft example uses both <code>DeadReckonerBase</code> and <code>SettableDeadReckoner&lt;T&gt;</code>, the first to
+extrapolate the entity's position from the speed it was given, the second to write the result into
+the <abbr title="Real-time Platform Reference">RPR</abbr> <code>Spatial</code> attribute. This is the whole of it:</p>
 <div class="language-c++ highlight"><span class="filename">examples/packages/aircrafts/src/dummy_aircraft_impl.cpp</span><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="w">  </span><span class="c1">// type alias</span>
 </span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">SettableDr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">util</span><span class="o">::</span><span class="n">SettableDeadReckoner</span><span class="o">&lt;</span><span class="n">rpr</span><span class="o">::</span><span class="n">BaseEntityBase</span><span class="o">&lt;&gt;&gt;</span><span class="p">;</span>
 </span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">DeadReckonerBase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">util</span><span class="o">::</span><span class="n">DeadReckonerBase</span><span class="p">;</span>
@@ -1638,9 +1638,14 @@ This is the whole of it:</p>
 </span><span id="__span-0-46"><a href="#__codelineno-0-46" id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">    </span><span class="n">settableDeadReckoner_</span><span class="o">-&gt;</span><span class="n">setSpatial</span><span class="p">(</span><span class="n">situation</span><span class="p">);</span>
 </span><span id="__span-0-47"><a href="#__codelineno-0-47" id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="w">  </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Both are constructed with <code>*this</code>, so the reckoner reads the object's own spatial properties. Note
-that driving the entity with a <code>DeadReckoner</code> is not what the class is for, since it extrapolates a
-remote entity between updates, but it makes for a compact example.</p>
+<p><code>SettableDeadReckoner&lt;T&gt;</code> is constructed with <code>*this</code>, so it writes into the object's own spatial
+properties, and with a <code>DrThreshold</code> saying how far the extrapolation may drift from the data before
+the <code>Spatial</code> is written. The example passes zeros there, so it writes on every cycle.</p>
+<p><code>DeadReckonerBase</code> is not bound to an object: you give it a situation and ask for one back. That is
+why the example seeds it on the first cycle with a world location and the commanded velocity, and
+feeds it again whenever <code>speed</code> changes. Extrapolating an entity you own is not what these classes
+are for, since they exist to fill the gaps between updates from somewhere else, but it makes for a
+compact example.</p>
 <p>A second, larger example lives in the <strong>Sen Sim Tools</strong> repository, which is a separate project and
 not part of this distribution. It adds a Dead Reckoning Viewer package that finds <abbr title="Federation Object Model">FOM</abbr> objects on a
 bus, extrapolates their position and orientation, and plots the smoothed result against the raw
@@ -1681,7 +1686,7 @@ some scenarios.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 22, 2026 15:24:41 UTC">September 22, 2026</span>
 </span>
 </aside>
 </article>
