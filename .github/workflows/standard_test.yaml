@@ -227,8 +227,12 @@ jobs:
           # Conan provides cmake and ninja; entering its environment is what puts
           # them ahead of whatever else is on PATH, the runner's own copies included.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
-          ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
-            -N -L integration | grep -q object_sync
+          # Collected first and matched without a pipe: grep -q leaves as soon as it
+          # finds one, whatever is writing then dies on the closed pipe, and pipefail
+          # makes that the status. The check failed because the test was there.
+          registered=$(ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
+            -N -L integration)
+          grep -q object_sync <<<"$registered"
           IN
 
       # If the bundle built, the tests must be registered. A rename or a missing tool would drop
@@ -238,8 +242,10 @@ jobs:
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           if [ -f apps/mcp_gateway/dist/sen-mcp-gateway.cjs ]; then
-            ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
-              -N -L unit | grep -q mcp_gateway_unit
+            # Same reason as the step above.
+            registered=$(ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
+              -N -L unit)
+            grep -q mcp_gateway_unit <<<"$registered"
           fi
           IN
 
