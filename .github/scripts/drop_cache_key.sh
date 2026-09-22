@@ -69,7 +69,9 @@ fi
 survivors=""
 while read -r id _; do
     [ -z "$id" ] && continue
-    if printf '%s\n' "$after" | grep -qE "^${id} "; then
+    # Matched without a pipe: grep -q leaves on the first match and printf then dies
+    # on the closed pipe, which pipefail would make this condition's answer.
+    if grep -qE "^${id} " <<<"$after"; then
         survivors="$survivors $id"
     fi
 done <<< "$doomed"

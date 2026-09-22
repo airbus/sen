@@ -277,6 +277,12 @@ jobs:
           # The runner is discarded when the job ends, so the testcontainers
           # cleanup helper would only add an image pull.
           export TESTCONTAINERS_RYUK_DISABLED=true
+          # Where the sibling containers bind-mount the repository from. The driver
+          # otherwise infers it by scanning mountinfo, which reports the mount's root
+          # within its filesystem: right on a runner, and on a Mac short by the /Users
+          # the desktop's share is rooted at. in_environment.sh mounts the workspace at
+          # its own path, so the answer is known rather than inferred.
+          export WORKSPACE="$PWD"
           # Same reason as the first of these, in standard_test.yaml. Conan writes
           # .bat rather than .sh on Windows, where cmake takes the generator's path
           # from the cache instead.

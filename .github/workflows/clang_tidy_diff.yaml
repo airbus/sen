@@ -166,7 +166,12 @@ jobs:
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
-          if git diff --name-only "$BASE_SHA...HEAD" | grep -qxF '.clang-tidy'; then
+          # Collected, then matched without a pipe. grep -q leaves on the first match,
+          # and `.clang-tidy` sorts first, so git is still writing when the pipe closes:
+          # past the pipe buffer it dies on SIGPIPE, pipefail makes that the condition's
+          # status, and the branch taken is the one for a change that did not happen.
+          changed=$(git diff --name-only "$BASE_SHA...HEAD")
+          if grep -qxF '.clang-tidy' <<<"$changed"; then
             echo "full=true" >> "$GITHUB_OUTPUT"
           else
             echo "full=false" >> "$GITHUB_OUTPUT"
