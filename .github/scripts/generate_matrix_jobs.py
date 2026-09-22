@@ -24,20 +24,12 @@ class Compiler:
 
 
 @dataclass(frozen=True, order=True, kw_only=True)
-class Container:
-    """Container specification."""
-
-    image: str
-
-
-@dataclass(frozen=True, order=True, kw_only=True)
 class JobSpecification:
     """Pipeline job specification that defines the configuration options."""
 
     name: str
     os: str
     runner: tp.Literal["ubuntu-latest", "ubuntu-22.04", "ubuntu-24.04", "windows-2022", "ubuntu-24.04-arm"]
-    container: Container | None
     compiler: Compiler
     arch: tp.Literal["x86", "arm"]
     std: tp.Literal[17, 20, 23]
@@ -53,6 +45,10 @@ class JobSpecification:
     # Builds the CPack archive and checks its contents. Once per operating system:
     # Windows ships a zip of .dll and .exe where Linux ships a tarball of .so.
     check_package: bool = False
+    # The Ubuntu release whose CI image this leg builds in, empty for a leg that
+    # builds on the runner. Windows has no image, and arm has none until ci-image.yaml
+    # builds one, so those legs carry the empty value and keep the runner's toolchain.
+    ci_image: str = ""
 
     def __post_init__(self):
         """Validates every Literal-typed field against its allowed values."""
@@ -93,13 +89,13 @@ SPECIFIED_JOBS = [
             name="Basic GCC",
             os="ubuntu-22.04",
             runner="ubuntu-22.04",
-            container=None,
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
             std=17,
             build_type="Debug",
             enable_examples=True,
             runtime_base="ubuntu:22.04",
+            ci_image="22.04",
         ),
         include_in_release_workflow=False,
         include_in_conan_workflow=True,
@@ -112,7 +108,6 @@ SPECIFIED_JOBS = [
             name="Basic GCC",
             os="ubuntu-22.04",
             runner="ubuntu-22.04",
-            container=None,
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
             std=17,
@@ -120,6 +115,7 @@ SPECIFIED_JOBS = [
             enable_examples=True,
             runtime_base="ubuntu:22.04",
             check_package=True,
+            ci_image="22.04",
         ),
         include_in_release_workflow=True,
         include_in_conan_workflow=True,
@@ -134,13 +130,13 @@ SPECIFIED_JOBS = [
             name="Basic Clang",
             os="ubuntu-24.04",
             runner="ubuntu-24.04",
-            container=None,
             compiler=Compiler(name="clang", version=20, cc="clang-20", cxx="clang++-20"),
             arch="x86",
             std=17,
             build_type="Debug",
             enable_coverage=True,
             enable_examples=True,
+            ci_image="24.04",
         ),
         include_in_release_workflow=False,
         include_in_conan_workflow=True,
@@ -154,7 +150,6 @@ SPECIFIED_JOBS = [
             name="Basic Windows",
             os="windows",
             runner="windows-2022",
-            container=None,
             compiler=Compiler(name="msvc", version=194, cc="cl", cxx="cl"),
             arch="x86",
             std=17,
@@ -174,7 +169,6 @@ SPECIFIED_JOBS = [
             name="Basic Ubuntu arm",
             os="ubuntu-24.04",
             runner="ubuntu-24.04-arm",
-            container=None,
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="arm",
             std=17,
@@ -196,7 +190,6 @@ SPECIFIED_JOBS = [
             name="Basic GCC (debug information)",
             os="ubuntu-22.04",
             runner="ubuntu-22.04",
-            container=None,
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
             std=17,
@@ -215,7 +208,6 @@ SPECIFIED_JOBS = [
             name="Basic Windows (debug information)",
             os="windows-2022",
             runner="windows-2022",
-            container=None,
             compiler=Compiler(name="msvc", version=194, cc="cl", cxx="cl"),
             arch="x86",
             std=17,
@@ -262,7 +254,6 @@ def compute_jobs(
     if not jobs:
         raise ValueError("the selection produced no jobs; a matrix job would silently not exist")
 
-    # Explicit key: ordering by the dataclass would compare container against None.
     return sorted(jobs, key=lambda job: (job.name, job.runner, job.build_type, job.std))
 
 

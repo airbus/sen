@@ -154,6 +154,8 @@ jobs:
       contents: read
       # The lane drops the cache entry its save replaces.
       actions: write
+      # And its Linux legs pull the image they build in.
+      packages: read
     with:
       building-main: ${{ github.ref == 'refs/heads/main' }}
 

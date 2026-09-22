@@ -17,6 +17,12 @@
 # CONAN_HOME and CCACHE_DIR are redirected for the same reason as HOME: the
 # image sets CCACHE_DIR to a directory under its own user, which is mode 750
 # and unreadable to anyone else, so a build fails on the first compile.
+#
+# SEN_IN_IMAGE_DOCKER mounts the daemon socket, for the integration suites whose
+# driver starts containers of its own. Off unless asked: it hands the container
+# the daemon's full authority, which no other caller needs. Those suites also read
+# SEN_INTEGRATION_TEST_IMAGE, at configure time and again when they run, so it is
+# forwarded for the same reason the compiler is.
 set -euo pipefail
 
 : "${SEN_CI_IMAGE:?set SEN_CI_IMAGE to the image tag}"
@@ -24,8 +30,24 @@ set -euo pipefail
 
 mkdir -p "$HOME/.conan2" "$HOME/.ccache"
 
+docker_socket=()
+if [ -n "${SEN_IN_IMAGE_DOCKER:-}" ]; then
+    # The socket is mode 660 and a container process gets no supplementary groups,
+    # so mounting it alone hands over a socket the caller can see and cannot open.
+    # The group has to be the one the container sees rather than the one the host
+    # does: they are the same number on a Linux runner, and Docker Desktop maps the
+    # owner, so asking the host answers 1 where the container reads 0.
+    socket_group=$(docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock \
+        "$SEN_CI_IMAGE" stat -c %g /var/run/docker.sock)
+    docker_socket=(
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        --group-add "$socket_group"
+    )
+fi
+
 docker run --rm --interactive \
     --user "$(id -u):$(id -g)" \
+    ${docker_socket[@]+"${docker_socket[@]}"} \
     --volume "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
     --volume "$HOME/.conan2:/conan" \
     --volume "$HOME/.ccache:/ccache" \
@@ -35,6 +57,7 @@ docker run --rm --interactive \
     --env CCACHE_DIR=/ccache \
     --env CC \
     --env CXX \
+    --env SEN_INTEGRATION_TEST_IMAGE \
     --security-opt seccomp=unconfined \
     "$SEN_CI_IMAGE" \
     bash -seuo pipefail

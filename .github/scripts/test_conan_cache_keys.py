@@ -43,6 +43,9 @@ SLOTS = {
     "matrix.std": "STD",
     "matrix.build_type": "BUILD_TYPE",
     "hashFiles('tools/ci/Dockerfile')": "IMAGE",
+    # Spelled once as a job-level variable, because it is a conditional and three
+    # copies of a conditional is how the trailing-dash divergence happened.
+    "env.SEN_CACHE_SCOPE": "RUNNER",
 }
 
 
