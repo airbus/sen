@@ -555,7 +555,7 @@ TEST_F(PrinterTest, PrintDescriptionAliasType)
 }
 
 /// @test
-/// Verifies that derived struct types print both base and derived fields
+/// Verifies that derived struct types print both base and derived fields in the correct order
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueDerivedStructType)
 {
@@ -576,4 +576,11 @@ TEST_F(PrinterTest, PrintValueDerivedStructType)
   const std::string out = mockTerminal->getOutputBuffer();
   EXPECT_THAT(out, testing::HasSubstr("baseInfo: \"base value\""));
   EXPECT_THAT(out, testing::HasSubstr("derivedInfo: \"derived value\""));
+
+  // Verify order
+  const auto derivedPos = out.find("derivedInfo");
+  const auto basePos = out.find("baseInfo");
+  EXPECT_NE(derivedPos, std::string::npos);
+  EXPECT_NE(basePos, std::string::npos);
+  EXPECT_LT(derivedPos, basePos);
 }
