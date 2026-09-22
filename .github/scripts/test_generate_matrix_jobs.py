@@ -9,6 +9,8 @@
 When the matrix changes, the expectations here change in the same commit.
 """
 
+from collections import defaultdict
+
 import pytest
 from generate_matrix_jobs import SPECIFIED_JOBS, Compiler, JobSpecification, compute_jobs
 
@@ -55,6 +57,22 @@ def test_release_job_set():
     """Releases build gcc and MSVC, each twice: what ships, and what carries debug information."""
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
     assert job_keys(jobs) == [GCC_RELEASE, GCC_RELWITHDEBINFO, MSVC_RELEASE, MSVC_RELWITHDEBINFO]
+
+
+def test_a_release_and_its_debug_information_share_a_toolchain():
+    """Both halves of one release, so one may not build in the image and the other not.
+
+    The debug information exists to debug the binaries that ship, which it cannot do
+    faithfully if a different compiler installation produced them.
+    """
+    jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
+    by_compiler = defaultdict(set)
+    for job in jobs:
+        by_compiler[job.compiler.name].add(job.ci_image)
+    assert {name: sorted(images) for name, images in by_compiler.items()} == {
+        "gcc": ["22.04"],
+        "msvc": [""],
+    }
 
 
 def test_only_coverage_leg_enables_coverage():

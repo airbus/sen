@@ -17,6 +17,8 @@ on:
 # run the toolchain over the tagged sources.
 permissions:
   contents: read
+  # Reading the image the Linux legs build in, which is a private package.
+  packages: read
 
 # Without this a run step gets GitHub's implicit `bash -e`, which has no pipefail, so a
 # failed command in a pipeline is reported as success. The other workflows say it per step.
@@ -96,15 +98,65 @@ jobs:
         with:
           fetch-depth: 0
 
+      # A release and its debug-information counterpart are two halves of one
+      # release, so both Linux legs build with the same toolchain: the image's,
+      # as the lanes that test the same sources already do. Windows keeps the
+      # runner, and the same wrapper decides which.
+      - name: Name the image the job builds in
+        if: matrix.ci_image != ''
+        shell: bash
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base ${{ matrix.ci_image }})" >> "$GITHUB_ENV"
+
+      - name: Log in to the registry
+        if: matrix.ci_image != ''
+        continue-on-error: true
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get the image the job builds in
+        if: matrix.ci_image != ''
+        shell: bash
+        run: |
+          if docker pull --quiet "$SEN_CI_IMAGE"; then
+              echo "pulled $SEN_CI_IMAGE"
+              exit 0
+          fi
+          echo "not in the registry, building it"
+          args=()
+          while IFS= read -r a; do args+=(--build-arg "$a"); done \
+              < <(.github/scripts/image_build_args.sh ${{ matrix.ci_image }})
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
+          build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
+
+      # Only for a leg that builds on the runner; the image carries all of it.
       - name: Setup build context
+        if: matrix.ci_image == ''
         uses: ./.github/actions/setup_build_context
         with:
           compiler-name: ${{ matrix.compiler.name }}
           compiler-version: ${{ matrix.compiler.version }}
           arch: ${{ matrix.arch }}
 
+      # What setup_build_context does for a runner leg, and the source mirror with it.
+      - name: Install the conan profiles
+        if: matrix.ci_image != ''
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+          cp "$CONAN_HOME/profiles/sen_${{ matrix.compiler.name }}_${{ matrix.arch }}" \
+             "$CONAN_HOME/profiles/default"
+          printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
+              >> "$CONAN_HOME/global.conf"
+          conan profile show -pr default
+          IN
+
       - name: Generate release package
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Nothing else carries the build type into the build, and the matrix has two
           # per compiler. Scoped with &: so the dependencies stay Release instead of
           # being rebuilt for each leg.
@@ -113,6 +165,7 @@ jobs:
           conan build . -s "&:build_type=${{ matrix.build_type }}"
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
+          IN
 
       - name: Archive generated release package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1

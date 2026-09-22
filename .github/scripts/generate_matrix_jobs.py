@@ -196,6 +196,7 @@ SPECIFIED_JOBS = [
             build_type="RelWithDebInfo",
             enable_examples=True,
             check_package=True,
+            ci_image="22.04",
         ),
         include_in_release_workflow=True,
         include_in_conan_workflow=False,
