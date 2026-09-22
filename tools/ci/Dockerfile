@@ -98,6 +98,10 @@ RUN printf '%s\n' \
         ccache \
         curl \
         default-jre-headless \
+        # A lane that catches a crash reads the core where it happened, inside the
+        # image: the paths recorded in a core are the container's, so a debugger on
+        # the runner resolves none of the libraries.
+        gdb \
         g++-12 \
         gcc-12 \
         ${SEN_EXTRA_COMPILERS} \
@@ -226,16 +230,8 @@ WORKDIR /workspace
 
 
 # CLion, VS Code and Visual Studio detect a toolchain by looking for cmake, a build
-# tool and a debugger inside the environment; base carries the first two, so this
-# stage adds the debugger.
+# tool and a debugger inside the environment. Base carries all three now that a CI
+# lane reads cores, so this stage adds nothing; it stays because the devcontainer
+# and CONTRIBUTING.md name it, and because what a developer needs beyond CI belongs
+# here rather than in every lane's pull.
 FROM base AS dev
-
-# Names again, for the same reason as in the base stage: this user exists in
-# the image, created there with uid 1000.
-# hadolint ignore=DL3066
-USER root
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        gdb \
-    && rm -rf /var/lib/apt/lists/*
-# hadolint ignore=DL3066
-USER sen
