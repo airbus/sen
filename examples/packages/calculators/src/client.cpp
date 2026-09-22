@@ -11,11 +11,14 @@
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/core/obj/callback.h"
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component_api.h"
 
 // std
 #include <iostream>
+#include <memory>
+#include <string>
 
 namespace calculators
 {
@@ -41,6 +44,7 @@ protected:
   {
     if (const auto& list = calculators_->list.getObjects(); !list.empty())  // (4)!
     {
+      // NOLINTNEXTLINE(misc-include-cleaner)
       auto handleResult = [](sen::MethodResult<float32_t> result)  // (6)!
       {
         if (result.isOk())
