@@ -39,6 +39,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG LLVM_VERSION=20
 ARG CONAN_VERSION=2.28.1
 ARG JUNITPARSER_VERSION=5.0.1
+# The integration suites' driver starts sibling containers through the daemon socket.
+ARG DOCKER_SDK_VERSION=7.2.0
+ARG TESTCONTAINERS_VERSION=4.15.0
 ARG PYTEST_VERSION=9.1.1
 ARG PRECOMMIT_VERSION=4.5.1
 ARG PLANTUML_VERSION=1.2026.7
@@ -184,10 +187,12 @@ RUN python3 -m venv "$VIRTUAL_ENV" \
     && pip3 install --no-cache-dir \
         cmake==${CMAKE_VERSION} \
         conan==${CONAN_VERSION} \
+        docker==${DOCKER_SDK_VERSION} \
         junitparser==${JUNITPARSER_VERSION} \
         ninja==${NINJA_VERSION} \
         pre-commit==${PRECOMMIT_VERSION} \
         pytest==${PYTEST_VERSION} \
+        testcontainers==${TESTCONTAINERS_VERSION} \
     && pip3 install --no-cache-dir --no-deps \
         "ctcache @ git+https://github.com/matus-chochlik/ctcache@${CTCACHE_COMMIT}"
 

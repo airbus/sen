@@ -18,6 +18,8 @@ permissions:
   contents: read
   # Deleting the cache entry a save replaces.
   actions: write
+  # Reading the image the Linux legs build in, which is a private package.
+  packages: read
 
 jobs:
   compute-matrix-jobs:
@@ -56,10 +58,51 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
+      # What the cached packages were built by. A conan package id does not
+      # distinguish one Ubuntu from another, and the image's toolchain is not the
+      # runner's even at the same version, so the two must not share an entry.
+      SEN_CACHE_SCOPE: ${{ matrix.ci_image != '' && format('image-{0}', matrix.ci_image) || matrix.runner }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
+
+      # Named once here rather than per step: every step that needs the toolchain
+      # runs through in_environment.sh, which uses the image when this is set and
+      # the runner when it is not. The Windows and arm legs set nothing.
+      - name: Name the image the job builds in
+        if: matrix.ci_image != ''
+        shell: bash
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base ${{ matrix.ci_image }})" >> "$GITHUB_ENV"
+
+      - name: Log in to the registry
+        if: matrix.ci_image != ''
+        continue-on-error: true
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Pulled when the registry holds this Dockerfile's image, built when it does
+      # not: the tag carries the content, so an edit misses and rebuilds rather than
+      # running the previous environment. The build stays for a registry that is
+      # missing, unreachable or unauthorised, with one retry for an archive that has
+      # gone quiet, as in the other lanes that do this.
+      - name: Get the image the job builds in
+        if: matrix.ci_image != ''
+        shell: bash
+        run: |
+          if docker pull --quiet "$SEN_CI_IMAGE"; then
+              echo "pulled $SEN_CI_IMAGE"
+              exit 0
+          fi
+          echo "not in the registry, building it"
+          args=()
+          while IFS= read -r a; do args+=(--build-arg "$a"); done \
+              < <(.github/scripts/image_build_args.sh ${{ matrix.ci_image }})
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
+          build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 
       # Dependencies are always Release, so one slice serves the Debug and
       # Release jobs of a compiler alike.
@@ -71,7 +114,18 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
+          key: conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
+
+      # On a leg that builds in the image the action has nothing to install and
+      # nothing to wrap: the image carries ccache, and cmake wires the launcher
+      # inside the container, which writes into the directory in_image.sh mounts.
+      # Keeping the directory is all that is left, so that is all this does.
+      - name: Restore the compiler cache
+        if: matrix.ci_image != ''
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.ccache
+          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
 
       # Sen's targets reach the cache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake),
       # so the shims must not also be on PATH while it builds: the launcher would invoke a shim
@@ -79,7 +133,8 @@ jobs:
       # Windows takes sccache because no ccache builds for MSVC. Without one that leg recompiled
       # 860 edges every run: 35.2 minutes of a 36.9 minute job, against 5.4 on gcc [34357828664].
       # The key already carries the runner, so the two variants never share an entry.
-      - uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
+      - if: matrix.ci_image == ''
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
         with:
           variant: ${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}
           key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
@@ -88,16 +143,32 @@ jobs:
           # Same reasoning as the conan cache above.
           save: ${{ github.ref == 'refs/heads/main' }}
 
+      # Only for a leg that builds on the runner. The image carries the compilers,
+      # the system libraries and conan, and its profiles are installed below.
       - name: Setup build context
+        if: matrix.ci_image == ''
         uses: ./.github/actions/setup_build_context
         with:
           compiler-name: ${{ matrix.compiler.name }}
           compiler-version: ${{ matrix.compiler.version }}
           arch: ${{ matrix.arch }}
 
-      - name: Install additional python dependencies
+      # What setup_build_context does for a runner leg. The profile is copied over
+      # `default` so the conan commands below read the same on either kind of leg,
+      # and global.conf carries the source mirror for the same reason it does there:
+      # an upstream tarball host going quiet fails any build with a cold cache.
+      - name: Install the conan profiles
+        if: matrix.ci_image != ''
         shell: bash
-        run: pip install junitparser==5.0.1
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+          cp "$CONAN_HOME/profiles/sen_${{ matrix.compiler.name }}_${{ matrix.arch }}" \
+             "$CONAN_HOME/profiles/default"
+          printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
+              >> "$CONAN_HOME/global.conf"
+          conan profile show -pr default
+          IN
 
       # Built before the compile: a problem with docker or the apt mirror then
       # costs seconds instead of a whole build. The tag carries the base image
@@ -108,7 +179,6 @@ jobs:
         env:
           BASE: ${{ matrix.runtime_base }}
         run: |
-          pip install docker==7.2.0 testcontainers==4.15.0
           tag="sen-runtime:${BASE//:/-}"
           docker build --file tools/ci/runtime.Dockerfile \
             --build-arg "BASE=$BASE" --tag "$tag" tools/ci
@@ -117,6 +187,7 @@ jobs:
       - name: Compile base libraries
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # & applies build_type to the sen package only; dependencies stay at
           # the profiles' Release default, which is what binary remotes serve.
           #
@@ -125,7 +196,7 @@ jobs:
           # sloppiness rides with the launcher, so this route needs its own: conan extracts a
           # dependency's sources just before compiling them, and the default mtime check calls
           # that too new to store.
-          if [ "$RUNNER_OS" = Linux ] && [ ! -x "/usr/lib/ccache/$CXX" ]; then
+          if [ "$(uname -s)" = Linux ] && [ ! -x "/usr/lib/ccache/$CXX" ]; then
             echo "::warning::no /usr/lib/ccache/$CXX, so dependency builds are not cached"
           fi
           PATH="/usr/lib/ccache:$PATH" \
@@ -142,6 +213,7 @@ jobs:
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
             -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
+          IN
 
       # The suite is registered only if the image reached CMake, and its tests
       # are labelled flaky, a selection ctest is allowed to leave empty. A
@@ -151,21 +223,25 @@ jobs:
         if: matrix.runtime_base != ''
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Conan provides cmake and ninja; entering its environment is what puts
           # them ahead of whatever else is on PATH, the runner's own copies included.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
             -N -L integration | grep -q object_sync
+          IN
 
       # If the bundle built, the tests must be registered. A rename or a missing tool would drop
       # them and still report success, which is how the baked-docs control went unrun for months.
       - name: Check the gateway tests are registered
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           if [ -f apps/mcp_gateway/dist/sen-mcp-gateway.cjs ]; then
             ctest --test-dir build/${{ matrix.compiler.name }}/${{ matrix.build_type }} \
               -N -L unit | grep -q mcp_gateway_unit
           fi
+          IN
 
       # Windows reserves blocks of UDP ports for its own services, and both ether
       # defaults sit in that range, so a bind intermittently fails and the run dies
@@ -186,11 +262,15 @@ jobs:
         # silence for the whole job budget.
         timeout-minutes: 20
         shell: bash
-        # The runner is discarded when the job ends, so the testcontainers
-        # cleanup helper would only add an image pull.
         env:
-          TESTCONTAINERS_RYUK_DISABLED: "true"
+          # The suites start sibling containers, so this step needs the daemon.
+          # Only the legs that register them ask for it.
+          SEN_IN_IMAGE_DOCKER: ${{ matrix.runtime_base != '' && '1' || '' }}
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          # The runner is discarded when the job ends, so the testcontainers
+          # cleanup helper would only add an image pull.
+          export TESTCONTAINERS_RYUK_DISABLED=true
           # Same reason as the first of these, in standard_test.yaml. Conan writes
           # .bat rather than .sh on Windows, where cmake takes the generator's path
           # from the cache instead.
@@ -206,6 +286,7 @@ jobs:
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -LE flaky
           ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -L flaky
+          IN
 
       # The ctest runs above share one step under -e, so a failing suite ends it and the
       # merge never happened, leaving the publish step below nothing to render exactly
@@ -214,6 +295,7 @@ jobs:
         if: ${{ always() && !matrix.enable_coverage }}
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
           set --
           if [ -f ctestParallelReport.xml ]; then set -- "$@" ctestParallelReport.xml; fi
@@ -223,6 +305,7 @@ jobs:
             exit 0
           fi
           junitparser merge "$@" ctestReport.xml
+          IN
 
       # The report target runs the suite itself, so this replaces the step above
       # rather than following it. Without it the leg pays for instrumentation
@@ -233,19 +316,25 @@ jobs:
         timeout-minutes: 20
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the first of these, in standard_test.yaml.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
             --target generate-coverage-report
+          IN
 
       # Runs even when the build failed: that is when the report is worth reading.
+      # Through the wrapper for the interpreter, not for the file: a leg that builds
+      # in the image has no python installed on the runner. The summary is a runner
+      # path and is not mounted, so the redirect stays outside.
       - name: Publish the test report
         if: always()
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh >> "$GITHUB_STEP_SUMMARY" <<'IN'
           python .github/scripts/test_report.py \
-            "build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml" \
-            >> "$GITHUB_STEP_SUMMARY"
+            "build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml"
+          IN
 
       - name: Publish the coverage report
         if: matrix.enable_coverage
@@ -296,6 +385,7 @@ jobs:
         if: matrix.check_package
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the first of these, in standard_test.yaml, and the
           # same .bat/.sh difference as the test step above.
           if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
@@ -303,6 +393,7 @@ jobs:
           fi
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
+          IN
 
       # TODO(SEN-1726): Connect App to Airbus Org.
       # - name: Upload coverage to Codecov
@@ -316,7 +407,9 @@ jobs:
         if: ${{ !cancelled() }}
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan cache clean "*" -s -b -d -t
+          IN
 
       # After the clean, so build folders stay out. always() keeps what a
       # cancelled run already built.
@@ -335,11 +428,18 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/drop_cache_key.sh "conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
+        run: bash .github/scripts/drop_cache_key.sh "conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
+
+      - name: Save the compiler cache
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' && matrix.ci_image != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.ccache
+          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
 
       - name: Save conan packages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
+          key: conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
