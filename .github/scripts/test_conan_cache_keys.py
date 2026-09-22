@@ -9,8 +9,9 @@ produce identical results.
 A divergence here is the quiet kind. Nothing fails: the writer stores under one
 string, the reader asks for another, they never meet, and the lane rebuilds its
 dependencies from source for twenty to thirty minutes. A slow build looks like a
-slow build. `prepare_build` and the merge path disagreed by one trailing dash
-for an unknown length of time and it was found by accident.
+slow build. It has happened twice: a trailing dash between the old runner-side
+action and the merge path, found by accident, and the nightly asking for a key
+the lanes had stopped writing when they moved into the image.
 
 What this does NOT check: that the keys are correct. Fourteen sites agreeing on
 the wrong key pass. It checks they have not drifted apart.
@@ -103,8 +104,6 @@ def test_the_key_families_are_the_ones_this_repository_uses():
         # runner: a package id does not tell one Ubuntu from another, and the paths
         # inside a package differ between the two.
         "conanp-{ENVIRONMENT}-{COMPILER}-{COMPILER_VERSION}-{STD}",
-        "conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-{STD}",
-        "conanp-{RUNNER}-{COMPILER}-{COMPILER_VERSION}-",  # prepare_build's restore ladder
         # Hash last, so a prefix can reach the family; the bare prefixes are the
         # restore ladders that reach the previous image's entry.
         # The Ubuntu release is in the key because one Dockerfile builds both images now, so its
@@ -134,9 +133,6 @@ def test_each_family_is_spelled_in_more_than_one_place():
     family found in a single file is one nobody is comparing.
     """
     found = keys()
-    # {RUNNER} is not among them any more: since the standard tests and the conan lane
-    # moved into the image, prepare_build both writes and reads it and nothing else
-    # spells it, which is the state this test is about rather than an exception to it.
     for family in ("conanp-{ENVIRONMENT}-{COMPILER}-{COMPILER_VERSION}-{STD}", "conanp-image-docs-22.04-{IMAGE}"):
         assert family in found, f"{family} is no longer found by the key scan"
         assert len(found[family]) >= 2, f"{family} is spelled once, in {found[family]}, so nothing is compared"

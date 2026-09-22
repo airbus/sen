@@ -23,6 +23,13 @@ inputs:
     required: false
     default: "17"
 
+outputs:
+  cache-key:
+    description: >-
+      The key this asked for, which a restore reports unchanged whether it hit,
+      fell back or missed. A job that owns a slice saves under it.
+    value: ${{ steps.conan-cache.outputs.cache-primary-key }}
+
 runs:
   using: composite
   steps:
@@ -30,10 +37,19 @@ runs:
       with:
         ubuntu: ${{ inputs.ubuntu }}
 
+    # The gcc profile renders the compiler from this and falls back to 12 when it is
+    # unset, so a job asking for a newer gcc would build with 12 and pass. Set for
+    # the job rather than the step: conan reads it on every command.
+    - name: Select the gcc version the profile builds with
+      if: inputs.compiler-name == 'gcc'
+      shell: bash
+      run: echo "SEN_GCC_VERSION=${{ inputs.compiler-version }}" >> "$GITHUB_ENV"
+
     # Restore only, under the key a push to main writes, so a lane reads what a
     # merge already built. These lanes compile Sen's tree once per run and their
     # objects are sanitized or instrumented, so no ccache and no save.
     - name: Restore conan packages
+      id: conan-cache
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: ~/.conan2/p

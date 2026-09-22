@@ -35,9 +35,13 @@ def test_a_lane_selects_its_compiler_this_way():
     assert callers(), "no workflow sets CC and builds through in_image.sh"
 
 
-@pytest.mark.parametrize("name", ["CC", "CXX"])
+@pytest.mark.parametrize("name", ["CC", "CXX", "SEN_GCC_VERSION"])
 def test_the_compiler_is_forwarded_from_the_caller(name):
-    """The valueless form passes the caller's value through; --env CC=gcc would pin it."""
+    """The valueless form passes the caller's value through; --env CC=gcc would pin it.
+
+    SEN_GCC_VERSION is here because the gcc profile falls back to 12 when it is unset,
+    so a lane asking for a newer gcc would build with 12 and report itself green.
+    """
     assert re.search(rf"--env\s+{name}\b(?!=)", TEXT), f"{name} is not forwarded to the container"
 
 

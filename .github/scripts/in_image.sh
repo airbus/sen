@@ -22,7 +22,9 @@
 # driver starts containers of its own. Off unless asked: it hands the container
 # the daemon's full authority, which no other caller needs. Those suites also read
 # SEN_INTEGRATION_TEST_IMAGE, at configure time and again when they run, so it is
-# forwarded for the same reason the compiler is.
+# forwarded for the same reason the compiler is. SEN_GCC_VERSION is what the gcc
+# profile reads to pick a compiler, and it falls back to 12 when unset: without it
+# a lane asking for a newer gcc builds with 12 and passes.
 set -euo pipefail
 
 : "${SEN_CI_IMAGE:?set SEN_CI_IMAGE to the image tag}"
@@ -58,6 +60,7 @@ docker run --rm --interactive \
     --env CC \
     --env CXX \
     --env SEN_INTEGRATION_TEST_IMAGE \
+    --env SEN_GCC_VERSION \
     --security-opt seccomp=unconfined \
     "$SEN_CI_IMAGE" \
     bash -seuo pipefail
