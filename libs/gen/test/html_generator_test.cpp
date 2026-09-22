@@ -42,7 +42,7 @@ protected:
 
     sen::lang::ResolverContext resolverContext {};
     sen::lang::StlResolver resolver {statements_, resolverContext, context_};
-    std::ignore = resolver.resolve({});
+    ASSERT_NE(resolver.resolve({}), nullptr);
 
     files_ = sen::gen::HtmlGenerator {}.generate(context_, title);
   }

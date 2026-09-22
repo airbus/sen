@@ -89,7 +89,7 @@ protected:
 
     const sen::lang::ResolverContext resolverContext {};
     sen::lang::StlResolver resolver {statements_.back(), resolverContext, context};
-    std::ignore = resolver.resolve({});
+    ASSERT_NE(resolver.resolve({}), nullptr);
   }
 
 private:
@@ -100,7 +100,7 @@ private:
     statements_.push_back(parser.parse());
 
     sen::lang::StlResolver resolver {statements_.back(), resolverContext, context_};
-    std::ignore = resolver.resolve({});
+    ASSERT_NE(resolver.resolve({}), nullptr);
   }
 
   // The resolved model points into these, so they outlive resolution.
