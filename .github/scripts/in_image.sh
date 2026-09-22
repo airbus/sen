@@ -32,7 +32,17 @@ mkdir -p "$HOME/.conan2" "$HOME/.ccache"
 
 docker_socket=()
 if [ -n "${SEN_IN_IMAGE_DOCKER:-}" ]; then
-    docker_socket=(--volume /var/run/docker.sock:/var/run/docker.sock)
+    # The socket is mode 660 and a container process gets no supplementary groups,
+    # so mounting it alone hands over a socket the caller can see and cannot open.
+    # The group has to be the one the container sees rather than the one the host
+    # does: they are the same number on a Linux runner, and Docker Desktop maps the
+    # owner, so asking the host answers 1 where the container reads 0.
+    socket_group=$(docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock \
+        "$SEN_CI_IMAGE" stat -c %g /var/run/docker.sock)
+    docker_socket=(
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        --group-add "$socket_group"
+    )
 fi
 
 docker run --rm --interactive \

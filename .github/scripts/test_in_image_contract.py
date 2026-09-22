@@ -81,21 +81,20 @@ def test_the_sanitizers_can_run():
     assert "--security-opt seccomp=unconfined" in TEXT, "the seccomp profile is left at the default"
 
 
-# Everything after the literal "docker run", which is what the container is given
-# unconditionally. A mount added here reaches every caller.
-RUN_ARGUMENTS = TEXT.split("docker run", 1)[1]
+def guarded_block() -> str:
+    """The part of the script SEN_IN_IMAGE_DOCKER turns on."""
+    opening = 'if [ -n "${SEN_IN_IMAGE_DOCKER:-}" ]; then\n'
+    assert TEXT.count(opening) == 1, "SEN_IN_IMAGE_DOCKER guards nothing"
+    rest = TEXT.split(opening, 1)[1]
+    return rest.split("\nfi\n", 1)[0]
 
 
-def test_the_daemon_socket_is_not_handed_out_by_default():
-    """The socket carries the daemon's full authority, and one lane's suites need it."""
-    assert "docker.sock" not in RUN_ARGUMENTS
+def test_nothing_touches_the_daemon_socket_outside_the_guard():
+    """Every mention of it, the probe that reads its group included, is asked for.
 
-
-def test_the_daemon_socket_can_be_asked_for():
-    """And the asking is by name, so a reader can find who turned it on."""
-    guard = re.search(r"if \[ -n \"\$\{SEN_IN_IMAGE_DOCKER:-\}\" \][\s\S]{0,240}?\nfi\n", TEXT)
-    assert guard, "SEN_IN_IMAGE_DOCKER guards nothing"
-    assert "docker.sock" in guard.group(0)
+    The socket carries the daemon's full authority and one lane's suites need it.
+    """
+    assert TEXT.count("docker.sock") == guarded_block().count("docker.sock") > 0
 
 
 def test_the_script_arrives_on_standard_input():
@@ -113,7 +112,12 @@ def run_the_script(tmp_path, **environment) -> list[str]:
     """Runs in_image.sh with docker stubbed, returning the arguments it passed."""
     recorded = tmp_path / "arguments"
     stub = tmp_path / "docker"
-    stub.write_text(f'#!/bin/sh\nfor a in "$@"; do echo "$a" >> {recorded}; done\n')
+    # The script asks a throwaway container for the socket's group before it starts
+    # the real one, so the stub answers that and records only the run it is asked about.
+    stub.write_text(
+        f'#!/bin/sh\ncase "$*" in\n  *stat*) echo 999 ;;\n'
+        f'  *) for a in "$@"; do echo "$a" >> {recorded}; done ;;\nesac\n'
+    )
     stub.chmod(0o755)
     finished = subprocess.run(
         ["bash", str(SCRIPT)],
@@ -153,3 +157,14 @@ def test_the_run_it_builds_carries_the_socket_when_asked(tmp_path):
     """And the asked-for path actually reaches docker with the mount."""
     arguments = run_the_script(tmp_path, SEN_IN_IMAGE_DOCKER="1")
     assert "/var/run/docker.sock:/var/run/docker.sock" in arguments
+
+
+@pytest.mark.skipif(shutil.which("bash") is None, reason="needs a shell to run the script")
+def test_the_socket_comes_with_the_group_that_opens_it(tmp_path):
+    """A mount on its own is a socket the container can see and cannot open.
+
+    The container's user has no supplementary groups, and the socket is mode 660.
+    """
+    arguments = run_the_script(tmp_path, SEN_IN_IMAGE_DOCKER="1")
+    assert "--group-add" in arguments
+    assert arguments[arguments.index("--group-add") + 1] == "999"
