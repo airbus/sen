@@ -7,6 +7,8 @@
 
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
+# sen_generate_python configures and links a library target
+# so it needs a compilable source
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/empty.cpp" "")
 add_library(cmake_generated_python STATIC "${CMAKE_CURRENT_BINARY_DIR}/empty.cpp")
 sen_generate_python(

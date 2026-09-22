@@ -14,10 +14,24 @@ if(generated_file_size EQUAL 0)
   message(FATAL_ERROR "Generated file is empty: ${GENERATED_FILE}")
 endif()
 
-if(REQUIRED_TEXT)
+if(REQUIRED_TEXT OR FORBIDDEN_TEXT)
   file(READ "${GENERATED_FILE}" generated_file_contents)
+endif()
+
+if(REQUIRED_TEXT)
   string(FIND "${generated_file_contents}" "${REQUIRED_TEXT}" required_text_index)
   if(required_text_index EQUAL -1)
     message(FATAL_ERROR "Generated file does not contain '${REQUIRED_TEXT}': ${GENERATED_FILE}")
+  endif()
+endif()
+
+if(FORBIDDEN_TEXT)
+  string(FIND "${generated_file_contents}" "${FORBIDDEN_TEXT}" forbidden_text_index)
+  if(NOT
+     forbidden_text_index
+     EQUAL
+     -1
+  )
+    message(FATAL_ERROR "Generated file contains forbidden text '${FORBIDDEN_TEXT}': ${GENERATED_FILE}")
   endif()
 endif()

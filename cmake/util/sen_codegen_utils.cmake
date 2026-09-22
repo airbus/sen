@@ -1163,6 +1163,7 @@ function(sen_generate_yaml)
       if(NOT _python_path)
         set(_python_path ${_gen_dir})
       else()
+        # TODO SEN-1845 fix windows PYTHONPATH separators
         set(_python_path ${_python_path}:${_gen_dir})
       endif()
     endif()
