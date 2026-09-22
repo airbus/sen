@@ -312,6 +312,7 @@ function(sen_generate_code)
 
     if(${_arg_LANG} STREQUAL py)
       set_property(TARGET ${_arg_TARGET} PROPERTY SEN_IS_PYTHON YES)
+      set_property(TARGET ${_arg_TARGET} PROPERTY SEN_GEN_DIR ${_output_dir})
     endif()
 
   endif(_arg_STL_FILES)
@@ -1165,6 +1166,7 @@ function(sen_generate_yaml)
       if(NOT _python_path)
         set(_python_path ${_gen_dir})
       else()
+        # TODO SEN-1845 fix windows PYTHONPATH separators
         set(_python_path ${_python_path}:${_gen_dir})
       endif()
     endif()

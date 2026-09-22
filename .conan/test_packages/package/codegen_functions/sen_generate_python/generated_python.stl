@@ -1,0 +1,7 @@
+package cmake_generate_python;
+
+struct GeneratedConfig
+{
+  enabled : bool,
+  name    : string
+}

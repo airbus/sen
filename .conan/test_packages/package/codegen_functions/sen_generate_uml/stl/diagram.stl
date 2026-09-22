@@ -1,0 +1,11 @@
+package cmake_generate_uml;
+
+struct DiagramData
+{
+  value : i32
+}
+
+class DiagramClass
+{
+  var name : string [static];
+}

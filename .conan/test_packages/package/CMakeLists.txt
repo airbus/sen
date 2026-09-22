@@ -18,18 +18,26 @@ function(add_generated_file_test test_name generated_file)
   cmake_parse_arguments(
     _arg
     ""
-    "REQUIRED_TEXT"
+    "REQUIRED_TEXT;FORBIDDEN_TEXT"
     ""
     ${ARGN}
   )
 
-  add_test(NAME ${test_name}
-           COMMAND ${CMAKE_COMMAND} "-DGENERATED_FILE=${generated_file}"
-                   "-DREQUIRED_TEXT=${_arg_REQUIRED_TEXT}" -P ${SEN_GENERATED_FILE_TEST_SCRIPT}
+  add_test(
+    NAME ${test_name}
+    COMMAND ${CMAKE_COMMAND} "-DGENERATED_FILE=${generated_file}" "-DREQUIRED_TEXT=${_arg_REQUIRED_TEXT}"
+            "-DFORBIDDEN_TEXT=${_arg_FORBIDDEN_TEXT}" -P ${SEN_GENERATED_FILE_TEST_SCRIPT}
   )
 endfunction()
 
+# package tests
 add_subdirectory(package_functions/add_sen_package package)
 add_subdirectory(package_functions/add_sen_component interface)
 add_subdirectory(package_functions/add_sen_interface_package i_package)
 add_subdirectory(package_functions/sen_generate_package component)
+
+# codegen tests
+add_subdirectory(codegen_functions/sen_generate_cpp gen_cpp)
+add_subdirectory(codegen_functions/sen_generate_python gen_python)
+add_subdirectory(codegen_functions/sen_generate_uml gen_uml)
+add_subdirectory(codegen_functions/sen_generate_yaml gen_yaml)
