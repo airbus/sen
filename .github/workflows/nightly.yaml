@@ -369,6 +369,8 @@ jobs:
     permissions:
       contents: read
       actions: write
+      # And its Linux legs pull the image they build in.
+      packages: read
 
   # Sen promises consumers "at least C++17", and they compile its headers in
   # their own dialect. Building Sen itself at C++20 compiles those headers the

@@ -24,6 +24,8 @@ permissions:
   contents: read
   # Deleting the cache entry a save replaces.
   actions: write
+  # Reading the image the Linux legs build in, which is a private package.
+  packages: read
 
 jobs:
   compute-matrix-jobs:
@@ -54,10 +56,45 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
+      # Same meaning as in standard_test.yaml, and the same spelling so the two
+      # lanes share a slice again now that both build in the same place.
+      SEN_CACHE_SCOPE: ${{ matrix.ci_image != '' && format('image-{0}', matrix.ci_image) || matrix.runner }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
+
+      # Set here rather than per step, as in standard_test.yaml: every step that
+      # needs the toolchain runs through in_environment.sh, which uses the image
+      # when this is set. The Windows leg sets nothing and keeps the runner.
+      - name: Name the image the job builds in
+        if: matrix.ci_image != ''
+        shell: bash
+        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base ${{ matrix.ci_image }})" >> "$GITHUB_ENV"
+
+      - name: Log in to the registry
+        if: matrix.ci_image != ''
+        continue-on-error: true
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get the image the job builds in
+        if: matrix.ci_image != ''
+        shell: bash
+        run: |
+          if docker pull --quiet "$SEN_CI_IMAGE"; then
+              echo "pulled $SEN_CI_IMAGE"
+              exit 0
+          fi
+          echo "not in the registry, building it"
+          args=()
+          while IFS= read -r a; do args+=(--build-arg "$a"); done \
+              < <(.github/scripts/image_build_args.sh ${{ matrix.ci_image }})
+          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
+          build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
 
       # Same key scheme as standard_test.yaml so both workflows share one
       # dependency slice per compiler (dependencies are always Release), and
@@ -66,18 +103,35 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
+          key: conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
 
+      # Only for a leg that builds on the runner; the image carries all of it.
       - name: Setup build context
+        if: matrix.ci_image == ''
         uses: ./.github/actions/setup_build_context
         with:
           compiler-name: ${{ matrix.compiler.name }}
           compiler-version: ${{ matrix.compiler.version }}
           arch: ${{ matrix.arch }}
 
+      # What setup_build_context does for a runner leg, and the source mirror with it.
+      - name: Install the conan profiles
+        if: matrix.ci_image != ''
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
+          cp "$CONAN_HOME/profiles/sen_${{ matrix.compiler.name }}_${{ matrix.arch }}" \
+             "$CONAN_HOME/profiles/default"
+          printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
+              >> "$CONAN_HOME/global.conf"
+          conan profile show -pr default
+          IN
+
       - name: Create conan package
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           # build_type applies to the sen package only; dependencies stay at
           # the profiles' Release default, shared across build types and
           # matching what binary remotes serve. Scoped by name rather than &
@@ -85,6 +139,7 @@ jobs:
           conan create . --user airbus --channel dev --lockfile-out=package.lock \
               --test-folder .conan/test_packages/package \
               --build=missing -s "sen/*:build_type=${{ matrix.build_type }}"
+          IN
 
       - name: Push conan packages
         if: ${{ inputs.push_artifacts }}
@@ -95,8 +150,10 @@ jobs:
         if: ${{ !cancelled() }}
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan remove "sen/*" --confirm
           conan cache clean "*" -s -b -d -t
+          IN
 
       # After the clean, so sen itself and the build folders stay out.
       - name: Drop the entry this save replaces
@@ -104,11 +161,11 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/drop_cache_key.sh "conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
+        run: bash .github/scripts/drop_cache_key.sh "conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
 
       - name: Save conan packages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.conan2/p
-          key: conanp-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
+          key: conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
