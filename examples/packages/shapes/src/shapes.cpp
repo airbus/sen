@@ -11,6 +11,7 @@
 // sen
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/numbers.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/kernel/component_api.h"
 
@@ -93,7 +94,7 @@ private:
   {
     const auto& bounds = getBounds();
 
-    using Dist = std::uniform_real_distribution<float32_t>;  // NOLINT(misc-include-cleaner)
+    using Dist = std::uniform_real_distribution<float32_t>;
     std::mt19937 e2(std::random_device {}());
     return Vec2 {Dist(-bounds.x * 0.05f, bounds.x * 0.05f)(e2), Dist(-bounds.y * 0.05f, bounds.y * 0.05f)(e2)};
   }
