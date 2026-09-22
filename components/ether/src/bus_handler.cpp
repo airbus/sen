@@ -24,7 +24,6 @@
 #include "sen/core/io/buffer_writer.h"
 #include "sen/core/io/input_stream.h"
 #include "sen/core/io/output_stream.h"
-#include "sen/core/obj/object_provider.h"
 #include "sen/kernel/tracer.h"
 #include "sen/kernel/transport.h"
 

@@ -27,7 +27,6 @@
 #include <cstdint>
 #include <random>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <variant>
 #include <vector>
