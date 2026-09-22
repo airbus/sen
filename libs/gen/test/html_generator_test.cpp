@@ -24,6 +24,7 @@
 #include <regex>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace
@@ -41,7 +42,7 @@ protected:
 
     sen::lang::ResolverContext resolverContext {};
     sen::lang::StlResolver resolver {statements_, resolverContext, context_};
-    resolver.resolve({});
+    ASSERT_NE(resolver.resolve({}), nullptr);
 
     files_ = sen::gen::HtmlGenerator {}.generate(context_, title);
   }
