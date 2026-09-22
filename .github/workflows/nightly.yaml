@@ -278,13 +278,29 @@ jobs:
           compiler-name: gcc
           compiler-version: 12
 
+      # -g on top of Release rather than a RelWithDebInfo build: this lane hunts a
+      # race, so the optimisation the tests run under has to stay what it is. Debug
+      # information is not loaded at run time, so the code is identical and the only
+      # cost is a larger tree. Without it a core names functions and no lines.
       - name: Build
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
-          conan install . -s "&:build_type=Release" --build=missing -o "sen/*:with_tests=True"
-          conan build . -s "&:build_type=Release" -o "sen/*:with_tests=True"
+          options='-o sen/*:with_tests=True'
+          debug='-c tools.build:cxxflags=["-g"]'
+          conan install . -s "&:build_type=Release" --build=missing $options "$debug"
+          conan build . -s "&:build_type=Release" $options "$debug"
           IN
+
+      # The kernel writes cores by the host's pattern, which on a runner pipes them
+      # to apport and leaves no file. Pointed at the workspace instead, which the
+      # container has mounted at the same path, so a core written inside lands here.
+      - name: Let a crash leave a core behind
+        shell: bash
+        run: |
+          mkdir -p cores
+          sudo sysctl -w "kernel.core_pattern=$PWD/cores/core.%e.%p" > /dev/null
+          echo "cores will be written to $PWD/cores"
 
       # An intermittent test is a defect: this loop exists to catch it, not
       # to retry it away.
@@ -298,12 +314,62 @@ jobs:
               -L unit -LE flaky --repeat until-fail:5 --output-on-failure
           IN
 
+      # Read where the crash happened: the paths in a core are the container's, so a
+      # debugger on the runner would resolve none of the libraries. The summary is a
+      # runner path and is not mounted, so the redirect stays outside.
+      - name: Read the backtrace out of any core
+        if: failure()
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh >> "$GITHUB_STEP_SUMMARY" <<'IN'
+          shopt -s nullglob
+          cores=(cores/core.*)
+          if [ ${#cores[@]} -eq 0 ]; then
+              echo "### No core was written"
+              echo
+              echo "The run failed without a crash, or the pattern did not take effect."
+              exit 0
+          fi
+          for core in "${cores[@]}"; do
+              name=${core#cores/core.}
+              name=${name%.*}
+              binary=$(find build/gcc/Release -name "$name" -type f -perm -u+x | head -1)
+              echo "### Backtrace for $name"
+              echo
+              if [ -z "$binary" ]; then
+                  echo "No executable named $name under build/gcc/Release."
+                  continue
+              fi
+              trace=$(gdb --batch -ex "thread apply all bt" "$binary" "$core" 2>&1 | tail -80)
+              echo '```'
+              echo "$trace"
+              echo '```'
+              # A stack of ?? means gdb could not place the frames, not that the
+              # crash had none. It happens when the paths recorded in the core do
+              # not resolve inside the container, so say which happened.
+              if ! grep -qE "^#[0-9]+ .* in [A-Za-z_]" <<<"$trace"; then
+                  echo "gdb resolved no symbols: the frames above are addresses only."
+              fi
+          done
+          IN
+
       - name: Archive test logs on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: flake-hunt-logs
           path: build/gcc/Release/Testing/
+
+      # The backtrace above is the durable part; this is for anyone who wants to open
+      # the core themselves. Compressed by the action, and a core of a test process
+      # is tens of megabytes rather than hundreds.
+      - name: Archive any core
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: flake-hunt-cores
+          path: cores/
+          if-no-files-found: ignore
 
   benchmarks:
     name: "Benchmarks"

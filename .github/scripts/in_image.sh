@@ -32,6 +32,9 @@ set -euo pipefail
 
 mkdir -p "$HOME/.conan2" "$HOME/.ccache"
 
+# The core limit is lifted for every caller rather than on request: it costs
+# nothing where the host's core_pattern discards cores, which is everywhere that
+# has not deliberately arranged otherwise.
 docker_socket=()
 if [ -n "${SEN_IN_IMAGE_DOCKER:-}" ]; then
     # The socket is mode 660 and a container process gets no supplementary groups,
@@ -62,5 +65,6 @@ docker run --rm --interactive \
     --env SEN_INTEGRATION_TEST_IMAGE \
     --env SEN_GCC_VERSION \
     --security-opt seccomp=unconfined \
+    --ulimit core=-1 \
     "$SEN_CI_IMAGE" \
     bash -seuo pipefail
