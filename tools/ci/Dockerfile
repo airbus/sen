@@ -37,6 +37,9 @@ RUN expected="${SEN_UBUNTU_CODENAME}" \
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG LLVM_VERSION=20
+# Compilers this base carries beyond the pair every image has, supplied per base by
+# image_build_args.sh: gcc-14 is in noble's archive and not in jammy's.
+ARG SEN_EXTRA_COMPILERS=""
 ARG CONAN_VERSION=2.28.1
 ARG JUNITPARSER_VERSION=5.0.1
 # The integration suites' driver starts sibling containers through the daemon socket.
@@ -97,6 +100,7 @@ RUN printf '%s\n' \
         default-jre-headless \
         g++-12 \
         gcc-12 \
+        ${SEN_EXTRA_COMPILERS} \
         gcovr \
         git \
         graphviz \

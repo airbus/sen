@@ -8,8 +8,8 @@
 # Lanes that are too slow for the pull-request path. A failing lane files or
 # refreshes the tracking issue instead of failing silently overnight.
 #
-# Each lane checks out, calls .github/actions/prepare_build for the cache and
-# the toolchain, and then does its own work.
+# Each lane checks out, calls .github/actions/prepare_build_in_image for the
+# image, the cache and the conan profiles, and then does its own work.
 #
 # The timeouts are generous on purpose: a cold cache builds every dependency
 # from source. They exist to cap a hang, not to police duration.
@@ -443,6 +443,8 @@ jobs:
       contents: read
       # Dropping the cache entry the save below replaces.
       actions: write
+      # And pulling the image, since a job's own block replaces the workflow's.
+      packages: read
     env:
       CC: gcc-14
       CXX: g++-14
@@ -453,23 +455,28 @@ jobs:
 
       - name: Prepare the build
         id: prepare
-        uses: ./.github/actions/prepare_build
+        uses: ./.github/actions/prepare_build_in_image
         with:
+          ubuntu: "24.04"
+          # No merge-path leg builds gcc-14, so this job owns the slice it saves.
+          cache-scope: image-24.04
           compiler-name: gcc
           compiler-version: 14
-          runner-label: ubuntu-24.04
 
       - name: Build the whole tree with the newest gcc
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan create . --user airbus --channel dev \
               --test-folder .conan/test_packages/package \
               --build=missing -s "sen/*:compiler.cppstd=17" \
               -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
+          IN
 
       - name: Compile the consumer under newer standards
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           version=$(conan inspect . --format=json |
               python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])')
           for std in 20 23; do
@@ -482,6 +489,7 @@ jobs:
                   -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
               echo "::endgroup::"
           done
+          IN
 
       # No merge-path leg builds gcc-14, so this job owns its slice. conan create leaves Sen's
       # sources and build folders behind, and none of that can serve a restore.
@@ -492,8 +500,10 @@ jobs:
         if: ${{ !cancelled() }}
         shell: bash
         run: |
+          bash .github/scripts/in_environment.sh <<'IN'
           conan remove "sen/*" --confirm
           conan cache clean "*" -s -b -d -t
+          IN
 
       # A key is immutable, so while the old entry exists the save is refused, quietly, and the
       # slice would never refresh. Neither step runs unless the restore succeeded and the run was
