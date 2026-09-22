@@ -48,6 +48,7 @@ SLOTS = {
     # meet look like one family. Spelled once as a job variable, because it is a
     # conditional and three copies of a conditional is how the divergence happened.
     "env.SEN_CACHE_SCOPE": "ENVIRONMENT",
+    "inputs.cache-scope": "ENVIRONMENT",
 }
 
 
