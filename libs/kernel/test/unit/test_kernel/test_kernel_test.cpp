@@ -51,7 +51,9 @@ public:
 
 public:
   using MyClassBase::MyClassBase;
+
   ~MyClassImpl() override = default;
+
   using MyClassBase::somethingHappened;
 };
 
@@ -531,4 +533,33 @@ TEST(TestKernel, ConcurrentSubscriptionDestruction)
   destroyerThread.join();
 
   SUCCEED();
+}
+
+/// @test
+/// Virtual-time runners report the host CPU cost of a completed cycle, but do not report real-time overruns.
+/// @requirements(SEN-361)
+TEST(TestKernel, VirtualTimeMonitoringDistinguishesCpuTimeFromOverruns)
+{
+  sen::kernel::TestComponent component;
+  std::size_t cycleCount = 0U;
+
+  component.onRun(
+    [&](auto& api)
+    {
+      return api.execLoop(std::chrono::seconds(1),
+                          [&]()
+                          {
+                            ++cycleCount;
+                            if (cycleCount == 2U)
+                            {
+                              const auto info = api.fetchComponentMonitoringInfo();
+
+                              EXPECT_TRUE(info.lastCycleExecutionCpuTime.has_value());
+                              EXPECT_FALSE(info.overrunCount.has_value());
+                            }
+                          });
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+  kernel.step(2U);
 }

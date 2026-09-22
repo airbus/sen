@@ -461,6 +461,24 @@ void Runner::stopThread()
   workQueue_.clear();
 }
 
+ComponentMonitoringInfo Runner::fetchMonitoringInfo() const
+{
+  ComponentMonitoringInfo result;
+
+  result.name = component_.info.name;
+  result.group = group_;
+  result.requiresRealTime = component_.instance->isRealTimeOnly();
+  result.objectCount = objectCount_;
+  result.cycleTime = getCycleTime();
+  result.lastCycleExecutionCpuTime = getLastCycleExecutionCpuTime();
+  if (!needsVirtualTime() || result.requiresRealTime)
+  {
+    result.overrunCount = getOverrunCount();
+  }
+
+  return result;
+}
+
 void Runner::doRun()
 {
   tracer_ = kernel_.makeTracer(name_);
@@ -548,11 +566,23 @@ void Runner::unregisterObjects(Span<std::shared_ptr<NativeObject>> instances)
 
 void Runner::registerType(ConstTypeHandle<> type) { kernel_.getTypes().add(type); }
 
-std::optional<Duration> Runner::getCycleTime() const noexcept { return cycleTime_; }
+std::optional<Duration> Runner::getCycleTime() const noexcept
+{
+  const auto cycleTime = cycleTime_.load(std::memory_order_relaxed);
+  return (cycleTime == noDuration) ? std::nullopt : std::make_optional(Duration {cycleTime});
+}
+
+std::optional<Duration> Runner::getLastCycleExecutionCpuTime() const noexcept
+{
+  const auto lastTime = lastCycleExecutionCpuTime_.load(std::memory_order_relaxed);
+  return (lastTime == noDuration) ? std::nullopt : std::make_optional(Duration {lastTime});
+}
+
+uint64_t Runner::getOverrunCount() const noexcept { return overrunCount_.load(std::memory_order_relaxed); }
 
 FuncResult Runner::execLoop(Duration cycleTime, std::function<void()>&& workFunction, bool logOverruns)
 {
-  cycleTime_ = cycleTime;
+  cycleTime_.store(cycleTime.getNanoseconds(), std::memory_order_relaxed);
 
   if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
   {
@@ -568,9 +598,10 @@ FuncResult Runner::execLoop(Duration cycleTime, std::function<void()>&& workFunc
 
 void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 {
-  const auto cycleTime = cycleTime_.value();
+  const auto cycleTime = getCycleTime().value();
 
   bool updated = false;
+  NanoSecs executionCpuTime {};
 
   while (true)
   {
@@ -594,10 +625,12 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 
         if (nextExecutionDeltaTime_ <= 0)
         {
+          const auto executionStartCpuTime = getThreadCpuUserTime();
           drainInputs();
           update();
           updated = true;
           workFunction();
+          executionCpuTime = getThreadCpuUserTime() - executionStartCpuTime;
         }
       }
       break;
@@ -612,7 +645,10 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
           // Delta time until the next execution calculated as the cycleTime (1/freq)
           // minus the time advanced from the execution of the last cycle
           nextExecutionDeltaTime_ = cycleTime.get() - (time_->sinceEpoch().get() % cycleTime.get());
+          const auto commitStartCpuTime = getThreadCpuUserTime();
           commit();
+          executionCpuTime += getThreadCpuUserTime() - commitStartCpuTime;
+          lastCycleExecutionCpuTime_.store(executionCpuTime.count(), std::memory_order_relaxed);
         }
       }
       break;
@@ -655,7 +691,7 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
 
   PrecisionSleeper sleeper {wallClock, component_.info.name};
 
-  const auto period = NanoSecs(cycleTime_.value().getNanoseconds());
+  const auto period = NanoSecs(getCycleTime().value().getNanoseconds());
   const auto halfPeriod = period / 2;
 
   const auto startOfSchedule = time_->sinceEpoch().toChrono();
@@ -674,17 +710,19 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
   {
     tracer_->frameStart(nameToUse);
 
-    NanoSecs execDuration;
+    NanoSecs executionCpuTime;
     {
       auto execStartThreadCpuTime = getThreadCpuUserTime();
       exec(workFunction);
-      execDuration = getThreadCpuUserTime() - execStartThreadCpuTime;
+      executionCpuTime = getThreadCpuUserTime() - execStartThreadCpuTime;
     }
     const auto workEnd = wallClock.highResNow();
+    lastCycleExecutionCpuTime_.store(executionCpuTime.count(), std::memory_order_relaxed);
 
-    if (execDuration > period)
+    if (executionCpuTime > period)
     {
       tracer_->message(overrunMessage_);
+      overrunCount_.fetch_add(1U, std::memory_order_relaxed);
 
       if (SEN_LIKELY(logOverruns))
       {

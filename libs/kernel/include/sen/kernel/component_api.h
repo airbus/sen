@@ -104,6 +104,10 @@ struct ComponentMonitoringInfo
   bool requiresRealTime = false;
   std::optional<Duration> cycleTime;
   std::size_t objectCount = 0;
+  /// Host CPU time consumed by the last completed execution cycle, in either real or virtual time.
+  std::optional<Duration> lastCycleExecutionCpuTime;
+  /// Number of execution cycles that exceeded their real-time period. Empty for virtual-time runners.
+  std::optional<uint64_t> overrunCount;
 };
 
 /// Kernel runtime monitoring information.
@@ -328,7 +332,10 @@ public:
   /// If present, it returns the configured cycle time for iterations.
   [[nodiscard]] std::optional<Duration> getTargetCycleTime() const noexcept;
 
-  /// Monitoring information.
+  /// Monitoring information of the calling component
+  [[nodiscard]] ComponentMonitoringInfo fetchComponentMonitoringInfo() const;
+
+  /// Monitoring information of all components loaded by the kernel
   [[nodiscard]] KernelMonitoringInfo fetchMonitoringInfo() const;
 
   /// Build information for all imported packages (from pipeline components).

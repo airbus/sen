@@ -68,3 +68,9 @@ class MyClass
   // defer the method execution with no returning
   fn doingSomethingDeferredWithoutReturning();
 }
+
+// Class added to test the access to kernel monitoring information
+class MyMonitoredClass
+{
+
+}

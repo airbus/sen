@@ -255,25 +255,14 @@ inline Duration KernelImpl::computeNextExecutionDeltaTime() const
 
 inline KernelMonitoringInfo KernelImpl::fetchMonitoringInfo() const
 {
-  Lock lock(usageMutex_);
-
   KernelMonitoringInfo result;
   result.runMode = config_.getParams().runMode;
-  result.components.reserve(runners_.size());
   result.transportStats = sessionManager_.fetchTransportStats();
 
+  result.components.reserve(runners_.size());
   for (const auto& runner: runners_)
   {
-    const auto& context = runner->getComponentContext();
-
-    ComponentMonitoringInfo monitoringInfo;
-    monitoringInfo.name = context.info.name;
-    monitoringInfo.group = context.config.group;
-    monitoringInfo.requiresRealTime = context.instance->isRealTimeOnly();
-    monitoringInfo.objectCount = runner->getObjectCount();
-    monitoringInfo.cycleTime = runner->getCycleTime();
-
-    result.components.emplace_back(std::move(monitoringInfo));
+    result.components.emplace_back(runner->fetchMonitoringInfo());
   }
   return result;
 }

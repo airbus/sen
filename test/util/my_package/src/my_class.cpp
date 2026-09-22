@@ -22,6 +22,8 @@
 #include "stl/my_package/my_class.stl.h"
 
 // std
+#include <algorithm>
+#include <array>
 #include <cstdint>
 #include <future>
 #include <iostream>
@@ -31,7 +33,6 @@
 
 namespace my_package
 {
-
 MyClassImpl::MyClassImpl(const std::string& name, const sen::VarMap& args): MyClassBase(name, args)
 {
   logger_ = sen::kernel::KernelApi::getOrCreateLogger("my_logger");
@@ -172,4 +173,56 @@ void MyClassImpl::doingSomethingDeferredWithoutReturningImpl(std::promise<void>&
 
 SEN_EXPORT_CLASS(MyClassImpl)
 
+void MyMonitoredClassImpl::update(sen::kernel::RunApi& runApi)
+{
+  checkRuntimeStats(runApi);
+
+  if (++cycleCount_ > 10U)
+  {
+    runApi.requestKernelStop(0);
+  }
+}
+
+void MyMonitoredClassImpl::checkRuntimeStats(sen::kernel::RunApi& runApi)
+{
+  // we need at least two cycles to get useful statistics
+  if (cycleCount_ < 2)
+  {
+    return;
+  }
+
+  // check kernel monitoring info
+  const auto kernelInfo = runApi.fetchMonitoringInfo();
+
+  const std::array<std::string, 3> expectedNames {"myComponent1", "myComponent2", "myComponent3"};
+  for (const auto& name: expectedNames)
+  {
+    if (std::find_if(kernelInfo.components.begin(),
+                     kernelInfo.components.end(),
+                     [&name](const auto& info) { return info.name == name; }) == kernelInfo.components.end())
+    {
+      sen::throwRuntimeError("Expected component missing from kernel monitoring data: " + name);
+    }
+  }
+
+  // check monitoring info of the component
+  const auto info = runApi.fetchComponentMonitoringInfo();
+
+  if (!info.cycleTime.has_value())
+  {
+    sen::throwRuntimeError("No configured cycle time received");
+  }
+
+  if (!info.lastCycleExecutionCpuTime.has_value())
+  {
+    sen::throwRuntimeError("No last cycle execution CPU time received");
+  }
+
+  if (!info.overrunCount.has_value())
+  {
+    sen::throwRuntimeError("No real-time overrun count received");
+  }
+}
+
+SEN_EXPORT_CLASS(MyMonitoredClassImpl)
 }  // namespace my_package

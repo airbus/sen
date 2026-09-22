@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../schemas/sen_examples.json
+load:
+  - name: shell
+    group: 2
+    open: [my.tutorial]  # to see the created objects
+
+build:
+  - name: myComponent1
+    group: 3
+    freqHz: 10
+    imports: [my_package]
+    objects:
+      - name: myObject1
+        class: my_package.MyMonitoredClassImpl
+        bus: local.tutorial
+  - name: myComponent2
+    group: 3
+    freqHz: 20
+    imports: [my_package]
+    objects:
+      - name: myObject2
+        class: my_package.MyMonitoredClassImpl
+        bus: local.tutorial
+  - name: myComponent3
+    group: 3
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - name: myObject3
+        class: my_package.MyMonitoredClassImpl
+        bus: local.tutorial

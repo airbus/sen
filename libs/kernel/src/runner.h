@@ -44,6 +44,7 @@
 // std
 #include <atomic>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <future>
@@ -168,11 +169,20 @@ public:
   /// The configured cycle time (if any).
   [[nodiscard]] std::optional<Duration> getCycleTime() const noexcept;
 
+  /// The host CPU time consumed by the last completed execution cycle, in either real or virtual time.
+  [[nodiscard]] std::optional<Duration> getLastCycleExecutionCpuTime() const noexcept;
+
+  /// The total number of overruns for this runner.
+  [[nodiscard]] uint64_t getOverrunCount() const noexcept;
+
   /// Get the tracer for this runner.
   [[nodiscard]] Tracer& getTracer() const noexcept { return *tracer_; }
 
   /// Get the starting time of this runner.
   [[nodiscard]] TimeStamp getStartTime() const noexcept { return startTime_; }
+
+  /// Gets the monitoring info for this runner
+  [[nodiscard]] ComponentMonitoringInfo fetchMonitoringInfo() const;
 
 private:
   /// Called by 'threadFunction'.
@@ -237,7 +247,10 @@ private:
   TimeStamp targetVirtualTime_;
   WorkerCommand workerCommand_ = WorkerCommand::commandTimeAdvance;
   Duration nextExecutionDeltaTime_;
-  std::optional<Duration> cycleTime_;
+  static constexpr int64_t noDuration = -1;
+  std::atomic<int64_t> cycleTime_ {noDuration};
+  std::atomic<int64_t> lastCycleExecutionCpuTime_ {noDuration};
+  std::atomic<uint64_t> overrunCount_ = 0U;
   std::atomic<std::size_t> objectCount_ = 0U;
   std::string name_;
   std::string oversleptMessage_;
