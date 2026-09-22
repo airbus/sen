@@ -16,7 +16,6 @@
 #include <xenium/reclamation/generic_epoch_based.hpp>
 
 // std
-#include <algorithm>
 #include <functional>
 #include <memory>
 #include <tuple>

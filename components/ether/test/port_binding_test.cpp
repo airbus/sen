@@ -28,7 +28,6 @@
 // std
 #include <cstdint>
 #include <exception>
-#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <utility>

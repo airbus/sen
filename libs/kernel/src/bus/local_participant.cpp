@@ -21,7 +21,6 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
-#include "sen/core/base/iterator_adapters.h"
 #include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/obj/detail/event_buffer.h"
@@ -45,7 +44,6 @@
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <shared_mutex>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -53,8 +51,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-
-using sen::util::makeLockedRange;
 
 namespace sen::kernel::impl
 {

@@ -1,5 +1,12 @@
 #include "counter.h"
 
+// sen
+#include "sen/core/meta/class_type.h"
+#include "sen/kernel/component_api.h"
+
+// std
+#include <string>
+
 namespace my_counter
 {
 
