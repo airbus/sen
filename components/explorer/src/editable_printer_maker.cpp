@@ -130,7 +130,7 @@ public:
   {
     std::ignore = type;
     sen::VarMap map {};
-    const auto& fields = type.getFields();
+    const auto fields = type.getAllFields();
     for (const auto& field: fields)
     {
       VarInitializer nested;
@@ -669,17 +669,20 @@ void EditablePrinterMaker::apply(const sen::StringType& type)
 
 void EditablePrinterMaker::apply(const sen::StructType& type)
 {
-  const auto fields = type.getFields();
+  const auto fields = type.getAllFields();
 
   std::vector<EditablePrinterFunc> structFieldPrinters;
   structFieldPrinters.reserve(fields.size());
   // collect print function for each field
-  for (const auto& field: fields)
+  for (const auto& f: fields)
   {
     // this has to include all the code needed for a new row of values
     structFieldPrinters.emplace_back(
-      [&field, function = EditablePrinterFunc {}, this](
-        sen::Var& var, const std::string& prefix, sen::Object* object) mutable
+      [field = f,
+       function = EditablePrinterFunc {},
+       queue = queue_,
+       propertiesStateMap = propertiesStateMap_,
+       useTrees = useTrees_](sen::Var& var, const std::string& prefix, sen::Object* object) mutable
       {
         // get a mutable version of the map
         auto map = var.getCopyAs<sen::VarMap>();
@@ -704,7 +707,7 @@ void EditablePrinterMaker::apply(const sen::StructType& type)
         // interface
         if (!function)
         {
-          EditablePrinterMaker visitor(queue_, propertiesStateMap_, useTrees_);
+          EditablePrinterMaker visitor(queue, propertiesStateMap, useTrees);
           field.type->accept(visitor);
           function = visitor.getRawImGuiField();
         }
@@ -764,7 +767,9 @@ void EditablePrinterMaker::apply(const sen::VariantType& type)
            guardVar = sen::Var {},
            guardFunc = f,
            oldVar = sen::Var {},
-           this,
+           queue = queue_,
+           propertiesStateMap = propertiesStateMap_,
+           useTrees = useTrees_,
            initFlag = false](sen::Var& var, const std::string& prefix, sen::Object* object) mutable
   {
     if (!var.holds<sen::KeyedVar>())
@@ -821,7 +826,7 @@ void EditablePrinterMaker::apply(const sen::VariantType& type)
     if (typeChanged || !guardFunc)
     {
       // Handle new type selected
-      auto visitor = EditablePrinterMaker(queue_, propertiesStateMap_, useTrees_);
+      auto visitor = EditablePrinterMaker(queue, propertiesStateMap, useTrees);
       type.getFieldFromKey(selectedTypeKeyGuard)->type->accept(visitor);
       guardFunc = visitor.getRawImGuiField();
       // This only covers simple types. I have no idea how id handle custom
@@ -874,8 +879,11 @@ void EditablePrinterMaker::apply(const sen::VariantType& type)
 void EditablePrinterMaker::apply(const sen::SequenceType& type)
 {
   std::map<ImGuiID, EditablePrinterFunc> printerMap;
-  func_ = [&type, printers = std::move(printerMap), this](
-            sen::Var& var, const std::string& prefix, sen::Object* object) mutable
+  func_ = [&type,
+           printers = std::move(printerMap),
+           queue = queue_,
+           propertiesStateMap = propertiesStateMap_,
+           useTrees = useTrees_](sen::Var& var, const std::string& prefix, sen::Object* object) mutable
   {
     if (!var.holds<sen::VarList>())
     {
@@ -918,7 +926,7 @@ void EditablePrinterMaker::apply(const sen::SequenceType& type)
         ImGui::PushID(++temp);
         if (!printers[temp])
         {
-          auto v = EditablePrinterMaker(queue_, propertiesStateMap_, useTrees_);
+          auto v = EditablePrinterMaker(queue, propertiesStateMap, useTrees);
           type.getElementType()->accept(v);
           printers[temp] = v.getRawImGuiField();
         }

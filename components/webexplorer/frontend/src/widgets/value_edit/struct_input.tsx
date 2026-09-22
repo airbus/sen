@@ -9,7 +9,7 @@ import { Fragment, useState } from "react";
 
 import type { Client, StructTypeFieldSpec, StructTypeSpec, Var } from "@sen/client";
 
-import { defaultFor, isComposite } from "../../core/types.js";
+import { defaultFor, isComposite, getAllStructFields } from "../../core/types.js";
 import { HoverIconButton } from "../../ui/buttons.js";
 import { ChevronDownIcon, ChevronRightIcon, ResetIcon } from "../../ui/icons.js";
 import { defaultEquals } from "./field_writer.js";
@@ -48,7 +48,7 @@ export function StructInput({
         alignItems: "baseline",
       }}
     >
-      {spec.fields.map((field: StructTypeFieldSpec) => {
+      {getAllStructFields(client, spec).map((field: StructTypeFieldSpec) => {
         const fieldValue = value[field.name] ?? defaultFor(client, field.type);
         const defaultVal = defaultFor(client, field.type);
         const isDefault = defaultEquals(fieldValue, defaultVal);

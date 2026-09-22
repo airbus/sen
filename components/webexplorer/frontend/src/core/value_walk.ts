@@ -8,7 +8,7 @@
 import type { Client, StructTypeFieldSpec, Var } from "@sen/client";
 import { Quantity, Variant } from "@sen/client";
 
-import { specOf } from "./types.js";
+import { specOf, getAllStructFields } from "./types.js";
 
 export interface LeafInfo {
   /** Dotted/bracketed path from the root; empty for a top-level leaf. */
@@ -55,7 +55,7 @@ function walkTypeTree(
       // Cycle guard.
       if (seenStructs.has(declaredType)) return;
       seenStructs.add(declaredType);
-      for (const field of spec.data.value.fields) {
+      for (const field of getAllStructFields(client, spec.data.value)) {
         const sub = path ? `${path}.${field.name}` : field.name;
         walkTypeTree(client, field.type, sub, out, seenStructs);
       }
@@ -94,7 +94,7 @@ export function collectTypeSearchTerms(
   if (!spec) return;
   switch (spec.data.type) {
     case "sen.kernel.StructTypeSpec":
-      for (const field of spec.data.value.fields) {
+      for (const field of getAllStructFields(client, spec.data.value)) {
         out.push(field.name);
         collectTypeSearchTerms(client, field.type, out, visited);
       }
@@ -152,7 +152,7 @@ export function typeAtPath(
     while (j < path.length && path[j] !== "." && path[j] !== "[") j++;
     const key = path.slice(i, j);
     if (spec.data.type !== "sen.kernel.StructTypeSpec") return null;
-    const field = spec.data.value.fields.find((f: StructTypeFieldSpec) => f.name === key);
+    const field = getAllStructFields(client, spec.data.value).find((f: StructTypeFieldSpec) => f.name === key);
     if (!field) return null;
     cur = unwrapAliasOptional(client, field.type);
     i = j;
@@ -233,7 +233,7 @@ export function enumerateTopLevelPaths(client: Client | null, declaredType: stri
     case "sen.kernel.QuantityTypeSpec":
       return [];
     case "sen.kernel.StructTypeSpec":
-      return spec.data.value.fields.map((f: StructTypeFieldSpec) => f.name);
+      return getAllStructFields(client, spec.data.value).map((f: StructTypeFieldSpec) => f.name);
     case "sen.kernel.SequenceTypeSpec":
     case "sen.kernel.VariantTypeSpec":
       return null;
