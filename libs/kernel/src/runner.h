@@ -48,13 +48,39 @@
 #include <cstdint>
 #include <functional>
 #include <future>
+#include <limits>
 #include <list>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace sen::kernel::impl
 {
+
+/// The calling thread's CPU time, user and system together. Defined in the translation unit so the
+/// platform headers stay out of this one.
+[[nodiscard]] NanoSecs getThreadCpuTime() noexcept;
+
+/// The most CPU time one cycle has used, and the component's share of that same cycle. They
+/// travel together because a share can only be read against its own total.
+struct WorstCycle
+{
+  std::optional<Duration> execution;
+  std::optional<Duration> component;
+};
+
+/// What one cycle spent outside Sen's own draining and committing.
+struct CycleCpuTime
+{
+  /// The component's objects' update() and its work function.
+  NanoSecs component {};
+
+  /// The work queued on the component: the callbacks it registered, and serving the calls other
+  /// components make on its objects. Serving a call is partly the component's method and partly
+  /// Sen's transport, so it is reported on its own rather than added to either.
+  NanoSecs queuedWork {};
+};
 
 /// Manages the component execution.
 class Runner
@@ -109,8 +135,9 @@ public:
   [[nodiscard]] const ComponentContext& getComponentContext() const noexcept { return component_; }
 
   /// Perform any request coming from the outside and update all the local
-  /// data structures with their most up-to-date value.
-  void drainInputs();
+  /// data structures with their most up-to-date value. Returns the CPU time spent on the work
+  /// queued on this component, which is reported apart from Sen's own draining.
+  NanoSecs drainInputs();
 
   /// Waits for the next available call in the work queue.
   void drainUntilEventOrTimeout(const Duration& timeout);
@@ -169,11 +196,36 @@ public:
   /// The configured cycle time (if any).
   [[nodiscard]] std::optional<Duration> getCycleTime() const noexcept;
 
-  /// The host CPU time consumed by the last completed execution cycle, in either real or virtual time.
+  /// Thread CPU time, user and system, consumed by the last completed execution cycle.
   [[nodiscard]] std::optional<Duration> getLastCycleExecutionCpuTime() const noexcept;
 
-  /// The total number of overruns for this runner.
+  /// The CPU time the component's own code used in the last completed cycle: its objects'
+  /// update() and its work function.
+  [[nodiscard]] std::optional<Duration> getLastCycleComponentCpuTime() const noexcept;
+
+  /// The CPU time the last completed cycle spent on work queued on the component.
+  [[nodiscard]] std::optional<Duration> getLastCycleQueuedWorkCpuTime() const noexcept;
+
+  /// How late the thread woke for the cycle it was waiting for. Empty until it has slept once.
+  [[nodiscard]] std::optional<Duration> getLastCycleStartDelay() const noexcept;
+
+  /// The latest the thread has ever woken. A late wake-up once in a thousand cycles is rarely the
+  /// one in getLastCycleStartDelay.
+  [[nodiscard]] std::optional<Duration> getWorstStartDelay() const noexcept;
+
+  /// The worst cycle seen so far, read as one so the share can be compared against its own total.
+  /// A component that runs long once in a thousand cycles rarely has it in the last one.
+  [[nodiscard]] WorstCycle getWorstCycle() const noexcept;
+
+  /// Cycles whose execution used more CPU time than the period.
   [[nodiscard]] uint64_t getOverrunCount() const noexcept;
+
+  /// Cycles lost because the work finished after the cycle it belonged to, in wall time.
+  [[nodiscard]] uint64_t getMissedFrameCount() const noexcept;
+
+  /// Cycles lost because the sleep returned late, so the thread was not running when it should
+  /// have been.
+  [[nodiscard]] uint64_t getOversleptCount() const noexcept;
 
   /// Get the tracer for this runner.
   [[nodiscard]] Tracer& getTracer() const noexcept { return *tracer_; }
@@ -201,12 +253,21 @@ private:
   void signalThreadToStop();
 
 private:
-  void exec(std::function<void()>& workFunction);
+  void exec(std::function<void()>& workFunction, CycleCpuTime& cycleCpuTime);
+
+  /// Keeps the worst cycle seen so far, execution and component time together.
+  void recordWorstCycle(NanoSecs executionCpuTime, NanoSecs componentCpuTime) noexcept;
+
   void initializeTime();
   void realTimeExecLoop(std::function<void()>&& workFunction, bool logOverruns);
   void virtualTimeExecLoop(std::function<void()>&& workFunction);
 
   [[nodiscard]] bool needsVirtualTime() const;
+
+  /// Whether this runner drives itself from virtual time, which is what decides the loop it runs.
+  /// A component that declares itself real-time-only keeps the real-time loop even when the kernel
+  /// runs on virtual time, and only that loop has a schedule to miss.
+  [[nodiscard]] bool runsVirtualTimeLoop() const;
 
 private:
   enum class WorkerCommand
@@ -250,7 +311,23 @@ private:
   static constexpr int64_t noDuration = -1;
   std::atomic<int64_t> cycleTime_ {noDuration};
   std::atomic<int64_t> lastCycleExecutionCpuTime_ {noDuration};
+  std::atomic<int64_t> lastCycleComponentCpuTime_ {noDuration};
+  std::atomic<int64_t> lastCycleQueuedWorkCpuTime_ {noDuration};
+  // A delay can be negative when the cycle starts early, so it needs a sentinel of its own that
+  // no measurement can take.
+  static constexpr int64_t noStartDelay = std::numeric_limits<int64_t>::min();
+  std::atomic<int64_t> lastCycleStartDelay_ {noStartDelay};
+  std::atomic<int64_t> worstStartDelay_ {noStartDelay};
+  // Odd while the pair below is being written, even once it is settled, so a reader can tell it
+  // took both halves from one cycle. Two independent maxima would come from different cycles and
+  // the share could then exceed its own total. The runner's thread is the only writer and never
+  // waits for a reader, which matters because it is the one with a deadline.
+  std::atomic<uint32_t> worstCycleVersion_ = 0U;
+  std::atomic<int64_t> worstCycleExecutionCpuTime_ {noDuration};
+  std::atomic<int64_t> worstCycleComponentCpuTime_ {noDuration};
   std::atomic<uint64_t> overrunCount_ = 0U;
+  std::atomic<uint64_t> missedFrameCount_ = 0U;
+  std::atomic<uint64_t> oversleptCount_ = 0U;
   std::atomic<std::size_t> objectCount_ = 0U;
   std::string name_;
   std::string oversleptMessage_;
@@ -275,7 +352,7 @@ private:
   return (nanoseconds + millisecondMinusOneNano) - ((nanoseconds + millisecondMinusOneNano) % millisecond);
 }
 
-inline void Runner::drainInputs()
+inline NanoSecs Runner::drainInputs()
 {
   SEN_TRACE_ZONE(*tracer_);
 
@@ -298,8 +375,11 @@ inline void Runner::drainInputs()
   // plot the number of work elements to execute
   tracer_->plot(workQueueName_, static_cast<int64_t>(workQueue_.getCurrentSize()));
 
-  // do any pending work
+  // do any pending work. The queue holds the component's callbacks and the calls made on its
+  // objects, which is part its code and part Sen's transport, so it is reported on its own.
+  const auto queueStartCpuTime = getThreadCpuTime();
   std::ignore = workQueue_.executeAll();
+  return getThreadCpuTime() - queueStartCpuTime;
 }
 
 inline void Runner::drainUntilEventOrTimeout(const Duration& timeout)
@@ -374,10 +454,15 @@ inline void Runner::commit()
   serializableEvents_.clear();
 }
 
-inline void Runner::exec(std::function<void()>& workFunction)
+inline void Runner::exec(std::function<void()>& workFunction, CycleCpuTime& cycleCpuTime)
 {
   // drain the inputs
-  drainInputs();
+  cycleCpuTime.queuedWork = drainInputs();
+
+  // The component's own code is its objects' update() and its work function. For a component
+  // declared in a configuration the objects are the only place it runs. What the drain does
+  // besides the queue above, and the commit, are Sen's.
+  const auto componentStartCpuTime = getThreadCpuTime();
 
   // let objects update their state
   update();
@@ -387,6 +472,7 @@ inline void Runner::exec(std::function<void()>& workFunction)
     // do user work, if any
     workFunction();
   }
+  cycleCpuTime.component = getThreadCpuTime() - componentStartCpuTime;
 
   // send changes to listeners
   commit();

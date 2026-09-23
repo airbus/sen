@@ -82,7 +82,8 @@ public:
   /// The kernel object that is being implemented
   [[nodiscard]] Kernel& getSubject() noexcept { return subject_; }
 
-  /// The runners of the kernel
+  /// The runners of the kernel. It hands out the vector and takes no lock, so it is only for
+  /// callers that run once configure() has appended the last runner.
   [[nodiscard]] const std::vector<std::unique_ptr<Runner>>& getRunners() const noexcept { return runners_; }
 
   /// The internal logger used by all kernel components
@@ -170,10 +171,10 @@ private:
   kernel::PluginManager pluginManager_;
   mutable std::recursive_mutex usageMutex_;
 
-  // runners_ is appended to while the kernel configures itself and never afterwards, but a
-  // component thread can ask for monitoring at any time. usageMutex_ cannot serve both: doStop
-  // holds it across the join of those same threads, so a reader waiting on it never returns and
-  // the join never completes. This one is taken only around the appends and by readers.
+  // runners_ is appended to while the kernel configures itself and never afterwards, but another
+  // thread can ask for monitoring at any time. usageMutex_ cannot serve both: doStop holds it
+  // across the join of the component threads, so a reader waiting on it never returns. Taken
+  // around the appends and by fetchMonitoringInfo; every other reader runs after configure().
   mutable std::shared_mutex runnersMutex_;
   std::vector<std::unique_ptr<Runner>> runners_;
   std::vector<Runner*> virtualTimeRunners_;
