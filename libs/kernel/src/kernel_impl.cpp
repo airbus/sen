@@ -214,7 +214,11 @@ void KernelImpl::configure()
     auto pluginInfo = pluginManager_.plug(elem.path);
     pluginInfo.component.config = elem.config;
     loadedComponents_.push_back(pluginInfo.component.info);
-    runners_.push_back(std::make_unique<Runner>(*this, *os_, pluginInfo.component, elem.config.group, elem.params));
+    {
+      auto runner = std::make_unique<Runner>(*this, *os_, pluginInfo.component, elem.config.group, elem.params);
+      const std::unique_lock runnersLock(runnersMutex_);
+      runners_.push_back(std::move(runner));
+    }
   }
 
   // create the requested in-memory components
@@ -222,7 +226,11 @@ void KernelImpl::configure()
   {
     elem.component.config = elem.config;
     loadedComponents_.push_back(elem.component.info);
-    runners_.push_back(std::make_unique<Runner>(*this, *os_, elem.component, elem.config.group, elem.params));
+    {
+      auto runner = std::make_unique<Runner>(*this, *os_, elem.component, elem.config.group, elem.params);
+      const std::unique_lock runnersLock(runnersMutex_);
+      runners_.push_back(std::move(runner));
+    }
   }
 
   // create the requested pipelines
@@ -234,7 +242,11 @@ void KernelImpl::configure()
     context.config = elem.config;
     context.info.name = elem.name;
 
-    runners_.push_back(std::make_unique<Runner>(*this, *os_, context, elem.config.group, elem.params));
+    {
+      auto runner = std::make_unique<Runner>(*this, *os_, context, elem.config.group, elem.params);
+      const std::unique_lock runnersLock(runnersMutex_);
+      runners_.push_back(std::move(runner));
+    }
   }
 
   // add the kernel component
@@ -248,7 +260,11 @@ void KernelImpl::configure()
     context.instance = kernelComponent_.get();
 
     // it is the last one to start
-    runners_.push_back(std::make_unique<Runner>(*this, *os_, context, 1U, VarMap {}));
+    {
+      auto runner = std::make_unique<Runner>(*this, *os_, context, 1U, VarMap {});
+      const std::unique_lock runnersLock(runnersMutex_);
+      runners_.push_back(std::move(runner));
+    }
   }
 
   bool needsVirtualTime =

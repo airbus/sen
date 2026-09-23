@@ -39,6 +39,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <shared_mutex>
 #include <vector>
 
 namespace sen::kernel::impl
@@ -168,6 +169,12 @@ private:
   Kernel& subject_;
   kernel::PluginManager pluginManager_;
   mutable std::recursive_mutex usageMutex_;
+
+  // runners_ is appended to while the kernel configures itself and never afterwards, but a
+  // component thread can ask for monitoring at any time. usageMutex_ cannot serve both: doStop
+  // holds it across the join of those same threads, so a reader waiting on it never returns and
+  // the join never completes. This one is taken only around the appends and by readers.
+  mutable std::shared_mutex runnersMutex_;
   std::vector<std::unique_ptr<Runner>> runners_;
   std::vector<Runner*> virtualTimeRunners_;
   std::vector<std::future<void>> virtualTimeRunnersFutures_;
@@ -258,6 +265,8 @@ inline KernelMonitoringInfo KernelImpl::fetchMonitoringInfo() const
   KernelMonitoringInfo result;
   result.runMode = config_.getParams().runMode;
   result.transportStats = sessionManager_.fetchTransportStats();
+
+  const std::shared_lock runnersLock(runnersMutex_);
 
   result.components.reserve(runners_.size());
   for (const auto& runner: runners_)
