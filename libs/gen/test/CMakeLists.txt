@@ -10,6 +10,9 @@ set(gen_tests
     html_generator_test.cpp
     typst_generator_test.cpp
     generators_test.cpp
+    mkdocs_fixture_test.h
+    mkdocs_stl_generator_test.cpp
+    mkdocs_fom_generator_test.cpp
     every_kind_model.h
 )
 
@@ -25,3 +28,5 @@ add_sen_unit_test_suite(
 set_target_properties(
   gen_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )
+
+target_compile_definitions(gen_test PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
