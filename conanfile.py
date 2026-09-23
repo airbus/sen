@@ -300,11 +300,7 @@ class SenConan(ConanFile):
 
     def package_info(self):
         """Calculate the conan package info."""
-        if not self.package_folder:  # in editable mode conan generates the cmake stuff
-            # https://github.com/conan-io/conan/issues/19490#issuecomment-3774503979
-            self.cpp_info.set_property("cmake_find_mode", "config")
-        else:
-            self.cpp_info.set_property("cmake_find_mode", "none")
+        self.cpp_info.set_property("cmake_find_mode", "none")
         self.cpp_info.builddirs = [join("cmake", "sen")]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 

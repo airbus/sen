@@ -60,4 +60,4 @@ class TestPackageConan(ConanFile):
                 env.prepend_path("PATH", output_dir)
 
             with env.vars(self, scope="run").apply():
-                self.run(f'sen run test_configs/my_package.yaml --start-stop', env="conanrun")
+                self.run("sen run test_configs/my_package.yaml --start-stop", env="conanrun")
