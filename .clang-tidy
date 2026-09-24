@@ -1,3 +1,6 @@
+# llvm-header-guard stays off until we have a fix for it. It cannot be commented out in
+# place: the scalar below is folded, so a `#` is data and the entry it merges with stops
+# matching any check.
 Checks: >
   -*,
   abseil-duration-comparison,
@@ -83,7 +86,7 @@ Checks: >
   cert-oop11-cpp,
   clang-analyzer-apiModeling.StdCLibraryFunctions,
   clang-analyzer-apiModeling.TrustNonnull,
-  clang-analyzer-core.CallAndMessage
+  clang-analyzer-core.CallAndMessage,
   clang-analyzer-core.DivideZero,
   clang-analyzer-core.DynamicTypePropagation,
   clang-analyzer-core.NonNullParamChecker,
@@ -175,7 +178,6 @@ Checks: >
   hicpp-use-nullptr,
   hicpp-use-override,
   hicpp-vararg,
-  # llvm-header-guard,  # enable when we have a fix
   misc-definitions-in-headers,
   misc-include-cleaner,
   misc-misplaced-const,
