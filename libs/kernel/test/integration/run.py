@@ -177,7 +177,9 @@ if __name__ == "__main__":
                     .with_volume_mapping(host_repo_root, str(test_repo_root), mode="rw")
                     .with_command(f"./cli_run {test_repo_root / Path(config).relative_to(cmake_repo_root)}")
                     .with_kwargs(
-                        working_dir=str(test_workdir), cap_add=["SYS_ADMIN"], security_opt=["seccomp=unconfined"]
+                        working_dir=str(test_workdir),
+                        cap_add=["SYS_ADMIN", "SYS_PTRACE"],
+                        security_opt=["seccomp=unconfined"],
                     )
                 )
 
