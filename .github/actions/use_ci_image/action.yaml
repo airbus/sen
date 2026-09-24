@@ -15,8 +15,14 @@ inputs:
 runs:
   using: composite
   steps:
+    # The registry belongs here rather than in each caller. Without it image_name.sh
+    # yields a bare tag, the pull goes to Docker Hub and is refused, and the lane builds
+    # its own image: a green run, one informational line, and a toolchain nothing else
+    # has. Every lane converted to this action had missed it.
     - name: Name the image the job builds in
       shell: bash
+      env:
+        SEN_CI_REGISTRY: ghcr.io/airbus/
       run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh ${{ inputs.variant }} ${{ inputs.ubuntu }})" >> "$GITHUB_ENV"
 
     # continue-on-error: a registry that refuses the login still leaves the build
@@ -41,7 +47,7 @@ runs:
             echo "pulled $SEN_CI_IMAGE"
             exit 0
         fi
-        echo "not in the registry, building it"
+        echo "::warning::$SEN_CI_IMAGE is not in the registry; building it here"
         args=()
         while IFS= read -r a; do args+=(--build-arg "$a"); done \
             < <(.github/scripts/image_build_args.sh ${{ inputs.ubuntu }})

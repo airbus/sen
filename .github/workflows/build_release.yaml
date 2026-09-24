@@ -102,34 +102,11 @@ jobs:
       # release, so both Linux legs build with the same toolchain: the image's,
       # as the lanes that test the same sources already do. Windows keeps the
       # runner, and the same wrapper decides which.
-      - name: Name the image the job builds in
-        if: matrix.ci_image != ''
-        shell: bash
-        run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base ${{ matrix.ci_image }})" >> "$GITHUB_ENV"
-
-      - name: Log in to the registry
-        if: matrix.ci_image != ''
-        continue-on-error: true
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get the image the job builds in
         if: matrix.ci_image != ''
-        shell: bash
-        run: |
-          if docker pull --quiet "$SEN_CI_IMAGE"; then
-              echo "pulled $SEN_CI_IMAGE"
-              exit 0
-          fi
-          echo "not in the registry, building it"
-          args=()
-          while IFS= read -r a; do args+=(--build-arg "$a"); done \
-              < <(.github/scripts/image_build_args.sh ${{ matrix.ci_image }})
-          build() { docker build --target base --tag "$SEN_CI_IMAGE" "${args[@]}" tools/ci; }
-          build || { echo "image build failed, retrying in 30s"; sleep 30; build; }
+        uses: ./.github/actions/use_ci_image
+        with:
+          ubuntu: ${{ matrix.ci_image }}
 
       # Only for a leg that builds on the runner; the image carries all of it.
       - name: Setup build context
