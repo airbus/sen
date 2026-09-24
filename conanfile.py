@@ -230,8 +230,8 @@ class SenConan(ConanFile):
 
         # Adjust PATH and LD_LIBRARY path for conan editable mode
         self.layouts.build.runenv_info.prepend_path("PATH", "bin")  # Already covers Windows DLLs
-        if self.settings.os == "Macos":
-            self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "lib"))
+        # if self.settings.os == "Macos":  # not tested, not an official target yet
+        #    self.layouts.build.runenv_info.prepend_path("DYLD_LIBRARY_PATH", "lib")
         if self.settings.os == "Linux":
             self.layouts.build.runenv_info.prepend_path("LD_LIBRARY_PATH", "lib")
 
@@ -309,7 +309,8 @@ class SenConan(ConanFile):
         self.runenv_info.prepend_path("PATH", join(self.package_folder, "bin"))
 
         # Windows: a DLL is a runtime artefact and is in bin, which PATH already covers.
-        if self.settings.os == "Macos":
-            self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "lib"))
+        # macOS: not tested, not an official target yet
+        # if self.settings.os == "Macos":
+        #     self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "lib"))
         if self.settings.os == "Linux":
             self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "lib"))
