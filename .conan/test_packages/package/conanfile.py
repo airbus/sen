@@ -47,12 +47,15 @@ class TestPackageConan(ConanFile):
             cmake.test()
             self.run("sen --version", env="conanrun")
 
+            # Works for packaged Sen and editable mode
+            bin_folder = self.dependencies["sen"].cpp_info.bindirs[0]
+
             # The point is that an installed Sen finds its own libraries, so the environment must
             # not hand the loader the answer: LD_LIBRARY_PATH names only my_package's own directory,
             # and the binary is invoked by full path so conanrun does not put the package's library
             # directory back.
-            _exe = "sen.exe" if self.settings.os == "Windows" else "sen"
-            sen_binary = join(self.dependencies["sen"].package_folder, "bin", _exe)
+            sen_binary = join(bin_folder, "sen.exe" if self.settings.os == "Windows" else "sen")
+
             env = Environment()
             env.define_path("LD_LIBRARY_PATH", join(self.build_folder, "lib"))
 

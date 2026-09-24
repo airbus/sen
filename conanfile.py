@@ -219,12 +219,21 @@ class SenConan(ConanFile):
         """Define the folder layout for building Sen."""
         cmake_layout(self)
 
-        # used in the conan editable package mode
-        self.cpp.build.builddirs = ["."]
+        # Used in the conan editable package mode:
+        # adds the build folder and the util subfolder to CMAKE_PREFIX_PATH.
+        self.cpp.build.builddirs = [".", "util"]
+
         # The build tree is split like the install tree, so an editable consumer's PATH and
         # library path name the two directories rather than the build root.
         self.cpp.build.bindirs = ["bin"]
         self.cpp.build.libdirs = ["lib"]
+
+        # Adjust PATH and LD_LIBRARY path for conan editable mode
+        self.layouts.build.runenv_info.prepend_path("PATH", "bin")  # Already covers Windows DLLs
+        # if self.settings.os == "Macos":  # not tested, not an official target yet
+        #    self.layouts.build.runenv_info.prepend_path("DYLD_LIBRARY_PATH", "lib")
+        if self.settings.os == "Linux":
+            self.layouts.build.runenv_info.prepend_path("LD_LIBRARY_PATH", "lib")
 
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
@@ -298,7 +307,10 @@ class SenConan(ConanFile):
         # runenv library paths. Executables are in bin, shared objects in lib, which is also
         # what cpp_info.libdirs says by default -- these are explicit so the two cannot drift.
         self.runenv_info.prepend_path("PATH", join(self.package_folder, "bin"))
-        if self.settings.os == "Linux":
-            self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "lib"))
 
         # Windows: a DLL is a runtime artefact and is in bin, which PATH already covers.
+        # macOS: not tested, not an official target yet
+        # if self.settings.os == "Macos":
+        #     self.runenv_info.prepend_path("DYLD_LIBRARY_PATH", join(self.package_folder, "lib"))
+        if self.settings.os == "Linux":
+            self.runenv_info.prepend_path("LD_LIBRARY_PATH", join(self.package_folder, "lib"))
