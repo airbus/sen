@@ -1866,9 +1866,10 @@ that the error names the base it could not find, not the profile you asked for.<
 for your platform from the <a href="https://github.com/airbus/sen/releases">Releases page</a> and extract it
 anywhere. The extracted directory is <code>&lt;sen_path&gt;</code> in the snippets below.</p>
 <p>Each platform has two archives. The one ending <code>-release</code> is what you want to run. The one ending
-<code>-relwithdebinfo</code> is the same build carrying debug information, for getting a usable stack out of a
-crash; it is a much larger download and is not faster or slower to run. The installer script takes
-the <code>-release</code> archive unless you pass <code>--debug-symbols</code>.</p>
+<code>-relwithdebinfo</code> is a separate build carrying debug information, for running Sen under a debugger.
+Its symbols do not describe the <code>-release</code> binaries, so a crash there has to be reproduced under it.
+It is a much larger download. The installer script takes the <code>-release</code> archive unless you pass
+<code>--debug-symbols</code>.</p>
 <p>On Windows the debug information lives in <code>.pdb</code> files rather than inside the binaries. They are
 installed next to the executables and DLLs in <code>bin</code>, which is where a debugger looks for them, so
 keep them beside the binaries when you copy anything out of the archive.</p>
@@ -1927,7 +1928,7 @@ which both routes below walk through.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 21, 2026 20:07:56 UTC">September 21, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 24, 2026 13:30:08 UTC">September 24, 2026</span>
 </span>
 </aside>
 </article>
