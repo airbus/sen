@@ -28,9 +28,6 @@ permissions:
   # Reading the image this lane runs in, which is a private package.
   packages: read
 
-env:
-  SEN_CI_REGISTRY: ghcr.io/airbus/
-
 jobs:
   sanitizers:
     name: "ASan+UBSan"

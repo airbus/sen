@@ -54,7 +54,9 @@ jobs:
               echo "SEN_CI_CACHE=$(.github/scripts/image_name.sh buildcache ${{ matrix.ubuntu }})"
           } >> "$GITHUB_ENV"
 
-      # Both from image_build_args.sh, which says why they must not be written apart.
+      # All of them from image_build_args.sh, which says why they must not be written
+      # apart -- and every one has to reach every build below. The published 24.04 image
+      # had no gcc-14 because that file grew a third line and four build calls did not.
       - name: Pin the base
         shell: bash
         run: .github/scripts/image_build_args.sh ${{ matrix.ubuntu }} >> "$GITHUB_ENV"
@@ -91,6 +93,7 @@ jobs:
           build-args: |
             UBUNTU_REF=${{ env.UBUNTU_REF }}
             SEN_UBUNTU_CODENAME=${{ env.SEN_UBUNTU_CODENAME }}
+            SEN_EXTRA_COMPILERS=${{ env.SEN_EXTRA_COMPILERS }}
           cache-from: type=registry,ref=${{ env.SEN_CI_CACHE }}
 
       # Every layer of the cached build is served from the Actions cache, so it
@@ -109,10 +112,12 @@ jobs:
               docker buildx build --no-cache --pull --load \
                   --build-arg "UBUNTU_REF=$UBUNTU_REF" \
                   --build-arg "SEN_UBUNTU_CODENAME=$SEN_UBUNTU_CODENAME" \
+                  --build-arg "SEN_EXTRA_COMPILERS=$SEN_EXTRA_COMPILERS" \
                   --target dev -t "$SEN_CI_IMAGE_DEV" -f tools/ci/Dockerfile tools/ci &&
               docker buildx build --pull --load \
                   --build-arg "UBUNTU_REF=$UBUNTU_REF" \
                   --build-arg "SEN_UBUNTU_CODENAME=$SEN_UBUNTU_CODENAME" \
+                  --build-arg "SEN_EXTRA_COMPILERS=$SEN_EXTRA_COMPILERS" \
                   --target base -t "$SEN_CI_IMAGE_BASE" -f tools/ci/Dockerfile tools/ci
           }
           build || { echo "cold build failed, retrying in 30s"; sleep 30; build; }
@@ -129,11 +134,17 @@ jobs:
           cmake_version=$(sed -n 's/^ARG CMAKE_VERSION=//p' tools/ci/Dockerfile)
           ninja_version=$(sed -n 's/^ARG NINJA_VERSION=//p' tools/ci/Dockerfile)
           test -n "$conan_version" && test -n "$cmake_version" && test -n "$ninja_version"
-          docker run --rm "$SEN_CI_IMAGE_BASE" bash -lc '
+          # The compilers this base carries beyond the common pair, so a base whose extra
+          # ones never reached the build fails here rather than in the lane that wants
+          # them. 24.04 carries gcc-14; 22.04's value is empty and the loop is skipped.
+          docker run --rm --env SEN_EXTRA_COMPILERS "$SEN_CI_IMAGE_BASE" bash -lc '
             set -e
             for tool in conan python3 pip3 ccache git make g++-12 gcc-12 \
                         clang++-20 clang-tidy-20 gcovr lcov genhtml \
                         pytest junitparser bats objdump plantuml typst; do
+                command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
+            done
+            for tool in $SEN_EXTRA_COMPILERS; do
                 command -v "$tool" > /dev/null || { echo "missing: $tool"; exit 1; }
             done
             # The reference typst sets is set in Liberation Sans. Without it the document
@@ -183,6 +194,7 @@ jobs:
           build-args: |
             UBUNTU_REF=${{ env.UBUNTU_REF }}
             SEN_UBUNTU_CODENAME=${{ env.SEN_UBUNTU_CODENAME }}
+            SEN_EXTRA_COMPILERS=${{ env.SEN_EXTRA_COMPILERS }}
           cache-from: type=registry,ref=${{ env.SEN_CI_CACHE }}
           # Only main writes it: a pull request has no write access to the package,
           # and a fork's token has none at all.
