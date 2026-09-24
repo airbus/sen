@@ -239,8 +239,8 @@ $(paint bold "Usage:") sh install.sh [<version>] [options]
 $(paint bold "Options:")
   --compiler <name>-<ver>     pick a specific toolchain (gcc-12.4.0, clang-16.0.0, msvc-19.X)
   --compiler=<name>-<ver>     same, equals form
-  --debug-symbols             fetch the build carrying debug information, for diagnosing a
-                              crash rather than for running; a much larger download
+  --debug-symbols             fetch the separate build carrying debug information, for running
+                              Sen under a debugger; a much larger download
   -y, --yes                   non-interactive (refuse rather than open the menu)
   --allow-root                allow running as root (containers)
   -h, --help                  show this help
