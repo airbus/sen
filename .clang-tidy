@@ -261,7 +261,9 @@ Checks: >
   readability-uniqueptr-delete-release,
   readability-uppercase-literal-suffix,
   zircon-temporary-objects
-HeaderFilterRegex: .*
+# Our headers only. `.*` also matches dependency headers pulled in by our sources, and with
+# WarningsAsErrors below that turns a third-party style choice into our build failure.
+HeaderFilterRegex: .*/(libs|components|apps|test)/.*
 WarningsAsErrors: '*'
 
 CheckOptions:

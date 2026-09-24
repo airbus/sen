@@ -12,6 +12,7 @@ clang-tidy accepts both silently: an unmatched glob disables nothing and reports
 so the check stops running. Three in this file had, from the initial commit until 2026-09-24.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -52,3 +53,33 @@ def test_the_scan_sees_both_shapes(planted, expected):
 def test_a_clean_config_reports_nothing():
     """The other half: the scan has to stay quiet on a file with neither defect."""
     assert unmatchable_entries("Checks: >\n  bugprone-*,\n  -modernize-use-trailing-return-type,\n") == []
+
+
+# Paths as clang-tidy sees them: ours under the checkout, dependencies under conan's cache.
+OURS = (
+    "/ws/libs/core/include/sen/core/base/hash32.h",
+    "/ws/components/shell/include/shell.h",
+    "/ws/apps/cli_sen/main.h",
+    "/ws/test/support/helper.h",
+)
+THEIRS = (
+    "/conan/p/b/imgui22d862702e925/p/include/../res/bindings/imgui_impl_sdl2.h",
+    "/conan/p/asio1234/p/include/asio/io_context.hpp",
+)
+
+
+def header_filter() -> re.Pattern:
+    """The regex clang-tidy applies to decide which headers it reports on."""
+    return re.compile(yaml.safe_load(CONFIG.read_text(encoding="utf-8"))["HeaderFilterRegex"])
+
+
+@pytest.mark.parametrize("path", OURS, ids=lambda p: p.split("/")[2])
+def test_our_headers_are_analysed(path):
+    """Narrowing the filter until it misses our own headers would disable the header checks."""
+    assert header_filter().match(path)
+
+
+@pytest.mark.parametrize("path", THEIRS, ids=lambda p: p.split("/")[3])
+def test_dependency_headers_are_not_analysed(path):
+    """`.*` reported findings in a conan package header, and WarningsAsErrors made them fatal."""
+    assert not header_filter().match(path)
