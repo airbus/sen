@@ -62,8 +62,8 @@ def test_release_job_set():
 def test_a_release_and_its_debug_information_share_a_toolchain():
     """Both halves of one release, so one may not build in the image and the other not.
 
-    The debug information exists to debug the binaries that ship, which it cannot do
-    faithfully if a different compiler installation produced them.
+    A second toolchain would add differences on top of the optimisation level that already
+    separates the two builds.
     """
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
     by_compiler = defaultdict(set)

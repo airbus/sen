@@ -181,10 +181,9 @@ SPECIFIED_JOBS = [
         include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=True,
     ),
-    # A release also ships a build carrying debug information, so a user can get a usable stack out
-    # of a crash in what they installed. Release-only: nothing else needs it, and the archive is much
-    # larger than the stripped one. Windows keeps its symbols in separate .pdb files, which
-    # sen_internal_utils.cmake installs beside the binaries for a debugger to find.
+    # A release also ships a build carrying debug information. Built at a different optimisation
+    # level, so its symbols do not describe the binaries that ship. Windows keeps its symbols in
+    # .pdb files, which sen_internal_utils.cmake installs beside the binaries.
     JobSelector(
         job_spec=JobSpecification(
             name="Basic GCC (debug information)",
