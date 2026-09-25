@@ -56,6 +56,9 @@ themselves. [CMake](cmake.md) documents the build functions your own package wil
 [Code generation](code_generation.md) covers what Sen writes from your model, how to ask for it
 from a build or from the command line, and what surprises people about each generator.
 
+[Crash reports](crash_reports.md) is what a process leaves behind when it dies, where the files go
+and how to read them.
+
 **The libraries**, if you are working against the C++ API directly:
 [core](core_library.md) for the base types, [kernel](kernel_library.md) for the runtime,
 [util](util_library.md) for the helpers, [db](db_library.md) for recorded data and

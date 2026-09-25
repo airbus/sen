@@ -30,6 +30,7 @@ const EXPECTED_URIS: readonly string[] = [
   "sen://docs/howto/troubleshooting",
   "sen://docs/users-guide/compatibility-conversions",
   "sen://docs/users-guide/configuration",
+  "sen://docs/users-guide/crash-reports",
   "sen://docs/users-guide/db-library",
   "sen://docs/users-guide/db-python-bindings",
   "sen://docs/users-guide/execution-model",

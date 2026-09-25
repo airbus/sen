@@ -112,6 +112,11 @@ class SenConan(ConanFile):
         self.requires("pugixml/1.14", visible=False)
         self.requires("rapidyaml/0.5.0", visible=False)
         self.requires("cpptrace/1.0.4", visible=False)
+        # Crashpad writes the minidump out of process. Sentry's fork is the maintained packaging.
+        # Sen never uploads a report, so the handler's TLS support is off. The option only exists
+        # on Linux, and libcurl's own is set in the profiles because a recipe cannot reach it.
+        crashpad_options = {"with_tls": False} if self.settings.os == "Linux" else {}
+        self.requires("sentry-crashpad/0.6.5", options=crashpad_options, visible=False)
         self.requires("spdlog/1.17.0", visible=True)
 
         # explorer-only: ImGui + ImPlot + SDL.

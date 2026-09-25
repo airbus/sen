@@ -89,6 +89,7 @@ int KernelImpl::run(KernelBlockMode blockMode)
     Lock lock(usageMutex_);
 
     configureCrashReporting();
+    setCrashPhase("starting");
 
     if (!configured_)
     {
@@ -100,9 +101,12 @@ int KernelImpl::run(KernelBlockMode blockMode)
 
     // Can only be started after components are preloaded to ensure a trace component can install the tracer factory.
     sessionManager_.startMessageProcessing();
+
+    setCrashComponents();
   }
 
   getKernelLogger()->debug("running");
+  setCrashPhase("running");
 
   isRunning_ = true;
   return applyRunMode(blockMode);
@@ -190,8 +194,27 @@ void KernelImpl::configureCrashReporting()
   }
 }
 
+// Called once the components have loaded: before that the kernel knows their names from the
+// configuration but not the build each was made by.
+void KernelImpl::setCrashComponents() const
+{
+  if (!config_.getParams().crashReportDisabled)
+  {
+    CrashReporter::get().setComponents(loadedComponents_, importedPackages_);
+  }
+}
+
+void KernelImpl::setCrashPhase(const char* phase) const
+{
+  if (!config_.getParams().crashReportDisabled)
+  {
+    CrashReporter::get().setPhase(phase);
+  }
+}
+
 void KernelImpl::doStop()
 {
+  setCrashPhase("stopping");
   isStopping_.store(true);
   {
     Lock lock(usageMutex_);
@@ -207,6 +230,12 @@ void KernelImpl::configure()
 {
   // configure the kernel logging
   configureSpdlog(config_.getParams().logConfig);
+
+  // After configureSpdlog, which replaces the loggers' sinks.
+  if (!config_.getParams().crashReportDisabled)
+  {
+    CrashReporter::get().captureLogs();
+  }
 
   // plug all requested plugins and create runners
   for (const auto& elem: config_.getPluginsToLoad())

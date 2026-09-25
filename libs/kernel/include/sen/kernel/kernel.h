@@ -23,6 +23,7 @@
 // std
 #include <filesystem>
 #include <memory>
+#include <optional>
 
 namespace sen::kernel
 {
@@ -73,9 +74,6 @@ public:
   /// Gets the kernel build information.
   [[nodiscard]] static const BuildInfo& getBuildInfo() noexcept;
 
-  /// Registers the kernel termination handler.
-  static void registerTerminationHandler();
-
 private:
   friend class KernelApi;
   friend class PreloadApi;
@@ -86,6 +84,42 @@ private:
 private:
   std::unique_ptr<impl::KernelImpl> pimpl_;
 };
+
+/// Crash reporting, which belongs to the process rather than to any one kernel: a process has one
+/// crash reporter however many kernels it builds.
+namespace crash
+{
+
+/// Turns on crash reporting for this process: a terminate handler for an uncaught exception, and
+/// an out-of-process Crashpad handler for a fault. Both write under `reportDirectory`, or under
+/// the system temporary directory when it is empty.
+///
+/// Call it while the process is still single threaded. On POSIX the handler is started by forking,
+/// and a fork keeps every lock another thread was holding at that moment, which can leave the
+/// handler unable to start. Sen warns if it is armed in a process that already runs more than one
+/// thread.
+///
+/// Returns true when the handler is running. False means a fault will not be dumped, and the
+/// reason has been logged. The terminate handler is still in place either way, so an uncaught
+/// exception is still reported.
+///
+/// The handler process outlives this call and stays for the life of the process that armed it. Sen also creates and
+/// registers a process-global spdlog logger named "kernel" at trace level when no logger by that
+/// name exists, and takes over an existing one of that name.
+///
+/// On Windows, runHandlerIfRequested() must already have been called from main, or no dump is
+/// written and Sen warns as it arms.
+///
+/// A second call does not move a running handler: the first directory is kept, and Sen warns.
+bool arm(const std::filesystem::path& reportDirectory = {});
+
+/// Give main() its own arguments here, before anything else, and leave with the value it returns
+/// when it returns one. Sen has no separate handler program, so on Windows the handler is this
+/// executable run again, and this call is what recognises that and becomes it. On other platforms
+/// it never claims the process, so the call costs nothing and the code stays the same.
+[[nodiscard]] std::optional<int> runHandlerIfRequested(int argc, char* argv[]);
+
+}  // namespace crash
 
 }  // namespace sen::kernel
 

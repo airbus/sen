@@ -524,7 +524,9 @@ void SignalStopper::watch(sen::kernel::Kernel& kernel) noexcept
 
     if (!bootloader->getConfig().getParams().crashReportDisabled)
     {
-      sen::kernel::Kernel::registerTerminationHandler();
+      // The warning it logs is enough here, because sen run writes to a terminal. A service whose
+      // output nobody reads should check the return instead.
+      std::ignore = sen::kernel::crash::arm(bootloader->getConfig().getParams().crashReportDir);
     }
     sen::kernel::Kernel kernel(bootloader->getConfig());
 
@@ -705,6 +707,13 @@ int runApp(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+  // This process may have been started to be the crash handler rather than to run a
+  // configuration, and if it was, it must do that and nothing else.
+  if (const auto handlerExitCode = sen::kernel::crash::runHandlerIfRequested(argc, argv))
+  {
+    return *handlerExitCode;
+  }
+
   // First, before any thread exists and before anything can take time.
   SignalStopper::blockEarly();
 

@@ -155,6 +155,12 @@ private:
   /// Configures the crash reporting mechanism
   void configureCrashReporting();
 
+  /// Records what the kernel is doing, for a crash that happens while it is doing it
+  void setCrashPhase(const char* phase) const;
+
+  /// Records what was loaded, and the build each was made by
+  void setCrashComponents() const;
+
 private:
   void sessionAvailable(const std::string& name) const;
   void sessionUnavailable(const std::string& name) const;

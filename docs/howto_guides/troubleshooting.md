@@ -389,3 +389,38 @@ multicast traffic. WSL2 also needs mirrored networking and a sufficiently high o
 **Fix:** Follow [Networking with WSL2 and virtual machines](networking_wsl2_virtual_machines.md).
 It covers the verified WSL2 setup, network-interface selection, socket limits, firewalls, known
 connectivity limitations, and the TCP-only fallback.
+
+---
+
+## Crashes
+
+### A process disappeared, or died of a signal
+
+**Symptom:** A Sen process ended without a clean shutdown. A supervisor reports it as killed by a
+signal rather than as exiting with a status, or it vanished and left nothing on the terminal.
+
+**Cause:** How Sen answers this depends on how the crash arrived. A fault — a bad access, a
+division by zero — never reaches Sen's own code at all, so the report is written from outside by a
+separate handler process, as a minidump. An uncaught exception does reach Sen, which writes a
+report itself and then aborts, so that route leaves both a report and a dump.
+
+**Fix:** Look under the directory `crashReportDir` names. Nothing there means either the handler
+never armed, which the kernel log says on the line beginning "the crash handler could not be
+started", or `ptrace` was refused: check `cat /proc/sys/kernel/yama/ptrace_scope`, where `2` or `3`
+means no minidump. [Crash reports](../users_guide/crash_reports.md) covers what each file holds, how
+to read the Sen-specific information out of a dump, and how to switch the whole thing off.
+
+### A crash's frames have no function names
+
+**Symptom:** A dump or a core opens, but the frames show addresses and a module rather than
+function names, files and lines.
+
+**Cause:** A release build is stripped, so the binaries carry no description of which address
+belongs to which function. That description ships separately, in the `-release-symbols` archive,
+and it has to be the one built for the binaries that crashed.
+
+**Fix:** [Getting Sen](../getting_started/install.md#manual-release-packages) sets out which of the
+four archives answers which question, and
+[Reading a crash](../getting_started/install.md#reading-a-crash) has the debugger invocation. Note
+that `-relwithdebinfo` is a different build of the same source rather than the release build with
+symbols added, so pointing it at a release dump resolves nothing useful.

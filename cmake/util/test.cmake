@@ -32,7 +32,7 @@ if(${SEN_CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
 endif()
 
-# One at a time, which is what the suite does today: --parallel 0 is serial on the cmake this
+# One at a time, as the suite runs it: --parallel 0 is serial on the cmake this
 # repository used to pin, so nothing has ever run concurrently and nothing is prepared for it.
 # Raising this makes tests share a machine, and the --timeout above was measured when each had
 # one to itself -- on a four-core runner it turns slow tests into timeouts, in numbers. Before
@@ -253,7 +253,7 @@ function(add_sen_unit_test_suite test_name)
       _test_props
       ENVIRONMENT_MODIFICATION
       # Components are opened by name rather than linked, so TARGET_RUNTIME_DLLS does not cover
-      # them and this is what finds them.
+      # them; this is what finds them.
       "PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
     )
   endif()
@@ -430,11 +430,23 @@ function(add_sen_run_smoke_test test_name)
     set(_start_stop_flag --start-stop)
   endif()
 
-  add_test(
-    NAME ${test_name}
-    COMMAND sen::cli_sen run ${_abs_config} ${_start_stop_flag}
-    WORKING_DIRECTORY ${_working_dir} COMMAND_EXPAND_LISTS
-  )
+  # ctest calls a process killed by a signal a failure whatever WILL_FAIL says, and Sen ends an
+  # unhandled exception by aborting. So a run expected to fail goes through a shell, which waits
+  # for it and reports the signal as an ordinary exit code. Without `exec`: the shell must outlive
+  # the run.
+  if(_arg_WILL_FAIL AND NOT WIN32)
+    add_test(
+      NAME ${test_name}
+      COMMAND sh -c "\"$<TARGET_FILE:sen::cli_sen>\" run \"${_abs_config}\" ${_start_stop_flag}"
+      WORKING_DIRECTORY ${_working_dir} COMMAND_EXPAND_LISTS
+    )
+  else()
+    add_test(
+      NAME ${test_name}
+      COMMAND sen::cli_sen run ${_abs_config} ${_start_stop_flag}
+      WORKING_DIRECTORY ${_working_dir} COMMAND_EXPAND_LISTS
+    )
+  endif()
 
   set(labels "smoke")
   if(${_arg_FLAKY})

@@ -7,6 +7,7 @@
 
 #include "./thread_impl.h"
 
+#include "../crash_reporter.h"
 #include "posix/../thread.h"
 #include "posix/posix_api.h"
 
@@ -245,6 +246,10 @@ Result<void, ThreadCreateErr> ThreadImpl::configureAffinity() const noexcept
 void* ThreadImpl::threadFunction(void* arg)
 {
   auto* control = static_cast<ThreadImpl*>(arg);
+
+  // Before the thread runs anything of its own, so an overflow anywhere in it still has a signal
+  // stack.
+  impl::CrashReporter::prepareCurrentThread();
 
   // pthread_setcanceltype can only fail with EINVAL if in case we provide invalid value for type.
   // std::ignore = control->api_->pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, nullptr);
