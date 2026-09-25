@@ -40,6 +40,7 @@ repos:
     - id: check-illegal-windows-names
     - id: check-toml
     - id: check-xml
+      exclude: libs/gen/test/data/plantuml/error_format/error_format.xml
 
 # The clang-format major tracks the toolchain (LLVM_VERSION in
 # tools/ci/Dockerfile); do not bump it independently.
