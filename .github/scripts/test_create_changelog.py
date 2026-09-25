@@ -155,3 +155,47 @@ def test_a_changelog_with_no_commits_has_no_entries():
     """The other half: the check must have something to fail on."""
     text = build_changelog([])
     assert not any(line.startswith("- ") for line in text.splitlines())
+
+
+def test_internal_work_is_folded_below_what_a_reader_came_for():
+    """A release put 89 pipeline entries and 40 test entries above the fixes."""
+    text = build_changelog(
+        ["fix: repair the flux\n\n", "ci: rebuild the lane\n\n", "test: cover the flux\n\n", "chore: bump a pin\n\n"]
+    )
+    fixes = text.index("### 🐛 Bug Fixes")
+    folded = text.index("<details>")
+    assert fixes < folded
+    for section in ("### 👷 Continuous Integration", "### 🚨 Tests", "### 📦 Chores"):
+        assert text.index(section) > folded
+
+
+def test_the_summary_counts_what_it_hides():
+    """The count is the point: it says the work happened without listing it."""
+    text = build_changelog(
+        ["ci: one\n\n", "ci: two\n\n", "test: three\n\n", "chore: four\n\n", "feat: not internal\n\n"]
+    )
+    assert "<summary>4 internal changes" in text
+
+
+def test_nothing_is_folded_when_there_is_nothing_internal():
+    """A release of only user-facing work carries no empty container."""
+    text = build_changelog(["feat: add the flux\n\n", "fix: repair the flux\n\n"])
+    assert "<details>" not in text
+
+
+def test_the_folded_entries_are_still_there():
+    """Folding is not dropping: every commit still appears somewhere."""
+    text = build_changelog(["ci: rebuild the lane\n\n"])
+    assert "- ci: rebuild the lane" in text
+
+
+def test_the_markdown_inside_the_fold_can_render():
+    """Without a blank line after the summary, GitHub renders the sections as text."""
+    text = build_changelog(["ci: rebuild the lane\n\n"])
+    opening = text.split("\n").index("<details><summary>1 internal change to the pipeline, tests and chores</summary>")
+    assert not text.split("\n")[opening + 1]
+
+
+def test_one_change_is_not_called_changes():
+    """The summary is the only sentence a reader sees of this section."""
+    assert "<summary>1 internal change to" in build_changelog(["ci: rebuild the lane\n\n"])
