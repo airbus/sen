@@ -158,7 +158,11 @@ jobs:
               mkdir -p "$staging"
               cp -R "$build/symbols/." "$staging/"
               rm -f "$staging/archive-name"
-              tar -czf "$build/$name.tar.gz" -C "$build/symbols-staging" "$name"
+              # Same format as the release archive beside it: a Windows user gets a zip.
+              # shutil rather than tar or 7z, which are not both present on both runners.
+              format=$([ "$RUNNER_OS" = "Windows" ] && echo zip || echo gztar)
+              python -c "import shutil,sys; shutil.make_archive(*sys.argv[1:])" \
+                  "$build/$name" "$format" "$build/symbols-staging" "$name"
           fi
           python .github/scripts/check_package_archive.py "$build"
           IN

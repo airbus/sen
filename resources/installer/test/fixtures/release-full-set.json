@@ -1,0 +1,37 @@
+{
+  "tag_name": "0.0.0-rc1",
+  "assets": [
+    {
+      "name": "sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release-symbols.zip",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release-symbols.zip"
+    },
+    {
+      "name": "sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release.zip",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release.zip"
+    },
+    {
+      "name": "sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-relwithdebinfo.zip",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-relwithdebinfo.zip"
+    },
+    {
+      "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-debug.tar.gz",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-debug.tar.gz"
+    },
+    {
+      "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release-symbols.tar.gz",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release-symbols.tar.gz"
+    },
+    {
+      "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release.tar.gz",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release.tar.gz"
+    },
+    {
+      "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-relwithdebinfo.tar.gz",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-relwithdebinfo.tar.gz"
+    },
+    {
+      "name": "SHA256SUMS",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/SHA256SUMS"
+    }
+  ]
+}

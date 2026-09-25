@@ -293,8 +293,9 @@ Sen's own checking, not to read a crash that happened in a release build, becaus
 are reading may not be the crash it produces. There is no Windows `-debug`; a Windows debug build
 would have to link the debug runtime, and Sen's dependencies are built with the release one.
 
-The installer takes `-release` unless you pass `--symbols` for the release build's debug
-information, or `--debug-symbols` for the separate `-relwithdebinfo` build.
+The installer takes `-release` unless you ask for another: `--symbols` for the release
+build's debug information, `--debug-symbols` for the `-relwithdebinfo` build, or `--debug`
+for the unoptimised one.
 
 ## Reading a crash
 

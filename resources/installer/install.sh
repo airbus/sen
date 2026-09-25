@@ -243,6 +243,8 @@ $(paint bold "Options:")
                               Sen under a debugger; a much larger download
   --symbols                   fetch the debug information for the release build, for reading
                               a crash in it; a much larger download
+  --debug                     fetch the unoptimised build, which runs Sen's own internal
+                              checks; Linux only, and a much larger download
   -y, --yes                   non-interactive (refuse rather than open the menu)
   --allow-root                allow running as root (containers)
   -h, --help                  show this help
@@ -274,6 +276,7 @@ parse_args() {
             # The release build's own symbols, which match the binaries it ships.
             # --debug-symbols keeps meaning the separate build, which scripts already pass.
             --symbols) SENV_BUILD_TYPE="release-symbols"; shift ;;
+            --debug) SENV_BUILD_TYPE="debug"; shift ;;
             -y|--yes)       SENV_NON_INTERACTIVE=1; shift ;;
             --allow-root)   SENV_ALLOW_ROOT=1; shift ;;
             -h|--help)      print_usage; exit 0 ;;
