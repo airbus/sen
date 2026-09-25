@@ -98,3 +98,62 @@ def test_the_real_probes_answer_without_raising():
         state, detail = probe()
         assert state in {"granted", "absent", "unavailable"}, name
         assert detail
+
+
+def yama(monkeypatch, tmp_path, contents=None):
+    """Points the probe at a file that either holds a value or does not exist."""
+    path = tmp_path / "ptrace_scope"
+    if contents is not None:
+        path.write_text(contents, encoding="utf-8")
+    monkeypatch.setattr(cap, "YAMA_PTRACE_SCOPE", str(path))
+
+
+def test_yama_absent_is_not_reported_as_unrestricted(monkeypatch, tmp_path):
+    """No file and a 0 permit the same tracing and are different facts.
+
+    Collapsing them hides the difference between a kernel that cannot restrict tracing
+    and one that has chosen not to, which is exactly what a container-versus-runner
+    comparison is trying to see.
+    """
+    yama(monkeypatch, tmp_path)
+    state, detail = cap.yama_ptrace_scope()
+    assert state == "unavailable"
+    assert "not loaded" in detail or "no Yama" in detail
+
+
+def test_yama_zero_is_reported_as_granted(monkeypatch, tmp_path):
+    """Loaded and unrestricted, which is a positive statement rather than an absence."""
+    yama(monkeypatch, tmp_path, "0\n")
+    assert cap.yama_ptrace_scope()[0] == "granted"
+
+
+def test_yama_one_says_what_it_requires(monkeypatch, tmp_path):
+    """The restricted value a runner usually carries, and the escape hatch it allows."""
+    yama(monkeypatch, tmp_path, "1\n")
+    state, detail = cap.yama_ptrace_scope()
+    assert state == "restricted"
+    assert "PR_SET_PTRACER" in detail
+
+
+def test_an_unrecognised_yama_value_is_not_silently_accepted(monkeypatch, tmp_path):
+    """A kernel that grows a fourth mode must not read as one of the three."""
+    yama(monkeypatch, tmp_path, "9\n")
+    state, detail = cap.yama_ptrace_scope()
+    assert state == "restricted"
+    assert "unrecognised" in detail
+
+
+def test_the_ptrace_capability_is_read_from_the_effective_set(monkeypatch, tmp_path):
+    """--cap-add only fills the bounding set, so asking for it is not holding it."""
+    status = tmp_path / "status"
+    status.write_text("Name:\tpython\nCapEff:\t0000000000080000\n", encoding="utf-8")
+    monkeypatch.setattr(cap, "PROC_SELF_STATUS", str(status))
+    assert cap.sys_ptrace() == ("granted", "CAP_SYS_PTRACE is held")
+
+
+def test_an_empty_capability_set_is_reported_absent(monkeypatch, tmp_path):
+    """The case every container we start is actually in."""
+    status = tmp_path / "status"
+    status.write_text("Name:\tpython\nCapEff:\t0000000000000000\n", encoding="utf-8")
+    monkeypatch.setattr(cap, "PROC_SELF_STATUS", str(status))
+    assert cap.sys_ptrace()[0] == "absent"
