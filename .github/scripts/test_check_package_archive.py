@@ -226,3 +226,28 @@ def test_a_symbols_archive_is_not_asked_for_a_program(tmp_path):
     """Applying the release checks to it would reject every valid symbols archive."""
     problems = check_archive(write_archive(tmp_path, SYMBOLS_STEM, SYMBOLS_MEMBERS))
     assert not any("bin/sen" in problem or "shared library" in problem for problem in problems)
+
+
+def test_a_handler_program_in_the_archive_is_rejected(tmp_path):
+    """The kernel forks itself to run the handler, so shipping the program is a defect."""
+    members = LINUX_MEMBERS + ("bin/crashpad_handler",)
+    problems = check_archive(write_archive(tmp_path, LINUX_NAME, members))
+    assert problems == ["must not ship: bin/crashpad_handler"]
+
+
+def test_the_windows_spelling_is_rejected_too(tmp_path):
+    """An .exe suffix is the same program, and the check would otherwise see a new name."""
+    members = WINDOWS_MEMBERS + ("bin/crashpad_handler.exe",)
+    problems = check_archive(write_archive(tmp_path, WINDOWS_NAME, members, ".zip"))
+    assert problems == ["must not ship: bin/crashpad_handler.exe"]
+
+
+def test_a_name_that_merely_contains_it_is_left_alone(tmp_path):
+    """Matching a substring here would reject files the package is supposed to hold."""
+    members = LINUX_MEMBERS + ("bin/crashpad_handler_wrapper", "lib/libcrashpad_handler.so")
+    assert check_archive(write_archive(tmp_path, LINUX_NAME, members)) == []
+
+
+def test_an_archive_without_one_says_nothing(tmp_path):
+    """The other half: the check has to stay quiet on the archives we actually ship."""
+    assert check_archive(write_archive(tmp_path, LINUX_NAME, LINUX_MEMBERS)) == []
