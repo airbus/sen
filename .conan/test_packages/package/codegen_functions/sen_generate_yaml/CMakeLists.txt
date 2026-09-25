@@ -8,11 +8,12 @@
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 set(generated_yaml "${CMAKE_CURRENT_BINARY_DIR}/generated_config.yaml")
+# Repeat the dependency to test the PYTHONPATH separator
 sen_generate_yaml(
   TARGET cmake_generated_yaml
   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/generate_config.py
   OUTPUT ${generated_yaml}
-  DEPS cmake_generated_python
+  DEPS cmake_generated_python cmake_generated_python
 )
 
 # The build verifies that DEPS exposes the generated Python module through PYTHONPATH.
