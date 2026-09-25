@@ -18,6 +18,7 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/span.h"
+#include "sen/core/io/util.h"
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/var.h"
 #include "sen/kernel/component_api.h"
@@ -118,9 +119,20 @@ std::shared_ptr<spdlog::logger> getLogger() { return kernel::KernelApi::getOrCre
 
 ArgsError checkValidExpectedArgs(const Span<const Arg> expectedArgs, const VarList& args)
 {
+  // Check for same number of arguments
   if (expectedArgs.size() != args.size())
   {
     return "Expected " + std::to_string(expectedArgs.size()) + " arguments but got " + std::to_string(args.size());
+  }
+
+  // Check if arguments can be adapted to the expected types
+  for (std::size_t i = 0; i < expectedArgs.size(); ++i)
+  {
+    Var arg = args[i];
+    if (auto result = impl::adaptVariant(*expectedArgs[i].type, arg); result.isError())
+    {
+      return "Argument " + std::to_string(i) + " ('" + expectedArgs[i].name + "'): " + result.getError();
+    }
   }
 
   return std::nullopt;
