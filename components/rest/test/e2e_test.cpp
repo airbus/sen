@@ -938,6 +938,61 @@ TEST_F(RestE2EFixture, invoke_method)
 }
 
 /// @test
+/// End-to-end test for invoking a method with the wrong number of arguments
+/// @requirements(SEN-1061)
+TEST_F(RestE2EFixture, invoke_method_wrong_argument_count)
+{
+  Server server;
+
+  authenticate();
+
+  // Create interest
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  const std::string url = "/api/interests/test_interest/objects/clock/methods/processNoFlush/invoke";
+
+  auto ret = retryUntil(400, [this, &url]() { return request(HttpMethod::httpPost, url, Json::array()); });
+  ASSERT_EQ(ret.statusCode, 400);
+
+  ret = retryUntil(400, [this, &url]() { return request(HttpMethod::httpPost, url, Json::array({1000, 2000})); });
+  ASSERT_EQ(ret.statusCode, 400);
+}
+
+/// @test
+/// Regression invoking a method with an argument that cannot be adapted to the expected type must be rejected
+/// @requirements(SEN-1061)
+TEST_F(RestE2EFixture, invoke_method_wrong_argument_type)
+{
+  Server server;
+
+  authenticate();
+
+  // Create interest
+  auto createRet = request(
+    HttpMethod::httpPost, "/api/interests", Json {{"name", "test_interest"}, {"query", "SELECT * FROM local.kernel"}});
+  ASSERT_EQ(createRet.statusCode, 200);
+
+  const std::string url = "/api/interests/test_interest/objects/clock/methods/processNoFlush/invoke";
+
+  // Non-numeric string not adaptable to a Duration
+  auto ret =
+    retryUntil(400, [this, &url]() { return request(HttpMethod::httpPost, url, Json::array({"not a duration"})); });
+  ASSERT_EQ(ret.statusCode, 400);
+
+  auto error = Json::parse(ret.body)["error"].get<std::string>();
+
+  // Boolean not adaptable to a Duration
+  ret = retryUntil(400, [this, &url]() { return request(HttpMethod::httpPost, url, Json::array({true})); });
+  ASSERT_EQ(ret.statusCode, 400);
+
+  // Rejected request must not create interests
+  auto invokeRet = request(HttpMethod::httpGet, url + "/0", Json());
+  EXPECT_EQ(invokeRet.statusCode, 404);
+}
+
+/// @test
 /// End-to-end test for notification subscription
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, notification_subscription)
