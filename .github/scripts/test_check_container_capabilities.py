@@ -93,10 +93,15 @@ def test_the_real_probes_answer_without_raising():
     """They read the machine, so they must not throw on a platform lacking either.
 
     Windows has no resource module and macOS no RLIMIT_RTPRIO; both run this suite.
+
+    "restricted" is for a kernel policy rather than a container grant: at
+    ptrace_scope=1 tracing still works through prctl(PR_SET_PTRACER), so calling it
+    absent would say a feature cannot work when it can. This test only passed on macOS
+    before that state existed, because Yama is not loaded there.
     """
     for name, probe in cap.CAPABILITIES.items():
         state, detail = probe()
-        assert state in {"granted", "absent", "unavailable"}, name
+        assert state in {"granted", "absent", "restricted", "unavailable"}, name
         assert detail
 
 
