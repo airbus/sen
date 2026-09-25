@@ -9,12 +9,8 @@
 
 import importlib
 import sys
-import types
 from pathlib import Path
 
-# Generated modules import yaml, but this fixture only needs their dataclass definitions.
-# TODO SEN-1844 remove unused yaml import
-sys.modules.setdefault("yaml", types.ModuleType("yaml"))
 generated_module = importlib.import_module("generated_python")
 generated_config_type = generated_module.GeneratedConfig
 config = generated_config_type(enabled=True, name="generated-by-sen_generate_yaml")

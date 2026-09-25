@@ -73,7 +73,6 @@ struct SomeOtherStruct
 Sen will generate a Python file with the following definitions:
 
 ```python title="data.py"
-import yaml
 from dataclasses import dataclass
 from typing import Union, TypedDict, List, NewType
 from datetime import datetime, timedelta
