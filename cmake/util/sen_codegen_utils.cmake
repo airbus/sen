@@ -1151,6 +1151,13 @@ function(sen_generate_yaml)
     message(FATAL_ERROR "  sen_generate_yaml: no OUTPUT set")
   endif()
 
+  set(_python_path)
+  if(CMAKE_HOST_WIN32)
+    set(_path_separator "$<SEMICOLON>")
+  else()
+    set(_path_separator ":")
+  endif()
+
   foreach(_dep ${_arg_DEPS})
     get_property(
       _is_python
@@ -1166,8 +1173,7 @@ function(sen_generate_yaml)
       if(NOT _python_path)
         set(_python_path ${_gen_dir})
       else()
-        # TODO SEN-1845 fix windows PYTHONPATH separators
-        set(_python_path ${_python_path}:${_gen_dir})
+        set(_python_path "${_python_path}${_path_separator}${_gen_dir}")
       endif()
     endif()
   endforeach()
@@ -1190,7 +1196,7 @@ function(sen_generate_yaml)
       DEPENDS ${_arg_DEPS} ${_arg_SCRIPT}
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
       COMMENT "Checking sen python config file ${_arg_SCRIPT}"
-      VERBATIM COMMAND_EXPAND_LISTS
+      VERBATIM
     )
   endif()
 
@@ -1200,7 +1206,7 @@ function(sen_generate_yaml)
     DEPENDS ${_arg_DEPS} ${_arg_SCRIPT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     COMMENT "Generating sen config file"
-    VERBATIM COMMAND_EXPAND_LISTS
+    VERBATIM
   )
 
   if(_mypy_exec)
