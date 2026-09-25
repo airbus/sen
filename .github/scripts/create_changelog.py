@@ -35,6 +35,11 @@ TYPE_MAP = {
 # the notes: dropping them silently is how a release ships with commits nobody listed.
 UNPARSED_SECTION = "🧾 Other"
 
+# Work a reader of the release notes did not ask about. It is not dropped, because the
+# effort is real and countable, but it goes below what they came for and starts folded:
+# one release put 89 pipeline entries and 40 test entries above the fixes.
+INTERNAL_TYPES = ("ci", "test", "chore")
+
 TITLE_PATTERN = re.compile(r"^(?P<type>\w+)(?:[(\[](?P<scope>[^)\]]+)[)\]])?(?P<breaking>!)?: (?P<subject>.+)")
 
 COMMIT_SEPARATOR = "---END---"
@@ -156,12 +161,32 @@ def build_changelog(commits: list[str]) -> str:
         sections.append("")
 
     for commit_type, section_title in list(TYPE_MAP.items()) + [(UNPARSED_SECTION, UNPARSED_SECTION)]:
-        if commit_type in groups:
+        if commit_type in groups and commit_type not in INTERNAL_TYPES:
             sections.append(f"### {section_title}")
             sections.extend(f"- {message}" for message in groups[commit_type])
             sections.append("")
 
+    sections.extend(folded_internal_sections(groups))
+
     return "\n".join(sections)
+
+
+def folded_internal_sections(groups: "defaultdict[str, list[str]]") -> list[str]:
+    """Renders the internal sections inside a collapsed block, or nothing if there are none."""
+    present = [commit_type for commit_type in INTERNAL_TYPES if commit_type in groups]
+    if not present:
+        return []
+
+    total = sum(len(groups[commit_type]) for commit_type in present)
+    plural = "change" if total == 1 else "changes"
+    # The blank lines are load-bearing: without them the markdown inside renders as text.
+    lines = [f"<details><summary>{total} internal {plural} to the pipeline, tests and chores</summary>", ""]
+    for commit_type in present:
+        lines.append(f"### {TYPE_MAP[commit_type]}")
+        lines.extend(f"- {message}" for message in groups[commit_type])
+        lines.append("")
+    lines.extend(["</details>", ""])
+    return lines
 
 
 def main() -> int:
