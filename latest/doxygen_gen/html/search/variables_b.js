@@ -12,7 +12,8 @@ var searchData=
   ['methodhashseed_9',['methodHashSeed',['../group__hash.html#ga5b2ca3d331a361818d14bd7960027f80',1,'sen']]],
   ['min_10',['min',['../group__lang.html#a6207bc5c2ac150284b5c90458082b453',1,'sen::lang::StlBetweenExpr']]],
   ['minvalue_11',['minValue',['../structsen_1_1_quantity_spec.html#a12b1956aa26550ca198e42f888ef22c7',1,'sen::QuantitySpec']]],
-  ['mod_12',['mod',['../structsen_1_1_has_operator.html#a2cdaa9c08b1777118b55eb09d72ef05a',1,'sen::HasOperator']]],
-  ['mode_13',['mode',['../group__db.html#a2193cb22d2fa2ca90e8559264af299e5',1,'sen::db::RecordingMergeSettings']]],
-  ['mul_14',['mul',['../structsen_1_1_has_operator.html#aa3e36d90360e4177c06008e73e911eda',1,'sen::HasOperator']]]
+  ['missedframecount_12',['missedFrameCount',['../namespacesen_1_1kernel.html#a9caffe2e8af0440f0b8ff513991be969',1,'sen::kernel::ComponentMonitoringInfo']]],
+  ['mod_13',['mod',['../structsen_1_1_has_operator.html#a2cdaa9c08b1777118b55eb09d72ef05a',1,'sen::HasOperator']]],
+  ['mode_14',['mode',['../group__db.html#a2193cb22d2fa2ca90e8559264af299e5',1,'sen::db::RecordingMergeSettings']]],
+  ['mul_15',['mul',['../structsen_1_1_has_operator.html#aa3e36d90360e4177c06008e73e911eda',1,'sen::HasOperator']]]
 ];

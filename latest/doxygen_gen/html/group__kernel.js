@@ -82,6 +82,7 @@ var group__kernel =
       [ "getStartTime", "classsen_1_1kernel_1_1_run_api.html#a0719c5ccf817c65950d3bb775346426a", null ],
       [ "getTime", "classsen_1_1kernel_1_1_run_api.html#af88ecc473e1a083867eb7365b28ce39c", null ],
       [ "getTargetCycleTime", "classsen_1_1kernel_1_1_run_api.html#a7f33c2a56c647d13dc36a8a2f0dd0c68", null ],
+      [ "fetchComponentMonitoringInfo", "classsen_1_1kernel_1_1_run_api.html#a2cd4c954de8cd15584de39a516f21c47", null ],
       [ "fetchMonitoringInfo", "classsen_1_1kernel_1_1_run_api.html#aa1af91117136c21134b1f78974e4d748", null ],
       [ "getImportedPackages", "classsen_1_1kernel_1_1_run_api.html#a07ccd2f2f02b6a462ab4646f47ddf354", null ],
       [ "getLoadedComponents", "classsen_1_1kernel_1_1_run_api.html#a04fd5437525eecb68fa9dc6f450da659", null ],

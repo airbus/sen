@@ -316,6 +316,66 @@ cycleTime</td>
 objectCount = 0</td>
 <td class="fielddoc">
 </td></tr>
+<tr><td class="fieldtype">
+<a id="a07fb2b62f8d6209d5c5ac0a83d35b90c" name="a07fb2b62f8d6209d5c5ac0a83d35b90c"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+lastCycleExecutionCpuTime</td>
+<td class="fielddoc">
+Thread CPU time, user and system, consumed by the last completed execution cycle. On Windows every CPU time here is quantised to the system clock tick, 15.6 ms by default, so for a shorter period than that these figures say very little. </td></tr>
+<tr><td class="fieldtype">
+<a id="a724b54c9a7ebdd5868cfeb696a913612" name="a724b54c9a7ebdd5868cfeb696a913612"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+lastCycleComponentCpuTime</td>
+<td class="fielddoc">
+The part of that spent in the component's own code: its objects' update() and its work function. Its preDrain() and preCommit(), its commit-time event handlers and its discovery callbacks run outside this and are counted with Sen's. </td></tr>
+<tr><td class="fieldtype">
+<a id="a200624c611103898ba600c3fd1a55784" name="a200624c611103898ba600c3fd1a55784"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+lastCycleQueuedWorkCpuTime</td>
+<td class="fielddoc">
+The part of that spent on work queued on the component: the callbacks it registered, and serving the calls other components make on its objects. Serving a call is partly the component's method and partly Sen's transport, so it is reported on its own. </td></tr>
+<tr><td class="fieldtype">
+<a id="abc86b8df3f06f125fe74ef1051ff8c2b" name="abc86b8df3f06f125fe74ef1051ff8c2b"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+worstCycleExecutionCpuTime</td>
+<td class="fielddoc">
+The most CPU time any one cycle has used since the component started running, leaving out its first cycle, which carries the startup. A component that runs long once in a thousand cycles rarely has it in the last one. </td></tr>
+<tr><td class="fieldtype">
+<a id="a77f77968bca053d745cbf336a6062413" name="a77f77968bca053d745cbf336a6062413"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+worstCycleComponentCpuTime</td>
+<td class="fielddoc">
+The component's share of that same worst cycle, so the two can be compared. </td></tr>
+<tr><td class="fieldtype">
+<a id="a1bfe91bc7d6e857f051cd61692126a40" name="a1bfe91bc7d6e857f051cd61692126a40"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+lastCycleStartDelay</td>
+<td class="fielddoc">
+How late the thread woke for the cycle it was waiting for. The scheduler's contribution, kept apart from the component's. Negative if it woke early. Empty for the first cycle, and unless the component runs on the kernel's real-time loop. </td></tr>
+<tr><td class="fieldtype">
+<a id="a44d5cd94901b2f1cb240d380ce24ab96" name="a44d5cd94901b2f1cb240d380ce24ab96"></a>optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;</td>
+<td class="fieldname">
+worstStartDelay</td>
+<td class="fielddoc">
+The latest the thread has ever woken. A machine that is late once in a thousand cycles rarely has it in lastCycleStartDelay. </td></tr>
+<tr><td class="fieldtype">
+<a id="a53469c27af684bdafd039ee2273c2df9" name="a53469c27af684bdafd039ee2273c2df9"></a>optional&lt; uint64_t &gt;</td>
+<td class="fieldname">
+overrunCount</td>
+<td class="fielddoc">
+Cycles whose execution used more CPU time than the period. A cycle that blocked rather than computed does not appear here, it appears in missedFrameCount. A cycle that overruns also finishes past its slot, so missedFrameCount rises with it. Empty unless the component runs on the kernel's real-time loop. </td></tr>
+<tr><td class="fieldtype">
+<a id="a9caffe2e8af0440f0b8ff513991be969" name="a9caffe2e8af0440f0b8ff513991be969"></a>optional&lt; uint64_t &gt;</td>
+<td class="fieldname">
+missedFrameCount</td>
+<td class="fielddoc">
+Cycles lost because the work finished after the cycle it belonged to. Every lost cycle is counted, not the run of them. Wall time, so blocking counts, and so does a clock correction that moves the schedule forward. The first cycle is not counted: the schedule starts before the component has finished its own startup. Empty unless the component runs on the kernel's real-time loop. </td></tr>
+<tr><td class="fieldtype">
+<a id="a6c7ef6a6bf621218c8ffb94f72ae0694" name="a6c7ef6a6bf621218c8ffb94f72ae0694"></a>optional&lt; uint64_t &gt;</td>
+<td class="fieldname">
+oversleptCount</td>
+<td class="fielddoc">
+Cycles lost because the sleep returned late, so the component was not running when it should have been. Every lost cycle is counted, not the run of them. A wake-up late by less than a period loses no cycle here and shows up in missedFrameCount, so read lastCycleStartDelay before blaming the component. Empty unless it runs on the kernel's real-time loop. </td></tr>
 </table>
 
 </div>

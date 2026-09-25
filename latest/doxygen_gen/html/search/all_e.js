@@ -136,6 +136,8 @@ var searchData=
   ['outputstreamtemplate_133',['OutputStreamTemplate',['../classsen_1_1_output_stream_template.html',1,'sen::OutputStreamTemplate&lt; BufferEndian &gt;'],['../classsen_1_1_output_stream_template.html#a271d5199a17b25ed8222747d31dbb006',1,'sen::OutputStreamTemplate::OutputStreamTemplate()']]],
   ['outputstreamtemplate_3c_20littleendian_20_3e_134',['OutputStreamTemplate&lt; LittleEndian &gt;',['../classsen_1_1_output_stream_template.html',1,'sen']]],
   ['overloaded_135',['Overloaded',['../structsen_1_1_overloaded.html',1,'sen::Overloaded&lt; Ts &gt;'],['../group__templates.html#ga4985d8a6bfc253ea2a47228ca5336450',1,'sen::Overloaded(Ts...) -&gt; Overloaded&lt; Ts... &gt;']]],
-  ['overview_136',['overview',['../namespacesen_1_1gen.html#af680d81e6325c83f0ce8fd6b5be92a54',1,'sen::gen::TypstOptions']]],
-  ['ownerid_137',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]]
+  ['overruncount_136',['overrunCount',['../namespacesen_1_1kernel.html#a53469c27af684bdafd039ee2273c2df9',1,'sen::kernel::ComponentMonitoringInfo']]],
+  ['oversleptcount_137',['oversleptCount',['../namespacesen_1_1kernel.html#a6c7ef6a6bf621218c8ffb94f72ae0694',1,'sen::kernel::ComponentMonitoringInfo']]],
+  ['overview_138',['overview',['../namespacesen_1_1gen.html#af680d81e6325c83f0ce8fd6b5be92a54',1,'sen::gen::TypstOptions']]],
+  ['ownerid_139',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]]
 ];

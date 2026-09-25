@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1ke
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_run_api__inherit__graph.svg" width="395" height="770"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_run_api__inherit__graph.svg" width="395" height="690"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -166,8 +166,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:af88ecc473e1a083867eb7365b28ce39c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The (potentially virtualized) time.  <br /></td></tr>
 <tr class="memitem:a7f33c2a56c647d13dc36a8a2f0dd0c68" id="r_a7f33c2a56c647d13dc36a8a2f0dd0c68"><td class="memItemLeft">std::optional&lt; <a class="el" href="classsen_1_1_duration.html">Duration</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a7f33c2a56c647d13dc36a8a2f0dd0c68">getTargetCycleTime</a> () const noexcept</td></tr>
 <tr class="memdesc:a7f33c2a56c647d13dc36a8a2f0dd0c68"><td class="mdescLeft">&#160;</td><td class="mdescRight">If present, it returns the configured cycle time for iterations.  <br /></td></tr>
+<tr class="memitem:a2cd4c954de8cd15584de39a516f21c47" id="r_a2cd4c954de8cd15584de39a516f21c47"><td class="memItemLeft"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">ComponentMonitoringInfo</a>&#160;</td><td class="memItemRight"><a class="el" href="#a2cd4c954de8cd15584de39a516f21c47">fetchComponentMonitoringInfo</a> () const</td></tr>
+<tr class="memdesc:a2cd4c954de8cd15584de39a516f21c47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoring information of the calling component.  <br /></td></tr>
 <tr class="memitem:aa1af91117136c21134b1f78974e4d748" id="r_aa1af91117136c21134b1f78974e4d748"><td class="memItemLeft"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info">KernelMonitoringInfo</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa1af91117136c21134b1f78974e4d748">fetchMonitoringInfo</a> () const</td></tr>
-<tr class="memdesc:aa1af91117136c21134b1f78974e4d748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoring information.  <br /></td></tr>
+<tr class="memdesc:aa1af91117136c21134b1f78974e4d748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoring information of all components loaded by the kernel.  <br /></td></tr>
 <tr class="memitem:a07ccd2f2f02b6a462ab4646f47ddf354" id="r_a07ccd2f2f02b6a462ab4646f47ddf354"><td class="memItemLeft"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const ComponentInfo &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a07ccd2f2f02b6a462ab4646f47ddf354">getImportedPackages</a> () const noexcept</td></tr>
 <tr class="memdesc:a07ccd2f2f02b6a462ab4646f47ddf354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build information for all imported packages (from pipeline components). The returned span references kernel-owned storage that is stable for the lifetime of the kernel.  <br /></td></tr>
 <tr class="memitem:a04fd5437525eecb68fa9dc6f450da659" id="r_a04fd5437525eecb68fa9dc6f450da659"><td class="memItemLeft"><a class="el" href="classsen_1_1_span.html">Span</a>&lt; const ComponentInfo &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a04fd5437525eecb68fa9dc6f450da659">getLoadedComponents</a> () const noexcept</td></tr>
@@ -499,6 +501,33 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a2cd4c954de8cd15584de39a516f21c47" name="a2cd4c954de8cd15584de39a516f21c47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cd4c954de8cd15584de39a516f21c47">&#9670;&#160;</a></span>fetchComponentMonitoringInfo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">ComponentMonitoringInfo</a> sen::kernel::RunApi::fetchComponentMonitoringInfo </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Monitoring information of the calling component. </p>
+
+</div>
+</div>
 <a id="aa1af91117136c21134b1f78974e4d748" name="aa1af91117136c21134b1f78974e4d748"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa1af91117136c21134b1f78974e4d748">&#9670;&#160;</a></span>fetchMonitoringInfo()</h2>
 
@@ -522,7 +551,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Monitoring information. </p>
+<p>Monitoring information of all components loaded by the kernel. </p>
 
 </div>
 </div>

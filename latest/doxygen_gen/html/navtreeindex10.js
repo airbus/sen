@@ -1,5 +1,6 @@
 var NAVTREEINDEX10 =
 {
+"classsen_1_1util_1_1_settable_dead_reckoner.html#a60def4bd6cc60023f5084647cfc5ab45":[0,2,0,16,0],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a671173e1653705727f37b3e72648760a":[0,2,0,16,11],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a68b2fb72e0c00bea42bb18adf2c2990e":[0,2,0,16,18],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a6cbd0d97dbc47c0f226c07360b37a1b9":[0,2,0,16,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX10 =
 "functions_d.html":[2,3,0,3],
 "functions_e.html":[2,3,0,4],
 "functions_enum.html":[2,3,4],
-"functions_f.html":[2,3,0,5],
-"functions_func.html":[2,3,1]
+"functions_f.html":[2,3,0,5]
 };
