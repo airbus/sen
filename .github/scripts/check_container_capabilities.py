@@ -25,6 +25,7 @@ silently -- which is the only thing that makes the grant worth having.
 import argparse
 import os
 import sys
+from pathlib import Path
 
 try:
     import resource
@@ -32,6 +33,10 @@ except ImportError:  # Windows has no resource module, and is a supported develo
     resource = None  # type: ignore[assignment]
 
 CPU_DMA_LATENCY = "/dev/cpu_dma_latency"
+YAMA_PTRACE_SCOPE = "/proc/sys/kernel/yama/ptrace_scope"
+PROC_SELF_STATUS = "/proc/self/status"
+# CAP_SYS_PTRACE is bit 19 of the capability mask /proc/self/status reports as hex.
+CAP_SYS_PTRACE_BIT = 19
 
 
 def real_time_priority() -> tuple[str, str]:
@@ -69,9 +74,55 @@ def cpu_dma_latency() -> tuple[str, str]:
     return "granted", f"{CPU_DMA_LATENCY} is writable"
 
 
+def yama_ptrace_scope() -> tuple[str, str]:
+    """What Yama allows, distinguishing "not loaded" from "loaded and unrestricted".
+
+    Those two permit the same things and are different facts. A container whose kernel
+    never loaded Yama has no file at all, and a process there can call
+    prctl(PR_SET_PTRACER) and have it fail harmlessly; where Yama is loaded that call is
+    what makes tracing work. Reporting the absent case as 0 would erase the difference
+    between an environment that cannot restrict tracing and one that has chosen not to.
+    """
+    try:
+        scope = Path(YAMA_PTRACE_SCOPE).read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        return "unavailable", "no Yama LSM here, so nothing restricts tracing"
+    except OSError as error:
+        return "unavailable", f"{YAMA_PTRACE_SCOPE} could not be read: {error}"
+
+    meaning = {
+        "0": "unrestricted",
+        "1": "a tracer must be an ancestor, or the tracee must call prctl(PR_SET_PTRACER)",
+        "2": "only a process holding CAP_SYS_PTRACE may trace",
+        "3": "no tracing at all",
+    }.get(scope, "unrecognised value")
+    return "granted" if scope == "0" else "restricted", f"ptrace_scope is {scope}: {meaning}"
+
+
+def sys_ptrace() -> tuple[str, str]:
+    """Whether this process actually holds CAP_SYS_PTRACE, not whether it was asked for.
+
+    The effective set is what matters: --cap-add puts a capability in the bounding set,
+    and a non-root user never gains it from there.
+    """
+    try:
+        status = Path(PROC_SELF_STATUS).read_text(encoding="utf-8")
+    except OSError:
+        return "unavailable", "not a Linux container"
+
+    for line in status.splitlines():
+        if line.startswith("CapEff:"):
+            effective = int(line.split()[1], 16)
+            held = bool(effective & (1 << CAP_SYS_PTRACE_BIT))
+            return ("granted", "CAP_SYS_PTRACE is held") if held else ("absent", "CAP_SYS_PTRACE is not held")
+    return "unavailable", f"{PROC_SELF_STATUS} reported no CapEff line"
+
+
 CAPABILITIES = {
     "rtprio": real_time_priority,
     "cpu_dma_latency": cpu_dma_latency,
+    "yama_ptrace_scope": yama_ptrace_scope,
+    "sys_ptrace": sys_ptrace,
 }
 
 

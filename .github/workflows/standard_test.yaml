@@ -239,6 +239,19 @@ jobs:
           echo "SEN_ETHER_BUS_MULTICAST_PORT=30985" >> "$GITHUB_ENV"
           echo "SEN_ETHER_DISCOVERY_PORT=40543" >> "$GITHUB_ENV"
 
+      # What the container granted, printed on every run rather than inferred from a
+      # failure. A feature that needs a permission takes its fallback path without one
+      # and the lane goes green over the fallback, which is what this makes visible.
+      # Reporting only: nothing here is required yet, and requiring what we do not grant
+      # would fail every leg.
+      - name: Report what the container granted
+        if: ${{ matrix.ci_image != '' }}
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          python3 .github/scripts/check_container_capabilities.py
+          IN
+
       - name: Run tests
         if: ${{ !matrix.enable_coverage }}
         # The suite runs in minutes. The bound is for what happens after it: a
