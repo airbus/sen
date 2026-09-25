@@ -196,4 +196,32 @@ set(CPACK_RPM_PACKAGE_DESCRIPTION "For more information about Sen please visit t
 # This seems to be some Fedora feature also enabled by default for Debian rpmbuild (as of Debian 12)
 set(CPACK_RPM_SPEC_MORE_DEFINE "%define _build_id_links none")
 
+# The debug information is split out of the installed binaries instead of shipping inside
+# them: what ships keeps the same code and loses the sections describing it, and those go to
+# a file named by the binary's build id, which is how a debugger finds them again. Windows
+# needs no split, since MSVC already writes a .pdb, but the .pdb still has to leave the tree
+# that gets packaged, which is the same rule doing the same job.
+#
+# Registered here, in the top-level directory, because CMake runs subdirectory install rules
+# before the top-level ones, so every binary is in place by the time this runs.
+if(SEN_RELEASE_SYMBOLS)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  file(WRITE "${CMAKE_BINARY_DIR}/symbols/archive-name" "${CPACK_PACKAGE_FILE_NAME}-symbols")
+  install(
+    CODE "
+      if(\"\${CMAKE_INSTALL_CONFIG_NAME}\" STREQUAL \"Release\")
+        execute_process(
+          COMMAND \"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_LIST_DIR}/split_debug_symbols.py\"
+                  \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_BINARY_DIR}/symbols\"
+                  --objcopy \"${CMAKE_OBJCOPY}\"
+          RESULT_VARIABLE sen_split_result
+        )
+        if(NOT sen_split_result EQUAL 0)
+          message(FATAL_ERROR \"splitting debug symbols failed: \${sen_split_result}\")
+        endif()
+      endif()
+    "
+  )
+endif()
+
 include(CPack)

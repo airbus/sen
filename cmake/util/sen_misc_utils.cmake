@@ -665,10 +665,18 @@ function(sen_configure_target target_name)
         /bigobj
         "$<$<CONFIG:Debug>:/MDd;/Od;/RTC1>"
         "$<$<CONFIG:Release>:/O2;/Ox;/Ob2;/MD;/GR;/c>"
+        # /Z7 rather than /Zi: debug information goes into the objects, so the compiler
+        # cache still stores them. sen_utils.cmake warns when a program database is used.
+        "$<$<AND:$<CONFIG:Release>,$<BOOL:${SEN_RELEASE_SYMBOLS}>>:/Z7>"
     )
 
     # disable manifest generation
     target_link_options(${target_name} PRIVATE /MANIFEST:NO)
+    # /Z7 puts debug information in the objects; the linker still needs telling to
+    # collect it into a .pdb, which Release otherwise never asks for.
+    if(SEN_RELEASE_SYMBOLS)
+      target_link_options(${target_name} PRIVATE $<$<CONFIG:Release>:/DEBUG>)
+    endif()
   else()
 
     # -Og with compressed debug info builds smaller and runs faster than -O0, at the
@@ -705,6 +713,9 @@ function(sen_configure_target target_name)
         -fPIC
         "$<$<CONFIG:Debug>:${debug_options_};-fno-omit-frame-pointer>"
         "$<$<CONFIG:Release>:-O3>"
+        # Adding -g does not change the generated code, only the sections beside it,
+        # which install then splits into a separate file and strips back out.
+        "$<$<AND:$<CONFIG:Release>,$<BOOL:${SEN_RELEASE_SYMBOLS}>>:-g>"
     )
 
     set(common_linker_options_ -Wno-undef)

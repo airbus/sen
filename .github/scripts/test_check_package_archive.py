@@ -193,3 +193,36 @@ def test_symbols_are_only_required_where_they_live_outside_the_binary(tmp_path):
     """Linux embeds them, so the same archive without a .pdb is complete there."""
     stem = "sen-0.6.0-x86_64-linux-gnu-12.4.0-relwithdebinfo"
     assert check_archive(write_archive(tmp_path, stem, LINUX_MEMBERS)) == []
+
+
+SYMBOLS_STEM = "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-release-symbols"
+WINDOWS_SYMBOLS_STEM = "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0-release-symbols"
+
+# What the split produces: debug files named by build id, under the layout gdb searches.
+SYMBOLS_MEMBERS = (
+    "lib/debug/.build-id/51/58f1b0c6173b8f111723b3249990f8bd51ddc6.debug",
+    "lib/debug/.build-id/54/0aee9a88d3f2be1f2dbd93a0f77a5a0e18b1c2.debug",
+)
+
+
+def test_a_symbols_archive_passes(tmp_path):
+    """It holds debug information and no program, so the usual entries do not apply."""
+    assert check_archive(write_archive(tmp_path, SYMBOLS_STEM, SYMBOLS_MEMBERS)) == []
+
+
+def test_a_windows_symbols_archive_passes(tmp_path):
+    """The same archive on Windows carries .pdb files instead."""
+    archive = write_archive(tmp_path, WINDOWS_SYMBOLS_STEM, ("bin/core.pdb", "bin/sen.pdb"), ".zip")
+    assert check_archive(archive) == []
+
+
+def test_a_symbols_archive_carrying_no_symbols_is_rejected(tmp_path):
+    """The gap this closes: packaging an empty symbols directory would otherwise pass."""
+    problems = check_archive(write_archive(tmp_path, SYMBOLS_STEM, ("lib/debug/README",)))
+    assert problems == ["missing entry: debug information (no .debug or .pdb entry)"]
+
+
+def test_a_symbols_archive_is_not_asked_for_a_program(tmp_path):
+    """Applying the release checks to it would reject every valid symbols archive."""
+    problems = check_archive(write_archive(tmp_path, SYMBOLS_STEM, SYMBOLS_MEMBERS))
+    assert not any("bin/sen" in problem or "shared library" in problem for problem in problems)

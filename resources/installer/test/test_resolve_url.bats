@@ -206,3 +206,46 @@ EOF
     resolve_url "0.5.2" "" "0"
     [ "$SENV_RESOLVED_USED_MENU" = "0" ]
 }
+
+# The fixture here is the asset list a release actually published, so these pin the
+# resolution against the real names and not against names invented for a test.
+
+@test "resolve_url: --symbols picks the release build's own debug information" {
+    load_install
+    SEN_HOST_ARCH=x86_64
+    SEN_HOST_OS=linux
+    mock_curl_resolve "$(fixture_path release-full-set.json)"
+    SENV_BUILD_TYPE=release-symbols
+    resolve_url "0.0.0-rc1" "" "0"
+    [[ "$SENV_RESOLVED_URL" == *"-release-symbols.tar.gz" ]]
+}
+
+@test "resolve_url: --debug picks the unoptimised build" {
+    load_install
+    SEN_HOST_ARCH=x86_64
+    SEN_HOST_OS=linux
+    mock_curl_resolve "$(fixture_path release-full-set.json)"
+    SENV_BUILD_TYPE=debug
+    resolve_url "0.0.0-rc1" "" "0"
+    [[ "$SENV_RESOLVED_URL" == *"-debug.tar.gz" ]]
+}
+
+@test "resolve_url: a plain run does not pick up the symbols archive" {
+    load_install
+    SEN_HOST_ARCH=x86_64
+    SEN_HOST_OS=linux
+    mock_curl_resolve "$(fixture_path release-full-set.json)"
+    resolve_url "0.0.0-rc1" "" "0"
+    [[ "$SENV_RESOLVED_URL" == *"-release.tar.gz" ]]
+    [[ "$SENV_RESOLVED_URL" != *"symbols"* ]]
+}
+
+@test "resolve_url: --debug does not settle for relwithdebinfo" {
+    load_install
+    SEN_HOST_ARCH=x86_64
+    SEN_HOST_OS=linux
+    mock_curl_resolve "$(fixture_path release-full-set.json)"
+    SENV_BUILD_TYPE=debug
+    resolve_url "0.0.0-rc1" "" "0"
+    [[ "$SENV_RESOLVED_URL" != *"relwithdebinfo"* ]]
+}
