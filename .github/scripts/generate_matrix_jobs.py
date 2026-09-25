@@ -202,7 +202,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic GCC (debug build)",
-            os="ubuntu-22.04",
             runner="ubuntu-22.04",
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
