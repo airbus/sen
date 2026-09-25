@@ -28,7 +28,6 @@ class JobSpecification:
     """Pipeline job specification that defines the configuration options."""
 
     name: str
-    os: str
     runner: tp.Literal["ubuntu-latest", "ubuntu-22.04", "ubuntu-24.04", "windows-2022", "ubuntu-24.04-arm"]
     compiler: Compiler
     arch: tp.Literal["x86", "arm"]
@@ -87,7 +86,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic GCC",
-            os="ubuntu-22.04",
             runner="ubuntu-22.04",
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
@@ -106,7 +104,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic GCC",
-            os="ubuntu-22.04",
             runner="ubuntu-22.04",
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
@@ -128,7 +125,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic Clang",
-            os="ubuntu-24.04",
             runner="ubuntu-24.04",
             compiler=Compiler(name="clang", version=20, cc="clang-20", cxx="clang++-20"),
             arch="x86",
@@ -148,7 +144,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic Windows",
-            os="windows",
             runner="windows-2022",
             compiler=Compiler(name="msvc", version=194, cc="cl", cxx="cl"),
             arch="x86",
@@ -167,7 +162,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic Ubuntu arm",
-            os="ubuntu-24.04",
             runner="ubuntu-24.04-arm",
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="arm",
@@ -187,7 +181,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic GCC (debug information)",
-            os="ubuntu-22.04",
             runner="ubuntu-22.04",
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
@@ -206,7 +199,6 @@ SPECIFIED_JOBS = [
     JobSelector(
         job_spec=JobSpecification(
             name="Basic Windows (debug information)",
-            os="windows-2022",
             runner="windows-2022",
             compiler=Compiler(name="msvc", version=194, cc="cl", cxx="cl"),
             arch="x86",

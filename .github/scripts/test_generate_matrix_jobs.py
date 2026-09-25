@@ -98,7 +98,6 @@ def test_invalid_literal_value_is_rejected():
     with pytest.raises(ValueError, match="runner="):
         JobSpecification(
             name="Bad",
-            os="ubuntu-22.04",
             runner="self-hosted",  # the retired datacenter runner's label
             compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
             arch="x86",
@@ -128,7 +127,7 @@ def test_container_tests_run_on_the_x86_gcc_legs():
 def test_release_legs_build_examples():
     """Every release leg builds the examples, Windows included."""
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
-    assert [job for job in jobs if job.os == "windows"]
+    assert [job for job in jobs if job.compiler.name == "msvc"]
     assert all(job.enable_examples for job in jobs)
 
 
@@ -151,14 +150,13 @@ def test_each_operating_system_checks_its_package():
 def test_standard_test_specs_in_full():
     """Pins every field of every standard-test leg, not just the identifying ones.
 
-    The fields left out of job_keys are load-bearing: os feeds the cache keys
-    and cxx is exported as the compiler.
+    The fields left out of job_keys are load-bearing: cxx is exported as the
+    compiler, and runtime_base registers the container suite.
     """
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     assert [job.as_json() for job in jobs] == [
         {
             "name": "Basic Clang",
-            "os": "ubuntu-24.04",
             "runner": "ubuntu-24.04",
             "compiler": {"name": "clang", "version": 20, "cc": "clang-20", "cxx": "clang++-20"},
             "arch": "x86",
@@ -172,7 +170,6 @@ def test_standard_test_specs_in_full():
         },
         {
             "name": "Basic GCC",
-            "os": "ubuntu-22.04",
             "runner": "ubuntu-22.04",
             "compiler": {"name": "gcc", "version": 12, "cc": "gcc-12", "cxx": "g++-12"},
             "arch": "x86",
@@ -186,7 +183,6 @@ def test_standard_test_specs_in_full():
         },
         {
             "name": "Basic GCC",
-            "os": "ubuntu-22.04",
             "runner": "ubuntu-22.04",
             "compiler": {"name": "gcc", "version": 12, "cc": "gcc-12", "cxx": "g++-12"},
             "arch": "x86",
@@ -200,7 +196,6 @@ def test_standard_test_specs_in_full():
         },
         {
             "name": "Basic Ubuntu arm",
-            "os": "ubuntu-24.04",
             "runner": "ubuntu-24.04-arm",
             "compiler": {"name": "gcc", "version": 12, "cc": "gcc-12", "cxx": "g++-12"},
             "arch": "arm",
@@ -214,7 +209,6 @@ def test_standard_test_specs_in_full():
         },
         {
             "name": "Basic Windows",
-            "os": "windows",
             "runner": "windows-2022",
             "compiler": {"name": "msvc", "version": 194, "cc": "cl", "cxx": "cl"},
             "arch": "x86",
