@@ -31,6 +31,7 @@
 #include "sen/core/meta/time_types.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_visitor.h"
+#include "sen/core/meta/variant_traits.h"
 #include "sen/core/meta/variant_type.h"
 
 // inja
@@ -94,6 +95,14 @@ protected:
 
   void apply(const sen::CustomType& type) final
   {
+    if (type == *sen::MetaTypeTrait<std::monostate>::meta())
+    {
+      absolute_ = "std::monostate";
+      relative_ = absolute_;
+      stlRelative_ = type.getQualifiedName();
+      return;
+    }
+
     std::string typeNamespace {type.getQualifiedName()};
 
     auto lastDot = typeNamespace.find_last_of('.');
@@ -222,7 +231,10 @@ protected:
     result_ = "str";
   }
 
-  void apply(const sen::CustomType& type) final { result_ = type.getName(); }
+  void apply(const sen::CustomType& type) final
+  {
+    result_ = type == *sen::MetaTypeTrait<std::monostate>::meta() ? "dict" : type.getName();
+  }
 
 private:
   explicit PythonAnnotationName() = default;
@@ -299,7 +311,10 @@ protected:
     result_ = "string";
   }
 
-  void apply(const sen::CustomType& type) final { result_ = type.getName(); }
+  void apply(const sen::CustomType& type) final
+  {
+    result_ = type == *sen::MetaTypeTrait<std::monostate>::meta() ? "Record<string, never>" : type.getName();
+  }
 
 private:
   explicit TsAnnotationName() = default;
@@ -379,6 +394,12 @@ protected:
 
   void apply(const sen::CustomType& type) final
   {
+    if (type == *sen::MetaTypeTrait<std::monostate>::meta())
+    {
+      result_ = R"("type": "object", "maxProperties": 0)";
+      return;
+    }
+
     // Absolute $ref: resolves against a consumer-side `$id` registry.
     result_ = R"("$ref": ")";
     result_.append(type.getQualifiedName());

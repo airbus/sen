@@ -92,6 +92,13 @@ set(obj_tests
     obj/gen_test.cpp
 )
 
+add_library(core_test_fom_generated OBJECT)
+sen_generate_cpp(
+  TARGET core_test_fom_generated
+  HLA_FOM_DIRS ${PROJECT_SOURCE_DIR}/examples/packages/hla_fom/rpr
+  HLA_OUTPUT_DIR hla_fom
+)
+
 add_library(core_test_io_generated OBJECT)
 sen_generate_cpp(
   TARGET core_test_io_generated
@@ -130,6 +137,7 @@ add_sen_unit_test_suite(
   PRIVATE
   cpptrace::cpptrace
   nlohmann_json::nlohmann_json
+  core_test_fom_generated
   core_test_io_generated
   core_test_meta_generated
   core_test_obj_generated
