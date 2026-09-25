@@ -7,7 +7,7 @@
 
 include(tps/cli11)
 
-add_executable(cli_archive main.cpp)
+add_executable(cli_archive cli_archive_setup.cpp main.cpp)
 
 target_link_libraries(
   cli_archive
