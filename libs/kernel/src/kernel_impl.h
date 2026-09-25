@@ -39,6 +39,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <shared_mutex>
 #include <vector>
 
 namespace sen::kernel::impl
@@ -81,7 +82,8 @@ public:
   /// The kernel object that is being implemented
   [[nodiscard]] Kernel& getSubject() noexcept { return subject_; }
 
-  /// The runners of the kernel
+  /// The runners of the kernel. It hands out the vector and takes no lock, so it is only for
+  /// callers that run once configure() has appended the last runner.
   [[nodiscard]] const std::vector<std::unique_ptr<Runner>>& getRunners() const noexcept { return runners_; }
 
   /// The internal logger used by all kernel components
@@ -168,6 +170,12 @@ private:
   Kernel& subject_;
   kernel::PluginManager pluginManager_;
   mutable std::recursive_mutex usageMutex_;
+
+  // runners_ is appended to while the kernel configures itself and never afterwards, but another
+  // thread can ask for monitoring at any time. usageMutex_ cannot serve both: doStop holds it
+  // across the join of the component threads, so a reader waiting on it never returns. Taken
+  // around the appends and by fetchMonitoringInfo; every other reader runs after configure().
+  mutable std::shared_mutex runnersMutex_;
   std::vector<std::unique_ptr<Runner>> runners_;
   std::vector<Runner*> virtualTimeRunners_;
   std::vector<std::future<void>> virtualTimeRunnersFutures_;
@@ -255,25 +263,16 @@ inline Duration KernelImpl::computeNextExecutionDeltaTime() const
 
 inline KernelMonitoringInfo KernelImpl::fetchMonitoringInfo() const
 {
-  Lock lock(usageMutex_);
-
   KernelMonitoringInfo result;
   result.runMode = config_.getParams().runMode;
-  result.components.reserve(runners_.size());
   result.transportStats = sessionManager_.fetchTransportStats();
 
+  const std::shared_lock runnersLock(runnersMutex_);
+
+  result.components.reserve(runners_.size());
   for (const auto& runner: runners_)
   {
-    const auto& context = runner->getComponentContext();
-
-    ComponentMonitoringInfo monitoringInfo;
-    monitoringInfo.name = context.info.name;
-    monitoringInfo.group = context.config.group;
-    monitoringInfo.requiresRealTime = context.instance->isRealTimeOnly();
-    monitoringInfo.objectCount = runner->getObjectCount();
-    monitoringInfo.cycleTime = runner->getCycleTime();
-
-    result.components.emplace_back(std::move(monitoringInfo));
+    result.components.emplace_back(runner->fetchMonitoringInfo());
   }
   return result;
 }

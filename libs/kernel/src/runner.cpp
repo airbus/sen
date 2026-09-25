@@ -42,6 +42,7 @@
 
 // std
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <exception>
@@ -57,8 +58,8 @@
 #include <variant>
 
 // OS
-#ifdef __linux__
-#  include <sys/resource.h>
+#if defined(__unix__) || defined(__APPLE__)
+#  include <ctime>
 #endif
 
 //--------------------------------------------------------------------------------------------------------------
@@ -105,34 +106,42 @@ void terminateIfError(const R& result, const char* operation, const ComponentCon
   }
 }
 
-[[nodiscard]] NanoSecs getThreadCpuUserTime() noexcept
+}  // namespace
+
+/// The calling thread's CPU time, user and system together. System time counts because it comes
+/// out of the same period: writing to the transport uses the cycle up like computing does.
+[[nodiscard]] NanoSecs getThreadCpuTime() noexcept
 {
 #if defined(__unix__) || defined(__APPLE__)
-  rusage usage;  // NOLINT(misc-include-cleaner)
-#  if defined(__linux__)
-  getrusage(RUSAGE_THREAD, &usage);
-#  elif defined(__APPLE__)
-  getrusage(RUSAGE_SELF, &usage);
-#  endif
-  return std::chrono::seconds(usage.ru_utime.tv_sec) + std::chrono::microseconds(usage.ru_utime.tv_usec);
+  // Per thread on every platform. getrusage has no thread scope on macOS, where it can only
+  // answer for the whole process.
+  timespec threadTime {};
+  // NOLINTNEXTLINE(misc-include-cleaner) POSIX declares it, and <time.h> is deprecated in C++
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &threadTime);
+  return std::chrono::seconds(threadTime.tv_sec) + std::chrono::nanoseconds(threadTime.tv_nsec);
 #elif defined(_WIN32)
-  FILETIME creation;
-  FILETIME exitTime;
-  FILETIME kernelTime;
-  FILETIME usrTime;
-  GetThreadTimes(GetCurrentThread(), &creation, &exitTime, &kernelTime, &usrTime);
+  FILETIME creation {};
+  FILETIME exitTime {};
+  FILETIME kernelTime {};
+  FILETIME usrTime {};
+  if (GetThreadTimes(GetCurrentThread(), &creation, &exitTime, &kernelTime, &usrTime) == 0)
+  {
+    return NanoSecs {0};
+  }
 
-  // convert 100-ns intervals to microseconds and then
-  // adjust for the epoch difference (1601-01-01 00:00:00 UTC vs 1970-01-01 00:00:00 UTC)
-  const auto high = static_cast<uint64_t>(usrTime.dwHighDateTime);
-  const auto low = static_cast<uint64_t>(usrTime.dwLowDateTime);
-  return std::chrono::microseconds((((high << 32) | low) / 10) - 11644473600000000ull);  // NOLINT
+  // These two are elapsed durations in 100-nanosecond units, not absolute times, so no epoch
+  // adjustment applies to them.
+  const auto toNanoSecs = [](const FILETIME& value)
+  {
+    const auto high = static_cast<uint64_t>(value.dwHighDateTime);
+    const auto low = static_cast<uint64_t>(value.dwLowDateTime);
+    return ((high << 32U) | low) * 100U;
+  };
+  return std::chrono::nanoseconds(toNanoSecs(usrTime) + toNanoSecs(kernelTime));
 #else
 #  error "OS support not implemented"
 #endif
 }
-
-}  // namespace
 
 //--------------------------------------------------------------------------------------------------------------
 // Runner
@@ -407,7 +416,7 @@ void Runner::signalThreadToStop()
   state_.store(ComponentState::stopping);
   stopFlag_.store(true);
 
-  if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
+  if (runsVirtualTimeLoop())
   {
     try
     {
@@ -459,6 +468,36 @@ void Runner::stopThread()
 
   serializableEvents_.clear();
   workQueue_.clear();
+}
+
+ComponentMonitoringInfo Runner::fetchMonitoringInfo() const
+{
+  ComponentMonitoringInfo result;
+
+  result.name = component_.info.name;
+  result.group = group_;
+  result.requiresRealTime = component_.instance->isRealTimeOnly();
+  result.objectCount = objectCount_;
+  result.cycleTime = getCycleTime();
+  result.lastCycleExecutionCpuTime = getLastCycleExecutionCpuTime();
+  result.lastCycleComponentCpuTime = getLastCycleComponentCpuTime();
+  const auto worst = getWorstCycle();
+  result.worstCycleExecutionCpuTime = worst.execution;
+  result.worstCycleComponentCpuTime = worst.component;
+  result.lastCycleQueuedWorkCpuTime = getLastCycleQueuedWorkCpuTime();
+
+  // Only the real-time loop has a schedule to miss, and a cycle time means execLoop ran. A
+  // component driving its own loop would otherwise report zeros for cycles nobody counted.
+  if (!runsVirtualTimeLoop() && result.cycleTime.has_value())
+  {
+    result.overrunCount = getOverrunCount();
+    result.missedFrameCount = getMissedFrameCount();
+    result.oversleptCount = getOversleptCount();
+    result.lastCycleStartDelay = getLastCycleStartDelay();
+    result.worstStartDelay = getWorstStartDelay();
+  }
+
+  return result;
 }
 
 void Runner::doRun()
@@ -548,13 +587,105 @@ void Runner::unregisterObjects(Span<std::shared_ptr<NativeObject>> instances)
 
 void Runner::registerType(ConstTypeHandle<> type) { kernel_.getTypes().add(type); }
 
-std::optional<Duration> Runner::getCycleTime() const noexcept { return cycleTime_; }
+std::optional<Duration> Runner::getCycleTime() const noexcept
+{
+  const auto cycleTime = cycleTime_.load(std::memory_order_relaxed);
+  return (cycleTime == noDuration) ? std::nullopt : std::make_optional(Duration {cycleTime});
+}
+
+std::optional<Duration> Runner::getLastCycleExecutionCpuTime() const noexcept
+{
+  const auto lastTime = lastCycleExecutionCpuTime_.load(std::memory_order_relaxed);
+  return (lastTime == noDuration) ? std::nullopt : std::make_optional(Duration {lastTime});
+}
+
+std::optional<Duration> Runner::getLastCycleComponentCpuTime() const noexcept
+{
+  const auto lastTime = lastCycleComponentCpuTime_.load(std::memory_order_relaxed);
+  return (lastTime == noDuration) ? std::nullopt : std::make_optional(Duration {lastTime});
+}
+
+std::optional<Duration> Runner::getLastCycleQueuedWorkCpuTime() const noexcept
+{
+  const auto lastTime = lastCycleQueuedWorkCpuTime_.load(std::memory_order_relaxed);
+  return (lastTime == noDuration) ? std::nullopt : std::make_optional(Duration {lastTime});
+}
+
+std::optional<Duration> Runner::getWorstStartDelay() const noexcept
+{
+  const auto delay = worstStartDelay_.load(std::memory_order_relaxed);
+  return (delay == noStartDelay) ? std::nullopt : std::make_optional(Duration {delay});
+}
+
+std::optional<Duration> Runner::getLastCycleStartDelay() const noexcept
+{
+  const auto delay = lastCycleStartDelay_.load(std::memory_order_relaxed);
+  return (delay == noStartDelay) ? std::nullopt : std::make_optional(Duration {delay});
+}
+
+/// Reads the pair and checks the version did not move, so both halves come from one cycle. Read
+/// without that check, a share could come from a later cycle than the total it sits inside.
+WorstCycle Runner::getWorstCycle() const noexcept
+{
+  // Bounded, not spun. The writer is a component thread on a real-time policy with an affinity,
+  // so a reader on the same core can leave it unable to finish. Empty beats hanging the caller.
+  constexpr int maxAttempts = 100;
+
+  for (int attempt = 0; attempt < maxAttempts; ++attempt)
+  {
+    const auto version = worstCycleVersion_.load(std::memory_order_acquire);
+    if ((version % 2U) != 0U)
+    {
+      // a write is in progress, so what is there now is half of one cycle and half of another
+      continue;
+    }
+
+    const auto worstExecution = worstCycleExecutionCpuTime_.load(std::memory_order_relaxed);
+    const auto worstComponent = worstCycleComponentCpuTime_.load(std::memory_order_relaxed);
+
+    std::atomic_thread_fence(std::memory_order_acquire);
+    if (worstCycleVersion_.load(std::memory_order_relaxed) != version)
+    {
+      continue;
+    }
+
+    WorstCycle worst;
+    worst.execution = (worstExecution == noDuration) ? std::nullopt : std::make_optional(Duration {worstExecution});
+    worst.component = (worstComponent == noDuration) ? std::nullopt : std::make_optional(Duration {worstComponent});
+    return worst;
+  }
+
+  return {};
+}
+
+/// Keeps the worst cycle seen so far, as a pair taken from one cycle. The runner's own thread is
+/// the only writer, so the odd version is only ever seen by a reader.
+void Runner::recordWorstCycle(NanoSecs executionCpuTime, NanoSecs componentCpuTime) noexcept
+{
+  if (executionCpuTime.count() <= worstCycleExecutionCpuTime_.load(std::memory_order_relaxed))
+  {
+    return;
+  }
+
+  const auto version = worstCycleVersion_.load(std::memory_order_relaxed);
+  worstCycleVersion_.store(version + 1U, std::memory_order_relaxed);
+  std::atomic_thread_fence(std::memory_order_release);
+  worstCycleComponentCpuTime_.store(componentCpuTime.count(), std::memory_order_relaxed);
+  worstCycleExecutionCpuTime_.store(executionCpuTime.count(), std::memory_order_relaxed);
+  worstCycleVersion_.store(version + 2U, std::memory_order_release);
+}
+
+uint64_t Runner::getOverrunCount() const noexcept { return overrunCount_.load(std::memory_order_relaxed); }
+
+uint64_t Runner::getMissedFrameCount() const noexcept { return missedFrameCount_.load(std::memory_order_relaxed); }
+
+uint64_t Runner::getOversleptCount() const noexcept { return oversleptCount_.load(std::memory_order_relaxed); }
 
 FuncResult Runner::execLoop(Duration cycleTime, std::function<void()>&& workFunction, bool logOverruns)
 {
-  cycleTime_ = cycleTime;
+  cycleTime_.store(cycleTime.getNanoseconds(), std::memory_order_relaxed);
 
-  if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
+  if (runsVirtualTimeLoop())
   {
     virtualTimeExecLoop(std::move(workFunction));
   }
@@ -568,9 +699,12 @@ FuncResult Runner::execLoop(Duration cycleTime, std::function<void()>&& workFunc
 
 void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 {
-  const auto cycleTime = cycleTime_.value();
+  const auto cycleTime = getCycleTime().value();
 
   bool updated = false;
+  bool firstCycle = true;
+  NanoSecs executionCpuTime {};
+  CycleCpuTime cycleCpuTime {};
 
   while (true)
   {
@@ -594,10 +728,15 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 
         if (nextExecutionDeltaTime_ <= 0)
         {
-          drainInputs();
+          const auto executionStartCpuTime = getThreadCpuTime();
+          cycleCpuTime.queuedWork = drainInputs();
+          const auto componentStartCpuTime = getThreadCpuTime();
           update();
           updated = true;
           workFunction();
+          const auto cycleEndCpuTime = getThreadCpuTime();
+          cycleCpuTime.component = cycleEndCpuTime - componentStartCpuTime;
+          executionCpuTime = cycleEndCpuTime - executionStartCpuTime;
         }
       }
       break;
@@ -612,7 +751,19 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
           // Delta time until the next execution calculated as the cycleTime (1/freq)
           // minus the time advanced from the execution of the last cycle
           nextExecutionDeltaTime_ = cycleTime.get() - (time_->sinceEpoch().get() % cycleTime.get());
+          const auto commitStartCpuTime = getThreadCpuTime();
           commit();
+          executionCpuTime += getThreadCpuTime() - commitStartCpuTime;
+          lastCycleExecutionCpuTime_.store(executionCpuTime.count(), std::memory_order_relaxed);
+          lastCycleComponentCpuTime_.store(cycleCpuTime.component.count(), std::memory_order_relaxed);
+          lastCycleQueuedWorkCpuTime_.store(cycleCpuTime.queuedWork.count(), std::memory_order_relaxed);
+
+          // not the first cycle: see the real-time loop
+          if (!firstCycle)
+          {
+            recordWorstCycle(executionCpuTime, cycleCpuTime.component);
+          }
+          firstCycle = false;
         }
       }
       break;
@@ -632,7 +783,7 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 
 void Runner::initializeTime()
 {
-  if (needsVirtualTime() && !component_.instance->isRealTimeOnly())
+  if (runsVirtualTimeLoop())
   {
     time_ = TimeStamp {};
     startTime_ = {};
@@ -655,13 +806,15 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
 
   PrecisionSleeper sleeper {wallClock, component_.info.name};
 
-  const auto period = NanoSecs(cycleTime_.value().getNanoseconds());
+  const auto period = NanoSecs(getCycleTime().value().getNanoseconds());
   const auto halfPeriod = period / 2;
 
   const auto startOfSchedule = time_->sinceEpoch().toChrono();
   auto nextCalibrationTime = startOfSchedule + wallClock.getCalibrateIntervalNs();
 
   auto time64 = startOfSchedule;
+
+  bool firstCycle = true;
 
   const bool isKernel = (name_ == "kernel");
   std::string nameToUse;
@@ -674,17 +827,31 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
   {
     tracer_->frameStart(nameToUse);
 
-    NanoSecs execDuration;
+    NanoSecs executionCpuTime;
+    CycleCpuTime cycleCpuTime;
     {
-      auto execStartThreadCpuTime = getThreadCpuUserTime();
-      exec(workFunction);
-      execDuration = getThreadCpuUserTime() - execStartThreadCpuTime;
+      auto execStartThreadCpuTime = getThreadCpuTime();
+      exec(workFunction, cycleCpuTime);
+      executionCpuTime = getThreadCpuTime() - execStartThreadCpuTime;
     }
     const auto workEnd = wallClock.highResNow();
+    lastCycleExecutionCpuTime_.store(executionCpuTime.count(), std::memory_order_relaxed);
+    lastCycleComponentCpuTime_.store(cycleCpuTime.component.count(), std::memory_order_relaxed);
+    lastCycleQueuedWorkCpuTime_.store(cycleCpuTime.queuedWork.count(), std::memory_order_relaxed);
 
-    if (execDuration > period)
+    // The first cycle carries the component's own startup and everything that queued during it,
+    // so it says nothing about the component running.
+    if (!firstCycle)
+    {
+      recordWorstCycle(executionCpuTime, cycleCpuTime.component);
+    }
+
+    // CPU time against the period, which is what an overrun means here. A cycle that blocked
+    // rather than computed is not one of these, and is reported as a missed frame below.
+    if (executionCpuTime > period)
     {
       tracer_->message(overrunMessage_);
+      overrunCount_.fetch_add(1U, std::memory_order_relaxed);
 
       if (SEN_LIKELY(logOverruns))
       {
@@ -695,19 +862,26 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
     // time64 now marks the next cycle
     time64 += period;
 
-    bool missedFrameEnd = false;
+    int64_t missedCycles = 0;
 
     // check if we need to skip cycles. A clock that jumps forward puts the next cycle an arbitrary
     // distance away, so walk to it in one step: period by period is unbounded and stopFlag_ is not
     // read along the way. Only ever forward, as the bus discards updates stamped before the last.
     if (workEnd > time64)
     {
-      missedFrameEnd = true;
-      time64 += period * cyclesToCover(workEnd - time64, period);
+      missedCycles = cyclesToCover(workEnd - time64, period);
+      time64 += period * missedCycles;
     }
 
-    if (missedFrameEnd)
+    if (missedCycles > 0)
     {
+      // Every cycle that will not run is counted, not the one event that lost them. The first is
+      // skipped: its lateness is the startup before the loop, not cycles the component lost. The
+      // warning is logged once either way.
+      if (!firstCycle)
+      {
+        missedFrameCount_.fetch_add(static_cast<uint64_t>(missedCycles), std::memory_order_relaxed);
+      }
       tracer_->message(missedFrameEndMessage_);
 
       if (SEN_LIKELY(logOverruns))
@@ -739,20 +913,30 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
     sleeper.sleep(static_cast<std::chrono::nanoseconds>(std::min(time64 - wallClock.highResNow(), period)));
     const auto wakeUpTime = wallClock.highResNow();
 
-    tracer_->plot(oversleepPlotName_, (wakeUpTime - time64).count());
+    // How late the thread woke for the cycle it was waiting for. The sleeper promises a minimum
+    // and no maximum, so this is the scheduler's contribution, kept apart from the component's.
+    const auto startDelay = wakeUpTime - time64;
+    tracer_->plot(oversleepPlotName_, startDelay.count());
+    lastCycleStartDelay_.store(startDelay.count(), std::memory_order_relaxed);
+
+    if (startDelay.count() > worstStartDelay_.load(std::memory_order_relaxed))
+    {
+      worstStartDelay_.store(startDelay.count(), std::memory_order_relaxed);
+    }
 
     // check if we missed one or more cycles while sleeping
-    bool skippedFrames = false;
+    int64_t oversleptCycles = 0;
 
     // jump over the cycles we missed, in one step for the same reason as above
     if (wakeUpTime - time64 > period)
     {
-      skippedFrames = true;
-      time64 += period * cyclesToCover(wakeUpTime - time64 - period, period);
+      oversleptCycles = cyclesToCover(wakeUpTime - time64 - period, period);
+      time64 += period * oversleptCycles;
     }
 
-    if (skippedFrames)
+    if (oversleptCycles > 0)
     {
+      oversleptCount_.fetch_add(static_cast<uint64_t>(oversleptCycles), std::memory_order_relaxed);
       tracer_->message(oversleptMessage_);
 
       if (SEN_LIKELY(logOverruns))
@@ -763,15 +947,20 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
       // check if we have enough time to run. If not, sleep until the next cycle
       if (wakeUpTime - time64 > halfPeriod)
       {
+        // that cycle is dropped too, so it is counted with the ones slept through
+        oversleptCount_.fetch_add(1U, std::memory_order_relaxed);
         time64 += period;
         goto doSleep;  // NOLINT(cppcoreguidelines-avoid-goto, hicpp-avoid-goto)
       }
     }
 
+    firstCycle = false;
     time_ = TimeStamp(time64);
     tracer_->frameEnd(nameToUse);
   }
 }
+
+bool Runner::runsVirtualTimeLoop() const { return needsVirtualTime() && !component_.instance->isRealTimeOnly(); }
 
 bool Runner::needsVirtualTime() const
 {

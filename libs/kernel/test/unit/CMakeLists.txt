@@ -18,6 +18,12 @@ add_sen_unit_test_suite(
   LINK_DEPS
   sen::core
   sen::kernel
+  # MonitoringDuringShutdownDoesNotDeadlock hangs rather than fails when the deadlock it names
+  # comes back. The nightly repeats this suite without --timeout, where ctest's default is 1500
+  # seconds; the slowest case here is under two.
+  EXTRA_PROPERTIES
+  TIMEOUT
+  60
 )
 
 if(NOT WIN32)

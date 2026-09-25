@@ -27,6 +27,7 @@
 #include <gtest/gtest.h>
 
 // std
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -37,6 +38,7 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <tuple>
 #include <utility>
 
 //--------------------------------------------------------------------------------------------------------------
@@ -51,7 +53,9 @@ public:
 
 public:
   using MyClassBase::MyClassBase;
+
   ~MyClassImpl() override = default;
+
   using MyClassBase::somethingHappened;
 };
 
@@ -531,4 +535,76 @@ TEST(TestKernel, ConcurrentSubscriptionDestruction)
   destroyerThread.join();
 
   SUCCEED();
+}
+
+/// @test
+/// Monitoring is readable from a component thread while the kernel shuts down.
+///
+/// The kernel holds one lock across stopping and joining the component threads. A reader that waits
+/// on that same lock never returns, so the join never completes and the process hangs rather than
+/// failing. This test has no assertion of its own: if the deadlock comes back it stops finishing,
+/// which is why the suite carries a timeout.
+TEST(TestKernel, MonitoringDuringShutdownDoesNotDeadlock)
+{
+  sen::kernel::TestComponent component;
+
+  std::atomic<bool> polling {true};
+
+  component.onRun(
+    [&](auto& api)
+    {
+      // A thread of the component's own, reading without pause. Inside the work function the read
+      // only happens between cycles, which is never the moment the kernel stops.
+      std::thread poller(
+        [&]()
+        {
+          while (polling.load())
+          {
+            std::ignore = api.fetchMonitoringInfo();
+          }
+        });
+
+      auto result = api.execLoop(std::chrono::milliseconds(1), []() {});
+
+      polling.store(false);
+      poller.join();
+      return result;
+    });
+
+  auto kernel = std::make_unique<sen::kernel::TestKernel>(&component);
+  kernel->step(5U);
+
+  // The destructor requests the stop, which joins the component while that thread is still reading.
+  kernel.reset();
+
+  SUCCEED();
+}
+
+/// @test
+/// Virtual-time runners report the host CPU cost of a completed cycle, but do not report real-time overruns.
+/// @requirements(SEN-361)
+TEST(TestKernel, VirtualTimeMonitoringDistinguishesCpuTimeFromOverruns)
+{
+  sen::kernel::TestComponent component;
+  std::size_t cycleCount = 0U;
+
+  component.onRun(
+    [&](auto& api)
+    {
+      return api.execLoop(std::chrono::seconds(1),
+                          [&]()
+                          {
+                            ++cycleCount;
+                            if (cycleCount == 2U)
+                            {
+                              const auto info = api.fetchComponentMonitoringInfo();
+
+                              EXPECT_TRUE(info.lastCycleExecutionCpuTime.has_value());
+                              EXPECT_FALSE(info.overrunCount.has_value());
+                            }
+                          });
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+  kernel.step(2U);
 }

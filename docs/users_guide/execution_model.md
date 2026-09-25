@@ -228,11 +228,11 @@ a synchronized network produces, pass through without any of this.
 
 Overruns and missed frames are reported separately, and they are not the same:
 
-| Reported | Measured against | Where it goes |
-|---|---|---|
-| `<component> execution time overrun` | Thread CPU time used by the update | Tracy, and a `WARN` in the log |
-| `<component> missed frame (interruption)` | Wall clock: the work finished after the cycle it belonged to | Tracy, and a `WARN` in the log |
-| `<component> missed frame (overslept)` | Wall clock: the sleep returned more than a period late | Tracy, and a `WARN` in the log |
+| Reported | Measured against | Where it goes | Counted in |
+|---|---|---|---|
+| `<component> execution time overrun` | Thread CPU time used by the whole cycle | Tracy, and a `WARN` in the log | `overrunCount` |
+| `<component> missed frame (interruption)` | Wall clock: the work finished after the cycle it belonged to | Tracy, and a `WARN` in the log | `missedFrameCount` |
+| `<component> missed frame (overslept)` | Wall clock: the sleep returned more than a period late | Tracy, and a `WARN` in the log | `oversleptCount` |
 
 **An overrun is counted in CPU time**, so an update that blocks on a socket, a lock or a vendor SDK
 burns wall time without burning CPU and never counts as one. The missed-frame lines are the ones
@@ -240,20 +240,106 @@ that say cycles were lost, which is what a component running at a fraction of it
 produces.
 
 **The two missed-frame lines point in different directions.** An interruption means the work
-finished after the cycle it belonged to, so the update itself ran long. An oversleep means the sleep
-returned more than a full period late, so the component was not running at all when it should have
-been, which makes it a symptom of the machine and not of your code. They also differ in what
+finished after the cycle it belonged to, which can be because the update ran long or because the
+cycle started late. An oversleep means the sleep returned more than a full period late, so the
+component was not running at all when it should have been, which makes it a symptom of the machine
+and not of your code. They also differ in what
 happens next: after an oversleep, if less than half a period remains, the kernel skips the frame
 outright and waits for the next one instead of starting a cycle it cannot finish.
 
 A run of lost cycles reports once, not once each. The kernel takes every missed cycle in a single
 pass and warns one time, so a component that blocks for five seconds at 30 Hz produces one line
-instead of a hundred and fifty.
+instead of a hundred and fifty. The counters below are not summarised that way: they count every
+cycle that was lost, so the same run adds all of them to `missedFrameCount`.
 
 The warning can be suppressed from code but not from configuration: `RunApi::execLoop` takes a
 `logOverruns` flag, so a component driving its own loop can drop the log line and keep the Tracy
 message. Components declared under `build:` run through the kernel's standard pipeline, which does
 not take the flag.
+
+## Reading the numbers from your own code
+
+`RunApi::fetchComponentMonitoringInfo()` returns what the kernel measured for the calling component.
+`RunApi::fetchMonitoringInfo()` returns the same for every component the kernel loaded.
+
+The numbers are easy to confuse. This is what each one holds. The counters start at zero when the
+component starts running, never go down, and are never reset.
+
+| Field | What it holds |
+|---|---|
+| `cycleTime` | The period the component was configured with. `freqHz: 30` gives 33 ms. |
+| `lastCycleExecutionCpuTime` | Thread CPU time, user and system, used by the whole of the last cycle: draining inputs, your objects' `update()`, your work function, and committing. |
+| `lastCycleComponentCpuTime` | The part of that spent in your objects' `update()` and your work function. |
+| `lastCycleQueuedWorkCpuTime` | The part spent on work queued on your component: the callbacks you registered, and serving the calls other components make on your objects. |
+| `worstCycleExecutionCpuTime` | The most CPU time any one cycle has used. |
+| `worstCycleComponentCpuTime` | Your share of that same cycle. Taken from the one cycle, so the two can be compared. |
+| `lastCycleStartDelay` | How late the thread woke for the cycle it was waiting for. The machine's contribution, not yours. |
+| `worstStartDelay` | The latest the thread has ever woken. |
+| `overrunCount` | Cycles whose CPU time went past the period. |
+| `missedFrameCount` | Cycles lost because the work finished after the cycle it belonged to. |
+| `oversleptCount` | Cycles lost because the sleep returned late. |
+
+Some of your code is not counted in `lastCycleComponentCpuTime`: `preDrain()`, `preCommit()`, the
+handlers that run when your outputs are committed, and the callbacks for a source appearing or
+disappearing. Those go with Sen's time.
+
+CPU time is not the same as elapsed time. A cycle that waits on a socket, a lock or a library uses
+wall time but no CPU. It does not raise `overrunCount`, and it raises `missedFrameCount` once it
+runs past its cycle. So if `lastCycleExecutionCpuTime` stays well below the period and frames are
+still missing, the component was waiting, not computing, and looking for slow code will not find
+anything.
+
+An overrun means the work cost too much for the period. A missed frame means a cycle did not run. A
+cycle that overruns always misses a frame as well, because it cannot use more CPU time than the
+time that passed. The other way round is more common: a component that waits misses frames without
+overrunning.
+
+**Check `lastCycleStartDelay` before you blame your own code.** If the thread wakes late by less
+than a period, that is not counted as an oversleep. The cycle still starts late, finishes past its
+slot, and the cycle it loses goes to `missedFrameCount`. So frames going missing while the start
+delay is large means the machine was late, not that your work is too slow. A clock correction that
+moves the schedule forward does the same thing.
+
+`oversleptCount` counts cycles where the thread was not running when it should have been. That is
+the operating system, not your code.
+
+The counters do not overlap. `overrunCount` counts cycles that ran and cost too much. The
+missed-frame counters count cycles that never ran, and never the same cycle twice, so
+`missedFrameCount + oversleptCount` is how many cycles were lost.
+
+These numbers are only filled in when the kernel runs the cycle. Under virtual time there is no
+deadline to miss, and a component that drives its own loop has no schedule of ours, so in both
+cases you get nothing rather than zero. A component marked `isRealTimeOnly()` keeps its deadline in
+a stepped system, and keeps these numbers with it.
+
+The first cycle is left out of `missedFrameCount` and of the worst cycle. The schedule starts before
+the component has finished starting up, so that cycle is always late, and it carries whatever queued
+up while it was starting. If we counted it, every component would begin with lost cycles it never
+lost, and that one cycle would hold the worst-cycle mark for the rest of the run. An overrun or an
+oversleep on it is still counted, because both of those are real.
+
+If a component misses one cycle in a thousand, the cycle you read is almost never the bad one. The
+last-cycle numbers tell you what is normal, and the counters tell you something went wrong. The
+worst cycle is the one that used the most CPU: how much it used, and how much of that was yours. It
+is not the slowest cycle. A cycle that waits uses almost no CPU, so it never becomes the worst one,
+and you find that one through the counters and the start delay.
+
+The numbers do not all come from the same cycle. Each one is stored as the cycles run, so a single
+reading can mix a last cycle with a counter that has moved on. The worst-cycle pair is the
+exception: it is always one cycle, so the share can be compared with its total. For a rate, read
+twice and subtract.
+
+When a cycle runs long, this is where to look. If most of the time is in your objects' `update()`
+and your work function, that is your own code. If most of it is in the queued work, the cost is in
+the calls other components make on you and in the callbacks you registered. If what is left over is
+the largest part, the time goes to the bus, draining what arrived and committing what changed, which
+grows with how much your component subscribes to and publishes. And if a cycle takes a long time
+while its CPU time stays small, it was waiting. None of these numbers show that, so time it yourself
+inside `update()`.
+
+**On Windows these numbers are coarse.** Thread CPU time comes from the system clock tick, which is
+15.6 ms by default. For a component faster than about 60 Hz, the CPU numbers and the overruns
+counted from them say very little.
 
 !!! note "Open for expansion"
 

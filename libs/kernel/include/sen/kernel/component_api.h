@@ -104,6 +104,56 @@ struct ComponentMonitoringInfo
   bool requiresRealTime = false;
   std::optional<Duration> cycleTime;
   std::size_t objectCount = 0;
+  /// Thread CPU time, user and system, consumed by the last completed execution cycle.
+  /// On Windows every CPU time here is quantised to the system clock tick, 15.6 ms by default, so
+  /// for a shorter period than that these figures say very little.
+  std::optional<Duration> lastCycleExecutionCpuTime;
+
+  /// The part of that spent in the component's own code: its objects' update() and its work
+  /// function. Its preDrain() and preCommit(), its commit-time event handlers and its discovery
+  /// callbacks run outside this and are counted with Sen's.
+  std::optional<Duration> lastCycleComponentCpuTime;
+
+  /// The part of that spent on work queued on the component: the callbacks it registered, and
+  /// serving the calls other components make on its objects. Serving a call is partly the
+  /// component's method and partly Sen's transport, so it is reported on its own.
+  std::optional<Duration> lastCycleQueuedWorkCpuTime;
+
+  /// The most CPU time any one cycle has used since the component started running, leaving out
+  /// its first cycle, which carries the startup. A component that runs long once in a thousand
+  /// cycles rarely has it in the last one.
+  std::optional<Duration> worstCycleExecutionCpuTime;
+
+  /// The component's share of that same worst cycle, so the two can be compared.
+  std::optional<Duration> worstCycleComponentCpuTime;
+
+  /// How late the thread woke for the cycle it was waiting for. The scheduler's contribution,
+  /// kept apart from the component's. Negative if it woke early. Empty for the first cycle, and
+  /// unless the component runs on the kernel's real-time loop.
+  std::optional<Duration> lastCycleStartDelay;
+
+  /// The latest the thread has ever woken. A machine that is late once in a thousand cycles
+  /// rarely has it in lastCycleStartDelay.
+  std::optional<Duration> worstStartDelay;
+
+  /// Cycles whose execution used more CPU time than the period. A cycle that blocked rather than
+  /// computed does not appear here, it appears in missedFrameCount. A cycle that overruns also
+  /// finishes past its slot, so missedFrameCount rises with it.
+  /// Empty unless the component runs on the kernel's real-time loop.
+  std::optional<uint64_t> overrunCount;
+
+  /// Cycles lost because the work finished after the cycle it belonged to. Every lost cycle is
+  /// counted, not the run of them. Wall time, so blocking counts, and so does a clock correction
+  /// that moves the schedule forward. The first cycle is not counted: the schedule starts before
+  /// the component has finished its own startup.
+  /// Empty unless the component runs on the kernel's real-time loop.
+  std::optional<uint64_t> missedFrameCount;
+
+  /// Cycles lost because the sleep returned late, so the component was not running when it should
+  /// have been. Every lost cycle is counted, not the run of them. A wake-up late by less than a
+  /// period loses no cycle here and shows up in missedFrameCount, so read lastCycleStartDelay
+  /// before blaming the component. Empty unless it runs on the kernel's real-time loop.
+  std::optional<uint64_t> oversleptCount;
 };
 
 /// Kernel runtime monitoring information.
@@ -328,7 +378,10 @@ public:
   /// If present, it returns the configured cycle time for iterations.
   [[nodiscard]] std::optional<Duration> getTargetCycleTime() const noexcept;
 
-  /// Monitoring information.
+  /// Monitoring information of the calling component
+  [[nodiscard]] ComponentMonitoringInfo fetchComponentMonitoringInfo() const;
+
+  /// Monitoring information of all components loaded by the kernel
   [[nodiscard]] KernelMonitoringInfo fetchMonitoringInfo() const;
 
   /// Build information for all imported packages (from pipeline components).

@@ -346,6 +346,8 @@ TimeStamp RunApi::getTime() const noexcept { return timePoint_; }
 
 std::optional<Duration> RunApi::getTargetCycleTime() const noexcept { return runner_->getCycleTime(); }
 
+ComponentMonitoringInfo RunApi::fetchComponentMonitoringInfo() const { return runner_->fetchMonitoringInfo(); }
+
 KernelMonitoringInfo RunApi::fetchMonitoringInfo() const { return kernelImpl_.fetchMonitoringInfo(); }
 
 Span<const ComponentInfo> RunApi::getImportedPackages() const noexcept { return kernelImpl_.getImportedPackages(); }

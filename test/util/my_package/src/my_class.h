@@ -61,6 +61,43 @@ private:
   std::shared_ptr<spdlog::logger> logger_;
 };
 
+class MyMonitoredClassImpl: public MyMonitoredClassBase
+{
+public:
+  SEN_NOCOPY_NOMOVE(MyMonitoredClassImpl)
+
+public:
+  using MyMonitoredClassBase::MyMonitoredClassBase;
+  ~MyMonitoredClassImpl() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override;
+
+private:
+  void checkRuntimeStats(sen::kernel::RunApi& runApi);
+
+  /// Blocks for longer than the period on one cycle, using no processor while it does.
+  void blockPastThePeriod(sen::kernel::RunApi& runApi);
+
+  /// Checks the blocked cycle counted as the missed frames it lost and did not count as an overrun.
+  void checkTheBlockedCycleWasSeen(sen::kernel::RunApi& runApi);
+
+  /// Spends a known amount of processor inside update() on one cycle.
+  void burnProcessor();
+
+  /// Checks that the cycle which burned processor is reported as the component's own cost.
+  void checkTheBurnWasAttributedToUs(sen::kernel::RunApi& runApi);
+
+private:
+  uint64_t cycleCount_ = 0U;
+  uint64_t overrunsBeforeBlocking_ = 0U;
+  uint64_t missedFramesBeforeBlocking_ = 0U;
+  int64_t blockedForNs_ = 0;
+  int64_t startDelayAtBlockNs_ = 0;
+  bool blocked_ = false;
+  bool burned_ = false;
+};
+
 }  // namespace my_package
 
 #endif  // SEN_TEST_UTIL_MY_PACKAGE_SRC_MY_CLASS_H
