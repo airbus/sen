@@ -14,6 +14,7 @@
 #include "sen/core/io/output_stream.h"
 #include "sen/core/meta/basic_traits.h"
 #include "sen/core/meta/native_types.h"
+#include "sen/core/meta/struct_traits.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/variant_type.h"
 
@@ -21,6 +22,8 @@
 #include <cstring>
 #include <iomanip>
 #include <tuple>
+#include <type_traits>
+#include <variant>
 
 namespace sen
 {
@@ -29,6 +32,29 @@ struct Var;
 
 /// \addtogroup traits
 /// @{
+
+/// The empty alternative has empty-record metadata and no serialized payload.
+template <>
+struct MetaTypeTrait<std::monostate>
+{
+  [[nodiscard]] static ConstTypeHandle<StructType> meta();
+};
+
+template <>
+struct VariantTraits<std::monostate>: public StructTraitsBase
+{
+  static void valueToVariant(std::monostate val, Var& var);
+  static void variantToValue(const Var& var, std::monostate& val);
+  [[nodiscard]] static std::function<lang::Value(const void*)> getFieldValueGetterFunction(Span<uint16_t> fields);
+};
+
+template <>
+struct SerializationTraits<std::monostate>
+{
+  static void write(OutputStream& out, std::monostate val);
+  static void read(InputStream& in, std::monostate& val);
+  [[nodiscard]] static uint32_t serializedSize(std::monostate val) noexcept;
+};
 
 struct VariantTraitsBaseBase
 {
@@ -178,7 +204,11 @@ inline bool VariantTraitsBase<T>::tryPrintField(std::ostream& out,
 
     if (auto valPtr = std::get_if<index>(&val); valPtr)
     {
-      if (requiresNewline)
+      if constexpr (std::is_same_v<std::variant_alternative_t<index, T>, std::monostate>)
+      {
+        out << indent << ' ' << "value: {}";
+      }
+      else if (requiresNewline)
       {
         out << indent << ' ' << "value:\n" << indent << *valPtr;
       }

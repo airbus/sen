@@ -28,6 +28,7 @@
 #include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/unit_registry.h"
+#include "sen/core/meta/variant_traits.h"
 #include "sen/core/meta/variant_type.h"
 
 // std
@@ -1169,6 +1170,8 @@ ConstTypeHandle<> FomDocumentSet::variantRecord(const pugi::xpath_node& node, co
     spec.fields.push_back(std::move(field));
   }
 
+  // Append the empty state to preserve the existing indices and default construction
+  spec.fields.emplace_back(key, "Explicit empty state.", MetaTypeTrait<std::monostate>::meta());
   return VariantType::make(spec);
 }
 

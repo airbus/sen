@@ -22,6 +22,36 @@
 namespace sen
 {
 
+ConstTypeHandle<StructType> MetaTypeTrait<std::monostate>::meta()
+{
+  static const auto type = StructType::make({"Monostate", "sen.Monostate", "Explicit empty variant alternative.", {}});
+  return type;
+}
+
+void VariantTraits<std::monostate>::valueToVariant(std::monostate /*val*/, Var& var) { var = VarMap {}; }
+
+void VariantTraits<std::monostate>::variantToValue(const Var& var, std::monostate& val)
+{
+  const auto* map = var.getIf<VarMap>();
+  if (map == nullptr || !map->empty())
+  {
+    throwRuntimeError("sen.Monostate requires an empty object");
+  }
+  val = {};
+}
+
+std::function<lang::Value(const void*)> VariantTraits<std::monostate>::getFieldValueGetterFunction(
+  Span<uint16_t> /*fields*/)
+{
+  throwEmptyStructError("sen.Monostate");
+}
+
+void SerializationTraits<std::monostate>::write(OutputStream& /*out*/, std::monostate /*val*/) {}
+
+void SerializationTraits<std::monostate>::read(InputStream& /*in*/, std::monostate& val) { val = {}; }
+
+uint32_t SerializationTraits<std::monostate>::serializedSize(std::monostate /*val*/) noexcept { return 0U; }
+
 void VariantTraitsBaseBase::expectAtLeastOneField(const char* name, const Span<uint16_t>& fields)
 {
   if (fields.empty())

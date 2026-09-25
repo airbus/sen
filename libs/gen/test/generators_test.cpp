@@ -8,6 +8,9 @@
 #include "every_kind_model.h"
 
 // sen
+#include "sen/core/lang/fom_parser.h"
+#include "sen/core/meta/struct_type.h"
+#include "sen/core/meta/variant_type.h"
 #include "sen/gen/cpp.h"
 #include "sen/gen/html.h"
 #include "sen/gen/json.h"
@@ -18,6 +21,7 @@
 
 // 3rd party
 #include <gtest/gtest.h>
+#include <nlohmann/json.hpp>
 
 // std
 #include <array>
@@ -186,6 +190,76 @@ TEST(GeneratorsAndClasses, typeScriptRendersAnEventAsANotification)
   const auto output = renderedBy("typescript", model);
 
   EXPECT_NE(output.find("MovedNotification"), std::string::npos);
+}
+
+TEST(GeneratorsAndFomVariants, appendEmptyStateToRprVariants)
+{
+  const auto context = sen::lang::parseFomDocuments({RPR_FOM_DIR}, {}, {});
+  const auto schema = nlohmann::json::parse(sen::gen::JsonGenerator {}.generatePackage(context));
+  size_t checked = 0U;
+
+  for (const auto& set: context)
+  {
+    for (const auto& type: set.types)
+    {
+      const auto name = type->getName();
+      if (name != "RFModulationTypeVariantStruct" && name != "SpreadSpectrumVariantStruct")
+      {
+        continue;
+      }
+      SCOPED_TRACE(name);
+      ++checked;
+      const auto* variant = type->asVariantType();
+      ASSERT_NE(variant, nullptr);
+      const auto fields = variant->getFields();
+      ASSERT_EQ(fields.size(), name == "RFModulationTypeVariantStruct" ? 7U : 5U);
+      for (size_t i = 0U; i < fields.size(); ++i)
+      {
+        EXPECT_EQ(fields[i].key, i);
+      }
+      EXPECT_EQ(fields[0].type->getName(),
+                name == "RFModulationTypeVariantStruct" ? "AmplitudeModulationTypeEnum16" : "SINCGARSModulationStruct");
+      const auto* empty = fields[fields.size() - 1U].type->asStructType();
+      ASSERT_NE(empty, nullptr);
+      EXPECT_EQ(empty->getQualifiedName(), "sen.Monostate");
+      EXPECT_TRUE(empty->getFields().empty());
+
+      std::string cpp;
+      for (const auto& [path, contents]: sen::gen::CppGenerator {}.generate(set))
+      {
+        cpp += contents;
+      }
+      const auto declarationStart = cpp.find("using " + std::string(name) + " = std::variant<");
+      ASSERT_NE(declarationStart, std::string::npos);
+      const auto declaration = cpp.substr(declarationStart, cpp.find(';', declarationStart) - declarationStart);
+      EXPECT_NE(declaration.find(", std::monostate>"), std::string::npos);
+
+      const auto python = sen::gen::PythonGenerator {}.generateModule(set);
+      EXPECT_NE(python.find("isinstance(val, dict)"), std::string::npos);
+      EXPECT_NE(python.find("self.type = \"sen.Monostate\""), std::string::npos);
+
+      const auto& emptySchema = schema.at("$defs").at(std::string(type->getQualifiedName())).at("allOf").back();
+      EXPECT_EQ(emptySchema.at("if").at("properties").at("type").at("const"), "Monostate");
+      EXPECT_EQ(emptySchema.at("then").at("properties").at("value"),
+                (nlohmann::json {{"type", "object"}, {"maxProperties", 0}}));
+    }
+  }
+  EXPECT_EQ(checked, 2U);
+
+  std::string typescript;
+  for (const auto& [path, contents]: sen::gen::TypeScriptGenerator {}.generate(context))
+  {
+    typescript += contents;
+  }
+  EXPECT_NE(typescript.find("type: \"sen.Monostate\"; value: Record<string, never>"), std::string::npos);
+}
+
+TEST(GeneratorsAndFomVariants, keepStlVariantsUnchanged)
+{
+  const ResolvedModel model {everyKindStl};
+  const auto cpp = renderedBy("cpp", model);
+  EXPECT_NE(cpp.find("using Figure = std::variant<Point, Circle>;"), std::string::npos);
+  EXPECT_EQ(cpp.find("std::monostate"), std::string::npos);
 }
 
 }  // namespace

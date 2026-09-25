@@ -108,6 +108,14 @@ sen_generate_cpp(
   BASE_PATH meta
 )
 
+# Reuse the RPR inputs without requiring the example package to be built.
+add_library(core_test_fom_generated OBJECT)
+sen_generate_cpp(
+  TARGET core_test_fom_generated
+  HLA_FOM_DIRS ${PROJECT_SOURCE_DIR}/examples/packages/hla_fom/rpr
+  HLA_OUTPUT_DIR hla_fom
+)
+
 add_library(core_test_obj_generated OBJECT)
 sen_generate_cpp(
   TARGET core_test_obj_generated
@@ -132,6 +140,7 @@ add_sen_unit_test_suite(
   nlohmann_json::nlohmann_json
   core_test_io_generated
   core_test_meta_generated
+  core_test_fom_generated
   core_test_obj_generated
 )
 

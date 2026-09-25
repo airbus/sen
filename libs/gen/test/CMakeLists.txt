@@ -25,3 +25,5 @@ add_sen_unit_test_suite(
 set_target_properties(
   gen_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
 )
+
+target_compile_definitions(gen_test PRIVATE RPR_FOM_DIR="${PROJECT_SOURCE_DIR}/examples/packages/hla_fom/rpr")

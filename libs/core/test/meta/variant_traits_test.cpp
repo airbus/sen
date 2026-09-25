@@ -11,9 +11,13 @@
 #include "sen/core/io/buffer_writer.h"
 #include "sen/core/io/input_stream.h"
 #include "sen/core/io/output_stream.h"
+#include "sen/core/io/util.h"
+#include "sen/core/meta/optional_traits.h"
 #include "sen/core/meta/var.h"
+#include "sen/util/dr/dead_reckoner.h"
 
 // generated code
+#include "hla_fom/rpr/rpr-communication_v2.0.xml.h"
 #include "stl/test_variant_traits.stl.h"
 
 // google test
@@ -27,6 +31,8 @@
 // std
 #include <array>
 #include <cstdint>
+#include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <variant>
@@ -38,6 +44,13 @@ using test_variant_traits::MockVariant;
 
 namespace
 {
+
+TEST(VariantTraits, StlVariantsKeepTheirDeclaredAlternatives)
+{
+  EXPECT_EQ(std::variant_size_v<MockVariant>, 5U);
+  EXPECT_EQ(MockVariant {}.index(), 0U);
+  EXPECT_EQ(sen::MetaTypeTrait<MockVariant>::meta()->getFields().size(), 5U);
+}
 
 template <typename VariantType>
 MockVariant makeMockVariant()
@@ -234,6 +247,96 @@ TYPED_TEST(TestVariantTraitsBaseViaSerializationTraits, IsWritableToOutputStream
   // assert
   ASSERT_TRUE(std::holds_alternative<TypeParam>(mockVariant));
   ASSERT_EQ(mockVariant, makeMockVariant<TypeParam>());
+}
+
+template <typename T>
+class FomVariant: public ::testing::Test
+{
+};
+
+using RadioVariants = ::testing::Types<rpr::RFModulationTypeVariantStruct, rpr::SpreadSpectrumVariantStruct>;
+TYPED_TEST_SUITE(FomVariant, RadioVariants);
+static_assert(std::variant_size_v<rpr::RFModulationTypeVariantStruct> == 7U);
+static_assert(std::variant_size_v<rpr::SpreadSpectrumVariantStruct> == 5U);
+
+TYPED_TEST(FomVariant, ExplicitEmptyStateRoundTripsWithItsOwnIndex)
+{
+  using T = TypeParam;
+  using Traits = sen::SerializationTraits<T>;
+  constexpr auto emptyIndex = std::variant_size_v<T> - 1U;
+  static_assert(std::is_same_v<std::variant_alternative_t<emptyIndex, T>, std::monostate>);
+  EXPECT_EQ(T {}.index(), 0U);
+
+  const T empty = std::monostate {};
+  const auto meta = sen::MetaTypeTrait<T>::meta();
+  ASSERT_EQ(meta->getFields().size(), std::variant_size_v<T>);
+  const auto* field = meta->getFieldFromKey(static_cast<uint32_t>(emptyIndex));
+  ASSERT_NE(field, nullptr);
+  EXPECT_EQ(field->type, sen::MetaTypeTrait<std::monostate>::meta());
+  EXPECT_TRUE(field->type->asStructType()->getFields().empty());
+
+  const auto var = sen::toVariant(empty);
+  const auto& [key, payload] = var.template get<sen::KeyedVar>();
+  EXPECT_EQ(key, emptyIndex);
+  EXPECT_TRUE(payload->template get<sen::VarMap>().empty());
+  EXPECT_EQ(sen::toValue<T>(var), empty);
+
+  T decoded {};
+  Traits::fromJsonString(Traits::toJsonString(empty), decoded);
+  EXPECT_EQ(decoded, empty);
+  Traits::fromJsonString(R"({"type":"sen.Monostate","value":{}})", decoded);
+  EXPECT_EQ(decoded, empty);
+  EXPECT_ANY_THROW(Traits::fromJsonString(R"({"type":"sen.Monostate","value":{"unexpected":1}})", decoded));
+
+  std::vector<uint8_t> buffer;
+  sen::ResizableBufferWriter writer {buffer};
+  sen::OutputStream out {writer};
+  Traits::write(out, empty);
+  EXPECT_EQ(buffer.size(), sizeof(uint32_t));
+  EXPECT_EQ(Traits::serializedSize(empty), buffer.size());
+  sen::InputStream in {buffer};
+  decoded = T {};
+  Traits::read(in, decoded);
+  EXPECT_EQ(decoded, empty);
+  EXPECT_TRUE(in.atEnd());
+
+  sen::InputStream dynamicIn {buffer};
+  sen::Var dynamicValue;
+  sen::impl::readFromStream(dynamicValue, dynamicIn, *meta);
+  EXPECT_EQ(sen::toValue<T>(dynamicValue), empty);
+  std::vector<uint8_t> dynamicBuffer;
+  sen::ResizableBufferWriter dynamicWriter {dynamicBuffer};
+  sen::OutputStream dynamicOut {dynamicWriter};
+  sen::impl::writeToStream(var, dynamicOut, *meta);
+  EXPECT_EQ(dynamicBuffer, buffer);
+
+  using Optional = std::optional<T>;
+  using OptionalTraits = sen::OptionalTraitsBase<Optional>;
+  Optional optional;
+  OptionalTraits::variantToValue(var, optional);
+  ASSERT_TRUE(optional.has_value());
+  EXPECT_EQ(*optional, empty);
+  OptionalTraits::variantToValue(sen::Var {}, optional);
+  EXPECT_FALSE(optional.has_value());
+
+  std::ostringstream printed;
+  printed << empty;
+  EXPECT_NE(printed.str().find("sen.Monostate"), std::string::npos);
+}
+
+TEST(FomVariant, RadioTransmitterSetterAcceptsMonostate)
+{
+  rpr::RadioTransmitterBase<> transmitter {"radio", {}, {}, {}, {}};
+  EXPECT_EQ(transmitter.getRFModulationType().index(), 0U);
+  transmitter.setNextRFModulationType(std::monostate {});
+  EXPECT_TRUE(std::holds_alternative<std::monostate>(transmitter.getNextRFModulationType()));
+}
+
+TEST(FomVariant, DeadReckonerRejectsEmptySpatialData)
+{
+  using Reckoner = sen::util::DeadReckoner<rpr::BaseEntityInterface>;
+  EXPECT_NO_THROW(std::ignore = Reckoner::toSituation(rpr::SpatialVariantStruct {}));
+  EXPECT_ANY_THROW(std::ignore = Reckoner::toSituation(std::monostate {}));
 }
 
 }  // namespace

@@ -169,7 +169,9 @@ inline T& DeadReckoner<T>::getObject() noexcept
 template <typename T>
 inline Situation DeadReckoner<T>::toSituation(const SpatialVariant& spatial, sen::TimeStamp timeStamp)
 {
-  return std::visit(sen::Overloaded {[&timeStamp](const StaticSpatial& value)
+  return std::visit(sen::Overloaded {[](std::monostate) -> Situation
+                                     { throwRuntimeError("cannot extrapolate an empty spatial state"); },
+                                     [&timeStamp](const StaticSpatial& value)
                                      {
                                        return Situation {value.isFrozen,
                                                          timeStamp,
