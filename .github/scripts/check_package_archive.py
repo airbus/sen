@@ -45,6 +45,11 @@ REQUIRED_DIRECTORIES = (
 # basic and full; a barebones package has none.
 REQUIRED_LIBRARIES = ("core", "shell")
 
+# The kernel links Crashpad's handler library and forks itself to run it, so no separate
+# handler program is installed. A test pins that in the build tree; the archive is assembled
+# separately, so one could ship the program with every check we own still green.
+FORBIDDEN_FILES = ("crashpad_handler",)
+
 # sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, with
 # -symbols for the archive holding the debug information the build type left behind. The
 # version is a tag or "latest", and a tag may carry an -rc suffix.
@@ -147,8 +152,25 @@ def check_archive(archive: Path) -> list[str]:
     if not NAME_PATTERN.match(stem):
         problems.append(f"name does not match the expected pattern: {archive.name}")
 
-    problems.extend(f"missing entry: {entry}" for entry in missing_entries(list_entries(archive), stem))
+    entries = list_entries(archive)
+    problems.extend(f"missing entry: {entry}" for entry in missing_entries(entries, stem))
+    problems.extend(f"must not ship: {entry}" for entry in forbidden_entries(entries))
     return problems
+
+
+def forbidden_entries(entries: list[str]) -> list[str]:
+    """Returns the entries that ship something the package is supposed not to contain.
+
+    Absence is the claim here, which is why it needs checking where the claim is made: a
+    file that should not exist leaves no trace in any check looking for files that should.
+    """
+    found = []
+    for entry in entries:
+        name = entry.rsplit("/", 1)[-1]
+        stem = name[: -len(".exe")] if name.lower().endswith(".exe") else name
+        if stem in FORBIDDEN_FILES:
+            found.append(entry)
+    return found
 
 
 def main() -> int:
