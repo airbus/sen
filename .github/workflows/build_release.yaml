@@ -160,7 +160,9 @@ jobs:
               rm -f "$staging/archive-name"
               # Same format as the release archive beside it: a Windows user gets a zip.
               # shutil rather than tar or 7z, which are not both present on both runners.
-              format=$([ "$RUNNER_OS" = "Windows" ] && echo zip || echo gztar)
+              # Defaulted: in_image.sh does not forward RUNNER_OS, and the container
+              # shell runs with -u, so a bare reference aborts the Linux leg.
+              format=$([ "${RUNNER_OS:-}" = "Windows" ] && echo zip || echo gztar)
               python -c "import shutil,sys; shutil.make_archive(*sys.argv[1:])" \
                   "$build/$name" "$format" "$build/symbols-staging" "$name"
           fi
