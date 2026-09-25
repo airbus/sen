@@ -196,6 +196,28 @@ SPECIFIED_JOBS = [
         include_in_standard_test_workflow=False,
         include_in_standard_test_workflow_also_main=True,
     ),
+    # A release also ships an unoptimised build, for a consumer who wants to step through Sen
+    # and not read a stack out of it. Not the same program as the others: assertions
+    # compile in, and NDEBUG changes which exception type sen::throwRuntimeError throws.
+    JobSelector(
+        job_spec=JobSpecification(
+            name="Basic GCC (debug build)",
+            os="ubuntu-22.04",
+            runner="ubuntu-22.04",
+            compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
+            arch="x86",
+            std=17,
+            build_type="Debug",
+            enable_examples=True,
+            check_package=True,
+            ci_image="22.04",
+        ),
+        include_in_release_workflow=True,
+        include_in_conan_workflow=False,
+        include_in_conan_workflow_on_pull_requests=False,
+        include_in_standard_test_workflow=False,
+        include_in_standard_test_workflow_also_main=True,
+    ),
     JobSelector(
         job_spec=JobSpecification(
             name="Basic Windows (debug information)",

@@ -19,6 +19,7 @@ GCC_RELEASE = ("Basic GCC", "gcc-12", "Release", "ubuntu-22.04", "x86")
 CLANG_COVERAGE = ("Basic Clang", "clang-20", "Debug", "ubuntu-24.04", "x86")
 MSVC_RELEASE = ("Basic Windows", "cl", "Release", "windows-2022", "x86")
 GCC_RELWITHDEBINFO = ("Basic GCC (debug information)", "gcc-12", "RelWithDebInfo", "ubuntu-22.04", "x86")
+GCC_DEBUG_BUILD = ("Basic GCC (debug build)", "gcc-12", "Debug", "ubuntu-22.04", "x86")
 MSVC_RELWITHDEBINFO = ("Basic Windows (debug information)", "cl", "RelWithDebInfo", "windows-2022", "x86")
 ARM_DEBUG = ("Basic Ubuntu arm", "gcc-12", "Debug", "ubuntu-24.04-arm", "arm")
 
@@ -54,16 +55,26 @@ def test_conan_job_set():
 
 
 def test_release_job_set():
-    """Releases build gcc and MSVC, each twice: what ships, and what carries debug information."""
+    """What ships, what carries debug information, and an unoptimised build on Linux.
+
+    Windows has no unoptimised leg: dependencies stay Release by design, so a Debug Sen
+    there would link the release runtime and be useless for the one thing it is for.
+    """
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
-    assert job_keys(jobs) == [GCC_RELEASE, GCC_RELWITHDEBINFO, MSVC_RELEASE, MSVC_RELWITHDEBINFO]
+    assert job_keys(jobs) == [
+        GCC_RELEASE,
+        GCC_DEBUG_BUILD,
+        GCC_RELWITHDEBINFO,
+        MSVC_RELEASE,
+        MSVC_RELWITHDEBINFO,
+    ]
 
 
 def test_a_release_and_its_debug_information_share_a_toolchain():
-    """Both halves of one release, so one may not build in the image and the other not.
+    """Every leg of one release, so one may not build in the image and another not.
 
-    A second toolchain would add differences on top of the optimisation level that already
-    separates the two builds.
+    A second toolchain would add differences on top of the build type that already separates
+    them.
     """
     jobs = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
     by_compiler = defaultdict(set)

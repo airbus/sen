@@ -137,11 +137,30 @@ jobs:
           # Nothing else carries the build type into the build, and the matrix has two
           # per compiler. Scoped with &: so the dependencies stay Release instead of
           # being rebuilt for each leg.
-          conan install . --build=missing -s "&:build_type=${{ matrix.build_type }}"
+          # Only the shipping configuration carries debug information, and only here. Off
+          # everywhere else, so nothing else pays the size or loses the compiler cache.
+          symbols=''
+          if [ "${{ matrix.build_type }}" = "Release" ]; then
+              symbols='-o sen/*:with_release_symbols=True'
+          fi
+          conan install . --build=missing -s "&:build_type=${{ matrix.build_type }}" $symbols
           # conan build regenerates the toolchain, so it needs the same setting.
-          conan build . -s "&:build_type=${{ matrix.build_type }}"
-          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target package
-          python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
+          conan build . -s "&:build_type=${{ matrix.build_type }}" $symbols
+          build=build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
+          cmake --build "$build" --target package
+
+          # The install rules moved the debug information out of the tree CPack packaged and
+          # into $build/symbols, naming the archive there so this does not repeat the version,
+          # architecture and compiler that CPack already worked out.
+          if [ -d "$build/symbols" ]; then
+              name=$(cat "$build/symbols/archive-name")
+              staging="$build/symbols-staging/$name"
+              mkdir -p "$staging"
+              cp -R "$build/symbols/." "$staging/"
+              rm -f "$staging/archive-name"
+              tar -czf "$build/$name.tar.gz" -C "$build/symbols-staging" "$name"
+          fi
+          python .github/scripts/check_package_archive.py "$build"
           IN
 
       - name: Archive generated release package

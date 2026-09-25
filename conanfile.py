@@ -51,6 +51,7 @@ class SenConan(ConanFile):
         "with_coverage": [True, False],
         "with_docs": [True, False],
         "with_optimized_debug": [True, False],
+        "with_release_symbols": [True, False],
         "sanitizer": ["none", "address", "thread"],
     }
     default_options = {
@@ -61,6 +62,7 @@ class SenConan(ConanFile):
         "with_coverage": False,
         "with_docs": False,
         "with_optimized_debug": False,
+        "with_release_symbols": False,
         "sanitizer": "none",
     }
 
@@ -245,6 +247,7 @@ class SenConan(ConanFile):
         tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if self.options.with_coverage else "OFF"
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if self.options.with_examples else "OFF"
         tc.cache_variables["SEN_BUILD_TESTS"] = "ON" if self.options.with_tests else "OFF"
+        tc.cache_variables["SEN_RELEASE_SYMBOLS"] = "ON" if self.options.with_release_symbols else "OFF"
         tc.cache_variables["SEN_BUILD_DOCS"] = "ON" if self.options.with_docs else "OFF"
         tc.cache_variables["SEN_OPTIMIZED_DEBUG"] = "ON" if self.options.with_optimized_debug else "OFF"
         # Available in the full build, built only when asked for: the benchmark targets

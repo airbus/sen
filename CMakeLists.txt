@@ -23,6 +23,9 @@ option(SEN_BUILD_DOCS "Build documentation" ON)
 option(SEN_DISABLE_CLANG_TIDY "Disable clang-tidy" ON)
 option(SEN_COVERAGE_ENABLE "Enable coverage generation" OFF)
 option(SEN_OPTIMIZED_DEBUG "Enable smaller and better optimized debug build" OFF)
+# Off by default because it costs every Release build the size and time of carrying debug
+# information. The release workflow sets it; nothing else needs to.
+option(SEN_RELEASE_SYMBOLS "Build Release with debug information and split it out on install" OFF)
 option(SEN_ENABLE_CMAKE_TARGET_GRAPH "Enable the generation of a graphviz with the targets" ON)
 set(SEN_USE_SANITIZER
     "None"

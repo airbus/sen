@@ -241,6 +241,8 @@ $(paint bold "Options:")
   --compiler=<name>-<ver>     same, equals form
   --debug-symbols             fetch the separate build carrying debug information, for running
                               Sen under a debugger; a much larger download
+  --symbols                   fetch the debug information for the release build, for reading
+                              a crash in it; a much larger download
   -y, --yes                   non-interactive (refuse rather than open the menu)
   --allow-root                allow running as root (containers)
   -h, --help                  show this help
@@ -269,6 +271,9 @@ parse_args() {
                             [ -n "$SENV_COMPILER" ] || { err "install.sh:" "--compiler needs a value."; return 1; }
                             shift ;;
             --debug-symbols) SENV_BUILD_TYPE="relwithdebinfo"; shift ;;
+            # The release build's own symbols, which match the binaries it ships.
+            # --debug-symbols keeps meaning the separate build, which scripts already pass.
+            --symbols) SENV_BUILD_TYPE="release-symbols"; shift ;;
             -y|--yes)       SENV_NON_INTERACTIVE=1; shift ;;
             --allow-root)   SENV_ALLOW_ROOT=1; shift ;;
             -h|--help)      print_usage; exit 0 ;;

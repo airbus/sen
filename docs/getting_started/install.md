@@ -268,15 +268,52 @@ For Windows or environments where the quick installer is not an option, download
 for your platform from the [Releases page](https://github.com/airbus/sen/releases) and extract it
 anywhere. The extracted directory is `<sen_path>` in the snippets below.
 
-Each platform has two archives. The one ending `-release` is what you want to run. The one ending
-`-relwithdebinfo` is a separate build carrying debug information, for running Sen under a debugger.
-Its symbols do not describe the `-release` binaries, so a crash there has to be reproduced under it.
-It is a much larger download. The installer script takes the `-release` archive unless you pass
-`--debug-symbols`.
+Each platform has several archives, and which one you want depends on what you are doing.
 
-On Windows the debug information lives in `.pdb` files rather than inside the binaries. They are
-installed next to the executables and DLLs in `bin`, which is where a debugger looks for them, so
-keep them beside the binaries when you copy anything out of the archive.
+| Archive | The question it answers |
+| --- | --- |
+| `-release` | what do I run |
+| `-release-symbols` | what do the frames in my release crash say |
+| `-relwithdebinfo` | how do I step through Sen's own code |
+| `-debug` (Linux only) | what do Sen's own internal checks say |
+
+Take `-release`. It is the build to run and the only one most people need. Keep
+`-release-symbols` beside it if you expect to read a crash: together they turn a crash in the
+build you actually run into named frames with files and lines. The symbols archive is not needed
+to run Sen and is a much larger download, so fetch it when you need it.
+
+`-relwithdebinfo` is a different build of the same program, optimised but carrying debug
+information, for stepping through Sen in a debugger where the release build's inlining gets in the
+way. Its symbols do not describe the `-release` binaries.
+
+`-debug` is not the release build with more symbols, it is a different program: Sen's internal
+checks compile in, and the exception type thrown on an internal error changes with them, so code
+that catches by a concrete type behaves differently. Reach for it to reproduce a problem under
+Sen's own checking, not to read a crash that happened in a release build, because the crash you
+are reading may not be the crash it produces. There is no Windows `-debug`; a Windows debug build
+would have to link the debug runtime, and Sen's dependencies are built with the release one.
+
+The installer takes `-release` unless you pass `--symbols` for the release build's debug
+information, or `--debug-symbols` for the separate `-relwithdebinfo` build.
+
+## Reading a crash
+
+Extract `-release-symbols` anywhere and point the debugger at it when it starts:
+
+```shell
+gdb -iex "set debug-file-directory <symbols_path>/lib/debug" <sen_path>/bin/sen core
+```
+
+It has to be `-iex` and not `-ex`. The debugger looks for separate debug information while it
+loads the binary, so the same setting arriving afterwards does nothing at all and the frames come
+back unnamed, which looks like a problem with the symbols and not with the ordering.
+
+A debug file sitting next to the binary it belongs to needs no configuration, because each binary
+records the name of its own.
+
+On Windows the debug information lives in `.pdb` files. Extract `-release-symbols` over the
+extracted `-release` directory so each `.pdb` lands beside the binary it belongs to, which is where
+a debugger looks first.
 
 === "Linux"
 

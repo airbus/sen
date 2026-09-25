@@ -45,9 +45,10 @@ REQUIRED_DIRECTORIES = (
 # basic and full; a barebones package has none.
 REQUIRED_LIBRARIES = ("core", "shell")
 
-# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower
-# case. The version is a tag or "latest", and a tag may carry an -rc suffix.
-NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo)$")
+# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, with
+# -symbols for the archive holding the debug information the build type left behind. The
+# version is a tag or "latest", and a tag may carry an -rc suffix.
+NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo)(-symbols)?$")
 
 
 def list_entries(archive: Path) -> list[str]:
@@ -88,6 +89,9 @@ def archive_stem(archive: Path) -> str:
 
 def missing_entries(entries: list[str], stem: str = "") -> list[str]:
     """Returns the required files and directories the archive does not hold."""
+    if stem.endswith("-symbols"):
+        return _missing_symbols(entries)
+
     present = set(entries)
     missing = [name for name in REQUIRED_FILES if name not in present and f"{name}.exe" not in present]
     missing += [name for name in REQUIRED_DIRECTORIES if not any(entry.startswith(f"{name}/") for entry in entries)]
@@ -102,6 +106,21 @@ def missing_entries(entries: list[str], stem: str = "") -> list[str]:
         if not any(entry.lower().endswith(".pdb") for entry in entries):
             missing.append("a .pdb (debug information for Windows)")
     return missing
+
+
+def _missing_symbols(entries: list[str]) -> list[str]:
+    """What a symbols archive has to hold, which is nothing the other archives hold.
+
+    It ships debug information and no program, so the checks above would reject every
+    valid one. What makes it valid instead is carrying debug information at all: an
+    archive that packaged an empty symbols directory would otherwise pass every check
+    while being useless, which is the failure this whole change exists to remove.
+    """
+    if any(entry.endswith(".debug") for entry in entries):
+        return []
+    if any(entry.lower().endswith(".pdb") for entry in entries):
+        return []
+    return ["debug information (no .debug or .pdb entry)"]
 
 
 def _is_shared_library(entry: str, name: str) -> bool:
