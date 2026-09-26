@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('kernel_8h.html
 <code>#include &quot;stl/sen/kernel/network_footprint.stl.h&quot;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
+<code>#include &lt;optional&gt;</code><br />
 </div>
 <p><a href="kernel_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -155,6 +156,8 @@ Namespaces</h2></td></tr>
 <tr class="memitem:sen" id="r_sen"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html">sen</a></td></tr>
 <tr class="memitem:sen_3A_3Akernel" id="r_sen_3A_3Akernel"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html">sen::kernel</a></td></tr>
 <tr class="memdesc:namespacesen_1_1kernel"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strong type for the unique identifier for a transport timer. <br /></td></tr>
+<tr class="memitem:sen_3A_3Akernel_3A_3Acrash" id="r_sen_3A_3Akernel_3A_3Acrash"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel_1_1crash.html">sen::kernel::crash</a></td></tr>
+<tr class="memdesc:namespacesen_1_1kernel_1_1crash"><td class="mdescLeft">&#160;</td><td class="mdescRight">Crash reporting, which belongs to the process rather than to any one kernel: a process has one crash reporter however many kernels it builds. <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -162,6 +165,13 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8da80e806a34f2ee6147a30d0771987893b">sen::kernel::doBlock</a>
  }</td></tr>
 <tr class="memdesc:a5d722d534906b9b6c3174f44e67cea8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">How to deal with the thread that calls the <a class="el" href="classsen_1_1kernel_1_1_kernel.html#a6ded4df83f90b6c10269dd4110419c63" title="Fire up the execution of the kernel. In case the is already running, -1 is returned....">Kernel::run()</a> function.  <a href="namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8d">More...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:afcc2c88a3e3755c904e07437523d0d3f" id="r_afcc2c88a3e3755c904e07437523d0d3f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel_1_1crash.html#afcc2c88a3e3755c904e07437523d0d3f">sen::kernel::crash::arm</a> (const std::filesystem::path &amp;reportDirectory={})</td></tr>
+<tr class="memdesc:afcc2c88a3e3755c904e07437523d0d3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turns on crash reporting for this process: a terminate handler for an uncaught exception, and an out-of-process Crashpad handler for a fault. Both write under <span class="tt">reportDirectory</span>, or under the system temporary directory when it is empty.  <br /></td></tr>
+<tr class="memitem:a254c8f717b5db9710552f0db264363e2" id="r_a254c8f717b5db9710552f0db264363e2"><td class="memItemLeft">std::optional&lt; int &gt;&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel_1_1crash.html#a254c8f717b5db9710552f0db264363e2">sen::kernel::crash::runHandlerIfRequested</a> (int argc, char *argv[])</td></tr>
+<tr class="memdesc:a254c8f717b5db9710552f0db264363e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Give main() its own arguments here, before anything else, and leave with the value it returns when it returns one. Sen has no separate handler program, so on Windows the handler is this executable run again, and this call is what recognises that and becomes it. On other platforms it never claims the process, so the call costs nothing and the code stays the same.  <br /></td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -1,5 +1,8 @@
 var NAVTREEINDEX18 =
 {
+"structsen_1_1db_1_1test_1_1_single_class_setup.html#a15d64256db334bcf0791936a9a77f454":[1,0,1,0,1,1,2],
+"structsen_1_1db_1_1test_1_1_single_class_setup.html#a15d64256db334bcf0791936a9a77f454":[2,0,1,0,0,1,2],
+"structsen_1_1db_1_1test_1_1_single_class_setup.html#a2af41a394dda61eb5925423d746b2979":[1,0,1,0,1,1,3],
 "structsen_1_1db_1_1test_1_1_single_class_setup.html#a2af41a394dda61eb5925423d746b2979":[2,0,1,0,0,1,3],
 "structsen_1_1db_1_1test_1_1_single_class_setup.html#a31ee78b31109f05f7fd249fd485eae8b":[1,0,1,0,1,1,1],
 "structsen_1_1db_1_1test_1_1_single_class_setup.html#a31ee78b31109f05f7fd249fd485eae8b":[2,0,1,0,0,1,1],

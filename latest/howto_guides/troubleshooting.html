@@ -566,6 +566,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/crash_reports.html">
+<span class="md-ellipsis">
+    
+  
+    Crash reports
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../users_guide/cmake.html">
 <span class="md-ellipsis">
     
@@ -602,8 +614,8 @@
 </a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" id="__nav_3_16" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3_16" id="__nav_3_16_label" tabindex="0">
+<input class="md-nav__toggle md-toggle" id="__nav_3_17" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_17" id="__nav_3_17_label" tabindex="0">
 <span class="md-ellipsis">
     
   
@@ -614,8 +626,8 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_16_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_3_16">
+<nav aria-expanded="false" aria-labelledby="__nav_3_17_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_17">
 <span class="md-nav__icon md-icon"></span>
             
   
@@ -1456,6 +1468,37 @@
 </ul>
 </nav>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#crashes">
+<span class="md-ellipsis">
+      
+        Crashes
+      
+    </span>
+</a>
+<nav aria-label="Crashes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-process-disappeared-or-died-of-a-signal">
+<span class="md-ellipsis">
+      
+        A process disappeared, or died of a signal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-crashs-frames-have-no-function-names">
+<span class="md-ellipsis">
+      
+        A crash's frames have no function names
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
 </ul>
 </nav>
 </li>
@@ -2089,12 +2132,37 @@ multicast traffic. WSL2 also needs mirrored networking and a sufficiently high o
 <p><strong>Fix:</strong> Follow <a href="networking_wsl2_virtual_machines.html">Networking with WSL2 and virtual machines</a>.
 It covers the verified WSL2 setup, network-interface selection, socket limits, firewalls, known
 connectivity limitations, and the <abbr title="Transmission Control Protocol">TCP</abbr>-only fallback.</p>
+<hr/>
+<h2 id="crashes">Crashes<a class="headerlink" href="#crashes" title="Permanent link">¶</a></h2>
+<h3 id="a-process-disappeared-or-died-of-a-signal">A process disappeared, or died of a signal<a class="headerlink" href="#a-process-disappeared-or-died-of-a-signal" title="Permanent link">¶</a></h3>
+<p><strong>Symptom:</strong> A Sen process ended without a clean shutdown. A supervisor reports it as killed by a
+signal rather than as exiting with a status, or it vanished and left nothing on the terminal.</p>
+<p><strong>Cause:</strong> How Sen answers this depends on how the crash arrived. A fault — a bad access, a
+division by zero — never reaches Sen's own code at all, so the report is written from outside by a
+separate handler process, as a minidump. An uncaught exception does reach Sen, which writes a
+report itself and then aborts, so that route leaves both a report and a dump.</p>
+<p><strong>Fix:</strong> Look under the directory <code>crashReportDir</code> names. Nothing there means either the handler
+never armed, which the kernel log says on the line beginning "the crash handler could not be
+started", or <code>ptrace</code> was refused: check <code>cat /proc/sys/kernel/yama/ptrace_scope</code>, where <code>2</code> or <code>3</code>
+means no minidump. <a href="../users_guide/crash_reports.html">Crash reports</a> covers what each file holds, how
+to read the Sen-specific information out of a dump, and how to switch the whole thing off.</p>
+<h3 id="a-crashs-frames-have-no-function-names">A crash's frames have no function names<a class="headerlink" href="#a-crashs-frames-have-no-function-names" title="Permanent link">¶</a></h3>
+<p><strong>Symptom:</strong> A dump or a core opens, but the frames show addresses and a module rather than
+function names, files and lines.</p>
+<p><strong>Cause:</strong> A release build is stripped, so the binaries carry no description of which address
+belongs to which function. That description ships separately, in the <code>-release-symbols</code> archive,
+and it has to be the one built for the binaries that crashed.</p>
+<p><strong>Fix:</strong> <a href="../getting_started/install.html#manual-release-packages">Getting Sen</a> sets out which of the
+four archives answers which question, and
+<a href="../getting_started/install.html#reading-a-crash">Reading a crash</a> has the debugger invocation. Note
+that <code>-relwithdebinfo</code> is a different build of the same source rather than the release build with
+symbols added, so pointing it at a release dump resolves nothing useful.</p>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 19, 2026 17:29:09 UTC">September 19, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 26, 2026 08:25:29 UTC">September 26, 2026</span>
 </span>
 </aside>
 </article>

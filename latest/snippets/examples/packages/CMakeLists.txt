@@ -20,6 +20,7 @@ set(packages
     timer
     my_counter
     lifecycle
+    crash_demo
 )
 
 # add the subdirectories and fetch the schemas

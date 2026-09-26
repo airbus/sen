@@ -1,5 +1,8 @@
 var NAVTREEINDEX17 =
 {
+"structsen_1_1_guarded.html#a2ed8497910200436dd4e6847e497dfc8":[2,0,1,33,6],
+"structsen_1_1_guarded.html#a37458c2a601fcecb7ab9353f7997f3f3":[1,0,1,33,7],
+"structsen_1_1_guarded.html#a37458c2a601fcecb7ab9353f7997f3f3":[2,0,1,33,7],
 "structsen_1_1_guarded.html#a4124de5c4c9b819586b772d140a31aa0":[1,0,1,33,3],
 "structsen_1_1_guarded.html#a4124de5c4c9b819586b772d140a31aa0":[2,0,1,33,3],
 "structsen_1_1_guarded.html#a420f2ab77ea6cd0ad10d329befcfc525":[1,0,1,33,1],
@@ -246,8 +249,5 @@ var NAVTREEINDEX17 =
 "structsen_1_1db_1_1test_1_1_dual_class_setup.html#ac878b412ff7ac6fe3d1d5c8432e1f60d":[1,0,1,0,1,3,1],
 "structsen_1_1db_1_1test_1_1_dual_class_setup.html#ac878b412ff7ac6fe3d1d5c8432e1f60d":[2,0,1,0,0,3,1],
 "structsen_1_1db_1_1test_1_1_single_class_setup.html":[1,0,1,0,1,1],
-"structsen_1_1db_1_1test_1_1_single_class_setup.html":[2,0,1,0,0,1],
-"structsen_1_1db_1_1test_1_1_single_class_setup.html#a15d64256db334bcf0791936a9a77f454":[1,0,1,0,1,1,2],
-"structsen_1_1db_1_1test_1_1_single_class_setup.html#a15d64256db334bcf0791936a9a77f454":[2,0,1,0,0,1,2],
-"structsen_1_1db_1_1test_1_1_single_class_setup.html#a2af41a394dda61eb5925423d746b2979":[1,0,1,0,1,1,3]
+"structsen_1_1db_1_1test_1_1_single_class_setup.html":[2,0,1,0,0,1]
 };

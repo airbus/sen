@@ -1,5 +1,9 @@
 var namespacesen_1_1kernel =
 [
+    [ "crash", "namespacesen_1_1kernel_1_1crash.html", [
+      [ "arm", "namespacesen_1_1kernel_1_1crash.html#afcc2c88a3e3755c904e07437523d0d3f", null ],
+      [ "runHandlerIfRequested", "namespacesen_1_1kernel_1_1crash.html#a254c8f717b5db9710552f0db264363e2", null ]
+    ] ],
     [ "Bootloader", "classsen_1_1kernel_1_1_bootloader.html", "classsen_1_1kernel_1_1_bootloader" ],
     [ "BusId", "structsen_1_1kernel_1_1_bus_id.html", "structsen_1_1kernel_1_1_bus_id" ],
     [ "Component", "classsen_1_1kernel_1_1_component.html", "classsen_1_1kernel_1_1_component" ],
