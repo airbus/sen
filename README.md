@@ -117,26 +117,30 @@ has the commands.
 - Object-oriented and event-driven architecture on top of a light (user-space) micro-kernel.
 - Package-based, plugin-oriented system for higher reuse, modularity and lower coupling.
 - Rich type system with full compile-time and run-time introspection.
-- Generates your types from [HLA FOM](https://en.wikipedia.org/wiki/High_Level_Architecture)
-  files, so a [SISO](https://www.siso.org/) standard model such as RPR or NETN can
-  serve as your [interface definition](https://en.wikipedia.org/wiki/Interface_control_document).
-  Sen reads FOMs at build time; it does not join HLA federations.
-- Simple language for easy definition of your interfaces: Sen Type Language (STL).
+- Generates your types from [HLA](https://en.wikipedia.org/wiki/High_Level_Architecture)
+  [FOM](https://airbus.github.io/sen/latest/users_guide/hla.html) files, so a [SISO](https://www.siso.org/) standard
+  model such as RPR or NETN can serve as your
+  [interface definition](https://en.wikipedia.org/wiki/Interface_control_document). Sen reads FOMs at build time; it
+  does not join HLA federations.
+- Simple language for easy definition of your interfaces: Sen Type Language
+  ([STL](https://airbus.github.io/sen/latest/users_guide/stl.html)).
 
 **⚙️ Execution model**
 
-- Real-time, faster-than real-time (as fast as possible) and stepped execution.
+- Real-time, faster-than real-time (as fast as possible) and stepped
+  [execution](https://airbus.github.io/sen/latest/users_guide/execution_model.html).
 - Built-in ownership of objects and their state: each object belongs to the component that
   created it, and goes away when that component does. This is lifetime ownership, not
   transfer between components.
 - Inherently asynchronous. Callers cannot be blocked. Callees can postpone their execution.
-- Thread-safe communication with other components: everything Sen calls runs inside the cycle, so
-  your objects exchange data without synchronization primitives of their own. A thread you started
-  yourself is outside the cycle and hands work in rather than writing directly, and protecting what
-  the two share is your job.
-- Dependency management and controlled component execution by groups.
-- Built-in type-safe configuration mechanism based on [YAML](https://yaml.org/) or
-  [Python](https://www.python.org/).
+- Thread-safe communication with other components: everything Sen calls runs inside the
+  [cycle](https://airbus.github.io/sen/latest/users_guide/threading.html), so your objects exchange data without
+  synchronization primitives of their own. A thread you started yourself is outside the cycle and hands work in rather
+  than writing directly, and protecting what the two share is your job.
+- Dependency management and controlled component execution by
+  [groups](https://airbus.github.io/sen/latest/howto_guides/using_groups.html).
+- Built-in type-safe [configuration](https://airbus.github.io/sen/latest/users_guide/configuration.html) mechanism
+  based on [YAML](https://yaml.org/) or [Python](https://www.python.org/).
 
 **🔗 Communications model**
 
@@ -154,36 +158,50 @@ has the commands.
 
 **📦 Shipped components**
 
-- *Recorder*, highly customizable, with
+- *[Recorder](https://airbus.github.io/sen/latest/components/recording.html)*, highly customizable, with
   [LZ4](<https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)>) compression, indexes, snapshots and annotations.
-- *Ethernet transport* supporting asynchronous I/O over TCP, UDP unicast and multicast.
-- *Replayer* with support for real-time, stepped execution and random access.
-- *Python Interpreter* embedded. You can script your components and tests.
-- *Shell* for CLI interaction, with auto-completion, introspection, and remote connectivity.
-- *[Grafana](https://grafana.com/) visualization* via the [InfluxDB](https://www.influxdata.com/) component.
-- *Tracer* based on the excellent [Tracy](https://github.com/wolfpld/tracy) frame-based profiler.
-- *Log Manager* to control and configure the logs of a running system.
-- *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots),
-  available as either a native desktop window or a browser-based Web Explorer.
-- *REST API Server* or *JSON-RPC over WebSocket* for interfacing external (non-Sen) systems, with an
-  in-tree [TypeScript client](https://airbus.github.io/sen/latest/components/jsonrpc_ts_client.html) (`@sen/client`)
-  and React hooks for browser / Node.js consumers.
-- *MCP gateway* so a large language model can observe and drive a running system, or read a recording.
+- *[Ethernet transport](https://airbus.github.io/sen/latest/components/ether.html)* supporting asynchronous I/O over
+  TCP, UDP unicast and multicast.
+- *[Replayer](https://airbus.github.io/sen/latest/components/replaying.html)* with support for real-time, stepped
+  execution and random access.
+- *[Python Interpreter](https://airbus.github.io/sen/latest/components/py.html)* embedded. You can script your
+  components and tests.
+- *[Shell](https://airbus.github.io/sen/latest/components/shell.html)* for CLI interaction, with auto-completion,
+  introspection, and remote connectivity.
+- *[Grafana](https://grafana.com/) visualization* via the
+  [InfluxDB component](https://airbus.github.io/sen/latest/components/influx.html).
+- *[Tracer](https://airbus.github.io/sen/latest/components/tracy.html)* based on the excellent
+  [Tracy](https://github.com/wolfpld/tracy) frame-based profiler.
+- *[Log Manager](https://airbus.github.io/sen/latest/components/logmaster.html)* to control and configure the logs of
+  a running system.
+- *[Explorer GUI](https://airbus.github.io/sen/latest/components/explorer.html)* to inspect and interact with your
+  system (objects, events, sessions, plots), available as either a native desktop window or a browser-based
+  [Web Explorer](https://airbus.github.io/sen/latest/components/webexplorer.html).
+- *[REST API Server](https://airbus.github.io/sen/latest/components/rest.html)* or
+  *[JSON-RPC over WebSocket](https://airbus.github.io/sen/latest/components/jsonrpc.html)* for interfacing external
+  (non-Sen) systems, with an in-tree
+  [TypeScript client](https://airbus.github.io/sen/latest/components/jsonrpc_ts_client.html) (`@sen/client`) and React
+  hooks for browser / Node.js consumers.
+- *[MCP gateway](https://airbus.github.io/sen/latest/components/mcp_gateway.html)* so a large language model can
+  observe and drive a running system, or read a recording.
 
 **💻 Implementation**
 
 - Lightweight, multi-platform implementation. Works on Linux and Windows.
 - Run-time and compile-time introspection provided by the code generator.
 - Optimized memory management by extensive use of memory pools.
-- Natively integrated with [CMake](https://cmake.org/). Meta info is baked into the binaries.
+- Natively integrated with [CMake](https://airbus.github.io/sen/latest/users_guide/cmake.html). Meta info is baked
+  into the binaries.
 - A crash leaves a minidump, written from outside the dying process, carrying the Sen version, the
   build, the components that were loaded and the last log lines (see
   [Crash reports](https://airbus.github.io/sen/latest/users_guide/crash_reports.html)).
 - Self-contained: no 3rd-party dependencies on the public interface.
-- Python bindings for accessing recorded data.
-- Backward compatible ICDs with runtime interoperability. Where two participants disagree about a
-  type, Sen adapts rather than refuses, as far as the types allow (see
-  [Compatibility conversions](https://airbus.github.io/sen/latest/users_guide/compatibility_conversions.html) for details).
+- [Python bindings](https://airbus.github.io/sen/latest/users_guide/db_python_bindings.html) for accessing recorded
+  data.
+- Backward compatible ICDs with runtime interoperability. Where two participants disagree about a type, Sen adapts
+  rather than refuses, as far as the types allow (see
+  [Compatibility conversions](https://airbus.github.io/sen/latest/users_guide/compatibility_conversions.html) for
+  details).
 
 <a name="how-to-build"></a>
 
