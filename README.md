@@ -39,9 +39,9 @@ Sen comes out of the simulation domain, where systems built by different teams a
 companies have to work together, and it is built for any system with that shape.
 
 If you are arriving from ROS, DDS, gRPC or SOME/IP, start with
-[the mental model](docs/users_guide/mental_model.md): it maps what you already know onto Sen's
-equivalents, and explains the one idea that is genuinely different: Sen is object-oriented at the
-network level, not message-oriented.
+[the mental model](https://airbus.github.io/sen/latest/users_guide/mental_model.html): it maps what you already know
+onto Sen's equivalents, and explains the one idea that is genuinely different: Sen is object-oriented at the network
+level, not message-oriented.
 
 <a name="quick-start"></a>
 
@@ -104,7 +104,7 @@ The [examples](examples/README.md) go further, and the
 [docs](https://airbus.github.io/sen/latest/) cover the rest.
 
 Sen is not on Conan Center yet, so you build it into your local Conan cache once, from a checkout of
-the release tag. [Using Sen in your project](docs/getting_started/install.md#using-sen-in-your-project-conan)
+the release tag. [Using Sen in your project](https://airbus.github.io/sen/latest/getting_started/install.html#using-sen-in-your-project-conan)
 has the commands.
 
 <a name="main-features"></a>
@@ -166,8 +166,8 @@ has the commands.
 - *Explorer GUI* to inspect and interact with your system (objects, events, sessions, plots),
   available as either a native desktop window or a browser-based Web Explorer.
 - *REST API Server* or *JSON-RPC over WebSocket* for interfacing external (non-Sen) systems, with an
-  in-tree [TypeScript client](docs/components/jsonrpc_ts_client.md) (`@sen/client`) and React hooks
-  for browser / Node.js consumers.
+  in-tree [TypeScript client](https://airbus.github.io/sen/latest/components/jsonrpc_ts_client.html) (`@sen/client`)
+  and React hooks for browser / Node.js consumers.
 - *MCP gateway* so a large language model can observe and drive a running system, or read a recording.
 
 **💻 Implementation**
@@ -178,12 +178,12 @@ has the commands.
 - Natively integrated with [CMake](https://cmake.org/). Meta info is baked into the binaries.
 - A crash leaves a minidump, written from outside the dying process, carrying the Sen version, the
   build, the components that were loaded and the last log lines (see
-  [Crash reports](docs/users_guide/crash_reports.md)).
+  [Crash reports](https://airbus.github.io/sen/latest/users_guide/crash_reports.html)).
 - Self-contained: no 3rd-party dependencies on the public interface.
 - Python bindings for accessing recorded data.
 - Backward compatible ICDs with runtime interoperability. Where two participants disagree about a
   type, Sen adapts rather than refuses, as far as the types allow (see
-  [Compatibility conversions](docs/users_guide/compatibility_conversions.md) for details).
+  [Compatibility conversions](https://airbus.github.io/sen/latest/users_guide/compatibility_conversions.html) for details).
 
 <a name="how-to-build"></a>
 
@@ -194,15 +194,15 @@ pkg-config; the last three are used by the third-party recipes when they build f
 has to be there before Conan starts: where no prebuilt package exists Conan builds Ninja itself,
 and that build needs a Ninja to run.
 
-[Building from source](docs/howto_guides/building_from_source.md) covers the rest: prerequisites on
-other distributions, driving CMake yourself, Conan editable mode for building a consumer project
-against your working copy, and the errors a first build usually hits.
-The same page explains the `mode` option and the developer flags, and
-[Running the tests](docs/getting_started/testing.md) covers the suite.
+[Building from source](https://airbus.github.io/sen/latest/howto_guides/building_from_source.html) covers the rest:
+prerequisites on other distributions, driving CMake yourself, Conan editable mode for building a consumer project
+against your working copy, and the errors a first build usually hits. The same page explains the `mode` option and the
+developer flags, and [Running the tests](https://airbus.github.io/sen/latest/getting_started/testing.html) covers the
+suite.
 
-Once it builds, the [tutorials](docs/tutorials/index.md) start with one object that counts and
-publishes itself, then two objects calling each other. For a tour of a running system, try the
-[Web Explorer showcase](docs/components/webexplorer.md#try-it-standalone).
+Once it builds, the [tutorials](https://airbus.github.io/sen/latest/tutorials/index.html) start with one object that
+counts and publishes itself, then two objects calling each other. For a tour of a running system, try the
+[Web Explorer showcase](https://airbus.github.io/sen/latest/components/webexplorer.html#try-it-standalone).
 
 <a name="limitations"></a>
 
