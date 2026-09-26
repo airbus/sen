@@ -1,0 +1,84 @@
+# Demo configuration for testing the term component.
+# Run with: sen-cli --config examples/config/term_demo.yaml
+#
+# This config starts the term component alongside a test component that emits
+# log messages at various levels and writes to stdout/stderr, allowing you to
+# test output capture, log routing, and verbosity control.
+load:
+  - name: term
+    group: 2
+    theme: oneLight
+    open:
+      - local.demo
+      - my.tutorial
+
+build:
+  - name: demoComponent
+    freqHz: 1
+    group: 3
+    imports: [log_emitter]
+    objects:
+      # A slow emitter using spdlog at various levels
+      - class: log_emitter.EmitterImpl
+        name: slowLogger
+        bus: local.demo
+        config:
+          rate: slow
+          output: spdlogOnly
+          prefix: "[slow]"
+
+      # A moderate emitter writing to stdout/stderr
+      - class: log_emitter.EmitterImpl
+        name: consoleWriter
+        bus: local.demo
+        config:
+          rate: moderate
+          output: stdoutOnly
+          prefix: "[console]"
+
+      # A fast emitter mixing both spdlog and stdout
+      - class: log_emitter.EmitterImpl
+        name: fastMixed
+        bus: local.demo
+        config:
+          rate: fast
+          output: mixed
+          prefix: "[fast]"
+  - name: myComponent
+    group: 4
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - class: my_package.MyClassImpl
+        name: myClass
+        bus: my.tutorial
+        prop1: some value
+  - name: myComponent2
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciManager
+        workersBus: my.tutorial
+        name: fibManager
+        bus: my.tutorial
+  - name: myComponent3
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: my.tutorial
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: my.tutorial
+  - name: weather
+    group: 4
+    freqHz: 30
+    imports: [weather_server]
+    objects:
+      - name: weatherServer
+        class: weather_server.WeatherServerImpl
+        bus: my.tutorial
+        targetBus: my.tutorial

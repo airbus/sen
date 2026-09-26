@@ -86,6 +86,7 @@ add_subdirectory(libs/gen)
 
 # components
 add_subdirectory(components/shell)
+add_subdirectory(components/term)
 add_subdirectory(components/ether)
 add_subdirectory(components/recorder)
 add_subdirectory(components/replayer)
@@ -138,8 +139,12 @@ if(SEN_BUILD_TESTS)
   add_subdirectory(test/util/calls_on_removal)
   add_subdirectory(test/util/publish_types_manually)
   add_subdirectory(test/util/query_test)
+  add_subdirectory(test/util/log_emitter)
   add_subdirectory(test/support)
 endif()
+
+# every declared component must have registered itself; see the function's comment
+sen_internal_check_components_registered()
 
 # coverage
 include(util/coverage)

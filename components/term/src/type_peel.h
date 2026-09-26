@@ -1,0 +1,72 @@
+// === type_peel.h
+// ======================================================================================================
+//                                               Sen Infrastructure
+//                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+//                                    See the LICENSE.txt file for more information.
+//                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+// =====================================================================================================================
+
+#ifndef SEN_COMPONENTS_TERM_SRC_TYPE_PEEL_H
+#define SEN_COMPONENTS_TERM_SRC_TYPE_PEEL_H
+
+// sen
+#include "sen/core/meta/alias_type.h"
+#include "sen/core/meta/optional_type.h"
+#include "sen/core/meta/type.h"
+
+namespace sen::components::term
+{
+
+/// Peel every alias layer, giving the type the alias ultimately names.
+///
+/// An alias is transparent to everything term does with a type -- the editor to offer, the way to
+/// format a value, whether it is a sequence -- so almost every use has to peel first. Keeping the
+/// alias made `asQuantityType()` and `asOptionalType()` return null downstream. This loop was written
+/// out by hand at seven sites across four files, which is how two of them came to differ.
+[[nodiscard]] inline ConstTypeHandle<> peelAliases(ConstTypeHandle<> type)
+{
+  for (const auto* alias = type->asAliasType(); alias != nullptr; alias = type->asAliasType())
+  {
+    type = alias->getAliasedType();
+  }
+  return type;
+}
+
+/// The same, for a raw type pointer: `TypeHandle`'s pointer constructor is private, so code holding a
+/// `const Type&` cannot make a handle to peel.
+[[nodiscard]] inline const Type* peelAliases(const Type* type)
+{
+  for (const auto* alias = type->asAliasType(); alias != nullptr; alias = type->asAliasType())
+  {
+    type = alias->getAliasedType().type();
+  }
+  return type;
+}
+
+/// The same, for the optional handle a form field carries. Throws on an empty handle, as every
+/// hand-written version did.
+[[nodiscard]] inline ConstTypeHandle<> peelAliases(const MaybeConstTypeHandle<>& type)
+{
+  return peelAliases(type.value());
+}
+
+/// Peel alias and optional layers together, giving the value type underneath. Use this where a field
+/// holds a value and it does not matter whether that value is optional; use `peelAliases` where the
+/// optional itself matters.
+[[nodiscard]] inline ConstTypeHandle<> peelToValue(ConstTypeHandle<> type)
+{
+  while (true)
+  {
+    type = peelAliases(type);
+    const auto* optional = type->asOptionalType();
+    if (optional == nullptr)
+    {
+      return type;
+    }
+    type = optional->getType();
+  }
+}
+
+}  // namespace sen::components::term
+
+#endif  // SEN_COMPONENTS_TERM_SRC_TYPE_PEEL_H

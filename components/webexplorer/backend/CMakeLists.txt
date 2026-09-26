@@ -50,4 +50,8 @@ sen_enable_static_analysis(webexplorer)
 
 set_target_properties(webexplorer PROPERTIES FOLDER "components/webexplorer/backend")
 
+# Without this the target never appends itself to SEN_INTERNAL_COMPONENT_TARGETS, which
+# cmake/util/coverage.cmake reads, so it is absent from any coverage run that does not name targets.
+sen_internal_configure_component(webexplorer)
+
 sen_internal_install(webexplorer)

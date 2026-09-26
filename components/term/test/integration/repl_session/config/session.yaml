@@ -1,0 +1,23 @@
+# Configuration for the term's integration tests. Trimmed to the showcase package alone: one bus,
+# one object that answers, and one whose name carries a dot so a nested group exists to navigate.
+load:
+  - name: ether
+    group: 10
+  - name: term
+    group: 2
+    noLogo: true
+    open:
+      - local.demo
+
+build:
+  - name: showcaseComponent
+    freqHz: 30
+    group: 3
+    imports: [term_showcase]
+    objects:
+      - class: term_showcase.ShowcaseImpl
+        name: showcase
+        bus: local.demo
+      - class: term_showcase.ShowcaseImpl
+        name: alpha.beta
+        bus: local.demo

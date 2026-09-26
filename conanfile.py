@@ -21,7 +21,7 @@ COMPONENTS = tuple(sorted(p.parent.name for p in (Path(__file__).parent / "compo
 
 # Components enabled by `mode=basic`. `mode=full` enables every COMPONENT;
 # `mode=barebones` enables none.
-_BASIC_COMPONENTS = frozenset({"shell", "ether"})
+_BASIC_COMPONENTS = frozenset({"shell", "term", "ether"})
 
 
 class SenConan(ConanFile):
@@ -131,6 +131,10 @@ class SenConan(ConanFile):
                     options={"alsa": False, "pulse": False, "shared": True, "wayland": False, "libunwind": False},
                     visible=False,
                 )
+
+        # term-only (the TUI framework it renders with)
+        if self._is_component_enabled("term"):
+            self.requires("ftxui/7.0.3", visible=False)
 
         # py-only (Python integration)
         if self._is_component_enabled("py"):

@@ -178,6 +178,14 @@ function(add_sen_package)
 
   if(_arg_IS_COMPONENT)
     set(_component_name ${_arg_TARGET})
+    # Declaring a component and forgetting sen_internal_configure_component() left it out of
+    # SEN_INTERNAL_COMPONENT_TARGETS and so out of coverage, silently. Two of them had drifted that
+    # way. Recording the declaration here lets the check at the end of the root CMakeLists notice.
+    # Only the ones under components/: a test fixture that declares IS_COMPONENT is not something
+    # coverage reports on.
+    if(CMAKE_CURRENT_SOURCE_DIR MATCHES "^${PROJECT_SOURCE_DIR}/components/")
+      set_property(GLOBAL APPEND PROPERTY SEN_INTERNAL_DECLARED_COMPONENTS ${_arg_TARGET})
+    endif()
   endif()
 
   set(_make_classes_visible NO)

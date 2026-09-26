@@ -22,6 +22,9 @@
 #ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
 #  include "builtin_configs/shell.h"
 #endif
+#ifdef SEN_CLI_RUN_HAS_TERM_PRESET
+#  include "builtin_configs/term.h"
+#endif
 #ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
 #  include "builtin_configs/replay.h"
 #endif
@@ -283,6 +286,13 @@ std::unique_ptr<sen::kernel::Bootloader> makeBootloader(const std::shared_ptr<Ru
   if (args->preset == "shell")
   {
     presetContents = sen::decompressSymbolToString(shell, shellSize);
+    presetMatched = true;
+  }
+#endif
+#ifdef SEN_CLI_RUN_HAS_TERM_PRESET
+  if (!presetMatched && args->preset == "term")
+  {
+    presetContents = sen::decompressSymbolToString(term, termSize);
     presetMatched = true;
   }
 #endif
@@ -646,12 +656,16 @@ int runApp(int argc, char* argv[])
   app.get_formatter()->column_width(35);
 
   app.add_option("config", args->configFile, "Configuration file")->check(CLI::ExistingPath);
-#if defined(SEN_CLI_RUN_HAS_SHELL_PRESET) || defined(SEN_CLI_RUN_HAS_REPLAY_PRESET) ||                                 \
-  defined(SEN_CLI_RUN_HAS_EXPLORER_PRESET) || defined(SEN_CLI_RUN_HAS_WEBEXPLORER_PRESET)
+#if defined(SEN_CLI_RUN_HAS_SHELL_PRESET) || defined(SEN_CLI_RUN_HAS_TERM_PRESET) ||                                   \
+  defined(SEN_CLI_RUN_HAS_REPLAY_PRESET) || defined(SEN_CLI_RUN_HAS_EXPLORER_PRESET) ||                                \
+  defined(SEN_CLI_RUN_HAS_WEBEXPLORER_PRESET)
   app.add_option("--preset", args->preset, "Preset name")
     ->check(CLI::IsMember({
 #  ifdef SEN_CLI_RUN_HAS_SHELL_PRESET
       "shell",
+#  endif
+#  ifdef SEN_CLI_RUN_HAS_TERM_PRESET
+      "term",
 #  endif
 #  ifdef SEN_CLI_RUN_HAS_REPLAY_PRESET
       "replay",
