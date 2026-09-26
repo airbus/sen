@@ -2303,4 +2303,63 @@ TEST(StaticVectorCoverageExtra, ComplexInstantiation)
   }
 }
 
+/// Check the ordering operators
+/// @requirements(SEN-355)
+TYPED_TEST(VectorTestTemplate, orderingOperators)
+{
+  using Vec = typename TypeParam::Vec;
+
+  // Equal vectors are neither smaller nor greater than one another.
+  {
+    Vec vector1;
+    Vec vector2;
+    this->populate(vector1);
+    this->populate(vector2);
+
+    EXPECT_FALSE(vector1 < vector2);
+    EXPECT_FALSE(vector1 > vector2);
+    EXPECT_FALSE(vector2 < vector1);
+    EXPECT_FALSE(vector2 > vector1);
+  }
+
+  // The first element that differs decides, and the two operators agree on it.
+  {
+    Vec sample;
+    Vec different;
+    this->populate(sample);
+    this->populateDifferent(different);
+
+    // Parenthesised: unparenthesised < and > inside a macro argument list read as template
+    // brackets, and clang-format rewrites them into something that does not compile.
+    EXPECT_EQ((sample < different), (different > sample));
+    EXPECT_EQ((different < sample), (sample > different));
+    EXPECT_NE((sample < different), (different < sample));
+  }
+
+  // A prefix is smaller than what it is a prefix of, whatever the elements are.
+  {
+    Vec longer;
+    Vec shorter;
+    this->populate(longer);
+    this->populate(shorter);
+    shorter.pop_back();
+
+    EXPECT_TRUE(shorter < longer);
+    EXPECT_TRUE(longer > shorter);
+    EXPECT_FALSE(longer < shorter);
+    EXPECT_FALSE(shorter > longer);
+  }
+
+  // An empty vector is smaller than any non-empty one.
+  {
+    Vec empty;
+    Vec populated;
+    this->populate(populated);
+
+    EXPECT_TRUE(empty < populated);
+    EXPECT_TRUE(populated > empty);
+    EXPECT_FALSE(empty > populated);
+  }
+}
+
 // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
