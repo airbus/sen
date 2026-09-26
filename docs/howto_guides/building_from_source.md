@@ -97,6 +97,10 @@ List what you actually have with:
 cmake --list-presets
 ```
 
+`conan install` writes these into `CMakeUserPresets.json` at the repository root, so VS Code, CLion
+and Visual Studio offer them once you open the folder. Run the install step before opening the
+project, or the IDE finds no presets to list.
+
 ??? note "Matching CI's exact toolchain"
 
     The repository ships ready-made profiles under `.conan/profiles/`:
