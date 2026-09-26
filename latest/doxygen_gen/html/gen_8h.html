@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('gen_8h.html','
 <code>#include &lt;iterator&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
 </div>
 <p><a href="gen_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -276,7 +277,7 @@ Macros</h2></td></tr>
 <div class="line">  [[nodiscard]] static inline ::<a class="code hl_namespace" href="namespacesen.html">sen</a>::ConstTypeHandle&lt;::<a class="code hl_namespace" href="namespacesen.html">sen</a>::ClassType&gt; meta() noexcept;                                \</div>
 <div class="line">                                                                                                                       \</div>
 <div class="line">private:</div>
-<div class="ttc" id="agen_8h_html_a06c414c49ba27d06e4948218b4985706"><div class="ttname"><a href="#a06c414c49ba27d06e4948218b4985706">SEN_IMPL_GEN_NATIVE_MEMBERS</a></div><div class="ttdeci">#define SEN_IMPL_GEN_NATIVE_MEMBERS</div><div class="ttdef"><b>Definition</b> gen.h:47</div></div>
+<div class="ttc" id="agen_8h_html_a06c414c49ba27d06e4948218b4985706"><div class="ttname"><a href="#a06c414c49ba27d06e4948218b4985706">SEN_IMPL_GEN_NATIVE_MEMBERS</a></div><div class="ttdeci">#define SEN_IMPL_GEN_NATIVE_MEMBERS</div><div class="ttdef"><b>Definition</b> gen.h:48</div></div>
 <div class="ttc" id="anamespacesen_html"><div class="ttname"><a href="namespacesen.html">sen</a></div><div class="ttdef"><b>Definition</b> assert.h:17</div></div>
 </div><!-- fragment -->
 <p>Used by the generated code for simplicity NOLINTNEXTLINE. </p>
@@ -408,8 +409,21 @@ Macros</h2></td></tr>
 <div class="line">  <span class="keyword">using </span>Parent = <a class="code hl_class" href="classsen_1_1_static_vector.html">::sen::StaticVector&lt;element, maxSize&gt;</a>;                                                              \</div>
 <div class="line">  <span class="keyword">using </span>Parent::Parent;                                                                                              \</div>
 <div class="line">  <span class="keyword">using </span>Parent::operator=;                                                                                           \</div>
+<div class="line">                                                                                                                     \</div>
+<div class="line">  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> P = Parent&gt;                                                                                     \</div>
+<div class="line">  std::enable_if_t&lt;sen::HasOperator&lt;P&gt;::lt, <span class="keywordtype">bool</span>&gt; <a class="code hl_function" href="group__util.html#ga0583e0d27ec13056bc8e6852c00c2bfb">operator&lt;</a>(<span class="keyword">const</span> classname&amp; other) <span class="keyword">const</span>                            \</div>
+<div class="line">  {                                                                                                                  \</div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keyword">const </span>P&amp;<span class="keyword">&gt;</span>(*this) &lt; <span class="keyword">static_cast&lt;</span><span class="keyword">const </span>P&amp;<span class="keyword">&gt;</span>(other);                                              \</div>
+<div class="line">  }                                                                                                                  \</div>
+<div class="line">                                                                                                                     \</div>
+<div class="line">  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> P = Parent&gt;                                                                                     \</div>
+<div class="line">  std::enable_if_t&lt;sen::HasOperator&lt;P&gt;::lt, <span class="keywordtype">bool</span>&gt; operator&gt;(<span class="keyword">const</span> classname&amp; other) <span class="keyword">const</span>                            \</div>
+<div class="line">  {                                                                                                                  \</div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keyword">const </span>P&amp;<span class="keyword">&gt;</span>(other) &lt; <span class="keyword">static_cast&lt;</span><span class="keyword">const </span>P&amp;<span class="keyword">&gt;</span>(*<span class="keyword">this</span>);                                              \</div>
+<div class="line">  }                                                                                                                  \</div>
 <div class="line">};</div>
-<div class="ttc" id="aclasssen_1_1_static_vector_html"><div class="ttname"><a href="classsen_1_1_static_vector.html">sen::StaticVector</a></div><div class="ttdoc">Stack-based, exception-free and resizable vector with fixed-capacity.</div><div class="ttdef"><b>Definition</b> static_vector.h:572</div></div>
+<div class="ttc" id="aclasssen_1_1_static_vector_html"><div class="ttname"><a href="classsen_1_1_static_vector.html">sen::StaticVector</a></div><div class="ttdoc">Stack-based, exception-free and resizable vector with fixed-capacity.</div><div class="ttdef"><b>Definition</b> static_vector.h:573</div></div>
+<div class="ttc" id="agroup__util_html_ga0583e0d27ec13056bc8e6852c00c2bfb"><div class="ttname"><a href="group__util.html#ga0583e0d27ec13056bc8e6852c00c2bfb">sen::operator&lt;</a></div><div class="ttdeci">std::enable_if_t&lt; HasOperator&lt; T &gt;::lt, bool &gt; operator&lt;(const StaticVector&lt; T, size &gt; &amp;lhs, const StaticVector&lt; T, size &gt; &amp;rhs) noexcept(noexcept(std::declval&lt; const T &amp; &gt;()&lt; std::declval&lt; const T &amp; &gt;()))</div><div class="ttdoc">Lexicographically compares two StaticVector objects.</div><div class="ttdef"><b>Definition</b> static_vector.h:677</div></div>
 </div><!-- fragment -->
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 

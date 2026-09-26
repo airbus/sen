@@ -387,6 +387,8 @@ var group__util =
     [ "sen::makeConstSpan", "group__util.html#gacae1f4bd0ffe485109c99441d1482b80", null ],
     [ "sen::operator==", "group__util.html#gaf543be41f4d1f6d05d5ef026bbdd20aa", null ],
     [ "sen::operator!=", "group__util.html#ga415d0821f04c9439441581b7fb7d6770", null ],
+    [ "sen::operator<", "group__util.html#ga0583e0d27ec13056bc8e6852c00c2bfb", null ],
+    [ "sen::operator>", "group__util.html#gac4d6dbbb65e1788af9d486d08d395de5", null ],
     [ "sen::Uuid::Uuid", "group__util.html#ga6f0cd15754cad348a23bf2c71db331c6", null ],
     [ "sen::Uuid::Uuid", "group__util.html#ga2adf16d7d3b2072b39f219391dcb4bd1", null ],
     [ "sen::Uuid::Uuid", "group__util.html#gaf3007c3891b795c0c4c75b18fb4fa3c6", null ],

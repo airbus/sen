@@ -1,5 +1,7 @@
 var NAVTREEINDEX16 =
 {
+"namespacesen_1_1util.html#a2eefcff97531eea666ff5720babee469":[1,0,1,7,65],
+"namespacesen_1_1util.html#a3512754932483997fc78235e239f59a6":[1,0,1,7,67],
 "namespacesen_1_1util.html#a3550ae7467478d328c5fd631e30cda0f":[1,0,1,7,76],
 "namespacesen_1_1util.html#a389bd13aa755eaf5354f5a4a4be6ab0d":[1,0,1,7,60],
 "namespacesen_1_1util.html#a3a126b978391ae62a7a96e16946c7179":[1,0,1,7,26],
@@ -247,7 +249,5 @@ var NAVTREEINDEX16 =
 "structsen_1_1_guarded.html#a2ed8497910200436dd4e6847e497dfc8":[1,0,1,33,6],
 "structsen_1_1_guarded.html#a2ed8497910200436dd4e6847e497dfc8":[2,0,1,33,6],
 "structsen_1_1_guarded.html#a37458c2a601fcecb7ab9353f7997f3f3":[1,0,1,33,7],
-"structsen_1_1_guarded.html#a37458c2a601fcecb7ab9353f7997f3f3":[2,0,1,33,7],
-"structsen_1_1_guarded.html#a4124de5c4c9b819586b772d140a31aa0":[1,0,1,33,3],
-"structsen_1_1_guarded.html#a4124de5c4c9b819586b772d140a31aa0":[2,0,1,33,3]
+"structsen_1_1_guarded.html#a37458c2a601fcecb7ab9353f7997f3f3":[2,0,1,33,7]
 };

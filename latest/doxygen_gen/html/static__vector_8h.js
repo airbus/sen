@@ -7,5 +7,7 @@ var static__vector_8h =
       [ "sen::StaticVectorError::empty", "group__util.html#gga63ebc9e6480040f24a518a6edea180ecaa2e4822a98337283e39f7b60acf85ec9", null ]
     ] ],
     [ "sen::operator==", "group__util.html#gaf543be41f4d1f6d05d5ef026bbdd20aa", null ],
-    [ "sen::operator!=", "group__util.html#ga415d0821f04c9439441581b7fb7d6770", null ]
+    [ "sen::operator!=", "group__util.html#ga415d0821f04c9439441581b7fb7d6770", null ],
+    [ "sen::operator<", "group__util.html#ga0583e0d27ec13056bc8e6852c00c2bfb", null ],
+    [ "sen::operator>", "group__util.html#gac4d6dbbb65e1788af9d486d08d395de5", null ]
 ];
