@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // implementation
+#include "./crash_reporter.h"
 #include "./kernel_impl.h"
 #include "bus/session.h"
 
@@ -33,6 +34,7 @@
 #include "stl/sen/kernel/network_footprint.stl.h"
 
 // spdlog
+#include <spdlog/common.h>
 #include <spdlog/details/registry.h>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -153,8 +155,37 @@ FuncResult execLoop(Runner* runner, Duration cycleTime, std::function<void()>&& 
 
 std::shared_ptr<spdlog::logger> getOrCreateLogger(const std::string& loggerName)
 {
-  auto logger = spdlog::get(loggerName);
-  return logger ? logger : spdlog::stdout_color_mt(loggerName);
+  if (auto existing = spdlog::get(loggerName))
+  {
+    return existing;
+  }
+
+  // The ring goes on before registration: once the logger is in the registry another thread can
+  // resolve it by name and be walking its sink vector, which spdlog does without a lock.
+  auto logger = std::make_shared<spdlog::logger>(loggerName, std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+  CrashReporter::get().captureLogsFrom(logger);
+
+  try
+  {
+    // Registers it, and applies the pattern, level and backlog the registry is configured with.
+    spdlog::details::registry::instance().initialize_logger(logger);
+  }
+  catch (const spdlog::spdlog_ex&)
+  {
+    // Another thread created the same name between the lookup above and here.
+    if (auto existing = spdlog::get(loggerName))
+    {
+      return existing;
+    }
+    throw;
+  }
+
+  // Repeated after registration: captureLogs() may have set its flag and walked the registry
+  // between the attempt above and this line, in which case neither reached this logger. The find
+  // in captureLogsFrom() makes the repeat a no-op when the first attempt worked.
+  CrashReporter::get().captureLogsFrom(logger);
+
+  return logger;
 }
 
 void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func)

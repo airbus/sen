@@ -198,6 +198,7 @@ nav:
       - Code generation: users_guide/code_generation.md
       - The configuration file: users_guide/configuration.md
       - Command line tools: users_guide/command_line.md
+      - Crash reports: users_guide/crash_reports.md
       - CMake integration: users_guide/cmake.md
       - Run-time compatibility: users_guide/compatibility_conversions.md
       - Versioning and compatibility: users_guide/versioning.md

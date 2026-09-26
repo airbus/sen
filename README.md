@@ -176,6 +176,9 @@ has the commands.
 - Run-time and compile-time introspection provided by the code generator.
 - Optimized memory management by extensive use of memory pools.
 - Natively integrated with [CMake](https://cmake.org/). Meta info is baked into the binaries.
+- A crash leaves a minidump, written from outside the dying process, carrying the Sen version, the
+  build, the components that were loaded and the last log lines (see
+  [Crash reports](docs/users_guide/crash_reports.md)).
 - Self-contained: no 3rd-party dependencies on the public interface.
 - Python bindings for accessing recorded data.
 - Backward compatible ICDs with runtime interoperability. Where two participants disagree about a

@@ -7,6 +7,11 @@ compiler.version=20
 build_type=Release
 
 [options]
+# Crashpad's Linux packaging always links libcurl, whose default pulls OpenSSL in behind it.
+# Sen never uploads a report, so neither is needed. Options of a transitive dependency cannot
+# be set from a recipe.
+libcurl/*:with_ssl=False
+
 [tool_requires]
 !ninja/*: ninja/[~1]
 

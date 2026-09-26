@@ -24,6 +24,7 @@
 // std
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <utility>
 
 namespace sen::kernel
@@ -64,9 +65,16 @@ const BuildInfo& Kernel::getBuildInfo() noexcept
   return result;
 }
 
-void Kernel::registerTerminationHandler()
+namespace crash
 {
-  impl::CrashReporter::get().install(impl::KernelImpl::getKernelLogger().get());
+
+bool arm(const std::filesystem::path& reportDirectory)
+{
+  return impl::CrashReporter::get().install(impl::KernelImpl::getKernelLogger().get(), reportDirectory);
 }
+
+std::optional<int> runHandlerIfRequested(int argc, char* argv[]) { return impl::CrashReporter::runHandler(argc, argv); }
+
+}  // namespace crash
 
 }  // namespace sen::kernel

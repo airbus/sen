@@ -8,6 +8,7 @@
 include(tps/rapidyaml)
 include(tps/spdlog)
 include(tps/concurrentqueue)
+include(tps/crashpad)
 include(tps/cpptrace)
 include(tps/xenium)
 
@@ -180,6 +181,7 @@ target_link_libraries(
   PRIVATE ryml::ryml
   PRIVATE concurrentqueue::concurrentqueue
   PRIVATE cpptrace::cpptrace
+  PRIVATE sen_crashpad
   PRIVATE xenium::xenium
 )
 

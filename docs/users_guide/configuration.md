@@ -191,8 +191,8 @@ Everything here has a default, so the section can be omitted entirely.
 | `clockName` | Defaults to `clock` |
 | `clockMaster` | Under virtual time, publish a master clock to `clockBus` |
 | `logConfig` | Pattern, level, sinks, loggers and whether a backtrace is printed on failure |
-| `crashReportDir` | Defaults to the system temporary directory |
-| `crashReportDisabled` | Suppresses reports entirely |
+| `crashReportDir` | Where crash reports and minidumps go. Defaults to the system temporary directory. See [Crash reports](crash_reports.md) |
+| `crashReportDisabled` | `sen run` arms nothing, so neither a report nor a minidump is written. See [Crash reports](crash_reports.md) |
 | `lockMemoryPages` | Keeps the process resident, so it cannot be paged out |
 | `sleepPolicy` | As above, for the kernel's own component |
 
