@@ -12,6 +12,7 @@
 #include "sen/core/base/result.h"
 
 // std
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
@@ -666,6 +667,32 @@ std::enable_if_t<HasOperator<T>::ne, bool> operator!=(
                                                       std::declval<StaticVector<T, size> const&>()))
 {
   return !(lhs == rhs);
+}
+
+/// Lexicographically compares two StaticVector objects.
+///
+/// True when lhs is strictly smaller: the first pair of elements that differ
+/// decides it, and if every element is equal the shorter one is smaller.
+template <typename T, std::size_t size>
+std::enable_if_t<HasOperator<T>::lt, bool> operator<(const StaticVector<T, size>& lhs,
+                                                     const StaticVector<T, size>& rhs)  //
+  noexcept(noexcept(std::declval<const T&>() < std::declval<const T&>()))
+{
+  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+/// Lexicographically compares two StaticVector objects.
+///
+/// True when lhs is strictly greater, which is rhs being strictly smaller.
+/// Constrained on T's < rather than its >, because that is the operator the
+/// comparison below calls: a type with one and not the other would otherwise
+/// be accepted here and fail inside.
+template <typename T, std::size_t size>
+std::enable_if_t<HasOperator<T>::lt, bool> operator>(const StaticVector<T, size>& lhs,
+                                                     const StaticVector<T, size>& rhs)  //
+  noexcept(noexcept(std::declval<const T&>() < std::declval<const T&>()))
+{
+  return std::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
 }
 
 /// @}

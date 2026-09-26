@@ -43,6 +43,7 @@
 #include <iterator>          // NOLINT(misc-include-cleaner): used by not visible due to macros
 #include <optional>
 #include <type_traits>
+#include <utility>
 
 #define SEN_IMPL_GEN_NATIVE_MEMBERS                                                                                    \
 protected:                                                                                                             \
@@ -182,6 +183,18 @@ private:
                                                                                                                        \
     friend bool operator==(const classname& lhs, const classname& rhs) { return lhs.asVector() == rhs.asVector(); }    \
     friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
+                                                                                                                       \
+    template <typename P = Parent>                                                                                     \
+    std::enable_if_t<sen::HasOperator<P>::lt, bool> operator<(const classname& other) const                            \
+    {                                                                                                                  \
+      return static_cast<const P&>(*this) < static_cast<const P&>(other);                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+    template <typename P = Parent>                                                                                     \
+    std::enable_if_t<sen::HasOperator<P>::lt, bool> operator>(const classname& other) const                            \
+    {                                                                                                                  \
+      return static_cast<const P&>(other) < static_cast<const P&>(*this);                                              \
+    }                                                                                                                  \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -191,6 +204,18 @@ private:
     using Parent = ::sen::StaticVector<element, maxSize>;                                                              \
     using Parent::Parent;                                                                                              \
     using Parent::operator=;                                                                                           \
+                                                                                                                       \
+    template <typename P = Parent>                                                                                     \
+    std::enable_if_t<sen::HasOperator<P>::lt, bool> operator<(const classname& other) const                            \
+    {                                                                                                                  \
+      return static_cast<const P&>(*this) < static_cast<const P&>(other);                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+    template <typename P = Parent>                                                                                     \
+    std::enable_if_t<sen::HasOperator<P>::lt, bool> operator>(const classname& other) const                            \
+    {                                                                                                                  \
+      return static_cast<const P&>(other) < static_cast<const P&>(*this);                                              \
+    }                                                                                                                  \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
@@ -253,6 +278,18 @@ private:
                                                                                                                        \
     friend bool operator==(const classname& lhs, const classname& rhs) { return lhs.asArray() == rhs.asArray(); }      \
     friend bool operator!=(const classname& lhs, const classname& rhs) { return !(lhs == rhs); }                       \
+                                                                                                                       \
+    template <typename P = Parent>                                                                                     \
+    std::enable_if_t<sen::HasOperator<P>::lt, bool> operator<(const classname& other) const                            \
+    {                                                                                                                  \
+      return static_cast<const P&>(*this) < static_cast<const P&>(other);                                              \
+    }                                                                                                                  \
+                                                                                                                       \
+    template <typename P = Parent>                                                                                     \
+    std::enable_if_t<sen::HasOperator<P>::lt, bool> operator>(const classname& other) const                            \
+    {                                                                                                                  \
+      return static_cast<const P&>(other) < static_cast<const P&>(*this);                                              \
+    }                                                                                                                  \
   };
 
 /// Used by the code generator NOLINTNEXTLINE
