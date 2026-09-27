@@ -235,3 +235,11 @@ jobs:
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}
+          # GitHub creates the tag when a draft is published, and defaults it to the default
+          # branch. Release-candidate tags get deleted here routinely and tag protection is off,
+          # so publishing a draft whose tag had gone would have pointed the release at whatever
+          # main had become, describing a tree the attached archives were not built from. In the
+          # normal flow the tag exists and no ref is created, so this only bites in that case,
+          # where the action documents a possible 403 for the default token. A refusal there is
+          # the better outcome.
+          target_commitish: ${{ github.sha }}
