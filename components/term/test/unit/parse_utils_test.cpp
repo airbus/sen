@@ -146,9 +146,14 @@ TEST(SplitTopLevelArgs, StringWithSpacesKeepsTogether)
 
 TEST(SplitTopLevelArgs, StringWithEscapedQuote)
 {
+  // Held in a variable rather than written inside EXPECT_EQ. MSVC's default preprocessor does not
+  // understand a raw string in a macro argument: it ends the string at the first quote inside it, meets
+  // the backslash as code, and reports an illegal escape sequence. A function argument is unaffected.
+  const auto quoted = R"("a\"b")";
+
   auto t = splitTopLevelArgs(R"("a\"b" 5)");
   ASSERT_EQ(t.size(), 2U);
-  EXPECT_EQ(t[0], R"("a\"b")");
+  EXPECT_EQ(t[0], quoted);
   EXPECT_EQ(t[1], "5");
 }
 
