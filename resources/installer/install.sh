@@ -384,9 +384,28 @@ ls_remote() {
         err "install.sh:" "could not query $SEN_API_URL/releases"
         return 1
     fi
-    printf '%s' "$json" \
-        | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' \
-        | sed -E 's/.*"([^"]+)"$/\1/'
+    # One line per release, "<tag>\t<stable|prerelease>". Keyed on the indent of a release
+    # object's own keys rather than on the order two greps happen to emit: the response is
+    # pretty-printed, nested keys sit deeper, and a key added between them cannot shift anything.
+    # GitHub has already added "immutable" here once.
+    #
+    # If the shape is not what this expects it says so rather than printing a list it does not
+    # believe. A wrong list here is a tag somebody then types.
+    printf '%s' "$json" | awk '
+        /^  \{/                              { tag=""; kind="stable"; in_release=1; next }
+        in_release && /^    "tag_name"/       { tag=$0; sub(/.*: *"/, "", tag); sub(/".*/, "", tag) }
+        in_release && /^    "prerelease": *true/ { kind="prerelease" }
+        /^  \}/                              { if (in_release && tag != "") { print tag "\t" kind; found++ }
+                                              in_release=0 }
+    '
+    # A repository with no releases and a response this cannot parse both yield nothing, and they
+    # are not the same thing: the first is a fact about the project, the second is a fact about
+    # this parse. Tell them apart by whether the response mentions a release at all.
+    if [ -z "$(printf '%s' "$json" | sed -n '/^  {/p')" ] \
+        && printf '%s' "$json" | grep -q '"tag_name"'; then
+        err "install.sh:" "could not read the release list from $SEN_API_URL/releases"
+        return 1
+    fi
 }
 
 # Reads a GitHub Releases API response on stdin. Emits the download URL of the asset with this
@@ -1088,10 +1107,26 @@ main() {
     mkdir -p "$SEN_INSTALL_HOME"
 
     if [ -z "$SENV_VERSION_ARG" ]; then
-        local tags
-        tags=$(ls_remote) || return $?
+        local listing stable candidates
+        listing=$(ls_remote) || return $?
+        stable=$(printf '%s\n' "$listing" | awk -F'\t' '$2 == "stable" { print $1 }')
+        candidates=$(printf '%s\n' "$listing" | awk -F'\t' '$2 == "prerelease" { print $1 }')
+        # Two sections rather than one list: a candidate and a supported release printed
+        # identically, newest first, invite someone to type the candidate because it looks
+        # newest. Shown rather than hidden, because a candidate nobody can find in the only
+        # listing Sen publishes is no more testable than an unpublished draft.
         printf '  %s\n' "$(paint bold "Available Sen releases:")"
-        printf '%s\n' "$tags" | sed 's/^/    /'
+        if [ -n "$stable" ]; then
+            printf '%s\n' "$stable" | sed 's/^/    /'
+        else
+            printf '    %s\n' "$(paint dim "none yet")"
+        fi
+        if [ -n "$candidates" ]; then
+            printf '\n  %s%s\n' \
+                "$(paint bold "Release candidates")" \
+                "$(paint dim " (for testing, not for production)")"
+            printf '%s\n' "$candidates" | sed 's/^/    /'
+        fi
         printf '\n  %s\n' "$(paint dim "Re-run with a version: sh install.sh <version>")"
         return 0
     fi

@@ -16,15 +16,41 @@
 
 load test_helpers
 
-@test "ls_remote: prints one tag per release, newest first, as the api ordered them" {
+@test "ls_remote: one line per release, newest first, each with its stability" {
     load_install
     mock_curl_with_listing "${BATS_TEST_DIRNAME}/fixtures/releases-listing.json"
     run ls_remote
     [ "$status" -eq 0 ]
-    [ "${lines[0]}" = "0.7.0-rc1" ]
-    [ "${lines[1]}" = "0.6.0" ]
-    [ "${lines[2]}" = "0.5.2" ]
+    [ "${lines[0]}" = "$(printf '0.7.0-rc1\tprerelease')" ]
+    [ "${lines[1]}" = "$(printf '0.6.0\tstable')" ]
+    [ "${lines[2]}" = "$(printf '0.5.2\tstable')" ]
     [ "${#lines[@]}" -eq 3 ]
+}
+
+@test "ls_remote: a key added between tag_name and prerelease cannot shift the pairing" {
+    # GitHub has already inserted one key there. The parse keys on each release object's own
+    # indent rather than on the order two greps emit, so a new sibling cannot misalign it.
+    load_install
+    local fixture="$SEN_TEST_TMPDIR/with-new-key.json"
+    sed 's/"prerelease"/"something_new": false,\n    "prerelease"/' \
+        "${BATS_TEST_DIRNAME}/fixtures/releases-listing.json" > "$fixture"
+    mock_curl_with_listing "$fixture"
+    run ls_remote
+    [ "$status" -eq 0 ]
+    [ "${lines[0]}" = "$(printf '0.7.0-rc1\tprerelease')" ]
+    [ "${lines[1]}" = "$(printf '0.6.0\tstable')" ]
+}
+
+@test "ls_remote: a response it cannot read is refused, not printed empty" {
+    # A minified response is the realistic way this breaks. Printing nothing would read as
+    # "no releases", and printing a partial list would offer tags somebody then types.
+    load_install
+    local fixture="$SEN_TEST_TMPDIR/minified.json"
+    tr -d '\n ' < "${BATS_TEST_DIRNAME}/fixtures/releases-listing.json" > "$fixture"
+    mock_curl_with_listing "$fixture"
+    run ls_remote
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"could not read the release list"* ]]
 }
 
 @test "ls_remote: asks for a full page so older releases cannot drop off" {
@@ -57,4 +83,30 @@ load test_helpers
     run ls_remote
     [ "$status" -eq 0 ]
     [ -z "$output" ]
+}
+
+@test "the listing puts candidates in their own section, below the releases" {
+    load_install
+    mock_curl_with_listing "${BATS_TEST_DIRNAME}/fixtures/releases-listing.json"
+    ensure_tools() { return 0; }
+    run main
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Available Sen releases"* ]]
+    [[ "$output" == *"Release candidates"* ]]
+    [[ "$output" == *"not for production"* ]]
+    # the candidate must not appear above the supported release
+    local releases_at candidates_at
+    releases_at=$(printf '%s\n' "$output" | grep -n '0.6.0' | head -1 | cut -d: -f1)
+    candidates_at=$(printf '%s\n' "$output" | grep -n '0.7.0-rc1' | head -1 | cut -d: -f1)
+    [ "$releases_at" -lt "$candidates_at" ]
+}
+
+@test "the listing omits the candidates section when there are none" {
+    load_install
+    mock_curl_with_listing "${BATS_TEST_DIRNAME}/fixtures/releases-listing-stable-only.json"
+    ensure_tools() { return 0; }
+    run main
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Available Sen releases"* ]]
+    [[ "$output" != *"Release candidates"* ]]
 }
