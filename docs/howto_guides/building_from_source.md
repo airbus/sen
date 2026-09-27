@@ -184,9 +184,13 @@ They apply at `conan install`, the step that generates the build files. The late
 `cmake --build` compiles with them already baked in; the `-D` column is for driving CMake without
 Conan.
 
+`sanitizer` needs a clang profile. The instrumentation flags exist only in the build's clang
+branch, so asking for a sanitizer with `sen_gcc` or `sen_msvc` stops the configure instead of
+producing a binary with nothing to report.
+
 ```shell
 # tests compiled with the address sanitizer
-conan install . --profile:all=sen_gcc -o sen/*:with_tests=True -o sen/*:sanitizer=address --build=missing
+conan install . --profile:all=sen_clang -o sen/*:with_tests=True -o sen/*:sanitizer=address --build=missing
 ```
 
 **Building the documentation.** `with_docs=True` pulls `doxygen`, which itself needs
