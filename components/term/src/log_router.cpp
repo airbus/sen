@@ -9,7 +9,9 @@
 
 // component
 #include "app.h"
+#include "log_sink.h"
 #include "styles.h"
+#include "util.h"
 
 // sen
 #include "sen/kernel/component_api.h"
@@ -18,19 +20,36 @@
 #include <ftxui/dom/elements.hpp>
 
 // spdlog
-#include <spdlog/sinks/ansicolor_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/stdout_sinks.h>
-#ifdef _WIN32
-#  include <spdlog/sinks/wincolor_sink.h>
-#endif
-#include <spdlog/spdlog.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
 
 // std
 #include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace sen::components::term
 {
+
+namespace
+{
+
+// The queue the logging threads fill. At 30 Hz and 500 rendered per tick this is four seconds of
+// backlog, which is long enough to ride out a burst and short enough that the memory is bounded.
+constexpr std::size_t maxPendingMessages = 2000;
+
+// Lines rendered in one tick. Each one builds an ftxui element, so this is the frame-time bound.
+constexpr std::size_t maxRenderedPerTick = 500;
+
+}  // namespace
 
 LogRouter::LogRouter(App& app): app_(app)
 {
@@ -40,9 +59,38 @@ LogRouter::LogRouter(App& app): app_(app)
       // The sink fires on whichever thread is logging (spdlog is per-caller). UI mutation
       // must happen on the term thread, so we only buffer here; update() drains the buffer
       // on the term thread.
-      std::lock_guard lock(pendingMutex_);
-      pendingMessages_.push_back({level, message});
+      enqueue(level, message);
     });
+
+  // The pane's own pattern, not the logger's. Every row the output area draws already carries a time
+  // on the right, so repeating a full ISO date in the text wastes a third of a narrow terminal and made
+  // a rendered line textually identical to one a console sink spilled onto the screen -- which cost
+  // three attempts to tell the two apart while diagnosing exactly that.
+  sink_->set_pattern("[%n] [%l] %v");
+
+  // Registered once, with the kernel, rather than swept every frame. Two things were wrong with the
+  // sweep and this fixes both. It walked `spdlog::apply_all`, which inside this shared object is term's
+  // OWN registry -- while every component's logger, including term's, lives in the kernel's -- so the
+  // sink reached almost nothing and log messages never appeared in the output area at all. And
+  // appending to a logger another thread is emitting through is a use-after-free, which is why the
+  // sweep could not be pointed at the kernel's registry instead.
+  //
+  // The kernel attaches it where that is safe: to existing loggers now, before component threads
+  // start, and to later ones before they are published. `owned` also strips console sinks, which write
+  // to the descriptors FTXUI is drawing on.
+  auto registration = kernel::KernelApi::addLoggerSink(sink_, kernel::KernelApi::TerminalOwnership::owned);
+  if (registration.isError())
+  {
+    // Nothing draws logs if this failed, and the console sinks are still live, so say so where the user
+    // will see it: on the console, which is still working precisely because the claim did not happen.
+    getLogger()->error("term could not register its log sink: {}. Log lines will not appear in the term.",
+                       registration.getError().explanation);
+  }
+  else if (registration.getValue().terminalOwnedElsewhere)
+  {
+    // The registration is not arbitrated: two components that both render logs each get every line.
+    getLogger()->warn("another component already claimed the terminal for log output; both will draw.");
+  }
 
   update();
 }
@@ -97,142 +145,77 @@ void LogRouter::renderMessage(spdlog::level::level_enum level, const std::string
   }
 }
 
-namespace
-{
-
-/// True for the sinks that write to the process's own stdout or stderr. Those are the only ones the
-/// terminal has to take over; file and syslog sinks belong to whoever configured them.
-bool isConsoleSink(const std::shared_ptr<spdlog::sinks::sink>& sink)
-{
-  // Cast to the base templates, not the eight concrete typedefs. stdout_sink_base is the base of
-  // both stdout_sink and stderr_sink, and ansicolor_sink of both colour variants, so four casts
-  // cover all eight. Naming the _mt typedefs alone missed the _st ones, which spdlog_config creates
-  // for any YAML sink carrying singleThreaded -- and a missed stdout sink writes to fd 1, which
-  // FTXUI owns. A dist_sink or dup_filter_sink wrapping a console sink is still not seen; nothing in
-  // the kernel creates one.
-  auto* raw = sink.get();
-  return dynamic_cast<spdlog::sinks::stdout_sink_base<spdlog::details::console_mutex>*>(raw) != nullptr ||
-         dynamic_cast<spdlog::sinks::stdout_sink_base<spdlog::details::console_nullmutex>*>(raw) != nullptr
-#ifdef _WIN32
-         || dynamic_cast<spdlog::sinks::wincolor_sink<spdlog::details::console_mutex>*>(raw) != nullptr ||
-         dynamic_cast<spdlog::sinks::wincolor_sink<spdlog::details::console_nullmutex>*>(raw) != nullptr;
-#else
-         || dynamic_cast<spdlog::sinks::ansicolor_sink<spdlog::details::console_mutex>*>(raw) != nullptr ||
-         dynamic_cast<spdlog::sinks::ansicolor_sink<spdlog::details::console_nullmutex>*>(raw) != nullptr;
-#endif
-}
-
-}  // namespace
-
 LogRouter::~LogRouter()
 {
-  // Detach before removing anything. A logger holds the sink through a shared_ptr, so it outlives this
-  // object; until it is detached, a message logged through a logger the sweep below misses would reach
-  // a destroyed mutex and a destroyed vector.
+  // Detach before anything else. A logger holds the sink through a shared_ptr, so it outlives this
+  // object; until it is inert, a message logged through a logger the removal misses would reach a
+  // destroyed mutex and a destroyed vector.
   if (sink_)
   {
     sink_->detach();
   }
 
-  // Term's OWN registry, because that is where `update` put the sink. This used to walk the kernel's,
-  // which is a different object (F-263), so it removed the sink from loggers that never had it and left
-  // it on every logger that did.
-  //
-  // Nothing here may throw: this is a destructor, and `apply_all` takes a std::function, whose
-  // construction allocates. Failing to detach a logger is survivable now that the sink is inert.
+  // Hand it back to the kernel, which takes it off every logger that has it and stops it being given
+  // to new ones. Nothing here may throw: this is a destructor, and the call allocates a std::function.
   try
   {
-    spdlog::apply_all(
-      [this](const std::shared_ptr<spdlog::logger>& logger)
-      {
-        auto& sinks = logger->sinks();
-        sinks.erase(std::remove(sinks.begin(), sinks.end(), sink_), sinks.end());
-      });
+    std::ignore = kernel::KernelApi::removeLoggerSink(sink_);
   }
-  catch (...)  // NOLINT(bugprone-empty-catch) -- a destructor has nowhere to report, and the sink is inert
+  catch (...)  // NOLINT(bugprone-empty-catch) -- nowhere to report, and the sink is already inert
   {
   }
+}
+
+void LogRouter::enqueue(spdlog::level::level_enum level, const std::string& message)
+{
+  // Runs on whichever thread logged. Dropping is the only bound available: blocking would stall the
+  // component that emitted, and the queue used to grow without limit -- `log level debug` on a kernel
+  // with live traffic made the bus loggers emit on essentially every message.
+  std::lock_guard lock(pendingMutex_);
+  if (pendingMessages_.size() >= maxPendingMessages)
+  {
+    ++droppedMessages_;
+    return;
+  }
+  pendingMessages_.push_back({level, message});
+}
+
+LogRouter::Batch LogRouter::takeBatch()
+{
+  // A budget per tick, not the whole queue: rendering everything that arrived built an element per
+  // line, so a burst became a frame longer than the burst and the next tick started further behind.
+  Batch batch;
+  std::lock_guard lock(pendingMutex_);
+  const auto take = static_cast<std::ptrdiff_t>(std::min(pendingMessages_.size(), maxRenderedPerTick));
+  batch.messages.assign(std::make_move_iterator(pendingMessages_.begin()),
+                        std::make_move_iterator(pendingMessages_.begin() + take));
+  pendingMessages_.erase(pendingMessages_.begin(), pendingMessages_.begin() + take);
+  batch.dropped = std::exchange(droppedMessages_, std::size_t {0});
+  return batch;
 }
 
 void LogRouter::update()
 {
-  std::vector<PendingMessage> drained;
-  {
-    std::lock_guard lock(pendingMutex_);
-    drained.swap(pendingMessages_);
-  }
-  for (const auto& msg: drained)
+  auto batch = takeBatch();
+  for (const auto& msg: batch.messages)
   {
     renderMessage(msg.level, msg.text);
   }
 
-  // Deliberately term's OWN registry and not the kernel's, which is a different object -- see F-263.
-  // spdlog's logger::sink_it_ iterates sinks_ by reference with no lock and logger::sinks() hands out
-  // a bare reference, so mutating that vector while another thread logs through it is a
-  // use-after-free. Sweeping the kernel's registry made every other component's logger a live
-  // participant in that race, thirty times a second; term's own registry has no other writer.
-  //
-  // The cost is that another component's console sink still writes to fd 1, which FTXUI owns, so its
-  // output can disturb the display. That is a pre-existing nuisance and the lesser one. Capturing
-  // fd 1 the way OutputCapture captures fd 2 would remove the need to touch sinks at all, but FTXUI
-  // renders to stdout -- libftxui-screen references std::cout and nothing references cerr -- so
-  // capturing it would swallow the interface. Doing this safely needs the kernel to own the
-  // injection at logger-creation time.
-  // Nothing in this callback may log -- see the rule on LogRouter in the header.
-  spdlog::apply_all(
-    [this](const std::shared_ptr<spdlog::logger>& logger)
-    {
-      auto name = logger->name();
-
-      // Re-check rather than remembering which loggers have been done, which keeps the sweep
-      // idempotent and costs one find over a registry with a handful of entries.
-      //
-      // It used to say this defends against spdlog_config replacing a logger's whole sink vector. It
-      // cannot: spdlog_config is compiled into libkernel and called only from KernelImpl::configure,
-      // so it works on the kernel's registry, and this sink is only ever added to term's own. The two
-      // never meet -- which is also why nothing the kernel does at crash time can drop this sink.
-      auto& sinks = logger->sinks();
-      if (std::find(sinks.begin(), sinks.end(), sink_) != sinks.end())
-      {
-        return;
-      }
-
-      // stdout sinks write to fd 1, which FTXUI owns, so they have to go. stderr sinks are
-      // already coming back through OutputCapture's pipe, so they would only double-print. File
-      // and syslog sinks are left alone: clearing them stopped the host's own logging.
-      sinks.erase(std::remove_if(sinks.begin(), sinks.end(), isConsoleSink), sinks.end());
-      sinks.push_back(sink_);
-      if (seenLoggers_.insert(name).second)
-      {
-        newLoggersInjected_ = true;
-      }
-
-      // Only once the user has actually asked for a level. Applying globalLevel_ unconditionally
-      // reset every logger the host had configured from YAML to info the moment term loaded, which
-      // silenced anything set to trace or debug and made anything set to warn noisier.
-      if (levelSetByUser_)
-      {
-        logger->set_level(globalLevel_);
-      }
-    });
+  if (batch.dropped > 0)
+  {
+    app_.appendInfo(std::to_string(batch.dropped) +
+                    " log lines were dropped: they arrived faster than the "
+                    "screen can draw them. Lower the log level to see them all.");
+  }
 }
 
-bool LogRouter::hasNewLoggers() noexcept
+bool LogRouter::setGlobalLevel(spdlog::level::level_enum level)
 {
-  bool result = newLoggersInjected_;
-  newLoggersInjected_ = false;
-  return result;
-}
-
-void LogRouter::setGlobalLevel(spdlog::level::level_enum level)
-{
-  // Only the kernel's route is used. spdlog::set_level() would reach the component's own registry,
-  // which holds nothing the user cares about, while reading as though it set the level everywhere.
-  globalLevel_ = level;
-  levelSetByUser_ = true;
-
-  kernel::KernelApi::applyToAllLoggers([level](const std::shared_ptr<spdlog::logger>& logger)
-                                       { logger->set_level(level); });
+  // The kernel's registry level, not a walk over the loggers that happen to exist: a walk stopped
+  // applying the moment another component made a logger, and `spdlog::set_level()` here would reach
+  // this shared object's own registry while reading as though it set the level everywhere.
+  return kernel::KernelApi::setAllLoggersLevel(level).isOk();
 }
 
 bool LogRouter::setLoggerLevel(std::string_view loggerName, spdlog::level::level_enum level)
@@ -252,7 +235,7 @@ bool LogRouter::setLoggerLevel(std::string_view loggerName, spdlog::level::level
   return found;
 }
 
-spdlog::level::level_enum LogRouter::getGlobalLevel() const noexcept { return globalLevel_; }
+spdlog::level::level_enum LogRouter::getGlobalLevel() noexcept { return kernel::KernelApi::getAllLoggersLevel(); }
 
 std::vector<LogRouter::LoggerInfo> LogRouter::listLoggers() const
 {
@@ -270,8 +253,16 @@ bool LogRouter::parseLevel(std::string_view name, spdlog::level::level_enum& lev
   // names plus "warn" and "err" -- and returns off for anything it does not know, so the only thing
   // left to do is tell "off" apart from "unrecognised". The out-param is left alone on failure:
   // assigning it unconditionally changed the contract, and log_router_test asserts it does not.
-  const auto parsed = spdlog::level::from_str(std::string(name));
-  if (parsed == spdlog::level::off && name != "off")
+  //
+  // Case is folded first: from_str only knows the lower-case spellings, and `log level INFO` is what a
+  // user types when the levels are printed in upper case beside every line.
+  std::string lowered(name);
+  std::transform(lowered.begin(),
+                 lowered.end(),
+                 lowered.begin(),
+                 [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+  const auto parsed = spdlog::level::from_str(lowered);
+  if (parsed == spdlog::level::off && lowered != "off")
   {
     return false;
   }

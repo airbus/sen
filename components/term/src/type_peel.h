@@ -1,5 +1,4 @@
-// === type_peel.h
-// ======================================================================================================
+// === type_peel.h =====================================================================================================
 //                                               Sen Infrastructure
 //                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 //                                    See the LICENSE.txt file for more information.
@@ -11,11 +10,59 @@
 
 // sen
 #include "sen/core/meta/alias_type.h"
+#include "sen/core/meta/class_type.h"
+#include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/optional_type.h"
+#include "sen/core/meta/quantity_type.h"
+#include "sen/core/meta/sequence_type.h"
+#include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/meta/variant_type.h"
+
+// std
+#include <string_view>
 
 namespace sen::components::term
 {
+
+/// The word term shows for a type's kind. Two places name kinds -- `types` in its table and the
+/// completer in its annotations -- and they used to spell the list out separately.
+[[nodiscard]] inline std::string_view typeKindName(const Type& type)
+{
+  if (type.asClassType() != nullptr)
+  {
+    return "class";
+  }
+  if (type.asStructType() != nullptr)
+  {
+    return "struct";
+  }
+  if (type.asEnumType() != nullptr)
+  {
+    return "enum";
+  }
+  if (type.asSequenceType() != nullptr)
+  {
+    return "sequence";
+  }
+  if (type.asVariantType() != nullptr)
+  {
+    return "variant";
+  }
+  if (type.asQuantityType() != nullptr)
+  {
+    return "quantity";
+  }
+  if (type.asAliasType() != nullptr)
+  {
+    return "alias";
+  }
+  if (type.asOptionalType() != nullptr)
+  {
+    return "optional";
+  }
+  return "type";
+}
 
 /// Peel every alias layer, giving the type the alias ultimately names.
 ///

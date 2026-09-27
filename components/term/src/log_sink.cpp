@@ -7,22 +7,15 @@
 
 #include "log_sink.h"
 
-// component
-#include "output_capture.h"
-
 // spdlog
+#include <spdlog/common.h>
 #include <spdlog/details/log_msg.h>
-#include <spdlog/pattern_formatter.h>
+#include <spdlog/sinks/base_sink.h>
 
 // std
-#include <tuple>
+#include <mutex>
+#include <string>
 #include <utility>
-
-#ifdef _WIN32
-#  include <io.h>
-#else
-#  include <unistd.h>
-#endif
 
 namespace sen::components::term
 {
@@ -60,10 +53,28 @@ void TermLogSink::sink_it_(const spdlog::details::log_msg& msg)
   // component wrote a raw line onto the alternate screen outside FTXUI's model of it. `err` is not
   // fatal. Note the one case not covered: with `crashReportDisabled` the ring is never armed, so a
   // dying process keeps its last lines only in this pane -- and that host has no dump either.
-  if (callback_)
+  // base_sink::log takes a non-recursive mutex and then calls this, so a callback that logs would
+  // re-enter on the same thread and lock it twice -- undefined behaviour, in practice a permanent hang
+  // of whichever thread happened to log, which could be a kernel dispatcher worker rather than term's.
+  // The sink is on every logger, so anything term calls from here is one edit away from that. Dropping
+  // the re-entrant line is the wrong output; hanging a kernel thread is a wedged process.
+  static thread_local bool inCallback = false;
+  if (inCallback || !callback_)
+  {
+    return;
+  }
+
+  inCallback = true;
+  try
   {
     callback_(msg.level, text);
   }
+  catch (...)
+  {
+    inCallback = false;
+    throw;
+  }
+  inCallback = false;
 }
 
 void TermLogSink::detach()

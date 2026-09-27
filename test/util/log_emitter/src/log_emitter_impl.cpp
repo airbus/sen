@@ -10,6 +10,9 @@
 // generated code
 #include "stl/log_emitter/log_emitter.stl.h"
 
+// sen
+#include "sen/kernel/component_api.h"
+
 // spdlog
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
@@ -24,14 +27,13 @@ namespace log_emitter
 
 EmitterImpl::EmitterImpl(const std::string& name, const sen::VarMap& args): EmitterBase(name, args)
 {
-  // Create a dedicated logger for this emitter using spdlog's factory function,
-  // which attaches a stderr sink and registers it in the global registry.
-  auto loggerName = "log_emitter." + name;
-  logger_ = spdlog::get(loggerName);
-  if (!logger_)
-  {
-    logger_ = spdlog::stdout_color_mt(loggerName);
-  }
+  // Through the kernel, not through spdlog directly. spdlog's registry is a function-local static, so
+  // each shared object that links it gets its own: a logger made here with `spdlog::stdout_color_mt`
+  // lands in this package's registry, where nothing else in the process can see it. Anything that
+  // routes logging for the whole process -- the crash reporter's ring, a component rendering logs in
+  // its own display -- walks the kernel's registry and would miss it entirely. This is the point of
+  // the emitter, so it had better be reachable.
+  logger_ = sen::kernel::KernelApi::getOrCreateLogger("log_emitter." + name);
 
   // Set emission interval based on configured rate
   switch (getConfig().rate)

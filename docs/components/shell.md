@@ -3,6 +3,13 @@
 
 # The Sen shell
 
+!!! warning "Deprecated in 0.8.0"
+
+    This shell will be deprecated in Sen 0.8.0 and removed in a later release. Its replacement is
+    [the term component](term.md), which is in beta now. It does what the shell does, in a full-screen
+    terminal, with a guided form for method arguments and log lines in the same stream as everything
+    else. Try it with `sen term`, and say what it is missing.
+
 ## Getting it started
 
 The Sen shell allows you to interact with all the objects that are published to the buses in the

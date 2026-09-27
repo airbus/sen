@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_INPUT_PANE_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/move_only_function.h"
 
@@ -32,6 +33,7 @@ public:
   using SubmitCallback = sen::std_util::move_only_function<void(const std::string&)>;
 
   explicit InputPane(SubmitCallback onSubmit);
+  ~InputPane() = default;
 
   /// Set the prompt text (e.g., "sen:/local.main> ").
   void setPrompt(std::string_view prompt);
@@ -72,6 +74,7 @@ private:
   int historyIndex_ = -1;
   std::string savedBuffer_;
   std::filesystem::path historyFile_;
+  bool historyWriteFailureReported_ = false;
   static constexpr std::size_t maxHistoryLines = 2000;
 };
 

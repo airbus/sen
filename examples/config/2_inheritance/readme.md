@@ -118,7 +118,7 @@ sen run config/2_inheritance/2_inheritance_eth.yaml
 Then, in another terminal or command prompt, run:
 
 ```shell
-sen shell
+sen term
 ```
 
 In this new Sen instance, open the bus where we should find our objects:

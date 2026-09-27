@@ -8,6 +8,7 @@
 #ifndef SEN_COMPONENTS_TERM_SRC_UNICODE_H
 #define SEN_COMPONENTS_TERM_SRC_UNICODE_H
 
+// std
 #include <array>
 
 namespace sen::components::term::unicode

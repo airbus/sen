@@ -11,7 +11,9 @@
 #include <gtest/gtest.h>
 
 // std
+#include <cstddef>
 #include <string>
+#include <string_view>
 
 namespace sen::components::term
 {

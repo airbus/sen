@@ -10,6 +10,10 @@
 The term draws a full screen rather than printing lines, so `screen()` returns everything read so far
 with the escape sequences stripped. Assert on substrings of that: a repaint rewrites text that is
 already there, so counting occurrences says nothing about whether something is new.
+
+`grid()` answers the other kind of question. It replays the painted output into a character grid, so
+a test can ask which row something is on -- which `screen()` cannot, because it holds every frame at
+once.
 """
 
 import fcntl
@@ -22,6 +26,8 @@ import struct
 import sys
 import termios
 import time
+
+from vt_screen import VtScreen
 
 # Control bytes the term binds. FTXUI has no bracketed paste, so these are indistinguishable from
 # the same bytes arriving in pasted text -- which is why the term treats Ctrl+D as an exit only on an
@@ -100,6 +106,16 @@ class TermTester:
     def screen(self) -> str:
         """Everything painted since the last `forget()`, escape sequences stripped."""
         return self._strip_ansi(self._read).replace("\r", "\n")
+
+    def grid(self) -> VtScreen:
+        """The screen as a character grid, for assertions about where something is.
+
+        Built from everything read since the last `forget()`, so the grid holds the latest frame: a
+        repaint overwrites the rows the previous frame wrote.
+        """
+        screen = VtScreen(self.rows, self.columns)
+        screen.feed(self._read)
+        return screen
 
     def raw(self) -> str:
         """Everything read since the last `forget()`, escape sequences included."""

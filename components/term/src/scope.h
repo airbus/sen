@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_SCOPE_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 
 // std
@@ -43,6 +44,7 @@ public:
   };
 
   Scope() = default;
+  ~Scope() = default;
 
   /// Navigate to a target relative to the current scope: "/", "..", "-" (previous), "@queryname",
   /// "session.bus", "session.bus/group/group", or a group name. A target containing a dot is always

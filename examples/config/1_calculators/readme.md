@@ -120,7 +120,7 @@ sen run config/1_calculators/2_calculators_eth.yaml
 Then, in another terminal or command prompt, run:
 
 ```shell
-sen shell
+sen term
 ```
 
 In this new Sen instance, open the bus where we should find our objects:

@@ -69,6 +69,7 @@ class CommandEngine final
 
 public:
   CommandEngine(const Configuration& config, kernel::RunApi& api, App& app, LogRouter& logRouter, Completer& completer);
+  ~CommandEngine() = default;
 
   /// Process a single command string from the user.
   void execute(std::string_view input);
@@ -137,6 +138,24 @@ private:
   /// Returns true if the input was handled as an object.method call.
   bool tryResolveObjectMethod(std::string_view input, std::string_view cmd, std::string_view args);
 
+  /// Report a dotted command whose object half names nothing here, with a "did you mean" hint.
+  void reportUnknownObject(std::string_view input, std::string_view objectName);
+
+  /// Find `methodName` on `classType`, including the getters and setters that `getMethods()` leaves
+  /// out. When the match is a setter, `setterProperty` is set to the property it belongs to so the
+  /// caller can seed a form with the current value.
+  [[nodiscard]] static const Method* findMethodOrAccessor(const ClassType& classType,
+                                                          std::string_view methodName,
+                                                          const Property*& setterProperty);
+
+  /// Parse the typed arguments and adapt each to its declared type, reporting the first failure to the
+  /// user. Returns false when something was reported and the caller should stop.
+  bool parseAndAdaptArgs(std::string_view input,
+                         std::string_view args,
+                         const Method& method,
+                         std::string_view signatureHint,
+                         VarList& argValues);
+
   void echoCommand(std::string_view input, bool isError = false);
   /// Resolve and run one command line. Called only from execute(), which is the exception
   /// boundary: anything that throws out of here would terminate the kernel.
@@ -171,7 +190,14 @@ private:
                         const MethodResult<Var>& result);
 
   /// Answer a pending call with an error, if its slot is still open.
-  void failPendingCall(std::size_t callId, const std::string& message);
+  /// Whether a call is still being waited for. Read it before touching anything the answer's type
+  /// handle points at: the handle may be non-owning, and a late answer is the case where the object it
+  /// came from may already be gone.
+  [[nodiscard]] bool hasPendingCall(std::size_t callId) const;
+
+  /// Finish a pending call as a failure. `title` separates a call that failed from a call that
+  /// returned something term could not draw -- they used to read identically.
+  void failPendingCall(std::size_t callId, const std::string& message, const std::string& title = "Call Error");
 
 private:
   const Configuration& config_;

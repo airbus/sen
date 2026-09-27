@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_SUGGESTER_H
 
 // sen
+// sen
 #include "sen/core/base/span.h"
 
 // std

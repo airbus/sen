@@ -7,30 +7,33 @@
 
 #include "clipboard.h"
 
+// sen
+#include "sen/kernel/component_api.h"
+
 // std
+#include <chrono>
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <thread>
-#include <tuple>
+#include <utility>
 
 #if !defined(_WIN32)
-#  include <pthread.h>
-
-#  include <csignal>
+// sigset_t, sigemptyset, sigaddset, SIGPIPE and pthread_sigmask, for the SIGPIPE mask below. POSIX puts
+// all of them here; <csignal> does not declare pthread_sigmask, and there is no Windows equivalent of
+// any of it.
+#  include <signal.h>  // NOLINT(hicpp-deprecated-headers,modernize-deprecated-headers)
 #endif
 
 namespace sen::components::term::clipboard
 {
 
-namespace
-{
-
-/// RFC 4648 base64 encoder. Needed to wrap the payload for the terminal-side
-/// escape sequence.
 std::string base64Encode(std::string_view input)
 {
   constexpr std::string_view alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -51,6 +54,9 @@ std::string base64Encode(std::string_view input)
   return out;
 }
 
+namespace
+{
+
 /// Emit the terminal-side "set selection" escape targeting both clipboard and
 /// primary. This is the only path that works transparently over SSH (the bytes
 /// reach the client terminal, not the remote host). Support varies across
@@ -70,7 +76,7 @@ bool writeLocal(std::string_view text)
 {
   // clip.exe reads from stdin and stores the payload in the single Windows
   // clipboard (no X11-style PRIMARY selection exists on Windows).
-  FILE* pipe = _popen("clip", "wb");
+  FILE* pipe = _popen("clip", "wb");  // NOLINT(cert-env33-c) see the note on the POSIX path below
   if (pipe == nullptr)
   {
     return false;
@@ -85,13 +91,17 @@ bool writeLocal(std::string_view text)
 /// successfully. Assumes SIGPIPE is masked by the caller.
 bool pipeToCommand(std::string_view text, const char* cmd)
 {
-  FILE* pipe = popen(cmd, "w");
+  // `cmd` is one of this file's own literals and the text arrives on stdin, so nothing a user typed
+  // reaches the shell. Replacing this with posix_spawn would remove the shell altogether: B-084.
+  // popen and pclose are POSIX, declared in <stdio.h>; <cstdio> does not have to declare them, so
+  // include-cleaner asks for a header the C++ spelling cannot provide.
+  FILE* pipe = popen(cmd, "w");  // NOLINT(cert-env33-c,misc-include-cleaner)
   if (pipe == nullptr)
   {
     return false;
   }
   std::fwrite(text.data(), 1U, text.size(), pipe);
-  return pclose(pipe) == 0;
+  return pclose(pipe) == 0;  // NOLINT(misc-include-cleaner)
 }
 
 #  if !defined(_WIN32)
@@ -103,6 +113,9 @@ class ThreadSigpipeBlock
 public:
   ThreadSigpipeBlock()
   {
+    // include-cleaner names glibc's private <bits/...> as the provider here, which neither macOS nor
+    // Windows has. <signal.h> above is the portable spelling.
+    // NOLINTNEXTLINE(misc-include-cleaner)
     sigset_t block;
     sigemptyset(&block);
     sigaddset(&block, SIGPIPE);
@@ -178,6 +191,141 @@ bool isLocalSession()
 
 }  // namespace
 
+namespace
+{
+
+/// One worker for the whole process, with a single pending slot.
+///
+/// It replaces a detached thread per copy. Two things were wrong with that: a drag-select loop creates
+/// a copy per mouse release, so several threads could be in flight at once, and a missing or wedged
+/// helper left every one of them hanging for the life of the process with nothing owning them. Latest
+/// text wins -- an older pending copy the user has already replaced is not worth a fork.
+class Writer
+{
+public:
+  ~Writer() { stop(); }
+
+  Writer(const Writer&) = delete;
+  Writer& operator=(const Writer&) = delete;
+  Writer(Writer&&) = delete;
+  Writer& operator=(Writer&&) = delete;
+
+  Writer() = default;
+
+  void submit(std::string text)
+  {
+    {
+      const std::lock_guard lock(mutex_);
+      if (stopping_)
+      {
+        return;
+      }
+      pending_ = std::move(text);
+      hasPending_ = true;
+    }
+    ensureWorker();
+    work_.notify_one();
+  }
+
+  [[nodiscard]] std::optional<std::string> takeFailure()
+  {
+    const std::lock_guard lock(mutex_);
+    std::optional<std::string> out;
+    out.swap(failure_);
+    return out;
+  }
+
+  void stop()
+  {
+    std::unique_lock lock(mutex_);
+    if (!worker_.joinable())
+    {
+      stopping_ = true;
+      return;
+    }
+    stopping_ = true;
+    work_.notify_all();
+
+    // Bounded. A helper that has not returned in two seconds is wedged, and term's shutdown is not
+    // worth holding for it, so the thread is abandoned instead -- at most one, ever.
+    if (idle_.wait_for(lock, std::chrono::seconds(2), [this] { return !busy_ && !hasPending_; }))
+    {
+      auto worker = std::move(worker_);
+      lock.unlock();
+      worker.join();
+    }
+    else
+    {
+      worker_.detach();
+    }
+  }
+
+private:
+  void ensureWorker()
+  {
+    const std::lock_guard lock(mutex_);
+    if (worker_.joinable() || stopping_)
+    {
+      return;
+    }
+    worker_ = std::thread([this] { run(); });
+  }
+
+  void run()
+  {
+    // Created with std::thread rather than through the kernel, so it needs the crash handler's
+    // alternate signal stack asked for explicitly.
+    kernel::KernelApi::prepareCurrentThreadForCrashReports();
+
+    std::unique_lock lock(mutex_);
+    while (true)
+    {
+      work_.wait(lock, [this] { return hasPending_ || stopping_; });
+      if (!hasPending_)
+      {
+        return;  // stopping, with nothing left to write
+      }
+
+      auto text = std::move(pending_);
+      hasPending_ = false;
+      busy_ = true;
+      lock.unlock();
+
+      const bool ok = writeLocal(text);
+
+      lock.lock();
+      busy_ = false;
+      if (!ok)
+      {
+        // Reported rather than swallowed: without a helper on the machine only the terminal escape
+        // went out, and if the terminal ignores that too the user was told a copy had happened.
+        failure_ =
+          "The clipboard helper failed, so the copy may only have reached the terminal. "
+          "Install pbcopy, wl-copy, xclip or xsel for a local copy.";
+      }
+      idle_.notify_all();
+    }
+  }
+
+  std::mutex mutex_;
+  std::condition_variable work_;
+  std::condition_variable idle_;
+  std::thread worker_;
+  std::string pending_;
+  std::optional<std::string> failure_;
+  bool hasPending_ = false;
+  bool busy_ = false;
+  bool stopping_ = false;
+};
+
+Writer& writer()
+{
+  static Writer instance;
+  return instance;
+}
+
+}  // namespace
+
 void copy(std::string_view text)
 {
   // OSC 52 goes out on this thread: it is one write to the tty and it is the only path that
@@ -189,9 +337,11 @@ void copy(std::string_view text)
     return;
   }
 
-  // The helpers fork. Detach so the cycle is not held for the length of four process spawns; a
-  // clipboard write nobody waits on has no ordering requirement and no result to report.
-  std::thread([owned = std::string(text)]() { std::ignore = writeLocal(owned); }).detach();
+  writer().submit(std::string(text));
 }
+
+std::optional<std::string> takeFailure() { return writer().takeFailure(); }
+
+void shutdown() { writer().stop(); }
 
 }  // namespace sen::components::term::clipboard

@@ -28,7 +28,9 @@ namespace sen::components::term
 //--------------------------------------------------------------------------------------------------------------
 
 /// Collect max name width for column alignment across the form field tree.
-void collectFormColumnWidths(const ArgFormField& f, std::size_t& nameWidth);
+/// Widest field name in the tree, for the form's name column. `depth` bounds the recursion: the tree is
+/// built from a peer's type and walked on every frame.
+void collectFormColumnWidths(const ArgFormField& f, std::size_t& nameWidth, std::size_t depth = 0);
 
 /// Build the contextual hint elements for a focused leaf (type name, description, format note).
 ftxui::Elements focusedHintElements(const ArgFormField& leaf);

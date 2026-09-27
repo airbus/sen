@@ -16,10 +16,14 @@
 // std
 #include <algorithm>
 #include <cstddef>
+#include <deque>
+#include <filesystem>
 #include <fstream>
+#include <ios>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <utility>
-#include <vector>
 
 namespace sen::components::term
 {
@@ -124,6 +128,14 @@ void InputPane::addToHistory(std::string_view line)
     {
       out << line << '\n';
     }
+    else if (!historyWriteFailureReported_)
+    {
+      // Once per session, not once per line. A read-only HOME used to mean history quietly never
+      // persisted: it worked all session and was empty on the next start, with nothing said.
+      historyWriteFailureReported_ = true;
+      getLogger()->warn("cannot write the command history to {}; it will not persist beyond this session",
+                        historyFile_.string());
+    }
   }
 }
 
@@ -139,10 +151,23 @@ void InputPane::loadHistory()
   std::ifstream in(historyFile_);
   if (!in.is_open())
   {
+    // A file that is not there yet is the normal first run and says nothing. One that exists and will
+    // not open is worth a line, because the symptom otherwise is history that is silently empty.
+    std::error_code exists;
+    if (std::filesystem::exists(historyFile_, exists))
+    {
+      getLogger()->warn("cannot read the command history from {}; starting with an empty history",
+                        historyFile_.string());
+    }
     return;
   }
 
-  std::vector<std::string> fileLines;
+  // A ring of the last maxHistoryLines, not the whole file. Within a session `addToHistory` appends
+  // without bound -- only the in-memory deque is capped -- so the file carries every command of every
+  // previous session. A scripted run of 125,000 commands at the line limit leaves about a gigabyte, and
+  // this used to materialise all of it before capping, on the component thread during init.
+  std::deque<std::string> fileLines;
+  bool trimmedTheFile = false;
   std::string line;
   while (std::getline(in, line))
   {
@@ -154,16 +179,19 @@ void InputPane::loadHistory()
     if (!line.empty() && line.size() <= maxLineBytes)
     {
       fileLines.push_back(std::move(line));
+      if (fileLines.size() > maxHistoryLines)
+      {
+        fileLines.pop_front();
+        trimmedTheFile = true;
+      }
     }
     line.clear();
   }
   in.close();
 
-  if (fileLines.size() > maxHistoryLines)
+  if (trimmedTheFile)
   {
-    auto excess = fileLines.size() - maxHistoryLines;
-    fileLines.erase(fileLines.begin(), fileLines.begin() + checkedConversion<ptrdiff_t>(excess));
-
+    // Rewrite it at the cap, so the next start does not read past it again.
     std::ofstream out(historyFile_, std::ios::trunc);
     if (out.is_open())
     {

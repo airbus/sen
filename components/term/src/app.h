@@ -20,6 +20,7 @@
 #include <ftxui/dom/elements.hpp>
 
 // std
+#include <chrono>
 #include <cstddef>
 #include <filesystem>
 #include <memory>
@@ -75,6 +76,10 @@ public:
   /// Append a pre-built FTXUI element to the command pane.
   void appendElement(ftxui::Element element);
 
+  /// Show a short notice over the bottom right of the output pane for about a second. Nothing is
+  /// added to the pane, so a notice the user only needs to see once leaves no line behind.
+  void showToast(std::string text);
+
   /// Track a pending method call. Returns an opaque id; pass it to finishPendingCall()
   /// with the result when the call returns.
   [[nodiscard]] std::size_t startPendingCall(std::string description);
@@ -118,6 +123,9 @@ public:
 private:
   // init() helpers: each builds one layer of the FTXUI component tree.
   ftxui::Component createInputComponent();
+
+  /// The keys the input line handles itself: motion, erasing, history and text.
+  bool handleInputKey(const ftxui::Event& event);
   ftxui::Component createRenderer(ftxui::Component wrappedInput);
 
   ftxui::Component createEventHandler(ftxui::Component renderer);
@@ -141,16 +149,17 @@ private:
   /// the drag-to-select one is not silent.
   void copyToClipboardAndReport(std::string text);
 
-  // Completion rendering helpers (used by both TUI and REPL renderers).
-  ftxui::Element renderCompletionList() const;
-  ftxui::Element renderCompletionHint() const;
+  // Completion rendering helpers.
+  [[nodiscard]] ftxui::Element renderCompletionList() const;
+  [[nodiscard]] bool toastVisible() const;
+  [[nodiscard]] ftxui::Element renderToast() const;
+  [[nodiscard]] ftxui::Element renderCompletionHint() const;
 
 private:
   CommandHandler onCommand_;
   std::filesystem::path historyFile_;
   bool exited_ = false;
   bool shutdownRequested_ = false;
-  bool logPaused_ = false;
   std::size_t nextCallId_ = 0;
   std::size_t activePendingCount_ = 0;
   Completer* completer_ = nullptr;  // not owned
@@ -165,6 +174,13 @@ private:
   // Render control; the policy is at the redraw decision in tick().
   bool needsRedraw_ = true;
   unsigned idleTickCount_ = 0;
+  unsigned pasteModeTicks_ = 0;  ///< ticks since bracketed paste was last re-asserted
+
+  // The transient notice and when it stops being drawn. toastWasVisible_ buys the one extra frame
+  // that takes it off the screen once it has expired.
+  std::string toastText_;
+  std::chrono::steady_clock::time_point toastUntil_;
+  bool toastWasVisible_ = false;
 
   // Last selection auto-copied to the clipboard, used to avoid re-spawning the
   // clipboard helper on mouse releases that don't change the selection.

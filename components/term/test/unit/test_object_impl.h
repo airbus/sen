@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_TEST_UNIT_TEST_OBJECT_IMPL_H
 
 // sen
+// sen
 #include "sen/core/base/duration.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/method.h"
@@ -45,28 +46,37 @@ protected:
   {
     i32 s = 0;
     for (auto v: values)
+    {
       s += v;
+    }
     return s;
   }
   i32 sumBoundedImpl(const ::term::test::BoundedInts& values) const override
   {
     i32 s = 0;
     for (auto v: values)
+    {
       s += v;
+    }
     return s;
   }
   i32 sumTripleImpl(const ::term::test::TripleInts& values) const override
   {
     i32 s = 0;
     for (auto v: values)
+    {
       s += v;
+    }
     return s;
   }
   ::term::test::Point centroidImpl(const ::term::test::PointSeq& points) const override
   {
     if (points.empty())
+    {
       return ::term::test::Point {0, 0};
-    i32 sx = 0, sy = 0;
+    }
+    i32 sx = 0;
+    i32 sy = 0;
     for (const auto& p: points)
     {
       sx += p.x;

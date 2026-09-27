@@ -1141,6 +1141,16 @@ void Printer::printWelcome(Terminal* terminal)
   printLogo(terminal, bannerLength, getPallete());
 
   terminal->showCursor();
+
+  printDeprecationNotice(terminal);
+}
+
+void Printer::printDeprecationNotice(Terminal* terminal)
+{
+  terminal->newLine();
+  terminal->cprint(descriptionStyle, "  This shell will be deprecated in Sen 0.8.0 and removed in a later release.\n");
+  terminal->cprint(descriptionStyle, "  Its replacement is the term component, in beta now: run 'sen term'.\n");
+  terminal->newLine();
 }
 
 void Printer::printError(const char* fmt, ...) const  // NOLINT

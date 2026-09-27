@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_ARG_FORM_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/result.h"
 #include "sen/core/base/span.h"
@@ -110,8 +111,15 @@ struct ArgFormField
   // optionalGroup: true when empty (no value set).
   bool optionalIsEmpty = true;
 
-  [[nodiscard]] bool isLeaf() const noexcept { return kind == FieldKind::scalar; }
+  /// Set when an insert was refused for being too long, and cleared only when the user edits the field
+  /// afterwards. `validationError` cannot carry this: every revalidation clears it, including the one on
+  /// the next keystroke, so the refusal was gone before submit could see it -- and the form sent the
+  /// truncated value it had just told the user it dropped.
+  bool insertRefused = false;
 };
+
+/// A leaf holds a text buffer; a composite holds children.
+[[nodiscard]] inline bool isLeaf(const ArgFormField& field) noexcept { return field.kind == FieldKind::scalar; }
 
 //--------------------------------------------------------------------------------------------------------------
 // Editor helpers
@@ -137,6 +145,8 @@ public:
   [[nodiscard]] static std::optional<ArgForm> build(const Method& method,
                                                     std::string_view objectName,
                                                     Span<const Var> prefilled = {});
+
+  ~ArgForm() = default;
 
   [[nodiscard]] const Method& method() const noexcept { return *method_; }
   [[nodiscard]] const std::string& objectName() const noexcept { return objectName_; }
@@ -199,10 +209,29 @@ public:
 private:
   ArgForm() = default;
 
+  /// `fields_` as the ancestor finders want it. They do not modify what they walk; they return a
+  /// mutable pointer because their other callers need one, and that is what makes the cast safe.
+  [[nodiscard]] std::vector<ArgFormField>& mutableFields() const;
+
   [[nodiscard]] std::optional<Var> revalidateLeaf(ArgFormField& leaf);
   void rebuildLeafCache();
   static ArgFormField buildField(std::string name, std::string description, ConstTypeHandle<> type, const Var* prefill);
+
+  // One per composite kind, lifted out of buildField so the dispatch reads as a dispatch. Each takes the
+  // half-built field and fills in its own children.
+  // Each returns whether it finished the field. Only the quantity branch ever says no: Duration and
+  // TimeStamp are quantity types that need the scalar string editor, because a bare f64 makes
+  // getCopyAs<Duration>() throw at call time.
+  static bool buildStructField(ArgFormField& f, const Var* prefill, const StructType& structType);
+  static bool buildSequenceField(ArgFormField& f, const Var* prefill, const SequenceType& seqType);
+  static bool buildOptionalField(ArgFormField& f, const Var* prefill, const OptionalType& optType);
+  static bool buildQuantityField(ArgFormField& f, ConstTypeHandle<> type, ConstTypeHandle<> t, const Var* prefill);
+  static bool buildVariantField(ArgFormField& f, ConstTypeHandle<> t, const Var* prefill);
   [[nodiscard]] std::optional<Var> assembleValue(ArgFormField& f, std::size_t& failIdx);
+  [[nodiscard]] std::optional<Var> assembleQuantity(ArgFormField& f, std::size_t& failIdx);
+  [[nodiscard]] std::optional<Var> assembleVariant(ArgFormField& f,
+                                                   std::size_t& failIdx,
+                                                   const VariantType& variantType);
 
 private:
   const Method* method_ = nullptr;

@@ -156,8 +156,8 @@ configuration ahead of your own component:
 
 ```yaml title="config.yaml"
 load:
-  # first, load the shell
-  - name: shell
+  # first, load the term
+  - name: term
     group: 2
     open: [ local.kernel ]
 

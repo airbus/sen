@@ -151,7 +151,7 @@ Running that script writes the configuration Sen consumes:
 
 ```yaml title="config.yaml"
 load:
-- name: shell
+- name: term
   group: 2
 - name: ether
   group: 3

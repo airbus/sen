@@ -145,7 +145,7 @@ Edit `config.yaml` so it looks like this:
 
 ```{ .yaml .annotate }
 load:
-  - name: shell   # (1)!
+  - name: term   # (1)!
     group: 2
     open: [local.counters]  # (2)!
 
@@ -161,7 +161,7 @@ build:
         bus: local.counters  # (7)!
 ```
 
-1. Load the shell component so we can interact with the running system.
+1. Load the term component so we can interact with the running system.
 2. Automatically open this bus in the shell so we can see objects without typing `open` manually.
 3. The component (and all its objects) will call `update()` twice per second.
 4. Tell Sen to load your package so it can find `CounterImpl`.

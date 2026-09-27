@@ -3,11 +3,11 @@
 # this example creates two ClassRoom objects in the school.primary
 # and school.secondary buses respectively.
 include:
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 load:
   # auto-open the buses that we will be interested in
-  - name: shell
+  - name: term
     open: [school.primary, school.secondary]
 
 build:

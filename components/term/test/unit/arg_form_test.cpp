@@ -9,6 +9,8 @@
 
 // sen
 #include "sen/core/base/duration.h"
+#include "sen/core/base/numbers.h"
+#include "sen/core/io/util.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/method.h"
@@ -27,6 +29,13 @@
 
 // std
 #include <chrono>
+#include <cstdint>
+#include <limits>
+#include <memory>
+#include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -211,9 +220,18 @@ TEST(ArgForm, InvocationWithString)
 class ArgFormStateful: public ::testing::Test
 {
 protected:
-  const Method& addMethod() const { return *::term::test::TestObjectInterface::meta()->searchMethodByName("add"); }
-  const Method& echoMethod() const { return *::term::test::TestObjectInterface::meta()->searchMethodByName("echo"); }
-  const Method& pingMethod() const { return *::term::test::TestObjectInterface::meta()->searchMethodByName("ping"); }
+  [[nodiscard]] const Method& addMethod() const
+  {
+    return *::term::test::TestObjectInterface::meta()->searchMethodByName("add");
+  }
+  [[nodiscard]] const Method& echoMethod() const
+  {
+    return *::term::test::TestObjectInterface::meta()->searchMethodByName("echo");
+  }
+  [[nodiscard]] const Method& pingMethod() const
+  {
+    return *::term::test::TestObjectInterface::meta()->searchMethodByName("ping");
+  }
 };
 
 TEST_F(ArgFormStateful, BuildProducesOneFieldPerArg)
@@ -435,7 +453,7 @@ TEST(ArgFormEffectiveDescription, FallsBackToTypeDescriptionWhenEmpty)
 class ArgFormStruct: public ::testing::Test
 {
 protected:
-  const Method& movePointMethod() const
+  [[nodiscard]] const Method& movePointMethod() const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("movePoint");
   }
@@ -451,7 +469,7 @@ TEST_F(ArgFormStruct, BuildExpandsStructIntoChildren)
   const auto& pField = form->fields()[0];
   EXPECT_EQ(pField.name, "p");
   EXPECT_EQ(pField.typeName, "Point");
-  EXPECT_FALSE(pField.isLeaf());
+  EXPECT_FALSE(isLeaf(pField));
   ASSERT_EQ(pField.children.size(), 2U);
   EXPECT_EQ(pField.children[0].name, "x");
   EXPECT_EQ(pField.children[1].name, "y");
@@ -569,11 +587,14 @@ TEST_F(ArgFormStruct, SubmitFailsOnInvalidNestedLeaf)
 class ArgFormEditors: public ::testing::Test
 {
 protected:
-  const Method& configureMethod() const
+  [[nodiscard]] const Method& configureMethod() const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("configure");
   }
-  const Method& addMethod() const { return *::term::test::TestObjectInterface::meta()->searchMethodByName("add"); }
+  [[nodiscard]] const Method& addMethod() const
+  {
+    return *::term::test::TestObjectInterface::meta()->searchMethodByName("add");
+  }
 };
 
 TEST_F(ArgFormEditors, BoolLeafClassifiedAsBooleanEditor)
@@ -856,11 +877,11 @@ TEST_F(ArgFormEditors, PrefillStripsOuterQuotesForEnum)
 class ArgFormSequence: public ::testing::Test
 {
 protected:
-  const Method& sumIntsMethod() const
+  [[nodiscard]] const Method& sumIntsMethod() const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("sumInts");
   }
-  const Method& centroidMethod() const
+  [[nodiscard]] const Method& centroidMethod() const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("centroid");
   }
@@ -879,7 +900,7 @@ TEST_F(ArgFormSequence, BuildEmptyByDefault)
 
   // Top-level field is the sequence group itself; no children yet.
   ASSERT_EQ(form->fields().size(), 1U);
-  EXPECT_FALSE(form->fields()[0].isLeaf());
+  EXPECT_FALSE(isLeaf(form->fields()[0]));
   EXPECT_TRUE(form->fields()[0].children.empty());
   EXPECT_EQ(form->leafCount(), 0U);
 }
@@ -1050,7 +1071,7 @@ TEST_F(ArgFormSequence, InlineFormattingRoundTrips)
 class ArgFormOptional: public ::testing::Test
 {
 protected:
-  const Method& anchorMethod() const
+  [[nodiscard]] const Method& anchorMethod() const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("anchor");
   }
@@ -1184,7 +1205,10 @@ TEST_F(ArgFormOptional, InlineFormatFilledIsInnerJson)
 class ArgFormOptionalScalar: public ::testing::Test
 {
 protected:
-  const Method& limitMethod() const { return *::term::test::TestObjectInterface::meta()->searchMethodByName("limit"); }
+  [[nodiscard]] const Method& limitMethod() const
+  {
+    return *::term::test::TestObjectInterface::meta()->searchMethodByName("limit");
+  }
 };
 
 TEST_F(ArgFormOptionalScalar, BuildStartsEmpty)
@@ -1253,7 +1277,7 @@ TEST_F(ArgFormOptionalScalar, PrefillFromScalarInitializesFilled)
 class ArgFormVariant: public ::testing::Test
 {
 protected:
-  const Method& describeMethod() const
+  [[nodiscard]] const Method& describeMethod() const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("describe");
   }
@@ -1443,12 +1467,12 @@ TEST_F(ArgFormVariant, InlineFormattingRoundTrips)
 class ArgFormQuantity: public ::testing::Test
 {
 protected:
-  const Method& setLengthMethod() const
+  [[nodiscard]] const Method& setLengthMethod() const
   {
     // setLength takes Meters = quantity<u16, m> [min: 0, max: 500]
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("setLength");
   }
-  const Method& setRatioMethod() const
+  [[nodiscard]] const Method& setRatioMethod() const
   {
     // setRatio takes Ratio = quantity<f32, f32> [min: 0.0, max: 1.0] (unit-less)
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("setRatio");
@@ -1729,7 +1753,7 @@ TEST(ArgFormDuration, DurationSubmitUsesStringWithUnitSuffix)
 class ArgFormContext: public ::testing::Test
 {
 protected:
-  const Method& methodByName(std::string_view name) const
+  [[nodiscard]] const Method& methodByName(std::string_view name) const
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName(name);
   }

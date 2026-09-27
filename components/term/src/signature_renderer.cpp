@@ -17,12 +17,16 @@
 // sen
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/property.h"
+#include "sen/core/meta/var.h"
 
 // ftxui
 #include <ftxui/dom/elements.hpp>
 
 // std
 #include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
 
 namespace sen::components::term
 {

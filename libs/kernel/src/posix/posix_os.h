@@ -46,6 +46,7 @@ public:  // shared libraries
 public:  // threading
   [[nodiscard]] Result<Thread, ThreadCreateErr> createThread(const ThreadConfig& config) noexcept final;
   [[nodiscard]] bool joinThread(Thread thread) noexcept final;
+  [[nodiscard]] bool isCurrentThread(Thread thread) const noexcept final;
   [[nodiscard]] bool killThread(Thread thread) noexcept final;
   [[nodiscard]] bool detachThread(Thread& thread) noexcept final;
 

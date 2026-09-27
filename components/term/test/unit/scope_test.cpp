@@ -8,12 +8,12 @@
 #include "scope.h"
 #include "tree_view.h"
 
+// google test
+#include <gtest/gtest.h>
+
 // std
 #include <string>
 #include <vector>
-
-// google test
-#include <gtest/gtest.h>
 
 namespace sen::components::term
 {

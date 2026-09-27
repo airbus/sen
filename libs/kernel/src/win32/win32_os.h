@@ -32,6 +32,7 @@ public:
   [[nodiscard]] void* getSymbol(SharedLibrary library, std::string_view symbolName) final;
   [[nodiscard]] Result<Thread, ThreadCreateErr> createThread(const ThreadConfig& config) final;
   [[nodiscard]] bool joinThread(Thread thread) noexcept final;
+  [[nodiscard]] bool isCurrentThread(Thread thread) const noexcept final;
   [[nodiscard]] bool killThread(Thread thread) noexcept final;
   [[nodiscard]] bool detachThread(Thread& thread) noexcept final;
 

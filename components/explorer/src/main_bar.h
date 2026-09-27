@@ -53,6 +53,7 @@ private:
   void handleShortcuts();
   void drawModals();
   void mainWindow();
+  void deprecationNotice();
   void layoutsMenu();
   void viewMenu();
   void scanLayoutFiles();

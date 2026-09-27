@@ -15,6 +15,7 @@
 #include <array>
 #include <cstddef>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace sen::components::term
@@ -46,7 +47,7 @@ std::size_t findDots(std::string_view s, std::array<std::size_t, 8>& dots)
   {
     if (s[i] == '.')
     {
-      dots[count++] = i;
+      dots.at(count++) = i;
     }
   }
   return count;
@@ -58,8 +59,8 @@ std::string_view nthSegment(std::string_view s,
                             std::size_t dotCount,
                             std::size_t index)
 {
-  std::size_t start = (index == 0) ? 0 : dots[index - 1] + 1;
-  std::size_t end = (index < dotCount) ? dots[index] : s.size();
+  std::size_t start = (index == 0) ? 0 : dots.at(index - 1) + 1;
+  std::size_t end = (index < dotCount) ? dots.at(index) : s.size();
   if (start > s.size())
   {
     return {};
@@ -74,9 +75,9 @@ std::string_view fromSegment(std::string_view s, const std::array<std::size_t, 8
   {
     return s;
   }
-  if (index <= 8 && dots[index - 1] + 1 <= s.size())
+  if (index <= dots.size() && dots.at(index - 1) + 1 <= s.size())
   {
-    return s.substr(dots[index - 1] + 1);
+    return s.substr(dots.at(index - 1) + 1);
   }
   return {};
 }

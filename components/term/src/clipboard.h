@@ -8,23 +8,47 @@
 #ifndef SEN_COMPONENTS_TERM_SRC_CLIPBOARD_H
 #define SEN_COMPONENTS_TERM_SRC_CLIPBOARD_H
 
+// std
+#include <optional>
+#include <string>
 #include <string_view>
 
 namespace sen::components::term::clipboard
 {
 
-/// Copy `text` to the system clipboard. On platforms that distinguish a primary
-/// selection (X11 and some Wayland compositors) the text is written to both the
-/// main clipboard (for Ctrl+V) and the primary selection (for middle-click
-/// paste). Best-effort: returns true if any path was reached, false if nothing
-/// on this platform could accept the text.
+/// Put `text` on the system clipboard. All platform and protocol handling is confined to this module.
 ///
-/// All platform- and protocol-specific handling is confined to this module.
-/// Put `text` on the system clipboard. The terminal escape is written on the calling thread, which
-/// is cheap; the local helper (pbcopy, wl-copy, xclip) forks and is handed to a detached thread,
-/// because this is called from the component's 33 ms cycle and up to four fork+exec pairs in it
-/// were counted by the runner as missed frames.
+/// Two paths are used. The terminal escape (OSC 52) goes out on the calling thread: it is one write to
+/// the tty and it is the only path that survives an ssh session. The local helper -- pbcopy, wl-copy,
+/// xclip, xsel -- forks, and up to four fork+exec pairs inside the component's 33 ms cycle were counted
+/// by the runner as missed frames, so it runs on a worker thread instead.
+///
+/// On platforms with a primary selection (X11, some Wayland compositors) the text goes to both the
+/// clipboard (Ctrl+V) and the primary selection (middle-click).
 void copy(std::string_view text);
+
+/// The reason the last local write failed, once, or nothing.
+///
+/// The helper runs on the worker, so `copy` cannot say whether it worked -- and it used to be reported
+/// as a success unconditionally, which meant a machine with no xclip told the user text had been copied
+/// and they found out by pasting. Poll this from the render tick and show what it returns. Reading it
+/// clears it.
+[[nodiscard]] std::optional<std::string> takeFailure();
+
+/// RFC 4648 base64, as the OSC 52 payload needs it.
+///
+/// Exposed because it is the one piece of this module that is identical on every platform, and it used
+/// to be reachable from a test only through the terminal escape -- which needs descriptor redirection,
+/// which was written for POSIX only. So the portable half was verified on one platform out of three.
+[[nodiscard]] std::string base64Encode(std::string_view input);
+
+/// Stop the worker, waiting a bounded time for a write in flight. Call before the component returns.
+///
+/// The worker used to be a detached thread per copy, so a drag-select loop could make several and a
+/// wedged helper left each one hanging for the life of the process. There is one worker now, and this
+/// is the only place that waits for it -- for two seconds, after which it is abandoned rather than
+/// holding up the shutdown, because a helper that has not returned by then is not going to.
+void shutdown();
 
 }  // namespace sen::components::term::clipboard
 

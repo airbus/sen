@@ -12,10 +12,16 @@
 #include <ftxui/dom/elements.hpp>
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
+#include <chrono>
+#include <initializer_list>
 #include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace sen::components::term
@@ -177,4 +183,71 @@ TEST(TreeView, RenderNestedChildrenShowDeeperIndent)
 }
 
 }  // namespace
+
+TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
+{
+  // `ls` builds one node per object, and a flat bus makes every object a sibling. The lookup used to be
+  // a linear scan of those siblings, so the build was N squared -- a freeze of about a second at ten
+  // thousand objects, on the thread that draws the screen.
+  //
+  // This measures the *shape*, not a time. Quadratic work quadruples when the count doubles; linear work
+  // doubles. An absolute bound cannot do this job: the first version of this test allowed a second at
+  // twenty thousand children, and the linear scan came in at 573 ms and passed.
+  const auto buildTime = [](int childCount)
+  {
+    TreeNode root;
+    const auto before = std::chrono::steady_clock::now();
+    for (int i = 0; i < childCount; ++i)
+    {
+      std::vector<std::string> path {"object_" + std::to_string(i)};
+      root.getOrCreateChild(path);
+    }
+    return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - before).count();
+  };
+
+  // The fastest of several runs, not one run. A single timing of a few milliseconds is mostly
+  // scheduling noise: measured over five runs on a loaded machine, one arm in five came in four times
+  // slow, which is exactly the ratio a quadratic build produces -- so the noise band covered the whole
+  // effect and no bound could separate them. The minimum throws the hiccups away and keeps the shape.
+  const auto fastestBuild = [&buildTime](int childCount)
+  {
+    constexpr int attempts = 5;
+    auto best = buildTime(childCount);
+    for (int i = 1; i < attempts; ++i)
+    {
+      best = std::min(best, buildTime(childCount));
+    }
+    return best;
+  };
+
+  // Warm up, so the first allocation and the first cache miss are not counted against the small half.
+  std::ignore = buildTime(2000);
+
+  const auto small = fastestBuild(40000);
+  const auto large = fastestBuild(80000);
+  ASSERT_GT(small, 0) << "the small build was too fast to time, so the ratio below means nothing";
+
+  // Doubling the count: about 2 for linear, about 4 for quadratic. 3 sits between them with room on
+  // both sides -- the scan measures near 4, the index near 2.
+  const double ratio = static_cast<double>(large) / static_cast<double>(small);
+  EXPECT_LT(ratio, 3.0) << "doubling the object count multiplied the work by " << ratio
+                        << ", which is the shape of a scan per insert (" << small << " then " << large
+                        << " microseconds)";
+
+  // And the index has to agree with the list it indexes, or a second `ls` finds the wrong node.
+  TreeNode root;
+  for (int i = 0; i < 100; ++i)
+  {
+    std::vector<std::string> path {"object_" + std::to_string(i)};
+    ASSERT_NE(root.getOrCreateChild(path), nullptr) << "insert " << i << " returned nothing";
+  }
+  for (int i = 0; i < 100; i += 17)
+  {
+    std::vector<std::string> path {"object_" + std::to_string(i)};
+    ASSERT_NE(root.findChild(path), nullptr) << "object_" << i << " was inserted and cannot be found";
+  }
+  std::vector<std::string> absent {"object_not_inserted"};
+  EXPECT_EQ(root.findChild(absent), nullptr) << "a name that was never inserted was found";
+}
+
 }  // namespace sen::components::term

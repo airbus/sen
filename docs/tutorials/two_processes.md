@@ -51,10 +51,10 @@ sen run config/1_calculators/2_calculators_eth.yaml
 In another terminal:
 
 ```shell
-sen shell
+sen term
 ```
 
-`sen shell` is more than a prompt. It is a complete Sen kernel with two components loaded, `ether`
+`sen term` is more than a prompt. It is a complete Sen kernel with two components loaded, `ether`
 and `shell`. That is why it can see anything at all: it is another kernel on the same network, not a
 client connecting to the first process.
 

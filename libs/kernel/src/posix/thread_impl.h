@@ -48,6 +48,10 @@ public:
   [[nodiscard]] Result<void, ThreadCreateErr> run() noexcept;
   [[nodiscard]] bool join() const noexcept;
 
+  /// Whether the caller is this thread. pthread_join on yourself is EDEADLK, which the kernel used to
+  /// turn into std::terminate.
+  [[nodiscard]] bool isCurrentThread() const noexcept;
+
   /// False when the configured priority could not be applied and the thread runs without it.
   [[nodiscard]] bool priorityApplied() const noexcept { return priorityApplied_; }
 

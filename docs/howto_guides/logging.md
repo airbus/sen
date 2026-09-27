@@ -42,7 +42,7 @@ kernel:
         level: trace  # has priority if more restrictive than the sinks' levels
 
 load:
-  - name: shell
+  - name: term
     group: 2
     open: [my.tutorial]  # to see the created objects
 
@@ -57,6 +57,63 @@ build:
         bus: my.tutorial
         prop1: some value
 ```
+
+!!! warning "A terminal component silences the console sinks"
+
+    The configuration above loads *term*, and *term* draws the log lines itself in its own output area.
+    To do that it takes the terminal over, and a console sink -- `Stdout`, `ColorStdout` or `Stderr` --
+    writes to the same descriptor *term* is drawing on: keeping both would print every line twice, on
+    top of the display. So while *term* is running, every console sink is silenced.
+
+    In the example above that means `stdout_sink` produces nothing and `file_sink` keeps working. The
+    file is where to look. Console sinks come back when *term* exits.
+
+    The same applies to any component that claims the terminal. It does not affect a file sink, a
+    network sink, or the crash report's log ring.
+
+## Rendering the logs in a component
+
+A component that displays log lines itself registers a sink with the kernel rather than walking
+spdlog's registry. Walking it does not work and is not safe: each shared library has its own registry,
+so a component's `spdlog::apply_all` never sees the kernel's loggers, and appending to a logger another
+thread is emitting through is a use-after-free -- spdlog iterates a logger's sink vector without a lock.
+
+The kernel puts one relay sink on every logger, in the only window where that is safe, and a component
+registers behind the relay:
+
+```cpp
+#include <sen/kernel/component_api.h>
+
+auto sink = std::make_shared<MySink>();
+
+// `owned` says this component is drawing on the terminal, so console sinks are silenced while it runs.
+// Use the default, `shared`, for a sink that is not a display -- a telemetry or audit sink.
+auto registration = kernel::KernelApi::addLoggerSink(sink, kernel::KernelApi::TerminalOwnership::owned);
+if (registration.isError())
+{
+    // Nothing is rendering logs. The console sinks are still live, so say so there.
+}
+else if (registration.getValue().terminalOwnedElsewhere)
+{
+    // Another component is already drawing logs. Registration is not arbitrated: both will draw.
+}
+```
+
+The sink keeps its own pattern -- the relay passes the message on unformatted -- and it receives lines
+from loggers created after it registered, which is what a registry walk could not do.
+
+**Unregister before the state the sink writes into goes away.** A registered sink is held by the kernel
+until it is removed, and it can be running on another thread at that moment, so stop it reaching your
+state first and then remove it:
+
+```cpp
+sink->detach();                                  // your own: make the sink inert under its own lock
+std::ignore = kernel::KernelApi::removeLoggerSink(sink);
+```
+
+`KernelApi::setAllLoggersLevel` sets the level on every logger and on every logger made afterwards,
+which is what a user changing the level at runtime needs; `getAllLoggersLevel` reads it back. It
+replaces the per-logger levels the configuration file asked for, with no way back to them.
 
 ## Getting a logger
 

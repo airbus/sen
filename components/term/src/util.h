@@ -8,16 +8,21 @@
 #ifndef SEN_COMPONENTS_TERM_SRC_UTIL_H
 #define SEN_COMPONENTS_TERM_SRC_UTIL_H
 
-// third party
+// sen
+#include "sen/core/base/timestamp.h"
 #include "sen/core/meta/unit.h"
 
-// third party
+// generated code
+#include "stl/term.stl.h"
+
+// spdlog
 #include <spdlog/logger.h>
 
 // std
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <string>
 
 namespace sen::components::term
 {
@@ -62,6 +67,22 @@ inline constexpr std::array<UnitCategory, 15U> allUnitCategories {
   UnitCategory::angularAcceleration,
   UnitCategory::torque,
 };
+
+/// The time term shows, in the style the configuration asked for.
+///
+/// `timeStyle` was read out of the configuration and then used nowhere: every time on screen was local,
+/// including under the declared default of `utc`, and TimeStamp *values* rendered as UTC beside them.
+[[nodiscard]] inline std::string formatTime(const TimeStamp& time, TimeStyle style)
+{
+  return style == TimeStyle::local ? time.toLocalString() : time.toUtcString();
+}
+
+/// The same, cut to `HH:MM:SS`. Both spellings put the clock at offset 11.
+[[nodiscard]] inline std::string formatShortTime(const TimeStamp& time, TimeStyle style)
+{
+  auto full = formatTime(time, style);
+  return (full.size() >= 19U) ? full.substr(11U, 8U) : full;
+}
 
 }  // namespace sen::components::term
 

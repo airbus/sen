@@ -24,18 +24,25 @@ set(_term_session_cases
     test_a_paste_whose_end_marker_is_lost_releases_itself
     test_escape_cancels_a_paste_in_progress
     test_the_line_completion_produces_gets_a_useful_answer
+    test_output_fills_the_pane_from_the_top
+    test_the_banner_is_drawn_at_the_top_of_the_screen
     test_exit_shuts_the_kernel_down
 )
 
-foreach(_case IN LISTS _term_session_cases)
-  add_sen_integration_test(
-    term_session_${_case}
-    COMMAND
-    ${Python_EXECUTABLE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_session.py
-    ${_working_dir}/cli_run
-    ${CMAKE_CURRENT_SOURCE_DIR}/config/session.yaml
-    TestTermSession.${_case}
-    REQ_DEPS term_showcase py ether term kernel
-  )
-endforeach()
+# Not on Windows: the harness drives the term through a pty, and pty, fcntl, termios and SIGKILL do not
+# exist in CPython there, so every one of these fails at import rather than telling anyone anything. The
+# same guard and the same reasoning are on the kernel's Python-driven suites in libs/kernel/test.
+if(NOT MSVC)
+  foreach(_case IN LISTS _term_session_cases)
+    add_sen_integration_test(
+      term_session_${_case}
+      COMMAND
+      ${Python_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_session.py
+      ${_working_dir}/cli_run
+      ${CMAKE_CURRENT_SOURCE_DIR}/config/session.yaml
+      TestTermSession.${_case}
+      REQ_DEPS term_showcase py ether term kernel
+    )
+  endforeach()
+endif()

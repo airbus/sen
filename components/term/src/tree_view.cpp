@@ -9,11 +9,21 @@
 
 // component
 #include "styles.h"
-#include "unicode.h"
+
+// sen
+#include "sen/core/base/span.h"
+
+// ftxui
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/color.hpp>
 
 // std
+#include <cstddef>
+#include <functional>
 #include <iterator>
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace sen::components::term
 {
@@ -25,13 +35,15 @@ namespace sen::components::term
 namespace
 {
 
-// Box-drawing prefixes for tree rendering, composed from unicode.h primitives.
-const std::string branchLeaf = std::string {unicode::branchTee} + unicode::horizontalBar + unicode::horizontalBar + " ";
-const std::string branchNode = std::string {unicode::branchTee} + unicode::horizontalBar + unicode::teeDown + " ";
-const std::string cornerLeaf = std::string {unicode::cornerEnd} + unicode::horizontalBar + unicode::horizontalBar + " ";
-const std::string cornerNode = std::string {unicode::cornerEnd} + unicode::horizontalBar + unicode::teeDown + " ";
-const std::string pipe = std::string {unicode::verticalBar} + " ";
-const std::string space = "  ";
+// Box-drawing prefixes for tree rendering. The same glyphs unicode.h names, written out so they are
+// compile-time constants: concatenating them would run before main and could throw where nothing can
+// catch it.
+constexpr std::string_view branchLeaf = "\u251c\u2500\u2500 ";  // ├──
+constexpr std::string_view branchNode = "\u251c\u2500\u252c ";  // ├─┬
+constexpr std::string_view cornerLeaf = "\u2514\u2500\u2500 ";  // └──
+constexpr std::string_view cornerNode = "\u2514\u2500\u252c ";  // └─┬
+constexpr std::string_view pipe = "\u2502 ";                    // │
+constexpr std::string_view space = "  ";
 
 ftxui::Color kindColor(TreeNode::Kind kind)
 {
@@ -65,6 +77,7 @@ void TreeNode::clear() noexcept
 {
   annotation_.clear();
   children_.clear();
+  childIndex_.clear();
   kind_ = Kind::plain;
 }
 
@@ -78,17 +91,15 @@ TreeNode* TreeNode::getOrCreateChild(Span<const std::string> path)
   const auto& childName = path[0];
   auto rest = path.subspan(1);
 
-  for (auto& child: children_)
+  if (auto itr = childIndex_.find(childName); itr != childIndex_.end())
   {
-    if (child.name_ == childName)
-    {
-      return rest.empty() ? &child : child.getOrCreateChild(rest);
-    }
+    return rest.empty() ? itr->second : itr->second->getOrCreateChild(rest);
   }
 
   children_.emplace_back(childName);
   auto* newChild = &children_.back();
   newChild->parent_ = this;
+  childIndex_.emplace(childName, newChild);
 
   return rest.empty() ? newChild : newChild->getOrCreateChild(rest);
 }
@@ -103,15 +114,12 @@ TreeNode* TreeNode::findChild(Span<const std::string> path)
   const auto& childName = path[0];
   auto rest = path.subspan(1);
 
-  for (auto& child: children_)
+  auto itr = childIndex_.find(childName);
+  if (itr == childIndex_.end())
   {
-    if (child.name_ == childName)
-    {
-      return rest.empty() ? &child : child.findChild(rest);
-    }
+    return nullptr;
   }
-
-  return nullptr;
+  return rest.empty() ? itr->second : itr->second->findChild(rest);
 }
 
 void TreeNode::setAnnotation(std::string annotation) { annotation_ = std::move(annotation); }
@@ -126,19 +134,30 @@ void TreeNode::render(const std::function<void(ftxui::Element)>& emit) const
 {
   for (auto itr = children_.begin(); itr != children_.end(); ++itr)
   {
-    itr->renderImpl(emit, "", std::next(itr) == children_.end());
+    itr->renderImpl(emit, "", std::next(itr) == children_.end(), 0);
   }
 }
 
-void TreeNode::renderImpl(const std::function<void(ftxui::Element)>& emit, std::string_view prefix, bool isLast) const
+void TreeNode::renderImpl(const std::function<void(ftxui::Element)>& emit,
+                          std::string_view prefix,
+                          bool isLast,
+                          std::size_t depth) const
 {
+  // The names come from a peer, so the nesting is not ours to trust.
+  constexpr std::size_t maxRenderDepth = 64;
+  if (depth > maxRenderDepth)
+  {
+    emit(ftxui::text(std::string(prefix) + "<nested deeper than 64 levels>"));
+    return;
+  }
+
   bool hasChildren = !children_.empty();
 
-  const std::string& connector =
+  const std::string_view connector =
     isLast ? (hasChildren ? cornerNode : cornerLeaf) : (hasChildren ? branchNode : branchLeaf);
 
   ftxui::Elements parts;
-  parts.push_back(ftxui::text(std::string(prefix) + connector) | ftxui::color(styles::treeConnector()));
+  parts.push_back(ftxui::text(std::string(prefix).append(connector)) | ftxui::color(styles::treeConnector()));
 
   auto nameColor = kindColor(kind_);
   auto nameStyle = (kind_ == Kind::object) ? ftxui::bold : ftxui::nothing;
@@ -156,7 +175,7 @@ void TreeNode::renderImpl(const std::function<void(ftxui::Element)>& emit, std::
 
   for (auto itr = children_.begin(); itr != children_.end(); ++itr)
   {
-    itr->renderImpl(emit, childPrefix, std::next(itr) == children_.end());
+    itr->renderImpl(emit, childPrefix, std::next(itr) == children_.end(), depth + 1);
   }
 }
 

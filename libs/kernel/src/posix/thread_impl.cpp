@@ -109,6 +109,8 @@ Result<void, ThreadCreateErr> ThreadImpl::run() noexcept
   return Ok();
 }
 
+bool ThreadImpl::isCurrentThread() const noexcept { return ::pthread_equal(api_->pthread_self(), thread_) != 0; }
+
 bool ThreadImpl::join() const noexcept
 {
   // pthread_join can fail with:

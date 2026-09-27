@@ -10,11 +10,16 @@
 #include "test_render_utils.h"
 
 // sen
+#include "sen/core/meta/method.h"
 #include "sen/core/meta/native_types.h"
 #include "sen/core/meta/var.h"
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+// std
+#include <cstdint>
 
 namespace sen::components::term
 {

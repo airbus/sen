@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_THEME_H
 
 // generated code
+// generated code
 #include "stl/term.stl.h"
 
 // ftxui

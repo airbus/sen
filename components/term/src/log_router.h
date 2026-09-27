@@ -18,6 +18,7 @@
 #include <spdlog/common.h>
 
 // std
+#include <cstddef>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -31,16 +32,18 @@ namespace sen::components::term
 // forward declarations
 class App;
 
-/// Manages the injection of a custom spdlog sink into all registered loggers.
-/// Periodically scans for new loggers and injects the sink.
-/// Provides commands for controlling log verbosity.
+/// Draws the kernel's log lines in term's output area, and carries the commands that change the level.
 ///
-/// **Nothing inside a registry sweep in this class may log.** Every sweep here -- `spdlog::apply_all`
-/// and `KernelApi::applyToAllLoggers` alike -- runs under spdlog's logger-map mutex, which is not
-/// recursive, and `getLogger()` reaches `registry::get`, which takes the same one. A single log line
-/// added inside one of those five callbacks deadlocks the thread that owns the display. None of them
-/// logs today, and `TermLogSink::sink_it_` does not either; the hazard is one edit away, and term now
-/// has `getLogger()` conveniently in scope.
+/// It registers one sink with the kernel, which puts it behind the relay sink that sits on every
+/// logger. It does not sweep the registry: an earlier version did, and inside this shared object
+/// `spdlog::apply_all` walks term's own registry rather than the kernel's, so the sink reached almost
+/// nothing.
+///
+/// **Nothing inside a registry walk in this class may log.** `KernelApi::applyToAllLoggers` runs under
+/// spdlog's logger-map mutex, which is not recursive, and `getLogger()` reaches `registry::get`, which
+/// takes the same one. A single log line inside one of those callbacks deadlocks the thread that owns
+/// the display. None of them logs today, and `TermLogSink::sink_it_` does not either; the hazard is one
+/// edit away, and term has `getLogger()` conveniently in scope.
 class LogRouter final
 {
   SEN_NOCOPY_NOMOVE(LogRouter)
@@ -49,20 +52,22 @@ public:
   explicit LogRouter(App& app);
   ~LogRouter();
 
-  /// Scan for new loggers and inject the sink, and render any messages that were
-  /// buffered from other threads since the last call. Call periodically from the
-  /// term's update loop, never from a background thread.
+  /// Render whatever the sink has queued since the last call. The sink is written from the threads that
+  /// log; this drains that queue on the thread that draws. Call it from term's update loop, never from
+  /// a background thread.
   void update();
 
   /// Set the global log level (applies to all loggers).
-  void setGlobalLevel(spdlog::level::level_enum level);
+  /// Returns false if the kernel refused the level, which only an out-of-range value can cause.
+  bool setGlobalLevel(spdlog::level::level_enum level);
 
   /// Set the log level for a specific logger.
   /// Returns false if the logger is not found.
   bool setLoggerLevel(std::string_view loggerName, spdlog::level::level_enum level);
 
-  /// Get the current global log level.
-  [[nodiscard]] spdlog::level::level_enum getGlobalLevel() const noexcept;
+  /// The level every logger is at, read from the kernel rather than kept here. A copy beside the
+  /// setter was never assigned, so `log` reported `info` whatever the user had set.
+  [[nodiscard]] static spdlog::level::level_enum getGlobalLevel() noexcept;
 
   /// List all known loggers with their current levels.
   struct LoggerInfo
@@ -76,9 +81,6 @@ public:
   /// Returns true on success.
   static bool parseLevel(std::string_view name, spdlog::level::level_enum& level);
 
-  /// True if update() injected new loggers since the last call. Resets on read.
-  [[nodiscard]] bool hasNewLoggers() noexcept;
-
 private:
   struct PendingMessage
   {
@@ -86,21 +88,34 @@ private:
     std::string text;
   };
 
+  struct Batch
+  {
+    std::vector<PendingMessage> messages;
+    std::size_t dropped = 0;
+  };
+
   void renderMessage(spdlog::level::level_enum level, const std::string& message);
+
+  /// Queue one line from the thread that logged it, or count it as dropped if the queue is full.
+  void enqueue(spdlog::level::level_enum level, const std::string& message);
+
+  /// Take at most one tick's worth off the queue, with the number dropped since the last call.
+  [[nodiscard]] Batch takeBatch();
 
   App& app_;
   std::shared_ptr<TermLogSink> sink_;
-  std::set<std::string> seenLoggers_;
-  /// False until the user sets a level. Until then the sweep leaves each logger's configured
-  /// level alone, rather than replacing it with this default.
-  bool levelSetByUser_ = false;
-  spdlog::level::level_enum globalLevel_ = spdlog::level::info;
-  bool newLoggersInjected_ = true;
 
-  // Messages arrive via the sink from any thread; drained onto the UI from the
-  // term thread inside update().
+  // Messages arrive via the sink from any thread; drained onto the UI from the term thread inside
+  // update(). Both bounds matter, and neither existed: `log level debug` on a kernel with live traffic
+  // makes the bus loggers emit on essentially every message, so the queue was an unbounded accumulator
+  // that the render tick then tried to draw in one frame. The user who turned the level up to diagnose
+  // something lost the tool they were diagnosing with.
   std::mutex pendingMutex_;
   std::vector<PendingMessage> pendingMessages_;
+  std::size_t droppedMessages_ = 0;
+
+  // Test support
+  friend class LogRouterTestAccess;
 };
 
 }  // namespace sen::components::term

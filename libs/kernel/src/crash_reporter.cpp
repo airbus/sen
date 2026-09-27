@@ -106,8 +106,11 @@
 #include <utility>
 #include <vector>
 
-// environ, which the report reads to collect the environment
-#if defined(__APPLE__) || defined(__linux__)
+// environ, which the report reads to collect the environment, and the descriptor write the crash banner
+// uses when a component has taken stderr over.
+#ifdef _WIN32
+#  include <io.h>
+#else
 #  include <unistd.h>
 #endif
 
@@ -367,11 +370,22 @@ bool startHandlerByForking(const std::filesystem::path& database, std::string& r
       // NOLINTNEXTLINE(misc-include-cleaner)
       optind = 0;
       const int status = crashpad::HandlerMain(static_cast<int>(arguments.size()) - 1, arguments.data(), nullptr);
-      // HandlerMain returns only when the handler is giving up, and this child has no logger of its
-      // own. Straight to stderr, because a handler killed by a signal writes nothing at all and the
-      // absence of this line is then the answer.
-      const std::string note {"sen: the crash handler exited with status " + std::to_string(status) + "\n"};
-      std::ignore = ::write(STDERR_FILENO, note.data(), note.size());
+
+      // Only on a failure. HandlerMain returns when the handler gives up, and status 0 is the ordinary
+      // way that happens: the host exits, its socket closes, the handler is done. Saying so put "the
+      // crash handler exited with status 0" on screen after every clean shutdown, which reads like an
+      // incident on a run where nothing went wrong -- and for a component that owns the terminal it is
+      // the last thing left on screen.
+      //
+      // Written straight to stderr because this child has no logger of its own. Silence now covers two
+      // cases rather than one: a clean exit, and a handler killed by a signal, which writes nothing at
+      // all. That distinction only matters while debugging the handler itself, and it is not worth a
+      // line on every successful run to keep.
+      if (status != 0)
+      {
+        const std::string note {"sen: the crash handler exited with status " + std::to_string(status) + "\n"};
+        std::ignore = ::write(STDERR_FILENO, note.data(), note.size());
+      }
       ::_exit(status);
     }
     const auto written = handler < 0 ? ssize_t {-1} : ::write(pidPipe[1], &handler, sizeof(handler));
@@ -755,7 +769,7 @@ void CrashReporter::startCrashpad(const std::filesystem::path& reportDirectory)
   // The process that writes the dump cannot say where it put it, because by then this one is gone.
   if (kernelLogger_ != nullptr)
   {
-    kernelLogger_->debug("a fault will be dumped under {}", (database / "pending").string());
+    kernelLogger_->debug("if this process faults, the dump will go under {}", (database / "pending").string());
   }
 }
 
@@ -1321,6 +1335,23 @@ void CrashReporter::writeReport()
   printErrorMessages();
 }
 
+namespace
+{
+
+/// Where the banner goes. -1 means stderr. See CrashReporter::setDiagnosticDescriptor.
+std::atomic_int& diagnosticDescriptor()
+{
+  static std::atomic_int descriptor {-1};
+  return descriptor;
+}
+
+}  // namespace
+
+void CrashReporter::setDiagnosticDescriptor(int descriptor) noexcept
+{
+  diagnosticDescriptor().store(descriptor, std::memory_order_release);
+}
+
 void CrashReporter::printErrorMessages() const
 {
   std::size_t maxLineSize = 0;
@@ -1332,16 +1363,28 @@ void CrashReporter::printErrorMessages() const
   std::string separator(maxLineSize + 5, '-');
   separator.append("\n");
 
-  fputs("\n", stderr);
-  fputs(separator.c_str(), stderr);
-
+  std::string banner;
+  banner.append("\n").append(separator);
   for (const auto& line: report_.errorData.errorMessage)
   {
-    fputs("sen: ", stderr);
-    fputs(line.c_str(), stderr);
-    fputs("\n", stderr);
+    banner.append("sen: ").append(line).append("\n");
   }
-  fputs(separator.c_str(), stderr);
+  banner.append(separator);
+
+  // A raw descriptor write, not fputs: this runs from the terminate handler, and a descriptor a
+  // component saved has no FILE* of its own. One call, so the banner cannot be interleaved.
+  const int descriptor = diagnosticDescriptor().load(std::memory_order_acquire);
+  if (descriptor >= 0)
+  {
+#ifdef _WIN32
+    std::ignore = ::_write(descriptor, banner.data(), static_cast<unsigned int>(banner.size()));
+#else
+    std::ignore = ::write(descriptor, banner.data(), banner.size());
+#endif
+    return;
+  }
+
+  fputs(banner.c_str(), stderr);
   fflush(stderr);
 }
 

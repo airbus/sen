@@ -7,6 +7,12 @@
 
 #include "theme.h"
 
+// generated code
+#include "stl/term.stl.h"
+
+// ftxui
+#include <ftxui/screen/color.hpp>
+
 namespace sen::components::term
 {
 

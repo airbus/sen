@@ -7,6 +7,8 @@
 
 #include "kernel_impl.h"
 
+#include "logger_relay.h"
+
 // implementation
 #include "crash_reporter.h"
 #include "kernel_component.h"
@@ -126,10 +128,28 @@ void KernelImpl::requestStop(int exitCode)
   }
   stopRequestedCondition_.notify_one();
 
-  if (blockMode_ == KernelBlockMode::doNotBlock)
+  if (blockMode_ != KernelBlockMode::doNotBlock)
   {
-    doStop();
+    return;
   }
+
+  // In doNotBlock nobody is waiting to run the shutdown, so the caller runs it -- but not if the caller
+  // is a component's own thread. Shutting down from there reaches that component's own stopThread, which
+  // joins the calling thread: EDEADLK, and the join failure ends in std::terminate. So the ordinary
+  // `exit` in a terminal component aborted the process instead of stopping it.
+  //
+  // The request is recorded either way. In doNotBlock the embedder owns the driving thread, so it is the
+  // embedder's job to notice and shut the kernel down from there.
+  if (executor_.isCurrentThreadAComponent())
+  {
+    SPDLOG_LOGGER_WARN(getKernelLogger(),
+                       "a component asked the kernel to stop from its own thread, and this kernel was "
+                       "started with doNotBlock. The request is recorded; shut the kernel down from the "
+                       "thread that started it.");
+    return;
+  }
+
+  doStop();
 }
 
 int KernelImpl::applyRunMode(KernelBlockMode blockMode)
@@ -231,7 +251,9 @@ void KernelImpl::configure()
   // configure the kernel logging
   configureSpdlog(config_.getParams().logConfig);
 
-  // After configureSpdlog, which replaces the loggers' sinks.
+  // Both after configureSpdlog, which replaces the loggers' sinks, and both before any component
+  // thread exists -- which is the only moment a logger's sink vector can be appended to safely.
+  impl::installLoggerRelay();
   if (!config_.getParams().crashReportDisabled)
   {
     CrashReporter::get().captureLogs();

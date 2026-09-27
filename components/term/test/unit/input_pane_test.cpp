@@ -14,8 +14,8 @@
 // std
 #include <filesystem>
 #include <fstream>
-#include <sstream>
 #include <string>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -33,17 +33,17 @@ protected:
   void SetUp() override
   {
     auto id = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    historyFile_ = std::filesystem::temp_directory_path() / (std::string("term_history_test_") + id + ".txt");
-    std::filesystem::remove(historyFile_);
+    historyFile = std::filesystem::temp_directory_path() / (std::string("term_history_test_") + id + ".txt");
+    std::filesystem::remove(historyFile);
   }
 
-  void TearDown() override { std::filesystem::remove(historyFile_); }
+  void TearDown() override { std::filesystem::remove(historyFile); }
 
   /// Read the full history file into a vector of lines (oldest first, file order).
-  std::vector<std::string> readFileLines() const
+  [[nodiscard]] std::vector<std::string> readFileLines() const
   {
     std::vector<std::string> out;
-    std::ifstream in(historyFile_);
+    std::ifstream in(historyFile);
     std::string line;
     while (std::getline(in, line))
     {
@@ -55,14 +55,16 @@ protected:
   /// Pre-populate the history file with the given lines (chronological order).
   void writeFileLines(const std::vector<std::string>& lines)
   {
-    std::ofstream out(historyFile_);
+    std::ofstream out(historyFile);
     for (const auto& l: lines)
     {
       out << l << '\n';
     }
   }
 
-  std::filesystem::path historyFile_;
+  // A fixture's members are its tests' locals, so the encapsulation the check asks for has no
+  // owner to protect them from. Same reading as libs/core's test fixtures.
+  std::filesystem::path historyFile;  // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -72,7 +74,7 @@ protected:
 TEST_F(InputPaneHistoryTest, AddToHistoryAppendsToFile)
 {
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
 
   pane.addToHistory("ls");
   pane.addToHistory("cd /local.main");
@@ -88,7 +90,7 @@ TEST_F(InputPaneHistoryTest, AddToHistoryAppendsToFile)
 TEST_F(InputPaneHistoryTest, DuplicateOfMostRecentIsSkippedInFile)
 {
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
 
   pane.addToHistory("ls");
   pane.addToHistory("ls");  // dedup rule: same as most recent → skipped
@@ -105,7 +107,7 @@ TEST_F(InputPaneHistoryTest, NoFileWritesWhenPathIsEmpty)
 
   pane.addToHistory("ls");
 
-  EXPECT_FALSE(std::filesystem::exists(historyFile_));
+  EXPECT_FALSE(std::filesystem::exists(historyFile));
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -117,7 +119,7 @@ TEST_F(InputPaneHistoryTest, LoadHistoryPopulatesInMemoryNavigation)
   writeFileLines({"old1", "old2", "old3"});  // chronological: old1 is oldest
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
   // historyUp navigates from newest → oldest. First up should be the last line loaded.
@@ -132,10 +134,10 @@ TEST_F(InputPaneHistoryTest, LoadHistoryPopulatesInMemoryNavigation)
 TEST_F(InputPaneHistoryTest, LoadHistoryMissingFileIsSilentNoop)
 {
   // File doesn't exist yet, loadHistory must not throw or produce side effects.
-  ASSERT_FALSE(std::filesystem::exists(historyFile_));
+  ASSERT_FALSE(std::filesystem::exists(historyFile));
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
   // No history → historyUp leaves the buffer alone.
@@ -148,7 +150,7 @@ TEST_F(InputPaneHistoryTest, LoadHistorySkipsEmptyLines)
   writeFileLines({"first", "", "second", "", ""});
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
   pane.historyUp();
@@ -164,7 +166,7 @@ TEST_F(InputPaneHistoryTest, NewEntriesAppendAfterLoad)
   writeFileLines({"existing"});
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
   pane.addToHistory("new1");
@@ -190,7 +192,7 @@ TEST_F(InputPaneHistoryTest, LoadTrimsFileWhenOverCap)
   writeFileLines(fat);
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
   auto afterLoad = readFileLines();
@@ -211,13 +213,13 @@ TEST_F(InputPaneHistoryTest, LoadAtExactlyCapDoesNotRewrite)
   }
   writeFileLines(exact);
 
-  auto beforeSize = std::filesystem::file_size(historyFile_);
+  auto beforeSize = std::filesystem::file_size(historyFile);
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
-  auto afterSize = std::filesystem::file_size(historyFile_);
+  auto afterSize = std::filesystem::file_size(historyFile);
   EXPECT_EQ(beforeSize, afterSize);
 }
 
@@ -226,7 +228,7 @@ TEST_F(InputPaneHistoryTest, LoadThenAddDuplicateOfLastLoadedIsSkipped)
   writeFileLines({"first", "second"});
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
   // Most-recent in history is "second" (from loaded file). Adding the same string again should
@@ -286,7 +288,7 @@ TEST_F(InputPaneHistoryTest, BothStoresAnswerTheSameWayForAnOverlongLine)
   const std::string tooLong(maxLineBytes + 1U, 'x');
 
   InputPane pane {[](const std::string&) {}};
-  pane.setHistoryFile(historyFile_);
+  pane.setHistoryFile(historyFile);
   pane.addToHistory(tooLong);
 
   pane.historyUp();
@@ -303,14 +305,14 @@ TEST_F(InputPaneHistoryTest, ALineAtTheLimitSurvivesARestart)
 
   {
     InputPane pane {[](const std::string&) {}};
-    pane.setHistoryFile(historyFile_);
+    pane.setHistoryFile(historyFile);
     pane.addToHistory(atTheLimit);
     pane.historyUp();
     EXPECT_EQ(pane.getBuffer(), atTheLimit) << "not recallable in the session that ran it";
   }
 
   InputPane next {[](const std::string&) {}};
-  next.setHistoryFile(historyFile_);
+  next.setHistoryFile(historyFile);
   next.loadHistory();
   next.historyUp();
   EXPECT_EQ(next.getBuffer(), atTheLimit) << "accepted and run, then missing from the next session";

@@ -9,19 +9,23 @@
 
 // component
 #include "styles.h"
+#include "theme.h"
 #include "unicode.h"
 
 // sen
 #include "sen/core/base/checked_conversions.h"
+#include "sen/core/base/span.h"
 
 // ftxui
-#include <ftxui/screen/terminal.hpp>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/color.hpp>
 
 // std
+#include <array>
 #include <cstddef>
 #include <random>
 #include <string>
-#include <vector>
+#include <utility>
 
 namespace sen::components::term
 {
@@ -35,7 +39,11 @@ using sen::std_util::checkedConversion;
 namespace
 {
 
-const std::vector<BannerQuote> allQuotes = {
+constexpr std::size_t quoteCount = 123;
+
+// A compile-time array, not a vector: a namespace-scope container is built before main, where a
+// throw has nothing to catch it. BannerQuote holds two string_views, so this costs no allocation.
+constexpr std::array<BannerQuote, quoteCount> allQuotes = {{
   {"For every proverb, there is an equal and opposite proverb", "Philip Wadler"},
   {"Fast, cheap, and reliable : choose two", "Old proverb"},
   {"If you have too many special cases, you're doing it wrong", "Craig Zerouni"},
@@ -159,13 +167,17 @@ const std::vector<BannerQuote> allQuotes = {
   {"The only constant in technology is change", "Marc Benioff"},
   {"Simplicity is prerequisite for reliability", "Dijkstra"},
   {"How do you make a small fortune in software? Start with a large fortune", "Anonymous"},
-};
+}};
+
+// Over-filling the array is already a compile error; this catches the other direction, where a
+// removed quote would leave a silently blank entry at the end.
+static_assert(!allQuotes.back().text.empty(), "quoteCount does not match the list above");
 
 [[nodiscard]] const BannerQuote& getRandomQuote()
 {
   static std::mt19937 gen(std::random_device {}());
   std::uniform_int_distribution<std::size_t> dist(0, allQuotes.size() - 1U);
-  return allQuotes[dist(gen)];
+  return allQuotes.at(dist(gen));
 }
 
 }  // namespace
@@ -212,8 +224,9 @@ ftxui::Element renderBanner(std::string_view version, std::string_view compiler,
   quoteLine = quoteLine | ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, checkedConversion<int>(bannerWidth) + 1);
 
   // Color bar: a single row of block characters in theme colors.
+  constexpr std::size_t colorCount = 6;
   const auto& theme = activeTheme();
-  const ftxui::Color barColors[] = {
+  const std::array<ftxui::Color, colorCount> barColors = {
     theme.error,
     theme.success,
     theme.valueString,
@@ -221,8 +234,6 @@ ftxui::Element renderBanner(std::string_view version, std::string_view compiler,
     theme.accent,
     theme.completionObject,
   };
-
-  constexpr std::size_t colorCount = 6;
 
   constexpr auto barWidth = bannerWidth - margin;
   auto segLen = barWidth / colorCount;
@@ -238,7 +249,7 @@ ftxui::Element renderBanner(std::string_view version, std::string_view compiler,
     {
       seg += unicode::blockBar;
     }
-    barElements.push_back(ftxui::text(seg) | ftxui::color(barColors[i]));
+    barElements.push_back(ftxui::text(seg) | ftxui::color(barColors.at(i)));
   }
   auto colorBar = ftxui::hbox(std::move(barElements));
 

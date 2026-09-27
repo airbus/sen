@@ -8,15 +8,13 @@
 #include "app_renderers.h"
 
 // component
-#include "type_peel.h"
-
-// component
+#include "arg_form.h"
 #include "styles.h"
+#include "type_peel.h"
 #include "unicode.h"
 
 // sen
-#include "sen/core/base/checked_conversions.h"
-#include "sen/core/meta/alias_type.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/type.h"
@@ -25,26 +23,35 @@
 #include <ftxui/dom/elements.hpp>
 
 // std
+#include <algorithm>
 #include <cstddef>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace sen::components::term
 {
 
-using sen::std_util::ignoredLossyConversion;
-
 //--------------------------------------------------------------------------------------------------------------
 // Form rendering helpers
 //--------------------------------------------------------------------------------------------------------------
 
-void collectFormColumnWidths(const ArgFormField& f, std::size_t& nameWidth)
+// Both walkers below carry a depth bound for the same reason as the value walker: they recurse once per
+// level over a peer's type with no visited set, and the form is rebuilt on every frame.
+constexpr std::size_t maxFormWalkDepth = 64;
+
+void collectFormColumnWidths(const ArgFormField& f, std::size_t& nameWidth, std::size_t depth)
 {
+  if (depth > maxFormWalkDepth)
+  {
+    return;
+  }
+
   nameWidth = std::max(nameWidth, f.name.size());
   for (const auto& c: f.children)
   {
-    collectFormColumnWidths(c, nameWidth);
+    collectFormColumnWidths(c, nameWidth, depth + 1);
   }
 }
 
@@ -103,8 +110,13 @@ ftxui::Elements focusedHintElements(const ArgFormField& leaf)
 const ArgFormField& hintSourceFor(Span<const ArgFormField> topLevel, const ArgFormField* leaf)
 {
   const ArgFormField* result = leaf;
-  std::function<bool(const ArgFormField&)> walk = [&](const ArgFormField& node) -> bool
+  std::function<bool(const ArgFormField&, std::size_t)> walk = [&](const ArgFormField& node, std::size_t depth) -> bool
   {
+    if (depth > maxFormWalkDepth)
+    {
+      return false;
+    }
+
     if (node.kind == FieldKind::quantityGroup)
     {
       for (const auto& c: node.children)
@@ -118,7 +130,7 @@ const ArgFormField& hintSourceFor(Span<const ArgFormField> topLevel, const ArgFo
     }
     for (const auto& c: node.children)
     {
-      if (walk(c))
+      if (walk(c, depth + 1))
       {
         return true;
       }
@@ -127,12 +139,189 @@ const ArgFormField& hintSourceFor(Span<const ArgFormField> topLevel, const ArgFo
   };
   for (const auto& f: topLevel)
   {
-    if (walk(f))
+    if (walk(f, 0))
     {
       break;
     }
   }
   return *result;
+}
+
+/// `s` padded on the right to `width`, for the form's name column.
+[[nodiscard]] std::string pad(std::string s, std::size_t width)
+{
+  if (s.size() < width)
+  {
+    s.append(width - s.size(), ' ');
+  }
+  return s;
+}
+
+/// The body of one leaf's value cell, styled for whether it is focused and whether the user has
+/// touched it.
+[[nodiscard]] ftxui::Element valueBodyFor(const ArgFormField& leaf, bool focused)
+{
+  ftxui::Element elem;
+  switch (leaf.editor)
+  {
+    case EditorKind::boolean:
+    {
+      const bool isTrue = (leaf.text == "true");
+      elem = ftxui::text(std::string(isTrue ? "[x] true " : "[ ] false"));
+      break;
+    }
+    case EditorKind::enumeration:
+    case EditorKind::variantType:
+    case EditorKind::integerSpin:
+    case EditorKind::unitSelector:
+    {
+      auto body = leaf.text.empty() ? std::string("(empty)") : leaf.text;
+      elem = ftxui::hbox({ftxui::text("◀ "), ftxui::text(body), ftxui::text(" ▶")});
+      break;
+    }
+    case EditorKind::text:
+    default:
+    {
+      auto valueText = leaf.text.empty() ? std::string("(empty)") : leaf.text;
+      elem = ftxui::text(valueText);
+      break;
+    }
+  }
+  if (leaf.text.empty() && !focused && leaf.editor == EditorKind::text)
+  {
+    elem = elem | styles::mutedText();
+  }
+  else if (focused)
+  {
+    elem = elem | ftxui::inverted;
+  }
+  else if (!leaf.userEdited)
+  {
+    elem = elem | styles::mutedText();
+  }
+  return elem;
+}
+
+/// A quantity's value and its unit on one row, focused as a pair. Lifted out of renderFormField.
+void renderQuantityRow(const ArgFormField& f,
+                       const std::string& indent,
+                       std::size_t& leafCursor,
+                       std::size_t focusedLeafIdx,
+                       std::size_t nameWidth,
+                       ftxui::Elements& out)
+{
+  const auto& valueLeaf = f.children[0];
+  const auto& unitLeaf = f.children[1];
+  const bool valueFocused = (leafCursor == focusedLeafIdx);
+  const bool unitFocused = (leafCursor + 1 == focusedLeafIdx);
+  const bool rowFocused = valueFocused || unitFocused;
+  leafCursor += 2;
+
+  ftxui::Elements cols;
+  cols.push_back(ftxui::text(rowFocused ? "▸ " : "  ") | (rowFocused ? styles::accent() : styles::mutedText()));
+  cols.push_back(ftxui::text(indent));
+
+  auto nameElem = ftxui::text(pad(f.name, nameWidth) + "  ");
+  cols.push_back(rowFocused ? (nameElem | ftxui::bold) : (nameElem | styles::mutedText()));
+
+  cols.push_back(valueBodyFor(valueLeaf, valueFocused));
+  cols.push_back(ftxui::text("  "));
+  cols.push_back(valueBodyFor(unitLeaf, unitFocused));
+
+  if (!valueLeaf.validationError.empty())
+  {
+    cols.push_back(ftxui::text("  ⚠ " + valueLeaf.validationError) | styles::errorMessage());
+  }
+  if (!unitLeaf.validationError.empty())
+  {
+    cols.push_back(ftxui::text("  ⚠ " + unitLeaf.validationError) | styles::errorMessage());
+  }
+
+  auto row = ftxui::hbox(std::move(cols));
+  if (rowFocused)
+  {
+    row = row | ftxui::focus;
+  }
+  out.push_back(std::move(row));
+}
+
+/// A composite field: its header row, then its children. Lifted out of renderFormField.
+void renderCompositeField(const ArgFormField& f,
+                          std::size_t depth,
+                          const std::string& indent,
+                          std::size_t& leafCursor,
+                          std::size_t focusedLeafIdx,
+                          std::size_t nameWidth,
+                          ftxui::Elements& out)
+{
+  const bool isSequence = (f.kind == FieldKind::sequenceGroup);
+  const bool isOptional = (f.kind == FieldKind::optionalGroup);
+
+  ftxui::Elements header = {ftxui::text("  " + indent),
+                            ftxui::text(f.name) | ftxui::bold | styles::mutedText(),
+                            ftxui::text(": ") | styles::mutedText(),
+                            ftxui::text(f.typeName) | styles::typeName()};
+  if (isSequence)
+  {
+    std::string decoration = "  (" + std::to_string(f.children.size());
+    if (f.type.has_value())
+    {
+      // Unwrap alias so a named `sequence<i32, 5> Small;` gets the same decoration as a
+      // directly-expressed type.
+      auto t = peelAliases(f.type);
+      if (const auto* seqType = t->asSequenceType(); seqType != nullptr)
+      {
+        if (seqType->hasFixedSize())
+        {
+          decoration += ", fixed";
+        }
+        else if (auto max = seqType->getMaxSize(); max.has_value())
+        {
+          decoration += "/";
+          decoration += std::to_string(*max);
+        }
+      }
+    }
+    decoration += f.children.size() == 1 ? " element)" : " elements)";
+    header.push_back(ftxui::text(std::move(decoration)) | styles::mutedText());
+  }
+  if (isOptional)
+  {
+    header.push_back(ftxui::text(f.optionalIsEmpty ? "  (none)" : "  (filled)") | styles::mutedText());
+  }
+  out.push_back(ftxui::hbox(std::move(header)));
+
+  if (isSequence && f.children.empty())
+  {
+    out.push_back(ftxui::hbox({ftxui::text("  " + indent + "  "),
+                               ftxui::text("(empty, press Ctrl+N to add an element)") | styles::mutedText()}));
+    return;
+  }
+  if (isOptional && f.optionalIsEmpty)
+  {
+    out.push_back(ftxui::hbox(
+      {ftxui::text("  " + indent + "  "), ftxui::text("(none, press Ctrl+O to set a value)") | styles::mutedText()}));
+    return;
+  }
+
+  if (isOptional && f.children.size() == 1 && !isLeaf(f.children[0]))
+  {
+    if (f.children[0].kind == FieldKind::quantityGroup)
+    {
+      renderFormField(f.children[0], depth + 1, leafCursor, focusedLeafIdx, nameWidth, out);
+      return;
+    }
+    for (const auto& c: f.children[0].children)
+    {
+      renderFormField(c, depth + 1, leafCursor, focusedLeafIdx, nameWidth, out);
+    }
+    return;
+  }
+
+  for (const auto& c: f.children)
+  {
+    renderFormField(c, depth + 1, leafCursor, focusedLeafIdx, nameWidth, out);
+  }
 }
 
 void renderFormField(const ArgFormField& f,
@@ -142,168 +331,18 @@ void renderFormField(const ArgFormField& f,
                      std::size_t nameWidth,
                      ftxui::Elements& out)
 {
-  const auto pad = [](std::string s, std::size_t width)
-  {
-    if (s.size() < width)
-    {
-      s.append(width - s.size(), ' ');
-    }
-    return s;
-  };
 
   const std::string indent(depth * 2U, ' ');
 
-  const auto valueBodyFor = [](const ArgFormField& leaf, bool focused)
-  {
-    ftxui::Element elem;
-    switch (leaf.editor)
-    {
-      case EditorKind::boolean:
-      {
-        const bool isTrue = (leaf.text == "true");
-        elem = ftxui::text(std::string(isTrue ? "[x] true " : "[ ] false"));
-        break;
-      }
-      case EditorKind::enumeration:
-      case EditorKind::variantType:
-      case EditorKind::integerSpin:
-      case EditorKind::unitSelector:
-      {
-        auto body = leaf.text.empty() ? std::string("(empty)") : leaf.text;
-        elem = ftxui::hbox({ftxui::text("◀ "), ftxui::text(body), ftxui::text(" ▶")});
-        break;
-      }
-      case EditorKind::text:
-      default:
-      {
-        auto valueText = leaf.text.empty() ? std::string("(empty)") : leaf.text;
-        elem = ftxui::text(valueText);
-        break;
-      }
-    }
-    if (leaf.text.empty() && !focused && leaf.editor == EditorKind::text)
-    {
-      elem = elem | styles::mutedText();
-    }
-    else if (focused)
-    {
-      elem = elem | ftxui::inverted;
-    }
-    else if (!leaf.userEdited)
-    {
-      elem = elem | styles::mutedText();
-    }
-    return elem;
-  };
-
   if (f.kind == FieldKind::quantityGroup && f.children.size() == 2)
   {
-    const auto& valueLeaf = f.children[0];
-    const auto& unitLeaf = f.children[1];
-    const bool valueFocused = (leafCursor == focusedLeafIdx);
-    const bool unitFocused = (leafCursor + 1 == focusedLeafIdx);
-    const bool rowFocused = valueFocused || unitFocused;
-    leafCursor += 2;
-
-    ftxui::Elements cols;
-    cols.push_back(ftxui::text(rowFocused ? "▸ " : "  ") | (rowFocused ? styles::accent() : styles::mutedText()));
-    cols.push_back(ftxui::text(indent));
-
-    auto nameElem = ftxui::text(pad(f.name, nameWidth) + "  ");
-    cols.push_back(rowFocused ? (nameElem | ftxui::bold) : (nameElem | styles::mutedText()));
-
-    cols.push_back(valueBodyFor(valueLeaf, valueFocused));
-    cols.push_back(ftxui::text("  "));
-    cols.push_back(valueBodyFor(unitLeaf, unitFocused));
-
-    if (!valueLeaf.validationError.empty())
-    {
-      cols.push_back(ftxui::text("  ⚠ " + valueLeaf.validationError) | styles::errorMessage());
-    }
-    if (!unitLeaf.validationError.empty())
-    {
-      cols.push_back(ftxui::text("  ⚠ " + unitLeaf.validationError) | styles::errorMessage());
-    }
-
-    auto row = ftxui::hbox(std::move(cols));
-    if (rowFocused)
-    {
-      row = row | ftxui::focus;
-    }
-    out.push_back(std::move(row));
+    renderQuantityRow(f, indent, leafCursor, focusedLeafIdx, nameWidth, out);
     return;
   }
 
-  if (!f.isLeaf())
+  if (!isLeaf(f))
   {
-    const bool isSequence = (f.kind == FieldKind::sequenceGroup);
-    const bool isOptional = (f.kind == FieldKind::optionalGroup);
-
-    ftxui::Elements header = {ftxui::text("  " + indent),
-                              ftxui::text(f.name) | ftxui::bold | styles::mutedText(),
-                              ftxui::text(": ") | styles::mutedText(),
-                              ftxui::text(f.typeName) | styles::typeName()};
-    if (isSequence)
-    {
-      std::string decoration = "  (" + std::to_string(f.children.size());
-      if (f.type.has_value())
-      {
-        // Unwrap alias so a named `sequence<i32, 5> Small;` gets the same decoration as a
-        // directly-expressed type.
-        auto t = peelAliases(f.type);
-        if (const auto* seqType = t->asSequenceType(); seqType != nullptr)
-        {
-          if (seqType->hasFixedSize())
-          {
-            decoration += ", fixed";
-          }
-          else if (auto max = seqType->getMaxSize(); max.has_value())
-          {
-            decoration += "/";
-            decoration += std::to_string(*max);
-          }
-        }
-      }
-      decoration += f.children.size() == 1 ? " element)" : " elements)";
-      header.push_back(ftxui::text(std::move(decoration)) | styles::mutedText());
-    }
-    if (isOptional)
-    {
-      header.push_back(ftxui::text(f.optionalIsEmpty ? "  (none)" : "  (filled)") | styles::mutedText());
-    }
-    out.push_back(ftxui::hbox(std::move(header)));
-
-    if (isSequence && f.children.empty())
-    {
-      out.push_back(ftxui::hbox({ftxui::text("  " + indent + "  "),
-                                 ftxui::text("(empty, press Ctrl+N to add an element)") | styles::mutedText()}));
-      return;
-    }
-    if (isOptional && f.optionalIsEmpty)
-    {
-      out.push_back(ftxui::hbox(
-        {ftxui::text("  " + indent + "  "), ftxui::text("(none, press Ctrl+O to set a value)") | styles::mutedText()}));
-      return;
-    }
-
-    if (isOptional && f.children.size() == 1 && !f.children[0].isLeaf())
-    {
-      if (f.children[0].kind == FieldKind::quantityGroup)
-      {
-        renderFormField(f.children[0], depth + 1, leafCursor, focusedLeafIdx, nameWidth, out);
-        return;
-      }
-      for (const auto& c: f.children[0].children)
-      {
-        renderFormField(c, depth + 1, leafCursor, focusedLeafIdx, nameWidth, out);
-      }
-      return;
-    }
-
-    for (const auto& c: f.children)
-    {
-      renderFormField(c, depth + 1, leafCursor, focusedLeafIdx, nameWidth, out);
-    }
+    renderCompositeField(f, depth, indent, leafCursor, focusedLeafIdx, nameWidth, out);
     return;
   }
 

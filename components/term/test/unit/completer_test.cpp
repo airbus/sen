@@ -10,11 +10,21 @@
 #include "test_object_impl.h"
 #include "util.h"
 
+// sen
+#include "sen/core/obj/object.h"
+
 // google test
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
+#include <iterator>
+#include <memory>
+#include <set>
 #include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace sen::components::term
@@ -24,7 +34,10 @@ namespace sen::components::term
 class CompleterTestAccess
 {
 public:
-  static void setChildren(Completer& c, std::vector<std::string> names) { c.childNames_ = std::move(names); }
+  static void setChildren(Completer& c, std::vector<std::string> names)
+  {
+    c.childNames_ = std::set<std::string>(std::make_move_iterator(names.begin()), std::make_move_iterator(names.end()));
+  }
 
   static void setOpenSources(Completer& c, std::vector<std::string> sources) { c.openSources_ = std::move(sources); }
 

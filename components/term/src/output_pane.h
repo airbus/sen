@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_OUTPUT_PANE_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 
 // ftxui
@@ -17,6 +18,7 @@
 // std
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -33,6 +35,7 @@ class OutputPane final
 
 public:
   OutputPane() = default;
+  ~OutputPane() = default;
 
   /// Append a plain text line.
   void appendText(std::string_view text);
@@ -58,19 +61,16 @@ public:
   void clear();
 
   /// Scroll up by a number of lines.
-  void scrollUp(int lines = 3);
+  void scrollUp(int rows = 3);
 
   /// Scroll down by a number of lines.
-  void scrollDown(int lines = 3);
+  void scrollDown(int rows = 3);
 
   /// Scroll to the bottom (follow mode).
   void scrollToBottom();
 
   /// Set the maximum number of lines to retain. 0 means unlimited.
   void setMaxLines(std::size_t maxLines);
-
-  /// When true, short content is pushed to the bottom of the pane (REPL style).
-  void setBottomAligned(bool bottomAligned) noexcept;
 
   /// Render the output pane as an FTXUI element.
   [[nodiscard]] ftxui::Element render();
@@ -87,7 +87,10 @@ private:
   };
   using Entry = std::variant<ftxui::Element, PendingEntry>;
 
-  std::vector<Entry> lines_;
+  // A deque, not a vector: once the pane is full every append drops one entry from the front, and on a
+  // vector that moved the other 4,999 -- about 40 us per line, paid exactly during the bursts the cap
+  // exists to survive.
+  std::deque<Entry> lines_;
   float scrollPosition_ = 1.0F;  // 0.0 = top, 1.0 = bottom
   bool followBottom_ = true;
   std::size_t maxLines_ = 0;  // 0 = unlimited
@@ -98,7 +101,10 @@ private:
   /// measured then rather than on every frame -- most frames are spinner ticks and idle redraws.
   bool contentHeightDirty_ = true;
   int lastWrapWidth_ = 0;
-  bool bottomAligned_ = false;
+
+  /// The composed vbox, kept between frames. Dropped whenever the content or the wrap width changes, and
+  /// bypassed while a pending call is animating.
+  ftxui::Element contentCache_;
 };
 
 }  // namespace sen::components::term

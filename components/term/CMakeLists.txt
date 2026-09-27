@@ -27,7 +27,9 @@ add_sen_package(
           src/banner.h
           src/banner.cpp
           src/output_pane.h
+          src/signal_stack.h
           src/output_pane.cpp
+          src/signal_stack.cpp
           src/input_pane.h
           src/input_pane.cpp
           src/styles.h

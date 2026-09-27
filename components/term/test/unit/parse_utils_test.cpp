@@ -10,6 +10,10 @@
 // google test
 #include <gtest/gtest.h>
 
+// std
+#include <cstddef>
+#include <string>
+
 namespace sen::components::term
 {
 namespace
@@ -259,6 +263,40 @@ TEST(SplitTopLevelArgs, AnUnbalancedCloserDoesNotUnbalanceTheRest)
   EXPECT_EQ(t[0], "}");
   EXPECT_EQ(t[1], "{1 2}");
   EXPECT_EQ(t[2], "3");
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// truncateUtf8
+//--------------------------------------------------------------------------------------------------------------
+
+TEST(TruncateUtf8, ShorterThanTheBoundIsUnchanged)
+{
+  EXPECT_EQ(truncateUtf8("hello", 10U), "hello");
+  EXPECT_EQ(truncateUtf8("hello", 5U), "hello");
+  EXPECT_EQ(truncateUtf8("", 4U), "");
+}
+
+TEST(TruncateUtf8, CutsOnAByteBoundaryWhenItCan)
+{
+  EXPECT_EQ(truncateUtf8("abcdef", 3U), "abc");
+  EXPECT_EQ(truncateUtf8("abcdef", 0U), "");
+}
+
+TEST(TruncateUtf8, NeverSplitsAMultiByteSequence)
+{
+  // "aé" is 'a' then two bytes. A cut at 2 falls inside the é, so the é goes rather than half of it.
+  const std::string text = "a\xc3\xa9";
+  EXPECT_EQ(truncateUtf8(text, 3U), text);
+  EXPECT_EQ(truncateUtf8(text, 2U), "a");
+  EXPECT_EQ(truncateUtf8(text, 1U), "a");
+
+  // A four-byte emoji, cut at every offset inside it: the result is always valid UTF-8.
+  const std::string emoji = "\xf0\x9f\x8e\x89";
+  for (std::size_t bound = 0; bound < emoji.size(); ++bound)
+  {
+    EXPECT_EQ(truncateUtf8(emoji, bound), "") << "bound " << bound << " kept part of the sequence";
+  }
+  EXPECT_EQ(truncateUtf8(emoji, 4U), emoji);
 }
 
 }  // namespace sen::components::term

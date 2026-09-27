@@ -61,6 +61,10 @@ public:  // threading
   ///         false - in case of error or an invalid thread.
   [[nodiscard]] virtual bool joinThread(Thread thread) noexcept = 0;
 
+  /// Whether `thread` is the thread asking. Joining yourself is EDEADLK, and the caller that needs to
+  /// know is one being asked to stop the thread it is running on.
+  [[nodiscard]] virtual bool isCurrentThread(Thread thread) const noexcept = 0;
+
   /// Immediately stops the thread execution.
   ///
   /// @return true  - if the kill operation was successful.

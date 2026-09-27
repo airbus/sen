@@ -27,7 +27,7 @@ code of your own. Most projects use both: `load` for the shell, `build` for thei
 
 ```yaml title="both sections together"
 load:
-  - name: shell
+  - name: term
     group: 2
     open: [ local.counters ]
 
@@ -220,7 +220,7 @@ also does not work across two lines.
 
 ```yaml
 load:
-  - name: shell
+  - name: term
     group: 2
     open: @env(MY_BUS)                       # throws if MY_BUS is unset
   - name: @env(MY_COMP,defaultComponent)     # falls back if MY_COMP is unset
@@ -318,7 +318,7 @@ as its first line:
 # $schema: ../base/schema.json
 
 load:
-  - name: shell
+  - name: term
     group: 2
 ```
 

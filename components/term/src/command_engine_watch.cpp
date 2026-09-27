@@ -9,30 +9,34 @@
 
 // component
 #include "parse_utils.h"
-
-// component
 #include "styles.h"
 #include "unicode.h"
+#include "util.h"
 #include "value_formatter.h"
 
 // sen
 #include "sen/core/base/span.h"
-#include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/core/meta/event.h"
 #include "sen/core/meta/native_types.h"
-#include "sen/core/meta/optional_type.h"
-#include "sen/core/meta/property.h"
+#include "sen/core/meta/var.h"
 #include "sen/core/obj/callback.h"
+
+// generated code
+#include "stl/term.stl.h"
 
 // ftxui
 #include <ftxui/dom/elements.hpp>
 
 // std
 #include <cstddef>
+#include <exception>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace sen::components::term
@@ -50,10 +54,10 @@ ftxui::Element formatEventEmission(std::string_view objectName,
                                    std::string_view eventName,
                                    const EventInfo& info,
                                    const VarList& values,
-                                   Span<const Arg> eventArgs)
+                                   Span<const Arg> eventArgs,
+                                   TimeStyle timeStyle)
 {
-  auto fullTime = info.creationTime.toLocalString();
-  auto shortTime = (fullTime.size() >= 19U) ? fullTime.substr(11U, 8U) : fullTime;
+  auto shortTime = formatShortTime(info.creationTime, timeStyle);
 
   // Object name: split session.bus prefix (dimmed) from object name (bold).
   // The objectName uses the full local name (component.session.bus.object...), skip the
@@ -186,7 +190,20 @@ bool CommandEngine::listenEvent(std::string_view objectName,
   EventCallback<VarList> callback {
     api_.getWorkQueue(),
     [this, fullObjectName, evName, eventArgs](const EventInfo& info, const VarList& values)
-    { app_.appendEventElement(formatEventEmission(fullObjectName, evName, info, values, eventArgs)); }};
+    {
+      // Drained from the work queue, outside execute()'s try. The argument values are a peer's, so a
+      // formatter that throws on one would otherwise reach std::terminate and take every component in
+      // the process with it.
+      try
+      {
+        app_.appendEventElement(
+          formatEventEmission(fullObjectName, evName, info, values, eventArgs, config_.timeStyle));
+      }
+      catch (const std::exception& e)
+      {
+        app_.appendInfo("Could not render an emission of '" + evName + "': " + e.what());
+      }
+    }};
 
   auto guard = target->onEventUntyped(event, std::move(callback));
 
@@ -448,7 +465,17 @@ void CommandEngine::onObjectAdded(const std::shared_ptr<Object>& obj)
     EventCallback<VarList> callback {
       api_.getWorkQueue(),
       [this, fullObjName, evName, eventArgs](const EventInfo& info, const VarList& values)
-      { app_.appendEventElement(formatEventEmission(fullObjName, evName, info, values, eventArgs)); }};
+      {
+        // Same boundary as the listen path above, and for the same reason.
+        try
+        {
+          app_.appendEventElement(formatEventEmission(fullObjName, evName, info, values, eventArgs, config_.timeStyle));
+        }
+        catch (const std::exception& e)
+        {
+          app_.appendInfo("Could not render an emission of '" + evName + "': " + e.what());
+        }
+      }};
 
     listener.guard = obj->onEventUntyped(event, std::move(callback));
     listener.object = obj;
@@ -487,11 +514,15 @@ void CommandEngine::onObjectAdded(const std::shared_ptr<Object>& obj)
     const auto fullName = std::string(obj->getLocalName());
     if (added > 0)
     {
-      app_.appendInfo("Listening to " + std::to_string(added) + " events on '" + objectName + "' (" + fullName + ").");
+      std::ostringstream message;
+      message << "Listening to " << added << " events on '" << objectName << "' (" << fullName << ").";
+      app_.appendInfo(message.str());
     }
     else if (events.empty())
     {
-      app_.appendInfo("'" + objectName + "' appeared as " + fullName + ", and its class has no events.");
+      std::ostringstream message;
+      message << "'" << objectName << "' appeared as " << fullName << ", and its class has no events.";
+      app_.appendInfo(message.str());
     }
     else
     {

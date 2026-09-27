@@ -35,6 +35,10 @@ public:
 
 public:
   static void printWelcome(Terminal* terminal);
+
+  /// Say that this shell is going away and name what replaces it. Printed under the banner, so a
+  /// user sees it on the way in rather than having to read the release notes.
+  static void printDeprecationNotice(Terminal* terminal);
   void printError(const char* fmt, ...) const;
   void printValue(const Var& value, size_t level, const Type* type) const;
   void printProperties(Object* object) const;

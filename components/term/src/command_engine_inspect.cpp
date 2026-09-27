@@ -11,22 +11,25 @@
 #include "byte_format.h"
 #include "styles.h"
 #include "text_table.h"
+#include "type_peel.h"
 #include "unicode.h"
 #include "util.h"
 
 // sen
-#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/span.h"
 #include "sen/core/base/version.h"
-#include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/callable.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/custom_type.h"
+#include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/method.h"
-#include "sen/core/meta/optional_type.h"
 #include "sen/core/meta/property.h"
+#include "sen/core/meta/quantity_type.h"
+#include "sen/core/meta/sequence_type.h"
+#include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/unit.h"
 #include "sen/core/meta/unit_registry.h"
+#include "sen/core/meta/variant_type.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/kernel.h"
 #include "sen/kernel/transport.h"
@@ -36,15 +39,16 @@
 
 // ftxui
 #include <ftxui/dom/elements.hpp>
-#include <ftxui/dom/table.hpp>
 
 // std
 #include <algorithm>
 #include <cstddef>
 #include <iomanip>
+#include <ios>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace sen::components::term
@@ -233,6 +237,192 @@ void CommandEngine::cmdInspect(std::string_view args)
   app_.appendElement(ftxui::vbox(std::move(sections)));
 }
 
+namespace
+{
+
+/// The tree connector for a row: a corner for the last child, a tee for the rest.
+[[nodiscard]] std::string rowConnector(bool isLast)
+{
+  return std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
+}
+
+/// A titled block of rows, or nothing when there are no rows.
+[[nodiscard]] ftxui::Elements titledSection(std::string_view title, ftxui::Elements rows)
+{
+  if (rows.empty())
+  {
+    return {};
+  }
+  ftxui::Elements out {ftxui::text(""), ftxui::text(std::string(title)) | ftxui::bold};
+  for (auto& row: rows)
+  {
+    out.push_back(std::move(row));
+  }
+  return out;
+}
+
+void append(ftxui::Elements& into, ftxui::Elements from)
+{
+  for (auto& e: from)
+  {
+    into.push_back(std::move(e));
+  }
+}
+
+[[nodiscard]] ftxui::Elements structFields(const StructType& structType)
+{
+  ftxui::Elements rows;
+  auto fields = structType.getAllFields();
+  for (std::size_t i = 0; i < fields.size(); ++i)
+  {
+    const auto& field = fields[i];
+    ftxui::Elements row = {ftxui::text(rowConnector(i + 1 == fields.size())) | ftxui::color(styles::treeConnector()),
+                           ftxui::text(field.name) | ftxui::bold,
+                           ftxui::text(" : ") | styles::mutedText(),
+                           ftxui::text(std::string(field.type->getName())) | styles::typeName()};
+    if (!field.description.empty())
+    {
+      row.push_back(ftxui::text("  " + field.description) | styles::mutedText() | ftxui::flex_shrink);
+    }
+    rows.push_back(ftxui::hbox(std::move(row)));
+  }
+  return titledSection("Fields", std::move(rows));
+}
+
+[[nodiscard]] ftxui::Elements enumValues(const EnumType& enumType)
+{
+  ftxui::Elements rows;
+  auto enums = enumType.getEnums();
+  for (std::size_t i = 0; i < enums.size(); ++i)
+  {
+    ftxui::Elements row = {ftxui::text(rowConnector(i + 1 == enums.size())) | ftxui::color(styles::treeConnector()),
+                           ftxui::text(enums[i].name) | ftxui::bold,
+                           ftxui::text(" = ") | styles::mutedText(),
+                           ftxui::text(std::to_string(enums[i].key)) | styles::typeName()};
+    if (!enums[i].description.empty())
+    {
+      row.push_back(ftxui::text("  " + enums[i].description) | styles::mutedText() | ftxui::flex_shrink);
+    }
+    rows.push_back(ftxui::hbox(std::move(row)));
+  }
+  return titledSection("Values", std::move(rows));
+}
+
+[[nodiscard]] ftxui::Elements classProperties(const ClassType& classType)
+{
+  ftxui::Elements rows;
+  auto properties = classType.getProperties(ClassType::SearchMode::includeParents);
+  for (std::size_t i = 0; i < properties.size(); ++i)
+  {
+    const auto& prop = *properties[i];
+    std::string annotation;
+    if (prop.getCategory() == PropertyCategory::dynamicRW)
+    {
+      annotation = " [writable]";
+    }
+    else if (prop.getCategory() == PropertyCategory::staticRO)
+    {
+      annotation = " [static]";
+    }
+    rows.push_back(
+      ftxui::hbox({ftxui::text(rowConnector(i + 1 == properties.size())) | ftxui::color(styles::treeConnector()),
+                   ftxui::text(std::string(prop.getName())) | ftxui::bold,
+                   ftxui::text(" : ") | styles::mutedText(),
+                   ftxui::text(std::string(prop.getType()->getName())) | styles::typeName(),
+                   ftxui::text(annotation) | styles::mutedText()}));
+  }
+  return titledSection("Properties", std::move(rows));
+}
+
+[[nodiscard]] ftxui::Elements classMethods(const ClassType& classType)
+{
+  ftxui::Elements rows;
+  auto methods = classType.getMethods(ClassType::SearchMode::includeParents);
+  for (std::size_t i = 0; i < methods.size(); ++i)
+  {
+    const auto& method = *methods[i];
+    auto retName = std::string(method.getReturnType()->getName());
+    ftxui::Elements row = {ftxui::text(rowConnector(i + 1 == methods.size())) | ftxui::color(styles::treeConnector()),
+                           ftxui::text(formatArgSignature(method.getName(), method.getArgs())) | ftxui::bold};
+    if (!isVoidTypeName(retName))
+    {
+      row.push_back(ftxui::text(std::string(" ") + unicode::arrowRight + " ") | styles::mutedText());
+      row.push_back(ftxui::text(retName) | styles::typeName());
+    }
+    rows.push_back(ftxui::hbox(std::move(row)));
+  }
+  return titledSection("Methods", std::move(rows));
+}
+
+[[nodiscard]] ftxui::Elements classEvents(const ClassType& classType)
+{
+  ftxui::Elements rows;
+  auto events = classType.getEvents(ClassType::SearchMode::includeParents);
+  for (std::size_t i = 0; i < events.size(); ++i)
+  {
+    const auto& ev = *events[i];
+    rows.push_back(
+      ftxui::hbox({ftxui::text(rowConnector(i + 1 == events.size())) | ftxui::color(styles::treeConnector()),
+                   ftxui::text(formatArgSignature(ev.getName(), ev.getArgs())) | ftxui::bold}));
+  }
+  return titledSection("Events", std::move(rows));
+}
+
+[[nodiscard]] ftxui::Elements sequenceDetails(const SequenceType& seqType)
+{
+  ftxui::Elements out {
+    ftxui::text(""),
+    ftxui::hbox({ftxui::text("Element type: ") | styles::mutedText(),
+                 ftxui::text(std::string(seqType.getElementType()->getName())) | styles::typeName()})};
+  if (auto max = seqType.getMaxSize(); max.has_value())
+  {
+    out.push_back(ftxui::hbox({ftxui::text("Max size: ") | styles::mutedText(), ftxui::text(std::to_string(*max))}));
+  }
+  if (seqType.hasFixedSize())
+  {
+    out.push_back(ftxui::text("Fixed size (array)") | styles::mutedText());
+  }
+  return out;
+}
+
+[[nodiscard]] ftxui::Elements variantAlternatives(const VariantType& variantType)
+{
+  ftxui::Elements rows;
+  auto fields = variantType.getFields();
+  for (std::size_t i = 0; i < fields.size(); ++i)
+  {
+    rows.push_back(
+      ftxui::hbox({ftxui::text(rowConnector(i + 1 == fields.size())) | ftxui::color(styles::treeConnector()),
+                   ftxui::text(std::string(fields[i].type->getName())) | styles::typeName()}));
+  }
+  return titledSection("Alternatives", std::move(rows));
+}
+
+[[nodiscard]] ftxui::Elements quantityDetails(const QuantityType& quantityType)
+{
+  ftxui::Elements out {
+    ftxui::text(""),
+    ftxui::hbox({ftxui::text("Storage: ") | styles::mutedText(),
+                 ftxui::text(std::string(quantityType.getElementType()->getName())) | styles::typeName()})};
+  if (auto unit = quantityType.getUnit(); unit.has_value() && *unit != nullptr)
+  {
+    out.push_back(ftxui::hbox(
+      {ftxui::text("Unit: ") | styles::mutedText(),
+       ftxui::text(std::string((*unit)->getName()) + " (" + std::string((*unit)->getAbbreviation()) + ")")}));
+  }
+  if (auto min = quantityType.getMinValue(); min.has_value())
+  {
+    out.push_back(ftxui::hbox({ftxui::text("Min: ") | styles::mutedText(), ftxui::text(std::to_string(*min))}));
+  }
+  if (auto max = quantityType.getMaxValue(); max.has_value())
+  {
+    out.push_back(ftxui::hbox({ftxui::text("Max: ") | styles::mutedText(), ftxui::text(std::to_string(*max))}));
+  }
+  return out;
+}
+
+}  // namespace
+
 void CommandEngine::inspectType(const Type& type)
 {
   auto* customType = type.asCustomType();
@@ -246,172 +436,31 @@ void CommandEngine::inspectType(const Type& type)
   }
 
   ftxui::Elements sections;
-
   if (auto* structType = type.asStructType(); structType != nullptr)
   {
-    auto fields = structType->getAllFields();
-    if (!fields.empty())
-    {
-      sections.push_back(ftxui::text(""));
-      sections.push_back(ftxui::text("Fields") | ftxui::bold);
-      for (std::size_t i = 0; i < fields.size(); ++i)
-      {
-        const auto& field = fields[i];
-        const bool isLast = (i + 1 == fields.size());
-        const std::string connector = std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
-        ftxui::Elements row = {ftxui::text(connector) | ftxui::color(styles::treeConnector()),
-                               ftxui::text(field.name) | ftxui::bold,
-                               ftxui::text(" : ") | styles::mutedText(),
-                               ftxui::text(std::string(field.type->getName())) | styles::typeName()};
-        if (!field.description.empty())
-        {
-          row.push_back(ftxui::text("  " + field.description) | styles::mutedText() | ftxui::flex_shrink);
-        }
-        sections.push_back(ftxui::hbox(std::move(row)));
-      }
-    }
+    append(sections, structFields(*structType));
   }
   else if (auto* enumType = type.asEnumType(); enumType != nullptr)
   {
-    auto enums = enumType->getEnums();
-    if (!enums.empty())
-    {
-      sections.push_back(ftxui::text(""));
-      sections.push_back(ftxui::text("Values") | ftxui::bold);
-      for (std::size_t i = 0; i < enums.size(); ++i)
-      {
-        const bool isLast = (i + 1 == enums.size());
-        const std::string connector = std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
-        ftxui::Elements row = {ftxui::text(connector) | ftxui::color(styles::treeConnector()),
-                               ftxui::text(enums[i].name) | ftxui::bold,
-                               ftxui::text(" = ") | styles::mutedText(),
-                               ftxui::text(std::to_string(enums[i].key)) | styles::typeName()};
-        if (!enums[i].description.empty())
-        {
-          row.push_back(ftxui::text("  " + enums[i].description) | styles::mutedText() | ftxui::flex_shrink);
-        }
-        sections.push_back(ftxui::hbox(std::move(row)));
-      }
-    }
+    append(sections, enumValues(*enumType));
   }
   else if (auto* classType = type.asClassType(); classType != nullptr)
   {
-    auto properties = classType->getProperties(ClassType::SearchMode::includeParents);
-    if (!properties.empty())
-    {
-      sections.push_back(ftxui::text(""));
-      sections.push_back(ftxui::text("Properties") | ftxui::bold);
-      for (std::size_t i = 0; i < properties.size(); ++i)
-      {
-        const auto& prop = *properties[i];
-        const bool isLast = (i + 1 == properties.size());
-        const std::string connector = std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
-        std::string annotation;
-        if (prop.getCategory() == PropertyCategory::dynamicRW)
-        {
-          annotation = " [writable]";
-        }
-        else if (prop.getCategory() == PropertyCategory::staticRO)
-        {
-          annotation = " [static]";
-        }
-        sections.push_back(ftxui::hbox({ftxui::text(connector) | ftxui::color(styles::treeConnector()),
-                                        ftxui::text(std::string(prop.getName())) | ftxui::bold,
-                                        ftxui::text(" : ") | styles::mutedText(),
-                                        ftxui::text(std::string(prop.getType()->getName())) | styles::typeName(),
-                                        ftxui::text(annotation) | styles::mutedText()}));
-      }
-    }
-    auto methods = classType->getMethods(ClassType::SearchMode::includeParents);
-    if (!methods.empty())
-    {
-      sections.push_back(ftxui::text(""));
-      sections.push_back(ftxui::text("Methods") | ftxui::bold);
-      for (std::size_t i = 0; i < methods.size(); ++i)
-      {
-        const auto& method = *methods[i];
-        const bool isLast = (i + 1 == methods.size());
-        const std::string connector = std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
-        auto sig = formatArgSignature(method.getName(), method.getArgs());
-        auto retName = std::string(method.getReturnType()->getName());
-        ftxui::Elements row = {ftxui::text(connector) | ftxui::color(styles::treeConnector()),
-                               ftxui::text(sig) | ftxui::bold};
-        if (!isVoidTypeName(retName))
-        {
-          row.push_back(ftxui::text(std::string(" ") + unicode::arrowRight + " ") | styles::mutedText());
-          row.push_back(ftxui::text(retName) | styles::typeName());
-        }
-        sections.push_back(ftxui::hbox(std::move(row)));
-      }
-    }
-    auto events = classType->getEvents(ClassType::SearchMode::includeParents);
-    if (!events.empty())
-    {
-      sections.push_back(ftxui::text(""));
-      sections.push_back(ftxui::text("Events") | ftxui::bold);
-      for (std::size_t i = 0; i < events.size(); ++i)
-      {
-        const auto& ev = *events[i];
-        const bool isLast = (i + 1 == events.size());
-        const std::string connector = std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
-        auto sig = formatArgSignature(ev.getName(), ev.getArgs());
-        sections.push_back(ftxui::hbox(
-          {ftxui::text(connector) | ftxui::color(styles::treeConnector()), ftxui::text(sig) | ftxui::bold}));
-      }
-    }
+    append(sections, classProperties(*classType));
+    append(sections, classMethods(*classType));
+    append(sections, classEvents(*classType));
   }
   else if (auto* seqType = type.asSequenceType(); seqType != nullptr)
   {
-    sections.push_back(ftxui::text(""));
-    sections.push_back(
-      ftxui::hbox({ftxui::text("Element type: ") | styles::mutedText(),
-                   ftxui::text(std::string(seqType->getElementType()->getName())) | styles::typeName()}));
-    if (auto max = seqType->getMaxSize(); max.has_value())
-    {
-      sections.push_back(
-        ftxui::hbox({ftxui::text("Max size: ") | styles::mutedText(), ftxui::text(std::to_string(*max))}));
-    }
-    if (seqType->hasFixedSize())
-    {
-      sections.push_back(ftxui::text("Fixed size (array)") | styles::mutedText());
-    }
+    append(sections, sequenceDetails(*seqType));
   }
   else if (auto* variantType = type.asVariantType(); variantType != nullptr)
   {
-    auto fields = variantType->getFields();
-    if (!fields.empty())
-    {
-      sections.push_back(ftxui::text(""));
-      sections.push_back(ftxui::text("Alternatives") | ftxui::bold);
-      for (std::size_t i = 0; i < fields.size(); ++i)
-      {
-        const bool isLast = (i + 1 == fields.size());
-        const std::string connector = std::string(isLast ? unicode::cornerEnd : unicode::branchTee) + " ";
-        sections.push_back(ftxui::hbox({ftxui::text(connector) | ftxui::color(styles::treeConnector()),
-                                        ftxui::text(std::string(fields[i].type->getName())) | styles::typeName()}));
-      }
-    }
+    append(sections, variantAlternatives(*variantType));
   }
   else if (auto* quantityType = type.asQuantityType(); quantityType != nullptr)
   {
-    sections.push_back(ftxui::text(""));
-    sections.push_back(
-      ftxui::hbox({ftxui::text("Storage: ") | styles::mutedText(),
-                   ftxui::text(std::string(quantityType->getElementType()->getName())) | styles::typeName()}));
-    if (auto unit = quantityType->getUnit(); unit.has_value() && *unit != nullptr)
-    {
-      sections.push_back(ftxui::hbox(
-        {ftxui::text("Unit: ") | styles::mutedText(),
-         ftxui::text(std::string((*unit)->getName()) + " (" + std::string((*unit)->getAbbreviation()) + ")")}));
-    }
-    if (auto min = quantityType->getMinValue(); min.has_value())
-    {
-      sections.push_back(ftxui::hbox({ftxui::text("Min: ") | styles::mutedText(), ftxui::text(std::to_string(*min))}));
-    }
-    if (auto max = quantityType->getMaxValue(); max.has_value())
-    {
-      sections.push_back(ftxui::hbox({ftxui::text("Max: ") | styles::mutedText(), ftxui::text(std::to_string(*max))}));
-    }
+    append(sections, quantityDetails(*quantityType));
   }
 
   if (!sections.empty())
@@ -440,27 +489,6 @@ void CommandEngine::cmdTypes(std::string_view args)
   }
   std::sort(names.begin(), names.end());
 
-  auto typeKind = [](const Type* type) -> std::string
-  {
-    if (type->asClassType() != nullptr)
-      return "class";
-    if (type->asStructType() != nullptr)
-      return "struct";
-    if (type->asEnumType() != nullptr)
-      return "enum";
-    if (type->asSequenceType() != nullptr)
-      return "sequence";
-    if (type->asVariantType() != nullptr)
-      return "variant";
-    if (type->asQuantityType() != nullptr)
-      return "quantity";
-    if (type->asAliasType() != nullptr)
-      return "alias";
-    if (type->asOptionalType() != nullptr)
-      return "optional";
-    return "type";
-  };
-
   if (names.empty())
   {
     rows.push_back(ftxui::text("  (no matching types)") | styles::mutedText());
@@ -469,11 +497,12 @@ void CommandEngine::cmdTypes(std::string_view args)
   }
 
   std::vector<text_table::Row> tableData;
+  tableData.reserve(names.size());
   for (const auto& name: names)
   {
     tableData.push_back({
       {name, ftxui::bold},
-      {typeKind(allTypes.at(name).type()), styles::mutedText()},
+      {std::string(typeKindName(*allTypes.at(name).type())), styles::mutedText()},
     });
   }
 

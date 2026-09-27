@@ -19,21 +19,22 @@
 #include <cstddef>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace sen::components::term::text_table
 {
 
 using sen::std_util::checkedConversion;
 
-Cell::Cell(std::string text): element(ftxui::text(text)), width(ftxui::string_width(text)) {}
+Cell::Cell(std::string text): element_(ftxui::text(text)), width_(ftxui::string_width(text)) {}
 
 Cell::Cell(std::string text, ftxui::Decorator decorator)
-  : element(ftxui::text(text) | std::move(decorator)), width(ftxui::string_width(text))
+  : element_(ftxui::text(text) | std::move(decorator)), width_(ftxui::string_width(text))
 {
 }
 
 Cell::Cell(std::string widthSource, ftxui::Element custom)
-  : element(std::move(custom)), width(ftxui::string_width(widthSource))
+  : element_(std::move(custom)), width_(ftxui::string_width(widthSource))
 {
 }
 
@@ -55,7 +56,7 @@ ftxui::Element render(std::vector<Row> rows, int columnGap)
   {
     for (std::size_t c = 0; c < r.size(); ++c)
     {
-      colWidths[c] = std::max(colWidths[c], r[c].width);
+      colWidths[c] = std::max(colWidths[c], r[c].width());
     }
   }
 
@@ -74,8 +75,8 @@ ftxui::Element render(std::vector<Row> rows, int columnGap)
     cells.reserve(r.size() * 3U);
     for (std::size_t c = 0; c < r.size(); ++c)
     {
-      cells.push_back(std::move(r[c].element));
-      const int pad = colWidths[c] - r[c].width;
+      cells.push_back(r[c].element());
+      const int pad = colWidths[c] - r[c].width();
       if (pad > 0)
       {
         cells.push_back(ftxui::text(std::string(checkedConversion<std::size_t>(pad), ' ')));

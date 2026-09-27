@@ -7,9 +7,27 @@
 
 #include "showcase_impl.h"
 
+#include "worker_impl.h"
+
+// sen
+#include "sen/core/base/duration.h"
+#include "sen/core/base/numbers.h"
+#include "sen/core/meta/class_type.h"
+#include "sen/core/meta/var.h"
+#include "sen/kernel/component_api.h"
+
+// generated code
+#include "stl/term_showcase/term_showcase.stl.h"
+
 // std
+#include <array>
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <type_traits>
+#include <utility>
 #include <variant>
 
 namespace term_showcase
@@ -67,9 +85,9 @@ void ShowcaseImpl::update(sen::kernel::RunApi& /*runApi*/)
   // Status: every 30 cycles, cycle through the enum in order.
   if (t % 30U == 0U)
   {
-    constexpr Severity rotation[] = {Severity::debug, Severity::info, Severity::warning, Severity::error};
+    constexpr std::array<Severity, 4> rotation = {Severity::debug, Severity::info, Severity::warning, Severity::error};
     const auto idx = (t / 30U) % 4U;
-    setNextStatus(rotation[idx]);
+    setNextStatus(rotation.at(idx));
   }
 
   // Enabled: every 90 cycles, toggle.
@@ -81,9 +99,9 @@ void ShowcaseImpl::update(sen::kernel::RunApi& /*runApi*/)
   // Message: every 60 cycles, pick a short line from a rotation.
   if (t % 60U == 0U)
   {
-    constexpr const char* rotation[] = {"idle", "busy", "syncing", "paused"};
+    constexpr std::array<const char*, 4> rotation = {"idle", "busy", "syncing", "paused"};
     const auto idx = (t / 60U) % 4U;
-    setNextMessage(rotation[idx]);
+    setNextMessage(rotation.at(idx));
   }
 
   // Position: every 20 cycles, walk around a circle of radius 50 centred at (0, 0).
@@ -361,5 +379,6 @@ std::string ShowcaseImpl::setFractionImpl(Fraction fraction) const
 }
 
 SEN_EXPORT_CLASS(ShowcaseImpl)
+SEN_EXPORT_CLASS(WorkerImpl)
 
 }  // namespace term_showcase

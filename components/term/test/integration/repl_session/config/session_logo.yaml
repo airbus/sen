@@ -1,0 +1,22 @@
+# session.yaml with the startup banner left on, for the test that asserts where the banner is drawn.
+# Separate so every other test starts on a screen holding only what that test put there.
+load:
+  - name: ether
+    group: 10
+  - name: term
+    group: 2
+    open:
+      - local.demo
+
+build:
+  - name: showcaseComponent
+    freqHz: 30
+    group: 3
+    imports: [term_showcase]
+    objects:
+      - class: term_showcase.ShowcaseImpl
+        name: showcase
+        bus: local.demo
+      - class: term_showcase.ShowcaseImpl
+        name: alpha.beta
+        bus: local.demo

@@ -8,6 +8,9 @@
 #ifndef SEN_COMPONENTS_TERM_SRC_PARSE_UTILS_H
 #define SEN_COMPONENTS_TERM_SRC_PARSE_UTILS_H
 
+// ftxui
+#include <ftxui/screen/string.hpp>
+
 // std
 #include <algorithm>
 #include <cctype>
@@ -25,6 +28,24 @@ namespace sen::components::term
 [[nodiscard]] inline bool startsWith(std::string_view text, std::string_view prefix)
 {
   return text.size() >= prefix.size() && text.compare(0, prefix.size(), prefix) == 0;
+}
+
+/// Cuts `text` at or before `maxBytes` without splitting a UTF-8 sequence. Used wherever a value from
+/// a peer is put on the screen: the renderers build one glyph per character, so the cut bounds memory
+/// as well as width.
+[[nodiscard]] inline std::string truncateUtf8(std::string_view text, std::size_t maxBytes)
+{
+  // A UTF-8 continuation byte is 10xxxxxx. Backing off over them lands on the lead byte of the
+  // sequence the cut fell inside, which is then left out.
+  constexpr unsigned int continuationMask = 0xC0U;
+  constexpr unsigned int continuationMark = 0x80U;
+
+  std::size_t cut = std::min(maxBytes, text.size());
+  while (cut > 0U && (static_cast<unsigned char>(text[cut]) & continuationMask) == continuationMark)
+  {
+    --cut;
+  }
+  return std::string(text.substr(0, cut));
 }
 
 /// Byte offset one codepoint to the left of `pos`. Editing a byte at a time leaves a lone
@@ -56,6 +77,28 @@ namespace sen::components::term
     ++pos;
   }
   return pos;
+}
+
+/// The end of the grapheme starting at `pos`: one codepoint, plus any zero-width codepoints after it.
+///
+/// A combining mark takes no cells and ftxui attaches it to the character before it, discarding one that
+/// begins an element. So anything that cuts a string for display has to cut between graphemes, not
+/// between codepoints, or the mark is lost from the screen while it stays in the buffer. `wrapToWidth`
+/// gets this right by breaking only where a codepoint occupies a cell; the cursor split needs the
+/// boundary itself.
+[[nodiscard]] inline std::size_t nextGrapheme(std::string_view text, std::size_t pos)
+{
+  auto at = nextCodepoint(text, pos);
+  while (at < text.size())
+  {
+    const auto next = nextCodepoint(text, at);
+    if (ftxui::string_width(text.substr(at, next - at)) > 0)
+    {
+      break;
+    }
+    at = next;
+  }
+  return at;
 }
 
 /// Word characters are alphanumerics and underscore, as readline has them, so a dotted object path
@@ -257,7 +300,7 @@ inline std::vector<std::string_view> splitTopLevelArgs(std::string_view args)
       }
       continue;
     }
-    if (depth == 0 && (std::isspace(static_cast<unsigned char>(c)) || c == ','))
+    if (depth == 0 && (std::isspace(static_cast<unsigned char>(c)) != 0 || c == ','))
     {
       finish(i);
       continue;

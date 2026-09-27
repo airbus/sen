@@ -8,13 +8,16 @@
 #include "command_engine.h"
 
 // component
+#include "app.h"
 #include "arg_form.h"
-#include "byte_format.h"
+#include "completer.h"
+#include "log_router.h"
 #include "parse_utils.h"
 #include "signature_renderer.h"
 #include "styles.h"
 #include "suggester.h"
 #include "text_table.h"
+#include "theme.h"
 #include "tree_view.h"
 #include "unicode.h"
 #include "util.h"
@@ -22,6 +25,7 @@
 // sen
 #include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/result.h"
+#include "sen/core/base/span.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/class_type.h"
@@ -29,24 +33,30 @@
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/optional_type.h"
 #include "sen/core/meta/property.h"
-#include "sen/core/meta/time_types.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/callback.h"
+#include "sen/kernel/component_api.h"
+
+// generated code
+#include "stl/term.stl.h"
 
 // ftxui
 #include <ftxui/dom/elements.hpp>
-#include <ftxui/dom/table.hpp>
 
 // spdlog
-#include <spdlog/spdlog.h>
+#include <spdlog/common.h>
 
 // std
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <exception>
 #include <iterator>
+#include <memory>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -114,7 +124,7 @@ constexpr Egg eggs[] = {
 
   // Authority / destructive.
   {"sudo", nullptr, "This shell does not bow to sudo."},
-  {"rm", nullptr, "No destruction here. Try 'query rm' or 'unwatch'."},
+  {"rm", nullptr, "No destruction here. Try 'query rm' or 'unlisten'."},
 
   // Friendly.
   {"hello", nullptr, "Hi. Type 'help' to get started."},
@@ -432,6 +442,13 @@ CommandEngine::CommandEngine(const Configuration& config,
     }
   }
 
+  // After `open` and `query`, so a listener named on a source this configuration opens can resolve
+  // immediately; one that cannot becomes a deferred listener and binds when the object appears.
+  for (const auto& target: config_.listen)
+  {
+    cmdListen(target);
+  }
+
   if (!config_.initialScope.empty())
   {
     scope_.navigate(config_.initialScope);
@@ -463,13 +480,20 @@ void CommandEngine::execute(std::string_view input)
   {
     dispatch(input, cmd, args);
   }
+  // Everything dispatch can throw arrives here, including transport and query-compiler failures, so the
+  // title used to carry no information at all and the body was whatever internal text the exception had.
+  // Naming the command at least says which of them it was.
   catch (const std::exception& e)
   {
-    reportError("Command Failed", e.what());
+    reportError("'" + std::string(cmd) + "' failed",
+                std::string(e.what()) +
+                  "\nThis is an internal error: the "
+                  "message above comes from inside Sen, "
+                  "not from your input.");
   }
   catch (...)
   {
-    reportError("Command Failed", "the command threw an exception carrying no message.");
+    reportError("'" + std::string(cmd) + "' failed", "it threw an exception carrying no message.");
   }
 
   // Form's re-entrant execute() adds its own separator.
@@ -569,7 +593,17 @@ void CommandEngine::update()
         ++itr;
         continue;
       }
-      app_.finishPendingCall(itr->first, renderError("Call Timed Out", itr->second.description));
+      // The body used to be the command text alone, which left out the two things the user needs: how
+      // long term waited, and that nothing was cancelled. Nothing is sent to the peer, so the method
+      // may still run and answer later.
+      app_.finishPendingCall(
+        itr->first,
+        renderError("No Answer Yet",
+                    itr->second.description + "\nNo answer after " +
+                      std::to_string(static_cast<int>(config_.callTimeout.toSeconds())) + " s" +
+                      ". The call was not cancelled: the object may still be running it, and the answer "
+                      "will be reported if it arrives.\nThe wait is measured on this kernel's clock, so a "
+                      "peer whose time is paused or stepped can exceed it while working normally."));
       itr = pendingCalls_.erase(itr);
     }
   }
@@ -780,9 +814,10 @@ void CommandEngine::cmdCd(std::string_view args)
       std::any_of(queries.begin(), queries.end(), [&wanted](const auto& q) { return q.name == wanted; });
     if (!known)
     {
-      reportError("Navigation Error",
-                  "No query named '" + wanted + "'. Use 'queries' to list them, or 'query " + wanted +
-                    " <selection>' to create it.");
+      std::ostringstream message;
+      message << "No query named '" << wanted << "'. Use 'queries' to list them, or 'query " << wanted
+              << " <selection>' to create it.";
+      reportError("Navigation Error", message.str());
       return;
     }
   }
@@ -986,7 +1021,6 @@ void CommandEngine::rebuildTreeIfNeeded()
     node->setKind(TreeNode::Kind::object);
 
     // Walk up and label parent nodes
-    auto* parent = node->getParent();
     int depth = 0;
     {
       auto* p = node->getParent();
@@ -997,7 +1031,7 @@ void CommandEngine::rebuildTreeIfNeeded()
       }
     }
 
-    parent = node->getParent();
+    auto* parent = node->getParent();
     int level = depth;
     while (parent != nullptr && parent != &cachedTree_)
     {
@@ -1166,7 +1200,7 @@ void CommandEngine::cmdLog(std::string_view args)
   if (args.empty())
   {
     // Show current level and list loggers
-    auto levelName = spdlog::level::to_string_view(logRouter_.getGlobalLevel());
+    auto levelName = spdlog::level::to_string_view(LogRouter::getGlobalLevel());
     app_.appendOutput("Global log level: " + std::string(levelName.data(), levelName.size()));
     app_.appendOutput("");
 
@@ -1213,8 +1247,12 @@ void CommandEngine::cmdLog(std::string_view args)
                       "' is not a valid log level.\nValid: trace, debug, info, warn, error, critical, off");
         return;
       }
-      logRouter_.setGlobalLevel(level);
       auto lvl = spdlog::level::to_string_view(level);
+      if (!logRouter_.setGlobalLevel(level))
+      {
+        reportError("Level Refused", "the kernel refused the level " + std::string(lvl.data(), lvl.size()));
+        return;
+      }
       app_.appendInfo("Global log level set to " + std::string(lvl.data(), lvl.size()));
     }
     else
@@ -1239,15 +1277,11 @@ void CommandEngine::cmdLog(std::string_view args)
     return;
   }
 
-  const std::string dot = unicode::middleDot;
-  reportError("Unknown Subcommand",
-              "Usage: log              " + dot +
-                " show loggers and levels\n"
-                "       log level <lvl>  " +
-                dot +
-                " set global level\n"
-                "       log level <name> <lvl> " +
-                dot + " set logger level");
+  std::ostringstream usage;
+  usage << "Usage: log              " << unicode::middleDot << " show loggers and levels\n"
+        << "       log level <lvl>  " << unicode::middleDot << " set global level\n"
+        << "       log level <name> <lvl> " << unicode::middleDot << " set logger level";
+  reportError("Unknown Subcommand", usage.str());
 }
 
 void CommandEngine::cmdClear(std::string_view /*args*/) { app_.clearCommandPane(); }
@@ -1312,7 +1346,7 @@ void CommandEngine::echoCommand(std::string_view input, bool isError)
 {
   auto color = isError ? styles::echoError() : styles::echoSuccess();
   auto now = api_.getTime();
-  auto timeStr = now.toLocalString();
+  auto timeStr = formatTime(now, config_.timeStyle);
   std::string shortTime;
   if (timeStr.size() >= 19U)
   {
@@ -1392,7 +1426,7 @@ void CommandEngine::invokeMethodAsync(std::string_view input,
   auto now = api_.getTime();
   pendingCalls_.try_emplace(callId, PendingCall {std::string(input), now + config_.callTimeout});
 
-  auto timeStr = now.toLocalString();
+  auto timeStr = formatTime(now, config_.timeStyle);
   std::string shortTime;
   if (timeStr.size() >= 19U)
   {
@@ -1416,18 +1450,47 @@ void CommandEngine::invokeMethodAsync(std::string_view input,
                                                // phase, the version, the loaded components and the last log lines --
                                                // but reporting is not recovery: the process still dies, and takes every
                                                // other component loaded in it.
+                                               // Checked before `*retType` is evaluated, not after.
+                                               // TypeHandle can be non-owning, so a late answer from an
+                                               // object whose class metadata has gone would dereference
+                                               // freed memory -- and a late answer is exactly the case
+                                               // where the object may have disappeared. The answer is
+                                               // still reported, just not rendered against its type.
+                                               if (!hasPendingCall(callId))
+                                               {
+                                                 app_.appendInfo("A late answer arrived for '" + inputStr +
+                                                                 "', after term stopped waiting for it. It is "
+                                                                 "not shown: the type it should be drawn "
+                                                                 "against may be gone.");
+                                                 return;
+                                               }
+
                                                try
                                                {
                                                  finishMethodCall(callId, inputStr, name, *retType, timestamp, result);
                                                }
+                                               // Both arms say the same thing, because both mean the same
+                                               // thing: the call returned and term could not draw what it
+                                               // returned. The typed arm used to report it as "Call Error"
+                                               // with the method name, which is what a call that actually
+                                               // failed looks like -- so the user was told their method
+                                               // failed when it had worked.
                                                catch (const std::exception& e)
                                                {
-                                                 failPendingCall(callId, name + ": " + e.what());
+                                                 failPendingCall(callId,
+                                                                 name +
+                                                                   " returned, but term could not draw the "
+                                                                   "result: " +
+                                                                   e.what(),
+                                                                 "Result Not Drawn");
                                                }
                                                catch (...)
                                                {
                                                  failPendingCall(callId,
-                                                                 name + ": the result threw while being rendered.");
+                                                                 name +
+                                                                   " returned, but term could not draw the "
+                                                                   "result.",
+                                                                 "Result Not Drawn");
                                                }
                                              }});
 }
@@ -1476,7 +1539,9 @@ void CommandEngine::finishMethodCall(std::size_t callId,
     combined.push_back(renderError("Call Error", errMsg));
   }
 
-  // Already reported as timed out: the answer arrived late and its slot is gone.
+  // Checked again: the caller tested it before evaluating the return type, and between that test and
+  // here nothing can have changed, because both run on the component thread. Reported by the caller
+  // when it is gone.
   if (pendingCalls_.erase(callId) == 0U)
   {
     return;
@@ -1484,14 +1549,132 @@ void CommandEngine::finishMethodCall(std::size_t callId,
   app_.finishPendingCall(callId, ftxui::vbox(std::move(combined)));
 }
 
-void CommandEngine::failPendingCall(std::size_t callId, const std::string& message)
+bool CommandEngine::hasPendingCall(std::size_t callId) const { return pendingCalls_.count(callId) != 0U; }
+
+void CommandEngine::failPendingCall(std::size_t callId, const std::string& message, const std::string& title)
 {
   // The slot may already have been consumed before the throw, and finishing one twice would append
   // the answer twice.
   if (pendingCalls_.erase(callId) != 0U)
   {
-    app_.finishPendingCall(callId, renderError("Call Error", message));
+    app_.finishPendingCall(callId, renderError(title, message));
   }
+}
+
+namespace
+{
+
+/// The call the user should have typed, for an error message.
+[[nodiscard]] std::string buildSignatureHint(std::string_view objectName,
+                                             std::string_view methodName,
+                                             Span<const Arg> methodArgs)
+{
+  std::ostringstream hint;
+  hint << objectName << "." << methodName;
+  if (methodArgs.empty())
+  {
+    hint << " (no arguments)";
+    return hint.str();
+  }
+  hint << " ";
+  for (std::size_t i = 0; i < methodArgs.size(); ++i)
+  {
+    if (i > 0)
+    {
+      hint << ", ";
+    }
+    hint << "<" << methodArgs[i].type->getName() << ">";
+  }
+  return hint.str();
+}
+
+}  // namespace
+
+void CommandEngine::reportUnknownObject(std::string_view input, std::string_view objectName)
+{
+  // A dot makes this look like an object.method call, so it is reported as a failed call rather than
+  // falling through to "Unknown Command": that way the message can suggest objects that do exist.
+  echoCommand(input, /*isError=*/true);
+  std::ostringstream message;
+  message << "No object named '" << objectName << "' in the current scope.";
+  auto hint = formatSuggestionHint(completer_.findObjectSuggestions(objectName));
+  if (!hint.empty())
+  {
+    message << "\n" << hint;
+  }
+  message << "\nUse 'ls' to see visible objects.";
+  reportError("Unknown Object", message.str());
+}
+
+const Method* CommandEngine::findMethodOrAccessor(const ClassType& classType,
+                                                  std::string_view methodName,
+                                                  const Property*& setterProperty)
+{
+  if (const Method* method = classType.searchMethodByName(methodName); method != nullptr)
+  {
+    return method;
+  }
+  // A property's getter and setter are not in getMethods(), so they are reached through the property.
+  for (const auto& prop: classType.getProperties(ClassType::SearchMode::includeParents))
+  {
+    if (prop->getGetterMethod().getName() == methodName)
+    {
+      return &prop->getGetterMethod();
+    }
+    if (prop->getCategory() == PropertyCategory::dynamicRW && prop->getSetterMethod().getName() == methodName)
+    {
+      setterProperty = prop.get();
+      return &prop->getSetterMethod();
+    }
+  }
+  return nullptr;
+}
+
+bool CommandEngine::parseAndAdaptArgs(std::string_view input,
+                                      std::string_view args,
+                                      const Method& method,
+                                      std::string_view signatureHint,
+                                      VarList& argValues)
+{
+  auto methodArgs = method.getArgs();
+  try
+  {
+    argValues = parseArgs(&method, args);
+  }
+  catch (const std::exception&)
+  {
+    echoCommand(input, /*isError=*/true);
+    std::ostringstream message;
+    message << "Could not parse '" << args << "'. Expected format:\n  " << signatureHint
+            << "\nSeparate arguments with spaces or commas; wrap string values in double quotes.";
+    reportError("Invalid arguments", message.str());
+    return false;
+  }
+
+  if (argValues.size() > methodArgs.size())
+  {
+    echoCommand(input, /*isError=*/true);
+    std::ostringstream message;
+    message << "Too many arguments: expected " << methodArgs.size() << ", got " << argValues.size()
+            << ".\nExpected format:\n  " << signatureHint;
+    reportError("Invalid arguments", message.str());
+    return false;
+  }
+
+  // Adapting here rather than at the call catches a type error while the typed text is still on screen.
+  for (std::size_t i = 0; i < argValues.size(); ++i)
+  {
+    if (auto result = impl::adaptVariant(*methodArgs[i].type, argValues[i]); result.isError())
+    {
+      echoCommand(input, /*isError=*/true);
+      std::ostringstream message;
+      message << "Argument '" << methodArgs[i].name << "': " << result.getError() << "\nExpected format:\n  "
+              << signatureHint;
+      reportError("Invalid arguments", message.str());
+      return false;
+    }
+  }
+  return true;
 }
 
 bool CommandEngine::tryResolveObjectMethod(std::string_view input, std::string_view cmd, std::string_view args)
@@ -1508,44 +1691,13 @@ bool CommandEngine::tryResolveObjectMethod(std::string_view input, std::string_v
   auto target = completer_.findObject(objectName);
   if (!target)
   {
-    // It *looks* like an object.method call (has a dot), but the object doesn't resolve.
-    // Treat this as a first-class error here rather than falling back to "Unknown Command",
-    // so we can produce a helpful "did you mean?" hint against known objects.
-    echoCommand(input, /*isError=*/true);
-    std::string message = "No object named '" + std::string(objectName) + "' in the current scope.";
-    auto hint = formatSuggestionHint(completer_.findObjectSuggestions(objectName));
-    if (!hint.empty())
-    {
-      message += "\n" + hint;
-    }
-    message += "\nUse 'ls' to see visible objects.";
-    reportError("Unknown Object", message);
+    reportUnknownObject(input, objectName);
     return true;
   }
 
   auto classType = target->getClass();
-  const Method* method = classType->searchMethodByName(methodName);
-  const Property* setterProperty = nullptr;  // non-null when method is a property setter
-
-  // Property getter/setter methods are not in getMethods(); search via properties.
-  if (method == nullptr)
-  {
-    auto properties = classType->getProperties(ClassType::SearchMode::includeParents);
-    for (const auto& prop: properties)
-    {
-      if (prop->getGetterMethod().getName() == methodName)
-      {
-        method = &prop->getGetterMethod();
-        break;
-      }
-      if (prop->getCategory() == PropertyCategory::dynamicRW && prop->getSetterMethod().getName() == methodName)
-      {
-        method = &prop->getSetterMethod();
-        setterProperty = prop.get();
-        break;
-      }
-    }
-  }
+  const Property* setterProperty = nullptr;  // non-null when the match is a property setter
+  const Method* method = findMethodOrAccessor(*classType, methodName, setterProperty);
 
   // Virtual "print" method: display all properties of the object
   if (method == nullptr && methodName == "print")
@@ -1573,61 +1725,12 @@ bool CommandEngine::tryResolveObjectMethod(std::string_view input, std::string_v
     return true;
   }
 
-  // Build a signature hint for error messages
-  auto buildSignatureHint = [&]() -> std::string
-  {
-    std::string hint = std::string(objectName) + "." + std::string(methodName);
-    if (methodArgs.empty())
-    {
-      return hint + " (no arguments)";
-    }
-    hint += " ";
-    for (std::size_t i = 0; i < methodArgs.size(); ++i)
-    {
-      if (i > 0)
-      {
-        hint += ", ";
-      }
-      hint += "<" + std::string(methodArgs[i].type->getName()) + ">";
-    }
-    return hint;
-  };
+  const std::string signatureHint = buildSignatureHint(objectName, methodName, methodArgs);
 
-  // Parse whatever the user typed (may be fewer args than the method expects).
   VarList argValues;
-  try
+  if (!parseAndAdaptArgs(input, args, *method, signatureHint, argValues))
   {
-    argValues = parseArgs(method, args);
-  }
-  catch (const std::exception&)
-  {
-    echoCommand(input, /*isError=*/true);
-    reportError("Invalid arguments",
-                "Could not parse '" + std::string(args) + "'. Expected format:\n  " + buildSignatureHint() +
-                  "\nSeparate arguments with spaces or commas; wrap string values in double quotes.");
     return true;
-  }
-
-  if (argValues.size() > methodArgs.size())
-  {
-    echoCommand(input, /*isError=*/true);
-    reportError("Invalid arguments",
-                "Too many arguments: expected " + std::to_string(methodArgs.size()) + ", got " +
-                  std::to_string(argValues.size()) + ".\nExpected format:\n  " + buildSignatureHint());
-    return true;
-  }
-
-  // Adapt arguments to their expected types (catches type errors early).
-  for (std::size_t i = 0; i < argValues.size(); ++i)
-  {
-    if (auto result = impl::adaptVariant(*methodArgs[i].type, argValues[i]); result.isError())
-    {
-      echoCommand(input, /*isError=*/true);
-      reportError("Invalid arguments",
-                  "Argument '" + methodArgs[i].name + "': " + result.getError() + "\nExpected format:\n  " +
-                    buildSignatureHint());
-      return true;
-    }
   }
 
   // Missing arguments: open a guided-input form. Property setters seed with the current value.
@@ -1656,7 +1759,7 @@ bool CommandEngine::tryResolveObjectMethod(std::string_view input, std::string_v
     echoCommand(input, /*isError=*/true);
     reportError("Invalid arguments",
                 "Not enough arguments: expected " + std::to_string(methodArgs.size()) + ", got " +
-                  std::to_string(argValues.size()) + ".\nExpected format:\n  " + buildSignatureHint());
+                  std::to_string(argValues.size()) + ".\nExpected format:\n  " + signatureHint);
     return true;
   }
 

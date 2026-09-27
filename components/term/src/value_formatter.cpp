@@ -8,19 +8,25 @@
 #include "value_formatter.h"
 
 // component
+#include "parse_utils.h"
 #include "styles.h"
 #include "unicode.h"
 
 // sen
 #include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/duration.h"
+#include "sen/core/base/timestamp.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/enum_type.h"
+#include "sen/core/meta/native_types.h"
 #include "sen/core/meta/optional_type.h"
 #include "sen/core/meta/quantity_type.h"
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
+#include "sen/core/meta/time_types.h"
 #include "sen/core/meta/type_visitor.h"
+#include "sen/core/meta/var.h"
 #include "sen/core/meta/variant_type.h"
 
 // ftxui
@@ -30,9 +36,14 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <iomanip>
+#include <ios>
 #include <sstream>
 #include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -75,6 +86,7 @@ public:
   ValueWriter(const Var& value, int indentLevel, bool compact): value_(value), indent_(indentLevel), compact_(compact)
   {
   }
+  ~ValueWriter() override = default;
 
   [[nodiscard]] ftxui::Element result() const { return result_; }
 
@@ -90,23 +102,26 @@ public:
   void apply(const StringType& /*type*/) override
   {
     auto* val = value_.getIf<std::string>();
-    if (val != nullptr)
-    {
-      constexpr std::size_t compactMaxLen = 40;
-      if (compact_ && val->size() > compactMaxLen)
-      {
-        result_ = ftxui::text("\"" + val->substr(0, compactMaxLen) + std::string(unicode::ellipsis) + "\"") |
-                  styles::valueString();
-      }
-      else
-      {
-        result_ = ftxui::text("\"" + *val + "\"") | styles::valueString();
-      }
-    }
-    else
+    if (val == nullptr)
     {
       result_ = ftxui::text("<empty>") | styles::valueEmpty();
+      return;
     }
+
+    // The full form was bounded by nothing: ftxui::text builds a glyph string per character, so a
+    // string a peer sized in megabytes cost hundreds of megabytes and stayed in the pane.
+    constexpr std::size_t compactMaxLen = 40;
+    constexpr std::size_t fullMaxLen = 4096;
+    const std::size_t maxLen = compact_ ? compactMaxLen : fullMaxLen;
+
+    if (val->size() > maxLen)
+    {
+      result_ =
+        ftxui::text("\"" + truncateUtf8(*val, maxLen) + std::string(unicode::ellipsis) + "\"") | styles::valueString();
+      return;
+    }
+
+    result_ = ftxui::text("\"" + *val + "\"") | styles::valueString();
   }
 
   void apply(const DurationType& /*type*/) override
@@ -442,12 +457,19 @@ private:
   void formatBuffer(const VarList& bytes)
   {
     constexpr std::size_t bytesPerLine = 16;
+
+    // uint8 sequences come here instead of through the element cap above, and this used to lay out a
+    // row per sixteen bytes for the whole buffer: a few megabytes built a pane entry holding a million
+    // elements, re-rendered every frame from then on.
+    constexpr std::size_t maxShownLines = 200;
+    const std::size_t shown = std::min(bytes.size(), maxShownLines * bytesPerLine);
+
     ftxui::Elements lines;
 
-    for (std::size_t i = 0; i < bytes.size(); i += bytesPerLine)
+    for (std::size_t i = 0; i < shown; i += bytesPerLine)
     {
       std::ostringstream hex;
-      for (std::size_t j = i; j < std::min(i + bytesPerLine, bytes.size()); ++j)
+      for (std::size_t j = i; j < std::min(i + bytesPerLine, shown); ++j)
       {
         if (j > i)
         {
@@ -464,6 +486,14 @@ private:
         }
       }
       lines.push_back(ftxui::hbox({indent(indent_ + 1), ftxui::text(hex.str()) | styles::valueNumber()}));
+    }
+
+    if (shown < bytes.size())
+    {
+      lines.push_back(ftxui::hbox({indent(indent_ + 1),
+                                   ftxui::text(std::string(unicode::ellipsis) + " " +
+                                               std::to_string(bytes.size() - shown) + " more bytes")}) |
+                      styles::valueEmpty());
     }
 
     if (lines.empty())
@@ -510,6 +540,16 @@ private:
 
 ftxui::Element formatValue(const Var& value, const Type& type, int indent, bool compact)
 {
+  // A bound on the recursion, not on the value. Every level here is one stack frame and 2*depth bytes of
+  // indent string, and the type graph is not provably acyclic from this side: a variant holds its payload
+  // through a shared_ptr, so a cycle is representable at the value level. Without this the walk ends in a
+  // stack overflow, which is a SIGSEGV in the kernel process rather than a message on the screen.
+  constexpr int maxValueDepth = 64;
+  if (indent > maxValueDepth)
+  {
+    return ftxui::text("<nested deeper than " + std::to_string(maxValueDepth) + " levels>") | styles::valueEmpty();
+  }
+
   ValueWriter writer(value, indent, compact);
   type.accept(writer);
   return writer.result();

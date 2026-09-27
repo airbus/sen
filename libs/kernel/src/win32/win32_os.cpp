@@ -86,6 +86,17 @@ Result<Thread, ThreadCreateErr> Win32OS::createThread(const ThreadConfig& config
   return Ok(Thread {threads_.back().get(), threads_.back()->priorityApplied(), threads_.back()->affinityApplied()});
 }
 
+bool Win32OS::isCurrentThread(Thread thread) const noexcept
+{
+  if (thread.nativeHandle == nullptr)
+  {
+    return false;
+  }
+  // From the handle, so nothing has to be recorded when the thread starts.
+  const auto* threadImpl = static_cast<const ThreadImpl*>(thread.nativeHandle);
+  return ::GetThreadId(threadImpl->nativeThread()) == ::GetCurrentThreadId();
+}
+
 bool Win32OS::joinThread(Thread thread) noexcept
 {
   if (thread.nativeHandle == nullptr)

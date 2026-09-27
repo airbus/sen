@@ -18,7 +18,10 @@ For example:
 # open a sen explorer window
 sen explorer
 
-# open a sen shell on the current terminal
+# open a sen terminal on the current terminal
+sen term
+
+# open the older sen shell, which will be deprecated in 0.8.0
 sen shell
 
 # connect to a remote sen application on localhost:8094
@@ -45,7 +48,7 @@ A short example, so this page stands on its own:
 
 ```yaml title="a minimal configuration"
 load:
-  - name: shell
+  - name: term
     group: 2
     open: [ local.counters ]
 

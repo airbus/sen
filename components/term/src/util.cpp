@@ -11,6 +11,9 @@
 // sen
 #include "sen/kernel/component_api.h"
 
+// spdlog
+#include <spdlog/logger.h>
+
 // std
 #include <memory>
 

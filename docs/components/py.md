@@ -238,7 +238,7 @@ For example, you can now call Python from the shell:
 
 ```yaml title="test.yaml"
 load:
-  - name: shell
+  - name: term
     open: [local.py]
   - name: py
     group: 3

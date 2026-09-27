@@ -17,14 +17,23 @@
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/time_types.h"
+#include "sen/core/meta/type.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/meta/variant_type.h"
 
+// ftxui
+#include <ftxui/dom/node.hpp>
+#include <ftxui/dom/requirement.hpp>
+
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 // std
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <string>
 
 namespace sen::components::term
@@ -33,6 +42,21 @@ namespace
 {
 
 using test::renderToText;
+
+/// Rows and columns the element asks the layout for. The screen a test renders to is fixed, so a
+/// runaway value is invisible in the rendered text -- the cost is in the tree, and this is where it
+/// shows.
+struct Extent
+{
+  int rows = 0;
+  int columns = 0;
+};
+
+[[nodiscard]] Extent extentOf(const ftxui::Element& element)
+{
+  element->ComputeRequirement();
+  return Extent {element->requirement().min_y, element->requirement().min_x};
+}
 
 ConstTypeHandle<EnumType> makeColourEnum()
 {
@@ -150,6 +174,15 @@ TEST(ValueFormatter, StringEmptyVar)
   EXPECT_THAT(out, ::testing::HasSubstr("<empty>"));
 }
 
+TEST(ValueFormatter, LongStringIsCapped)
+{
+  // ftxui::text builds a glyph string per character, so the full form needed a bound of its own: the
+  // 40-character one belonged to the compact form only.
+  const std::string huge(1024U * 1024U, 'x');
+  auto extent = extentOf(formatValue(Var(huge), *StringType::get()));
+  EXPECT_LT(extent.columns, 4200);
+}
+
 //--------------------------------------------------------------------------------------------------------------
 // Duration / Timestamp
 //--------------------------------------------------------------------------------------------------------------
@@ -232,6 +265,40 @@ TEST(ValueFormatter, SequenceOfBytesRendersAsHex)
   EXPECT_THAT(out, ::testing::HasSubstr("ef"));
   // It should NOT fall back to the indexed format.
   EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("[0]")));
+}
+
+TEST(ValueFormatter, SequenceOfBytesIsCapped)
+{
+  // A blob arrives as sequence<u8>, and this path used to be the one place with no cap on it: a
+  // megabyte laid out 65,536 rows that the pane then re-rendered every frame.
+  constexpr std::size_t oneMegabyte = 1024U * 1024U;
+  VarList bytes;
+  bytes.reserve(oneMegabyte);
+  for (std::size_t i = 0; i < oneMegabyte; ++i)
+  {
+    bytes.emplace_back(static_cast<uint8_t>(i & 0xFFU));
+  }
+
+  auto element = formatValue(Var(bytes), *makeByteSeq());
+  auto extent = extentOf(element);
+
+  // 200 rows of sixteen bytes, and one row saying what was left out.
+  EXPECT_EQ(extent.rows, 201);
+  EXPECT_THAT(renderToText(element, 100, 240), ::testing::HasSubstr("more bytes"));
+}
+
+TEST(ValueFormatter, SequenceOfBytesShorterThanTheCapIsWhole)
+{
+  // The other half: a buffer under the cap keeps every row and says nothing about anything missing.
+  VarList bytes;
+  for (std::size_t i = 0; i < 64U; ++i)
+  {
+    bytes.emplace_back(static_cast<uint8_t>(i));
+  }
+
+  auto element = formatValue(Var(bytes), *makeByteSeq());
+  EXPECT_EQ(extentOf(element).rows, 4);
+  EXPECT_THAT(renderToText(element), ::testing::Not(::testing::HasSubstr("more bytes")));
 }
 
 //--------------------------------------------------------------------------------------------------------------

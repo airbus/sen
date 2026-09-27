@@ -14,21 +14,35 @@
 #include "parse_utils.h"
 #include "scope.h"
 #include "suggester.h"
+#include "type_peel.h"
 #include "unicode.h"
 #include "util.h"
 
 // sen
 #include "sen/core/base/checked_conversions.h"
+#include "sen/core/base/span.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/property.h"
 #include "sen/core/meta/type_registry.h"
+#include "sen/core/meta/unit.h"
+#include "sen/core/obj/object.h"
+
+// generated code
+#include "stl/term.stl.h"
 
 // std
 #include <algorithm>
 #include <cstddef>
+#include <memory>
+#include <optional>
 #include <set>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -115,7 +129,7 @@ void Completer::update(const Scope& scope, const ObjectStore& store, LogRouter& 
     // Rebuild the object map + children counts from scratch against the new scope.
     std::unordered_map<std::string, std::shared_ptr<Object>> objByName;
     std::unordered_map<std::string, std::size_t> childCounts;
-    std::vector<std::string> childNames;
+    std::set<std::string> childNames;
 
     const auto& objects = store.getObjects();
     objByName.reserve(objects.size());
@@ -142,12 +156,10 @@ void Completer::update(const Scope& scope, const ObjectStore& store, LogRouter& 
       objByName.try_emplace(std::move(rel), obj);
     }
 
-    childNames.reserve(childCounts.size());
     for (const auto& [name, _count]: childCounts)
     {
-      childNames.push_back(name);
+      childNames.insert(name);
     }
-    std::sort(childNames.begin(), childNames.end());
 
     objectsByName_ = std::move(objByName);
     childCounts_ = std::move(childCounts);
@@ -175,17 +187,28 @@ void Completer::update(const Scope& scope, const ObjectStore& store, LogRouter& 
     queryNames_ = std::move(qnames);
   }
 
-  if (logRouter.hasNewLoggers())
+  // Remembered, not read. The logger list is rebuilt when `log level <Tab>` asks for it: `listLoggers`
+  // goes through `applyToAllLoggers`, which holds spdlog's process-global logger-map mutex for the whole
+  // walk, and rebuilding it here meant every logger creation and every `registry::get` anywhere in the
+  // kernel contended with term thirty times a second -- for a list with exactly one consumer.
+  logRouter_ = &logRouter;
+}
+
+void Completer::refreshLoggerNames() const
+{
+  if (logRouter_ == nullptr)
   {
-    auto loggers = logRouter.listLoggers();
-    std::vector<std::string> lnames;
-    lnames.reserve(loggers.size());
-    for (auto& info: loggers)
-    {
-      lnames.push_back(std::move(info.name));
-    }
-    loggerNames_ = std::move(lnames);
+    return;
   }
+
+  auto loggers = logRouter_->listLoggers();
+  std::vector<std::string> lnames;
+  lnames.reserve(loggers.size());
+  for (auto& info: loggers)
+  {
+    lnames.push_back(std::move(info.name));
+  }
+  loggerNames_ = std::move(lnames);
 }
 
 void Completer::onObjectAdded(const Scope& scope, std::shared_ptr<Object> obj)
@@ -224,9 +247,8 @@ void Completer::onObjectAdded(const Scope& scope, std::shared_ptr<Object> obj)
   ++count;
   if (count == 1)
   {
-    // Transitioned 0->1: insert the new segment into childNames_ at the right position.
-    auto pos = std::lower_bound(childNames_.begin(), childNames_.end(), segmentStr);
-    childNames_.insert(pos, std::move(segmentStr));
+    // Transitioned 0->1: the set keeps the order, at log N rather than a memmove of half the sequence.
+    childNames_.insert(std::move(segmentStr));
   }
 }
 
@@ -266,8 +288,8 @@ void Completer::onObjectRemoved(const Scope& scope, const std::shared_ptr<Object
   if (--cItr->second == 0)
   {
     childCounts_.erase(cItr);
-    auto nItr = std::lower_bound(childNames_.begin(), childNames_.end(), segment);
-    if (nItr != childNames_.end() && *nItr == segment)
+    auto nItr = childNames_.find(std::string(segment));
+    if (nItr != childNames_.end())
     {
       childNames_.erase(nItr);
     }
@@ -346,28 +368,218 @@ std::size_t Completer::objectsInScopeCount() const { return objectsInScope_; }
 // Completion
 //--------------------------------------------------------------------------------------------------------------
 
+std::vector<Completion> Completer::completeFirstToken(std::string_view prefix) const
+{
+  auto dotSplit = splitObjectMethod(prefix);
+  if (!dotSplit.has_value())
+  {
+    return completeObjectOrCommand(prefix);
+  }
+
+  auto [objPath, methodPrefix] = *dotSplit;
+  auto itr = objectsByName_.find(std::string(objPath));
+  if (itr == objectsByName_.end())
+  {
+    return completeObjectOrCommand(prefix);
+  }
+
+  // The token names an object, so offer its methods and any child object sharing the prefix. Commands
+  // are dropped: a dot has already ruled them out.
+  auto candidates = completeMethodName(objPath, methodPrefix);
+  for (auto& candidate: completeObjectOrCommand(prefix))
+  {
+    if (candidate.kind != CompletionKind::command)
+    {
+      candidates.push_back(std::move(candidate));
+    }
+  }
+  return candidates;
+}
+
+std::vector<Completion> Completer::completeQuerySelectArg(std::string_view prefix) const
+{
+  std::vector<Completion> candidates;
+  if (prefix.empty() || prefix[0] == '*')
+  {
+    candidates.push_back({"*", "any type", {}, CompletionKind::value});
+  }
+  if (types_ != nullptr)
+  {
+    for (const auto& [name, type]: types_->getAll())
+    {
+      if (type->asClassType() != nullptr && startsWith(name, prefix))
+      {
+        candidates.push_back({name, "class", {}, CompletionKind::value});
+      }
+    }
+  }
+  // FROM as well, for a line where the type is already typed.
+  if (startsWith("FROM", prefix))
+  {
+    candidates.push_back({"FROM", "", {}, CompletionKind::value});
+  }
+  return candidates;
+}
+
+std::vector<Completion> Completer::completeQueryFromArg(std::string_view prefix) const
+{
+  std::vector<Completion> candidates;
+  if (prefix.empty() || prefix[0] == '*')
+  {
+    candidates.push_back({"*", "any bus", {}, CompletionKind::value});
+  }
+  std::set<std::string> seen;
+  for (const auto& src: openSources_)
+  {
+    if (startsWith(src, prefix) && seen.insert(src).second)
+    {
+      candidates.push_back({src, "open", {}, CompletionKind::value});
+    }
+  }
+  for (const auto& src: availableSources_)
+  {
+    if (startsWith(src, prefix) && seen.insert(src).second)
+    {
+      candidates.push_back({src, "available", {}, CompletionKind::value});
+    }
+  }
+  if (startsWith("WHERE", prefix))
+  {
+    candidates.push_back({"WHERE", "", {}, CompletionKind::value});
+  }
+  return candidates;
+}
+
+std::vector<Completion> Completer::completeQueryArg(std::string_view prefix,
+                                                    Span<const std::string_view> tokens,
+                                                    std::size_t completedTokens,
+                                                    bool endsWithSpace) const
+{
+  if (completedTokens == 1)
+  {
+    // First argument: the `rm` subcommand, or an existing query name for reference.
+    auto candidates = completeQueryRmArg(prefix);
+    if (startsWith("rm", prefix))
+    {
+      candidates.push_back({"rm", "remove a query", {}, CompletionKind::value});
+    }
+    return candidates;
+  }
+  if (completedTokens >= 2 && tokens[1] == "rm")
+  {
+    return completeQueryRmArg(prefix);
+  }
+  if (completedTokens == 2)
+  {
+    // `query <name>`: the selection starts with SELECT.
+    if (startsWith("SELECT", prefix))
+    {
+      return {{"SELECT", "begin query", {}, CompletionKind::value}};
+    }
+    return {};
+  }
+  if (completedTokens < 3)
+  {
+    return {};
+  }
+
+  // Positional: SELECT <Type> FROM <bus> WHERE ... Which keyword has been passed decides what comes
+  // next, so scan the tokens already complete.
+  bool seenSelect = false;
+  bool seenFrom = false;
+  bool seenWhere = false;
+  for (std::size_t t = 2; t < tokens.size() - (endsWithSpace ? 0U : 1U); ++t)
+  {
+    if (tokens[t] == "SELECT")
+    {
+      seenSelect = true;
+    }
+    else if (tokens[t] == "FROM")
+    {
+      seenFrom = true;
+    }
+    else if (tokens[t] == "WHERE")
+    {
+      seenWhere = true;
+    }
+  }
+
+  if (seenFrom && !seenWhere)
+  {
+    return completeQueryFromArg(prefix);
+  }
+  if (seenSelect && !seenFrom && !seenWhere)
+  {
+    return completeQuerySelectArg(prefix);
+  }
+  return {};
+}
+
+std::vector<Completion> Completer::completeThemeArg(std::string_view prefix)
+{
+  std::vector<Completion> candidates;
+  const auto& enumType = *MetaTypeTrait<ThemeStyle>::meta();
+  for (const auto& e: enumType.getEnums())
+  {
+    if (startsWith(e.name, prefix))
+    {
+      candidates.push_back({std::string(e.name), "", {}, CompletionKind::value});
+    }
+  }
+  return candidates;
+}
+
+std::vector<Completion> Completer::completeInspectArg(std::string_view prefix) const
+{
+  auto candidates = completeObjectOrCommand(prefix);
+  candidates.erase(
+    std::remove_if(
+      candidates.begin(), candidates.end(), [](const Completion& c) { return c.kind == CompletionKind::command; }),
+    candidates.end());
+  if (types_ == nullptr)
+  {
+    return candidates;
+  }
+  for (const auto& [name, type]: types_->getAll())
+  {
+    if (startsWith(name, prefix))
+    {
+      candidates.push_back({name, std::string(typeKindName(*type)), {}, CompletionKind::value});
+    }
+  }
+  return candidates;
+}
+
+std::vector<Completion> Completer::completeUnitsArg(std::string_view prefix)
+{
+  std::vector<Completion> candidates;
+  for (auto category: allUnitCategories)
+  {
+    auto cat = std::string(Unit::getCategoryString(category));
+    if (startsWith(cat, prefix))
+    {
+      candidates.push_back({cat, "", {}, CompletionKind::value});
+    }
+  }
+  return candidates;
+}
+
 CompletionResult Completer::complete(std::string_view input, int cursorPos) const
 {
   auto upToCursor = input.substr(0, checkedConversion<std::size_t>(cursorPos));
   auto tokens = tokenize(upToCursor);
 
-  // Determine the prefix being completed and its position
-  bool endsWithSpace = !upToCursor.empty() && upToCursor.back() == ' ';
+  // What is being completed is the token under the cursor, unless the line ends on a space, in which
+  // case it is a new empty token.
+  const bool endsWithSpace = !upToCursor.empty() && upToCursor.back() == ' ';
   std::string_view prefix;
   int replaceFrom = cursorPos;
-
-  if (endsWithSpace || tokens.empty())
-  {
-    prefix = {};
-    replaceFrom = cursorPos;
-  }
-  else
+  if (!endsWithSpace && !tokens.empty())
   {
     prefix = tokens.back();
     replaceFrom = cursorPos - checkedConversion<int>(prefix.size());
   }
-
-  std::size_t completedTokens = endsWithSpace ? tokens.size() : (tokens.empty() ? 0 : tokens.size() - 1);
+  const std::size_t completedTokens = endsWithSpace ? tokens.size() : (tokens.empty() ? 0 : tokens.size() - 1);
 
   CompletionResult result;
   result.replaceFrom = replaceFrom;
@@ -375,267 +587,75 @@ CompletionResult Completer::complete(std::string_view input, int cursorPos) cons
 
   if (completedTokens == 0)
   {
-    auto dotSplit = splitObjectMethod(prefix);
-    if (dotSplit.has_value())
-    {
-      auto [objPath, methodPrefix] = *dotSplit;
-      auto it = objectsByName_.find(std::string(objPath));
-      if (it != objectsByName_.end())
-      {
-        // Object match: offer methods and child objects sharing the prefix.
-        result.candidates = completeMethodName(objPath, methodPrefix);
-        auto pathCandidates = completeObjectOrCommand(prefix);
-        for (auto& c: pathCandidates)
-        {
-          if (c.kind != CompletionKind::command)
-          {
-            result.candidates.push_back(std::move(c));
-          }
-        }
-      }
-      else
-      {
-        result.candidates = completeObjectOrCommand(prefix);
-      }
-    }
-    else
-    {
-      result.candidates = completeObjectOrCommand(prefix);
-    }
+    result.candidates = completeFirstToken(prefix);
   }
   else
   {
-    auto cmd = tokens[0];
-
-    if (cmd == "cd" || cmd == "ls")
+    const auto cmd = tokens[0];
+    const bool firstArg = completedTokens <= 1;
+    if ((cmd == "cd" || cmd == "ls") && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        result.candidates = completeCdArg(prefix);
-      }
+      result.candidates = completeCdArg(prefix);
     }
-    else if (cmd == "open")
+    else if (cmd == "open" && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        result.candidates = completeOpenArg(prefix);
-      }
+      result.candidates = completeOpenArg(prefix);
     }
-    else if (cmd == "close")
+    else if (cmd == "close" && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        result.candidates = completeCloseArg(prefix);
-      }
+      result.candidates = completeCloseArg(prefix);
     }
     else if (cmd == "query")
     {
-      if (completedTokens == 1)
-      {
-        // First arg: "rm" subcommand or existing query names (for reference).
-        result.candidates = completeQueryRmArg(prefix);
-        if (startsWith("rm", prefix))
-        {
-          result.candidates.push_back({"rm", "remove a query", {}, CompletionKind::value});
-        }
-      }
-      else if (completedTokens >= 2 && tokens[1] == "rm")
-      {
-        // query rm <name>
-        result.candidates = completeQueryRmArg(prefix);
-      }
-      else if (completedTokens == 2)
-      {
-        // query <name> -> suggest SELECT keyword
-        if (startsWith("SELECT", prefix))
-        {
-          result.candidates.push_back({"SELECT", "begin query", {}, CompletionKind::value});
-        }
-      }
-      else if (completedTokens >= 3)
-      {
-        // Positional: SELECT <Type> FROM <bus> WHERE ...
-        // Find which keyword position we're at by scanning tokens.
-        bool seenSelect = false;
-        bool seenFrom = false;
-        bool seenWhere = false;
-        for (std::size_t t = 2; t < tokens.size() - (endsWithSpace ? 0U : 1U); ++t)
-        {
-          if (tokens[t] == "SELECT")
-          {
-            seenSelect = true;
-          }
-          else if (tokens[t] == "FROM")
-          {
-            seenFrom = true;
-          }
-          else if (tokens[t] == "WHERE")
-          {
-            seenWhere = true;
-          }
-        }
-
-        if (seenSelect && !seenFrom && !seenWhere)
-        {
-          // After SELECT: type names + "*"
-          if (prefix.empty() || prefix[0] == '*')
-          {
-            result.candidates.push_back({"*", "any type", {}, CompletionKind::value});
-          }
-          if (types_ != nullptr)
-          {
-            auto allTypes = types_->getAll();
-            for (const auto& [name, type]: allTypes)
-            {
-              if (type->asClassType() != nullptr && startsWith(name, prefix))
-              {
-                result.candidates.push_back({name, "class", {}, CompletionKind::value});
-              }
-            }
-          }
-          // Also suggest FROM if type was already entered
-          if (startsWith("FROM", prefix))
-          {
-            result.candidates.push_back({"FROM", "", {}, CompletionKind::value});
-          }
-        }
-        else if (seenFrom && !seenWhere)
-        {
-          // After FROM: bus addresses (open + available + *) so users can query buses
-          // they haven't opened yet. Sen will open them on demand when the query runs.
-          if (prefix.empty() || prefix[0] == '*')
-          {
-            result.candidates.push_back({"*", "any bus", {}, CompletionKind::value});
-          }
-          std::set<std::string> seen;
-          for (const auto& src: openSources_)
-          {
-            if (startsWith(src, prefix) && seen.insert(src).second)
-            {
-              result.candidates.push_back({src, "open", {}, CompletionKind::value});
-            }
-          }
-          for (const auto& src: availableSources_)
-          {
-            if (startsWith(src, prefix) && seen.insert(src).second)
-            {
-              result.candidates.push_back({src, "available", {}, CompletionKind::value});
-            }
-          }
-          if (startsWith("WHERE", prefix))
-          {
-            result.candidates.push_back({"WHERE", "", {}, CompletionKind::value});
-          }
-        }
-      }
+      result.candidates = completeQueryArg(prefix, tokens, completedTokens, endsWithSpace);
     }
-    else if (cmd == "help")
+    else if (cmd == "help" && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        result.candidates = completeCommand(prefix);
-      }
+      result.candidates = completeCommand(prefix);
     }
-    else if (cmd == "theme")
+    else if (cmd == "theme" && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        const auto& enumType = *MetaTypeTrait<ThemeStyle>::meta();
-        for (const auto& e: enumType.getEnums())
-        {
-          if (startsWith(e.name, prefix))
-          {
-            result.candidates.push_back({std::string(e.name), "", {}, CompletionKind::value});
-          }
-        }
-      }
+      result.candidates = completeThemeArg(prefix);
     }
     else if (cmd == "log")
     {
       result.candidates = completeLogArg(prefix, tokens);
     }
-    else if (cmd == "inspect" || cmd == "types")
+    else if ((cmd == "inspect" || cmd == "types") && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        auto candidates = completeObjectOrCommand(prefix);
-        candidates.erase(std::remove_if(candidates.begin(),
-                                        candidates.end(),
-                                        [](const Completion& c) { return c.kind == CompletionKind::command; }),
-                         candidates.end());
-        if (types_ != nullptr)
-        {
-          auto allTypes = types_->getAll();
-          for (const auto& [name, type]: allTypes)
-          {
-            if (startsWith(name, prefix))
-            {
-              std::string kind;
-              if (type->asClassType() != nullptr)
-              {
-                kind = "class";
-              }
-              else if (type->asStructType() != nullptr)
-              {
-                kind = "struct";
-              }
-              else if (type->asEnumType() != nullptr)
-              {
-                kind = "enum";
-              }
-              else if (type->asSequenceType() != nullptr)
-              {
-                kind = "sequence";
-              }
-              else if (type->asVariantType() != nullptr)
-              {
-                kind = "variant";
-              }
-              else
-              {
-                kind = "type";
-              }
-              candidates.push_back({name, kind, {}, CompletionKind::value});
-            }
-          }
-        }
-        result.candidates = std::move(candidates);
-      }
+      result.candidates = completeInspectArg(prefix);
     }
-    else if (cmd == "units")
+    else if (cmd == "units" && firstArg)
     {
-      if (completedTokens <= 1)
-      {
-        for (auto category: allUnitCategories)
-        {
-          auto cat = std::string(Unit::getCategoryString(category));
-          if (startsWith(cat, prefix))
-          {
-            result.candidates.push_back({cat, "", {}, CompletionKind::value});
-          }
-        }
-      }
+      result.candidates = completeUnitsArg(prefix);
     }
-    else if (cmd == "listen" || cmd == "unlisten")
+    else if ((cmd == "listen" || cmd == "unlisten") && firstArg)
     {
-      if (completedTokens <= 1)
+      result.candidates = completeListenArg(prefix);
+      if (cmd == "unlisten" && startsWith("all", prefix))
       {
-        result.candidates = completeListenArg(prefix);
-        if (cmd == "unlisten" && startsWith("all", prefix))
-        {
-          result.candidates.push_back({"all", "stop all listeners", {}, CompletionKind::value});
-        }
+        result.candidates.push_back({"all", "stop all listeners", {}, CompletionKind::value});
       }
     }
   }
 
-  // Remove duplicate candidates (same text)
+  // Two strategies can offer the same text -- an object that is also a type name, for one.
+  std::set<std::string> seen;
+  auto duplicate = std::remove_if(result.candidates.begin(),
+                                  result.candidates.end(),
+                                  [&seen](const Completion& c) { return !seen.insert(c.text).second; });
+  result.candidates.erase(duplicate, result.candidates.end());
+
+  // One bound for every strategy, at the one place they all come through. Tab on an empty prefix built a
+  // candidate per object -- three strings each -- sorted them, and then the renderer re-scanned the whole
+  // list every frame for its column width although it draws about ten rows. On a bus with a hundred
+  // thousand objects that was tens of megabytes and a visible freeze on the most ordinary gesture there
+  // is. Ten rows are drawn; a few hundred candidates is already more than anyone reads.
+  constexpr std::size_t maxCandidates = 200;
+  if (result.candidates.size() > maxCandidates)
   {
-    std::set<std::string> seen;
-    auto it = std::remove_if(result.candidates.begin(),
-                             result.candidates.end(),
-                             [&seen](const Completion& c) { return !seen.insert(c.text).second; });
-    result.candidates.erase(it, result.candidates.end());
+    result.candidates.resize(maxCandidates);
+    result.truncated = true;
   }
 
   return result;
@@ -784,8 +804,15 @@ std::vector<Completion> Completer::completePropertyName(std::string_view objectN
     }
     auto typeName = std::string(prop->getType()->getName());
     auto propDesc = std::string(prop->getDescription());
-    std::string detail =
-      propDesc.empty() ? (objPrefix + std::string(propName) + " : " + typeName) : (propDesc + " (" + typeName + ")");
+    std::string detail;
+    if (propDesc.empty())
+    {
+      detail.append(objPrefix).append(propName).append(" : ").append(typeName);
+    }
+    else
+    {
+      detail.append(propDesc).append(" (").append(typeName).append(")");
+    }
     result.push_back(
       Completion {objPrefix + std::string(propName), ": " + typeName, std::move(detail), CompletionKind::value});
   }
@@ -898,10 +925,11 @@ const std::vector<Completion>& Completer::getMethodCompletions(ConstTypeHandle<C
     auto typeName = std::string(prop->getType()->getName());
 
     auto propDesc = std::string(prop->getDescription());
-    const std::string arrow = std::string(" ") + unicode::arrowRight + " ";
-    std::string getterDetail = propDesc.empty() ? ("getter for " + propName + arrow + typeName) : propDesc;
+    const std::string arrow = std::string(" ").append(unicode::arrowRight).append(" ");
+    std::string getterDetail =
+      propDesc.empty() ? std::string("getter for ").append(propName).append(arrow).append(typeName) : propDesc;
     Completion getter {std::string(prop->getGetterMethod().getName()),
-                       "get " + propName + arrow + typeName,
+                       std::string("get ").append(propName).append(arrow).append(typeName),
                        std::move(getterDetail),
                        CompletionKind::method};
     getter.argCount = 0U;  // property getters are always zero-arg
@@ -911,8 +939,8 @@ const std::vector<Completion>& Completer::getMethodCompletions(ConstTypeHandle<C
     if (category == PropertyCategory::dynamicRW)
     {
       Completion setter {std::string(prop->getSetterMethod().getName()),
-                         "set " + propName + " : " + typeName,
-                         "setter for " + propName + " : " + typeName,
+                         std::string("set ").append(propName).append(" : ").append(typeName),
+                         std::string("setter for ").append(propName).append(" : ").append(typeName),
                          CompletionKind::method};
       setter.argCount = 1U;  // property setters always take the new value
       completions.push_back(std::move(setter));
@@ -1037,6 +1065,9 @@ std::vector<Completion> Completer::completeLogArg(std::string_view prefix, Span<
 
   if (completedTokens == 2 && tokens[1] == "level")
   {
+    // Here, once, rather than on every cycle: this is the only place the list is read.
+    refreshLoggerNames();
+
     std::vector<Completion> result;
     for (auto lvl: logLevels)
     {

@@ -16,6 +16,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <ios>
+#include <iterator>
 #include <string>
 #include <string_view>
 
@@ -39,13 +41,14 @@ std::string captureStdout(Fn&& fn)
 {
   std::array<char, 64> tmpl {};
   std::strncpy(tmpl.data(), "/tmp/term_clip_test_XXXXXX", tmpl.size() - 1U);
+  // NOLINTNEXTLINE(misc-include-cleaner) POSIX; <cstdlib> need not declare it
   int fd = ::mkstemp(tmpl.data());
   if (fd < 0)
   {
     return {};
   }
   std::fflush(stdout);
-  int savedStdout = ::dup(STDOUT_FILENO);
+  int savedStdout = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 0);  // NOLINT(hicpp-vararg)
   ::dup2(fd, STDOUT_FILENO);
   ::close(fd);
 
@@ -90,6 +93,7 @@ private:
     if (v != nullptr)
     {
       slot = v;
+      // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
       ::unsetenv(name);
     }
   }
@@ -97,6 +101,7 @@ private:
   {
     if (!slot.empty())
     {
+      // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
       ::setenv(name, slot.c_str(), 1);
     }
   }
@@ -127,62 +132,50 @@ TEST(Clipboard, EmitsEscapeEvenForEmptyText)
   EXPECT_EQ(out, std::string("\x1b]52;cp;\x07", 9));
 }
 
-//--------------------------------------------------------------------------------------------------------------
-// Base64 encoding
-//--------------------------------------------------------------------------------------------------------------
+#endif  // !_WIN32
 
-std::string payloadFor(std::string_view text)
-{
-  NoDisplayEnv guard;
-  auto out = captureStdout([text] { clipboard::copy(text); });
-  // Strip the 8-byte prefix and trailing BEL.
-  if (out.size() < 9U)
-  {
-    return {};
-  }
-  return out.substr(8U, out.size() - 9U);
-}
+//--------------------------------------------------------------------------------------------------------------
+// Base64, on every platform
+//--------------------------------------------------------------------------------------------------------------
+//
+// These call the encoder directly rather than reading it out of the terminal escape. Going through the
+// escape needs stdout redirected, which is written for POSIX only, so the one piece of this module that
+// behaves identically everywhere was the piece verified on a single platform.
 
 TEST(Clipboard, Base64NoPaddingFor3ByteMultiple)
 {
-  // "abc" -> YWJj (9 * 4 / 3 = 4 chars, no '=').
-  EXPECT_EQ(payloadFor("abc"), "YWJj");
+  // "abc" -> YWJj (three bytes are four characters, no '=').
+  EXPECT_EQ(clipboard::base64Encode("abc"), "YWJj");
 }
 
-TEST(Clipboard, Base64SinglePaddingFor2Bytes)
-{
-  // "ab" -> YWI= (one '=').
-  EXPECT_EQ(payloadFor("ab"), "YWI=");
-}
+TEST(Clipboard, Base64SinglePaddingFor2Bytes) { EXPECT_EQ(clipboard::base64Encode("ab"), "YWI="); }
 
-TEST(Clipboard, Base64DoublePaddingFor1Byte)
-{
-  // "a" -> YQ== (two '=').
-  EXPECT_EQ(payloadFor("a"), "YQ==");
-}
+TEST(Clipboard, Base64DoublePaddingFor1Byte) { EXPECT_EQ(clipboard::base64Encode("a"), "YQ=="); }
+
+TEST(Clipboard, Base64EmptyInput) { EXPECT_EQ(clipboard::base64Encode(""), ""); }
 
 TEST(Clipboard, Base64HandlesNonAsciiBytes)
 {
-  // 0xFF 0xFE 0xFD -> //79 (fits the full 6-bit range).
-  EXPECT_EQ(payloadFor(std::string("\xFF\xFE\xFD", 3)), "//79");
+  // 0xFF 0xFE 0xFD -> //79, which exercises the top of the 6-bit range and both alphabet tails.
+  EXPECT_EQ(clipboard::base64Encode(std::string("\xFF\xFE\xFD", 3)), "//79");
 }
 
-TEST(Clipboard, Base64KnownValueHelloWorld) { EXPECT_EQ(payloadFor("Hello, World!"), "SGVsbG8sIFdvcmxkIQ=="); }
+TEST(Clipboard, Base64KnownValueHelloWorld)
+{
+  EXPECT_EQ(clipboard::base64Encode("Hello, World!"), "SGVsbG8sIFdvcmxkIQ==");
+}
 
 TEST(Clipboard, Base64OutputUsesOnlyAlphabetChars)
 {
-  // Pick an input with every kind of triple to exercise all groups.
-  const auto encoded = payloadFor("The quick brown fox jumps over the lazy dog");
+  const auto encoded = clipboard::base64Encode("The quick brown fox jumps over the lazy dog");
   EXPECT_FALSE(encoded.empty());
   for (char c: encoded)
   {
     const bool ok =
       (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/' || c == '=';
-    EXPECT_TRUE(ok) << "Unexpected character in base64 payload: 0x" << std::hex << int(c);
+    EXPECT_TRUE(ok) << "Unexpected character in base64 payload: 0x" << std::hex << static_cast<int>(c);
   }
 }
-
-#endif  // !_WIN32
 
 }  // namespace
 }  // namespace sen::components::term

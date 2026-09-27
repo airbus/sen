@@ -11,9 +11,11 @@
 #include "test_render_utils.h"
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 // std
+#include <cstddef>
 #include <string>
 
 namespace sen::components::term

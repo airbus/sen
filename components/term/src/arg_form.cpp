@@ -15,6 +15,9 @@
 // sen
 #include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/duration.h"
+#include "sen/core/base/numbers.h"
+#include "sen/core/base/result.h"
+#include "sen/core/base/span.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/enum_type.h"
@@ -25,6 +28,7 @@
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/meta/unit.h"
 #include "sen/core/meta/unit_registry.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/meta/variant_type.h"
@@ -34,11 +38,20 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <functional>
 #include <iomanip>
+#include <ios>
 #include <limits>
+#include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -54,6 +67,14 @@ namespace
 
 /// Sentinel returned by leaf-index lookups when no match is found.
 constexpr std::size_t noIndex = std::numeric_limits<std::size_t>::max();
+
+// How deep a type may nest before the form refuses it. Every walker over a peer's type recurses once per
+// level with no visited set, so an unbounded one ends in a stack overflow rather than a message.
+constexpr std::size_t maxTypeDepth = 64;
+
+// How many fields one sequence may hold. A fixed-size sequence larger than this is refused rather than
+// built: the form would have to build all of them to be submittable, and it rebuilds its tree every  frame.
+constexpr std::size_t maxSequenceFields = 256;
 
 /// Unwrap Alias and Optional to reach the underlying leaf type for scalar classification.
 ConstTypeHandle<> unwrapScalar(ConstTypeHandle<> type)
@@ -132,8 +153,18 @@ namespace
 {
 
 /// Recursive check: scalars always pass; composites pass iff all children do.
-bool isFormCompatible(ConstTypeHandle<> type)
+bool isFormCompatible(ConstTypeHandle<> type, std::size_t depth = 0)
 {
+  // A bound, because the type graph is not provably acyclic from here: a variant holds its payload
+  // through a shared_ptr, so `variant V { S }` with `struct S { v : V }` is representable at the value
+  // level. Whether the generator accepts such a declaration belongs to a component this code does not
+  // own, and the cap costs nothing either way -- without it the recursion ends in a stack overflow,
+  // which is a SIGSEGV in the kernel process.
+  if (depth > maxTypeDepth)
+  {
+    return false;
+  }
+
   if (isScalarType(type))
   {
     return true;
@@ -145,7 +176,7 @@ bool isFormCompatible(ConstTypeHandle<> type)
   {
     for (const auto& field: s->getAllFields())
     {
-      if (!isFormCompatible(field.type))
+      if (!isFormCompatible(field.type, depth + 1))
       {
         return false;
       }
@@ -155,8 +186,15 @@ bool isFormCompatible(ConstTypeHandle<> type)
 
   if (auto* s = t->asSequenceType(); s != nullptr)
   {
-    // Sequence: element type must be form-compatible.
-    return isFormCompatible(s->getElementType());
+    // A fixed-size sequence must be built with exactly its size, so capping what the form builds would
+    // make it unsubmittable. `array<f32, 4096>` is an ordinary declaration for a spectrum or a sensor
+    // frame, and it meant 4,096 fields and about 25,000 elements constructed and destroyed every frame.
+    // Refusing the form is the honest answer: the value can still be passed as a literal argument.
+    if (auto fixed = s->getMaxSize(); s->hasFixedSize() && fixed.has_value() && *fixed > maxSequenceFields)
+    {
+      return false;
+    }
+    return isFormCompatible(s->getElementType(), depth + 1);
   }
 
   if (auto* v = t->asVariantType(); v != nullptr)
@@ -164,7 +202,7 @@ bool isFormCompatible(ConstTypeHandle<> type)
     // Variant: every alternative must be form-compatible.
     for (const auto& field: v->getFields())
     {
-      if (!isFormCompatible(field.type))
+      if (!isFormCompatible(field.type, depth + 1))
       {
         return false;
       }
@@ -221,7 +259,7 @@ std::string defaultTextFor(ConstTypeHandle<> type)
   {
     if (!e->getEnums().empty())
     {
-      return std::string(e->getEnums()[0].name);
+      return e->getEnums()[0].name;
     }
     return {};
   }
@@ -236,6 +274,124 @@ std::string defaultTextFor(ConstTypeHandle<> type)
 //--------------------------------------------------------------------------------------------------------------
 // Inline formatting
 //--------------------------------------------------------------------------------------------------------------
+
+/// `{"field": value, ...}` for a struct, skipping fields the value does not carry.
+[[nodiscard]] std::string formatInlineStruct(const Var& value, const StructType& structType)
+{
+  const auto* map = value.getIf<VarMap>();
+  if (map == nullptr)
+  {
+    return "{}";
+  }
+  std::string out = "{";
+  bool first = true;
+  for (const auto& field: structType.getAllFields())
+  {
+    auto it = map->find(field.name);
+    if (it == map->end())
+    {
+      continue;
+    }
+    if (!first)
+    {
+      out += ", ";
+    }
+    first = false;
+    out += quoteString(field.name);
+    out += ": ";
+    out += formatInlineArg(it->second, field.type);
+  }
+  out += "}";
+  return out;
+}
+
+/// `[a, b, c]` for a sequence.
+[[nodiscard]] std::string formatInlineSequence(const Var& value, const SequenceType& seqType)
+{
+  const auto* list = value.getIf<VarList>();
+  if (list == nullptr)
+  {
+    return "[]";
+  }
+  const auto elemType = seqType.getElementType();
+  std::string out = "[";
+  for (std::size_t i = 0; i < list->size(); ++i)
+  {
+    if (i > 0)
+    {
+      out += ", ";
+    }
+    out += formatInlineArg((*list)[i], elemType);
+  }
+  out += "]";
+  return out;
+}
+
+/// `{"type": name, "value": v}` for a variant, which may arrive as a KeyedVar or a raw VarMap.
+[[nodiscard]] std::string formatInlineVariant(const Var& value, const VariantType& variantType)
+{
+  // Variant may be KeyedVar (adapted) or raw VarMap; render both uniformly.
+  std::string typeName;
+  const Var* inner = nullptr;
+
+  if (auto* kv = value.getIf<KeyedVar>(); kv != nullptr)
+  {
+    auto [idx, innerPtr] = *kv;
+    const auto fields = variantType.getFields();
+    if (idx < fields.size())
+    {
+      typeName = std::string(fields[idx].type->getName());
+    }
+    if (innerPtr)
+    {
+      inner = innerPtr.get();
+    }
+  }
+  else if (auto* vm = value.getIf<VarMap>(); vm != nullptr)
+  {
+    if (auto it = vm->find("type"); it != vm->end())
+    {
+      if (auto* s = it->second.getIf<std::string>(); s != nullptr)
+      {
+        typeName = *s;
+      }
+    }
+    if (auto it = vm->find("value"); it != vm->end())
+    {
+      inner = &it->second;
+    }
+  }
+
+  if (typeName.empty())
+  {
+    return "null";
+  }
+
+  // Find the inner type for correct value formatting.
+  MaybeConstTypeHandle<> innerType = {};
+  for (const auto& field: variantType.getFields())
+  {
+    if (field.type->getName() == typeName)
+    {
+      innerType = field.type;
+      break;
+    }
+  }
+
+  std::string out = "{";
+  out += quoteString("type");
+  out += ": ";
+  out += quoteString(typeName);
+  if (inner != nullptr && innerType.has_value())
+  {
+    out += ", ";
+    out += quoteString("value");
+    out += ": ";
+    out += formatInlineArg(*inner, innerType.value());
+  }
+  out += "}";
+  return out;
+}
 
 std::string formatInlineArg(const Var& value, ConstTypeHandle<> type)
 {
@@ -253,117 +409,17 @@ std::string formatInlineArg(const Var& value, ConstTypeHandle<> type)
   }
   if (auto* structType = ct->asStructType(); structType != nullptr)
   {
-    const auto* map = value.getIf<VarMap>();
-    if (map == nullptr)
-    {
-      return "{}";
-    }
-    std::string out = "{";
-    bool first = true;
-    for (const auto& field: structType->getAllFields())
-    {
-      auto it = map->find(field.name);
-      if (it == map->end())
-      {
-        continue;
-      }
-      if (!first)
-      {
-        out += ", ";
-      }
-      first = false;
-      out += quoteString(field.name);
-      out += ": ";
-      out += formatInlineArg(it->second, field.type);
-    }
-    out += "}";
-    return out;
+    return formatInlineStruct(value, *structType);
   }
 
   if (auto* seqType = ct->asSequenceType(); seqType != nullptr)
   {
-    const auto* list = value.getIf<VarList>();
-    if (list == nullptr)
-    {
-      return "[]";
-    }
-    const auto elemType = seqType->getElementType();
-    std::string out = "[";
-    for (std::size_t i = 0; i < list->size(); ++i)
-    {
-      if (i > 0)
-      {
-        out += ", ";
-      }
-      out += formatInlineArg((*list)[i], elemType);
-    }
-    out += "]";
-    return out;
+    return formatInlineSequence(value, *seqType);
   }
 
   if (auto* variantType = ct->asVariantType(); variantType != nullptr)
   {
-    // Variant may be KeyedVar (adapted) or raw VarMap; render both uniformly.
-    std::string typeName;
-    const Var* inner = nullptr;
-
-    if (auto* kv = value.getIf<KeyedVar>(); kv != nullptr)
-    {
-      auto [idx, innerPtr] = *kv;
-      const auto fields = variantType->getFields();
-      if (idx < fields.size())
-      {
-        typeName = std::string(fields[idx].type->getName());
-      }
-      if (innerPtr)
-      {
-        inner = innerPtr.get();
-      }
-    }
-    else if (auto* vm = value.getIf<VarMap>(); vm != nullptr)
-    {
-      if (auto it = vm->find("type"); it != vm->end())
-      {
-        if (auto* s = it->second.getIf<std::string>(); s != nullptr)
-        {
-          typeName = *s;
-        }
-      }
-      if (auto it = vm->find("value"); it != vm->end())
-      {
-        inner = &it->second;
-      }
-    }
-
-    if (typeName.empty())
-    {
-      return "null";
-    }
-
-    // Find the inner type for correct value formatting.
-    MaybeConstTypeHandle<> innerType = {};
-    for (const auto& field: variantType->getFields())
-    {
-      if (field.type->getName() == typeName)
-      {
-        innerType = field.type;
-        break;
-      }
-    }
-
-    std::string out = "{";
-    out += quoteString("type");
-    out += ": ";
-    out += quoteString(typeName);
-    if (inner != nullptr && innerType.has_value())
-    {
-      out += ", ";
-      out += quoteString("value");
-      out += ": ";
-      out += formatInlineArg(*inner, innerType.value());
-    }
-    out += "}";
-    return out;
+    return formatInlineVariant(value, *variantType);
   }
 
   const auto leaf = unwrapScalar(type);
@@ -648,11 +704,7 @@ bool isAcceptableChar(char c, MaybeConstTypeHandle<> type, std::string_view curr
       return true;
     }
     // Leading minus for signed types only.
-    if (c == '-' && i->isSigned() && current.empty())
-    {
-      return true;
-    }
-    return false;
+    return c == '-' && i->isSigned() && current.empty();
   }
 
   if (isFloatLikeType(leaf))
@@ -847,6 +899,237 @@ EditorKind classifyEditor(ConstTypeHandle<> type)
 
 }  // namespace
 
+/// One branch of buildField, lifted out so the dispatch stays readable.
+bool ArgForm::buildStructField(ArgFormField& f, const Var* prefill, const StructType& structType)
+{
+  f.kind = FieldKind::structGroup;
+  // Reserve to keep child pointers stable.
+  const auto allFields = structType.getAllFields();
+  f.children.reserve(allFields.size());
+
+  const VarMap* prefillMap = (prefill != nullptr) ? prefill->getIf<VarMap>() : nullptr;
+
+  for (const auto& sf: allFields)
+  {
+    const Var* childPrefill = nullptr;
+    if (prefillMap != nullptr)
+    {
+      auto it = prefillMap->find(sf.name);
+      if (it != prefillMap->end())
+      {
+        childPrefill = &it->second;
+      }
+    }
+    f.children.push_back(buildField(sf.name, sf.description, sf.type, childPrefill));
+  }
+  return true;
+}
+
+/// One branch of buildField, lifted out so the dispatch stays readable.
+bool ArgForm::buildSequenceField(ArgFormField& f, const Var* prefill, const SequenceType& seqType)
+{
+  f.kind = FieldKind::sequenceGroup;
+  // Sequence: fixed-size arrays get N default elements; dynamic sequences start empty or from prefill.
+  auto elemType = seqType.getElementType();
+
+  const VarList* prefillList = (prefill != nullptr) ? prefill->getIf<VarList>() : nullptr;
+  std::size_t initialCount = (prefillList != nullptr) ? prefillList->size() : 0U;
+  if (prefillList == nullptr && seqType.hasFixedSize())
+  {
+    // Fixed-size array: must start with exactly N elements.
+    initialCount = seqType.getMaxSize().value_or(0U);
+  }
+
+  // Belt as well as braces: isFormCompatible refuses a fixed size past this, so reaching it here means a
+  // prefilled value arrived longer than the form is willing to lay out every frame.
+  initialCount = std::min(initialCount, maxSequenceFields);
+  f.children.reserve(initialCount);
+
+  for (std::size_t i = 0; i < initialCount; ++i)
+  {
+    const Var* elemPrefill = (prefillList != nullptr && i < prefillList->size()) ? &(*prefillList)[i] : nullptr;
+    f.children.push_back(buildField("[" + std::to_string(i) + "]", "", elemType, elemPrefill));
+  }
+  return true;
+}
+
+/// One branch of buildField, lifted out so the dispatch stays readable.
+bool ArgForm::buildOptionalField(ArgFormField& f, const Var* prefill, const OptionalType& optType)
+{
+  // All optionals route through optionalGroup for explicit "(none)" state and Ctrl+O toggle.
+  f.kind = FieldKind::optionalGroup;
+  const bool hasValue = (prefill != nullptr) && !prefill->holds<std::monostate>();
+  f.optionalIsEmpty = !hasValue;
+
+  f.children.reserve(1);
+  if (hasValue)
+  {
+    f.children.push_back(buildField("value", "", optType.getType(), prefill));
+  }
+  return true;
+}
+
+/// One branch of buildField, lifted out so the dispatch stays readable.
+bool ArgForm::buildQuantityField(ArgFormField& f, ConstTypeHandle<> type, ConstTypeHandle<> t, const Var* prefill)
+{
+  auto quantityType = dynamicTypeHandleCast<const QuantityType>(t).value();
+
+  // Duration/TimeStamp need string-with-unit dispatch, not the generic f64 quantityGroup path.
+  // A bare f64 would make getCopyAs<Duration>() throw at call time.
+  if (!t->isDurationType() && !t->isTimestampType())
+  {
+    const auto canonicalUnit = quantityType->getUnit();
+    const auto elementType = quantityType->getElementType();
+
+    // Quantity range hints for spinIntegerLeaf clamping. Extreme float bounds (e.g. FLT_MAX)
+    // are clamped silently to int64 limits via ReportPolicyIgnore.
+    std::optional<int64_t> quantityMinInt;
+    std::optional<int64_t> quantityMaxInt;
+    if (auto mn = quantityType->getMinValue(); mn.has_value())
+    {
+      quantityMinInt = checkedConversion<int64_t, sen::std_util::ReportPolicyIgnore>(*mn);
+    }
+    if (auto mx = quantityType->getMaxValue(); mx.has_value())
+    {
+      quantityMaxInt = checkedConversion<int64_t, sen::std_util::ReportPolicyIgnore>(*mx);
+    }
+
+    if (!canonicalUnit.has_value())
+    {
+      // Unit-less quantity -> plain scalar leaf with the storage element type.
+      f.kind = FieldKind::scalar;
+      f.editor = classifyEditor(elementType);
+      f.quantityMinInt = quantityMinInt;
+      f.quantityMaxInt = quantityMaxInt;
+      if (prefill != nullptr)
+      {
+        f.text = formatInlineArg(*prefill, type);
+        f.userEdited = true;
+      }
+      else
+      {
+        f.text = defaultTextFor(elementType);
+        f.userEdited = false;
+      }
+      return true;
+    }
+
+    // With-unit quantity -> value leaf + unit-selector leaf.
+    f.kind = FieldKind::quantityGroup;
+    f.children.reserve(2);
+
+    ArgFormField valueLeaf;
+    valueLeaf.name = "value";
+    valueLeaf.typeName = std::string(elementType->getName());
+    valueLeaf.type = elementType;
+    valueLeaf.kind = FieldKind::scalar;
+    valueLeaf.editor = classifyEditor(elementType);
+    valueLeaf.quantityMinInt = quantityMinInt;
+    valueLeaf.quantityMaxInt = quantityMaxInt;
+    if (prefill != nullptr)
+    {
+      valueLeaf.text = formatInlineArg(*prefill, elementType);
+      valueLeaf.userEdited = true;
+    }
+    else
+    {
+      valueLeaf.text = defaultTextFor(elementType);
+      valueLeaf.userEdited = false;
+    }
+    f.children.push_back(std::move(valueLeaf));
+
+    ArgFormField unitLeaf;
+    unitLeaf.name = "unit";
+    unitLeaf.typeName = std::string(Unit::getCategoryString((*canonicalUnit)->getCategory()));
+    // Unit leaf carries the QuantityType so cycleUnitField can access the category.
+    unitLeaf.type = quantityType;
+    unitLeaf.kind = FieldKind::scalar;
+    unitLeaf.editor = EditorKind::unitSelector;
+    unitLeaf.text = std::string((*canonicalUnit)->getAbbreviation());
+    unitLeaf.userEdited = true;
+    f.children.push_back(std::move(unitLeaf));
+
+    return true;
+  }  // Duration/TimeStamp fall through to scalar branch below.
+  // Duration and TimeStamp fall through to the scalar editor: a bare f64 would make
+  // getCopyAs<Duration>() throw at call time.
+  return false;
+}
+
+/// One branch of buildField, lifted out so the dispatch stays readable.
+bool ArgForm::buildVariantField(ArgFormField& f, ConstTypeHandle<> t, const Var* prefill)
+{
+  auto variantType = dynamicTypeHandleCast<const VariantType>(t).value();
+
+  f.kind = FieldKind::variantGroup;
+  const auto variantFields = variantType->getFields();
+  if (variantFields.empty())
+  {
+    return true;  // Pathological: no alternatives.
+  }
+
+  // Determine starting alternative from prefill (KeyedVar or raw VarMap).
+  std::size_t selectedIdx = 0;
+  const Var* innerPrefill = nullptr;
+  if (prefill != nullptr)
+  {
+    if (auto* kv = prefill->getIf<KeyedVar>(); kv != nullptr)
+    {
+      auto [idx, innerPtr] = *kv;
+      if (idx < variantFields.size())
+      {
+        selectedIdx = idx;
+      }
+      if (innerPtr)
+      {
+        innerPrefill = innerPtr.get();
+      }
+    }
+    else if (auto* vm = prefill->getIf<VarMap>(); vm != nullptr)
+    {
+      if (auto it = vm->find("type"); it != vm->end())
+      {
+        if (auto* s = it->second.getIf<std::string>(); s != nullptr)
+        {
+          for (std::size_t i = 0; i < variantFields.size(); ++i)
+          {
+            if (variantFields[i].type->getName() == *s)
+            {
+              selectedIdx = i;
+              break;
+            }
+          }
+        }
+      }
+      if (auto it = vm->find("value"); it != vm->end())
+      {
+        innerPrefill = &it->second;
+      }
+    }
+  }
+
+  f.children.reserve(2);
+
+  // Child[0]: type-selector leaf.
+  ArgFormField typeLeaf;
+  typeLeaf.name = "type";
+  typeLeaf.typeName = std::string(variantType->getName());
+  typeLeaf.description = "variant type selector";
+  typeLeaf.type = variantType;
+  typeLeaf.kind = FieldKind::scalar;
+  typeLeaf.editor = EditorKind::variantType;
+  typeLeaf.text = std::string(variantFields[selectedIdx].type->getName());
+  typeLeaf.userEdited = (prefill != nullptr);
+  f.children.push_back(std::move(typeLeaf));
+
+  // Child[1]: value subtree for the selected alternative.
+  f.children.push_back(buildField(
+    "value", std::string(variantFields[selectedIdx].description), variantFields[selectedIdx].type, innerPrefill));
+
+  f.selectedVariantIndex = selectedIdx;
+  return true;
+}
+
 ArgFormField ArgForm::buildField(std::string name, std::string description, ConstTypeHandle<> type, const Var* prefill)
 {
   ArgFormField f;
@@ -864,220 +1147,30 @@ ArgFormField ArgForm::buildField(std::string name, std::string description, Cons
 
   if (auto* structType = t->asStructType(); structType != nullptr)
   {
-    f.kind = FieldKind::structGroup;
-    // Reserve to keep child pointers stable.
-    const auto allFields = structType->getAllFields();
-    f.children.reserve(allFields.size());
-
-    const VarMap* prefillMap = (prefill != nullptr) ? prefill->getIf<VarMap>() : nullptr;
-
-    for (const auto& sf: allFields)
-    {
-      const Var* childPrefill = nullptr;
-      if (prefillMap != nullptr)
-      {
-        auto it = prefillMap->find(sf.name);
-        if (it != prefillMap->end())
-        {
-          childPrefill = &it->second;
-        }
-      }
-      f.children.push_back(buildField(sf.name, sf.description, sf.type, childPrefill));
-    }
+    std::ignore = buildStructField(f, prefill, *structType);
     return f;
   }
 
   if (auto* seqType = t->asSequenceType(); seqType != nullptr)
   {
-    f.kind = FieldKind::sequenceGroup;
-    // Sequence: fixed-size arrays get N default elements; dynamic sequences start empty or from prefill.
-    auto elemType = seqType->getElementType();
-
-    const VarList* prefillList = (prefill != nullptr) ? prefill->getIf<VarList>() : nullptr;
-    std::size_t initialCount = (prefillList != nullptr) ? prefillList->size() : 0U;
-    if (prefillList == nullptr && seqType->hasFixedSize())
-    {
-      // Fixed-size array: must start with exactly N elements.
-      initialCount = seqType->getMaxSize().value_or(0U);
-    }
-    f.children.reserve(initialCount);
-
-    for (std::size_t i = 0; i < initialCount; ++i)
-    {
-      const Var* elemPrefill = (prefillList != nullptr && i < prefillList->size()) ? &(*prefillList)[i] : nullptr;
-      f.children.push_back(buildField("[" + std::to_string(i) + "]", "", elemType, elemPrefill));
-    }
+    std::ignore = buildSequenceField(f, prefill, *seqType);
     return f;
   }
 
   if (auto* optType = t->asOptionalType(); optType != nullptr)
   {
-    // All optionals route through optionalGroup for explicit "(none)" state and Ctrl+O toggle.
-    f.kind = FieldKind::optionalGroup;
-    const bool hasValue = (prefill != nullptr) && !prefill->holds<std::monostate>();
-    f.optionalIsEmpty = !hasValue;
-
-    f.children.reserve(1);
-    if (hasValue)
-    {
-      f.children.push_back(buildField("value", "", optType->getType(), prefill));
-    }
+    std::ignore = buildOptionalField(f, prefill, *optType);
     return f;
   }
 
-  if (t->isQuantityType())
+  if (t->isQuantityType() && buildQuantityField(f, type, t, prefill))
   {
-    auto quantityType = dynamicTypeHandleCast<const QuantityType>(t).value();
-
-    // Duration/TimeStamp need string-with-unit dispatch, not the generic f64 quantityGroup path.
-    // A bare f64 would make getCopyAs<Duration>() throw at call time.
-    if (!t->isDurationType() && !t->isTimestampType())
-    {
-      const auto canonicalUnit = quantityType->getUnit();
-      const auto elementType = quantityType->getElementType();
-
-      // Quantity range hints for spinIntegerLeaf clamping. Extreme float bounds (e.g. FLT_MAX)
-      // are clamped silently to int64 limits via ReportPolicyIgnore.
-      std::optional<int64_t> quantityMinInt;
-      std::optional<int64_t> quantityMaxInt;
-      if (auto mn = quantityType->getMinValue(); mn.has_value())
-      {
-        quantityMinInt = checkedConversion<int64_t, sen::std_util::ReportPolicyIgnore>(*mn);
-      }
-      if (auto mx = quantityType->getMaxValue(); mx.has_value())
-      {
-        quantityMaxInt = checkedConversion<int64_t, sen::std_util::ReportPolicyIgnore>(*mx);
-      }
-
-      if (!canonicalUnit.has_value())
-      {
-        // Unit-less quantity -> plain scalar leaf with the storage element type.
-        f.kind = FieldKind::scalar;
-        f.editor = classifyEditor(elementType);
-        f.quantityMinInt = quantityMinInt;
-        f.quantityMaxInt = quantityMaxInt;
-        if (prefill != nullptr)
-        {
-          f.text = formatInlineArg(*prefill, type);
-          f.userEdited = true;
-        }
-        else
-        {
-          f.text = defaultTextFor(elementType);
-          f.userEdited = false;
-        }
-        return f;
-      }
-
-      // With-unit quantity -> value leaf + unit-selector leaf.
-      f.kind = FieldKind::quantityGroup;
-      f.children.reserve(2);
-
-      ArgFormField valueLeaf;
-      valueLeaf.name = "value";
-      valueLeaf.typeName = std::string(elementType->getName());
-      valueLeaf.type = elementType;
-      valueLeaf.kind = FieldKind::scalar;
-      valueLeaf.editor = classifyEditor(elementType);
-      valueLeaf.quantityMinInt = quantityMinInt;
-      valueLeaf.quantityMaxInt = quantityMaxInt;
-      if (prefill != nullptr)
-      {
-        valueLeaf.text = formatInlineArg(*prefill, elementType);
-        valueLeaf.userEdited = true;
-      }
-      else
-      {
-        valueLeaf.text = defaultTextFor(elementType);
-        valueLeaf.userEdited = false;
-      }
-      f.children.push_back(std::move(valueLeaf));
-
-      ArgFormField unitLeaf;
-      unitLeaf.name = "unit";
-      unitLeaf.typeName = std::string(Unit::getCategoryString((*canonicalUnit)->getCategory()));
-      // Unit leaf carries the QuantityType so cycleUnitField can access the category.
-      unitLeaf.type = quantityType;
-      unitLeaf.kind = FieldKind::scalar;
-      unitLeaf.editor = EditorKind::unitSelector;
-      unitLeaf.text = std::string((*canonicalUnit)->getAbbreviation());
-      unitLeaf.userEdited = true;
-      f.children.push_back(std::move(unitLeaf));
-
-      return f;
-    }  // Duration/TimeStamp fall through to scalar branch below.
+    return f;
   }
 
   if (t->isVariantType())
   {
-    auto variantType = dynamicTypeHandleCast<const VariantType>(t).value();
-
-    f.kind = FieldKind::variantGroup;
-    const auto variantFields = variantType->getFields();
-    if (variantFields.empty())
-    {
-      return f;  // Pathological: no alternatives.
-    }
-
-    // Determine starting alternative from prefill (KeyedVar or raw VarMap).
-    std::size_t selectedIdx = 0;
-    const Var* innerPrefill = nullptr;
-    if (prefill != nullptr)
-    {
-      if (auto* kv = prefill->getIf<KeyedVar>(); kv != nullptr)
-      {
-        auto [idx, innerPtr] = *kv;
-        if (idx < variantFields.size())
-        {
-          selectedIdx = idx;
-        }
-        if (innerPtr)
-        {
-          innerPrefill = innerPtr.get();
-        }
-      }
-      else if (auto* vm = prefill->getIf<VarMap>(); vm != nullptr)
-      {
-        if (auto it = vm->find("type"); it != vm->end())
-        {
-          if (auto* s = it->second.getIf<std::string>(); s != nullptr)
-          {
-            for (std::size_t i = 0; i < variantFields.size(); ++i)
-            {
-              if (variantFields[i].type->getName() == *s)
-              {
-                selectedIdx = i;
-                break;
-              }
-            }
-          }
-        }
-        if (auto it = vm->find("value"); it != vm->end())
-        {
-          innerPrefill = &it->second;
-        }
-      }
-    }
-
-    f.children.reserve(2);
-
-    // Child[0]: type-selector leaf.
-    ArgFormField typeLeaf;
-    typeLeaf.name = "type";
-    typeLeaf.typeName = std::string(variantType->getName());
-    typeLeaf.description = "variant type selector";
-    typeLeaf.type = variantType;
-    typeLeaf.kind = FieldKind::scalar;
-    typeLeaf.editor = EditorKind::variantType;
-    typeLeaf.text = std::string(variantFields[selectedIdx].type->getName());
-    typeLeaf.userEdited = (prefill != nullptr);
-    f.children.push_back(std::move(typeLeaf));
-
-    // Child[1]: value subtree for the selected alternative.
-    f.children.push_back(buildField(
-      "value", std::string(variantFields[selectedIdx].description), variantFields[selectedIdx].type, innerPrefill));
-
-    f.selectedVariantIndex = selectedIdx;
+    std::ignore = buildVariantField(f, t, prefill);
     return f;
   }
 
@@ -1202,7 +1295,7 @@ namespace
 /// Pre-order walk: collect leaf pointers.
 void collectLeaves(ArgFormField& field, std::vector<ArgFormField*>& out)
 {
-  if (field.isLeaf())
+  if (isLeaf(field))
   {
     out.push_back(&field);
     return;
@@ -1313,23 +1406,24 @@ bool ArgForm::insertText(std::string_view s)
   if (leaf.text.size() + s.size() > maxLineBytes)
   {
     leaf.validationError = "too long: the field holds " + std::to_string(maxLineBytes) + " bytes";
+    leaf.insertRefused = true;
     return false;
   }
-  // Clear placeholder on first keystroke so "0" + typing "5" yields "5", not "05".
+  // Filter first, then clear the placeholder: clearing it before the filter left the field blank with no
+  // error when every character was rejected -- a user who typed a comma into a float field watched the 0
+  // they were shown disappear and then heard "value required" about it.
+  const auto filtered = filterAcceptableChars(s, leaf.type, leaf.userEdited ? leaf.text : std::string {});
+  if (filtered.empty() && !s.empty())
+  {
+    return true;
+  }
   if (!leaf.userEdited)
   {
     leaf.text.clear();
   }
-  // Per-keystroke type filter.
-  const auto filtered = filterAcceptableChars(s, leaf.type, leaf.text);
-  if (filtered.empty() && !s.empty())
-  {
-    // All chars filtered; mark touched but don't change buffer.
-    leaf.userEdited = true;
-    return true;
-  }
   leaf.text += filtered;
   leaf.userEdited = true;
+  leaf.insertRefused = false;
   std::ignore = revalidateLeaf(leaf);
   return true;
 }
@@ -1351,6 +1445,7 @@ void ArgForm::backspace()
     eraseLastCodepoint(leaf.text);
   }
   leaf.userEdited = true;
+  leaf.insertRefused = false;
   std::ignore = revalidateLeaf(leaf);
 }
 
@@ -1363,6 +1458,7 @@ void ArgForm::clearField()
   auto& leaf = *leaves_[focused_];
   leaf.text.clear();
   leaf.userEdited = true;
+  leaf.insertRefused = false;
   std::ignore = revalidateLeaf(leaf);
 }
 
@@ -1567,7 +1663,7 @@ std::size_t firstLeafOf(const std::vector<ArgFormField*>& leaves, const ArgFormF
     {
       return;
     }
-    if (f.isLeaf())
+    if (isLeaf(f))
     {
       firstLeaf = &f;
       return;
@@ -1630,6 +1726,15 @@ void ArgForm::addElementToFocusedSequence()
   }
   if (auto maxSize = seqType->getMaxSize(); maxSize.has_value() && seq->children.size() >= *maxSize)
   {
+    return;
+  }
+
+  // An unbounded sequence has no maximum of its own, so held Ctrl+N grew the form without limit, each
+  // press paying a full rebuildLeafCache().
+  if (seq->children.size() >= maxSequenceFields)
+  {
+    seq->insertRefused = true;
+    seq->validationError = "this list is limited to " + std::to_string(maxSequenceFields) + " entries in the form";
     return;
   }
 
@@ -1815,11 +1920,15 @@ void ArgForm::removeFocusedSequenceElement()
   focused_ = leaves_.empty() ? 0 : newFocus;
 }
 
+std::vector<ArgFormField>& ArgForm::mutableFields() const
+{
+  return const_cast<std::vector<ArgFormField>&>(fields_);  // NOLINT(cppcoreguidelines-pro-type-const-cast)
+}
+
 bool ArgForm::focusedIsInsideSequence() const noexcept
 {
   // Mirrors addElementToFocusedSequence dispatch: ancestor or empty top-level sequence.
-  auto& mutableFields = const_cast<std::vector<ArgFormField>&>(fields_);
-  if (!leaves_.empty() && findNearestSequenceAncestor(mutableFields, leaves_[focused_]) != nullptr)
+  if (!leaves_.empty() && findNearestSequenceAncestor(mutableFields(), leaves_[focused_]) != nullptr)
   {
     return true;
   }
@@ -1836,15 +1945,14 @@ bool ArgForm::focusedIsInsideSequence() const noexcept
 bool ArgForm::focusedCanAddElement() const noexcept
 {
   // Same dispatch as addElementToFocusedSequence.
-  auto& mutableFields = const_cast<std::vector<ArgFormField>&>(fields_);
   ArgFormField* seq = nullptr;
   if (!leaves_.empty())
   {
-    seq = findNearestSequenceAncestor(mutableFields, leaves_[focused_]);
+    seq = findNearestSequenceAncestor(mutableFields(), leaves_[focused_]);
   }
   if (seq == nullptr)
   {
-    for (auto& f: mutableFields)
+    for (auto& f: mutableFields())
     {
       if (isSequenceTypeField(f) && f.children.empty())
       {
@@ -1879,8 +1987,7 @@ bool ArgForm::focusedCanRemoveElement() const noexcept
   {
     return false;
   }
-  auto& mutableFields = const_cast<std::vector<ArgFormField>&>(fields_);
-  ArgFormField* seq = findNearestSequenceAncestor(mutableFields, leaves_[focused_]);
+  ArgFormField* seq = findNearestSequenceAncestor(mutableFields(), leaves_[focused_]);
   if (seq == nullptr || !seq->type.has_value())
   {
     return false;
@@ -1896,8 +2003,7 @@ bool ArgForm::focusedCanRemoveElement() const noexcept
 bool ArgForm::focusedIsInsideOptional() const noexcept
 {
   // Mirrors focusedIsInsideSequence logic but for optionalGroup.
-  auto& mutableFields = const_cast<std::vector<ArgFormField>&>(fields_);
-  if (!leaves_.empty() && findNearestOptionalAncestor(mutableFields, leaves_[focused_]) != nullptr)
+  if (!leaves_.empty() && findNearestOptionalAncestor(mutableFields(), leaves_[focused_]) != nullptr)
   {
     return true;
   }
@@ -1911,9 +2017,92 @@ bool ArgForm::focusedIsInsideOptional() const noexcept
   return false;
 }
 
+/// The quantity branch of assembleValue: convert the user's value from the unit they chose to the
+/// canonical one and emit it as an f64.
+std::optional<Var> ArgForm::assembleQuantity(ArgFormField& f, std::size_t& failIdx)
+{
+  // Convert user's value from selected unit to canonical unit, emit as f64.
+  if (f.children.size() < 2)
+  {
+    return std::nullopt;
+  }
+  auto& valueLeaf = f.children[0];
+  auto& unitLeaf = f.children[1];
+
+  auto parsedValue = revalidateLeaf(valueLeaf);
+  if (!parsedValue.has_value())
+  {
+    for (std::size_t i = 0; i < leaves_.size(); ++i)
+    {
+      if (leaves_[i] == &valueLeaf)
+      {
+        failIdx = i;
+        break;
+      }
+    }
+    return std::nullopt;
+  }
+
+  const auto* quantityType = (f.type.has_value()) ? f.type.value()->asQuantityType() : nullptr;
+  if (quantityType == nullptr)
+  {
+    return std::nullopt;
+  }
+  const auto canonicalUnit = quantityType->getUnit();
+  if (!canonicalUnit.has_value())
+  {
+    return parsedValue;  // Unit-less quantities don't build a quantityGroup.
+  }
+
+  const auto selected = UnitRegistry::get().searchUnitByAbbreviation(unitLeaf.text);
+  if (!selected.has_value())
+  {
+    unitLeaf.validationError = "unknown unit: " + unitLeaf.text;
+    for (std::size_t i = 0; i < leaves_.size(); ++i)
+    {
+      if (leaves_[i] == &unitLeaf)
+      {
+        failIdx = i;
+        break;
+      }
+    }
+    return std::nullopt;
+  }
+  unitLeaf.validationError.clear();
+
+  const auto userValue = parsedValue->getCopyAs<float64_t>();
+  const auto canonicalValue = Unit::convert(**selected, **canonicalUnit, userValue);
+  return Var(canonicalValue);
+}
+
+/// The variant branch of assembleValue: the selected alternative, tagged with its type name.
+std::optional<Var> ArgForm::assembleVariant(ArgFormField& f, std::size_t& failIdx, const VariantType& variantType)
+{
+  // Build {"type": "...", "value": ...}; adaptVariant turns this into a KeyedVar.
+  if (f.children.size() < 2)
+  {
+    return std::nullopt;
+  }
+  auto& valueChild = f.children[1];
+  auto innerVar = assembleValue(valueChild, failIdx);
+  if (!innerVar.has_value())
+  {
+    return std::nullopt;
+  }
+  const auto fields = variantType.getFields();
+  if (f.selectedVariantIndex >= fields.size())
+  {
+    return std::nullopt;
+  }
+  VarMap map;
+  map.try_emplace("type", std::string(fields[f.selectedVariantIndex].type->getName()));
+  map.try_emplace("value", std::move(*innerVar));
+  return Var(std::move(map));
+}
+
 std::optional<Var> ArgForm::assembleValue(ArgFormField& f, std::size_t& failIdx)
 {
-  if (f.isLeaf())
+  if (isLeaf(f))
   {
     auto parsed = revalidateLeaf(f);
     if (!parsed.has_value())
@@ -1962,82 +2151,12 @@ std::optional<Var> ArgForm::assembleValue(ArgFormField& f, std::size_t& failIdx)
 
   if (f.kind == FieldKind::quantityGroup)
   {
-    // Convert user's value from selected unit to canonical unit, emit as f64.
-    if (f.children.size() < 2)
-    {
-      return std::nullopt;
-    }
-    auto& valueLeaf = f.children[0];
-    auto& unitLeaf = f.children[1];
-
-    auto parsedValue = revalidateLeaf(valueLeaf);
-    if (!parsedValue.has_value())
-    {
-      for (std::size_t i = 0; i < leaves_.size(); ++i)
-      {
-        if (leaves_[i] == &valueLeaf)
-        {
-          failIdx = i;
-          break;
-        }
-      }
-      return std::nullopt;
-    }
-
-    const auto* quantityType = (f.type.has_value()) ? f.type.value()->asQuantityType() : nullptr;
-    if (quantityType == nullptr)
-    {
-      return std::nullopt;
-    }
-    const auto canonicalUnit = quantityType->getUnit();
-    if (!canonicalUnit.has_value())
-    {
-      return parsedValue;  // Unit-less quantities don't build a quantityGroup.
-    }
-
-    const auto selected = UnitRegistry::get().searchUnitByAbbreviation(unitLeaf.text);
-    if (!selected.has_value())
-    {
-      unitLeaf.validationError = "unknown unit: " + unitLeaf.text;
-      for (std::size_t i = 0; i < leaves_.size(); ++i)
-      {
-        if (leaves_[i] == &unitLeaf)
-        {
-          failIdx = i;
-          break;
-        }
-      }
-      return std::nullopt;
-    }
-    unitLeaf.validationError.clear();
-
-    const auto userValue = parsedValue->getCopyAs<float64_t>();
-    const auto canonicalValue = Unit::convert(**selected, **canonicalUnit, userValue);
-    return Var(canonicalValue);
+    return assembleQuantity(f, failIdx);
   }
 
   if (const auto* variantType = t->asVariantType(); variantType != nullptr)
   {
-    // Build {"type": "...", "value": ...}; adaptVariant turns this into a KeyedVar.
-    if (f.children.size() < 2)
-    {
-      return std::nullopt;
-    }
-    auto& valueChild = f.children[1];
-    auto innerVar = assembleValue(valueChild, failIdx);
-    if (!innerVar.has_value())
-    {
-      return std::nullopt;
-    }
-    const auto fields = variantType->getFields();
-    if (f.selectedVariantIndex >= fields.size())
-    {
-      return std::nullopt;
-    }
-    VarMap map;
-    map.try_emplace("type", std::string(fields[f.selectedVariantIndex].type->getName()));
-    map.try_emplace("value", std::move(*innerVar));
-    return Var(std::move(map));
+    return assembleVariant(f, failIdx, *variantType);
   }
 
   // Struct: VarMap keyed by child name.
@@ -2056,6 +2175,18 @@ std::optional<Var> ArgForm::assembleValue(ArgFormField& f, std::size_t& failIdx)
 
 Result<VarList, ArgForm::SubmitError> ArgForm::trySubmit()
 {
+  // A field that refused an insert holds less than the user typed, so submitting sends an argument they
+  // did not finish. The command line holds a cut line back the same way.
+  for (std::size_t i = 0; i < leaves_.size(); ++i)
+  {
+    if (leaves_[i]->insertRefused)
+    {
+      return Err(SubmitError {i,
+                              "This field was cut at " + std::to_string(maxLineBytes) +
+                                " bytes and holds less than you typed. Edit it to send it anyway."});
+    }
+  }
+
   VarList values;
   values.reserve(fields_.size());
   std::size_t failIdx = SubmitError::noField;

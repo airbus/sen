@@ -9,10 +9,13 @@
 
 // component
 #include "app_renderers.h"
+#include "arg_form.h"
 #include "clipboard.h"
+#include "completer.h"
 #include "input_pane.h"
 #include "output_pane.h"
 #include "parse_utils.h"
+#include "signal_stack.h"
 #include "signature_renderer.h"
 #include "styles.h"
 #include "text_wrap.h"
@@ -33,11 +36,17 @@
 
 // std
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
+#include <filesystem>
 #include <iostream>
-#include <map>
+#include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <tuple>
 #include <utility>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -89,6 +98,9 @@ constexpr int completionColPadding = 3;
 // UiState
 //--------------------------------------------------------------------------------------------------------------
 
+// App's own state, and App is the only thing that touches it: there is no invariant here for a
+// private section to defend, and sixteen accessors would say less than this comment.
+// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
 struct App::UiState
 {
   OutputPane commandPane;
@@ -155,6 +167,9 @@ struct App::UiState
     if (written.size() < text.size())
     {
       written = written.substr(0, prevCodepoint(text, written.size() + 1U));
+      // Same hold as a cut keystroke: a candidate that did not fit is not what the user chose, and
+      // submitting it sends a truncated object or method name.
+      inputTruncated = true;
     }
     buffer.replace(from, to - from, written);
     cursorPos = checkedConversion<int>(from + written.size());
@@ -192,6 +207,7 @@ struct App::UiState
     }
   }
 };
+// NOLINTEND(misc-non-private-member-variables-in-classes)
 
 //--------------------------------------------------------------------------------------------------------------
 // App
@@ -250,19 +266,13 @@ void App::finishPendingCall(std::size_t id, ftxui::Element result)
 
 void App::appendLogOutput(std::string_view text)
 {
-  if (!logPaused_)
-  {
-    ui_->commandPane.appendText(text);
-  }
+  ui_->commandPane.appendText(text);
   requestRedraw();
 }
 
 void App::appendLogElement(ftxui::Element element)
 {
-  if (!logPaused_)
-  {
-    ui_->commandPane.appendElement(std::move(element));
-  }
+  ui_->commandPane.appendElement(std::move(element));
   requestRedraw();
 }
 
@@ -309,13 +319,25 @@ void App::init()
     historyFile_);
 
   ui_->commandPane.setMaxLines(commandPaneMaxLines);
-  ui_->commandPane.setBottomAligned(true);
 
   auto input = createInputComponent();
   auto renderer = createRenderer(input);
   auto eventHandler = createEventHandler(renderer);
   loop_ = std::make_unique<ftxui::Loop>(screen_.get(), eventHandler);
 
+  // FTXUI installed the fatal signal handlers when the Loop went up, without SA_ONSTACK, which drops
+  // the alternate signal stack a stack-overflow report depends on. Its handlers are kept; only the flag
+  // goes back.
+  std::ignore = restoreAltStackOnFatalHandlers();
+
+  // Unverified on Windows, and worth knowing before trusting it there. term writes the DECSET and then
+  // reads the markers out of the escape sequences FTXUI could not match. FTXUI 7.0.3 does set
+  // ENABLE_VIRTUAL_TERMINAL_INPUT, so the markers *can* arrive, and if they do they reach the detector
+  // -- but whether conhost or Windows Terminal emits them at all is unestablished, and the five session
+  // tests that cover paste cannot run on Windows (no pty). If they never arrive, the behaviour is the
+  // pre-bracketed-paste one: a multi-line paste runs a command per line. `pasteIdleLimitTicks` bounds
+  // the other direction. Settling it takes one person pressing Ctrl+V in a Windows Terminal.
+  //
   // After the Loop, which is where FTXUI installs the terminal: some terminals reset bracketed paste
   // when the alternate screen is entered, and asking first would leave the mechanism silently inert --
   // with the failure mode "pasted newlines submit again, and nothing says so". FTXUI writes through
@@ -457,6 +479,127 @@ ftxui::Element App::renderCompletionHint() const
 // init() helpers
 //--------------------------------------------------------------------------------------------------------------
 
+/// The keys the input line itself handles: motion, erasing, history and text. Split out of
+/// createInputComponent, which was one function holding a renderer and sixteen key branches.
+bool App::handleInputKey(const ftxui::Event& event)
+{
+  auto& buf = ui_->inputPane.getBuffer();
+
+  if (event == ftxui::Event::Return)
+  {
+    if (ui_->inputTruncated)
+    {
+      // The line is not what the user meant to send: submitting it reports a parse failure that
+      // names text they never typed.
+      ui_->commandPane.scrollToBottom();
+      appendInfo("This line was cut at " + std::to_string(maxLineBytes) +
+                 " bytes, so it is not what you sent. Escape clears it; edit it to send it anyway.");
+      return true;
+    }
+    ui_->cursorPos = 0;
+    ui_->commandPane.scrollToBottom();
+    ui_->inputPane.submit();
+    return true;
+  }
+  if (event == ftxui::Event::ArrowUp)
+  {
+    ui_->inputPane.historyUp();
+    ui_->cursorPos = checkedConversion<int>(buf.size());
+    // The line is a recalled one now, not the truncated one the hold was about.
+    ui_->inputTruncated = false;
+    return true;
+  }
+  if (event == ftxui::Event::ArrowDown)
+  {
+    ui_->inputPane.historyDown();
+    ui_->cursorPos = checkedConversion<int>(buf.size());
+    return true;
+  }
+  // Every motion and erase below steps by codepoint, not by byte: a byte at a time splits a
+  // multi-byte character and leaves the buffer invalid UTF-8, which then gets submitted.
+  auto cursor = [this]() { return checkedConversion<std::size_t>(ui_->cursorPos); };
+  auto setCursor = [this](std::size_t pos) { ui_->cursorPos = checkedConversion<int>(pos); };
+
+  if (event == ftxui::Event::ArrowLeft)
+  {
+    setCursor(prevCodepoint(buf, cursor()));
+    return true;
+  }
+  if (event == ftxui::Event::ArrowRight)
+  {
+    setCursor(nextCodepoint(buf, cursor()));
+    return true;
+  }
+  if (event == ftxui::Event::ArrowLeftCtrl)
+  {
+    setCursor(prevWord(buf, cursor()));
+    return true;
+  }
+  if (event == ftxui::Event::ArrowRightCtrl)
+  {
+    setCursor(nextWord(buf, cursor()));
+    return true;
+  }
+  if (event == ftxui::Event::Home)
+  {
+    ui_->cursorPos = 0;
+    return true;
+  }
+  if (event == ftxui::Event::End)
+  {
+    setCursor(buf.size());
+    return true;
+  }
+  if (event == ftxui::Event::Backspace)
+  {
+    auto from = prevCodepoint(buf, cursor());
+    buf.erase(from, cursor() - from);
+    setCursor(from);
+    ui_->inputTruncated = false;
+    return true;
+  }
+  if (event == ftxui::Event::Delete)
+  {
+    auto to = nextCodepoint(buf, cursor());
+    buf.erase(cursor(), to - cursor());
+    // Erasing means the user has looked at the line, so stop holding the submit back.
+    ui_->inputTruncated = false;
+    return true;
+  }
+  // Ctrl+Backspace arrives as Ctrl+H in most terminals; Ctrl+W is the readline spelling.
+  if (event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW)
+  {
+    auto from = prevWord(buf, cursor());
+    buf.erase(from, cursor() - from);
+    setCursor(from);
+    ui_->inputTruncated = false;
+    return true;
+  }
+  if (event.is_character())
+  {
+    // FTXUI has no bracketed paste, so pasted text arrives here one character at a time and this
+    // is the only place it can be bounded. Without a bound, a line long enough to fill the screen
+    // leaves the term alive but unable to act on any further key: it re-wraps the whole buffer
+    // every frame and the layout gives the output pane no rows at all.
+    if (buf.size() + event.character().size() > maxLineBytes)
+    {
+      if (!ui_->inputFullReported)
+      {
+        appendInfo("The command line is full at " + std::to_string(maxLineBytes) +
+                   " bytes, and the rest was dropped. Escape clears the line.");
+        ui_->inputFullReported = true;
+      }
+      ui_->inputTruncated = true;
+      return true;
+    }
+    buf.insert(checkedConversion<std::size_t>(ui_->cursorPos), event.character());
+    ui_->cursorPos += checkedConversion<int>(event.character().size());
+    ui_->inputFullReported = false;
+    return true;
+  }
+  return false;
+}
+
 ftxui::Component App::createInputComponent()
 {
   return ftxui::CatchEvent(
@@ -535,8 +678,12 @@ ftxui::Component App::createInputComponent()
 
           if (focused && i == cursorLine)
           {
+            // The split is on a grapheme, not a codepoint. ftxui attaches a combining mark to the
+            // character before it and silently drops one that begins an element, so a caret sitting on a
+            // base character used to eat the accent after it, and a caret on the mark itself drew an
+            // element of zero width -- an invisible cursor.
             const auto cursorByte = checkedConversion<std::size_t>(cursorCol);
-            const auto afterCursor = nextCodepoint(segment, cursorByte);
+            const auto afterCursor = nextGrapheme(segment, cursorByte);
             auto before = segment.substr(0, cursorByte);
             auto atCursor =
               (cursorByte < segment.size()) ? segment.substr(cursorByte, afterCursor - cursorByte) : std::string(" ");
@@ -603,163 +750,52 @@ ftxui::Component App::createInputComponent()
 
         return ftxui::vbox(std::move(rows));
       }),
-    [this](const ftxui::Event& event) -> bool
-    {
-      auto& buf = ui_->inputPane.getBuffer();
-
-      if (event == ftxui::Event::Return)
-      {
-        if (ui_->inputTruncated)
-        {
-          // The line is not what the user meant to send: submitting it reports a parse failure that
-          // names text they never typed.
-          ui_->commandPane.scrollToBottom();
-          appendInfo("This line was cut at " + std::to_string(maxLineBytes) +
-                     " bytes, so it is not what you sent. Escape clears it; edit it to send it anyway.");
-          return true;
-        }
-        ui_->cursorPos = 0;
-        ui_->commandPane.scrollToBottom();
-        ui_->inputPane.submit();
-        return true;
-      }
-      if (event == ftxui::Event::ArrowUp)
-      {
-        ui_->inputPane.historyUp();
-        ui_->cursorPos = checkedConversion<int>(buf.size());
-        // The line is a recalled one now, not the truncated one the hold was about.
-        ui_->inputTruncated = false;
-        return true;
-      }
-      if (event == ftxui::Event::ArrowDown)
-      {
-        ui_->inputPane.historyDown();
-        ui_->cursorPos = checkedConversion<int>(buf.size());
-        return true;
-      }
-      // Every motion and erase below steps by codepoint, not by byte: a byte at a time splits a
-      // multi-byte character and leaves the buffer invalid UTF-8, which then gets submitted.
-      auto cursor = [this]() { return checkedConversion<std::size_t>(ui_->cursorPos); };
-      auto setCursor = [this](std::size_t pos) { ui_->cursorPos = checkedConversion<int>(pos); };
-
-      if (event == ftxui::Event::ArrowLeft)
-      {
-        setCursor(prevCodepoint(buf, cursor()));
-        return true;
-      }
-      if (event == ftxui::Event::ArrowRight)
-      {
-        setCursor(nextCodepoint(buf, cursor()));
-        return true;
-      }
-      if (event == ftxui::Event::ArrowLeftCtrl)
-      {
-        setCursor(prevWord(buf, cursor()));
-        return true;
-      }
-      if (event == ftxui::Event::ArrowRightCtrl)
-      {
-        setCursor(nextWord(buf, cursor()));
-        return true;
-      }
-      if (event == ftxui::Event::Home)
-      {
-        ui_->cursorPos = 0;
-        return true;
-      }
-      if (event == ftxui::Event::End)
-      {
-        setCursor(buf.size());
-        return true;
-      }
-      if (event == ftxui::Event::Backspace)
-      {
-        auto from = prevCodepoint(buf, cursor());
-        buf.erase(from, cursor() - from);
-        setCursor(from);
-        ui_->inputTruncated = false;
-        return true;
-      }
-      if (event == ftxui::Event::Delete)
-      {
-        auto to = nextCodepoint(buf, cursor());
-        buf.erase(cursor(), to - cursor());
-        // Erasing means the user has looked at the line, so stop holding the submit back.
-        ui_->inputTruncated = false;
-        return true;
-      }
-      // Ctrl+Backspace arrives as Ctrl+H in most terminals; Ctrl+W is the readline spelling.
-      if (event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW)
-      {
-        auto from = prevWord(buf, cursor());
-        buf.erase(from, cursor() - from);
-        setCursor(from);
-        ui_->inputTruncated = false;
-        return true;
-      }
-      if (event.is_character())
-      {
-        // FTXUI has no bracketed paste, so pasted text arrives here one character at a time and this
-        // is the only place it can be bounded. Without a bound, a line long enough to fill the screen
-        // leaves the term alive but unable to act on any further key: it re-wraps the whole buffer
-        // every frame and the layout gives the output pane no rows at all.
-        if (buf.size() + event.character().size() > maxLineBytes)
-        {
-          if (!ui_->inputFullReported)
-          {
-            appendInfo("The command line is full at " + std::to_string(maxLineBytes) +
-                       " bytes, and the rest was dropped. Escape clears the line.");
-            ui_->inputFullReported = true;
-          }
-          ui_->inputTruncated = true;
-          return true;
-        }
-        buf.insert(checkedConversion<std::size_t>(ui_->cursorPos), event.character());
-        ui_->cursorPos += checkedConversion<int>(event.character().size());
-        ui_->inputFullReported = false;
-        return true;
-      }
-      return false;
-    });
+    [this](const ftxui::Event& event) -> bool { return handleInputKey(event); });
 }
 
 ftxui::Component App::createRenderer(ftxui::Component wrappedInput)
 {
-  return ftxui::Renderer(wrappedInput,
-                         [this, wrappedInput]() -> ftxui::Element
-                         {
-                           auto commandArea = ui_->commandPane.render() | styles::inputBg() | styles::inputFg();
-                           auto inputArea = wrappedInput->Render() | styles::inputBg() | styles::inputFg();
+  return ftxui::Renderer(
+    wrappedInput,
+    [this, wrappedInput]() -> ftxui::Element
+    {
+      auto commandArea = ui_->commandPane.render() | styles::inputBg() | styles::inputFg();
+      if (toastVisible())
+      {
+        commandArea = ftxui::dbox(
+          {std::move(commandArea), ftxui::vbox({ftxui::filler(), ftxui::hbox({ftxui::filler(), renderToast()})})});
+      }
+      auto inputArea = wrappedInput->Render() | styles::inputBg() | styles::inputFg();
 
-                           ftxui::Element completionArea = ftxui::emptyElement();
-                           if (!ui_->completionCandidates.empty())
-                           {
-                             completionArea = renderCompletionList();
-                           }
-                           else if (!ui_->completionHint.empty() || !ui_->completionHintAction.empty())
-                           {
-                             completionArea = renderCompletionHint();
-                           }
+      ftxui::Element completionArea = ftxui::emptyElement();
+      if (!ui_->completionCandidates.empty())
+      {
+        completionArea = renderCompletionList();
+      }
+      else if (!ui_->completionHint.empty() || !ui_->completionHintAction.empty())
+      {
+        completionArea = renderCompletionHint();
+      }
 
-                           // A rule between the scrolling output and the input, so the prompt does not read as just
-                           // another output line once the screen has filled. It needs the surrounding background as
-                           // well as a foreground: without it the line sits on the terminal's own background and
-                           // reads as a stripe across a light theme.
-                           auto rule = ftxui::separator() | styles::mutedText() | styles::inputBg();
+      // A rule between the scrolling output and the input, so the prompt does not read as just
+      // another output line once the screen has filled. It needs the surrounding background as
+      // well as a foreground: without it the line sits on the terminal's own background and
+      // reads as a stripe across a light theme.
+      auto rule = ftxui::separator() | styles::mutedText() | styles::inputBg();
 
-                           if (ui_->activeForm.has_value())
-                           {
-                             auto formArea = renderArgForm(*ui_->activeForm);
-                             return ftxui::vbox({commandArea | ftxui::flex, rule, std::move(formArea)}) | ftxui::flex;
-                           }
+      if (ui_->activeForm.has_value())
+      {
+        auto formArea = renderArgForm(*ui_->activeForm);
+        return ftxui::vbox({commandArea | ftxui::flex, rule, std::move(formArea)}) | ftxui::flex;
+      }
 
-                           ftxui::Elements rows;
-                           rows.push_back(commandArea | ftxui::flex);
-                           rows.push_back(rule);
-                           rows.push_back(completionArea | styles::completionBg() | styles::inputFg());
-                           rows.push_back(inputArea);
-                           return ftxui::vbox(std::move(rows)) | ftxui::flex;
-                         });
+      ftxui::Elements rows;
+      rows.push_back(commandArea | ftxui::flex);
+      rows.push_back(rule);
+      rows.push_back(completionArea | styles::completionBg() | styles::inputFg());
+      rows.push_back(inputArea);
+      return ftxui::vbox(std::move(rows)) | ftxui::flex;
+    });
 }
 
 ftxui::Component App::createEventHandler(ftxui::Component renderer)
@@ -784,11 +820,7 @@ ftxui::Component App::createEventHandler(ftxui::Component renderer)
                              {
                                return true;
                              }
-                             if (handleMouseEvent(event))
-                             {
-                               return true;
-                             }
-                             return false;
+                             return handleMouseEvent(event);
                            });
 }
 
@@ -858,12 +890,12 @@ bool App::handleFormEvent(ftxui::Event event)
     auto result = form.trySubmit();
     if (result.isOk())
     {
-      auto inline_ =
+      auto inlineCommand =
         formatInlineInvocation(form.objectName(), form.methodName(), form.method().getArgs(), result.getValue());
       ui_->activeForm.reset();
       if (onCommand_)
       {
-        onCommand_(inline_);
+        onCommand_(inlineCommand);
       }
     }
     else
@@ -898,14 +930,10 @@ bool App::handleFormEvent(ftxui::Event event)
   // which is not on screen while the form is: they edited a buffer nobody could see, and the cursor
   // clamp that would have caught an out-of-range position lives in the renderer that is skipped.
   // Harmless today only because the buffer is always empty when a form opens.
-  if (event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
-      event == ftxui::Event::End || event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW ||
-      event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl)
-  {
-    return true;
-  }
-
-  return false;  // let other handlers (scroll etc.) have the event
+  // Anything else falls through, so the scroll handlers still see it.
+  return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
+         event == ftxui::Event::End || event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW ||
+         event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl;
 }
 
 void App::insertPastedText(std::string_view text)
@@ -1128,20 +1156,20 @@ bool App::handleCompletionEvent(ftxui::Event event)
       auto& c = result.candidates[0];
       bool needsContinuation = (c.kind == CompletionKind::path || c.kind == CompletionKind::object);
 
+      // Through writeCompletion, not a raw replace: it is the only writer that clamps the recorded span
+      // against the buffer and holds the line to maxLineBytes. Writing here directly meant one Tab on a
+      // nearly full line pushed past the bound, and the over-long line then submitted and was dropped
+      // from history without a word.
       if (needsContinuation)
       {
-        buf.replace(checkedConversion<std::size_t>(result.replaceFrom),
-                    checkedConversion<std::size_t>(result.replaceTo - result.replaceFrom),
-                    c.text + ".");
-        ui_->cursorPos = result.replaceFrom + checkedConversion<int>(c.text.size()) + 1;
+        ui_->recordCompletionSpan(buf, result.replaceFrom, result.replaceTo);
+        ui_->writeCompletion(buf, c.text + ".");
         result = completer_->complete(buf, ui_->cursorPos);
       }
       else
       {
-        buf.replace(checkedConversion<std::size_t>(result.replaceFrom),
-                    checkedConversion<std::size_t>(result.replaceTo - result.replaceFrom),
-                    c.text + " ");
-        ui_->cursorPos = result.replaceFrom + checkedConversion<int>(c.text.size()) + 1;
+        ui_->recordCompletionSpan(buf, result.replaceFrom, result.replaceTo);
+        ui_->writeCompletion(buf, c.text + " ");
         std::string description = !c.detail.empty() ? c.detail : c.display;
         std::string action;
         if (c.kind == CompletionKind::method)
@@ -1262,8 +1290,8 @@ bool App::handleGlobalEvent(ftxui::Event event)
     return true;
   }
 
-  // Scroll: works in both modes. In TUI mode the active pane receives the scroll;
-  // in REPL mode only the command pane exists.
+  // The scroll position is a fraction of the content, so the first press can land inside the rows
+  // already on screen and move nothing.
   auto& activeOutput = ui_->commandPane;
 
   if (event == ftxui::Event::PageUp)
@@ -1316,6 +1344,24 @@ bool App::handleMouseEvent(ftxui::Event event)
   return false;
 }
 
+/// How long a toast stays up. Long enough to read a short line without the eye having to hurry, short
+/// enough that it is gone before it becomes part of the furniture.
+constexpr auto toastDuration = std::chrono::milliseconds(1500);
+
+void App::showToast(std::string text)
+{
+  toastText_ = std::move(text);
+  toastUntil_ = std::chrono::steady_clock::now() + toastDuration;
+  requestRedraw();
+}
+
+bool App::toastVisible() const { return !toastText_.empty() && std::chrono::steady_clock::now() < toastUntil_; }
+
+ftxui::Element App::renderToast() const
+{
+  return ftxui::borderRounded(ftxui::text(" " + toastText_ + " ") | styles::inputFg()) | styles::completionBg();
+}
+
 void App::tick()
 {
   if (loop_ && !loop_->HasQuitted())
@@ -1333,6 +1379,33 @@ void App::tick()
       appendInfo("The paste did not finish, so it was ended here. Check the line before pressing Enter.");
       requestRedraw();
     }
+
+    // Re-asserted rather than set once. FTXUI's SIGTSTP handling uninstalls and reinstalls the terminal
+    // around the stop, and its reinstall knows nothing about bracketed paste -- so after Ctrl+Z and `fg`
+    // the mode was off, `pasting_` was never set again, and a multi-line paste went back to running one
+    // command per line. Eight bytes a second is cheaper than any way of noticing the resume.
+    constexpr unsigned pasteModeReassertTicks = 30;  // once a second at 30 Hz
+    if (++pasteModeTicks_ >= pasteModeReassertTicks)
+    {
+      pasteModeTicks_ = 0;
+      std::cout << enableBracketedPaste << std::flush;
+    }
+
+    // The clipboard helper runs on its own thread, so its failure arrives after the copy did. Showing
+    // it here is the only honest report: the copy was announced before anything had been written.
+    if (auto failure = clipboard::takeFailure(); failure.has_value())
+    {
+      appendInfo(*failure);
+    }
+
+    // Nothing drives a toast but the clock, so the frames it is up have to be requested, and one more
+    // after it goes to rub it out.
+    const bool toastUp = toastVisible();
+    if (toastUp || toastWasVisible_)
+    {
+      requestRedraw();
+    }
+    toastWasVisible_ = toastUp;
 
     constexpr unsigned idleRedrawTicks = 15;  // 15 ticks @ 30 Hz = 500 ms
     const bool animating = activePendingCount_ > 0;
@@ -1367,6 +1440,13 @@ void App::tick()
 
 void App::shutdown()
 {
+  // Nothing to undo if the terminal was never installed. Without this, destroying an App that never
+  // ran -- which a unit test does -- wrote a bracketed-paste escape onto the test runner's stdout.
+  if (!screen_)
+  {
+    return;
+  }
+
   std::cout << disableBracketedPaste << std::flush;
   loop_.reset();
   screen_.reset();
@@ -1378,8 +1458,7 @@ void App::copyToClipboardAndReport(std::string text)
   const auto characters = codepointCount(text);
   clipboard::copy(text);
   lastCopiedSelection_ = std::move(text);
-  appendInfo("Copied " + std::to_string(characters) + (characters == 1 ? " character" : " characters") +
-             " to the clipboard.");
+  showToast("Copied " + std::to_string(characters) + (characters == 1 ? " character" : " characters"));
 }
 
 void App::copySelectionToClipboard()

@@ -221,7 +221,7 @@ SEN_EXPORT_CLASS(MyClassImpl) // (1)!
 
 ```{ .yaml .annotate }
 load:
-  - name: shell # (1)!
+  - name: term # (1)!
     group: 2    # (2)!
     open: [local.example]  # (3)!
 

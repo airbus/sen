@@ -10,12 +10,19 @@
 #include "test_completer_utils.h"
 #include "test_object_impl.h"
 
+// sen
+#include "sen/core/obj/object.h"
+
 // google test
 #include <gtest/gtest.h>
 
 // std
 #include <algorithm>
+#include <cstddef>
+#include <memory>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -25,7 +32,12 @@ namespace sen::components::term
 class CompleterIncrementalAccess
 {
 public:
-  static std::vector<std::string> childNames(const Completer& c) { return c.childNames_; }
+  /// Returned as a vector so the order assertions below can index it. The completer holds a set now:
+  /// a sorted vector made every arriving object memmove half of it during discovery.
+  static std::vector<std::string> childNames(const Completer& c)
+  {
+    return {c.childNames_.begin(), c.childNames_.end()};
+  }
   static size_t objectCount(const Completer& c) { return c.objectsByName_.size(); }
   static std::shared_ptr<Object> find(const Completer& c, std::string_view relName) { return c.findObject(relName); }
   /// Simulate "initial update has happened": the completer starts scopeDirty=true so the first
@@ -60,10 +72,12 @@ std::shared_ptr<Object> makeScopedObject(std::string_view session, std::string_v
 class CompleterIncrementalTest: public ::testing::Test
 {
 protected:
-  void SetUp() override { CompleterIncrementalAccess::clearScopeDirty(c_); }
+  void SetUp() override { CompleterIncrementalAccess::clearScopeDirty(completer); }
 
-  Completer c_;
-  Scope scope_;  // defaults to root
+  // A fixture's members are its tests' locals, so the encapsulation the check asks for has no
+  // owner to protect them from. Same reading as libs/core's test fixtures.
+  Completer completer;  // NOLINT(misc-non-private-member-variables-in-classes)
+  Scope rootScope;      // NOLINT(misc-non-private-member-variables-in-classes) defaults to root
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -74,22 +88,22 @@ TEST_F(CompleterIncrementalTest, AddSurfacesChildName)
 {
   // Object name "term.foo.bus.obj" → at root scope: rel = "foo.bus.obj", first segment = "foo".
   auto obj = makeScopedObject("foo", "bus", "obj");
-  c_.onObjectAdded(scope_, obj);
+  completer.onObjectAdded(rootScope, obj);
 
-  auto names = CompleterIncrementalAccess::childNames(c_);
+  auto names = CompleterIncrementalAccess::childNames(completer);
   ASSERT_EQ(names.size(), 1U);
   EXPECT_EQ(names[0], "foo");
-  EXPECT_EQ(CompleterIncrementalAccess::objectCount(c_), 1U);
+  EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 1U);
 }
 
 TEST_F(CompleterIncrementalTest, RemoveRetractsChildName)
 {
   auto obj = makeScopedObject("foo", "bus", "obj");
-  c_.onObjectAdded(scope_, obj);
-  c_.onObjectRemoved(scope_, obj);
+  completer.onObjectAdded(rootScope, obj);
+  completer.onObjectRemoved(rootScope, obj);
 
-  EXPECT_TRUE(CompleterIncrementalAccess::childNames(c_).empty());
-  EXPECT_EQ(CompleterIncrementalAccess::objectCount(c_), 0U);
+  EXPECT_TRUE(CompleterIncrementalAccess::childNames(completer).empty());
+  EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 0U);
 }
 
 TEST_F(CompleterIncrementalTest, RemoveOnlyDropsChildWhenRefcountReachesZero)
@@ -97,46 +111,46 @@ TEST_F(CompleterIncrementalTest, RemoveOnlyDropsChildWhenRefcountReachesZero)
   // Two objects share the same first segment, removing one should keep "foo" in childNames_.
   auto a = makeScopedObject("foo", "bus", "a");
   auto b = makeScopedObject("foo", "bus", "b");
-  c_.onObjectAdded(scope_, a);
-  c_.onObjectAdded(scope_, b);
+  completer.onObjectAdded(rootScope, a);
+  completer.onObjectAdded(rootScope, b);
 
-  auto names = CompleterIncrementalAccess::childNames(c_);
+  auto names = CompleterIncrementalAccess::childNames(completer);
   ASSERT_EQ(names.size(), 1U);
   EXPECT_EQ(names[0], "foo");
 
-  c_.onObjectRemoved(scope_, a);
-  names = CompleterIncrementalAccess::childNames(c_);
+  completer.onObjectRemoved(rootScope, a);
+  names = CompleterIncrementalAccess::childNames(completer);
   ASSERT_EQ(names.size(), 1U);  // "foo" still present (b remains)
   EXPECT_EQ(names[0], "foo");
 
-  c_.onObjectRemoved(scope_, b);
-  EXPECT_TRUE(CompleterIncrementalAccess::childNames(c_).empty());
+  completer.onObjectRemoved(rootScope, b);
+  EXPECT_TRUE(CompleterIncrementalAccess::childNames(completer).empty());
 }
 
 TEST_F(CompleterIncrementalTest, DoubleAddDoesNotDoubleCount)
 {
   auto obj = makeScopedObject("foo", "bus", "obj");
-  c_.onObjectAdded(scope_, obj);
-  c_.onObjectAdded(scope_, obj);  // same object again, refcount should not inflate
+  completer.onObjectAdded(rootScope, obj);
+  completer.onObjectAdded(rootScope, obj);  // same object again, refcount should not inflate
 
-  auto names = CompleterIncrementalAccess::childNames(c_);
+  auto names = CompleterIncrementalAccess::childNames(completer);
   ASSERT_EQ(names.size(), 1U);
   EXPECT_EQ(names[0], "foo");
-  EXPECT_EQ(CompleterIncrementalAccess::objectCount(c_), 1U);
+  EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 1U);
 
   // A single remove is enough to clear (idempotent add was a no-op).
-  c_.onObjectRemoved(scope_, obj);
-  EXPECT_TRUE(CompleterIncrementalAccess::childNames(c_).empty());
+  completer.onObjectRemoved(rootScope, obj);
+  EXPECT_TRUE(CompleterIncrementalAccess::childNames(completer).empty());
 }
 
 TEST_F(CompleterIncrementalTest, AddedChildrenStaySorted)
 {
   // Insert out of order, childNames_ should remain sorted.
-  c_.onObjectAdded(scope_, makeScopedObject("charlie", "bus", "obj"));
-  c_.onObjectAdded(scope_, makeScopedObject("alpha", "bus", "obj"));
-  c_.onObjectAdded(scope_, makeScopedObject("bravo", "bus", "obj"));
+  completer.onObjectAdded(rootScope, makeScopedObject("charlie", "bus", "obj"));
+  completer.onObjectAdded(rootScope, makeScopedObject("alpha", "bus", "obj"));
+  completer.onObjectAdded(rootScope, makeScopedObject("bravo", "bus", "obj"));
 
-  auto names = CompleterIncrementalAccess::childNames(c_);
+  auto names = CompleterIncrementalAccess::childNames(completer);
   ASSERT_EQ(names.size(), 3U);
   EXPECT_EQ(names[0], "alpha");
   EXPECT_EQ(names[1], "bravo");
@@ -146,28 +160,28 @@ TEST_F(CompleterIncrementalTest, AddedChildrenStaySorted)
 TEST_F(CompleterIncrementalTest, RemoveUnknownIsNoop)
 {
   auto a = makeScopedObject("alpha", "bus", "obj");
-  c_.onObjectAdded(scope_, a);
+  completer.onObjectAdded(rootScope, a);
 
   // Remove an object that was never added, should not corrupt state.
   auto bogus = makeScopedObject("neverAdded", "bus", "obj");
-  c_.onObjectRemoved(scope_, bogus);
+  completer.onObjectRemoved(rootScope, bogus);
 
-  auto names = CompleterIncrementalAccess::childNames(c_);
+  auto names = CompleterIncrementalAccess::childNames(completer);
   ASSERT_EQ(names.size(), 1U);
   EXPECT_EQ(names[0], "alpha");
-  EXPECT_EQ(CompleterIncrementalAccess::objectCount(c_), 1U);
+  EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 1U);
 }
 
 TEST_F(CompleterIncrementalTest, FindObjectAfterAdd)
 {
   auto obj = makeScopedObject("sesA", "bus", "target");
-  c_.onObjectAdded(scope_, obj);
+  completer.onObjectAdded(rootScope, obj);
 
   // At root scope, relativeName strips the component prefix → "sesA.bus.target".
-  auto found = CompleterIncrementalAccess::find(c_, "sesA.bus.target");
+  auto found = CompleterIncrementalAccess::find(completer, "sesA.bus.target");
   EXPECT_EQ(found, obj);
 
-  EXPECT_EQ(CompleterIncrementalAccess::find(c_, "sesA.bus.missing"), nullptr);
+  EXPECT_EQ(CompleterIncrementalAccess::find(completer, "sesA.bus.missing"), nullptr);
 }
 
 TEST(CompleterIncrementalDirty, AddIsDroppedWhileScopeDirty)
@@ -186,10 +200,10 @@ TEST(CompleterIncrementalDirty, AddIsDroppedWhileScopeDirty)
 TEST_F(CompleterIncrementalTest, MethodCompletionsCarryArgCount)
 {
   // Method completions carry the argument count (zero-arg method, multi-arg method, getter, setter).
-  c_.onObjectAdded(scope_, makeScopedObject("ses", "bus", "obj"));
+  completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "obj"));
 
   const std::string path = "ses.bus.obj.";
-  auto result = c_.complete(path, static_cast<int>(path.size()));
+  auto result = completer.complete(path, static_cast<int>(path.size()));
   ASSERT_FALSE(result.candidates.empty()) << "No completions for path '" << path << "'";
   auto findByText = [&](std::string_view suffix) -> const Completion*
   {
@@ -230,12 +244,12 @@ TEST_F(CompleterIncrementalTest, MethodCompletionsCarryArgCount)
 
 TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 {
-  c_.onObjectAdded(scope_, makeScopedObject("ses", "bus", "slowLogger"));
-  c_.onObjectAdded(scope_, makeScopedObject("ses", "bus", "fastLogger"));
-  c_.onObjectAdded(scope_, makeScopedObject("ses", "bus", "something"));
+  completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "slowLogger"));
+  completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "fastLogger"));
+  completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "something"));
 
   // "logger" is a substring of two names → they should both turn up.
-  auto sugg = c_.findObjectSuggestions("logger");
+  auto sugg = completer.findObjectSuggestions("logger");
   EXPECT_FALSE(sugg.empty());
   auto hasSugg = [&](std::string_view needle)
   { return std::any_of(sugg.begin(), sugg.end(), [&](const auto& s) { return s.find(needle) != std::string::npos; }); };
@@ -246,9 +260,9 @@ TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 {
   // TestObject has no events, candidates should be empty, but the code path must not crash.
-  c_.onObjectAdded(scope_, makeScopedObject("ses", "bus", "obj"));
+  completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "obj"));
 
-  auto result = c_.complete("listen ses.bus.obj.", 19);
+  auto result = completer.complete("listen ses.bus.obj.", 19);
   for (const auto& c: result.candidates)
   {
     EXPECT_NE(c.kind, CompletionKind::command);
@@ -258,13 +272,13 @@ TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 
 TEST_F(CompleterIncrementalTest, UnlistenAllCompletes)
 {
-  auto result = c_.complete("unlisten a", 10);
+  auto result = completer.complete("unlisten a", 10);
   EXPECT_TRUE(hasCandidate(result, "all"));
 }
 
 TEST_F(CompleterIncrementalTest, HelpCompletesCommandNames)
 {
-  auto result = c_.complete("help l", 6);
+  auto result = completer.complete("help l", 6);
   EXPECT_TRUE(hasCandidate(result, "listen"));
   EXPECT_TRUE(hasCandidate(result, "ls"));
 }

@@ -7,19 +7,33 @@
 
 #include "object_store.h"
 
+// component
+#include "util.h"
+
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/checked_conversions.h"
+#include "sen/core/base/result.h"
 #include "sen/core/io/util.h"
+#include "sen/core/obj/interest.h"
+#include "sen/core/obj/object.h"
+#include "sen/core/obj/object_list.h"
+#include "sen/kernel/component_api.h"
 
 // std
-#include <algorithm>
 #include <cstddef>
+#include <cstdint>
+#include <exception>
 #include <iterator>
+#include <list>
+#include <memory>
 #include <set>
-#include <stdexcept>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -73,87 +87,107 @@ ObjectStore::ObjectStore(kernel::RunApi& api): api_(api)
   std::ignore = objects_->onAdded(
     [this](const auto& iterators)
     {
-      auto count = checkedConversion<std::size_t>(std::distance(iterators.untypedBegin, iterators.untypedEnd));
-      if (count == 0)
+      // This runs from drainInputs, before the work function, so the frame's own boundary in
+      // component.cpp cannot see it. What arrives is a peer's data, and a throw here reached
+      // std::terminate and took every component in the process with it.
+      try
       {
-        return;
-      }
-
-      ++generation_;
-      if (onObjectAdded_)
-      {
-        for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+        auto count = checkedConversion<std::size_t>(std::distance(iterators.untypedBegin, iterators.untypedEnd));
+        if (count == 0)
         {
-          onObjectAdded_(*itr);
+          return;
+        }
+
+        ++generation_;
+        if (onObjectAdded_)
+        {
+          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          {
+            onObjectAdded_(*itr);
+          }
+        }
+
+        if (suppressNotifications_)
+        {
+          return;
+        }
+
+        if (count <= tierOneMax)
+        {
+          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          {
+            const auto& obj = *itr;
+            auto typeName = std::string(obj->getClass()->getName());
+            auto objName = stripComponentPrefix(obj->getLocalName());
+            bool isRemote = obj->asProxyObject() != nullptr && obj->asProxyObject()->isRemote();
+            std::string origin = isRemote ? "Remote" : "Native";
+            std::ostringstream line;
+            line << " + " << objName << "  [" << typeName << ", " << origin << "]";
+            notify({line.str(), true});
+          }
+        }
+        else if (count <= tierTwoMax)
+        {
+          notify({" + " + std::to_string(count) + " objects detected", true});
+        }
+        else
+        {
+          std::set<std::string> types;
+          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          {
+            types.insert(std::string((*itr)->getClass()->getName()));
+          }
+          notify(
+            {" + " + std::to_string(count) + " objects detected (" + std::to_string(types.size()) + " types)", true});
         }
       }
-
-      if (suppressNotifications_)
+      catch (const std::exception& e)
       {
-        return;
-      }
-
-      if (count <= tierOneMax)
-      {
-        for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
-        {
-          const auto& obj = *itr;
-          auto typeName = std::string(obj->getClass()->getName());
-          auto objName = stripComponentPrefix(obj->getLocalName());
-          bool isRemote = obj->asProxyObject() != nullptr && obj->asProxyObject()->isRemote();
-          std::string origin = isRemote ? "Remote" : "Native";
-          pendingNotifications_.push_back({" + " + objName + "  [" + typeName + ", " + origin + "]", true});
-        }
-      }
-      else if (count <= tierTwoMax)
-      {
-        pendingNotifications_.push_back({" + " + std::to_string(count) + " objects detected", true});
-      }
-      else
-      {
-        std::set<std::string> types;
-        for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
-        {
-          types.insert(std::string((*itr)->getClass()->getName()));
-        }
-        pendingNotifications_.push_back(
-          {" + " + std::to_string(count) + " objects detected (" + std::to_string(types.size()) + " types)", true});
+        getLogger()->error("a discovery notification could not be handled: {}", e.what());
       }
     });
 
   std::ignore = objects_->onRemoved(
     [this](const auto& iterators)
     {
-      auto count = checkedConversion<std::size_t>(std::distance(iterators.untypedBegin, iterators.untypedEnd));
-      if (count == 0)
+      // Same boundary as the add handler above, and for the same reason.
+      try
       {
-        return;
-      }
-
-      ++generation_;
-      if (onObjectRemoved_)
-      {
-        for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+        auto count = checkedConversion<std::size_t>(std::distance(iterators.untypedBegin, iterators.untypedEnd));
+        if (count == 0)
         {
-          onObjectRemoved_(*itr);
+          return;
+        }
+
+        ++generation_;
+        if (onObjectRemoved_)
+        {
+          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          {
+            onObjectRemoved_(*itr);
+          }
+        }
+
+        if (suppressNotifications_)
+        {
+          return;
+        }
+
+        if (count <= tierOneMax)
+        {
+          for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
+          {
+            notify({" - " + stripComponentPrefix((*itr)->getLocalName()) + "  [removed]", true});
+          }
+        }
+        else
+        {
+          notify({" - " + std::to_string(count) + " objects removed", true});
         }
       }
-
-      if (suppressNotifications_)
+      catch (const std::exception& e)
       {
-        return;
-      }
-
-      if (count <= tierOneMax)
-      {
-        for (auto itr = iterators.untypedBegin; itr != iterators.untypedEnd; ++itr)
-        {
-          pendingNotifications_.push_back({" - " + stripComponentPrefix((*itr)->getLocalName()) + "  [removed]", true});
-        }
-      }
-      else
-      {
-        pendingNotifications_.push_back({" - " + std::to_string(count) + " objects removed", true});
+        getLogger()->error("a discovery notification could not be handled: {}", e.what());
       }
     });
 }
@@ -177,7 +211,7 @@ Result<void, std::string> ObjectStore::openSource(std::string_view sourceName)
     }
 
     openSessions_.try_emplace(sessionName, api_.getSessionsDiscoverer().makeSessionInfoProvider(sessionName));
-    pendingNotifications_.push_back({" + source " + sessionName + " opened", true});
+    notify({" + source " + sessionName + " opened", true});
     return Ok();
   }
 
@@ -210,7 +244,7 @@ Result<void, std::string> ObjectStore::openSource(std::string_view sourceName)
       pd.provider->addListener(&mux_, true);
       sourceData.providers.try_emplace(providerName, std::move(pd));
 
-      pendingNotifications_.push_back({" + source " + id + " opened", true});
+      notify({" + source " + id + " opened", true});
       return Ok();
     }
     catch (const std::exception& err)
@@ -226,7 +260,7 @@ Result<void, std::string> ObjectStore::closeSource(std::string_view sourceName)
 {
   auto components = impl::split(std::string(sourceName));
   std::vector<std::string> sourcesToClose;
-  auto sessionName = components.front();
+  const auto& sessionName = components.front();
 
   if (components.size() == 1)
   {
@@ -274,7 +308,7 @@ Result<void, std::string> ObjectStore::closeSource(std::string_view sourceName)
     }
     else
     {
-      pendingNotifications_.push_back({" - query " + queryId + " closed", true});
+      notify({" - query " + queryId + " closed", true});
       return Ok();
     }
   }
@@ -301,7 +335,7 @@ Result<void, std::string> ObjectStore::closeSource(std::string_view sourceName)
 
   if (!sourcesToClose.empty())
   {
-    pendingNotifications_.push_back({" - source " + std::string(sourceName) + " closed", true});
+    notify({" - source " + std::string(sourceName) + " closed", true});
   }
 
   return Ok();
@@ -341,9 +375,32 @@ Result<void, std::string> ObjectStore::createQuery(std::string_view name, std::s
   }
 
   const auto& busCondition = interest->getBusCondition().value();
-  auto& sourceData = getOrOpenSource(busCondition.sessionName, busCondition.busName);
+
+  // Inside a try, like the provider work below it and like openSource's own call. It used to sit between
+  // the two trys, uncovered -- and CommandEngine's constructor calls this for every `query:` entry in
+  // the configuration, from inside run(), where nothing above it catches. So a session or bus name a
+  // user mistyped in a config file terminated the kernel during startup, while the same name typed at
+  // the `query` command was reported politely, because that path goes through execute's try.
+  SourceData* sourceDataPtr = nullptr;
+  try
+  {
+    sourceDataPtr = &getOrOpenSource(busCondition.sessionName, busCondition.busName);
+  }
+  catch (const std::exception& err)
+  {
+    return Err("cannot open " + busCondition.sessionName + "." + busCondition.busName + ": " + err.what());
+  }
+  auto& sourceData = *sourceDataPtr;
 
   std::string providerId = busCondition.sessionName + "." + busCondition.busName + "." + nameStr;
+
+  for (const auto& [existingQuery, existingSelection]: querySelections_)
+  {
+    if (existingSelection == selection)
+    {
+      return Err("a query named '" + existingQuery + "' already exists with the same definition");
+    }
+  }
 
   for (const auto& [existingName, existingData]: sourceData.providers)
   {
@@ -383,13 +440,14 @@ Result<void, std::string> ObjectStore::createQuery(std::string_view name, std::s
     auto busAddr = busCondition.sessionName + "." + busCondition.busName;
     auto sub = api_.selectFrom<Object>(busAddr, std::string(selection));
     querySubscriptions_.emplace(nameStr, std::move(sub));
+    querySelections_.emplace(nameStr, std::string(selection));
   }
   catch (const std::exception& err)
   {
     return Err(std::string(err.what()));
   }
 
-  pendingNotifications_.push_back({" + query '" + nameStr + "' created", true});
+  notify({" + query '" + nameStr + "' created", true});
   return Ok();
 }
 
@@ -408,10 +466,20 @@ Result<void, std::string> ObjectStore::removeQuery(std::string_view name)
         itr->second.provider->removeListener(&mux_, true);
         sourceData.providers.erase(itr);
         querySubscriptions_.erase(nameStr);
-        pendingNotifications_.push_back({" - query '" + nameStr + "' removed", true});
+        querySelections_.erase(nameStr);
+        notify({" - query '" + nameStr + "' removed", true});
         return Ok();
       }
     }
+  }
+
+  // No provider of its own: this is a query that reused the internal ".all" provider, which is the case
+  // that used to be unremovable. The subscription is the thing to release.
+  if (querySelections_.erase(nameStr) != 0U)
+  {
+    querySubscriptions_.erase(nameStr);
+    notify({" - query '" + nameStr + "' removed", true});
+    return Ok();
   }
 
   return Err("query '" + nameStr + "' not found");
@@ -429,6 +497,7 @@ bool ObjectStore::isSourceOpen(std::string_view sourceName) const
 std::vector<std::string> ObjectStore::getOpenSources() const
 {
   std::vector<std::string> result;
+  result.reserve(openSources_.size());
   for (const auto& [name, data]: openSources_)
   {
     result.push_back(name);
@@ -454,19 +523,14 @@ std::vector<std::shared_ptr<Object>> ObjectStore::getQueryObjects(std::string_vi
 
 std::vector<ObjectStore::QueryInfo> ObjectStore::getQueries() const
 {
+  // From the selection record, not from the providers: a query that reused the internal ".all" provider
+  // has none of its own, and listing by provider left it invisible to `queries` and to completion while
+  // it went on holding a subscription.
   std::vector<QueryInfo> result;
-  for (const auto& [busId, sourceData]: openSources_)
+  result.reserve(querySelections_.size());
+  for (const auto& [name, selection]: querySelections_)
   {
-    for (const auto& [providerName, providerData]: sourceData.providers)
-    {
-      if (isAllProvider(providerName))
-      {
-        continue;
-      }
-      auto dotPos = providerName.rfind('.');
-      std::string shortName = (dotPos != std::string::npos) ? providerName.substr(dotPos + 1) : providerName;
-      result.push_back({shortName, providerData.interest->getQueryString()});
-    }
+    result.push_back({name, selection});
   }
   return result;
 }
@@ -483,7 +547,7 @@ std::vector<std::string> ObjectStore::getAvailableSources() const
       auto buses = itr->second->getDetectedSources();
       for (const auto& busName: buses)
       {
-        result.push_back(sessionName + "." + busName);
+        result.push_back(std::string(sessionName).append(".").append(busName));
       }
     }
     else
@@ -508,7 +572,26 @@ std::vector<DiscoveryNotification> ObjectStore::drainNotifications()
 {
   std::vector<DiscoveryNotification> result;
   result.swap(pendingNotifications_);
+
+  if (droppedNotifications_ > 0)
+  {
+    result.push_back({std::to_string(droppedNotifications_) + " further discovery notices were not shown", false});
+    droppedNotifications_ = 0;
+  }
   return result;
+}
+
+void ObjectStore::notify(DiscoveryNotification notification)
+{
+  // Discovery pushes one of these per object, and the drain is once per frame. Beyond the bound they are
+  // counted and the count is reported, which is what a user needs from a burst of ten thousand anyway.
+  constexpr std::size_t maxPendingNotifications = 500;
+  if (pendingNotifications_.size() >= maxPendingNotifications)
+  {
+    ++droppedNotifications_;
+    return;
+  }
+  pendingNotifications_.push_back(std::move(notification));
 }
 
 //--------------------------------------------------------------------------------------------------------------

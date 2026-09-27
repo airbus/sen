@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_TREE_VIEW_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/span.h"
 
@@ -16,10 +17,12 @@
 #include <ftxui/dom/elements.hpp>
 
 // std
+#include <cstddef>
 #include <functional>
 #include <list>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace sen::components::term
@@ -41,6 +44,7 @@ public:
   };
 
   explicit TreeNode(std::string name = {}, std::string annotation = {});
+  ~TreeNode() = default;
 
   /// Reset this node back to an empty state (drop children, annotation, and kind).
   void clear() noexcept;
@@ -68,12 +72,24 @@ public:
   void render(const std::function<void(ftxui::Element)>& emit) const;
 
 private:
-  void renderImpl(const std::function<void(ftxui::Element)>& emit, std::string_view prefix, bool isLast) const;
+  /// `depth` bounds the recursion. The tree is built from names a peer chose, and a walk with no limit
+  /// ends in a stack overflow rather than a message.
+  void renderImpl(const std::function<void(ftxui::Element)>& emit,
+                  std::string_view prefix,
+                  bool isLast,
+                  std::size_t depth) const;
 
 private:
   std::string name_;
   std::string annotation_;
   std::list<TreeNode> children_;
+  /// children_ by name. The list is what render walks, in insertion order; this is what lookup uses.
+  ///
+  /// Without it, building the tree for `ls` was quadratic in the number of objects: one linear scan of
+  /// the siblings per object, and a flat bus makes every object a sibling. About a second at ten
+  /// thousand objects and far worse beyond, on the thread that draws the screen. A std::list never
+  /// invalidates a pointer to an element, so holding pointers here is safe across every insert.
+  std::unordered_map<std::string, TreeNode*> childIndex_;
   TreeNode* parent_ = nullptr;
   Kind kind_ = Kind::plain;
 };

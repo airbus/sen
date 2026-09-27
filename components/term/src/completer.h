@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_COMPLETER_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/span.h"
 #include "sen/core/meta/type.h"
@@ -18,6 +19,7 @@
 #include <cstddef>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -51,9 +53,12 @@ enum class CompletionKind
 /// A single completion candidate.
 struct Completion
 {
-  std::string text;                             ///< Replacement text for the token being completed.
-  std::string display;                          ///< Short annotation shown in the candidate grid.
-  std::string detail = {};                      ///< Longer description shown in the detail line when selected.
+  std::string text;     ///< Replacement text for the token being completed.
+  std::string display;  ///< Short annotation shown in the candidate grid.
+  /// Longer description shown in the detail line when selected. The `= {}` is what clang-tidy calls
+  /// a redundant initialiser and what gcc needs: without a default member initialiser, every
+  /// aggregate initialiser that leaves `detail` out fails -Werror=missing-field-initializers.
+  std::string detail = {};                      // NOLINT(readability-redundant-member-init)
   CompletionKind kind = CompletionKind::value;  ///< Determines behavior on selection.
 
   /// Number of method arguments. Used by the UI to decide between immediate execution and form.
@@ -64,8 +69,9 @@ struct Completion
 struct CompletionResult
 {
   std::vector<Completion> candidates;
-  int replaceFrom = 0;  ///< Start position of the token being replaced.
-  int replaceTo = 0;    ///< End position of the token being replaced (usually cursor pos).
+  int replaceFrom = 0;     ///< Start position of the token being replaced.
+  int replaceTo = 0;       ///< End position of the token being replaced (usually cursor pos).
+  bool truncated = false;  ///< Candidates were cut at the bound; there were more matches than these.
 };
 
 /// Provides tab completion for the term input.
@@ -79,6 +85,7 @@ class Completer final
 
 public:
   Completer() = default;
+  ~Completer() = default;
 
   /// Refresh cached completion data if dirty. Called each update cycle.
   /// Full object rebuild only happens when markScopeDirty() was called; object add/remove
@@ -133,6 +140,33 @@ private:
   [[nodiscard]] std::vector<Completion> completeLogArg(std::string_view prefix,
                                                        Span<const std::string_view> tokens) const;
 
+  /// The first token on the line: a command name, an object path, or an object with a method after a
+  /// dot.
+  [[nodiscard]] std::vector<Completion> completeFirstToken(std::string_view prefix) const;
+
+  /// `query` and its subcommands. The shape of the line decides which position is being completed,
+  /// so this needs the tokens and whether the line ends on a space.
+  [[nodiscard]] std::vector<Completion> completeQueryArg(std::string_view prefix,
+                                                         Span<const std::string_view> tokens,
+                                                         std::size_t completedTokens,
+                                                         bool endsWithSpace) const;
+
+  /// Type names and `*`, for the position after SELECT.
+  [[nodiscard]] std::vector<Completion> completeQuerySelectArg(std::string_view prefix) const;
+
+  /// Bus addresses and `*`, for the position after FROM. Offers buses that are not open yet: Sen
+  /// opens them when the query runs.
+  [[nodiscard]] std::vector<Completion> completeQueryFromArg(std::string_view prefix) const;
+
+  /// Theme names, from the ThemeStyle enum.
+  [[nodiscard]] static std::vector<Completion> completeThemeArg(std::string_view prefix);
+
+  /// Objects and type names, for `inspect` and `types`.
+  [[nodiscard]] std::vector<Completion> completeInspectArg(std::string_view prefix) const;
+
+  /// Unit category names.
+  [[nodiscard]] static std::vector<Completion> completeUnitsArg(std::string_view prefix);
+
   [[nodiscard]] static std::vector<Completion> filterByPrefix(Span<const std::string> items,
                                                               std::string_view prefix,
                                                               std::string_view annotation = {});
@@ -146,11 +180,22 @@ private:
 
 private:
   // Cached data
-  std::vector<std::string> childNames_;        // immediate children of current scope (for cd/ls)
+  // A set, not a sorted vector. At bus or group scope every flat object is its own first segment, so
+  // every arriving object took the 0->1 branch and memmoved half the vector: discovery on a large flat
+  // bus froze the frame it was showing, with nothing typed, and it hid at root scope where every object
+  // shares one segment. Iteration is still in order, which is all the read site wants.
+  /// Rebuild loggerNames_ from the router. Takes spdlog's global registry mutex, so it is called from
+  /// the one place that reads the list rather than from update().
+  void refreshLoggerNames() const;
+
+  std::set<std::string> childNames_;           // immediate children of current scope (for cd/ls)
   std::vector<std::string> openSources_;       // currently open source names (for close)
   std::vector<std::string> availableSources_;  // discoverable source names (for open)
   std::vector<std::string> queryNames_;        // named query names (for cd @, query rm)
-  std::vector<std::string> loggerNames_;       // spdlog logger names (for log level)
+  // Mutable because the list is a cache filled on demand from a const completion call. The alternative
+  // was rebuilding it on every cycle, which took spdlog's global registry mutex thirty times a second.
+  mutable std::vector<std::string> loggerNames_;  // spdlog logger names (for log level)
+  LogRouter* logRouter_ = nullptr;                // not owned; remembered by update()
 
   // Object name -> Object for leaf objects in current scope
   std::unordered_map<std::string, std::shared_ptr<Object>> objectsByName_;

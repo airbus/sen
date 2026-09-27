@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_TEST_INTEGRATION_PACKAGES_TERM_SHOWCASE_SRC_WORKER_IMPL_H
 
 // sen
+// sen
 #include "sen/core/meta/var.h"
 #include "sen/kernel/component_api.h"
 
@@ -82,8 +83,6 @@ public:
     }
   }
 };
-
-SEN_EXPORT_CLASS(WorkerImpl)
 
 }  // namespace term_showcase
 

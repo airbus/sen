@@ -6,7 +6,10 @@
 // =====================================================================================================================
 
 #include "object_store.h"
+
+// sen
 #include "sen/core/base/duration.h"
+#include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
 
 // google test
@@ -15,6 +18,7 @@
 // std
 #include <chrono>
 #include <memory>
+#include <string>
 
 namespace sen::components::term
 {
@@ -34,32 +38,34 @@ class ObjectStoreTest: public ::testing::Test
 protected:
   void SetUp() override
   {
-    component_.onRun(
+    testComponent.onRun(
       [this](kernel::RunApi& api) -> kernel::FuncResult
       {
-        if (!store_)
+        if (!store)
         {
-          store_ = std::make_unique<ObjectStore>(api);
+          store = std::make_unique<ObjectStore>(api);
         }
         return api.execLoop(Duration(std::chrono::milliseconds(10)), []() {});
       });
 
-    kernel_ = std::make_unique<kernel::TestKernel>(&component_);
-    kernel_->step(3);
-    ASSERT_NE(store_, nullptr);
+    testKernel = std::make_unique<kernel::TestKernel>(&testComponent);
+    testKernel->step(3);
+    ASSERT_NE(store, nullptr);
   }
 
   void TearDown() override
   {
     // Drop the store before the kernel goes away, its destructor unhooks listeners
     // from the mux, which is fine, but we want a deterministic order.
-    store_.reset();
-    kernel_.reset();
+    store.reset();
+    testKernel.reset();
   }
 
-  kernel::TestComponent component_;
-  std::unique_ptr<kernel::TestKernel> kernel_;
-  std::unique_ptr<ObjectStore> store_;
+  // A fixture's members are its tests' locals, so the encapsulation the check asks for has no
+  // owner to protect them from. Same reading as libs/core's test fixtures.
+  kernel::TestComponent testComponent;             // NOLINT(misc-non-private-member-variables-in-classes)
+  std::unique_ptr<kernel::TestKernel> testKernel;  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::unique_ptr<ObjectStore> store;              // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -68,13 +74,13 @@ protected:
 
 TEST_F(ObjectStoreTest, OpenSourceTooManyComponentsFails)
 {
-  auto result = store_->openSource("a.b.c");
+  auto result = store->openSource("a.b.c");
   EXPECT_TRUE(result.isError());
 }
 
 TEST_F(ObjectStoreTest, OpenSourceFourComponentsFails)
 {
-  auto result = store_->openSource("a.b.c.d");
+  auto result = store->openSource("a.b.c.d");
   EXPECT_TRUE(result.isError());
 }
 
@@ -84,21 +90,21 @@ TEST_F(ObjectStoreTest, OpenSourceFourComponentsFails)
 
 TEST_F(ObjectStoreTest, CreateQueryRejectsNameWithDot)
 {
-  auto result = store_->createQuery("foo.bar", "SELECT * FROM session.bus");
+  auto result = store->createQuery("foo.bar", "SELECT * FROM session.bus");
   ASSERT_TRUE(result.isError());
   EXPECT_NE(result.getError().find("dots"), std::string::npos);
 }
 
 TEST_F(ObjectStoreTest, CreateQueryRejectsNameWithSpace)
 {
-  auto result = store_->createQuery("foo bar", "SELECT * FROM session.bus");
+  auto result = store->createQuery("foo bar", "SELECT * FROM session.bus");
   ASSERT_TRUE(result.isError());
   EXPECT_NE(result.getError().find("spaces"), std::string::npos);
 }
 
 TEST_F(ObjectStoreTest, CreateQueryRejectsInvalidSelection)
 {
-  auto result = store_->createQuery("q", "this is not a valid SELECT statement");
+  auto result = store->createQuery("q", "this is not a valid SELECT statement");
   ASSERT_TRUE(result.isError());
   EXPECT_NE(result.getError().find("invalid query"), std::string::npos);
 }
@@ -106,7 +112,7 @@ TEST_F(ObjectStoreTest, CreateQueryRejectsInvalidSelection)
 TEST_F(ObjectStoreTest, CreateQueryRejectsSelectionWithoutSource)
 {
   // A SELECT with no FROM has no bus condition and should be rejected up-front.
-  auto result = store_->createQuery("q", "SELECT *");
+  auto result = store->createQuery("q", "SELECT *");
   ASSERT_TRUE(result.isError());
   // Either "must specify a source" (parsed) or "invalid query" (rejected at parse time).
   EXPECT_TRUE(result.getError().find("source") != std::string::npos ||
@@ -119,7 +125,7 @@ TEST_F(ObjectStoreTest, CreateQueryRejectsSelectionWithoutSource)
 
 TEST_F(ObjectStoreTest, RemoveQueryUnknownFails)
 {
-  auto result = store_->removeQuery("doesNotExist");
+  auto result = store->removeQuery("doesNotExist");
   ASSERT_TRUE(result.isError());
   EXPECT_NE(result.getError().find("not found"), std::string::npos);
 }
@@ -130,7 +136,7 @@ TEST_F(ObjectStoreTest, RemoveQueryUnknownFails)
 
 TEST_F(ObjectStoreTest, CloseSourceWithFourComponentsFails)
 {
-  auto result = store_->closeSource("a.b.c.d");
+  auto result = store->closeSource("a.b.c.d");
   EXPECT_TRUE(result.isError());
 }
 
@@ -138,7 +144,7 @@ TEST_F(ObjectStoreTest, CloseQueryOnUnopenedBusFails)
 {
   // 3 components ⇒ closeSource interprets it as "session.bus.query".
   // Bus is not open, so this should error with a "not open" hint.
-  auto result = store_->closeSource("session.bus.query");
+  auto result = store->closeSource("session.bus.query");
   ASSERT_TRUE(result.isError());
   EXPECT_NE(result.getError().find("not open"), std::string::npos);
 }
@@ -149,15 +155,15 @@ TEST_F(ObjectStoreTest, CloseQueryOnUnopenedBusFails)
 
 TEST_F(ObjectStoreTest, FreshStoreHasNoObjectsOrSources)
 {
-  EXPECT_EQ(store_->getObjectCount(), 0U);
-  EXPECT_TRUE(store_->getOpenSources().empty());
-  EXPECT_TRUE(store_->getQueries().empty());
-  EXPECT_FALSE(store_->isSourceOpen("anything"));
+  EXPECT_EQ(store->getObjectCount(), 0U);
+  EXPECT_TRUE(store->getOpenSources().empty());
+  EXPECT_TRUE(store->getQueries().empty());
+  EXPECT_FALSE(store->isSourceOpen("anything"));
 }
 
-TEST_F(ObjectStoreTest, FreshStoreGenerationIsZero) { EXPECT_EQ(store_->getGeneration(), 0U); }
+TEST_F(ObjectStoreTest, FreshStoreGenerationIsZero) { EXPECT_EQ(store->getGeneration(), 0U); }
 
-TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store_->drainNotifications().empty()); }
+TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store->drainNotifications().empty()); }
 
 }  // namespace
 }  // namespace sen::components::term

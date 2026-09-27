@@ -145,12 +145,17 @@ class TestTermSession(unittest.TestCase):
             f"the line was not bounded, or said nothing about it. Screen:\n{self.term.screen()[-2000:]}",
         )
 
-        # And it still acts on input: clear the line, then run a command.
+        # And it still acts on input. The drain first is not politeness: 30,000 characters are still
+        # coming out of the pty, and a probe sent now queues behind them, so Escape clears a line that
+        # the remaining characters immediately refill. The old probe could not tell that apart from a
+        # term that had stopped reading keys, because it waited for the prompt, which every idle repaint
+        # draws.
+        self.term.read_output(timeout=8.0)
         self.term.send_keys(ESCAPE, settle=1.0)
         self.term.forget()
-        self.term.send_command("pwd", settle=2.0)
+        self.term.send_command("xyzzy", settle=2.0)
         self.assertTrue(
-            self.term.wait_for("sen:/", timeout=15.0),
+            self.term.wait_for("Nothing happens.", timeout=15.0),
             f"the term stopped acting on input after a large paste. Screen:\n{self.term.screen()[-2000:]}",
         )
         self.assertTrue(self.term.is_running())
@@ -174,12 +179,21 @@ class TestTermSession(unittest.TestCase):
         self.assertTrue(self.term.is_running())
 
     def test_a_tab_inside_a_paste_is_text_not_completion(self) -> None:
-        """A control character in pasted text does not act as the key of the same name."""
+        """A control character in pasted text does not act as the key of the same name.
+
+        Asserted on the prompt row alone. An earlier version looked for "local.demo" anywhere on the
+        screen, which stopped meaning anything once log messages began rendering into the output area:
+        the bus name appears there for its own reasons, and the test failed on a working term.
+        """
         self.term.forget()
         self.term.send_keys(PASTE_START + b"loc\tal" + PASTE_END, settle=2.0)
-        screen: str = self.term.screen()
-        self.assertIn("loc al", screen, f"the pasted tab did not become a space. Screen:\n{screen}")
-        self.assertNotIn("local.demo", screen, f"the pasted tab opened completion. Screen:\n{screen}")
+
+        prompt_rows = [row for row in self.term.screen().split("\n") if "sen:" in row]
+        self.assertTrue(prompt_rows, f"no prompt row on screen. Screen:\n{self.term.screen()}")
+        prompt = prompt_rows[-1]
+
+        self.assertIn("loc al", prompt, f"the pasted tab did not become a space. Prompt: {prompt!r}")
+        self.assertNotIn("local.", prompt, f"the pasted tab completed the token. Prompt: {prompt!r}")
 
     def test_a_paste_whose_end_marker_is_lost_releases_itself(self) -> None:
         """A paste that never finishes must not leave the term swallowing every key.
@@ -203,9 +217,9 @@ class TestTermSession(unittest.TestCase):
         # And the term acts on keys again.
         self.term.send_keys(ESCAPE, settle=1.0)
         self.term.forget()
-        self.term.send_command("pwd", settle=2.0)
+        self.term.send_command("xyzzy", settle=2.0)
         self.assertTrue(
-            self.term.wait_for("sen:/", timeout=10.0),
+            self.term.wait_for("Nothing happens.", timeout=10.0),
             f"the term was still swallowing input. Screen:\n{self.term.screen()[-1500:]}",
         )
 
@@ -219,10 +233,14 @@ class TestTermSession(unittest.TestCase):
             f"Escape did not end the paste. Screen:\n{self.term.screen()[-1500:]}",
         )
 
-        # Keys act again straight away, well inside the idle release.
+        # Escape kept the text received so far, which is the point of it, so the line has to be cleared
+        # before a probe can be a probe: "half a pastexyzzy" is not a command and answers nothing.
+        self.term.send_keys(ESCAPE, settle=0.6)
         self.term.forget()
-        self.term.send_command("pwd", settle=2.0)
-        self.assertTrue(self.term.wait_for("sen:/", timeout=6.0), "the term did not act on input after cancelling")
+        self.term.send_command("xyzzy", settle=2.0)
+        self.assertTrue(
+            self.term.wait_for("Nothing happens.", timeout=6.0), "the term did not act on input after cancelling"
+        )
 
     def test_the_line_completion_produces_gets_a_useful_answer(self) -> None:
         """Enter on the exact line Tab leaves behind must not be reported as an unknown command.
@@ -246,6 +264,37 @@ class TestTermSession(unittest.TestCase):
         )
         self.assertIn("names no method", screen, f"no useful answer for the dangling dot. Screen:\n{screen}")
         self.assertTrue(self.term.is_running())
+
+    def test_output_fills_the_pane_from_the_top(self) -> None:
+        """Short output sits at the top of the pane, not pushed down against the prompt.
+
+        Both halves matter, so both are asserted: the first row carries output *and* the row just
+        above the rule is empty. Pushing content down against the prompt fails the pair the other
+        way round, which is what this test exists to notice.
+        """
+        self.term.send_command("cd local.demo")
+        screen = self.term.grid()
+        rule_row: int = self.term.rows - 1
+        self.assertNotEqual("", screen.line(1), f"row 1 is empty, so output is not at the top:\n{screen.numbered()}")
+        self.assertEqual(
+            "",
+            screen.line(rule_row - 1),
+            f"the row above the rule is used, so output hugs the prompt:\n{screen.numbered()}",
+        )
+
+    def test_the_banner_is_drawn_at_the_top_of_the_screen(self) -> None:
+        """With the logo on, the banner sits at the top with one blank row above it."""
+        self.term.stop()  # one kernel at a time: this case needs a session the logo is on for
+        logo_config: str = str(Path(self.config_yaml).with_name("session_logo.yaml"))
+        banner_term: TermTester = TermTester(self.cli_run_path, logo_config)
+        self.addCleanup(banner_term.stop)
+        banner_term.start()
+        banner_term.wait_for("Sen v")
+        screen = banner_term.grid()
+        self.assertEqual(2, screen.row_of("Sen v"), f"the banner is not on row 2:\n{screen.numbered()}")
+        self.assertEqual(
+            "", screen.line(1).strip(), f"row 1 should be the blank row above the banner:\n{screen.numbered()}"
+        )
 
     def test_exit_shuts_the_kernel_down(self) -> None:
         """The `exit` command stops the process rather than just the component."""

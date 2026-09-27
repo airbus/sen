@@ -9,11 +9,13 @@
 #define SEN_COMPONENTS_TERM_SRC_OUTPUT_CAPTURE_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/move_only_function.h"
 
 // std
 #include <atomic>
+#include <cstddef>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -43,6 +45,9 @@ private:
   void readerThread(int pipeFd);
 
 private:
+  /// Queue one captured line, or count it as dropped if the queue is full. Call with `mutex_` held.
+  void pushLineLocked(std::string line);
+
   OutputCallback callback_;
   std::atomic_bool running_ {true};
 
@@ -51,8 +56,11 @@ private:
   int stderrPipeRead_ = -1;
   std::thread stderrReader_;
 
+  // Bounded, and what it refuses is counted. A component that writes to stderr faster than the screen
+  // can draw used to grow this without limit, on a thread nothing throttles.
   std::mutex mutex_;
   std::vector<std::string> pendingLines_;
+  std::size_t droppedLines_ = 0;
 };
 
 }  // namespace sen::components::term

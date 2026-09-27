@@ -25,7 +25,7 @@ kernel:
     level: debug
 
 load:
-  - name: shell
+  - name: term
     group: 1
 
   - name: my_component

@@ -1,7 +1,7 @@
 # $schema: ../base/schema.json
 include:
   # bring the shell so that we can interact with our objects
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 build:
   - name: myComponent

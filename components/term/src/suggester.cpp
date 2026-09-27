@@ -7,11 +7,16 @@
 
 #include "suggester.h"
 
+// sen
+#include "sen/core/base/span.h"
+
 // std
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <cstdlib>
+#include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -77,7 +82,11 @@ std::size_t suggestionThreshold(std::size_t queryLength) noexcept
 
 std::size_t scoreSuggestion(std::string_view query, std::string_view candidate) noexcept
 {
-  if (containsCaseInsensitive(candidate, query))
+  // The cheap precondition first. A query longer than the candidate cannot be a substring of it, and the
+  // scan is O(|candidate| * |query|) with a tolower per character -- paid for every object in scope
+  // before anything could reject it. The order matters and cannot be improved further: a substring match
+  // scores 0 whatever the length spread, so the spread guard below cannot come first.
+  if (query.size() <= candidate.size() && containsCaseInsensitive(candidate, query))
   {
     return 0;
   }

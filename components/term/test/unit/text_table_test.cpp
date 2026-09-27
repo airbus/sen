@@ -12,7 +12,14 @@
 #include <ftxui/dom/elements.hpp>
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+// std
+#include <cstddef>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -44,14 +51,14 @@ TEST(TextTable, SingleRowShowsAllCellsInOrder)
     Row {Cell {"alpha"}, Cell {"beta"}, Cell {"gamma"}},
   };
   auto out = renderText(rows);
-  auto pos_a = out.find("alpha");
-  auto pos_b = out.find("beta");
-  auto pos_g = out.find("gamma");
-  ASSERT_NE(pos_a, std::string::npos);
-  ASSERT_NE(pos_b, std::string::npos);
-  ASSERT_NE(pos_g, std::string::npos);
-  EXPECT_LT(pos_a, pos_b);
-  EXPECT_LT(pos_b, pos_g);
+  auto posAlpha = out.find("alpha");
+  auto posBeta = out.find("beta");
+  auto posGamma = out.find("gamma");
+  ASSERT_NE(posAlpha, std::string::npos);
+  ASSERT_NE(posBeta, std::string::npos);
+  ASSERT_NE(posGamma, std::string::npos);
+  EXPECT_LT(posAlpha, posBeta);
+  EXPECT_LT(posBeta, posGamma);
 }
 
 //--------------------------------------------------------------------------------------------------------------

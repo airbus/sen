@@ -25,6 +25,7 @@ add_sen_unit_test_suite(
   unit/signature_renderer_test.cpp
   unit/output_pane_test.cpp
   unit/log_router_test.cpp
+  unit/signal_stack_test.cpp
   unit/object_store_test.cpp
   unit/suggester_test.cpp
   unit/completer_incremental_test.cpp

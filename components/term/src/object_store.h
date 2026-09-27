@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_TERM_SRC_OBJECT_STORE_H
 
 // sen
+// sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/move_only_function.h"
 #include "sen/core/base/result.h"
@@ -47,6 +48,7 @@ class ObjectStore final
 
 public:
   explicit ObjectStore(kernel::RunApi& api);
+  ~ObjectStore() = default;
 
   /// Open a source (session or session.bus).
   [[nodiscard]] Result<void, std::string> openSource(std::string_view sourceName);
@@ -119,8 +121,17 @@ private:
 
   [[nodiscard]] SourceData& getOrOpenSource(std::string_view sessionName, std::string_view busName);
 
+  /// Queue a discovery notice, or count it as dropped if the queue is at its bound.
+  void notify(DiscoveryNotification notification);
+
 private:
   kernel::RunApi& api_;
+  // Declared before everything they can be called from, so they are destroyed last. The other
+  // order made them the first members to go, and any removal delivered while the sources were
+  // still unwinding would have called a destroyed move_only_function.
+  ObjectEventCallback onObjectAdded_;
+  ObjectEventCallback onObjectRemoved_;
+
   ObjectMux mux_;
   std::unique_ptr<ObjectList<Object>> objects_;
   std::unordered_map<std::string, std::shared_ptr<kernel::SessionInfoProvider>> openSessions_;
@@ -129,12 +140,20 @@ private:
   // Named query subscriptions. Each holds an ObjectList with only the matched objects.
   std::map<std::string, std::shared_ptr<Subscription<Object>>> querySubscriptions_;
 
+  // What each named query selects. The provider map used to be the only record, and a query that reused
+  // the internal ".all" provider creates none -- so it did not appear in `queries`, could not be removed,
+  // and held a Subscription tracking every object on the bus for the life of the session. Several with
+  // the same text could pile up, because the duplicate check skipped the ".all" provider before it
+  // compared selections.
+  std::map<std::string, std::string> querySelections_;
+
   // Notification accumulator (populated by callbacks, drained by the UI)
+  // Bounded, like the other producer queues. Discovery on a large bus pushes one per object and the
+  // drain is once per frame, so an unbounded queue here is the same accumulator in a third place.
   std::vector<DiscoveryNotification> pendingNotifications_;
+  std::size_t droppedNotifications_ = 0;
   bool suppressNotifications_ = true;  // suppress until first user interaction
   uint64_t generation_ = 0;
-  ObjectEventCallback onObjectAdded_;
-  ObjectEventCallback onObjectRemoved_;
 };
 
 }  // namespace sen::components::term

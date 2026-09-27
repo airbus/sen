@@ -48,6 +48,10 @@ public:
   /// Throws std::exception on failure.
   void shutDown();
 
+  /// Whether the caller is one of the components' own threads. A stop driven from there cannot join
+  /// that component, so it has to be driven from somewhere else.
+  [[nodiscard]] bool isCurrentThreadAComponent() const noexcept;
+
   /// Holds the called thread until the start procedure is finished
   void waitUntilStarted();
 
