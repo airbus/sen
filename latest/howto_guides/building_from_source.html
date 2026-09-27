@@ -1939,8 +1939,11 @@ are Conan options, all off by default.</p>
 <p>They apply at <code>conan install</code>, the step that generates the build files. The later <code>conan build</code> or
 <code>cmake --build</code> compiles with them already baked in; the <code>-D</code> column is for driving CMake without
 Conan.</p>
+<p><code>sanitizer</code> needs a clang profile. The instrumentation flags exist only in the build's clang
+branch, so asking for a sanitizer with <code>sen_gcc</code> or <code>sen_msvc</code> stops the configure instead of
+producing a binary with nothing to report.</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1"># tests compiled with the address sanitizer</span>
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile:all<span class="o">=</span>sen_gcc<span class="w"> </span>-o<span class="w"> </span>sen/*:with_tests<span class="o">=</span>True<span class="w"> </span>-o<span class="w"> </span>sen/*:sanitizer<span class="o">=</span>address<span class="w"> </span>--build<span class="o">=</span>missing
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>--profile:all<span class="o">=</span>sen_clang<span class="w"> </span>-o<span class="w"> </span>sen/*:with_tests<span class="o">=</span>True<span class="w"> </span>-o<span class="w"> </span>sen/*:sanitizer<span class="o">=</span>address<span class="w"> </span>--build<span class="o">=</span>missing
 </span></code></pre></div>
 <p><strong>Building the documentation.</strong> <code>with_docs=True</code> pulls <code>doxygen</code>, which itself needs
 <code>compiler.cppstd=20</code> set per-dependency, and that has to come from a profile rather than the
@@ -2086,7 +2089,7 @@ tracker.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 26, 2026 13:17:00 UTC">September 26, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 27, 2026 08:48:52 UTC">September 27, 2026</span>
 </span>
 </aside>
 </article>
