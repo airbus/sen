@@ -181,6 +181,12 @@ def main() -> int:
         description="Checks that the archive built by CPack is complete.",
     )
     parser.add_argument("build_dir", help="Build directory holding the archive that CPack wrote.")
+    parser.add_argument(
+        "--expect-symbols",
+        action="store_true",
+        help="Require a symbols archive. The caller knows whether it asked the build for one; "
+        "without this the checker validates whatever it finds and a short set passes.",
+    )
     args = parser.parse_args()
 
     archives = sorted(Path(args.build_dir).glob("sen-*.tar.gz")) + sorted(Path(args.build_dir).glob("sen-*.zip"))
@@ -188,6 +194,11 @@ def main() -> int:
         raise SystemExit(f"Error: no archive found in {args.build_dir}")
 
     problems = [problem for archive in archives for problem in check_archive(archive)]
+    if args.expect_symbols and not any(archive_stem(archive).endswith("-symbols") for archive in archives):
+        problems.append(
+            "no symbols archive: the build was asked for debug information and produced "
+            f"only {', '.join(archive.name for archive in archives)}"
+        )
     for problem in problems:
         print(problem)
 

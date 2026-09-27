@@ -166,7 +166,14 @@ jobs:
               python -c "import shutil,sys; shutil.make_archive(*sys.argv[1:])" \
                   "$build/$name" "$format" "$build/symbols-staging" "$name"
           fi
-          python .github/scripts/check_package_archive.py "$build"
+          # The option above is the only thing that knows a symbols archive was asked for, so it
+          # is the only place that can assert one arrived. Without this a build that produced
+          # none packages a short set and every job stays green.
+          expect=''
+          if [ -n "$symbols" ]; then
+              expect='--expect-symbols'
+          fi
+          python .github/scripts/check_package_archive.py "$build" $expect
           IN
 
       - name: Archive generated release package
