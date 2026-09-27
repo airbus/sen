@@ -782,43 +782,6 @@ std::vector<Completion> Completer::completeMethodName(std::string_view objectNam
   return result;
 }
 
-std::vector<Completion> Completer::completePropertyName(std::string_view objectName,
-                                                        std::string_view propertyPrefix) const
-{
-  auto it = objectsByName_.find(std::string(objectName));
-  if (it == objectsByName_.end() || !it->second)
-  {
-    return {};
-  }
-  const auto* classType = it->second->getClass().type();
-  const auto properties = classType->getProperties(ClassType::SearchMode::includeParents);
-  std::string objPrefix = std::string(objectName) + ".";
-
-  std::vector<Completion> result;
-  for (const auto& prop: properties)
-  {
-    auto propName = prop->getName();
-    if (!startsWith(propName, propertyPrefix))
-    {
-      continue;
-    }
-    auto typeName = std::string(prop->getType()->getName());
-    auto propDesc = std::string(prop->getDescription());
-    std::string detail;
-    if (propDesc.empty())
-    {
-      detail.append(objPrefix).append(propName).append(" : ").append(typeName);
-    }
-    else
-    {
-      detail.append(propDesc).append(" (").append(typeName).append(")");
-    }
-    result.push_back(
-      Completion {objPrefix + std::string(propName), ": " + typeName, std::move(detail), CompletionKind::value});
-  }
-  return result;
-}
-
 std::vector<Completion> Completer::completeEventName(std::string_view objectName, std::string_view eventPrefix) const
 {
   auto it = objectsByName_.find(std::string(objectName));
@@ -1153,7 +1116,13 @@ std::string Completer::commonPrefix(Span<const Completion> candidates)
     {
       ++j;
     }
-    prefix.resize(j);
+
+    // Cut back to a codepoint boundary. Two candidates that share the lead byte of a multi-byte
+    // codepoint and differ in the continuation byte -- é and è -- gave a prefix ending in a bare 0xC3,
+    // which writeCompletion put on the line and ftxui then dropped from the screen: a byte in the buffer
+    // that is not on the display, and Enter sends it. This is the one place in this file that compared
+    // bytes while the rest goes to trouble over exactly this.
+    prefix = truncateUtf8(prefix, j);
     if (prefix.empty())
     {
       break;

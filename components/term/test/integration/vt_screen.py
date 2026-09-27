@@ -68,10 +68,22 @@ class VtScreen:
                 return row
         return 0
 
+    def _scroll(self) -> None:
+        """Drop the top row and add a blank one, the way a terminal does at the bottom."""
+        self._grid.pop(0)
+        self._grid.append([" "] * self.columns)
+
+    def _newline(self) -> None:
+        if self._row + 1 >= self.rows:
+            self._scroll()
+        else:
+            self._row += 1
+        self._column = 0
+
     def _character(self, character: str) -> None:
         """Paint one character, or act on one of the control codes the term emits."""
         if character == "\n":
-            self._row, self._column = min(self.rows - 1, self._row + 1), 0
+            self._newline()
         elif character == "\r":
             self._column = 0
         elif character == "\b":
@@ -79,8 +91,12 @@ class VtScreen:
         elif character == "\t":
             self._column = min(self.columns - 1, (self._column // _TAB_WIDTH + 1) * _TAB_WIDTH)
         elif character >= " ":
-            if self._row < self.rows and self._column < self.columns:
-                self._grid[self._row][self._column] = character
+            # Auto-wrap, because a real terminal has DECAWM on. Dropping the overflow and carrying on
+            # incrementing the column put every row below an over-wide one at the wrong number, which is
+            # the one thing a grid model exists to get right.
+            if self._column >= self.columns:
+                self._newline()
+            self._grid[self._row][self._column] = character
             self._column += 1
 
     def _escape(self, data: str, index: int) -> int:

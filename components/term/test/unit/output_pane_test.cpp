@@ -6,12 +6,20 @@
 // =====================================================================================================================
 
 #include "output_pane.h"
+#include "test_render_utils.h"
 
 // ftxui
 #include <ftxui/dom/elements.hpp>
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+// std
+#include <string>
+
+// std
+#include <tuple>
 
 namespace sen::components::term
 {
@@ -159,6 +167,104 @@ TEST(OutputPane, ClearResetsPendingCount)
 
   pane.clear();
   EXPECT_FALSE(pane.hasPendingCalls());
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// Scrolling
+//--------------------------------------------------------------------------------------------------------------
+//
+// Every case here renders before it scrolls, and that is the point. The scroll step is
+// `rows / contentHeight_`, and contentHeight_ starts at 1 and is only ever assigned inside render(),
+// which returns early on an empty pane. So a test that scrolls a pane it has not rendered gets a step of
+// `rows`, saturates immediately, and passes for any step arithmetic whatsoever -- including none.
+
+namespace
+{
+
+/// Fill a pane with numbered lines and render it once, so contentHeight_ is the real row count.
+void fillAndRender(OutputPane& pane, int lines, int width = 40, int height = 10)
+{
+  for (int i = 0; i < lines; ++i)
+  {
+    pane.appendText("line_" + std::to_string(i));
+  }
+  std::ignore = test::renderToText(pane.render(), width, height);
+}
+
+/// What the pane draws right now, at a viewport smaller than its content.
+std::string visible(OutputPane& pane, int width = 40, int height = 10)
+{
+  return test::renderToText(pane.render(), width, height);
+}
+
+}  // namespace
+
+TEST(OutputPaneScroll, AFreshPaneFollowsTheBottom)
+{
+  OutputPane pane;
+  fillAndRender(pane, 60);
+  auto out = visible(pane);
+  EXPECT_THAT(out, ::testing::HasSubstr("line_59")) << "a pane that has not been scrolled shows the newest";
+  EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("line_0")));
+}
+
+TEST(OutputPaneScroll, ScrollingUpShowsEarlierLinesAndStopsFollowing)
+{
+  OutputPane pane;
+  fillAndRender(pane, 60);
+
+  pane.scrollUp(20);
+  auto out = visible(pane);
+  EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("line_59"))) << "scrolling up did not move the view";
+
+  // And it stays put when more arrives, which is what followBottom_ going false means.
+  pane.appendText("arrived_later");
+  EXPECT_THAT(visible(pane), ::testing::Not(::testing::HasSubstr("arrived_later")))
+    << "the view jumped to the bottom after scrolling up";
+}
+
+TEST(OutputPaneScroll, TheStepIsProportionalToTheContentNotTheRequest)
+{
+  // The property the saturating fresh-pane test could not see: on 600 lines, scrolling up 20 rows moves
+  // a twentieth of the way, so line_0 is nowhere near the view. On 30 lines the same request reaches the
+  // top. A step of `rows` rather than `rows / contentHeight_` makes both of these show line_0.
+  OutputPane tall;
+  fillAndRender(tall, 600);
+  tall.scrollUp(20);
+  EXPECT_THAT(visible(tall), ::testing::Not(::testing::HasSubstr("line_0")))
+    << "one scroll of 20 rows reached the top of 600 lines, so the step ignores the content height";
+
+  OutputPane shortPane;
+  fillAndRender(shortPane, 30);
+  shortPane.scrollUp(40);
+  EXPECT_THAT(visible(shortPane), ::testing::HasSubstr("line_0")) << "scrolling past the top did not clamp there";
+}
+
+TEST(OutputPaneScroll, ScrollToBottomComesBackAndFollowsAgain)
+{
+  OutputPane pane;
+  fillAndRender(pane, 60);
+  pane.scrollUp(20);
+  ASSERT_THAT(visible(pane), ::testing::Not(::testing::HasSubstr("line_59")));
+
+  pane.scrollToBottom();
+  EXPECT_THAT(visible(pane), ::testing::HasSubstr("line_59"));
+
+  pane.appendText("arrived_later");
+  EXPECT_THAT(visible(pane), ::testing::HasSubstr("arrived_later")) << "following the bottom did not resume";
+}
+
+TEST(OutputPaneScroll, ScrollingDownFromTheTopReturnsToFollowing)
+{
+  OutputPane pane;
+  fillAndRender(pane, 60);
+  pane.scrollUp(200);  // well past the top
+  ASSERT_THAT(visible(pane), ::testing::HasSubstr("line_0"));
+
+  pane.scrollDown(200);
+  EXPECT_THAT(visible(pane), ::testing::HasSubstr("line_59"));
+  pane.appendText("arrived_later");
+  EXPECT_THAT(visible(pane), ::testing::HasSubstr("arrived_later")) << "reaching the bottom did not resume following";
 }
 
 }  // namespace

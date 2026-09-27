@@ -574,6 +574,23 @@ Result<Var, std::string> parseFieldText(std::string_view text, const Type& type)
     return Ok(std::move(v));
   }
 
+  // Timestamp: the text is the stamp, passed through as a string the way the command line's own
+  // single-argument fast path does. Without this branch an ISO stamp went to the JSON path below, where
+  // `{ "v": 2026-09-27T00:00:00Z }` is not JSON: the field opened empty saying "value required", the
+  // documented stamp was refused as "invalid value", and nothing anywhere said to add quotes. The same
+  // stamp typed on the command line worked, which is the worst version of this -- accepted by one half
+  // of the term and refused by the other.
+  if (leaf.isTimestampType() && text.front() != '"')
+  {
+    Var v {std::string(text)};
+    if (auto r = impl::adaptVariant(type, v); r.isError())
+    {
+      // Actionable, because the field opens empty and nothing on screen says what a stamp looks like.
+      return Err(r.getError() + " -- a time stamp looks like 2026-09-27T00:00:00Z");
+    }
+    return Ok(std::move(v));
+  }
+
   // Everything else: parse as JSON literal.
   try
   {

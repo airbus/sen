@@ -28,7 +28,7 @@ User documentation: `docs/components/term.md`.
 The component follows a layered design:
 
 - **Component layer** (`component.cpp`) creates and wires all objects, then enters the exec loop.
-- **UI layer** (`app.*`, `app_renderers.*`, `status_bar.*`, `banner.*`, `styles.h`) owns the
+- **UI layer** (`app.*`, `app_renderers.*`, `output_pane.*`, `input_pane.*`, `banner.*`, `styles.h`) owns the
   FTXUI screen and layout. It knows nothing about Sen objects or commands.
 - **Command layer** (`command_engine.*`) dispatches user input to handlers and pushes results to
   the UI via the App's public interface.
@@ -38,7 +38,7 @@ The component follows a layered design:
 - **Rendering layer** (`value_formatter.*`, `signature_renderer.*`, `tree_view.*`) formats Sen
   values and type metadata as FTXUI elements.
 - **Support** (`log_router.*`, `log_sink.*`, `output_capture.*`, `suggester.*`, `parse_utils.h`)
-  handles logging, stdout capture, edit-distance suggestions, and tokenization.
+  handles logging, stderr capture, edit-distance suggestions, and tokenization.
 
 ## Key Design Decisions
 
@@ -103,15 +103,17 @@ through the Sen meta-type system (`MetaTypeTrait<ThemeStyle>::meta()`).
 ### Stdout Limitation
 
 FTXUI uses stdout (fd 1) for terminal rendering, including escape sequences for cursor
-positioning, color, and terminal size queries. Stderr is captured via a pipe and routed to the
-log pane, but stdout cannot be redirected without breaking FTXUI's rendering. Components running
+positioning, color, and terminal size queries. Stderr is captured via a pipe and drawn in the output
+area, but stdout cannot be redirected without breaking FTXUI's rendering. Components running
 alongside the term must use spdlog for diagnostic output instead of printf or std::cout.
 
 ## External Dependencies
 
 - **FTXUI** (v7.0.3): TUI framework. Element-based declarative rendering, component/event system,
   and terminal management.
-- **spdlog**: Logging. A custom sink routes log messages to the TUI log pane. The log router
-  provides per-logger level control.
-- **Asio**: Used for hostname retrieval (`asio::ip::host_name()`). Stderr capture is implemented
-  with raw POSIX pipes (Linux/macOS) and the WinAPI pipe equivalents (Windows), not Asio.
+- **spdlog**: Logging. A custom sink registered with the kernel routes log messages into the output
+  area, and the log router provides per-logger level control. There are no panes: results, log lines
+  and event emissions share one stream.
+
+Stderr capture is implemented with raw POSIX pipes (Linux/macOS) and the WinAPI pipe equivalents
+(Windows). The term links no networking library of its own.

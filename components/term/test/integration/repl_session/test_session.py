@@ -17,7 +17,21 @@ import unittest
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from term_runner import ARROW_RIGHT, CTRL_D, ESCAPE, HOME, PASTE_END, PASTE_START, TAB, TermTester
+from term_runner import (
+    ARROW_RIGHT,
+    ARROW_UP,
+    CTRL_D,
+    CTRL_U,
+    ESCAPE,
+    F1,
+    HOME,
+    PAGE_DOWN,
+    PAGE_UP,
+    PASTE_END,
+    PASTE_START,
+    TAB,
+    TermTester,
+)
 
 
 class TestTermSession(unittest.TestCase):
@@ -195,19 +209,18 @@ class TestTermSession(unittest.TestCase):
         self.assertIn("loc al", prompt, f"the pasted tab did not become a space. Prompt: {prompt!r}")
         self.assertNotIn("local.", prompt, f"the pasted tab completed the token. Prompt: {prompt!r}")
 
-    def test_a_paste_whose_end_marker_is_lost_releases_itself(self) -> None:
+    def test_a_paste_whose_end_marker_never_arrives_releases_itself(self) -> None:
         """A paste that never finishes must not leave the term swallowing every key.
 
-        The terminal flushes an incomplete escape sequence after 50 ms, so a paste that stalls inside
-        the six bytes of the end marker — over ssh, or through tmux — delivers it in pieces and none of
-        them matches. With nothing to end the paste, every later key was swallowed and no gesture
-        recovered it: the user had to kill the process.
+        This is the safety net, so it sends no end marker at all: nothing tells the term the paste is
+        over, and only the idle limit can release it. Before that limit existed every later key was
+        swallowed and no gesture recovered it — the user had to kill the process.
+
+        The separate case below covers a marker that arrives torn, which is the common cause and is now
+        handled without waiting for this net.
         """
         self.term.forget()
         self.term.send_keys(PASTE_START + b"stalled", settle=1.0)
-        # The end marker, split by a pause longer than the terminal's flush window.
-        self.term.send_keys(b"\x1b[20", settle=0.6)
-        self.term.send_keys(b"1~", settle=1.0)
 
         self.assertTrue(
             self.term.wait_for("did not finish", timeout=15.0),
@@ -221,6 +234,37 @@ class TestTermSession(unittest.TestCase):
         self.assertTrue(
             self.term.wait_for("Nothing happens.", timeout=10.0),
             f"the term was still swallowing input. Screen:\n{self.term.screen()[-1500:]}",
+        )
+
+    def test_a_torn_end_marker_ends_the_paste_and_leaves_no_stray_bytes(self) -> None:
+        """A marker split by a slow link must not leave its tail on the command line.
+
+        The terminal flushes an incomplete escape after 50 ms and each marker is six bytes, so over ssh
+        or through tmux the end marker arrives in pieces. The prefix matched nothing and was swallowed;
+        the remaining bytes arrived as ordinary characters and were appended to the line. The user's
+        pasted command came out with a stray "1~" glued on, and only the two-second idle limit ended the
+        paste.
+        """
+        self.term.forget()
+        self.term.send_keys(PASTE_START + b"pwd", settle=1.0)
+        # The end marker, split by a pause longer than the terminal's flush window.
+        self.term.send_keys(b"\x1b[20", settle=0.6)
+        self.term.send_keys(b"1~", settle=1.0)
+
+        screen = self.term.screen()
+        self.assertNotIn("pwd1~", screen, f"the marker's tail was appended to the line:\n{screen[-1500:]}")
+        self.assertNotIn(
+            "did not finish",
+            screen,
+            f"the torn marker should end the paste, not wait for the idle limit:\n{screen[-1500:]}",
+        )
+
+        # The line is intact and the term is out of paste mode: Enter runs what was pasted.
+        self.term.forget()
+        self.term.send_keys(b"\r", settle=1.5)
+        self.assertTrue(
+            self.term.wait_for("sen:/", timeout=10.0),
+            f"the pasted line did not run. Screen:\n{self.term.screen()[-1500:]}",
         )
 
     def test_escape_cancels_a_paste_in_progress(self) -> None:
@@ -268,17 +312,24 @@ class TestTermSession(unittest.TestCase):
     def test_output_fills_the_pane_from_the_top(self) -> None:
         """Short output sits at the top of the pane, not pushed down against the prompt.
 
-        Both halves matter, so both are asserted: the first row carries output *and* the row just
-        above the rule is empty. Pushing content down against the prompt fails the pair the other
-        way round, which is what this test exists to notice.
+        The premise is established rather than assumed. `clear` empties the pane, so whatever appears
+        next is this test's own output and not kernel log traffic that happened to arrive — the earlier
+        version asserted row 1 was non-empty after a `cd`, which prints nothing, so it was passing on
+        log lines and would have passed with the property broken.
         """
-        self.term.send_command("cd local.demo")
+        self.term.send_command("clear", settle=1.0)
+        self.term.forget()
+        self.term.send_command("pwd", settle=1.5)
+
         screen = self.term.grid()
+        row = screen.row_of("pwd")
+        self.assertNotEqual(0, row, f"the command echo never appeared:\n{screen.numbered()}")
+        self.assertLessEqual(row, 3, f"short output was pushed down the pane:\n{screen.numbered()}")
+
         rule_row: int = self.term.rows - 1
-        self.assertNotEqual("", screen.line(1), f"row 1 is empty, so output is not at the top:\n{screen.numbered()}")
         self.assertEqual(
             "",
-            screen.line(rule_row - 1),
+            screen.line(rule_row - 1).strip(),
             f"the row above the rule is used, so output hugs the prompt:\n{screen.numbered()}",
         )
 
@@ -294,6 +345,207 @@ class TestTermSession(unittest.TestCase):
         self.assertEqual(2, screen.row_of("Sen v"), f"the banner is not on row 2:\n{screen.numbered()}")
         self.assertEqual(
             "", screen.line(1).strip(), f"row 1 should be the blank row above the banner:\n{screen.numbered()}"
+        )
+
+    # ---------------------------------------------------------------------------------------------
+    # Commands. Fifteen of the twenty-one had never been executed by any test at any level, so the
+    # table could be complete and every handler broken.
+    # ---------------------------------------------------------------------------------------------
+
+    def _run_and_expect(self, command: str, needle: str, settle: float = 1.5) -> None:
+        """Run one command and require a recognisable answer, not merely the absence of a crash."""
+        self.term.forget()
+        self.term.send_command(command, settle=settle)
+        screen = self.term.screen()
+        self.assertNotIn("is not a recognized command", screen, f"'{command}' was not recognised:\n{screen[-800:]}")
+        self.assertIn(needle, screen, f"'{command}' did not answer as expected:\n{screen[-1200:]}")
+
+    def test_status_reports_the_running_components(self) -> None:
+        """`status` reaches the kernel's component table."""
+        self._run_and_expect("status", "showcaseComponent")
+
+    def test_open_and_close_report_both_ways(self) -> None:
+        """Both directions of a source, and both say what they did."""
+        self._run_and_expect("close local.demo", "closed")
+        self._run_and_expect("open local.demo", "opened")
+
+    def test_query_create_list_and_remove(self) -> None:
+        """A named query's whole life, through the route the docs now name."""
+        self._run_and_expect("query probes SELECT * FROM local.demo", "probes")
+        self._run_and_expect("queries", "probes")
+        self._run_and_expect("query rm probes", "removed")
+
+    def test_listen_listeners_and_unlisten(self) -> None:
+        """A listener's whole life, on an event the showcase really emits."""
+        self._run_and_expect("listen showcase.tick", "showcase.tick")
+        self._run_and_expect("listeners", "showcase.tick")
+        self._run_and_expect("unlisten showcase", "showcase")
+
+    def test_log_reports_and_sets_a_level(self) -> None:
+        """`log` reads the level and `log level` sets it, then puts it back."""
+        self._run_and_expect("log", "level")
+        self._run_and_expect("log level warn", "warn")
+        # Back to info, or later assertions in this process see nothing.
+        self._run_and_expect("log level info", "info")
+
+    def test_inspect_shows_an_object_and_a_type(self) -> None:
+        """Both kinds of target `inspect` takes."""
+        self._run_and_expect("inspect local.demo.showcase", "moveTo")
+        self._run_and_expect("inspect term_showcase.Point", "x")
+
+    def test_types_and_units_take_a_filter(self) -> None:
+        """The filters match anywhere in the name, which is what help now says."""
+        self._run_and_expect("types Showcase", "Showcase")
+        self._run_and_expect("units", "velocity")
+
+    def test_theme_switches_and_reports(self) -> None:
+        """`theme` answers at all: 311 lines and ten themes had no test."""
+        self._run_and_expect("theme", "theme")
+
+    def test_clear_empties_the_output(self) -> None:
+        """`clear` empties everything, which is what its help now says."""
+        self.term.send_command("help", settle=1.5)
+        self.assertTrue(self.term.wait_for("inspect", timeout=8.0))
+        self.term.send_command("clear", settle=1.5)
+        self.term.forget()
+        self.term.read_output(timeout=1.0)
+        screen = self.term.grid()
+        self.assertEqual(0, screen.row_of("inspect"), f"clear left the help on screen:\n{screen.numbered()}")
+
+    def test_version_reports_the_build(self) -> None:
+        """`version` carries the branch the banner does not."""
+        self._run_and_expect("version", "branch")
+
+    # ---------------------------------------------------------------------------------------------
+    # The guided form, from keystrokes to a submitted call. Nothing tested this path at any level:
+    # arg_form_test drives the model directly and never goes through a key.
+    # ---------------------------------------------------------------------------------------------
+
+    def test_a_form_opens_takes_values_and_submits_the_call(self) -> None:
+        """MoveTo takes a Point, so Enter with no arguments opens a form with x and y."""
+        self.term.forget()
+        self.term.send_command("cd local.demo", settle=1.5)
+        self.term.forget()
+        self.term.send_command("showcase.moveTo", settle=2.5)
+        self.assertTrue(
+            self.term.wait_for("target", timeout=8.0),
+            f"the form did not open:\n{self.term.screen()[-1500:]}",
+        )
+        screen = self.term.screen()
+        self.assertIn("x", screen, f"the form has no x field:\n{screen[-1200:]}")
+
+        # Clear the focused field, type a value, move to the next, type again, submit.
+        self.term.send_keys(CTRL_U, settle=0.4)
+        self.term.type_text("12", settle=0.4)
+        self.term.send_keys(TAB, settle=0.4)
+        self.term.send_keys(CTRL_U, settle=0.4)
+        self.term.type_text("34", settle=0.4)
+        self.term.forget()
+        self.term.send_keys(b"\r", settle=2.5)
+
+        answer = self.term.screen()
+        self.assertNotIn("value required", answer, f"the form refused its own values:\n{answer[-1200:]}")
+        self.assertTrue(
+            self.term.wait_for("moveTo", timeout=8.0),
+            f"the call was never echoed:\n{self.term.screen()[-1200:]}",
+        )
+
+    def test_escape_closes_a_form_without_calling(self) -> None:
+        """Escape leaves a form and the term keeps answering."""
+        self.term.forget()
+        self.term.send_command("cd local.demo", settle=1.5)
+        self.term.forget()
+        self.term.send_command("showcase.moveTo", settle=2.5)
+        self.assertTrue(self.term.wait_for("target", timeout=8.0))
+        self.term.send_keys(ESCAPE, settle=1.0)
+        self.term.forget()
+        self.term.send_command("xyzzy", settle=1.5)
+        self.assertTrue(
+            self.term.wait_for("Nothing happens.", timeout=8.0),
+            f"the term did not return to the prompt after Escape:\n{self.term.screen()[-1200:]}",
+        )
+
+    # ---------------------------------------------------------------------------------------------
+    # Key bindings that were reachable and untested.
+    # ---------------------------------------------------------------------------------------------
+
+    def test_f1_runs_help(self) -> None:
+        """F1 runs help, which was reachable and documented nowhere."""
+        self.term.forget()
+        self.term.send_keys(F1, settle=2.0)
+        self.assertTrue(
+            self.term.wait_for("inspect", timeout=8.0), f"F1 did not run help:\n{self.term.screen()[-800:]}"
+        )
+
+    def test_page_up_scrolls_back_and_page_down_returns(self) -> None:
+        """Scrolling back leaves the newest line, and scrolling forward comes back to it.
+
+        `units` is hundreds of rows, so there is somewhere to scroll to, and the newest line is the
+        marker.
+        """
+        self.term.send_command("units", settle=3.0)
+        self.term.forget()
+        self.term.send_command("xyzzy", settle=2.0)
+        self.assertTrue(self.term.wait_for("Nothing happens.", timeout=8.0))
+
+        def frame_after(keys: bytes, repeats: int):
+            """Forget first, then press, so the grid holds frames the keypresses caused.
+
+            The prompt is checked on every frame: an absence assertion against an empty grid passes for
+            the wrong reason, and forgetting *after* the keys leaves exactly that empty grid.
+            """
+            self.term.forget()
+            for _ in range(repeats):
+                self.term.send_keys(keys, settle=0.4)
+            # One PageDown at the end, always. A frame is only painted when something asks for one, and
+            # waiting for the idle repaint is a race that loses under the load of the whole suite.
+            # PageDown at the bottom changes nothing and guarantees a redraw.
+            self.term.send_keys(PAGE_DOWN if repeats == 0 else keys, settle=0.6)
+            self.term.read_output(timeout=1.5)
+            grid = self.term.grid()
+            self.assertNotEqual(0, grid.row_of("sen:"), f"no frame was drawn at all:\n{grid.numbered()}")
+            return grid
+
+        start = frame_after(b"", 0)
+        self.assertNotEqual(
+            0, start.row_of("Nothing happens."), f"the marker was not in view to start:\n{start.numbered()}"
+        )
+
+        scrolled = frame_after(PAGE_UP, 6)
+        self.assertEqual(
+            0,
+            scrolled.row_of("Nothing happens."),
+            f"PageUp did not move the view off the newest line:\n{scrolled.numbered()}",
+        )
+
+        returned = frame_after(PAGE_DOWN, 12)
+        self.assertNotEqual(
+            0,
+            returned.row_of("Nothing happens."),
+            f"PageDown did not come back to the bottom:\n{returned.numbered()}",
+        )
+
+    def test_arrow_up_recalls_the_previous_command(self) -> None:
+        """History recall, which had no test at any level."""
+        self.term.send_command("pwd", settle=1.5)
+        self.term.forget()
+        self.term.send_keys(ARROW_UP, settle=1.0)
+        screen = self.term.grid()
+        prompt_row = screen.row_of("pwd")
+        self.assertNotEqual(0, prompt_row, f"the previous command was not recalled:\n{screen.numbered()}")
+
+    def test_escape_twice_on_an_empty_line_shuts_the_kernel_down(self) -> None:
+        """Two Escapes on an empty line stop the kernel.
+
+        This is the destructive branch. The other Escape test always has text on the line, which takes
+        the branch that clears instead.
+        """
+        self.term.forget()
+        self.term.send_keys(ESCAPE, settle=1.0)
+        self.term.send_keys(ESCAPE, settle=1.0)
+        self.assertTrue(
+            self.term.wait_for_exit(timeout=12.0),
+            f"two Escapes on an empty line did not stop the kernel. Screen:\n{self.term.screen()[-1200:]}",
         )
 
     def test_exit_shuts_the_kernel_down(self) -> None:

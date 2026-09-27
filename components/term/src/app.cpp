@@ -54,9 +54,15 @@ namespace sen::components::term
 namespace
 {
 
-/// Most visual lines of the input to draw at once. Drawing all of a long line leaves the output pane
-/// with no rows and clips the line the cursor is on.
+/// Most visual lines of the input *text* to draw at once. Drawing all of a long line leaves the output
+/// pane with no rows and clips the line the cursor is on.
 constexpr int maxInputRows = 6;
+
+/// Rows the input area can add beyond its text: a "N lines above" marker, a "N lines below" marker and
+/// the exit-confirmation row. Anything reserving space for the input has to count these too -- the
+/// completion list budgeted for maxInputRows alone, so with a wrapped line and the confirmation showing
+/// it could ask for rows that were already taken and the output pane was squeezed to nothing.
+constexpr int maxInputExtraRows = 3;
 
 /// Bracketed paste. The terminal wraps pasted text in these two markers once the application asks
 /// for them, which is the only way to tell a paste from someone typing the same bytes. FTXUI does not
@@ -371,7 +377,7 @@ ftxui::Element App::renderCompletionList() const
   // maxInputRows, the rule one, and the output pane has to keep some rows or ftxui's hard shrink gives
   // it none and the user sees no output at all while a list is open.
   constexpr int minOutputRows = 3;
-  const int spare = ftxui::Terminal::Size().dimy - maxInputRows - 1 - minOutputRows;
+  const int spare = ftxui::Terminal::Size().dimy - maxInputRows - maxInputExtraRows - 1 - minOutputRows;
   // No floor: on a terminal too short to hold the input, the rule and three rows of output, the list
   // is not drawn at all rather than taking the row the promise reserved.
   const int rowBudget = std::min(completionMaxRows, spare);
@@ -458,13 +464,21 @@ ftxui::Element App::renderCompletionHint() const
   constexpr int rightMargin = 2;
   const int available = termSize.dimx - checkedConversion<int>(leftPad.size()) - rightMargin;
 
+  // Cells against cells, and a cut on a codepoint boundary. This compared `size()` -- bytes -- against a
+  // cell count, so any description carrying a µ, a degree sign or an arrow (they come from the STL) was
+  // truncated early, and the byte cut could land inside a codepoint whose remains ftxui then dropped.
   std::string displayDescription = description;
-  if (checkedConversion<int>(displayDescription.size()) > available)
+  if (ftxui::string_width(displayDescription) > available)
   {
     if (available >= 4)
     {
-      displayDescription =
-        displayDescription.substr(0, checkedConversion<std::size_t>(available - 3)) + unicode::ellipsis;
+      const auto room = static_cast<std::size_t>(available - 3);
+      displayDescription = truncateUtf8(displayDescription, room);
+      while (ftxui::string_width(displayDescription) > available - 3 && !displayDescription.empty())
+      {
+        displayDescription = truncateUtf8(displayDescription, displayDescription.size() - 1);
+      }
+      displayDescription += unicode::ellipsis;
     }
     else
     {
@@ -566,8 +580,28 @@ bool App::handleInputKey(const ftxui::Event& event)
     ui_->inputTruncated = false;
     return true;
   }
-  // Ctrl+Backspace arrives as Ctrl+H in most terminals; Ctrl+W is the readline spelling.
-  if (event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW)
+  // Recall by substring. searchHistory existed, worked and was tested, and no key reached it -- so term
+  // had no way to find an earlier command except pressing Up until it appeared. The query is whatever is
+  // already on the line, which needs no search prompt, and the typed line comes back on ArrowDown.
+  if (event == ftxui::Event::Special("\x12"))  // Ctrl+R
+  {
+    if (!ui_->inputPane.searchHistory(buf))
+    {
+      appendInfo("No earlier command contains '" + buf + "'.");
+      return true;
+    }
+    // buf is a reference into the pane's own buffer, which searchHistory has just replaced.
+    ui_->cursorPos = checkedConversion<int>(buf.size());
+    ui_->inputTruncated = false;
+    ui_->clearCompletion();
+    return true;
+  }
+
+  // Ctrl+W only. Ctrl+Backspace cannot be told apart here: FTXUI's parser sends every byte below 32 as
+  // a special, and its uniformize table rewrites 0x08 to 0x7F before emitting -- so Ctrl+Backspace
+  // arrives as Event::Backspace and the Ctrl+H spelling is unreachable. The three tests for it in this
+  // file were dead, and the documented "Ctrl+Backspace erases a word" was never true.
+  if (event == ftxui::Event::CtrlW)
   {
     auto from = prevWord(buf, cursor());
     buf.erase(from, cursor() - from);
@@ -595,6 +629,11 @@ bool App::handleInputKey(const ftxui::Event& event)
     buf.insert(checkedConversion<std::size_t>(ui_->cursorPos), event.character());
     ui_->cursorPos += checkedConversion<int>(event.character().size());
     ui_->inputFullReported = false;
+
+    // The hold goes too. Refuse a two-byte character at 8,191 bytes and then type a one-byte one: the
+    // insert succeeds, and without this the line still says it was cut and to "edit it to send it
+    // anyway" -- advice about the one thing the user has just done.
+    ui_->inputTruncated = false;
     return true;
   }
   return false;
@@ -810,7 +849,23 @@ ftxui::Component App::createEventHandler(ftxui::Component renderer)
                              }
                              if (ui_->activeForm.has_value())
                              {
-                               return handleFormEvent(event);
+                               if (handleFormEvent(event))
+                               {
+                                 return true;
+                               }
+
+                               // Scrolling, copy and help still work with a form open. They used to be
+                               // unreachable, because this branch returned whatever the form said and
+                               // never fell through -- so there was no way to scroll back to the
+                               // signature being filled in, which is when a user most wants to. The set
+                               // is deliberately narrow rather than all of handleGlobalEvent: Ctrl+D
+                               // there would leave the process with a half-filled form on screen.
+                               if (event == ftxui::Event::PageUp || event == ftxui::Event::PageDown ||
+                                   event == ftxui::Event::F1 || event == ftxui::Event::CtrlY)
+                               {
+                                 return handleGlobalEvent(event);
+                               }
+                               return handleMouseEvent(event);
                              }
                              if (handleCompletionEvent(event))
                              {
@@ -835,6 +890,13 @@ bool App::handleFormEvent(ftxui::Event event)
   if (event == ftxui::Event::Escape)
   {
     ui_->activeForm.reset();
+    return true;
+  }
+  // Clear the focused field. ArgForm::clearField existed with 38 test call sites and no caller in the
+  // source at all, so a user could only empty a field they had typed into by holding Backspace.
+  if (event == ftxui::Event::Special("\x15"))  // Ctrl+U
+  {
+    form.clearField();
     return true;
   }
   if (event == ftxui::Event::Tab || event == ftxui::Event::ArrowDown)
@@ -930,10 +992,11 @@ bool App::handleFormEvent(ftxui::Event event)
   // which is not on screen while the form is: they edited a buffer nobody could see, and the cursor
   // clamp that would have caught an out-of-range position lives in the renderer that is skipped.
   // Harmless today only because the buffer is always empty when a form opens.
-  // Anything else falls through, so the scroll handlers still see it.
+  //
+  // Anything else returns false, and the caller then offers it to the scroll, copy and help handlers.
   return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
-         event == ftxui::Event::End || event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW ||
-         event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl;
+         event == ftxui::Event::End || event == ftxui::Event::CtrlW || event == ftxui::Event::ArrowLeftCtrl ||
+         event == ftxui::Event::ArrowRightCtrl;
 }
 
 void App::insertPastedText(std::string_view text)
@@ -959,6 +1022,50 @@ void App::insertPastedText(std::string_view text)
 
 bool App::handlePasteEvent(ftxui::Event event)
 {
+  // A marker can arrive in pieces. FTXUI flushes an incomplete escape sequence after 50 ms, and both
+  // markers are six bytes, so a gap inside them -- ssh, tmux, a slow pty -- emits a prefix like
+  // "\x1b[201" as one event and then the "~" as an ordinary character. The prefix matched no marker and
+  // was swallowed; the "~" was appended to the line, so the user's pasted command arrived with a stray
+  // tilde glued on. Worse on the start marker, which was not guarded at all: the prefix went nowhere,
+  // paste mode never began, and the whole paste was typed with its newlines submitting commands.
+  //
+  // So: recognise a torn prefix of either marker, act on it as if it had arrived whole, and swallow the
+  // one tail character that follows.
+  // The tail of a marker that was already acted on, byte by byte. The split can fall anywhere, so this
+  // counts the bytes still owed rather than looking for a "~".
+  if (markerTailRemaining_ > 0)
+  {
+    if (event.is_character())
+    {
+      const auto consumed = std::min(markerTailRemaining_, event.character().size());
+      markerTailRemaining_ -= consumed;
+      return true;
+    }
+    // A redraw tick or a mouse report says nothing about the marker, and term posts Custom thirty times
+    // a second -- counting those as "the rest is never coming" wiped the counter within milliseconds of
+    // setting it, and the tail landed on the line exactly as before. Anything else does mean give up.
+    if (event != ftxui::Event::Custom && !event.is_mouse() && !event.is_cursor_position())
+    {
+      markerTailRemaining_ = 0;
+    }
+  }
+
+  // A proper prefix of a marker: act on the marker now and remember how much of it is still to arrive.
+  // Three bytes is the shortest prefix worth trusting ("\x1b[2"), which no ordinary key produces.
+  //
+  // The two markers differ only in their fifth byte, so a prefix shorter than that is ambiguous. The
+  // paste state decides it: inside a paste the next marker is the end, outside it the start. That is
+  // right in every case a terminal actually produces, and the idle release is still there behind it.
+  {
+    const std::string_view whole {pasting_ ? pasteEnd : pasteStart};
+    const std::string& seen = event.input();
+    if (seen.size() >= 3U && seen.size() < whole.size() && whole.compare(0, seen.size(), seen) == 0)
+    {
+      markerTailRemaining_ = whole.size() - seen.size();
+      event = ftxui::Event::Special(std::string(whole));
+    }
+  }
+
   if (event == ftxui::Event::Special(pasteStart))
   {
     pasting_ = true;
@@ -1122,7 +1229,7 @@ bool App::handleCompletionEvent(ftxui::Event event)
                             event == ftxui::Event::ArrowDown || event == ftxui::Event::ArrowLeft ||
                             event == ftxui::Event::ArrowRight || event == ftxui::Event::ArrowLeftCtrl ||
                             event == ftxui::Event::ArrowRightCtrl || event == ftxui::Event::Home ||
-                            event == ftxui::Event::End || event == ftxui::Event::CtrlH || event == ftxui::Event::CtrlW;
+                            event == ftxui::Event::End || event == ftxui::Event::CtrlW;
   if (editsOrMoves &&
       (!ui_->completionCandidates.empty() || !ui_->completionHint.empty() || !ui_->completionHintAction.empty()))
   {

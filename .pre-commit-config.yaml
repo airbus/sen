@@ -127,10 +127,11 @@ repos:
       name: Repository script tests
       language: python
       additional_dependencies: [pytest==9.1.1, pyyaml==6.0.3]
-      entry: python -m pytest .github/scripts libs/kernel/test/integration -q
+      entry: python -m pytest .github/scripts libs/kernel/test/integration
+        components/term/test/integration/test_vt_screen.py -q
       # The workflows, because a lane definition is compared against the job carrying it,
       # and the integration drivers, which are plain python.
-      files: ^(\.github/(scripts|workflows)/|libs/kernel/test/integration/)
+      files: ^(\.github/(scripts|workflows)/|libs/kernel/test/integration/|components/term/test/integration/(test_)?vt_screen\.py)
       pass_filenames: false
 
     # A `docs/` path written in a comment, a config or a script is invisible to

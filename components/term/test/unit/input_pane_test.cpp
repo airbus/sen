@@ -12,8 +12,11 @@
 #include <gtest/gtest.h>
 
 // std
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <ios>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -38,6 +41,13 @@ protected:
   }
 
   void TearDown() override { std::filesystem::remove(historyFile); }
+
+  /// Read the history file's exact bytes, so a rewrite that produces the same lines is still visible.
+  [[nodiscard]] std::string readFileContent() const
+  {
+    std::ifstream in(historyFile, std::ios::binary);
+    return {std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+  }
 
   /// Read the full history file into a vector of lines (oldest first, file order).
   [[nodiscard]] std::vector<std::string> readFileLines() const
@@ -102,11 +112,47 @@ TEST_F(InputPaneHistoryTest, DuplicateOfMostRecentIsSkippedInFile)
 
 TEST_F(InputPaneHistoryTest, NoFileWritesWhenPathIsEmpty)
 {
+  // Asserting that `historyFile` does not exist could not fail: nothing had told the pane that name, so
+  // the file could not appear however addToHistory behaved. The regression this names is the pane
+  // acquiring a default path of its own, so HOME points at an empty directory and the assertion is that
+  // nothing is written anywhere under it.
+  const auto sandbox = std::filesystem::temp_directory_path() / "term_history_no_default_probe";
+  std::filesystem::remove_all(sandbox);
+  std::filesystem::create_directories(sandbox);
+
+#ifndef _WIN32
+  // POSIX only, because that is where the home variable can be moved. setenv and unsetenv are POSIX and
+  // declared in <stdlib.h>; the C++ spelling need not declare them, which is what the NOLINTs are for.
+  const char* savedHome = std::getenv("HOME");
+  const std::string home = (savedHome != nullptr) ? savedHome : std::string {};
+  ASSERT_EQ(::setenv("HOME", sandbox.c_str(), 1), 0);  // NOLINT(misc-include-cleaner)
+
+  {
+    InputPane pane {[](const std::string&) {}};
+    // Deliberately no setHistoryFile: persistence stays off.
+    pane.addToHistory("ls");
+  }
+
+  const bool sandboxIsEmpty = std::filesystem::is_empty(sandbox);
+
+  if (home.empty())
+  {
+    ASSERT_EQ(::unsetenv("HOME"), 0);  // NOLINT(misc-include-cleaner)
+  }
+  else
+  {
+    ASSERT_EQ(::setenv("HOME", home.c_str(), 1), 0);  // NOLINT(misc-include-cleaner)
+  }
+
+  EXPECT_TRUE(sandboxIsEmpty) << "the pane wrote a history file without being given a path";
+#else
+  // The same probe needs USERPROFILE and _putenv_s here; until someone can compile and run that, this
+  // platform keeps the weaker assertion below and the stronger one above covers the behaviour.
   InputPane pane {[](const std::string&) {}};
-  // Deliberately do not call setHistoryFile, persistence stays off.
-
   pane.addToHistory("ls");
+#endif
 
+  std::filesystem::remove_all(sandbox);
   EXPECT_FALSE(std::filesystem::exists(historyFile));
 }
 
@@ -213,14 +259,26 @@ TEST_F(InputPaneHistoryTest, LoadAtExactlyCapDoesNotRewrite)
   }
   writeFileLines(exact);
 
-  auto beforeSize = std::filesystem::file_size(historyFile);
+  // Written again without the final newline, so a rewrite is visible. Comparing file_size could not see
+  // one: a rewrite at exactly the cap writes back the identical 2,000 lines, so the size is the same
+  // either way and the test could not distinguish the thing it exists to check.
+  {
+    auto content = readFileContent();
+    ASSERT_FALSE(content.empty());
+    if (content.back() == '\n')
+    {
+      content.pop_back();
+    }
+    std::ofstream out(historyFile, std::ios::trunc | std::ios::binary);
+    out << content;
+  }
+  const auto before = readFileContent();
 
   InputPane pane {[](const std::string&) {}};
   pane.setHistoryFile(historyFile);
   pane.loadHistory();
 
-  auto afterSize = std::filesystem::file_size(historyFile);
-  EXPECT_EQ(beforeSize, afterSize);
+  EXPECT_EQ(before, readFileContent()) << "the file was rewritten when it was already at the cap";
 }
 
 TEST_F(InputPaneHistoryTest, LoadThenAddDuplicateOfLastLoadedIsSkipped)

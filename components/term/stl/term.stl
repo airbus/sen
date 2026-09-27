@@ -1,5 +1,6 @@
 package sen.components.term;
 
+// --8<-- [start:config]
 // How timestamps should be displayed
 enum TimeStyle: u8
 {
@@ -33,7 +34,6 @@ sequence<string> SourcesList;
 sequence<QueryDef> QueryList;
 sequence<string> NameList;
 
-// --8<-- [start:config]
 // Configuration params for the term component
 struct Configuration
 {

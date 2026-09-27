@@ -1,6 +1,6 @@
 # The Sen Terminal (BETA)
 
-[Term](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/term.jpg){: style="width:700px"}
+![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/term.jpg){: style="width:700px"}
 
 The Sen Terminal (`term`) lets you open buses, find the objects on them, call their methods, watch
 their events and inspect their types, from one prompt. It is the successor to the
@@ -18,7 +18,7 @@ load:
   - name: term
     group: 2
     open:
-      - local.main
+      - local.demo
 ```
 
 Or run it on its own:
@@ -28,16 +28,19 @@ sen term
 sen run my_config.yaml
 ```
 
-On startup you get a banner with the Sen version, the compiler, the git branch and a quote, then a
-prompt. `exit`, `shutdown`, Ctrl+D on an empty line, or Escape twice all ask the kernel to stop every
-component gracefully.
+On startup you get a banner with the Sen version, the compiler, whether this is a debug or a release
+build, and a quote, then a prompt. The `version` command has the rest, including the git branch and
+revision this binary was built from.
+
+`exit`, `shutdown`, Ctrl+D on an empty line, or Escape twice all ask the kernel to stop every component
+gracefully.
 
 ## The screen
 
 Output scrolls above a horizontal rule; the prompt sits below it. There are no panes: command
 results, log lines and event emissions all arrive in the same stream, in the order they happened.
 
-The prompt shows your current scope, for instance `sen:/local.main❯`.
+The prompt shows your current scope, for instance `sen:/local.demo❯`.
 
 ## Typing and editing
 
@@ -47,12 +50,18 @@ The prompt shows your current scope, for instance `sen:/local.main❯`.
 | Ctrl+Left / Ctrl+Right  | Move one word. A dotted path is several words                  |
 | Home / End              | Start or end of the line                                       |
 | Backspace / Delete      | Erase one character either side of the cursor                  |
-| Ctrl+W or Ctrl+Backspace| Erase the word before the cursor                                |
+| Ctrl+W                  | Erase the word before the cursor                               |
 | Up / Down               | Walk the command history                                       |
+| Ctrl+R                  | Recall the most recent command containing what is on the line  |
 | Tab / Shift+Tab         | Completion, forwards and backwards                             |
+| PageUp / PageDown       | Scroll the output ten rows                                     |
+| F1                      | Run `help`                                                     |
 | Escape                  | Clear the line; on an empty line, arm exit; Escape again exits |
 | Ctrl+D                  | Exit, from an empty line only                                   |
 | Ctrl+Y                  | Copy the current selection to the clipboard                    |
+
+Ctrl+Backspace is not in that table because no terminal can deliver it distinguishably: it arrives as
+an ordinary Backspace. Use Ctrl+W.
 
 Movement and erasing work in characters, not bytes, so accented letters, CJK text and emoji behave
 the way you expect. History is kept across sessions in a file, capped at 2000 lines.
@@ -64,12 +73,21 @@ characters are refused and the term says so once; Escape clears the line. A line
 submitted — pressing Enter says so instead, because sending it would report a parse failure about text
 you never finished.
 
-A pasted line is typed, not parsed: the terminal protocol gives no way to tell a paste from someone
-typing very fast, so every character in it is read as a keystroke. Two consequences worth knowing.
-A newline in pasted text submits the line, so pasting three lines runs three commands. And a control
-character in it does whatever that key does — a stray `Tab` opens completion, `Escape` clears the
-line. Ctrl+D is the exception: it exits only from an empty line, so it cannot end the session from
-inside a paste.
+A paste arrives as text, not as keystrokes. The terminal wraps pasted content in markers when the
+application asks it to, which is the only way to tell a paste from someone typing very fast, and the
+term asks. So a newline in pasted text becomes a space rather than running the line, and a `Tab` in it
+is a space too rather than opening completion — the term says how many line breaks it joined, so a
+multi-line paste does not look like something you typed. Every other control character in a paste is
+dropped.
+
+Escape during a paste cancels it and keeps the text received so far, which is the way out if the
+terminal's end marker never arrives; failing that the term releases itself after two seconds of
+silence and says so. A marker split across a slow link is handled without either: its pieces are
+recognised and its tail is not left on your line.
+
+Terminals that do not support the markers fall back to the old behaviour, where a paste really is
+typed and a newline in it submits. If your paste runs three commands instead of becoming one line,
+that is what happened.
 
 A line long enough to wrap shows the prompt's row, the rows around the cursor, and a note saying how
 many rows are not shown.
@@ -77,20 +95,21 @@ many rows are not shown.
 ## Tab completion
 
 Press **Tab**. One match is inserted; several open a grid above the prompt. Tab again cycles
-forward, Shift+Tab backward, Enter accepts and runs, `.` accepts and lets you keep typing a deeper
-path, Escape dismisses and restores what you had typed.
+forward, Shift+Tab backward, Enter accepts the highlighted candidate — it does not run the line, so
+press Enter again to do that — `.` accepts and lets you keep typing a deeper path, and Escape
+dismisses the grid and restores what you had typed.
 
 When only one match exists at an intermediate level, Tab inserts it and moves on — so `l`, Tab can
-take you to `local.main.` in two keystrokes when there is only one session and one bus.
+take you to `local.demo.` in two keystrokes when there is only one session and one bus.
 
 | Context                        | What Tab completes                                        |
 |--------------------------------|-----------------------------------------------------------|
 | Empty input                    | All built-in commands                                     |
 | Partial command (`he`)         | Matching commands (`help`)                                |
 | Object path (`local.`)         | Available buses, then objects                             |
-| Object + dot (`showcase.`)     | Methods, properties, and events on that object            |
+| Object + dot (`showcase.`)     | Methods, property getters and setters, and `print`        |
 | `open` argument                | Available (not-yet-opened) sources                        |
-| `close` argument               | Currently open sources and queries                        |
+| `close` argument               | Currently open sources                                    |
 | `cd` argument                  | Child scopes, `..`, `/`, `@query` names                   |
 | `query` argument               | `SELECT`, type names, `FROM`, bus names, `WHERE` keywords |
 | `listen` / `unlisten` argument | Object paths, object.event paths, `all`                   |
@@ -106,10 +125,10 @@ take you to `local.main.` in two keystrokes when there is only one session and o
 Scoping narrows the view, which shortens what you have to type and focuses `ls`.
 
 ```text
-/ > cd local.main
-/local.main > ls
+/ > cd local.demo
+/local.demo > ls
   showcase  [term_showcase.ShowcaseImpl, Native]
-/local.main > cd ..
+/local.demo > cd ..
 / >
 ```
 
@@ -118,7 +137,7 @@ enters a query.
 
 Nested object groups are separated with `/`, the same way the rest of the path is, so whatever the
 prompt shows is a target you can type back — leading separator included:
-`cd /local.main/sensors/indoor` and `cd sensors` then `cd indoor` reach the same place. A target
+`cd /local.demo/sensors/indoor` and `cd sensors` then `cd indoor` reach the same place. A target
 containing a dot is always read as `session.bus`, wherever you are, so `cd a.b` at a bus scope goes to
 bus `b` of session `a` rather than into a group.
 
@@ -127,11 +146,15 @@ bus `b` of session `a` rather than into a group.
 ## Opening and closing buses
 
 ```text
-/ > open local.main
-  + source local.main opened
-  + 3 objects detected
-/ > close local.main
+/ > open local.demo
+[term] [info]  + source local.demo opened
+[term] [info]  + 3 objects detected
+/ > close local.demo
 ```
+
+Those two notices go through the term's own logger, which is why they arrive tagged `[term] [info]`.
+That also means the log level governs them: after `log level warn`, `open` and `query` do their work
+and print nothing at all. If a command looks as though it did nothing, check the level with `log`.
 
 Sources listed under `open` in the configuration are opened at startup. A `query` whose `FROM`
 clause names an unopened bus opens it for you.
@@ -141,10 +164,11 @@ clause names an unopened bus opens it for you.
 Type the object path, a dot, and the method name.
 
 ```text
-/local.main > showcase.ping
+/local.demo > showcase.print
 ```
 
-A method with no arguments runs immediately. The line shows a spinner with an elapsed-time counter
+`print` is the one call every object answers without arguments: it prints the value of every property.
+A method that needs no arguments runs immediately. The line shows a spinner with an elapsed-time counter
 while the call is out, then a green check and the return value, or a red cross and the error. Calls
 are asynchronous and several can be in flight at once. A call that gets no answer within
 `callTimeout` is reported as timed out rather than spinning forever.
@@ -152,8 +176,8 @@ are asynchronous and several can be in flight at once. A call that gets no answe
 ### Arguments on the command line
 
 ```text
-/local.main > showcase.setFraction 0.75
-/local.main > showcase.moveTo {"x": 10, "y": 20}
+/local.demo > showcase.setFraction 0.75
+/local.demo > showcase.moveTo {"x": 10, "y": 20}
 ```
 
 Simple values go straight after the method name; structures take JSON. Wrong arguments get an error
@@ -167,7 +191,7 @@ argument, with an editor chosen for the type. Tab and Shift+Tab move between fie
 | Type                         | Editor               | Keys                                                                      |
 |------------------------------|----------------------|---------------------------------------------------------------------------|
 | **bool**                     | Toggle checkbox      | Space to toggle                                                           |
-| **integer** (i32, u64, etc.) | Text field with spin | Up/Down to increment/decrement, clamped to type range                     |
+| **integer** (i32, u64, etc.) | Text field with spin | Left/Right to increment/decrement, clamped to type range                  |
 | **float** (f32, f64)         | Text field           | Type decimal numbers                                                      |
 | **string**                   | Text field           | Free-form text input                                                      |
 | **enum**                     | Cycle selector       | Left/Right arrows to cycle through enumerators; description shown in hint |
@@ -188,17 +212,21 @@ refuses both add and remove.
 ## Listening to events
 
 ```text
-/local.main > listen showcase.thresholdCrossed
+/local.demo > listen showcase.thresholdCrossed
   Listening to 'showcase.thresholdCrossed'.
 ```
 
-Naming an object without an event listens to all of its events. Emissions arrive inline, as a
-two-line entry: a bullet, `session.bus.object → eventName` with the time on the right, then the
-arguments indented beneath.
+Naming an object without an event listens to all of its events. An emission arrives inline as a bullet,
+`session.bus.object → eventName`, with the time on the right, and its arguments indented on the line
+beneath. An event that carries no arguments is that one line on its own — `tick` and `heartbeat` in the
+showcase are both like this.
 
-Listeners survive their object disappearing and reconnect when it returns, matched on the object's
-full name rather than on whatever scope you were in. `unlisten <object>` drops the listeners on one
-object, `unlisten all` drops every one, and `listeners` lists them.
+You can listen to an object that has not appeared yet: the listener is kept and attached the moment
+one with that name arrives. Listeners also survive their object disappearing and reconnect when it
+returns, matched on the object's full name rather than on whatever scope you were in.
+
+`unlisten <object>` drops the listeners on one object, `unlisten all` drops every one, and `listeners`
+lists them.
 
 Listeners named under `listen` in the configuration are registered at startup.
 
@@ -207,7 +235,7 @@ Listeners named under `listen` in the configuration are registered at startup.
 A query is a named filter over objects, in Sen's selection language.
 
 ```text
-/ > query workers SELECT term_showcase.Worker FROM local.main
+/ > query workers SELECT term_showcase.Worker FROM local.demo
   + query 'workers' created
 / > cd @workers
 @workers > ls
@@ -216,23 +244,32 @@ A query is a named filter over objects, in Sen's selection language.
 ```
 
 `SELECT <Type> FROM <session>.<bus>` matches a type, `SELECT *` matches everything, and `WHERE`
-filters on properties. `queries` lists them; `close <session>.<bus>.<name>` removes one.
+filters on properties. `queries` lists them and `query rm <name>` removes one.
+`close <session>.<bus>.<name>` removes one too, and closes the bus with it if that query was the only
+reason it was open.
 
 ## Inspecting types and objects
 
 ```text
-/ > inspect local.main.showcase
+/ > inspect local.demo.showcase
 / > inspect term_showcase.Point
 / > types
 / > types Worker
 ```
 
-Inspecting an object shows its class and inheritance chain, its description, then its properties and
-methods with types and descriptions, inherited members included. Inspecting a type shows a struct's
-fields, an enum's values and keys, a sequence's element type and bounds, or a variant's
+Inspecting an object shows its class and inheritance chain, its description, then its properties,
+methods and events, with types and descriptions, inherited members included. Inspecting a type shows a
+struct's fields, an enum's values and keys, a sequence's element type and bounds, or a variant's
 alternatives.
 
-Pressing Enter on a method that needs arguments prints its signature:
+`inspect` is also how you find an object's event names. Tab after `obj.` offers methods, not events, so
+this is the place to look before writing a `listen`.
+
+Getting the arguments wrong prints the signature, so you can see what was expected:
+
+```text
+/local.demo > showcase.moveTo 1 2 3
+```
 
 ```text
   METHOD showcase.moveTo
@@ -243,6 +280,10 @@ Pressing Enter on a method that needs arguments prints its signature:
 
   RETURNS void
 ```
+
+Pressing Enter on a method with its arguments left off opens the guided form instead, which is
+described above. The signature is printed rather than a form only when an argument is of a kind the
+form cannot represent.
 
 `units` lists the unit categories and the units in each, and takes a filter.
 
@@ -255,7 +296,10 @@ Pressing Enter on a method that needs arguments prints its signature:
 ```
 
 Levels are `trace`, `debug`, `info`, `warn`, `error`, `critical` and `off`. Log lines arrive in the
-same stream as everything else, carrying their timestamp, logger name and level.
+same stream as everything else, carrying their logger name and level. They carry no timestamp: the
+term's own rows — command echoes, call results and event emissions — put a time on the right, and
+repeating a full date on every log line costs a third of a narrow terminal. If you need timestamps on
+log lines, a file sink in the kernel's configuration keeps them.
 
 ## Logging from other components
 
@@ -322,10 +366,16 @@ the text to `pbcopy`, `wl-copy` or `xclip` when one is available locally.
 
 ## Commands
 
+`help` lists them, `help <command>` explains one, and `?` is a shorter spelling of `help`.
+
 Type `help` for the full list with usage and descriptions, or `help <command>` for one of them. The
 prompt's own list is generated from the command table, so it cannot drift from what the build
 actually offers.
 
 ## Configuration reference
 
+The configuration options are defined in the component's STL, with the types they refer to:
+
+```rust title="Term configuration"
 --8<-- "components/term/stl/term.stl:config"
+```

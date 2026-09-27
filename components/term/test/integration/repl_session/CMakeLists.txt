@@ -21,11 +21,28 @@ set(_term_session_cases
     test_the_term_asks_the_terminal_for_bracketed_paste
     test_a_multi_line_paste_runs_nothing_and_becomes_one_line
     test_a_tab_inside_a_paste_is_text_not_completion
-    test_a_paste_whose_end_marker_is_lost_releases_itself
+    test_a_paste_whose_end_marker_never_arrives_releases_itself
+    test_a_torn_end_marker_ends_the_paste_and_leaves_no_stray_bytes
     test_escape_cancels_a_paste_in_progress
     test_the_line_completion_produces_gets_a_useful_answer
     test_output_fills_the_pane_from_the_top
     test_the_banner_is_drawn_at_the_top_of_the_screen
+    test_status_reports_the_running_components
+    test_open_and_close_report_both_ways
+    test_query_create_list_and_remove
+    test_listen_listeners_and_unlisten
+    test_log_reports_and_sets_a_level
+    test_inspect_shows_an_object_and_a_type
+    test_types_and_units_take_a_filter
+    test_theme_switches_and_reports
+    test_clear_empties_the_output
+    test_version_reports_the_build
+    test_a_form_opens_takes_values_and_submits_the_call
+    test_escape_closes_a_form_without_calling
+    test_f1_runs_help
+    test_page_up_scrolls_back_and_page_down_returns
+    test_arrow_up_recalls_the_previous_command
+    test_escape_twice_on_an_empty_line_shuts_the_kernel_down
     test_exit_shuts_the_kernel_down
 )
 

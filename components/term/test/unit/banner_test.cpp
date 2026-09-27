@@ -79,15 +79,34 @@ TEST(Banner, HasColorBars)
   EXPECT_THAT(out, ::testing::HasSubstr("\u25AC"));
 }
 
-TEST(Banner, AllQuotesFitWithinBannerWidth)
+TEST(Banner, TheQuoteAndAuthorEitherShareALineOrTheAuthorGetsItsOwn)
 {
-  constexpr std::size_t indent = 4;  // "  " prefix added by the renderer
-  constexpr auto maxQuoteLen = bannerWidth - indent;
-  for (const auto& q: getBannerQuotes())
+  // This is the bound renderBanner actually branches on -- `"  " + quote + 2 + "- " + author` against
+  // the banner width -- and nothing tested it. Whichever side of it a quote falls on, both the quote and
+  // the author have to appear, so the branch cannot silently drop one.
+  const auto quotes = getBannerQuotes();
+  ASSERT_FALSE(quotes.empty());
+
+  std::size_t shareALine = 0;
+  std::size_t authorOnItsOwnLine = 0;
+  for (const auto& quote: quotes)
   {
-    EXPECT_LE(q.text.size(), maxQuoteLen)
-      << "Quote too long (" << q.text.size() << " > " << maxQuoteLen << "): " << q.text;
+    const auto quoteStr = std::string("  ") + std::string(quote.text);
+    const auto authorStr = std::string("- ") + std::string(quote.author);
+    if (quoteStr.size() + 2U + authorStr.size() <= bannerWidth)
+    {
+      ++shareALine;
+    }
+    else
+    {
+      ++authorOnItsOwnLine;
+      // The fallback still has to fit on its own line, or the author is clipped instead of wrapped.
+      EXPECT_LE(authorStr.size(), bannerWidth) << quote.author;
+    }
   }
+
+  EXPECT_GT(shareALine, 0U) << "no quote takes the shared-line branch, so it is untested here";
+  EXPECT_EQ(shareALine + authorOnItsOwnLine, quotes.size());
 }
 
 TEST(Banner, DoesNotCrashWithEmptyFields)

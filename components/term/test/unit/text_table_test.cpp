@@ -17,6 +17,7 @@
 
 // std
 #include <cstddef>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -40,9 +41,18 @@ std::string renderText(std::vector<Row> rows, int width = 80, int height = 10, i
 
 TEST(TextTable, EmptyRowsRenderAsEmpty)
 {
+  // Every line has to be blank. Asserting the absence of one letter was satisfied by almost any output:
+  // a "(no rows)" placeholder would have passed, and so would a table of real rows.
   auto out = renderText({});
-  // An empty vbox still produces a blank canvas, no cell text.
-  EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("x")));
+  ASSERT_FALSE(out.empty()) << "the renderer produced nothing at all, so this asserts nothing";
+  std::istringstream lines(out);
+  std::string line;
+  while (std::getline(lines, line))
+  {
+    // The carriage return matters: ftxui's Screen::ToString ends every row with "\r\n", so getline
+    // leaves a \r on each line and a set of just space and tab reports a blank canvas as non-blank.
+    EXPECT_TRUE(line.find_first_not_of(" \t\r") == std::string::npos) << "expected a blank canvas, got: " << line;
+  }
 }
 
 TEST(TextTable, SingleRowShowsAllCellsInOrder)

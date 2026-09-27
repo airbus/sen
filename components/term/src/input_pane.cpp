@@ -40,12 +40,17 @@ std::string& InputPane::getBuffer() noexcept { return buffer_; }
 
 void InputPane::submit()
 {
-  if (onSubmit_)
+  // Blank means blank, whatever it is made of. Space-then-Enter used to run the empty command -- "'' is
+  // not a recognized command" -- and append the spaces to ~/.sen_history.txt, where they came back on
+  // the arrow keys.
+  const bool blank = buffer_.find_first_not_of(" \t") == std::string::npos;
+
+  if (onSubmit_ && !blank)
   {
     onSubmit_(buffer_);
   }
 
-  if (!buffer_.empty())
+  if (!blank)
   {
     addToHistory(buffer_);
   }
@@ -218,12 +223,18 @@ bool InputPane::searchHistory(std::string_view query)
   {
     return false;
   }
-  for (const auto& entry: history_)
+  for (std::size_t i = 0; i < history_.size(); ++i)
   {
-    if (entry.find(query) != std::string::npos)
+    if (history_[i].find(query) != std::string::npos)
     {
-      buffer_ = entry;
-      historyIndex_ = -1;
+      // The typed line is kept, like historyUp does, so ArrowDown gets it back. Setting historyIndex_
+      // to -1 without saving it meant the query the user typed was simply gone.
+      if (historyIndex_ == -1)
+      {
+        savedBuffer_ = buffer_;
+      }
+      historyIndex_ = checkedConversion<int>(i);
+      buffer_ = history_[i];
       return true;
     }
   }

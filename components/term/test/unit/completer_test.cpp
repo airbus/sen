@@ -55,6 +55,11 @@ public:
     c.objectsByName_ = std::move(objects);
   }
 
+  /// The scope depth the label arithmetic starts from. Only update() assigned it, and no test called
+  /// update(), so it was 0 in every one of the completer's cases -- deleting `scopeDepth_ +` from the
+  /// label arithmetic reddened nothing at all.
+  static void setScopeDepth(Completer& c, int depth) { c.scopeDepth_ = depth; }
+
   static auto splitObjectMethod(std::string_view token) { return Completer::splitObjectMethod(token); }
 };
 
@@ -623,6 +628,26 @@ TEST(CompleterPath, PathCandidatesHaveDescriptiveDisplay)
   const auto* candidate = test::findCandidate(result, "local");
   ASSERT_NE(candidate, nullptr);
   EXPECT_EQ(candidate->kind, CompletionKind::path);
+}
+
+TEST(CompleterPath, TheLabelIsRelativeToTheScopeYouAreStandingIn)
+{
+  // The same single segment is a session at root, a bus one level down and a group below that. Every
+  // other case in this file runs at depth 0, which is the one depth where the `scopeDepth_ +` term
+  // contributes nothing -- so the arithmetic that matters in production had no detector.
+  const auto labelAtDepth = [](int depth)
+  {
+    Completer c;
+    CompleterTestAccess::setScopeDepth(c, depth);
+    CompleterTestAccess::setObjects(c, {{"alpha.beta.gamma", nullptr}});
+    auto result = c.complete("", 0);
+    return displayOf(result, "alpha");
+  };
+
+  EXPECT_EQ(labelAtDepth(0), "session") << "at root, a first segment is a session";
+  EXPECT_EQ(labelAtDepth(1), "bus") << "standing on a session, the next segment is a bus";
+  EXPECT_EQ(labelAtDepth(2), "group") << "standing on a bus, the next segment is a group";
+  EXPECT_EQ(labelAtDepth(3), "group") << "deeper than a bus is still a group";
 }
 
 TEST(CompleterPath, IntermediateSegmentLabelledAsBus)

@@ -204,7 +204,7 @@ Span<const CommandEngine::CommandEntry> CommandEngine::getCommandTable()
      &CommandEngine::cmdCd},
     {{"clear",     CommandCategory::general,
                    "clear",
-                   "Clear the command output pane.",
+                   "Clear everything the term has printed: results, log lines and event emissions.",
                    "clear the output pane"},
      &CommandEngine::cmdClear},
     {{"status",    CommandCategory::general,
@@ -236,7 +236,7 @@ Span<const CommandEngine::CommandEntry> CommandEngine::getCommandTable()
      &CommandEngine::cmdInspect},
     {{"listen",    CommandCategory::monitoring,
                    "listen <object>[.<event>]",
-                   "Stream event emissions to the log pane.\n"
+                   "Stream event emissions into the output, beside results and log lines.\n"
                    "  listen obj            Listen to all events\n"
                    "  listen obj.ev         Listen to one specific event\n"
                    "Listeners reconnect when objects reappear.",
@@ -299,14 +299,14 @@ Span<const CommandEngine::CommandEntry> CommandEngine::getCommandTable()
      &CommandEngine::cmdTheme},
     {{"types",     CommandCategory::inspection,
                    "types [filter]",
-                   "List all registered types, optionally filtered by prefix.\n"
+                   "List all registered types. A filter matches anywhere in the name, not just the start.\n"
                    "  types                 All types\n"
                    "  types term_showcase   Only types in that package",
                    "list registered types"},
      &CommandEngine::cmdTypes},
     {{"units",     CommandCategory::inspection,
                    "units [filter]",
-                   "List all registered units, optionally filtered by category.\n"
+                   "List all registered units. A filter matches anywhere in the category name.\n"
                    "  units                 All units\n"
                    "  units length          Only length units",
                    "list registered units"},
@@ -380,10 +380,17 @@ VarList parseArgs(const Method* method, std::string_view args)
 
   const auto& methodArgs = method->getArgs();
 
-  // Single string argument: pass as-is without JSON quoting.
-  if (methodArgs.size() == 1 && methodArgs[0].type->isStringType() && args[0] != '"')
+  // Single string argument: pass as-is without JSON quoting. Peeled, like the Duration path below --
+  // without the peel, `obj.setName hello world` worked for a `string` and the same method declared as
+  // `alias string Name` or `optional<string>` took the JSON path, split into two tokens and failed with
+  // "Could not parse 'hello world'". A type and its alias behaved differently on the same line.
+  if (methodArgs.size() == 1 && args[0] != '"')
   {
-    return {Var(std::string(args))};
+    const auto* stringLeaf = peelToLeaf(methodArgs[0].type.type());
+    if (stringLeaf != nullptr && stringLeaf->isStringType())
+    {
+      return {Var(std::string(args))};
+    }
   }
 
   // Single Duration/TimeStamp argument: take the whole line as one value so unit suffixes work.
@@ -721,13 +728,20 @@ void CommandEngine::cmdHelp(std::string_view args)
     std::string_view key;
     std::string_view desc;
   };
+  // Everything a key does, because the ones left out of this list were discoverable only by accident:
+  // F1, PageUp/PageDown, Ctrl+R and the form's own keys had no mention here or on the page.
   std::vector<Shortcut> shortcuts = {
     {"Tab / Shift+Tab", "Cycle through completions"},
     {"Enter / .", "Accept completion (drill into paths)"},
-    {"Escape", "Cancel completion / shutdown"},
-    {"Ctrl+D", "Shutdown"},
+    {"Escape", "Cancel completion / clear the line / arm exit"},
+    {"Ctrl+W", "Erase the word before the cursor"},
+    {"Ctrl+R", "Recall the last command containing the line"},
+    {"PageUp / PageDown", "Scroll the output ten rows"},
+    {"F1", "Run help"},
+    {"Ctrl+D", "Shutdown, from an empty line"},
     {"Mouse drag", "Select (auto-copies on release)"},
     {"Ctrl+Y", "Copy selection to clipboard"},
+    {"In a form", "Tab moves, Left/Right edits, Ctrl+U clears, Enter submits, Escape cancels"},
   };
   std::size_t maxKey = 0;
   for (const auto& s: shortcuts)
@@ -798,6 +812,40 @@ void CommandEngine::cmdCd(std::string_view args)
     {
       reportError("Navigation Error", "Session '" + sessionName + "' not found. Use 'open' first.");
       return;
+    }
+
+    // And the bus, when it can be known. The comment above is right that a closed session's buses are
+    // not enumerable -- but once the session is open, getAvailableSources lists them as "session.bus",
+    // and that is exactly when a user types a bus name. Without this, `cd local.main` succeeded against
+    // a bus nobody publishes and left the user in a scope where `ls` is empty for ever, with no error.
+    const auto busStart = navTarget.find('.');
+    if (busStart != std::string_view::npos)
+    {
+      auto busEnd = navTarget.find('/', busStart + 1);
+      const auto busName = std::string(navTarget.substr(busStart + 1, busEnd - busStart - 1));
+      const std::string prefix = sessionName + ".";
+
+      std::vector<std::string> knownBuses;
+      for (const auto& src: available)
+      {
+        if (src.size() > prefix.size() && src.compare(0, prefix.size(), prefix) == 0)
+        {
+          knownBuses.push_back(src.substr(prefix.size()));
+        }
+      }
+
+      if (!busName.empty() && !knownBuses.empty() &&
+          std::find(knownBuses.begin(), knownBuses.end(), busName) == knownBuses.end())
+      {
+        std::ostringstream message;
+        message << "Session '" << sessionName << "' publishes no bus '" << busName << "'. It has: ";
+        for (std::size_t i = 0; i < knownBuses.size(); ++i)
+        {
+          message << (i == 0 ? "" : ", ") << knownBuses[i];
+        }
+        reportError("Navigation Error", message.str());
+        return;
+      }
     }
   }
 

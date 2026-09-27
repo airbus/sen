@@ -128,8 +128,6 @@ private:
   [[nodiscard]] std::vector<Completion> completeObjectOrCommand(std::string_view prefix) const;
   [[nodiscard]] std::vector<Completion> completeMethodName(std::string_view objectName,
                                                            std::string_view methodPrefix) const;
-  [[nodiscard]] std::vector<Completion> completePropertyName(std::string_view objectName,
-                                                             std::string_view propertyPrefix) const;
   [[nodiscard]] std::vector<Completion> completeEventName(std::string_view objectName,
                                                           std::string_view eventPrefix) const;
   [[nodiscard]] std::vector<Completion> completeListenArg(std::string_view prefix) const;

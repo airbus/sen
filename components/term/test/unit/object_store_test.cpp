@@ -5,7 +5,11 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#include "app.h"
+#include "completer.h"
+#include "log_router.h"
 #include "object_store.h"
+#include "scope.h"
 
 // sen
 #include "sen/core/base/duration.h"
@@ -13,9 +17,11 @@
 #include "sen/kernel/test_kernel.h"
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
 #include <chrono>
 #include <memory>
 #include <string>
@@ -164,6 +170,137 @@ TEST_F(ObjectStoreTest, FreshStoreHasNoObjectsOrSources)
 TEST_F(ObjectStoreTest, FreshStoreGenerationIsZero) { EXPECT_EQ(store->getGeneration(), 0U); }
 
 TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store->drainNotifications().empty()); }
+
+//--------------------------------------------------------------------------------------------------------------
+// The paths that succeed
+//--------------------------------------------------------------------------------------------------------------
+//
+// Every case above this line asserts a refusal or an empty fresh store. Nothing opened a source, created
+// a query or drained a notification, so getGeneration -- the counter the completer's whole list refresh
+// is gated on -- was only ever read at zero, and both ends of that mechanism were unmeasured.
+
+TEST_F(ObjectStoreTest, DiscoveryReportsTheSessionTheKernelIsRunning)
+{
+  auto available = store->getAvailableSources();
+  EXPECT_THAT(available, ::testing::Contains("local")) << "the kernel's own session was not discovered";
+}
+
+TEST_F(ObjectStoreTest, OpeningASourceListsItAndSaysSo)
+{
+  ASSERT_TRUE(store->openSource("local.probe").isOk());
+
+  EXPECT_TRUE(store->isSourceOpen("local.probe"));
+  EXPECT_THAT(store->getOpenSources(), ::testing::Contains("local.probe"));
+
+  auto notices = store->drainNotifications();
+  EXPECT_FALSE(notices.empty()) << "opening a source said nothing";
+  EXPECT_TRUE(store->drainNotifications().empty()) << "draining did not consume the notices";
+}
+
+TEST_F(ObjectStoreTest, TheGenerationCountsObjectTrafficAndNotCommands)
+{
+  // Two separate signals, and it is worth pinning which is which. generation_ moves when objects arrive
+  // or leave; a command that changes the store's shape is picked up because CommandEngine::execute marks
+  // the completer's lists dirty afterwards. Bumping the generation here instead would make every `open`
+  // rebuild the object index as well, which is the expensive half.
+  const auto before = store->getGeneration();
+  ASSERT_TRUE(store->openSource("local.probe").isOk());
+  EXPECT_EQ(store->getGeneration(), before) << "opening a source moved the object-traffic counter";
+
+  ASSERT_TRUE(store->createQuery("probes", "SELECT * FROM local.probe").isOk());
+  EXPECT_EQ(store->getGeneration(), before) << "creating a query moved the object-traffic counter";
+}
+
+TEST_F(ObjectStoreTest, ClosingASourceTakesItOffTheList)
+{
+  ASSERT_TRUE(store->openSource("local.probe").isOk());
+  ASSERT_TRUE(store->isSourceOpen("local.probe"));
+
+  ASSERT_TRUE(store->closeSource("local.probe").isOk());
+  EXPECT_FALSE(store->isSourceOpen("local.probe"));
+  EXPECT_THAT(store->getOpenSources(), ::testing::Not(::testing::Contains("local.probe")));
+}
+
+TEST_F(ObjectStoreTest, AValidQueryIsCreatedListedAndRemovable)
+{
+  ASSERT_TRUE(store->createQuery("probes", "SELECT * FROM local.probe").isOk());
+
+  auto queries = store->getQueries();
+  auto named = std::find_if(queries.begin(), queries.end(), [](const auto& q) { return q.name == "probes"; });
+  ASSERT_NE(named, queries.end()) << "the query was created and does not appear in the list";
+  EXPECT_EQ(named->selection, "SELECT * FROM local.probe");
+
+  ASSERT_TRUE(store->removeQuery("probes").isOk());
+  auto after = store->getQueries();
+  EXPECT_TRUE(std::none_of(after.begin(), after.end(), [](const auto& q) { return q.name == "probes"; }));
+}
+
+TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
+{
+  // This is the guard that used to skip the internal ".all" provider before comparing selections, which
+  // is how identical queries piled up, each holding a subscription nothing could release.
+  ASSERT_TRUE(store->createQuery("first", "SELECT * FROM local.probe").isOk());
+  EXPECT_TRUE(store->createQuery("second", "SELECT * FROM local.probe").isError())
+    << "a second query with the same definition was accepted";
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// Completer::update, which no test had ever called
+//--------------------------------------------------------------------------------------------------------------
+//
+// It lives here because this is the only fixture with a live RunApi, which is what an ObjectStore needs.
+// Every completer case elsewhere either injects private state through a test door or drives the
+// incremental onObjectAdded path with the dirty flag cleared by hand, so the full-rebuild branch, the
+// scope rebuild, and the sources/queries refresh had never run at all.
+
+TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
+{
+  App app([](const std::string&) {});
+  LogRouter router(app);
+  Completer completer;
+  Scope scope;
+
+  ASSERT_TRUE(store->openSource("local.probe").isOk());
+  ASSERT_TRUE(store->createQuery("probes", "SELECT * FROM local.probe").isOk());
+
+  // The call itself is the thing under test: before this, nothing in the suite executed it.
+  completer.update(scope, *store, router);
+
+  auto sources = completer.complete("close ", 6);
+  EXPECT_THAT(sources.candidates, ::testing::Not(::testing::IsEmpty()))
+    << "the refresh did not pick up the open source";
+  EXPECT_TRUE(std::any_of(
+    sources.candidates.begin(), sources.candidates.end(), [](const Completion& c) { return c.text == "local.probe"; }))
+    << "the open source was not offered to `close`";
+
+  auto queries = completer.complete("query rm ", 9);
+  EXPECT_TRUE(std::any_of(
+    queries.candidates.begin(), queries.candidates.end(), [](const Completion& c) { return c.text == "probes"; }))
+    << "the query was not offered to `query rm`";
+}
+
+TEST_F(ObjectStoreTest, CompleterUpdateNoticesASourceClosing)
+{
+  App app([](const std::string&) {});
+  LogRouter router(app);
+  Completer completer;
+  Scope scope;
+
+  ASSERT_TRUE(store->openSource("local.probe").isOk());
+  completer.update(scope, *store, router);
+  ASSERT_TRUE(std::any_of(completer.complete("close ", 6).candidates.begin(),
+                          completer.complete("close ", 6).candidates.end(),
+                          [](const Completion& c) { return c.text == "local.probe"; }));
+
+  ASSERT_TRUE(store->closeSource("local.probe").isOk());
+  completer.markListsDirty();
+  completer.update(scope, *store, router);
+
+  auto after = completer.complete("close ", 6);
+  EXPECT_FALSE(std::any_of(
+    after.candidates.begin(), after.candidates.end(), [](const Completion& c) { return c.text == "local.probe"; }))
+    << "a closed source is still offered, so the refresh is one-way";
+}
 
 }  // namespace
 }  // namespace sen::components::term

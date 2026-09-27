@@ -410,7 +410,12 @@ ftxui::Element renderArgForm(const ArgForm& form)
     }
   }
 
-  return ftxui::vbox({headerRow, fieldsArea, hintRow});
+  // The key hints. formModeHint built this line and nothing called it, so the only guidance a user had
+  // was the two inline strings on empty fields -- Enter to submit, Escape to cancel and Ctrl+X to remove
+  // an element were discoverable nowhere at all.
+  auto keysRow = ftxui::hbox({ftxui::text("  "), ftxui::text(formModeHint(form))}) | styles::mutedText();
+
+  return ftxui::vbox({headerRow, fieldsArea, hintRow, keysRow});
 }
 
 std::string formModeHint(const ArgForm& form)
@@ -466,6 +471,7 @@ std::string formModeHint(const ArgForm& form)
 
   if (form.leafCount() > 0)
   {
+    parts.emplace_back("Ctrl+U clear");
     parts.emplace_back("Enter submit");
   }
   parts.emplace_back("Esc cancel");

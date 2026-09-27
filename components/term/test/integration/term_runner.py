@@ -23,7 +23,6 @@ import re
 import select
 import signal
 import struct
-import sys
 import termios
 import time
 
@@ -42,8 +41,17 @@ PASTE_END = b"\x1b[201~"
 
 ARROW_LEFT = b"\x1b[D"
 ARROW_RIGHT = b"\x1b[C"
+ARROW_UP = b"\x1b[A"
+ARROW_DOWN = b"\x1b[B"
 HOME = b"\x1b[H"
 END = b"\x1b[F"
+PAGE_UP = b"\x1b[5~"
+PAGE_DOWN = b"\x1b[6~"
+F1 = b"\x1bOP"
+CTRL_N = b"\x0e"
+CTRL_R = b"\x12"
+CTRL_U = b"\x15"
+CTRL_Y = b"\x19"
 
 
 class TermTester:
@@ -68,9 +76,17 @@ class TermTester:
         """Fork a pty, start the kernel, and read until the prompt appears."""
         self.pid, self.fd = pty.fork()
         if self.pid == 0:
-            os.environ["TERM"] = "xterm-256color"
-            os.execv(self.cli_run_path, [self.cli_run_path, self.config_yaml])
-            sys.exit(1)
+            # os._exit, not sys.exit: this is a forked child with the test module loaded, so an execv
+            # that raises -- a missing binary, wrong permissions -- would let the exception escape into
+            # unittest and run the whole suite a second time inside the child, writing its results into
+            # the pty for the parent to read as screen content. The parent's assertion fails either way;
+            # this keeps the failure legible.
+            try:
+                os.environ["TERM"] = "xterm-256color"
+                os.execv(self.cli_run_path, [self.cli_run_path, self.config_yaml])
+            except BaseException:  # noqa: BLE001 - the child must not continue, whatever went wrong
+                os._exit(1)
+            os._exit(1)
 
         # The renderer asks the terminal for its size; a pty starts at 0x0.
         fcntl.ioctl(self.fd, termios.TIOCSWINSZ, struct.pack("HHHH", self.rows, self.columns, 0, 0))

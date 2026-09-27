@@ -171,6 +171,11 @@ private:
   std::size_t pastedNewlines_ = 0;  ///< newlines joined in the paste being received
   unsigned pasteIdleTicks_ = 0;     ///< ticks since the last pasted event, to end a paste whose marker was lost
 
+  /// Bytes of a torn paste marker still owed. FTXUI flushes an incomplete escape after 50 ms and both
+  /// markers are six bytes, so a slow link splits one: the prefix is acted on as the whole marker and
+  /// this many following bytes are swallowed, instead of landing on the line as text.
+  std::size_t markerTailRemaining_ = 0;
+
   // Render control; the policy is at the redraw decision in tick().
   bool needsRedraw_ = true;
   unsigned idleTickCount_ = 0;

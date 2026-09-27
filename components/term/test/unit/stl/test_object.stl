@@ -116,4 +116,12 @@ class TestObject
 
   // a void method
   fn reset();
+
+  // Two events, so `listen` completion has something to find. Without any event declared here, the
+  // test that claims to establish that listen completes event names looped over an empty candidate
+  // list and ran no assertions at all.
+  event thresholdCrossed(value : i32);
+
+  // A second one with no arguments, which is also the shape whose emission renders as one line.
+  event tick();
 }

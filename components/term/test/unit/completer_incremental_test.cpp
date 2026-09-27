@@ -259,10 +259,23 @@ TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 
 TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 {
-  // TestObject has no events, candidates should be empty, but the code path must not crash.
+  // TestObject declares thresholdCrossed and tick, so this asserts on named candidates. It used to run
+  // no assertions at all: the fixture had no events, the candidate list was empty, and the loop below --
+  // which was the whole test -- never executed once, while the name claimed the opposite.
   completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "obj"));
 
   auto result = completer.complete("listen ses.bus.obj.", 19);
+  ASSERT_FALSE(result.candidates.empty()) << "no event names were offered";
+
+  auto offers = [&result](std::string_view needle)
+  {
+    return std::any_of(result.candidates.begin(),
+                       result.candidates.end(),
+                       [&needle](const Completion& c) { return c.text.find(needle) != std::string::npos; });
+  };
+  EXPECT_TRUE(offers("thresholdCrossed")) << "the event with arguments was not offered";
+  EXPECT_TRUE(offers("tick")) << "the event without arguments was not offered";
+
   for (const auto& c: result.candidates)
   {
     EXPECT_NE(c.kind, CompletionKind::command);

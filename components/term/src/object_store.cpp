@@ -302,6 +302,12 @@ Result<void, std::string> ObjectStore::closeSource(std::string_view sourceName)
     providerItr->second.provider->removeListener(&mux_, true);
     sourceItr->second.providers.erase(providerItr);
 
+    // And the subscription. This path removed the provider and left the Subscription behind, tracking
+    // every object on the bus for the rest of the session, while `query rm` released both -- so the
+    // route the documentation named was the one that leaked.
+    querySubscriptions_.erase(components[2]);
+    querySelections_.erase(components[2]);
+
     if (sourceItr->second.providers.empty())
     {
       sourcesToClose.push_back(busId);
