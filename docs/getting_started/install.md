@@ -52,25 +52,29 @@ sen --version
         Version    0.6.0
         Toolchain  gcc 12.4.0
         Arch / OS  x86_64-linux
-        Prefix     /home/alice/.sen/0.6.0-x86_64-linux-gcc-12.4.0
+        Prefix     /home/alice/.sen/0.6.0-x86_64-linux-gnu-12.4.0
 
-      ✓ Downloaded sen-0.6.0-x86_64-linux-gcc-12.4.0-release.tar.gz (42M)
+      ✓ Downloaded sen-0.6.0-x86_64-linux-gnu-12.4.0-release.tar.gz (42M)
       ✓ Verified sha256 checksum
-      ✓ Extracted into /home/alice/.sen/0.6.0-x86_64-linux-gcc-12.4.0
+      ✓ Extracted into /home/alice/.sen/0.6.0-x86_64-linux-gnu-12.4.0
       ✓ Cached CLI completions  (bash, zsh, fish)
       ✓ Wrote integrity manifest
       ✓ Wrote activate scripts
       ✓ Refreshed cached installer
-      ✓ Updated 'current' to  0.6.0-x86_64-linux-gcc-12.4.0
+      ✓ Updated 'current' to  0.6.0-x86_64-linux-gnu-12.4.0
 
       ──────────────────────────────────────────────────────────────────────
 
-      ✓ Sen 0.6.0-x86_64-linux-gcc-12.4.0 installed.
+      ✓ Sen 0.6.0-x86_64-linux-gnu-12.4.0 installed.
 
       Activate this build:
         bash/zsh   . /home/alice/.sen/current/activate
         fish       source /home/alice/.sen/current/activate.fish
     ```
+
+The build directory is named after the archive, which carries the compiler's own identifier:
+`gnu` for GCC. The `Toolchain` line above prints `gcc` because that is the name people use, so
+the two differ by design and the path is the one to type.
 
 The checksum line is the archive being checked against the `SHA256SUMS` the release publishes.
 Releases before 0.7.0 published none, and installing one of those prints a note instead and
@@ -101,7 +105,7 @@ your archive, or does not match stops the install and removes the download.
     To pin a specific build, source the per-build path directly instead of `current/`:
 
     ```shell
-    . ~/.sen/0.6.0-x86_64-linux-gcc-12.4.0/activate
+    . ~/.sen/0.6.0-x86_64-linux-gnu-12.4.0/activate
     ```
 
     The activate scripts strip any prior `~/.sen/`-rooted entries from `PATH` and friends, so
