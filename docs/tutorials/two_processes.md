@@ -64,7 +64,7 @@ It starts with only `local.kernel` open, so tell it which bus you want:
 open my.tutorial
 ```
 
-Now list what the shell can see. The objects from the *other* process are there: `goodCalc` and
+Now list what the term can see. The objects from the *other* process are there: `goodCalc` and
 `badCalc`, the two calculators the first config instantiated:
 
 ```text
@@ -118,7 +118,7 @@ announces is indistinguishable from one that does not exist. [The networking
 FAQ](../users_guide/faq.md) covers that case and the TCP discovery-hub alternative for when
 multicast is unavailable.
 
-**Objects vanish with their owner.** Stop the first process and watch the shell: `goodCalc` and
+**Objects vanish with their owner.** Stop the first process and watch the term: `goodCalc` and
 `badCalc` disappear within a few seconds. Sen removes every object owned by a component that goes
 away, so a subscriber sees them leave and does not watch them freeze. If you hold a reference across
 cycles, check it is still there.

@@ -47,8 +47,8 @@ revision this binary was built from.
 gracefully.
 
 Term needs a real terminal on both standard input and standard output. If either one is a pipe or a
-file, it says so and asks the kernel to stop with status 1, so do not put term in a configuration that
-will run under a pipe or in a build job. Use a component that does not need a terminal there.
+file, term says so and stops; the rest of the kernel carries on without it. So a configuration that
+carries term still starts in a build job or under a pipe, with an error in the log and no terminal.
 
 ## The screen
 

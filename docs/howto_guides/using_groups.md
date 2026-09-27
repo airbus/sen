@@ -55,13 +55,13 @@ load:
 [2023-03-07 10:02:21.867] [sen.kernel] [debug] reached group 2
 [2023-03-07 10:02:21.867] [sen.kernel] [debug] running
 MyComponent: running
-sen:host/config> shutdown
-shutting down...
+❯ shutdown
+  Shutting down...
 [2023-03-07 10:03:26.618] [sen.kernel] [debug] stopping my_component
 MyComponent: finished running
 [2023-03-07 10:03:26.868] [sen.kernel] [debug] unloading my_component
 [2023-03-07 10:03:26.868] [sen.kernel] [debug] reached group 1
-[2023-03-07 10:03:26.868] [sen.kernel] [debug] stopping shell
+[2023-03-07 10:03:26.868] [sen.kernel] [debug] stopping term
 [2023-03-07 10:03:26.889] [sen.kernel] [debug] stopping kernel
 [2023-03-07 10:03:26.903] [sen.kernel] [debug] unloading shell
 [2023-03-07 10:03:26.903] [sen.kernel] [debug] unloading kernel
@@ -73,7 +73,7 @@ You can see the progression of the initialization logic:
 
 1. The kernel starts at group 0, and it advances to group 1.
 2. In group 1, the kernel finds the *shell* and *kernel* components, so it: (1) loads them, (2)
-   initializes them (this makes the shell print the banner), and (3) runs them.
+   initializes them (this makes the term print the banner), and (3) runs them.
 3. In group 2, the kernel finds *my_component*, so it (1) loads it, (2) initializes it and (3) runs
    it (this is what prints the message).
 4. The kernel does not find any other group, so it reaches the "running" state.

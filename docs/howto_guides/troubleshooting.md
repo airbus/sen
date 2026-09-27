@@ -81,16 +81,16 @@ add_sen_package(
 
 ## Object discovery
 
-### Object never appears in the shell / subscription is always empty
+### Object never appears in the term / subscription is always empty
 
-**Symptom:** You run `ls` in the shell and see nothing, or your `Subscription<T>` list
+**Symptom:** You run `ls` in the term and see nothing, or your `Subscription<T>` list
 is always empty even though the component started successfully.
 
 **Cause (most common):** Bus name mismatch. The object is published to a different bus than the one
 you are watching.
 
 **Fix:** Check that the bus name in your YAML config exactly matches what you use in code and in
-the shell. Bus names are case-sensitive:
+the term. Bus names are case-sensitive:
 
 ```yaml
 # YAML config
@@ -119,7 +119,7 @@ because it is a local variable that goes out of scope.
 **Cause 2:** `Subscription<T>` is a local variable. When it goes out of scope it tears down the
 subscription: the list is cleared, and any `onRemoved` callback you installed fires for every
 object the list was holding. The object itself is untouched. It is still on the bus and `ls` in
-the shell still lists it, so what disappeared is your view of it.
+the term still lists it, so what disappeared is your view of it.
 
 **Fix:** Make the subscription a member variable of your class. `selectAllFrom` returns a
 `std::shared_ptr<sen::Subscription<T>>`, so that is the type the member has to hold:

@@ -18,6 +18,7 @@
 
 // sen
 #include "sen/core/base/duration.h"
+#include "sen/core/base/result.h"
 #include "sen/core/base/version.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/obj/object.h"
@@ -125,19 +126,18 @@ struct TermComponent: public kernel::Component
   [[nodiscard]] kernel::FuncResult run(kernel::RunApi& api) override
   {
     // Refused here and not from init(), and by asking for a stop rather than by returning an error:
-    // Runner::terminateIfError turns any error a component reports into dump_backtrace() plus
-    // std::terminate(), so a redirected stream would be answered with a crash report.
-    //
-    // Asked for on every cycle, not once: KernelImpl::requestStop drops a request made before the
-    // kernel finishes starting, and this runs inside that window. A single request left the process
-    // up with no terminal to draw on and nothing that would ever end it.
+    // Returning here stops this component and leaves the rest of the kernel running, which is what
+    // lets a configuration carry term and still be started headless. Asking the kernel to stop instead
+    // would fail every such run, and reporting an error would be worse still: Runner::terminateIfError
+    // turns any error a component reports into dump_backtrace() plus std::terminate(), so a redirected
+    // stream would be answered with a crash report.
     if (!standardStreamsAreATerminal())
     {
       getLogger()->error(
-        "term needs a terminal. Standard input and standard output must both be connected to "
-        "one, so term cannot run as a service, in a pipeline or in a CI job. Nothing was drawn, "
-        "and the kernel is being asked to stop.");
-      return api.execLoop(defaultUpdateFreq, [&api]() { api.requestKernelStop(1); });
+        "term needs a terminal. Standard input and standard output must both be connected to one, so "
+        "term cannot run as a service, in a pipeline or in a CI job. Nothing is drawn and term is "
+        "stopping; the rest of the kernel carries on.");
+      return Ok();
     }
 
     // Before the terminal is installed, so it reaches the real console rather than term's own pane.

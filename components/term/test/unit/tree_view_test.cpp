@@ -184,8 +184,27 @@ TEST(TreeView, RenderNestedChildrenShowDeeperIndent)
 
 }  // namespace
 
+#if defined(__SANITIZE_ADDRESS__) || defined(__SANITIZE_THREAD__)
+constexpr bool underSanitizer = true;
+#elif defined(__has_feature)
+#  if __has_feature(address_sanitizer) || __has_feature(thread_sanitizer)
+constexpr bool underSanitizer = true;
+#  else
+constexpr bool underSanitizer = false;
+#  endif
+#else
+constexpr bool underSanitizer = false;
+#endif
+
 TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
 {
+  // A sanitizer replaces the allocator, which is where this build spends its time, so the ratio here
+  // would be a measurement of the sanitizer. The lanes without one keep the assertion.
+  if (underSanitizer)
+  {
+    GTEST_SKIP() << "timing shape is not measurable under a sanitizer";
+  }
+
   // `ls` builds one node per object, and a flat bus makes every object a sibling. A linear scan of those
   // siblings per insert makes the build N squared, which is a freeze of about a second at ten thousand
   // objects, on the thread that draws the screen.

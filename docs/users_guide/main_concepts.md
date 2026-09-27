@@ -370,7 +370,7 @@ consequences:
   participants also ignore remote kernels whose session differs, so no connection is opened and no
   object traffic crosses between them. They do still discover each other's presence: a kernel from
   another session shows up in the list of available sessions, which is what makes `open` possible in
-  the shell.
+  the term.
 
 The cost is the other side of the same fact: a socket and a group membership per bus actually in
 use. Splitting a system across many fine-grained buses is not free, and a handful of well-chosen

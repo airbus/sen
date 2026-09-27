@@ -25,6 +25,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -181,8 +182,18 @@ TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store
 
 TEST_F(ObjectStoreTest, DiscoveryReportsTheSessionTheKernelIsRunning)
 {
-  auto available = store->getAvailableSources();
-  EXPECT_THAT(available, ::testing::Contains("local")) << "the kernel's own session was not discovered";
+  // Stepped until discovery answers rather than after a fixed count. How many cycles that takes is a
+  // property of the machine, and a sanitizer build needs more of them than a release build does.
+  constexpr int maxSteps = 200;
+  std::vector<std::string> available;
+  for (int step = 0; step < maxSteps && available.empty(); ++step)
+  {
+    testKernel->step(1);
+    available = store->getAvailableSources();
+  }
+
+  EXPECT_THAT(available, ::testing::Contains("local"))
+    << "the kernel's own session was not discovered in " << maxSteps << " steps";
 }
 
 TEST_F(ObjectStoreTest, OpeningASourceListsItAndSaysSo)
@@ -288,9 +299,13 @@ TEST_F(ObjectStoreTest, CompleterUpdateNoticesASourceClosing)
 
   ASSERT_TRUE(store->openSource("local.probe").isOk());
   completer.update(scope, *store, router);
-  ASSERT_TRUE(std::any_of(completer.complete("close ", 6).candidates.begin(),
-                          completer.complete("close ", 6).candidates.end(),
-                          [](const Completion& c) { return c.text == "local.probe"; }));
+
+  // One call, held: two calls would return two temporaries, and pairing begin() from one with end()
+  // from the other is undefined. It passed whenever the allocator happened to reuse the address.
+  const auto before = completer.complete("close ", 6);
+  ASSERT_TRUE(std::any_of(
+    before.candidates.begin(), before.candidates.end(), [](const Completion& c) { return c.text == "local.probe"; }))
+    << "the open source was not offered, so the assertion below cannot show a refresh";
 
   ASSERT_TRUE(store->closeSource("local.probe").isOk());
   completer.markListsDirty();

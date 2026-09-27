@@ -211,7 +211,7 @@ The code generator takes your STL interface definition and produces:
 | <code>get&lt;<var>Prop</var>&gt;()</code> / <code>setNext&lt;<var>Prop</var>&gt;()</code> | Typed accessors for every property |
 | `virtual myMethodImpl(...)` | Pure virtual methods you override |
 | Serialization code | Reads/writes properties to the network |
-| Runtime type metadata | Powers the shell, explorer, and recorder |
+| Runtime type metadata | Powers the term, explorer, and recorder |
 
 You write the STL, the generator writes the boilerplate, and you write the logic.
 
