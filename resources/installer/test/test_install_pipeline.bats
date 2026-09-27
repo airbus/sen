@@ -11,16 +11,21 @@
 
 load test_helpers
 
-# Stage SHA256SUMS body in a tempfile; the mock `cat`s it for any *SHA256SUMS URL.
+# Stage a SHA256SUMS body and publish its URL the way the release response does.
+# The mock answers that exact URL and nothing else: a suffix match answered identically for
+# the tag URL and a draft's untagged-<hash> URL, so every outcome passed without the code
+# ever building a URL that worked.
 mock_curl_sums() {
     local sums="$1"
+    local url="${2:-https://example/releases/download/0.5.2/SHA256SUMS}"
     local file="${SEN_TEST_TMPDIR}/sums.txt"
     printf '%s\n' "$sums" > "$file"
+    SENV_SUMS_URL="$url"
     eval "curl() {
-        local url
-        for a in \"\$@\"; do url=\"\$a\"; done
-        case \"\$url\" in
-            *SHA256SUMS) cat '$file'; return 0 ;;
+        local seen
+        for a in \"\$@\"; do seen=\"\$a\"; done
+        case \"\$seen\" in
+            '$url') cat '$file'; return 0 ;;
             *) return 22 ;;
         esac
     }"
@@ -37,19 +42,11 @@ mock_curl_sums() {
     load_install
     local archive="$SEN_INSTALL_HOME/cache/x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache" && printf 'x' > "$archive"
+    # No release before 0.7.0 published one, so this has to stay installable.
+    SENV_SUMS_URL=""
     curl() { return 22; }
     verify_checksum 0.5.2 x.tar.gz "$archive"
     [[ "$_NOTES_QUEUE" == *"SHA256SUMS"* ]]
-    [ -f "$archive" ]
-}
-
-@test "verify_checksum: no entry for the archive queues a warning" {
-    load_install
-    local archive="$SEN_INSTALL_HOME/cache/x.tar.gz"
-    mkdir -p "$SEN_INSTALL_HOME/cache" && printf 'x' > "$archive"
-    mock_curl_sums "deadbeef  some-other-file.tar.gz"
-    verify_checksum 0.5.2 x.tar.gz "$archive"
-    [[ "$_NOTES_QUEUE" == *"no checksum entry"* ]]
     [ -f "$archive" ]
 }
 
@@ -209,6 +206,7 @@ SCRIPT
     mkdir -p "$SEN_INSTALL_HOME/cache"
     printf 'corrupt-cached-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
     # Mock curl to serve a SHA256SUMS that doesn't match the cached file.
+    SENV_SUMS_URL="https://example/releases/download/0.5.2/SHA256SUMS"
     eval "curl() {
         local a url=''
         for a in \"\$@\"; do case \"\$a\" in http*) url=\"\$a\" ;; esac; done
@@ -291,4 +289,50 @@ SCRIPT
     [[ "$output" == *"in progress"* ]]
     [[ "$output" != *"inside-lock"* ]]
     exec 8>&-
+}
+
+#---------------------------------------------------------------------------------------------------------------
+# verify_checksum: once the release lists SHA256SUMS, every failure is fatal
+#---------------------------------------------------------------------------------------------------------------
+
+@test "verify_checksum: a draft's untagged asset URL verifies" {
+    # The case that has never run: a draft serves its assets under releases/download/untagged-<hash>/,
+    # so a URL built from the tag 404s and the install used to proceed unverified.
+    load_install
+    local fname="x.tar.gz"
+    mkdir -p "$SEN_INSTALL_HOME/cache"
+    printf 'fake-archive-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
+    local hex
+    hex=$(sha256sum "$SEN_INSTALL_HOME/cache/$fname" | awk '{print $1}')
+    mock_curl_sums "$hex $fname" \
+        "https://example/releases/download/untagged-e9edc999fecbaa6951d6/SHA256SUMS"
+    run verify_checksum 0.7.0-rc1 "$fname" "$SEN_INSTALL_HOME/cache/$fname"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Verified"* ]]
+}
+
+@test "verify_checksum: listed but unfetchable is fatal and deletes the archive" {
+    load_install
+    local fname="x.tar.gz"
+    mkdir -p "$SEN_INSTALL_HOME/cache"
+    printf 'fake-archive-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
+    SENV_SUMS_URL="https://example/releases/download/0.7.0-rc1/SHA256SUMS"
+    curl() { return 22; }
+    run verify_checksum 0.7.0-rc1 "$fname" "$SEN_INSTALL_HOME/cache/$fname"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"could not be fetched"* ]]
+    [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
+}
+
+@test "verify_checksum: no entry for our archive is fatal and deletes it" {
+    # A short artefact set produces exactly this: sums present, our archive absent from them.
+    load_install
+    local fname="x.tar.gz"
+    mkdir -p "$SEN_INSTALL_HOME/cache"
+    printf 'fake-archive-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
+    mock_curl_sums "0000000000000000000000000000000000000000000000000000000000000000 other.tar.gz"
+    run verify_checksum 0.5.2 "$fname" "$SEN_INSTALL_HOME/cache/$fname"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"no entry for"* ]]
+    [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
 }

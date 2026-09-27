@@ -35,6 +35,7 @@ SENV_ALLOW_ROOT=0
 # Resolve-stage scratch globals. Functions set these instead of using command substitution so callers don't have to
 # round-trip through subshells (where set -e behaviour is harder to reason about).
 SENV_RESOLVED_URL=""
+SENV_SUMS_URL=""
 SENV_RESOLVED_USED_MENU=0
 SENV_ARCHIVE_PATH=""
 
@@ -384,6 +385,19 @@ ls_remote() {
         | sed -E 's/.*"([^"]+)"$/\1/'
 }
 
+# Reads a GitHub Releases API response on stdin. Emits the download URL of the asset with this
+# exact name, or nothing. Taken from the response rather than built from the tag, because a draft
+# release serves its assets under releases/download/untagged-<hash>/ and a tag-derived URL 404s
+# there: that is why checksum verification has never run against a rehearsal.
+extract_named_asset() {
+    local name="$1"
+    grep -o '"browser_download_url"[[:space:]]*:[[:space:]]*"[^"]*"' \
+        | sed -E 's/.*"(https:[^"]+)".*/\1/' \
+        | grep -E "/${name}\$" \
+        | head -1 \
+        || true
+}
+
 # Reads a GitHub Releases API response on stdin. Emits one tarball download URL per line, filtered by (arch, os).
 extract_assets() {
     local arch os build_type
@@ -487,6 +501,8 @@ build_candidates() {
         printf '%s\n' "$(paint dim "run 'sh install.sh' (no args) to see available versions.")" >&2
         return 1
     fi
+    # From the same response as the archive URLs, so the two cannot disagree about the release.
+    SENV_SUMS_URL=$(printf '%s' "$json" | extract_named_asset SHA256SUMS)
     urls=$(printf '%s' "$json" | extract_assets)
     [ -z "$urls" ] && return 0
     while IFS= read -r url; do
@@ -663,21 +679,31 @@ fetch_archive() {
     SENV_ARCHIVE_PATH="$archive"
 }
 
-# Best-effort SHA256SUMS verification. Returns 0 with a soft note when the release doesn't publish SHA256SUMS or when
-# there's no entry for $fname. Returns 1 (and deletes $archive) on a real mismatch.
+# Verifies $archive against the release's SHA256SUMS. A release that publishes no SHA256SUMS is
+# skipped with a note, because none before 0.7.0 did. But once the release lists one, every failure
+# from there on is fatal: the file exists, so being unable to fetch it or not finding our archive in
+# it are both reasons to refuse rather than to carry on. Returns 1 (and deletes $archive) on any of
+# those, so an unverified archive never lands in $HOME and on PATH.
 verify_checksum() {
     local version="$1" fname="$2" archive="$3"
-    local sums_url="$SEN_BASE_URL/releases/download/$version/SHA256SUMS"
+    local sums_url="$SENV_SUMS_URL"
     local sums expected actual=""
-    if ! sums=$(_curl -fsSL "$sums_url" 2>/dev/null); then
-        defer_note "SHA256SUMS not published for $version; checksum verification skipped."
+    if [ -z "$sums_url" ]; then
+        defer_note "release $version publishes no SHA256SUMS; checksum verification skipped."
         return 0
+    fi
+    if ! sums=$(_curl -fsSL "$sums_url" 2>/dev/null); then
+        err "install.sh:" "release $version lists SHA256SUMS but it could not be fetched"
+        printf '  %s\n' "$sums_url" >&2
+        rm -f "$archive"
+        return 1
     fi
     expected=$(printf '%s\n' "$sums" \
         | awk -v f="$fname" '$2==f || $2=="*"f {print $1; exit}')
     if [ -z "$expected" ]; then
-        defer_warn "no checksum entry for $fname in SHA256SUMS; verification skipped."
-        return 0
+        err "install.sh:" "SHA256SUMS has no entry for $fname"
+        rm -f "$archive"
+        return 1
     fi
     if command -v sha256sum >/dev/null 2>&1; then
         actual=$(sha256sum "$archive" | awk '{print $1}')

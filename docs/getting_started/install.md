@@ -72,6 +72,11 @@ sen --version
         fish       source /home/alice/.sen/current/activate.fish
     ```
 
+The checksum line is the archive being checked against the `SHA256SUMS` the release publishes.
+Releases before 0.7.0 published none, and installing one of those prints a note instead and
+carries on. Once a release does publish it, a checksum that cannot be fetched, does not list
+your archive, or does not match stops the install and removes the download.
+
 ??? note "Different versions, toolchains, non-interactive"
 
     Run with no arguments to list the available releases:
