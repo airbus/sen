@@ -23,6 +23,14 @@ Releases publish `x86_64` Linux and `amd64` Windows archives only. The script pi
 matches your host, so on any other architecture, arm64 Linux included, it finds nothing to download
 and stops. Build [from source](../howto_guides/building_from_source.md) there.
 
+The installer needs `curl`, `tar`, `sha256sum` and the usual text tools, and says which are
+missing if any are. Running Sen needs nothing beyond what the archive carries.
+
+**Building your own package against the install is a separate matter**: that needs CMake and a
+C++17 compiler, which the installer neither checks for nor provides, because plenty of people
+install Sen only to run it. If you intend to follow the
+[first package](first_package.md) guide, have those in place first.
+
 **1. Install:**
 
 ```shell
