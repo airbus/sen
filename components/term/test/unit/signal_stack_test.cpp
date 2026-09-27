@@ -11,8 +11,12 @@
 #include <gtest/gtest.h>
 
 #if !defined(_WIN32)
+// other posix
+// NOLINTNEXTLINE(hicpp-deprecated-headers,modernize-deprecated-headers)
+#  include <signal.h>
+
 // std
-#  include <csignal>
+#  include <tuple>
 #endif
 
 namespace sen::components::term
@@ -49,7 +53,7 @@ public:
   {
     struct sigaction current {};
     EXPECT_EQ(::sigaction(signalNumber, nullptr, &current), 0);
-    return (current.sa_flags & SA_ONSTACK) != 0;
+    return (static_cast<unsigned int>(current.sa_flags) & static_cast<unsigned int>(SA_ONSTACK)) != 0U;
   }
 
   [[nodiscard]] static void* handlerOf(int signalNumber)

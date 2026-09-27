@@ -5,6 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#include "sen/core/base/duration.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
 

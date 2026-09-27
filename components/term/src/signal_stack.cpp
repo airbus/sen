@@ -10,7 +10,11 @@
 #if !defined(_WIN32)
 // std
 #  include <array>
-#  include <csignal>
+
+// other posix
+// sigaction, SA_ONSTACK and SIGBUS are POSIX; <csignal> has neither the call nor the flag.
+// NOLINTNEXTLINE(hicpp-deprecated-headers,modernize-deprecated-headers)
+#  include <signal.h>
 #endif
 
 namespace sen::components::term
@@ -36,14 +40,18 @@ int restoreAltStackOnFatalHandlers()
     {
       continue;
     }
-    if ((current.sa_flags & SA_ONSTACK) != 0)
+    // Through unsigned: sa_flags is a signed int on every platform Sen builds for, and a bitwise
+    // operation on a signed operand is undefined once the sign bit is in play.
+    const auto flags = static_cast<unsigned int>(current.sa_flags);
+    constexpr auto onStack = static_cast<unsigned int>(SA_ONSTACK);
+    if ((flags & onStack) != 0U)
     {
       continue;
     }
 
     // Only the flag changes: the handler stays whoever installed it, so FTXUI's terminal restore and
     // its own uninstall are untouched.
-    current.sa_flags |= SA_ONSTACK;
+    current.sa_flags = static_cast<int>(flags | onStack);
     if (::sigaction(signalNumber, &current, nullptr) == 0)
     {
       ++changed;
