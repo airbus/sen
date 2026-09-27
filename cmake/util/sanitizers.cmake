@@ -18,6 +18,26 @@ if(NOT DEFINED SEN_SANITIZER_FAIL_FAST)
   set(SEN_SANITIZER_FAIL_FAST OFF)
 endif()
 
+# Only the clang branch below sets any flag, so any other compiler would accept the request and
+# build uninstrumented, leaving a clean sanitizer run that looked at nothing. Fatal rather than a
+# warning, which scrolls past a build of a few hundred targets.
+if(NOT
+   SEN_USE_SANITIZER
+   STREQUAL
+   "None"
+   AND NOT
+       CMAKE_CXX_COMPILER_ID
+       STREQUAL
+       "Clang"
+)
+  message(
+    FATAL_ERROR
+      "SEN_USE_SANITIZER=${SEN_USE_SANITIZER} needs clang, and this build uses "
+      "${CMAKE_CXX_COMPILER_ID}, which would produce an uninstrumented binary. "
+      "Build with a clang profile, for example --profile:all=sen_clang."
+  )
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fasynchronous-unwind-tables")
 
