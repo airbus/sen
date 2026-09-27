@@ -1,0 +1,35 @@
+[
+  {
+    "tag_name": "0.7.0-rc1",
+    "name": "0.7.0-rc1",
+    "draft": false,
+    "immutable": false,
+    "prerelease": true,
+    "author": {
+      "login": "someone"
+    },
+    "assets": []
+  },
+  {
+    "tag_name": "0.6.0",
+    "name": "0.6.0",
+    "draft": false,
+    "immutable": false,
+    "prerelease": false,
+    "author": {
+      "login": "someone"
+    },
+    "assets": []
+  },
+  {
+    "tag_name": "0.5.2",
+    "name": "0.5.2",
+    "draft": false,
+    "immutable": false,
+    "prerelease": false,
+    "author": {
+      "login": "someone"
+    },
+    "assets": []
+  }
+]
