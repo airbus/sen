@@ -187,10 +187,10 @@ void Completer::update(const Scope& scope, const ObjectStore& store, LogRouter& 
     queryNames_ = std::move(qnames);
   }
 
-  // Remembered, not read. The logger list is rebuilt when `log level <Tab>` asks for it: `listLoggers`
-  // goes through `applyToAllLoggers`, which holds spdlog's process-global logger-map mutex for the whole
-  // walk, and rebuilding it here meant every logger creation and every `registry::get` anywhere in the
-  // kernel contended with term thirty times a second -- for a list with exactly one consumer.
+  // Remembered, not read. The logger list is rebuilt when `log level <Tab>` asks for it: `listLoggers` goes
+  // through `applyToAllLoggers`, which holds spdlog's process-global logger-map mutex for the whole walk.
+  // Rebuilding it here would make every logger creation and every `registry::get` in the kernel contend
+  // with term thirty times a second, for a list with one consumer.
   logRouter_ = &logRouter;
 }
 
@@ -639,18 +639,17 @@ CompletionResult Completer::complete(std::string_view input, int cursorPos) cons
     }
   }
 
-  // Two strategies can offer the same text -- an object that is also a type name, for one.
+  // Two strategies can offer the same text, an object that is also a type name for instance.
   std::set<std::string> seen;
   auto duplicate = std::remove_if(result.candidates.begin(),
                                   result.candidates.end(),
                                   [&seen](const Completion& c) { return !seen.insert(c.text).second; });
   result.candidates.erase(duplicate, result.candidates.end());
 
-  // One bound for every strategy, at the one place they all come through. Tab on an empty prefix built a
-  // candidate per object -- three strings each -- sorted them, and then the renderer re-scanned the whole
+  // One bound for every strategy, at the one place they all come through. Unbounded, Tab on an empty prefix
+  // builds a candidate per object, three strings each, sorts them, and the renderer then re-scans the whole
   // list every frame for its column width although it draws about ten rows. On a bus with a hundred
-  // thousand objects that was tens of megabytes and a visible freeze on the most ordinary gesture there
-  // is. Ten rows are drawn; a few hundred candidates is already more than anyone reads.
+  // thousand objects that is tens of megabytes and a visible freeze on the most ordinary gesture there is.
   constexpr std::size_t maxCandidates = 200;
   if (result.candidates.size() > maxCandidates)
   {
@@ -1117,11 +1116,10 @@ std::string Completer::commonPrefix(Span<const Completion> candidates)
       ++j;
     }
 
-    // Cut back to a codepoint boundary. Two candidates that share the lead byte of a multi-byte
-    // codepoint and differ in the continuation byte -- é and è -- gave a prefix ending in a bare 0xC3,
-    // which writeCompletion put on the line and ftxui then dropped from the screen: a byte in the buffer
-    // that is not on the display, and Enter sends it. This is the one place in this file that compared
-    // bytes while the rest goes to trouble over exactly this.
+    // Cut back to a codepoint boundary. Two candidates that share the lead byte of a multi-byte codepoint
+    // and differ in the continuation byte, é and è for instance, give a prefix ending in a bare 0xC3.
+    // writeCompletion would put that on the line and ftxui would drop it from the screen, leaving a byte in
+    // the buffer that is not on the display and that Enter sends.
     prefix = truncateUtf8(prefix, j);
     if (prefix.empty())
     {

@@ -289,9 +289,9 @@ public:
 
     int indexWidth = (list->size() < 10) ? 1 : (list->size() < 100) ? 2 : 3;
 
-    // A method returning a large sequence used to build two elements per item with no limit, and the
-    // output pane counts that whole vbox as one of its entries, so it stayed and was re-rendered
-    // every frame for the rest of the session.
+    // Without a cap a method returning a large sequence builds two elements per item, and the output pane
+    // counts that whole vbox as one entry, so it stays and is re-rendered every frame for the rest of the
+    // session.
     constexpr std::size_t maxShownElements = 200;
     const std::size_t shown = std::min(list->size(), maxShownElements);
 
@@ -448,9 +448,9 @@ public:
 
   /// Integers land here. Every integral type forwards through IntegralType, NumericType and
   /// NativeType to this overload (libs/core/src/meta/type_visitor.cpp), and toJson prints the same
-  /// digits std::to_string did, so the seven per-width overloads this class used to carry said
-  /// nothing the fallback does not. Floats keep their own overload: formatFloat's ostream gives six
-  /// significant digits where nlohmann gives the shortest round-trip form.
+  /// digits std::to_string would, so a per-width overload per integer type would say nothing the fallback
+  /// does not. Floats keep their own overload: formatFloat's ostream gives six significant digits where
+  /// nlohmann gives the shortest round-trip form.
   void apply(const Type& /*type*/) override { result_ = ftxui::text(toJson(value_)) | styles::valueNumber(); }
 
 private:
@@ -458,8 +458,8 @@ private:
   {
     constexpr std::size_t bytesPerLine = 16;
 
-    // uint8 sequences come here instead of through the element cap above, and this used to lay out a
-    // row per sixteen bytes for the whole buffer: a few megabytes built a pane entry holding a million
+    // uint8 sequences come here instead of through the element cap above. Without a cap this lays out a row
+    // per sixteen bytes for the whole buffer, so a few megabytes build a pane entry holding a million
     // elements, re-rendered every frame from then on.
     constexpr std::size_t maxShownLines = 200;
     const std::size_t shown = std::min(bytes.size(), maxShownLines * bytesPerLine);

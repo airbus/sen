@@ -76,7 +76,8 @@ bool writeLocal(std::string_view text)
 {
   // clip.exe reads from stdin and stores the payload in the single Windows
   // clipboard (no X11-style PRIMARY selection exists on Windows).
-  FILE* pipe = _popen("clip", "wb");  // NOLINT(cert-env33-c) see the note on the POSIX path below
+  // NOLINTNEXTLINE(cert-env33-c) the command is this file's own literal and the text arrives on stdin
+  FILE* pipe = _popen("clip", "wb");
   if (pipe == nullptr)
   {
     return false;
@@ -104,10 +105,9 @@ bool pipeToCommand(std::string_view text, const char* cmd)
   return pclose(pipe) == 0;  // NOLINT(misc-include-cleaner)
 }
 
-#  if !defined(_WIN32)
-/// Blocks SIGPIPE for the calling thread only, for as long as it is alive. std::signal() was used
-/// here, which changes the disposition process-wide -- every other component's SIGPIPE behaviour
-/// changed for the duration, and two concurrent callers raced on the restore.
+/// Blocks SIGPIPE for the calling thread only, for as long as it is alive. A process-wide
+/// std::signal() would change every other component's disposition, and two callers would race on
+/// the restore.
 class ThreadSigpipeBlock
 {
 public:
@@ -139,8 +139,6 @@ private:
   sigset_t previous_ {};
   bool blocked_ = false;
 };
-#  endif
-
 #  if defined(__APPLE__)
 
 bool writeLocal(std::string_view text)
@@ -196,10 +194,10 @@ namespace
 
 /// One worker for the whole process, with a single pending slot.
 ///
-/// It replaces a detached thread per copy. Two things were wrong with that: a drag-select loop creates
-/// a copy per mouse release, so several threads could be in flight at once, and a missing or wedged
-/// helper left every one of them hanging for the life of the process with nothing owning them. Latest
-/// text wins -- an older pending copy the user has already replaced is not worth a fork.
+/// One worker rather than a detached thread per copy. A drag-select loop creates a copy per mouse release,
+/// so several threads would be in flight at once, and a missing or wedged helper would leave every one of
+/// them hanging for the life of the process with nothing owning them. Latest text wins, because an older
+/// pending copy the user has already replaced is not worth a fork.
 class Writer
 {
 public:
@@ -246,8 +244,8 @@ public:
     stopping_ = true;
     work_.notify_all();
 
-    // Bounded. A helper that has not returned in two seconds is wedged, and term's shutdown is not
-    // worth holding for it, so the thread is abandoned instead -- at most one, ever.
+    // Bounded. A helper that has not returned in two seconds is wedged, and term's shutdown is not worth
+    // holding for it, so the thread is abandoned instead. At most one, ever.
     if (idle_.wait_for(lock, std::chrono::seconds(2), [this] { return !busy_ && !hasPending_; }))
     {
       auto worker = std::move(worker_);

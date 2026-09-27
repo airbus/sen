@@ -176,7 +176,7 @@ TEST(OutputPane, ClearResetsPendingCount)
 // Every case here renders before it scrolls, and that is the point. The scroll step is
 // `rows / contentHeight_`, and contentHeight_ starts at 1 and is only ever assigned inside render(),
 // which returns early on an empty pane. So a test that scrolls a pane it has not rendered gets a step of
-// `rows`, saturates immediately, and passes for any step arithmetic whatsoever -- including none.
+// `rows`, saturates immediately, and passes for any step arithmetic whatsoever, including none.
 
 namespace
 {

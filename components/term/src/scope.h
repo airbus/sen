@@ -79,10 +79,10 @@ public:
   /// Get the group path within the bus, dot-separated as object local names are (empty if at bus
   /// level or above). `getPath` displays the same path with '/', which is how it is typed.
   ///
-  /// The convention, since three places encode it and the third got it wrong: **a scope path uses
-  /// '/', a name path uses '.', and translating between them is the command layer's job.** Anything
-  /// compared against an object's local name is dot-separated; anything shown to or typed by the user
-  /// is '/'-separated. A new command taking a path has to translate it, as `ls` does.
+  /// The convention: a scope path uses '/', a name path uses '.', and translating between them is the
+  /// command layer's job. Anything compared against an object's local name is dot-separated, and anything
+  /// shown to or typed by the user is '/'-separated. A new command taking a path has to translate it, as
+  /// `ls` does.
   [[nodiscard]] std::string_view getGroupPath() const noexcept;
 
   /// Get the query name (empty if not a query scope).

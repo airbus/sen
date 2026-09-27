@@ -380,10 +380,9 @@ VarList parseArgs(const Method* method, std::string_view args)
 
   const auto& methodArgs = method->getArgs();
 
-  // Single string argument: pass as-is without JSON quoting. Peeled, like the Duration path below --
-  // without the peel, `obj.setName hello world` worked for a `string` and the same method declared as
-  // `alias string Name` or `optional<string>` took the JSON path, split into two tokens and failed with
-  // "Could not parse 'hello world'". A type and its alias behaved differently on the same line.
+  // Single string argument: pass as-is without JSON quoting, and peel first, like the Duration path
+  // below. Unpeeled, `obj.setName hello world` works for a `string` and the same method declared as
+  // `alias string Name` or `optional<string>` takes the JSON path, splits into two tokens and fails.
   if (methodArgs.size() == 1 && args[0] != '"')
   {
     const auto* stringLeaf = peelToLeaf(methodArgs[0].type.type());
@@ -488,8 +487,8 @@ void CommandEngine::execute(std::string_view input)
     dispatch(input, cmd, args);
   }
   // Everything dispatch can throw arrives here, including transport and query-compiler failures, so the
-  // title used to carry no information at all and the body was whatever internal text the exception had.
-  // Naming the command at least says which of them it was.
+  // title names the command: without it the user is left with whatever internal text the exception
+  // carried and no clue which command produced it.
   catch (const std::exception& e)
   {
     reportError("'" + std::string(cmd) + "' failed",
@@ -600,9 +599,8 @@ void CommandEngine::update()
         ++itr;
         continue;
       }
-      // The body used to be the command text alone, which left out the two things the user needs: how
-      // long term waited, and that nothing was cancelled. Nothing is sent to the peer, so the method
-      // may still run and answer later.
+      // The body says how long term waited and that nothing was cancelled. Nothing is sent to the peer,
+      // so the method may still run and answer later.
       app_.finishPendingCall(
         itr->first,
         renderError("No Answer Yet",
@@ -616,7 +614,7 @@ void CommandEngine::update()
   }
 
   // Discovery notices go through the component's own logger rather than straight to the output, so
-  // `log level` governs them like any other component's messages. They were unsilenceable before.
+  // `log level` governs them like any other component's messages.
   auto notifications = store_.drainNotifications();
   for (const auto& n: notifications)
   {
@@ -788,12 +786,11 @@ void CommandEngine::cmdCd(std::string_view args)
     navTarget.remove_prefix(1);
   }
 
-  // Any target that names a session has to name one discovery has seen, whether it is a bare
-  // session at root or a "session.bus" jump from anywhere. Only the session part can be checked:
-  // getAvailableSources lists "session.bus" for open sessions and the bare name for the rest, so
-  // the bus list is unknown until the session is open. Without this, subscribing to a bus nobody
-  // publishes succeeds and reports " + source X opened", leaving the user in a scope where nothing
-  // will ever appear.
+  // Any target that names a session has to name one discovery has seen, whether it is a bare session at
+  // root or a "session.bus" jump from anywhere. Only the session part can be checked here:
+  // getAvailableSources lists "session.bus" for open sessions and the bare name for the rest, so the bus
+  // list is unknown until the session is open. Without the check, subscribing to a bus nobody publishes
+  // succeeds and leaves the user in a scope where nothing will ever appear.
   const bool namesASession = (scope_.getKind() == Scope::Kind::root) || navTarget.find('.') != std::string_view::npos;
   if (!isSpecial && namesASession)
   {
@@ -814,10 +811,9 @@ void CommandEngine::cmdCd(std::string_view args)
       return;
     }
 
-    // And the bus, when it can be known. The comment above is right that a closed session's buses are
-    // not enumerable -- but once the session is open, getAvailableSources lists them as "session.bus",
-    // and that is exactly when a user types a bus name. Without this, `cd local.main` succeeded against
-    // a bus nobody publishes and left the user in a scope where `ls` is empty for ever, with no error.
+    // And the bus, once the session is open: getAvailableSources lists it then as "session.bus", which is
+    // exactly when a user types a bus name. Without the check, `cd` accepts a bus nobody publishes and
+    // leaves the user in a scope where `ls` is empty for ever, with no error.
     const auto busStart = navTarget.find('.');
     if (busStart != std::string_view::npos)
     {
@@ -849,11 +845,11 @@ void CommandEngine::cmdCd(std::string_view args)
     }
   }
 
-  // A query is the one namespace term owns outright: it creates them, holds the list, and reserves the
+  // A query is the one namespace term owns outright: it creates them, holds the list and reserves the
   // separator in their names, so it can say with certainty that one does not exist. Sessions and buses
-  // are only partly known (discovery cannot list a closed session's buses), and a group is not a thing
-  // in Sen at all -- it is an artefact of splitting whatever object names are present this instant, so
-  // "no such group" is a statement term cannot make.
+  // are only partly known, because discovery cannot list a closed session's buses. A group is not a thing
+  // in Sen at all, only an artefact of splitting the object names present this instant, so "no such
+  // group" is a statement term cannot make.
   if (!isSpecial && target.front() == '@' && target.size() > 1U)
   {
     const auto wanted = target.substr(1);
@@ -892,10 +888,9 @@ void CommandEngine::cmdCd(std::string_view args)
 
   // Say when a group scope holds nothing, phrased as the present rather than a verdict on the path: a
   // group that is empty now may be filled by a component still starting up, so refusing would turn an
-  // early `cd` into an error indistinguishable from a typo. Silence is what let every nested group
-  // match nothing for months -- `ls` printed empty and nobody could tell that from an empty group.
-  // Only when the bus has objects and this group has none, so a bus nobody has populated yet stays
-  // quiet: that case is already visible from the scope above.
+  // early `cd` into an error indistinguishable from a typo. Saying nothing is worse, because an empty
+  // `ls` cannot be told from a group that never matched. Only when the bus has objects and this group has
+  // none, so a bus nobody has populated yet stays quiet.
   if (scope_.getKind() == Scope::Kind::group)
   {
     // Ask a bus-level scope rather than matching the address against the name here: one implementation
@@ -920,7 +915,7 @@ void CommandEngine::cmdPwd(std::string_view /*args*/) { app_.appendOutput(scope_
 namespace
 {
 
-/// The "[QualifiedName]" annotation a tree node carries for an object. Assembled in three places.
+/// The "[QualifiedName]" annotation a tree node carries for an object.
 std::string annotationFor(const Object& obj)
 {
   std::string annotation = "[";
@@ -939,8 +934,8 @@ void CommandEngine::cmdLs(std::string_view args)
     return;
   }
 
-  // ls @queryname, and `ls` while in query scope, render the same tree from the same query. The
-  // block below used to appear twice, byte for byte, differing only in where the name came from.
+  // ls @queryname, and `ls` while in query scope, render the same tree from the same query, so both
+  // arrive here and differ only in where the name comes from.
   std::string_view queryName;
   if (!args.empty() && args.front() == '@')
   {
@@ -1367,11 +1362,9 @@ void CommandEngine::cmdTheme(std::string_view args)
 void CommandEngine::cmdShutdown(std::string_view /*args*/)
 {
   app_.appendInfo("Shutting down...");
-  // Match Ctrl+D: just flag the app. The execLoop callback in component.cpp
-  // notices on the next iteration and calls requestKernelStop itself. Calling
-  // requestKernelStop here would race the main thread's runner teardown
-  // against the rest of this event dispatch (echoCommand epilogue, render)
-  // and occasionally deadlocks on shutdown.
+  // Match Ctrl+D: flag the app, and let the execLoop callback in component.cpp call requestKernelStop on
+  // the next iteration. Calling it here races the main thread's runner teardown against the rest of this
+  // event dispatch and can deadlock.
   app_.requestShutdown();
 }
 
@@ -1491,19 +1484,21 @@ void CommandEngine::invokeMethodAsync(std::string_view input,
                                               retType = method->getReturnType(),
                                               timestamp = std::move(shortTime)](const MethodResult<Var>& result)
                                              {
-                                               // The work queue runs this on the component thread, outside `execute`'s
-                                               // try and outside anything upstream: runner.cpp's EXCEPTION_WRAP_BLOCK
-                                               // expands to a bare do/while and catches nothing. The kernel's terminate
-                                               // handler does report an escaping exception -- a minidump with the
-                                               // phase, the version, the loaded components and the last log lines --
-                                               // but reporting is not recovery: the process still dies, and takes every
-                                               // other component loaded in it.
-                                               // Checked before `*retType` is evaluated, not after.
-                                               // TypeHandle can be non-owning, so a late answer from an
-                                               // object whose class metadata has gone would dereference
-                                               // freed memory -- and a late answer is exactly the case
-                                               // where the object may have disappeared. The answer is
-                                               // still reported, just not rendered against its type.
+                                               // Nothing upstream catches an exception from here:
+                                               // runner.cpp's EXCEPTION_WRAP_BLOCK expands to a bare
+                                               // do/while, so one escaping this lambda ends the process
+                                               // and every component in it. The catch arms below are
+                                               // what stops that.
+                                               //
+                                               // This captures `this` and is held by the target object,
+                                               // which can outlive the engine. What keeps it safe is
+                                               // `Runner::signalThreadToStop` disabling the work queue
+                                               // before it raises the stop flag, so a queued callback
+                                               // never runs once teardown has begun.
+                                               //
+                                               // `hasPendingCall` is checked before `*retType` is read:
+                                               // a TypeHandle can be non-owning, and a late answer is
+                                               // the case where the class metadata may be gone.
                                                if (!hasPendingCall(callId))
                                                {
                                                  app_.appendInfo("A late answer arrived for '" + inputStr +
@@ -1517,12 +1512,10 @@ void CommandEngine::invokeMethodAsync(std::string_view input,
                                                {
                                                  finishMethodCall(callId, inputStr, name, *retType, timestamp, result);
                                                }
-                                               // Both arms say the same thing, because both mean the same
-                                               // thing: the call returned and term could not draw what it
-                                               // returned. The typed arm used to report it as "Call Error"
-                                               // with the method name, which is what a call that actually
-                                               // failed looks like -- so the user was told their method
-                                               // failed when it had worked.
+                                               // Both arms say the same thing because both mean the same
+                                               // thing: the call returned and term could not draw the
+                                               // result. Reporting it as a call error would tell the user
+                                               // their method failed when it had worked.
                                                catch (const std::exception& e)
                                                {
                                                  failPendingCall(callId,

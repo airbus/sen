@@ -40,9 +40,8 @@ std::string& InputPane::getBuffer() noexcept { return buffer_; }
 
 void InputPane::submit()
 {
-  // Blank means blank, whatever it is made of. Space-then-Enter used to run the empty command -- "'' is
-  // not a recognized command" -- and append the spaces to ~/.sen_history.txt, where they came back on
-  // the arrow keys.
+  // Blank means blank, whatever it is made of. Otherwise space-then-Enter runs the empty command and
+  // appends the spaces to the history file, where they come back on the arrow keys.
   const bool blank = buffer_.find_first_not_of(" \t") == std::string::npos;
 
   if (onSubmit_ && !blank)
@@ -106,9 +105,9 @@ void InputPane::historyDown()
 
 void InputPane::addToHistory(std::string_view line)
 {
-  // One decision for both stores. The input enforces this same bound before calling, so it cannot fire
-  // for a typed line -- but gating only the file left a line recallable in this session and absent from
-  // the next, and which store keeps what should not rest on a caller's discipline.
+  // One decision for both stores. The input enforces the same bound before calling, so this cannot fire
+  // for a typed line, but gating only the file would make a line recallable this session and missing the
+  // next, and which store keeps what should not rest on a caller's discipline.
   if (line.size() > maxLineBytes)
   {
     return;
@@ -135,8 +134,8 @@ void InputPane::addToHistory(std::string_view line)
     }
     else if (!historyWriteFailureReported_)
     {
-      // Once per session, not once per line. A read-only HOME used to mean history quietly never
-      // persisted: it worked all session and was empty on the next start, with nothing said.
+      // Once per session, not once per line. A read-only HOME otherwise means the history quietly never
+      // persists: it works all session and is empty on the next start, with nothing said.
       historyWriteFailureReported_ = true;
       getLogger()->warn("cannot write the command history to {}; it will not persist beyond this session",
                         historyFile_.string());
@@ -168,9 +167,9 @@ void InputPane::loadHistory()
   }
 
   // A ring of the last maxHistoryLines, not the whole file. Within a session `addToHistory` appends
-  // without bound -- only the in-memory deque is capped -- so the file carries every command of every
-  // previous session. A scripted run of 125,000 commands at the line limit leaves about a gigabyte, and
-  // this used to materialise all of it before capping, on the component thread during init.
+  // without bound, since only the in-memory deque is capped, so the file carries every command of every
+  // earlier session. A scripted run of 125,000 commands at the line limit leaves about a gigabyte, and
+  // reading it whole would happen on the component thread during init.
   std::deque<std::string> fileLines;
   bool trimmedTheFile = false;
   std::string line;
@@ -227,8 +226,7 @@ bool InputPane::searchHistory(std::string_view query)
   {
     if (history_[i].find(query) != std::string::npos)
     {
-      // The typed line is kept, like historyUp does, so ArrowDown gets it back. Setting historyIndex_
-      // to -1 without saving it meant the query the user typed was simply gone.
+      // The typed line is kept, like historyUp does, so ArrowDown gets it back.
       if (historyIndex_ == -1)
       {
         savedBuffer_ = buffer_;

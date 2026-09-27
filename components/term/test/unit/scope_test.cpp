@@ -73,8 +73,8 @@ TEST(ScopeNavigate, ToGroupFromBus)
 
 TEST(ScopeNavigate, NestedGroupsStoreADotAndDisplayASlash)
 {
-  // Two plain cds used to build "a/b" and compare it against the dotted path taken from an
-  // object's local name, so nothing matched and `ls` silently printed nothing.
+  // Two plain cds must not build "a/b" and compare it against the dotted path taken from an object's local
+  // name: nothing matches and `ls` silently prints nothing.
   Scope s;
   s.navigate("local.main");
   ASSERT_TRUE(s.navigate("a"));
@@ -92,9 +92,9 @@ TEST(ScopeNavigate, TheDisplayedPathNavigatesBackToTheSameScope)
   // back: it silently landed on session "a", bus "b".
   //
   // Typed into a scope that is standing somewhere else, not a fresh one. A fresh Scope is at the root,
-  // which is the single scope where a rule about leading separators cannot fire -- so the first version
-  // of this test asserted the property under the one condition that could not break it, and missed a
-  // regression that refused `/local` everywhere else.
+  // which is the single scope where a rule about leading separators cannot fire. Asserting the property
+  // there only would test it under the one condition that cannot break it, and would miss a regression that
+  // refuses `/local` everywhere else.
   const std::vector<std::string> paths {"/", "/local", "/local.main", "/local.main/a/b"};
   for (const auto& path: paths)
   {
@@ -143,9 +143,8 @@ TEST(ScopeNavigate, AGroupTargetWithAnEmptySegmentIsRejected)
 
 TEST(ScopeNavigate, ASessionOrBusNameCannotCarryTheSeparator)
 {
-  // This guard sat after the dotted branch, so it only ever saw an undotted target: `local/a.b`
-  // landed on session "local/a", where nothing matches and `ls` is silently empty -- the failure the
-  // separator change exists to remove. A revert matrix found it, because no test touched this half.
+  // The guard has to come before the dotted branch. After it, it sees only an undotted target, and
+  // `local/a.b` lands on session "local/a", where nothing matches and `ls` is silently empty.
   Scope root;
   EXPECT_FALSE(root.navigate("local/a"));
   EXPECT_FALSE(root.navigate("local/a.b"));
@@ -163,10 +162,9 @@ TEST(ScopeNavigate, ASessionOrBusNameCannotCarryTheSeparator)
 
 TEST(ScopeNavigate, ALeadingSeparatorIsAlwaysAbsolute)
 {
-  // Two ways to get this wrong, and both were: the separator was first dropped, so `/y` at a group
-  // scope became a child of that group; then it was refused outside the root, which turned `/local`
-  // into an error from every scope but one -- including from `/local` itself, whose prompt prints it.
-  // Absolute means resolved against the root, from wherever the user stands.
+  // Absolute means resolved against the root, from wherever the user stands. Dropping the separator makes
+  // `/y` at a group scope a child of that group; refusing it outside the root turns `/local` into an error
+  // from every scope but one, including from `/local` itself, whose prompt prints it.
   Scope s;
   s.navigate("local.main");
   ASSERT_TRUE(s.navigate("x"));

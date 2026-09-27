@@ -24,8 +24,8 @@ namespace
 /// A component asking the kernel to stop from its own thread, which is what a terminal component does
 /// when the user types `exit`.
 ///
-/// On a kernel started with doNotBlock -- which is what TestKernel uses, and what an embedding
-/// application may use -- `requestStop` used to run the whole shutdown on the caller's thread. That
+/// On a kernel started with doNotBlock, which is what TestKernel uses and what an embedding application may
+/// use, `requestStop` would otherwise run the whole shutdown on the caller's thread. That
 /// reaches the calling component's own `stopThread`, which joins the calling thread: EDEADLK, and the
 /// join failure went to `toErrorState`, which calls std::terminate. So the ordinary exit path aborted
 /// the process, and (because a terminal component has taken the console over) said nothing about it.

@@ -15,18 +15,13 @@ namespace sen::components::term::unicode
 {
 
 // Box drawing
-constexpr auto* branchTee = "\u251c";      // ├
-constexpr auto* cornerEnd = "\u2514";      // └
-constexpr auto* horizontalBar = "\u2500";  // ─
-constexpr auto* verticalBar = "\u2502";    // │
-constexpr auto* teeDown = "\u252c";        // ┬
+constexpr auto* branchTee = "\u251c";  // ├
+constexpr auto* cornerEnd = "\u2514";  // └
 
 // Block elements
 constexpr auto* blockBar = "\u25AC";  // ▬
 
 // Arrows and pointers
-constexpr auto* arrowUp = "\u2191";     // ↑
-constexpr auto* arrowDown = "\u2193";   // ↓
 constexpr auto* arrowRight = "\u2192";  // →
 
 // Prompt and markers
@@ -35,17 +30,6 @@ constexpr auto* bullet = "\u2022";        // •
 constexpr auto* ellipsis = "\u2026";      // …
 constexpr auto* middleDot = "\u00B7";     // ·
 constexpr auto* returnSymbol = "\u23CE";  // ⏎
-
-// Pane title icons
-constexpr auto* paneCommands = "\u276F";  // ❯  (matches promptSymbol)
-constexpr auto* paneLogs = "\u2261";      // ≡
-constexpr auto* paneEvents = "\u2726";    // ✦
-constexpr auto* paneWatches = "\u25CE";   // ◎
-
-// Heartbeat (1 Hz beat in the status bar). Filled / hollow circles rather than heart
-// suits because the white-heart codepoint (U+2661) is missing from many coding fonts.
-constexpr auto* beatOff = "\u25CB";  // ○
-constexpr auto* beatOn = "\u25CF";   // ●
 
 // Status markers
 constexpr auto* check = "\u2713";  // ✓

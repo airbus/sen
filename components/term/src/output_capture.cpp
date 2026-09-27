@@ -56,9 +56,9 @@ constexpr std::size_t readerBufferSize = 512U;
 constexpr std::size_t maxPendingLines = 2000U;
 
 // Longest line the reader will accumulate before handing it on. A component that writes a payload to
-// stderr with no newline in it -- a blob, a stack trace -- used to grow this buffer without bound and
-// then have it copied. At the cap the line is passed on as it stands and accumulation starts again,
-// so nothing is dropped; a very long line arrives split.
+// stderr with no newline in it, a blob or a stack trace, would otherwise grow this buffer without bound.
+// At the cap the line is passed on as it stands and accumulation starts again, so nothing is dropped and
+// a very long line arrives split.
 constexpr std::size_t maxCapturedLineLength = 4096U;
 
 // Backoff when the pipe is temporarily empty (EAGAIN / EWOULDBLOCK). Small enough to feel
@@ -175,9 +175,9 @@ OutputCapture::~OutputCapture()
   }
 
   // Join before closing the read end. The reader polls a non-blocking descriptor and leaves within one
-  // backoff of `running_` going false, so it needs no wakeup -- and closing a descriptor another thread
-  // is reading from invites descriptor reuse: the number can be handed straight to another thread's
-  // open, and the reader then reads an unrelated file into the output pane.
+  // backoff of `running_` going false, so it needs no wakeup. Closing a descriptor another thread is
+  // reading from invites reuse: the number can be handed straight to another thread's open, and the
+  // reader then reads an unrelated file into the output pane.
   if (stderrReader_.joinable())
   {
     stderrReader_.join();
@@ -254,9 +254,8 @@ OutputCapture::OutputCapture(OutputCallback callback): callback_(std::move(callb
 
   std::array<int, 2> stderrPipe {};
   // _O_NOINHERIT matters as much as _O_BINARY: without it both pipe ends are inheritable, every child
-  // gets a copy of the write end, and the destructor's EOF -- which is what actually retires the
-  // reader on Windows -- never arrives while one of them lives. The POSIX twin gets this from
-  // F_DUPFD_CLOEXEC, and said so in a comment a Windows reader would never look at.
+  // gets a copy of the write end, and the EOF that retires the reader on Windows never arrives while one
+  // of them lives. The POSIX branch gets the same from F_DUPFD_CLOEXEC.
   if (::_pipe(stderrPipe.data(), checkedConversion<unsigned int>(readerBufferSize), _O_BINARY | _O_NOINHERIT) != 0)
   {
     getLogger()->warn("OutputCapture: _pipe() failed (errno={}); stderr will not be captured", errno);
@@ -305,11 +304,10 @@ OutputCapture::~OutputCapture()
   // invites descriptor reuse: the number can be handed straight to another thread's open, and the reader
   // then reads an unrelated file into the output pane.
   //
-  // What retires the reader here is EOF, not `running_`. `_pipe` has no non-blocking mode, so `::_read`
-  // parks and `running_` is only tested between reads -- this arm carried the POSIX twin's comment
-  // claiming a backoff poll, which it does not have. The EOF comes from the `_dup2` above closing the
+  // What retires the reader here is EOF, not `running_`: `_pipe` has no non-blocking mode, so `::_read`
+  // parks and `running_` is only tested between reads. The EOF comes from the `_dup2` above closing the
   // last handle on the write end, which is why the pipe is created with `_O_NOINHERIT` and why the
-  // clipboard worker is stopped before this destructor runs: a child holding a copy of the write end
+  // clipboard worker is stopped before this destructor runs. A child holding a copy of the write end
   // would mean no EOF and this join would never return.
   if (stderrReader_.joinable())
   {

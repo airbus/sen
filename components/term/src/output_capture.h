@@ -56,8 +56,8 @@ private:
   int stderrPipeRead_ = -1;
   std::thread stderrReader_;
 
-  // Bounded, and what it refuses is counted. A component that writes to stderr faster than the screen
-  // can draw used to grow this without limit, on a thread nothing throttles.
+  // Bounded, and what it refuses is counted. A component that writes to stderr faster than the screen can
+  // draw would otherwise grow this without limit, on a thread nothing throttles.
   std::mutex mutex_;
   std::vector<std::string> pendingLines_;
   std::size_t droppedLines_ = 0;

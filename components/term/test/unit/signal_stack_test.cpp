@@ -24,7 +24,7 @@ namespace
 
 void noopHandler(int /*signalNumber*/) {}
 
-/// Installs a handler the way FTXUI does -- SA_RESTART and no SA_ONSTACK -- and puts back whatever was
+/// Installs a handler the way FTXUI does, with SA_RESTART and no SA_ONSTACK, and puts back whatever was
 /// there when the test ends, so one test cannot change how the rest of the binary handles a fault.
 class FtxuiStyleHandler
 {
@@ -56,7 +56,7 @@ public:
   {
     struct sigaction current {};
     EXPECT_EQ(::sigaction(signalNumber, nullptr, &current), 0);
-    return reinterpret_cast<void*>(current.sa_handler);  // NOLINT(*-reinterpret-cast) -- identity only
+    return reinterpret_cast<void*>(current.sa_handler);  // NOLINT(*-reinterpret-cast) identity only
   }
 
 private:

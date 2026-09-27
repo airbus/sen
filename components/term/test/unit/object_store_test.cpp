@@ -175,9 +175,9 @@ TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store
 // The paths that succeed
 //--------------------------------------------------------------------------------------------------------------
 //
-// Every case above this line asserts a refusal or an empty fresh store. Nothing opened a source, created
-// a query or drained a notification, so getGeneration -- the counter the completer's whole list refresh
-// is gated on -- was only ever read at zero, and both ends of that mechanism were unmeasured.
+// Every case above this line asserts a refusal or an empty fresh store, so none of them opens a source,
+// creates a query or drains a notification. The cases below do, because otherwise getGeneration, the
+// counter the completer's whole list refresh is gated on, is only ever read at zero.
 
 TEST_F(ObjectStoreTest, DiscoveryReportsTheSessionTheKernelIsRunning)
 {
@@ -237,8 +237,8 @@ TEST_F(ObjectStoreTest, AValidQueryIsCreatedListedAndRemovable)
 
 TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
 {
-  // This is the guard that used to skip the internal ".all" provider before comparing selections, which
-  // is how identical queries piled up, each holding a subscription nothing could release.
+  // The guard must compare selections without skipping the internal ".all" provider, or identical queries
+  // pile up, each holding a subscription nothing can release.
   ASSERT_TRUE(store->createQuery("first", "SELECT * FROM local.probe").isOk());
   EXPECT_TRUE(store->createQuery("second", "SELECT * FROM local.probe").isError())
     << "a second query with the same definition was accepted";

@@ -186,9 +186,9 @@ TEST(TreeView, RenderNestedChildrenShowDeeperIndent)
 
 TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
 {
-  // `ls` builds one node per object, and a flat bus makes every object a sibling. The lookup used to be
-  // a linear scan of those siblings, so the build was N squared -- a freeze of about a second at ten
-  // thousand objects, on the thread that draws the screen.
+  // `ls` builds one node per object, and a flat bus makes every object a sibling. A linear scan of those
+  // siblings per insert makes the build N squared, which is a freeze of about a second at ten thousand
+  // objects, on the thread that draws the screen.
   //
   // This measures the *shape*, not a time. Quadratic work quadruples when the count doubles; linear work
   // doubles. An absolute bound cannot do this job: the first version of this test allowed a second at
@@ -206,9 +206,9 @@ TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
   };
 
   // The fastest of several runs, not one run. A single timing of a few milliseconds is mostly
-  // scheduling noise: measured over five runs on a loaded machine, one arm in five came in four times
-  // slow, which is exactly the ratio a quadratic build produces -- so the noise band covered the whole
-  // effect and no bound could separate them. The minimum throws the hiccups away and keeps the shape.
+  // scheduling noise: measured over five runs on a loaded machine, one arm in five came in four times slow,
+  // which is exactly the ratio a quadratic build produces, so the noise band covers the whole effect. The
+  // minimum throws the hiccups away and keeps the shape.
   const auto fastestBuild = [&buildTime](int childCount)
   {
     constexpr int attempts = 5;
@@ -227,8 +227,8 @@ TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
   const auto large = fastestBuild(80000);
   ASSERT_GT(small, 0) << "the small build was too fast to time, so the ratio below means nothing";
 
-  // Doubling the count: about 2 for linear, about 4 for quadratic. 3 sits between them with room on
-  // both sides -- the scan measures near 4, the index near 2.
+  // Doubling the count: about 2 for linear, about 4 for quadratic. 3 sits between them with room on both
+  // sides, since the scan measures near 4 and the index near 2.
   const double ratio = static_cast<double>(large) / static_cast<double>(small);
   EXPECT_LT(ratio, 3.0) << "doubling the object count multiplied the work by " << ratio
                         << ", which is the shape of a scan per insert (" << small << " then " << large

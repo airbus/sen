@@ -37,7 +37,7 @@ sequence<string> NameList;
 // Configuration params for the term component
 struct Configuration
 {
-  initialScope : string,       // initial scope (e.g. "local.main"). Empty means root.
+  initialScope : string,       // initial scope, e.g. "local.demo"; its bus must be in open too. Empty means root.
   timeStyle    : TimeStyle,    // how to display time (default: utc)
   theme        : ThemeStyle,   // color theme (default: catppuccinMocha)
   noLogo       : bool,         // true to suppress the welcome banner

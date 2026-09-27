@@ -34,12 +34,11 @@ class App;
 
 /// Draws the kernel's log lines in term's output area, and carries the commands that change the level.
 ///
-/// It registers one sink with the kernel, which puts it behind the relay sink that sits on every
-/// logger. It does not sweep the registry: an earlier version did, and inside this shared object
-/// `spdlog::apply_all` walks term's own registry rather than the kernel's, so the sink reached almost
-/// nothing.
+/// It registers one sink with the kernel, which puts it behind the relay sink that sits on every logger. It
+/// does not sweep the registry: inside this shared object `spdlog::apply_all` walks term's own registry
+/// rather than the kernel's, so a sweep would reach almost nothing.
 ///
-/// **Nothing inside a registry walk in this class may log.** `KernelApi::applyToAllLoggers` runs under
+/// Nothing inside a registry walk in this class may log. `KernelApi::applyToAllLoggers` runs under
 /// spdlog's logger-map mutex, which is not recursive, and `getLogger()` reaches `registry::get`, which
 /// takes the same one. A single log line inside one of those callbacks deadlocks the thread that owns
 /// the display. None of them logs today, and `TermLogSink::sink_it_` does not either; the hazard is one

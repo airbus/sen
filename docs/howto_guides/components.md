@@ -25,7 +25,7 @@ Write the component yourself when you have to own something the kernel cannot ow
 |---|---|---|
 | An external event loop | Something else wants to run the loop, and it will not yield to a cycle | `ether` runs an ASIO `io_context` |
 | A process-wide resource with its own lifetime rules | It must be created and destroyed on one thread, once | `py` owns a `pybind11::scoped_interpreter` |
-| A terminal or a listening socket | Blocking I/O has to happen somewhere | `shell` serves a REPL or a socket |
+| A terminal or a listening socket | Blocking I/O has to happen somewhere | `term` serves a REPL, `jsonrpc` a socket |
 | A sampling loop that creates its objects from configuration | The objects are not known until the configuration is read | `recorder`, `influx`, `logmaster` |
 
 If none of those describe what you are building, let the kernel build the component: write a
@@ -58,6 +58,10 @@ process needs before the rest starts.
 
 `run()` is the one that gets a thread. Your component is running until it returns, and it should
 return once `RunApi::stopRequested()` becomes true.
+
+Do not call `exit()`, `_Exit()` or `quick_exit()` from a component. Every component shares the
+process, so ending it takes the others down with no chance to shut down, and a component that owns
+the terminal cannot put it back. Ask the kernel to stop instead, with `RunApi::requestKernelStop()`.
 
 ## A component that only installs a hook
 
@@ -151,7 +155,7 @@ Your component starts, and keeps running until you stop it with ++ctrl+c++.
 
 ## Stopping it, and looking at it
 
-Sen's *shell* component gives you a command line into the running kernel. Add it to your
+Sen's *term* component gives you a command line into the running kernel. Add it to your
 configuration ahead of your own component:
 
 ```yaml title="config.yaml"
@@ -166,7 +170,7 @@ load:
     group: 3
 ```
 
-Groups run in order, so the shell is up before your component starts. `shutdown` then stops the
+Groups run in order, so the term is up before your component starts. `shutdown` then stops the
 kernel, and your component's `unload()` runs.
 
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif){: style="width:1200px"}

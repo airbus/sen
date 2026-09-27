@@ -55,9 +55,9 @@ public:
     c.objectsByName_ = std::move(objects);
   }
 
-  /// The scope depth the label arithmetic starts from. Only update() assigned it, and no test called
-  /// update(), so it was 0 in every one of the completer's cases -- deleting `scopeDepth_ +` from the
-  /// label arithmetic reddened nothing at all.
+  /// The scope depth the label arithmetic starts from. Only update() assigns it, and no test calls
+  /// update(), so without this door every case runs at 0 and deleting `scopeDepth_ +` from the label
+  /// arithmetic reddens nothing.
   static void setScopeDepth(Completer& c, int depth) { c.scopeDepth_ = depth; }
 
   static auto splitObjectMethod(std::string_view token) { return Completer::splitObjectMethod(token); }
@@ -634,7 +634,7 @@ TEST(CompleterPath, TheLabelIsRelativeToTheScopeYouAreStandingIn)
 {
   // The same single segment is a session at root, a bus one level down and a group below that. Every
   // other case in this file runs at depth 0, which is the one depth where the `scopeDepth_ +` term
-  // contributes nothing -- so the arithmetic that matters in production had no detector.
+  // contributes nothing, so the arithmetic that matters in production would have no detector.
   const auto labelAtDepth = [](int depth)
   {
     Completer c;
@@ -661,8 +661,8 @@ TEST(CompleterPath, IntermediateSegmentLabelledAsBus)
 
 TEST(CompleterPath, LeafCandidatesShowTheirClassName)
 {
-  // This used to inject a nullptr object and assert "?", which is the fallback for having no object
-  // at all -- it locked the degenerate output in as the expected one.
+  // A real object, not a nullptr: "?" is the fallback for having no object at all, and asserting on it
+  // would lock the degenerate output in as the expected one.
   Completer c;
   auto object = test::makeTestObject("term.local.main.slowLogger");
   ASSERT_TRUE(object);

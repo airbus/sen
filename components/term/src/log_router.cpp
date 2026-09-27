@@ -62,22 +62,15 @@ LogRouter::LogRouter(App& app): app_(app)
       enqueue(level, message);
     });
 
-  // The pane's own pattern, not the logger's. Every row the output area draws already carries a time
-  // on the right, so repeating a full ISO date in the text wastes a third of a narrow terminal and made
-  // a rendered line textually identical to one a console sink spilled onto the screen -- which cost
-  // three attempts to tell the two apart while diagnosing exactly that.
+  // The pane's own pattern, not the logger's. Every row the output area draws already carries a time on
+  // the right, so a full ISO date in the text would waste a third of a narrow terminal.
   sink_->set_pattern("[%n] [%l] %v");
 
-  // Registered once, with the kernel, rather than swept every frame. Two things were wrong with the
-  // sweep and this fixes both. It walked `spdlog::apply_all`, which inside this shared object is term's
-  // OWN registry -- while every component's logger, including term's, lives in the kernel's -- so the
-  // sink reached almost nothing and log messages never appeared in the output area at all. And
-  // appending to a logger another thread is emitting through is a use-after-free, which is why the
-  // sweep could not be pointed at the kernel's registry instead.
-  //
-  // The kernel attaches it where that is safe: to existing loggers now, before component threads
-  // start, and to later ones before they are published. `owned` also strips console sinks, which write
-  // to the descriptors FTXUI is drawing on.
+  // Registered once with the kernel, which is the only safe way to reach the loggers. `spdlog::apply_all`
+  // inside this shared object walks term's own registry, not the kernel's where every component's logger
+  // lives, and appending to a logger another thread is emitting through is a use-after-free. The kernel
+  // attaches the sink where neither applies. `owned` also strips console sinks, which write to the
+  // descriptors FTXUI is drawing on.
   auto registration = kernel::KernelApi::addLoggerSink(sink_, kernel::KernelApi::TerminalOwnership::owned);
   if (registration.isError())
   {
@@ -161,7 +154,7 @@ LogRouter::~LogRouter()
   {
     std::ignore = kernel::KernelApi::removeLoggerSink(sink_);
   }
-  catch (...)  // NOLINT(bugprone-empty-catch) -- nowhere to report, and the sink is already inert
+  catch (...)  // NOLINT(bugprone-empty-catch) nowhere to report, and the sink is already inert
   {
   }
 }
@@ -169,8 +162,8 @@ LogRouter::~LogRouter()
 void LogRouter::enqueue(spdlog::level::level_enum level, const std::string& message)
 {
   // Runs on whichever thread logged. Dropping is the only bound available: blocking would stall the
-  // component that emitted, and the queue used to grow without limit -- `log level debug` on a kernel
-  // with live traffic made the bus loggers emit on essentially every message.
+  // component that emitted, and an unbounded queue grows without limit under `log level debug` on a
+  // kernel with live traffic, where the bus loggers emit on nearly every message.
   std::lock_guard lock(pendingMutex_);
   if (pendingMessages_.size() >= maxPendingMessages)
   {
@@ -249,10 +242,9 @@ std::vector<LogRouter::LoggerInfo> LogRouter::listLoggers() const
 
 bool LogRouter::parseLevel(std::string_view name, spdlog::level::level_enum& level)
 {
-  // spdlog::level::from_str accepts exactly the set this used to spell out by hand -- the canonical
-  // names plus "warn" and "err" -- and returns off for anything it does not know, so the only thing
-  // left to do is tell "off" apart from "unrecognised". The out-param is left alone on failure:
-  // assigning it unconditionally changed the contract, and log_router_test asserts it does not.
+  // spdlog::level::from_str accepts the canonical names plus "warn" and "err", and returns off for
+  // anything it does not know, so the only thing left to do is tell "off" apart from "unrecognised". The
+  // out-param is left alone on failure, which log_router_test asserts.
   //
   // Case is folded first: from_str only knows the lower-case spellings, and `log level INFO` is what a
   // user types when the levels are printed in upper case beside every line.

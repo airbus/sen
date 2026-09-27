@@ -339,10 +339,9 @@ TEST(InputPaneSearch, SubstringMatch)
 }  // namespace
 TEST_F(InputPaneHistoryTest, BothStoresAnswerTheSameWayForAnOverlongLine)
 {
-  // The deque used to take a line unconditionally while only the file was gated, so an over-long line
-  // was recallable in this session and absent from the next. Today the input enforces the same bound
-  // before calling, which makes the two agree -- but that is the caller's discipline, not this
-  // function's invariant, so it is pinned here.
+  // Gating only the file leaves an over-long line recallable in this session and absent from the next. The
+  // input enforces the same bound before calling, which makes the two agree, but that is the caller's
+  // discipline rather than this function's invariant, so it is pinned here.
   const std::string tooLong(maxLineBytes + 1U, 'x');
 
   InputPane pane {[](const std::string&) {}};

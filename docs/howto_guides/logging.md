@@ -61,9 +61,9 @@ build:
 !!! warning "A terminal component silences the console sinks"
 
     The configuration above loads *term*, and *term* draws the log lines itself in its own output area.
-    To do that it takes the terminal over, and a console sink -- `Stdout`, `ColorStdout` or `Stderr` --
-    writes to the same descriptor *term* is drawing on: keeping both would print every line twice, on
-    top of the display. So while *term* is running, every console sink is silenced.
+    To do that it takes the terminal over. A console sink, whether `Stdout`, `ColorStdout` or `Stderr`,
+    writes to the same descriptor *term* is drawing on, so keeping both would print every line twice and
+    on top of the display. While *term* is running, every console sink is silenced.
 
     In the example above that means `stdout_sink` produces nothing and `file_sink` keeps working. The
     file is where to look. Console sinks come back when *term* exits.
@@ -75,8 +75,9 @@ build:
 
 A component that displays log lines itself registers a sink with the kernel rather than walking
 spdlog's registry. Walking it does not work and is not safe: each shared library has its own registry,
-so a component's `spdlog::apply_all` never sees the kernel's loggers, and appending to a logger another
-thread is emitting through is a use-after-free -- spdlog iterates a logger's sink vector without a lock.
+so a component's `spdlog::apply_all` never sees the kernel's loggers. Appending to a logger another thread
+is emitting through is also a use-after-free, because spdlog iterates a logger's sink vector without a
+lock.
 
 The kernel puts one relay sink on every logger, in the only window where that is safe, and a component
 registers behind the relay:
@@ -87,7 +88,7 @@ registers behind the relay:
 auto sink = std::make_shared<MySink>();
 
 // `owned` says this component is drawing on the terminal, so console sinks are silenced while it runs.
-// Use the default, `shared`, for a sink that is not a display -- a telemetry or audit sink.
+// Use the default, `shared`, for a sink that is not a display, such as a telemetry or audit sink.
 auto registration = kernel::KernelApi::addLoggerSink(sink, kernel::KernelApi::TerminalOwnership::owned);
 if (registration.isError())
 {
@@ -99,8 +100,8 @@ else if (registration.getValue().terminalOwnedElsewhere)
 }
 ```
 
-The sink keeps its own pattern -- the relay passes the message on unformatted -- and it receives lines
-from loggers created after it registered, which is what a registry walk could not do.
+The sink keeps its own pattern, because the relay passes the message on unformatted, and it receives lines
+from loggers created after it registered, which a registry walk cannot do.
 
 **Unregister before the state the sink writes into goes away.** A registered sink is held by the kernel
 until it is removed, and it can be running on another thread at that moment, so stop it reaching your

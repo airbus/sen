@@ -54,8 +54,8 @@ struct VisualLine
     // A combining mark costs no cells and must never start a line: ftxui attaches a mark to the
     // character before it and discards one that begins a segment, so a break there loses the accent
     // from the display while it stays in the buffer. Breaking only where a codepoint occupies a cell
-    // gives both for free -- the pair is never split, and the mark is not charged for width it does
-    // not take. The loop advances on `next` regardless, so a run of marks cannot spin it.
+    // gives both: the pair is never split, and the mark is not charged for width it does not take. The
+    // loop advances on `next` regardless, so a run of marks cannot spin it.
     const int cells = ftxui::string_width(text.substr(at, next - at));
     if (cells > 0 && used + cells > budget && at > static_cast<std::size_t>(lineStart))
     {
@@ -83,9 +83,9 @@ struct VisibleLines
 /// Choose at most `maxRows` visual lines to draw out of `total`, always including the first, which
 /// carries the prompt, and always the cursor's.
 ///
-/// Drawing every line of a long input takes the whole terminal: ftxui's hard shrink then gives the
-/// output pane zero rows, so the user sees neither any output nor -- because the input is laid out
-/// from the top of its box -- the line the cursor is on.
+/// Drawing every line of a long input takes the whole terminal: ftxui's hard shrink then gives the output
+/// pane zero rows, so the user sees no output, and no cursor line either, because the input is laid out
+/// from the top of its box.
 [[nodiscard]] inline VisibleLines visibleLines(int total, int cursorLine, int maxRows)
 {
   VisibleLines out;

@@ -138,7 +138,6 @@ bool splitObjectProperty(std::string_view token, std::string_view& object, std::
 // Listen commands
 //--------------------------------------------------------------------------------------------------------------
 
-/// Register a single property watch. Returns true on success.
 //--------------------------------------------------------------------------------------------------------------
 
 namespace

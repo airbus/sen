@@ -11,17 +11,21 @@
 #include <gtest/gtest.h>
 
 // spdlog
+#include <spdlog/common.h>
+#include <spdlog/details/console_globals.h>
+#include <spdlog/details/log_msg.h>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/base_sink.h>
 #include <spdlog/sinks/sink.h>
 #include <spdlog/spdlog.h>
 
 // std
-#include <algorithm>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace sen::kernel
@@ -56,7 +60,7 @@ private:
 };
 
 /// Whether a console sink on this logger would still print. Claiming the terminal silences them rather
-/// than detaching them, so presence is not the question -- the level is.
+/// than detaching them, so the level is the question rather than presence.
 ///
 /// Both sink families are checked. getOrCreateLogger builds `stdout_color_sink_mt`, which is the
 /// wincolor family on Windows and the ansicolor family everywhere else, so a one-family helper reports
@@ -105,7 +109,7 @@ protected:
       spdlog::drop(name);
     }
     // The registry outlives the test, so a level left behind silently changes every later case in this
-    // binary -- including the precondition of the console tests below.
+    // binary, including the precondition of the console tests below.
     std::ignore = KernelApi::setAllLoggersLevel(levelOnEntry_);
   }
 
@@ -118,6 +122,7 @@ protected:
 
   void trackForRemoval(std::shared_ptr<spdlog::sinks::sink> sink) { registered_.push_back(std::move(sink)); }
 
+private:
   std::vector<std::shared_ptr<spdlog::sinks::sink>> registered_;
   std::vector<std::string> names_;
   spdlog::level::level_enum levelOnEntry_ = spdlog::level::info;
@@ -166,8 +171,8 @@ TEST_F(LoggerSinkRegistryTest, OwningTheTerminalSilencesConsoleSinksBothWays)
 
 TEST_F(LoggerSinkRegistryTest, ReleasingTheTerminalGivesTheConsoleBack)
 {
-  // The half that used to be impossible: console sinks were detached and what they had been was not
-  // recorded, so a kernel that outlived its terminal component never printed again.
+  // Detaching console sinks without recording what they were would leave a kernel that outlives its
+  // terminal component unable to print again.
   auto before = makeLogger("released_before");
   ASSERT_TRUE(consoleIsAudible(before));
 
@@ -189,7 +194,7 @@ TEST_F(LoggerSinkRegistryTest, ReleasingTheTerminalGivesTheConsoleBack)
 TEST_F(LoggerSinkRegistryTest, ReAddingWithOwnedClaimsTheTerminal)
 {
   // The ownership rides on the add call, so re-adding is the only way a component that registered early
-  // can take the screen later. It used to set the flag and then return before doing anything with it.
+  // can take the screen later.
   auto logger = makeLogger("reclaim");
   auto sink = std::make_shared<CountingSink>();
   trackForRemoval(sink);
@@ -203,7 +208,7 @@ TEST_F(LoggerSinkRegistryTest, ReAddingWithOwnedClaimsTheTerminal)
 
 TEST_F(LoggerSinkRegistryTest, ARegisteredSinkKeepsItsOwnPattern)
 {
-  // Every new logger used to take the registry's formatter and push it down onto its sinks, replacing a
+  // A new logger takes the registry's formatter and pushes it down onto its sinks, which would replace a
   // component's pattern with the global one. The relay forwards the unformatted message instead.
   auto sink = std::make_shared<CountingSink>();
   trackForRemoval(sink);
@@ -214,7 +219,7 @@ TEST_F(LoggerSinkRegistryTest, ARegisteredSinkKeepsItsOwnPattern)
   first->info("one");
   ASSERT_EQ(sink->count(), 1) << "nothing arrived, so the pattern below is not being exercised";
 
-  // Creating another logger is what used to clobber it.
+  // Creating another logger is what would clobber it.
   auto second = makeLogger("pattern_second");
   second->info("two");
   EXPECT_NE(sink->lastLine().find("component-pattern two"), std::string::npos)
@@ -255,7 +260,7 @@ TEST_F(LoggerSinkRegistryTest, RegisteringDoesNotTouchALoggersSinkVector)
 {
   // This is the property the whole design rests on, so it is asserted rather than argued. spdlog walks
   // a logger's sinks with no lock, so appending to one while another thread emits through it is a
-  // use-after-free -- and a component cannot register before the threads start, because the kernel is
+  // use-after-free, and a component cannot register before the threads start, because the kernel is
   // already logging by the time any component runs. Registering must therefore leave the vector alone.
   auto logger = makeLogger("untouched");
   const auto sinksBefore = logger->sinks();
@@ -287,9 +292,9 @@ TEST_F(LoggerSinkRegistryTest, TheLevelAppliesToLoggersMadeAfterwards)
 
 TEST_F(LoggerSinkRegistryTest, RegisteringSaysWhatItDid)
 {
-  // The three calls used to return void, so a component could not learn whether its registration took,
-  // whether anything was registered already, or who held the terminal. Every field here answers one of
-  // those, and a component that renders logs needs them: the registration is not arbitrated.
+  // A void return would leave a component unable to learn whether its registration took, whether anything
+  // was registered already, or who held the terminal. A component that renders logs needs all three,
+  // because the registration is not arbitrated.
   auto first = std::make_shared<CountingSink>();
   auto report = KernelApi::addLoggerSink(first, KernelApi::TerminalOwnership::owned);
   ASSERT_TRUE(report.isOk()) << "a valid registration was refused";

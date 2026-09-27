@@ -25,8 +25,8 @@
 namespace sen::components::term
 {
 
-/// The word term shows for a type's kind. Two places name kinds -- `types` in its table and the
-/// completer in its annotations -- and they used to spell the list out separately.
+/// The word term shows for a type's kind. Named here because `types` uses it in its table and the
+/// completer in its annotations.
 [[nodiscard]] inline std::string_view typeKindName(const Type& type)
 {
   if (type.asClassType() != nullptr)
@@ -66,10 +66,9 @@ namespace sen::components::term
 
 /// Peel every alias layer, giving the type the alias ultimately names.
 ///
-/// An alias is transparent to everything term does with a type -- the editor to offer, the way to
-/// format a value, whether it is a sequence -- so almost every use has to peel first. Keeping the
-/// alias made `asQuantityType()` and `asOptionalType()` return null downstream. This loop was written
-/// out by hand at seven sites across four files, which is how two of them came to differ.
+/// An alias is transparent to everything term does with a type: the editor to offer, the way to format a
+/// value, whether it is a sequence. So almost every use has to peel first, because keeping the alias makes
+/// `asQuantityType()` and `asOptionalType()` return null downstream.
 [[nodiscard]] inline ConstTypeHandle<> peelAliases(ConstTypeHandle<> type)
 {
   for (const auto* alias = type->asAliasType(); alias != nullptr; alias = type->asAliasType())

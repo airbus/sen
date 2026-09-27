@@ -6,9 +6,8 @@
 # weather server and one plain object. Good for `cd`, `ls`, `inspect` and calling methods without
 # anything else writing to the screen while you read.
 #
-# It used to run three log emitters, which is what the header described this config as being for. They
-# are gone: at a few messages a second each they filled the output faster than anything else could be
-# read. `term_showcase.yaml` still has one if you want to watch log routing, and `log level <level>`
+# No log emitters here: at a few messages a second each they fill the output faster than anything else can
+# be read. `term_showcase.yaml` has one if you want to watch log routing, and `log level <level>`
 # controls how much of it arrives.
 load:
   - name: term

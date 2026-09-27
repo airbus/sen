@@ -23,9 +23,9 @@ namespace sen::components::term
 namespace
 {
 
-/// The colours a theme actually chooses. Every Theme field takes its value from one of these, and
-/// the grouping is not a simplification of the palettes -- it was derived from them: each group
-/// below held the identical colour in all ten themes, so this reproduces every one of them exactly.
+/// The colours a theme actually chooses. Every Theme field takes its value from one of these. The grouping
+/// is derived from the palettes rather than a simplification of them: each group below holds the identical
+/// colour in all ten themes, so this reproduces every one of them exactly.
 struct Palette
 {
   ftxui::Color accent;

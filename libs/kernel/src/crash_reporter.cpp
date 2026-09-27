@@ -374,8 +374,8 @@ bool startHandlerByForking(const std::filesystem::path& database, std::string& r
       // Only on a failure. HandlerMain returns when the handler gives up, and status 0 is the ordinary
       // way that happens: the host exits, its socket closes, the handler is done. Saying so put "the
       // crash handler exited with status 0" on screen after every clean shutdown, which reads like an
-      // incident on a run where nothing went wrong -- and for a component that owns the terminal it is
-      // the last thing left on screen.
+      // incident on a run where nothing went wrong, and for a component that owns the terminal it is the
+      // last thing left on screen.
       //
       // Written straight to stderr because this child has no logger of its own. Silence now covers two
       // cases rather than one: a clean exit, and a handler killed by a signal, which writes nothing at

@@ -49,16 +49,12 @@ struct Theme
   ftxui::Color treePlain;
   ftxui::Color treeConnector;
 
-  // Status bar
-
   // Input pane
   ftxui::Color inputBackground;
   ftxui::Color inputForeground;
 
   // Completion area
   ftxui::Color completionBackground;
-
-  // Secondary pane background (watches, logs)
 
   // Log levels
   ftxui::Color logTrace;

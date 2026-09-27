@@ -113,8 +113,8 @@ struct ArgFormField
 
   /// Set when an insert was refused for being too long, and cleared only when the user edits the field
   /// afterwards. `validationError` cannot carry this: every revalidation clears it, including the one on
-  /// the next keystroke, so the refusal was gone before submit could see it -- and the form sent the
-  /// truncated value it had just told the user it dropped.
+  /// the next keystroke, so the refusal would be gone before submit could see it and the form would send
+  /// the truncated value it had just said it dropped.
   bool insertRefused = false;
 };
 
@@ -160,7 +160,7 @@ public:
   void focusPrev() noexcept;
 
   /// Insert text at the focused field's cursor. Returns false when the field is already at
-  /// `maxFieldBytes`, in which case nothing was inserted and the field is marked so `trySubmit`
+  /// `maxLineBytes`, in which case nothing was inserted and the field is marked so `trySubmit`
   /// refuses: silently truncating a pasted value and then sending it is worse than either.
   bool insertText(std::string_view s);
   void backspace();
@@ -192,9 +192,9 @@ private:
   void cycleVariantType(bool forward);
 
 public:
-  /// Why a submit was refused. Some failures are structural -- a variant with no value child, a
-  /// quantity whose type is missing -- and name no field at all, so `fieldIndex` is `noField` there
-  /// and `message` is the only thing to show. `message` is never empty.
+  /// Why a submit was refused. Some failures are structural, such as a variant with no value child or a
+  /// quantity whose type is missing, and name no field at all, so `fieldIndex` is `noField` there and
+  /// `message` is the only thing to show. `message` is never empty.
   struct SubmitError
   {
     static constexpr std::size_t noField = static_cast<std::size_t>(-1);

@@ -70,11 +70,26 @@ class SessionsDiscoverer;
 class RunApi;
 class KernelApi;
 
-/// What registering a logger sink did. Every field answers a question the call used to leave a caller
-/// with no way to ask.
+/// Whether the component registering a log sink owns the terminal.
 ///
-/// There is no arbitration: a sink is added, never refused, so two components that both render logs
-/// will each be handed every line, including the other's. Anything that needs exclusivity has to read
+/// `shared` leaves console output alone. `owned` silences every console sink, now and on every logger
+/// made while the claim lasts: a console sink writes to the descriptor the component is drawing on, so
+/// its output would land on top of the display and every line would appear twice. Silencing rather than
+/// detaching is what makes it reversible, and `removeLoggerSink` puts every console sink back to the level
+/// it had once no registered sink claims the terminal.
+///
+/// Re-adding a sink that is already registered, with `owned`, claims the terminal for it. A `shared` add
+/// never gives a claim up.
+enum class TerminalOwnership
+{
+  shared,
+  owned
+};
+
+/// What registering a logger sink did.
+///
+/// There is no arbitration: a sink is added, never refused, so two components that both render logs will
+/// each be handed every line, including the other's. Anything that needs exclusivity has to read
 /// `registeredSinks` and decide for itself.
 struct LoggerSinkRegistration
 {
@@ -115,7 +130,7 @@ void remoteProcessLost(RunApi& api, const ProcessInfo& processInfo);
 void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func);
 
 [[nodiscard]] Result<LoggerSinkRegistration, ExecError> addLoggerSink(std::shared_ptr<spdlog::sinks::sink> sink,
-                                                                      bool suppressConsoleSinks);
+                                                                      TerminalOwnership terminal);
 
 [[nodiscard]] FuncResult removeLoggerSink(const std::shared_ptr<spdlog::sinks::sink>& sink);
 
@@ -272,76 +287,47 @@ public:
   /// Applies the input function to all loggers kept in the logger registry. Used by the logmaster
   /// component.
   ///
-  /// **`func` runs under spdlog's logger-map mutex, which is not recursive, so it must not do anything
-  /// that reaches the registry again.** `getOrCreateLogger`, `spdlog::get`, `setAllLoggersLevel` and
-  /// anything that logs through a logger it has to look up by name all take the same mutex, and calling
-  /// one from inside `func` deadlocks the calling thread. Emitting through a logger `func` was handed is
-  /// fine. The contract was written down in term's private header and not here, where every component
-  /// reads it.
+  /// `func` runs under spdlog's logger-map mutex, which is not recursive, so it must not do anything
+  /// that reaches the registry again. `getOrCreateLogger`, `spdlog::get`, `setAllLoggersLevel` and
+  /// logging through a logger looked up by name all take that mutex, and calling one from inside `func`
+  /// deadlocks the calling thread. Emitting through a logger `func` was handed is fine.
   static void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func);
 
-  /// The logger functions below share two facts worth reading once.
+  /// The logger state below is per process, not per kernel. The relay sink and the record of what the
+  /// console sinks were are statics in libkernel, so they outlive any `Kernel` and are shared by every
+  /// kernel in the process. "Every logger" means every logger in libkernel's registry, which no kernel
+  /// owns. `configureSpdlog` replaces the sink vector of every logger that already exists, so
+  /// `KernelImpl::configure` re-attaches the relay straight afterwards, and a second kernel configured
+  /// in the same process keeps working. A logger made by any route other than `getOrCreateLogger`, a
+  /// direct spdlog factory for instance, is not reached at all.
   ///
-  /// **The state is per process, not per kernel.** The relay sink and the record of what the console
-  /// sinks were are function-local statics in libkernel, so they outlive any `Kernel` and are shared by
-  /// every kernel in the process. "Every logger" means every logger in libkernel's registry, which no
-  /// kernel owns. `configureSpdlog` replaces the sink vector of every logger that already exists, so
-  /// `KernelImpl::configure` re-attaches the relay immediately afterwards; a second kernel configured in
-  /// the same process therefore keeps working, and registered sinks survive because the relay object
-  /// does. A logger made by any route other than `getOrCreateLogger` -- a direct spdlog factory, say --
-  /// is not reached at all.
-  ///
-  /// **spdlog is in these signatures deliberately.** Passing `std::shared_ptr<spdlog::sinks::sink>` and
-  /// `spdlog::level::level_enum` across the component boundary makes a component's ABI depend on it
-  /// being built against the same spdlog as the kernel. A narrower surface -- a kernel-owned sink type,
-  /// or a callback plus a level enum of Sen's own -- would not. The wide surface is chosen because Sen
-  /// builds the kernel and its components together from one source tree, and because a component that
-  /// renders logs wants spdlog's own formatting; it is a decision, not an oversight, and it is the thing
-  /// to revisit first if components ever ship separately from the kernel.
-  ///
-  /// Whether the component registering a sink owns the terminal.
-  ///
-  /// `shared` leaves console output alone. `owned` silences every console sink -- now, and on every
-  /// logger made while the claim lasts -- because a console sink writes to the descriptor the component
-  /// is drawing on, so its output lands on top of the display, and keeping both prints every line
-  /// twice. Silencing rather than detaching is what makes it reversible: `removeLoggerSink` puts every
-  /// console sink back to the level it had once no registered sink claims the terminal any more.
-  ///
-  /// Re-adding a sink that is already registered, with `owned`, claims the terminal for it. A claim is
-  /// never given up by a `shared` add.
-  enum class TerminalOwnership
-  {
-    shared,
-    owned
-  };
+  /// spdlog appears in these signatures deliberately. It makes a component's ABI depend on being built
+  /// against the same spdlog as the kernel, which is acceptable because Sen builds the kernel and its
+  /// components from one source tree, and a component that renders logs wants spdlog's own formatting.
+  /// Revisit it first if components ever ship separately from the kernel.
+  using TerminalOwnership = ::sen::kernel::TerminalOwnership;
 
   /// Sends every logger's output to `sink`, including loggers made afterwards.
   ///
-  /// A component that renders logs itself -- the term draws them in its own output area -- cannot do
-  /// this by walking the registry: spdlog iterates a logger's sink vector without a lock and hands out
-  /// a bare reference, so appending to a logger another thread is emitting through is a use-after-free.
-  ///
-  /// Nor can a component simply do the append earlier. The kernel starts each group's threads before it
-  /// loads the next group, and it logs between groups itself, so by the time any component runs there
-  /// is already traffic. What makes this safe is that the kernel attaches *one* sink of its own to every
-  /// logger, in the only window where attaching is safe, and this call registers `sink` behind it under
-  /// a mutex. No logger's sink vector is touched here, so it may be called from anywhere, at any time,
-  /// on any thread.
+  /// A component cannot do this by walking the registry itself: spdlog iterates a logger's sink vector
+  /// without a lock and hands out a bare reference, so appending to a logger another thread is emitting
+  /// through is a use-after-free. Appending earlier is no safer, because the kernel starts each group's
+  /// threads before it loads the next group and logs between groups itself. The kernel therefore attaches
+  /// one sink of its own to every logger, in the only window where attaching is safe, and this call
+  /// registers `sink` behind it under a mutex. No logger's sink vector is touched here, so it may be
+  /// called from any thread at any time.
   ///
   /// `sink` keeps its own pattern: the relay hands on the unformatted message and each registered sink
   /// formats it.
   ///
-  /// **The registration has no owner, and that is a hazard worth stating plainly.** Sinks are held
-  /// until removed, so a component that is unloaded must call `removeLoggerSink`, and it must stop its
-  /// sink reaching its own state *before* it does -- the sink can be running on another thread right
-  /// then. The term does this by taking the sink's own mutex and nulling its callback first. Nothing
-  /// here enforces the order: this is a static function with no api object, so the kernel cannot know
-  /// which component registered what and cannot clean up after one.
+  /// The registration has no owner. Sinks are held until removed, so a component that is unloaded must
+  /// call `removeLoggerSink`, and it must stop its sink reaching its own state first, because the sink can
+  /// be running on another thread. Nothing here enforces that order: this is a static function with no
+  /// api object, so the kernel cannot know which component registered what.
   ///
-  /// Today a sink left registered is a dangling *state* hazard only, not a code one: nothing dlcloses a
-  /// component, so a removed component's sink code stays mapped. That is load-bearing and invisible --
-  /// if unload is ever made to really unload, every un-removed sink becomes a jump into unmapped memory
-  /// on the next log line.
+  /// A sink left registered is a state hazard rather than a code one only because nothing dlcloses a
+  /// component, so its code stays mapped. If unload is ever made to really unload, every un-removed sink
+  /// becomes a jump into unmapped memory on the next log line.
   ///
   /// Returns what the registration did, or an error if `sink` is null. Nothing else can fail.
   [[nodiscard]] static Result<LoggerSinkRegistration, ExecError> addLoggerSink(
@@ -356,38 +342,38 @@ public:
 
   /// Sets the level on every logger the kernel knows and on every logger made afterwards.
   ///
-  /// Walking the registry with `applyToAllLoggers` reaches only the loggers that exist when it runs, so
-  /// a level a user asked for stopped applying the moment another component made a logger. This sets
-  /// the registry's own level, which is what new loggers are initialised from.
+  /// Walking the registry with `applyToAllLoggers` reaches only the loggers that exist when it runs, so a
+  /// level set that way stops applying as soon as another component makes a logger. This sets the
+  /// registry's own level, which is what a new logger is initialised from.
   ///
-  /// It replaces the per-logger levels a configuration file asked for, and there is no way back to
-  /// them: read one before you change it if you mean to restore it.
+  /// It replaces the per-logger levels a configuration file asked for, and there is no way back to them:
+  /// read one before you change it if you mean to restore it.
   ///
   /// Errors on a level outside the enum. Nothing else can fail.
   [[nodiscard]] static FuncResult setAllLoggersLevel(spdlog::level::level_enum level);
 
-  /// Where the kernel writes the crash banner -- the few lines naming what died and where the report
-  /// went -- for a component that has taken stderr over.
+  /// Where the kernel writes the crash banner, the few lines naming what died and where the report went,
+  /// for a component that has taken stderr over.
   ///
   /// A component that draws a full-screen terminal captures stderr so a stray write cannot land on its
-  /// display. That captured the crash banner too, so a fatal error printed the report's path into a
-  /// pipe that died with the process: the user saw the UI vanish, an exit status, and nothing else.
-  /// Hand over the descriptor the component saved, and the banner goes there. Pass -1 to restore
-  /// stderr, which a component must do before the descriptor it gave is closed.
+  /// display. That captures the crash banner too, and a fatal error would print the report's path into a
+  /// pipe that dies with the process, leaving the user with a vanished UI and an exit status. Hand over
+  /// the descriptor the component saved and the banner goes there. Pass -1 to restore stderr, which a
+  /// component must do before the descriptor it gave is closed.
   static void setCrashBannerDescriptor(int descriptor) noexcept;
 
   /// Give the calling thread the alternate signal stack the crash handler needs.
   ///
   /// Every thread the kernel creates gets this when it starts. A component that creates its own thread
-  /// with `std::thread` does not, and a fatal signal on such a thread -- a stack overflow in particular
-  /// -- can fault again inside the handler and produce no dump at all. Call it once, first thing, in any
+  /// with `std::thread` does not, and a fatal signal on such a thread, a stack overflow in particular,
+  /// can fault again inside the handler and produce no dump at all. Call it once, first thing, in any
   /// thread the component starts itself. Harmless if crash reporting is disabled or already armed.
   static void prepareCurrentThreadForCrashReports() noexcept;
 
   /// The level `setAllLoggersLevel` last set, which is also the level a new logger starts from.
   ///
-  /// Read this rather than keeping a copy beside the setter. The term kept one, never assigned it, and
-  /// reported the wrong level to the user for the life of the session.
+  /// Read this rather than keeping a copy beside the setter, which drifts as soon as anything else sets
+  /// the level.
   [[nodiscard]] static spdlog::level::level_enum getAllLoggersLevel();
 
 private:

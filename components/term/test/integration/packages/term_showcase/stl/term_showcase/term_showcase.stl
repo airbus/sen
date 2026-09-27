@@ -46,7 +46,7 @@ quantity<u16, m> Length [min: 0, max: 1000];
 // field is a plain scalar leaf (no unit to pick).
 quantity<f32, f32> Fraction [min: 0.0, max: 1.0];
 
-// Status enum for workers: exercises the enum watch display.
+// Status enum for workers: exercises the enum display.
 enum WorkerStatus: u8
 {
   idle,       // waiting for work
@@ -55,7 +55,7 @@ enum WorkerStatus: u8
 }
 
 // A transient worker object. The Showcase coordinator spawns and removes these dynamically so
-// the term's watch pane can exercise disconnected/reconnected states. Each worker ticks its
+// a listener can exercise disconnected and reconnected states. Each worker ticks its
 // own properties while alive.
 class Worker
 {
@@ -75,14 +75,14 @@ class Worker
 
 // The showcase class: a single object whose methods collectively exercise every editor the
 // term's guided-input form currently supports, plus properties that tick at staggered rates so
-// the term's watch pane can be exercised across the full type spectrum.
+// property rendering can be exercised across the full type spectrum.
 class Showcase
 {
   // --------------------- tickable properties, staggered rates ---------------------
   // Rates are expressed in component cycles (the showcase component ticks at 30 Hz in the
   // reference config, so 30 cycles ≈ 1 second).
 
-  // Monotonic cycle counter: updates every cycle (~33 ms @ 30 Hz), the loudest watch target.
+  // Monotonic cycle counter: updates every cycle (~33 ms @ 30 Hz), the fastest property here.
   var ticks : u64;
 
   // A simulated temperature reading: updates every 10 cycles, oscillates in a sine-like pattern.
@@ -135,7 +135,7 @@ class Showcase
 
   // --------------------- worker coordination ---------------------
   // The showcase acts as a coordinator: it periodically spawns and removes Worker objects on
-  // the same bus so the term's watch pane can exercise disconnected/reconnected states.
+  // the same bus so a listener can exercise disconnected and reconnected states.
 
   // How many workers are currently alive.
   var workerCount : u32;

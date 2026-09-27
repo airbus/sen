@@ -28,7 +28,7 @@ namespace sen::components::term
 /// Reaches the two bounds on the log queue. They are the interesting part of LogRouter and they cannot
 /// be driven from outside: the producer runs on whichever thread logged, and the consumer renders into a
 /// pane that needs a terminal. The App here is never initialised, which is safe as long as nothing is
-/// rendered -- so these tests use the queue and never `update()`.
+/// rendered, so these tests use the queue and never `update()`.
 class LogRouterTestAccess
 {
 public:
@@ -120,8 +120,8 @@ TEST(LogRouterParseLevel, EmptyString)
 
 TEST(LogRouterParseLevel, CaseIsIgnored)
 {
-  // Every log line prints its level in upper case, so `log level INFO` is what a user types after
-  // reading one. This used to be refused, and the test used to lock the refusal in.
+  // Every log line prints its level in upper case, so `log level INFO` is what a user types after reading
+  // one, and it has to be accepted.
   spdlog::level::level_enum level = spdlog::level::trace;
   EXPECT_TRUE(LogRouter::parseLevel("INFO", level));
   EXPECT_EQ(level, spdlog::level::info);

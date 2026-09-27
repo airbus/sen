@@ -6,9 +6,9 @@
 # =====================================================================================================================
 """Tests for the grid model the session tests assert row numbers against.
 
-The model had no tests of its own, so the two places it differed from a terminal — no auto-wrap and no
-scroll — were invisible. Both shift every row number below the offending line, which is the one property
-a grid model exists to provide.
+Untested, the places where the model differs from a terminal stay invisible: it had no auto-wrap and no
+scroll. Both shift every row number below the offending line, which is the one property a grid model exists
+to provide.
 """
 
 from __future__ import annotations

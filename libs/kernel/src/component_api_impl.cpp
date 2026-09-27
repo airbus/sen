@@ -201,11 +201,11 @@ std::shared_ptr<spdlog::logger> getOrCreateLogger(const std::string& loggerName)
   // captureLogsFrom() makes the repeat a no-op when the first attempt worked.
   //
   // This repeat is the unsafe one, and deliberately so. The logger is registered by now, so another
-  // thread can resolve it by name and be walking its sink vector -- the hazard the first placement
-  // exists to avoid. It is kept because the alternative is a logger with no crash ring at all, and the
-  // window is narrow: it needs a second kernel's captureLogs() to land between the two lines, and the
-  // crash reporter already records that a second kernel arming beside the first is not covered. If that
-  // is ever fixed, delete this call rather than moving it.
+  // thread can resolve it by name and be walking its sink vector, which is the hazard the first placement
+  // avoids. It is kept because the alternative is a logger with no crash ring at all, and the window
+  // needs a second kernel's captureLogs() to land between the two lines. The crash reporter already
+  // records that a second kernel arming beside the first is not covered. If that is ever fixed, delete
+  // this call rather than moving it.
   CrashReporter::get().captureLogsFrom(logger);
 
   return logger;
@@ -223,14 +223,14 @@ namespace
 /// safe. Components register their own sinks *behind* it, which never touches a logger's sink vector.
 ///
 /// The vector is why this exists. spdlog walks a logger's sinks with no lock and hands out a bare
-/// reference, so appending to a logger another thread is emitting through is a use-after-free -- and a
-/// component cannot honour "attach before the threads start", because the sink's callback needs state
-/// that only exists once the component runs. The relay moves the unsafe operation to a moment the
-/// kernel controls and leaves the component with a mutex-guarded list.
+/// reference, so appending to a logger another thread is emitting through is a use-after-free. A component
+/// cannot attach before the threads start either, because the sink's callback needs state that only
+/// exists once the component runs. The relay moves the unsafe operation to a moment the kernel controls
+/// and leaves the component with a mutex-guarded list.
 ///
-/// It forwards the unformatted `log_msg`, so each registered sink applies its own pattern. That also
-/// makes it immune to `registry::initialize_logger`, which pushes the registry's formatter onto every
-/// sink of every new logger -- and would otherwise silently replace a component's pattern.
+/// It forwards the unformatted `log_msg`, so each registered sink applies its own pattern. That also makes
+/// it immune to `registry::initialize_logger`, which pushes the registry's formatter onto every sink of
+/// every new logger and would otherwise replace a component's pattern.
 class RelaySink final: public spdlog::sinks::sink
 {
 public:
@@ -256,14 +256,14 @@ public:
   }
 
   /// Ignored, both of them. The relay carries no format of its own: it hands the message on and each
-  /// registered sink formats it. Accepting the registry's formatter here is what used to overwrite a
-  /// component's pattern every time any logger was created.
+  /// registered sink formats it. Accepting the registry's formatter here would overwrite a component's
+  /// pattern every time any logger was created.
   void set_pattern(const std::string& /*pattern*/) override {}
   void set_formatter(std::unique_ptr<spdlog::formatter> /*formatter*/) override {}
 
-  /// Register, or change an existing registration's terminal ownership. Reports what happened, so a
-  /// caller can learn whether it was already registered, who holds the terminal and how many sinks
-  /// share the relay -- none of which it could ask before.
+  /// Register, or change an existing registration's terminal ownership. Reports what happened, so a caller
+  /// can learn whether it was already registered, who holds the terminal, and how many sinks share the
+  /// relay.
   LoggerSinkRegistration add(std::shared_ptr<spdlog::sinks::sink> sink, bool ownsTerminal)
   {
     const std::lock_guard lock(mutex_);
@@ -424,8 +424,8 @@ void silenceConsoleSinksOf(const std::shared_ptr<spdlog::logger>& logger)
   }
 }
 
-/// Put the relay on one logger. Not in the public header: it is a step inside `getOrCreateLogger` with
-/// no use to a component, and it was named for a design that no longer exists.
+/// Put the relay on one logger. Not in the public header: it is a step inside `getOrCreateLogger` and has
+/// no use to a component.
 void attachLoggerRelay(const std::shared_ptr<spdlog::logger>& logger)
 {
   if (!logger)
@@ -461,14 +461,14 @@ void installLoggerRelay()
 }
 
 Result<LoggerSinkRegistration, ExecError> addLoggerSink(std::shared_ptr<spdlog::sinks::sink> sink,
-                                                        bool suppressConsoleSinks)
+                                                        TerminalOwnership terminal)
 {
   if (!sink)
   {
     return Err(ExecError {ErrorCategory::expectationsNotMet, "a null sink cannot be registered"});
   }
 
-  const auto registration = relaySink()->add(std::move(sink), suppressConsoleSinks);
+  const auto registration = relaySink()->add(std::move(sink), terminal == TerminalOwnership::owned);
   if (relaySink()->anyOwnsTerminal())
   {
     silenceConsoleSinks();
@@ -597,7 +597,7 @@ void KernelApi::applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::log
 Result<LoggerSinkRegistration, ExecError> KernelApi::addLoggerSink(std::shared_ptr<spdlog::sinks::sink> sink,
                                                                    TerminalOwnership terminal)
 {
-  return impl::addLoggerSink(std::move(sink), terminal == TerminalOwnership::owned);
+  return impl::addLoggerSink(std::move(sink), terminal);
 }
 
 FuncResult KernelApi::removeLoggerSink(const std::shared_ptr<spdlog::sinks::sink>& sink)

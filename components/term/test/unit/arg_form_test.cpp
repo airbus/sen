@@ -808,8 +808,8 @@ TEST(ArgFormAlias, TheGeneratorResolvesAnAliasBeforeTheFormSeesIt)
   // Measured, not assumed: `setAliasedLength` takes AliasedMeters in the STL, and the form reports
   // the field's type as "Meters". So an alias never reaches buildField through a method argument,
   // which is why the two tests above pass with or without the alias-peeling in buildField. The
-  // peeling is kept as a cheap guard for any path that does carry one -- a nested struct field or
-  // sequence element is not covered here -- but it is not what makes an aliased argument work.
+  // peeling is kept as a cheap guard for any path that does carry one, such as a nested struct field or
+  // sequence element, which is not covered here. It is not what makes an aliased argument work.
   const auto& cls = *::term::test::TestObjectInterface::meta();
   const auto* method = cls.searchMethodByName("setAliasedLength");
   ASSERT_NE(method, nullptr);

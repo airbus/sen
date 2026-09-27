@@ -163,11 +163,10 @@ inline void eraseLastCodepoint(std::string& text)
   }
 }
 
-/// Which question is being asked of an `object.member` token, because the two answers differ and both
-/// are right. Completion must split "obj." -- that is how a user asks for the member list with Tab, and
-/// the completer is what puts the dot there in the first place. Execution must not, because "obj."
-/// names no member to call. Written out separately, the two accept sets drifted and one carried the
-/// other's comment word for word.
+/// Which question is being asked of an `object.member` token, because the two answers differ and both are
+/// right. Completion must split "obj.", which is how a user asks for the member list with Tab, and the
+/// completer is what puts the dot there. Execution must not, because "obj." names no member to call. One
+/// function rather than two accept sets, which drift.
 enum class TrailingSeparator
 {
   reject,  ///< "obj." does not split: there is no member to act on
@@ -291,9 +290,9 @@ inline std::vector<std::string_view> splitTopLevelArgs(std::string_view args)
       {
         tokenStart = i;
       }
-      // A stray closer used to drive depth negative, which made every later separator invisible and
-      // collapsed the whole line into one unparseable token -- reported as a parse failure naming
-      // the entire line. Keeping it in the token lets the JSON parser name the real problem.
+      // A stray closer must not drive depth negative: that makes every later separator invisible and
+      // collapses the whole line into one token, reported as a parse failure naming the entire line.
+      // Keeping it in the token lets the JSON parser name the real problem.
       if (depth > 0)
       {
         --depth;

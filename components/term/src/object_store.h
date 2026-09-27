@@ -140,11 +140,9 @@ private:
   // Named query subscriptions. Each holds an ObjectList with only the matched objects.
   std::map<std::string, std::shared_ptr<Subscription<Object>>> querySubscriptions_;
 
-  // What each named query selects. The provider map used to be the only record, and a query that reused
-  // the internal ".all" provider creates none -- so it did not appear in `queries`, could not be removed,
-  // and held a Subscription tracking every object on the bus for the life of the session. Several with
-  // the same text could pile up, because the duplicate check skipped the ".all" provider before it
-  // compared selections.
+  // What each named query selects. The provider map cannot be the only record: a query that reuses the
+  // internal ".all" provider creates no provider of its own, so it would not appear in `queries`, could not
+  // be removed, and would hold a Subscription tracking every object on the bus for the life of the session.
   std::map<std::string, std::string> querySelections_;
 
   // Notification accumulator (populated by callbacks, drained by the UI)

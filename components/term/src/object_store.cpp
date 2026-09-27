@@ -41,8 +41,7 @@ namespace sen::components::term
 namespace
 {
 
-/// The suffix of the internal provider that carries every object on a bus, as opposed to a named
-/// query. The test was written out three times, each recomputing the same magic 4.
+/// The suffix of the internal provider that carries every object on a bus, as opposed to a named query.
 constexpr std::string_view allProviderSuffix = ".all";
 
 bool isAllProvider(std::string_view providerName)
@@ -302,9 +301,8 @@ Result<void, std::string> ObjectStore::closeSource(std::string_view sourceName)
     providerItr->second.provider->removeListener(&mux_, true);
     sourceItr->second.providers.erase(providerItr);
 
-    // And the subscription. This path removed the provider and left the Subscription behind, tracking
-    // every object on the bus for the rest of the session, while `query rm` released both -- so the
-    // route the documentation named was the one that leaked.
+    // And the subscription. Removing the provider alone leaves the Subscription behind, tracking every
+    // object on the bus for the rest of the session.
     querySubscriptions_.erase(components[2]);
     querySelections_.erase(components[2]);
 
@@ -382,11 +380,11 @@ Result<void, std::string> ObjectStore::createQuery(std::string_view name, std::s
 
   const auto& busCondition = interest->getBusCondition().value();
 
-  // Inside a try, like the provider work below it and like openSource's own call. It used to sit between
-  // the two trys, uncovered -- and CommandEngine's constructor calls this for every `query:` entry in
-  // the configuration, from inside run(), where nothing above it catches. So a session or bus name a
-  // user mistyped in a config file terminated the kernel during startup, while the same name typed at
-  // the `query` command was reported politely, because that path goes through execute's try.
+  // Inside a try, like the provider work below it and like openSource's own call. CommandEngine's
+  // constructor calls this for every `query:` entry in the configuration, from inside run(), where nothing
+  // above it catches, so an uncovered throw here would end the kernel during startup over a session or bus
+  // name mistyped in a config file. The same name typed at the `query` command is reported politely,
+  // because that path goes through execute's try.
   SourceData* sourceDataPtr = nullptr;
   try
   {
@@ -479,8 +477,8 @@ Result<void, std::string> ObjectStore::removeQuery(std::string_view name)
     }
   }
 
-  // No provider of its own: this is a query that reused the internal ".all" provider, which is the case
-  // that used to be unremovable. The subscription is the thing to release.
+  // No provider of its own: this is a query that reused the internal ".all" provider, so the subscription
+  // is the thing to release.
   if (querySelections_.erase(nameStr) != 0U)
   {
     querySubscriptions_.erase(nameStr);

@@ -44,8 +44,8 @@ namespace
 using test::renderToText;
 
 /// Rows and columns the element asks the layout for. The screen a test renders to is fixed, so a
-/// runaway value is invisible in the rendered text -- the cost is in the tree, and this is where it
-/// shows.
+/// runaway value is invisible in the rendered text, because the cost is in the tree, which is what this
+/// measures.
 struct Extent
 {
   int rows = 0;
@@ -269,8 +269,8 @@ TEST(ValueFormatter, SequenceOfBytesRendersAsHex)
 
 TEST(ValueFormatter, SequenceOfBytesIsCapped)
 {
-  // A blob arrives as sequence<u8>, and this path used to be the one place with no cap on it: a
-  // megabyte laid out 65,536 rows that the pane then re-rendered every frame.
+  // A blob arrives as sequence<u8>, and without a cap on this path a megabyte lays out 65,536 rows that the
+  // pane then re-renders every frame.
   constexpr std::size_t oneMegabyte = 1024U * 1024U;
   VarList bytes;
   bytes.reserve(oneMegabyte);

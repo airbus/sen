@@ -18,6 +18,7 @@
 #include "stl/sen/kernel/basic_types.stl.h"
 
 // other posix
+#include <pthread.h>
 #include <sched.h>
 
 // std

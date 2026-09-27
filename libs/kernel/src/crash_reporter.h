@@ -85,9 +85,9 @@ public:
 
   /// Where to write the human-readable crash banner, for a component that has taken stderr over.
   ///
-  /// A component that draws a full-screen terminal captures stderr so that a stray write does not land
-  /// on its display -- and that captured the crash banner too, so a fatal error printed the report's
-  /// path into a pipe that died with the process. The component hands the descriptor it saved, and the
+  /// A component that draws a full-screen terminal captures stderr so that a stray write does not land on
+  /// its display, and that captures the crash banner too, so a fatal error would print the report's path
+  /// into a pipe that dies with the process. The component hands the descriptor it saved, and the
   /// banner goes there instead. Pass -1 to go back to stderr.
   ///
   /// Written from the component's thread and read from the terminate handler, so it is an atomic.

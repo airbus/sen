@@ -28,16 +28,14 @@ using LogCallback = sen::std_util::move_only_function<void(spdlog::level::level_
 
 /// A custom spdlog sink that forwards log messages to the term output pane.
 ///
-/// **The callback runs under this sink's own non-recursive mutex, on whichever thread logged, and must
-/// not log.** `base_sink::log` takes the mutex and then calls `sink_it_`, so a log line from inside the
-/// callback locks it twice on the same thread. The sink is attached to every logger in the process, so
-/// the thread that hangs would be whichever one emitted -- a kernel dispatcher worker, or another
-/// component's -- while term carries on drawing, which makes it look as though something else stopped.
-/// `sink_it_` drops a re-entrant line rather than deadlocking, but the rule is still the rule: do the
+/// The callback runs under this sink's own non-recursive mutex, on whichever thread logged, and must not
+/// log. `base_sink::log` takes the mutex and then calls `sink_it_`, so a log line from inside the callback
+/// locks it twice on the same thread. The sink is attached to every logger in the process, so the thread
+/// that would hang is whichever one emitted, perhaps a kernel worker rather than term's, while term carries
+/// on drawing. `sink_it_` drops a re-entrant line rather than deadlocking, but the rule still holds: do the
 /// least possible here and never call back into anything that logs.
 ///
-/// This is the same class of trap as the registry-walk rule in `log_router.h`, and it was the one of
-/// the two that was not written down.
+/// The registry-walk rule in `log_router.h` is the same class of trap.
 class TermLogSink final: public spdlog::sinks::base_sink<std::mutex>
 {
   SEN_NOCOPY_NOMOVE(TermLogSink)

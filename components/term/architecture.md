@@ -2,9 +2,10 @@
 
 ## Introduction
 
-The term component is a TUI-based interactive terminal for the Sen kernel. It provides an
-environment for discovering objects, invoking methods, monitoring properties, and streaming
-events from a single scrolling view built on the FTXUI framework.
+The term component is a TUI-based interactive terminal for the Sen kernel. It provides an environment
+for discovering objects, invoking methods, reading properties, and streaming events from a single
+scrolling view built on the FTXUI framework. A property can be read on demand; nothing follows one over
+time.
 
 This document explains the structure and design of the component. It assumes familiarity with the
 Sen kernel's object model (objects, properties, methods, events, buses, sessions).
@@ -28,32 +29,39 @@ User documentation: `docs/components/term.md`.
 The component follows a layered design:
 
 - **Component layer** (`component.cpp`) creates and wires all objects, then enters the exec loop.
-- **UI layer** (`app.*`, `app_renderers.*`, `output_pane.*`, `input_pane.*`, `banner.*`, `styles.h`) owns the
-  FTXUI screen and layout. It knows nothing about Sen objects or commands.
+- **UI layer** (`app.*`, `app_renderers.*`, `output_pane.*`, `input_pane.*`, `banner.*`, `styles.h`) owns
+  the FTXUI screen, the layout and the key bindings. It does not dispatch commands: it hands a submitted
+  line to a callback. It does reach Sen's type metadata, because the guided-input form lives in the UI
+  state and its editors are chosen per type.
 - **Command layer** (`command_engine.*`) dispatches user input to handlers and pushes results to
   the UI via the App's public interface.
 - **Data layer** (`object_store.*`, `completer.*`, `scope.*`) manages object discovery, completion
   indices, and scope navigation.
 - **Form layer** (`arg_form.*`) builds type-aware guided-input forms for method arguments.
-- **Rendering layer** (`value_formatter.*`, `signature_renderer.*`, `tree_view.*`) formats Sen
-  values and type metadata as FTXUI elements.
-- **Support** (`log_router.*`, `log_sink.*`, `output_capture.*`, `suggester.*`, `parse_utils.h`)
-  handles logging, stderr capture, edit-distance suggestions, and tokenization.
+- **Rendering layer** (`value_formatter.*`, `signature_renderer.*`, `tree_view.*`, `text_table.*`,
+  `text_wrap.h`, `byte_format.h`, `unicode.h`) formats Sen values and type metadata as FTXUI elements.
+- **Support** (`log_router.*`, `log_sink.*`, `output_capture.*`, `clipboard.*`, `signal_stack.*`,
+  `suggester.*`, `parse_utils.h`, `type_peel.h`, `util.*`) handles logging, stderr capture, the system
+  clipboard, the alternate signal stack the crash handler needs, edit-distance suggestions, tokenization
+  and alias peeling.
 
 ## Key Design Decisions
 
 ### Layout
 
 There is one layout: output scrolling above a rule, with the input line below it. Log lines and
-event emissions arrive in that same stream rather than in panes of their own. The `tui`/`repl` mode
-flag, the status bar, the watch pane and the logs/events panes have all been removed, along with the
-`tuiOnly` descriptor field that gated commands per mode.
+event emissions arrive in that same stream rather than in panes of their own. There is no status bar and
+no second mode, so every command is available wherever the user is.
 
 ### Single-Thread Model
 
-All state lives on the Sen component thread. The FTXUI loop is driven synchronously from the
-kernel's exec loop callback. This eliminates the need for mutexes or pending queues between the
-UI and the command/data layers.
+Everything the UI, command and data layers hold lives on the Sen component thread, and the FTXUI loop is
+driven synchronously from the kernel's exec loop callback, so nothing between those layers needs a mutex
+or a pending queue.
+
+What does run on other threads owns a mutex and a bounded queue that the component thread drains: the
+log router takes lines from whichever thread logged, the stderr capture has a reader thread, and the
+clipboard has one worker so a helper process cannot stall a frame.
 
 ### Command Table
 
@@ -68,14 +76,13 @@ The Completer maintains its object index incrementally via add/remove callbacks 
 ObjectStore rather than rebuilding from scratch each cycle. A full rebuild only triggers when
 the navigation scope changes.
 
-### Watch/Listener Lifecycle
+### Listener Lifecycle
 
 Listeners follow a three-state lifecycle: pending (the object has not been discovered yet),
 connected, and disconnected (the object was removed). They reconnect when the object reappears,
 matched on the object's full local name recorded when the listener was created rather than on the
 name the user typed, which is relative to whatever scope they were in. Emissions arrive inline with
-command output. Property watches, which had the same lifecycle and their own pane, have been
-removed.
+command output. Events are the only thing a listener follows; there is no property watch.
 
 ### Form Field Tree
 
@@ -85,16 +92,16 @@ and a type-specific editor. Focus navigation traverses the leaves in pre-order.
 
 ### Themes and Styles
 
-The component ships with 10 color themes defined in `theme.h/cpp`. A `Theme` carries 25 colour
-fields covering completion, value formatting, tree connectors, banners, the input line and log
-levels. The ten themes are not ten tables: the fields fall into 10 distinct colours, each identical
-across every theme, so each theme is a 10-colour `Palette` and one `themeFromPalette` spreads
-it. The active theme is a process-wide singleton set during
-component init and switchable at runtime via the `theme` command.
+The component ships with 10 color themes defined in `theme.h/cpp`. A `Theme` carries 25 color fields
+covering completion, value formatting, tree connectors, banners, the input line and log levels. Those 25
+fields take their values from a `Palette` of 10, because within any one theme the fields fall into 10
+groups that always share a color. So a theme is written as 10 colors and `themeFromPalette` spreads them
+over the 25 fields. The active theme is a process-wide singleton, set during component init and
+switchable at runtime with the `theme` command.
 
-All rendering code reads colors through named style functions in `styles.h`, which delegate to the
-active theme. This indirection means that swapping the theme instantly recolors the entire UI on
-the next render tick.
+Rendering reads colors through the named style functions in `styles.h`, which delegate to the active
+theme, so switching the theme recolors the whole screen on the next render tick. The banner is the one
+exception: it reads the active theme directly to build its color bar.
 
 The theme enum (`ThemeStyle`) is defined in the STL, so the same names are used for configuration,
 runtime selection, and Tab completion. The `theme` command and the completer both resolve names
@@ -112,8 +119,22 @@ alongside the term must use spdlog for diagnostic output instead of printf or st
 - **FTXUI** (v7.0.3): TUI framework. Element-based declarative rendering, component/event system,
   and terminal management.
 - **spdlog**: Logging. A custom sink registered with the kernel routes log messages into the output
-  area, and the log router provides per-logger level control. There are no panes: results, log lines
-  and event emissions share one stream.
+  area, and the log router provides per-logger level control. Results, log lines and event emissions
+  share one stream.
 
-Stderr capture is implemented with raw POSIX pipes (Linux/macOS) and the WinAPI pipe equivalents
-(Windows). The term links no networking library of its own.
+Stderr capture uses raw pipes: `pipe`, `dup2` and `read` on Linux and macOS, and the CRT's `_pipe`,
+`_dup2` and `_read` on Windows. The term links no networking library of its own.
+
+### The Crash Handler and the Signal Stack
+
+FTXUI installs its own handlers for the fatal signals when it takes the terminal, with a plain
+`sigaction` and no `SA_ONSTACK`. Its handler restores the terminal and re-raises into the handler it
+displaced, so a crash still reaches the kernel's crash reporter, but the missing flag undoes the
+alternate signal stack the kernel gives every thread it starts. Without that stack a stack overflow
+faults again inside the handler and the process dies with no dump. `signal_stack.*` puts the flag back
+after the terminal is installed, changing nothing else about the handlers.
+
+Term also hands the kernel the descriptor it saved for stderr, so the crash banner goes there rather
+than into the pipe term captured, and the two threads it starts itself, the stderr reader and the
+clipboard worker, ask the kernel for that signal stack when they start, because the kernel did not start
+them.

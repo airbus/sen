@@ -73,8 +73,8 @@ class TestTermSession(unittest.TestCase):
     def test_the_displayed_scope_path_can_be_typed_back(self) -> None:
         """The prompt's own path is a valid target.
 
-        The group path used to be displayed with the separator that also means "session.bus", so
-        copying it out of the prompt and typing it back silently moved the user to another session.
+        Displaying the group path with the separator that also means "session.bus" would let a user copy it
+        out of the prompt, type it back, and be moved silently to another session.
         """
         self.term.send_command("cd local.demo")
         self.term.send_command("cd alpha")
@@ -92,8 +92,8 @@ class TestTermSession(unittest.TestCase):
         self.term.send_command("cd /local.demo/alpha")
         self.term.send_command("pwd", settle=1.5)
         screen: str = self.term.screen()
-        # The whole prompt, not a fragment of it: the old behaviour produced "sen://local.demo/alpha",
-        # which contains "/local.demo/alpha" as a substring and would satisfy a looser assertion.
+        # The whole prompt, not a fragment of it: a doubled separator gives "sen://local.demo/alpha", which
+        # contains "/local.demo/alpha" as a substring and would satisfy a looser assertion.
         self.assertIn("sen:/local.demo/alpha", screen, f"the displayed path did not lead back. Screen:\n{screen}")
         self.assertNotIn("sen://", screen, f"the leading separator was taken as part of a name. Screen:\n{screen}")
         self.assertTrue(self.term.is_running())
@@ -111,8 +111,8 @@ class TestTermSession(unittest.TestCase):
     def test_completion_keeps_the_rest_of_the_line(self) -> None:
         """Completing a token in the middle of a line leaves the rest of the line alone.
 
-        Every cycling path used to replace from the token start to the end of the buffer, so
-        completing the first word deleted every argument after it.
+        A cycling path that replaces from the token start to the end of the buffer would delete every
+        argument after the word being completed.
         """
         self.term.type_text("local.de KEEPME")
         self.term.send_keys(HOME)
@@ -148,9 +148,9 @@ class TestTermSession(unittest.TestCase):
     def test_a_huge_paste_leaves_the_term_responsive(self) -> None:
         """A paste far longer than the line accepts is refused, and the term keeps working.
 
-        30,000 characters used to leave the term alive but unable to act on any further key: it
-        re-wrapped the whole buffer on every frame, and the layout gave the output pane no rows at
-        all, so nothing reported and nothing recovered. Only killing it got out.
+        Unbounded, 30,000 characters leave the term alive but unable to act on a key: it re-wraps the whole
+        buffer every frame, and the layout gives the output pane no rows, so nothing is reported and nothing
+        recovers short of killing it.
         """
         self.term.paste("x" * 30000)
         self.assertTrue(self.term.is_running(), "the term died on a large paste")
@@ -181,8 +181,8 @@ class TestTermSession(unittest.TestCase):
     def test_a_multi_line_paste_runs_nothing_and_becomes_one_line(self) -> None:
         """Line breaks in pasted text join into spaces instead of submitting the line.
 
-        One paste of three commands used to run all three, synchronously, inside one tick — including
-        anything destructive that happened to be in the text.
+        Without the paste state, one paste of three commands runs all three inside a single tick, including
+        anything destructive that happens to be in the text.
         """
         self.term.forget()
         self.term.send_keys(PASTE_START + b"help\rhelp\r" + PASTE_END, settle=2.5)

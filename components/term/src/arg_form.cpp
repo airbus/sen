@@ -158,8 +158,7 @@ bool isFormCompatible(ConstTypeHandle<> type, std::size_t depth = 0)
   // A bound, because the type graph is not provably acyclic from here: a variant holds its payload
   // through a shared_ptr, so `variant V { S }` with `struct S { v : V }` is representable at the value
   // level. Whether the generator accepts such a declaration belongs to a component this code does not
-  // own, and the cap costs nothing either way -- without it the recursion ends in a stack overflow,
-  // which is a SIGSEGV in the kernel process.
+  // own, and without the cap the recursion ends in a stack overflow, which is a SIGSEGV in the kernel.
   if (depth > maxTypeDepth)
   {
     return false;
@@ -575,18 +574,17 @@ Result<Var, std::string> parseFieldText(std::string_view text, const Type& type)
   }
 
   // Timestamp: the text is the stamp, passed through as a string the way the command line's own
-  // single-argument fast path does. Without this branch an ISO stamp went to the JSON path below, where
-  // `{ "v": 2026-09-27T00:00:00Z }` is not JSON: the field opened empty saying "value required", the
-  // documented stamp was refused as "invalid value", and nothing anywhere said to add quotes. The same
-  // stamp typed on the command line worked, which is the worst version of this -- accepted by one half
-  // of the term and refused by the other.
+  // single-argument fast path does. Without this branch an ISO stamp goes to the JSON path below, where
+  // `{ "v": 2026-09-27T00:00:00Z }` is not JSON: the field opens empty saying "value required", the
+  // documented stamp is refused as "invalid value", and nothing says to add quotes. The same stamp typed
+  // on the command line is accepted, so one half of the term would take it and the other refuse it.
   if (leaf.isTimestampType() && text.front() != '"')
   {
     Var v {std::string(text)};
     if (auto r = impl::adaptVariant(type, v); r.isError())
     {
       // Actionable, because the field opens empty and nothing on screen says what a stamp looks like.
-      return Err(r.getError() + " -- a time stamp looks like 2026-09-27T00:00:00Z");
+      return Err(r.getError() + ", and a time stamp looks like 2026-09-27T00:00:00Z");
     }
     return Ok(std::move(v));
   }
@@ -831,8 +829,8 @@ int64_t clampToIntegerRange(int64_t value, const NumericType& nt)
   return std::max(lo, std::min(value, hi));
 }
 
-/// Parse text as int64. A value too large for int64 saturates rather than resetting to zero: a u64
-/// field holding more than INT64_MAX used to become 1 on the first arrow press.
+/// Parse text as int64. A value too large for int64 saturates rather than resetting to zero, so a u64
+/// field holding more than INT64_MAX still steps from where it was.
 int64_t parseIntegerLeaf(std::string_view text)
 {
   if (text.empty())
@@ -1325,9 +1323,9 @@ void collectLeaves(ArgFormField& field, std::vector<ArgFormField*>& out)
 
 }  // namespace
 
-/// `leaves_` holds raw pointers into the field tree, so every structural change to it -- adding or
-/// replacing a child, switching a variant -- has to be followed by this call. That is what keeps the
-/// pointers valid; no reserve anywhere in this file is load-bearing for it.
+/// `leaves_` holds raw pointers into the field tree, so every structural change to it has to be followed
+/// by this call: adding or replacing a child, or switching a variant. That is what keeps the pointers
+/// valid, and no reserve in this file can be relied on instead.
 void ArgForm::rebuildLeafCache()
 {
   leaves_.clear();
@@ -1426,9 +1424,9 @@ bool ArgForm::insertText(std::string_view s)
     leaf.insertRefused = true;
     return false;
   }
-  // Filter first, then clear the placeholder: clearing it before the filter left the field blank with no
-  // error when every character was rejected -- a user who typed a comma into a float field watched the 0
-  // they were shown disappear and then heard "value required" about it.
+  // Filter first, then clear the placeholder. Clearing it first leaves the field blank with no error when
+  // every character is rejected, so a comma typed into a float field makes the 0 on screen disappear and
+  // then reports "value required" about it.
   const auto filtered = filterAcceptableChars(s, leaf.type, leaf.userEdited ? leaf.text : std::string {});
   if (filtered.empty() && !s.empty())
   {
@@ -2212,9 +2210,9 @@ Result<VarList, ArgForm::SubmitError> ArgForm::trySubmit()
     auto v = assembleValue(f, failIdx);
     if (!v.has_value())
     {
-      // Only the leaf path records an index, so neither it nor a field's message can be taken on
-      // trust: a structural failure used to be reported as field zero's error, which is empty, and
-      // the form then refused to submit with nothing on screen to say why.
+      // Only the leaf path records an index, so neither it nor a field's message can be taken on trust.
+      // A structural failure reported as field zero's error, which is empty, leaves the form refusing to
+      // submit with nothing on screen to say why.
       if (failIdx < leaves_.size() && !leaves_[failIdx]->validationError.empty())
       {
         return Err(SubmitError {failIdx, leaves_[failIdx]->validationError});

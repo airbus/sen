@@ -69,6 +69,9 @@ add_sen_package(
           src/text_table.h
           src/text_table.cpp
           src/byte_format.h
+          src/text_wrap.h
+          src/type_peel.h
+          src/unicode.h
   STL_FILES stl/term.stl
   PRIVATE_DEPS ftxui::component spdlog::spdlog
   TEST_TARGET term_for_testing

@@ -87,9 +87,8 @@ private:
   };
   using Entry = std::variant<ftxui::Element, PendingEntry>;
 
-  // A deque, not a vector: once the pane is full every append drops one entry from the front, and on a
-  // vector that moved the other 4,999 -- about 40 us per line, paid exactly during the bursts the cap
-  // exists to survive.
+  // A deque, not a vector: once the pane is full every append drops one entry from the front, which on a
+  // vector moves the other 4,999, about 40 us per line, paid during the bursts the cap exists to survive.
   std::deque<Entry> lines_;
   float scrollPosition_ = 1.0F;  // 0.0 = top, 1.0 = bottom
   bool followBottom_ = true;
@@ -98,7 +97,7 @@ private:
   int contentHeight_ = 1;  // total rows, for scroll step computation
   /// contentHeight_ needs a layout pass to work out, and that pass is the expensive part of
   /// rendering a full pane. It only changes when the content or the wrap width does, so it is
-  /// measured then rather than on every frame -- most frames are spinner ticks and idle redraws.
+  /// measured then rather than on every frame, since most frames are spinner ticks and idle redraws.
   bool contentHeightDirty_ = true;
   int lastWrapWidth_ = 0;
 

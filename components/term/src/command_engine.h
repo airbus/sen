@@ -195,8 +195,8 @@ private:
   /// came from may already be gone.
   [[nodiscard]] bool hasPendingCall(std::size_t callId) const;
 
-  /// Finish a pending call as a failure. `title` separates a call that failed from a call that
-  /// returned something term could not draw -- they used to read identically.
+  /// Finish a pending call as a failure. `title` separates a call that failed from a call that returned
+  /// something term could not draw, which would otherwise read identically.
   void failPendingCall(std::size_t callId, const std::string& message, const std::string& title = "Call Error");
 
 private:
@@ -207,12 +207,6 @@ private:
   Completer& completer_;
   Scope scope_;
   ObjectStore store_;
-
-  // Last time string sent to the status bar, used to avoid redundant refreshes
-  // Re-formatting toLocalString/toUtcString 30x per second is wasteful; we
-  // only need to rebuild when the second actually advances.
-
-  // Transport throughput tracking
 
   // Cached object tree for ls
   TreeNode cachedTree_;
@@ -234,9 +228,9 @@ private:
   };
   std::map<std::string, Listener> listeners_;
 
-  /// Calls that have been sent and not yet answered, with the moment each stops being worth
-  /// waiting for. `callTimeout` was documented and never read, so a peer whose runner had stalled
-  /// left the spinner turning and the screen redrawing at 30 Hz for as long as the term ran.
+  /// Calls that have been sent and not yet answered, with the moment each stops being worth waiting for.
+  /// Without the deadline a peer whose runner has stalled leaves the spinner turning and the screen
+  /// redrawing at 30 Hz for as long as the term runs.
   struct PendingCall
   {
     std::string description;

@@ -160,9 +160,9 @@ bool Scope::navigate(std::string_view target)
       busPart = busPart.substr(0, slashPos);
     }
 
-    // Only the group part may carry the separator. Checking it here and not after this branch is the
-    // whole rule rather than half of it: `local/a.b` used to land on session "local/a", where nothing
-    // matches and `ls` is silently empty -- the failure this change exists to remove.
+    // Only the group part may carry the separator, and checking it here rather than after this branch is
+    // what makes that the whole rule: otherwise `local/a.b` lands on session "local/a", where nothing
+    // matches and `ls` is silently empty.
     if (sessionPart.empty() || busPart.empty() || sessionPart.find('/') != std::string_view::npos ||
         busPart.find('/') != std::string_view::npos)
     {
@@ -194,8 +194,8 @@ bool Scope::navigate(std::string_view target)
   }
 
   // An absolute target is resolved against the root wherever the user is standing, so an undotted one
-  // names a session. Tying that to the current scope instead refused `/local` from every scope but the
-  // root -- including from `/local` itself, whose own prompt prints exactly that string.
+  // names a session. Tying that to the current scope instead refuses `/local` from every scope but the
+  // root, including from `/local` itself, whose own prompt prints exactly that string.
   if (kind_ == Kind::root || absolute)
   {
     savePrevious();

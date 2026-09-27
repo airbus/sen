@@ -59,25 +59,23 @@ namespace
 constexpr int maxInputRows = 6;
 
 /// Rows the input area can add beyond its text: a "N lines above" marker, a "N lines below" marker and
-/// the exit-confirmation row. Anything reserving space for the input has to count these too -- the
-/// completion list budgeted for maxInputRows alone, so with a wrapped line and the confirmation showing
-/// it could ask for rows that were already taken and the output pane was squeezed to nothing.
+/// the exit-confirmation row. Anything that reserves space for the input has to count these, or it can
+/// ask for rows the input has already taken and leave the output pane with none.
 constexpr int maxInputExtraRows = 3;
 
-/// Bracketed paste. The terminal wraps pasted text in these two markers once the application asks
-/// for them, which is the only way to tell a paste from someone typing the same bytes. FTXUI does not
-/// ask and does not know them, so term enables the mode and reads the markers out of the unmatched
-/// escape sequences FTXUI hands back.
+/// Bracketed paste. The terminal wraps pasted text in these two markers once the application asks for
+/// them, which is the only way to tell a paste from someone typing the same bytes. FTXUI neither asks
+/// for them nor knows them, so term enables the mode and reads them out of the escape sequences FTXUI
+/// could not match.
 constexpr auto* enableBracketedPaste = "\x1b[?2004h";
 constexpr auto* disableBracketedPaste = "\x1b[?2004l";
 constexpr auto* pasteStart = "\x1b[200~";
 constexpr auto* pasteEnd = "\x1b[201~";
 
-/// How long a paste may go without input before term assumes its end marker was lost. FTXUI flushes
-/// an incomplete escape sequence after 50 ms, so a paste that stalls inside the six bytes of the end
-/// marker -- over ssh, or through tmux -- delivers the marker in pieces and none of them matches. With
-/// no bound the term stays in paste mode for ever, and in paste mode it swallows every key: there is
-/// no gesture left that recovers it.
+/// How long a paste may go without input before term assumes its end marker was lost. FTXUI flushes an
+/// incomplete escape sequence after 50 ms, so a paste that stalls inside the six bytes of the end
+/// marker delivers it in pieces and none of them matches. Without a bound term stays in paste mode,
+/// where it swallows every key.
 constexpr unsigned pasteIdleLimitTicks = 60;  // 60 ticks @ 30 Hz = 2 s
 
 }  // namespace
@@ -135,8 +133,8 @@ struct App::UiState
   // is at the ESC handler in handleGlobalEvent.
   bool exitConfirmPending = false;
 
-  // Set once the line is full, so the notice is printed once per episode rather than once per
-  // refused character -- a paste refused character by character would otherwise fill the output.
+  // Set once the line is full, so the notice is printed once per episode rather than once per refused
+  // character. A paste refused character by character would otherwise fill the output.
   bool inputFullReported = false;
 
   // Set when input was actually dropped, and cleared only when the user has edited the line since.
@@ -154,20 +152,17 @@ struct App::UiState
     completionCursorPos = cursorPos;
   }
 
-  /// Write `text` over the recorded span, leaving the rest of the line alone, and leave the span
-  /// around what was written so the next candidate swaps with it. Both ends are clamped: a recorded
-  /// offset can outlive the text it was measured against -- recalling a shorter history line does
-  /// it -- and std::string::replace throws if pos > size(), which nothing between here and the
-  /// kernel catches.
+  /// Write `text` over the recorded span, leaving the rest of the line alone, and leave the span around
+  /// what was written so the next candidate swaps with it. Both ends are clamped: a recorded offset can
+  /// outlive the text it was measured against, and std::string::replace throws if pos > size().
   void writeCompletion(std::string& buffer, const std::string& text)
   {
     const auto from = std::min(checkedConversion<std::size_t>(completionReplaceFrom), buffer.size());
     const auto to = std::clamp(checkedConversion<std::size_t>(completionReplaceTo), from, buffer.size());
-    // Accepting a candidate on a full line would otherwise push past the bound, so `buffer.size() <=
-    // maxLineBytes` would not be an invariant and the submit check could not rely on one. Cut on a
-    // codepoint boundary, and measure the cursor from what was actually written: taking the candidate's
-    // full length left the cursor past the end of the buffer, and the next key in the same batch of
-    // events -- drained before any frame clamps it -- would index past the end and throw.
+    // Accepting a candidate on a full line would push past the bound, so `buffer.size() <= maxLineBytes`
+    // would stop being an invariant. Cut on a codepoint boundary and measure the cursor from what was
+    // actually written: the candidate's full length can leave the cursor past the end of the buffer, and
+    // the next key in the same batch of events would index past it.
     const auto room = maxLineBytes - std::min(maxLineBytes, buffer.size() - (to - from));
     auto written = text.substr(0, std::min(text.size(), room));
     if (written.size() < text.size())
@@ -183,9 +178,8 @@ struct App::UiState
   }
 
   /// True while the recorded span still describes the buffer it was measured against. An edit or a
-  /// cursor move from any other key invalidates it -- cycling on a stale offset appended the
-  /// candidate to a truncated token instead of replacing it. Two changes that cancel out in both
-  /// length and cursor cannot happen in one event.
+  /// cursor move from any other key invalidates it: cycling on a stale offset appends the candidate to a
+  /// truncated token instead of replacing it.
   [[nodiscard]] bool completionSpanIsCurrent(const std::string& buffer) const
   {
     return buffer.size() == completionBufferSize && cursorPos == completionCursorPos;
@@ -336,18 +330,13 @@ void App::init()
   // goes back.
   std::ignore = restoreAltStackOnFatalHandlers();
 
-  // Unverified on Windows, and worth knowing before trusting it there. term writes the DECSET and then
-  // reads the markers out of the escape sequences FTXUI could not match. FTXUI 7.0.3 does set
-  // ENABLE_VIRTUAL_TERMINAL_INPUT, so the markers *can* arrive, and if they do they reach the detector
-  // -- but whether conhost or Windows Terminal emits them at all is unestablished, and the five session
-  // tests that cover paste cannot run on Windows (no pty). If they never arrive, the behaviour is the
-  // pre-bracketed-paste one: a multi-line paste runs a command per line. `pasteIdleLimitTicks` bounds
-  // the other direction. Settling it takes one person pressing Ctrl+V in a Windows Terminal.
+  // Unverified on Windows. FTXUI 7.0.3 sets ENABLE_VIRTUAL_TERMINAL_INPUT, so the markers can arrive
+  // and would reach the detector, but whether conhost or Windows Terminal emits them is unestablished
+  // and the paste tests need a pty. If they never arrive, a multi-line paste runs one command per line,
+  // as it did before bracketed paste. Settling it takes one Ctrl+V in a Windows Terminal.
   //
-  // After the Loop, which is where FTXUI installs the terminal: some terminals reset bracketed paste
-  // when the alternate screen is entered, and asking first would leave the mechanism silently inert --
-  // with the failure mode "pasted newlines submit again, and nothing says so". FTXUI writes through
-  // std::cout as well, so sharing the stream is not a hazard.
+  // Asked after the Loop, which is where FTXUI installs the terminal: some terminals reset bracketed
+  // paste when the alternate screen is entered, so asking earlier would leave the mode off.
   std::cout << enableBracketedPaste << std::flush;
 }
 
@@ -464,9 +453,9 @@ ftxui::Element App::renderCompletionHint() const
   constexpr int rightMargin = 2;
   const int available = termSize.dimx - checkedConversion<int>(leftPad.size()) - rightMargin;
 
-  // Cells against cells, and a cut on a codepoint boundary. This compared `size()` -- bytes -- against a
-  // cell count, so any description carrying a µ, a degree sign or an arrow (they come from the STL) was
-  // truncated early, and the byte cut could land inside a codepoint whose remains ftxui then dropped.
+  // Cells against cells, and a cut on a codepoint boundary. Comparing `size()` in bytes against a cell
+  // count truncates any description carrying a µ, a degree sign or an arrow early, and a byte cut can
+  // land inside a codepoint whose remains ftxui then drops.
   std::string displayDescription = description;
   if (ftxui::string_width(displayDescription) > available)
   {
@@ -580,9 +569,9 @@ bool App::handleInputKey(const ftxui::Event& event)
     ui_->inputTruncated = false;
     return true;
   }
-  // Recall by substring. searchHistory existed, worked and was tested, and no key reached it -- so term
-  // had no way to find an earlier command except pressing Up until it appeared. The query is whatever is
-  // already on the line, which needs no search prompt, and the typed line comes back on ArrowDown.
+  // Recall by substring, so an earlier command can be found without pressing Up until it appears. The
+  // query is whatever is already on the line, which needs no search prompt, and the typed line comes
+  // back on ArrowDown.
   if (event == ftxui::Event::Special("\x12"))  // Ctrl+R
   {
     if (!ui_->inputPane.searchHistory(buf))
@@ -597,10 +586,9 @@ bool App::handleInputKey(const ftxui::Event& event)
     return true;
   }
 
-  // Ctrl+W only. Ctrl+Backspace cannot be told apart here: FTXUI's parser sends every byte below 32 as
-  // a special, and its uniformize table rewrites 0x08 to 0x7F before emitting -- so Ctrl+Backspace
-  // arrives as Event::Backspace and the Ctrl+H spelling is unreachable. The three tests for it in this
-  // file were dead, and the documented "Ctrl+Backspace erases a word" was never true.
+  // Ctrl+W only. Ctrl+Backspace cannot be told apart here: FTXUI's parser sends every byte below 32 as a
+  // special and its uniformize table rewrites 0x08 to 0x7F, so Ctrl+Backspace arrives as
+  // Event::Backspace and the Ctrl+H spelling is unreachable.
   if (event == ftxui::Event::CtrlW)
   {
     auto from = prevWord(buf, cursor());
@@ -611,10 +599,9 @@ bool App::handleInputKey(const ftxui::Event& event)
   }
   if (event.is_character())
   {
-    // FTXUI has no bracketed paste, so pasted text arrives here one character at a time and this
-    // is the only place it can be bounded. Without a bound, a line long enough to fill the screen
-    // leaves the term alive but unable to act on any further key: it re-wraps the whole buffer
-    // every frame and the layout gives the output pane no rows at all.
+    // Pasted text arrives here one character at a time, so this is the only place it can be bounded.
+    // Without a bound, a line long enough to fill the screen leaves the term alive but unable to act on
+    // a key: it re-wraps the whole buffer every frame and the layout gives the output pane no rows.
     if (buf.size() + event.character().size() > maxLineBytes)
     {
       if (!ui_->inputFullReported)
@@ -632,7 +619,7 @@ bool App::handleInputKey(const ftxui::Event& event)
 
     // The hold goes too. Refuse a two-byte character at 8,191 bytes and then type a one-byte one: the
     // insert succeeds, and without this the line still says it was cut and to "edit it to send it
-    // anyway" -- advice about the one thing the user has just done.
+    // anyway", which is the one thing the user has just done.
     ui_->inputTruncated = false;
     return true;
   }
@@ -717,10 +704,9 @@ ftxui::Component App::createInputComponent()
 
           if (focused && i == cursorLine)
           {
-            // The split is on a grapheme, not a codepoint. ftxui attaches a combining mark to the
-            // character before it and silently drops one that begins an element, so a caret sitting on a
-            // base character used to eat the accent after it, and a caret on the mark itself drew an
-            // element of zero width -- an invisible cursor.
+            // The split is on a grapheme, not a codepoint: ftxui attaches a combining mark to the
+            // character before it and drops one that begins an element, so a caret on a base character
+            // would eat the accent after it and a caret on the mark itself would draw nothing.
             const auto cursorByte = checkedConversion<std::size_t>(cursorCol);
             const auto afterCursor = nextGrapheme(segment, cursorByte);
             auto before = segment.substr(0, cursorByte);
@@ -745,8 +731,8 @@ ftxui::Component App::createInputComponent()
             int promptCells = vl.isFirst ? promptWidth : 0;
             int segCells = ftxui::string_width(segment);
             // The cursor sits past the last character only when its byte offset reaches the segment's
-            // length in bytes -- comparing it against the segment's width in cells read true mid-line
-            // on anything non-ASCII and added a cell the row does not use.
+            // length in bytes. Against the segment's width in cells this reads true mid-line on
+            // anything non-ASCII and adds a cell the row does not use.
             int cursorExtraCell = (cursorLine == i && cursorCol >= checkedConversion<int>(segment.size())) ? 1 : 0;
             int usedCells = promptCells + segCells + cursorExtraCell;
 
@@ -816,10 +802,9 @@ ftxui::Component App::createRenderer(ftxui::Component wrappedInput)
         completionArea = renderCompletionHint();
       }
 
-      // A rule between the scrolling output and the input, so the prompt does not read as just
-      // another output line once the screen has filled. It needs the surrounding background as
-      // well as a foreground: without it the line sits on the terminal's own background and
-      // reads as a stripe across a light theme.
+      // A rule between the scrolling output and the input, so the prompt does not read as another output
+      // line. It needs a background as well as a foreground: with only a foreground it sits on the
+      // terminal's own background and reads as a stripe across a light theme.
       auto rule = ftxui::separator() | styles::mutedText() | styles::inputBg();
 
       if (ui_->activeForm.has_value())
@@ -854,12 +839,10 @@ ftxui::Component App::createEventHandler(ftxui::Component renderer)
                                  return true;
                                }
 
-                               // Scrolling, copy and help still work with a form open. They used to be
-                               // unreachable, because this branch returned whatever the form said and
-                               // never fell through -- so there was no way to scroll back to the
-                               // signature being filled in, which is when a user most wants to. The set
-                               // is deliberately narrow rather than all of handleGlobalEvent: Ctrl+D
-                               // there would leave the process with a half-filled form on screen.
+                               // Scrolling, copy and help still work with a form open, so the signature
+                               // being filled in can be read back. The set is deliberately narrow rather
+                               // than all of handleGlobalEvent: Ctrl+D here would end the process with a
+                               // half-filled form on screen.
                                if (event == ftxui::Event::PageUp || event == ftxui::Event::PageDown ||
                                    event == ftxui::Event::F1 || event == ftxui::Event::CtrlY)
                                {
@@ -892,8 +875,7 @@ bool App::handleFormEvent(ftxui::Event event)
     ui_->activeForm.reset();
     return true;
   }
-  // Clear the focused field. ArgForm::clearField existed with 38 test call sites and no caller in the
-  // source at all, so a user could only empty a field they had typed into by holding Backspace.
+  // Clear the focused field. Without a key for it, emptying a field means holding Backspace.
   if (event == ftxui::Event::Special("\x15"))  // Ctrl+U
   {
     form.clearField();
@@ -965,9 +947,8 @@ bool App::handleFormEvent(ftxui::Event event)
       const auto& failure = result.getError();
       if (failure.fieldIndex < form.leafCount())
       {
-        // Bounded: focusNext cycles, so an index that is not a leaf would spin here for ever, and
-        // this runs on the component thread -- it would hang the kernel and every other component
-        // loaded in it.
+        // Bounded: focusNext cycles, so an index that is not a leaf would spin here for ever. This runs
+        // on the component thread, so that would hang the kernel and every component loaded in it.
         for (std::size_t step = 0; step < form.leafCount() && form.focusedIndex() != failure.fieldIndex; ++step)
         {
           form.focusNext();
@@ -988,10 +969,9 @@ bool App::handleFormEvent(ftxui::Event event)
     return true;
   }
 
-  // Swallow the editing keys the form does not use. Falling through sent them to the input component,
-  // which is not on screen while the form is: they edited a buffer nobody could see, and the cursor
-  // clamp that would have caught an out-of-range position lives in the renderer that is skipped.
-  // Harmless today only because the buffer is always empty when a form opens.
+  // Swallow the editing keys the form does not use. Falling through sends them to the input component,
+  // which is not on screen while the form is, so they would edit a buffer nobody can see and skip the
+  // cursor clamp that lives in the renderer.
   //
   // Anything else returns false, and the caller then offers it to the scroll, copy and help handlers.
   return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
@@ -1022,17 +1002,12 @@ void App::insertPastedText(std::string_view text)
 
 bool App::handlePasteEvent(ftxui::Event event)
 {
-  // A marker can arrive in pieces. FTXUI flushes an incomplete escape sequence after 50 ms, and both
-  // markers are six bytes, so a gap inside them -- ssh, tmux, a slow pty -- emits a prefix like
-  // "\x1b[201" as one event and then the "~" as an ordinary character. The prefix matched no marker and
-  // was swallowed; the "~" was appended to the line, so the user's pasted command arrived with a stray
-  // tilde glued on. Worse on the start marker, which was not guarded at all: the prefix went nowhere,
-  // paste mode never began, and the whole paste was typed with its newlines submitting commands.
-  //
-  // So: recognise a torn prefix of either marker, act on it as if it had arrived whole, and swallow the
-  // one tail character that follows.
-  // The tail of a marker that was already acted on, byte by byte. The split can fall anywhere, so this
-  // counts the bytes still owed rather than looking for a "~".
+  // A marker can arrive in pieces. FTXUI flushes an incomplete escape sequence after 50 ms and both
+  // markers are six bytes, so a gap inside one emits a prefix like "\x1b[201" as one event and the "~"
+  // as an ordinary character. Recognise a torn prefix of either marker, act on it as if it had arrived
+  // whole, and swallow the tail that follows.
+  // The tail of a marker already acted on, byte by byte. The split can fall anywhere, so this counts the
+  // bytes still owed rather than looking for a "~".
   if (markerTailRemaining_ > 0)
   {
     if (event.is_character())
@@ -1041,9 +1016,9 @@ bool App::handlePasteEvent(ftxui::Event event)
       markerTailRemaining_ -= consumed;
       return true;
     }
-    // A redraw tick or a mouse report says nothing about the marker, and term posts Custom thirty times
-    // a second -- counting those as "the rest is never coming" wiped the counter within milliseconds of
-    // setting it, and the tail landed on the line exactly as before. Anything else does mean give up.
+    // A redraw tick or a mouse report says nothing about the marker, and term posts Custom thirty times a
+    // second: counting those as "the rest is never coming" would clear the counter within milliseconds of
+    // setting it. Anything else does mean give up.
     if (event != ftxui::Event::Custom && !event.is_mouse() && !event.is_cursor_position())
     {
       markerTailRemaining_ = 0;
@@ -1051,11 +1026,9 @@ bool App::handlePasteEvent(ftxui::Event event)
   }
 
   // A proper prefix of a marker: act on the marker now and remember how much of it is still to arrive.
-  // Three bytes is the shortest prefix worth trusting ("\x1b[2"), which no ordinary key produces.
-  //
-  // The two markers differ only in their fifth byte, so a prefix shorter than that is ambiguous. The
-  // paste state decides it: inside a paste the next marker is the end, outside it the start. That is
-  // right in every case a terminal actually produces, and the idle release is still there behind it.
+  // Three bytes ("\x1b[2") is the shortest prefix no ordinary key produces. The two markers differ only
+  // in their fifth byte, so anything shorter is ambiguous, and the paste state decides it: inside a
+  // paste the next marker is the end, outside it the start.
   {
     const std::string_view whole {pasting_ ? pasteEnd : pasteStart};
     const std::string& seen = event.input();
@@ -1073,8 +1046,8 @@ bool App::handlePasteEvent(ftxui::Event event)
     pasteIdleTicks_ = 0;
     // The recorded completion span indexes the buffer the paste is about to change.
     ui_->clearCompletion();
-    // Otherwise a paste that inserts nothing leaves the confirmation armed, and the next Escape -- which
-    // the user means as "clear this" -- shuts the term down.
+    // Otherwise a paste that inserts nothing leaves the confirmation armed, and the next Escape, which
+    // the user means as "clear this", shuts the term down.
     ui_->exitConfirmPending = false;
     return true;
   }
@@ -1108,8 +1081,8 @@ bool App::handlePasteEvent(ftxui::Event event)
 
   pasteIdleTicks_ = 0;
 
-  // Escape ends a paste. Without it there is no key at all that leaves paste mode, because everything
-  // below swallows what it does not recognise -- so a lost end marker meant killing the process.
+  // Escape ends a paste. Without it no key leaves paste mode, because everything below swallows what it
+  // does not recognise, and a lost end marker would leave killing the process as the only way out.
   if (event == ftxui::Event::Escape)
   {
     pasting_ = false;
@@ -1162,8 +1135,8 @@ bool App::handlePasteEvent(ftxui::Event event)
     return true;
   }
 
-  // Everything else in a paste -- an escape, a control byte, a cursor key the sender never meant to
-  // send -- is dropped rather than acted on.
+  // Everything else in a paste is dropped rather than acted on: an escape, a control byte, or a cursor
+  // key the sender never meant to send.
   return true;
 }
 
@@ -1264,9 +1237,7 @@ bool App::handleCompletionEvent(ftxui::Event event)
       bool needsContinuation = (c.kind == CompletionKind::path || c.kind == CompletionKind::object);
 
       // Through writeCompletion, not a raw replace: it is the only writer that clamps the recorded span
-      // against the buffer and holds the line to maxLineBytes. Writing here directly meant one Tab on a
-      // nearly full line pushed past the bound, and the over-long line then submitted and was dropped
-      // from history without a word.
+      // against the buffer and holds the line to maxLineBytes.
       if (needsContinuation)
       {
         ui_->recordCompletionSpan(buf, result.replaceFrom, result.replaceTo);
@@ -1323,9 +1294,9 @@ bool App::handleCompletionEvent(ftxui::Event event)
 
 bool App::handleGlobalEvent(ftxui::Event event)
 {
-  // Ctrl+D exits, but only from an empty line, as every shell does. FTXUI has no bracketed paste,
-  // so a 0x04 anywhere in pasted text arrives as this event: unconditional, it quit the term in the
-  // middle of a paste with a half-typed line on screen.
+  // Ctrl+D exits, but only from an empty line, as every shell does. A 0x04 inside a paste never reaches
+  // here, because handlePasteEvent runs first and drops it; a 0x04 typed on a line with text in it does,
+  // and quitting on that would end the term with a half-typed line on screen.
   if (event == ftxui::Event::Special({4}))
   {
     if (!ui_->inputPane.getBuffer().empty())
@@ -1370,11 +1341,9 @@ bool App::handleGlobalEvent(ftxui::Event event)
     return true;
   }
 
-  // Any other user-input key dismisses an armed quit confirmation. Fall through so the
-  // key performs its normal action. Internal events (the ~500 ms safety-net redraw posted
-  // via Event::Custom, mouse events, cursor-position / shape responses from the terminal)
-  // must not count as dismissal, or the confirmation row would flash away almost
-  // immediately.
+  // Any other user-input key dismisses an armed quit confirmation. Fall through so the key still does
+  // its normal job. Internal events must not count as dismissal: the safety-net redraw posted via
+  // Event::Custom would clear the confirmation row almost as soon as it appeared.
   if (ui_->exitConfirmPending && event != ftxui::Event::Custom && !event.is_mouse() && !event.is_cursor_position() &&
       !event.is_cursor_shape())
   {
@@ -1424,19 +1393,16 @@ bool App::handleMouseEvent(ftxui::Event event)
 
   auto& mouse = event.mouse();
 
-  // Defer the clipboard copy until after RunOnce() so FTXUI has already folded
-  // the Released event into its selection state. Skip releases that end a
-  // separator drag, those aren't user selections.
+  // Defer the clipboard copy until after RunOnce(), so FTXUI has already folded the Released event into
+  // its selection state.
   if (mouse.button == ftxui::Mouse::Left && mouse.motion == ftxui::Mouse::Released)
   {
     selectionCheckPending_ = true;
   }
 
-  // Wheel handlers below return true on purpose: FTXUI selection is screen-
-  // rectangle, not content-anchored, so if we preserved it across a scroll the
-  // highlight would stay put while text slid beneath it. Returning true makes
-  // App::HandleSelection drop the selection, which is the less
-  // confusing behavior and lets the user scroll without having to click first.
+  // The wheel handlers below return true on purpose. FTXUI's selection is anchored to a screen
+  // rectangle rather than to content, so a selection kept across a scroll would stay put while the text
+  // slid under it. Returning true makes App::HandleSelection drop it.
 
   if (mouse.button == ftxui::Mouse::WheelUp)
   {
@@ -1473,10 +1439,9 @@ void App::tick()
 {
   if (loop_ && !loop_->HasQuitted())
   {
-    // Only redraw when something changed (every mutation setter flips needsRedraw_), while a
-    // pending call animates its spinner, or periodically as a safety net in case a mutation site
-    // was missed. FTXUI renders on its own for keyboard, mouse and resize events, so those need no
-    // nudge from us.
+    // Only redraw when something changed (every mutation setter flips needsRedraw_), while a pending
+    // call animates its spinner, or periodically as a safety net. FTXUI redraws for keyboard, mouse and
+    // resize events by itself.
     // End a paste whose end marker never arrived, so the term cannot be left swallowing every key.
     if (pasting_ && ++pasteIdleTicks_ >= pasteIdleLimitTicks)
     {
@@ -1488,9 +1453,8 @@ void App::tick()
     }
 
     // Re-asserted rather than set once. FTXUI's SIGTSTP handling uninstalls and reinstalls the terminal
-    // around the stop, and its reinstall knows nothing about bracketed paste -- so after Ctrl+Z and `fg`
-    // the mode was off, `pasting_` was never set again, and a multi-line paste went back to running one
-    // command per line. Eight bytes a second is cheaper than any way of noticing the resume.
+    // around the stop, and its reinstall knows nothing about bracketed paste, so after Ctrl+Z and `fg`
+    // the mode would be off. Eight bytes a second is cheaper than detecting the resume.
     constexpr unsigned pasteModeReassertTicks = 30;  // once a second at 30 Hz
     if (++pasteModeTicks_ >= pasteModeReassertTicks)
     {
@@ -1498,8 +1462,8 @@ void App::tick()
       std::cout << enableBracketedPaste << std::flush;
     }
 
-    // The clipboard helper runs on its own thread, so its failure arrives after the copy did. Showing
-    // it here is the only honest report: the copy was announced before anything had been written.
+    // The clipboard helper runs on its own thread, so its failure arrives after the copy was reported.
+    // Saying so here is the only honest report left.
     if (auto failure = clipboard::takeFailure(); failure.has_value())
     {
       appendInfo(*failure);
@@ -1547,8 +1511,8 @@ void App::tick()
 
 void App::shutdown()
 {
-  // Nothing to undo if the terminal was never installed. Without this, destroying an App that never
-  // ran -- which a unit test does -- wrote a bracketed-paste escape onto the test runner's stdout.
+  // Nothing to undo if the terminal was never installed. Destroying an App that never ran, as a unit
+  // test does, would otherwise write a bracketed-paste escape onto the test runner's stdout.
   if (!screen_)
   {
     return;

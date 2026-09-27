@@ -41,9 +41,9 @@ TEST(Banner, ContainsBuildInfo)
 
 TEST(Banner, EveryQuoteAndAuthorFitsTheBannerWidth)
 {
-  // banner.h states quotes must fit the banner width. This used to be five renders of a random
-  // quote asserting that a "-" appeared somewhere, which almost any output satisfies; the table is
-  // exposed for testing, so check the property on all of it. The two prefixes mirror renderBanner.
+  // banner.h states quotes must fit the banner width. Rendering a few random quotes and asserting that a
+  // "-" appears somewhere is satisfied by almost any output, so the table is exposed and the property is
+  // checked on all of it. The two prefixes mirror renderBanner.
   const auto quotes = getBannerQuotes();
   ASSERT_FALSE(quotes.empty());
   for (const auto& quote: quotes)
@@ -81,9 +81,9 @@ TEST(Banner, HasColorBars)
 
 TEST(Banner, TheQuoteAndAuthorEitherShareALineOrTheAuthorGetsItsOwn)
 {
-  // This is the bound renderBanner actually branches on -- `"  " + quote + 2 + "- " + author` against
-  // the banner width -- and nothing tested it. Whichever side of it a quote falls on, both the quote and
-  // the author have to appear, so the branch cannot silently drop one.
+  // This is the bound renderBanner branches on: `"  " + quote + 2 + "- " + author` against the banner
+  // width. Whichever side of it a quote falls on, both the quote and the author have to appear, so the
+  // branch cannot silently drop one.
   const auto quotes = getBannerQuotes();
   ASSERT_FALSE(quotes.empty());
 

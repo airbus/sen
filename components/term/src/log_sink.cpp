@@ -33,31 +33,14 @@ void TermLogSink::sink_it_(const spdlog::details::log_msg& msg)
     text.pop_back();
   }
 
-  // There was a second write here, straight to the saved stderr for anything at error or above, on
-  // the grounds that such a message may be the last thing the process does and nothing drains this
-  // buffer afterwards. It is gone, for three reasons, each of which is enough on its own.
+  // One write, into the pane. A message at error or above is not sent anywhere else from here: the kernel
+  // arms a trace-level log ring on every logger (`crash_reporter.cpp`), and the terminate handler writes
+  // those lines into the minidump, which survives the process where a line on a torn-down alternate screen
+  // does not. With `crashReportDisabled` there is no ring, and then this pane holds the only copy.
   //
-  // It did not deliver what it was for. `Runner::toErrorState` logs an explanation and then calls
-  // `dump_backtrace()`, and spdlog re-sinks the buffered lines with their original levels between two
-  // markers it emits at `info` (logger-inl.h:155-163). So the markers and every buffered line below
-  // `err` -- which is the whole reason to keep a backtrace -- failed the test, and the only lines that
-  // passed were ones that would have passed anyway.
-  //
-  // The kernel now covers the case better. `KernelImpl::configure` arms a trace-level log ring on
-  // every logger (`crash_reporter.cpp`, via `captureLogs`), and the terminate handler writes those
-  // lines into the minidump beside the phase, the version and the loaded components. That survives the
-  // process; a line flashed onto an alternate screen about to be torn down does not. The ring also
-  // survives this component's sink sweep, which removes console sinks only.
-  //
-  // And the guard was severity, not "the process is dying", so every recoverable `err` from any
-  // component wrote a raw line onto the alternate screen outside FTXUI's model of it. `err` is not
-  // fatal. Note the one case not covered: with `crashReportDisabled` the ring is never armed, so a
-  // dying process keeps its last lines only in this pane -- and that host has no dump either.
-  // base_sink::log takes a non-recursive mutex and then calls this, so a callback that logs would
-  // re-enter on the same thread and lock it twice -- undefined behaviour, in practice a permanent hang
-  // of whichever thread happened to log, which could be a kernel dispatcher worker rather than term's.
-  // The sink is on every logger, so anything term calls from here is one edit away from that. Dropping
-  // the re-entrant line is the wrong output; hanging a kernel thread is a wedged process.
+  // base_sink::log takes a non-recursive mutex and then calls this, so a callback that logs would lock it
+  // twice on the same thread and hang whichever thread emitted, which may be a kernel worker rather than
+  // term's. Dropping the re-entrant line is the lesser failure.
   static thread_local bool inCallback = false;
   if (inCallback || !callback_)
   {

@@ -190,8 +190,8 @@ private:
   // Last selection auto-copied to the clipboard, used to avoid re-spawning the
   // clipboard helper on mouse releases that don't change the selection.
   std::string lastCopiedSelection_;
-  // Set on Left+Released (when not resizing a pane separator); drained after
-  // loop_->RunOnce() completes so FTXUI has finalized the selection.
+  // Set on Left+Released, drained after loop_->RunOnce() completes so FTXUI has finalized the
+  // selection.
   bool selectionCheckPending_ = false;
 
   // No default constructor: built from a factory in init(), which is where the terminal

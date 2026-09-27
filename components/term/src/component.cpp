@@ -57,10 +57,10 @@ namespace
 
 constexpr auto* internalSession = "local";
 
-/// term drives a terminal directly: it puts standard input in raw mode and writes the alternate screen
-/// to standard output. With either one redirected there is nothing to drive -- FTXUI reads end-of-file
-/// from a pipe and returns no event, so the component never exits, while still painting a full frame of
-/// escape sequences into whatever standard output is, thirty times a second.
+/// term drives a terminal directly: it puts standard input in raw mode and writes the alternate screen to
+/// standard output. With either one redirected there is nothing to drive. FTXUI reads end-of-file from a
+/// pipe and returns no event, so the component never exits, and it still paints a full frame of escape
+/// sequences into whatever standard output is, thirty times a second.
 [[nodiscard]] bool standardStreamsAreATerminal()
 {
 #ifdef _WIN32
@@ -147,10 +147,9 @@ struct TermComponent: public kernel::Component
 
     auto termSource = api.getSource(kernel::BusAddress {internalSession, internalBus});
 
-    // Raw, because the app is built first and the engine needs it. The other way round from what this
-    // comment used to claim: the engine is declared later, so it is destroyed first. What makes the
-    // pointer safe is not lifetime order but reach -- the callback below only runs while the loop runs,
-    // and that ends before either unwinds.
+    // Raw, because the app is built first and the engine needs it. What makes the pointer safe is reach
+    // rather than lifetime: the callback below runs only while the loop runs, and that ends before
+    // either object unwinds.
     CommandEngine* enginePtr = nullptr;
 
     auto app = std::make_unique<App>(
@@ -184,9 +183,7 @@ struct TermComponent: public kernel::Component
     completer->setTypeRegistry(&api.getTypes());
     app->setCompleter(completer.get());
 
-    // Create the component's logger before the router's first sweep, so its sink is in place
-    // before anything logs through it -- otherwise the first tick's messages reach the real
-    // stdout, which FTXUI owns, and corrupt the display.
+    // Create term's own logger up front, so `log` lists it from the first frame.
     getLogger();
 
     auto logRouter = std::make_unique<LogRouter>(*app);
@@ -210,17 +207,14 @@ struct TermComponent: public kernel::Component
     auto result = api.execLoop(defaultUpdateFreq,
                                [&]()
                                {
-                                 // One exit path for every way of leaving. Ctrl+C used to take
-                                 // std::_Exit(0) here, which skipped every other component's
-                                 // unload, the transport goodbye and the log flush, and reported
-                                 // success whatever had happened.
+                                 // One exit path for every way of leaving, so no route skips another
+                                 // component's unload, the transport goodbye or the log flush.
                                  //
-                                 // Asked for once, and then the loop carries on drawing. Returning
-                                 // here instead froze the screen for the whole of the kernel's
-                                 // shutdown -- term is stopped last, so that is every other
-                                 // component's stop and unload -- with the terminal still in raw
-                                 // mode, no redraw, and FTXUI's deferred signal handling never
-                                 // running, so Ctrl+C and SIGTERM did nothing either.
+                                 // The stop is asked for once and the loop carries on drawing.
+                                 // Returning here instead freezes the screen for the whole of the
+                                 // kernel's shutdown, which is every other component's stop and
+                                 // unload because term is stopped last, with the terminal still in
+                                 // raw mode and FTXUI's deferred signal handling never running.
                                  if ((app->hasExited() || app->shutdownRequested()) && !stopRequested)
                                  {
                                    api.requestKernelStop(0);
@@ -254,10 +248,10 @@ struct TermComponent: public kernel::Component
                                  }
                                });
 
-    // The clipboard worker goes first, and the order is load-bearing on Windows: it can be inside a
-    // _popen("clip"), whose child would hold a copy of the capture pipe's write end, and the Windows
-    // reader thread is retired by that pipe reaching EOF. A child holding it means no EOF and a join
-    // that never returns. This is also the only place that waits for the worker at all.
+    // The clipboard worker goes first, and on Windows the order matters: it can be inside a
+    // _popen("clip"), whose child holds a copy of the capture pipe's write end, and the Windows reader
+    // thread is retired by that pipe reaching EOF. A child holding it means no EOF and a join that never
+    // returns. This is also the only place that waits for the worker.
     clipboard::shutdown();
 
     outputCapture.reset();
@@ -266,15 +260,15 @@ struct TermComponent: public kernel::Component
     // drawn rather than discarded with the queue.
     logRouter->update();
 
-    // The engine goes before the router it holds a reference to. Leaving it to unwind at scope exit
-    // left it holding a dangling `LogRouter&` from here to the end of the function -- safe only
-    // because `~CommandEngine` happens not to touch it, which is not a property to depend on.
+    // The engine goes before the router it holds a reference to. Left to unwind at scope exit it would
+    // hold a dangling `LogRouter&` to the end of the function, safe only because `~CommandEngine` happens
+    // not to touch it.
     engine.reset();
 
-    // And the router before the screen. Removing its sink is what gives the console sinks back, so
-    // doing it first means the kernel's whole shutdown -- every other component's stop and unload, the
-    // transport goodbye, and any error raised while term's own group unloads -- reaches the console.
-    // The other order left that phase going nowhere at all: no console sink, and term's queue gone.
+    // And the router before the screen. Removing its sink is what gives the console sinks back, so doing
+    // it first means the rest of the kernel's shutdown reaches the console: every other component's stop
+    // and unload, the transport goodbye, and any error raised while term's own group unloads. The other
+    // order leaves that phase going nowhere, with no console sink and term's queue already gone.
     logRouter.reset();
 
     app->shutdown();

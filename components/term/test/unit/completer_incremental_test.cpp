@@ -259,9 +259,8 @@ TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 
 TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 {
-  // TestObject declares thresholdCrossed and tick, so this asserts on named candidates. It used to run
-  // no assertions at all: the fixture had no events, the candidate list was empty, and the loop below --
-  // which was the whole test -- never executed once, while the name claimed the opposite.
+  // TestObject declares thresholdCrossed and tick, so this asserts on named candidates. With no events on
+  // the fixture the candidate list is empty and the loop below, which is the whole test, never runs.
   completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "obj"));
 
   auto result = completer.complete("listen ses.bus.obj.", 19);

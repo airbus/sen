@@ -12,8 +12,7 @@ with the escape sequences stripped. Assert on substrings of that: a repaint rewr
 already there, so counting occurrences says nothing about whether something is new.
 
 `grid()` answers the other kind of question. It replays the painted output into a character grid, so
-a test can ask which row something is on -- which `screen()` cannot, because it holds every frame at
-once.
+a test can ask which row something is on, which `screen()` cannot, because it holds every frame at once.
 """
 
 import fcntl
@@ -29,8 +28,8 @@ import time
 from vt_screen import VtScreen
 
 # Control bytes the term binds. FTXUI has no bracketed paste, so these are indistinguishable from
-# the same bytes arriving in pasted text -- which is why the term treats Ctrl+D as an exit only on an
-# empty line.
+# the same bytes arriving in pasted text, which is why the term treats Ctrl+D as an exit only on an empty
+# line.
 CTRL_D = b"\x04"
 TAB = b"\t"
 ESCAPE = b"\x1b"
@@ -77,7 +76,7 @@ class TermTester:
         self.pid, self.fd = pty.fork()
         if self.pid == 0:
             # os._exit, not sys.exit: this is a forked child with the test module loaded, so an execv
-            # that raises -- a missing binary, wrong permissions -- would let the exception escape into
+            # that raises, on a missing binary or wrong permissions, would let the exception escape into
             # unittest and run the whole suite a second time inside the child, writing its results into
             # the pty for the parent to read as screen content. The parent's assertion fails either way;
             # this keeps the failure legible.
