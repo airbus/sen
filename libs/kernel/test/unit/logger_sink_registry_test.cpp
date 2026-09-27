@@ -15,10 +15,17 @@
 #include <spdlog/details/console_globals.h>
 #include <spdlog/details/log_msg.h>
 #include <spdlog/logger.h>
-#include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/sinks/base_sink.h>
 #include <spdlog/sinks/sink.h>
 #include <spdlog/spdlog.h>
+
+// The console sink family differs by platform, and consoleIsAudible below names both, so each side
+// needs the header that declares its own. Unguarded, one of the two is dead weight on every build.
+#ifdef _WIN32
+#  include <spdlog/sinks/wincolor_sink.h>
+#else
+#  include <spdlog/sinks/ansicolor_sink.h>
+#endif
 
 // std
 #include <memory>
@@ -96,7 +103,13 @@ std::string uniqueName(const char* prefix)
 class LoggerSinkRegistryTest: public ::testing::Test
 {
 protected:
-  void SetUp() override { levelOnEntry_ = KernelApi::getAllLoggersLevel(); }
+  void SetUp() override
+  {
+    // Set the level as well as remember it. A logger made here inherits the registry's level, so
+    // whatever the test before this one left there decides whether these loggers emit at all.
+    levelOnEntry_ = KernelApi::getAllLoggersLevel();
+    std::ignore = KernelApi::setAllLoggersLevel(spdlog::level::info);
+  }
 
   void TearDown() override
   {
