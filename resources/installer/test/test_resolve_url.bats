@@ -249,3 +249,38 @@ EOF
     resolve_url "0.0.0-rc1" "" "0"
     [[ "$SENV_RESOLVED_URL" != *"relwithdebinfo"* ]]
 }
+
+#---------------------------------------------------------------------------------------------------------------
+# What resolve_url has to leave behind for do_install
+#---------------------------------------------------------------------------------------------------------------
+
+@test "resolve_url: publishes the release's SHA256SUMS url for the checksum step" {
+    # This is the path the unit tests for verify_checksum cannot see: they set SENV_SUMS_URL
+    # themselves. Read inside build_candidates, which its caller invokes in a command
+    # substitution, the value never reached do_install and every install skipped verification.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-full-set.json"
+    SENV_SUMS_URL=""
+    resolve_url "0.0.0-rc1" "" "1"
+    [ -n "$SENV_SUMS_URL" ]
+    [[ "$SENV_SUMS_URL" == *"/SHA256SUMS" ]]
+}
+
+@test "resolve_url: the sums url comes from the response, so a draft's url works" {
+    # A draft serves assets under releases/download/untagged-<hash>/. A url built from the tag
+    # 404s there, which is why three rehearsals installed unverified.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-full-set.json"
+    resolve_url "0.0.0-rc1" "" "1"
+    [[ "$SENV_SUMS_URL" == *"/untagged-"*"/SHA256SUMS" ]]
+}
+
+@test "resolve_url: a missing flavour says so, and names the ones that exist" {
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-0.5.2.json"
+    SENV_BUILD_TYPE=symbols
+    run resolve_url "0.5.2" "" "1"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"no symbols archive"* ]]
+    [[ "$output" == *"it has: release"* ]]
+}

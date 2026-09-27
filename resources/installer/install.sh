@@ -36,6 +36,7 @@ SENV_ALLOW_ROOT=0
 # round-trip through subshells (where set -e behaviour is harder to reason about).
 SENV_RESOLVED_URL=""
 SENV_SUMS_URL=""
+SENV_HOST_BUILD_TYPES=""
 SENV_RESOLVED_USED_MENU=0
 SENV_ARCHIVE_PATH=""
 
@@ -398,6 +399,22 @@ extract_named_asset() {
         || true
 }
 
+# Reads a GitHub Releases API response on stdin. Emits the build types this host has an archive
+# for, one per line, whatever was asked for. Without this, "nothing matched" cannot tell a host
+# with no builds at all from a host whose builds exist in other flavours, and the installer
+# reported the first while meaning the second.
+extract_host_build_types() {
+    local arch os
+    arch=$(host_arch)
+    os=$(host_os)
+    grep -o '"browser_download_url"[[:space:]]*:[[:space:]]*"[^"]*"' \
+        | sed -E 's/.*"(https:[^"]+)".*/\1/' \
+        | grep -E "sen-.*-${arch}-${os}-[^/]*\.(tar\.gz|zip)$" \
+        | sed -E 's/.*-([^-]+)\.(tar\.gz|zip)$/\1/' \
+        | sort -u \
+        || true
+}
+
 # Reads a GitHub Releases API response on stdin. Emits one tarball download URL per line, filtered by (arch, os).
 extract_assets() {
     local arch os build_type
@@ -492,17 +509,12 @@ detect_compilers() {
 
 # Emit one "<name> <version>\t<url>" line per host-matching Linux build for $version. Empty stdout = no matching
 # builds. Network or API errors return non-zero with a message on stderr.
+# Reads the release response on stdin rather than fetching it, so the caller can read the same
+# response for the checksum URL. It used to fetch and set those globals itself, and its only
+# caller invokes it in a command substitution, where a global set here never reaches the parent.
 build_candidates() {
-    local version="$1"
-    local api_url="$SEN_API_URL/releases/tags/$version"
     local json urls url toolchain
-    if ! json=$(_curl -fsSL "$api_url" 2>/dev/null); then
-        err "install.sh:" "could not query release '$version'"
-        printf '%s\n' "$(paint dim "run 'sh install.sh' (no args) to see available versions.")" >&2
-        return 1
-    fi
-    # From the same response as the archive URLs, so the two cannot disagree about the release.
-    SENV_SUMS_URL=$(printf '%s' "$json" | extract_named_asset SHA256SUMS)
+    json=$(cat)
     urls=$(printf '%s' "$json" | extract_assets)
     [ -z "$urls" ] && return 0
     while IFS= read -r url; do
@@ -522,9 +534,27 @@ resolve_url() {
     SENV_RESOLVED_URL=""
     SENV_RESOLVED_USED_MENU=0
 
-    candidates=$(build_candidates "$version") || return 1
+    local json
+    if ! json=$(_curl -fsSL "$SEN_API_URL/releases/tags/$version" 2>/dev/null); then
+        err "install.sh:" "could not query release '$version'"
+        printf '%s\n' "$(paint dim "run 'sh install.sh' (no args) to see available versions.")" >&2
+        return 1
+    fi
+    # Read here, not inside build_candidates: these have to survive into do_install, and that
+    # function is called in a command substitution.
+    SENV_SUMS_URL=$(printf '%s' "$json" | extract_named_asset SHA256SUMS)
+    SENV_HOST_BUILD_TYPES=$(printf '%s' "$json" | extract_host_build_types | tr '\n' ' ')
+    SENV_HOST_BUILD_TYPES="${SENV_HOST_BUILD_TYPES% }"
+    candidates=$(printf '%s' "$json" | build_candidates) || return 1
     if [ -z "$candidates" ]; then
-        err "install.sh:" "no $(host_arch)-$(host_os) builds in release $version"
+        if [ -n "$SENV_HOST_BUILD_TYPES" ]; then
+            err "install.sh:" \
+                "release $version has no ${SENV_BUILD_TYPE:-release} archive for $(host_arch)-$(host_os)"
+            printf '  %s\n' \
+                "$(paint dim "it has: $SENV_HOST_BUILD_TYPES")" >&2
+        else
+            err "install.sh:" "no $(host_arch)-$(host_os) builds in release $version"
+        fi
         return 1
     fi
 
