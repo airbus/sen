@@ -243,3 +243,53 @@ jobs:
           # where the action documents a possible 403 for the default token. A refusal there is
           # the better outcome.
           target_commitish: ${{ github.sha }}
+
+  # Moved here from build_docs.yaml, which ran it on the same tag push and so raced the release
+  # this uploads to: that job starts after the whole build matrix, about twenty minutes in, while
+  # a docs run takes six to thirteen. Whether the asset was attached depended on how many
+  # main-branch runs were queued ahead of the docs run in its concurrency group, which is to say
+  # on unrelated merge traffic. Here the release exists by construction, and the wait below is on
+  # the docs deploy, which has normally finished long before this job starts.
+  attach_documentation:
+    name: "Attach the published documentation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.ref_type == 'tag'
+    permissions:
+      contents: write
+    needs: attach_release_artifacts
+    steps:
+      # Taken from gh-pages after the deploy rather than from the build tree, so the asset is
+      # what was published and not a second build of it. Re-publishing a release then means
+      # uploading this, which is the only way to reproduce a site whose dependency versions were
+      # never recorded: releases before 0.7.0 have no conan.lock, and rebuilding them today
+      # resolves to versions their tree cannot build.
+      - name: Wait for the documentation deploy, then attach it
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          git init -q .
+          git remote add origin "${{ github.server_url }}/${{ github.repository }}.git"
+          # Bounded rather than open: if the docs deploy failed, this says so instead of hanging
+          # until the job times out with nothing to read.
+          # Ten minutes of grace. This job starts after the whole build matrix, around twenty
+          # minutes in, and a docs run takes six to thirteen, so the deploy is normally already
+          # there and the first check passes.
+          for attempt in $(seq 1 20); do
+              git fetch -q --depth=1 origin gh-pages || true
+              if git cat-file -e "origin/gh-pages:$TAG" 2>/dev/null; then
+                  echo "documentation for $TAG is published"
+                  break
+              fi
+              if [ "$attempt" -eq 20 ]; then
+                  echo "::error::gh-pages has no $TAG directory after ten minutes; the documentation deploy for this tag did not finish"
+                  exit 1
+              fi
+              sleep 30
+          done
+          staged=$(mktemp -d)
+          git archive "origin/gh-pages" "$TAG" | tar -x -C "$staged"
+          tar -czf "sen-docs-$TAG.tar.gz" -C "$staged" "$TAG"
+          gh release upload "$TAG" "sen-docs-$TAG.tar.gz" --clobber
