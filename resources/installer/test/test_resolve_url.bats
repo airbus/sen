@@ -284,3 +284,25 @@ EOF
     [[ "$output" == *"no symbols archive"* ]]
     [[ "$output" == *"it has: release"* ]]
 }
+
+@test "resolve_url: two builds with no way to prompt refuses and lists the toolchains" {
+    # The refusal has to survive: a piped run in CI has no terminal, and the useful answer there
+    # is the --compiler list rather than a failed read.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
+    SENV_FORCE_CAN_PROMPT=0
+    run resolve_url "0.6.0" "" "0"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"pass --compiler"* ]]
+}
+
+@test "resolve_url: a terminal being reachable is what allows the menu, not stdin" {
+    # stdin is a pipe under `curl | sh`, which is the documented invocation, so testing it
+    # refused the case run_menu's /dev/tty read exists for.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
+    SENV_FORCE_CAN_PROMPT=1
+    # No menu input is supplied, so the read fails; what matters is which message we reach.
+    run resolve_url "0.6.0" "" "0"
+    [[ "$output" != *"pass --compiler"* ]]
+}

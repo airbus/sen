@@ -377,7 +377,10 @@ host_os() {
 # Print every release tag from GitHub, one per line.
 ls_remote() {
     local json
-    if ! json=$(_curl -fsSL "$SEN_API_URL/releases" 2>/dev/null); then
+    # The endpoint pages at 30 by default and nothing here reads the Link header, so without
+    # this the oldest releases drop off the list silently once there are more than a page of
+    # them. 100 is the maximum the API allows.
+    if ! json=$(_curl -fsSL "$SEN_API_URL/releases?per_page=100" 2>/dev/null); then
         err "install.sh:" "could not query $SEN_API_URL/releases"
         return 1
     fi
@@ -397,6 +400,17 @@ extract_named_asset() {
         | grep -E "/${name}\$" \
         | head -1 \
         || true
+}
+
+# Whether a prompt can be answered. The menu reads /dev/tty rather than stdin so it survives
+# `curl ... | sh`, which is the documented way to run this script, so stdin being a pipe says
+# nothing about whether a person is there. Overridable for tests.
+can_prompt() {
+    if [ -n "${SENV_FORCE_CAN_PROMPT:-}" ]; then
+        [ "$SENV_FORCE_CAN_PROMPT" = "1" ]
+        return $?
+    fi
+    : </dev/tty 2>/dev/null
 }
 
 # Reads a GitHub Releases API response on stdin. Emits the build types this host has an archive
@@ -588,8 +602,10 @@ resolve_url() {
         return 0
     fi
 
-    # 3) Multi match, non-interactive: refuse with the toolchain list.
-    if [ "$non_interactive" = "1" ] || [ ! -t 0 ]; then
+    # 3) Multi match with no way to ask: refuse with the toolchain list. This tested stdin, which
+    # is a pipe under `curl | sh` even with a terminal present, so it refused the case run_menu's
+    # /dev/tty read was written for and that redirect could never run.
+    if [ "$non_interactive" = "1" ] || ! can_prompt; then
         err "install.sh:" "multiple builds available; pass --compiler <name>-<ver>:"
         printf '%s\n' "$candidates" \
             | awk -F'\t' '{ split($1, p, " "); print "  " p[1] "-" p[2] }' >&2
