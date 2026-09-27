@@ -74,12 +74,21 @@ jobs:
       # tree the tag names, and the only tag deploy ran an older aliasless copy of this file.
       - name: Build and deploy release documentation
         if: github.event_name == 'push' && github.ref_type == 'tag'
+        # A release's frozen copy carries no development banner. Explicit rather than relying on
+        # the default, so the two deploys read as a pair.
+        env:
+          SEN_DOCS_UNRELEASED: "false"
         run: mike deploy --push --update-aliases ${{ github.ref_name }}
 
       # Titled rather than left as "latest", which every reader takes to mean the newest
       # release. The version id stays `latest`, so no URL changes.
       - name: Build and deploy intermediate documentation
         if: github.event_name == 'push' && github.ref_type != 'tag'
+        # The front page opens this, so its pages say on themselves that they describe
+        # unreleased code. The selector label alone is not enough: a reader arriving by link
+        # never looks at it.
+        env:
+          SEN_DOCS_UNRELEASED: "true"
         run: |
           mike deploy --push --update-aliases --title "latest (in development)" latest
           mike set-default --push latest

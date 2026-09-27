@@ -46,6 +46,9 @@ copyright: &copy Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SA
 # --------------------------------------------------------------------------------------------------------------------#
 theme:
   name: material
+  # Two banners live here: one saying a page describes unreleased code, one saying a page
+  # describes an older release. Material renders neither without an override directory.
+  custom_dir: overrides
   logo: assets/images/logo_simple.svg
   favicon: assets/images/logo_simple.svg
   font: false
@@ -87,6 +90,9 @@ extra_css:
   - stylesheets/extra.css
 
 extra:
+  # True for the deploy that tracks main, false for a release's frozen copy. The docs build
+  # is the same either way, so the workflow sets this rather than the tree carrying it.
+  unreleased: !ENV [SEN_DOCS_UNRELEASED, false]
   version:
     provider: mike
   generator: false
