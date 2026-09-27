@@ -127,11 +127,29 @@ mock_curl_full_install() {
         done
         case \"\$url\" in
             */releases/tags/*) cat '$fixture_json'; return 0 ;;
-            *-release.tar.gz)  cp '$fixture_tarball' \"\$out\"; return 0 ;;
+            *.tar.gz|*.zip)    cp '$fixture_tarball' \"\$out\"; return 0 ;;
             *SHA256SUMS)       return 22 ;;
             *)                 return 22 ;;
         esac
     }"
+}
+
+# Builds a tarball shaped like a Sen release and prints its path. The fake `sen` answers
+# `completion <shell>` so cache_completions actually populates share/sen-completions/; a
+# plain-text fake would no-op silently and the assertion would pass on nothing.
+stage_release_tarball() {
+    local stage="$SEN_TEST_TMPDIR/build-stage-$$"
+    mkdir -p "$stage/bin" "$stage/lib" "$stage/include" "$stage/share"
+    cat > "$stage/bin/sen" <<'SCRIPT'
+#!/bin/sh
+[ "$1" = "completion" ] && printf '# fake %s completions\n' "$2"
+SCRIPT
+    printf 'fake-library\n' > "$stage/lib/libsen.so"
+    printf 'fake-header\n' > "$stage/include/sen.h"
+    chmod +x "$stage/bin/sen"
+    local tarball="$SEN_TEST_TMPDIR/release-$$.tar.gz"
+    (cd "$stage" && tar -czf "$tarball" .)
+    printf '%s' "$tarball"
 }
 
 @test "do_install: end-to-end installs prefix, manifest, both activate scripts, completion cache" {
@@ -335,4 +353,50 @@ SCRIPT
     [ "$status" -ne 0 ]
     [[ "$output" == *"no entry for"* ]]
     [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
+}
+
+@test "do_install: a release candidate installs, with the hyphenated version intact" {
+    # The build id is <version>-<arch>-<os>-<compiler>-<compilerver>, so a version that itself
+    # contains a hyphen has to survive the naming. Nothing had ever installed one end to end,
+    # and the first release candidate is the first time anyone would.
+    load_install
+    mock_curl_full_install "$(fixture_path release-rc.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_VERSION_ARG="0.6.0-rc1"
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+    run do_install
+    [ "$status" -eq 0 ]
+    local prefix="$SEN_INSTALL_HOME/0.6.0-rc1-x86_64-linux-gnu-12.4.0"
+    [ -d "$prefix" ]
+    [ -x "$prefix/bin/sen" ]
+    [ -f "$prefix/activate" ]
+    [ "$(readlink "$SEN_INSTALL_HOME/current")" = "0.6.0-rc1-x86_64-linux-gnu-12.4.0" ]
+}
+
+@test "do_install: a build type other than the default installs beside the release, not over it" {
+    # This is the end-to-end half of the archive-naming defect. resolve_url was tested for these
+    # build types; do_install was not, and it named the directory after the tarball. Two build
+    # types must also not collide, or the already-installed check hands back the wrong one.
+    load_install
+    mock_curl_full_install "$(fixture_path release-with-debug-symbols.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+
+    SENV_VERSION_ARG="0.5.2"
+    SENV_BUILD_TYPE="release"
+    run do_install
+    [ "$status" -eq 0 ]
+
+    SENV_BUILD_TYPE="relwithdebinfo"
+    run do_install
+    [ "$status" -eq 0 ]
+
+    local dirs
+    dirs=$(find "$SEN_INSTALL_HOME" -maxdepth 1 -type d -name '0.5.2*' | sort | tr '\n' ' ')
+    # two distinct prefixes, and neither named after an archive
+    [[ "$dirs" == *"0.5.2-x86_64-linux-gnu-12.4.0 "* ]]
+    [[ "$dirs" == *"-relwithdebinfo"* ]]
+    [[ "$dirs" != *".tar.gz"* ]]
 }
