@@ -24,7 +24,12 @@ matches your host, so on any other architecture, arm64 Linux included, it finds 
 and stops. Build [from source](../howto_guides/building_from_source.md) there.
 
 The installer needs `curl`, `tar`, `sha256sum` and the usual text tools, and says which are
-missing if any are. Running Sen needs nothing beyond what the archive carries.
+missing if any are. Running Sen needs nothing beyond what the archive carries, on a host whose
+libraries are recent enough. The Linux archives are built in an environment with **glibc 2.35**
+and GCC 12's libstdc++, so a host with those or newer will run them: Ubuntu 22.04 and later,
+Debian 12 and later. RHEL 9 and Rocky 9 ship glibc 2.34 and are too old. That is the bound the
+build environment sets rather than a measurement of the archives, which may need less. Build
+[from source](../howto_guides/building_from_source.md) on anything older.
 
 **Building your own package against the install is a separate matter**: that needs CMake and a
 C++17 compiler, which the installer neither checks for nor provides, because plenty of people
