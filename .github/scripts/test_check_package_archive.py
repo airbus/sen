@@ -195,8 +195,8 @@ def test_symbols_are_only_required_where_they_live_outside_the_binary(tmp_path):
     assert check_archive(write_archive(tmp_path, stem, LINUX_MEMBERS)) == []
 
 
-SYMBOLS_STEM = "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-release-symbols"
-WINDOWS_SYMBOLS_STEM = "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0-release-symbols"
+SYMBOLS_STEM = "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-symbols"
+WINDOWS_SYMBOLS_STEM = "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0-symbols"
 
 # What the split produces: debug files named by build id, under the layout gdb searches.
 SYMBOLS_MEMBERS = (

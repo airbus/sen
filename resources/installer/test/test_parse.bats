@@ -80,3 +80,47 @@ load test_helpers
     SEN_HOST_OS=freebsd
     [ "$(host_os)" = "freebsd" ]
 }
+
+#---------------------------------------------------------------------------------------------------------------
+# split_archive_name: every build type, and the names it has to refuse
+#---------------------------------------------------------------------------------------------------------------
+
+@test "split_archive_name: each build type separates from the stem" {
+    load_install
+    for bt in release debug relwithdebinfo symbols; do
+        result=$(split_archive_name "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-$bt.tar.gz")
+        [ "$result" = "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0 $bt" ]
+    done
+}
+
+@test "split_archive_name: a windows zip separates the same way" {
+    load_install
+    result=$(split_archive_name "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0-symbols.zip")
+    [ "$result" = "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0 symbols" ]
+}
+
+@test "split_archive_name: refuses an unknown build type" {
+    load_install
+    run split_archive_name "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-nonsense.tar.gz"
+    [ "$status" -eq 1 ]
+}
+
+@test "split_archive_name: refuses an unknown extension" {
+    load_install
+    run split_archive_name "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-release.tar.bz2"
+    [ "$status" -eq 1 ]
+}
+
+@test "split_archive_name: refuses a two-segment build type" {
+    # -release-symbols is the name this scheme replaced. It used to parse as a toolchain
+    # called "12.4.0 release" and install into a directory named after the tarball.
+    load_install
+    run split_archive_name "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-release-symbols.tar.gz"
+    [ "$status" -eq 1 ]
+}
+
+@test "parse_toolchain: the symbols archive reads as its build's toolchain" {
+    load_install
+    result=$(parse_toolchain "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-symbols.tar.gz")
+    [ "$result" = "gcc 12.4.0" ]
+}

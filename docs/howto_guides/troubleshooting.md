@@ -416,7 +416,7 @@ to read the Sen-specific information out of a dump, and how to switch the whole 
 function names, files and lines.
 
 **Cause:** A release build is stripped, so the binaries carry no description of which address
-belongs to which function. That description ships separately, in the `-release-symbols` archive,
+belongs to which function. That description ships separately, in the `-symbols` archive,
 and it has to be the one built for the binaries that crashed.
 
 **Fix:** [Getting Sen](../getting_started/install.md#manual-release-packages) sets out which of the

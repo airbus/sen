@@ -273,12 +273,12 @@ Each platform has several archives, and which one you want depends on what you a
 | Archive | The question it answers |
 | --- | --- |
 | `-release` | what do I run |
-| `-release-symbols` | what do the frames in my release crash say |
+| `-symbols` | what do the frames in my release crash say |
 | `-relwithdebinfo` | how do I step through Sen's own code |
 | `-debug` (Linux only) | what do Sen's own internal checks say |
 
 Take `-release`. It is the build to run and the only one most people need. Keep
-`-release-symbols` beside it if you expect to read a crash: together they turn a crash in the
+`-symbols` beside it if you expect to read a crash: together they turn a crash in the
 build you actually run into named frames with files and lines. The symbols archive is not needed
 to run Sen and is a much larger download, so fetch it when you need it.
 
@@ -299,7 +299,7 @@ for the unoptimised one.
 
 ## Reading a crash
 
-Extract `-release-symbols` anywhere and point the debugger at it when it starts:
+Extract `-symbols` anywhere and point the debugger at it when it starts:
 
 ```shell
 gdb -iex "set debug-file-directory <symbols_path>/lib/debug" <sen_path>/bin/sen core
@@ -312,7 +312,7 @@ back unnamed, which looks like a problem with the symbols and not with the order
 A debug file sitting next to the binary it belongs to needs no configuration, because each binary
 records the name of its own.
 
-On Windows the debug information lives in `.pdb` files. Extract `-release-symbols` over the
+On Windows the debug information lives in `.pdb` files. Extract `-symbols` over the
 extracted `-release` directory so each `.pdb` lands beside the binary it belongs to, which is where
 a debugger looks first.
 

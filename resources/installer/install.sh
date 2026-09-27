@@ -275,7 +275,7 @@ parse_args() {
             --debug-symbols) SENV_BUILD_TYPE="relwithdebinfo"; shift ;;
             # The release build's own symbols, which match the binaries it ships.
             # --debug-symbols keeps meaning the separate build, which scripts already pass.
-            --symbols) SENV_BUILD_TYPE="release-symbols"; shift ;;
+            --symbols) SENV_BUILD_TYPE="symbols"; shift ;;
             --debug) SENV_BUILD_TYPE="debug"; shift ;;
             -y|--yes)       SENV_NON_INTERACTIVE=1; shift ;;
             --allow-root)   SENV_ALLOW_ROOT=1; shift ;;
@@ -399,16 +399,41 @@ extract_assets() {
         || true
 }
 
+# Every field in an archive name is one segment, the last being the build type:
+# sen-<version>-<arch>-<os>-<compiler>-<compilerver>-<buildtype>.<ext>
+# Prints "<stem without the build type> <build type>", and returns 1 on a name it does not
+# recognise. Refusing matters more than splitting: the previous code stripped one hard-coded
+# suffix and passed anything else through whole, so an unrecognised archive installed
+# successfully into a directory named after the tarball.
+SENV_BUILD_TYPES='release debug relwithdebinfo symbols'
+
+split_archive_name() {
+    local name stem build_type
+    name="${1##*/}"
+    stem="${name%.tar.gz}"
+    [ "$stem" != "$name" ] || stem="${name%.zip}"
+    [ "$stem" != "$name" ] || return 1
+    build_type="${stem##*-}"
+    case " $SENV_BUILD_TYPES " in
+        *" $build_type "*) ;;
+        *) return 1 ;;
+    esac
+    stem="${stem%-*}"
+    # A second build type where the compiler version belongs means a two-segment build type,
+    # which this naming forbids. Refuse it rather than parse it: "-release-symbols" used to
+    # yield a toolchain called "12.4.0 release" and an install directory named after the tarball.
+    case " $SENV_BUILD_TYPES " in
+        *" ${stem##*-} "*) return 1 ;;
+    esac
+    printf '%s %s' "$stem" "$build_type"
+}
+
 # Extract the toolchain (compiler name + version) from a Sen release URL or filename. Prints "<name> <version>".
 # Example: "sen-0.5.2-x86_64-linux-gnu-12.4.0-release.tar.gz" -> "gcc 12.4.0"
 parse_toolchain() {
-    local name stem ver rest tag
-    name="${1##*/}"
-    stem="${name%.tar.gz}"
-    stem="${stem%.zip}"
-    # Drop the build type, whichever it is: naming it here meant a debug archive parsed as a
-    # toolchain called "relwithdebinfo".
-    stem="${stem%-*}"
+    local split stem ver rest tag
+    split=$(split_archive_name "$1") || return 1
+    stem="${split%% *}"
     ver="${stem##*-}"
     rest="${stem%-*}"
     tag="${rest##*-}"
@@ -907,8 +932,19 @@ do_install() {
     resolve_url "$SENV_VERSION_ARG" "$SENV_COMPILER" "$SENV_NON_INTERACTIVE" || return $?
 
     fname="${SENV_RESOLVED_URL##*/}"
-    stem="${fname%-release.tar.gz}"
+    local split build_type
+    if ! split=$(split_archive_name "$fname"); then
+        err "install.sh:" "unrecognised archive name '$fname'; expected one of: $SENV_BUILD_TYPES"
+        return 1
+    fi
+    stem="${split%% *}"
+    build_type="${split##* }"
+    # The release build keeps the bare name it has always had, so an existing install and the
+    # paths the docs give still resolve. Everything else carries its build type, or all four
+    # archives would want one directory and the already-installed check below would hand back
+    # whichever arrived first.
     build="${stem#sen-}"
+    [ "$build_type" = "release" ] || build="$build-$build_type"
     prefix="$SEN_INSTALL_HOME/$build"
 
     if [ -d "$prefix" ]; then

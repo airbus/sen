@@ -2,8 +2,8 @@
   "tag_name": "0.0.0-rc1",
   "assets": [
     {
-      "name": "sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release-symbols.zip",
-      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release-symbols.zip"
+      "name": "sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-symbols.zip",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-symbols.zip"
     },
     {
       "name": "sen-0.0.0-rc1-amd64-windows-msvc-19.44.35229.0-release.zip",
@@ -18,8 +18,8 @@
       "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-debug.tar.gz"
     },
     {
-      "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release-symbols.tar.gz",
-      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release-symbols.tar.gz"
+      "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-symbols.tar.gz",
+      "browser_download_url": "https://github.com/airbus/sen/releases/download/untagged-e9edc999fecbaa6951d6/sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-symbols.tar.gz"
     },
     {
       "name": "sen-0.0.0-rc1-x86_64-linux-gnu-12.3.0-release.tar.gz",

@@ -215,9 +215,9 @@ EOF
     SEN_HOST_ARCH=x86_64
     SEN_HOST_OS=linux
     mock_curl_resolve "$(fixture_path release-full-set.json)"
-    SENV_BUILD_TYPE=release-symbols
+    SENV_BUILD_TYPE=symbols
     resolve_url "0.0.0-rc1" "" "0"
-    [[ "$SENV_RESOLVED_URL" == *"-release-symbols.tar.gz" ]]
+    [[ "$SENV_RESOLVED_URL" == *"-symbols.tar.gz" ]]
 }
 
 @test "resolve_url: --debug picks the unoptimised build" {

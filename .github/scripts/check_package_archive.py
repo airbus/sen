@@ -50,10 +50,11 @@ REQUIRED_LIBRARIES = ("core", "shell")
 # separately, so one could ship the program with every check we own still green.
 FORBIDDEN_FILES = ("crashpad_handler",)
 
-# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, with
-# -symbols for the archive holding the debug information the build type left behind. The
-# version is a tag or "latest", and a tag may carry an -rc suffix.
-NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo)(-symbols)?$")
+# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, where
+# symbols takes the build type's place for the archive holding the debug information the
+# release build left behind. One segment per field: install.sh counts them. The version is
+# a tag or "latest", and a tag may carry an -rc suffix.
+NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo|symbols)$")
 
 
 def list_entries(archive: Path) -> list[str]:
