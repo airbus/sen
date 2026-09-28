@@ -210,8 +210,8 @@ TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
   // objects, on the thread that draws the screen.
   //
   // This measures the *shape*, not a time. Quadratic work quadruples when the count doubles; linear work
-  // doubles. An absolute bound cannot do this job: the first version of this test allowed a second at
-  // twenty thousand children, and the linear scan came in at 573 ms and passed.
+  // doubles. An absolute bound cannot do this job: a linear scan of twenty thousand children still
+  // finishes inside a second, so a wall-clock limit passes whatever the shape is.
   const auto buildTime = [](int childCount)
   {
     TreeNode root;

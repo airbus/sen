@@ -138,9 +138,9 @@ TEST(Clipboard, EmitsEscapeEvenForEmptyText)
 // Base64, on every platform
 //--------------------------------------------------------------------------------------------------------------
 //
-// These call the encoder directly rather than reading it out of the terminal escape. Going through the
-// escape needs stdout redirected, which is written for POSIX only, so the one piece of this module that
-// behaves identically everywhere was the piece verified on a single platform.
+// These call the encoder directly. Reading it back out of the terminal escape needs stdout redirected,
+// which is written for POSIX only, and the encoder is the one piece here that behaves identically on
+// every platform.
 
 TEST(Clipboard, Base64NoPaddingFor3ByteMultiple)
 {

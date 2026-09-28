@@ -41,7 +41,10 @@ namespace
 constexpr auto defaultControlBusName = "jsonrpc_control";
 constexpr auto explorerUrlPrefix = "/explorer";
 constexpr auto indexFileName = "index.html";
-constexpr auto cycleTime = sen::Duration::fromHertz(0.1F);
+// The cycle is also how long a stop takes, since the runner reads its stop flag between cycles.
+// Nothing here runs per cycle: the work function is empty and the bundle registers once. At the
+// 0.1 Hz this started with, every process loading the component took ten seconds to shut down.
+constexpr auto cycleTime = sen::Duration::fromHertz(5.0F);
 
 [[nodiscard]] std::shared_ptr<spdlog::logger> getLogger()
 {

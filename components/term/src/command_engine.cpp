@@ -1484,21 +1484,16 @@ void CommandEngine::invokeMethodAsync(std::string_view input,
                                               retType = method->getReturnType(),
                                               timestamp = std::move(shortTime)](const MethodResult<Var>& result)
                                              {
-                                               // Nothing upstream catches an exception from here:
+                                               // Nothing upstream catches a throw from here:
                                                // runner.cpp's EXCEPTION_WRAP_BLOCK expands to a bare
-                                               // do/while, so one escaping this lambda ends the process
-                                               // and every component in it. The catch arms below are
-                                               // what stops that.
+                                               // do/while, so one escaping this lambda ends every
+                                               // component in the process. The catch arms below stop it.
                                                //
-                                               // This captures `this` and is held by the target object,
-                                               // which can outlive the engine. What keeps it safe is
-                                               // `Runner::signalThreadToStop` disabling the work queue
-                                               // before it raises the stop flag, so a queued callback
-                                               // never runs once teardown has begun.
-                                               //
-                                               // `hasPendingCall` is checked before `*retType` is read:
-                                               // a TypeHandle can be non-owning, and a late answer is
-                                               // the case where the class metadata may be gone.
+                                               // `this` is captured into a callback the target object
+                                               // can outlive. Safe because signalThreadToStop disables
+                                               // the work queue before raising the stop flag.
+                                               // Read before `*retType`: a TypeHandle can be non-owning,
+                                               // and a late answer is where the metadata may be gone.
                                                if (!hasPendingCall(callId))
                                                {
                                                  app_.appendInfo("A late answer arrived for '" + inputStr +

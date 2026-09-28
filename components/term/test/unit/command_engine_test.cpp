@@ -5,11 +5,10 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-// Deep `execute()` coverage is not feasible as a unit test: every code path writes
-// to the real FTXUI-backed `App`, which requires a live terminal. What this file
-// does cover is the static command surface — the table of built-in command
-// descriptors and their metadata — which is enough to catch descriptor typos,
-// missing fields, duplicate names, and accidental command removals.
+// Deep `execute()` coverage is not feasible as a unit test: every code path writes to the real
+// FTXUI-backed `App`, which needs a live terminal. What this file covers is the static command surface,
+// the table of built-in descriptors and their metadata, which catches typos, missing fields, duplicate
+// names and accidental removals.
 
 #include "command_engine.h"
 

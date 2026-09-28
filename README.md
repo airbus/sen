@@ -64,9 +64,7 @@ build needs:
 source ~/.sen/current/activate.fish # fish
 ```
 
-Setting `PATH` by hand is not enough. The script also exports `SEN_PREFIX`, which is what lets
-`find_package(sen REQUIRED)` succeed when you build a package of your own. Check it worked with
-`sen --version`.
+Check it worked with `sen --version`.
 
 To write your first package:
 
@@ -91,8 +89,7 @@ build:
   - name: myComponent                  # build this component
     group: 3                           # run it after the terminal
     freqHz: 30                         # run it at 30 Hz
-    imports:
-      - my_package                     # load our package
+    imports: [my_package]              # load our package
     objects:
       - class: my_package.MyClassImpl  # instantiate this class
         name: myObject                 # set the name of the object
