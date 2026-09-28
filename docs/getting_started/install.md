@@ -23,17 +23,9 @@ Releases publish `x86_64` Linux and `amd64` Windows archives only. The script pi
 matches your host, so on any other architecture, arm64 Linux included, it finds nothing to download
 and stops. Build [from source](../howto_guides/building_from_source.md) there.
 
-The installer needs `curl`, `tar`, `sha256sum` and the usual text tools, and says which are
-missing if any are. Running Sen needs nothing beyond what the archive carries, on a host whose
-libraries are recent enough. The Linux archives are built in an environment with **glibc 2.35**
-and GCC 12's libstdc++, so a host with those or newer will run them: Ubuntu 22.04 and later,
-Debian 12 and later. RHEL 9 and Rocky 9 ship glibc 2.34 and are too old. That is what the build
-environment requires; an archive may in practice need less. Build
-[from source](../howto_guides/building_from_source.md) on anything older.
-
-**Building your own package against the install is a separate matter**: that needs CMake and a
-C++17 compiler, which the installer neither checks for nor provides. Have those in place before
-following the [first package](first_package.md) guide.
+The installer needs `curl`, `tar` and `sha256sum`. The Linux archives need glibc 2.35 or newer
+and GCC 12's libstdc++, so Ubuntu 22.04 and later or Debian 12 and later; RHEL 9 is too old.
+Building your own package against the install also needs CMake and a C++17 compiler.
 
 **1. Install:**
 
@@ -84,14 +76,11 @@ sen --version
         fish       source /home/alice/.sen/current/activate.fish
     ```
 
-The build directory is named after the archive, which carries the compiler's own identifier:
-`gnu` for GCC. The `Toolchain` line above prints `gcc` because that is the name people use, so
-the two differ by design and the path is the one to type.
+The prefix carries the compiler's own identifier, `gnu`, where the `Toolchain` line prints
+`gcc`.
 
-The checksum line is the archive being checked against the `SHA256SUMS` the release publishes.
-Releases before 0.7.0 published none, so installing one of those prints a note and carries on.
-Where a release does publish it, a checksum that cannot be fetched, does not list your archive,
-or does not match stops the install and deletes the download.
+The checksum line is the archive checked against the release's `SHA256SUMS`. Releases before
+0.7.0 published none and print a note instead. A checksum that fails stops the install.
 
 ??? note "Different versions, toolchains, non-interactive"
 
