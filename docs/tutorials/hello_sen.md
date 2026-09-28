@@ -2,7 +2,7 @@
 
 In this tutorial you will build the simplest possible Sen application: a single object that updates
 a property each cycle and exposes a method. By the end, you will have a running
-[kernel](../users_guide/glossary.md#kernel), a live object visible in the shell, and a clear
+[kernel](../users_guide/glossary.md#kernel), a live object visible in the term, and a clear
 picture of how Sen's pieces fit together.
 
 **What you'll learn:**
@@ -11,7 +11,7 @@ picture of how Sen's pieces fit together.
 - How to define properties and methods in STL
 - How to implement a generated base class
 - How to stage property updates with `setNext` and why that matters
-- How to use the shell to inspect a live object
+- How to use the term to inspect a live object
 
 **Prerequisites:** Sen installed, basic C++ knowledge, and the activation script sourced in the
 shell you are about to work in:
@@ -145,7 +145,7 @@ Edit `config.yaml` so it looks like this:
 
 ```{ .yaml .annotate }
 load:
-  - name: shell   # (1)!
+  - name: term   # (1)!
     group: 2
     open: [local.counters]  # (2)!
 
@@ -161,15 +161,15 @@ build:
         bus: local.counters  # (7)!
 ```
 
-1. Load the shell component so we can interact with the running system.
-2. Automatically open this bus in the shell so we can see objects without typing `open` manually.
+1. Load the term component so we can interact with the running system.
+2. Automatically open this bus in the term so we can see objects without typing `open` manually.
 3. The component (and all its objects) will call `update()` twice per second.
 4. Tell Sen to load your package so it can find `CounterImpl`.
 5. The C++ class you registered with `SEN_EXPORT_CLASS`, qualified by its package. This is not the
-   STL class name: the shell below shows the same object as `my_counter.Counter`, the class it
+   STL class name: the term below shows the same object as `my_counter.Counter`, the class it
    implements.
 6. Initial value for the `step` static property. Required: static properties must have a value.
-7. The bus where your object will be published. Must match what the shell opens.
+7. The bus where your object will be published. Must match what the term opens.
 
 Now build and run:
 
@@ -183,65 +183,59 @@ sen run config.yaml
 
 ## Step 5: Explore the object
 
-The shell opens automatically. Its prompt shows the host and the configuration you started, so it
-looks like `sen:host/config>`. Start with `ls`, which lists everything the shell can see:
+The term opens automatically. Its prompt shows your scope, which starts at the root, so it reads
+`sen:/❯`. Start with `ls`, which draws what it can see as a tree:
 
 ```text
-sen:host/config> ls
-  ┬
-  └─┬local [session]
-    ├─┬counters [bus]
-    │ └──myCounter [my_counter.Counter]
-    ├──shell [~]
-    ├──kernel [~]
-    └──log [~]
+❯ ls
+└─┬ local [session]
+  └─┬ counters [bus]
+    └── myCounter [my_counter.Counter]
 ```
 
 `local` is the session, `counters` is the bus we opened, and `myCounter` is your object with its
-class beside it. The three entries marked `[~]` are the components: the shell itself, the kernel and
-the log.
+class beside it.
 
-`info` prints the interface, which is the fastest way to confirm the generator understood your STL:
+`cd` moves into the bus, which shortens what you have to type and narrows what `ls` shows:
 
 ```text
-sen:host/config> info local.counters.myCounter
-
-  OBJECT myCounter [id 0x68c1c76c]
-
-  CLASS my_counter.Counter
-
-  PROPERTIES
-    [i32] value dy-ro-multicast The current value of the counter.
-    [i32] step  st-rw-multicast How much should the counter increase each cycle.
-
-  METHODS
-    hello Returns a greeting message.
-
-  EVENTS
-    valueIsDivisibleByTen multicast Emitted each time the current value is div..
+❯ cd local.counters
+sen:/local.counters❯ ls
+└── myCounter [my_counter.Counter]
 ```
 
-The flags say what each property is: `dy` or `st` for dynamic or static, and `ro` or `rw` for
-read-only or read-write. So `value` is the dynamic, read-only one we update each cycle and `step` is
-the static one we set in the configuration, which is what the STL declared. Descriptions come
-straight from your comments, truncated to fit the terminal.
+`inspect` prints the interface, which is the fastest way to confirm the generator understood your
+STL:
+
+```text
+❯ inspect myCounter
+my_counter.Counter
+Properties
+├ value : i32  The current value of the counter.
+└ step : i32  How much should the counter increase each cycle.
+Methods
+└ hello() → string  Returns a greeting message.
+Events
+└ valueIsDivisibleByTen(newValue: i32)  Emitted each time the current value is divisible by 10.
+```
+
+The descriptions come straight from the comments in your STL. `value` is the one the component
+updates each cycle and `step` is the one the configuration set.
 
 Read-only and read-write are about everyone else, not about you: you always set your own properties
 with `setNext<Prop>()`. `value` is a plain `var`, so nobody outside can write it. `step` is
 `[static]`, and that is what makes it settable from the configuration. Declaring a dynamic property
 `[writable]` opens it to other objects in the same way.
 
-Now read the properties. A getter prints as `- <name>: <value>`:
+Now read the properties. A getter prints the name and the value:
 
 ```text
-sen:host/config> local.counters.myCounter.getValue
-- value: 125
-
-sen:host/config> local.counters.myCounter.getValue
-- value: 185
-
-sen:host/config> local.counters.myCounter.getStep
-- step: 5
+❯ myCounter.getValue
+  value: 20
+❯ myCounter.getValue
+  value: 40
+❯ myCounter.getStep
+  step: 5
 ```
 
 Your numbers will differ from these, and that is the point: at 2 Hz with `step: 5` the value climbs
@@ -252,23 +246,23 @@ That coupling is deliberate here and fine for a counter. A value that should adv
 not per cycle, has to read the time instead, which
 [the execution model](../users_guide/execution_model.md#the-time-a-component-sees) shows how to do.
 
-Calling the method returns a string:
+Calling the method returns a string. A call in flight shows a spinner with the time it has been out,
+and finishes with a tick and the result:
 
 ```text
-sen:host/config> local.counters.myCounter.hello
-"Hello from Sen! My current value is: 250"
+✓ myCounter.hello
+  "Hello from Sen! My current value is: 30"
 ```
 
 Finally, `shutdown` stops the kernel:
 
 ```text
-sen:host/config> shutdown
-shutting down...
-bye ☺
+❯ shutdown
+  Shutting down...
 ```
 
 !!! tip
-    The shell has tab-completion. Type `local.` and press `Tab` to see available buses and objects.
+    The term has tab-completion. Type `local.` and press `Tab` to see available buses and objects.
 
 ---
 
@@ -277,11 +271,11 @@ bye ☺
 Here is the execution in plain English:
 
 1. **`sen run config.yaml`** starts the kernel. It reads the config, loads the `shell` component
-   (group 2), then builds the `counterComponent` (group 3). Groups ensure the shell is ready before
+   (group 2), then builds the `counterComponent` (group 3). Groups ensure the term is ready before
    the component starts.
 
 2. **`CounterImpl` is instantiated** with `step = 5` and registered on the `local.counters` bus.
-   The shell sees it immediately because it has the bus open.
+   The term sees it immediately because it has the bus open.
 
 3. **Every 500 ms** (2 Hz), the kernel runs the drain-update-commit cycle for `counterComponent`:
    - **Drain**: Sen delivers any pending method calls and property changes.
@@ -291,7 +285,7 @@ Here is the execution in plain English:
    - **Commit**: Sen atomically flips the buffers. The new `current` value is now visible to
      everyone. The `valueIsDivisibleByTen` event is delivered to any subscribers.
 
-4. **When you called `hello`** in the shell, the kernel queued the method call. On the next drain,
+4. **When you called `hello`** in the term, the kernel queued the method call. On the next drain,
    `helloImpl()` executed, and returned a string. Your shell received the result via
    a callback.
 

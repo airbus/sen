@@ -1,6 +1,6 @@
 # $schema: ../base/schema.json
 load:
-  - name: shell
+  - name: term
     group: 2
     query:
       - name: not_focused

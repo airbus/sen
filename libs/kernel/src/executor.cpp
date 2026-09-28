@@ -193,6 +193,12 @@ uint32_t Executor::computeMaxGroup(uint32_t previous) const noexcept
   return maxGroup;
 }
 
+bool Executor::isCurrentThreadAComponent() const noexcept
+{
+  return std::any_of(
+    runners_.begin(), runners_.end(), [](const auto& runner) { return runner && runner->isCurrentThread(); });
+}
+
 void Executor::shutDown()
 {
   auto logger = KernelImpl::getKernelLogger();

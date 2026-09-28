@@ -144,7 +144,9 @@ const Enumerator* EnumType::getEnumFromName(std::string_view name) const noexcep
     return nullptr;
   }
 
-  if (const auto& itr = nameToEnumMap_.find(name.data()); itr != nameToEnumMap_.end())
+  // The map is keyed by std::string, and name.data() is not null-terminated at the view's end:
+  // a view into a larger buffer would look up everything from its start to the buffer's NUL.
+  if (const auto& itr = nameToEnumMap_.find(std::string(name)); itr != nameToEnumMap_.end())
   {
     return itr->second;
   }

@@ -64,6 +64,10 @@ endif()
 
 set_target_properties(jsonrpc PROPERTIES FOLDER "components/jsonrpc")
 
+# Without this the component never appends itself to SEN_INTERNAL_COMPONENT_TARGETS, which
+# cmake/util/coverage.cmake reads, so it is absent from any coverage run that does not name targets.
+sen_internal_configure_component(jsonrpc)
+
 sen_internal_install(jsonrpc)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/jsonrpc.json DESTINATION schemas)

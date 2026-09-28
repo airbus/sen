@@ -101,7 +101,7 @@ sen run config/11_shapes/1_shapes_producer.yaml
 In another terminal (let's call it C):
 
 ```shell
-sen shell
+sen term
 ```
 
 In terminal C, type:

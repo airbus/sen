@@ -6,7 +6,7 @@ Tutorials 2 and 3 walk through the calculator that ships with the source, so run
 source build with the examples enabled.
 
 **[Tutorial 1: Hello Sen](hello_sen.md)** builds one object that counts, publishes it, and lets you
-watch it change from the shell. It is the shortest path from an empty directory to a running Sen
+watch it change from the term. It is the shortest path from an empty directory to a running Sen
 system, and it is the page to send someone who has never seen Sen before.
 
 **[Tutorial 2: Two objects talking](two_objects.md)** adds a second object and has the two of them

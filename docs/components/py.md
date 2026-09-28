@@ -91,7 +91,7 @@ You need to define your Python module, which consists of a main .py file. Then y
 ```
 
 This will instantiate the interpreter in a component that will run your module. `module` names the
-Python module, so it carries no `.py` extension. The `include` pulls in the shell, which is how the
+Python module, so it carries no `.py` extension. The `include` pulls in the term, which is how the
 shipped examples avoid repeating it in every configuration.
 
 Example module:
@@ -234,11 +234,11 @@ It provides the following interface:
 --8<-- "snippets/python_interpreter.stl"
 ```
 
-For example, you can now call Python from the shell:
+For example, you can now call Python from the term:
 
 ```yaml title="test.yaml"
 load:
-  - name: shell
+  - name: term
     open: [local.py]
   - name: py
     group: 3
@@ -248,21 +248,21 @@ load:
 
 ```shell
 ./sen run test.yaml
-    _________  __
-   / __/ __/ |/ /          compiler GNU-11.4.0 [mode: debug]
-  _\ \/ __/    /           revision 57a86bb1d7ebcd781bb034d73642dde198e69fde
- /___/___/_/|_/   0.0.1    branch   refs/heads/master [modified]
-▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 
-sen:host/test> local.py.interpreter.exec "c = 2"
-sen:host/test> local.py.interpreter.eval "c"
-"2"
-sen:host/test> local.py.interpreter.exec "c = c + 2"
-sen:host/test> local.py.interpreter.eval "c"
-"4"
-sen:host/test> local.py.interpreter.exec "import my_module"
-sen:host/test> local.py.interpreter.eval "my_module.add(2,2)"
-"4"
+  Sen v0.0.1  GNU-11.4.0 [debug]
+  ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+  Chance favours the prepared mind  - Louis Pasteur
+  Type 'help' for a list of commands.
+
+✓ local.py.interpreter.exec "c = 2"
+✓ local.py.interpreter.eval "c"
+  "2"
+✓ local.py.interpreter.exec "c = c + 2"
+✓ local.py.interpreter.eval "c"
+  "4"
+✓ local.py.interpreter.exec "import my_module"
+✓ local.py.interpreter.eval "my_module.add(2,2)"
+  "4"
 ```
 
 With this approach, you are also enabled to call the interpreter if you want to delegate some

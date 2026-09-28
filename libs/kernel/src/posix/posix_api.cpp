@@ -87,6 +87,8 @@ int NativePosixAPI::pthread_join(pthread_t thread, void** returnVal) noexcept
   return ::pthread_join(thread, returnVal);
 }
 
+pthread_t NativePosixAPI::pthread_self() noexcept { return ::pthread_self(); }
+
 int NativePosixAPI::pthread_cancel(pthread_t thread) noexcept { return ::pthread_cancel(thread); }
 
 int NativePosixAPI::pthread_setcanceltype(int type, int* old_type) noexcept  // NOLINT

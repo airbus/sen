@@ -429,6 +429,8 @@ void Runner::signalThreadToStop()
   }
 }
 
+bool Runner::isCurrentThread() const noexcept { return os_.isCurrentThread(thread_); }
+
 void Runner::stopThread()
 {
   if (const auto state = state_.load(); state == ComponentState::stopped)

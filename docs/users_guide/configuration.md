@@ -21,13 +21,13 @@ them starts a kernel that does nothing.
 | `kernel` | How the kernel itself runs |
 
 Start with the distinction between `load` and `build`. `load` brings in a
-component someone wrote in C++: the shell, `influx`, `jsonrpc`, or one of yours. `build` asks the
+component someone wrote in C++: the term, `influx`, `jsonrpc`, or one of yours. `build` asks the
 kernel to construct a component for you out of packages and a list of objects, with no component
-code of your own. Most projects use both: `load` for the shell, `build` for their own objects.
+code of your own. Most projects use both: `load` for the term, `build` for their own objects.
 
 ```yaml title="both sections together"
 load:
-  - name: shell
+  - name: term
     group: 2
     open: [ local.counters ]
 
@@ -49,7 +49,7 @@ Each entry needs a `name`, which is the component's registered name. **A name re
 a hard error**, not a last-one-wins.
 
 Beyond `name`, an entry may carry any key from [`ComponentConfig`](#componentconfig) and any number
-of keys the component itself defines. `open` above is one of the latter: the shell reads it, the
+of keys the component itself defines. `open` above is one of the latter: the term reads it, the
 kernel does not know what it means.
 
 ## `build`: components the kernel assembles
@@ -137,11 +137,11 @@ on and the queues around it.
 | `sleepPolicy` | See [Sleep policy](#sleep-policy) |
 
 **`group` is the one that changes behavior most.** Components start in ascending group order, and a
-group is fully up before the next begins. That is why the shell is conventionally in group 2 and
-your own components in group 3: the shell is ready and has its buses open before objects start
+group is fully up before the next begins. That is why the term is conventionally in group 2 and
+your own components in group 3: the term is ready and has its buses open before objects start
 appearing on them. Groups are not priorities, and they do not affect scheduling while the system
 runs. They do decide shutdown order: the kernel stops and unloads groups from the highest number
-down, so a component in group 2 outlives one in group 3 and the shell is the last thing to go.
+down, so a component in group 2 outlives one in group 3 and the term is the last thing to go.
 
 ### Queues
 
@@ -220,7 +220,7 @@ also does not work across two lines.
 
 ```yaml
 load:
-  - name: shell
+  - name: term
     group: 2
     open: @env(MY_BUS)                       # throws if MY_BUS is unset
   - name: @env(MY_COMP,defaultComponent)     # falls back if MY_COMP is unset
@@ -318,7 +318,7 @@ as its first line:
 # $schema: ../base/schema.json
 
 load:
-  - name: shell
+  - name: term
     group: 2
 ```
 

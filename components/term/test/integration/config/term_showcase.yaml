@@ -1,0 +1,111 @@
+# Walkthrough configuration for the term component. Starts the term alongside a single "showcase"
+# object that exercises every form editor, and ticks a handful of properties at staggered rates so
+# there is live data to look at.
+#
+# Run it:
+#
+#   ./bin/sen run components/term/test/integration/config/term_showcase.yaml
+#
+# Form editors: type any of these and press Enter to open the form.
+#   local.demo.showcase.moveTo        struct
+#   local.demo.showcase.perform       variant
+#   local.demo.showcase.sumInts       sequence
+#   local.demo.showcase.setLength     quantity with unit picker
+#   local.demo.showcase.configure     bool + enum
+#   local.demo.showcase.setPosition   optional of composite
+#
+# Properties, at different update rates. `inspect local.demo.showcase` shows them all at once;
+# `local.demo.showcase.ticks` reads one.
+#   ticks        every cycle (~33 ms)         status    every 30 cycles, enum rotation
+#   temperature  every 10 cycles (~0.33 s)    length    every 40 cycles, quantity sweep
+#   position     every 20 cycles (~0.67 s)    trail     every 50 cycles, sequence grows and trims
+#   message      every 60 cycles (~2 s)       current   every 120 cycles, variant reshape
+#   enabled      every 90 cycles (~3 s)       target    every 180 cycles, optional toggle
+#
+# Events: the `listen` block below registers two at startup, and emissions appear inline in the
+# output. `listen local.demo.showcase.thresholdCrossed` does the same by hand.
+#
+# Worker lifecycle: the showcase spawns and removes Worker objects every few seconds, so
+# `ls local.demo` changes as they come and go, and a listener on `local.demo.worker_0` survives one
+# disappearing and coming back.
+#
+# The full type list is in
+# components/term/test/integration/packages/term_showcase/stl/term_showcase/term_showcase.stl.
+load:
+  - name: ether
+    group: 10
+  - name: term
+    group: 2
+    open:
+      - local.demo
+      - my.tutorial
+    query:
+      - name: workers
+        selection: "SELECT term_showcase.Worker FROM local.demo"
+      - name: everything
+        selection: "SELECT * FROM local.demo"
+    listen:
+      - local.demo.showcase.thresholdCrossed
+      - local.demo.worker_0
+
+build:
+  - name: showcaseComponent
+    freqHz: 30
+    group: 3
+    imports: [term_showcase]
+    objects:
+      - class: term_showcase.ShowcaseImpl
+        name: showcase
+        bus: local.demo
+  - name: logEmittingComponent
+    freqHz: 10
+    imports: [term_showcase, log_emitter]
+    group: 7
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: logEmitter
+        config:
+          rate: slow
+          output: mixed
+        bus: local.demo
+  - name: fibonacciManagerComponent
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciManager
+        workersBus: my.tutorial
+        name: fibManager
+        bus: my.tutorial
+  - name: fibonacciRunner1
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: my.tutorial
+  - name: fibonacciRunner2
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: my.tutorial
+  - name: fibonacciRunner3
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerC
+        bus: my.tutorial
+  - name: fibonacciRunner4
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerD
+        bus: my.tutorial

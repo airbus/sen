@@ -126,6 +126,15 @@ Result<Thread, ThreadCreateErr> PosixOS::createThread(const ThreadConfig& config
   return Ok(Thread {&threads_.back(), threads_.back().priorityApplied(), threads_.back().affinityApplied()});
 }
 
+bool PosixOS::isCurrentThread(Thread thread) const noexcept
+{
+  if (thread.nativeHandle == nullptr)
+  {
+    return false;
+  }
+  return static_cast<const ThreadImpl*>(thread.nativeHandle)->isCurrentThread();
+}
+
 bool PosixOS::joinThread(Thread thread) noexcept
 {
   if (thread.nativeHandle == nullptr)

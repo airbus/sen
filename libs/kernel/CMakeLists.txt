@@ -49,6 +49,7 @@ set(sources
     src/crash_reporter.h
     src/crash_reporter.cpp
     src/kernel_impl.h
+    src/logger_relay.h
     src/kernel_impl.cpp
     src/kernel.cpp
     src/kernel_component.h

@@ -66,6 +66,7 @@ public:
   [[nodiscard]] virtual int pthread_attr_setinheritsched(pthread_attr_t*, int) noexcept = 0;      // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_attr_setschedpolicy(pthread_attr_t*, int) noexcept = 0;       // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_join(pthread_t, void**) noexcept = 0;                         // NOLINT NOSONAR
+  [[nodiscard]] virtual pthread_t pthread_self() noexcept = 0;                                    // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_cancel(pthread_t thread) noexcept = 0;                        // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_setcanceltype(int type, int* old_type) noexcept = 0;          // NOLINT NOSONAR
   [[nodiscard]] virtual int pthread_setaffinity_np(pthread_t,                                     // NOLINT NOSONAR
@@ -96,6 +97,7 @@ public:
   [[nodiscard]] int pthread_attr_setinheritsched(pthread_attr_t*, int) noexcept override;                // NOLINT
   [[nodiscard]] int pthread_attr_setschedpolicy(pthread_attr_t*, int) noexcept override;                 // NOLINT
   [[nodiscard]] int pthread_join(pthread_t, void**) noexcept override;                                   // NOLINT
+  [[nodiscard]] pthread_t pthread_self() noexcept override;                                              // NOLINT
   [[nodiscard]] int pthread_cancel(pthread_t thread) noexcept override;                                  // NOLINT
   [[nodiscard]] int pthread_setcanceltype(int type, int* old_type) noexcept override;                    // NOLINT
   [[nodiscard]] int pthread_setaffinity_np(pthread_t, std::size_t, const cpu_set_t*) noexcept override;  // NOLINT

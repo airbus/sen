@@ -3,7 +3,7 @@ include:
   - ../base/ether.yaml
 
 load:
-  - name: shell
+  - name: term
     query:
       - name: not_focused
         selection: "SELECT school.Student FROM school.primary WHERE focusLevel BETWEEN\

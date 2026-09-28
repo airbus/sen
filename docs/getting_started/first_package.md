@@ -221,7 +221,7 @@ SEN_EXPORT_CLASS(MyClassImpl) // (1)!
 
 ```{ .yaml .annotate }
 load:
-  - name: shell # (1)!
+  - name: term # (1)!
     group: 2    # (2)!
     open: [local.example]  # (3)!
 
@@ -238,13 +238,13 @@ build:
         prop1: some value # (8)!
 ```
 
-1. Load the shell, so there is something to look at.
-2. The shell runs in group 2, and your component in group 3.
+1. Load the term, so there is something to look at.
+2. The term runs in group 2, and your component in group 3.
 3. Automatically open this bus to see the created objects, so you do not have to open it by hand.
 4. This is the name of the component that Sen will build for us.
 5. Import your package so Sen can discover your implementation and instantiate your class.
 6. The name of the type that provides the implementation, defined in `my_class.cpp`.
-7. Your object will be published to this bus, which is why the shell auto-opens it.
+7. Your object will be published to this bus, which is why the term auto-opens it.
 8. `prop1` needs a value because it is static, and static properties require an initial value.
 
 ## Build and run

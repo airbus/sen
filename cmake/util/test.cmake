@@ -165,6 +165,21 @@ add_custom_command(
   VERBATIM USES_TERMINAL
 )
 
+# Each unit test binary run whole, in shuffled orders, which no other target here does: every test has
+# its own ctest entry and its own process, so a test that passes only because another ran first cannot
+# fail anything and is never reported. Not part of run_tests: an order-dependent test should be found
+# deliberately rather than turn an unrelated build red.
+find_package(Python3 COMPONENTS Interpreter)
+if(Python3_Interpreter_FOUND)
+  add_custom_target(run_shuffled_tests)
+  add_custom_command(
+    POST_BUILD TARGET run_shuffled_tests
+    COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/run_shuffled_tests.py --build-dir
+            ${PROJECT_BINARY_DIR}
+    VERBATIM USES_TERMINAL
+  )
+endif()
+
 # add_sen_unit_test_suite(
 #   ... test_args ...
 #   [LINK_DEPS <deps>]

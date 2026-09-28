@@ -77,8 +77,10 @@ function(
   )
 endfunction()
 
-# the shell is always used in our smoke tests
-if(NOT SEN_BUILD_SHELL)
+# The interactive component every example config loads, so a smoke test cannot start without it. Name
+# the wrong one here and every smoke test below disappears from a build that switches it off, while
+# the run still reports success.
+if(NOT SEN_BUILD_TERM)
   return()
 endif()
 

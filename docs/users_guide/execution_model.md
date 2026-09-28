@@ -144,7 +144,7 @@ virtualized.
 
 That is for components doing infrastructural work instead of simulating anything, the ones whose
 job only makes sense in real time. A shell stepped along with the model would be unusable: it would
-respond only when you advanced the clock, and you advance the clock from the shell. The same
+respond only when you advanced the clock, and you advance the clock from the term. The same
 reasoning covers transports, profilers and anything driven by a person or an external system.
 
 Some of the shipped components are marked this way, for the reasons above, and keep following the

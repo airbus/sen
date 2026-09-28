@@ -23,6 +23,7 @@ const EXPECTED_URIS: readonly string[] = [
   "sen://docs/components/recording",
   "sen://docs/components/replaying",
   "sen://docs/components/shell",
+  "sen://docs/components/term",
   "sen://docs/components/tracy",
   "sen://docs/components/webexplorer",
   "sen://docs/howto/consuming-interfaces",

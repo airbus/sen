@@ -7,6 +7,8 @@
 
 #include "kernel_impl.h"
 
+#include "logger_relay.h"
+
 // implementation
 #include "crash_reporter.h"
 #include "kernel_component.h"
@@ -116,20 +118,44 @@ void KernelImpl::requestStop(int exitCode)
 {
   {
     std::unique_lock<std::mutex> lock(stopRequestedConditionMutex_);  // NOSONAR
-    if (!isRunning_ || isStopping_ || stopRequested_)
+    if (!isRunning_ || isStopping_)
     {
       return;
     }
 
-    requestedExitCode_ = exitCode;
-    stopRequested_.store(true);
+    // A recorded request does not end the call. In doNotBlock the request may have come from a component
+    // thread, which cannot run the shutdown, so the embedder calls this again from the thread that started
+    // the kernel and that call has to do the work. The first exit code stands: the component asked first.
+    if (!stopRequested_)
+    {
+      requestedExitCode_ = exitCode;
+      stopRequested_.store(true);
+    }
   }
   stopRequestedCondition_.notify_one();
 
-  if (blockMode_ == KernelBlockMode::doNotBlock)
+  if (blockMode_ != KernelBlockMode::doNotBlock)
   {
-    doStop();
+    return;
   }
+
+  // In doNotBlock nobody is waiting to run the shutdown, so the caller runs it, except when the caller
+  // is a component's own thread. Shutting down from there reaches that component's own stopThread, which
+  // joins the calling thread: EDEADLK, and the join failure ends in std::terminate. So the ordinary
+  // `exit` in a terminal component aborted the process instead of stopping it.
+  //
+  // The request is recorded either way. In doNotBlock the embedder owns the driving thread, so it is the
+  // embedder's job to notice and shut the kernel down from there.
+  if (executor_.isCurrentThreadAComponent())
+  {
+    SPDLOG_LOGGER_WARN(getKernelLogger(),
+                       "a component asked the kernel to stop from its own thread, and this kernel was "
+                       "started with doNotBlock. The request is recorded; shut the kernel down from the "
+                       "thread that started it.");
+    return;
+  }
+
+  doStop();
 }
 
 int KernelImpl::applyRunMode(KernelBlockMode blockMode)
@@ -214,8 +240,15 @@ void KernelImpl::setCrashPhase(const char* phase) const
 
 void KernelImpl::doStop()
 {
+  // One shutdown, whoever asks. Two threads can reach here together now that a second request runs the
+  // shutdown rather than returning.
+  bool notStoppingYet = false;
+  if (!isStopping_.compare_exchange_strong(notStoppingYet, true))
+  {
+    return;
+  }
+
   setCrashPhase("stopping");
-  isStopping_.store(true);
   {
     Lock lock(usageMutex_);
     executor_.shutDown();
@@ -231,7 +264,9 @@ void KernelImpl::configure()
   // configure the kernel logging
   configureSpdlog(config_.getParams().logConfig);
 
-  // After configureSpdlog, which replaces the loggers' sinks.
+  // Both after configureSpdlog, which replaces the loggers' sinks, and both before any component thread
+  // exists, which is the only moment a logger's sink vector can be appended to safely.
+  impl::installLoggerRelay();
   if (!config_.getParams().crashReportDisabled)
   {
     CrashReporter::get().captureLogs();

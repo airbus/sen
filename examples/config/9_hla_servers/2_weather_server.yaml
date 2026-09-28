@@ -1,7 +1,7 @@
 # $schema: ../base/schema.json
 include:
   - ../base/ether.yaml
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 build:
   - name: weather

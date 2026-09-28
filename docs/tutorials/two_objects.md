@@ -1,6 +1,6 @@
 # Tutorial 2: Two objects talking
 
-In the previous tutorial you built a single object and inspected it in the shell. Now you will build
+In the previous tutorial you built a single object and inspected it in the term. Now you will build
 two objects that find each other at runtime and communicate: one calls a method on the other, and
 handles the result asynchronously.
 
@@ -175,58 +175,53 @@ With the examples built, run this from the `examples/` directory of your Sen che
 sen run config/1_calculators/4_calculators_client.yaml
 ```
 
-The shell opens on `my.tutorial`, because the shell configuration pulled in by `include:` pre-opens
-that bus. Asking the client to run gives you the print from the callback:
+The term opens on `my.tutorial`, because the term configuration pulled in by `include:` pre-opens
+that bus. Ask the client to run, and the call finishes with a tick:
 
 ```text
-sen:host/4_calculators_client> my.tutorial.client1.useCalculator
-add(3, 4) = 7.000000
+✓ my.tutorial.client1.useCalculator
 ```
 
-You can also drive the calculator yourself. Note that reading a property prints it as
-`- <name>: <value>`, and that `current` only changes once the call has been through a cycle:
+The client writes its own result with `std::cout`, and the term draws on standard output, so that
+line is not something you can rely on seeing here. Read the calculator's property instead, which is
+where the result landed:
 
 ```text
-sen:host/4_calculators_client> my.tutorial.calc1.getCurrent
-- current: 0.000000
-
-sen:host/4_calculators_client> my.tutorial.calc1.add 10, 5
-15.000000
-
-sen:host/4_calculators_client> my.tutorial.calc1.getCurrent
-- current: 15.000000
+❯ my.tutorial.calc1.getCurrent
+  current: 7
 ```
 
-`info` prints the whole interface, which is the quickest way to see what the generator made of your
-STL:
+You can also drive the calculator yourself. `current` only changes once the call has been through a
+cycle:
 
 ```text
-sen:host/4_calculators_client> info my.tutorial.calc1
-
-  OBJECT calc1 [id 0x3f2803f4]
-
-  CLASS calculators.Calculator
-
-  DESCRIPTION
-    A simple calculator that can add and divide numbers.
-
-  PROPERTIES
-    [string] model   st-rw-multicast The model of the calculator
-    [f32]    current dy-ro-multicast The last result, or what is currently pre..
-
-  METHODS
-    add             Returns "a + b" and sets the last result to it.
-    addWithCurrent  Returns "a + R" where R was the last result.
-    divide          Returns "a / b" and sets the last result to it.
-    divideByCurrent Returns "a / R" where R was the last result. If R is 0,..
-
-  EVENTS
-    divisionByZero multicast Emitted when there's an attempt to divide by zero.
+✓ my.tutorial.calc1.add 10, 5
+  15
+❯ my.tutorial.calc1.getCurrent
+  current: 15
 ```
 
-The flags are the ones from [Tutorial 1](hello_sen.md#step-5-explore-the-object), so `current` reads
-as dynamic and read-only. The `DESCRIPTION` block is new here: it is the comment above `class
-Calculator` in the STL, so a comment there pays off twice.
+`inspect` prints the whole interface, which is the quickest way to see what the generator made of
+your STL:
+
+```text
+❯ inspect my.tutorial.calc1
+calculators.Calculator
+A simple calculator that can add and divide numbers.
+Properties
+├ model : string  The model of the calculator
+└ current : f32  The last result, or what is currently presented at the screen.
+Methods
+├ add(a: f32, b: f32) → f32  Returns "a + b" and sets the last result to it.
+├ addWithCurrent(a: f32) → f32  Returns "a + R" where R was the last result.
+├ divide(a: f32, b: f32) → f32  Returns "a / b" and sets the last result to it.
+└ divideByCurrent(a: f32) → f32  Returns "a / R" where R is the last result. If R is 0, the division
+Events
+└ divisionByZero()  Emitted when there's an attempt to divide by zero.
+```
+
+The line under the class name is the comment above `class Calculator` in the STL, so a comment there
+pays off twice.
 
 ---
 

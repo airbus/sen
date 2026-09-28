@@ -222,6 +222,7 @@ nav:
       - Explorer: components/explorer.md
       - Web explorer: components/webexplorer.md
       - Shell: components/shell.md
+      - Terminal: components/term.md
       - Influx: components/influx.md
       - Python: components/py.md
       - Recorder: components/recording.md

@@ -26,7 +26,7 @@ is the canonical consumer; see `components/jsonrpc/clients/typescript/README.md`
 
 ## Why no shell
 
-These configs deliberately omit `../base/shell.yaml` (which most other example configs include).
+These configs deliberately omit `../base/term.yaml` (which most other example configs include).
 The audience is automated clients connecting over the wire; an interactive shell on stdin gets in
 the way of subprocess-based test runners. Add it back locally if you want one-shot manual
 inspection.

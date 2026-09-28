@@ -83,13 +83,13 @@ objects to instantiate, and on which bus they communicate:
 
 ```yaml
 load:
-  - name: shell                        # load the shell component
+  - name: term                         # load the terminal component
     group: 2                           # start it in group 2
-    open: [local.example]              # automatically open this bus in the shell
+    open: [local.example]              # automatically open this bus in the terminal
 
 build:
   - name: myComponent                  # build this component
-    group: 3                           # run it after the shell
+    group: 3                           # run it after the terminal
     freqHz: 30                         # run it at 30 Hz
     imports:
       - my_package                     # load our package
@@ -166,17 +166,18 @@ has the commands.
   execution and random access.
 - *[Python Interpreter](https://airbus.github.io/sen/latest/components/py.html)* embedded. You can script your
   components and tests.
-- *[Shell](https://airbus.github.io/sen/latest/components/shell.html)* for CLI interaction, with auto-completion,
-  introspection, and remote connectivity.
+- *[Term](https://airbus.github.io/sen/latest/components/term.html)* for terminal interaction, with auto-completion,
+  introspection, guided argument entry and log lines in the same stream as command output. In beta, and it replaces
+  the older *[Shell](https://airbus.github.io/sen/latest/components/shell.html)*, which will be deprecated in 0.8.0.
 - *[Grafana](https://grafana.com/) visualization* via the
   [InfluxDB component](https://airbus.github.io/sen/latest/components/influx.html).
 - *[Tracer](https://airbus.github.io/sen/latest/components/tracy.html)* based on the excellent
   [Tracy](https://github.com/wolfpld/tracy) frame-based profiler.
 - *[Log Manager](https://airbus.github.io/sen/latest/components/logmaster.html)* to control and configure the logs of
   a running system.
-- *[Explorer GUI](https://airbus.github.io/sen/latest/components/explorer.html)* to inspect and interact with your
-  system (objects, events, sessions, plots), available as either a native desktop window or a browser-based
-  [Web Explorer](https://airbus.github.io/sen/latest/components/webexplorer.html).
+- *[Web Explorer](https://airbus.github.io/sen/latest/components/webexplorer.html)* to inspect and interact with your
+  system (objects, events, sessions, plots) from a browser, served by Sen itself. In beta, and it replaces the native
+  *[Explorer GUI](https://airbus.github.io/sen/latest/components/explorer.html)*, which will be deprecated in 0.8.0.
 - *[REST API Server](https://airbus.github.io/sen/latest/components/rest.html)* or
   *[JSON-RPC over WebSocket](https://airbus.github.io/sen/latest/components/jsonrpc.html)* for interfacing external
   (non-Sen) systems, with an in-tree

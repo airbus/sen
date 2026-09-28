@@ -151,24 +151,24 @@ This example contains the following files:
 --8<-- "snippets/examples/config/10_python/6_python_interpreter.yaml"
 ```
 
-If you open the shell you can use the interpreter with something like this:
+If you open the term you can use the interpreter with something like this:
 
 ```text
-sen:host/6_python_interpreter> local.py.interpreter.eval "2+2"
-"4"
+✓ local.py.interpreter.eval "2+2"
+  "4"
 ```
 
 The `eval` function evaluates an expression and returns the result.
 
 ```text
-sen:host/6_python_interpreter> local.py.interpreter.exec "x = 2"
+✓ local.py.interpreter.exec "x = 2"
 ```
 
 The `exec` function executes statements.
 
 ```text
-sen:host/6_python_interpreter> local.py.interpreter.eval "2+x"
-"4"
+✓ local.py.interpreter.eval "2+x"
+  "4"
 ```
 
 The interpreter holds an internal state, so you can use it in your evaluations.

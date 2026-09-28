@@ -125,6 +125,10 @@ public:
   /// state is not 'running'. @see kill_thread().
   void stopThread();
 
+  /// Whether the caller is this component's own thread. `stopThread` on your own thread joins yourself,
+  /// which is EDEADLK and ends in std::terminate.
+  [[nodiscard]] bool isCurrentThread() const noexcept;
+
   /// The state of the internal component.
   [[nodiscard]] ComponentState getState() const noexcept { return state_; }
 

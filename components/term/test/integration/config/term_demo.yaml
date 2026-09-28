@@ -1,0 +1,57 @@
+# Demo configuration for the term: a handful of objects on two buses, and nothing generating traffic.
+#
+#   ./bin/sen run components/term/test/integration/config/term_demo.yaml
+#
+# Two buses to move between (local.demo and my.tutorial), a fibonacci manager with two workers, a
+# weather server and one plain object. Good for `cd`, `ls`, `inspect` and calling methods without
+# anything else writing to the screen while you read.
+#
+# No log emitters here: at a few messages a second each they fill the output faster than anything else can
+# be read. `term_showcase.yaml` has one if you want to watch log routing, and `log level <level>`
+# controls how much of it arrives.
+load:
+  - name: term
+    group: 2
+    open:
+      - local.demo
+      - my.tutorial
+
+build:
+  - name: myComponent
+    group: 4
+    freqHz: 30
+    imports: [my_package]
+    objects:
+      - class: my_package.MyClassImpl
+        name: myClass
+        bus: my.tutorial
+        prop1: some value
+  - name: myComponent2
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciManager
+        workersBus: my.tutorial
+        name: fibManager
+        bus: my.tutorial
+  - name: myComponent3
+    freqHz: 30
+    imports: [fibonacci]
+    group: 3
+    objects:
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerA
+        bus: my.tutorial
+      - class: fibonacci.FibonacciWorker
+        name: fibWorkerB
+        bus: my.tutorial
+  - name: weather
+    group: 4
+    freqHz: 30
+    imports: [weather_server]
+    objects:
+      - name: weatherServer
+        class: weather_server.WeatherServerImpl
+        bus: my.tutorial
+        targetBus: my.tutorial

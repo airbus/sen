@@ -6,13 +6,16 @@ will be there.
 
 ## What ships with Sen
 
-Sen ships components you load rather than write:
+Sen ships components you load rather than write.
 
-- A command-line interface for interacting with the components and objects that are running in a
-  process. This component is called [*shell*](shell.md), and you can also remotely connect to it.
+- A full-screen terminal for interacting with the components and objects that are running in a
+  process: [*term*](term.md). It is in beta, and it replaces the *shell* below.
+- A command-line interface that does the same, which you can also connect to remotely:
+  [*shell*](shell.md). It will be deprecated in 0.8.0; use *term* for new work.
 - A graphic user interface to explore the set of components, objects and their interactions in an
-  easy way. This component is called [*explorer*](explorer.md).
-- The same thing in a browser, served by Sen itself: the [*web explorer*](webexplorer.md).
+  easy way. This component is called [*explorer*](explorer.md). It will be deprecated in 0.8.0.
+- The same thing in a browser, served by Sen itself: the [*web explorer*](webexplorer.md). It is in
+  beta, and it replaces the *explorer* above.
 - An optimized inter-process communication over ethernet networks. This component is called
   [*ether*](ether.md).
 - A [*recorder*](recording.md) to store what happens in a process: objects, types, property changes,
@@ -37,7 +40,7 @@ Sen ships components you load rather than write:
 
 Let's take an example. Imagine that you have a system made of four functional components, and you
 want to have the *ether* component to allow them to interact with other systems. You need the
-*shell* during development to test your functionality. The *explorer* also helps you visualize
+*term* during development to test your functionality. The *explorer* also helps you visualize
 what's going on and monitor the execution. The *REST* helps you by allowing a script to stimulate
 and test your system. Finally, you also sometimes store the execution data using the *recorder*
 component.
@@ -49,7 +52,7 @@ Your system might look like this:
 
 This is fine during development, but you also start to see that you need to test your system a bit
 more independently of the tools that you use during development. For that, you can simply change the
-configuration file and move the *explorer* and *shell* components to a different process.
+configuration file and move the *explorer* and *term* components to a different process.
 
 To get the two processes to see each-other you need to instantiate the *ether* component in both.
 

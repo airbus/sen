@@ -42,6 +42,9 @@ public:
 
   /// False when the configured cpu affinity could not be applied and the thread runs unpinned.
   [[nodiscard]] bool affinityApplied() const noexcept { return affinityApplied_; }
+  /// The native handle, so the OS wrapper can ask whether this is the calling thread.
+  [[nodiscard]] HANDLE nativeThread() const noexcept { return thread_; }
+
   [[nodiscard]] bool kill() noexcept;
   [[nodiscard]] bool detach() noexcept;
 

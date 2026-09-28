@@ -19,7 +19,7 @@ The idea is:
 
 ## How to run it
 
-### Locally using the shell
+### Locally using the term
 
 ```shell
 sen run config/4_school/1_school_two_classrooms_one_component.yaml
@@ -29,7 +29,7 @@ This creates two classrooms that live in the same Sen component.
 
 Each classroom is published in its own bus ("school.primary" and "school.secondary").
 
-You can use the shell to monitor the status or call methods.
+You can use the term to monitor the status or call methods.
 
 ### Locally using the explorer
 
@@ -48,7 +48,7 @@ produced during the execution (remember to check the events you are interested i
 
 ### Locally using the Sen Query Language (SQL)
 
-This example loads the first configuration, but configures the shell with a dynamic query.
+This example loads the first configuration, but configures the term with a dynamic query.
 
 ```shell
 sen run config/4_school/3_school_two_classrooms_one_component_query.yaml
@@ -116,6 +116,6 @@ Same two classrooms, but over JSON-RPC so something outside Sen can reach them. 
 sen run config/4_school/8_school_jsonrpc.yaml
 ```
 
-Register the gateway with your LLM host and it can do what the shell does. Ask it to find the
+Register the gateway with your LLM host and it can do what the term does. Ask it to find the
 students in `school.primary`, read their `focusLevel`, or tell the teacher to `assignTasks` and
 watch for `stressLevelPeaked`.

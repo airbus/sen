@@ -63,6 +63,6 @@ kept here because seeing one is quicker than reading about it.
 ## Reference material
 
 - [STL language reference](../users_guide/stl.md): full syntax of the Sen Type Language
-- [Command line reference](../users_guide/command_line.md): `sen run`, `sen shell`, YAML config
+- [Command line reference](../users_guide/command_line.md): `sen run`, `sen term`, YAML config
   schema
 - [Sen Query Language](../users_guide/sql.md): filtering objects with SQL-like expressions

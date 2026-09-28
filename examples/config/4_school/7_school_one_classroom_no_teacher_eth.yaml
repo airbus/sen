@@ -5,10 +5,10 @@
 # process (configured in the dist.yaml file).
 include:
   - ../base/ether.yaml
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 load:
-  - name: shell
+  - name: term
     open: [school.primary]
 
 build:

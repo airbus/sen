@@ -8,10 +8,10 @@
 # configuration so that you see how objects interact across processes.
 include:
   - ../base/ether.yaml
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 load:
-  - name: shell
+  - name: term
     open: [school.primary]
 
 build:

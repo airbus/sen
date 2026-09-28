@@ -51,10 +51,10 @@ sen run config/1_calculators/2_calculators_eth.yaml
 In another terminal:
 
 ```shell
-sen shell
+sen term
 ```
 
-`sen shell` is more than a prompt. It is a complete Sen kernel with two components loaded, `ether`
+`sen term` is more than a prompt. It is a complete Sen kernel with two components loaded, `ether`
 and `shell`. That is why it can see anything at all: it is another kernel on the same network, not a
 client connecting to the first process.
 
@@ -64,7 +64,7 @@ It starts with only `local.kernel` open, so tell it which bus you want:
 open my.tutorial
 ```
 
-Now list what the shell can see. The objects from the *other* process are there: `goodCalc` and
+Now list what the term can see. The objects from the *other* process are there: `goodCalc` and
 `badCalc`, the two calculators the first config instantiated:
 
 ```text
@@ -118,7 +118,7 @@ announces is indistinguishable from one that does not exist. [The networking
 FAQ](../users_guide/faq.md) covers that case and the TCP discovery-hub alternative for when
 multicast is unavailable.
 
-**Objects vanish with their owner.** Stop the first process and watch the shell: `goodCalc` and
+**Objects vanish with their owner.** Stop the first process and watch the term: `goodCalc` and
 `badCalc` disappear within a few seconds. Sen removes every object owned by a component that goes
 away, so a subscriber sees them leave and does not watch them freeze. If you hold a reference across
 cycles, check it is still there.

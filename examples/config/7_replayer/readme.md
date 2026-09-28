@@ -12,7 +12,7 @@ sen run config/7_replayer/1_replayer_school.yaml
 ```
 
 This will automatically start and recreate the objects that were recorded. You can inspect them
-using the shell, open a `sen explorer`, etc.
+using the term, open a `sen explorer`, etc.
 
 You can also interact with the replayer API by running:
 

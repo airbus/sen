@@ -384,10 +384,31 @@ void MainBar::mainWindow()
       name.append(std::to_string(plotters_.size()));
       plotters_.push_back(std::make_unique<Plotter>(name));
     }
+
+    deprecationNotice();
   }
   ImGui::PopStyleColor(2);
 
   ImGui::EndMainMenuBar();
+}
+
+/// Says that this explorer is going away and names what replaces it. On the menu bar rather than in a
+/// modal: a notice a user has to dismiss on every start is a notice they learn to dismiss without
+/// reading, and this one has to survive until 0.8.0.
+void MainBar::deprecationNotice()
+{
+  const auto width = ImGui::GetWindowWidth();
+  const char* notice = "Deprecated in 0.8.0: webexplorer (beta) replaces this";
+  const auto textWidth = ImGui::CalcTextSize(notice).x;
+  ImGui::SameLine(width - textWidth - ImGui::GetStyle().ItemSpacing.x * 2.0f);
+  ImGui::TextColored(ImVec4(0.75f, 0.65f, 0.35f, 1.0f), "%s", notice);  // NOLINT(hicpp-vararg)
+  if (ImGui::IsItemHovered())
+  {
+    // NOLINTNEXTLINE(hicpp-vararg)
+    ImGui::SetTooltip(
+      "This explorer will be deprecated in Sen 0.8.0 and removed in a later release.\n"
+      "Its replacement, the webexplorer component, is in beta now.");
+  }
 }
 
 void MainBar::layoutsMenu()

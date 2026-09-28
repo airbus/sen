@@ -19,7 +19,7 @@ from the directory holding Sen's binaries, which is where the kernel finds the p
 
 ```console
 $ ./sen run <sen>/examples/packages/crash_demo/config.yaml
-[kernel] [debug] a fault will be dumped under crash-files/pending
+[kernel] [debug] if this process faults, the dump will go under crash-files/pending
 Segmentation fault (core dumped)
 
 $ ls crash-files/pending

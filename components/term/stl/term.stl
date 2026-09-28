@@ -1,0 +1,56 @@
+package sen.components.term;
+
+// --8<-- [start:config]
+// How timestamps should be displayed
+enum TimeStyle: u8
+{
+  utc,   // use UTC timestamps
+  local, // use local time timestamps
+}
+
+// Color theme for the terminal UI
+enum ThemeStyle: u8
+{
+  oneDark,         // Atom One Dark
+  oneLight,        // Atom One Light
+  catppuccinMocha, // Catppuccin Mocha (dark, warm, default)
+  catppuccinLatte, // Catppuccin Latte (light, warm)
+  dracula,         // Dracula (dark, purple)
+  nord,            // Nord (dark, arctic)
+  gruvboxDark,     // Gruvbox Dark (warm retro)
+  gruvboxLight,    // Gruvbox Light (warm retro)
+  tokyoNight,      // Tokyo Night (dark, blue-purple)
+  solarizedLight,  // Solarized Light (classic)
+}
+
+// Holds information about a named query
+struct QueryDef
+{
+  name      : string,  // the name of the query (cannot contain spaces or dots)
+  selection : string   // the query expression
+}
+
+sequence<string> SourcesList;
+sequence<QueryDef> QueryList;
+sequence<string> NameList;
+
+// Configuration params for the term component
+struct Configuration
+{
+  initialScope : string,       // initial scope, e.g. "local.demo"; its bus must be in open too. Empty means root.
+  timeStyle    : TimeStyle,    // how to display time (default: utc)
+  theme        : ThemeStyle,   // color theme (default: catppuccinMocha)
+  noLogo       : bool,         // true to suppress the welcome banner
+  open         : SourcesList,  // sources to open automatically at startup
+  query        : QueryList,    // named queries to create automatically at startup
+  listen       : NameList,     // event listeners to register at startup (object or object.event)
+  callTimeout  : Duration,     // async call timeout (default: 30s)
+}
+// --8<-- [end:config]
+
+// Modern TUI-based interactive terminal for the sen kernel
+class Term
+{
+  // service configuration
+  var config: Configuration [static];
+}

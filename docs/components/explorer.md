@@ -1,5 +1,11 @@
 # The Sen explorer
 
+!!! warning "Deprecated in 0.8.0"
+
+    This explorer will be deprecated in Sen 0.8.0 and removed in a later release. Its replacement is
+    [the web explorer](webexplorer.md), which is in beta now. It shows the same world in a browser, so
+    it needs nothing installed on the machine you are looking from. Try it, and say what it is missing.
+
 ![Screenshot](https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/explorer_overview.webp){: style="width:1200px;"}
 
 The Sen explorer component starts a lightweight GUI to help you understand and monitor the Sen

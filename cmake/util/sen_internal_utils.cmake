@@ -96,6 +96,37 @@ function(sen_internal_configure_component target_name)
   set_property(GLOBAL APPEND PROPERTY SEN_INTERNAL_COMPONENT_TARGETS ${target_name})
 endfunction()
 
+# Fails configuration if a component was declared with add_sen_package(... IS_COMPONENT) but never
+# passed to sen_internal_configure_component(). That omission is otherwise invisible: the component
+# builds and runs, and is simply absent from every coverage report that does not name targets by
+# hand. Call this once, after all components have been added.
+function(sen_internal_check_components_registered)
+  get_property(_declared GLOBAL PROPERTY SEN_INTERNAL_DECLARED_COMPONENTS)
+  get_property(_registered GLOBAL PROPERTY SEN_INTERNAL_COMPONENT_TARGETS)
+  set(_missing "")
+  foreach(_component IN LISTS _declared)
+    if(NOT
+       _component
+       IN_LIST
+       _registered
+    )
+      list(APPEND _missing ${_component})
+    endif()
+  endforeach()
+  if(_missing)
+    string(
+      REPLACE ";"
+              ", "
+              _missing_text
+              "${_missing}"
+    )
+    message(
+      FATAL_ERROR "These components call add_sen_package(... IS_COMPONENT) but never "
+                  "sen_internal_configure_component(), so they are missing from coverage: ${_missing_text}"
+    )
+  endif()
+endfunction()
+
 # Helper to add a bunch of files to a target as private sources
 function(sen_internal_add_resources)
   set(_options)

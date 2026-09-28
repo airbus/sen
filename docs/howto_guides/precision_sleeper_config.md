@@ -96,9 +96,9 @@ kernel:
   sleepPolicy:
     type: SystemSleep
 
-# configuring the sleep policy in the shell component
+# configuring the sleep policy in the term component
 load:
-  - name: shell
+  - name: term
     group: 2
     freqHz: 1
     sleepPolicy:

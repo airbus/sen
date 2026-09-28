@@ -384,6 +384,6 @@ Sen is installed. The quickest way to see it working is to generate a package, b
 which both routes below walk through.
 
 - **[The tutorials](../tutorials/index.md)**: Tutorial 1 goes from `sen package init` to an object
-  you can watch changing in the shell.
+  you can watch changing in the term.
 - **[Create your first package](first_package.md)**: the same ground as reference, explaining what
   `sen package init` generates and what each file is for.
