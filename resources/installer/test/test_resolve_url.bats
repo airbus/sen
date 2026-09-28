@@ -215,9 +215,9 @@ EOF
     SEN_HOST_ARCH=x86_64
     SEN_HOST_OS=linux
     mock_curl_resolve "$(fixture_path release-full-set.json)"
-    SENV_BUILD_TYPE=release-symbols
+    SENV_BUILD_TYPE=symbols
     resolve_url "0.0.0-rc1" "" "0"
-    [[ "$SENV_RESOLVED_URL" == *"-release-symbols.tar.gz" ]]
+    [[ "$SENV_RESOLVED_URL" == *"-symbols.tar.gz" ]]
 }
 
 @test "resolve_url: --debug picks the unoptimised build" {
@@ -248,4 +248,75 @@ EOF
     SENV_BUILD_TYPE=debug
     resolve_url "0.0.0-rc1" "" "0"
     [[ "$SENV_RESOLVED_URL" != *"relwithdebinfo"* ]]
+}
+
+#---------------------------------------------------------------------------------------------------------------
+# What resolve_url has to leave behind for do_install
+#---------------------------------------------------------------------------------------------------------------
+
+@test "resolve_url: publishes the release's SHA256SUMS url for the checksum step" {
+    # The verify_checksum tests set SENV_SUMS_URL themselves, so only this covers the path that
+    # supplies it. Read inside build_candidates it would not survive the command substitution.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-full-set.json"
+    SENV_SUMS_URL=""
+    resolve_url "0.0.0-rc1" "" "1"
+    [ -n "$SENV_SUMS_URL" ]
+    [[ "$SENV_SUMS_URL" == *"/SHA256SUMS" ]]
+}
+
+@test "resolve_url: the sums url comes from the response, so a draft's url works" {
+    # A draft serves assets under releases/download/untagged-<hash>/, where a url built from the
+    # tag 404s.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-full-set.json"
+    resolve_url "0.0.0-rc1" "" "1"
+    [[ "$SENV_SUMS_URL" == *"/untagged-"*"/SHA256SUMS" ]]
+}
+
+@test "resolve_url: a missing flavour says so, and names the ones that exist" {
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-0.5.2.json"
+    SENV_BUILD_TYPE=symbols
+    run resolve_url "0.5.2" "" "1"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"no symbols archive"* ]]
+    [[ "$output" == *"it has: release"* ]]
+}
+
+@test "resolve_url: two builds with no way to prompt refuses and lists the toolchains" {
+    # A piped run in CI has no terminal, and the useful answer there is the --compiler list.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
+    SENV_FORCE_CAN_PROMPT=0
+    run resolve_url "0.6.0" "" "0"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"pass --compiler"* ]]
+}
+
+@test "resolve_url: a terminal being reachable is what allows the menu, not stdin" {
+    # stdin is a pipe under `curl | sh`, the documented invocation, so testing stdin refuses the
+    # case /dev/tty exists for.
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
+    SENV_FORCE_CAN_PROMPT=1
+    # No menu input is supplied, so the read fails; what matters is which message we reach.
+    run resolve_url "0.6.0" "" "0"
+    [[ "$output" != *"pass --compiler"* ]]
+}
+
+@test "resolve_url: a candidate is recognised from the release, not from its tag" {
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-rc.json"
+    SENV_IS_PRERELEASE=
+    resolve_url "0.6.0-rc1" "" "1"
+    [ "$SENV_IS_PRERELEASE" = "1" ]
+}
+
+@test "resolve_url: a supported release is not marked as a candidate" {
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-0.5.2.json"
+    SENV_IS_PRERELEASE=
+    resolve_url "0.5.2" "" "1"
+    [ "$SENV_IS_PRERELEASE" = "0" ]
 }

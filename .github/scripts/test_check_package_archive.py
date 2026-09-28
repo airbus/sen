@@ -11,12 +11,13 @@ the checker's own constants: a fixture built from REQUIRED_FILES cannot
 disagree with it, and would pass even if an entry were dropped.
 """
 
+import sys
 import tarfile
 import zipfile
 from pathlib import Path
 
 import pytest
-from check_package_archive import REQUIRED_DIRECTORIES, REQUIRED_FILES, check_archive
+from check_package_archive import REQUIRED_DIRECTORIES, REQUIRED_FILES, check_archive, main
 
 LINUX_NAME = "sen-0.6.0-x86_64-linux-gnu-12.4.0-release"
 WINDOWS_NAME = "sen-0.6.0-amd64-windows-msvc-19.44.35228.0-release"
@@ -195,8 +196,8 @@ def test_symbols_are_only_required_where_they_live_outside_the_binary(tmp_path):
     assert check_archive(write_archive(tmp_path, stem, LINUX_MEMBERS)) == []
 
 
-SYMBOLS_STEM = "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-release-symbols"
-WINDOWS_SYMBOLS_STEM = "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0-release-symbols"
+SYMBOLS_STEM = "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-symbols"
+WINDOWS_SYMBOLS_STEM = "sen-0.7.0-rc1-amd64-windows-msvc-19.44.0-symbols"
 
 # What the split produces: debug files named by build id, under the layout gdb searches.
 SYMBOLS_MEMBERS = (
@@ -251,3 +252,33 @@ def test_a_name_that_merely_contains_it_is_left_alone(tmp_path):
 def test_an_archive_without_one_says_nothing(tmp_path):
     """The other half: the check has to stay quiet on the archives we actually ship."""
     assert check_archive(write_archive(tmp_path, LINUX_NAME, LINUX_MEMBERS)) == []
+
+
+def run_main(monkeypatch, build_dir: Path, *flags: str) -> int:
+    """Runs the checker's entry point over a build directory."""
+    monkeypatch.setattr(sys, "argv", ["check_package_archive", str(build_dir), *flags])
+    return main()
+
+
+def test_expect_symbols_rejects_a_release_leg_that_produced_none(tmp_path, monkeypatch, capsys):
+    """A leg asked for debug information that produced none must not pass.
+
+    check_archive validates whichever archives it finds, so a Release leg whose symbols
+    directory never appeared packages one archive instead of two, and every job stays green.
+    """
+    write_archive(tmp_path, LINUX_NAME, LINUX_MEMBERS)
+    assert run_main(monkeypatch, tmp_path, "--expect-symbols") == 1
+    assert "no symbols archive" in capsys.readouterr().out
+
+
+def test_expect_symbols_accepts_the_pair(tmp_path, monkeypatch):
+    """The same leg with the symbols archive beside it is complete."""
+    write_archive(tmp_path, LINUX_NAME, LINUX_MEMBERS)
+    write_archive(tmp_path, SYMBOLS_STEM, SYMBOLS_MEMBERS)
+    assert run_main(monkeypatch, tmp_path, "--expect-symbols") == 0
+
+
+def test_a_leg_that_asks_for_nothing_still_passes_alone(tmp_path, monkeypatch):
+    """Legs that never request symbols are unaffected by the flag's absence."""
+    write_archive(tmp_path, LINUX_NAME, LINUX_MEMBERS)
+    assert run_main(monkeypatch, tmp_path) == 0

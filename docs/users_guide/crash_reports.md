@@ -85,7 +85,7 @@ crashed. A dump opened against different binaries gives addresses and no names.
 Your own components are yours to build, so their frames are named as well as you keep their debug
 information.
 
-Sen's own frames need the `-release-symbols` archive. A release build is stripped, so the binaries
+Sen's own frames need the `-symbols` archive. A release build is stripped, so the binaries
 carry no description of which address belongs to which function, and a dump of one gives you the
 module a frame is in and not the name. That description is published separately, for exactly those
 binaries, and the debugger reunites the two. [Installing Sen](../getting_started/install.md#reading-a-crash)

@@ -166,7 +166,13 @@ jobs:
               python -c "import shutil,sys; shutil.make_archive(*sys.argv[1:])" \
                   "$build/$name" "$format" "$build/symbols-staging" "$name"
           fi
-          python .github/scripts/check_package_archive.py "$build"
+          # Only this step knows a symbols archive was asked for, so only it can assert one
+          # arrived. Without the flag a short set passes every other check.
+          expect=''
+          if [ -n "$symbols" ]; then
+              expect='--expect-symbols'
+          fi
+          python .github/scripts/check_package_archive.py "$build" $expect
           IN
 
       - name: Archive generated release package
@@ -228,3 +234,48 @@ jobs:
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}
+          # GitHub creates the tag when a draft is published, defaulting to the default branch.
+          # Without this, publishing a draft whose tag had been deleted would point the release
+          # at main's tip, describing a tree the archives were not built from.
+          target_commitish: ${{ github.sha }}
+
+  # Here rather than in build_docs.yaml: both trigger on the same tag push, and the release this
+  # uploads to is not created until the whole build matrix finishes. Needing that job makes the
+  # release exist; the wait below is for the docs deploy, which finishes far earlier.
+  attach_documentation:
+    name: "Attach the published documentation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.ref_type == 'tag'
+    permissions:
+      contents: write
+    needs: attach_release_artifacts
+    steps:
+      # From gh-pages rather than the build tree, so the asset is what was published. It is the
+      # only way to reproduce a site whose dependency versions were never recorded: releases
+      # before 0.7.0 carry no conan.lock and no longer build from their own tree.
+      - name: Wait for the documentation deploy, then attach it
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          git init -q .
+          git remote add origin "${{ github.server_url }}/${{ github.repository }}.git"
+          # Bounded, so a failed docs deploy reports that rather than hanging to the timeout.
+          for attempt in $(seq 1 20); do
+              git fetch -q --depth=1 origin gh-pages || true
+              if git cat-file -e "origin/gh-pages:$TAG" 2>/dev/null; then
+                  echo "documentation for $TAG is published"
+                  break
+              fi
+              if [ "$attempt" -eq 20 ]; then
+                  echo "::error::gh-pages has no $TAG directory after ten minutes; the documentation deploy for this tag did not finish"
+                  exit 1
+              fi
+              sleep 30
+          done
+          staged=$(mktemp -d)
+          git archive "origin/gh-pages" "$TAG" | tar -x -C "$staged"
+          tar -czf "sen-docs-$TAG.tar.gz" -C "$staged" "$TAG"
+          gh release upload "$TAG" "sen-docs-$TAG.tar.gz" --clobber

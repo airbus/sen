@@ -172,11 +172,13 @@ else()
   set(SEN_ZIP_VERSION ${selected_tag})
 endif()
 
+# Shared by both archive names, so the symbols one is not a second copy of this.
 string(
   TOLOWER
-    "${CPACK_PACKAGE_NAME}-${SEN_ZIP_VERSION}-${CMAKE_HOST_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_NAME}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}-${CMAKE_BUILD_TYPE}"
-    CPACK_PACKAGE_FILE_NAME
+    "${CPACK_PACKAGE_NAME}-${SEN_ZIP_VERSION}-${CMAKE_HOST_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_NAME}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
+    SEN_ARCHIVE_STEM
 )
+string(TOLOWER "${SEN_ARCHIVE_STEM}-${CMAKE_BUILD_TYPE}" CPACK_PACKAGE_FILE_NAME)
 set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 set(CPACK_VERBATIM_VARIABLES YES)
 
@@ -206,7 +208,9 @@ set(CPACK_RPM_SPEC_MORE_DEFINE "%define _build_id_links none")
 # before the top-level ones, so every binary is in place by the time this runs.
 if(SEN_RELEASE_SYMBOLS)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
-  file(WRITE "${CMAKE_BINARY_DIR}/symbols/archive-name" "${CPACK_PACKAGE_FILE_NAME}-symbols")
+  # symbols takes the build type's place: install.sh splits this name by counting segments from
+  # the end, so a two-segment build type breaks it.
+  file(WRITE "${CMAKE_BINARY_DIR}/symbols/archive-name" "${SEN_ARCHIVE_STEM}-symbols")
   install(
     CODE "
       if(\"\${CMAKE_INSTALL_CONFIG_NAME}\" STREQUAL \"Release\")

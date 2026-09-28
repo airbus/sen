@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+<!--
+  A reader arriving by link never sees the version selector, so nothing on the page says whether
+  it describes main or an older release. These banners do.
+-->
+
+{# Whitespace-controlled: Material renders the bar whenever this block has any content, and
+   newlines count, so a release's pages would carry an empty banner. #}
+{% block announce %}{%- if config.extra.unreleased -%}
+You are reading the <strong>development version</strong>. Pick a release from the selector above.
+{%- endif -%}{% endblock %}
+
+{% block outdated %}
+  This is an older release.
+  <a href="{{ '../' ~ base_url }}"><strong>Go to the current documentation</strong></a>
+{% endblock %}

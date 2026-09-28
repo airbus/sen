@@ -50,10 +50,10 @@ REQUIRED_LIBRARIES = ("core", "shell")
 # separately, so one could ship the program with every check we own still green.
 FORBIDDEN_FILES = ("crashpad_handler",)
 
-# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, with
-# -symbols for the archive holding the debug information the build type left behind. The
-# version is a tag or "latest", and a tag may carry an -rc suffix.
-NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo)(-symbols)?$")
+# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, with symbols
+# in the build type's place for the archive of split debug information. One segment per field:
+# install.sh counts them. The version is a tag or "latest", and a tag may carry an -rc suffix.
+NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo|symbols)$")
 
 
 def list_entries(archive: Path) -> list[str]:
@@ -180,6 +180,11 @@ def main() -> int:
         description="Checks that the archive built by CPack is complete.",
     )
     parser.add_argument("build_dir", help="Build directory holding the archive that CPack wrote.")
+    parser.add_argument(
+        "--expect-symbols",
+        action="store_true",
+        help="Require a symbols archive. Without it the checker validates whatever it finds, so a short set passes.",
+    )
     args = parser.parse_args()
 
     archives = sorted(Path(args.build_dir).glob("sen-*.tar.gz")) + sorted(Path(args.build_dir).glob("sen-*.zip"))
@@ -187,6 +192,11 @@ def main() -> int:
         raise SystemExit(f"Error: no archive found in {args.build_dir}")
 
     problems = [problem for archive in archives for problem in check_archive(archive)]
+    if args.expect_symbols and not any(archive_stem(archive).endswith("-symbols") for archive in archives):
+        problems.append(
+            "no symbols archive: the build was asked for debug information and produced "
+            f"only {', '.join(archive.name for archive in archives)}"
+        )
     for problem in problems:
         print(problem)
 

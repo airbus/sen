@@ -64,6 +64,24 @@ mock_curl_with_fixture() {
     }"
 }
 
+# Mock curl for the version listing. The fixture-based mock above serves /releases/tags/ only and
+# returns 22 for everything else, so the listing endpoint was unreachable from the tests and
+# ls_remote had no coverage at all. Kept separate because the shapes differ: the listing returns
+# an array of releases, every other fixture is one release object.
+mock_curl_with_listing() {
+    local fixture="$1"
+    eval "curl() {
+        local a url=''
+        for a in \"\$@\"; do
+            case \"\$a\" in http*) url=\"\$a\" ;; esac
+        done
+        case \"\$url\" in
+            */releases\\?*|*/releases) cat '$fixture'; return 0 ;;
+            *) return 22 ;;
+        esac
+    }"
+}
+
 # Synthetic build directory under SEN_INSTALL_HOME; prints the prefix path.
 make_fake_build() {
     local build="$1"

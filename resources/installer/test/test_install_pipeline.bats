@@ -11,16 +11,20 @@
 
 load test_helpers
 
-# Stage SHA256SUMS body in a tempfile; the mock `cat`s it for any *SHA256SUMS URL.
+# Stage a SHA256SUMS body and publish its URL the way the release response does. The mock answers
+# that exact URL only: a suffix match cannot tell the tag URL from a draft's untagged-<hash> one,
+# which is the difference these tests turn on.
 mock_curl_sums() {
     local sums="$1"
+    local url="${2:-https://example/releases/download/0.5.2/SHA256SUMS}"
     local file="${SEN_TEST_TMPDIR}/sums.txt"
     printf '%s\n' "$sums" > "$file"
+    SENV_SUMS_URL="$url"
     eval "curl() {
-        local url
-        for a in \"\$@\"; do url=\"\$a\"; done
-        case \"\$url\" in
-            *SHA256SUMS) cat '$file'; return 0 ;;
+        local seen
+        for a in \"\$@\"; do seen=\"\$a\"; done
+        case \"\$seen\" in
+            '$url') cat '$file'; return 0 ;;
             *) return 22 ;;
         esac
     }"
@@ -37,19 +41,11 @@ mock_curl_sums() {
     load_install
     local archive="$SEN_INSTALL_HOME/cache/x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache" && printf 'x' > "$archive"
+    # No release before 0.7.0 published one, so this stays installable.
+    SENV_SUMS_URL=""
     curl() { return 22; }
     verify_checksum 0.5.2 x.tar.gz "$archive"
     [[ "$_NOTES_QUEUE" == *"SHA256SUMS"* ]]
-    [ -f "$archive" ]
-}
-
-@test "verify_checksum: no entry for the archive queues a warning" {
-    load_install
-    local archive="$SEN_INSTALL_HOME/cache/x.tar.gz"
-    mkdir -p "$SEN_INSTALL_HOME/cache" && printf 'x' > "$archive"
-    mock_curl_sums "deadbeef  some-other-file.tar.gz"
-    verify_checksum 0.5.2 x.tar.gz "$archive"
-    [[ "$_NOTES_QUEUE" == *"no checksum entry"* ]]
     [ -f "$archive" ]
 }
 
@@ -130,11 +126,29 @@ mock_curl_full_install() {
         done
         case \"\$url\" in
             */releases/tags/*) cat '$fixture_json'; return 0 ;;
-            *-release.tar.gz)  cp '$fixture_tarball' \"\$out\"; return 0 ;;
+            *.tar.gz|*.zip)    cp '$fixture_tarball' \"\$out\"; return 0 ;;
             *SHA256SUMS)       return 22 ;;
             *)                 return 22 ;;
         esac
     }"
+}
+
+# Builds a tarball shaped like a Sen release and prints its path. The fake `sen` answers
+# `completion <shell>` so cache_completions populates share/sen-completions/; a plain-text fake
+# no-ops silently and the assertion then passes on nothing.
+stage_release_tarball() {
+    local stage="$SEN_TEST_TMPDIR/build-stage-$$"
+    mkdir -p "$stage/bin" "$stage/lib" "$stage/include" "$stage/share"
+    cat > "$stage/bin/sen" <<'SCRIPT'
+#!/bin/sh
+[ "$1" = "completion" ] && printf '# fake %s completions\n' "$2"
+SCRIPT
+    printf 'fake-library\n' > "$stage/lib/libsen.so"
+    printf 'fake-header\n' > "$stage/include/sen.h"
+    chmod +x "$stage/bin/sen"
+    local tarball="$SEN_TEST_TMPDIR/release-$$.tar.gz"
+    (cd "$stage" && tar -czf "$tarball" .)
+    printf '%s' "$tarball"
 }
 
 @test "do_install: end-to-end installs prefix, manifest, both activate scripts, completion cache" {
@@ -209,6 +223,7 @@ SCRIPT
     mkdir -p "$SEN_INSTALL_HOME/cache"
     printf 'corrupt-cached-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
     # Mock curl to serve a SHA256SUMS that doesn't match the cached file.
+    SENV_SUMS_URL="https://example/releases/download/0.5.2/SHA256SUMS"
     eval "curl() {
         local a url=''
         for a in \"\$@\"; do case \"\$a\" in http*) url=\"\$a\" ;; esac; done
@@ -291,4 +306,127 @@ SCRIPT
     [[ "$output" == *"in progress"* ]]
     [[ "$output" != *"inside-lock"* ]]
     exec 8>&-
+}
+
+#---------------------------------------------------------------------------------------------------------------
+# verify_checksum: once the release lists SHA256SUMS, every failure is fatal
+#---------------------------------------------------------------------------------------------------------------
+
+@test "verify_checksum: a draft's untagged asset URL verifies" {
+    # A draft serves its assets under releases/download/untagged-<hash>/, where a URL built from
+    # the tag 404s.
+    load_install
+    local fname="x.tar.gz"
+    mkdir -p "$SEN_INSTALL_HOME/cache"
+    printf 'fake-archive-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
+    local hex
+    hex=$(sha256sum "$SEN_INSTALL_HOME/cache/$fname" | awk '{print $1}')
+    mock_curl_sums "$hex $fname" \
+        "https://example/releases/download/untagged-e9edc999fecbaa6951d6/SHA256SUMS"
+    run verify_checksum 0.7.0-rc1 "$fname" "$SEN_INSTALL_HOME/cache/$fname"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Verified"* ]]
+}
+
+@test "verify_checksum: listed but unfetchable is fatal and deletes the archive" {
+    load_install
+    local fname="x.tar.gz"
+    mkdir -p "$SEN_INSTALL_HOME/cache"
+    printf 'fake-archive-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
+    SENV_SUMS_URL="https://example/releases/download/0.7.0-rc1/SHA256SUMS"
+    curl() { return 22; }
+    run verify_checksum 0.7.0-rc1 "$fname" "$SEN_INSTALL_HOME/cache/$fname"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"could not be fetched"* ]]
+    [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
+}
+
+@test "verify_checksum: no entry for our archive is fatal and deletes it" {
+    # What a short artefact set looks like: sums present, our archive missing from them.
+    load_install
+    local fname="x.tar.gz"
+    mkdir -p "$SEN_INSTALL_HOME/cache"
+    printf 'fake-archive-content\n' > "$SEN_INSTALL_HOME/cache/$fname"
+    mock_curl_sums "0000000000000000000000000000000000000000000000000000000000000000 other.tar.gz"
+    run verify_checksum 0.5.2 "$fname" "$SEN_INSTALL_HOME/cache/$fname"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"no entry for"* ]]
+    [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
+}
+
+@test "do_install: a release candidate installs, with the hyphenated version intact" {
+    # The build id is <version>-<arch>-<os>-<compiler>-<compilerver>, so a version containing a
+    # hyphen has to survive the naming.
+    load_install
+    mock_curl_full_install "$(fixture_path release-rc.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_VERSION_ARG="0.6.0-rc1"
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+    run do_install
+    [ "$status" -eq 0 ]
+    local prefix="$SEN_INSTALL_HOME/0.6.0-rc1-x86_64-linux-gnu-12.4.0"
+    [ -d "$prefix" ]
+    [ -x "$prefix/bin/sen" ]
+    [ -f "$prefix/activate" ]
+    [ "$(readlink "$SEN_INSTALL_HOME/current")" = "0.6.0-rc1-x86_64-linux-gnu-12.4.0" ]
+}
+
+@test "do_install: a build type other than the default installs beside the release, not over it" {
+    # Two build types must not collide, or the already-installed check hands back whichever
+    # arrived first.
+    load_install
+    mock_curl_full_install "$(fixture_path release-with-debug-symbols.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+
+    SENV_VERSION_ARG="0.5.2"
+    SENV_BUILD_TYPE="release"
+    run do_install
+    [ "$status" -eq 0 ]
+
+    SENV_BUILD_TYPE="relwithdebinfo"
+    run do_install
+    [ "$status" -eq 0 ]
+
+    local dirs
+    dirs=$(find "$SEN_INSTALL_HOME" -maxdepth 1 -type d -name '0.5.2*' | sort | tr '\n' ' ')
+    # two distinct prefixes, and neither named after an archive
+    [[ "$dirs" == *"0.5.2-x86_64-linux-gnu-12.4.0 "* ]]
+    [[ "$dirs" == *"-relwithdebinfo"* ]]
+    [[ "$dirs" != *".tar.gz"* ]]
+}
+
+@test "do_install: installing a candidate says so, and the activate scripts carry it" {
+    # current is retargeted unconditionally and the docs say to source it from a shell rc, so the
+    # variable is what a prompt or a bug report can read afterwards.
+    load_install
+    mock_curl_full_install "$(fixture_path release-rc.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_VERSION_ARG="0.6.0-rc1"
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+
+    run do_install
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"release candidate"* ]]
+
+    local prefix="$SEN_INSTALL_HOME/0.6.0-rc1-x86_64-linux-gnu-12.4.0"
+    grep -q "SEN_PRERELEASE='1'" "$prefix/activate"
+    grep -q "SEN_PRERELEASE '1'" "$prefix/activate.fish"
+}
+
+@test "do_install: installing a supported release says nothing about candidates" {
+    load_install
+    mock_curl_full_install "$(fixture_path release-0.5.2.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_VERSION_ARG="0.5.2"
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+
+    run do_install
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"release candidate"* ]]
+    grep -q "SEN_PRERELEASE='0'" "$SEN_INSTALL_HOME/0.5.2-x86_64-linux-gnu-12.4.0/activate"
 }

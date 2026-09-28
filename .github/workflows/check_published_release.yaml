@@ -1,0 +1,119 @@
+# === check_published_release.yaml =====================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+#
+# Installs what was just published, the way the documentation tells a user to, and checks it worked.
+# The failures it catches do not report themselves: an install can succeed into the wrong directory,
+# and a checksum step can skip verification and say so in a note.
+#
+# On a published release rather than a tag push: the installer reads the API with no credentials,
+# so a draft is invisible to it.
+
+name: Check a published release
+
+on:
+  release:
+    types: [published]
+  # For checking a release by hand.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to install and check"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  install_and_check:
+    name: "Install ${{ inputs.tag || github.event.release.tag_name }} and check it"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The documented command fetches the installer from the default branch, which is what a
+      # release event checks out, so this is the script a user would get.
+      - name: Install the release
+        id: install
+        shell: bash
+        env:
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          export SEN_INSTALL_HOME="$RUNNER_TEMP/sen"
+          echo "SEN_INSTALL_HOME=$SEN_INSTALL_HOME" >> "$GITHUB_ENV"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          sh resources/installer/install.sh "$TAG" --yes 2>&1 | tee "$RUNNER_TEMP/install.log"
+
+      - name: The archive was verified against the release's checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -q "publishes no SHA256SUMS" "$RUNNER_TEMP/install.log"; then
+              echo "::error::release $TAG publishes no SHA256SUMS, so nothing could be verified."\
+                   " Every release before 0.7.0 is in that position; from 0.7.0 on the release"\
+                   " workflow attaches the file and this must not happen."
+              exit 1
+          fi
+          grep -q "Verified sha256 checksum" "$RUNNER_TEMP/install.log" \
+            || { echo "::error::the release publishes SHA256SUMS and the install did not verify against it"; exit 1; }
+
+      - name: The install is where it says it is, and runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          current="$SEN_INSTALL_HOME/current"
+          for f in "$current/activate" "$current/activate.fish" "$current/.sen-manifest.sha256"; do
+              [ -f "$f" ] || { echo "::error::missing $f"; exit 1; }
+          done
+          # shellcheck disable=SC1091
+          . "$current/activate"
+          command -v sen >/dev/null || { echo "::error::sen is not on PATH after activate"; exit 1; }
+          out=$(sen --version)
+          echo "sen --version: $out"
+          # It prints the bare version, so this checks the binary against its own tag.
+          case "$out" in
+              *"$TAG"*) ;;
+              *) echo "::error::sen --version says '$out', the release is $TAG"; exit 1 ;;
+          esac
+
+      # A build type whose name the installer cannot split installs into a directory named after
+      # the archive, and succeeds while doing it.
+      - name: A build type other than the default installs into a sane directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! sh resources/installer/install.sh "$TAG" --symbols --yes 2>&1 | tee "$RUNNER_TEMP/symbols.log"; then
+              if grep -q "has no symbols archive" "$RUNNER_TEMP/symbols.log"; then
+                  echo "this release publishes no symbols archive; nothing to check"
+                  exit 0
+              fi
+              echo "::error::installing the symbols archive failed"
+              exit 1
+          fi
+          for d in "$SEN_INSTALL_HOME"/*; do
+              case "$d" in
+                  *.tar.gz|*.zip)
+                      echo "::error::installed into a directory named after the archive: $d"
+                      exit 1
+                      ;;
+              esac
+          done
+
+      - name: The listing tells a reader which releases are supported
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh resources/installer/install.sh > "$RUNNER_TEMP/listing.log" 2>&1
+          cat "$RUNNER_TEMP/listing.log"
+          grep -q "Available Sen releases" "$RUNNER_TEMP/listing.log" \
+            || { echo "::error::the listing printed no releases section"; exit 1; }
+          if [ "${{ inputs.tag || github.event.release.prerelease }}" = "true" ]; then
+              grep -q "Release candidates" "$RUNNER_TEMP/listing.log" \
+                || { echo "::error::a published candidate is not marked in the listing"; exit 1; }
+          fi
