@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <limits>
 #include <thread>
-#include <utility>
 #include <vector>
 
 using sen::impl::Call;
@@ -35,8 +34,11 @@ int64_t counter;
 constexpr std::size_t queueBound = 64U;
 constexpr int pusherCount = 4;
 
-Call incrementCounter = []() { counter++; };  // NOLINT(cert-err58-cpp)
-Call decrementCounter = []() { counter--; };  // NOLINT(cert-err58-cpp)
+// Plain functions rather than Call objects shared between tests. A moved-from Call is empty, and
+// executing an empty one jumps through a null pointer because NDEBUG compiles out the assert that
+// catches it, so which test moved it first decided whether a later one crashed.
+void incrementCounter() { counter++; }
+void decrementCounter() { counter--; }
 
 void checkWorkQueue(const size_t maxSize, const bool dropOldest) { EXPECT_NO_THROW(WorkQueue(maxSize, dropOldest)); }
 
@@ -84,7 +86,7 @@ TEST(WorkQueue, basic)
   WorkQueue queue(50, false);
 
   // push function to not enabled queue and execute
-  queue.push(std::move(incrementCounter), true);
+  queue.push(incrementCounter, true);
   EXPECT_FALSE(queue.executeAll());
 
   // enable and try execution of empty queue
@@ -92,19 +94,19 @@ TEST(WorkQueue, basic)
   EXPECT_FALSE(queue.executeAll());
 
   // push function and execute
-  queue.push(std::move(incrementCounter), false);
+  queue.push(incrementCounter, false);
   EXPECT_TRUE(queue.executeAll());
   EXPECT_EQ(counter, 1);
 
   queue.disable();
-  queue.push(std::move(incrementCounter), true);
+  queue.push(incrementCounter, true);
   EXPECT_FALSE(queue.executeAll());
   EXPECT_EQ(counter, 1);
 
   queue.enable();
   for (auto i = 0; i < 10; i++)
   {
-    queue.push(std::move(incrementCounter), true);
+    queue.push(incrementCounter, true);
   }
   EXPECT_EQ(queue.getCurrentSize(), 10);
 
@@ -176,8 +178,8 @@ TEST(WorkQueue, dropOldest)
   queue.setOnDropped([&](const auto& /*call*/) { droppedCount++; });
   queue.enable();
 
-  queue.push(std::move(incrementCounter), false);
-  queue.push(std::move(decrementCounter), false);
+  queue.push(incrementCounter, false);
+  queue.push(decrementCounter, false);
   EXPECT_TRUE(queue.executeAll());
   EXPECT_EQ(counter, -1);
   EXPECT_EQ(droppedCount, 1);
@@ -219,7 +221,7 @@ TEST(WorkQueue, waitExecuteAll)
 
     for (auto i = 0; i < nCalls; i++)
     {
-      queue.push(std::move(incrementCounter), true);
+      queue.push(incrementCounter, true);
     }
 
     queue.waitExecuteAll(sen::Duration {0});
