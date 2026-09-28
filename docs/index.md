@@ -75,7 +75,9 @@ an acronym nor an abbreviation, but a noun.
 - Broker-less design. Nothing relays traffic; participants discover each other over multicast, or
   through a discovery hub where multicast is not available.
 - Quality-of-service attributes: confirmed & ordered, best-effort directed, best-effort broadcast.
-- Generation of documentation, web pages, UML diagrams, and other formats out of the ICD definition.
+- Generation of an interface control document out of your definition, as a typeset PDF, a
+  browsable HTML reference, UML diagrams or MkDocs pages. See
+  [Code generation](users_guide/code_generation.md).
 - Pluggable transport design. The kernel talks to a transport through an interface, so a
   deployment can carry Sen traffic over something other than `ether`.
 

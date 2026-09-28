@@ -150,9 +150,12 @@ has the commands.
   participants discover each other over multicast, or through a discovery hub where multicast is
   not available.
 - Quality-of-service attributes: confirmed & ordered, best-effort directed, best-effort broadcast.
-- Generation of documentation and [UML](https://en.wikipedia.org/wiki/Unified_Modeling_Language)
-  diagrams and [MkDocs](https://www.mkdocs.org/) out of the Interface Control Document (ICD)
-  definition.
+- Generates an [interface control document](https://en.wikipedia.org/wiki/Interface_control_document)
+  from your definition, in the form you need it:
+  [a typeset PDF](https://airbus.github.io/sen/latest/examples/generated_document.html),
+  [a browsable HTML reference](https://airbus.github.io/sen/latest/examples/generated_reference.html),
+  [UML diagrams](https://airbus.github.io/sen/latest/examples/generated_uml.html), and
+  [MkDocs](https://www.mkdocs.org/) pages.
 - Pluggable data transport: the kernel talks to a transport through an interface, so a
   deployment can carry Sen traffic over something other than the shipped `ether`.
 
