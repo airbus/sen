@@ -246,7 +246,9 @@ jobs:
     name: "Attach the published documentation"
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.ref_type == 'tag'
+    # Candidates are excluded from the documentation deploy, so gh-pages never grows a directory
+    # for their tag and there is nothing to attach.
+    if: github.ref_type == 'tag' && !contains(github.ref_name, '-rc')
     permissions:
       contents: write
     needs: attach_release_artifacts

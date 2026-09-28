@@ -113,7 +113,9 @@ jobs:
           cat "$RUNNER_TEMP/listing.log"
           grep -q "Available Sen releases" "$RUNNER_TEMP/listing.log" \
             || { echo "::error::the listing printed no releases section"; exit 1; }
-          if [ "${{ inputs.tag || github.event.release.prerelease }}" = "true" ]; then
+          # On a manual run there is no release payload, so the tag itself says whether this is a
+          # candidate; inputs.tag holds the tag, never "true".
+          if [ "${{ github.event.release.prerelease || contains(inputs.tag, '-rc') }}" = "true" ]; then
               grep -q "Release candidates" "$RUNNER_TEMP/listing.log" \
                 || { echo "::error::a published candidate is not marked in the listing"; exit 1; }
           fi
