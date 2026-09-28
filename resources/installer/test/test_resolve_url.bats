@@ -306,3 +306,19 @@ EOF
     run resolve_url "0.6.0" "" "0"
     [[ "$output" != *"pass --compiler"* ]]
 }
+
+@test "resolve_url: a candidate is recognised from the release, not from its tag" {
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-rc.json"
+    SENV_IS_PRERELEASE=
+    resolve_url "0.6.0-rc1" "" "1"
+    [ "$SENV_IS_PRERELEASE" = "1" ]
+}
+
+@test "resolve_url: a supported release is not marked as a candidate" {
+    load_install
+    mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-0.5.2.json"
+    SENV_IS_PRERELEASE=
+    resolve_url "0.5.2" "" "1"
+    [ "$SENV_IS_PRERELEASE" = "0" ]
+}

@@ -400,3 +400,37 @@ SCRIPT
     [[ "$dirs" == *"-relwithdebinfo"* ]]
     [[ "$dirs" != *".tar.gz"* ]]
 }
+
+@test "do_install: installing a candidate says so, and the activate scripts carry it" {
+    # current is retargeted unconditionally and the docs tell a reader to source it from their
+    # shell rc, so without this nothing anywhere says the build every new shell runs is a
+    # candidate. The variable is what a prompt or a bug-report template can read.
+    load_install
+    mock_curl_full_install "$(fixture_path release-rc.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_VERSION_ARG="0.6.0-rc1"
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+
+    run do_install
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"release candidate"* ]]
+
+    local prefix="$SEN_INSTALL_HOME/0.6.0-rc1-x86_64-linux-gnu-12.4.0"
+    grep -q "SEN_PRERELEASE='1'" "$prefix/activate"
+    grep -q "SEN_PRERELEASE '1'" "$prefix/activate.fish"
+}
+
+@test "do_install: installing a supported release says nothing about candidates" {
+    load_install
+    mock_curl_full_install "$(fixture_path release-0.5.2.json)" "$(stage_release_tarball)"
+    detect_compiler() { return 1; }
+    SENV_VERSION_ARG="0.5.2"
+    SENV_COMPILER=""
+    SENV_NON_INTERACTIVE=1
+
+    run do_install
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"release candidate"* ]]
+    grep -q "SEN_PRERELEASE='0'" "$SEN_INSTALL_HOME/0.5.2-x86_64-linux-gnu-12.4.0/activate"
+}
