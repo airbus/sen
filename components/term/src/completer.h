@@ -177,15 +177,14 @@ private:
   [[nodiscard]] const std::vector<Completion>& getMethodCompletions(ConstTypeHandle<ClassType> classType) const;
 
 private:
-  // Cached data
-  // A set, not a sorted vector. At bus or group scope every flat object is its own first segment, so
-  // every arriving object took the 0->1 branch and memmoved half the vector: discovery on a large flat
-  // bus froze the frame it was showing, with nothing typed, and it hid at root scope where every object
-  // shares one segment. Iteration is still in order, which is all the read site wants.
   /// Rebuild loggerNames_ from the router. Takes spdlog's global registry mutex, so it is called from
   /// the one place that reads the list rather than from update().
   void refreshLoggerNames() const;
 
+  // Cached data.
+  // A set rather than a sorted vector: at bus or group scope every flat object is its own first segment,
+  // so each arriving object inserts at the front and memmoves half of a vector. Iteration is still in
+  // order, which is all the read site wants.
   std::set<std::string> childNames_;           // immediate children of current scope (for cd/ls)
   std::vector<std::string> openSources_;       // currently open source names (for close)
   std::vector<std::string> availableSources_;  // discoverable source names (for open)

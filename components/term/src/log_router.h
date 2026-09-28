@@ -106,7 +106,7 @@ private:
 
   // Messages arrive via the sink from any thread; drained onto the UI from the term thread inside
   // update(). Both bounds matter, and neither existed: `log level debug` on a kernel with live traffic
-  // makes the bus loggers emit on essentially every message, so the queue was an unbounded accumulator
+  // makes the bus loggers emit on almost every message, so the queue was an unbounded accumulator
   // that the render tick then tried to draw in one frame. The user who turned the level up to diagnose
   // something lost the tool they were diagnosing with.
   std::mutex pendingMutex_;

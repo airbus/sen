@@ -166,7 +166,7 @@ TEST(TermLogSink, ADetachedSinkStopsCallingBack)
 
 TEST(LogRouterQueue, TheProducerIsBoundedAndCountsWhatItRefuses)
 {
-  // `log level debug` on a kernel with live traffic makes the bus loggers emit on essentially every
+  // `log level debug` on a kernel with live traffic makes the bus loggers emit on almost every
   // message. The queue had no cap, so memory climbed until the user who turned the level up to diagnose
   // something lost the tool they were diagnosing with.
   App app([](const std::string&) {});

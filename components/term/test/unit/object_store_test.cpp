@@ -246,13 +246,13 @@ TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
 }
 
 //--------------------------------------------------------------------------------------------------------------
-// Completer::update, which no test had ever called
+// Completer::update
 //--------------------------------------------------------------------------------------------------------------
 //
 // It lives here because this is the only fixture with a live RunApi, which is what an ObjectStore needs.
-// Every completer case elsewhere either injects private state through a test door or drives the
-// incremental onObjectAdded path with the dirty flag cleared by hand, so the full-rebuild branch, the
-// scope rebuild, and the sources/queries refresh had never run at all.
+// Without one a completer case can only inject private state through a test door or drive the
+// incremental onObjectAdded path, and neither reaches the full rebuild, the scope rebuild or the
+// sources and queries refresh.
 
 TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
 {

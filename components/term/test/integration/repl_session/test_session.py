@@ -213,8 +213,8 @@ class TestTermSession(unittest.TestCase):
         """A paste that never finishes must not leave the term swallowing every key.
 
         This is the safety net, so it sends no end marker at all: nothing tells the term the paste is
-        over, and only the idle limit can release it. Before that limit existed every later key was
-        swallowed and no gesture recovered it — the user had to kill the process.
+        over, and only the idle limit can release it. Without that limit every later key is swallowed
+        and no gesture recovers it, leaving the user nothing to do but kill the process.
 
         The separate case below covers a marker that arrives torn, which is the common cause and is now
         handled without waiting for this net.
@@ -290,8 +290,8 @@ class TestTermSession(unittest.TestCase):
         """Enter on the exact line Tab leaves behind must not be reported as an unknown command.
 
         Accepting an object candidate appends a dot, so `local.demo.showcase.` is one keystroke away and
-        the user never typed the dot. Two functions read that string differently — completion splits it
-        to list the methods, execution refuses it — and the error quoted the string back as though the
+        the user never typed the dot. Two functions read that string differently: completion splits it to
+        list the methods, execution refuses it. The error must not quote the string back as though the
         user had invented it.
         """
         self.term.send_command("cd local.demo")
@@ -313,9 +313,9 @@ class TestTermSession(unittest.TestCase):
         """Short output sits at the top of the pane, not pushed down against the prompt.
 
         The premise is established rather than assumed. `clear` empties the pane, so whatever appears
-        next is this test's own output and not kernel log traffic that happened to arrive — the earlier
-        version asserted row 1 was non-empty after a `cd`, which prints nothing, so it was passing on
-        log lines and would have passed with the property broken.
+        next is this test's own output and not kernel log traffic that happened to arrive. Asserting
+        that row 1 is non-empty after a `cd`, which prints nothing, would pass on log lines alone and
+        would pass with the property broken.
         """
         self.term.send_command("clear", settle=1.0)
         self.term.forget()
@@ -348,8 +348,8 @@ class TestTermSession(unittest.TestCase):
         )
 
     # ---------------------------------------------------------------------------------------------
-    # Commands. Fifteen of the twenty-one had never been executed by any test at any level, so the
-    # table could be complete and every handler broken.
+    # Commands. A complete command table says nothing about whether the handlers behind it run, so
+    # each one is executed here and required to answer.
     # ---------------------------------------------------------------------------------------------
 
     def _run_and_expect(self, command: str, needle: str, settle: float = 1.5) -> None:

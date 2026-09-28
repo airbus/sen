@@ -88,13 +88,12 @@ TEST(ScopeNavigate, NestedGroupsStoreADotAndDisplayASlash)
 
 TEST(ScopeNavigate, TheDisplayedPathNavigatesBackToTheSameScope)
 {
-  // A dotted target is always a bus address, so a nested group displayed with dots could not be typed
-  // back: it silently landed on session "a", bus "b".
+  // A dotted target is always a bus address, so a nested group displayed with dots must not be read
+  // back as session "a", bus "b".
   //
-  // Typed into a scope that is standing somewhere else, not a fresh one. A fresh Scope is at the root,
-  // which is the single scope where a rule about leading separators cannot fire. Asserting the property
-  // there only would test it under the one condition that cannot break it, and would miss a regression that
-  // refuses `/local` everywhere else.
+  // Typed into a scope standing somewhere else, not a fresh one: a fresh Scope is at the root, the one
+  // scope where a rule about leading separators cannot fire, so asserting there would test the property
+  // under the only condition that cannot break it.
   const std::vector<std::string> paths {"/", "/local", "/local.main", "/local.main/a/b"};
   for (const auto& path: paths)
   {
@@ -246,7 +245,7 @@ TEST(ScopeNavigate, UpFromNestedGroupUnwindsOneLevel)
 
 TEST(ScopeContains, GroupPrefixRespectsTheSeparator)
 {
-  // Group "a" must not swallow group "ab": the old test was a bare prefix compare.
+  // Group "a" must not swallow group "ab", which a bare prefix compare would.
   Scope s;
   s.navigate("local.main");
   ASSERT_TRUE(s.navigate("a"));
