@@ -365,6 +365,7 @@ TEST(EventBuffer, produce)
 
   // basic 2 (emit on-commit, confirmed)
   {
+    name = "Aircraft1";
     const std::string prefix = "rpr";
     constexpr auto connId = ConnId {2U};
 
