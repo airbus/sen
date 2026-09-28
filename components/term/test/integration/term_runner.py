@@ -15,6 +15,7 @@ already there, so counting occurrences says nothing about whether something is n
 a test can ask which row something is on, which `screen()` cannot, because it holds every frame at once.
 """
 
+import codecs
 import fcntl
 import os
 import pty
@@ -65,6 +66,10 @@ class TermTester:
         self.pid: int = -1
         self.fd: int = -1
         self._read: str = ""
+        # Incremental, because os.read returns whatever has arrived and a multi-byte character can
+        # straddle two reads. Decoding each read alone left replacement characters in its place, which
+        # widened the row past the terminal width, so the grid wrapped, scrolled, and moved every row.
+        self._decoder = codecs.getincrementaldecoder("utf-8")("replace")
 
     @staticmethod
     def _strip_ansi(text: str) -> str:
@@ -113,7 +118,7 @@ class TermTester:
                 break
             if not data:
                 break
-            chunk += data.decode(errors="replace")
+            chunk += self._decoder.decode(data)
 
         self._read += chunk
         return self._strip_ansi(chunk).replace("\r", "\n")
