@@ -223,9 +223,8 @@ done_panel() {
     printf '    %s %s\n' "$(paint cyan "$lbl")" "source $current/activate.fish"
     printf '\n  %s\n' "$(paint dim "Add the same line to your shell rc")"
     printf '  %s\n' "$(paint dim "'$current' points at the latest install.")"
-    # The line above invites a reader to wire this into every shell they open. If what they
-    # just installed is a candidate, that is worth saying here rather than only at install
-    # time, which they will not be looking at on Thursday.
+    # The line above invites the reader to wire this into every shell, so a candidate is worth
+    # naming here and not only while installing.
     if [ "${SENV_IS_PRERELEASE:-0}" = "1" ]; then
         printf '\n  %s\n' "$(paint yellow bold "This is a release candidate.")"
         printf '  %s\n' "$(paint dim "Every shell that sources 'current' will run it. \$SEN_PRERELEASE is set to 1")"
@@ -391,20 +390,18 @@ host_os() {
 # Print every release tag from GitHub, one per line.
 ls_remote() {
     local json
-    # The endpoint pages at 30 by default and nothing here reads the Link header, so without
-    # this the oldest releases drop off the list silently once there are more than a page of
-    # them. 100 is the maximum the API allows.
+    # The endpoint pages at 30 and nothing here reads the Link header, so without this the
+    # oldest releases drop off the list once there is more than a page. 100 is the API maximum.
     if ! json=$(_curl -fsSL "$SEN_API_URL/releases?per_page=100" 2>/dev/null); then
         err "install.sh:" "could not query $SEN_API_URL/releases"
         return 1
     fi
     # One line per release, "<tag>\t<stable|prerelease>". Keyed on the indent of a release
-    # object's own keys rather than on the order two greps happen to emit: the response is
-    # pretty-printed, nested keys sit deeper, and a key added between them cannot shift anything.
-    # GitHub has already added "immutable" here once.
+    # object's own keys, not on the order two greps emit: nested keys sit deeper, and a key added
+    # between these two cannot shift anything. GitHub has added one there already.
     #
-    # If the shape is not what this expects it says so rather than printing a list it does not
-    # believe. A wrong list here is a tag somebody then types.
+    # An unrecognised shape is reported rather than printed: a wrong list here is a tag somebody
+    # then types.
     printf '%s' "$json" | awk '
         /^  \{/                              { tag=""; kind="stable"; in_release=1; next }
         in_release && /^    "tag_name"/       { tag=$0; sub(/.*: *"/, "", tag); sub(/".*/, "", tag) }
@@ -412,9 +409,8 @@ ls_remote() {
         /^  \}/                              { if (in_release && tag != "") { print tag "\t" kind; found++ }
                                               in_release=0 }
     '
-    # A repository with no releases and a response this cannot parse both yield nothing, and they
-    # are not the same thing: the first is a fact about the project, the second is a fact about
-    # this parse. Tell them apart by whether the response mentions a release at all.
+    # No releases and an unparsable response both yield nothing. Tell them apart by whether the
+    # response mentions a release at all.
     if [ -z "$(printf '%s' "$json" | sed -n '/^  {/p')" ] \
         && printf '%s' "$json" | grep -q '"tag_name"'; then
         err "install.sh:" "could not read the release list from $SEN_API_URL/releases"
@@ -423,9 +419,8 @@ ls_remote() {
 }
 
 # Reads a GitHub Releases API response on stdin. Emits the download URL of the asset with this
-# exact name, or nothing. Taken from the response rather than built from the tag, because a draft
-# release serves its assets under releases/download/untagged-<hash>/ and a tag-derived URL 404s
-# there: that is why checksum verification has never run against a rehearsal.
+# exact name, or nothing. From the response rather than built from the tag: a draft serves its
+# assets under releases/download/untagged-<hash>/, where a tag-derived URL 404s.
 extract_named_asset() {
     local name="$1"
     grep -o '"browser_download_url"[[:space:]]*:[[:space:]]*"[^"]*"' \
@@ -435,9 +430,9 @@ extract_named_asset() {
         || true
 }
 
-# Whether a prompt can be answered. The menu reads /dev/tty rather than stdin so it survives
-# `curl ... | sh`, which is the documented way to run this script, so stdin being a pipe says
-# nothing about whether a person is there. Overridable for tests.
+# Whether a prompt can be answered. The menu reads /dev/tty, not stdin, because the documented
+# invocation is `curl ... | sh`, where stdin is the pipe whatever else is true. Overridable for
+# tests.
 can_prompt() {
     if [ -n "${SENV_FORCE_CAN_PROMPT:-}" ]; then
         [ "$SENV_FORCE_CAN_PROMPT" = "1" ]
@@ -447,9 +442,8 @@ can_prompt() {
 }
 
 # Reads a GitHub Releases API response on stdin. Emits the build types this host has an archive
-# for, one per line, whatever was asked for. Without this, "nothing matched" cannot tell a host
-# with no builds at all from a host whose builds exist in other flavours, and the installer
-# reported the first while meaning the second.
+# for, whatever was asked for, so "nothing matched" can tell a host with no builds at all from
+# one whose builds exist in other flavours.
 extract_host_build_types() {
     local arch os
     arch=$(host_arch)
@@ -477,12 +471,10 @@ extract_assets() {
         || true
 }
 
-# Every field in an archive name is one segment, the last being the build type:
-# sen-<version>-<arch>-<os>-<compiler>-<compilerver>-<buildtype>.<ext>
+# sen-<version>-<arch>-<os>-<compiler>-<compilerver>-<buildtype>.<ext>, one segment per field.
 # Prints "<stem without the build type> <build type>", and returns 1 on a name it does not
-# recognise. Refusing matters more than splitting: the previous code stripped one hard-coded
-# suffix and passed anything else through whole, so an unrecognised archive installed
-# successfully into a directory named after the tarball.
+# recognise. The refusal is the point: a name passed through whole installs successfully into a
+# directory named after the archive.
 SENV_BUILD_TYPES='release debug relwithdebinfo symbols'
 
 split_archive_name() {
@@ -497,9 +489,8 @@ split_archive_name() {
         *) return 1 ;;
     esac
     stem="${stem%-*}"
-    # A second build type where the compiler version belongs means a two-segment build type,
-    # which this naming forbids. Refuse it rather than parse it: "-release-symbols" used to
-    # yield a toolchain called "12.4.0 release" and an install directory named after the tarball.
+    # A build type where the compiler version belongs means a two-segment build type, which this
+    # naming forbids.
     case " $SENV_BUILD_TYPES " in
         *" ${stem##*-} "*) return 1 ;;
     esac
@@ -556,9 +547,8 @@ detect_compilers() {
 
 # Emit one "<name> <version>\t<url>" line per host-matching Linux build for $version. Empty stdout = no matching
 # builds. Network or API errors return non-zero with a message on stderr.
-# Reads the release response on stdin rather than fetching it, so the caller can read the same
-# response for the checksum URL. It used to fetch and set those globals itself, and its only
-# caller invokes it in a command substitution, where a global set here never reaches the parent.
+# Reads the release response on stdin rather than fetching it, so the caller reads the same
+# response for the checksum URL and the build types.
 build_candidates() {
     local json urls url toolchain
     json=$(cat)
@@ -587,12 +577,11 @@ resolve_url() {
         printf '%s\n' "$(paint dim "run 'sh install.sh' (no args) to see available versions.")" >&2
         return 1
     fi
-    # Read here, not inside build_candidates: these have to survive into do_install, and that
-    # function is called in a command substitution.
+    # Here rather than in build_candidates: these must survive into do_install, and that call is
+    # a command substitution.
     SENV_SUMS_URL=$(printf '%s' "$json" | extract_named_asset SHA256SUMS)
-    # From the release rather than from the tag's shape: the API knows, and a project could
-    # publish a candidate whose tag does not say rc. Anchored on the top-level indent, where a
-    # single-release response carries this key exactly once.
+    # From the release rather than the tag's shape, since a candidate's tag need not say rc.
+    # Anchored on the top-level indent, where a single-release response carries the key once.
     if printf '%s' "$json" | grep -qE '^  "prerelease": *true'; then
         SENV_IS_PRERELEASE=1
     else
@@ -643,9 +632,7 @@ resolve_url() {
         return 0
     fi
 
-    # 3) Multi match with no way to ask: refuse with the toolchain list. This tested stdin, which
-    # is a pipe under `curl | sh` even with a terminal present, so it refused the case run_menu's
-    # /dev/tty read was written for and that redirect could never run.
+    # 3) Multi match with no way to ask: refuse with the toolchain list.
     if [ "$non_interactive" = "1" ] || ! can_prompt; then
         err "install.sh:" "multiple builds available; pass --compiler <name>-<ver>:"
         printf '%s\n' "$candidates" \
@@ -766,11 +753,9 @@ fetch_archive() {
     SENV_ARCHIVE_PATH="$archive"
 }
 
-# Verifies $archive against the release's SHA256SUMS. A release that publishes no SHA256SUMS is
-# skipped with a note, because none before 0.7.0 did. But once the release lists one, every failure
-# from there on is fatal: the file exists, so being unable to fetch it or not finding our archive in
-# it are both reasons to refuse rather than to carry on. Returns 1 (and deletes $archive) on any of
-# those, so an unverified archive never lands in $HOME and on PATH.
+# Verifies $archive against the release's SHA256SUMS. A release publishing none is skipped with a
+# note: no release before 0.7.0 carries the file. Once one is listed every failure is fatal, since
+# the file exists, and returns 1 after deleting $archive so nothing unverified reaches $HOME.
 verify_checksum() {
     local version="$1" fname="$2" archive="$3"
     local sums_url="$SENV_SUMS_URL"
@@ -1055,10 +1040,9 @@ do_install() {
     fi
     stem="${split%% *}"
     build_type="${split##* }"
-    # The release build keeps the bare name it has always had, so an existing install and the
-    # paths the docs give still resolve. Everything else carries its build type, or all four
-    # archives would want one directory and the already-installed check below would hand back
-    # whichever arrived first.
+    # The release build keeps its bare name, so existing installs and the documented paths still
+    # resolve. The others carry their build type, or all four would want one directory and the
+    # already-installed check would hand back whichever arrived first.
     build="${stem#sen-}"
     [ "$build_type" = "release" ] || build="$build-$build_type"
     prefix="$SEN_INSTALL_HOME/$build"
@@ -1136,10 +1120,9 @@ main() {
         listing=$(ls_remote) || return $?
         stable=$(printf '%s\n' "$listing" | awk -F'\t' '$2 == "stable" { print $1 }')
         candidates=$(printf '%s\n' "$listing" | awk -F'\t' '$2 == "prerelease" { print $1 }')
-        # Two sections rather than one list: a candidate and a supported release printed
-        # identically, newest first, invite someone to type the candidate because it looks
-        # newest. Shown rather than hidden, because a candidate nobody can find in the only
-        # listing Sen publishes is no more testable than an unpublished draft.
+        # Two sections: printed identically and newest first, a candidate invites someone to
+        # type it because it looks current. Shown rather than filtered, because a candidate
+        # absent from the only listing Sen publishes is as untestable as an unpublished draft.
         printf '  %s\n' "$(paint bold "Available Sen releases:")"
         if [ -n "$stable" ]; then
             printf '%s\n' "$stable" | sed 's/^/    /'

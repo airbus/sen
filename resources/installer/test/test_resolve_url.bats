@@ -255,9 +255,8 @@ EOF
 #---------------------------------------------------------------------------------------------------------------
 
 @test "resolve_url: publishes the release's SHA256SUMS url for the checksum step" {
-    # This is the path the unit tests for verify_checksum cannot see: they set SENV_SUMS_URL
-    # themselves. Read inside build_candidates, which its caller invokes in a command
-    # substitution, the value never reached do_install and every install skipped verification.
+    # The verify_checksum tests set SENV_SUMS_URL themselves, so only this covers the path that
+    # supplies it. Read inside build_candidates it would not survive the command substitution.
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-full-set.json"
     SENV_SUMS_URL=""
@@ -267,8 +266,8 @@ EOF
 }
 
 @test "resolve_url: the sums url comes from the response, so a draft's url works" {
-    # A draft serves assets under releases/download/untagged-<hash>/. A url built from the tag
-    # 404s there, which is why three rehearsals installed unverified.
+    # A draft serves assets under releases/download/untagged-<hash>/, where a url built from the
+    # tag 404s.
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-full-set.json"
     resolve_url "0.0.0-rc1" "" "1"
@@ -286,8 +285,7 @@ EOF
 }
 
 @test "resolve_url: two builds with no way to prompt refuses and lists the toolchains" {
-    # The refusal has to survive: a piped run in CI has no terminal, and the useful answer there
-    # is the --compiler list rather than a failed read.
+    # A piped run in CI has no terminal, and the useful answer there is the --compiler list.
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
     SENV_FORCE_CAN_PROMPT=0
@@ -297,8 +295,8 @@ EOF
 }
 
 @test "resolve_url: a terminal being reachable is what allows the menu, not stdin" {
-    # stdin is a pipe under `curl | sh`, which is the documented invocation, so testing it
-    # refused the case run_menu's /dev/tty read exists for.
+    # stdin is a pipe under `curl | sh`, the documented invocation, so testing stdin refuses the
+    # case /dev/tty exists for.
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
     SENV_FORCE_CAN_PROMPT=1

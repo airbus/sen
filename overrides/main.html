@@ -1,12 +1,8 @@
 {% extends "base.html" %}
 
 <!--
-  The front page opens main's documentation, by the decision recorded in build_docs.yaml, so a
-  visitor lands on unreleased pages by default. The selector says "latest (in development)", but
-  the page itself said nothing, and a reader who followed a link never sees the selector's label.
-
-  Two banners, for the two ways a reader can be on the wrong page:
-  the version being built is main, or the version being read is an older release.
+  A reader arriving by link never sees the version selector, so nothing on the page says whether
+  it describes main or an older release. These banners do.
 -->
 
 {# Whitespace-controlled: Material renders the bar whenever this block has any content, and

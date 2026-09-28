@@ -172,8 +172,7 @@ else()
   set(SEN_ZIP_VERSION ${selected_tag})
 endif()
 
-# Both archive names share this stem, so the symbols archive names the build it came from
-# without repeating how that name is assembled.
+# Shared by both archive names, so the symbols one is not a second copy of this.
 string(
   TOLOWER
     "${CPACK_PACKAGE_NAME}-${SEN_ZIP_VERSION}-${CMAKE_HOST_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_NAME}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
@@ -209,8 +208,8 @@ set(CPACK_RPM_SPEC_MORE_DEFINE "%define _build_id_links none")
 # before the top-level ones, so every binary is in place by the time this runs.
 if(SEN_RELEASE_SYMBOLS)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
-  # symbols sits where the build type sits, so every field in the name stays one segment:
-  # install.sh derives the toolchain and the install directory by counting segments.
+  # symbols takes the build type's place: install.sh splits this name by counting segments from
+  # the end, so a two-segment build type breaks it.
   file(WRITE "${CMAKE_BINARY_DIR}/symbols/archive-name" "${SEN_ARCHIVE_STEM}-symbols")
   install(
     CODE "

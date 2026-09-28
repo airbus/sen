@@ -166,9 +166,8 @@ jobs:
               python -c "import shutil,sys; shutil.make_archive(*sys.argv[1:])" \
                   "$build/$name" "$format" "$build/symbols-staging" "$name"
           fi
-          # The option above is the only thing that knows a symbols archive was asked for, so it
-          # is the only place that can assert one arrived. Without this a build that produced
-          # none packages a short set and every job stays green.
+          # Only this step knows a symbols archive was asked for, so only it can assert one
+          # arrived. Without the flag a short set passes every other check.
           expect=''
           if [ -n "$symbols" ]; then
               expect='--expect-symbols'
@@ -235,21 +234,14 @@ jobs:
           preserve_order: true
           draft: true
           prerelease: ${{ contains(github.ref_name, 'rc') }}
-          # GitHub creates the tag when a draft is published, and defaults it to the default
-          # branch. Release-candidate tags get deleted here routinely and tag protection is off,
-          # so publishing a draft whose tag had gone would have pointed the release at whatever
-          # main had become, describing a tree the attached archives were not built from. In the
-          # normal flow the tag exists and no ref is created, so this only bites in that case,
-          # where the action documents a possible 403 for the default token. A refusal there is
-          # the better outcome.
+          # GitHub creates the tag when a draft is published, defaulting to the default branch.
+          # Without this, publishing a draft whose tag had been deleted would point the release
+          # at main's tip, describing a tree the archives were not built from.
           target_commitish: ${{ github.sha }}
 
-  # Moved here from build_docs.yaml, which ran it on the same tag push and so raced the release
-  # this uploads to: that job starts after the whole build matrix, about twenty minutes in, while
-  # a docs run takes six to thirteen. Whether the asset was attached depended on how many
-  # main-branch runs were queued ahead of the docs run in its concurrency group, which is to say
-  # on unrelated merge traffic. Here the release exists by construction, and the wait below is on
-  # the docs deploy, which has normally finished long before this job starts.
+  # Here rather than in build_docs.yaml: both trigger on the same tag push, and the release this
+  # uploads to is not created until the whole build matrix finishes. Needing that job makes the
+  # release exist; the wait below is for the docs deploy, which finishes far earlier.
   attach_documentation:
     name: "Attach the published documentation"
     runs-on: ubuntu-latest
@@ -259,11 +251,9 @@ jobs:
       contents: write
     needs: attach_release_artifacts
     steps:
-      # Taken from gh-pages after the deploy rather than from the build tree, so the asset is
-      # what was published and not a second build of it. Re-publishing a release then means
-      # uploading this, which is the only way to reproduce a site whose dependency versions were
-      # never recorded: releases before 0.7.0 have no conan.lock, and rebuilding them today
-      # resolves to versions their tree cannot build.
+      # From gh-pages rather than the build tree, so the asset is what was published. It is the
+      # only way to reproduce a site whose dependency versions were never recorded: releases
+      # before 0.7.0 carry no conan.lock and no longer build from their own tree.
       - name: Wait for the documentation deploy, then attach it
         shell: bash
         env:
@@ -272,11 +262,7 @@ jobs:
         run: |
           git init -q .
           git remote add origin "${{ github.server_url }}/${{ github.repository }}.git"
-          # Bounded rather than open: if the docs deploy failed, this says so instead of hanging
-          # until the job times out with nothing to read.
-          # Ten minutes of grace. This job starts after the whole build matrix, around twenty
-          # minutes in, and a docs run takes six to thirteen, so the deploy is normally already
-          # there and the first check passes.
+          # Bounded, so a failed docs deploy reports that rather than hanging to the timeout.
           for attempt in $(seq 1 20); do
               git fetch -q --depth=1 origin gh-pages || true
               if git cat-file -e "origin/gh-pages:$TAG" 2>/dev/null; then

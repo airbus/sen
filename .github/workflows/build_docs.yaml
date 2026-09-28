@@ -62,31 +62,22 @@ jobs:
           pip install mike==2.1.3
           pip install -r docs/requirements.txt
 
-      # The front page opens main, and a reader picks a release from the version selector.
-      # Decided 2026-09-28. It is what the site has done since 2026-09-05, but by inherited
-      # state rather than by choice: a plain deploy does not set the default, so once the
-      # redirect moves nothing brings it back. Measured in a lab seeded with the real
-      # versions.json, `set-default` is the only thing that restores it, and it commits
-      # nothing when the redirect is already right.
-      #
-      # So a release keeps a frozen copy under its own version and takes no alias. The
-      # previous `stable` alias here had never run: a tag push executes the workflow in the
-      # tree the tag names, and the only tag deploy ran an older aliasless copy of this file.
+      # A release keeps a frozen copy under its own version and takes no alias: the front page
+      # opens main, and a reader picks a release from the selector.
       - name: Build and deploy release documentation
         if: github.event_name == 'push' && github.ref_type == 'tag'
-        # A release's frozen copy carries no development banner. Explicit rather than relying on
-        # the default, so the two deploys read as a pair.
+        # No development banner on a release's pages.
         env:
           SEN_DOCS_UNRELEASED: "false"
         run: mike deploy --push --update-aliases ${{ github.ref_name }}
 
-      # Titled rather than left as "latest", which every reader takes to mean the newest
-      # release. The version id stays `latest`, so no URL changes.
+      # Titled, because "latest" alone reads as the newest release. The version id is unchanged,
+      # so no URL moves. set-default is here because a plain deploy does not write the redirect,
+      # so nothing else restores the front page if it ever moves.
       - name: Build and deploy intermediate documentation
         if: github.event_name == 'push' && github.ref_type != 'tag'
-        # The front page opens this, so its pages say on themselves that they describe
-        # unreleased code. The selector label alone is not enough: a reader arriving by link
-        # never looks at it.
+        # The front page opens this, so its pages say so on themselves. A reader arriving by
+        # link never sees the selector's label.
         env:
           SEN_DOCS_UNRELEASED: "true"
         run: |

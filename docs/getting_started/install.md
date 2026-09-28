@@ -27,14 +27,13 @@ The installer needs `curl`, `tar`, `sha256sum` and the usual text tools, and say
 missing if any are. Running Sen needs nothing beyond what the archive carries, on a host whose
 libraries are recent enough. The Linux archives are built in an environment with **glibc 2.35**
 and GCC 12's libstdc++, so a host with those or newer will run them: Ubuntu 22.04 and later,
-Debian 12 and later. RHEL 9 and Rocky 9 ship glibc 2.34 and are too old. That is the bound the
-build environment sets rather than a measurement of the archives, which may need less. Build
+Debian 12 and later. RHEL 9 and Rocky 9 ship glibc 2.34 and are too old. That is what the build
+environment requires; an archive may in practice need less. Build
 [from source](../howto_guides/building_from_source.md) on anything older.
 
 **Building your own package against the install is a separate matter**: that needs CMake and a
-C++17 compiler, which the installer neither checks for nor provides, because plenty of people
-install Sen only to run it. If you intend to follow the
-[first package](first_package.md) guide, have those in place first.
+C++17 compiler, which the installer neither checks for nor provides. Have those in place before
+following the [first package](first_package.md) guide.
 
 **1. Install:**
 
@@ -90,9 +89,9 @@ The build directory is named after the archive, which carries the compiler's own
 the two differ by design and the path is the one to type.
 
 The checksum line is the archive being checked against the `SHA256SUMS` the release publishes.
-Releases before 0.7.0 published none, and installing one of those prints a note instead and
-carries on. Once a release does publish it, a checksum that cannot be fetched, does not list
-your archive, or does not match stops the install and removes the download.
+Releases before 0.7.0 published none, so installing one of those prints a note and carries on.
+Where a release does publish it, a checksum that cannot be fetched, does not list your archive,
+or does not match stops the install and deletes the download.
 
 ??? note "Different versions, toolchains, non-interactive"
 

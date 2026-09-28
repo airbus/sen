@@ -11,10 +11,9 @@
 
 load test_helpers
 
-# Stage a SHA256SUMS body and publish its URL the way the release response does.
-# The mock answers that exact URL and nothing else: a suffix match answered identically for
-# the tag URL and a draft's untagged-<hash> URL, so every outcome passed without the code
-# ever building a URL that worked.
+# Stage a SHA256SUMS body and publish its URL the way the release response does. The mock answers
+# that exact URL only: a suffix match cannot tell the tag URL from a draft's untagged-<hash> one,
+# which is the difference these tests turn on.
 mock_curl_sums() {
     local sums="$1"
     local url="${2:-https://example/releases/download/0.5.2/SHA256SUMS}"
@@ -42,7 +41,7 @@ mock_curl_sums() {
     load_install
     local archive="$SEN_INSTALL_HOME/cache/x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache" && printf 'x' > "$archive"
-    # No release before 0.7.0 published one, so this has to stay installable.
+    # No release before 0.7.0 published one, so this stays installable.
     SENV_SUMS_URL=""
     curl() { return 22; }
     verify_checksum 0.5.2 x.tar.gz "$archive"
@@ -135,8 +134,8 @@ mock_curl_full_install() {
 }
 
 # Builds a tarball shaped like a Sen release and prints its path. The fake `sen` answers
-# `completion <shell>` so cache_completions actually populates share/sen-completions/; a
-# plain-text fake would no-op silently and the assertion would pass on nothing.
+# `completion <shell>` so cache_completions populates share/sen-completions/; a plain-text fake
+# no-ops silently and the assertion then passes on nothing.
 stage_release_tarball() {
     local stage="$SEN_TEST_TMPDIR/build-stage-$$"
     mkdir -p "$stage/bin" "$stage/lib" "$stage/include" "$stage/share"
@@ -314,8 +313,8 @@ SCRIPT
 #---------------------------------------------------------------------------------------------------------------
 
 @test "verify_checksum: a draft's untagged asset URL verifies" {
-    # The case that has never run: a draft serves its assets under releases/download/untagged-<hash>/,
-    # so a URL built from the tag 404s and the install used to proceed unverified.
+    # A draft serves its assets under releases/download/untagged-<hash>/, where a URL built from
+    # the tag 404s.
     load_install
     local fname="x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -343,7 +342,7 @@ SCRIPT
 }
 
 @test "verify_checksum: no entry for our archive is fatal and deletes it" {
-    # A short artefact set produces exactly this: sums present, our archive absent from them.
+    # What a short artefact set looks like: sums present, our archive missing from them.
     load_install
     local fname="x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -356,9 +355,8 @@ SCRIPT
 }
 
 @test "do_install: a release candidate installs, with the hyphenated version intact" {
-    # The build id is <version>-<arch>-<os>-<compiler>-<compilerver>, so a version that itself
-    # contains a hyphen has to survive the naming. Nothing had ever installed one end to end,
-    # and the first release candidate is the first time anyone would.
+    # The build id is <version>-<arch>-<os>-<compiler>-<compilerver>, so a version containing a
+    # hyphen has to survive the naming.
     load_install
     mock_curl_full_install "$(fixture_path release-rc.json)" "$(stage_release_tarball)"
     detect_compiler() { return 1; }
@@ -375,9 +373,8 @@ SCRIPT
 }
 
 @test "do_install: a build type other than the default installs beside the release, not over it" {
-    # This is the end-to-end half of the archive-naming defect. resolve_url was tested for these
-    # build types; do_install was not, and it named the directory after the tarball. Two build
-    # types must also not collide, or the already-installed check hands back the wrong one.
+    # Two build types must not collide, or the already-installed check hands back whichever
+    # arrived first.
     load_install
     mock_curl_full_install "$(fixture_path release-with-debug-symbols.json)" "$(stage_release_tarball)"
     detect_compiler() { return 1; }
@@ -402,9 +399,8 @@ SCRIPT
 }
 
 @test "do_install: installing a candidate says so, and the activate scripts carry it" {
-    # current is retargeted unconditionally and the docs tell a reader to source it from their
-    # shell rc, so without this nothing anywhere says the build every new shell runs is a
-    # candidate. The variable is what a prompt or a bug-report template can read.
+    # current is retargeted unconditionally and the docs say to source it from a shell rc, so the
+    # variable is what a prompt or a bug report can read afterwards.
     load_install
     mock_curl_full_install "$(fixture_path release-rc.json)" "$(stage_release_tarball)"
     detect_compiler() { return 1; }

@@ -112,8 +112,8 @@ load test_helpers
 }
 
 @test "split_archive_name: refuses a two-segment build type" {
-    # -release-symbols is the name this scheme replaced. It used to parse as a toolchain
-    # called "12.4.0 release" and install into a directory named after the tarball.
+    # Two segments where the scheme allows one: this parses as a toolchain called
+    # "12.4.0 release" if the guard is removed.
     load_install
     run split_archive_name "sen-0.7.0-rc1-x86_64-linux-gnu-12.4.0-release-symbols.tar.gz"
     [ "$status" -eq 1 ]

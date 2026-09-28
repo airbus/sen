@@ -6,22 +6,18 @@
 # ======================================================================================================================
 #
 # Installs what was just published, the way the documentation tells a user to, and checks it worked.
+# The failures it catches do not report themselves: an install can succeed into the wrong directory,
+# and a checksum step can skip verification and say so in a note.
 #
-# This replaces a list of things a person was meant to observe during a release rehearsal. Two
-# defects found in review were things somebody did observe, three times, without noticing: an
-# install that landed in a directory named after the tarball, and a checksum step that has never
-# verified anything because the file it wanted was unreachable. Neither shows up as a failure. Both
-# are caught by the assertions below.
-#
-# It runs when a release is published rather than when a tag is pushed, because a draft is invisible
-# to the installer: it reads the API with no credentials, exactly as a stranger does.
+# On a published release rather than a tag push: the installer reads the API with no credentials,
+# so a draft is invisible to it.
 
 name: Check a published release
 
 on:
   release:
     types: [published]
-  # So a release that predates this workflow, or one being investigated, can be checked by hand.
+  # For checking a release by hand.
   workflow_dispatch:
     inputs:
       tag:
@@ -40,8 +36,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # The documented command fetches the installer from the default branch, which is the tree
-      # this workflow runs from, so the checkout is the same script a user would get.
+      # The documented command fetches the installer from the default branch, which is what a
+      # release event checks out, so this is the script a user would get.
       - name: Install the release
         id: install
         shell: bash
@@ -54,9 +50,6 @@ jobs:
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           sh resources/installer/install.sh "$TAG" --yes 2>&1 | tee "$RUNNER_TEMP/install.log"
 
-      # Would have caught the checksum defect: the file was attached to every rehearsal and the
-      # only code that read it built a URL that 404s, so every install skipped verification and
-      # said so in a note nobody treated as a failure.
       - name: The archive was verified against the release's checksums
         shell: bash
         run: |
@@ -83,16 +76,14 @@ jobs:
           command -v sen >/dev/null || { echo "::error::sen is not on PATH after activate"; exit 1; }
           out=$(sen --version)
           echo "sen --version: $out"
-          # Measured against 0.6.0: it prints the bare version, so the binary can be checked
-          # against the tag it was published under rather than merely for running.
+          # It prints the bare version, so this checks the binary against its own tag.
           case "$out" in
               *"$TAG"*) ;;
               *) echo "::error::sen --version says '$out', the release is $TAG"; exit 1 ;;
           esac
 
-      # Would have caught the archive-naming defect: every build type other than the release one
-      # installed into a directory named after the tarball, with current pointing at it. The
-      # install succeeded, so nothing failed.
+      # A build type whose name the installer cannot split installs into a directory named after
+      # the archive, and succeeds while doing it.
       - name: A build type other than the default installs into a sane directory
         shell: bash
         run: |

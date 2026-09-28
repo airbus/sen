@@ -5,14 +5,11 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 #
-# The version listing. It had no tests and the fixture mock could not reach it: that mock serves
-# /releases/tags/ and fails everything else, and every other fixture is a single release object
-# where this endpoint returns an array.
+# The version listing. It needs its own mock and fixture: the shared mock serves /releases/tags/
+# and this endpoint returns an array where every other fixture is a single release object.
 #
-# The fixture mirrors the live response's shape, checked rather than assumed: tag_name appears
-# once per release and nowhere nested, so the grep in ls_remote cannot pick up a key from an
-# author or an asset. It also carries the immutable key GitHub has since added, which the older
-# fixtures predate.
+# The fixture mirrors the live response: tag_name appears once per release and nowhere nested, and
+# it carries the immutable key GitHub added after the older fixtures were written.
 
 load test_helpers
 
@@ -28,8 +25,7 @@ load test_helpers
 }
 
 @test "ls_remote: a key added between tag_name and prerelease cannot shift the pairing" {
-    # GitHub has already inserted one key there. The parse keys on each release object's own
-    # indent rather than on the order two greps emit, so a new sibling cannot misalign it.
+    # GitHub has inserted one there already.
     load_install
     local fixture="$SEN_TEST_TMPDIR/with-new-key.json"
     sed 's/"prerelease"/"something_new": false,\n    "prerelease"/' \
@@ -42,8 +38,8 @@ load test_helpers
 }
 
 @test "ls_remote: a response it cannot read is refused, not printed empty" {
-    # A minified response is the realistic way this breaks. Printing nothing would read as
-    # "no releases", and printing a partial list would offer tags somebody then types.
+    # A minified response is how this breaks in practice. Printing nothing would read as
+    # "no releases"; a partial list would offer tags somebody then types.
     load_install
     local fixture="$SEN_TEST_TMPDIR/minified.json"
     tr -d '\n ' < "${BATS_TEST_DIRNAME}/fixtures/releases-listing.json" > "$fixture"
@@ -76,8 +72,7 @@ load test_helpers
 }
 
 @test "ls_remote: a response with no releases prints nothing and succeeds" {
-    # An empty array is what an unreleased repository returns. Distinguishing it from a failure
-    # matters: they reach the caller as the same empty string today.
+    # What an unreleased repository returns, and it must not read as a failure.
     load_install
     eval "curl() { printf '[]'; }"
     run ls_remote

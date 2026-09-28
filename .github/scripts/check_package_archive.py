@@ -50,10 +50,9 @@ REQUIRED_LIBRARIES = ("core", "shell")
 # separately, so one could ship the program with every check we own still green.
 FORBIDDEN_FILES = ("crashpad_handler",)
 
-# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, where
-# symbols takes the build type's place for the archive holding the debug information the
-# release build left behind. One segment per field: install.sh counts them. The version is
-# a tag or "latest", and a tag may carry an -rc suffix.
+# sen-<version>-<processor>-<system>-<compiler>-<version>-<build type>, lower case, with symbols
+# in the build type's place for the archive of split debug information. One segment per field:
+# install.sh counts them. The version is a tag or "latest", and a tag may carry an -rc suffix.
 NAME_PATTERN = re.compile(r"^sen-[^-]+(?:-rc\d+)?-[^-]+-[^-]+-[^-]+-[^-]+-(release|debug|relwithdebinfo|symbols)$")
 
 
@@ -184,8 +183,7 @@ def main() -> int:
     parser.add_argument(
         "--expect-symbols",
         action="store_true",
-        help="Require a symbols archive. The caller knows whether it asked the build for one; "
-        "without this the checker validates whatever it finds and a short set passes.",
+        help="Require a symbols archive. Without it the checker validates whatever it finds, so a short set passes.",
     )
     args = parser.parse_args()
 
