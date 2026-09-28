@@ -1,5 +1,6 @@
 var classsen_1_1kernel_1_1_registration_api =
 [
+    [ "TerminalOwnership", "classsen_1_1kernel_1_1_registration_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
     [ "RegistrationApi", "classsen_1_1kernel_1_1_registration_api.html#a28434338975c6e71642bfd89f330675b", null ],
     [ "~RegistrationApi", "classsen_1_1kernel_1_1_registration_api.html#a8f39a0a8901eeac5241239cf022da4dc", null ],
     [ "getConfig", "classsen_1_1kernel_1_1_registration_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],

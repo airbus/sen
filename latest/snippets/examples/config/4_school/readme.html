@@ -824,6 +824,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../../../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../../../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1471,10 +1483,10 @@
 <nav aria-label="How to run it" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#locally-using-the-shell">
+<a class="md-nav__link" href="#locally-using-the-term">
 <span class="md-ellipsis">
       
-        Locally using the shell
+        Locally using the term
       
     </span>
 </a>
@@ -1735,12 +1747,12 @@ local example, so take your time with it.</p>
 <li>Everyone has a "state" that dictates what they do and that can be influenced by others.</li>
 </ul>
 <h2 id="how-to-run-it">How to run it<a class="headerlink" href="#how-to-run-it" title="Permanent link">¶</a></h2>
-<h3 id="locally-using-the-shell">Locally using the shell<a class="headerlink" href="#locally-using-the-shell" title="Permanent link">¶</a></h3>
+<h3 id="locally-using-the-term">Locally using the term<a class="headerlink" href="#locally-using-the-term" title="Permanent link">¶</a></h3>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/4_school/1_school_two_classrooms_one_component.yaml
 </span></code></pre></div>
 <p>This creates two classrooms that live in the same Sen component.</p>
 <p>Each classroom is published in its own bus ("school.primary" and "school.secondary").</p>
-<p>You can use the shell to monitor the status or call methods.</p>
+<p>You can use the term to monitor the status or call methods.</p>
 <h3 id="locally-using-the-explorer">Locally using the explorer<a class="headerlink" href="#locally-using-the-explorer" title="Permanent link">¶</a></h3>
 <p>This is the same as the previous example, but also loading the explorer to have an easier time
 following the updates.</p>
@@ -1751,7 +1763,7 @@ value that different properties take as time advances.</p>
 <p>Additionally, you can use the event explorer to have a look at the different events that get
 produced during the execution (remember to check the events you are interested in).</p>
 <h3 id="locally-using-the-sen-query-language-sql">Locally using the Sen Query Language (SQL)<a class="headerlink" href="#locally-using-the-sen-query-language-sql" title="Permanent link">¶</a></h3>
-<p>This example loads the first configuration, but configures the shell with a dynamic query.</p>
+<p>This example loads the first configuration, but configures the term with a dynamic query.</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/4_school/3_school_two_classrooms_one_component_query.yaml
 </span></code></pre></div>
 <p>You should be able to see how the list of present objects changes as they match the query.</p>
@@ -1786,7 +1798,7 @@ teacher over the network.</p>
 <a href="https://airbus.github.io/sen/latest/components/mcp_gateway.html"><abbr title="Model Context Protocol">MCP</abbr> gateway</a> is one such thing; the web explorer is another.</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/4_school/8_school_jsonrpc.yaml
 </span></code></pre></div>
-<p>Register the gateway with your <abbr title="large language model">LLM</abbr> host and it can do what the shell does. Ask it to find the
+<p>Register the gateway with your <abbr title="large language model">LLM</abbr> host and it can do what the term does. Ask it to find the
 students in <code>school.primary</code>, read their <code>focusLevel</code>, or tell the teacher to <code>assignTasks</code> and
 watch for <code>stressLevelPeaked</code>.</p>
 </article>

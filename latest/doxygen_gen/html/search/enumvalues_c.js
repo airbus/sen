@@ -22,5 +22,6 @@ var searchData=
   ['opnotequal_19',['opNotEqual',['../group__lang.html#gga5e453be867105964bd4d0c8a48f0d4edacdff1638e335eb8121e3c3a24687c1dc',1,'sen::lang']]],
   ['opor_20',['opOr',['../group__lang.html#gga5e453be867105964bd4d0c8a48f0d4eda4b9e3d3db1bba9c98e2f5ffdbff6b0cb',1,'sen::lang']]],
   ['opreturn_21',['opReturn',['../group__lang.html#gga5e453be867105964bd4d0c8a48f0d4eda654340eac8c90d1c310e4eb6cd2cdf9e',1,'sen::lang']]],
-  ['opsub_22',['opSub',['../group__lang.html#gga5e453be867105964bd4d0c8a48f0d4eda68f15f32beaf2ae9339240cc2578d3cd',1,'sen::lang']]]
+  ['opsub_22',['opSub',['../group__lang.html#gga5e453be867105964bd4d0c8a48f0d4eda68f15f32beaf2ae9339240cc2578d3cd',1,'sen::lang']]],
+  ['owned_23',['owned',['../namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da8f9a4c5fe0824547590a3fc568f5c7c7',1,'sen::kernel']]]
 ];

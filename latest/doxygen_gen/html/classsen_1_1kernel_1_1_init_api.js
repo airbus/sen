@@ -1,5 +1,6 @@
 var classsen_1_1kernel_1_1_init_api =
 [
+    [ "TerminalOwnership", "classsen_1_1kernel_1_1_init_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
     [ "InitApi", "classsen_1_1kernel_1_1_init_api.html#a96a70ea55714d63f54f0cd9cb3105415", null ],
     [ "~InitApi", "classsen_1_1kernel_1_1_init_api.html#a14d162b2ad466f50ecde152e9527daaa", null ],
     [ "getConfig", "classsen_1_1kernel_1_1_init_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],

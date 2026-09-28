@@ -862,6 +862,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="influx.html">
 <span class="md-ellipsis">
     
@@ -1654,13 +1666,16 @@
 all projects. Maybe you will experience them during development, testing or in production, but they
 will be there.</p>
 <h2 id="what-ships-with-sen">What ships with Sen<a class="headerlink" href="#what-ships-with-sen" title="Permanent link">¶</a></h2>
-<p>Sen ships components you load rather than write:</p>
+<p>Sen ships components you load rather than write.</p>
 <ul>
-<li>A command-line interface for interacting with the components and objects that are running in a
-  process. This component is called <a href="shell.html"><em>shell</em></a>, and you can also remotely connect to it.</li>
+<li>A full-screen terminal for interacting with the components and objects that are running in a
+  process: <a href="term.html"><em>term</em></a>. It is in beta, and it replaces the <em>shell</em> below.</li>
+<li>A command-line interface that does the same, which you can also connect to remotely:
+  <a href="shell.html"><em>shell</em></a>. It will be deprecated in 0.8.0; use <em>term</em> for new work.</li>
 <li>A graphic user interface to explore the set of components, objects and their interactions in an
-  easy way. This component is called <a href="explorer.html"><em>explorer</em></a>.</li>
-<li>The same thing in a browser, served by Sen itself: the <a href="webexplorer.html"><em>web explorer</em></a>.</li>
+  easy way. This component is called <a href="explorer.html"><em>explorer</em></a>. It will be deprecated in 0.8.0.</li>
+<li>The same thing in a browser, served by Sen itself: the <a href="webexplorer.html"><em>web explorer</em></a>. It is in
+  beta, and it replaces the <em>explorer</em> above.</li>
 <li>An optimized inter-process communication over ethernet networks. This component is called
   <a href="ether.html"><em>ether</em></a>.</li>
 <li>A <a href="recording.html"><em>recorder</em></a> to store what happens in a process: objects, types, property changes,
@@ -1684,7 +1699,7 @@ will be there.</p>
 <h2 id="moving-components-between-processes">Moving components between processes<a class="headerlink" href="#moving-components-between-processes" title="Permanent link">¶</a></h2>
 <p>Let's take an example. Imagine that you have a system made of four functional components, and you
 want to have the <em>ether</em> component to allow them to interact with other systems. You need the
-<em>shell</em> during development to test your functionality. The <em>explorer</em> also helps you visualize
+<em>term</em> during development to test your functionality. The <em>explorer</em> also helps you visualize
 what's going on and monitor the execution. The <em><abbr title="Representational State Transfer">REST</abbr></em> helps you by allowing a script to stimulate
 and test your system. Finally, you also sometimes store the execution data using the <em>recorder</em>
 component.</p>
@@ -1693,7 +1708,7 @@ component.</p>
 <a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_1_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/services_1_dark.svg#only-dark" style="width:1100px"/></a></p>
 <p>This is fine during development, but you also start to see that you need to test your system a bit
 more independently of the tools that you use during development. For that, you can simply change the
-configuration file and move the <em>explorer</em> and <em>shell</em> components to a different process.</p>
+configuration file and move the <em>explorer</em> and <em>term</em> components to a different process.</p>
 <p>To get the two processes to see each-other you need to instantiate the <em>ether</em> component in both.</p>
 <p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_3_light.svg#only-light"><img alt="Screenshot" src="../assets/images/services_3_light.svg#only-light" style="width:1250px"/></a>
 <a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_3_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/services_3_dark.svg#only-dark" style="width:1250px"/></a></p>
@@ -1714,7 +1729,7 @@ setup. So, we modify our configuration file accordingly.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

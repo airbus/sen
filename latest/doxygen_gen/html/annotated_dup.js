@@ -83,6 +83,7 @@ var annotated_dup =
         [ "KernelConfig", "classsen_1_1kernel_1_1_kernel_config.html", "classsen_1_1kernel_1_1_kernel_config" ],
         [ "KernelMonitoringInfo", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info", "namespacesen_1_1kernel_structsen_1_1kernel_1_1_kernel_monitoring_info_dup" ],
         [ "LoadApi", "classsen_1_1kernel_1_1_load_api.html", "classsen_1_1kernel_1_1_load_api" ],
+        [ "LoggerSinkRegistration", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration", "namespacesen_1_1kernel_structsen_1_1kernel_1_1_logger_sink_registration_dup" ],
         [ "PackageManager", "classsen_1_1kernel_1_1_package_manager.html", "classsen_1_1kernel_1_1_package_manager" ],
         [ "ParticipantAddr", "group__kernel.html#structsen_1_1kernel_1_1_participant_addr", "group__kernel_structsen_1_1kernel_1_1_participant_addr" ],
         [ "PreloadApi", "classsen_1_1kernel_1_1_preload_api.html", "classsen_1_1kernel_1_1_preload_api" ],

@@ -139,5 +139,7 @@ var searchData=
   ['overruncount_136',['overrunCount',['../namespacesen_1_1kernel.html#a53469c27af684bdafd039ee2273c2df9',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['oversleptcount_137',['oversleptCount',['../namespacesen_1_1kernel.html#a6c7ef6a6bf621218c8ffb94f72ae0694',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['overview_138',['overview',['../namespacesen_1_1gen.html#af680d81e6325c83f0ce8fd6b5be92a54',1,'sen::gen::TypstOptions']]],
-  ['ownerid_139',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]]
+  ['owned_139',['owned',['../namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da8f9a4c5fe0824547590a3fc568f5c7c7',1,'sen::kernel']]],
+  ['ownerid_140',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]],
+  ['ownsterminal_141',['ownsTerminal',['../namespacesen_1_1kernel.html#a62a3f0f37751c965d4569c18455a8d03',1,'sen::kernel::LoggerSinkRegistration']]]
 ];

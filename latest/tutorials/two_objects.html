@@ -934,6 +934,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1722,7 +1734,7 @@
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
 <h1 id="tutorial-2-two-objects-talking">Tutorial 2: Two objects talking<a class="headerlink" href="#tutorial-2-two-objects-talking" title="Permanent link">¶</a></h1>
-<p>In the previous tutorial you built a single object and inspected it in the shell. Now you will build
+<p>In the previous tutorial you built a single object and inspected it in the term. Now you will build
 two objects that find each other at runtime and communicate: one calls a method on the other, and
 handles the result asynchronously.</p>
 <p><strong>What you'll learn:</strong></p>
@@ -2041,8 +2053,8 @@ is destroyed before the result arrives, the callback is not invoked.<p></p>
 <h2 id="step-5-configure-and-run">Step 5: Configure and run<a class="headerlink" href="#step-5-configure-and-run" title="Permanent link">¶</a></h2>
 <div class="language-yaml annotate highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1"># $schema: ../base/schema.json</span>
 </span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="nt">include</span><span class="p">:</span>
-</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="c1"># bring the shell so that we can interact with our objects</span>
-</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../base/shell.yaml</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="c1"># bring the term so that we can interact with our objects</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../base/term.yaml</span>
 </span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a>
 </span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="nt">build</span><span class="p">:</span>
 </span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myComponent</span>
@@ -2066,49 +2078,41 @@ is destroyed before the result arrives, the callback is not invoked.<p></p>
 <p>With the examples built, run this from the <code>examples/</code> directory of your Sen checkout:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config/1_calculators/4_calculators_client.yaml
 </span></code></pre></div>
-<p>The shell opens on <code>my.tutorial</code>, because the shell configuration pulled in by <code>include:</code> pre-opens
-that bus. Asking the client to run gives you the print from the callback:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>sen:host/4_calculators_client&gt; my.tutorial.client1.useCalculator
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>add(3, 4) = 7.000000
+<p>The term opens on <code>my.tutorial</code>, because the term configuration pulled in by <code>include:</code> pre-opens
+that bus. Ask the client to run, and the call finishes with a tick:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>✓ my.tutorial.client1.useCalculator
 </span></code></pre></div>
-<p>You can also drive the calculator yourself. Note that reading a property prints it as
-<code>- &lt;name&gt;: &lt;value&gt;</code>, and that <code>current</code> only changes once the call has been through a cycle:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sen:host/4_calculators_client&gt; my.tutorial.calc1.getCurrent
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>- current: 0.000000
-</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>sen:host/4_calculators_client&gt; my.tutorial.calc1.add 10, 5
-</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a>15.000000
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>
-</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a>sen:host/4_calculators_client&gt; my.tutorial.calc1.getCurrent
-</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a>- current: 15.000000
+<p>The client writes its own result with <code>std::cout</code>, and the term draws on standard output, so that
+line is not something you can rely on seeing here. Read the calculator's property instead, which is
+where the result landed:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>❯ my.tutorial.calc1.getCurrent
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>  current: 7
 </span></code></pre></div>
-<p><code>info</code> prints the whole interface, which is the quickest way to see what the generator made of your
-<abbr title="Sen Type Language">STL</abbr>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sen:host/4_calculators_client&gt; info my.tutorial.calc1
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>  OBJECT calc1 [id 0x3f2803f4]
-</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>
-</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>  CLASS calculators.Calculator
-</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a>  DESCRIPTION
-</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a>    A simple calculator that can add and divide numbers.
-</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a>
-</span><span id="__span-9-10"><a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a>  PROPERTIES
-</span><span id="__span-9-11"><a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a>    [string] model   st-rw-multicast The model of the calculator
-</span><span id="__span-9-12"><a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a>    [f32]    current dy-ro-multicast The last result, or what is currently pre..
-</span><span id="__span-9-13"><a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a>
-</span><span id="__span-9-14"><a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a>  METHODS
-</span><span id="__span-9-15"><a href="#__codelineno-9-15" id="__codelineno-9-15" name="__codelineno-9-15"></a>    add             Returns "a + b" and sets the last result to it.
-</span><span id="__span-9-16"><a href="#__codelineno-9-16" id="__codelineno-9-16" name="__codelineno-9-16"></a>    addWithCurrent  Returns "a + R" where R was the last result.
-</span><span id="__span-9-17"><a href="#__codelineno-9-17" id="__codelineno-9-17" name="__codelineno-9-17"></a>    divide          Returns "a / b" and sets the last result to it.
-</span><span id="__span-9-18"><a href="#__codelineno-9-18" id="__codelineno-9-18" name="__codelineno-9-18"></a>    divideByCurrent Returns "a / R" where R was the last result. If R is 0,..
-</span><span id="__span-9-19"><a href="#__codelineno-9-19" id="__codelineno-9-19" name="__codelineno-9-19"></a>
-</span><span id="__span-9-20"><a href="#__codelineno-9-20" id="__codelineno-9-20" name="__codelineno-9-20"></a>  EVENTS
-</span><span id="__span-9-21"><a href="#__codelineno-9-21" id="__codelineno-9-21" name="__codelineno-9-21"></a>    divisionByZero multicast Emitted when there's an attempt to divide by zero.
+<p>You can also drive the calculator yourself. <code>current</code> only changes once the call has been through a
+cycle:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>✓ my.tutorial.calc1.add 10, 5
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>  15
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>❯ my.tutorial.calc1.getCurrent
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>  current: 15
 </span></code></pre></div>
-<p>The flags are the ones from <a href="hello_sen.html#step-5-explore-the-object">Tutorial 1</a>, so <code>current</code> reads
-as dynamic and read-only. The <code>DESCRIPTION</code> block is new here: it is the comment above <code>class
-Calculator</code> in the <abbr title="Sen Type Language">STL</abbr>, so a comment there pays off twice.</p>
+<p><code>inspect</code> prints the whole interface, which is the quickest way to see what the generator made of
+your <abbr title="Sen Type Language">STL</abbr>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>❯ inspect my.tutorial.calc1
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>calculators.Calculator
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>A simple calculator that can add and divide numbers.
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>Properties
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>├ model : string  The model of the calculator
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a>└ current : f32  The last result, or what is currently presented at the screen.
+</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a>Methods
+</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a>├ add(a: f32, b: f32) → f32  Returns "a + b" and sets the last result to it.
+</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a>├ addWithCurrent(a: f32) → f32  Returns "a + R" where R was the last result.
+</span><span id="__span-10-10"><a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a>├ divide(a: f32, b: f32) → f32  Returns "a / b" and sets the last result to it.
+</span><span id="__span-10-11"><a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a>└ divideByCurrent(a: f32) → f32  Returns "a / R" where R is the last result. If R is 0, the division
+</span><span id="__span-10-12"><a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a>Events
+</span><span id="__span-10-13"><a href="#__codelineno-10-13" id="__codelineno-10-13" name="__codelineno-10-13"></a>└ divisionByZero()  Emitted when there's an attempt to divide by zero.
+</span></code></pre></div>
+<p>The line under the class name is the comment above <code>class Calculator</code> in the <abbr title="Sen Type Language">STL</abbr>, so a comment there
+pays off twice.</p>
 <hr/>
 <h2 id="common-mistakes">Common mistakes<a class="headerlink" href="#common-mistakes" title="Permanent link">¶</a></h2>
 <table>
@@ -2171,7 +2175,7 @@ Calculator</code> in the <abbr title="Sen Type Language">STL</abbr>, so a commen
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

@@ -36,12 +36,13 @@ var searchData=
   ['location_33',['Location',['../group__dr.html#structsen_1_1util_1_1_location',1,'sen::util']]],
   ['lock_34',['lock',['../classsen_1_1kernel_1_1_source_info.html#aa7b921ec8a2d414850b206cc7591bf52',1,'sen::kernel::SourceInfo']]],
   ['lockedrangeadapter_35',['LockedRangeAdapter',['../classsen_1_1util_1_1_locked_range_adapter.html',1,'sen::util::LockedRangeAdapter&lt; LockType, IteratorType, MutexType &gt;'],['../classsen_1_1util_1_1_locked_range_adapter.html#ac12f0a307f9eb061be67cc1b534b182f',1,'sen::util::LockedRangeAdapter::LockedRangeAdapter(ContainerType &amp;container, MutexType &amp;m)'],['../classsen_1_1util_1_1_locked_range_adapter.html#a25f60b230a72a6dc193cf0b09de8cd1e',1,'sen::util::LockedRangeAdapter::LockedRangeAdapter(IteratorType begin, IteratorType end, MutexType &amp;m)']]],
-  ['logicaland_36',['logicalAnd',['../group__lang.html#gga40421b432d75f16502847af2462e5a00ab7e98f2fa109d0045d648bc5b472a1a4',1,'sen::lang']]],
-  ['logicalnot_37',['logicalNot',['../group__lang.html#gga4e0eeefcf95ea836c8f1925dbccb22dea8d00aecbb338db4faaff1ae1fb58ab4b',1,'sen::lang']]],
-  ['logicalor_38',['logicalOr',['../group__lang.html#gga40421b432d75f16502847af2462e5a00aaab94cec04038d7afe73e93fc792799e',1,'sen::lang']]],
-  ['logo_39',['logo',['../namespacesen_1_1gen_1_1detail.html#a67c4c2f5513e04956d933c5ebd6db27f',1,'sen::gen::detail::HtmlApp']]],
-  ['longitude_40',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
-  ['lookuptype_41',['lookupType',['../classsen_1_1kernel_1_1_package_manager.html#a0febd2ac7402c3644e3fb727de71e1bf',1,'sen::kernel::PackageManager']]],
-  ['low_20level_20input_20output_42',['Low level input / output',['../group__io.html',1,'']]],
-  ['lt_43',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator::lt'],['../group__lang.html#gga2f282d2524541d36339abfa3b4b25782ad91af6958918af87d6a057c1cdf5b225',1,'sen::lang::lt']]]
+  ['loggersinkregistration_36',['LoggerSinkRegistration',['../namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration',1,'sen::kernel']]],
+  ['logicaland_37',['logicalAnd',['../group__lang.html#gga40421b432d75f16502847af2462e5a00ab7e98f2fa109d0045d648bc5b472a1a4',1,'sen::lang']]],
+  ['logicalnot_38',['logicalNot',['../group__lang.html#gga4e0eeefcf95ea836c8f1925dbccb22dea8d00aecbb338db4faaff1ae1fb58ab4b',1,'sen::lang']]],
+  ['logicalor_39',['logicalOr',['../group__lang.html#gga40421b432d75f16502847af2462e5a00aaab94cec04038d7afe73e93fc792799e',1,'sen::lang']]],
+  ['logo_40',['logo',['../namespacesen_1_1gen_1_1detail.html#a67c4c2f5513e04956d933c5ebd6db27f',1,'sen::gen::detail::HtmlApp']]],
+  ['longitude_41',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
+  ['lookuptype_42',['lookupType',['../classsen_1_1kernel_1_1_package_manager.html#a0febd2ac7402c3644e3fb727de71e1bf',1,'sen::kernel::PackageManager']]],
+  ['low_20level_20input_20output_43',['Low level input / output',['../group__io.html',1,'']]],
+  ['lt_44',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator::lt'],['../group__lang.html#gga2f282d2524541d36339abfa3b4b25782ad91af6958918af87d6a057c1cdf5b225',1,'sen::lang::lt']]]
 ];

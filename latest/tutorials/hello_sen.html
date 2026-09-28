@@ -938,6 +938,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1728,7 +1740,7 @@
 <h1 id="tutorial-1-hello-sen">Tutorial 1: Hello Sen<a class="headerlink" href="#tutorial-1-hello-sen" title="Permanent link">¶</a></h1>
 <p>In this tutorial you will build the simplest possible Sen application: a single object that updates
 a property each cycle and exposes a method. By the end, you will have a running
-<a href="../users_guide/glossary.html#kernel">kernel</a>, a live object visible in the shell, and a clear
+<a href="../users_guide/glossary.html#kernel">kernel</a>, a live object visible in the term, and a clear
 picture of how Sen's pieces fit together.</p>
 <p><strong>What you'll learn:</strong></p>
 <ul>
@@ -1736,7 +1748,7 @@ picture of how Sen's pieces fit together.</p>
 <li>How to define properties and methods in <abbr title="Sen Type Language">STL</abbr></li>
 <li>How to implement a generated base class</li>
 <li>How to stage property updates with <code>setNext</code> and why that matters</li>
-<li>How to use the shell to inspect a live object</li>
+<li>How to use the term to inspect a live object</li>
 </ul>
 <p><strong>Prerequisites:</strong> Sen installed, basic C++ knowledge, and the activation script sourced in the
 shell you are about to work in:</p>
@@ -1906,7 +1918,7 @@ manual works this through.</p>
 <h2 id="step-4-configure-and-run">Step 4: Configure and run<a class="headerlink" href="#step-4-configure-and-run" title="Permanent link">¶</a></h2>
 <p>Edit <code>config.yaml</code> so it looks like this:</p>
 <div class="language-yaml annotate highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span><span class="w">   </span><span class="c1"># (1)!</span>
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">term</span><span class="w">   </span><span class="c1"># (1)!</span>
 </span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">local.counters</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># (2)!</span>
 </span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>
@@ -1922,15 +1934,15 @@ manual works this through.</p>
 </span><span id="__span-6-15"><a href="#__codelineno-6-15" id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="w">        </span><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local.counters</span><span class="w">  </span><span class="c1"># (7)!</span>
 </span></code></pre></div>
 <ol>
-<li>Load the shell component so we can interact with the running system.</li>
-<li>Automatically open this bus in the shell so we can see objects without typing <code>open</code> manually.</li>
+<li>Load the term component so we can interact with the running system.</li>
+<li>Automatically open this bus in the term so we can see objects without typing <code>open</code> manually.</li>
 <li>The component (and all its objects) will call <code>update()</code> twice per second.</li>
 <li>Tell Sen to load your package so it can find <code>CounterImpl</code>.</li>
 <li>The C++ class you registered with <code>SEN_EXPORT_CLASS</code>, qualified by its package. This is not the
-   <abbr title="Sen Type Language">STL</abbr> class name: the shell below shows the same object as <code>my_counter.Counter</code>, the class it
+   <abbr title="Sen Type Language">STL</abbr> class name: the term below shows the same object as <code>my_counter.Counter</code>, the class it
    implements.</li>
 <li>Initial value for the <code>step</code> static property. Required: static properties must have a value.</li>
-<li>The bus where your object will be published. Must match what the shell opens.</li>
+<li>The bus where your object will be published. Must match what the term opens.</li>
 </ol>
 <p>Now build and run:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cmake<span class="w"> </span>--build<span class="w"> </span>build
@@ -1939,54 +1951,45 @@ manual works this through.</p>
 </span></code></pre></div>
 <hr/>
 <h2 id="step-5-explore-the-object">Step 5: Explore the object<a class="headerlink" href="#step-5-explore-the-object" title="Permanent link">¶</a></h2>
-<p>The shell opens automatically. Its prompt shows the host and the configuration you started, so it
-looks like <code>sen:host/config&gt;</code>. Start with <code>ls</code>, which lists everything the shell can see:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sen:host/config&gt; ls
-</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>  ┬
-</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a>  └─┬local [session]
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>    ├─┬counters [bus]
-</span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a>    │ └──myCounter [my_counter.Counter]
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>    ├──shell [~]
-</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a>    ├──kernel [~]
-</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a>    └──log [~]
+<p>The term opens automatically. Its prompt shows your scope, which starts at the root, so it reads
+<code>sen:/❯</code>. Start with <code>ls</code>, which draws what it can see as a tree:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>❯ ls
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>└─┬ local [session]
+</span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a>  └─┬ counters [bus]
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>    └── myCounter [my_counter.Counter]
 </span></code></pre></div>
 <p><code>local</code> is the session, <code>counters</code> is the bus we opened, and <code>myCounter</code> is your object with its
-class beside it. The three entries marked <code>[~]</code> are the components: the shell itself, the kernel and
-the log.</p>
-<p><code>info</code> prints the interface, which is the fastest way to confirm the generator understood your <abbr title="Sen Type Language">STL</abbr>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sen:host/config&gt; info local.counters.myCounter
-</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>  OBJECT myCounter [id 0x68c1c76c]
-</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>
-</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>  CLASS my_counter.Counter
-</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a>  PROPERTIES
-</span><span id="__span-9-8"><a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a>    [i32] value dy-ro-multicast The current value of the counter.
-</span><span id="__span-9-9"><a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a>    [i32] step  st-rw-multicast How much should the counter increase each cycle.
-</span><span id="__span-9-10"><a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a>
-</span><span id="__span-9-11"><a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a>  METHODS
-</span><span id="__span-9-12"><a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a>    hello Returns a greeting message.
-</span><span id="__span-9-13"><a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a>
-</span><span id="__span-9-14"><a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a>  EVENTS
-</span><span id="__span-9-15"><a href="#__codelineno-9-15" id="__codelineno-9-15" name="__codelineno-9-15"></a>    valueIsDivisibleByTen multicast Emitted each time the current value is div..
+class beside it.</p>
+<p><code>cd</code> moves into the bus, which shortens what you have to type and narrows what <code>ls</code> shows:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>❯ cd local.counters
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>sen:/local.counters❯ ls
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>└── myCounter [my_counter.Counter]
 </span></code></pre></div>
-<p>The flags say what each property is: <code>dy</code> or <code>st</code> for dynamic or static, and <code>ro</code> or <code>rw</code> for
-read-only or read-write. So <code>value</code> is the dynamic, read-only one we update each cycle and <code>step</code> is
-the static one we set in the configuration, which is what the <abbr title="Sen Type Language">STL</abbr> declared. Descriptions come
-straight from your comments, truncated to fit the terminal.</p>
+<p><code>inspect</code> prints the interface, which is the fastest way to confirm the generator understood your
+<abbr title="Sen Type Language">STL</abbr>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>❯ inspect myCounter
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>my_counter.Counter
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>Properties
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>├ value : i32  The current value of the counter.
+</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>└ step : i32  How much should the counter increase each cycle.
+</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a>Methods
+</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a>└ hello() → string  Returns a greeting message.
+</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a>Events
+</span><span id="__span-10-9"><a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a>└ valueIsDivisibleByTen(newValue: i32)  Emitted each time the current value is divisible by 10.
+</span></code></pre></div>
+<p>The descriptions come straight from the comments in your <abbr title="Sen Type Language">STL</abbr>. <code>value</code> is the one the component
+updates each cycle and <code>step</code> is the one the configuration set.</p>
 <p>Read-only and read-write are about everyone else, not about you: you always set your own properties
 with <code>setNext&lt;Prop&gt;()</code>. <code>value</code> is a plain <code>var</code>, so nobody outside can write it. <code>step</code> is
 <code>[static]</code>, and that is what makes it settable from the configuration. Declaring a dynamic property
 <code>[writable]</code> opens it to other objects in the same way.</p>
-<p>Now read the properties. A getter prints as <code>- &lt;name&gt;: &lt;value&gt;</code>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>sen:host/config&gt; local.counters.myCounter.getValue
-</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>- value: 125
-</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>sen:host/config&gt; local.counters.myCounter.getValue
-</span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>- value: 185
-</span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a>sen:host/config&gt; local.counters.myCounter.getStep
-</span><span id="__span-10-8"><a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a>- step: 5
+<p>Now read the properties. A getter prints the name and the value:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>❯ myCounter.getValue
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>  value: 20
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>❯ myCounter.getValue
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>  value: 40
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>❯ myCounter.getStep
+</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>  step: 5
 </span></code></pre></div>
 <p>Your numbers will differ from these, and that is the point: at 2 Hz with <code>step: 5</code> the value climbs
 by ten every second for as long as the kernel runs, so what you see depends on how long it has been
@@ -1994,18 +1997,18 @@ up and how fast you type. <code>step</code> does not move, because it is static.
 <p>That coupling is deliberate here and fine for a counter. A value that should advance per second, and
 not per cycle, has to read the time instead, which
 <a href="../users_guide/execution_model.html#the-time-a-component-sees">the execution model</a> shows how to do.</p>
-<p>Calling the method returns a string:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>sen:host/config&gt; local.counters.myCounter.hello
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>"Hello from Sen! My current value is: 250"
+<p>Calling the method returns a string. A call in flight shows a spinner with the time it has been out,
+and finishes with a tick and the result:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>✓ myCounter.hello
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>  "Hello from Sen! My current value is: 30"
 </span></code></pre></div>
 <p>Finally, <code>shutdown</code> stops the kernel:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>sen:host/config&gt; shutdown
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>shutting down...
-</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a>bye ☺
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>❯ shutdown
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>  Shutting down...
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>The shell has tab-completion. Type <code>local.</code> and press <code>Tab</code> to see available buses and objects.</p>
+<p>The term has tab-completion. Type <code>local.</code> and press <code>Tab</code> to see available buses and objects.</p>
 </div>
 <hr/>
 <h2 id="what-just-happened">What just happened?<a class="headerlink" href="#what-just-happened" title="Permanent link">¶</a></h2>
@@ -2013,12 +2016,12 @@ not per cycle, has to read the time instead, which
 <ol>
 <li>
 <p><strong><code>sen run config.yaml</code></strong> starts the kernel. It reads the config, loads the <code>shell</code> component
-   (group 2), then builds the <code>counterComponent</code> (group 3). Groups ensure the shell is ready before
+   (group 2), then builds the <code>counterComponent</code> (group 3). Groups ensure the term is ready before
    the component starts.</p>
 </li>
 <li>
 <p><strong><code>CounterImpl</code> is instantiated</strong> with <code>step = 5</code> and registered on the <code>local.counters</code> bus.
-   The shell sees it immediately because it has the bus open.</p>
+   The term sees it immediately because it has the bus open.</p>
 </li>
 <li>
 <p><strong>Every 500 ms</strong> (2 Hz), the kernel runs the drain-update-commit cycle for <code>counterComponent</code>:</p>
@@ -2032,7 +2035,7 @@ not per cycle, has to read the time instead, which
      everyone. The <code>valueIsDivisibleByTen</code> event is delivered to any subscribers.</p>
 </li>
 <li>
-<p><strong>When you called <code>hello</code></strong> in the shell, the kernel queued the method call. On the next drain,
+<p><strong>When you called <code>hello</code></strong> in the term, the kernel queued the method call. On the next drain,
    <code>helloImpl()</code> executed, and returned a string. Your shell received the result via
    a callback.</p>
 </li>
@@ -2052,7 +2055,7 @@ not per cycle, has to read the time instead, which
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 8, 2026 12:44:55 UTC">September 8, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

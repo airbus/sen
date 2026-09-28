@@ -143,9 +143,14 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1ke
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_unload_api__inherit__graph.svg" width="395" height="510"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1kernel_1_1_unload_api__inherit__graph.svg" width="403" height="644"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ab4cbb48efa29a3016f6685d3d368d6a9" id="r_ab4cbb48efa29a3016f6685d3d368d6a9"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#ab4cbb48efa29a3016f6685d3d368d6a9">TerminalOwnership</a> = <a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">::sen::kernel::TerminalOwnership</a></td></tr>
+<tr class="memdesc:ab4cbb48efa29a3016f6685d3d368d6a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The logger state below is per process, not per kernel. The relay sink and the record of what the console sinks were are statics in libkernel, so they outlive any <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a></span> and are shared by every kernel in the process. "Every logger" means every logger in libkernel's registry, which no kernel owns. <span class="tt">configureSpdlog</span> replaces the sink vector of every logger that already exists, so <span class="tt">KernelImpl::configure</span> re-attaches the relay straight afterwards, and a second kernel configured in the same process keeps working. A logger made by any route other than <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a8be47df4b5ee2f0ba42886777fcbfce5" title="Registers a new logger in the kernel if it does not exist, or returns the existing one by name....">getOrCreateLogger</a></span>, a direct spdlog factory for instance, is not reached at all.  <br /></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a3751c3412da92dda028b78aae68ee513" id="r_a3751c3412da92dda028b78aae68ee513"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a3751c3412da92dda028b78aae68ee513">UnloadApi</a> (<a class="el" href="classsen_1_1kernel_1_1_kernel.html">Kernel</a> &amp;kernel, const <a class="el" href="group__type__utils.html#ga3ae50544ad34402f50a10a392ba495a2">VarMap</a> &amp;config, impl::Runner *runner) noexcept</td></tr>
@@ -188,10 +193,48 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a8be47df4b5ee2f0ba42886777fcbfce5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a new logger in the kernel if it does not exist, or returns the existing one by name. Used to propagate the logger configuration to other packages/components that use it.  <br /></td></tr>
 <tr class="memitem:abc0b551d43222b27ebee354c2e1ca647" id="r_abc0b551d43222b27ebee354c2e1ca647"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#abc0b551d43222b27ebee354c2e1ca647">applyToAllLoggers</a> (std::function&lt; void(std::shared_ptr&lt; spdlog::logger &gt;)&gt; &amp;&amp;func)</td></tr>
 <tr class="memdesc:abc0b551d43222b27ebee354c2e1ca647"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the input function to all loggers kept in the logger registry. Used by the logmaster component.  <br /></td></tr>
+<tr class="memitem:a414d62097a09d623a4bfaba183863bb0" id="r_a414d62097a09d623a4bfaba183863bb0"><td class="memItemLeft">static <a class="el" href="classsen_1_1_result.html">Result</a>&lt; <a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration">LoggerSinkRegistration</a>, ExecError &gt;&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a414d62097a09d623a4bfaba183863bb0">addLoggerSink</a> (std::shared_ptr&lt; spdlog::sinks::sink &gt; sink, <a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">TerminalOwnership</a> terminal=<a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da9e81e7b963c71363e2fb3eefcfecfc0e">TerminalOwnership::shared</a>)</td></tr>
+<tr class="memdesc:a414d62097a09d623a4bfaba183863bb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends every logger's output to <span class="tt">sink</span>, including loggers made afterwards.  <br /></td></tr>
+<tr class="memitem:aa31236cb9f123b4c2bba6cba51304a5e" id="r_aa31236cb9f123b4c2bba6cba51304a5e"><td class="memItemLeft">static <a class="el" href="namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019">FuncResult</a>&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#aa31236cb9f123b4c2bba6cba51304a5e">removeLoggerSink</a> (const std::shared_ptr&lt; spdlog::sinks::sink &gt; &amp;sink)</td></tr>
+<tr class="memdesc:aa31236cb9f123b4c2bba6cba51304a5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops sending output to <span class="tt">sink</span>. Restores the console sinks if this was the last registered sink claiming the terminal. For a component being unloaded.  <br /></td></tr>
+<tr class="memitem:a30d060f63aaaf5d72b890c2fe88ef215" id="r_a30d060f63aaaf5d72b890c2fe88ef215"><td class="memItemLeft">static <a class="el" href="namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019">FuncResult</a>&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a30d060f63aaaf5d72b890c2fe88ef215">setAllLoggersLevel</a> (spdlog::level::level_enum level)</td></tr>
+<tr class="memdesc:a30d060f63aaaf5d72b890c2fe88ef215"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the level on every logger the kernel knows and on every logger made afterwards.  <br /></td></tr>
+<tr class="memitem:a65efb79fb46b27c7cafcd4d1b90cbd57" id="r_a65efb79fb46b27c7cafcd4d1b90cbd57"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a65efb79fb46b27c7cafcd4d1b90cbd57">setCrashBannerDescriptor</a> (int descriptor) noexcept</td></tr>
+<tr class="memdesc:a65efb79fb46b27c7cafcd4d1b90cbd57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Where the kernel writes the crash banner, the few lines naming what died and where the report went, for a component that has taken stderr over.  <br /></td></tr>
+<tr class="memitem:a530c652b886f1b851ffdd5ee21b836fb" id="r_a530c652b886f1b851ffdd5ee21b836fb"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a530c652b886f1b851ffdd5ee21b836fb">prepareCurrentThreadForCrashReports</a> () noexcept</td></tr>
+<tr class="memdesc:a530c652b886f1b851ffdd5ee21b836fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Give the calling thread the alternate signal stack the crash handler needs.  <br /></td></tr>
+<tr class="memitem:ab0e6140536c2fdfccb3d4d200e3ed35c" id="r_ab0e6140536c2fdfccb3d4d200e3ed35c"><td class="memItemLeft">static spdlog::level::level_enum&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#ab0e6140536c2fdfccb3d4d200e3ed35c">getAllLoggersLevel</a> ()</td></tr>
+<tr class="memdesc:ab0e6140536c2fdfccb3d4d200e3ed35c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The level <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a30d060f63aaaf5d72b890c2fe88ef215" title="Sets the level on every logger the kernel knows and on every logger made afterwards.">setAllLoggersLevel</a></span> last set, which is also the level a new logger starts from.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>What can be done when unloading a component. </p>
-</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
+</div><a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Member Typedef Documentation</h2>
+<a id="ab4cbb48efa29a3016f6685d3d368d6a9" name="ab4cbb48efa29a3016f6685d3d368d6a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab4cbb48efa29a3016f6685d3d368d6a9">&#9670;&#160;</a></span>TerminalOwnership</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">sen::kernel::KernelApi::TerminalOwnership</a> = <a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">::sen::kernel::TerminalOwnership</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The logger state below is per process, not per kernel. The relay sink and the record of what the console sinks were are statics in libkernel, so they outlive any <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel.html" title="Main entry point of a sen microkernel.">Kernel</a></span> and are shared by every kernel in the process. "Every logger" means every logger in libkernel's registry, which no kernel owns. <span class="tt">configureSpdlog</span> replaces the sink vector of every logger that already exists, so <span class="tt">KernelImpl::configure</span> re-attaches the relay straight afterwards, and a second kernel configured in the same process keeps working. A logger made by any route other than <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a8be47df4b5ee2f0ba42886777fcbfce5" title="Registers a new logger in the kernel if it does not exist, or returns the existing one by name....">getOrCreateLogger</a></span>, a direct spdlog factory for instance, is not reached at all. </p>
+<p>spdlog appears in these signatures deliberately. It makes a component's ABI depend on being built against the same spdlog as the kernel, which is acceptable because Sen builds the kernel and its components from one source tree, and a component that renders logs wants spdlog's own formatting. Revisit it first if components ever ship separately from the kernel. </p>
+
+</div>
+</div>
+<a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3751c3412da92dda028b78aae68ee513" name="a3751c3412da92dda028b78aae68ee513"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3751c3412da92dda028b78aae68ee513">&#9670;&#160;</a></span>UnloadApi()</h2>
 
@@ -711,6 +754,185 @@ template&lt;typename T, typename Bus&gt; </div>
 </div><div class="memdoc">
 
 <p>Applies the input function to all loggers kept in the logger registry. Used by the logmaster component. </p>
+<p><span class="tt">func</span> runs under spdlog's logger-map mutex, which is not recursive, so it must not do anything that reaches the registry again. <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a8be47df4b5ee2f0ba42886777fcbfce5" title="Registers a new logger in the kernel if it does not exist, or returns the existing one by name....">getOrCreateLogger</a></span>, <span class="tt">spdlog::get</span>, <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a30d060f63aaaf5d72b890c2fe88ef215" title="Sets the level on every logger the kernel knows and on every logger made afterwards.">setAllLoggersLevel</a></span> and logging through a logger looked up by name all take that mutex, and calling one from inside <span class="tt">func</span> deadlocks the calling thread. Emitting through a logger <span class="tt">func</span> was handed is fine. </p>
+
+</div>
+</div>
+<a id="a414d62097a09d623a4bfaba183863bb0" name="a414d62097a09d623a4bfaba183863bb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a414d62097a09d623a4bfaba183863bb0">&#9670;&#160;</a></span>addLoggerSink()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classsen_1_1_result.html">Result</a>&lt; <a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration">LoggerSinkRegistration</a>, ExecError &gt; sen::kernel::KernelApi::addLoggerSink </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; spdlog::sinks::sink &gt;</td>          <td class="paramname"><span class="paramname"><em>sink</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">TerminalOwnership</a></td>          <td class="paramname"><span class="paramname"><em>terminal</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da9e81e7b963c71363e2fb3eefcfecfc0e">TerminalOwnership::shared</a></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sends every logger's output to <span class="tt">sink</span>, including loggers made afterwards. </p>
+<p>A component cannot do this by walking the registry itself: spdlog iterates a logger's sink vector without a lock and hands out a bare reference, so appending to a logger another thread is emitting through is a use-after-free. Appending earlier is no safer, because the kernel starts each group's threads before it loads the next group and logs between groups itself. The kernel therefore attaches one sink of its own to every logger, in the only window where attaching is safe, and this call registers <span class="tt">sink</span> behind it under a mutex. No logger's sink vector is touched here, so it may be called from any thread at any time.</p>
+<p><span class="tt">sink</span> keeps its own pattern: the relay hands on the unformatted message and each registered sink formats it.</p>
+<p>The registration has no owner. Sinks are held until removed, so a component that is unloaded must call <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#aa31236cb9f123b4c2bba6cba51304a5e" title="Stops sending output to sink. Restores the console sinks if this was the last registered sink claimin...">removeLoggerSink</a></span>, and it must stop its sink reaching its own state first, because the sink can be running on another thread. Nothing here enforces that order: this is a static function with no api object, so the kernel cannot know which component registered what.</p>
+<p>A sink left registered is a state hazard rather than a code one only because nothing dlcloses a component, so its code stays mapped. If unload is ever made to really unload, every un-removed sink becomes a jump into unmapped memory on the next log line.</p>
+<p>Returns what the registration did, or an error if <span class="tt">sink</span> is null. Nothing else can fail. </p>
+
+</div>
+</div>
+<a id="aa31236cb9f123b4c2bba6cba51304a5e" name="aa31236cb9f123b4c2bba6cba51304a5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa31236cb9f123b4c2bba6cba51304a5e">&#9670;&#160;</a></span>removeLoggerSink()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019">FuncResult</a> sen::kernel::KernelApi::removeLoggerSink </td>
+          <td>(</td>
+          <td class="paramtype">const std::shared_ptr&lt; spdlog::sinks::sink &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>sink</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Stops sending output to <span class="tt">sink</span>. Restores the console sinks if this was the last registered sink claiming the terminal. For a component being unloaded. </p>
+<p>Removing a sink that was never registered is not an error. A null sink is. </p>
+
+</div>
+</div>
+<a id="a30d060f63aaaf5d72b890c2fe88ef215" name="a30d060f63aaaf5d72b890c2fe88ef215"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30d060f63aaaf5d72b890c2fe88ef215">&#9670;&#160;</a></span>setAllLoggersLevel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019">FuncResult</a> sen::kernel::KernelApi::setAllLoggersLevel </td>
+          <td>(</td>
+          <td class="paramtype">spdlog::level::level_enum</td>          <td class="paramname"><span class="paramname"><em>level</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets the level on every logger the kernel knows and on every logger made afterwards. </p>
+<p>Walking the registry with <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#abc0b551d43222b27ebee354c2e1ca647" title="Applies the input function to all loggers kept in the logger registry. Used by the logmaster componen...">applyToAllLoggers</a></span> reaches only the loggers that exist when it runs, so a level set that way stops applying as soon as another component makes a logger. This sets the registry's own level, which is what a new logger is initialised from.</p>
+<p>It replaces the per-logger levels a configuration file asked for, and there is no way back to them: read one before you change it if you mean to restore it.</p>
+<p>Errors on a level outside the enum. Nothing else can fail. </p>
+
+</div>
+</div>
+<a id="a65efb79fb46b27c7cafcd4d1b90cbd57" name="a65efb79fb46b27c7cafcd4d1b90cbd57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65efb79fb46b27c7cafcd4d1b90cbd57">&#9670;&#160;</a></span>setCrashBannerDescriptor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::kernel::KernelApi::setCrashBannerDescriptor </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>descriptor</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel noexcept">noexcept</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Where the kernel writes the crash banner, the few lines naming what died and where the report went, for a component that has taken stderr over. </p>
+<p>A component that draws a full-screen terminal captures stderr so a stray write cannot land on its display. That captures the crash banner too, and a fatal error would print the report's path into a pipe that dies with the process, leaving the user with a vanished UI and an exit status. Hand over the descriptor the component saved and the banner goes there. Pass -1 to restore stderr, which a component must do before the descriptor it gave is closed. </p>
+
+</div>
+</div>
+<a id="a530c652b886f1b851ffdd5ee21b836fb" name="a530c652b886f1b851ffdd5ee21b836fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a530c652b886f1b851ffdd5ee21b836fb">&#9670;&#160;</a></span>prepareCurrentThreadForCrashReports()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::kernel::KernelApi::prepareCurrentThreadForCrashReports </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel noexcept">noexcept</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Give the calling thread the alternate signal stack the crash handler needs. </p>
+<p>Every thread the kernel creates gets this when it starts. A component that creates its own thread with <span class="tt">std::thread</span> does not, and a fatal signal on such a thread, a stack overflow in particular, can fault again inside the handler and produce no dump at all. Call it once, first thing, in any thread the component starts itself. Harmless if crash reporting is disabled or already armed. </p>
+
+</div>
+</div>
+<a id="ab0e6140536c2fdfccb3d4d200e3ed35c" name="ab0e6140536c2fdfccb3d4d200e3ed35c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0e6140536c2fdfccb3d4d200e3ed35c">&#9670;&#160;</a></span>getAllLoggersLevel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">spdlog::level::level_enum sen::kernel::KernelApi::getAllLoggersLevel </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The level <span class="tt"><a class="el" href="classsen_1_1kernel_1_1_kernel_api.html#a30d060f63aaaf5d72b890c2fe88ef215" title="Sets the level on every logger the kernel knows and on every logger made afterwards.">setAllLoggersLevel</a></span> last set, which is also the level a new logger starts from. </p>
+<p>Read this rather than keeping a copy beside the setter, which drifts as soon as anything else sets the level. </p>
 
 </div>
 </div>

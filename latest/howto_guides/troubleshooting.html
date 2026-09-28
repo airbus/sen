@@ -824,6 +824,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1315,10 +1327,10 @@
 <nav aria-label="Object discovery" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#object-never-appears-in-the-shell-subscription-is-always-empty">
+<a class="md-nav__link" href="#object-never-appears-in-the-term-subscription-is-always-empty">
 <span class="md-ellipsis">
       
-        Object never appears in the shell / subscription is always empty
+        Object never appears in the term / subscription is always empty
       
     </span>
 </a>
@@ -1936,13 +1948,13 @@ correctly. Run a full clean build:</p>
 </span></code></pre></div>
 <hr/>
 <h2 id="object-discovery">Object discovery<a class="headerlink" href="#object-discovery" title="Permanent link">¶</a></h2>
-<h3 id="object-never-appears-in-the-shell-subscription-is-always-empty">Object never appears in the shell / subscription is always empty<a class="headerlink" href="#object-never-appears-in-the-shell-subscription-is-always-empty" title="Permanent link">¶</a></h3>
-<p><strong>Symptom:</strong> You run <code>ls</code> in the shell and see nothing, or your <code>Subscription&lt;T&gt;</code> list
+<h3 id="object-never-appears-in-the-term-subscription-is-always-empty">Object never appears in the term / subscription is always empty<a class="headerlink" href="#object-never-appears-in-the-term-subscription-is-always-empty" title="Permanent link">¶</a></h3>
+<p><strong>Symptom:</strong> You run <code>ls</code> in the term and see nothing, or your <code>Subscription&lt;T&gt;</code> list
 is always empty even though the component started successfully.</p>
 <p><strong>Cause (most common):</strong> Bus name mismatch. The object is published to a different bus than the one
 you are watching.</p>
 <p><strong>Fix:</strong> Check that the bus name in your YAML config exactly matches what you use in code and in
-the shell. Bus names are case-sensitive:</p>
+the term. Bus names are case-sensitive:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="c1"># YAML config</span>
 </span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="nt">objects</span><span class="p">:</span>
 </span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_package.MyClassImpl</span>
@@ -1961,7 +1973,7 @@ because it is a local variable that goes out of scope.</p>
 <p><strong>Cause 2:</strong> <code>Subscription&lt;T&gt;</code> is a local variable. When it goes out of scope it tears down the
 subscription: the list is cleared, and any <code>onRemoved</code> callback you installed fires for every
 object the list was holding. The object itself is untouched. It is still on the bus and <code>ls</code> in
-the shell still lists it, so what disappeared is your view of it.</p>
+the term still lists it, so what disappeared is your view of it.</p>
 <p><strong>Fix:</strong> Make the subscription a member variable of your class. <code>selectAllFrom</code> returns a
 <code>std::shared_ptr&lt;sen::Subscription&lt;T&gt;&gt;</code>, so that is the type the member has to hold:</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyManagerImpl</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">MyManagerBase</span>
@@ -2176,7 +2188,7 @@ symbols added, so pointing it at a release dump resolves nothing useful.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:11:40 UTC">September 28, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

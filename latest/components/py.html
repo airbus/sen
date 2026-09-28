@@ -824,6 +824,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="influx.html">
 <span class="md-ellipsis">
     
@@ -1910,7 +1922,7 @@ addition, you can register callbacks to react to events and property changes:</p
 <a href="../users_guide/glossary.html#component">component</a> as follows:</p>
 <div class="language-yaml highlight"><span class="filename">1_python_hello.yaml</span><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="c1"># $schema: ../base/schema.json</span>
 </span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nt">include</span><span class="p">:</span>
-</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../base/shell.yaml</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../base/term.yaml</span>
 </span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
 </span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="nt">load</span><span class="p">:</span>
 </span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">py</span>
@@ -1919,7 +1931,7 @@ addition, you can register callbacks to react to events and property changes:</p
 </span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">    </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hello_python</span>
 </span></code></pre></div>
 <p>This will instantiate the interpreter in a component that will run your module. <code>module</code> names the
-Python module, so it carries no <code>.py</code> extension. The <code>include</code> pulls in the shell, which is how the
+Python module, so it carries no <code>.py</code> extension. The <code>include</code> pulls in the term, which is how the
 shipped examples avoid repeating it in every configuration.</p>
 <p>Example module:</p>
 <div class="language-python highlight"><span class="filename">hello_python.py</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="sd">"""Example module that demonstrates how to use the python component."""</span>
@@ -2109,7 +2121,7 @@ callback. For example:</p>
 using your configuration file. It looked like this:</p>
 <div class="language-yaml highlight"><span class="filename">3_python_create_objects.yaml</span><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1"># $schema: ../base/schema.json</span>
 </span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="nt">include</span><span class="p">:</span>
-</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../base/shell.yaml</span>
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../base/term.yaml</span>
 </span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>
 </span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="nt">load</span><span class="p">:</span>
 </span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">py</span>
@@ -2175,9 +2187,9 @@ using the Gherkin language.</p>
 </span><span id="__span-13-15"><a href="#__codelineno-13-15" id="__codelineno-13-15" name="__codelineno-13-15"></a><span class="w">  </span><span class="k">fn</span><span class="w"> </span><span class="nf">execFile</span><span class="p">(</span><span class="n">file</span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">);</span>
 </span><span id="__span-13-16"><a href="#__codelineno-13-16" id="__codelineno-13-16" name="__codelineno-13-16"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>For example, you can now call Python from the shell:</p>
+<p>For example, you can now call Python from the term:</p>
 <div class="language-yaml highlight"><span class="filename">test.yaml</span><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">term</span>
 </span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">local.py</span><span class="p p-Indicator">]</span>
 </span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">py</span>
 </span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -2185,21 +2197,21 @@ using the Gherkin language.</p>
 </span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">    </span><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local.py</span>
 </span></code></pre></div>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a>./sen<span class="w"> </span>run<span class="w"> </span>test.yaml
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">    </span>_________<span class="w">  </span>__
-</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">   </span>/<span class="w"> </span>__/<span class="w"> </span>__/<span class="w"> </span><span class="p">|</span>/<span class="w"> </span>/<span class="w">          </span>compiler<span class="w"> </span>GNU-11.4.0<span class="w"> </span><span class="o">[</span>mode:<span class="w"> </span>debug<span class="o">]</span>
-</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">  </span>_<span class="se">\ \/</span><span class="w"> </span>__/<span class="w">    </span>/<span class="w">           </span>revision<span class="w"> </span>57a86bb1d7ebcd781bb034d73642dde198e69fde
-</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w"> </span>/___/___/_/<span class="p">|</span>_/<span class="w">   </span><span class="m">0</span>.0.1<span class="w">    </span>branch<span class="w">   </span>refs/heads/master<span class="w"> </span><span class="o">[</span>modified<span class="o">]</span>
-</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a>▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">  </span>Sen<span class="w"> </span>v0.0.1<span class="w">  </span>GNU-11.4.0<span class="w"> </span><span class="o">[</span>debug<span class="o">]</span>
+</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">  </span>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span>Chance<span class="w"> </span>favours<span class="w"> </span>the<span class="w"> </span>prepared<span class="w"> </span>mind<span class="w">  </span>-<span class="w"> </span>Louis<span class="w"> </span>Pasteur
+</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">  </span>Type<span class="w"> </span><span class="s1">'help'</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>a<span class="w"> </span>list<span class="w"> </span>of<span class="w"> </span>commands.
 </span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a>
-</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>sen:host/test&gt;<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"c = 2"</span>
-</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>sen:host/test&gt;<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"c"</span>
-</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="s2">"2"</span>
-</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>sen:host/test&gt;<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"c = c + 2"</span>
-</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>sen:host/test&gt;<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"c"</span>
-</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a><span class="s2">"4"</span>
-</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>sen:host/test&gt;<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"import my_module"</span>
-</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>sen:host/test&gt;<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"my_module.add(2,2)"</span>
-</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a><span class="s2">"4"</span>
+</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>✓<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"c = 2"</span>
+</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>✓<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"c"</span>
+</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="w">  </span><span class="s2">"2"</span>
+</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>✓<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"c = c + 2"</span>
+</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>✓<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"c"</span>
+</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a><span class="w">  </span><span class="s2">"4"</span>
+</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>✓<span class="w"> </span>local.py.interpreter.exec<span class="w"> </span><span class="s2">"import my_module"</span>
+</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>✓<span class="w"> </span>local.py.interpreter.eval<span class="w"> </span><span class="s2">"my_module.add(2,2)"</span>
+</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a><span class="w">  </span><span class="s2">"4"</span>
 </span></code></pre></div>
 <p>With this approach, you are also enabled to call the interpreter if you want to delegate some
 functionality into Python. Just find the interpreter in the selected bus, compose your code,
@@ -2209,7 +2221,7 @@ evaluate your expressions and interpret the result.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 19, 2026 10:12:30 UTC">September 19, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

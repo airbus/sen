@@ -22,5 +22,6 @@ var searchData=
   ['overruncount_19',['overrunCount',['../namespacesen_1_1kernel.html#a53469c27af684bdafd039ee2273c2df9',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['oversleptcount_20',['oversleptCount',['../namespacesen_1_1kernel.html#a6c7ef6a6bf621218c8ffb94f72ae0694',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['overview_21',['overview',['../namespacesen_1_1gen.html#af680d81e6325c83f0ce8fd6b5be92a54',1,'sen::gen::TypstOptions']]],
-  ['ownerid_22',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]]
+  ['ownerid_22',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]],
+  ['ownsterminal_23',['ownsTerminal',['../namespacesen_1_1kernel.html#a62a3f0f37751c965d4569c18455a8d03',1,'sen::kernel::LoggerSinkRegistration']]]
 ];

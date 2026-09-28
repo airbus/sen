@@ -916,6 +916,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1903,7 +1915,7 @@ keeps it tidy).</p>
 </ol>
 <h2 id="configyaml-the-run-configuration"><code>config.yaml</code>: the run configuration<a class="headerlink" href="#configyaml-the-run-configuration" title="Permanent link">¶</a></h2>
 <div class="language-yaml annotate highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span><span class="w"> </span><span class="c1"># (1)!</span>
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">term</span><span class="w"> </span><span class="c1"># (1)!</span>
 </span><span id="__span-6-3"><a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w">    </span><span class="c1"># (2)!</span>
 </span><span id="__span-6-4"><a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">local.example</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># (3)!</span>
 </span><span id="__span-6-5"><a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>
@@ -1920,13 +1932,13 @@ keeps it tidy).</p>
 </span><span id="__span-6-16"><a href="#__codelineno-6-16" id="__codelineno-6-16" name="__codelineno-6-16"></a><span class="w">        </span><span class="nt">prop1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some value</span><span class="w"> </span><span class="c1"># (8)!</span>
 </span></code></pre></div>
 <ol>
-<li>Load the shell, so there is something to look at.</li>
-<li>The shell runs in group 2, and your component in group 3.</li>
+<li>Load the term, so there is something to look at.</li>
+<li>The term runs in group 2, and your component in group 3.</li>
 <li>Automatically open this bus to see the created objects, so you do not have to open it by hand.</li>
 <li>This is the name of the component that Sen will build for us.</li>
 <li>Import your package so Sen can discover your implementation and instantiate your class.</li>
 <li>The name of the type that provides the implementation, defined in <code>my_class.cpp</code>.</li>
-<li>Your object will be published to this bus, which is why the shell auto-opens it.</li>
+<li>Your object will be published to this bus, which is why the term auto-opens it.</li>
 <li><code>prop1</code> needs a value because it is static, and static properties require an initial value.</li>
 </ol>
 <h2 id="build-and-run">Build and run<a class="headerlink" href="#build-and-run" title="Permanent link">¶</a></h2>
@@ -1968,7 +1980,7 @@ Sen Type Language</a> is the reference for everything inside an <code>.stl</code
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 8, 2026 12:44:55 UTC">September 8, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

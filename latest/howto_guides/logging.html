@@ -824,6 +824,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1051,6 +1063,15 @@
 <span class="md-ellipsis">
       
         Configuring the sinks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rendering-the-logs-in-a-component">
+<span class="md-ellipsis">
+      
+        Rendering the logs in a component
       
     </span>
 </a>
@@ -1697,7 +1718,7 @@ described in <code>spdlog</code>'s <a href="https://github.com/gabime/spdlog/wik
 </span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="w">        </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trace</span><span class="w">  </span><span class="c1"># has priority if more restrictive than the sinks' levels</span>
 </span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>
 </span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">term</span>
 </span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">my.tutorial</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># to see the created objects</span>
 </span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>
@@ -1712,59 +1733,105 @@ described in <code>spdlog</code>'s <a href="https://github.com/gabime/spdlog/wik
 </span><span id="__span-0-39"><a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="w">        </span><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my.tutorial</span>
 </span><span id="__span-0-40"><a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="w">        </span><span class="nt">prop1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some value</span>
 </span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">A terminal component silences the console sinks</p>
+<p>The configuration above loads <em>term</em>, and <em>term</em> draws the log lines itself in its own output area.
+To do that it takes the terminal over. A console sink, whether <code>Stdout</code>, <code>ColorStdout</code> or <code>Stderr</code>,
+writes to the same descriptor <em>term</em> is drawing on, so keeping both would print every line twice and
+on top of the display. While <em>term</em> is running, every console sink is silenced.</p>
+<p>In the example above that means <code>stdout_sink</code> produces nothing and <code>file_sink</code> keeps working. The
+file is where to look. Console sinks come back when <em>term</em> exits.</p>
+<p>The same applies to any component that claims the terminal. It does not affect a file sink, a
+network sink, or the crash report's log ring.</p>
+</div>
+<h2 id="rendering-the-logs-in-a-component">Rendering the logs in a component<a class="headerlink" href="#rendering-the-logs-in-a-component" title="Permanent link">¶</a></h2>
+<p>A component that displays log lines itself registers a sink with the kernel rather than walking
+spdlog's registry. Walking it does not work and is not safe: each shared library has its own registry,
+so a component's <code>spdlog::apply_all</code> never sees the kernel's loggers. Appending to a logger another thread
+is emitting through is also a use-after-free, because spdlog iterates a logger's sink vector without a
+lock.</p>
+<p>The kernel puts one relay sink on every logger, in the only window where that is safe, and a component
+registers behind the relay:</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sen/kernel/component_api.h&gt;</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="k">auto</span><span class="w"> </span><span class="n">sink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">MySink</span><span class="o">&gt;</span><span class="p">();</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="c1">// `owned` says this component is drawing on the terminal, so console sinks are silenced while it runs.</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="c1">// Use the default, `shared`, for a sink that is not a display, such as a telemetry or audit sink.</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">registration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">addLoggerSink</span><span class="p">(</span><span class="n">sink</span><span class="p">,</span><span class="w"> </span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">TerminalOwnership</span><span class="o">::</span><span class="n">owned</span><span class="p">);</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">registration</span><span class="p">.</span><span class="n">isError</span><span class="p">())</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="p">{</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">    </span><span class="c1">// Nothing is rendering logs. The console sinks are still live, so say so there.</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="p">}</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">registration</span><span class="p">.</span><span class="n">getValue</span><span class="p">().</span><span class="n">terminalOwnedElsewhere</span><span class="p">)</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="p">{</span>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">    </span><span class="c1">// Another component is already drawing logs. Registration is not arbitrated: both will draw.</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>The sink keeps its own pattern, because the relay passes the message on unformatted, and it receives lines
+from loggers created after it registered, which a registry walk cannot do.</p>
+<p><strong>Unregister before the state the sink writes into goes away.</strong> A registered sink is held by the kernel
+until it is removed, and it can be running on another thread at that moment, so stop it reaching your
+state first and then remove it:</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="n">sink</span><span class="o">-&gt;</span><span class="n">detach</span><span class="p">();</span><span class="w">                                  </span><span class="c1">// your own: make the sink inert under its own lock</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="n">std</span><span class="o">::</span><span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">removeLoggerSink</span><span class="p">(</span><span class="n">sink</span><span class="p">);</span>
+</span></code></pre></div>
+<p><code>KernelApi::setAllLoggersLevel</code> sets the level on every logger and on every logger made afterwards,
+which is what a user changing the level at runtime needs; <code>getAllLoggersLevel</code> reads it back. It
+replaces the per-logger levels the configuration file asked for, with no way back to them.</p>
 <h2 id="getting-a-logger">Getting a logger<a class="headerlink" href="#getting-a-logger" title="Permanent link">¶</a></h2>
 <p>To get the logger, we need to fetch it from the <code>spdlog</code> registry. To make it easy, we made the
 registration of the logger accessible automatically via the <code>sen::kernel::KernelApi</code> using the
 static method called <code>getOrCreateLogger</code>:</p>
-<div class="language-c++ highlight"><table class="highlighttable"><tbody><tr><th class="filename" colspan="2"><span class="filename">getLogger function</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
-<span class="normal"><a href="#__codelineno-1-2">2</a></span>
-<span class="normal"><a href="#__codelineno-1-3">3</a></span>
-<span class="normal"><a href="#__codelineno-1-4">4</a></span>
-<span class="normal"><a href="#__codelineno-1-5">5</a></span>
-<span class="normal"><a href="#__codelineno-1-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sen/kernel/component_api.h&gt;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">spdlog</span><span class="o">::</span><span class="n">logger</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getLogger</span><span class="p">()</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="p">{</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">getOrCreateLogger</span><span class="p">(</span><span class="s">"my_logger"</span><span class="p">);</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="p">}</span>
+<div class="language-c++ highlight"><table class="highlighttable"><tbody><tr><th class="filename" colspan="2"><span class="filename">getLogger function</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span>
+<span class="normal"><a href="#__codelineno-3-5">5</a></span>
+<span class="normal"><a href="#__codelineno-3-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sen/kernel/component_api.h&gt;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">spdlog</span><span class="o">::</span><span class="n">logger</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getLogger</span><span class="p">()</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="p">{</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">getOrCreateLogger</span><span class="p">(</span><span class="s">"my_logger"</span><span class="p">);</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 <h2 id="compile-time-log-levels">Compile-time log levels<a class="headerlink" href="#compile-time-log-levels" title="Permanent link">¶</a></h2>
 <p>You will normally use the syntax <code>logger-&gt;info(..)</code> (or <code>trace</code> etc.), but be aware that this won't
 output the file and line number. This is only included when using macros such as
 <code>SPDLOG_LOGGER_DEBUG()</code>. For those to work, <code>SPDLOG_ACTIVE_LEVEL</code> needs to be defined before
 including <code>spdlog</code> headers.</p>
-<div class="language-c++ highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cp">#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE</span>
-</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;spdlog/spdlog.h&gt;</span>
+<div class="language-c++ highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="cp">#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;spdlog/spdlog.h&gt;</span>
 </span></code></pre></div>
 <p><code>spdlog.h</code> is where the macros live. You do not need a sink header: the sinks come from the
 configuration above, not from your code.</p>
 <p>You can now use your logger in the component's <code>run()</code> function:</p>
-<div class="language-c++ highlight"><table class="highlighttable"><tbody><tr><th class="filename" colspan="2"><span class="filename">run function</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-3-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getLogger</span><span class="p">();</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="n">logger</span><span class="o">-&gt;</span><span class="n">info</span><span class="p">(</span><span class="s">"MyComponent started running; this log does not show the file and line"</span><span class="p">);</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">  </span><span class="n">logger</span><span class="o">-&gt;</span><span class="n">trace</span><span class="p">(</span><span class="s">"By default, this goes to stdout. Set file_sink to 'trace' to also see it there"</span><span class="p">);</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">SPDLOG_LOGGER_DEBUG</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span><span class="w"> </span><span class="s">"MyComponent iteration; this shows the file and line"</span><span class="p">);</span><span class="w"> </span><span class="p">};</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span><span class="w"> </span><span class="n">func</span><span class="p">);</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="p">}</span>
+<div class="language-c++ highlight"><table class="highlighttable"><tbody><tr><th class="filename" colspan="2"><span class="filename">run function</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">FuncResult</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">RunApi</span><span class="o">&amp;</span><span class="w"> </span><span class="n">api</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getLogger</span><span class="p">();</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">  </span><span class="n">logger</span><span class="o">-&gt;</span><span class="n">info</span><span class="p">(</span><span class="s">"MyComponent started running; this log does not show the file and line"</span><span class="p">);</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">  </span><span class="n">logger</span><span class="o">-&gt;</span><span class="n">trace</span><span class="p">(</span><span class="s">"By default, this goes to stdout. Set file_sink to 'trace' to also see it there"</span><span class="p">);</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">SPDLOG_LOGGER_DEBUG</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span><span class="w"> </span><span class="s">"MyComponent iteration; this shows the file and line"</span><span class="p">);</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">execLoop</span><span class="p">(</span><span class="n">sen</span><span class="o">::</span><span class="n">Duration</span><span class="o">::</span><span class="n">fromHertz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span><span class="w"> </span><span class="n">func</span><span class="p">);</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></tbody></table></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

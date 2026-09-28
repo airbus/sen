@@ -1,6 +1,6 @@
 # $schema: ../base/schema.json
 include:
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 load:
   - name: recorder  # load the recorder component

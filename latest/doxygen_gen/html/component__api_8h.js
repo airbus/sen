@@ -1,5 +1,11 @@
 var component__api_8h =
 [
+    [ "sen::kernel::LoggerSinkRegistration", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration", [
+      [ "added", "namespacesen_1_1kernel.html#ae4494904bf536e578af6b7d0c066e034", null ],
+      [ "ownsTerminal", "namespacesen_1_1kernel.html#a62a3f0f37751c965d4569c18455a8d03", null ],
+      [ "terminalOwnedElsewhere", "namespacesen_1_1kernel.html#a02a6dab98bcf9a8d57557545b1ec4920", null ],
+      [ "registeredSinks", "namespacesen_1_1kernel.html#a0f7f75542818324beaa9159dacfaeeea", null ]
+    ] ],
     [ "sen::kernel::ComponentMonitoringInfo", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info", [
       [ "name", "namespacesen_1_1kernel.html#a7123066122ebd78720c832dd68cacdeb", null ],
       [ "group", "namespacesen_1_1kernel.html#a2bc0806de82c7fee11de03f1bf8125ba", null ],
@@ -26,5 +32,9 @@ var component__api_8h =
     [ "sen::kernel::LoadApi", "classsen_1_1kernel_1_1_load_api.html", "classsen_1_1kernel_1_1_load_api" ],
     [ "sen::kernel::FuncResult", "namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019", null ],
     [ "sen::kernel::PassResult", "namespacesen_1_1kernel.html#a407b640414b54bf6d98c670c7b86ad67", null ],
-    [ "sen::kernel::NetworkFootprintReporter", "namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86", null ]
+    [ "sen::kernel::NetworkFootprintReporter", "namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86", null ],
+    [ "sen::kernel::TerminalOwnership", "namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d", [
+      [ "sen::kernel::TerminalOwnership::shared", "namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da9e81e7b963c71363e2fb3eefcfecfc0e", null ],
+      [ "sen::kernel::TerminalOwnership::owned", "namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da8f9a4c5fe0824547590a3fc568f5c7c7", null ]
+    ] ]
 ];

@@ -824,6 +824,18 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../components/influx.html">
 <span class="md-ellipsis">
     
@@ -1741,7 +1753,7 @@ and the execution loop, and that is the only reason to reach for it.</p>
 <tr>
 <td>A terminal or a listening socket</td>
 <td>Blocking I/O has to happen somewhere</td>
-<td><code>shell</code> serves a REPL or a socket</td>
+<td><code>term</code> serves a REPL, <code>jsonrpc</code> a socket</td>
 </tr>
 <tr>
 <td>A sampling loop that creates its objects from configuration</td>
@@ -1800,6 +1812,9 @@ all happen one group at a time in group order, so <code>preload()</code> is the 
 process needs before the rest starts.</p>
 <p><code>run()</code> is the one that gets a thread. Your component is running until it returns, and it should
 return once <code>RunApi::stopRequested()</code> becomes true.</p>
+<p>Do not call <code>exit()</code>, <code>_Exit()</code> or <code>quick_exit()</code> from a component. Every component shares the
+process, so ending it takes the others down with no chance to shut down, and a component that owns
+the terminal cannot put it back. Ask the kernel to stop instead, with <code>RunApi::requestKernelStop()</code>.</p>
 <h2 id="a-component-that-only-installs-a-hook">A component that only installs a hook<a class="headerlink" href="#a-component-that-only-installs-a-hook" title="Permanent link">¶</a></h2>
 <p>The smallest components have no <code>run()</code> at all. <code>tracy</code> exists to install a tracer factory
 before anything else loads, and to tear it down afterwards:</p>
@@ -1922,11 +1937,11 @@ IS_COMPONENT)</code>, so it configures on its own. Add it to a larger CMake proj
 </span></code></pre></div>
 <p>Your component starts, and keeps running until you stop it with <span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-c">C</kbd></span>.</p>
 <h2 id="stopping-it-and-looking-at-it">Stopping it, and looking at it<a class="headerlink" href="#stopping-it-and-looking-at-it" title="Permanent link">¶</a></h2>
-<p>Sen's <em>shell</em> component gives you a command line into the running kernel. Add it to your
+<p>Sen's <em>term</em> component gives you a command line into the running kernel. Add it to your
 configuration ahead of your own component:</p>
 <div class="language-yaml highlight"><span class="filename">config.yaml</span><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="c1"># first, load the shell</span>
-</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="c1"># first, load the term</span>
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">term</span>
 </span><span id="__span-7-4"><a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </span><span id="__span-7-5"><a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">local.kernel</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </span><span id="__span-7-6"><a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a>
@@ -1934,7 +1949,7 @@ configuration ahead of your own component:</p>
 </span><span id="__span-7-8"><a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_component</span>
 </span><span id="__span-7-9"><a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </span></code></pre></div>
-<p>Groups run in order, so the shell is up before your component starts. <code>shutdown</code> then stops the
+<p>Groups run in order, so the term is up before your component starts. <code>shutdown</code> then stops the
 kernel, and your component's <code>unload()</code> runs.</p>
 <p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif" style="width:1200px"/></a></p>
 <p>When Sen finishes without error it prints a <img alt="😃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f603.svg" title=":smiley:"/> and returns zero. If it detects an error it can
@@ -1991,7 +2006,7 @@ special in that its buses are never shared across a process boundary.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
 </span>
 </aside>
 </article>

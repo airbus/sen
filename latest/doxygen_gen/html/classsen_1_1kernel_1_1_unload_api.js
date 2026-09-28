@@ -1,5 +1,6 @@
 var classsen_1_1kernel_1_1_unload_api =
 [
+    [ "TerminalOwnership", "classsen_1_1kernel_1_1_unload_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
     [ "UnloadApi", "classsen_1_1kernel_1_1_unload_api.html#a3751c3412da92dda028b78aae68ee513", null ],
     [ "~UnloadApi", "classsen_1_1kernel_1_1_unload_api.html#ad8d8297f8c6bfc0b944b912f5ac85961", null ],
     [ "getConfig", "classsen_1_1kernel_1_1_unload_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],

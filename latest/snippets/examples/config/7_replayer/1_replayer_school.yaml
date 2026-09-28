@@ -1,10 +1,10 @@
 # $schema: ../base/schema.json
 include:
-  - ../base/shell.yaml
+  - ../base/term.yaml
   - ../base/ether.yaml
 
 load:
-  - name: shell
+  - name: term
     open:
       - local.replay
       - school.primary

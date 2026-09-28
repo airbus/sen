@@ -5,11 +5,11 @@
 # that the communication between components (and therefore
 # threads) is transparent to the code you write.
 include:
-  - ../base/shell.yaml
+  - ../base/term.yaml
 
 load:
   # auto-open the buses that we will be interested in
-  - name: shell
+  - name: term
     open: [school.primary, school.secondary]
 
 build:

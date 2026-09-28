@@ -7,7 +7,7 @@ Positionals:
 
 Options:
   -h,--help                        Print this help message and exit
-  --preset TEXT:{shell,replay,explorer,web-explorer}
+  --preset TEXT:{shell,term,replay,explorer,web-explorer}
                                    Preset name
   --no-browser                     With --preset web-explorer: don't auto-open the URL in a browser
   --stopped                        With --preset replay: start paused

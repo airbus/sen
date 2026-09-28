@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Sen Software Infrastructure" name="description"/>
+<meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
+<link href="https://airbus.github.io/sen/latest/components/term.html" rel="canonical"/>
+<link href="shell.html" rel="prev"/>
+<link href="influx.html" rel="next"/>
+<link href="../assets/images/logo_simple.svg" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Terminal - Sen</title>
+<link href="../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
+<script src="https://unpkg.com/iframe-worker/shim"></script>
+<link href="../stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#the-sen-terminal-beta">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+<aside class="md-banner">
+<div class="md-banner__inner md-grid md-typeset">
+            
+            You are reading the <strong>development version</strong>. Pick a release from the selector above.
+          </div>
+</aside>
+</div>
+<div data-md-color-scheme="default" data-md-component="outdated" hidden="">
+<aside class="md-banner md-banner--warning">
+<div class="md-banner__inner md-grid md-typeset">
+              
+  This is an older release.
+  <a href="../.."><strong>Go to the current documentation</strong></a>
+</div>
+<script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+</aside>
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Sen" class="md-header__button md-logo" data-md-component="logo" href="../index.html" title="Sen">
+<img alt="logo" src="../assets/images/logo_simple.svg"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Sen
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Terminal
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/airbus/sen.git" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    airbus/sen
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../index.html">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../getting_started/index.html">
+          
+  
+  
+  Getting Started
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../users_guide/index.html">
+          
+  
+  
+  Manual
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="index.html">
+          
+  
+  
+  Components
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../howto_guides/index.html">
+          
+  
+  
+  Guides
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../examples/index.html">
+          
+  
+  
+  Examples
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../licenses/index.html">
+          
+  
+  
+  License
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Sen" class="md-nav__button md-logo" data-md-component="logo" href="../index.html" title="Sen">
+<img alt="logo" src="../assets/images/logo_simple.svg"/>
+</a>
+    Sen
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/airbus/sen.git" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    airbus/sen
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../index.html">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/install.html">
+<span class="md-ellipsis">
+    
+  
+    Getting Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/first_package.html">
+<span class="md-ellipsis">
+    
+  
+    Creating your first package
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Manual
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Manual
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/index.html">
+<span class="md-ellipsis">
+    
+  
+    Index
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/main_concepts.html">
+<span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/mental_model.html">
+<span class="md-ellipsis">
+    
+  
+    Mental model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/workflow.html">
+<span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/execution_model.html">
+<span class="md-ellipsis">
+    
+  
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    The Sen Type Language
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    The Sen Type Language
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/stl.html">
+<span class="md-ellipsis">
+    
+  
+    Description
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/stl_grammar.html">
+<span class="md-ellipsis">
+    
+  
+    STL grammar
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/sql.html">
+<span class="md-ellipsis">
+    
+  
+    The Sen Query Language
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/hla.html">
+<span class="md-ellipsis">
+    
+  
+    Using HLA FOMs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/code_generation.html">
+<span class="md-ellipsis">
+    
+  
+    Code generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/command_line.html">
+<span class="md-ellipsis">
+    
+  
+    Command line tools
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/crash_reports.html">
+<span class="md-ellipsis">
+    
+  
+    Crash reports
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/cmake.html">
+<span class="md-ellipsis">
+    
+  
+    CMake integration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/compatibility_conversions.html">
+<span class="md-ellipsis">
+    
+  
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_17" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_17" id="__nav_3_17_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    The Sen libraries
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_17_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_17">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    The Sen libraries
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/core_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::core
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/db_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::db
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/db_python_bindings.html">
+<span class="md-ellipsis">
+    
+  
+    sen::db Python bindings
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/gen_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::gen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/kernel_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::kernel
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/util_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::util
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/faq.html">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
+<span class="md-ellipsis">
+    
+  
+    Using the shipped components
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="explorer.html">
+<span class="md-ellipsis">
+    
+  
+    Explorer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="webexplorer.html">
+<span class="md-ellipsis">
+    
+  
+    Web explorer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="shell.html">
+<span class="md-ellipsis">
+    
+  
+    Shell
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-it-started">
+<span class="md-ellipsis">
+      
+        Getting it started
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-screen">
+<span class="md-ellipsis">
+      
+        The screen
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#typing-and-editing">
+<span class="md-ellipsis">
+      
+        Typing and editing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-the-line-accepts">
+<span class="md-ellipsis">
+      
+        What the line accepts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tab-completion">
+<span class="md-ellipsis">
+      
+        Tab completion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#navigation-and-scoping">
+<span class="md-ellipsis">
+      
+        Navigation and scoping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#opening-and-closing-buses">
+<span class="md-ellipsis">
+      
+        Opening and closing buses
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#calling-methods">
+<span class="md-ellipsis">
+      
+        Calling methods
+      
+    </span>
+</a>
+<nav aria-label="Calling methods" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#arguments-on-the-command-line">
+<span class="md-ellipsis">
+      
+        Arguments on the command line
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-guided-input-form">
+<span class="md-ellipsis">
+      
+        The guided-input form
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#listening-to-events">
+<span class="md-ellipsis">
+      
+        Listening to events
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-queries">
+<span class="md-ellipsis">
+      
+        Creating queries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inspecting-types-and-objects">
+<span class="md-ellipsis">
+      
+        Inspecting types and objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logging">
+<span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logging-from-other-components">
+<span class="md-ellipsis">
+      
+        Logging from other components
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themes">
+<span class="md-ellipsis">
+      
+        Themes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-status">
+<span class="md-ellipsis">
+      
+        Kernel status
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mouse">
+<span class="md-ellipsis">
+      
+        Mouse
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#commands">
+<span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-reference">
+<span class="md-ellipsis">
+      
+        Configuration reference
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="influx.html">
+<span class="md-ellipsis">
+    
+  
+    Influx
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="py.html">
+<span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="recording.html">
+<span class="md-ellipsis">
+    
+  
+    Recorder
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="replaying.html">
+<span class="md-ellipsis">
+    
+  
+    Replayer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="ether.html">
+<span class="md-ellipsis">
+    
+  
+    Ether
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="logmaster.html">
+<span class="md-ellipsis">
+    
+  
+    Log master
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="rest.html">
+<span class="md-ellipsis">
+    
+  
+    REST
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="jsonrpc.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="jsonrpc_ts_client.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC TypeScript client
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="mcp_gateway.html">
+<span class="md-ellipsis">
+    
+  
+    MCP Gateway
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="tracy.html">
+<span class="md-ellipsis">
+    
+  
+    Tracy
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/index.html">
+<span class="md-ellipsis">
+    
+  
+    How-to guides
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/objects.html">
+<span class="md-ellipsis">
+    
+  
+    Working with objects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/generated_code.html">
+<span class="md-ellipsis">
+    
+  
+    The generated C++ code
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/logging.html">
+<span class="md-ellipsis">
+    
+  
+    Using logs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/using_groups.html">
+<span class="md-ellipsis">
+    
+  
+    Using component groups
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/controlling_clock.html">
+<span class="md-ellipsis">
+    
+  
+    Controlling the clock
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/considerations.html">
+<span class="md-ellipsis">
+    
+  
+    Design considerations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/configure_environment.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring your environment
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
+<span class="md-ellipsis">
+    
+  
+    Creating Conan packages for Sen-based projects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/exportable_interfaces.html">
+<span class="md-ellipsis">
+    
+  
+    Generate exportable interfaces (STL files)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/consuming_interfaces.html">
+<span class="md-ellipsis">
+    
+  
+    Use interfaces from imported packages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/generate_interface_packages.html">
+<span class="md-ellipsis">
+    
+  
+    Generate and consume specific CMake packages for interfaces
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/troubleshooting.html">
+<span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/networking_wsl2_virtual_machines.html">
+<span class="md-ellipsis">
+    
+  
+    Networking with WSL2 and virtual machines
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_19" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_19" id="__nav_5_19_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Working on Sen itself
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_19_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_19">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Working on Sen itself
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/testing.html">
+<span class="md-ellipsis">
+    
+  
+    Running Sen's own tests
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/index.html">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Simple package
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Inheritance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Interests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Deferred methods
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Checked properties
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Distributing work
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Influx and Grafana
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Recorder
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Replayer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Using Python
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_reference.html">
+<span class="md-ellipsis">
+    
+  
+    HTML reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_document.html">
+<span class="md-ellipsis">
+    
+  
+    Typeset reference (PDF)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_uml.html">
+<span class="md-ellipsis">
+    
+  
+    UML generation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    License
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../licenses/index.html">
+<span class="md-ellipsis">
+    
+  
+    Sen license
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../licenses/licensed_code_in_sen.html">
+<span class="md-ellipsis">
+    
+  
+    External libraries
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="the-sen-terminal-beta">The Sen Terminal (BETA)<a class="headerlink" href="#the-sen-terminal-beta" title="Permanent link">¶</a></h1>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/term.jpg"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/fix/images/term.jpg" style="width:700px"/></a></p>
+<p>The Sen Terminal (<code>term</code>) lets you open buses, find the objects on them, call their methods, watch
+their events and inspect their types, from one prompt. It is the successor to the
+<a href="shell.html">shell</a> and the two share the same workflow.</p>
+<p>Term is in beta.</p>
+<h2 id="getting-it-started">Getting it started<a class="headerlink" href="#getting-it-started" title="Permanent link">¶</a></h2>
+<p>Load it into any kernel configuration:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">term</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">open</span><span class="p">:</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local.demo</span>
+</span></code></pre></div>
+<p>Or run it on its own, which starts a kernel with nothing in it but the term and its own bus:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>sen<span class="w"> </span>term
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>sen<span class="w"> </span>run<span class="w"> </span>my_config.yaml
+</span></code></pre></div>
+<p>The examples on this page come from the showcase configuration in Sen's own source tree. It puts one
+object with every kind of method argument on <code>local.demo</code>, ticks its properties so there is live data,
+and creates two queries. From a source checkout built with tests enabled:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>sen<span class="w"> </span>run<span class="w"> </span>components/term/test/integration/config/term_showcase.yaml
+</span></code></pre></div>
+<p>The file's own header lists every editor, property and event it offers. The showcase package is built
+with the tests, so it is not in a release install; against your own objects, the commands are the same
+and only the names change.</p>
+<p>On startup you get a banner with the Sen version, the compiler, whether this is a debug or a release
+build, and a quote, then a prompt. The <code>version</code> command has the rest, including the git branch and
+revision this binary was built from.</p>
+<p><code>exit</code>, <code>shutdown</code>, Ctrl+D on an empty line, or Escape twice all ask the kernel to stop every component
+gracefully.</p>
+<p>Term needs a real terminal on both standard input and standard output. If either one is a pipe or a
+file, term says so and stops; the rest of the kernel carries on without it. So a configuration that
+carries term still starts in a build job or under a pipe, with an error in the log and no terminal.</p>
+<h2 id="the-screen">The screen<a class="headerlink" href="#the-screen" title="Permanent link">¶</a></h2>
+<p>Output scrolls above a horizontal rule; the prompt sits below it. Command results, log lines and event
+emissions all arrive in that one stream, in the order they happened.</p>
+<p>The prompt shows your current scope, for instance <code>sen:/local.demo❯</code>.</p>
+<p>The scrollback holds the last 5000 entries. Past that the oldest go, so a long session does not keep
+everything you have seen.</p>
+<h2 id="typing-and-editing">Typing and editing<a class="headerlink" href="#typing-and-editing" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left / Right</td>
+<td>Move one character</td>
+</tr>
+<tr>
+<td>Ctrl+Left / Ctrl+Right</td>
+<td>Move one word. A dotted path is several words</td>
+</tr>
+<tr>
+<td>Home / End</td>
+<td>Start or end of the line</td>
+</tr>
+<tr>
+<td>Backspace / Delete</td>
+<td>Erase one character either side of the cursor</td>
+</tr>
+<tr>
+<td>Ctrl+W</td>
+<td>Erase the word before the cursor</td>
+</tr>
+<tr>
+<td>Up / Down</td>
+<td>Walk the command history</td>
+</tr>
+<tr>
+<td>Ctrl+R</td>
+<td>Recall the most recent command containing what is on the line</td>
+</tr>
+<tr>
+<td>Tab / Shift+Tab</td>
+<td>Completion, forwards and backwards</td>
+</tr>
+<tr>
+<td>PageUp / PageDown</td>
+<td>Scroll the output ten rows</td>
+</tr>
+<tr>
+<td>F1</td>
+<td>Run <code>help</code></td>
+</tr>
+<tr>
+<td>Escape</td>
+<td>Clear the line; on an empty line, arm exit; Escape again exits</td>
+</tr>
+<tr>
+<td>Ctrl+D</td>
+<td>Exit, from an empty line only</td>
+</tr>
+<tr>
+<td>Ctrl+Y</td>
+<td>Copy the current selection to the clipboard</td>
+</tr>
+</tbody>
+</table>
+<p>Ctrl+Backspace is not in that table because the term cannot tell it from an ordinary Backspace: FTXUI
+delivers both as the same event. Use Ctrl+W.</p>
+<p>Movement and erasing work in characters, not bytes, so accented letters, CJK text and emoji behave
+the way you expect. History is kept across sessions in <code>~/.sen_history.txt</code> (<code>%USERPROFILE%</code> on
+Windows), capped at 2000 lines and shared with the shell component. With no home directory in the
+environment, history lasts only as long as the session.</p>
+<h2 id="what-the-line-accepts">What the line accepts<a class="headerlink" href="#what-the-line-accepts" title="Permanent link">¶</a></h2>
+<p>The command line holds 8192 bytes. Each field of the guided-input form, the form that opens when a
+method needs arguments, holds the same. Past that, characters are refused and the term says so once;
+Escape clears the line. A line that was cut is not submitted: pressing Enter says so instead,
+because sending it would report a parse failure about text you never finished.</p>
+<p>A paste arrives as text, not as keystrokes. The term asks the terminal to wrap pasted content in
+markers, which is the only way to tell a paste from someone typing very fast. Inside those markers a
+newline becomes a space rather than running the line, and so does a <code>Tab</code>, rather than opening
+completion. The term says how many line breaks it joined, so a multi-line paste does not look like
+something you typed. Every other control character in a paste is dropped.</p>
+<p>Escape during a paste cancels it and keeps the text received so far, which is the way out if the
+terminal's end marker never arrives; failing that the term releases itself after two seconds of
+silence and says so. A marker split across a slow link is handled without either: its pieces are
+recognised and its tail is not left on your line.</p>
+<p>A terminal that does not send the markers gives the term nothing to recognise, and then a paste really
+is typed: a newline in it submits the line. If your paste runs three commands instead of becoming one
+line, that is what happened.</p>
+<p>A line long enough to wrap shows the prompt's row, the rows around the cursor, and a note saying how
+many rows are not shown.</p>
+<h2 id="tab-completion">Tab completion<a class="headerlink" href="#tab-completion" title="Permanent link">¶</a></h2>
+<p>Press <strong>Tab</strong>. One match is inserted; several open a grid above the prompt. Tab again cycles
+forward, Shift+Tab backward, Enter accepts the highlighted candidate — it does not run the line, so
+press Enter again to do that — <code>.</code> accepts and lets you keep typing a deeper path, and Escape
+dismisses the grid and restores what you had typed.</p>
+<p>When only one match exists at an intermediate level, Tab inserts it and moves on — so <code>l</code>, Tab can
+take you to <code>local.demo.</code> in two keystrokes when there is only one session and one bus.</p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>What Tab completes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty input</td>
+<td>Every command, and the objects in scope</td>
+</tr>
+<tr>
+<td>Partial command (<code>he</code>)</td>
+<td>Matching commands (<code>help</code>)</td>
+</tr>
+<tr>
+<td>Object path (<code>local.</code>)</td>
+<td>Available buses, then objects</td>
+</tr>
+<tr>
+<td>Object + dot (<code>showcase.</code>)</td>
+<td>Methods, property getters and setters, and <code>print</code></td>
+</tr>
+<tr>
+<td><code>open</code> argument</td>
+<td>Sources discovery has seen, whether or not they are open</td>
+</tr>
+<tr>
+<td><code>close</code> argument</td>
+<td>Currently open sources</td>
+</tr>
+<tr>
+<td><code>cd</code> and <code>ls</code> argument</td>
+<td>Child scopes, <code>..</code>, <code>-</code>, <code>/</code>, <code>@query</code> names</td>
+</tr>
+<tr>
+<td><code>query</code> argument</td>
+<td><code>SELECT</code>, type names, <code>FROM</code>, bus names, <code>WHERE</code> keywords</td>
+</tr>
+<tr>
+<td><code>listen</code> argument</td>
+<td>Object paths and object.event paths</td>
+</tr>
+<tr>
+<td><code>unlisten</code> argument</td>
+<td>The same, plus <code>all</code></td>
+</tr>
+<tr>
+<td><code>log</code> argument</td>
+<td><code>level</code>, log level names, logger names</td>
+</tr>
+<tr>
+<td><code>theme</code> argument</td>
+<td>Available theme names</td>
+</tr>
+<tr>
+<td><code>help</code> argument</td>
+<td>Command names</td>
+</tr>
+<tr>
+<td><code>inspect</code> and <code>types</code> argument</td>
+<td>Object paths and type names</td>
+</tr>
+<tr>
+<td><code>units</code> argument</td>
+<td>Unit category names</td>
+</tr>
+</tbody>
+</table>
+<p>Re-opening a source that is already open does nothing and says nothing, so an offer from the <code>open</code>
+list is not a promise that there is work to do.</p>
+<h2 id="navigation-and-scoping">Navigation and scoping<a class="headerlink" href="#navigation-and-scoping" title="Permanent link">¶</a></h2>
+<p>Scoping narrows the view, which shortens what you have to type and focuses <code>ls</code>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>sen:/❯ cd local.demo
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>sen:/local.demo❯ ls
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>└── showcase [term_showcase.ShowcaseImpl]
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>sen:/local.demo❯ cd ..
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>sen:/local❯ cd ..
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>sen:/❯
+</span></code></pre></div>
+<p>A bus is two levels below the root: <code>cd local.demo</code> goes straight to the bus, and <code>cd ..</code> from there
+leaves you at the session, which lists the buses that session has. <code>cd ..</code> again reaches the root.</p>
+<p><code>cd -</code> returns to the previous scope, <code>cd /</code> and <code>cd</code> with no argument go to the root, and <code>cd @name</code>
+enters a query.</p>
+<p><code>ls</code> draws the objects in scope as a tree, with each object's class in brackets after its name.</p>
+<p>Nested object groups are separated with <code>/</code>, the same way the rest of the path is, so whatever the
+prompt shows is a target you can type back — leading separator included:
+<code>cd /local.demo/sensors/indoor</code> and <code>cd sensors</code> then <code>cd indoor</code> reach the same place. A target
+containing a dot is always read as <code>session.bus</code>, wherever you are, so <code>cd a.b</code> at a bus scope goes to
+bus <code>b</code> of session <code>a</code> rather than into a group.</p>
+<p><code>ls</code> takes an optional path or <code>@query</code>, and <code>pwd</code> prints the current scope.</p>
+<h2 id="opening-and-closing-buses">Opening and closing buses<a class="headerlink" href="#opening-and-closing-buses" title="Permanent link">¶</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>sen:/❯ open local.demo
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>[term] [info]  + source local.demo opened
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>[term] [info]  + showcase  [ShowcaseImpl, Native]
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>sen:/❯ close local.demo
+</span></code></pre></div>
+<p>A batch of five objects or fewer is listed one object to a line, as above. A larger batch is counted
+instead: <code>+ 12 objects detected</code>, and above fifty the number of distinct classes comes with it.</p>
+<p>Those notices go through the term's own logger, which is why they arrive tagged <code>[term] [info]</code>. That
+also means the log level governs them: after <code>log level warn</code>, <code>open</code> and <code>query</code> do their work and
+print nothing at all. If a command looks as though it did nothing, check the level with <code>log</code>.</p>
+<p>Sources listed under <code>open</code> in the configuration are opened at startup. A <code>query</code> whose <code>FROM</code>
+clause names an unopened bus opens it for you.</p>
+<h2 id="calling-methods">Calling methods<a class="headerlink" href="#calling-methods" title="Permanent link">¶</a></h2>
+<p>Type the object path, a dot, and the method name.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>sen:/local.demo❯ showcase.print
+</span></code></pre></div>
+<p><code>print</code> is the one call every object answers without arguments: it prints the value of every property.
+A method that needs no arguments runs immediately. The line shows a spinner with an elapsed-time counter
+while the call is out, then a green check and the return value, or a red cross and the error. Calls
+are asynchronous and several can be in flight at once. A call that gets no answer within
+<code>callTimeout</code> is reported as timed out rather than spinning forever.</p>
+<h3 id="arguments-on-the-command-line">Arguments on the command line<a class="headerlink" href="#arguments-on-the-command-line" title="Permanent link">¶</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>sen:/local.demo❯ showcase.setFraction 0.75
+</span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>sen:/local.demo❯ showcase.moveTo {"x": 10, "y": 20}
+</span></code></pre></div>
+<p>Simple values go straight after the method name; structures take JSON. Too many arguments, or a value
+of the wrong type, is refused with the format that was expected:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>sen:/local.demo❯ showcase.moveTo 1 2 3
+</span><span id="__span-7-2"><a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>  Error: Invalid arguments
+</span><span id="__span-7-3"><a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a>    Too many arguments: expected 1, got 3. Expected format: showcase.moveTo &lt;Point&gt;
+</span></code></pre></div>
+<h3 id="the-guided-input-form">The guided-input form<a class="headerlink" href="#the-guided-input-form" title="Permanent link">¶</a></h3>
+<p>Press Enter on a method that needs arguments and a form opens under the prompt, one field per
+argument, with an editor chosen for the type. Tab and Shift+Tab move between fields.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Editor</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>bool</strong></td>
+<td>Toggle checkbox</td>
+<td>Space to toggle</td>
+</tr>
+<tr>
+<td><strong>integer</strong> (i32, u64, etc.)</td>
+<td>Text field with spin</td>
+<td>Left/Right to increment/decrement, clamped to type range</td>
+</tr>
+<tr>
+<td><strong>float</strong> (f32, f64)</td>
+<td>Text field</td>
+<td>Type decimal numbers</td>
+</tr>
+<tr>
+<td><strong>string</strong></td>
+<td>Text field</td>
+<td>Free-form text input</td>
+</tr>
+<tr>
+<td><strong>enum</strong></td>
+<td>Cycle selector</td>
+<td>Left/Right arrows to cycle through enumerators; description shown in hint</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>Text field</td>
+<td>Type with unit suffix (e.g., <code>100ms</code>, <code>1.5s</code>, <code>2m</code>)</td>
+</tr>
+<tr>
+<td><strong>Timestamp</strong></td>
+<td>Text field</td>
+<td>Type as ISO 8601 string</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Editor</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>struct</strong></td>
+<td>Named sub-fields in a tree</td>
+<td>Tab into each field</td>
+</tr>
+<tr>
+<td><strong>sequence</strong></td>
+<td>Indexed elements, dynamically sized</td>
+<td><strong>Ctrl+N</strong> to add element, <strong>Ctrl+X</strong> to remove focused element</td>
+</tr>
+<tr>
+<td><strong>variant</strong></td>
+<td>Type selector + value editor</td>
+<td>Left/Right to change the active type; value editor adapts</td>
+</tr>
+<tr>
+<td><strong>optional</strong></td>
+<td>Presence toggle + value editor</td>
+<td><strong>Ctrl+O</strong> to toggle between empty and filled</td>
+</tr>
+<tr>
+<td><strong>quantity</strong></td>
+<td>Value field + unit selector</td>
+<td>Edit the numeric value; Left/Right on the unit row to change units</td>
+</tr>
+</tbody>
+</table>
+<p>A bounded sequence shows a count and refuses Ctrl+N at capacity. A fixed-size array starts full and
+refuses both add and remove.</p>
+<h2 id="listening-to-events">Listening to events<a class="headerlink" href="#listening-to-events" title="Permanent link">¶</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>sen:/local.demo❯ listen showcase.thresholdCrossed
+</span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>  Listening to 'showcase.thresholdCrossed'.
+</span></code></pre></div>
+<p>Naming an object without an event listens to all of its events. An emission arrives inline as a bullet,
+<code>session.bus.object → eventName</code>, with the time on the right, and its arguments indented on the line
+beneath. An event that carries no arguments is that one line on its own — <code>tick</code> and <code>heartbeat</code> in the
+showcase are both like this.</p>
+<p>You can listen to an object that has not appeared yet: the listener is kept and attached the moment
+one with that name arrives. Listeners also survive their object disappearing and reconnect when it
+returns, matched on the object's full name rather than on whatever scope you were in.</p>
+<p><code>unlisten &lt;object&gt;</code> drops the listeners on one object, <code>unlisten all</code> drops every one, and <code>listeners</code>
+lists them.</p>
+<p>Listeners named under <code>listen</code> in the configuration are registered at startup.</p>
+<h2 id="creating-queries">Creating queries<a class="headerlink" href="#creating-queries" title="Permanent link">¶</a></h2>
+<p>A query is a named filter over objects, in Sen's selection language.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>sen:/❯ query shown SELECT term_showcase.Showcase FROM local.demo
+</span><span id="__span-9-2"><a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>[term] [info]  + query 'shown' created
+</span><span id="__span-9-3"><a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>sen:/❯ cd @shown
+</span><span id="__span-9-4"><a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>sen:@shown❯ ls
+</span><span id="__span-9-5"><a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>└─┬ local
+</span><span id="__span-9-6"><a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>  └─┬ demo
+</span><span id="__span-9-7"><a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a>    └── showcase [term_showcase.ShowcaseImpl]
+</span></code></pre></div>
+<p>A query scope lists its objects by their full name, so the session and the bus appear as the two levels
+above them.</p>
+<p><code>SELECT &lt;Type&gt; FROM &lt;session&gt;.&lt;bus&gt;</code> matches a type, <code>SELECT *</code> matches everything, and <code>WHERE</code> filters
+on properties. Two queries cannot select the same thing, whatever they are called, and <code>all</code> is
+reserved. The showcase configuration already defines <code>workers</code> and <code>everything</code>, so those two names and
+their selections are taken.</p>
+<p><code>queries</code> lists them and <code>query rm &lt;name&gt;</code> removes one. <code>close &lt;session&gt;.&lt;bus&gt;.&lt;name&gt;</code> also removes a
+query and closes the bus with it if that query was the only reason it was open, but only a query that
+holds a source of its own: one whose selection matched a bus that was already open shares that bus's
+source, and <code>close</code> then says it cannot find it. <code>query rm</code> removes either.</p>
+<h2 id="inspecting-types-and-objects">Inspecting types and objects<a class="headerlink" href="#inspecting-types-and-objects" title="Permanent link">¶</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>sen:/❯ inspect local.demo.showcase
+</span><span id="__span-10-2"><a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a>sen:/❯ inspect term_showcase.Point
+</span><span id="__span-10-3"><a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a>sen:/❯ types
+</span><span id="__span-10-4"><a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a>sen:/❯ types Worker
+</span></code></pre></div>
+<p>Inspecting an object shows its class and inheritance chain, its description, then its properties,
+methods and events, with types and descriptions, inherited members included. Inspecting a type shows a
+struct's fields, an enum's values and keys, a sequence's element type and bounds, or a variant's
+alternatives.</p>
+<p><code>inspect</code> also lists an object's events. Tab knows them too, but only where an event is what you could
+mean: after <code>listen showcase.</code> or <code>unlisten showcase.</code>. After <code>showcase.</code> on its own it offers methods,
+property getters and setters, and <code>print</code>.</p>
+<p>Pressing Enter on a method with its arguments left off opens the guided form, described above. The
+signature is printed instead of a form only when an argument is of a kind the form cannot represent. It
+names each argument as <code>name : Type</code> followed by the argument's description, or the type's own
+description when the argument has none, and it leaves out the returns line for a method that returns
+nothing.</p>
+<p><code>units</code> lists the unit categories and the units in each, and takes a filter.</p>
+<h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">¶</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>sen:/❯ log                           # every logger and its level
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>sen:/❯ log level info                # the global level
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>sen:/❯ log level myComponent debug   # one logger
+</span></code></pre></div>
+<p>Levels are <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>, <code>critical</code> and <code>off</code>. Log lines arrive in the same
+stream as everything else, carrying their logger name and level. They carry no timestamp. The term's own
+rows carry a time on the right instead: command echoes, call results and event emissions. If you need a
+timestamp on every log line, a file sink in the kernel's configuration keeps them.</p>
+<p>Two notices say when the term has dropped something rather than shown it. <code>N log lines were dropped:
+they arrived faster than the screen can draw them</code> means the level is letting through more than a screen
+can take. <code>N further discovery notices were not shown</code> means a burst of objects arrived. Neither loses
+anything but the notice: the log file sinks and the objects themselves are unaffected.</p>
+<h2 id="logging-from-other-components">Logging from other components<a class="headerlink" href="#logging-from-other-components" title="Permanent link">¶</a></h2>
+<p>Term captures the process's standard error and shows it. It cannot capture standard output, because
+that is what FTXUI draws the interface on — a <code>printf</code>, a <code>std::cout</code> or a <code>write(STDOUT_FILENO, …)</code>
+from any component will land on top of the display.</p>
+<p>Use spdlog, and take the logger from the kernel:</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="c1">// in your component</span>
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">getOrCreateLogger</span><span class="p">(</span><span class="s">"my_component"</span><span class="p">);</span>
+</span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="n">logger</span><span class="o">-&gt;</span><span class="n">info</span><span class="p">(</span><span class="s">"my message: {}"</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+</span></code></pre></div>
+<p>Most components wrap that call in a <code>getLogger()</code> helper of their own, as
+<a href="../howto_guides/logging.html">Logging</a> shows. Do not call <code>spdlog::</code> free functions instead: those
+reach a different logger registry than the kernel's, so a logger created that way is invisible to
+<code>log</code> and cannot be levelled. To walk every logger, use <code>KernelApi::applyToAllLoggers</code>.</p>
+<h2 id="themes">Themes<a class="headerlink" href="#themes" title="Permanent link">¶</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>sen:/❯ theme nord
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>  Theme changed to 'nord'.
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Theme</th>
+<th>Style</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>oneDark</code></td>
+<td>Dark</td>
+<td>Atom One Dark</td>
+</tr>
+<tr>
+<td><code>oneLight</code></td>
+<td>Light</td>
+<td>Atom One Light</td>
+</tr>
+<tr>
+<td><code>catppuccinMocha</code></td>
+<td>Dark</td>
+<td>Catppuccin Mocha (warm, pastel, <strong>default</strong>)</td>
+</tr>
+<tr>
+<td><code>catppuccinLatte</code></td>
+<td>Light</td>
+<td>Catppuccin Latte (warm, pastel)</td>
+</tr>
+<tr>
+<td><code>dracula</code></td>
+<td>Dark</td>
+<td>Dracula (purple accents)</td>
+</tr>
+<tr>
+<td><code>nord</code></td>
+<td>Dark</td>
+<td>Nord (arctic blue)</td>
+</tr>
+<tr>
+<td><code>gruvboxDark</code></td>
+<td>Dark</td>
+<td>Gruvbox Dark (warm retro)</td>
+</tr>
+<tr>
+<td><code>gruvboxLight</code></td>
+<td>Light</td>
+<td>Gruvbox Light (warm retro)</td>
+</tr>
+<tr>
+<td><code>tokyoNight</code></td>
+<td>Dark</td>
+<td>Tokyo Night (blue-purple)</td>
+</tr>
+<tr>
+<td><code>solarizedLight</code></td>
+<td>Light</td>
+<td>Solarized Light (classic)</td>
+</tr>
+</tbody>
+</table>
+<p>Set one in the configuration with <code>theme: nord</code>, or in the environment with <code>SEN_TERM_THEME=nord</code>.
+Precedence runs default (<code>catppuccinMocha</code>), then configuration, then the environment variable.</p>
+<h2 id="kernel-status">Kernel status<a class="headerlink" href="#kernel-status" title="Permanent link">¶</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>sen:/❯ status
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a>  Run mode  realTime
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a>  Components
+</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a>  Name          Group  Cycle time  Objects
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a>  term              2    30.0 Hz        0  realtime
+</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a>  my_package        1   100.0 Hz       12  realtime
+</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a>  showcase          1       N/A         5
+</span></code></pre></div>
+<p>With a transport active, the output also carries cumulative <abbr title="User Datagram Protocol">UDP</abbr> and <abbr title="Transmission Control Protocol">TCP</abbr> bytes sent and received.</p>
+<h2 id="mouse">Mouse<a class="headerlink" href="#mouse" title="Permanent link">¶</a></h2>
+<p>Scroll the output with the wheel. Drag across text to select it, and the selection is copied to the
+clipboard when you release, with a note saying how much was copied; Ctrl+Y copies the current
+selection on demand. Copying uses the OSC 52 terminal escape, so it works over ssh, and also hands
+the text to a local helper when one is installed: <code>pbcopy</code> on macOS, <code>wl-copy</code> on Wayland, <code>xclip</code>
+or <code>xsel</code> on X11, and <code>clip</code> on Windows.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">¶</a></h2>
+<p><code>help</code> lists the commands by category, each with a one-line description, and <code>?</code> is a shorter spelling
+of it. <code>help &lt;command&gt;</code> prints that command's usage line and its longer description instead of the
+list.</p>
+<p>The list comes from the command table the term dispatches on, so it cannot name a command the build
+does not have. It is not the whole surface either: <code>shutdown</code> is left out deliberately, and <code>?</code> and
+<code>print</code> are dispatched without table entries. The keyboard shortcuts printed under the list are a
+hand-written list and can drift.</p>
+<h2 id="configuration-reference">Configuration reference<a class="headerlink" href="#configuration-reference" title="Permanent link">¶</a></h2>
+<p>The configuration options are defined in the component's <abbr title="Sen Type Language">STL</abbr>, with the types they refer to:</p>
+<div class="language-rust highlight"><span class="filename">Term configuration</span><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="c1">// How timestamps should be displayed</span>
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="k">enum</span><span class="w"> </span><span class="nc">TimeStyle</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="p">{</span>
+</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">  </span><span class="n">utc</span><span class="p">,</span><span class="w">   </span><span class="c1">// use UTC timestamps</span>
+</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="n">local</span><span class="p">,</span><span class="w"> </span><span class="c1">// use local time timestamps</span>
+</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="p">}</span>
+</span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a>
+</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="c1">// Color theme for the terminal UI</span>
+</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="k">enum</span><span class="w"> </span><span class="nc">ThemeStyle</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span>
+</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="p">{</span>
+</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a><span class="w">  </span><span class="n">oneDark</span><span class="p">,</span><span class="w">         </span><span class="c1">// Atom One Dark</span>
+</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a><span class="w">  </span><span class="n">oneLight</span><span class="p">,</span><span class="w">        </span><span class="c1">// Atom One Light</span>
+</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a><span class="w">  </span><span class="n">catppuccinMocha</span><span class="p">,</span><span class="w"> </span><span class="c1">// Catppuccin Mocha (dark, warm, default)</span>
+</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a><span class="w">  </span><span class="n">catppuccinLatte</span><span class="p">,</span><span class="w"> </span><span class="c1">// Catppuccin Latte (light, warm)</span>
+</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a><span class="w">  </span><span class="n">dracula</span><span class="p">,</span><span class="w">         </span><span class="c1">// Dracula (dark, purple)</span>
+</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a><span class="w">  </span><span class="n">nord</span><span class="p">,</span><span class="w">            </span><span class="c1">// Nord (dark, arctic)</span>
+</span><span id="__span-15-17"><a href="#__codelineno-15-17" id="__codelineno-15-17" name="__codelineno-15-17"></a><span class="w">  </span><span class="n">gruvboxDark</span><span class="p">,</span><span class="w">     </span><span class="c1">// Gruvbox Dark (warm retro)</span>
+</span><span id="__span-15-18"><a href="#__codelineno-15-18" id="__codelineno-15-18" name="__codelineno-15-18"></a><span class="w">  </span><span class="n">gruvboxLight</span><span class="p">,</span><span class="w">    </span><span class="c1">// Gruvbox Light (warm retro)</span>
+</span><span id="__span-15-19"><a href="#__codelineno-15-19" id="__codelineno-15-19" name="__codelineno-15-19"></a><span class="w">  </span><span class="n">tokyoNight</span><span class="p">,</span><span class="w">      </span><span class="c1">// Tokyo Night (dark, blue-purple)</span>
+</span><span id="__span-15-20"><a href="#__codelineno-15-20" id="__codelineno-15-20" name="__codelineno-15-20"></a><span class="w">  </span><span class="n">solarizedLight</span><span class="p">,</span><span class="w">  </span><span class="c1">// Solarized Light (classic)</span>
+</span><span id="__span-15-21"><a href="#__codelineno-15-21" id="__codelineno-15-21" name="__codelineno-15-21"></a><span class="p">}</span>
+</span><span id="__span-15-22"><a href="#__codelineno-15-22" id="__codelineno-15-22" name="__codelineno-15-22"></a>
+</span><span id="__span-15-23"><a href="#__codelineno-15-23" id="__codelineno-15-23" name="__codelineno-15-23"></a><span class="c1">// Holds information about a named query</span>
+</span><span id="__span-15-24"><a href="#__codelineno-15-24" id="__codelineno-15-24" name="__codelineno-15-24"></a><span class="k">struct</span><span class="w"> </span><span class="nc">QueryDef</span>
+</span><span id="__span-15-25"><a href="#__codelineno-15-25" id="__codelineno-15-25" name="__codelineno-15-25"></a><span class="p">{</span>
+</span><span id="__span-15-26"><a href="#__codelineno-15-26" id="__codelineno-15-26" name="__codelineno-15-26"></a><span class="w">  </span><span class="n">name</span><span class="w">      </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">  </span><span class="c1">// the name of the query (cannot contain spaces or dots)</span>
+</span><span id="__span-15-27"><a href="#__codelineno-15-27" id="__codelineno-15-27" name="__codelineno-15-27"></a><span class="w">  </span><span class="n">selection</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="w">   </span><span class="c1">// the query expression</span>
+</span><span id="__span-15-28"><a href="#__codelineno-15-28" id="__codelineno-15-28" name="__codelineno-15-28"></a><span class="p">}</span>
+</span><span id="__span-15-29"><a href="#__codelineno-15-29" id="__codelineno-15-29" name="__codelineno-15-29"></a>
+</span><span id="__span-15-30"><a href="#__codelineno-15-30" id="__codelineno-15-30" name="__codelineno-15-30"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SourcesList</span><span class="p">;</span>
+</span><span id="__span-15-31"><a href="#__codelineno-15-31" id="__codelineno-15-31" name="__codelineno-15-31"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">QueryDef</span><span class="o">&gt;</span><span class="w"> </span><span class="n">QueryList</span><span class="p">;</span>
+</span><span id="__span-15-32"><a href="#__codelineno-15-32" id="__codelineno-15-32" name="__codelineno-15-32"></a><span class="n">sequence</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">NameList</span><span class="p">;</span>
+</span><span id="__span-15-33"><a href="#__codelineno-15-33" id="__codelineno-15-33" name="__codelineno-15-33"></a>
+</span><span id="__span-15-34"><a href="#__codelineno-15-34" id="__codelineno-15-34" name="__codelineno-15-34"></a><span class="c1">// Configuration params for the term component</span>
+</span><span id="__span-15-35"><a href="#__codelineno-15-35" id="__codelineno-15-35" name="__codelineno-15-35"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Configuration</span>
+</span><span id="__span-15-36"><a href="#__codelineno-15-36" id="__codelineno-15-36" name="__codelineno-15-36"></a><span class="p">{</span>
+</span><span id="__span-15-37"><a href="#__codelineno-15-37" id="__codelineno-15-37" name="__codelineno-15-37"></a><span class="w">  </span><span class="n">initialScope</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nc">string</span><span class="p">,</span><span class="w">       </span><span class="c1">// initial scope, e.g. "local.demo"; its bus must be in open too. Empty means root.</span>
+</span><span id="__span-15-38"><a href="#__codelineno-15-38" id="__codelineno-15-38" name="__codelineno-15-38"></a><span class="w">  </span><span class="n">timeStyle</span><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="nc">TimeStyle</span><span class="p">,</span><span class="w">    </span><span class="c1">// how to display time (default: utc)</span>
+</span><span id="__span-15-39"><a href="#__codelineno-15-39" id="__codelineno-15-39" name="__codelineno-15-39"></a><span class="w">  </span><span class="n">theme</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">ThemeStyle</span><span class="p">,</span><span class="w">   </span><span class="c1">// color theme (default: catppuccinMocha)</span>
+</span><span id="__span-15-40"><a href="#__codelineno-15-40" id="__codelineno-15-40" name="__codelineno-15-40"></a><span class="w">  </span><span class="n">noLogo</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w">         </span><span class="c1">// true to suppress the welcome banner</span>
+</span><span id="__span-15-41"><a href="#__codelineno-15-41" id="__codelineno-15-41" name="__codelineno-15-41"></a><span class="w">  </span><span class="n">open</span><span class="w">         </span><span class="p">:</span><span class="w"> </span><span class="nc">SourcesList</span><span class="p">,</span><span class="w">  </span><span class="c1">// sources to open automatically at startup</span>
+</span><span id="__span-15-42"><a href="#__codelineno-15-42" id="__codelineno-15-42" name="__codelineno-15-42"></a><span class="w">  </span><span class="n">query</span><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="nc">QueryList</span><span class="p">,</span><span class="w">    </span><span class="c1">// named queries to create automatically at startup</span>
+</span><span id="__span-15-43"><a href="#__codelineno-15-43" id="__codelineno-15-43" name="__codelineno-15-43"></a><span class="w">  </span><span class="n">listen</span><span class="w">       </span><span class="p">:</span><span class="w"> </span><span class="nc">NameList</span><span class="p">,</span><span class="w">     </span><span class="c1">// event listeners to register at startup (object or object.event)</span>
+</span><span id="__span-15-44"><a href="#__codelineno-15-44" id="__codelineno-15-44" name="__codelineno-15-44"></a><span class="w">  </span><span class="n">callTimeout</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="nc">Duration</span><span class="p">,</span><span class="w">     </span><span class="c1">// async call timeout (default: 30s)</span>
+</span><span id="__span-15-45"><a href="#__codelineno-15-45" id="__codelineno-15-45" name="__codelineno-15-45"></a><span class="p">}</span>
+</span></code></pre></div>
+<aside class="md-source-file">
+<span class="md-source-file__fact">
+<span class="md-icon" title="Last update">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
+</span>
+</aside>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<nav aria-label="Footer" class="md-footer__inner md-grid">
+<a aria-label="Previous: Shell" class="md-footer__link md-footer__link--prev" href="shell.html">
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</div>
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Previous
+              </span>
+<div class="md-ellipsis">
+                Shell
+              </div>
+</div>
+</a>
+<a aria-label="Next: Influx" class="md-footer__link md-footer__link--next" href="influx.html">
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Next
+              </span>
+<div class="md-ellipsis">
+                Influx
+              </div>
+</div>
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+</div>
+</a>
+</nav>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="md-copyright__highlight">
+      Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+    </div>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
+            const dark_scheme_name = "slate"
+            
+            window.scheme = document.body.getAttribute("data-md-color-scheme")
+            const options = {
+                attributeFilter: ['data-md-color-scheme'],
+            };
+            function color_scheme_callback(mutations) {
+                for (let mutation of mutations) {
+                    if (mutation.attributeName === "data-md-color-scheme") {
+                        scheme = document.body.getAttribute("data-md-color-scheme")
+                        var iframe_list = document.getElementsByClassName("redoc-iframe")
+                        for(var i = 0; i < iframe_list.length; i++) {
+                            var ele = iframe_list.item(i);
+                            if (ele) {
+                                if (scheme === dark_scheme_name) {
+                                    ele.contentWindow.enable_dark_mode();
+                                } else {
+                                    ele.contentWindow.disable_dark_mode();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            observer = new MutationObserver(color_scheme_callback);
+            observer.observe(document.body, options);
+            })</script></body></html>

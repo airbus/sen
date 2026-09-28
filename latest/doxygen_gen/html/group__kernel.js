@@ -16,6 +16,7 @@ var group__kernel =
       [ "isRealTimeOnly", "classsen_1_1kernel_1_1_component.html#a85a16fa12f742eacc233033120cfd126", null ]
     ] ],
     [ "sen::kernel::KernelApi", "classsen_1_1kernel_1_1_kernel_api.html", [
+      [ "TerminalOwnership", "classsen_1_1kernel_1_1_kernel_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
       [ "KernelApi", "classsen_1_1kernel_1_1_kernel_api.html#a1b1730c437aef25be08fa391d81bc8ef", null ],
       [ "getTypes", "classsen_1_1kernel_1_1_kernel_api.html#a7ba20735f5cad05911fb5c525d220561", null ],
       [ "requestKernelStop", "classsen_1_1kernel_1_1_kernel_api.html#ae07f49618cc8899602c860df5592429f", null ],
@@ -36,6 +37,7 @@ var group__kernel =
       [ "getConfig", "classsen_1_1kernel_1_1_config_getter.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ]
     ] ],
     [ "sen::kernel::RegistrationApi", "classsen_1_1kernel_1_1_registration_api.html", [
+      [ "TerminalOwnership", "classsen_1_1kernel_1_1_registration_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
       [ "RegistrationApi", "classsen_1_1kernel_1_1_registration_api.html#a28434338975c6e71642bfd89f330675b", null ],
       [ "~RegistrationApi", "classsen_1_1kernel_1_1_registration_api.html#a8f39a0a8901eeac5241239cf022da4dc", null ],
       [ "getConfig", "classsen_1_1kernel_1_1_registration_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],
@@ -54,6 +56,7 @@ var group__kernel =
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_registration_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
     ] ],
     [ "sen::kernel::InitApi", "classsen_1_1kernel_1_1_init_api.html", [
+      [ "TerminalOwnership", "classsen_1_1kernel_1_1_init_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
       [ "InitApi", "classsen_1_1kernel_1_1_init_api.html#a96a70ea55714d63f54f0cd9cb3105415", null ],
       [ "~InitApi", "classsen_1_1kernel_1_1_init_api.html#a14d162b2ad466f50ecde152e9527daaa", null ],
       [ "getConfig", "classsen_1_1kernel_1_1_init_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],
@@ -72,6 +75,7 @@ var group__kernel =
       [ "getConfigFilePath", "classsen_1_1kernel_1_1_init_api.html#a6be66d4510a6e2935671d79d2f147132", null ]
     ] ],
     [ "sen::kernel::RunApi", "classsen_1_1kernel_1_1_run_api.html", [
+      [ "TerminalOwnership", "classsen_1_1kernel_1_1_run_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
       [ "RunApi", "classsen_1_1kernel_1_1_run_api.html#a9b8ffee6a182954f81df79e203650bbb", null ],
       [ "~RunApi", "classsen_1_1kernel_1_1_run_api.html#a6816af6e6431c8cce62d6ef61f56664c", null ],
       [ "stopRequested", "classsen_1_1kernel_1_1_run_api.html#ad8ffeac5ae2f9f429896745102840b3e", null ],
@@ -106,6 +110,7 @@ var group__kernel =
       [ "impl::remoteProcessLost", "classsen_1_1kernel_1_1_run_api.html#ab0180c422233f43193b0a865918730ad", null ]
     ] ],
     [ "sen::kernel::UnloadApi", "classsen_1_1kernel_1_1_unload_api.html", [
+      [ "TerminalOwnership", "classsen_1_1kernel_1_1_unload_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
       [ "UnloadApi", "classsen_1_1kernel_1_1_unload_api.html#a3751c3412da92dda028b78aae68ee513", null ],
       [ "~UnloadApi", "classsen_1_1kernel_1_1_unload_api.html#ad8d8297f8c6bfc0b944b912f5ac85961", null ],
       [ "getConfig", "classsen_1_1kernel_1_1_unload_api.html#a75812a18d2d0c81dee6aacc2705bc3f0", null ],

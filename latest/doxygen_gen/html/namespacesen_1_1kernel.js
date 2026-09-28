@@ -16,6 +16,7 @@ var namespacesen_1_1kernel =
     [ "KernelConfig", "classsen_1_1kernel_1_1_kernel_config.html", "classsen_1_1kernel_1_1_kernel_config" ],
     [ "KernelMonitoringInfo", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info", "namespacesen_1_1kernel_structsen_1_1kernel_1_1_kernel_monitoring_info_dup" ],
     [ "LoadApi", "classsen_1_1kernel_1_1_load_api.html", "classsen_1_1kernel_1_1_load_api" ],
+    [ "LoggerSinkRegistration", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration", "namespacesen_1_1kernel_structsen_1_1kernel_1_1_logger_sink_registration_dup" ],
     [ "PackageManager", "classsen_1_1kernel_1_1_package_manager.html", "classsen_1_1kernel_1_1_package_manager" ],
     [ "ParticipantAddr", "group__kernel.html#structsen_1_1kernel_1_1_participant_addr", "group__kernel_structsen_1_1kernel_1_1_participant_addr" ],
     [ "PreloadApi", "classsen_1_1kernel_1_1_preload_api.html", "classsen_1_1kernel_1_1_preload_api" ],
@@ -40,6 +41,10 @@ var namespacesen_1_1kernel =
     [ "ReliableBlockPtr", "group__kernel.html#gafcf24306f222d884d6d6483f3f82bcab", null ],
     [ "BestEffortBufferList", "group__kernel.html#ga396eafeb8e015a7bcd88c2c003a33d64", null ],
     [ "TransportFactory", "group__kernel.html#gae3d2f88877b2b1283d538e4ccc06bbd2", null ],
+    [ "TerminalOwnership", "namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d", [
+      [ "shared", "namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da9e81e7b963c71363e2fb3eefcfecfc0e", null ],
+      [ "owned", "namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da8f9a4c5fe0824547590a3fc568f5c7c7", null ]
+    ] ],
     [ "KernelBlockMode", "namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8d", [
       [ "doNotBlock", "namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8da73df83b54d1c4d88882052d9e700e0be", null ],
       [ "doBlock", "namespacesen_1_1kernel.html#a5d722d534906b9b6c3174f44e67cea8da80e806a34f2ee6147a30d0771987893b", null ]

@@ -13,6 +13,7 @@ Subcommands:
   package      Create or manipulate sen packages
   file-to-array
                Simple utility to convert a file to a C++ array
+  term         Shortcut to run the sen term stand-alone
   shell        Shortcut to run the sen shell stand-alone
   explorer     Shortcut to run the sen explorer stand-alone
   web-explorer Shortcut to run the sen web-explorer stand-alone

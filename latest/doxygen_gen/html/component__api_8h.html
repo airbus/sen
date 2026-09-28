@@ -156,7 +156,9 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('component__api
 <code>#include &quot;stl/sen/kernel/basic_types.stl.h&quot;</code><br />
 <code>#include &quot;stl/sen/kernel/network_footprint.stl.h&quot;</code><br />
 <code>#include &lt;spdlog/logger.h&gt;</code><br />
+<code>#include &lt;spdlog/sinks/sink.h&gt;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;cstring&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
@@ -173,6 +175,8 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('component__api
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:sen_3A_3Akernel_3A_3ALoggerSinkRegistration_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Flogger_5Fsink_5Fregistration" id="r_sen_3A_3Akernel_3A_3ALoggerSinkRegistration_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Flogger_5Fsink_5Fregistration"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration">sen::kernel::LoggerSinkRegistration</a></td></tr>
+<tr class="memdesc:structsen_1_1kernel_1_1_logger_sink_registration"><td class="mdescLeft">&#160;</td><td class="mdescRight">What registering a logger sink did.  <a href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Akernel_3A_3AComponentMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fcomponent_5Fmonitoring_5Finfo" id="r_sen_3A_3Akernel_3A_3AComponentMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fcomponent_5Fmonitoring_5Finfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">sen::kernel::ComponentMonitoringInfo</a></td></tr>
 <tr class="memdesc:structsen_1_1kernel_1_1_component_monitoring_info"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime monitoring information about a single component runner.  <a href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_component_monitoring_info">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3Akernel_3A_3AKernelMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fkernel_5Fmonitoring_5Finfo" id="r_sen_3A_3Akernel_3A_3AKernelMonitoringInfo_5Fstructsen_5F1_5F1kernel_5F1_5F1_5Fkernel_5Fmonitoring_5Finfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_kernel_monitoring_info">sen::kernel::KernelMonitoringInfo</a></td></tr>
@@ -208,8 +212,58 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:a407b640414b54bf6d98c670c7b86ad67"><td class="mdescLeft">&#160;</td><td class="mdescRight">The result of operations that may be called multiple times.  <br /></td></tr>
 <tr class="memitem:aa49f73d5a95b7d2b2e638f45b4761e86" id="r_aa49f73d5a95b7d2b2e638f45b4761e86"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#aa49f73d5a95b7d2b2e638f45b4761e86">sen::kernel::NetworkFootprintReporter</a> = NetworkFootprint(<a class="el" href="classsen_1_1_span.html">Span</a>&lt;const BusAddress&gt;) const</td></tr>
 <tr class="memdesc:aa49f73d5a95b7d2b2e638f45b4761e86"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classsen_1_1_callable.html" title="Represents something that can be called.">Callable</a> that builds a network footprint from bus addresses.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a33d8256061fa289ca51043f36103a87d" id="r_a33d8256061fa289ca51043f36103a87d"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">sen::kernel::TerminalOwnership</a> { <a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da9e81e7b963c71363e2fb3eefcfecfc0e">sen::kernel::shared</a>
+, <a class="el" href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da8f9a4c5fe0824547590a3fc568f5c7c7">sen::kernel::owned</a>
+ }</td></tr>
+<tr class="memdesc:a33d8256061fa289ca51043f36103a87d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the component registering a log sink owns the terminal.  <a href="namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87d">More...</a><br /></td></tr>
 </table>
 <hr/><h2 id="header-inline_5Fclasses" class="groupheader">Class Documentation</h2>
+<a name="structsen_1_1kernel_1_1_logger_sink_registration" id="structsen_1_1kernel_1_1_logger_sink_registration"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structsen_1_1kernel_1_1_logger_sink_registration">&#9670;&#160;</a></span>sen::kernel::LoggerSinkRegistration</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct sen::kernel::LoggerSinkRegistration</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>What registering a logger sink did. </p>
+<p>There is no arbitration: a sink is added, never refused, so two components that both render logs will each be handed every line, including the other's. Anything that needs exclusivity has to read <span class="tt"><a class="el" href="namespacesen_1_1kernel.html#a0f7f75542818324beaa9159dacfaeeea" title="sinks registered behind the relay, this one included">registeredSinks</a></span> and decide for itself. </p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Class Members</th></tr>
+<tr><td class="fieldtype">
+<a id="ae4494904bf536e578af6b7d0c066e034" name="ae4494904bf536e578af6b7d0c066e034"></a>bool</td>
+<td class="fieldname">
+added = false</td>
+<td class="fielddoc">
+false when this sink was already registered, so the call only changed its terminal ownership </td></tr>
+<tr><td class="fieldtype">
+<a id="a62a3f0f37751c965d4569c18455a8d03" name="a62a3f0f37751c965d4569c18455a8d03"></a>bool</td>
+<td class="fieldname">
+ownsTerminal = false</td>
+<td class="fielddoc">
+whether this sink now holds the terminal claim </td></tr>
+<tr><td class="fieldtype">
+<a id="a02a6dab98bcf9a8d57557545b1ec4920" name="a02a6dab98bcf9a8d57557545b1ec4920"></a>bool</td>
+<td class="fieldname">
+terminalOwnedElsewhere = false</td>
+<td class="fielddoc">
+whether a <em>different</em> registered sink holds the claim </td></tr>
+<tr><td class="fieldtype">
+<a id="a0f7f75542818324beaa9159dacfaeeea" name="a0f7f75542818324beaa9159dacfaeeea"></a>size_t</td>
+<td class="fieldname">
+registeredSinks = 0</td>
+<td class="fielddoc">
+sinks registered behind the relay, this one included </td></tr>
+</table>
+
+</div>
+</div>
 <a name="structsen_1_1kernel_1_1_component_monitoring_info" id="structsen_1_1kernel_1_1_component_monitoring_info"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#structsen_1_1kernel_1_1_component_monitoring_info">&#9670;&#160;</a></span>sen::kernel::ComponentMonitoringInfo</h2>
 

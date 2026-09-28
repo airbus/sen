@@ -2,7 +2,7 @@
 
 = Model overview
 
-#prose("335 types in 13 packages. 13 classes in 11 independent hierarchies.")
+#prose("343 types in 14 packages. 14 classes in 12 independent hierarchies.")
 
 *Packages*
 
@@ -19,6 +19,7 @@
   ([#h(10pt)#"replayer"], [4], [2], [1], [1], [—], [—], [—]),
   ([#h(10pt)#"rest"], [37], [—], [20], [5], [—], [9], [3]),
   ([#h(10pt)#"shell"], [27], [1], [20], [3], [1], [2], [—]),
+  ([#h(10pt)#"term"], [8], [1], [2], [2], [—], [3], [—]),
   ([#h(0pt)#"db"], [3], [—], [3], [—], [—], [—], [—]),
   ([#h(0pt)#"kernel"], [160], [4], [80], [23], [8], [37], [8]),
   ([#h(10pt)#"log"], [16], [—], [11], [1], [1], [3], [—]),
@@ -36,6 +37,7 @@
   ("", link(<t-sen-components-replayer-Replay>)[#"components.​replayer.​Replay"], <t-sen-components-replayer-Replay>),
   ("", link(<t-sen-components-replayer-Replayer>)[#"components.​replayer.​Replayer"], <t-sen-components-replayer-Replayer>),
   ("", link(<t-sen-components-shell-Shell>)[#"components.​shell.​Shell"], <t-sen-components-shell-Shell>),
+  ("", link(<t-sen-components-term-Term>)[#"components.​term.​Term"], <t-sen-components-term-Term>),
   ("", link(<t-sen-kernel-KernelApi>)[#"kernel.​Kernel​Api"], <t-sen-kernel-KernelApi>),
   ("", link(<t-sen-kernel-VirtualClock>)[#"kernel.​Virtual​Clock"], <t-sen-kernel-VirtualClock>),
   ("├── ", link(<t-sen-kernel-VirtualKernelClock>)[#"kernel.​Virtual​Kernel​Clock"], <t-sen-kernel-VirtualKernelClock>),
@@ -1699,6 +1701,110 @@
 ==== #"SourcesList" #chip("sequences", "sequence") <t-sen-components-shell-SourcesList>
 #declared[#kw[sequence]\<#link(<t-string>)[#"string"]\> #"Sources​List"#";"]
 #facts[Named by #link(<t-sen-components-shell-Configuration>)[#"Configuration"].]
+
+== #"term"
+
+#prose[8 types.]
+
+#section("Object classes", "classes")
+
+#summary(
+  (link(<t-sen-components-term-Term>)[#"Term"], "Modern TUI-based interactive terminal for the sen kernel", <t-sen-components-term-Term>),
+)
+
+==== #"Term" #chip("classes", "class") <t-sen-components-term-Term>
+#prose("Modern TUI-based interactive terminal for the sen kernel")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, COL-FLAGS, 1fr),
+  table.header([*Name*], [*Type*], [*Flags*], [*Description*]),
+  [#mono("config")], link(<t-sen-components-term-Configuration>)[#"Configuration"], [RO S BE], "service configuration",
+)
+
+#section("Fixed records", "structures")
+
+#summary(
+  (link(<t-sen-components-term-Configuration>)[#"Configuration"], "Configuration params for the term component", <t-sen-components-term-Configuration>),
+  (link(<t-sen-components-term-QueryDef>)[#"Query​Def"], "Holds information about a named query", <t-sen-components-term-QueryDef>),
+)
+
+==== #"Configuration" #chip("structures", "structure") <t-sen-components-term-Configuration>
+#prose("Configuration params for the term component")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("initial​Scope")], link(<t-string>)[#"string"], "initial scope, e.g. \"local.demo\"; its bus must be in open too. Empty means root.",
+  [#mono("time​Style")], link(<t-sen-components-term-TimeStyle>)[#"Time​Style"], "how to display time (default: utc)",
+  [#mono("theme")], link(<t-sen-components-term-ThemeStyle>)[#"Theme​Style"], "color theme (default: catppuccinMocha)",
+  [#mono("no​Logo")], link(<t-bool>)[#"bool"], "true to suppress the welcome banner",
+  [#mono("open")], link(<t-sen-components-term-SourcesList>)[#"Sources​List"], "sources to open automatically at startup",
+  [#mono("query")], link(<t-sen-components-term-QueryList>)[#"Query​List"], "named queries to create automatically at startup",
+  [#mono("listen")], link(<t-sen-components-term-NameList>)[#"Name​List"], "event listeners to register at startup (object or object.event)",
+  [#mono("call​Timeout")], link(<t-sen-Duration>)[#"sen.​Duration"], "async call timeout (default: 30s)",
+)
+#facts[Named by #link(<t-sen-components-term-Term>)[#"Term"].]
+
+==== #"QueryDef" #chip("structures", "structure") <t-sen-components-term-QueryDef>
+#prose("Holds information about a named query")
+#sen-table(
+  columns: (COL-NAME, COL-TYPE, 1fr),
+  table.header([*Name*], [*Type*], [*Description*]),
+  [#mono("name")], link(<t-string>)[#"string"], "the name of the query (cannot contain spaces or dots)",
+  [#mono("selection")], link(<t-string>)[#"string"], "the query expression",
+)
+#facts[Named by #link(<t-sen-components-term-QueryList>)[#"Query​List"].]
+
+#section("Enumerations", "enumerations")
+
+#summary(
+  (link(<t-sen-components-term-ThemeStyle>)[#"Theme​Style"], "Color theme for the terminal UI", <t-sen-components-term-ThemeStyle>),
+  (link(<t-sen-components-term-TimeStyle>)[#"Time​Style"], "How timestamps should be displayed", <t-sen-components-term-TimeStyle>),
+)
+
+==== #"ThemeStyle" #chip("enumerations", "enumeration") <t-sen-components-term-ThemeStyle>
+#prose("Color theme for the terminal UI")
+#facts[Held as #mono("u8").]
+#enum-columns(3,
+  ("one​Dark", [0]),
+  ("one​Light", [1]),
+  ("catppuccin​Mocha", [2]),
+  ("catppuccin​Latte", [3]),
+  ("dracula", [4]),
+  ("nord", [5]),
+  ("gruvbox​Dark", [6]),
+  ("gruvbox​Light", [7]),
+  ("tokyo​Night", [8]),
+  ("solarized​Light", [9]),
+)
+#facts[Named by #link(<t-sen-components-term-Configuration>)[#"Configuration"].]
+
+==== #"TimeStyle" #chip("enumerations", "enumeration") <t-sen-components-term-TimeStyle>
+#prose("How timestamps should be displayed")
+#facts[Held as #mono("u8").]
+#enum-columns(3,
+  ("utc", [0]),
+  ("local", [1]),
+)
+#facts[Named by #link(<t-sen-components-term-Configuration>)[#"Configuration"].]
+
+#section("Arrays", "sequences")
+
+#summary(
+  (link(<t-sen-components-term-NameList>)[#"Name​List"], "", <t-sen-components-term-NameList>),
+  (link(<t-sen-components-term-QueryList>)[#"Query​List"], "", <t-sen-components-term-QueryList>),
+  (link(<t-sen-components-term-SourcesList>)[#"Sources​List"], "", <t-sen-components-term-SourcesList>),
+)
+
+==== #"NameList" #chip("sequences", "sequence") <t-sen-components-term-NameList>
+#declared[#kw[sequence]\<#link(<t-string>)[#"string"]\> #"Name​List"#";"]
+#facts[Named by #link(<t-sen-components-term-Configuration>)[#"Configuration"].]
+
+==== #"QueryList" #chip("sequences", "sequence") <t-sen-components-term-QueryList>
+#declared[#kw[sequence]\<#link(<t-sen-components-term-QueryDef>)[#"Query​Def"]\> #"Query​List"#";"]
+#facts[Named by #link(<t-sen-components-term-Configuration>)[#"Configuration"].]
+
+==== #"SourcesList" #chip("sequences", "sequence") <t-sen-components-term-SourcesList>
+#declared[#kw[sequence]\<#link(<t-string>)[#"string"]\> #"Sources​List"#";"]
+#facts[Named by #link(<t-sen-components-term-Configuration>)[#"Configuration"].]
 
 = #"db"
 
@@ -3798,6 +3904,14 @@
   (link(<t-sen-components-shell-SourcesList>)[#"components.​shell.​Sources​List"], <t-sen-components-shell-SourcesList>),
   (link(<t-sen-components-shell-TerminalCmd>)[#"components.​shell.​Terminal​Cmd"], <t-sen-components-shell-TerminalCmd>),
   (link(<t-sen-components-shell-TimeStyle>)[#"components.​shell.​Time​Style"], <t-sen-components-shell-TimeStyle>),
+  (link(<t-sen-components-term-Configuration>)[#"components.​term.​Configuration"], <t-sen-components-term-Configuration>),
+  (link(<t-sen-components-term-NameList>)[#"components.​term.​Name​List"], <t-sen-components-term-NameList>),
+  (link(<t-sen-components-term-QueryDef>)[#"components.​term.​Query​Def"], <t-sen-components-term-QueryDef>),
+  (link(<t-sen-components-term-QueryList>)[#"components.​term.​Query​List"], <t-sen-components-term-QueryList>),
+  (link(<t-sen-components-term-SourcesList>)[#"components.​term.​Sources​List"], <t-sen-components-term-SourcesList>),
+  (link(<t-sen-components-term-Term>)[#"components.​term.​Term"], <t-sen-components-term-Term>),
+  (link(<t-sen-components-term-ThemeStyle>)[#"components.​term.​Theme​Style"], <t-sen-components-term-ThemeStyle>),
+  (link(<t-sen-components-term-TimeStyle>)[#"components.​term.​Time​Style"], <t-sen-components-term-TimeStyle>),
   (link(<t-sen-db-OutSettings>)[#"db.​Out​Settings"], <t-sen-db-OutSettings>),
   (link(<t-sen-db-OutStats>)[#"db.​Out​Stats"], <t-sen-db-OutStats>),
   (link(<t-sen-db-Summary>)[#"db.​Summary"], <t-sen-db-Summary>),

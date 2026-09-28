@@ -1,5 +1,6 @@
 var classsen_1_1kernel_1_1_run_api =
 [
+    [ "TerminalOwnership", "classsen_1_1kernel_1_1_run_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
     [ "RunApi", "classsen_1_1kernel_1_1_run_api.html#a9b8ffee6a182954f81df79e203650bbb", null ],
     [ "~RunApi", "classsen_1_1kernel_1_1_run_api.html#a6816af6e6431c8cce62d6ef61f56664c", null ],
     [ "stopRequested", "classsen_1_1kernel_1_1_run_api.html#ad8ffeac5ae2f9f429896745102840b3e", null ],

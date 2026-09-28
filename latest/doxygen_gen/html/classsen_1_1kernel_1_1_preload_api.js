@@ -1,5 +1,6 @@
 var classsen_1_1kernel_1_1_preload_api =
 [
+    [ "TerminalOwnership", "classsen_1_1kernel_1_1_preload_api.html#ab4cbb48efa29a3016f6685d3d368d6a9", null ],
     [ "PreloadApi", "classsen_1_1kernel_1_1_preload_api.html#a0b62c17ef06303ca4216459692b2d8ff", null ],
     [ "~PreloadApi", "classsen_1_1kernel_1_1_preload_api.html#a3266aff1eeec77cc9830896c6f4974ad", null ],
     [ "installTransportFactory", "classsen_1_1kernel_1_1_preload_api.html#a6dda8e9cb94b9794a52d64c62a6dae87", null ],
