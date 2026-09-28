@@ -103,6 +103,7 @@ jobs:
         env:
           # The container suites run here, and their driver needs the daemon.
           SEN_IN_IMAGE_DOCKER: "1"
+          SEN_RUNNER_BUDGET_SECONDS: "20"
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           # The container suites start containers of their own, and the driver takes the
