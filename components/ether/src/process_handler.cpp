@@ -246,7 +246,8 @@ void ProcessHandler::operator()(Hello&& msg)
     return;
   }
 
-  // kernel protocol version 9 is not retro-compatible
+  // The kernel protocol is not retro-compatible, so any difference ends the connection. Both
+  // sides run this check, which is what makes an older peer report the mismatch as well.
   if (msg.version.kernel != kernel::getKernelProtocolVersion())
   {
     getLogger()->error(

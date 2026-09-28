@@ -68,7 +68,7 @@ UniqueByteBufferManager::ByteBufferHandle UniqueByteBufferManager::getBuffer(siz
   return pImpl_->getBuffer(size);
 }
 
-uint32_t getKernelProtocolVersion() noexcept { return 9U; }
+uint32_t getKernelProtocolVersion() noexcept { return 10U; }
 
 Transport::Transport(std::string_view sessionName): name_(sessionName)
 {
