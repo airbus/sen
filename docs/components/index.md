@@ -6,10 +6,7 @@ will be there.
 
 ## What ships with Sen
 
-Sen ships components you load rather than write. Two of them, *shell* and *explorer*, are on their way
-out: both will be deprecated in 0.8.0 and removed in a later release, and their replacements, *term*
-and *web explorer*, are in beta now. Either replacement is ready to use, and telling us what it is
-missing is what decides when the older one goes.
+Sen ships components you load rather than write.
 
 - A full-screen terminal for interacting with the components and objects that are running in a
   process: [*term*](term.md). It is in beta, and it replaces the *shell* below.
