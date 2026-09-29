@@ -37,7 +37,7 @@ set_tests_properties(kernel_crash_report_stacktrace_test PROPERTIES RUN_SERIAL T
 
 append_test_env_modification(
   kernel_crash_report_stacktrace_test
-  "TSAN_OPTIONS=string_prepend:report_signal_unsafe=0 "
+  "TSAN_OPTIONS=string_prepend:report_signal_unsafe=0:handle_sigfpe=0:handle_abort=0 "
   "ASAN_OPTIONS=string_append: handle_sigfpe=0:handle_abort=0:detect_leaks=0"
   "ASAN_OPTIONS=string_append: fast_unwind_on_malloc=1:malloc_context_size=5"
   "UBSAN_OPTIONS=string_append: halt_on_error=0:print_stacktrace=0"
