@@ -7,44 +7,6 @@
 
 include_guard()
 
-function(sen_enable_static_analysis target_name)
-  if(NOT SEN_DISABLE_CLANG_TIDY)
-    set(_targets_to_analyze ${target_name})
-
-    if(TARGET ${target_name})
-      get_target_property(_internal_obj_lib ${target_name} OBJECT_LIBRARY)
-      if(_internal_obj_lib AND TARGET ${_internal_obj_lib})
-        list(APPEND _targets_to_analyze ${_internal_obj_lib})
-      endif()
-    endif()
-
-    if(MSVC)
-      foreach(_tgt IN LISTS _targets_to_analyze)
-        set_property(TARGET ${_tgt} PROPERTY VS_GLOBAL_EnableClangTidyCodeAnalysis true)
-      endforeach()
-    else()
-      if(NOT clang_tidy_path)
-        message(WARNING "clang-tidy disabled for target ${target_name}")
-      else()
-        foreach(_tgt IN LISTS _targets_to_analyze)
-          # NOTE: Clang-Tidy requires explicit frontend flags when running alongside a GCC compiler:
-          # 1. -extra-arg=-std=c++17: Forces Clang-Tidy to use C++17 semantics, preventing parser
-          #    errors if the underlying compiler driver fails to pass the language standard explicitly.
-          # 2. -extra-arg=-Wno-[error=]unknown-warning-option: Prevents Clang-Tidy from throwing
-          #    diagnostic compilation errors when it encounters GCC-exclusive warning flags
-          #    (e.g., -Wno-stringop-overread or -Wno-maybe-uninitialized) that Clang doesn't recognize.
-          set_property(
-            TARGET ${_tgt}
-            PROPERTY
-              CXX_CLANG_TIDY
-              "${clang_tidy_path};-extra-arg=-std=c++17;-extra-arg=-Wno-unknown-warning-option;-extra-arg=-Wno-error=unknown-warning-option"
-          )
-        endforeach()
-      endif()
-    endif()
-  endif()
-endfunction()
-
 # private function to collect all arguments needed for exporting the package
 function(sen_collect_export_args)
 
@@ -646,7 +608,6 @@ function(sen_configure_target target_name)
       PRIVATE
         /MP
         /W3 # baseline reasonable warnings
-        /WX # warnings are errors, as -Werror does for gcc and clang
         /w14263 # function: member function does not override any base class virtual member function
         /w14265 # classname: class has virtual functions, but destructor is not virtual
         /w14287 # operator: unsigned/negative constant mismatch
@@ -680,6 +641,13 @@ function(sen_configure_target target_name)
         # cache still stores them. sen_utils.cmake warns when a program database is used.
         "$<$<AND:$<CONFIG:Release>,$<BOOL:${SEN_RELEASE_SYMBOLS}>>:/Z7>"
     )
+
+    # /WX is Sen's own. The sentinel is set by the root CMakeLists, which is not installed, and the
+    # condition is plain rather than a generator expression so the property holds /WX literally.
+    # -Werror below is not gated: it has reached consumers' targets since before 0.5.2.
+    if(SEN_INTERNAL_BUILD)
+      target_compile_options(${target_name} PRIVATE /WX)
+    endif()
 
     # disable manifest generation
     target_link_options(${target_name} PRIVATE /MANIFEST:NO)
@@ -731,7 +699,10 @@ function(sen_configure_target target_name)
 
     set(common_linker_options_ -Wno-undef)
 
-    if(SEN_USE_SANITIZER STREQUAL None)
+    # sanitizers.cmake is not installed, so in a consumer's build SEN_USE_SANITIZER is empty and
+    # `STREQUAL None` was never true: the flag reached Sen alone.
+    # SEN_EXPORT_STATIC_DEPENDENCY_SYMBOLS is the way back for anyone relying on the leak.
+    if((NOT SEN_USE_SANITIZER OR SEN_USE_SANITIZER STREQUAL None) AND NOT SEN_EXPORT_STATIC_DEPENDENCY_SYMBOLS)
       list(APPEND common_linker_options_ LINKER:--exclude-libs,ALL)
     endif()
 
@@ -739,11 +710,11 @@ function(sen_configure_target target_name)
       target_compile_options(${target_name} PRIVATE ${common_clang_gcc_options_})
       target_link_options(${target_name} PRIVATE ${common_linker_options_})
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      set(suppress_gcc_broken_analysis_options
-          # TODO(SEN-1727): std::variant
+      # std::variant only, because gcc reports it from Sen's own installed headers and a consumer
+      # compiles those. Suppressions for a dependency that reaches no installed header do not belong
+      # here: they go on the targets inside Sen that compile it.
+      set(suppress_gcc_broken_analysis_options # TODO(SEN-1727): std::variant
           -Wno-maybe-uninitialized
-          # TODO(SEN-1727): pybind11
-          -Wno-array-bounds -Wno-stringop-overread
       )
       target_compile_options(
         ${target_name} PRIVATE ${common_clang_gcc_options_} ${suppress_gcc_broken_analysis_options}
@@ -779,9 +750,96 @@ function(sen_configure_target target_name)
   endif()
 endfunction()
 
+# Public API: documented in docs/users_guide/cmake.md and exercised by the conan test package.
+# clang-tidy is looked for here rather than when this file is included, so that find_package(sen)
+# does not require the tool of every consumer -- only one that asks for analysis pays for it.
+# SEN_CLANG_TIDY_EXTRA_ARGS is Sen's own build talking to itself; a consumer never sets it, so the
+# command stays exactly what the documented contract says, suppressions included.
+function(sen_enable_static_analysis target_name)
+  if(NOT SEN_DISABLE_CLANG_TIDY)
+    set(_targets_to_analyze ${target_name})
+
+    if(TARGET ${target_name})
+      get_target_property(_internal_obj_lib ${target_name} OBJECT_LIBRARY)
+      if(_internal_obj_lib AND TARGET ${_internal_obj_lib})
+        list(APPEND _targets_to_analyze ${_internal_obj_lib})
+      endif()
+    endif()
+
+    if(MSVC)
+      foreach(_tgt IN LISTS _targets_to_analyze)
+        set_property(TARGET ${_tgt} PROPERTY VS_GLOBAL_EnableClangTidyCodeAnalysis true)
+      endforeach()
+    else()
+      if(NOT clang_tidy_path)
+        # Versioned name first: an older clang-tidy from the system would otherwise win and analyse
+        # with different checks.
+        find_program(clang_tidy_path NAMES "clang-tidy-20" "clang-tidy")
+      endif()
+
+      if(NOT clang_tidy_path)
+        message(WARNING "clang-tidy not found, so static analysis is off for ${target_name}")
+      else()
+        # The unknown-warning suppressions belong to the documented command: clang-tidy replays a
+        # GCC compile line, and a consumer compiling with GCC meets the same flags clang rejects.
+        set(_sen_tidy_command "${clang_tidy_path};-extra-arg=-std=c++17")
+        list(
+          APPEND
+          _sen_tidy_command
+          -extra-arg=-Wno-unknown-warning-option
+          -extra-arg=-Wno-error=unknown-warning-option
+        )
+        foreach(_tgt IN LISTS _targets_to_analyze)
+          set_property(
+            TARGET ${_tgt} PROPERTY CXX_CLANG_TIDY ${_sen_tidy_command} ${SEN_CLANG_TIDY_EXTRA_ARGS}
+          )
+        endforeach()
+      endif()
+    endif()
+  endif()
+endfunction()
+
 # A clang-tidy finding in generated code belongs to the generator, repeats once per consumer, and
-# cannot be silenced where it is reported. SKIP_LINTING needs CMake 3.27; the conan profile pins a
-# newer one, so a build configured any other way keeps the old behaviour and lints everything.
+# cannot be silenced where it is reported. SKIP_LINTING is how they are excluded, and CMake honours
+# it from 3.27; below that the fallback below does the same job through clang-tidy's own per-directory
+# config, so an older CMake no longer lints generated code either.
 function(sen_skip_linting)
   set_source_files_properties(${ARGN} PROPERTIES SKIP_LINTING YES)
+
+  # CMake honours SKIP_LINTING from 3.27 and ignores it silently below that, so an older CMake gets a
+  # .clang-tidy beside the generated sources instead. It has to enable a check, because "-*" alone
+  # makes clang-tidy exit saying none are enabled, and an Objective-C check matches no C++ file.
+  if(CMAKE_VERSION VERSION_LESS 3.27 AND NOT SEN_DISABLE_CLANG_TIDY)
+    foreach(_sen_linted_file IN LISTS ARGN)
+      get_filename_component(_sen_linted_dir "${_sen_linted_file}" DIRECTORY)
+
+      # file(RELATIVE_PATH) rejects a relative path, and where one would land is a guess. Every
+      # caller passes an absolute path.
+      if(NOT IS_ABSOLUTE "${_sen_linted_dir}")
+        continue()
+      endif()
+
+      # Only under the build tree: beside hand-written sources this would silence every check for
+      # that subtree, and .gitignore does not cover .clang-tidy.
+      file(
+        RELATIVE_PATH
+        _sen_rel
+        "${CMAKE_BINARY_DIR}"
+        "${_sen_linted_dir}"
+      )
+      if(_sen_linted_dir
+         AND NOT EXISTS "${_sen_linted_dir}/.clang-tidy"
+         AND NOT
+             _sen_rel
+             MATCHES
+             "^\\.\\."
+         AND NOT
+             CMAKE_BINARY_DIR
+             STREQUAL
+             CMAKE_SOURCE_DIR
+      )
+        file(WRITE "${_sen_linted_dir}/.clang-tidy" "Checks: '-*,objc-super-self'\nWarningsAsErrors: ''\n")
+      endif()
+    endforeach()
+  endif()
 endfunction()

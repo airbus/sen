@@ -39,6 +39,31 @@ if(NOT
   message(FATAL_ERROR "sen_configure_target() did not propagate its C++17 requirement")
 endif()
 
+# Sen's own build policy must not reach a consumer's target. Every assertion above is a positive one
+# -- "did you set what you should" -- and cannot see a flag that should not be there at all.
+get_target_property(compile_options cmake_configured_target COMPILE_OPTIONS)
+foreach(forbidden IN ITEMS -Wno-array-bounds -Wno-stringop-overread /WX)
+  if("${forbidden}" IN_LIST compile_options)
+    message(FATAL_ERROR "sen_configure_target() put Sen's own ${forbidden} on a consumer's target")
+  endif()
+endforeach()
+
+# And the mirror image: a flag that should be here and silently was not, because its gate tested a
+# variable only Sen's own build defines.
+if(NOT MSVC)
+  get_target_property(link_options cmake_configured_target LINK_OPTIONS)
+  if(NOT link_options)
+    message(FATAL_ERROR "sen_configure_target() set no link options at all")
+  endif()
+  if(NOT
+     "LINKER:--exclude-libs,ALL"
+     IN_LIST
+     link_options
+  )
+    message(FATAL_ERROR "sen_configure_target() did not apply --exclude-libs,ALL: ${link_options}")
+  endif()
+endif()
+
 add_executable(cmake_configured_target_consumer src/main.cpp)
 target_link_libraries(cmake_configured_target_consumer PRIVATE cmake_configured_target)
 add_test(NAME cmake.sen_configure_target.runtime COMMAND cmake_configured_target_consumer)
