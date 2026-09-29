@@ -25,14 +25,6 @@ using sen::UnitSpec;
 namespace
 {
 
-void checkUnitSpec(const Unit& unit, const UnitSpec& spec)
-{
-  EXPECT_EQ(unit.getName(), spec.name);
-  EXPECT_EQ(unit.getNamePlural(), spec.namePlural);
-  EXPECT_EQ(unit.getAbbreviation(), spec.abbreviation);
-  EXPECT_EQ(unit.getCategory(), spec.category);
-}
-
 void checkBuiltinUnit(std::string_view abbrev, float64_t val, float64_t toSiVal, float64_t fromSiVal)
 {
   auto unit = UnitRegistry::get().searchUnitByAbbreviation(abbrev).value();

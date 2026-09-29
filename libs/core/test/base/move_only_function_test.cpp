@@ -42,7 +42,7 @@ TEST(MoveOnlyFunction, LambdaEmpty)
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithParameter)
 {
-  move_only_function<void(int)> f = [](int i) {};
+  move_only_function<void(int)> f = [](int /* i */) {};
   f(42);
 }
 
@@ -51,7 +51,7 @@ TEST(MoveOnlyFunction, LambdaWithParameter)
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithParameters)
 {
-  move_only_function<void(int, char, bool)> f = [](int i, char c, bool b) {};
+  move_only_function<void(int, char, bool)> f = [](int /* i */, char /* c */, bool /* b */) {};
   f(42, 'f', false);
 }
 
@@ -144,7 +144,7 @@ TEST(MoveOnlyFunction, FreeFunctionEmpty)
   f();
 }
 
-void fooParam(int i) {}
+void fooParam(int /* i */) {}
 /// @test
 /// Check move only function with a function with a parameter
 /// @requirements(SEN-1047)
@@ -154,7 +154,7 @@ TEST(MoveOnlyFunction, FreeFunctionWithParameter)
   f(42);
 }
 
-void fooParams(int i, char c, bool b) {}
+void fooParams(int /* i */, char /* c */, bool /* b */) {}
 /// @test
 /// Check move only function with a function with various parameters
 /// @requirements(SEN-1047)
@@ -188,9 +188,9 @@ TEST(MoveOnlyFunction, FreeFunctionWithCalculation)
 
 struct Foo
 {
-  void empty() {};
-  void param(int i) {}
-  void params(int i, char c, bool b) {}
+  void empty() {}
+  void param(int /* i */) {}
+  void params(int /* i */, char /* c */, bool /* b */) {}
   int ret() { return 42; }
   int calculation(int a, int b) { return a + b; }
 };
