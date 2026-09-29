@@ -10,6 +10,7 @@
 
 #include "sen/core/base/assert.h"
 #include "sen/core/base/result.h"
+#include "sen/core/base/span.h"
 
 // std
 #include <algorithm>
@@ -693,6 +694,15 @@ std::enable_if_t<HasOperator<T>::lt, bool> operator>(const StaticVector<T, size>
   noexcept(noexcept(std::declval<const T&>() < std::declval<const T&>()))
 {
   return std::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
+}
+
+/// Takes in a type that can be passed to a contiguous range and returns a Span.
+/// The element types will be const qualified.
+/// Declared here rather than with the other overloads, to keep span.h from including this header.
+template <typename T, std::size_t size>
+[[nodiscard]] Span<const T> makeConstSpan(const StaticVector<T, size>& vector) noexcept
+{
+  return makeConstSpan(vector.data(), vector.size());
 }
 
 /// @}
