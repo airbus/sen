@@ -81,6 +81,14 @@ get_filename_component(SEN_CMAKE_TEMPLATES_DIR "${CMAKE_CURRENT_LIST_DIR}/../tem
 #     Mark this package as a Sen component. Enables component-specific code
 #     generation (e.g. embedding the component name in the schema).
 #
+#   [EXPORT_INTERFACES]
+#     Export the package's interface paths (BASE_PATH, STL_FILES, the HLA
+#     properties and SEN_IMPORT_DIRS) to consumers. Pass it only when the package
+#     also installs those .stl files under interfaces/ and ships a
+#     <name>_interfaces-config.cmake. Exported without that,
+#     get_external_interfaces() builds a path that was never installed and stops
+#     the consumer's configure.
+#
 #   [NO_SCHEMA]
 #     Skip JSON schema generation. Use this when the package has no YAML
 #     configuration interface or when schema generation is handled elsewhere.
@@ -109,7 +117,12 @@ endfunction()
 
 function(add_sen_package)
 
-  set(_options IS_COMPONENT NO_SCHEMA PUBLIC_SYMBOLS)
+  set(_options
+      IS_COMPONENT
+      NO_SCHEMA
+      PUBLIC_SYMBOLS
+      EXPORT_INTERFACES
+  )
 
   set(_one_value_args
       TARGET
@@ -344,6 +357,10 @@ function(add_sen_package)
       target_link_libraries(${_arg_TARGET} PRIVATE ${_arg_TARGET}_gen)
     endif()
     target_link_libraries(${_arg_TARGET} PRIVATE ${_arg_TARGET}_obj)
+
+    # Also here: the object library is linked PRIVATE above, so the kernel it links PUBLIC stays out
+    # of this target's interface, and copy_target_properties forwards includes but not libraries.
+    target_link_libraries(${_arg_TARGET} PUBLIC sen::kernel)
     copy_target_properties(${_arg_TARGET} ${_arg_TARGET}_obj)
     set_property(
       TARGET ${_arg_TARGET}
@@ -352,15 +369,20 @@ function(add_sen_package)
     )
     target_link_libraries(${_arg_TARGET} PUBLIC ${_arg_DEPS})
     target_link_libraries(${_arg_TARGET} PRIVATE ${_arg_PRIVATE_DEPS})
-    add_properties_to_export_set(
-      ${_arg_TARGET}
-      BASE_PATH
-      STL_FILES
-      HLA_MAPPINGS
-      HLA_FOM_DIRS
-      SEN_IMPORT_DIRS
-      SEN_EXPORTS_TYPES
-    )
+    add_properties_to_export_set(${_arg_TARGET} SEN_EXPORTS_TYPES)
+
+    # Exported only by a package that installs its .stl files: otherwise
+    # get_external_interfaces() builds a path that was never installed.
+    if(_arg_EXPORT_INTERFACES)
+      add_properties_to_export_set(
+        ${_arg_TARGET}
+        BASE_PATH
+        STL_FILES
+        HLA_MAPPINGS
+        HLA_FOM_DIRS
+        SEN_IMPORT_DIRS
+      )
+    endif()
   endif()
 
   # create final test target (static) if specified
@@ -371,18 +393,25 @@ function(add_sen_package)
       target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_TARGET}_gen)
     endif()
     target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_TARGET}_obj)
+
+    # As above, and more visibly: this target is linked into a test binary, which then has to resolve
+    # the kernel symbols the package's headers declare.
+    target_link_libraries(${_arg_TEST_TARGET} PUBLIC sen::kernel)
     copy_target_properties(${_arg_TEST_TARGET} ${_arg_TARGET}_obj)
     target_link_libraries(${_arg_TEST_TARGET} PUBLIC ${_arg_DEPS})
     target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_PRIVATE_DEPS})
-    add_properties_to_export_set(
-      ${_arg_TEST_TARGET}
-      BASE_PATH
-      STL_FILES
-      HLA_MAPPINGS
-      HLA_FOM_DIRS
-      SEN_IMPORT_DIRS
-      SEN_EXPORTS_TYPES
-    )
+    add_properties_to_export_set(${_arg_TEST_TARGET} SEN_EXPORTS_TYPES)
+
+    if(_arg_EXPORT_INTERFACES)
+      add_properties_to_export_set(
+        ${_arg_TEST_TARGET}
+        BASE_PATH
+        STL_FILES
+        HLA_MAPPINGS
+        HLA_FOM_DIRS
+        SEN_IMPORT_DIRS
+      )
+    endif()
   endif()
 
 endfunction()
@@ -424,6 +453,8 @@ endfunction()
 #     Requires HLA_FOM_DIRS.
 #
 function(add_sen_interface_package)
+
+  set(_options EXPORT_INTERFACES)
 
   set(_one_value_args
       TARGET
@@ -511,15 +542,18 @@ function(add_sen_interface_package)
     endif()
   endif()
 
-  add_properties_to_export_set(
-    ${_arg_TARGET}
-    BASE_PATH
-    STL_FILES
-    HLA_MAPPINGS
-    HLA_FOM_DIRS
-    SEN_IMPORT_DIRS
-    SEN_EXPORTS_TYPES
-  )
+  add_properties_to_export_set(${_arg_TARGET} SEN_EXPORTS_TYPES)
+
+  if(_arg_EXPORT_INTERFACES)
+    add_properties_to_export_set(
+      ${_arg_TARGET}
+      BASE_PATH
+      STL_FILES
+      HLA_MAPPINGS
+      HLA_FOM_DIRS
+      SEN_IMPORT_DIRS
+    )
+  endif()
 endfunction()
 
 # Deprecated wrapper for add_sen_package(... PUBLIC_SYMBOLS).

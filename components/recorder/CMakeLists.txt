@@ -12,7 +12,7 @@ include(tps/spdlog)
 set(_recorder_stl_files stl/sen/components/recorder/configuration.stl stl/sen/components/recorder/recorder.stl)
 
 add_sen_package(
-  TARGET recorder
+  TARGET recorder EXPORT_INTERFACES # paired with the install(FILES ...) of the .stl files below
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
   DESCRIPTION "Allows recording objects"
