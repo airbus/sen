@@ -11,7 +11,7 @@ enum Status : u8
 // Quantity: unit metadata should be preserved.
 quantity<u16, m> Meters [min: 0, max: 1000];
 
-// Duration field must render as integer; Timestamp as date-time string.
+// Duration field renders as a string or an integer; Timestamp as a date-time string.
 struct Timing
 {
   delay : Duration,
