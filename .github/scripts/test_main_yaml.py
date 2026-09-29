@@ -1,3 +1,9 @@
+# === test_main_yaml.py ================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
 """Guard the ci-ok aggregator in main.yaml.
 
 ci-ok is the only required status check on main, and it only blocks what it

@@ -1,3 +1,9 @@
+# === test_in_image_contract.py ========================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
 """Checks the environment in_image.sh gives the container it starts.
 
 Three lanes set CC and CXX at job level and build through this script, so the

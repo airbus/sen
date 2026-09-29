@@ -1,9 +1,9 @@
-# === test_vt_screen.py ===============================================================================================
+# === test_vt_screen.py ================================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
 #                                    See the LICENSE.txt file for more information.
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
-# =====================================================================================================================
+# ======================================================================================================================
 """Tests for the grid model the session tests assert row numbers against.
 
 Untested, the places where the model differs from a terminal stay invisible: it had no auto-wrap and no

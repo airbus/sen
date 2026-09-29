@@ -1,3 +1,9 @@
+# === test_toolchain_pins.py ===========================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
 """Guard the tool versions that are pinned by hand in more than one place.
 
 conan, pytest and junitparser are pinned in the workflows, in the composite

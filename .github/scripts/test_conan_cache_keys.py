@@ -1,3 +1,9 @@
+# === test_conan_cache_keys.py =========================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
 """Guard the conan cache key, which is spelled by hand in fourteen places.
 
 A cache is stored under a key and retrieved by asking for the same string. The
