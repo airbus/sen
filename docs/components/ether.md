@@ -174,13 +174,29 @@ Take into account that:
 ### Setting multicast ranges
 
 The `busConfig.multicastRange` configuration parameter defines the ranges for possible multicast
-groups to be used by the buses. The default range of addresses is `239.192.0.0` to
-`239.195.255.255`, which follows the Organization-Local scope defined in RFC 2365. In
-order for this to work, you need to ensure that all the related Sen applications are using the same
-range.
+groups to be used by the buses. The default range is the whole of `239.0.0.0` to `239.255.255.255`.
+In order for this to work, you need to ensure that all the related Sen applications are using the
+same range: a bus address is a hash of the bus name taken over the usable addresses, so two
+applications with different ranges or different exclusions derive different addresses for the same
+bus and never meet on it.
 
-Sen automatically excludes the relative-address blocks reserved by RFC 2365. Additional address
-ranges can be excluded with `busConfig.multicastExclusions`.
+RFC 2365 assigns `239.192.0.0/14` for private use and asks that the rest of `239.0.0.0/8` be left
+unassigned until that is not enough. It is not enough here. The address is a hash, so collisions
+follow the birthday problem: within `239.192.0.0/14` two of 500 bus names share an address about 38%
+of the time, against under 1% over the whole block. Sen therefore allocates from all of it. If you
+would rather stay inside the assigned scope, set the range to `239.192.0.0` to `239.195.255.255`
+and keep the bus count well below the point where Sen starts warning about collisions.
+
+Some of the block is never allocated:
+
+| Never allocated | Why |
+| --------------- | --- |
+| `239.0.0.0/16` and `239.128.0.0/16` | An ethernet multicast address carries only the low 23 bits of the IP address, so these share one with `224.0.0.0/16`, where the assigned control groups live. A bus there is accepted by every network card on the segment and discarded in software, and a switch floods it to every port because it has no subscriber list for those groups. |
+| `239.255.0.0/24` | Holds the default discovery group, which the component uses itself. |
+| `239.195.255.0/24` and `239.255.255.0/24` | The relative-address blocks RFC 2365 reserves. |
+
+Additional address ranges can be excluded with `busConfig.multicastExclusions`. Bear in mind that the
+exclusions take part in the derivation, so every application sharing a bus needs the same ones.
 
 ```yaml
 load:
