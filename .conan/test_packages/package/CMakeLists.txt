@@ -35,6 +35,7 @@ add_subdirectory(package_functions/add_sen_package package)
 add_subdirectory(package_functions/add_sen_component interface)
 add_subdirectory(package_functions/add_sen_interface_package i_package)
 add_subdirectory(package_functions/sen_generate_package component)
+add_subdirectory(package_functions/add_sen_package_test_target package_test_target)
 
 # codegen tests
 add_subdirectory(codegen_functions/sen_generate_cpp gen_cpp)

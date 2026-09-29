@@ -12,7 +12,7 @@ include(tps/spdlog)
 set(_replayer_stl_files stl/sen/components/replayer/configuration.stl stl/sen/components/replayer/replayer.stl)
 
 add_sen_package(
-  TARGET replayer
+  TARGET replayer EXPORT_INTERFACES # paired with the install(FILES ...) of the .stl files below
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
   DESCRIPTION "Allows replaying archives"
