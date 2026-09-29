@@ -23,6 +23,7 @@ add_sen_package(
   [HLA_FOM_DIRS <dirs...>]
   [HLA_MAPPINGS_FILE <files...>]
   [EXPORTED_CLASSES <names...>]
+  [EXPORT_INTERFACES]
   [IS_COMPONENT]
   [NO_SCHEMA]
   [PUBLIC_SYMBOLS]
@@ -51,6 +52,7 @@ It takes the following parameters:
 | `HLA_FOM_DIRS`      |                  | :material-check: | Directories containing HLA FOM XML files from which C++ code is generated. Mutually exclusive with `STL_FILES`.                                                       |
 | `HLA_MAPPINGS_FILE` |                  | :material-check: | HLA mapping files that customize FOM-to-C++ translation. Requires `HLA_FOM_DIRS`.                                                                                    |
 | `EXPORTED_CLASSES`  |                  | :material-check: | Explicit list of class names to register with the Sen runtime. If omitted, derived automatically by scanning `SOURCES` for `SEN_EXPORT_CLASS()` macros.               |
+| `EXPORT_INTERFACES` |                  |                  | Export the package's interface paths (`BASE_PATH`, `STL_FILES`, the HLA properties and `SEN_IMPORT_DIRS`) to consumers. Pass it only when the package also installs those `.stl` files under `interfaces/` and ships a `<name>_interfaces-config.cmake`. Exported without that, `get_external_interfaces()` builds a path the package never installed and stops the consumer's configure. |
 | `IS_COMPONENT`      |                  |                  | Marks this package as a Sen component. Enables component-specific code generation (e.g. embedding the component name in the schema).                                  |
 | `NO_SCHEMA`         |                  |                  | Skip JSON schema generation. Use this when the package has no YAML configuration interface or when schema generation is handled elsewhere.                             |
 | `PUBLIC_SYMBOLS`    |                  |                  | Export generated code symbols with public visibility. Required when the generated headers are consumed by Python bindings or other shared libraries.                   |
@@ -362,11 +364,30 @@ plain executable or library that links against Sen.
 | Position-independent code | On, both for the target and for its interface.                                                                               |
 | Configuration defines     | `DEBUG` in Debug builds, `NDEBUG` in Release.                                                                                |
 | Warnings                  | `-Wall`, `-Wextra`, `-Wpedantic` and a curated set on GCC and Clang; `/W3` plus selected warnings on MSVC.                    |
-| Warnings as errors        | `-Werror`, on GCC and Clang only. A new warning fails the build. MSVC is not built with warnings as errors.                   |
+| Warnings as errors        | `-Werror`, on GCC and Clang. A new warning fails the build. On MSVC your targets are not built with warnings as errors; Sen adds `/WX` to its own.  |
 | Optimization              | `-O0 -g` in Debug and `-O3` in Release; on MSVC, `/Od /RTC1` and `/O2 /Ob2`.                                                  |
-| Output directories        | Binaries to `${PROJECT_BINARY_DIR}/bin` and archives to `${PROJECT_BINARY_DIR}/lib`, unless the matching `CMAKE_*_OUTPUT_DIRECTORY` is already set. |
-| Linking                   | `--exclude-libs,ALL`, so static dependencies are not re-exported. Skipped when a sanitizer is enabled.                       |
+| Output directories        | Binaries to `${PROJECT_BINARY_DIR}/bin`, shared objects and archives to `${PROJECT_BINARY_DIR}/lib`, unless the matching `CMAKE_*_OUTPUT_DIRECTORY` is already set. |
+| Linking                   | `--exclude-libs,ALL`, so your static dependencies are not re-exported from your shared libraries. Skipped when you set `SEN_EXPORT_STATIC_DEPENDENCY_SYMBOLS`, and in Sen's own sanitizer builds. Your own sanitizer build still gets the flag: the variable Sen tests is set by a file it does not install, so set `SEN_EXPORT_STATIC_DEPENDENCY_SYMBOLS` if a sanitizer needs the symbols — set that if something downstream of you resolves a symbol through one of your static dependencies, and unset it once it does not. |
 | Coverage                  | Links the coverage flags when the build was configured with coverage on.                                                     |
+
+### Build information
+
+`sen_add_build_info(<target> <name>)` generates one small source file carrying the commit the target
+was built from, and adds it to the target. `<name>` only names the generated file, so anything unique
+within the build directory works; the target name is the usual choice.
+
+`add_sen_package()` calls it for you. Call it directly for a component you built with plain
+`add_library`. `component.h` declares `getGitRef()`, `getGitHash()`, `getGitStatus()` and
+`getBuildTime()` without defining them, and the generated file is what defines them, so without the
+call those four are undefined at link time. The linker names the mangled symbol, not the missing
+call, so the error does not point at this page.
+
+```cmake
+add_library(my_component SHARED src/my_component.cpp)
+sen_configure_target(my_component)
+target_link_libraries(my_component PUBLIC sen::kernel)
+sen_add_build_info(my_component my_component)
+```
 
 ### Python and YAML generation
 
@@ -505,6 +526,20 @@ configure_exportable_packages(
 The per-package layout that `TARGET_NAME_CMAKEDIRS` produces is what
 `find_package()` expects to find under a prefix, so a consumer pointing
 `CMAKE_PREFIX_PATH` at `<prefix>/cmake` can resolve each package by name.
+
+A package created with `add_sen_package()` links `sen::kernel` publicly, so that target has to exist
+before your own config file loads. Ask for it in your `-config.cmake.in`:
+
+```cmake
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(sen)
+```
+
+Without it a consumer of your package sees a CMake error naming `sen::kernel`, and it arrives while
+generating rather than from their `find_package()` call, which makes it read as a fault in their own
+project.
 
 More detail on functionality and information on when should this function be used can be found on
 the [How to generate CMake packages to export pre-built
