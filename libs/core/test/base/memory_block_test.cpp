@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/memory_block.h"
 #include "sen/core/base/span.h"
 #include "sen/core/io/buffer_writer.h"
@@ -17,6 +18,7 @@
 // std
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -151,9 +153,10 @@ TEST(MemoryBlock, FixedMemoryBlockSpan)
   EXPECT_EQ(span.size(), 6);
   EXPECT_NE(span.data(), nullptr);
 
-  for (auto i = 0; i < fixedBlock->size(); i++)
+  for (std::size_t i = 0; i < fixedBlock->size(); i++)
   {
-    fixedBlock->data()[i] = i;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    fixedBlock->data()[i] =  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      sen::std_util::ignoredLossyConversion<uint8_t>(i);
   }
 
   EXPECT_EQ(fixedBlock->getSpan().data(), fixedBlock->data());
@@ -217,9 +220,10 @@ TEST(MemoryBlock, ResizableHeapBlock)
   heap.resize(8);
   EXPECT_EQ(heap.size(), 8);
 
-  for (auto i = 0; i < heap.size(); i++)
+  for (std::size_t i = 0; i < heap.size(); i++)
   {
-    heap.data()[i] = i;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    heap.data()[i] =  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      sen::std_util::ignoredLossyConversion<uint8_t>(i);
   }
 
   EXPECT_EQ(heap.getSpan().data(), heap.data());

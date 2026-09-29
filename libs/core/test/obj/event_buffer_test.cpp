@@ -169,7 +169,7 @@ TEST(SerializableEventQueue, push)
 
     SerializableEventQueue eventQueue(maxSize, false);
 
-    for (auto i = 0; i < maxSize + 1; i++)
+    for (auto i = 0U; i < maxSize + 1; i++)
     {
       if (i % 2 == 0)
       {
@@ -185,15 +185,15 @@ TEST(SerializableEventQueue, push)
 
   // negative size
   {
-    constexpr auto maxSize = -30U;
+    constexpr int maxSize = -30;
 
     SerializableEventQueue eventQueue(maxSize, false);
 
-    for (auto i = 0; i > maxSize - 1; i--)
+    for (int i = 0; i > maxSize - 1; i--)
     {
       eventQueue.push(std::move(event));
     }
-    EXPECT_EQ(eventQueue.getContents().size(), 0U);
+    EXPECT_EQ(eventQueue.getContents().size(), 31U);
   }
 }
 
@@ -208,7 +208,7 @@ TEST(SerializableEventQueue, zeroSize)
   {
     SerializableEventQueue eventQueue(0U, false);
 
-    for (auto i = 0; i < eventsNum; i++)
+    for (auto i = 0U; i < eventsNum; i++)
     {
       eventQueue.push(std::move(event));
     }
@@ -220,7 +220,7 @@ TEST(SerializableEventQueue, zeroSize)
   {
     SerializableEventQueue eventQueue(0U, true);
 
-    for (auto i = 0; i < eventsNum; i++)
+    for (auto i = 0U; i < eventsNum; i++)
     {
       eventQueue.push(std::move(event));
     }
@@ -247,7 +247,7 @@ TEST(SerializableEventQueue, noDropOldest)
 
   EXPECT_EQ(eventQueue.getContents().size(), 1U);
 
-  for (auto i = 0; i < maxSizeQueue - 1; i++)
+  for (auto i = 0U; i < maxSizeQueue - 1; i++)
   {
     eventQueue.push(std::move(event));
   }
@@ -282,7 +282,7 @@ TEST(SerializableEventQueue, dropOldest)
 
   EXPECT_EQ(eventQueue.getContents().size(), 1U);
 
-  for (auto i = 0; i < maxSizeQueue - 1; i++)
+  for (auto i = 0U; i < maxSizeQueue - 1; i++)
   {
     eventQueue.push(std::move(event));
   }
