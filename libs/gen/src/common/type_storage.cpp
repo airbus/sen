@@ -360,8 +360,10 @@ protected:
   void apply(const sen::DurationType& type) final
   {
     std::ignore = type;
-    // Wire encoding is int64 nanoseconds.
-    result_ = R"("type": "integer")";
+    // Both forms the runtime accepts. A config writes the unit -- `2 s`, `100 ms` -- which in YAML
+    // is a string, and that is also how a duration crosses the JSON-RPC wire; a bare number is read
+    // as nanoseconds. Declaring only one of them rejects input that works.
+    result_ = R"("type": ["string", "integer"])";
   }
 
   void apply(const sen::TimestampType& type) final

@@ -50,7 +50,9 @@
       "required": [{% set isFirst=true %}
 ## for iface in interfacesToImplement
 ## for prop in iface.props
+## if prop.staticRW
         {% if not isFirst %}, {% else %}  {% endif %}{% set isFirst=false %}"{{ prop.name }}"
+## endif
 ## endfor
 ## endfor
       ],
