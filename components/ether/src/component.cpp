@@ -59,9 +59,13 @@ constexpr auto defaultBeamingPeriod = std::chrono::milliseconds(1000);
 constexpr uint64_t defaultBusWarningLevel = 100U;
 constexpr uint16_t defaultMulticastPort = 50985;
 constexpr unsigned long maxPortNumber = 65535UL;  // NOLINT(google-runtime-int): strtoul returns this type
+// The whole of 239.0.0.0/8 by default. RFC 2365 assigns only 239.192.0.0/14 and asks that the rest
+// be left unassigned until that is insufficient; it is insufficient here, since a bus address is a
+// hash of the bus name and 262144 addresses put two of 500 names together about 38% of the time.
+// network_exclusion.cpp keeps the parts of the block that misbehave out of reach.
 constexpr uint8_t multicastByteZero = 239;
-constexpr uint8_t multicastByteOneMin = 192;
-constexpr uint8_t multicastByteOneMax = 195;
+constexpr uint8_t multicastByteOneMin = 0;
+constexpr uint8_t multicastByteOneMax = 255;
 constexpr double multicastCollisionProbabilityWarningThreshold = 0.05;
 
 //--------------------------------------------------------------------------------------------------------------
@@ -228,11 +232,15 @@ private:
     // read values from config
     VariantTraits<Configuration>::variantToValue(params, config_);
 
-    if ((config_.busConfig.multicastRange[0].min != multicastByteZero) ||
-        (config_.busConfig.multicastRange[0].max != multicastByteZero))
+    const auto firstByte = config_.busConfig.multicastRange[0];
+
+    if (firstByte.min != multicastByteZero || firstByte.max != multicastByteZero)
     {
-      return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet,
-                                    "invalid multicast address range. First byte should be 239"});
+      return Err(kernel::ExecError {
+        kernel::ErrorCategory::expectationsNotMet,
+        "invalid multicast address range: the first byte must be 239. Write [239], [0-255], [0-255], "
+        "[0-255] for the whole of 239.0.0.0/8, or [239], [192-195], [0-255], [0-255] to stay inside "
+        "the organization-local scope RFC 2365 assigns."});
     }
 
     for (const auto [min, max]: config_.busConfig.multicastRange)

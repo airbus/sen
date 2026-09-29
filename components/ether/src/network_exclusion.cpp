@@ -63,6 +63,20 @@ constexpr std::string_view organizationLocalReservedMax = "239.195.255.255";
 constexpr std::string_view localScopeReservedMin = "239.255.255.0";
 constexpr std::string_view localScopeReservedMax = "239.255.255.255";
 
+// An ethernet multicast address carries only the low 23 bits of the IP, so 239.b.x.y shares one with
+// 224.(b & 0x7f).x.y. A second byte of 0 or 128 reaches 224.0.0.0/16, where the assigned control
+// groups live: a bus there is taken by every card on the segment and flooded to every port.
+constexpr std::string_view macAliasedLowMin = "239.0.0.0";
+constexpr std::string_view macAliasedLowMax = "239.0.255.255";
+constexpr std::string_view macAliasedHighMin = "239.128.0.0";
+constexpr std::string_view macAliasedHighMax = "239.128.255.255";
+
+// Holds the default discovery group, which this component is already using. Excluded as a fixed
+// block rather than from the configured group: the exclusion set feeds the address derivation, so
+// one that varied with a process's discovery settings would move every bus address with it.
+constexpr std::string_view discoveryBlockMin = "239.255.0.0";
+constexpr std::string_view discoveryBlockMax = "239.255.0.255";
+
 [[nodiscard]] Result<asio::ip::address_v4, std::string> parseAddress(std::string_view address)
 {
   asio::error_code error;
@@ -566,6 +580,18 @@ Result<NetworkExclusions, std::string> makeNetworkExclusions(const Configuration
   }
   if (auto addResult = addMulticastRange(result.multicast, localScopeReservedMin, localScopeReservedMax);
       addResult.isError())
+  {
+    return Err(addResult.getError());
+  }
+  if (auto addResult = addMulticastRange(result.multicast, macAliasedLowMin, macAliasedLowMax); addResult.isError())
+  {
+    return Err(addResult.getError());
+  }
+  if (auto addResult = addMulticastRange(result.multicast, macAliasedHighMin, macAliasedHighMax); addResult.isError())
+  {
+    return Err(addResult.getError());
+  }
+  if (auto addResult = addMulticastRange(result.multicast, discoveryBlockMin, discoveryBlockMax); addResult.isError())
   {
     return Err(addResult.getError());
   }
