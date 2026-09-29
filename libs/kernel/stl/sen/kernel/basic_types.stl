@@ -5,22 +5,22 @@ package sen.kernel;
 // Thread execution priorities
 enum Priority: u32
 {
-  lowest,     // for background work
-  nominalMin, // minimum priority for user threads
-  nominalMax, // maximum priority for user threads
-  highest     // supervisory work
+  lowest,      // for background work
+  nominalMin,  // minimum priority for user threads
+  nominalMax,  // maximum priority for user threads
+  highest      // supervisory work
 }
 
 // What can go wrong when creating a thread
 enum ThreadCreateErr: u32
 {
-  schedulerAlreadyStarted,       // threads cannot be created after the scheduler spins up
-  invalidStackSize,              // not all stack sizes are possible in all environments
-  invalidThreadFunction,         // the thread function was null
-  invalidThreadFunctionArgument, // the thread function argument is mandatory
-  invalidAffinity,               // support for affinity is system dependant
-  tooManyThreads,                // thread count is limited
-  internalOsError                // when the OS indicates not enough resources
+  schedulerAlreadyStarted,        // threads cannot be created after the scheduler spins up
+  invalidStackSize,               // not all stack sizes are possible in all environments
+  invalidThreadFunction,          // the thread function was null
+  invalidThreadFunctionArgument,  // the thread function argument is mandatory
+  invalidAffinity,                // support for affinity is system dependant
+  tooManyThreads,                 // thread count is limited
+  internalOsError                 // when the OS indicates not enough resources
 }
 
 // Native processor word size
@@ -33,9 +33,9 @@ enum WordSize: u32
 // Status of git
 enum GitStatus: u8
 {
-  clean,    // files have not changed
-  modified, // local files differ from branch
-  unknown   // no information
+  clean,     // files have not changed
+  modified,  // local files differ from branch
+  unknown    // no information
 }
 
 // Build-related information
@@ -66,8 +66,8 @@ struct ComponentInfo
 // Component queue eviction policy
 enum QueueEvictionPolicy: u32
 {
-  dropOldest, // when full, drop the least recent element
-  dropNewest, // when full, drop the most recent element
+  dropOldest,  // when full, drop the least recent element
+  dropNewest,  // when full, drop the most recent element
 }
 
 struct QueueConfig
@@ -121,11 +121,11 @@ struct ComponentConfig
 // Category of a problem during component execution
 enum ErrorCategory: u8
 {
-  runtimeError,       // same semantics of std::runtime_error
-  logicError,         // faulty logic such as violating logical preconditions or invariants
-  expectationsNotMet, // expectations on inputs or internal state were not met
-  ioError,            // problem while performing an I/O operation
-  other               // any other reason
+  runtimeError,        // same semantics of std::runtime_error
+  logicError,          // faulty logic such as violating logical preconditions or invariants
+  expectationsNotMet,  // expectations on inputs or internal state were not met
+  ioError,             // problem while performing an I/O operation
+  other                // any other reason
 }
 
 // An operation is complete
@@ -140,8 +140,8 @@ struct OpNotFinished
 // The status of an operation
 variant OpState
 {
-  OpFinished,   // done
-  OpNotFinished // not done
+  OpFinished,    // done
+  OpNotFinished  // not done
 }
 
 // Holds details of an execution error
@@ -174,15 +174,17 @@ sequence<string> StringList;
 // --8<-- [start:run_mode]
 enum RunMode: u8
 {
-  realTime,           // components execute using system time
-  virtualTime,        // components execute using discrete steps (set by the user)
-  virtualTimeRunning, // same as virtualTime, but continuously advancing the time
-  startAndStop,       // starts and stops (useful for smoke tests)
+  realTime,            // components execute using system time
+  virtualTime,         // components execute using discrete steps (set by the user)
+  virtualTimeRunning,  // same as virtualTime, but continuously advancing the time
+  startAndStop,        // starts and stops (useful for smoke tests)
 }
 // --8<-- [end:run_mode]
 
 // Parameters to configure kernel execution
 // --8<-- [start:kernel_params]
+// This struct is reachable over the wire through Kernel.getConfig() and is embedded in SenData,
+// and the encoding is positional, so adding a field here shifts what follows it either way.
 struct KernelParams
 {
   runMode             : RunMode,                // how to run the kernel
@@ -197,8 +199,6 @@ struct KernelParams
   lockMemoryPages     : bool,                   // keep process pages memory-resident
   sleepPolicy         : SleepPolicy,            // configurable sleep policy of the kernel component
   compatibilityMode   : CompatibilityMode,      // what to do with a remote type that does not match
-  // This struct is reachable over the wire through Kernel.getConfig() and is embedded in SenData,
-  // and the encoding is positional, so adding a field here shifts what follows it either way.
   limitCpuIdleLatency : bool                    // keep the CPUs out of the deep idle states they are slow to leave
 }
 // --8<-- [end:kernel_params]
@@ -206,13 +206,13 @@ struct KernelParams
 // Type of operating system
 enum OsKind : u8
 {
-  windowsOs, // Microsoft Windows
-  linuxOs,   // Linux
-  androidOs, // Android Linux
-  appleOs,   // Apple OS (iOS, tvOS, etc..)
-  unixOs,    // all unices not caught above
-  posixOs,   // Posix
-  otherOs    // other, unknown
+  windowsOs,  // Microsoft Windows
+  linuxOs,    // Linux
+  androidOs,  // Android Linux
+  appleOs,    // Apple OS (iOS, tvOS, etc..)
+  unixOs,     // all unices not caught above
+  posixOs,    // Posix
+  otherOs     // other, unknown
 }
 
 // Type of CPU

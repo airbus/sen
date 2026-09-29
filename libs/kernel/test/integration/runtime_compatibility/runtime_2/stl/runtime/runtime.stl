@@ -33,34 +33,34 @@ optional<i32> TestOptional;
 class TestClass
 {
   // basic types
-  var prop1  : i32          [writable];            // u32 in the writer schema
-  var prop2  : f32          [writable];            // i32 in the writer schema
-  var prop3  : bool         [writable];            // u8 in the writer schema
-  var prop4  : string       [writable, confirmed]; // f32 in the writer schema
+  var prop1 : i32 [writable];                // u32 in the writer schema
+  var prop2 : f32 [writable];                // i32 in the writer schema
+  var prop3 : bool [writable];               // u8 in the writer schema
+  var prop4 : string [writable, confirmed];  // f32 in the writer schema
 
   // sequences
-  var prop5  : TestSequence [writable, confirmed]; // unbounded sequence of floats in the writer schema
-  var prop6  : TestArray    [writable, confirmed]; // array sequence of a u16 with size 6 in the writer schema
+  var prop5 : TestSequence [writable, confirmed];  // unbounded sequence of floats in the writer schema
+  var prop6 : TestArray [writable, confirmed];     // array sequence of a u16 with size 6 in the writer schema
 
   // enumerations
-  var prop7  : TestEnum     [writable];            // different elements/order in the writer schema
-  var prop8  : i32          [writable];            // enum in the writer schema
-  var prop9  : string       [writable, confirmed]; // enum in the writer schema
+  var prop7 : TestEnum [writable];           // different elements/order in the writer schema
+  var prop8 : i32 [writable];                // enum in the writer schema
+  var prop9 : string [writable, confirmed];  // enum in the writer schema
 
 
   // structures
-  var prop10 : TestStruct   [writable, confirmed]; // writer struct with different elements/order
+  var prop10 : TestStruct [writable, confirmed]; // writer struct with different elements/order
 
   // variant
-  var prop11 : TestVariant  [writable, confirmed]; // writer variant with different types/order
+  var prop11 : TestVariant [writable, confirmed]; // writer variant with different types/order
 
   // quantities
-  var prop12 : TestQuantity [writable];            // different quantity in writer schema
-  var prop13 : f32          [writable];            // quantity in writer schema
+  var prop12 : TestQuantity [writable];  // different quantity in writer schema
+  var prop13 : f32 [writable];           // quantity in writer schema
 
   // optionals
-  var prop14 : TestOptional [writable];            // optional of f64 in the writer schema
-  var prop15 : u32          [writable];            // optional in the writer schema
+  var prop14 : TestOptional [writable];  // optional of f64 in the writer schema
+  var prop15 : u32 [writable];           // optional in the writer schema
 
   // methods
   fn testMethod(arg2: string, arg1: f64) -> string; // more arguments in the writer schema (should return error)

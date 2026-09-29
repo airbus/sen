@@ -2,6 +2,6 @@ package example_class;
 
 class ExampleClass
 {
-  var prop1 : string       [writable, confirmed];
-  var prop2 : u32          [writable];
+  var prop1 : string [writable, confirmed];
+  var prop2 : u32 [writable];
 }

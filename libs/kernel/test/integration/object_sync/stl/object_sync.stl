@@ -32,19 +32,19 @@ struct WritablePropType
 
 class TestObject
 {
-  var staticProp                                  : u8               [static];
-  var staticNoConfigProp                          : TestEnum         [static_no_config];
-  var bestEffortProp                              : f64              [bestEffort];
-  var confirmedProp                               : TestStruct       [confirmed];
-  var multicastProp                               : OptF32;
-  var writableProp                                : WritablePropType [writable];
+  var staticProp         : u8 [static];
+  var staticNoConfigProp : TestEnum [static_no_config];
+  var bestEffortProp     : f64 [bestEffort];
+  var confirmedProp      : TestStruct [confirmed];
+  var multicastProp      : OptF32;
+  var writableProp       : WritablePropType [writable];
 
-  event bestEffortEvent(id: u32, arg: TestStruct)                    [bestEffort];
-  event confirmedEvent(id: u32, arg: string)                         [confirmed];
+  event bestEffortEvent(id: u32, arg: TestStruct) [bestEffort];
+  event confirmedEvent(id: u32, arg: string) [confirmed];
   event multicastEvent(id: u32, arg: OptF32);
 
-  fn constMethod(arg: TestEnum)                   -> u32             [const];
-  fn confirmedMethod(arg: u64)                    -> u8              [confirmed];
-  fn bestEffortMethod(arg: string)                -> u64             [bestEffort];
-  fn localMethod()                                -> u16             [local];
+  fn constMethod(arg: TestEnum)                   -> u32 [const];
+  fn confirmedMethod(arg: u64)                    -> u8 [confirmed];
+  fn bestEffortMethod(arg: string)                -> u64 [bestEffort];
+  fn localMethod()                                -> u16 [local];
 }

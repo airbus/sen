@@ -3,9 +3,9 @@ package sen.kernel;
 // Bus source
 enum NetworkFootprintBusSource : u8
 {
-  configured, // Read from process configuration
-  supplied,   // Added when requesting an offline report
-  runtime     // Discovered from the buses that are live in the process
+  configured,  // Read from process configuration
+  supplied,    // Added when requesting an offline report
+  runtime      // Discovered from the buses that are live in the process
 }
 
 // Names and IDs that identify a bus

@@ -153,5 +153,11 @@ repos:
       files: (\.(cpp|h|ts|tsx|cmake|py|bats)$|(^|/)CMakeLists\.txt$)
       exclude: ^components/webexplorer/frontend/src/vite-env\.d\.ts$
 
+    - id: stl-format
+      name: STL members are aligned
+      language: python
+      entry: python .github/scripts/format_stl.py
+      files: \.stl$
+
 # Global Configuration
 exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*|.*.svg|.*.excalidraw|stl.tmLanguage.json)

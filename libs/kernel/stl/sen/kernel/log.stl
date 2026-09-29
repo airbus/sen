@@ -3,13 +3,13 @@ package sen.kernel.log;
 // Severity/importance of a log message.
 enum LogLevel: u8
 {
-  warn,     // Unexpected behavior or potential issues that do not stop functionality but warrant monitoring.
-  err,      // Significant issues that prevent specific functionality from working.
-  critical, // Catastrophic failures. The system or a critical element is crashing or unusable.
-  trace,    // Extremely detailed, granular information used for debugging, such as function entry/exit points.
-  debug,    // Detailed information intended for developers to diagnose problems during development or troubleshooting.
-  info,     // Highlights the normal, successful operational path of the application.
-  off       // No logs.
+  warn,      // Unexpected behavior or potential issues that do not stop functionality but warrant monitoring.
+  err,       // Significant issues that prevent specific functionality from working.
+  critical,  // Catastrophic failures. The system or a critical element is crashing or unusable.
+  trace,     // Extremely detailed, granular information used for debugging, such as function entry/exit points.
+  debug,     // Detailed information intended for developers to diagnose problems during development or troubleshooting.
+  info,      // Highlights the normal, successful operational path of the application.
+  off        // No logs.
 }
 
 // stdout sink

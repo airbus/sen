@@ -18,13 +18,13 @@ class MyClass
   var prop4 : Vec2;
 
   // can be set by others
-  var prop5 : i32  [writable];
+  var prop5 : i32 [writable];
 
   // can be set by others
   var prop6 : FloatArray [writable];
 
   // can be set by others, but we approve those sets
-  var prop7 : i32  [writable];
+  var prop7 : i32 [writable];
 
   // a property using a quantity with unit and range
   var prop8 : MetersU16 [writable];

@@ -4,22 +4,22 @@ package sen.components.shell;
 // How lists should be printed
 enum ListStyle: u8
 {
-  treeStyle,  // use a tree
-  plainStyle, // simple list
+  treeStyle,   // use a tree
+  plainStyle,  // simple list
 }
 
 // How timestamps should be printed
 enum TimeStyle: u8
 {
-  timestampUTC,   // use UTC timestamps
-  timestampLocal, // use local time timestamps
+  timestampUTC,    // use UTC timestamps
+  timestampLocal,  // use local time timestamps
 }
 
 // How buffers should be printed
 enum BufferStyle: u8
 {
-  size,    // just print the buffer size
-  hexdump, // print the buffer content has hex numbers
+  size,     // just print the buffer size
+  hexdump,  // print the buffer content has hex numbers
 }
 
 // Holds information about a named query

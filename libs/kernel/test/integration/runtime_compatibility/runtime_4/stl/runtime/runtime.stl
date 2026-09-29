@@ -55,31 +55,31 @@ variant TestVariant
 class TestClass
 {
   // optionals
-  var prop1  : MaybeString         [writable, confirmed]; // duration in the writer schema
-  var prop2  : MaybeNative         [writable]; // timestamp in the writer schema
-  var prop3  : MaybeSpeed          [writable]; // speed in the writer schema
+  var prop1 : MaybeString [writable, confirmed];  // duration in the writer schema
+  var prop2 : MaybeNative [writable];             // timestamp in the writer schema
+  var prop3 : MaybeSpeed [writable];              // speed in the writer schema
 
   // sequence
-  var prop4  : TestSequence        [writable, confirmed]; // fixed array in the writer schema
-  var prop5  : TestSequence2       [writable, confirmed]; // unbounded sequence in the writer schema
+  var prop4 : TestSequence [writable, confirmed];   // fixed array in the writer schema
+  var prop5 : TestSequence2 [writable, confirmed];  // unbounded sequence in the writer schema
 
   // structs
-  var prop6  : TestStructChild     [writable, confirmed]; // TestStructBase in the writer schema
+  var prop6  : TestStructChild [writable, confirmed]; // TestStructBase in the writer schema
 
   // quantities
-  var prop7  : Angle               [writable]; // angle in rad in the writer schema
-  var prop8  : Speed               [writable]; // speed in mps in the writer schema
-  var prop9  : Distance            [writable]; // distance in m in the writer schema
+  var prop7 : Angle [writable];     // angle in rad in the writer schema
+  var prop8 : Speed [writable];     // speed in mps in the writer schema
+  var prop9 : Distance [writable];  // distance in m in the writer schema
 
   // basic types
-  var prop10 : Speed               [writable]; // optional speed in the writer schema
-  var prop11 : string              [writable, confirmed]; // optional string in the writer schema
-  var prop12 : u64                 [writable]; // optional duration in the writer schema
-  var prop13 : bool                [writable]; // optional boolean in the writer schema
+  var prop10 : Speed [writable];              // optional speed in the writer schema
+  var prop11 : string [writable, confirmed];  // optional string in the writer schema
+  var prop12 : u64 [writable];                // optional duration in the writer schema
+  var prop13 : bool [writable];               // optional boolean in the writer schema
 
   // variants
-  var prop14 : TestVariant         [writable, confirmed]; // optional TestStruct in the writer schema with different order/types
-  var prop15 : TestVariant         [writable, confirmed]; // variant with different types/order in the writer schema
+  var prop14 : TestVariant [writable, confirmed];  // optional TestStruct in the writer schema with different order/types
+  var prop15 : TestVariant [writable, confirmed];  // variant with different types/order in the writer schema
 
   // methods
   fn testMethod(arg1: MaybeBool, arg2: TestStruct, arg3: i16) -> string;

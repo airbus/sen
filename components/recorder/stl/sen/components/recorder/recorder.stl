@@ -6,16 +6,16 @@ package sen.components.recorder;
 // the state of a recording session
 enum RecorderState: u8
 {
-  stopped,   // not recording
-  recording, // recording
-  error      // in some error situation
+  stopped,    // not recording
+  recording,  // recording
+  error       // in some error situation
 }
 
 // represents an recording session
 class Recorder
 {
-  var settings    : RecordingSettings  [static];
-  var state       : RecorderState      [confirmed];
+  var settings : RecordingSettings [static];
+  var state    : RecorderState [confirmed];
 
   // starts (or resumes) recording
   fn start();

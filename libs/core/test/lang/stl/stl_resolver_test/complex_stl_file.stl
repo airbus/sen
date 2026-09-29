@@ -7,11 +7,11 @@ array<i16, 50> ValidArray; // inline comment for valid array
 // A valid enumeration type featuring different values
 enum ValidEnumerationType : u32
 {
-  value1, // description of value1
-  value2, // description of value2
-  value3, // description of value3
-  value4, // description of value4
-  value5  // description of value5
+  value1,  // description of value1
+  value2,  // description of value2
+  value3,  // description of value3
+  value4,  // description of value4
+  value5   // description of value5
 }
 
 // A valid struct type that holds fields with all basic types
@@ -37,12 +37,12 @@ optional<ValidStructType> ValidOptional; // inline comment for valid optional
 // A valid variant type that holds fields with all custom types previously defined
 variant ValidVariantType
 {
-  ValidSequence,        // description of potential type1
-  ValidBoundedSequence, // description of potential type2
-  ValidArray,           // description of potential type3
-  ValidEnumerationType, // description of potential type4
-  ValidStructType,      // description of potential type5
-  ValidOptional         // description of potential type6
+  ValidSequence,         // description of potential type1
+  ValidBoundedSequence,  // description of potential type2
+  ValidArray,            // description of potential type3
+  ValidEnumerationType,  // description of potential type4
+  ValidStructType,       // description of potential type5
+  ValidOptional          // description of potential type6
 }
 
 // Some valid quantity declaration
