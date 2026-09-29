@@ -4,7 +4,7 @@ Sen carries two protocol versions, and they answer different questions.
 
 | Protocol | What it governs | Today | Compatible with |
 |---|---|---|---|
-| Kernel | The wire format two kernels use to talk to each other | 10 | 10 |
+| Kernel | The wire format two kernels use to talk to each other | 11 | 11 |
 | Ether | Discovery and transport between processes | 2 | 2 and later |
 
 A kernel protocol difference refuses the connection, and the log names both versions along with the
