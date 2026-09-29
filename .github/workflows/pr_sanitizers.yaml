@@ -102,10 +102,10 @@ jobs:
           # --profile:all names both host and build profile. The action this replaced
           # copied one over `default` instead, which is the arrangement that makes a
           # documented `conan install --profile=...` work here and fail for a reader.
-          conan install . --profile:all=sen_clang_x86 -s "&:build_type=Debug" --build=missing $options \
+          conan install . --lockfile=.conan/conan.lock --profile:all=sen_clang_x86 -s "&:build_type=Debug" --build=missing $options \
             -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
           # conan build regenerates the toolchain, so it needs the same options.
-          conan build . --profile:all=sen_clang_x86 -s "&:build_type=Debug" $options \
+          conan build . --lockfile=.conan/conan.lock --profile:all=sen_clang_x86 -s "&:build_type=Debug" $options \
             -c "tools.cmake.cmaketoolchain:extra_variables=$variables"
           IN
 

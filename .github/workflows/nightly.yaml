@@ -74,12 +74,12 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
-          conan install . -s "&:build_type=Debug" --build=missing \
+          conan install . --lockfile=.conan/conan.lock -s "&:build_type=Debug" --build=missing \
             -o "sen/*:with_tests=True" \
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
             -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
           # conan build regenerates the toolchain, so it needs the same options.
-          conan build . -s "&:build_type=Debug" \
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=Debug" \
             -o "sen/*:with_tests=True" \
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
             -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
@@ -224,7 +224,7 @@ jobs:
           .github/scripts/in_image.sh <<'IN'
           export CTCACHE_DIR="$PWD/.cache/ctcache"
           options='-o sen/*:with_tests=True -o sen/*:with_clang_tidy=True'
-          conan install . --profile:all=sen_clang_x86 -s "&:build_type=Release" --build=missing $options
+          conan install . --lockfile=.conan/conan.lock --profile:all=sen_clang_x86 -s "&:build_type=Release" --build=missing $options
           source build/clang/Release/generators/conanbuild.sh
           cmake --preset conan-clang-release
           ninja -C build/clang/Release -k 0
@@ -288,8 +288,8 @@ jobs:
           bash .github/scripts/in_environment.sh <<'IN'
           options='-o sen/*:with_tests=True'
           debug='-c tools.build:cxxflags=["-g"]'
-          conan install . -s "&:build_type=Release" --build=missing $options "$debug"
-          conan build . -s "&:build_type=Release" $options "$debug"
+          conan install . --lockfile=.conan/conan.lock -s "&:build_type=Release" --build=missing $options "$debug"
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=Release" $options "$debug"
           IN
 
       # The kernel writes cores by the host's pattern, which on a runner pipes them
@@ -395,8 +395,8 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
-          conan install . -s "&:build_type=Release" --build=missing
-          conan build . -s "&:build_type=Release"
+          conan install . --lockfile=.conan/conan.lock -s "&:build_type=Release" --build=missing
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=Release"
           IN
 
       - name: Run benchmarks
@@ -486,7 +486,7 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
-          conan create . --user airbus --channel dev \
+          conan create . --lockfile=.conan/conan.lock --user airbus --channel dev \
               --test-folder .conan/test_packages/package \
               --build=missing -s "sen/*:compiler.cppstd=20"
           IN
@@ -533,7 +533,7 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
-          conan create . --user airbus --channel dev \
+          conan create . --lockfile=.conan/conan.lock --user airbus --channel dev \
               --test-folder .conan/test_packages/package \
               --build=missing -s "sen/*:compiler.cppstd=17" \
               -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
@@ -551,6 +551,7 @@ jobs:
               # dependencies at what they were built with. "&:" would not: under conan
               # test it names the package under test.
               conan test .conan/test_packages/package "sen/$version@airbus/dev" \
+                  --lockfile=.conan/conan.lock --lockfile-partial \
                   -s "compiler.cppstd=$std" -s "*:compiler.cppstd=17" \
                   -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
               echo "::endgroup::"
@@ -616,9 +617,9 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
-          conan install . -s "&:build_type=Debug" -s "&:compiler.cppstd=17" --build=missing \
+          conan install . --lockfile=.conan/conan.lock -s "&:build_type=Debug" -s "&:compiler.cppstd=17" --build=missing \
             -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
-          conan build . -s "&:build_type=Debug" -s "&:compiler.cppstd=17" \
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=Debug" -s "&:compiler.cppstd=17" \
             -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
           # Same reason as the first of these, in standard_test.yaml.
           source build/clang/Debug/generators/conanbuild.sh

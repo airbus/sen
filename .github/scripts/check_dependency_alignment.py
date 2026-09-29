@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+LOCKFILE = REPO_ROOT / ".conan" / "conan.lock"
 PROFILE = ".conan/profiles/sen_gcc_x86"
 CONSUMER_BUILD_TYPE = "Debug"
 
@@ -48,6 +49,10 @@ def main() -> int:
             PROFILE,
             "-s",
             f"&:build_type={CONSUMER_BUILD_TYPE}",
+            # The lockfile is no longer beside the recipe, so conan does not pick it up by itself.
+            # Without it this resolves the newest revision of everything and checks a graph no lane
+            # builds, which an upstream publication alone could turn red.
+            f"--lockfile={LOCKFILE.relative_to(REPO_ROOT)}",
             "--format=json",
         ],
         cwd=REPO_ROOT,

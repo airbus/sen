@@ -113,7 +113,7 @@ jobs:
           # the profiles' Release default, shared across build types and
           # matching what binary remotes serve. Scoped by name rather than &
           # because the test_package graph has a different consumer.
-          conan create . --user airbus --channel dev --lockfile-out=package.lock \
+          conan create . --lockfile=.conan/conan.lock --user airbus --channel dev --lockfile-out=package.lock \
               --test-folder .conan/test_packages/package \
               --build=missing -s "sen/*:build_type=${{ matrix.build_type }}"
           IN

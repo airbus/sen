@@ -213,7 +213,7 @@ synthetic `senConfig.cmake` for downstream consumers. Instead, your build picks 
 
     The suffixed names exist for CI and the devcontainer, which compose one from the compiler and
     the machine's architecture and copy it into place as the default profile. Of them only
-    `sen_gcc_arm` changes anything — it pins `armv8`, which is what keeps `conan.lock` from
+    `sen_gcc_arm` changes anything — it pins `armv8`, which is what keeps `.conan/conan.lock` from
     depending on whichever machine regenerated it. The rest add nothing to the profile they
     include. Install them with:
 
