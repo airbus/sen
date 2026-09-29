@@ -13,7 +13,9 @@
 #include "sen/core/io/output_stream.h"
 #include "sen/core/io/util.h"
 #include "sen/core/meta/optional_traits.h"
+#include "sen/core/meta/type_traits.h"
 #include "sen/core/meta/var.h"
+#include "sen/core/meta/variant_traits.h"
 #include "sen/util/dr/dead_reckoner.h"
 
 // generated code
