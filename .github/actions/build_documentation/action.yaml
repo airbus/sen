@@ -101,7 +101,7 @@ runs:
         # Shims for the dependencies only, and the sloppiness with them, as in standard_test.yaml.
         PATH="/usr/lib/ccache:$PATH" \
           CCACHE_SLOPPINESS=clang_index_store,include_file_ctime,include_file_mtime,locale,pch_defines,time_macros \
-          conan install . --profile:all=sen_build_docs --build=missing
+          conan install . --lockfile=.conan/conan.lock --profile:all=sen_build_docs --build=missing
         cmake --preset=conan-gcc-release
         # The handbook runs the built binaries to capture their command-line help, so
         # these targets pull in the six the snippets depend on.

@@ -34,7 +34,7 @@ appears as a reviewable diff.
 `main.yaml` starts three cheap jobs on every push:
 
 - pre-commit, which lints and formats only the changed files,
-- a check that `conan.lock` still matches `conanfile.py`,
+- a check that `.conan/conan.lock` still matches `conanfile.py`,
 - a python-checks job, which tests the repository scripts and checks the
   commit messages and the pull request title (after a squash merge, the
   title becomes the commit subject on main).
@@ -91,7 +91,7 @@ the documentation build. `classify_changes.py` holds the list: any markdown
 file, anything under `docs/`, `examples/` or `components/` (the handbook
 copies its snippets from the last two), the conan profiles under `.conan/`,
 the `build_documentation` action, and the files `mkdocs.yml`, `conanfile.py`,
-`conan.lock`, `LICENSE.txt` and `docs_check.yaml`. A broken documentation
+`.conan/conan.lock`, `LICENSE.txt` and `docs_check.yaml`. A broken documentation
 change is caught on the pull request instead of after the merge.
 
 Building and publishing are separate workflows on purpose. Publishing
@@ -195,10 +195,15 @@ the project promises its consumers.
 
 ## Dependencies
 
-**`conan.lock` pins every dependency by version and recipe revision.** One
+**`.conan/conan.lock` pins every dependency by version and recipe revision.** One
 lockfile covers all graph shapes (Linux and Windows resolve differently;
-the build type does not change the graph). Conan picks the file up
-automatically. `conan_lock.py check` resolves the graph with the lockfile
+the build type does not change the graph). It sits under `.conan/` rather than at
+the repository root on purpose: conan loads a root lockfile for any command run
+there, which would pin anyone building from a clone to recipe revisions their own
+remote may not carry. Every CI invocation therefore passes `--lockfile` itself,
+and a test fails if one stops doing so. A command in the documentation does not
+pass it, because a reader should resolve for themselves.
+`conan_lock.py check` resolves the graph with the lockfile
 as input, so changes in upstream recipes stay invisible and only changes in
 our own conanfile show up. `conan_lock.py update` regenerates the lockfile.
 The conan version itself is pinned in four places that must stay identical: the
@@ -498,7 +503,11 @@ crash), `.ruff.toml` per-file ignores (tutorial scripts),
 
 - **Add or update a dependency**: edit `conanfile.py`, run
   `python .github/scripts/conan_lock.py update`, commit both files. The
-  lockfile check job fails if you forget.
+  lockfile check job fails if you forget. `update` resolves from scratch, so it
+  moves every recipe revision to the newest published, not only the one you
+  changed. That is what its own test has always described; while the lockfile sat
+  at the repository root conan fed the old one back in and held the rest still.
+  Read the diff before committing it.
 - **Change the matrix**: edit `generate_matrix_jobs.py` and its tests
   together.
 - **Update a tool**: conan is pinned in the three places listed above;

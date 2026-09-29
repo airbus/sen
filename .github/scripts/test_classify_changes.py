@@ -89,7 +89,7 @@ def test_non_markdown_documentation_is_still_documentation():
 def test_docs_build_inputs_beyond_the_handbook():
     """The documentation build reads the recipe, the profiles and its own action."""
     assert is_docs_build_change(["conanfile.py"])
-    assert is_docs_build_change(["conan.lock"])
+    assert is_docs_build_change([".conan/conan.lock"])
     assert is_docs_build_change([".conan/profiles/sen_build_docs"])
     assert is_docs_build_change(["LICENSE.txt"])
     assert is_docs_build_change(["components/ether/stl/configuration.stl"])

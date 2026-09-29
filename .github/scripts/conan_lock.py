@@ -27,7 +27,9 @@ from pathlib import Path
 PROFILES = ["sen_gcc_x86", "sen_gcc_arm", "sen_clang_x86", "sen_msvc_x86", "sen_build_docs"]
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-LOCKFILE = REPO_ROOT / "conan.lock"
+# Deliberately not at the repository root: conan loads a root conan.lock for any command run there,
+# which silently pins a consumer's resolution to recipe revisions their own remote may not carry.
+LOCKFILE = REPO_ROOT / ".conan" / "conan.lock"
 
 
 def generate(output: Path, seed: Path | None) -> None:

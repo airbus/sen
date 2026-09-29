@@ -130,7 +130,7 @@ jobs:
         run: |
           .github/scripts/in_image.sh <<'IN'
           BUILD_DIR=build/clang/Release
-          conan install . --profile:all=sen_clang_x86 -s "&:build_type=Release" \
+          conan install . --lockfile=.conan/conan.lock --profile:all=sen_clang_x86 -s "&:build_type=Release" \
               --build=missing -o "sen/*:with_tests=True"
           source "$BUILD_DIR/generators/conanbuild.sh"
           cmake --preset conan-clang-release
