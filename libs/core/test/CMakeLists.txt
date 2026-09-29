@@ -81,6 +81,7 @@ set(obj_tests
     obj/event_buffer_test.cpp
     obj/property_flags_test.cpp
     obj/object_mux_test.cpp
+    obj/object_provider_test.cpp
     obj/remote_object_test.cpp
     obj/native_object_proxy_test.cpp
     obj/connection_guard_test.cpp
