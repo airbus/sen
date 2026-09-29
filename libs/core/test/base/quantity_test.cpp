@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/base/quantity.h"
 #include "sen/util/dr/algorithms.h"
@@ -22,7 +23,7 @@ SEN_RANGED_QUANTITY(MaxBelowZero, float, -20.0f, -10.0f)
 
 SEN_RANGED_QUANTITY(MyQuantity, float32_t, -15.0f, 15.0f)
 
-SEN_RANGED_QUANTITY(MySmallQuantity, float64_t, 0.0055f, 0.0056f)
+SEN_RANGED_QUANTITY(MySmallQuantity, float64_t, 0.0055, 0.0056)
 
 SEN_RANGED_QUANTITY(MyNegativeSmallQuantity, float32_t, -20.001f, -20.00001f)
 
@@ -142,7 +143,7 @@ TEST(RangeChecked, conversion)
 {
   const MyQuantity value = 4.0f;
 
-  const float64_t x = value;
+  auto x = sen::std_util::checkedConversion<float64_t>(value.get());
   int32_t y = value;  // NOLINT as we want to test the conversion
   const float32_t z = value;
 
@@ -156,7 +157,7 @@ TEST(RangeChecked, conversion)
 /// @requirements(SEN-355)
 TEST(RangeChecked, SmallBounds)
 {
-  MySmallQuantity value = 0.0055f;
+  MySmallQuantity value = 0.0055;
 
   EXPECT_FLOAT_EQ(0.0055f, value.get());
   EXPECT_NO_THROW(value = 0.0055556f);
@@ -164,7 +165,7 @@ TEST(RangeChecked, SmallBounds)
   EXPECT_NO_THROW(value = 0.00560000f);
   EXPECT_FLOAT_EQ(0.00560000f, value.get());
 
-  constexpr float64_t tooHigh = 0.00560001f;
+  constexpr float64_t tooHigh = 0.00560001;
   EXPECT_ANY_THROW(value = tooHigh);
   EXPECT_FLOAT_EQ(0.00560000f, value.get());
 }
@@ -203,7 +204,7 @@ TEST(RangeChecked, matchingBounds)
 
   EXPECT_TRUE(value == -11.15f);
 
-  const float64_t x = value;
+  auto x = sen::std_util::checkedConversion<float64_t>(value.get());
 
   EXPECT_EQ(x, -11.15f);
   EXPECT_NO_THROW(value = x);

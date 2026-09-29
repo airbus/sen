@@ -234,7 +234,7 @@ TEST(IOUtils, SequenceToFromVariant)
 /// @requirements(SEN-1053)
 TEST(IOUtils, Array)
 {
-  const std::vector<float32_t> vec1 {1.2, 3.4, 5.6, 7.8};
+  const std::vector<float32_t> vec1 {1.2f, 3.4f, 5.6f, 7.8f};
   sen::test::TestWriter writer;
   sen::OutputStream out(writer);
 
@@ -282,10 +282,10 @@ TEST(IOUtils, Sequence)
 /// @requirements(SEN-579)
 TEST(IOUtils, MultipleSequences)
 {
-  const std::vector<float32_t> vec1 {5.5, 6.6, 7.7, 8.8, 9.9};
-  const std::vector<float32_t> vec2 {10.5, 11.4, 12.3, 13.2, 14.1};
-  const std::vector<float32_t> vec3 {-0.324f, -0.842, 0.99};
-  const std::vector<float32_t> vec4 {3.3f, -3.14};
+  const std::vector<float32_t> vec1 {5.5f, 6.6f, 7.7f, 8.8f, 9.9f};
+  const std::vector<float32_t> vec2 {10.5f, 11.4f, 12.3f, 13.2f, 14.1f};
+  const std::vector<float32_t> vec3 {-0.324f, -0.842f, 0.99f};
+  const std::vector<float32_t> vec4 {3.3f, -3.14f};
   const std::vector vecs {vec1, vec2, vec3, vec4};
   sen::test::TestWriter writer;
   sen::OutputStream out(writer);

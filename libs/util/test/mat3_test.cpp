@@ -24,9 +24,9 @@ namespace sen::util
 TEST(Matrix, Creation)
 {
   Mat3f mat {};
-  mat(1, 2) = 4.66;
-  EXPECT_FLOAT_EQ(4.66, mat(1, 2));
-  EXPECT_FLOAT_EQ(0, mat(0, 0));
+  mat(1, 2) = 4.66f;
+  EXPECT_FLOAT_EQ(4.66f, mat(1, 2));
+  EXPECT_FLOAT_EQ(0.0f, mat(0, 0));
 }
 
 /// @test
@@ -34,16 +34,16 @@ TEST(Matrix, Creation)
 /// @requirements(SEN-1059)
 TEST(Matrix, InitializerList)
 {
-  Mat3f mat {{3, 5, 4}, {2, 2, 2}, {1, 3, 4}};
-  EXPECT_FLOAT_EQ(3, mat(0, 0));
-  EXPECT_FLOAT_EQ(5, mat(0, 1));
-  EXPECT_FLOAT_EQ(4, mat(0, 2));
-  EXPECT_FLOAT_EQ(2, mat(1, 0));
-  EXPECT_FLOAT_EQ(2, mat(1, 1));
-  EXPECT_FLOAT_EQ(2, mat(1, 2));
-  EXPECT_FLOAT_EQ(1, mat(2, 0));
-  EXPECT_FLOAT_EQ(3, mat(2, 1));
-  EXPECT_FLOAT_EQ(4, mat(2, 2));
+  Mat3f mat {{3.0f, 5.0f, 4.0f}, {2.0f, 2.0f, 2.0f}, {1.0f, 3.0f, 4.0f}};
+  EXPECT_FLOAT_EQ(3.0f, mat(0, 0));
+  EXPECT_FLOAT_EQ(5.0f, mat(0, 1));
+  EXPECT_FLOAT_EQ(4.0f, mat(0, 2));
+  EXPECT_FLOAT_EQ(2.0f, mat(1, 0));
+  EXPECT_FLOAT_EQ(2.0f, mat(1, 1));
+  EXPECT_FLOAT_EQ(2.0f, mat(1, 2));
+  EXPECT_FLOAT_EQ(1.0f, mat(2, 0));
+  EXPECT_FLOAT_EQ(3.0f, mat(2, 1));
+  EXPECT_FLOAT_EQ(4.0f, mat(2, 2));
 }
 
 /// @test
@@ -51,19 +51,19 @@ TEST(Matrix, InitializerList)
 /// @requirements(SEN-1059)
 TEST(Matrix, copyMatrix)
 {
-  Mat3f mat1 {{3, 5, 4}, {2, 2, 2}, {1, 3, 4}};
+  Mat3f mat1 {{3.0f, 5.0f, 4.0f}, {2.0f, 2.0f, 2.0f}, {1.0f, 3.0f, 4.0f}};
 
   auto mat2 = mat1;
 
-  EXPECT_FLOAT_EQ(3, mat2(0, 0));
-  EXPECT_FLOAT_EQ(5, mat2(0, 1));
-  EXPECT_FLOAT_EQ(4, mat2(0, 2));
-  EXPECT_FLOAT_EQ(2, mat2(1, 0));
-  EXPECT_FLOAT_EQ(2, mat2(1, 1));
-  EXPECT_FLOAT_EQ(2, mat2(1, 2));
-  EXPECT_FLOAT_EQ(1, mat2(2, 0));
-  EXPECT_FLOAT_EQ(3, mat2(2, 1));
-  EXPECT_FLOAT_EQ(4, mat2(2, 2));
+  EXPECT_FLOAT_EQ(3.0f, mat2(0, 0));
+  EXPECT_FLOAT_EQ(5.0f, mat2(0, 1));
+  EXPECT_FLOAT_EQ(4.0f, mat2(0, 2));
+  EXPECT_FLOAT_EQ(2.0f, mat2(1, 0));
+  EXPECT_FLOAT_EQ(2.0f, mat2(1, 1));
+  EXPECT_FLOAT_EQ(2.0f, mat2(1, 2));
+  EXPECT_FLOAT_EQ(1.0f, mat2(2, 0));
+  EXPECT_FLOAT_EQ(3.0f, mat2(2, 1));
+  EXPECT_FLOAT_EQ(4.0f, mat2(2, 2));
 }
 
 /// @test
@@ -72,7 +72,7 @@ TEST(Matrix, copyMatrix)
 TEST(Matrix, identity)
 {
   auto mat = Mat3f::makeIdentity();
-  Mat3f expectation {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  Mat3f expectation {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 
   for (u32 i = 0; i < 3U; ++i)
   {
@@ -88,8 +88,8 @@ TEST(Matrix, identity)
 /// @requirements(SEN-1059)
 TEST(Matrix, transpose)
 {
-  Mat3f mat {{2, 3, 4}, {4, 5, 6}, {88, 6, 6}};
-  Mat3f expectation {{2, 4, 88}, {3, 5, 6}, {4, 6, 6}};
+  Mat3f mat {{2.0f, 3.0f, 4.0f}, {4.0f, 5.0f, 6.0f}, {88.0f, 6.0f, 6.0f}};
+  Mat3f expectation {{2.0f, 4.0f, 88.0f}, {3.0f, 5.0f, 6.0f}, {4.0f, 6.0f, 6.0f}};
 
   Mat3f result {};
   result.transpose(mat);
@@ -119,10 +119,10 @@ TEST(Matrix, transpose)
 TEST(Matrix, mult)
 {
   Mat3f result {};
-  Mat3f lhs {{1, 2, 3}, {3, 2, 1}, {1, 2, 3}};
-  Mat3f rhs {{4, 5, 6}, {6, 5, 4}, {4, 6, 5}};
+  Mat3f lhs {{1.0f, 2.0f, 3.0f}, {3.0f, 2.0f, 1.0f}, {1.0f, 2.0f, 3.0f}};
+  Mat3f rhs {{4.0f, 5.0f, 6.0f}, {6.0f, 5.0f, 4.0f}, {4.0f, 6.0f, 5.0f}};
 
-  Mat3f expectation {{28, 33, 29}, {28, 31, 31}, {28, 33, 29}};
+  Mat3f expectation {{28.0f, 33.0f, 29.0f}, {28.0f, 31.0f, 31.0f}, {28.0f, 33.0f, 29.0f}};
 
   result.mult(lhs, rhs);
 
@@ -140,10 +140,10 @@ TEST(Matrix, mult)
 /// @requirements(SEN-1059)
 TEST(Matrix, preMult)
 {
-  Mat3f result {{4, 5, 6}, {6, 5, 4}, {4, 6, 5}};
-  Mat3f other {{1, 2, 3}, {3, 2, 1}, {1, 2, 3}};
+  Mat3f result {{4.0f, 5.0f, 6.0f}, {6.0f, 5.0f, 4.0f}, {4.0f, 6.0f, 5.0f}};
+  Mat3f other {{1.0f, 2.0f, 3.0f}, {3.0f, 2.0f, 1.0f}, {1.0f, 2.0f, 3.0f}};
 
-  Mat3f expectation {{28, 33, 29}, {28, 31, 31}, {28, 33, 29}};
+  Mat3f expectation {{28.0f, 33.0f, 29.0f}, {28.0f, 31.0f, 31.0f}, {28.0f, 33.0f, 29.0f}};
 
   result.preMult(other);
 
@@ -161,10 +161,10 @@ TEST(Matrix, preMult)
 /// @requirements(SEN-1059)
 TEST(Matrix, postMult)
 {
-  Mat3f result {{1, 2, 3}, {3, 2, 1}, {1, 2, 3}};
-  Mat3f other {{4, 5, 6}, {6, 5, 4}, {4, 6, 5}};
+  Mat3f result {{1.0f, 2.0f, 3.0f}, {3.0f, 2.0f, 1.0f}, {1.0f, 2.0f, 3.0f}};
+  Mat3f other {{4.0f, 5.0f, 6.0f}, {6.0f, 5.0f, 4.0f}, {4.0f, 6.0f, 5.0f}};
 
-  Mat3f expectation {{28, 33, 29}, {28, 31, 31}, {28, 33, 29}};
+  Mat3f expectation {{28.0f, 33.0f, 29.0f}, {28.0f, 31.0f, 31.0f}, {28.0f, 33.0f, 29.0f}};
 
   result.postMult(other);
 
@@ -182,10 +182,10 @@ TEST(Matrix, postMult)
 /// @requirements(SEN-1059)
 TEST(Matrix, postMultVec)
 {
-  Mat3f mat {{1, 2, 3}, {3, 2, 1}, {1, 2, 3}};
-  Vec3f other {4.6, 55, 6.7};
+  Mat3f mat {{1.0f, 2.0f, 3.0f}, {3.0f, 2.0f, 1.0f}, {1.0f, 2.0f, 3.0f}};
+  Vec3f other {4.6f, 55.0f, 6.7f};
 
-  Vec3f expectation {134.7, 130.5, 134.7};
+  Vec3f expectation {134.7f, 130.5f, 134.7f};
 
   auto result = mat.postMult(other);
 
@@ -197,10 +197,10 @@ TEST(Matrix, postMultVec)
 /// @requirements(SEN-1059)
 TEST(Matrix, preMultVec)
 {
-  Mat3f mat {{1, 2, 3}, {3, 2, 1}, {1, 2, 3}};
-  Vec3f other {4.6, 55, 6.7};
+  Mat3f mat {{1.0f, 2.0f, 3.0f}, {3.0f, 2.0f, 1.0f}, {1.0f, 2.0f, 3.0f}};
+  Vec3f other {4.6f, 55.0f, 6.7f};
 
-  Vec3f expectation {176.3, 132.6, 88.9};
+  Vec3f expectation {176.3f, 132.6f, 88.9f};
 
   auto result = mat.preMult(other);
 
