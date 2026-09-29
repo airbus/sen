@@ -1,0 +1,33 @@
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd"
+             xmlns="http://standards.ieee.org/IEEE1516-2010"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>MyTestClass</name>
+                <attribute>
+                    <name>prop1</name>
+                    <dataType>MyTestInt</dataType>
+                    <updateType>NA</updateType>
+                    <ownership>NoTransfer</ownership>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                </attribute>
+                <semantics/>
+            </objectClass>
+        </objectClass>
+    </objects>
+
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>MyTestInt</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+            </simpleData>
+        </simpleDataTypes>
+    </dataTypes>
+
+</objectModel>
