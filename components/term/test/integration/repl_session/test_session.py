@@ -58,8 +58,11 @@ class TestTermSession(unittest.TestCase):
     def test_help_lists_the_commands(self) -> None:
         """`help` reaches the command table and prints it."""
         self.term.send_command("help")
-        self.assertTrue(self.term.wait_for("inspect"), f"help did not list 'inspect'. Screen:\n{self.term.screen()}")
-        for command in ("listen", "query", "open"):
+        self.assertTrue(
+            self.term.wait_for("Keyboard shortcuts"),
+            f"help did not list 'Keyboard shortcuts'. Screen:\n{self.term.screen()}",
+        )
+        for command in ("listen", "unlisten", "clear", "version"):
             self.assertIn(command, self.term.screen(), f"help did not list '{command}'")
 
     def test_ls_shows_the_objects_on_the_bus(self) -> None:
