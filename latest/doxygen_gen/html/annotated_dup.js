@@ -373,5 +373,6 @@ var annotated_dup =
       [ "hash&lt; sen::Uuid &gt;", "structstd_1_1hash_3_01sen_1_1_uuid_01_4.html", "structstd_1_1hash_3_01sen_1_1_uuid_01_4" ],
       [ "hash&lt;::sen::MemberHash &gt;", "structstd_1_1hash_3_1_1sen_1_1_member_hash_01_4.html", "structstd_1_1hash_3_1_1sen_1_1_member_hash_01_4" ]
     ] ],
+    [ "APlantUMLGenerator", "class_a_plant_u_m_l_generator.html", "class_a_plant_u_m_l_generator" ],
     [ "KernelFixture", "class_kernel_fixture.html", "class_kernel_fixture" ]
 ];

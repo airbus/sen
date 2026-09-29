@@ -376,6 +376,7 @@ var hierarchy =
     [ "sen::gen::detail::TemplateVisitorResult", "namespacesen_1_1gen_1_1detail.html#structsen_1_1gen_1_1detail_1_1_template_visitor_result", null ],
     [ "sen::Guarded&lt; T, MutexType &gt;::TemporaryAccessToken", "structsen_1_1_guarded_1_1_temporary_access_token.html", null ],
     [ "testing::Test", null, [
+      [ "APlantUMLGenerator", "class_a_plant_u_m_l_generator.html", null ],
       [ "KernelFixture", "class_kernel_fixture.html", null ]
     ] ],
     [ "TestClassBase", null, [
