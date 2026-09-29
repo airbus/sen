@@ -177,6 +177,37 @@ TEST(NetworkExclusion, LoadsExclusions)
 }
 
 /// @test
+/// Keeps the addresses that misbehave on the local segment out of the allocatable set. The default
+/// range is the whole of 239.0.0.0/8, so these are reachable by derivation unless excluded here.
+/// @requirements(SEN-909)
+TEST(NetworkExclusion, ExcludesTheAddressesThatMisbehaveOnTheSegment)
+{
+  const Configuration config {};
+
+  const auto result = makeNetworkExclusions(config);
+
+  ASSERT_TRUE(result.isOk());
+  const auto& excluded = result.getValue().multicast;
+
+  // Same ethernet address as 224.0.0.1, which every card on the segment listens to.
+  EXPECT_TRUE(excluded.isExcluded(asio::ip::make_address_v4("239.0.0.1").to_uint()));
+  EXPECT_TRUE(excluded.isExcluded(asio::ip::make_address_v4("239.0.255.255").to_uint()));
+  // A second byte of 128 shares the low 23 bits with one of 0, so it aliases the same block.
+  EXPECT_TRUE(excluded.isExcluded(asio::ip::make_address_v4("239.128.0.1").to_uint()));
+  EXPECT_TRUE(excluded.isExcluded(asio::ip::make_address_v4("239.128.255.255").to_uint()));
+  // The discovery group this component uses itself.
+  EXPECT_TRUE(excluded.isExcluded(asio::ip::make_address_v4("239.255.0.44").to_uint()));
+
+  // The other half: excluding more than those would quietly shrink the pool. A bus is still free to
+  // land anywhere else, the organization-local scope included.
+  EXPECT_FALSE(excluded.isExcluded(asio::ip::make_address_v4("239.1.0.1").to_uint()));
+  EXPECT_FALSE(excluded.isExcluded(asio::ip::make_address_v4("239.127.255.255").to_uint()));
+  EXPECT_FALSE(excluded.isExcluded(asio::ip::make_address_v4("239.129.0.1").to_uint()));
+  EXPECT_FALSE(excluded.isExcluded(asio::ip::make_address_v4("239.192.0.1").to_uint()));
+  EXPECT_FALSE(excluded.isExcluded(asio::ip::make_address_v4("239.255.1.1").to_uint()));
+}
+
+/// @test
 /// Loads port ranges reported by the operating system.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, LoadsOsPortExclusions)
