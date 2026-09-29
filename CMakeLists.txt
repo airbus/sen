@@ -40,6 +40,11 @@ set_property(
 )
 
 # get access to our utility functions
+# Marks this as Sen's own build. sen_configure_target() is public through the installed cmake,
+# so anything unconditional there reaches every consumer target; options Sen applies only to
+# itself are gated on this. This file is not installed, so a consumer never defines it.
+set(SEN_INTERNAL_BUILD YES)
+
 include(util/sen_utils)
 include(util/git_info)
 

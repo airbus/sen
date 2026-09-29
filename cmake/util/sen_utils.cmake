@@ -69,29 +69,3 @@ function(sen_warn_if_the_compiler_cache_cannot_work)
     )
   endif()
 endfunction()
-
-if(NOT SEN_DISABLE_CLANG_TIDY)
-  # clang-tidy-cache is matus-chochlik/ctcache; cltcache is kept because a developer may already
-  # have it. Either one hashes the preprocessed source, the arguments and the clang-tidy config,
-  # so a finding cannot survive a change to any of them.
-  find_program(clang_tidy_cache_path NAMES "clang-tidy-cache" "cltcache")
-
-  if(clang_tidy_cache_path)
-    find_program(_clang_tidy_path NAMES "clang-tidy-20" "clang-tidy" REQUIRED)
-
-    set(clang_tidy_path
-        "${clang_tidy_cache_path};${_clang_tidy_path}"
-        CACHE STRING "A combined command to run clang-tidy with caching wrapper"
-    )
-    message(NOTICE "-- Using ${clang_tidy_cache_path} to speedup clang-tidy")
-  else()
-    # Versioned name first: an older clang-tidy from the system would otherwise
-    # win and analyse with different checks. REQUIRED because analysis was asked
-    # for; without it a missing tool leaves the lane green having analysed
-    # nothing.
-    find_program(clang_tidy_path NAMES "clang-tidy-20" "clang-tidy" REQUIRED)
-  endif()
-  message(STATUS "Clang-tidy enabled")
-else()
-  message(STATUS "Clang-tidy disabled")
-endif()
