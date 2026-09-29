@@ -282,6 +282,8 @@ template <typename T, std::size_t s>
   return Span<const T>(array);
 }
 
+/// The StaticVector overload is in static_vector.h, so this header need not include that one.
+
 /// @}
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 
 // sen
 #include "sen/core/base/span.h"
+#include "sen/core/base/static_vector.h"
 
 // google test
 #include <gtest/gtest.h>
@@ -22,6 +23,7 @@
 using sen::makeConstSpan;
 using sen::makeSpan;
 using sen::Span;
+using sen::StaticVector;
 
 namespace
 {
@@ -355,6 +357,9 @@ using MakeConstSpanVectorType = decltype(makeConstSpan(std::declval<std::vector<
 template <typename T>
 using MakeConstSpanArrayType = decltype(makeConstSpan(std::declval<std::array<T, 1UL>>()));
 
+template <typename T>
+using MakeConstSpanStaticVectorType = decltype(makeConstSpan(std::declval<StaticVector<T, 4UL>>()));
+
 /// @test
 /// Test span type compatibility
 /// @requirements(SEN-355)
@@ -365,6 +370,38 @@ TEST_F(SpanVectorTest, const_static_asserts)
   static_assert(std::is_same<MakeConstSpanIteratorType<int32_t>, Span<const int32_t>>::value, "type compatibility");
   static_assert(std::is_same<MakeConstSpanVectorType<int32_t>, Span<const int32_t>>::value, "type compatibility");
   static_assert(std::is_same<MakeConstSpanArrayType<int32_t>, Span<const int32_t>>::value, "type compatibility");
+  static_assert(std::is_same<MakeConstSpanStaticVectorType<int32_t>, Span<const int32_t>>::value, "type compatibility");
+}
+
+/// @test
+/// Test span const static vector
+/// @requirements(SEN-355)
+TEST_F(SpanVectorTest, const_static_vector)
+{
+  StaticVector<int32_t, 4UL> vector;
+  EXPECT_TRUE(vector.push_back(1));
+  EXPECT_TRUE(vector.push_back(2));
+  EXPECT_TRUE(vector.push_back(3));
+
+  const auto vectorSpan = makeConstSpan(vector);
+
+  EXPECT_EQ(vector.data(), vectorSpan.data());
+  ASSERT_EQ(vector.size(), vectorSpan.size());
+  EXPECT_EQ(vectorSpan[0], 1);
+  EXPECT_EQ(vectorSpan[2], 3);
+}
+
+/// @test
+/// Test span over an empty static vector
+/// @requirements(SEN-355)
+TEST_F(SpanVectorTest, const_static_vector_empty)
+{
+  const StaticVector<int32_t, 4UL> vector;
+
+  const auto vectorSpan = makeConstSpan(vector);
+
+  EXPECT_EQ(vectorSpan.size(), 0UL);
+  EXPECT_TRUE(vectorSpan.empty());
 }
 
 /// @test
