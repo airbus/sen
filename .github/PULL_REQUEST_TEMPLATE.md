@@ -10,4 +10,4 @@ conventional format, for example `fix(kernel): guard reconnect against replay`.
 - [ ] The title follows `type(scope): summary` and stays under 72 characters
 - [ ] This pull request is a single logical change
 - [ ] Tests cover the change where practical
-- [ ] `conan.lock` was regenerated if `conanfile.py` changed
+- [ ] `.conan/conan.lock` was regenerated if `conanfile.py` changed

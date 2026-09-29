@@ -179,14 +179,14 @@ jobs:
           fi
           PATH="/usr/lib/ccache:$PATH" \
           CCACHE_SLOPPINESS=clang_index_store,include_file_ctime,include_file_mtime,locale,pch_defines,time_macros \
-          conan install . -s "&:build_type=${{ matrix.build_type }}" \
+          conan install . --lockfile=.conan/conan.lock -s "&:build_type=${{ matrix.build_type }}" \
             -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing \
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
             -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
           # The same options go to both commands: conan build regenerates the toolchain,
           # and without them it would do so from the defaults, which build no tests.
-          conan build . -s "&:build_type=${{ matrix.build_type }}" \
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=${{ matrix.build_type }}" \
             -s "&:compiler.cppstd=${{ matrix.std }}" \
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \

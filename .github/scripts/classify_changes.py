@@ -28,7 +28,13 @@ BUILD_SUFFIXES = (".cmake", "CMakeLists.txt")
 # component definitions it copies snippets from, the site configuration, the
 # conan recipe and profiles it builds with, and its own workflow.
 DOCS_BUILD_PREFIXES = ("docs/", "examples/", "components/", ".conan/", ".github/actions/build_documentation/")
-DOCS_BUILD_FILES = ("mkdocs.yml", "conanfile.py", "conan.lock", "LICENSE.txt", ".github/workflows/docs_check.yaml")
+DOCS_BUILD_FILES = (
+    "mkdocs.yml",
+    "conanfile.py",
+    ".conan/conan.lock",
+    "LICENSE.txt",
+    ".github/workflows/docs_check.yaml",
+)
 
 # What defines the build environment image, and the workflow that validates it.
 IMAGE_PREFIXES = ("tools/ci/",)

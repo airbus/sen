@@ -143,9 +143,9 @@ jobs:
           if [ "${{ matrix.build_type }}" = "Release" ]; then
               symbols='-o sen/*:with_release_symbols=True'
           fi
-          conan install . --build=missing -s "&:build_type=${{ matrix.build_type }}" $symbols
+          conan install . --lockfile=.conan/conan.lock --build=missing -s "&:build_type=${{ matrix.build_type }}" $symbols
           # conan build regenerates the toolchain, so it needs the same setting.
-          conan build . -s "&:build_type=${{ matrix.build_type }}" $symbols
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=${{ matrix.build_type }}" $symbols
           build=build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
           cmake --build "$build" --target package
 
