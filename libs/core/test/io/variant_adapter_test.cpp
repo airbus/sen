@@ -74,7 +74,7 @@ struct ConvertToUint8: public VariantAdapterTestBase<uint8_t>
 {
 };
 
-TEST_P(ConvertToUint8, ConversionTest) { runComparison(); };
+TEST_P(ConvertToUint8, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -114,7 +114,7 @@ struct ConvertToUint16: public VariantAdapterTestBase<uint16_t>
 {
 };
 
-TEST_P(ConvertToUint16, ConversionTest) { runComparison(); };
+TEST_P(ConvertToUint16, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -152,7 +152,7 @@ struct ConvertToUint32: public VariantAdapterTestBase<uint32_t>
 {
 };
 
-TEST_P(ConvertToUint32, ConversionTest) { runComparison(); };
+TEST_P(ConvertToUint32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -188,7 +188,7 @@ struct ConvertToUint64: public VariantAdapterTestBase<uint64_t>
 {
 };
 
-TEST_P(ConvertToUint64, ConversionTest) { runComparison(); };
+TEST_P(ConvertToUint64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -222,7 +222,7 @@ struct ConvertToInt16: public VariantAdapterTestBase<int16_t>
 {
 };
 
-TEST_P(ConvertToInt16, ConversionTest) { runComparison(); };
+TEST_P(ConvertToInt16, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -263,7 +263,7 @@ struct ConvertToInt32: public VariantAdapterTestBase<int32_t>
 {
 };
 
-TEST_P(ConvertToInt32, ConversionTest) { runComparison(); };
+TEST_P(ConvertToInt32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -304,7 +304,7 @@ struct ConvertToInt64: public VariantAdapterTestBase<int64_t>
 {
 };
 
-TEST_P(ConvertToInt64, ConversionTest) { runComparison(); };
+TEST_P(ConvertToInt64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -345,7 +345,7 @@ struct ConvertToFloat32: public VariantAdapterTestBase<float32_t>
 {
 };
 
-TEST_P(ConvertToFloat32, ConversionTest) { runComparison(); };
+TEST_P(ConvertToFloat32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -380,7 +380,7 @@ struct ConvertToFloat64: public VariantAdapterTestBase<float64_t>
 {
 };
 
-TEST_P(ConvertToFloat64, ConversionTest) { runComparison(); };
+TEST_P(ConvertToFloat64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
@@ -405,7 +405,7 @@ struct ConvertToBool: public VariantAdapterTestBase<bool>
 {
 };
 
-TEST_P(ConvertToBool, ConversionTest) { runComparison(); };
+TEST_P(ConvertToBool, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(VariantAdapterTest,
                          ConvertToBool,

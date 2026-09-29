@@ -48,9 +48,9 @@ public:
     const auto cursor = buffer_.size();
     buffer_.resize(buffer_.size() + size);
     return std::next(buffer_.data(), static_cast<int>(cursor));
-  };
+  }
 
-  void reverse(size_t size) override { buffer_.resize(buffer_.size() - size); };
+  void reverse(size_t size) override { buffer_.resize(buffer_.size() - size); }
 
 private:
   std::vector<uint8_t> buffer_;
@@ -95,7 +95,7 @@ private:
 
 class BufferedTestReader: public TestReader
 {
-  SEN_NOCOPY_NOMOVE(BufferedTestReader);
+  SEN_NOCOPY_NOMOVE(BufferedTestReader)
 
 public:
   inline explicit BufferedTestReader() noexcept: TestReader(buffer_) {}

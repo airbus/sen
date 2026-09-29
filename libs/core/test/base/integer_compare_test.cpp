@@ -62,7 +62,7 @@ class IntegerCompareTestSuiteSignedCmpSigned: public IntegerCompareTestSuiteBase
 /// @test
 /// Check safe comparison between two signed types
 /// @requirements(SEN-1046)
-TEST_P(IntegerCompareTestSuiteSignedCmpSigned, CheckCorrectComparison) { runComparison(); };
+TEST_P(IntegerCompareTestSuiteSignedCmpSigned, CheckCorrectComparison) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   IntegerCompareTests,
@@ -142,7 +142,7 @@ class IntegerCompareTestSuiteUnsignedCmpUnsigned: public IntegerCompareTestSuite
 /// @test
 /// Check safe comparison between two unsigned types
 /// @requirements(SEN-1046)
-TEST_P(IntegerCompareTestSuiteUnsignedCmpUnsigned, CheckCorrectComparison) { runComparison(); };
+TEST_P(IntegerCompareTestSuiteUnsignedCmpUnsigned, CheckCorrectComparison) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   IntegerCompareTests,
@@ -182,7 +182,7 @@ class IntegerCompareTestSuiteSignedCmpUnsigned: public IntegerCompareTestSuiteBa
 /// @test
 /// Check safe comparison from signed to unsigned types
 /// @requirements(SEN-1046)
-TEST_P(IntegerCompareTestSuiteSignedCmpUnsigned, CheckCorrectComparison) { runComparison(); };
+TEST_P(IntegerCompareTestSuiteSignedCmpUnsigned, CheckCorrectComparison) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   IntegerCompareTests,
@@ -230,7 +230,7 @@ class IntegerCompareTestSuiteUnsignedCmpSigned: public IntegerCompareTestSuiteBa
 /// @test
 /// Check safe comparison from unsigned to signed types
 /// @requirements(SEN-1046)
-TEST_P(IntegerCompareTestSuiteUnsignedCmpSigned, CheckCorrectComparison) { runComparison(); };
+TEST_P(IntegerCompareTestSuiteUnsignedCmpSigned, CheckCorrectComparison) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   IntegerCompareTests,
