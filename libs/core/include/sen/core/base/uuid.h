@@ -89,12 +89,12 @@ public:
   /// Builds a string out of this UUID.
   [[nodiscard]] std::string toString() const;
 
-  /// True if the UUID is well-formed.
-  [[nodiscard]] bool isValid(std::string_view s) noexcept;
+  /// True if the UUID is well-formed. Static: it inspects the string, not this UUID.
+  [[nodiscard]] static bool isValid(std::string_view s) noexcept;
 
-  /// Parses a string and generates a UUD.
+  /// Parses a string and generates a UUID.
   /// Returns a Nil UUID in case of error.
-  [[nodiscard]] Uuid fromString(std::string_view s) noexcept;
+  [[nodiscard]] static Uuid fromString(std::string_view s) noexcept;
 
   /// Copy this std::array of bytes into the UUID.
   void copy(std::array<uint8_t, byteCount>& arr) const { arr = bytes(); }

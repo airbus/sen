@@ -207,26 +207,24 @@ TEST(UuidTest, StringConversions)
   const std::string validStrWithBraces = "{12345678-90ab-cdef-1234-567890abcdef}";
   const std::string validStrUpper = "12345678-90AB-CDEF-1234-567890ABCDEF";
 
-  Uuid u;
-
-  Uuid fromNormal = u.fromString(validStr);
+  Uuid fromNormal = Uuid::fromString(validStr);
   EXPECT_FALSE(fromNormal.isNil());
   EXPECT_EQ(fromNormal.toString(), validStr);
 
-  Uuid fromBraces = u.fromString(validStrWithBraces);
+  Uuid fromBraces = Uuid::fromString(validStrWithBraces);
   EXPECT_FALSE(fromBraces.isNil());
   EXPECT_EQ(fromBraces.toString(), validStr);
 
-  Uuid fromUpper = u.fromString(validStrUpper);
+  Uuid fromUpper = Uuid::fromString(validStrUpper);
   EXPECT_FALSE(fromUpper.isNil());
   EXPECT_EQ(fromUpper.toString(), validStr);
 
-  EXPECT_TRUE(u.fromString("").isNil());
-  EXPECT_TRUE(u.fromString("{12345678-90ab-cdef-1234-567890abcdef").isNil());
-  EXPECT_TRUE(u.fromString("12345678-90ab-cdef-1234-567890abcdeG").isNil());
-  EXPECT_TRUE(u.fromString("12345678-90ab-cdef-1234-567890abcde").isNil());
-  EXPECT_TRUE(u.fromString("12345678-90ab-cdef-1234-567890abcdef1").isNil());
-  EXPECT_TRUE(u.fromString("{}").isNil());
+  EXPECT_TRUE(Uuid::fromString("").isNil());
+  EXPECT_TRUE(Uuid::fromString("{12345678-90ab-cdef-1234-567890abcdef").isNil());
+  EXPECT_TRUE(Uuid::fromString("12345678-90ab-cdef-1234-567890abcdeG").isNil());
+  EXPECT_TRUE(Uuid::fromString("12345678-90ab-cdef-1234-567890abcde").isNil());
+  EXPECT_TRUE(Uuid::fromString("12345678-90ab-cdef-1234-567890abcdef1").isNil());
+  EXPECT_TRUE(Uuid::fromString("{}").isNil());
 }
 
 /// @test
@@ -234,20 +232,18 @@ TEST(UuidTest, StringConversions)
 /// @requirements(SEN-584, SEN-576)
 TEST(UuidTest, StringValidation)
 {
-  Uuid u;
+  EXPECT_TRUE(Uuid::isValid("12345678-90ab-cdef-1234-567890abcdef"));
+  EXPECT_TRUE(Uuid::isValid("{12345678-90ab-cdef-1234-567890abcdef}"));
+  EXPECT_TRUE(Uuid::isValid("1234567890abcdef1234567890abcdef"));
 
-  EXPECT_TRUE(u.isValid("12345678-90ab-cdef-1234-567890abcdef"));
-  EXPECT_TRUE(u.isValid("{12345678-90ab-cdef-1234-567890abcdef}"));
-  EXPECT_TRUE(u.isValid("1234567890abcdef1234567890abcdef"));
-
-  EXPECT_FALSE(u.isValid(""));
-  EXPECT_FALSE(u.isValid("{12345678-90ab-cdef-1234-567890abcdef"));
-  EXPECT_FALSE(u.isValid("12345678-90ab-cdef-1234-567890abcdef}"));
-  EXPECT_FALSE(u.isValid("12345678-90ab-cdef-1234-567890abcdeG"));
-  EXPECT_FALSE(u.isValid("12345678-90ab-cdef-1234-567890abcde"));
-  EXPECT_FALSE(u.isValid("12345678-90ab-cdef-1234-567890abcdef1"));
-  EXPECT_FALSE(u.isValid("{}"));
-  EXPECT_FALSE(u.isValid("}12345678-90ab-cdef-1234-567890abcdef"));
+  EXPECT_FALSE(Uuid::isValid(""));
+  EXPECT_FALSE(Uuid::isValid("{12345678-90ab-cdef-1234-567890abcdef"));
+  EXPECT_FALSE(Uuid::isValid("12345678-90ab-cdef-1234-567890abcdef}"));
+  EXPECT_FALSE(Uuid::isValid("12345678-90ab-cdef-1234-567890abcdeG"));
+  EXPECT_FALSE(Uuid::isValid("12345678-90ab-cdef-1234-567890abcde"));
+  EXPECT_FALSE(Uuid::isValid("12345678-90ab-cdef-1234-567890abcdef1"));
+  EXPECT_FALSE(Uuid::isValid("{}"));
+  EXPECT_FALSE(Uuid::isValid("}12345678-90ab-cdef-1234-567890abcdef"));
 }
 
 /// @test

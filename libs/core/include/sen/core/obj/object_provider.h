@@ -17,6 +17,7 @@
 #include "sen/core/obj/object.h"
 
 // std
+#include <functional>
 #include <memory>
 #include <variant>
 
@@ -220,6 +221,13 @@ protected:
   void notifyRemovedOnExistingObjectsForAllListeners();
 
 protected:  // helpers for subclasses
+  /// Calls `callback` once for each registered listener.
+  ///
+  /// The registry is a lock-free list and cannot lend out a container. Its iterators survive a
+  /// concurrent insert or erase, so the callback may add or remove listeners; one erased before the
+  /// walk reaches it is not visited.
+  void forEachListener(const std::function<void(ObjectProviderListener*)>& callback) const;
+
   void callOnObjectsAdded(ObjectProviderListener* listener, const ObjectAdditionList& additions) const;
   void callOnObjectsRemoved(ObjectProviderListener* listener, const ObjectRemovalList& removals) const;
 
