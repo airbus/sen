@@ -40,8 +40,9 @@ CHECKS: list[tuple[list, Any, str]] = [
     ([f"{PKG}.Meters", "minimum"], 0.0, "quantity lower bound"),
     ([f"{PKG}.Meters", "maximum"], 1000.0, "quantity upper bound"),
     ([f"{PKG}.Meters", "x-element-type", "type"], "integer", "quantity element type"),
-    # Duration renders as integer; TimeStamp as a date-time string.
-    ([f"{PKG}.Timing", "properties", "delay", "type"], "integer", "Duration is an integer"),
+    # A duration is written with its unit, so it is a string; a bare number of nanoseconds is also
+    # accepted, so the schema names both. TimeStamp is a date-time string.
+    ([f"{PKG}.Timing", "properties", "delay", "type"], ["string", "integer"], "Duration takes either form"),
     ([f"{PKG}.Timing", "properties", "when", "type"], "string", "TimeStamp is a string"),
     ([f"{PKG}.Timing", "properties", "when", "format"], "date-time", "TimeStamp carries a format"),
     # Inheritance: the child references the parent, and by the parent's own $id.

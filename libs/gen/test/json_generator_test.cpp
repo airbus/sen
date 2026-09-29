@@ -10,6 +10,9 @@
 // sen
 #include "sen/core/lang/stl_resolver.h"
 
+// test support
+#include "every_kind_model.h"
+
 // 3rd party
 #include <gtest/gtest.h>
 
@@ -57,6 +60,69 @@ TEST(JsonGenerator, combineSchemasIsIdempotent)
   const std::string second = generator.combineSchemas(inputs, "test");
 
   EXPECT_EQ(first, second);
+}
+
+/// The text of the schema's `"required"` array, so membership can be asked rather than guessed at
+/// from substring order.
+[[nodiscard]] std::string requiredArray(const std::string& schema)
+{
+  const auto key = schema.find("\"required\"");
+  if (key == std::string::npos)
+  {
+    return {};
+  }
+  const auto open = schema.find('[', key);
+  const auto close = schema.find(']', open);
+  if (open == std::string::npos || close == std::string::npos)
+  {
+    return {};
+  }
+  return schema.substr(open, close - open + 1);
+}
+
+// A config writes a duration with its unit -- `2 s` -- which in YAML is a string, and a bare number
+// of nanoseconds is accepted too. Emitting "integer" alone made every shipped config fail its own
+// schema while the runtime accepted it.
+TEST(JsonGenerator, aDurationPropertyTakesEitherFormInTheConfigSchema)
+{
+  const sen::gen::test::ResolvedModel model {R"(package d.test;
+
+class Timed
+{
+  var period : Duration [static];
+}
+)"};
+
+  sen::gen::JsonGenerator generator;
+  const std::string schema = generator.generatePackage(model.context());
+
+  ASSERT_NE(schema.find("\"period\""), std::string::npos) << schema;
+  EXPECT_NE(schema.find(R"("type": ["string", "integer"])"), std::string::npos) << schema;
+}
+
+// Every property was listed as required, so a config leaving out a read-only one failed validation.
+TEST(JsonGenerator, onlyStaticWritablePropertiesAreRequired)
+{
+  const sen::gen::test::ResolvedModel model {R"(package d.test;
+
+class Mixed
+{
+  var settable : Duration [static];
+  var atStartup : Duration [static_no_config];
+  var observed : Duration;
+}
+)"};
+
+  sen::gen::JsonGenerator generator;
+  const std::string schema = generator.generatePackage(model.context());
+  const std::string required = requiredArray(schema);
+
+  ASSERT_FALSE(required.empty()) << schema;
+  EXPECT_NE(required.find("settable"), std::string::npos) << required;
+  EXPECT_EQ(required.find("observed"), std::string::npos) << required;
+  // Read-only static, which carries the same `static` flag as the one above it. Without this the
+  // test holds for a filter on `static` rather than on the read-write category.
+  EXPECT_EQ(required.find("atStartup"), std::string::npos) << required;
 }
 
 }  // namespace
