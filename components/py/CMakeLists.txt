@@ -53,6 +53,7 @@ if(Python3_Development_FOUND)
   set_target_properties(py PROPERTIES FOLDER "components/py")
 
   sen_internal_configure_component(py)
+  sen_internal_pybind11_warnings(py)
 
   target_link_libraries(
     py

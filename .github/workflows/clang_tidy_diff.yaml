@@ -200,6 +200,10 @@ jobs:
           git diff -U0 "$BASE_SHA...HEAD" -- "${analysable[@]}" > .cache/changed.diff
           .github/scripts/in_image.sh <<'IN'
           . .cache/clang-tidy-helpers
+          # No -header-filter here on purpose: clang-tidy-diff.py passes -line-filter naming the
+          # changed file, and a diagnostic outside that list is discarded, so a header cannot be
+          # reported in this lane whatever the filter says. Passing a config would also stop the
+          # per-directory .clang-tidy search that libs/*/benchmark/ relies on.
           python3 "$CLANG_TIDY_DIFF" \
               -p1 -path build/clang/Release \
               -clang-tidy-binary clang-tidy-20 \
@@ -222,6 +226,7 @@ jobs:
           # matching nothing, analysing nothing, and passing.
           $RUN_CLANG_TIDY -p build/clang/Release \
               -export-fixes clang-tidy-fixes.yaml \
+              -header-filter "^$PWD/(libs|components|apps|test)/" \
               -j "$(nproc)" \
               "^$PWD/(libs|components|apps|test)/" \
             | tee clang-tidy-output.txt

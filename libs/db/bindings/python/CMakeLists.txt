@@ -32,6 +32,7 @@ target_link_libraries(
 )
 
 sen_internal_configure_lib(sen_db_python)
+sen_internal_pybind11_warnings(sen_db_python)
 sen_enable_static_analysis(sen_db_python)
 
 # The build tree mirrors what the install does for a module library on Windows: keep it beside the

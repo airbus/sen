@@ -56,6 +56,42 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER ".cmake")
 # functions
 # ===================================================================================================================
 
+# add_sen_package compiles a package's sources in <pkg>_obj when TEST_TARGET is set, so an option
+# set only on the named target would never reach a compile line. Returns the target together with its
+# object library if it has one; OBJECT_LIBRARY is the property add_sen_package records the pair under.
+function(sen_internal_compiling_targets out_var target_name)
+  set(_targets ${target_name})
+  if(TARGET ${target_name})
+    get_target_property(_obj_lib ${target_name} OBJECT_LIBRARY)
+    if(_obj_lib AND TARGET ${_obj_lib})
+      list(APPEND _targets ${_obj_lib})
+    endif()
+  endif()
+  set(${out_var}
+      ${_targets}
+      PARENT_SCOPE
+  )
+endfunction()
+
+# gcc's -Warray-bounds and -Wstringop-overread misfire inside pybind11's headers. Applied to the two
+# targets that compile pybind11 rather than in sen_configure_target, which every consumer target runs
+# through and where they would silence the same diagnostics in the consumer's own code.
+function(sen_internal_pybind11_warnings target_name)
+  if(NOT
+     CMAKE_CXX_COMPILER_ID
+     STREQUAL
+     "GNU"
+  )
+    return()
+  endif()
+
+  sen_internal_compiling_targets(_targets ${target_name})
+  foreach(_tgt IN LISTS _targets)
+    # TODO(SEN-1727): drop when pybind11 or gcc stops producing these.
+    target_compile_options(${_tgt} PRIVATE -Wno-array-bounds -Wno-stringop-overread)
+  endforeach()
+endfunction()
+
 # Internal function that sets the target version and folder to be a library
 function(sen_internal_configure_lib target_name)
   sen_configure_target(${target_name})
@@ -515,3 +551,52 @@ function(sen_warn_if_the_compiler_cache_cannot_work)
     )
   endif()
 endfunction()
+# ===================================================================================================================
+# static analysis
+# ===================================================================================================================
+
+# Here rather than in sen_utils.cmake, which is installed: a consumer's find_package(sen) includes
+# that file, so this find_program failed their configure whenever clang-tidy was absent, for an
+# analysis that is ours and never ran on their targets. Nothing below reaches an install tree.
+if(NOT SEN_DISABLE_CLANG_TIDY)
+  # clang-tidy-cache is matus-chochlik/ctcache; cltcache is kept because a developer may already
+  # have it. Either one hashes the preprocessed source, the arguments and the clang-tidy config,
+  # so a finding cannot survive a change to any of them.
+  find_program(clang_tidy_cache_path NAMES "clang-tidy-cache" "cltcache")
+
+  if(clang_tidy_cache_path)
+    find_program(_clang_tidy_path NAMES "clang-tidy-20" "clang-tidy" REQUIRED)
+
+    set(clang_tidy_path
+        "${clang_tidy_cache_path};${_clang_tidy_path}"
+        CACHE STRING "A combined command to run clang-tidy with caching wrapper"
+    )
+    message(NOTICE "-- Using ${clang_tidy_cache_path} to speedup clang-tidy")
+  else()
+    # Versioned name first: an older clang-tidy from the system would otherwise
+    # win and analyse with different checks. REQUIRED because analysis was asked
+    # for; without it a missing tool leaves the lane green having analysed
+    # nothing.
+    find_program(clang_tidy_path NAMES "clang-tidy-20" "clang-tidy" REQUIRED)
+  endif()
+
+  # Anchored at this checkout. .clang-tidy carries the same directory names unanchored, which also
+  # matches a dependency unpacked below a path containing one of them -- a conan cache under
+  # /opt/apps, for one. The source directory is escaped because a path may hold regex characters.
+  string(
+    REGEX
+    REPLACE "([][$^.*+?()|{}\\\\])"
+            "\\\\\\1"
+            _sen_source_dir_regex
+            "${PROJECT_SOURCE_DIR}"
+  )
+  set(SEN_CLANG_TIDY_HEADER_FILTER "^${_sen_source_dir_regex}/(libs|components|apps|test)/")
+
+  # The warning suppressions moved into sen_enable_static_analysis, which every consumer gets. Only
+  # the header filter is ours alone, because it is anchored at this checkout.
+  set(SEN_CLANG_TIDY_EXTRA_ARGS "-header-filter=${SEN_CLANG_TIDY_HEADER_FILTER}")
+
+  message(STATUS "Clang-tidy enabled")
+else()
+  message(STATUS "Clang-tidy disabled")
+endif()
