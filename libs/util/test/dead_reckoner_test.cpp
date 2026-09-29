@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/util/dr/algorithms.h"
@@ -73,9 +74,9 @@ TEST(DeadReckonerTest, drRpw)
   EXPECT_NEAR(-20, situation.worldLocation.x, absoluteError);
   EXPECT_NEAR(20, situation.worldLocation.y, absoluteError);
   EXPECT_NEAR(60, situation.worldLocation.z, absoluteError);
-  EXPECT_NEAR(5, toDeg(situation.orientation.psi), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), absoluteError);
+  EXPECT_NEAR(5.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.psi.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.theta.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.phi.get())), absoluteError);
 }
 
 /// @test
@@ -91,9 +92,9 @@ TEST(DeadReckonerTest, drRvw)
   EXPECT_NEAR(-16, situation.worldLocation.x, absoluteError);
   EXPECT_NEAR(24, situation.worldLocation.y, absoluteError);
   EXPECT_NEAR(64, situation.worldLocation.z, absoluteError);
-  EXPECT_NEAR(5, toDeg(situation.orientation.psi), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), absoluteError);
+  EXPECT_NEAR(5.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.psi.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.theta.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.phi.get())), absoluteError);
 }
 
 /// @test
@@ -154,9 +155,9 @@ TEST(DeadReckonerTest, drRpb)
   EXPECT_NEAR(0, situation.worldLocation.x, absoluteError);
   EXPECT_NEAR(0, situation.worldLocation.y, absoluteError);
   EXPECT_NEAR(-(20 / pi) * 2, situation.worldLocation.z, absoluteError);
-  EXPECT_NEAR(180, toDeg(situation.orientation.psi), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
-  EXPECT_NEAR(180, toDeg(situation.orientation.phi), absoluteError);
+  EXPECT_NEAR(180.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.psi.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.theta.get())), absoluteError);
+  EXPECT_NEAR(180.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.phi.get())), absoluteError);
 }
 
 /// @test
@@ -172,9 +173,9 @@ TEST(DeadReckonerTest, drRvb)
   EXPECT_NEAR(48 / pi - 32 / (pi * pi), situation.worldLocation.x, absoluteError);
   EXPECT_NEAR(32 / pi + 32 / (pi * pi), situation.worldLocation.y, absoluteError);
   EXPECT_NEAR(0, situation.worldLocation.z, absoluteError);
-  EXPECT_NEAR(90, toDeg(situation.orientation.psi), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.theta), absoluteError);
-  EXPECT_NEAR(0, toDeg(situation.orientation.phi), absoluteError);
+  EXPECT_NEAR(90.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.psi.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.theta.get())), absoluteError);
+  EXPECT_NEAR(0.0, toDeg(sen::std_util::checkedConversion<f64>(situation.orientation.phi.get())), absoluteError);
 }
 
 /// @test
@@ -602,6 +603,41 @@ TEST(DeadReckonerTest, orientationConversionMatchesTrihedronConstruction)
             ASSERT_FALSE(std::isnan(converted.psi.get()) || std::isnan(converted.theta.get()) ||
                          std::isnan(converted.phi.get()));
             worst = std::max(worst, rotationGap(referenceEcefToNed(input, position), converted));
+          }
+        }
+      }
+    }
+  }
+
+  EXPECT_LT(worst, orientationTolerance);
+}
+
+/// @test
+/// Tests that the NED to ECEF quaternion composition matches the trihedron construction away from the pitch limit
+/// @requirements(SEN-1058)
+TEST(DeadReckonerTest, nedToEcefOrientationConversionMatchesTrihedronConstruction)
+{
+  double worst = 0.0;
+
+  for (int lat = -90; lat <= 90; lat += 15)
+  {
+    for (int lon = -180; lon <= 180; lon += 45)
+    {
+      for (int yaw = -180; yaw <= 180; yaw += 45)
+      {
+        for (const double pitch: {-85.0, -60.0, -30.0, 0.0, 30.0, 60.0, 85.0})
+        {
+          for (int bank = -180; bank <= 180; bank += 90)
+          {
+            const GeodeticWorldLocation position {static_cast<double>(lat), static_cast<double>(lon), 250.0};
+            const Orientation input {static_cast<float>(yaw * pi / 180.0),
+                                     static_cast<float>(pitch * pi / 180.0),
+                                     static_cast<float>(bank * pi / 180.0)};
+
+            const auto converted = impl::nedToEcef(input, position);
+            ASSERT_FALSE(std::isnan(converted.psi.get()) || std::isnan(converted.theta.get()) ||
+                         std::isnan(converted.phi.get()));
+            worst = std::max(worst, rotationGap(referenceNedToEcef(input, position), converted));
           }
         }
       }

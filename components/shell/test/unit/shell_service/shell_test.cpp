@@ -46,7 +46,7 @@ TEST(ShellUtilTest, ParseArgvComplexStrings)
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, ParseArgvSingleStringShortcut)
 {
-  sen::MethodSpec mSpec {{"m", "d"}, sen::VoidType::get()};
+  sen::MethodSpec mSpec {{"m", "d", {}}, sen::VoidType::get()};
   mSpec.callableSpec.args.emplace_back("a", "d", sen::StringType::get());
   const auto method = sen::Method::make(mSpec);
 
@@ -105,7 +105,7 @@ TEST(ShellUtilTest, ParseArgvEmpty)
 /// @requirements(SEN-369, SEN-1049)
 TEST(ShellUtilTest, ParseArgvNoArgsProvidedByMethodThrows)
 {
-  const sen::MethodSpec mSpec {{"m", "d"}, sen::VoidType::get()};
+  const sen::MethodSpec mSpec {{"m", "d", {}}, sen::VoidType::get()};
   const auto method = sen::Method::make(mSpec);
 
   sen::VarList result;
@@ -137,7 +137,7 @@ TEST(ShellUtilTest, ParseArgvArray)
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, AdaptCallArgumentsNormalFlow)
 {
-  sen::MethodSpec methodSpec {{"normalMethod", "desc"}, sen::VoidType::get()};
+  sen::MethodSpec methodSpec {{"normalMethod", "desc", {}}, sen::VoidType::get()};
   methodSpec.callableSpec.args.emplace_back("val", "desc", sen::UInt32Type::get());
   const auto method = sen::Method::make(methodSpec);
 
@@ -153,7 +153,7 @@ TEST(ShellUtilTest, AdaptCallArgumentsNormalFlow)
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, AdaptCallArgumentsSizeMismatch)
 {
-  sen::MethodSpec methodSpec {{"normalMethod", "desc"}, sen::VoidType::get()};
+  sen::MethodSpec methodSpec {{"normalMethod", "desc", {}}, sen::VoidType::get()};
   methodSpec.callableSpec.args.emplace_back("val", "desc", sen::UInt32Type::get());
   const auto method = sen::Method::make(methodSpec);
 
@@ -169,12 +169,12 @@ TEST(ShellUtilTest, AdaptCallArgumentsSizeMismatch)
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, AdaptCallArgumentsWriterMethod)
 {
-  sen::MethodSpec methodSpec1 {{"method", "desc"}, sen::VoidType::get()};
+  sen::MethodSpec methodSpec1 {{"method", "desc", {}}, sen::VoidType::get()};
   methodSpec1.callableSpec.args.emplace_back("argB", "desc", sen::UInt32Type::get());
   methodSpec1.callableSpec.args.emplace_back("argA", "desc", sen::UInt32Type::get());
   const auto method = sen::Method::make(methodSpec1);
 
-  sen::MethodSpec methodSpec2 {{"method", "desc"}, sen::VoidType::get()};
+  sen::MethodSpec methodSpec2 {{"method", "desc", {}}, sen::VoidType::get()};
   methodSpec2.callableSpec.args.emplace_back("argA", "desc", sen::UInt32Type::get());
   methodSpec2.callableSpec.args.emplace_back("argB", "desc", sen::UInt32Type::get());
   const auto writerMethod = sen::Method::make(methodSpec2);

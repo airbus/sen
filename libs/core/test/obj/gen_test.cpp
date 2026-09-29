@@ -182,3 +182,17 @@ TEST(GenMacroTest, ClassTraitsResolutionMapping)
   EXPECT_TRUE(isLocalSame);
   EXPECT_FALSE(Traits::isBaseTypeTemplate);
 }
+
+/// @test
+/// Verifies that generated inequality operators work correctly
+/// @requirements(SEN-577)
+TEST(GenMacroTest, InequalityOperatorUsage)
+{
+  TestUnboundedSeq seq1;
+  TestUnboundedSeq seq2;
+  EXPECT_FALSE(seq1 != seq2);
+
+  TestFixedSeq fixed1 = {1, 2, 3};
+  TestFixedSeq fixed2 = {1, 2, 3};
+  EXPECT_FALSE(fixed1 != fixed2);
+}

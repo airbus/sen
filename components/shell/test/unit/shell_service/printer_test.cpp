@@ -210,14 +210,14 @@ TEST_F(PrinterTest, PrintErrorExactOutput)
 /// @requirements(SEN-369, SEN-1049)
 TEST_F(PrinterTest, PrintMethodCallResultAllPaths)
 {
-  const sen::MethodSpec mSpecVoid {{"mVoid", "desc"}, sen::VoidType::get()};
+  const sen::MethodSpec mSpecVoid {{"mVoid", "desc", {}}, sen::VoidType::get()};
   const auto methodVoid = sen::Method::make(mSpecVoid);
 
   const sen::MethodResult<Var> resVoid {sen::impl::Ok {Var()}};
   printer->printMethodCallResult(resVoid, methodVoid.get(), "cmd");
   EXPECT_TRUE(mockTerminal->getOutputBuffer().empty());
 
-  const sen::MethodSpec mSpecU32 {{"mU32", "desc"}, sen::UInt32Type::get()};
+  const sen::MethodSpec mSpecU32 {{"mU32", "desc", {}}, sen::UInt32Type::get()};
   const auto methodU32 = sen::Method::make(mSpecU32);
 
   const sen::MethodResult<Var> resValid {sen::impl::Ok {Var(sen::std_util::checkedConversion<uint32_t>(42))}};
