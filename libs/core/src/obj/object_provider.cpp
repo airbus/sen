@@ -99,6 +99,20 @@ ObjectProvider::~ObjectProvider()
   }
 }
 
+void ObjectProvider::forEachListener(const std::function<void(ObjectProviderListener*)>& callback) const
+{
+  // Walked live, as the notify paths are. A copy would be a second pass over a container that does
+  // not promise one, and would go on to call a listener the callback had already removed.
+  // The null check is not in the notify paths: this one hands the pointer to a subclass.
+  for (auto* listener: *listeners_)
+  {
+    if (listener != nullptr)
+    {
+      callback(listener);
+    }
+  }
+}
+
 void ObjectProvider::notifyRemovedOnExistingObjectsForAllListeners()
 {
   // Explicit copy, as above.
