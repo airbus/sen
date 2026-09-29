@@ -48,3 +48,7 @@ sen_internal_add_resources(
 )
 
 sen_enable_static_analysis(cli_package_test)
+
+set_target_properties(
+  cli_package_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
