@@ -31,6 +31,64 @@ if(NOT
   message(FATAL_ERROR "add_sen_interface_package() did not create an interface library")
 endif()
 
+# EXPORT_INTERFACES was not passed, so the interface paths stay out of the export set. A package
+# whose .stl files are not installed would otherwise advertise paths a consumer cannot open, and
+# get_external_interfaces() aborts their configure on the first one it reads.
+get_target_property(interface_exported cmake_interface_types EXPORT_PROPERTIES)
+if(NOT
+   SEN_EXPORTS_TYPES
+   IN_LIST
+   interface_exported
+)
+  message(FATAL_ERROR "add_sen_interface_package() stopped exporting SEN_EXPORTS_TYPES: ${interface_exported}")
+endif()
+foreach(
+  gated_property IN
+  ITEMS BASE_PATH
+        STL_FILES
+        HLA_MAPPINGS
+        HLA_FOM_DIRS
+        SEN_IMPORT_DIRS
+)
+  if(${gated_property} IN_LIST interface_exported)
+    message(
+      FATAL_ERROR "add_sen_interface_package() exported ${gated_property} without EXPORT_INTERFACES, so a "
+                  "consumer reads a path this package never installed"
+    )
+  endif()
+endforeach()
+
+# The other half, on a second package that does pass it. Without this the check above holds for a
+# function that has stopped exporting anything, which is what an unparsed option produces.
+add_sen_interface_package(
+  TARGET
+  cmake_interface_types_exported
+  MAINTAINER
+  "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
+  DESCRIPTION
+  "An interface package that installs its interfaces"
+  VERSION
+  "0.0.1"
+  BASE_PATH
+  ${interface_base_path}
+  STL_FILES
+  ${interface_base_path}/stl/interface_types.stl
+  EXPORT_INTERFACES
+)
+
+get_target_property(exported_exported cmake_interface_types_exported EXPORT_PROPERTIES)
+foreach(wanted_property IN ITEMS SEN_EXPORTS_TYPES BASE_PATH STL_FILES)
+  if(NOT
+     ${wanted_property}
+     IN_LIST
+     exported_exported
+  )
+    message(FATAL_ERROR "add_sen_interface_package(EXPORT_INTERFACES) did not export ${wanted_property}: "
+                        "${exported_exported}"
+    )
+  endif()
+endforeach()
+
 # Generate the C++ implementation for this consumer
 get_target_property(interface_stl_files cmake_interface_types STL_FILES)
 add_library(cmake_interface_cpp STATIC)
