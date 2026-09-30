@@ -1868,6 +1868,8 @@ independently of the runtime. In the package's <code>CMakeLists.txt</code>:</p>
 </span><span id="__span-8-16"><a href="#__codelineno-8-16" id="__codelineno-8-16" name="__codelineno-8-16"></a><span class="w">  </span><span class="s">LINK_DEPS</span>
 </span><span id="__span-8-17"><a href="#__codelineno-8-17" id="__codelineno-8-17" name="__codelineno-8-17"></a><span class="w">  </span><span class="s">fibonacci_test_lib</span>
 </span><span id="__span-8-18"><a href="#__codelineno-8-18" id="__codelineno-8-18" name="__codelineno-8-18"></a><span class="p">)</span>
+</span><span id="__span-8-19"><a href="#__codelineno-8-19" id="__codelineno-8-19" name="__codelineno-8-19"></a>
+</span><span id="__span-8-20"><a href="#__codelineno-8-20" id="__codelineno-8-20" name="__codelineno-8-20"></a><span class="nb">set_target_properties</span><span class="p">(</span><span class="s">fibonacci_test</span><span class="w"> </span><span class="s">PROPERTIES</span><span class="w"> </span><span class="s">RUNTIME_OUTPUT_DIRECTORY</span><span class="w"> </span><span class="s2">"${CMAKE_CURRENT_BINARY_DIR}"</span><span class="p">)</span>
 </span></code></pre></div>
 <p><code>TEST_TARGET</code> names the static library, <code>fibonacci_test_lib</code>. The unit test suite is a separate
 target, registered with <code>add_sen_unit_test_suite</code> and linked against that static library rather than

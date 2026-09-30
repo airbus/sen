@@ -191,10 +191,10 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('reader__writer
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keyword">const</span> <span class="keyword">auto</span> cursor = buffer_.size();</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    buffer_.resize(buffer_.size() + size);</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">return</span> std::next(buffer_.data(), <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(cursor));</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  };</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  }</div>
 </div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="classsen_1_1test_1_1_test_writer.html#ae4c006e6a8c72e8a69be2848b7ba3a29">   53</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classsen_1_1test_1_1_test_writer.html#ae4c006e6a8c72e8a69be2848b7ba3a29">reverse</a>(<span class="keywordtype">size_t</span> size)<span class="keyword"> override </span>{ buffer_.resize(buffer_.size() - size); };</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="classsen_1_1test_1_1_test_writer.html#ae4c006e6a8c72e8a69be2848b7ba3a29">   53</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classsen_1_1test_1_1_test_writer.html#ae4c006e6a8c72e8a69be2848b7ba3a29">reverse</a>(<span class="keywordtype">size_t</span> size)<span class="keyword"> override </span>{ buffer_.resize(buffer_.size() - size); }</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keyword">private</span>:</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  std::vector&lt;uint8_t&gt; buffer_;</div>
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('reader__writer
 <div class="foldopen" id="foldopen00096" data-start="{" data-end="};">
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno"><a class="line" href="classsen_1_1test_1_1_buffered_test_reader.html">   96</a></span><span class="keyword">class </span><a class="code hl_function" href="classsen_1_1test_1_1_buffered_test_reader.html#a1452513cacac1db7d86d8fcce7bc427e">BufferedTestReader</a>: <span class="keyword">public</span> <a class="code hl_function" href="classsen_1_1test_1_1_test_reader.html#ab5f87c7b8ce86600d15ba288ef24f5d9">TestReader</a></div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>{</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  SEN_NOCOPY_NOMOVE(<a class="code hl_function" href="classsen_1_1test_1_1_buffered_test_reader.html#a1452513cacac1db7d86d8fcce7bc427e">BufferedTestReader</a>);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  SEN_NOCOPY_NOMOVE(<a class="code hl_function" href="classsen_1_1test_1_1_buffered_test_reader.html#a1452513cacac1db7d86d8fcce7bc427e">BufferedTestReader</a>)</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="classsen_1_1test_1_1_buffered_test_reader.html#a1452513cacac1db7d86d8fcce7bc427e">  101</a></span>  <span class="keyword">inline</span> <span class="keyword">explicit</span> <a class="code hl_function" href="classsen_1_1test_1_1_buffered_test_reader.html#a1452513cacac1db7d86d8fcce7bc427e">BufferedTestReader</a>() noexcept: <a class="code hl_function" href="classsen_1_1test_1_1_test_reader.html#ab5f87c7b8ce86600d15ba288ef24f5d9">TestReader</a>(buffer_) {}</div>

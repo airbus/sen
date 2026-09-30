@@ -24,4 +24,6 @@ add_sen_unit_test_suite(
   LINK_DEPS
   fibonacci_test_lib
 )
+
+set_target_properties(fibonacci_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 # --8<-- [end:package]
