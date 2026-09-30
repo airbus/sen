@@ -440,7 +440,7 @@ TYPED_TEST(VectorTestTemplate, selfAssignment)
   Vec vector2 = vector1;
 
   // we are doing this on purpose
-  vector2 = vector2;  // NOLINT(misc-redundant-expression)
+  vector2.operator=(vector2);  // NOLINT(misc-redundant-expression)
 
   EXPECT_TRUE(std::equal(vector1.begin(), vector1.end(), vector2.begin()));
 }
@@ -2085,7 +2085,7 @@ TEST_F(BasicVectorTest, emplace_position)
   EXPECT_TRUE(vector.emplace(vector.begin() + 4, 'e'));
   EXPECT_EQ(vector, Vec({'a', 'b', 'c', 'd', 'e'}));
 
-  for (size_t i = 0; !vector.full(); ++i)
+  while (!vector.full())
   {
     EXPECT_TRUE(vector.emplace(vector.end(), 'X'));
   }

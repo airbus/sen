@@ -247,6 +247,10 @@ add_executable(repeated_types_tester test18/main.cpp)
 sen_configure_target(repeated_types_tester)
 target_link_libraries(repeated_types_tester PRIVATE sen::core repeated_fom)
 
+set_target_properties(
+  repeated_types_tester PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
 add_sen_smoke_test(
   test_repeated_types_generation
   COMMAND repeated_types_tester
@@ -305,6 +309,10 @@ add_sen_package(
 add_executable(included_record_tester test21/main.cpp)
 sen_configure_target(included_record_tester)
 target_link_libraries(included_record_tester PRIVATE sen::core included_record_fom)
+
+set_target_properties(
+  included_record_tester PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
 
 add_sen_smoke_test(
   test_included_record_generation

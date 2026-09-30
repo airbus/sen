@@ -86,7 +86,7 @@ TEST(WorkQueue, basic)
   WorkQueue queue(50, false);
 
   // push function to not enabled queue and execute
-  queue.push(incrementCounter, true);
+  queue.push(&incrementCounter, true);
   EXPECT_FALSE(queue.executeAll());
 
   // enable and try execution of empty queue
@@ -94,19 +94,19 @@ TEST(WorkQueue, basic)
   EXPECT_FALSE(queue.executeAll());
 
   // push function and execute
-  queue.push(incrementCounter, false);
+  queue.push(&incrementCounter, false);
   EXPECT_TRUE(queue.executeAll());
   EXPECT_EQ(counter, 1);
 
   queue.disable();
-  queue.push(incrementCounter, true);
+  queue.push(&incrementCounter, true);
   EXPECT_FALSE(queue.executeAll());
   EXPECT_EQ(counter, 1);
 
   queue.enable();
   for (auto i = 0; i < 10; i++)
   {
-    queue.push(incrementCounter, true);
+    queue.push(&incrementCounter, true);
   }
   EXPECT_EQ(queue.getCurrentSize(), 10);
 
@@ -156,7 +156,7 @@ TEST(WorkQueue, zeroSize)
   EXPECT_EQ(droppedCount, 0);
 
   queue.enable();
-  for (auto i = 0; i < callsNum; i++)
+  for (auto i = 0U; i < callsNum; i++)
   {
     queue.push([]() { counter++; }, false);
   }
@@ -178,8 +178,8 @@ TEST(WorkQueue, dropOldest)
   queue.setOnDropped([&](const auto& /*call*/) { droppedCount++; });
   queue.enable();
 
-  queue.push(incrementCounter, false);
-  queue.push(decrementCounter, false);
+  queue.push(&incrementCounter, false);
+  queue.push(&decrementCounter, false);
   EXPECT_TRUE(queue.executeAll());
   EXPECT_EQ(counter, -1);
   EXPECT_EQ(droppedCount, 1);
@@ -196,7 +196,7 @@ TEST(WorkQueue, unlimited)
   WorkQueue queue(0, false);
   queue.enable();
 
-  for (auto i = 0; i < numOperations; i++)
+  for (size_t i = 0; i < numOperations; i++)
   {
     queue.push(([]() { counter++; }), true);
   }
@@ -219,9 +219,9 @@ TEST(WorkQueue, waitExecuteAll)
   {
     WorkQueue queue(0, false);
 
-    for (auto i = 0; i < nCalls; i++)
+    for (auto i = 0U; i < nCalls; i++)
     {
-      queue.push(incrementCounter, true);
+      queue.push(&incrementCounter, true);
     }
 
     queue.waitExecuteAll(sen::Duration {0});

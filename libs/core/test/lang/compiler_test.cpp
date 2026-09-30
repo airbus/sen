@@ -822,8 +822,8 @@ TEST(Compiler, operations)
     auto chunk = std::move(result).getValue();
     chunk.disassemble("test");
 
-    float32_t arealObjectMass = 375.60;
-    float32_t linearObjectMass = 425.90;
+    float32_t arealObjectMass = 375.60f;
+    float32_t linearObjectMass = 425.90f;
 
     std::vector<sen::lang::ValueGetter> environment = {
       [&]() { return arealObjectMass; },
@@ -836,7 +836,7 @@ TEST(Compiler, operations)
     EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
     EXPECT_FALSE(std::get<bool>(codeResult.getValue()));
 
-    arealObjectMass = 425.91;
+    arealObjectMass = 425.91f;
     codeResult = vm.interpret(chunk, environment);
     EXPECT_TRUE(codeResult.isOk());
 
@@ -856,8 +856,8 @@ TEST(Compiler, operations)
     auto chunk = std::move(result).getValue();
     chunk.disassemble("test");
 
-    float32_t currentSpeed = 20.854;
-    float32_t commandedSpeed = 25.5;
+    float32_t currentSpeed = 20.854f;
+    float32_t commandedSpeed = 25.5f;
 
     std::vector<sen::lang::ValueGetter> environment = {
       [&]() { return currentSpeed; },
@@ -870,7 +870,7 @@ TEST(Compiler, operations)
     EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
     EXPECT_TRUE(std::get<bool>(codeResult.getValue()));
 
-    currentSpeed = 0;
+    currentSpeed = 0.0f;
     codeResult = vm.interpret(chunk, environment);
     EXPECT_TRUE(codeResult.isOk());
 
@@ -890,8 +890,8 @@ TEST(Compiler, operations)
     auto chunk = std::move(result).getValue();
     chunk.disassemble("test");
 
-    float32_t currentLocation = 1.50;
-    float32_t waypoint = 2.75;
+    float32_t currentLocation = 1.50f;
+    float32_t waypoint = 2.75f;
 
     std::vector<sen::lang::ValueGetter> environment = {
       [&]() { return currentLocation; },
@@ -904,7 +904,7 @@ TEST(Compiler, operations)
     EXPECT_TRUE(std::holds_alternative<bool>(codeResult.getValue()));
     EXPECT_TRUE(std::get<bool>(codeResult.getValue()));
 
-    currentLocation = -1.50;
+    currentLocation = -1.50f;
     codeResult = vm.interpret(chunk, environment);
     EXPECT_TRUE(codeResult.isOk());
 

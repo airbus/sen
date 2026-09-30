@@ -159,7 +159,7 @@ TEST(GuardedTest, IncrementUnderlyingObjectFromMultipleThreads)
   const int numThreads = 3;
   Guarded<int> wrappedType {0};
 
-  auto incWrappedValue = [&wrappedType, reps]()
+  auto incWrappedValue = [&wrappedType]()
   {
     for (int i = 0; i < reps; i++)
     {
@@ -188,7 +188,7 @@ TEST(GuardedTest, LocalAccessTokenUsageWithThreads)
   const int additionalValue = 42;
   Guarded<MyClass> wrappedType {0};
 
-  auto incWrappedValue = [&wrappedType, reps]()
+  auto incWrappedValue = [&wrappedType]()
   {
     for (int i = 0; i < reps; i++)
     {
@@ -234,7 +234,7 @@ TEST(GuardedTest, CallableUsageWithThreads)
   const int initalValue = 0;
   Guarded<int> wrappedType {initalValue};
 
-  auto incWrappedValue = [&wrappedType, reps]()
+  auto incWrappedValue = [&wrappedType]()
   {
     for (int i = 0; i < reps; i++)
     {

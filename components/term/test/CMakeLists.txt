@@ -54,3 +54,7 @@ sen_generate_cpp(
 target_include_directories(term_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 sen_enable_static_analysis(term_test)
+
+set_target_properties(
+  term_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)

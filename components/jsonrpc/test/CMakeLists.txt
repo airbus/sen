@@ -77,4 +77,6 @@ if(asio_FOUND)
 endif()
 target_include_directories(jsonrpc_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
-set_target_properties(jsonrpc_test PROPERTIES FOLDER "components/jsonrpc/test")
+set_target_properties(
+  jsonrpc_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)

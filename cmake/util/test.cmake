@@ -207,6 +207,11 @@ function(add_sen_unit_test_suite test_name)
   endif()
 
   add_executable(${test_name} ${_arg_UNPARSED_ARGUMENTS})
+  sen_configure_target(${test_name})
+
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${test_name} PRIVATE -Wno-variadic-macro-arguments-omitted)
+  endif()
 
   # Tests must see the same char signedness as the code under test: the
   # production flags force -fsigned-char (sen_misc_utils.cmake). A test built

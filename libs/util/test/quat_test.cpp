@@ -52,14 +52,14 @@ TEST(QuaternionTest, rotation)
   EXPECT_EQ(quaternion.getZ(), 0);
   EXPECT_EQ(quaternion.getW(), 1);
 
-  quaternion.makeRotate(pi, Vec3d {1.0f, 0.0f, 0.0f});
+  quaternion.makeRotate(pi, Vec3d {1.0, 0.0, 0.0});
 
   ASSERT_NEAR(quaternion.getX(), 1, error);
   ASSERT_NEAR(quaternion.getY(), 0, error);
   ASSERT_NEAR(quaternion.getZ(), 0, error);
   ASSERT_NEAR(quaternion.getW(), 0, error);
 
-  quaternion.makeRotate(pi / 2.0f, Vec3d {0.0f, 1.0f, 0.0f});
+  quaternion.makeRotate(pi / 2.0, Vec3d {0.0, 1.0, 0.0});
 
   ASSERT_NEAR(quaternion.getX(), 0.707, error);
   ASSERT_NEAR(quaternion.getY(), 0, error);

@@ -28,12 +28,6 @@ const OptionalSpec& validNativeSpec()
   return validNativeSpec;
 }
 
-const OptionalType& type()
-{
-  static const auto type = OptionalType::make(validNativeSpec());
-  return *type;
-}
-
 void checkSpecData(const OptionalType& type, const OptionalSpec& spec)
 {
   EXPECT_EQ(type.getName(), spec.name);

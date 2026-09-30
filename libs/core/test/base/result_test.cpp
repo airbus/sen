@@ -69,15 +69,15 @@ Result<void, ErrorCode> doSomethingElse(int a)
 
 Result<float32_t, ErrorCode> angleRanges(float a)
 {
-  if (a < -180.0)
+  if (a < -180.0f)
   {
     return Err(ErrorCode::tooSmall);
   }
-  if (a > 180.0)
+  if (a > 180.0f)
   {
     return Err(ErrorCode::tooLarge);
   }
-  if (a == -180.0 || a == 180.0)
+  if (a == -180.0f || a == 180.0f)
   {
     return Err(ErrorCode::specialValue);
   }
@@ -428,15 +428,15 @@ TEST(Result, move_only)
 /// @requirements(SEN-1049)
 TEST(Result, floating_values)
 {
-  auto result1 = angleRanges(180.0001);
+  auto result1 = angleRanges(180.0001f);
 
   EXPECT_FALSE(result1);
   EXPECT_FALSE(result1.isOk());
   EXPECT_TRUE(result1.isError());
   EXPECT_EQ(result1.getError(), ErrorCode::tooLarge);
 
-  auto result2 = angleRanges(-180.00);
-  auto result3 = angleRanges(180.0000);
+  auto result2 = angleRanges(-180.00f);
+  auto result3 = angleRanges(180.0000f);
   EXPECT_EQ(result2.getError(), ErrorCode::specialValue);
   EXPECT_EQ(result3.getError(), ErrorCode::specialValue);
   EXPECT_EQ(result2.getError(), result3.getError());

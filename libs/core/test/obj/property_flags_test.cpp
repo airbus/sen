@@ -118,7 +118,7 @@ TEST(PropertyFlags, advanceCurrNext)
   checkPropertyBits(flags, currMask | nextMask | dirtMask);  // NOLINT(hicpp-signed-bitwise)
 
   // advance current again for multiple times
-  for (auto i = 0; i < 20U; i++)
+  for (auto i = 0U; i < 20U; i++)
   {
     flags.advanceCurrent();
   }
@@ -130,7 +130,7 @@ TEST(PropertyFlags, advanceCurrNext)
   checkPropertyBits(flags, currMask);
 
   // advance next again for multiple times
-  for (auto i = 0; i < 20U; i++)
+  for (auto i = 0U; i < 20U; i++)
   {
     EXPECT_EQ(flags.advanceNext(), 0U);
   }

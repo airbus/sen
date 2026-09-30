@@ -78,19 +78,14 @@ public:
     if constexpr (std::is_function_v<std::remove_pointer_t<DecayedCallableType>> ||
                   std::is_member_pointer_v<DecayedCallableType> || is_move_only_function_v<DecayedCallableType>)
     {
-
-#if defined(_MSC_VER) && _MSC_VER < 1932
-      // prevent older MSVC versions from trying to compare a reference to a function to a pointer
+      // prevent compilers from trying to compare a reference to a function to a pointer
       if constexpr (!std::is_reference_v<CallableType>)
       {
-#endif
         if (callable == nullptr)
         {
           return;
         }
-#if defined(_MSC_VER) && _MSC_VER < 1932
       }
-#endif
     }
     initializeCallable<DecayedCallableType>(std::forward<CallableType>(callable));
     activeDispatcherFunction_ = &dispatcherFunction<DecayedCallableType>;

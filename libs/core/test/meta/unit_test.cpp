@@ -173,6 +173,8 @@ TEST(Unit, toAndFromSI)
   const UnitSpec spec = {UnitCategory::length, "unit", "units", "u", 123.45, -67.8, 9.1011};
   auto unit = Unit::make(spec);
 
+  checkSpecData(*unit, spec);
+
   for (auto item: {0.0, 14.4, 23.52, 10002.34, 99999999.99999})
   {
     checkToFromSI(item, *unit, spec);

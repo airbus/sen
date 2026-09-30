@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "sen/core/base/checked_conversions.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/integer_compare.h"
 #include "sen/core/base/numbers.h"
@@ -109,13 +110,15 @@ void checkNonOverflowingConversionFloat(Var var, T value)  // NOLINT(readability
   // Wrapper needed to prevent errors from gtest macro expansion
   auto copyAsWrapper = [](Var var) { return getCopyAs<TargetType, /*checkedConversion=*/true>(var); };
 
-  if (value < std::numeric_limits<TargetType>::lowest())
+  if (sen::std_util::ignoredLossyConversion<float64_t>(value) <
+      sen::std_util::ignoredLossyConversion<float64_t>(std::numeric_limits<TargetType>::lowest()))
   {
     EXPECT_DEBUG_DEATH(
       { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::lowest()); },
       "Needed to truncate `from` as it's value was to small for ToType.");
   }
-  else if (value > std::numeric_limits<TargetType>::max())
+  else if (sen::std_util::ignoredLossyConversion<float64_t>(value) >
+           sen::std_util::ignoredLossyConversion<float64_t>(std::numeric_limits<TargetType>::max()))
   {
     EXPECT_DEBUG_DEATH(
       { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::max()); },
