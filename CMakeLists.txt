@@ -68,11 +68,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_link_options(-Wl,--build-id=sha1)
 endif()
 
-# Here rather than in sen_utils.cmake: it reads MSVC and the release flags, which project()
-# is what populates.
+include(util/sen_internal_utils)
+
+# Both here rather than in the installed cmake: the cache belongs to Sen's own build, and the
+# warning reads MSVC and the release flags, which only exist once project() has run.
+sen_internal_enable_compiler_cache()
 sen_warn_if_the_compiler_cache_cannot_work()
 
-include(util/sen_internal_utils)
 include(util/sanitizers)
 include(util/test)
 include(util/benchmark)
