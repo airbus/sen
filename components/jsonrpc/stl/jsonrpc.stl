@@ -135,7 +135,7 @@ struct Identity
 // when the caller opted in. `schema` is empty when not requested.
 struct TypeLookupResult
 {
-  spec   : sen.kernel.CustomTypeSpec,
+  spec : sen.kernel.CustomTypeSpec,
   schema : string                       // JSON-encoded schema fragment; "" when withSchema=false
 }
 
@@ -213,9 +213,9 @@ class JsonRpcServer
   // @param subscribe    optional pre-subscription block.
   // @param withSchemas  when true (default false), populates `interestUpdate.typeSchemas`.
   fn createInterest(interestName : string,
-                    query       : string,
-                    subscribe   : MaybeSubscribeBlock,
-                    withSchemas : MaybeFlag);
+                    query        : string,
+                    subscribe    : MaybeSubscribeBlock,
+                    withSchemas  : MaybeFlag);
 
   // Drop an interest and every subscription living under it.
   //
@@ -347,9 +347,9 @@ class JsonRpcServer
   //                     would shadow the parameter and produce a use-before-deduction error.
   // @return JSON-encoded SenValue as string (the method's return value).
   fn invoke(interestName : string,
-            objectName : string,
-            methodName : string,
-            argsJson   : string) -> string;
+            objectName   : string,
+            methodName   : string,
+            argsJson     : string) -> string;
 
   // -- notifications (emit::now from the dispatcher when the kernel-side guards fire) --
 
@@ -361,9 +361,9 @@ class JsonRpcServer
   // @param values one entry per changed property in this delivery.
   // @param timestamp source object's getLastCommitTime() at the moment of bundling.
   event propertyChanged(interestName : string,
-                        objectName : string,
-                        values     : PropertyValueList,
-                        timestamp  : TimeStamp);
+                        objectName   : string,
+                        values       : PropertyValueList,
+                        timestamp    : TimeStamp);
 
   // An event fired on one object in one interest. The event signature is decided by
   // the source object's class, not by JSON-RPC.
@@ -374,10 +374,10 @@ class JsonRpcServer
   // @param args JSON array as string (positional event arguments).
   // @param timestamp source's emission time (EventInfo.creationTime).
   event eventTriggered(interestName : string,
-                       objectName : string,
-                       eventName  : string,
-                       args       : string,
-                       timestamp  : TimeStamp);
+                       objectName   : string,
+                       eventName    : string,
+                       args         : string,
+                       timestamp    : TimeStamp);
 
   // Match-set delta for one interest. The dispatcher tracks knownTypes / knownSchemas per
   // connection and only re-sends specs / schemas new to the client.
@@ -391,10 +391,10 @@ class JsonRpcServer
   //              previously-unseen-schema type. Empty string when the interest's
   //              `withSchemas` flag is false.
   event interestUpdate(interestName : string,
-                       added       : AddedObjectList,
-                       removed     : sen.kernel.StringList,
-                       types       : sen.kernel.CustomTypeSpecList,
-                       typeSchemas : string);
+                       added        : AddedObjectList,
+                       removed      : sen.kernel.StringList,
+                       types        : sen.kernel.CustomTypeSpecList,
+                       typeSchemas  : string);
 
   // Full snapshot of the topology after a session or bus add/remove. Pushed once on
   // `subscribeTopology` (with the current state) and again on every change. Snapshot form

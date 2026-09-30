@@ -7,7 +7,7 @@ package weather_server;
 // Provides information about weather conditions.
 class WeatherServer
 {
-  var targetBus : string [static]; // Where to publish the objects created by this server
+  var targetBus : string [static];  // Where to publish the objects created by this server
 
   // Request information about the weather.
   //

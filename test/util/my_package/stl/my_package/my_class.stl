@@ -36,7 +36,7 @@ class MyClass
   var prop10 : MaybeFloat;
 
   // a property with a variant value (with aliases)
-  var prop11: MyVariantWithAlias [writable, confirmed];
+  var prop11 : MyVariantWithAlias [writable, confirmed];
 
   // if not zero, the max number of iterations
   var iterationCount : u64 [writable];

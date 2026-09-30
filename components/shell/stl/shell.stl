@@ -51,7 +51,7 @@ struct Configuration
 class Shell
 {
   // service configuration
-  var config: Configuration [static];
+  var config : Configuration [static];
 
   // --8<-- [start:commands]
   // clears the screen

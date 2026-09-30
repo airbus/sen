@@ -10,6 +10,8 @@ import pathlib
 import subprocess
 import sys
 
+import yaml
+
 # The formatter sits beside this file rather than on the path, as the other script tests here do.
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 
@@ -131,3 +133,43 @@ def test_functions_and_events_get_one_space_before_their_attributes() -> None:
     assert (
         formatter.format_text(text) == "class C\n{\n  fn play() [confirmed];\n\n  event e(id : u32) [bestEffort];\n}\n"
     )
+
+
+def test_a_lone_member_gets_a_single_space() -> None:
+    """With nothing to line up against, the padding is left over rather than deliberate."""
+    text = "class C\n{\n  // what it is\n  var defaultSize   : u32 [static];\n}\n"
+    assert formatter.format_text(text) == "class C\n{\n  // what it is\n  var defaultSize : u32 [static];\n}\n"
+
+
+def test_a_wrapped_signature_lines_up_under_its_bracket() -> None:
+    """The continuation sits under the open bracket, and the colons share a column."""
+    text = "class C\n{\n  fn f(interestName : string,\n    objectName : string);\n}\n"
+    expected = "class C\n{\n  fn f(interestName : string,\n       objectName   : string);\n}\n"
+    assert formatter.format_text(text) == expected
+
+
+def test_the_first_parameter_joins_the_column() -> None:
+    """Leaving it out is what let the continuations line up with each other and not with it."""
+    text = "class C\n{\n  fn f(a : string,\n       propertyName : string);\n}\n"
+    expected = "class C\n{\n  fn f(a            : string,\n       propertyName : string);\n}\n"
+    assert formatter.format_text(text) == expected
+
+
+def test_a_trailing_comment_does_not_make_a_signature_look_wrapped() -> None:
+    """The closing bracket and semicolon hide behind the comment, so the line still ends there."""
+    text = "class C\n{\n  fn doTests() -> TestResult;  // performs the test\n  fn other();\n}\n"
+    assert formatter.format_text(text) == text
+
+
+def test_the_two_hook_declarations_agree() -> None:
+    """The hook is declared twice: for this repository, and for projects that pull it in."""
+    root = pathlib.Path(__file__).resolve().parents[2]
+    shared = next(
+        hook
+        for hook in yaml.safe_load((root / ".pre-commit-hooks.yaml").read_text(encoding="utf-8"))
+        if hook["id"] == "stl-format"
+    )
+    config = yaml.safe_load((root / ".pre-commit-config.yaml").read_text(encoding="utf-8"))
+    local = next(hook for repo in config["repos"] for hook in repo.get("hooks", []) if hook["id"] == "stl-format")
+    for key in ("name", "language", "entry", "files"):
+        assert shared[key] == local[key], key

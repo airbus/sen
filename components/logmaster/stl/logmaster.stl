@@ -49,5 +49,5 @@ class LogMaster
 struct Config
 {
   targetBus : string,   // defaults to "local.log"
-  period    : Duration  // defaults to 500 milliseconds
+  period : Duration  // defaults to 500 milliseconds
 }

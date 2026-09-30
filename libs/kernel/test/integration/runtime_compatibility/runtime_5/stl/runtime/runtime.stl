@@ -78,10 +78,10 @@ class TestClass
   var prop13 : TestStruct [writable, confirmed];       // optional struct in the writer scheme
 
   // variant
-  var prop14 : TestVariant [writable, confirmed]; // optional variant in the writer scheme
+  var prop14 : TestVariant [writable, confirmed];  // optional variant in the writer scheme
 
   // enum
-  var prop15 : TestEnum [writable, confirmed]; // optional enum in the writer scheme
+  var prop15 : TestEnum [writable, confirmed];  // optional enum in the writer scheme
 
   // methods
   fn testMethod(arg1 : TestSequence, arg2 : MaybeVariant, arg3 : TestStructChild) -> i16;
