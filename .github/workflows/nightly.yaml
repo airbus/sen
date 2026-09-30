@@ -428,8 +428,8 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: 3.x
-      # The pull-request job checks only changed files; this sweep catches
-      # violations that arrive with hook or rule updates.
+      # The pull request job checks the whole tree too. This catches a violation
+      # that reached main through a merge that bypassed it.
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
         with:
           extra_args: --all-files

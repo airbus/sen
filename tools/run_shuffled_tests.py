@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# === run_shuffled_tests.py ============================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
 """Runs each unit test binary whole, in a shuffled order, to find tests that depend on other tests.
 
 Nothing else in this build does that. `gtest_discover_tests` gives every test its own ctest entry and

@@ -146,5 +146,12 @@ repos:
       pass_filenames: false
       always_run: true
 
+    - id: file-banner
+      name: Source files open with the licence banner
+      language: python
+      entry: python .github/scripts/check_file_banner.py
+      files: (\.(cpp|h|ts|tsx|cmake|py|bats)$|(^|/)CMakeLists\.txt$)
+      exclude: ^components/webexplorer/frontend/src/vite-env\.d\.ts$
+
 # Global Configuration
 exclude: (examples/packages/hla_fom/.*|test/util/dummy_entities/hla/.*|.*.svg|.*.excalidraw|stl.tmLanguage.json)

@@ -1,3 +1,9 @@
+# === test_image_name.py ===============================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
 """Checks image_name.sh, whose output decides which image a lane runs.
 
 The tag carries the Dockerfile's content. If that stopped happening, a lane would

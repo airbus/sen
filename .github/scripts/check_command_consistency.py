@@ -1,7 +1,8 @@
 # === check_command_consistency.py =====================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
-#                                    © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 """Fails when a command printed in prose is one that will not work for a reader.
 

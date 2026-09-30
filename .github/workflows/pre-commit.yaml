@@ -18,6 +18,6 @@ jobs:
           python-version: 3.x
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
         with:
-          extra_args: --from-ref origin/main --to-ref HEAD
+          extra_args: --all-files
       - uses: pre-commit-ci/lite-action@5d6cc0eb514c891a40562a58a8e71576c5c7fb43  # v1.1.0
         if: always()
