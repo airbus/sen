@@ -319,9 +319,12 @@ bool LocalParticipant::handleRejectedPublications(const PublicationRejection& re
             }
             else
             {
-              logger_->debug(
-                "Remote participant {} rejected the publication of object {} due to name repetitions on the bus. Will "
-                "not comply (local object is older)",
+              // The surviving side reports it too. Only the participant that gives way used to say
+              // anything above debug, so an operator watching this one saw a publisher disappear from
+              // its bus with nothing in the log to explain it.
+              logger_->warn(
+                "Remote participant {} tried to publish object {}, whose name this process already uses. The "
+                "remote object is being unpublished; this one is older and stays.",
                 whom->getAddress().id.get(),
                 itr->second->getLocalName());
             }
