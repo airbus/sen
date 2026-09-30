@@ -30,10 +30,10 @@ enum Wall : u8 { top, bottom, left, right }
 // A shape.
 class Shape
 {
-  var geometry : Geometry [static];   // Shape's geometry.
-  var frozen   : bool     [writable]; // True if the shape should move.
-  var color    : Color    [writable]; // Shape's color.
-  var position : Vec2;                // Shape's center.
+  var geometry : Geometry [static];  // Shape's geometry.
+  var frozen   : bool [writable];    // True if the shape should move.
+  var color    : Color [writable];   // Shape's color.
+  var position : Vec2;               // Shape's center.
 
   // Emitted when the shape collides with a wall.
   //

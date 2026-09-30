@@ -39,8 +39,8 @@ variant DiscoveryConfig
 // What to do when a queue is full
 enum QueueEvictionPolicy: u32
 {
-  dropOldest, // When full, drop the least recent element
-  dropNewest, // When full, drop the most recent element
+  dropOldest,  // When full, drop the least recent element
+  dropNewest,  // When full, drop the most recent element
 }
 
 struct QueueConfig

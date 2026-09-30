@@ -1942,7 +1942,7 @@
   (link(<t-sen-kernel-EventSpecV4>)[#"Event​Spec​V4"], "", <t-sen-kernel-EventSpecV4>),
   (link(<t-sen-kernel-EventSpecV5>)[#"Event​Spec​V5"], "", <t-sen-kernel-EventSpecV5>),
   (link(<t-sen-kernel-ExecError>)[#"Exec​Error"], "Holds details of an execution error", <t-sen-kernel-ExecError>),
-  (link(<t-sen-kernel-KernelParams>)[#"Kernel​Params"], "Parameters to configure kernel execution", <t-sen-kernel-KernelParams>),
+  (link(<t-sen-kernel-KernelParams>)[#"Kernel​Params"], "This struct is reachable over the wire through Kernel.getConfig() and is embedded in SenData, and the encoding is positional, so adding a field here shifts what follows it either way.", <t-sen-kernel-KernelParams>),
   (link(<t-sen-kernel-LoadedComponentParams>)[#"Loaded​Component​Params"], "Parameters related to a component that will be loaded by the kernel", <t-sen-kernel-LoadedComponentParams>),
   (link(<t-sen-kernel-MethodSpec>)[#"Method​Spec"], "spec for methods", <t-sen-kernel-MethodSpec>),
   (link(<t-sen-kernel-MethodSpecV4>)[#"Method​Spec​V4"], "", <t-sen-kernel-MethodSpecV4>),
@@ -2331,7 +2331,7 @@
 )
 
 ==== #"KernelParams" #chip("structures", "structure") <t-sen-kernel-KernelParams>
-#prose("Parameters to configure kernel execution")
+#prose("This struct is reachable over the wire through Kernel.getConfig() and is embedded in SenData, and the encoding is positional, so adding a field here shifts what follows it either way.")
 #sen-table(
   columns: (COL-NAME, COL-TYPE, 1fr),
   table.header([*Name*], [*Type*], [*Description*]),
@@ -2347,7 +2347,7 @@
   [#mono("lock​Memory​Pages")], link(<t-bool>)[#"bool"], "keep process pages memory-resident",
   [#mono("sleep​Policy")], link(<t-sen-kernel-SleepPolicy>)[#"Sleep​Policy"], "configurable sleep policy of the kernel component",
   [#mono("compatibility​Mode")], link(<t-sen-kernel-CompatibilityMode>)[#"Compatibility​Mode"], "what to do with a remote type that does not match",
-  [#mono("limit​Cpu​Idle​Latency")], link(<t-bool>)[#"bool"], "This struct is reachable over the wire through Kernel.getConfig() and is embedded in SenData, and the encoding is positional, so adding a field here shifts what follows it either way. keep the CPUs out of the deep idle states they are slow to leave",
+  [#mono("limit​Cpu​Idle​Latency")], link(<t-bool>)[#"bool"], "keep the CPUs out of the deep idle states they are slow to leave",
 )
 #facts[Named by #link(<t-sen-kernel-KernelApi>)[#"Kernel​Api"], #link(<t-sen-kernel-SenData>)[#"Sen​Data"].]
 

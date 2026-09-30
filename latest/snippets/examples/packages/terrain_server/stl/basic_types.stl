@@ -40,13 +40,13 @@ struct HatHot
 // Represents a HaT/HoT query that will be continuously updated by its owner
 class HatHotQuery
 {
-  var ref    : netn.GeoReferenceVariant [static]; // tracked object, position or entity
-  var hatHot : HatHot;                            // HaT/HoT information
+  var ref    : netn.GeoReferenceVariant [static];  // tracked object, position or entity
+  var hatHot : HatHot;                             // HaT/HoT information
 }
 
 // Represents a line of sight query that will be continuously updated by its owner
 class LosQuery
 {
-  var ref : netn.GeoReferenceVariant [static]; // tracked object, position or entity
-  var los : LoS;                               // line of sight information
+  var ref : netn.GeoReferenceVariant [static];  // tracked object, position or entity
+  var los : LoS;                                // line of sight information
 }
