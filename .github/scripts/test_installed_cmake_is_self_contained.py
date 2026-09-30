@@ -32,11 +32,6 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 INSTALL = ROOT / "cmake" / "util" / "install.cmake"
 
-# The compiler-launcher block predates these rules and is deliberately kept: a consumer with ccache
-# on PATH has their build routed through it. Recorded as an accepted exception rather than removed,
-# so that a *second* one cannot arrive unnoticed. Keyed by file and variable, so moving it fails here.
-ACCEPTED_GLOBAL_WRITES = {("sen_utils.cmake", "CMAKE_${lang}_COMPILER_LAUNCHER")}
-
 BODY_OPEN = re.compile(r"^\s*(function|macro)\s*\(", re.IGNORECASE)
 BODY_CLOSE = re.compile(r"^\s*(endfunction|endmacro)\s*\(", re.IGNORECASE)
 # find_package is deliberately absent: a -config.cmake declaring its own dependency REQUIRED is
@@ -146,13 +141,9 @@ def test_no_required_tool_lookup_at_include_time(path):
 
 
 @pytest.mark.parametrize("path", installed_cmake_files(), ids=lambda p: p.name)
-def test_no_unaccepted_global_write_at_include_time(path):
+def test_no_global_write_at_include_time(path):
     """Including a Sen cmake file must not change how a consumer's own code is compiled."""
-    offences = [
-        v
-        for v in scan(path.read_text(encoding="utf-8"))["global_write"]
-        if (path.name, v) not in ACCEPTED_GLOBAL_WRITES
-    ]
+    offences = scan(path.read_text(encoding="utf-8"))["global_write"]
     assert not offences, f"{path.name} sets {offences} on every consumer merely by being included"
 
 
@@ -178,7 +169,7 @@ PLANTS = [
         "global_write",
         "a ) inside a trailing comment must not end the call early",
     ),
-    ("set(CMAKE_CXX_COMPILER_LAUNCHER ccache)", "global_write", "a second compiler launcher"),
+    ("set(CMAKE_CXX_COMPILER_LAUNCHER ccache)", "global_write", "a compiler launcher"),
     ('message(FATAL_ERROR "spdlog does not match")', "file_scope_abort", "a refusal at file scope"),
     (
         'message(\n  FATAL_ERROR\n    "spdlog does not match"\n)',
