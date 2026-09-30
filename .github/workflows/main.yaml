@@ -14,7 +14,9 @@ on:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   merge_group:
   push:
-    branches: [main]
+    # release/** as well as main: the release ruleset requires no checks and lets its team push
+    # directly, so a merge taken that way is only ever measured here.
+    branches: [main, 'release/**']
   workflow_dispatch:
 
 permissions:
@@ -99,7 +101,7 @@ jobs:
       - name: Lint commit messages
         if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         shell: bash
-        run: gitlint --commits "$LINT_BASE..$LINT_TIP"
+        run: python .github/scripts/lint_commits.py --base "$LINT_BASE" --tip "$LINT_TIP"
       # What a squash merge lands, with the pull request number appended, and the number
       # is why a 71-character subject fails on main and then fails every later pull
       # request. GitHub takes that subject from the ONE commit when a branch has one and
