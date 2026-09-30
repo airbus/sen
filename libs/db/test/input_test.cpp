@@ -577,4 +577,75 @@ TEST(InputTest, CorruptIndexesFile)
   EXPECT_ANY_THROW(std::ignore = input.getAllKeyframeIndexes());
 }
 
+/// @test
+/// Verify all summary fields are correct
+TEST(InputTest, Summary)
+{
+  TempDir tempDir;
+
+  auto object = std::make_shared<TestObjImpl>("variantPropObj", sen::VarMap {});
+
+  sen::kernel::TestComponent component;
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      auto source = api.getSource("local.test");
+      source->add(object);
+      return sen::kernel::done();
+    });
+  component.onRun([](auto& api) { return api.execLoop(std::chrono::seconds(1), []() {}); });
+
+  sen::kernel::TestKernel kernel(&component);
+  kernel.step();
+
+  // get property metadata for serialization
+  const auto classType = object->getClass();
+  const auto* propMeta = classType.type()->searchPropertyByName("speed");
+  ASSERT_NE(propMeta, nullptr);
+
+  auto settings = makeArchiveSettings("test", tempDir);
+  const auto archivePath = makeArchivePath("test", tempDir);
+
+  {
+    Output output(settings, []() {});
+
+    auto info = makeObjectInfo(object);
+    output.creation(kernel.getTime(), info, true);
+
+    ::sen::kernel::Buffer propBuf;
+    {
+      sen::ResizableBufferWriter writer(propBuf);
+      sen::OutputStream out(writer);
+      sen::SerializationTraits<float64_t>::write(out, 117.85);
+    }
+    output.propertyChange(kernel.getTime(), object->getId(), propMeta->getId(), std::move(propBuf));
+    output.keyframe(kernel.getTime(), {});
+    kernel.step();
+    output.keyframe(kernel.getTime(), {});
+    kernel.step();
+    output.keyframe(kernel.getTime(), {});
+    kernel.step();
+    output.keyframe(kernel.getTime(), {});
+
+    ::sen::kernel::Buffer annBuf;
+    {
+      sen::ResizableBufferWriter writer(annBuf);
+      sen::OutputStream out(writer);
+      sen::SerializationTraits<int32_t>::write(out, 134);
+    }
+    output.annotation(kernel.getTime(), sen::Int32Type::get().type(), std::move(annBuf));
+  }
+
+  Input input(archivePath.string(), kernel.getTypes());
+  const auto& summary = input.getSummary();
+
+  EXPECT_EQ(summary.firstTime, TimeStamp(1000000000));
+  EXPECT_EQ(summary.lastTime, TimeStamp(4000000000));
+  EXPECT_EQ(summary.keyframeCount, 4U);
+  EXPECT_EQ(summary.objectCount, 1U);
+  EXPECT_EQ(summary.typeCount, 0U);
+  EXPECT_EQ(summary.annotationCount, 1U);
+  EXPECT_EQ(summary.indexedObjectCount, 1U);
+}
+
 }  // namespace sen::db::test
