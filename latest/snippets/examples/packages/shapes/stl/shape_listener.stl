@@ -22,10 +22,10 @@ sequence<string> NameList;
 class ShapeListener
 {
   // Number of shapes being tracked
-  var detectedShapesCount: u32;
+  var detectedShapesCount : u32;
 
   // Number of active queries
-  var queryCount: u32;
+  var queryCount : u32;
 
   // Start listening for shapes that fulfil certain conditions.
   // Returns the name of the query that was created.
