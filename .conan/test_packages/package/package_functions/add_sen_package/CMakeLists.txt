@@ -9,6 +9,7 @@ find_package(spdlog REQUIRED)
 
 add_sen_package(
   TARGET my_package
+         EXPORT_INTERFACES # a package whose consumers generate from its .stl files asks for the paths
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
   DESCRIPTION "Example package skeleton"

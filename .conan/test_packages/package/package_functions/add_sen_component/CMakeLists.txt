@@ -38,3 +38,15 @@ add_generated_file_test(
   REQUIRED_TEXT
   "\"component\": \"cmake_component\""
 )
+
+# No EXPORT_INTERFACES, and this package installs none of its .stl files, so the paths must stay
+# out of the export set: get_external_interfaces() would rewrite them into a directory that has
+# nothing in it and stop the consumer's configure.
+get_target_property(cmake_component_exported cmake_component EXPORT_PROPERTIES)
+foreach(gated_property IN ITEMS BASE_PATH STL_FILES)
+  if("${gated_property}" IN_LIST cmake_component_exported)
+    message(FATAL_ERROR "add_sen_component() exported ${gated_property} without EXPORT_INTERFACES: "
+                        "${cmake_component_exported}"
+    )
+  endif()
+endforeach()
