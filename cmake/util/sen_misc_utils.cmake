@@ -324,24 +324,18 @@ function(get_external_interfaces)
   get_target_property(_build_hla_fom_dirs ${_arg_TARGET} HLA_FOM_DIRS)
   get_target_property(_build_hla_mappings ${_arg_TARGET} HLA_MAPPINGS)
   get_target_property(_build_base_path ${_arg_TARGET} BASE_PATH)
-  string(
-    REGEX MATCH
-          NOTFOUND
-          _stls_present
-          ${_build_stl_files}
+  # Only a package that means to export interfaces ships the config file that calls this, so all
+  # three being absent means the package did not pass EXPORT_INTERFACES. Saying nothing here sends
+  # the consumer looking for a missing type in generated code instead.
+  if(NOT _build_stl_files
+     AND NOT _build_hla_fom_dirs
+     AND NOT _build_hla_mappings
   )
-  string(
-    REGEX MATCH
-          NOTFOUND
-          _hla_fom_dirs_present
-          ${_build_hla_fom_dirs}
-  )
-  string(
-    REGEX MATCH
-          NOTFOUND
-          _hla_mappings_present
-          ${_build_hla_mappings}
-  )
+    message(WARNING "get_external_interfaces: ${_arg_TARGET} exports no interface paths, so nothing is "
+                    "rewritten for this installation. Its package has to pass EXPORT_INTERFACES to "
+                    "add_sen_package() or add_sen_interface_package()."
+    )
+  endif()
 
   # set base_path that should be common to all interfaces
   set_property(TARGET ${_arg_TARGET} PROPERTY INSTALL_BASE_PATH ${_abs_install_dir}/interfaces/)
