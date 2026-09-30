@@ -458,3 +458,60 @@ endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads)
+
+# Sen's own build only: a launcher a consumer can reach rewrites every compile in their project,
+# and the environment below replaces a CCACHE_SLOPPINESS of their own.
+# A macro rather than a function, so the launcher lands in the caller's directory scope.
+macro(sen_internal_enable_compiler_cache)
+  # ccache where it exists, sccache otherwise: there is no ccache for MSVC, so the Windows build
+  # recompiled every translation unit on every run.
+  find_program(SEN_COMPILER_CACHE NAMES ccache sccache)
+
+  if(SEN_COMPILER_CACHE)
+    get_filename_component(_sen_cache_name "${SEN_COMPILER_CACHE}" NAME_WE)
+    message(NOTICE "-- Using ${_sen_cache_name} to speedup builds")
+
+    set(_sen_cache_env)
+    if(_sen_cache_name STREQUAL "ccache")
+      set(_sen_cache_env CCACHE_BASEDIR=${CMAKE_BINARY_DIR})
+
+      # Left alone when the developer has set one, because cmake -E env replaces the value.
+      # No time_macros: nothing bakes __DATE__ or __TIME__ in any more, and the setting told
+      # ccache to serve an object whose embedded timestamp was from whenever it was first built.
+      if(NOT DEFINED ENV{CCACHE_SLOPPINESS})
+        list(APPEND _sen_cache_env
+             CCACHE_SLOPPINESS=clang_index_store,include_file_ctime,include_file_mtime,locale,pch_defines
+        )
+      endif()
+    endif()
+
+    foreach(lang IN ITEMS C CXX CUDA)
+      set(CMAKE_${lang}_COMPILER_LAUNCHER
+          ${CMAKE_COMMAND}
+          -E
+          env
+          ${_sen_cache_env}
+          ${SEN_COMPILER_CACHE}
+      )
+    endforeach()
+  endif()
+endmacro()
+# A compiler cache stores nothing against MSVC's separate program database, so a lane that
+# gained one would report hits of zero and give no reason. The flags are not in the build log
+# either -- Ninja prints the object it is building, never the command line.
+#
+# A function called after project(), not a check up here: MSVC and CMAKE_CXX_FLAGS_RELEASE are
+# both empty until the compiler has been detected, so an if(MSVC) at this point never runs and
+# reports nothing while looking like a check that passed.
+function(sen_warn_if_the_compiler_cache_cannot_work)
+  if(NOT SEN_COMPILER_CACHE OR NOT MSVC)
+    return()
+  endif()
+
+  message(NOTICE "-- MSVC release flags seen by the compiler cache: ${CMAKE_CXX_FLAGS_RELEASE}")
+  if(CMAKE_CXX_FLAGS_RELEASE MATCHES "/Zi" OR CMAKE_MSVC_DEBUG_INFORMATION_FORMAT MATCHES "ProgramDatabase")
+    message(WARNING "MSVC is producing a program database, so the compiler cache stores nothing. "
+                    "Set CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded with CMP0141 NEW."
+    )
+  endif()
+endfunction()
