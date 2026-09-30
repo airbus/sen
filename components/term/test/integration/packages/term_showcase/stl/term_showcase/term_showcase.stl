@@ -26,10 +26,10 @@ struct Rectangle
 // One-of action: exercises the variant editor (type picker + dynamic subtree).
 variant Action
 {
-  Point,       // the user wants to MOVE to this point
-  Rectangle,   // the user wants to DRAW this rectangle
-  string,      // the user wants to LOG this message
-  i32          // the user wants to WAIT for this many cycles
+  Point,      // the user wants to MOVE to this point
+  Rectangle,  // the user wants to DRAW this rectangle
+  string,     // the user wants to LOG this message
+  i32         // the user wants to WAIT for this many cycles
 }
 
 // Named aliases so STL method signatures stay short and readable.
@@ -49,9 +49,9 @@ quantity<f32, f32> Fraction [min: 0.0, max: 1.0];
 // Status enum for workers: exercises the enum display.
 enum WorkerStatus: u8
 {
-  idle,       // waiting for work
-  running,    // executing
-  done        // finished, about to be removed
+  idle,     // waiting for work
+  running,  // executing
+  done      // finished, about to be removed
 }
 
 // A transient worker object. The Showcase coordinator spawns and removes these dynamically so
@@ -59,9 +59,9 @@ enum WorkerStatus: u8
 // own properties while alive.
 class Worker
 {
-  var value : f32;
+  var value  : f32;
   var status : WorkerStatus;
-  var cycle : u32;
+  var cycle  : u32;
 
   // Fired each time the worker's status changes: exercises enum args.
   event statusChanged(oldStatus : WorkerStatus, newStatus : WorkerStatus);

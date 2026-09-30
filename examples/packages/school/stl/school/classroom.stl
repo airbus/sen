@@ -4,10 +4,10 @@ package school;
 class Classroom
 {
   // True if the classroom should create a teacher.
-  var createTeacher : bool   [static];
+  var createTeacher : bool [static];
 
   // Default number of students to create.
-  var defaultSize   : u32    [static];
+  var defaultSize   : u32 [static];
 
   // Bus where to publish the students.
   var studentsBus   : string [static];

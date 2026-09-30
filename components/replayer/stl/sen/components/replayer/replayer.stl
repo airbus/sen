@@ -21,9 +21,9 @@ class Replayer
 // the state in which a Replay can be
 enum ReplayStatus: u8
 {
-  stopped, // not running, at the start of the archive
-  paused,  // not running, at the position when pause was called
-  playing  // performing the replay
+  stopped,  // not running, at the start of the archive
+  paused,   // not running, at the position when pause was called
+  playing   // performing the replay
 }
 
 // controls the replay of a given archive
@@ -42,7 +42,7 @@ class Replay
   var playbackTime : TimeStamp [bestEffort];
 
   // starts the playback from the current position
-  fn play()  [confirmed];
+  fn play() [confirmed];
 
   // hold the playback position, if playing
   fn pause() [confirmed];

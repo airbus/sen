@@ -3,9 +3,9 @@ package log_emitter;
 // How often log messages are emitted
 enum EmitRate: u8
 {
-  slow,     // every ~5 seconds
-  moderate, // every ~1 second
-  fast      // every ~0.2 seconds
+  slow,      // every ~5 seconds
+  moderate,  // every ~1 second
+  fast       // every ~0.2 seconds
 }
 
 // What kind of output to produce

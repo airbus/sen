@@ -6,11 +6,11 @@ sequence<string> Strings;
 // class in charge of creating the monkeys for the stress tests
 class CreatorMonkey
 {
-  var maxObjectCount      : u32     [static];
-  var actionFrameInterval : u32     [static];
-  var targetBus           : string  [static];
+  var maxObjectCount      : u32 [static];
+  var actionFrameInterval : u32 [static];
+  var targetBus           : string [static];
   var objectsToCreate     : Strings [static];
-  var secondsToLive       : f64     [static]; // use negative values for no lifetime limit
+  var secondsToLive       : f64 [static];      // use negative values for no lifetime limit
   var objectCount         : u32;
   var createdObjectsCount : u64;
   var deletedObjectsCount : u64;
@@ -34,9 +34,9 @@ struct Task
 class MonkeyTestClass
 {
   // properties
-  var finishedTasks: u64  [writable];
-  var testedEvents:  u64  [writable];
-  var currentTask:   Task [writable, confirmed];
+  var finishedTasks : u64 [writable];
+  var testedEvents  : u64 [writable];
+  var currentTask   : Task [writable, confirmed];
 
   // methods
   fn testMethod(arg1: i32, arg2: string) -> i32;
@@ -50,9 +50,9 @@ class MonkeyTestClass
 class MonkeyTestClass2
 {
   // properties
-  var finishedTasks: u64  [writable];
-  var testedEvents:  u64  [writable];
-  var currentTask:   Task [writable, confirmed];
+  var finishedTasks : u64 [writable];
+  var testedEvents  : u64 [writable];
+  var currentTask   : Task [writable, confirmed];
 
   // methods
   fn testMethod(arg1: f64) -> f64;

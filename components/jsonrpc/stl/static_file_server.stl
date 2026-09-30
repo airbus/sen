@@ -29,9 +29,9 @@ struct StaticBundle
 // answer "what is currently being served, and where".
 struct RegisteredBundleInfo
 {
-  bundleId  : u64,    // opaque id assigned by the server, stable for the bundle's lifetime
-  urlPrefix : string, // bundle's URL prefix
-  fileCount : u64     // number of files in the bundle
+  bundleId  : u64,     // opaque id assigned by the server, stable for the bundle's lifetime
+  urlPrefix : string,  // bundle's URL prefix
+  fileCount : u64      // number of files in the bundle
 }
 sequence<RegisteredBundleInfo> RegisteredBundleInfoList;
 

@@ -24,9 +24,9 @@ class TestObject
   var heartbeat : u32;
 
   // properties used to check interest queries
-  var floatProp : f64;
-  var enumProp  : TestEnum;
-  var boolProp  : bool;
+  var floatProp  : f64;
+  var enumProp   : TestEnum;
+  var boolProp   : bool;
   var structProp : TestStruct [confirmed];
 
   // performs known edition of the object properties

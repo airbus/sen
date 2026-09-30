@@ -22,8 +22,8 @@ struct BigStruct
 // produces confirmed data on every cycle
 class ConfirmedDataProducer
 {
-  var prop1 : string [confirmed];
-  var prop2 : SmallStruct [confirmed];
-  var prop3 : BigStruct [confirmed];
+  var prop1   : string [confirmed];
+  var prop2   : SmallStruct [confirmed];
+  var prop3   : BigStruct [confirmed];
   var counter : u64 [confirmed];
 }

@@ -36,10 +36,10 @@ struct SignalData
 // Types of exceptions that can occur.
 enum ExceptionKind : u8
 {
-  runtime, // normally maps to std::runtime_error
-  logic,  // normally maps to std::logic_error
-  standard, // normally maps to std::exception
-  unknown // unknown exception
+  runtime,   // normally maps to std::runtime_error
+  logic,     // normally maps to std::logic_error
+  standard,  // normally maps to std::exception
+  unknown    // unknown exception
 }
 
 // Information about an unhandled exception
