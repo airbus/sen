@@ -50,6 +50,21 @@ if(NOT
   message(FATAL_ERROR "add_sen_package() returned ${generated_header_count} headers; expected 4")
 endif()
 
+# A consumer reads these off the imported target, so they have to reach the export set rather than
+# sit only on the build-tree one. Without them get_external_interfaces() has nothing to rewrite.
+get_target_property(my_package_exported my_package EXPORT_PROPERTIES)
+foreach(required_property IN ITEMS BASE_PATH STL_FILES)
+  if(NOT
+     "${required_property}"
+     IN_LIST
+     my_package_exported
+  )
+    message(
+      FATAL_ERROR "add_sen_package() left ${required_property} out of the export set: ${my_package_exported}"
+    )
+  endif()
+endforeach()
+
 target_link_libraries(my_package PRIVATE $<BUILD_INTERFACE:spdlog::spdlog>)
 set_target_properties(my_package PROPERTIES FOLDER "examples/basic")
 
