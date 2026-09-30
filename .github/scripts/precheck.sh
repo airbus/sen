@@ -34,13 +34,14 @@ else
   say "pytest (scripts + kernel integration)" "FAILED"; tail -5 "$log/pytest" | sed 's/^/    /'; fail=1
 fi
 
-# 2. Commit messages, exactly as the job invokes it. The job uses the pull request's own
-#    base rather than main, so a stacked branch does not re-lint what it sits on; there is
-#    no base here, so main is the closest available.
-if "$gitlint" --commits "origin/main..HEAD" >"$log/commits" 2>&1; then
-  say "gitlint --commits origin/main..HEAD" "ok"
+# 2. Commit messages, through the same helper the job uses, so a ported commit is carried
+#    rather than judged. PRECHECK_BASE is the branch this one will merge into: main for most
+#    work, release/0.7.x for a release fix, and the wrong base lints commits it sits on.
+base=${PRECHECK_BASE:-origin/main}
+if python3 .github/scripts/lint_commits.py --base "$base" --quiet >"$log/commits" 2>&1; then
+  say "commit messages (base $base)" "ok"
 else
-  say "gitlint --commits origin/main..HEAD" "FAILED"; sed 's/^/    /' "$log/commits"; fail=1
+  say "commit messages (base $base)" "FAILED"; sed 's/^/    /' "$log/commits"; fail=1
 fi
 
 # 3. The one subject the queue lints with the suffix: a one-commit branch squashes under that
@@ -58,9 +59,9 @@ budget() {
   fi
 }
 
-count=$(git rev-list --count origin/main..HEAD)
+count=$(git rev-list --count "$base..HEAD")
 if [ "$count" -eq 0 ]; then
-  say "squash subject" "nothing to push: no commits ahead of origin/main"
+  say "squash subject" "nothing to push: no commits ahead of $base"
 elif [ "$count" -eq 1 ]; then
   budget "squash subject (1 commit, so the commit's own)" "$(git log -1 --format='%s' HEAD)"
   [ $# -ge 1 ] && [ -n "$1" ] && say "pull request title" "not the squash subject with 1 commit"
