@@ -215,3 +215,28 @@ TEST_F(AnEnvPattern, expandsPatternsInsideAnIncludedFile)
 
   std::filesystem::remove_all(directory);
 }
+
+/// @test
+/// `include` takes a sequence as well as a single file, and every file in it gets the same
+/// expansion. Only the single-file form was covered, so a pattern in a sequence could have
+/// stopped resolving with nothing to notice.
+TEST_F(AnEnvPattern, expandsPatternsInsideFilesIncludedAsASequence)
+{
+  const auto directory = std::filesystem::temp_directory_path() / "sen_env_include_sequence_test";
+  std::filesystem::create_directories(directory);
+  {
+    std::ofstream first(directory / "first.yaml");
+    first << "firstValue: \"@env(SEN_TEST_VAR)\"\n";
+    std::ofstream second(directory / "second.yaml");
+    second << "secondValue: \"@env(SEN_TEST_VAR)\"\n";
+  }
+
+  const std::string top = "include:\n  - ./first.yaml\n  - ./second.yaml\ntopValue: \"@env(SEN_TEST_VAR)\"\n";
+  const sen::VarMap config = sen::kernel::getConfigAsVarFromYaml(top, directory / "main.yaml", false);
+
+  EXPECT_EQ(config.at("topValue").getCopyAs<std::string>(), "expanded");
+  EXPECT_EQ(config.at("firstValue").getCopyAs<std::string>(), "expanded");
+  EXPECT_EQ(config.at("secondValue").getCopyAs<std::string>(), "expanded");
+
+  std::filesystem::remove_all(directory);
+}
