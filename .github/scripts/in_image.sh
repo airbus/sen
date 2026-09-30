@@ -53,6 +53,7 @@ fi
 docker run --rm --interactive \
     --user "$(id -u):$(id -g)" \
     ${docker_socket[@]+"${docker_socket[@]}"} \
+    --cap-add=SYS_PTRACE \
     --volume "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
     --volume "$HOME/.conan2:/conan" \
     --volume "$HOME/.ccache:/ccache" \
