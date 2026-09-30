@@ -41,7 +41,17 @@
 #ifdef _WIN32
 #  define NOMINMAX 1
 #endif
-#include "client/annotation.h"
+// Workaround for GCC release builds: crashpad template instantiation causes a compile error.
+// Because crashpad::StringAnnotation<MaxSize>::Set is an inline function template, it is
+// expanded directly within this translation unit, bypassing system header protections.
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wstringop-truncation"
+#  include "client/annotation.h"
+#  pragma GCC diagnostic pop
+#else
+#  include "client/annotation.h"
+#endif
 #include "client/crashpad_client.h"
 #include "handler/handler_main.h"
 #include "util/file/file_io.h"
