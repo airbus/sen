@@ -10,7 +10,7 @@ struct StaticFile
 {
   path        : string,           // path within the bundle, e.g. "assets/main.js"
   contentType : string,           // MIME type, e.g. "text/html"
-  contents    : sen.kernel.Buffer // raw file bytes
+  contents : sen.kernel.Buffer  // raw file bytes
 }
 sequence<StaticFile> StaticFileList;
 
@@ -22,7 +22,7 @@ struct StaticBundle
 {
   urlPrefix     : string,         // URL prefix, e.g. "/explorer"; must start with "/"
   indexFileName : string,         // SPA fallback, e.g. "index.html"; must match a `path` in `files`
-  files         : StaticFileList  // file set
+  files : StaticFileList  // file set
 }
 
 // Summary record returned by `listRegisteredBundles`. Excludes the file bytes; just enough to

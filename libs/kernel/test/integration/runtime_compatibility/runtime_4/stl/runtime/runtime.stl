@@ -64,7 +64,7 @@ class TestClass
   var prop5 : TestSequence2 [writable, confirmed];  // unbounded sequence in the writer schema
 
   // structs
-  var prop6  : TestStructChild [writable, confirmed]; // TestStructBase in the writer schema
+  var prop6 : TestStructChild [writable, confirmed];  // TestStructBase in the writer schema
 
   // quantities
   var prop7 : Angle [writable];     // angle in rad in the writer schema

@@ -7,13 +7,13 @@ class Classroom
   var createTeacher : bool [static];
 
   // Default number of students to create.
-  var defaultSize   : u32 [static];
+  var defaultSize : u32 [static];
 
   // Bus where to publish the students.
-  var studentsBus   : string [static];
+  var studentsBus : string [static];
 
   // Name of the teacher giving the class.
-  var teacherName   : string [confirmed];
+  var teacherName : string [confirmed];
 
   // Create and add a number of students.
   //

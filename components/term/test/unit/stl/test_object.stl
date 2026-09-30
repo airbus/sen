@@ -31,7 +31,7 @@ variant Shape
 {
   Point,   // treat a Point as a "point shape"
   string,  // a string "shape" (e.g. a textual label)
-  i32      // a scalar shape (e.g. a radius only)
+  i32  // a scalar shape (e.g. a radius only)
 }
 
 // Optional-of-composite type, exercises the empty/filled toggle in the form UI.

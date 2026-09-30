@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # === format_stl.py ====================================================================================================
 #                                               Sen Infrastructure
 #                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
@@ -134,29 +135,68 @@ def one_space_before_attributes(line: str) -> str:
     return re.sub(r"(\S)[ \t]+\[", r"\1 [", code) + marker + comment
 
 
+SIGNATURE = re.compile(r"^\s*(?:fn|event)\s+\w+\s*\(")
+PARAMETER = re.compile(r"([A-Za-z_]\w*)( *): ")
+
+
+def code_of(line: str) -> str:
+    """The line without its trailing comment, which a closing bracket can hide behind."""
+    return line.split("//", maxsplit=1)[0].rstrip()
+
+
+def opens_a_signature(line: str) -> bool:
+    """Whether the line starts a parameter list that a later line closes."""
+    code = code_of(line)
+    return bool(SIGNATURE.match(code)) and code.count("(") > code.count(")")
+
+
+def align_signature(block: list[str]) -> list[str]:
+    """A wrapped parameter list, indented under its bracket with the colons in one column.
+
+    The parameter on the first line counts: without it the continuation lines line up with each
+    other and not with the one they follow.
+    """
+    continuation = block[0].index("(") + 1
+    names = [match.group(1) for line in block if (match := PARAMETER.search(line))]
+    if not names:
+        return block
+    width = max(len(name) for name in names)
+    aligned = []
+    for index, line in enumerate(block):
+        body = line if index == 0 else " " * continuation + line.lstrip()
+        aligned.append(PARAMETER.sub(lambda m: f"{m.group(1):<{width}} : ", body, count=1).rstrip())
+    return aligned
+
+
 def format_text(text: str) -> str:
-    """The file with every member run aligned."""
+    """The file with every member run and every wrapped signature aligned."""
     lines = [one_space_before_attributes(line) for line in separate_documented_members(text.splitlines())]
     out: list[str] = []
     run: list[dict[str, str]] = []
-    run_lines: list[str] = []
 
     def flush() -> None:
-        if len(run) > 1:
-            out.extend(align_run(run))
-        else:
-            out.extend(run_lines)
+        out.extend(align_run(run) if run else [])
         run.clear()
-        run_lines.clear()
 
-    for line in lines:
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        if opens_a_signature(line):
+            flush()
+            block = [line]
+            while index + 1 < len(lines) and not code_of(block[-1]).endswith(";"):
+                index += 1
+                block.append(lines[index])
+            out.extend(align_signature(block))
+            index += 1
+            continue
         parts = split_member(line) if line.startswith((" ", "\t")) else None
         if parts is None:
             flush()
             out.append(line)
         else:
             run.append(parts)
-            run_lines.append(line)
+        index += 1
     flush()
     return "\n".join(out) + ("\n" if text.endswith("\n") else "")
 

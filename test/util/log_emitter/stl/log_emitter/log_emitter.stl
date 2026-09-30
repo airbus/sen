@@ -30,7 +30,7 @@ struct EmitterConfig
 class Emitter
 {
   // configuration
-  var config  : EmitterConfig [static];
+  var config : EmitterConfig [static];
 
   // a counter that increments each time a message is emitted
   var counter : u64;

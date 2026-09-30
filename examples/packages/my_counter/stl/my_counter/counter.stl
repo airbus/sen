@@ -5,7 +5,7 @@ class Counter
   var value : i32;
 
   // How much should the counter increase each cycle.
-  var step    : i32 [static];
+  var step : i32 [static];
 
   // Returns a greeting message.
   fn hello() -> string [const];

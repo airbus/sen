@@ -28,13 +28,13 @@ enum ConnectionState : u8
 // All objects that transition between connection states
 class StatefulObject
 {
-  var state           : ConnectionState [confirmed];
+  var state : ConnectionState [confirmed];
 }
 
 // StateFulObject that performs actions in integration tests
 class Publisher : extends StatefulObject
 {
-  var numOfListeners  : u32 [static];
+  var numOfListeners : u32 [static];
 }
 
 // StateFulObject that performs checks in integration tests

@@ -49,10 +49,10 @@ class TestClass
 
 
   // structures
-  var prop10 : TestStruct [writable, confirmed]; // writer struct with different elements/order
+  var prop10 : TestStruct [writable, confirmed];  // writer struct with different elements/order
 
   // variant
-  var prop11 : TestVariant [writable, confirmed]; // writer variant with different types/order
+  var prop11 : TestVariant [writable, confirmed];  // writer variant with different types/order
 
   // quantities
   var prop12 : TestQuantity [writable];  // different quantity in writer schema

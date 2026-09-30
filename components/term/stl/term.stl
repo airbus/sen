@@ -52,5 +52,5 @@ struct Configuration
 class Term
 {
   // service configuration
-  var config: Configuration [static];
+  var config : Configuration [static];
 }
