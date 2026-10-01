@@ -73,8 +73,11 @@ ftxui::Element renderMethodSignature(std::string_view objectName, const Method& 
       auto desc = effectiveDescription(arg.description, arg.type);
       if (!desc.empty())
       {
-        argLine.push_back(ftxui::text(" " + std::string(unicode::middleDot) + " " + std::string(desc)) |
-                          styles::descriptionText());
+        std::string text = " ";
+        text += unicode::middleDot;
+        text += " ";
+        text += desc;
+        argLine.push_back(ftxui::text(text) | styles::descriptionText());
       }
       lines.push_back(ftxui::hbox(std::move(argLine)));
     }

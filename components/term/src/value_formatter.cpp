@@ -116,12 +116,18 @@ public:
 
     if (val->size() > maxLen)
     {
-      result_ =
-        ftxui::text("\"" + truncateUtf8(*val, maxLen) + std::string(unicode::ellipsis) + "\"") | styles::valueString();
+      std::string text = "\"";
+      text += truncateUtf8(*val, maxLen);
+      text += unicode::ellipsis;
+      text += "\"";
+      result_ = ftxui::text(text) | styles::valueString();
       return;
     }
 
-    result_ = ftxui::text("\"" + *val + "\"") | styles::valueString();
+    std::string text = "\"";
+    text += *val;
+    text += "\"";
+    result_ = ftxui::text(text) | styles::valueString();
   }
 
   void apply(const DurationType& /*type*/) override
@@ -321,10 +327,11 @@ public:
 
     if (shown < list->size())
     {
-      lines.push_back(ftxui::hbox({indent(indent_),
-                                   ftxui::text(std::string(unicode::ellipsis) + " " +
-                                               std::to_string(list->size() - shown) + " more elements")}) |
-                      styles::valueEmpty());
+      std::string text = unicode::ellipsis;
+      text += " ";
+      text += std::to_string(list->size() - shown);
+      text += " more elements";
+      lines.push_back(ftxui::hbox({indent(indent_), ftxui::text(text)}) | styles::valueEmpty());
     }
 
     result_ = ftxui::vbox(std::move(lines));
@@ -360,7 +367,9 @@ public:
     {
       ftxui::Elements parts;
       parts.push_back(entry);
-      parts.push_back(ftxui::text(" " + std::string((*unit)->getAbbreviation())) | styles::unitLabel());
+      std::string text = " ";
+      text += (*unit)->getAbbreviation();
+      parts.push_back(ftxui::text(text) | styles::unitLabel());
       entry = ftxui::hbox(std::move(parts));
     }
 
@@ -490,10 +499,11 @@ private:
 
     if (shown < bytes.size())
     {
-      lines.push_back(ftxui::hbox({indent(indent_ + 1),
-                                   ftxui::text(std::string(unicode::ellipsis) + " " +
-                                               std::to_string(bytes.size() - shown) + " more bytes")}) |
-                      styles::valueEmpty());
+      std::string text = unicode::ellipsis;
+      text += " ";
+      text += std::to_string(bytes.size() - shown);
+      text += " more bytes";
+      lines.push_back(ftxui::hbox({indent(indent_ + 1), ftxui::text(text)}) | styles::valueEmpty());
     }
 
     if (lines.empty())
