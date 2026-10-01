@@ -48,6 +48,7 @@
 
 // std
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstddef>
 #include <exception>
@@ -928,12 +929,6 @@ std::string annotationFor(const Object& obj)
 
 void CommandEngine::cmdLs(std::string_view args)
 {
-  if (store_.getObjects().empty())
-  {
-    app_.appendOutput("(no objects)");
-    return;
-  }
-
   // ls @queryname, and `ls` while in query scope, render the same tree from the same query, so both
   // arrive here and differ only in where the name comes from.
   std::string_view queryName;
@@ -993,14 +988,118 @@ void CommandEngine::cmdLs(std::string_view args)
     return;
   }
 
+  if (cachedTree_.empty())
+  {
+    // The tree carries sessions and buses as well as objects, so an empty object list is not
+    // emptiness.
+    app_.appendOutput("(nothing here)");
+    return;
+  }
+
   cachedTree_.render([this](ftxui::Element line) { app_.appendElement(std::move(line)); });
+}
+
+void CommandEngine::seedNamespaceNodes(const std::vector<std::string>& available,
+                                       const std::vector<std::string>& open,
+                                       const std::vector<std::string>& openSessions)
+{
+  // Scope::contains and Scope::relativeName read an object local name, "component.session.bus[.rest]",
+  // and reject anything with fewer than three dots. A session or bus name has fewer, so the filtering
+  // below is written out rather than reusing them.
+  const auto kind = scope_.getKind();
+  if (kind == Scope::Kind::bus || kind == Scope::Kind::group)
+  {
+    // The scope already stands at or below a bus, so every namespace node is at or above it.
+    return;
+  }
+
+  const auto contains = [](const std::vector<std::string>& haystack, const std::string& needle)
+  { return std::find(haystack.begin(), haystack.end(), needle) != haystack.end(); };
+
+  // `available` reports a session only through its detected buses, so an open session with none is
+  // missing from it, and a bus is detected only once something publishes there, so an open empty bus
+  // is missing too. Each list knows something the other does not.
+  std::vector<std::string> sessions;
+  std::vector<std::string> buses;
+  const auto note = [&contains](std::vector<std::string>& into, const std::string& name)
+  {
+    if (!contains(into, name))
+    {
+      into.push_back(name);
+    }
+  };
+
+  for (const auto& list: {available, open})
+  {
+    for (const auto& source: list)
+    {
+      const auto dot = source.find('.');
+      note(sessions, source.substr(0, dot));
+      if (dot != std::string::npos)
+      {
+        note(buses, source);
+      }
+    }
+  }
+  for (const auto& sessionName: openSessions)
+  {
+    note(sessions, sessionName);
+  }
+
+  const auto scopeSession = std::string(scope_.getSession());
+
+  if (kind != Scope::Kind::session)
+  {
+    for (const auto& sessionName: sessions)
+    {
+      auto* node = cachedTree_.getOrCreateChild(std::array<std::string, 1> {sessionName});
+      const bool isOpen = contains(openSessions, sessionName);
+      node->setAnnotation(isOpen ? "[session]" : "[~]");
+      node->setKind(isOpen ? TreeNode::Kind::session : TreeNode::Kind::plain);
+    }
+  }
+
+  for (const auto& address: buses)
+  {
+    const auto dot = address.find('.');
+    const auto sessionName = address.substr(0, dot);
+    const auto busName = address.substr(dot + 1);
+    const auto* tag = contains(open, address) ? "[bus]" : "[~]";
+
+    if (kind == Scope::Kind::session)
+    {
+      // Below a session only its own buses are in view, named relative to it.
+      if (sessionName != scopeSession)
+      {
+        continue;
+      }
+      auto* node = cachedTree_.getOrCreateChild(std::array<std::string, 1> {busName});
+      node->setAnnotation(tag);
+      node->setKind(TreeNode::Kind::bus);
+      continue;
+    }
+
+    auto* node = cachedTree_.getOrCreateChild(std::array<std::string, 2> {sessionName, busName});
+    node->setAnnotation(tag);
+    node->setKind(TreeNode::Kind::bus);
+  }
 }
 
 void CommandEngine::rebuildTreeIfNeeded()
 {
   auto gen = store_.getGeneration();
+
+  // Sorted so the same sources in a different order do not read as a change.
+  auto available = store_.getAvailableSources();
+  auto open = store_.getOpenSources();
+  auto openSessions = store_.getOpenSessions();
+  std::sort(available.begin(), available.end());
+  std::sort(open.begin(), open.end());
+  std::sort(openSessions.begin(), openSessions.end());
+
   if (gen == cachedTreeGeneration_ && scope_.getKind() == cachedTreeScopeKind_ &&
-      scope_.getPath() == cachedTreeScopePath_)
+      scope_.getPath() == cachedTreeScopePath_ && available == cachedTreeAvailable_ && open == cachedTreeOpen_ &&
+      openSessions == cachedTreeOpenSessions_)
   {
     return;
   }
@@ -1009,6 +1108,11 @@ void CommandEngine::rebuildTreeIfNeeded()
   cachedTreeGeneration_ = gen;
   cachedTreeScopeKind_ = scope_.getKind();
   cachedTreeScopePath_ = scope_.getPath();
+  cachedTreeAvailable_ = available;
+  cachedTreeOpen_ = open;
+  cachedTreeOpenSessions_ = openSessions;
+
+  seedNamespaceNodes(available, open, openSessions);
 
   int scopeDepth = 0;
   switch (scope_.getKind())

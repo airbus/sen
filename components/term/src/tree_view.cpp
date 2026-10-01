@@ -130,6 +130,8 @@ void TreeNode::setKind(Kind kind) { kind_ = kind; }
 
 TreeNode* TreeNode::getParent() noexcept { return parent_; }
 
+bool TreeNode::empty() const noexcept { return children_.empty(); }
+
 void TreeNode::render(const std::function<void(ftxui::Element)>& emit) const
 {
   for (auto itr = children_.begin(); itr != children_.end(); ++itr)

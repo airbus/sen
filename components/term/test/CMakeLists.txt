@@ -43,6 +43,7 @@ add_sen_unit_test_suite(
 
 add_subdirectory(integration/packages/term_showcase)
 add_subdirectory(integration/repl_session)
+add_subdirectory(integration/ls_sources)
 
 sen_generate_cpp(
   TARGET term_test

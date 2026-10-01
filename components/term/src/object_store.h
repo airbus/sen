@@ -68,6 +68,10 @@ public:
   /// Get all open source names.
   [[nodiscard]] std::vector<std::string> getOpenSources() const;
 
+  /// The sessions that have been opened, whether or not a bus of theirs has been detected.
+  /// `getAvailableSources` reports an open session only through its buses, so it cannot answer this.
+  [[nodiscard]] std::vector<std::string> getOpenSessions() const;
+
   /// Get all named queries with their definitions.
   struct QueryInfo
   {
