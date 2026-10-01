@@ -27,7 +27,18 @@ function(sen_enable_static_analysis target_name)
         message(WARNING "clang-tidy disabled for target ${target_name}")
       else()
         foreach(_tgt IN LISTS _targets_to_analyze)
-          set_property(TARGET ${_tgt} PROPERTY CXX_CLANG_TIDY "${clang_tidy_path};-extra-arg=-std=c++17")
+          # NOTE: Clang-Tidy requires explicit frontend flags when running alongside a GCC compiler:
+          # 1. -extra-arg=-std=c++17: Forces Clang-Tidy to use C++17 semantics, preventing parser
+          #    errors if the underlying compiler driver fails to pass the language standard explicitly.
+          # 2. -extra-arg=-Wno-[error=]unknown-warning-option: Prevents Clang-Tidy from throwing
+          #    diagnostic compilation errors when it encounters GCC-exclusive warning flags
+          #    (e.g., -Wno-stringop-overread or -Wno-maybe-uninitialized) that Clang doesn't recognize.
+          set_property(
+            TARGET ${_tgt}
+            PROPERTY
+              CXX_CLANG_TIDY
+              "${clang_tidy_path};-extra-arg=-std=c++17;-extra-arg=-Wno-unknown-warning-option;-extra-arg=-Wno-error=unknown-warning-option"
+          )
         endforeach()
       endif()
     endif()
