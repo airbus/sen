@@ -209,8 +209,13 @@ function(add_sen_unit_test_suite test_name)
   add_executable(${test_name} ${_arg_UNPARSED_ARGUMENTS})
   sen_configure_target(${test_name})
 
+  # Disable warnings that conflict with intentional test logic or compiler limitations:
+  # -Wno-self-move: Tests deliberately verify that self-move and self-assignment are safe.
+  # -Wno-restrict: Suppresses latest GCC false positives caused by -O3 optimization
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(${test_name} PRIVATE -Wno-variadic-macro-arguments-omitted)
+    target_compile_options(${test_name} PRIVATE -Wno-variadic-macro-arguments-omitted -Wno-self-move)
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${test_name} PRIVATE -Wno-self-move -Wno-restrict)
   endif()
 
   # Tests must see the same char signedness as the code under test: the
