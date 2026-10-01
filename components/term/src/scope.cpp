@@ -457,11 +457,12 @@ void Scope::rebuildPath()
 {
   if (kind_ == Kind::query)
   {
-    path_ = "@" + queryName_;
+    path_ = '@';
+    path_ += queryName_;
     return;
   }
 
-  path_ = "/";
+  path_ = '/';
 
   if (!session_.empty())
   {
