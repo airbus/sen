@@ -71,6 +71,9 @@ public:
   /// Each element is passed to the callback.
   void render(const std::function<void(ftxui::Element)>& emit) const;
 
+  /// True when this node has no children.
+  [[nodiscard]] bool empty() const noexcept;
+
 private:
   /// `depth` bounds the recursion. The tree is built from names a peer chose, and a walk with no limit
   /// ends in a stack overflow rather than a message.

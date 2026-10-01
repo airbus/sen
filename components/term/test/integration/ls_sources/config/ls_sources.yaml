@@ -1,0 +1,28 @@
+# Topology for the `ls` source-listing tests, mirroring the shell's ls_command fixture so the two
+# tools are asserted against the same shape. `local.demo` is opened at startup and holds an object.
+# `local.quiet` is opened at startup and nobody publishes on it, which is the first reported case: an
+# open bus discovery never detects, so it exists only in the open set. `other_session.other_bus` holds
+# an object but is never opened, so discovery sees the session while the bus stays closed. A third
+# session, opened by the test itself and published on by nobody, is the second reported case.
+load:
+  - name: ether
+    group: 10
+  - name: term
+    group: 2
+    noLogo: true
+    open:
+      - local.demo
+      - local.quiet
+
+build:
+  - name: showcaseComponent
+    freqHz: 30
+    group: 3
+    imports: [term_showcase]
+    objects:
+      - class: term_showcase.ShowcaseImpl
+        name: showcase
+        bus: local.demo
+      - class: term_showcase.ShowcaseImpl
+        name: elsewhere
+        bus: other_session.other_bus

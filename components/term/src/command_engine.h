@@ -32,6 +32,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace sen::components::term
 {
@@ -164,6 +165,12 @@ private:
   void reportError(std::string_view title, std::string_view message);
   void rebuildTreeIfNeeded();
 
+  /// Adds the sessions and buses to the tree, before any object. An open bus holding nothing, and a
+  /// session nobody has opened, have no object beneath them to put them there.
+  void seedNamespaceNodes(const std::vector<std::string>& available,
+                          const std::vector<std::string>& open,
+                          const std::vector<std::string>& openSessions);
+
   /// Handle the virtual "print" command that displays all properties of an object.
   void handlePrintCommand(std::string_view input, const std::shared_ptr<Object>& target, const ClassType& classType);
 
@@ -213,6 +220,12 @@ private:
   uint64_t cachedTreeGeneration_ = 0;
   Scope::Kind cachedTreeScopeKind_ = Scope::Kind::root;
   std::string cachedTreeScopePath_;
+  /// The source lists the cached tree was built from. The store's generation counter cannot stand in
+  /// for them: it moves only on an object addition or removal, so an empty bus opening, or a session
+  /// appearing, would leave the tree stale.
+  std::vector<std::string> cachedTreeAvailable_;
+  std::vector<std::string> cachedTreeOpen_;
+  std::vector<std::string> cachedTreeOpenSessions_;
 
   struct Listener
   {

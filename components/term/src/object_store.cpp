@@ -509,6 +509,17 @@ std::vector<std::string> ObjectStore::getOpenSources() const
   return result;
 }
 
+std::vector<std::string> ObjectStore::getOpenSessions() const
+{
+  std::vector<std::string> result;
+  result.reserve(openSessions_.size());
+  for (const auto& [name, provider]: openSessions_)
+  {
+    result.push_back(name);
+  }
+  return result;
+}
+
 std::vector<std::shared_ptr<Object>> ObjectStore::getQueryObjects(std::string_view queryName) const
 {
   auto it = querySubscriptions_.find(std::string(queryName));
