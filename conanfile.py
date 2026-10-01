@@ -117,6 +117,8 @@ class SenConan(ConanFile):
         # on Linux, and libcurl's own is set in the profiles because a recipe cannot reach it.
         crashpad_options = {"with_tls": False} if self.settings.os == "Linux" else {}
         self.requires("sentry-crashpad/0.6.5", options=crashpad_options, visible=False)
+        # The one requirement a consumer compiles against: spdlog types cross the kernel's API, so
+        # its version is part of Sen's contract and the copy Sen installs is the one that matches.
         self.requires("spdlog/1.17.0", visible=True)
 
         # explorer-only: ImGui + ImPlot + SDL.
@@ -138,7 +140,10 @@ class SenConan(ConanFile):
 
         # py-only (Python integration)
         if self._is_component_enabled("py"):
-            self.requires("pybind11/2.13.6", visible=True)
+            # Private, though this component is installed: nothing Sen installs includes pybind11,
+            # so a consumer never compiles against it. Exchanging Sen objects with a consumer's own
+            # extension would change that, and the type casters for it are not installed.
+            self.requires("pybind11/2.13.6", visible=False)
 
         # rest-only
         if self._is_component_enabled("rest"):
