@@ -50,6 +50,16 @@ public:
   /// Update the state of current proxies and notify listeners about new and deleted objects
   void notifyChangesToLocalListeners();
 
+  /// Updates the proxies and announces what has left, holding back what has arrived. Split from
+  /// notifyPendingAdditions() so a cycle's removals all precede its additions: an object moved
+  /// between buses arrives on one provider and leaves another, and a listener that refcounts by
+  /// object id only sees the move if it hears the departure first.
+  void drainAndNotifyRemovals();
+
+  /// Announces what drainAndNotifyRemovals() held back. Runs in the same drain, before the work
+  /// queue executes, because the proxies destroyed a cycle late are freed at the next drain.
+  void notifyPendingAdditions();
+
 public:
   [[nodiscard]] LocalParticipant* isLocalParticipant() noexcept override { return &owner_; }
 

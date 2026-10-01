@@ -383,6 +383,17 @@ void LocalParticipant::flushOutputs()
 
 void LocalParticipant::drainInputs()
 {
+  // The ObjectSource contract, kept whole. The runner calls the two halves directly so that it can
+  // put every participant's removals ahead of every participant's additions.
+  drainInputsAndNotifyRemovals();
+  notifyPendingAdditions();
+}
+
+void LocalParticipant::drainInputsAndNotifyRemovals()
+{
+  // Collected rather than walked twice: a removal callback can release a subscription, which drops
+  // the last listener on a manager and erases it from interestsOnOthers_.
+  drainedManagers_.clear();
   for (const auto& proxyManager: interestsOnOthers_)
   {
     if (proxyManager == nullptr)
@@ -390,7 +401,12 @@ void LocalParticipant::drainInputs()
       continue;
     }
 
-    proxyManager->notifyChangesToLocalListeners();
+    drainedManagers_.push_back(proxyManager);
+  }
+
+  for (const auto& proxyManager: drainedManagers_)
+  {
+    proxyManager->drainAndNotifyRemovals();
   }
 
   // Avoid scanning the cache on every drain, lookups also remove expired entries
@@ -399,6 +415,16 @@ void LocalParticipant::drainInputs()
     cleanupExpiredProxies();
     drainsSinceProxyCleanup_ = 0U;
   }
+}
+
+void LocalParticipant::notifyPendingAdditions()
+{
+  for (const auto& proxyManager: drainedManagers_)
+  {
+    proxyManager->notifyPendingAdditions();
+  }
+
+  drainedManagers_.clear();
 }
 
 void LocalParticipant::flushLocalAdditionsAndRemovals()

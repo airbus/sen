@@ -367,12 +367,21 @@ inline NanoSecs Runner::drainInputs()
 
   sessionsDiscoverer_.drainInputs();
 
-  // drain the inputs on all our participants
+  // Drain the inputs on all our participants, removals first across all of them. An object moved
+  // between two of this runner's buses leaves one participant's view and arrives in another's, and
+  // a listener that refcounts by object id hears the move only if the departure comes first.
   for (auto& participant: localParticipants_)
   {
     if (auto p = participant.lock(); p)
     {
-      p->drainInputs();
+      p->drainInputsAndNotifyRemovals();
+    }
+  }
+  for (auto& participant: localParticipants_)
+  {
+    if (auto p = participant.lock(); p)
+    {
+      p->notifyPendingAdditions();
     }
   }
 
@@ -390,12 +399,19 @@ inline void Runner::drainUntilEventOrTimeout(const Duration& timeout)
 {
   sessionsDiscoverer_.drainInputs();
 
-  // drain the inputs on all our participants
+  // Removals before additions, for the reason given in drainInputs().
   for (auto& participant: localParticipants_)
   {
     if (auto p = participant.lock(); p)
     {
-      p->drainInputs();
+      p->drainInputsAndNotifyRemovals();
+    }
+  }
+  for (auto& participant: localParticipants_)
+  {
+    if (auto p = participant.lock(); p)
+    {
+      p->notifyPendingAdditions();
     }
   }
 

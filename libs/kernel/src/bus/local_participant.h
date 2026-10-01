@@ -94,6 +94,14 @@ public:  // implements ObjectSource
   void flushOutputs() override;
   void drainInputs() override;
 
+public:
+  /// The two halves of drainInputs(), which the runner calls across all of its participants in
+  /// turn: every participant announces what left before any announces what arrived. An object
+  /// moved between buses leaves one participant's view and arrives in another's, and a listener
+  /// that refcounts by object id hears the move only in that order.
+  void drainInputsAndNotifyRemovals();
+  void notifyPendingAdditions();
+
 protected:  // implements ObjectFilter
   void subscriberAdded(std::shared_ptr<Interest> interest,
                        ObjectProviderListener* listener,
@@ -178,6 +186,10 @@ private:
   // Mutable because lookup also removes an expired entry, while remaining logically a cache lookup.
   mutable std::unordered_map<ObjectId, std::weak_ptr<sen::impl::ProxyObject>> objectIdToProxy_;
   std::size_t drainsSinceProxyCleanup_ {0U};
+  // The managers walked by the removal half, held for the addition half. A listener told about a
+  // removal may release its subscription, which erases its manager from interestsOnOthers_; the
+  // held shared_ptr keeps the withheld additions deliverable to whoever is still listening.
+  std::vector<std::shared_ptr<ProxyManager>> drainedManagers_;
   std::mutex participantsMutex_;
   std::vector<Participant*> participants_;
   std::string objectsNamePrefix_;

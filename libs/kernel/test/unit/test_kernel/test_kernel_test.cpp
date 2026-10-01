@@ -8,10 +8,13 @@
 // sen
 #include "message_dispatcher.h"
 #include "sen/core/base/compiler_macros.h"
+#include "sen/core/base/result.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_list.h"
+#include "sen/core/obj/object_mux.h"
+#include "sen/core/obj/object_provider.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/core/obj/subscription.h"
 #include "sen/kernel/component.h"
@@ -27,6 +30,7 @@
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstddef>
@@ -40,6 +44,7 @@
 #include <thread>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------------------
 // Helpers
@@ -607,4 +612,282 @@ TEST(TestKernel, VirtualTimeMonitoringDistinguishesCpuTimeFromOverruns)
 
   sen::kernel::TestKernel kernel(&component);
   kernel.step(2U);
+}
+
+/// @test
+/// Moving an object from one bus to another the way a component does it: remove it from the source
+/// it is on, then add it to the source for the other bus. The report has each move in its own
+/// cycle, so the moves here are a cycle apart rather than back to back.
+TEST(TestKernel, movesAnObjectBetweenBusesAcrossCycles)
+{
+  auto object = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  sen::kernel::TestComponent component;
+  std::shared_ptr<sen::ObjectSource> first;
+  std::shared_ptr<sen::ObjectSource> second;
+  int tick = 0;
+  bool movedOut = false;
+  bool movedBack = false;
+
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      first = api.getSource("local.first");
+      second = api.getSource("local.second");
+      EXPECT_TRUE(first->add(object)) << "the object could not be published on the first bus";
+      return sen::kernel::done();
+    });
+
+  component.onRun(
+    [&](auto& api)
+    {
+      return api.execLoop(std::chrono::seconds(3),
+                          [&]()
+                          {
+                            ++tick;
+                            if (tick == 2)
+                            {
+                              first->remove(object);
+                              movedOut = second->add(object);
+                            }
+                            if (tick == 5)
+                            {
+                              second->remove(object);
+                              movedBack = first->add(object);
+                            }
+                          });
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+  for (int step = 0; step < 8; ++step)
+  {
+    kernel.step();
+  }
+
+  EXPECT_TRUE(movedOut) << "moving to the second bus failed";
+  EXPECT_TRUE(movedBack) << "moving back to the first bus failed";
+}
+
+//--------------------------------------------------------------------------------------------------------------
+// What a second component hears when an object moves between buses
+//--------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+
+/// Records presence callbacks in arrival order together with the interest they arrived on, so the
+/// order can be attributed to a side rather than assumed.
+class PresenceRecorder final: public sen::MuxedProviderListener
+{
+public:
+  struct Entry
+  {
+    std::string kind;
+    sen::InterestId interest;
+    std::thread::id thread;
+  };
+
+  std::vector<Entry> entries;  // NOLINT(misc-non-private-member-variables-in-classes)
+
+  void onObjectsAdded(const sen::ObjectAdditionList& additions) override { record("added", additions); }
+
+  void onObjectsRemoved(const sen::ObjectRemovalList& removals) override { record("removed", removals); }
+
+  void onExistingObjectsReadded(const sen::ObjectAdditionList& additions) override { record("readded", additions); }
+
+  void onObjectsRefCountReduced(const sen::ObjectRemovalList& removals) override { record("refReduced", removals); }
+
+  [[nodiscard]] std::size_t count(std::string_view kind) const
+  {
+    return static_cast<std::size_t>(
+      std::count_if(entries.begin(), entries.end(), [kind](const Entry& entry) { return entry.kind == kind; }));
+  }
+
+  /// The whole sequence, for a failure message: a run that heard nothing reads differently from one
+  /// that heard the wrong thing.
+  std::thread::id publisherThread;  // NOLINT(misc-non-private-member-variables-in-classes)
+  std::thread::id observerThread;   // NOLINT(misc-non-private-member-variables-in-classes)
+
+  [[nodiscard]] std::string describe(sen::InterestId first, sen::InterestId second) const
+  {
+    if (entries.empty())
+    {
+      return "<nothing>";
+    }
+
+    std::string out;
+    for (const auto& entry: entries)
+    {
+      if (!out.empty())
+      {
+        out.append(" ");
+      }
+      out.append(entry.kind).append("(");
+      if (entry.interest == first)
+      {
+        out.append("first");
+      }
+      else if (entry.interest == second)
+      {
+        out.append("second");
+      }
+      else
+      {
+        out.append("other");
+      }
+      out.append(entry.thread == observerThread ? ",observerThread"
+                                                : (entry.thread == publisherThread ? ",publisherThread" : ",other"));
+      out.append(")");
+    }
+    return out;
+  }
+
+private:
+  void record(std::string_view kind, const sen::ObjectAdditionList& additions)
+  {
+    for (const auto& addition: additions)
+    {
+      entries.push_back({std::string(kind), sen::getInterestId(addition), std::this_thread::get_id()});
+    }
+  }
+
+  void record(std::string_view kind, const sen::ObjectRemovalList& removals)
+  {
+    for (const auto& removal: removals)
+    {
+      entries.push_back({std::string(kind), removal.interestId, std::this_thread::get_id()});
+    }
+  }
+};
+
+}  // namespace
+
+/// @test
+/// The topology the bus-move report was seen in: the observer is a second component in the same
+/// process, watching both buses through one mux, while a publisher moves an object from the first
+/// bus to the second and back. Each move should reach the observer as one departure and one
+/// arrival, whichever direction it goes.
+TEST(TestKernel, anotherComponentHearsAnObjectMoveBetweenBuses)
+{
+  auto object = std::make_shared<MyClassImpl>("movingObject", sen::VarMap {});
+
+  // Declared before the kernel so they outlive it.
+  sen::ObjectMux mux;
+  PresenceRecorder recorder;
+  sen::InterestId firstInterest {0};
+  sen::InterestId secondInterest {0};
+
+  std::shared_ptr<sen::ObjectSource> publisherFirst;
+  std::shared_ptr<sen::ObjectSource> publisherSecond;
+  std::shared_ptr<sen::ObjectSource> observerFirst;
+  std::shared_ptr<sen::ObjectSource> observerSecond;
+
+  int tick = 0;
+  bool published = false;
+  bool movedOut = false;
+  bool movedBack = false;
+
+  sen::kernel::TestComponent publisher;
+  publisher.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      publisherFirst = api.getSource("local.first");
+      publisherSecond = api.getSource("local.second");
+      published = publisherFirst->add(object);
+      return sen::kernel::done();
+    });
+  publisher.onRun(
+    [&](auto& api)
+    {
+      return api.execLoop(std::chrono::seconds(3),
+                          [&]()
+                          {
+                            recorder.publisherThread = std::this_thread::get_id();
+                            ++tick;
+                            if (tick == 4)
+                            {
+                              publisherFirst->remove(object);
+                              movedOut = publisherSecond->add(object);
+                            }
+                            if (tick == 9)
+                            {
+                              publisherSecond->remove(object);
+                              movedBack = publisherFirst->add(object);
+                            }
+                          });
+    });
+  publisher.onUnload(
+    [&](sen::kernel::UnloadApi&& /*api*/) -> sen::kernel::FuncResult
+    {
+      publisherFirst.reset();
+      publisherSecond.reset();
+      return sen::Ok();
+    });
+
+  sen::kernel::TestComponent observer;
+  observer.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      observerFirst = api.getSource("local.first");
+      observerSecond = api.getSource("local.second");
+
+      mux.addMuxedListener(&recorder, false);
+
+      auto firstQuery = sen::Interest::make("SELECT * FROM local.first", api.getTypes());
+      auto secondQuery = sen::Interest::make("SELECT * FROM local.second", api.getTypes());
+      firstInterest = firstQuery->getId();
+      secondInterest = secondQuery->getId();
+
+      observerFirst->addSubscriber(firstQuery, &mux, false);
+      observerSecond->addSubscriber(secondQuery, &mux, false);
+      return sen::kernel::done();
+    });
+  observer.onRun(
+    [&](auto& api)
+    { return api.execLoop(std::chrono::seconds(3), [&]() { recorder.observerThread = std::this_thread::get_id(); }); });
+  observer.onUnload(
+    [&](sen::kernel::UnloadApi&& /*api*/) -> sen::kernel::FuncResult
+    {
+      observerFirst->removeSubscriber(&mux, false);
+      observerSecond->removeSubscriber(&mux, false);
+      mux.removeMuxedListener(&recorder, false);
+      observerFirst.reset();
+      observerSecond.reset();
+      return sen::Ok();
+    });
+
+  sen::kernel::KernelConfig config;
+  sen::kernel::KernelConfig::ComponentToLoad publisherToLoad;
+  publisherToLoad.component.instance = &publisher;
+  publisherToLoad.component.info.name = "publisher";
+  publisherToLoad.config.group = 2U;
+  config.addToLoad(std::move(publisherToLoad));
+
+  sen::kernel::KernelConfig::ComponentToLoad observerToLoad;
+  observerToLoad.component.instance = &observer;
+  observerToLoad.component.info.name = "observer";
+  observerToLoad.config.group = 2U;
+  config.addToLoad(std::move(observerToLoad));
+
+  {
+    sen::kernel::TestKernel kernel(std::move(config));
+    for (int step = 0; step < 14; ++step)
+    {
+      kernel.step();
+    }
+  }
+
+  ASSERT_TRUE(published) << "the object was never published on the first bus";
+  ASSERT_TRUE(movedOut) << "moving to the second bus failed";
+  ASSERT_TRUE(movedBack) << "moving back to the first bus failed";
+
+  const auto sequence = recorder.describe(firstInterest, secondInterest);
+  ASSERT_FALSE(recorder.entries.empty()) << "the observer heard nothing at all, so this test proves nothing";
+
+  // The publish and the two moves: three arrivals and two departures, and no move netted out into
+  // a refcount change.
+  EXPECT_EQ(recorder.count("added"), 3U) << sequence;
+  EXPECT_EQ(recorder.count("removed"), 2U) << sequence;
+  EXPECT_EQ(recorder.count("readded"), 0U) << sequence;
+  EXPECT_EQ(recorder.count("refReduced"), 0U) << sequence;
 }

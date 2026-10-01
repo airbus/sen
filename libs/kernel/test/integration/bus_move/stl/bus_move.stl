@@ -1,0 +1,20 @@
+package sen.test.bus_move;
+
+// The object that changes bus. Only its identity matters to this test.
+class Traveller
+{
+}
+
+// Publishes the traveller and moves it between the two buses.
+class Mover
+{
+  fn shutdownKernel();
+}
+
+// Watches both buses through one mux and reports what it heard.
+class Watcher
+{
+  var heard : u32 [confirmed];
+
+  fn shutdownKernel();
+}

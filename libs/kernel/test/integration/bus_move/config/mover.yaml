@@ -1,0 +1,25 @@
+kernel:
+  crashReportDisabled: true
+
+load:
+  - name: ether
+    group: 10
+    runDiscoveryHub: 65454
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65454
+
+build:
+  - name: moverComponent
+    group: 2
+    freqHz: 100
+    imports: [bus_move]
+    objects:
+      - name: mover
+        class: sen.test.bus_move.MoverImpl
+        bus: session.ctrl

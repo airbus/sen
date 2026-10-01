@@ -19,6 +19,7 @@
 #include "sen/core/obj/object_provider.h"
 
 // std
+#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <mutex>
@@ -109,6 +110,12 @@ std::shared_ptr<::sen::impl::ProxyObject> ProxyManager::getOrCreateProxy(const O
 
 void ProxyManager::notifyChangesToLocalListeners()
 {
+  drainAndNotifyRemovals();
+  notifyPendingAdditions();
+}
+
+void ProxyManager::drainAndNotifyRemovals()
+{
   Lock listenersLock(listenersMutex_);
 
   // Destroyed a cycle late on purpose: the work queue drains after this call, so anything already
@@ -125,8 +132,27 @@ void ProxyManager::notifyChangesToLocalListeners()
   processPendingActions();
 }
 
+void ProxyManager::notifyPendingAdditions()
+{
+  Lock listenersLock(listenersMutex_);
+
+  if (recentlyAddedObjects_.empty())
+  {
+    return;
+  }
+
+  notifyObjectsAdded(recentlyAddedObjects_);
+  recentlyAddedObjects_.clear();
+}
+
 void ProxyManager::processPendingActions()
 {
+  // Cleared before the early return, not after it: notifyPendingAdditions() reads
+  // recentlyAddedObjects_ later in the same drain, so a cycle with nothing pending must not leave
+  // the previous cycle's additions sitting there to be announced a second time.
+  recentlyAddedObjects_.clear();
+  recentlyDeletedObjects_.clear();
+
   std::vector<Action> actions;
   actions.resize(pendingActions_.size_approx());
 
@@ -135,10 +161,7 @@ void ProxyManager::processPendingActions()
     return;
   }
 
-  recentlyAddedObjects_.clear();
   recentlyAddedObjects_.reserve(actions.size());
-
-  recentlyDeletedObjects_.clear();
   recentlyDeletedObjects_.reserve(actions.size());
 
   const auto count = pendingActions_.try_dequeue_bulk(actions.begin(), actions.size());
@@ -191,13 +214,19 @@ void ProxyManager::processPendingActions()
       actions[i]);
   }
 
-  // notify additions
-  if (!recentlyAddedObjects_.empty())
-  {
-    notifyObjectsAdded(recentlyAddedObjects_);
-  }
+  // An addition and a removal for the same object can both land in one batch, from two providers
+  // on the same bus. Removals are announced first, so an addition the batch went on to cancel
+  // would be the listener's last word on that object and leave it holding a proxy this manager no
+  // longer tracks. Announce only what survived.
+  recentlyAddedObjects_.erase(
+    std::remove_if(recentlyAddedObjects_.begin(),
+                   recentlyAddedObjects_.end(),
+                   [this](const ObjectAddition& addition)
+                   { return presentProxiesList_.find(getObjectId(addition)) == presentProxiesList_.end(); }),
+    recentlyAddedObjects_.end());
 
-  // notify removals
+  // Removals only. The additions wait for notifyPendingAdditions(), so that every provider's
+  // departures are announced before any provider's arrivals.
   if (!recentlyDeletedObjects_.empty())
   {
     notifyObjectsRemoved(recentlyDeletedObjects_);
