@@ -17,7 +17,15 @@ else()
   # The targets are not built, so this stable sentinel is stored but never executed as clang-tidy.
   set(clang_tidy_path "${CMAKE_COMMAND}")
   set(analysis_property CXX_CLANG_TIDY)
+  # The unknown-warning suppressions are part of the contract deliberately: clang-tidy replays a GCC
+  # compile command, and a consumer who compiles with GCC meets the same unknown flags Sen does.
   set(expected_analysis_value "${CMAKE_COMMAND};-extra-arg=-std=c++17")
+  list(
+    APPEND
+    expected_analysis_value
+    -extra-arg=-Wno-unknown-warning-option
+    -extra-arg=-Wno-error=unknown-warning-option
+  )
 endif()
 
 sen_enable_static_analysis(cmake_static_analysis_primary)
