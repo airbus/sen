@@ -31,6 +31,6 @@ def update():
     if len(obj) != 0:
         print(f"{obj[0].name}: {obj[0].speed}")
         if execution_counter == 3:
-            obj[0].setNextSpeed(123)
+            obj[0].setNextSpeed({"north": 123, "east": 0, "down": 0})
         elif execution_counter == 8:
             os.kill(os.getpid(), signal.SIGKILL)
