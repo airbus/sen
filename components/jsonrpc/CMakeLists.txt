@@ -46,22 +46,6 @@ add_sen_package(
 
 sen_enable_static_analysis(jsonrpc)
 
-# Run clang-tidy only on this component's own headers, not on transitively-included
-# upstream Sen headers. Independent of the project-wide SEN_DISABLE_CLANG_TIDY.
-option(SEN_JSONRPC_ENABLE_CLANG_TIDY "Enable clang-tidy on the jsonrpc component" OFF)
-if(SEN_JSONRPC_ENABLE_CLANG_TIDY)
-  find_program(_jsonrpc_clang_tidy NAMES clang-tidy)
-  if(_jsonrpc_clang_tidy)
-    set_property(
-      TARGET jsonrpc
-      PROPERTY CXX_CLANG_TIDY
-               "${_jsonrpc_clang_tidy};-extra-arg=-std=c++17;-header-filter=.*/components/jsonrpc/.*"
-    )
-  else()
-    message(WARNING "SEN_JSONRPC_ENABLE_CLANG_TIDY=ON but clang-tidy not found; skipping")
-  endif()
-endif()
-
 set_target_properties(jsonrpc PROPERTIES FOLDER "components/jsonrpc")
 
 # Without this the component never appends itself to SEN_INTERNAL_COMPONENT_TARGETS, which
