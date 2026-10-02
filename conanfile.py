@@ -172,7 +172,10 @@ class SenConan(ConanFile):
 
         # py-only (Python integration)
         if self._is_component_enabled("py"):
-            self.requires("pybind11/2.13.6", visible=True)
+            # Private, though this component is installed: nothing Sen installs includes pybind11,
+            # so a consumer never compiles against it. Exchanging Sen objects with a consumer's own
+            # extension would change that, and the type casters for it are not installed.
+            self.requires("pybind11/2.13.6", visible=False)
 
         # rest-only
         if self._is_component_enabled("rest"):
