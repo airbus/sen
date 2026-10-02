@@ -40,8 +40,8 @@ repos:
     - id: check-illegal-windows-names
     - id: check-toml
     - id: check-xml
-      exclude: libs/gen/test/data/plantuml/error_format/error_format.xml # the FOM in error_format is broken on purpose,
-                                                                         # so the parser has something to reject
+      # the FOMs in error_format are broken on purpose, so the parser has something to reject
+      exclude: ^libs/gen/test/data/(mkdocs|plantuml)/error_format/error_format\.xml$
 
 # The clang-format major tracks the toolchain (LLVM_VERSION in
 # tools/ci/Dockerfile); do not bump it independently.
