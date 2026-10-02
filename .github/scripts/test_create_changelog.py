@@ -11,7 +11,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from create_changelog import TYPE_MAP, build_changelog, get_commit_range, get_last_release_branch
+from create_changelog import TYPE_MAP, build_changelog, get_commit_range, get_last_release_branch, quote_mentions
 
 GITLINT_FILE = Path(__file__).resolve().parents[2] / ".gitlint"
 
@@ -199,3 +199,33 @@ def test_the_markdown_inside_the_fold_can_render():
 def test_one_change_is_not_called_changes():
     """The summary is the only sentence a reader sees of this section."""
     assert "<summary>1 internal change to" in build_changelog(["ci: rebuild the lane\n\n"])
+
+
+def test_a_mention_in_a_subject_is_quoted():
+    """The case that shipped: a subject naming @env linked an unrelated organisation."""
+    text = build_changelog(["test(kernel): cover @env in a sequence of includes\n\n"])
+    assert "cover `@env` in a sequence" in text
+    assert "cover @env" not in text
+
+
+def test_a_mention_in_a_breaking_description_is_quoted():
+    """The footer is rendered into the body too, so it needs the same treatment as the subject."""
+    text = build_changelog(["feat!: rework config\n\nBREAKING CHANGE: @env is no longer expanded\n\n"])
+    assert "> `@env` is no longer expanded" in text
+
+
+def test_a_subject_that_already_quotes_its_mention_is_left_alone():
+    """Otherwise the fix would produce ``@env``, which renders as a stray backtick pair."""
+    text = build_changelog(["fix(kernel): make `@env` match its documentation\n\n"])
+    assert "make `@env` match" in text
+    assert "``" not in text
+
+
+def test_an_email_address_is_not_a_mention():
+    """GitHub does not link one."""
+    assert quote_mentions("docs: ask maintainer@example.com") == "docs: ask maintainer@example.com"
+
+
+def test_a_scoped_package_name_is_quoted_whole():
+    """`@sen/client` is one name; quoting only `@sen` would split it."""
+    assert quote_mentions("feat: @sen/client library") == "feat: `@sen/client` library"
