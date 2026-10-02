@@ -5,21 +5,22 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-include(tps/cli11)
-
-add_executable(cli_archive main.cpp)
-
-target_link_libraries(
-  cli_archive
-  PUBLIC sen::core sen::db
-  PRIVATE "$<BUILD_INTERFACE:CLI11::CLI11>"
+add_sen_integration_test(
+  cli_archive_info
+  COMMAND
+  ./cli_archive
+  info
+  ${CMAKE_CURRENT_SOURCE_DIR}/data/archive_recording
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_archive>
+  REQ_DEPS cli_archive
 )
 
-add_executable(sen::cli_archive ALIAS cli_archive)
-sen_internal_configure_app(cli_archive)
-sen_internal_install(cli_archive)
-sen_enable_static_analysis(cli_archive)
-
-if(SEN_BUILD_TESTS)
-  add_subdirectory(test)
-endif()
+add_sen_integration_test(
+  cli_archive_indexed
+  COMMAND
+  ./cli_archive
+  indexed
+  ${CMAKE_CURRENT_SOURCE_DIR}/data/archive_recording
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_archive>
+  REQ_DEPS cli_archive
+)
