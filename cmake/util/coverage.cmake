@@ -46,7 +46,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     COMMAND ${LCOV_PATH} -d . --capture --no-external --rc lcov_branch_coverage=1 -b ${CMAKE_SOURCE_DIR} -o
             coverage.info
     COMMAND ${LCOV_PATH} -r coverage.info --rc lcov_branch_coverage=1 -o filtered_coverage.info
-            '/usr/include/*' '*/*_generated/*' '*/test/*'
+            '/usr/include/*' '*/*_generated/*' '*/test/*' '${CMAKE_BINARY_DIR}/*'
     COMMAND ${GENHTML_PATH} -o ${SEN_COVERAGE_REPORT_DIR} filtered_coverage.info --legend --rc
             lcov_branch_coverage=1
     COMMAND rm -rf coverage.info filtered_coverage.info
@@ -110,11 +110,12 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     generate-coverage-report
     COMMAND
       ${Python3_EXECUTABLE} ${GENERATE_COVERAGE_REPORT_SCRIPT} ${LLVM_PROFDATA_PATH} ${LLVM_COV_PATH}
-      ${SEN_COVERAGE_DATA_DIR} ${SEN_COVERAGE_REPORT_DIR} ${coverage_binaries}
-      --ignore-filename-regex=".*generated.*"
+      ${SEN_COVERAGE_DATA_DIR} ${SEN_COVERAGE_REPORT_DIR} ${coverage_binaries} --ignore-filename-regex
+      ".*(generated|${CMAKE_BINARY_DIR}/.*).*"
     COMMAND echo "Generated coverage overview [see: ${SEN_COVERAGE_REPORT_DIR}index.html]"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS run_tests
+    VERBATIM
   )
 else()
   message(STATUS "Coverage setup not supported.")
