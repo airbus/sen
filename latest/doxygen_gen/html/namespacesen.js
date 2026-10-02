@@ -286,6 +286,7 @@ var namespacesen =
     [ "operator!=", "group__util.html#ga415d0821f04c9439441581b7fb7d6770", null ],
     [ "operator<", "group__util.html#ga0583e0d27ec13056bc8e6852c00c2bfb", null ],
     [ "operator>", "group__util.html#gac4d6dbbb65e1788af9d486d08d395de5", null ],
+    [ "makeConstSpan", "group__util.html#ga9382b2f520e4eeaec99dccca6fcfef12", null ],
     [ "operator==", "group__util.html#ga8ba20ba977383f7041aa5aa453c2e749", null ],
     [ "operator!=", "group__util.html#ga2bca46aea46efad46c9447053295146e", null ],
     [ "operator<", "group__util.html#ga81ff51214ef25b1c4b9a38348b6c444d", null ],

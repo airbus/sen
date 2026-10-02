@@ -14,6 +14,7 @@ var classsen_1_1_object_provider =
     [ "notifyAddedOnExistingObjects", "classsen_1_1_object_provider.html#a1f7cc5134ca48de32e8047e79f57e0e1", null ],
     [ "notifyRemovedOnExistingObjects", "classsen_1_1_object_provider.html#aad5adc05435e5798691b0aceb14950ac", null ],
     [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_provider.html#a23091bb757474423418652354cce723d", null ],
+    [ "forEachListener", "classsen_1_1_object_provider.html#a9e79a89ac1de42511ca874a6298d1ee2", null ],
     [ "callOnObjectsAdded", "classsen_1_1_object_provider.html#a3bb3c1206797605b441ff38af4b7714c", null ],
     [ "callOnObjectsRemoved", "classsen_1_1_object_provider.html#a7aa8f74825f0004085e3eb6454e41a92", null ],
     [ "ObjectFilter", "classsen_1_1_object_provider.html#ab1edf6bdf2d81a1c0c396fbc47c3a2f6", null ]

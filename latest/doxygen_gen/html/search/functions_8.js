@@ -41,7 +41,7 @@ var searchData=
   ['isrotating_38',['isRotating',['../group__dr.html#ga700dc5434e2a5d13bb90cd2f8d633e9a',1,'sen::util::impl']]],
   ['issigned_39',['isSigned',['../classsen_1_1_numeric_type.html#a8460a654658dd39902f80187e35d3e59',1,'sen::NumericType']]],
   ['issituationcached_40',['isSituationCached',['../classsen_1_1util_1_1_dead_reckoner_base.html#ac673dbf58cfca43f586ee667e616bd1d',1,'sen::util::DeadReckonerBase']]],
-  ['isvalid_41',['isValid',['../classsen_1_1_quantity.html#a631c722a291bbe29cb2d5bd8b549ed95',1,'sen::Quantity::isValid()'],['../group__util.html#ga15311e2d42771f786e9287235fe64a64',1,'sen::Uuid::isValid()'],['../classsen_1_1lang_1_1_chunk.html#a25189b2dac4bf219a2f9f85b5ccf9a6e',1,'sen::lang::Chunk::isValid()']]],
+  ['isvalid_41',['isValid',['../classsen_1_1_quantity.html#a631c722a291bbe29cb2d5bd8b549ed95',1,'sen::Quantity::isValid()'],['../group__util.html#ga52b34f55a41515c4d58e795dc6c95785',1,'sen::Uuid::isValid()'],['../classsen_1_1lang_1_1_chunk.html#a25189b2dac4bf219a2f9f85b5ccf9a6e',1,'sen::lang::Chunk::isValid()']]],
   ['iterateoverdependenttypes_42',['iterateOverDependentTypes',['../group__type__utils.html#ga7021bc8a8c092788dc332f6f8d1db534',1,'sen']]],
   ['iteratorrange_43',['IteratorRange',['../structsen_1_1util_1_1_iterator_range.html#abcf01909487c3a630e90c42dddd6f1d1',1,'sen::util::IteratorRange']]]
 ];

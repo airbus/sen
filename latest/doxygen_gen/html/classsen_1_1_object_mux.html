@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1_o
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_mux__inherit__graph.svg" width="440" height="1062"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" loading="lazy" frameborder="0" src="classsen_1_1_object_mux__inherit__graph.svg" width="440" height="1082"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -192,6 +192,8 @@ Protected Member Functions</h2></td></tr>
 <tr class="memdesc:a62f5c99e74da6b077acc6f54cfeb2c29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does nothing by default.  <br /></td></tr>
 <tr class="memitem:a23091bb757474423418652354cce723d" id="r_a23091bb757474423418652354cce723d"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_object_provider.html#a23091bb757474423418652354cce723d">notifyRemovedOnExistingObjectsForAllListeners</a> ()</td></tr>
 <tr class="memdesc:a23091bb757474423418652354cce723d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as notifyRemovedOnExistingObjects but for all registered listeners.  <br /></td></tr>
+<tr class="memitem:a9e79a89ac1de42511ca874a6298d1ee2" id="r_a9e79a89ac1de42511ca874a6298d1ee2"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_object_provider.html#a9e79a89ac1de42511ca874a6298d1ee2">forEachListener</a> (const std::function&lt; void(ObjectProviderListener *)&gt; &amp;callback) const</td></tr>
+<tr class="memdesc:a9e79a89ac1de42511ca874a6298d1ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls <span class="tt">callback</span> once for each registered listener.  <br /></td></tr>
 <tr class="memitem:a3bb3c1206797605b441ff38af4b7714c" id="r_a3bb3c1206797605b441ff38af4b7714c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_object_provider.html#a3bb3c1206797605b441ff38af4b7714c">callOnObjectsAdded</a> (ObjectProviderListener *listener, const <a class="el" href="group__obj.html#ga82d17aa351823e354aec2c433af928fc">ObjectAdditionList</a> &amp;additions) const</td></tr>
 <tr class="memitem:a7aa8f74825f0004085e3eb6454e41a92" id="r_a7aa8f74825f0004085e3eb6454e41a92"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_object_provider.html#a7aa8f74825f0004085e3eb6454e41a92">callOnObjectsRemoved</a> (ObjectProviderListener *listener, const <a class="el" href="group__obj.html#gae6b18640f36ffbe217cebe76ae4ad0f3">ObjectRemovalList</a> &amp;removals) const</td></tr>
 </table><table class="memberdecls">
@@ -969,6 +971,34 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Same as notifyRemovedOnExistingObjects but for all registered listeners. </p>
+
+</div>
+</div>
+<a id="a9e79a89ac1de42511ca874a6298d1ee2" name="a9e79a89ac1de42511ca874a6298d1ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e79a89ac1de42511ca874a6298d1ee2">&#9670;&#160;</a></span>forEachListener()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::ObjectProvider::forEachListener </td>
+          <td>(</td>
+          <td class="paramtype">const std::function&lt; void(ObjectProviderListener *)&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>callback</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel protected">protected</span><span class="mlabel inherited">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calls <span class="tt">callback</span> once for each registered listener. </p>
+<p>The registry is a lock-free list and cannot lend out a container. Its iterators survive a concurrent insert or erase, so the callback may add or remove listeners; one erased before the walk reaches it is not visited. </p>
 
 </div>
 </div>

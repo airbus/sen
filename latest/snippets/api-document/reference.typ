@@ -95,7 +95,7 @@
 #sen-table(
   columns: (COL-NAME, COL-TYPE, 1fr),
   table.header([*Name*], [*Type*], [*Description*]),
-  [#mono("multicast​Range")], link(<t-sen-components-ether-MulticastRange>)[#"Multicast​Range"], "Defaults to the Organization Local scope (RFC 2365): [239], [192-195], [0-255], [0-255] Remember to keep a range wide enough for avoiding collisions if you have many buses.",
+  [#mono("multicast​Range")], link(<t-sen-components-ether-MulticastRange>)[#"Multicast​Range"], "Defaults to the whole of 239.0.0.0/8: [239], [0-255], [0-255], [0-255]. RFC 2365 assigns only 239.192.0.0/14, which holds 262144 addresses and is not enough to keep many bus names apart. Set [239], [192-195], [0-255], [0-255] to stay inside it. Remember to keep a range wide enough for avoiding collisions if you have many buses.",
   [#mono("multicast​Exclusions")], link(<t-sen-components-ether-MulticastAddressExclusions>)[#"Multicast​Address​Exclusions"], "Address ranges that must not be allocated",
   [#mono("multicast​Port")], link(<t-u16>)[#"u16"], "Defaults to 50985 Change this in case you have limited control over the infrastructure.",
   [#mono("multicast​Disabled")], link(<t-bool>)[#"bool"], "If true, no multicast traffic is performed and all the bus settings above become meaningless. Defaults to false.",

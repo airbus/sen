@@ -27,6 +27,7 @@ var classsen_1_1_object_mux =
     [ "listenerAdded", "classsen_1_1_object_mux.html#a9b7145f29dd04b615b9d40ae32bc58d8", null ],
     [ "listenerRemoved", "classsen_1_1_object_mux.html#a62f5c99e74da6b077acc6f54cfeb2c29", null ],
     [ "notifyRemovedOnExistingObjectsForAllListeners", "classsen_1_1_object_mux.html#a23091bb757474423418652354cce723d", null ],
+    [ "forEachListener", "classsen_1_1_object_mux.html#a9e79a89ac1de42511ca874a6298d1ee2", null ],
     [ "callOnObjectsAdded", "classsen_1_1_object_mux.html#a3bb3c1206797605b441ff38af4b7714c", null ],
     [ "callOnObjectsRemoved", "classsen_1_1_object_mux.html#a7aa8f74825f0004085e3eb6454e41a92", null ],
     [ "MuxedProviderListener", "classsen_1_1_object_mux.html#ac5218a902868d2d591654735eee54671", null ]

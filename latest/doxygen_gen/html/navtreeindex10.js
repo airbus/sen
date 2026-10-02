@@ -1,5 +1,7 @@
 var NAVTREEINDEX10 =
 {
+"classsen_1_1util_1_1_settable_dead_reckoner.html":[0,2,0,16],
+"classsen_1_1util_1_1_settable_dead_reckoner.html#a061ad9f8705ef1c9b6dc91e7c5367cb5":[0,2,0,16,1],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a063686e3dc92e9686e63acdb044a1624":[0,2,0,16,23],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a0d8882007d94ba8f0726a77056ebff03":[0,2,0,16,19],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a14e4b106ba825a721f8015064b68bbb3":[0,2,0,16,16],
@@ -247,7 +249,5 @@ var NAVTREEINDEX10 =
 "enum__type_8h.html":[3,0,0,0,0,0,0,3,7],
 "enum__type_8h_source.html":[3,0,0,0,0,0,0,3,7],
 "error__reporter_8h.html":[3,0,0,0,0,0,0,2,1],
-"error__reporter_8h_source.html":[3,0,0,0,0,0,0,2,1],
-"event__buffer_8h.html":[3,0,0,0,0,0,0,4,0,0],
-"event__buffer_8h_source.html":[3,0,0,0,0,0,0,4,0,0]
+"error__reporter_8h_source.html":[3,0,0,0,0,0,0,2,1]
 };

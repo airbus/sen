@@ -11,8 +11,6 @@ var classsen_1_1_uuid =
     [ "getHash32", "group__util.html#ga6e706b6dd418db83ef97bb43c4613df6", null ],
     [ "bytes", "group__util.html#ga523f6fb26fd411fffa7b52c309b94457", null ],
     [ "toString", "group__util.html#ga1bbf651bfb8da33f50b3906ba7cb69e8", null ],
-    [ "isValid", "group__util.html#ga15311e2d42771f786e9287235fe64a64", null ],
-    [ "fromString", "group__util.html#ga6887699b9e58d3d52b290355fff38da9", null ],
     [ "copy", "group__util.html#ga250b2ed944e555fffd1679d8096441f5", null ],
     [ "copy", "group__util.html#gaed70ae2790d4eb70c856738b31da3271", null ],
     [ "swap", "group__util.html#ga9fa4858b61001ff1d3f92b7ec6c8d08d", null ],

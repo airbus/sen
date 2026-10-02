@@ -1,5 +1,8 @@
 var NAVTREEINDEX16 =
 {
+"namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70":[1,0,1,5,8],
+"namespacesen_1_1std__util.html#acb24a1ebd1bfaa2e66f4037578c69be1":[1,0,1,5,9],
+"namespacesen_1_1std__util.html#adc812fd337adb3debcb1c48056f2a5e8":[1,0,1,5,17],
 "namespacesen_1_1std__util.html#ae1e18ffcc1a8c5b68832114d3f3c9543":[1,0,1,5,19],
 "namespacesen_1_1std__util_1_1detail.html":[1,0,1,5,0],
 "namespacesen_1_1std__util_1_1detail.html#a3c3554aee4e573391de23e7ea870fb30":[1,0,1,5,0,6],
@@ -246,8 +249,5 @@ var NAVTREEINDEX16 =
 "structsen_1_1_callable_spec.html#a809b0f332f7d3faf0c527fdce872adf4":[0,0,2,1,3,5],
 "structsen_1_1_callable_spec.html#aad6c25e97ae0a52b1888dc3d0f52dd82":[0,0,2,1,3,2],
 "structsen_1_1_callable_spec.html#acb245d9e07fc0ce48d0448c24bdc6206":[0,0,2,1,3,0],
-"structsen_1_1_callable_spec.html#adabfa6ce8af63897d797489b72e2282b":[0,0,2,1,3,3],
-"structsen_1_1_enum_spec.html":[0,0,2,1,7],
-"structsen_1_1_enum_spec.html#a10238970204d15fdab151b051691637c":[0,0,2,1,7,7],
-"structsen_1_1_enum_spec.html#a36c49923b3e20868ae304ee672b96477":[0,0,2,1,7,6]
+"structsen_1_1_callable_spec.html#adabfa6ce8af63897d797489b72e2282b":[0,0,2,1,3,3]
 };
