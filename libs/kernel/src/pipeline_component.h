@@ -15,6 +15,7 @@
 // sen
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/span.h"
+#include "sen/core/meta/class_type.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/meta/var.h"
@@ -62,9 +63,9 @@ public:
 private:
   void openLibs(CustomTypeRegistry& reg);
   void fetchTypes(CustomTypeRegistry& reg);
-  void lookupType(const std::string& name, CustomTypeRegistry& reg) const;
+  void lookupType(const std::string& name, CustomTypeRegistry& reg);
   void validateConfig(const CustomTypeRegistry& reg) const;
-  void createObjects(const CustomTypeRegistry& reg);
+  [[nodiscard]] FuncResult createObjects(const CustomTypeRegistry& reg);
   void establishConnections(InitApi&& api);
   void closeConnections(UnloadApi&& api);
   void publishObjects();
@@ -86,6 +87,7 @@ private:
   std::vector<std::shared_ptr<NativeObject>> objects_;
   std::unordered_map<std::string, std::shared_ptr<ObjectSource>> connections_;
   std::unordered_map<const Type*, InstanceMakerFunc> instanceMakers_;
+  std::unordered_map<const ClassType*, ConstructionValidatorFunc> constructionValidators_;
   std::unordered_map<const NativeObject*, const KernelConfig::ObjectConfig*> objectConfigs_;
   std::shared_ptr<OperatingSystem> os_;
 };
