@@ -18,6 +18,8 @@ set(_working_dir $<TARGET_FILE_DIR:sen::cli_run>)
 # Checks that the initial 'ls' command discovers unopened sessions
 add_sen_integration_test(
   shell_ls_initial_discovery
+  DESCRIPTION
+  "Discovers unopened sessions on the first ls."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/test_ls.py
@@ -30,6 +32,8 @@ add_sen_integration_test(
 # Checks that 'ls' shows the correct tags after opening a session
 add_sen_integration_test(
   shell_ls_open_session
+  DESCRIPTION
+  "Shows the right tags after a session is opened."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/test_ls.py
@@ -42,6 +46,8 @@ add_sen_integration_test(
 # Checks that 'ls' shows the correct tags after opening a specific bus
 add_sen_integration_test(
   shell_ls_open_bus
+  DESCRIPTION
+  "Shows the right tags after a specific bus is opened."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/test_ls.py
@@ -54,6 +60,8 @@ add_sen_integration_test(
 # Checks that 'ls' shows the correct tags when opening an empty session context
 add_sen_integration_test(
   shell_ls_open_empty_session
+  DESCRIPTION
+  "Shows the right tags for an empty session context."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/test_ls.py

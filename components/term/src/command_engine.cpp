@@ -851,7 +851,11 @@ void CommandEngine::cmdCd(std::string_view args)
   // are only partly known, because discovery cannot list a closed session's buses. A group is not a thing
   // in Sen at all, only an artefact of splitting the object names present this instant, so "no such
   // group" is a statement term cannot make.
-  if (!isSpecial && target.front() == '@' && target.size() > 1U)
+  // Not guarded by isSpecial: a @ target is special to the checks above, which are about sessions
+  // and buses, and this one is the check that belongs to it. Reading !isSpecial here made the
+  // condition contradict itself, so `cd @nosuchquery` was accepted and the prompt changed to a
+  // query that does not exist.
+  if (target.front() == '@' && target.size() > 1U)
   {
     const auto wanted = target.substr(1);
     auto queries = store_.getQueries();

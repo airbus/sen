@@ -19,7 +19,20 @@ add_sen_package(
 )
 
 add_sen_integration_test(
+  py_convert_types_test
+  DESCRIPTION
+  "Converts values between Python and Sen types in both directions."
+  COMMAND
+  ./cli_run
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/convert_types.yaml
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
+  REQ_DEPS cli_run
+)
+
+add_sen_integration_test(
   py_modify_objects_test
+  DESCRIPTION
+  "Modifies a published object from Python."
   COMMAND
   ./cli_run
   ${CMAKE_CURRENT_SOURCE_DIR}/config/modify_objects.yaml
@@ -29,6 +42,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   py_open_query_test
+  DESCRIPTION
+  "Opens a query from Python."
   COMMAND
   ./cli_run
   ${CMAKE_CURRENT_SOURCE_DIR}/config/open_query.yaml
@@ -38,6 +53,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   py_wait_until_test
+  DESCRIPTION
+  "Waits from Python until a condition on an object holds."
   COMMAND
   ./cli_run
   ${CMAKE_CURRENT_SOURCE_DIR}/config/wait_until.yaml
@@ -46,7 +63,20 @@ add_sen_integration_test(
 )
 
 add_sen_integration_test(
+  py_object_errors_test
+  DESCRIPTION
+  "Refuses an unknown member, an unwritable property, a callback registration with the wrong number of arguments, and a method given too few arguments."
+  COMMAND
+  ./cli_run
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/object_errors.yaml
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
+  REQ_DEPS cli_run
+)
+
+add_sen_integration_test(
   py_test_event_test
+  DESCRIPTION
+  "Sends and receives an event from Python."
   COMMAND
   ./cli_run
   ${CMAKE_CURRENT_SOURCE_DIR}/config/event.yaml
@@ -58,8 +88,16 @@ append_test_env_modification(
   py_modify_objects_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
+append_test_env_modification(
+  py_convert_types_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+
 append_test_env_modification(py_open_query_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 append_test_env_modification(py_wait_until_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 append_test_env_modification(py_test_event_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+append_test_env_modification(
+  py_object_errors_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src"
+)

@@ -9,6 +9,13 @@ find_program(bats_exec NAMES bats)
 
 if(bats_exec)
   add_test(NAME installer_tests COMMAND ${CMAKE_CURRENT_LIST_DIR}/run.sh)
+  # ctest counts this suite as one test. run.sh writes the bats cases here instead, so each
+  # of them reaches the test report under its own name.
+  record_test_description(
+    installer_tests
+    "Runs the installer's shell syntax checks, and the bats suite whose cases are listed separately."
+  )
+  append_test_env_modification(installer_tests "SEN_TEST_REPORT_DIR=set:${SEN_TEST_REPORT_DIR}")
   # It drives installed binaries, which are instrumented like any other.
   add_sanitizer_options(installer_tests)
 elseif(LINUX AND DEFINED ENV{CI})

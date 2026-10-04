@@ -10,9 +10,15 @@
 #include "sen/core/base/numbers.h"
 #include "sen/core/io/buffer_writer.h"
 #include "sen/core/io/output_stream.h"
+#include "sen/core/meta/class_type.h"
+#include "sen/core/meta/event.h"
 #include "sen/core/meta/native_types.h"
+#include "sen/core/meta/property.h"
+#include "sen/core/meta/type.h"
+#include "sen/db/event.h"
 #include "sen/db/input.h"
 #include "sen/db/output.h"
+#include "sen/db/property_change.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/test_kernel.h"
@@ -30,7 +36,14 @@
 #include <ios>
 #include <memory>
 #include <utility>
+#include <variant>
 #include <vector>
+
+namespace sen::db
+{
+MemberHash computePlatformDependentPropertyId(const ::sen::ClassType* classType, const ::sen::Property* property);
+MemberHash computePlatformDependentEventId(const ::sen::ClassType* classType, const ::sen::Event* event);
+}  // namespace sen::db
 
 namespace sen::db::test
 {
@@ -646,6 +659,140 @@ TEST(InputTest, Summary)
   EXPECT_EQ(summary.typeCount, 0U);
   EXPECT_EQ(summary.annotationCount, 1U);
   EXPECT_EQ(summary.indexedObjectCount, 1U);
+}
+
+/// @test
+/// A property change written with the member id Sen used before the hash changed still resolves.
+///
+/// The id is a hash of the member, and its computation changed so that a Windows and a Linux process
+/// agree. input.cpp keeps a search by the old hash for recordings written before that, and nothing
+/// exercised it: a recording from an older Sen would have stopped being readable without a failing test.
+TEST(InputTest, APropertyChangeWithTheOldMemberIdStillResolves)
+{
+  TempDir tempDir;
+  SingleClassSetup setup;
+
+  OutSettings settings;
+  settings.name = "test";
+  settings.folder = tempDir.path().string();
+  settings.indexKeyframes = true;
+  const auto archivePath = tempDir.path() / settings.name;
+
+  const auto classType = setup.object->getClass();
+  const auto* propMeta = classType.type()->searchPropertyByName("speed");
+  ASSERT_NE(propMeta, nullptr);
+
+  const auto oldId = computePlatformDependentPropertyId(classType.type(), propMeta);
+  ASSERT_NE(oldId.get(), propMeta->getId().get())
+    << "the two hashes agree for this property, so this test cannot reach the fallback it is for";
+
+  {
+    Output output(std::move(settings), []() {});
+
+    ObjectInfo info = {setup.object.get(), "test_session", "test_bus"};
+    output.creation(setup.kernel->getTime(), info, true);
+    setup.kernel->step();
+
+    ::sen::kernel::Buffer propBuf;
+    {
+      sen::ResizableBufferWriter writer(propBuf);
+      sen::OutputStream out(writer);
+      sen::SerializationTraits<float64_t>::write(out, 250.0);
+    }
+    output.propertyChange(setup.kernel->getTime(), setup.object->getId(), oldId, std::move(propBuf));
+
+    setup.kernel->step();
+    output.keyframe(setup.kernel->getTime(), {});
+  }
+
+  Input input(archivePath.string(), setup.kernel->getTypes());
+
+  bool found = false;
+  for (auto cursor = input.begin(); !cursor.atEnd();)
+  {
+    ++cursor;
+    if (cursor.atEnd())
+    {
+      break;
+    }
+
+    const auto& entry = cursor.get();
+    if (std::holds_alternative<PropertyChange>(entry.payload))
+    {
+      const auto& change = std::get<PropertyChange>(entry.payload);
+      ASSERT_NE(change.getProperty(), nullptr) << "the old id did not resolve to a property";
+      EXPECT_EQ(change.getProperty()->getName(), "speed");
+      found = true;
+      break;
+    }
+  }
+
+  EXPECT_TRUE(found) << "no property change was read back";
+}
+
+/// @test
+/// An event written with the member id Sen used before the hash changed still resolves.
+TEST(InputTest, AnEventWithTheOldMemberIdStillResolves)
+{
+  TempDir tempDir;
+  SingleClassSetup setup;
+
+  OutSettings settings;
+  settings.name = "test";
+  settings.folder = tempDir.path().string();
+  settings.indexKeyframes = true;
+  const auto archivePath = tempDir.path() / settings.name;
+
+  const auto classType = setup.object->getClass();
+  const auto* eventMeta = classType.type()->searchEventByName("valueChanged");
+  ASSERT_NE(eventMeta, nullptr);
+
+  const auto oldId = computePlatformDependentEventId(classType.type(), eventMeta);
+  ASSERT_NE(oldId.get(), eventMeta->getId().get())
+    << "the two hashes agree for this event, so this test cannot reach the fallback it is for";
+
+  {
+    Output output(std::move(settings), []() {});
+
+    ObjectInfo info = {setup.object.get(), "test_session", "test_bus"};
+    output.creation(setup.kernel->getTime(), info, true);
+    setup.kernel->step();
+
+    ::sen::kernel::Buffer evBuf;
+    {
+      sen::ResizableBufferWriter writer(evBuf);
+      sen::OutputStream out(writer);
+      sen::SerializationTraits<float64_t>::write(out, 99.1);
+    }
+    output.event(setup.kernel->getTime(), setup.object->getId(), oldId, std::move(evBuf));
+
+    setup.kernel->step();
+    output.keyframe(setup.kernel->getTime(), {});
+  }
+
+  Input input(archivePath.string(), setup.kernel->getTypes());
+
+  bool found = false;
+  for (auto cursor = input.begin(); !cursor.atEnd();)
+  {
+    ++cursor;
+    if (cursor.atEnd())
+    {
+      break;
+    }
+
+    const auto& entry = cursor.get();
+    if (std::holds_alternative<db::Event>(entry.payload))
+    {
+      const auto& event = std::get<db::Event>(entry.payload);
+      ASSERT_NE(event.getEvent(), nullptr) << "the old id did not resolve to an event";
+      EXPECT_EQ(event.getEvent()->getName(), "valueChanged");
+      found = true;
+      break;
+    }
+  }
+
+  EXPECT_TRUE(found) << "no event was read back";
 }
 
 }  // namespace sen::db::test

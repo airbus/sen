@@ -1,0 +1,4 @@
+# The smallest configuration cli_run accepts: a kernel and nothing in it. The tests beside this file
+# are about the launcher's own paths — presets, bus arguments, the footprint — so a config that loads
+# a component would only add a reason for them to fail.
+load: []

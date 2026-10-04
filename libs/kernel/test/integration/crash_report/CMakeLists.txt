@@ -22,6 +22,8 @@ set_target_properties(crash_report PROPERTIES FOLDER "test")
 
 add_sen_integration_test(
   kernel_crash_report_stacktrace_test
+  DESCRIPTION
+  "Checks that the report written after a crash carries a stack trace."
   COMMAND
   ${PYTEST_EXEC}
   ${CMAKE_CURRENT_SOURCE_DIR}/crash_report_tester.py

@@ -304,4 +304,22 @@ TEST(TruncateUtf8, NeverSplitsAMultiByteSequence)
   EXPECT_EQ(truncateUtf8(emoji, 4U), emoji);
 }
 
+/// @test
+/// Codepoints are counted, not bytes. The input pane measures what it is about to draw with this,
+/// so counting bytes would make a line of accented text or an emoji wrap early and the cursor sit
+/// in the wrong column.
+TEST(ParseUtils, CodepointCountSkipsContinuationBytes)
+{
+  EXPECT_EQ(codepointCount(""), 0U);
+  EXPECT_EQ(codepointCount("ls -l"), 5U);
+  // Two bytes each, one codepoint each.
+  EXPECT_EQ(codepointCount("héllo"), 5U);
+  // Four bytes, one codepoint.
+  EXPECT_EQ(codepointCount("\xF0\x9F\x9A\x80"), 1U);
+  // Split literal: a hex escape runs on into the next character, and "\x80b" is out of range.
+  EXPECT_EQ(codepointCount("a\xF0\x9F\x9A\x80"
+                           "b"),
+            3U);
+}
+
 }  // namespace sen::components::term

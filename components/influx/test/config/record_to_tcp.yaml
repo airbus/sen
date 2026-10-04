@@ -1,0 +1,18 @@
+# The test driver binds the port before it starts the kernel: the component connects while it
+# loads, which is before any module of its own could have opened a socket. batchSize gives the
+# batching path something to do as well.
+load:
+  - name: py
+    group: 3
+    freqHz: 50
+    module: influx_source
+    imports: [py_test_package]
+  - name: influx
+    group: 4
+    protocol: tcp
+    telegrafAddress: 127.0.0.1
+    telegrafPort: 18087
+    samplingPeriod: 20ms
+    batchSize: 4
+    selections:
+      - SELECT * FROM my.tutorial

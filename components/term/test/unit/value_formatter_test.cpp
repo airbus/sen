@@ -10,6 +10,7 @@
 
 // sen
 #include "sen/core/base/duration.h"
+#include "sen/core/base/timestamp.h"
 #include "sen/core/meta/alias_type.h"
 #include "sen/core/meta/enum_type.h"
 #include "sen/core/meta/native_types.h"
@@ -35,6 +36,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <variant>
 
 namespace sen::components::term
 {
@@ -73,6 +75,15 @@ ConstTypeHandle<StructType> makePointStruct()
 {
   static const auto type = StructType::make(
     StructSpec {"Point", "test.Point", "", {{"x", "", Int32Type::get()}, {"y", "", Int32Type::get()}}});
+  return type;
+}
+
+/// A struct with an optional field, for the case where the optional is carrying nothing.
+ConstTypeHandle<StructType> makeNoteStruct()
+{
+  static const auto note = OptionalType::make(OptionalSpec {"OptStr", "test.OptStr", "", StringType::get()});
+  static const auto type =
+    StructType::make(StructSpec {"Note", "test.Note", "", {{"name", "", StringType::get()}, {"note", "", note}}});
   return type;
 }
 
@@ -402,4 +413,76 @@ TEST(ValueFormatter, Void)
 }
 
 }  // namespace
+/// @test
+/// A struct field holding an empty optional says so, rather than showing a default that was never
+/// set. A zero where a value is absent is the difference between "not reported" and "reported as
+/// nought", and a reader of a property dump cannot tell them apart afterwards.
+TEST(ValueFormatter, StructFieldHoldingAnEmptyOptional)
+{
+  VarMap map;
+  map.try_emplace("name", std::string {"sensor"});
+  map.try_emplace("note", std::monostate {});
+
+  auto out = renderToText(formatValue(Var(map), *makeNoteStruct()));
+
+  EXPECT_THAT(out, ::testing::HasSubstr("note:"));
+  EXPECT_THAT(out, ::testing::HasSubstr("<empty>"));
+  EXPECT_THAT(out, ::testing::HasSubstr("sensor")) << "the field beside it still renders";
+}
+
+/// @test
+/// A timestamp renders as a UTC string, which is the only form that reads the same wherever the
+/// person looking at a property dump happens to be.
+TEST(ValueFormatter, Timestamp)
+{
+  const auto when = TimeStamp(std::chrono::seconds(1'700'000'000));
+  auto out = renderToText(formatValue(Var(when), *TimestampType::get()));
+
+  EXPECT_THAT(out, ::testing::HasSubstr("20"));
+  EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("<empty>")));
+}
+
+/// @test
+/// A timestamp slot carrying nothing says so rather than rendering an epoch, which is a real time
+/// and would read as one.
+TEST(ValueFormatter, TimestampEmpty)
+{
+  auto out = renderToText(formatValue(Var {}, *TimestampType::get()));
+  EXPECT_THAT(out, ::testing::HasSubstr("<empty>"));
+}
+
+/// @test
+/// A struct field holding an empty sequence is laid out as a simple field rather than opened as a
+/// subtree. A tree connector leading to nothing is worse than a value that says it is empty.
+TEST(ValueFormatter, StructFieldHoldingAnEmptySequence)
+{
+  static const auto inner = SequenceType::make(SequenceSpec {"Inner", "test.Inner", "", Int32Type::get()});
+  static const auto outer =
+    StructType::make(StructSpec {"Holder", "test.Holder", "", {{"name", "", StringType::get()}, {"items", "", inner}}});
+
+  VarMap map;
+  map.try_emplace("name", std::string {"holder"});
+  map.try_emplace("items", VarList {});
+
+  auto out = renderToText(formatValue(Var(map), *outer));
+  EXPECT_THAT(out, ::testing::HasSubstr("items:"));
+  EXPECT_THAT(out, ::testing::HasSubstr("holder"));
+}
+
+/// @test
+/// The same for a sequence whose elements are empty structs: each element is one line rather than
+/// an empty subtree of its own.
+TEST(ValueFormatter, SequenceOfEmptyStructs)
+{
+  static const auto element = StructType::make(StructSpec {"Empty", "test.Empty", "", {{"x", "", Int32Type::get()}}});
+  static const auto seq = SequenceType::make(SequenceSpec {"EmptySeq", "test.EmptySeq", "", element});
+
+  VarList list;
+  list.emplace_back(VarMap {});
+  list.emplace_back(VarMap {});
+
+  auto out = renderToText(formatValue(Var(list), *seq));
+  EXPECT_FALSE(out.empty());
+}
+
 }  // namespace sen::components::term

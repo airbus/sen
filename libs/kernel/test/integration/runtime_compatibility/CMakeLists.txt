@@ -121,6 +121,8 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_sen_integration_test(
   kernel_runtime_compat_test_1
+  DESCRIPTION
+  "Runs two participants whose shared types differ in sequence and array element type and in the enum's underlying type."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py
@@ -139,6 +141,8 @@ set_tests_properties(kernel_runtime_compat_test_1 PROPERTIES RUN_SERIAL TRUE)
 
 add_sen_integration_test(
   kernel_runtime_compat_test_2
+  DESCRIPTION
+  "Runs two participants whose shared types differ in container kind, in quantity unit and range, and in the enum's underlying type."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py
@@ -157,6 +161,8 @@ set_tests_properties(kernel_runtime_compat_test_2 PROPERTIES RUN_SERIAL TRUE)
 
 add_sen_integration_test(
   kernel_runtime_compat_test_3
+  DESCRIPTION
+  "Runs two participants whose shared types differ in sequence bound, in quantity range, and in the enum's underlying type."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py

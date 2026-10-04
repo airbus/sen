@@ -18,8 +18,11 @@
 // std
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <limits>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -36,14 +39,48 @@ using sen::UInt64Type;
 using sen::UInt8Type;
 using sen::Var;
 
+namespace sen
+{
+
+// A parameter gtest cannot print is written out as a hex dump of its bytes, and ctest registers that
+// dump as part of the test name: one name here ran to 613 characters and carried the object layout,
+// which changes between builds. These keep the name short and stable.
+std::ostream& operator<<(std::ostream& out, const ConstTypeHandle<>& handle) { return out << handle->getName(); }
+
+std::ostream& operator<<(std::ostream& out, const Var& var)
+{
+  // A printer must never be the reason a test run fails, so a value that will not serialise is
+  // named rather than thrown over.
+  try
+  {
+    return out << toJson(var, 0);
+  }
+  catch (const std::exception&)
+  {
+    return out << "<unprintable>";
+  }
+}
+
+}  // namespace sen
+
 using std::make_tuple;
 using std::numeric_limits;
 
 std::string convertTypesToTestCaseName(sen::ConstTypeHandle<> originType, Var var, sen::ConstTypeHandle<> targetType)
 {
+  // A float at the limit of its type prints as 309 digits, which is the whole name. Keeping the
+  // leading digits and the length distinguishes the cases this table holds without carrying the
+  // whole number, and stays the same on every platform.
+  auto value = var.getCopyAs<std::string>();
+  constexpr std::size_t valueLimit = 20U;
+  if (value.size() > valueLimit)
+  {
+    value = value.substr(0, valueLimit) + "_" + std::to_string(value.size()) + "d";
+  }
+
   std::stringstream ss;
   ss << originType->getName();
-  ss << "_" << var.getCopyAs<std::string>();
+  ss << "_" << value;
   ss << "_to_" << targetType->getName();
   std::string s = ss.str();
   std::replace(s.begin(), s.end(), '-', 'n');

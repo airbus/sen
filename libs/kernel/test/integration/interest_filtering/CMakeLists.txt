@@ -21,6 +21,8 @@ set(_script ${CMAKE_CURRENT_SOURCE_DIR}/../run.py)
 # We check that the interest condition on a float property works properly in conjunction with an interest without conditions (selectAll) in the same and different components
 add_sen_integration_test(
   interest_filtering_float_query_filtering
+  DESCRIPTION
+  "Filters on a float property alongside an unconditional interest, in the same component and in another."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script}
@@ -34,6 +36,8 @@ add_sen_integration_test(
 # Checks that, with multiple subscriptions attached to a single LocalParticipant. Only one proxy per object is created
 add_sen_integration_test(
   interest_filtering_multi_subscription
+  DESCRIPTION
+  "Creates one proxy per object however many subscriptions a participant holds."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script}
@@ -47,6 +51,8 @@ add_sen_integration_test(
 # Checks the consistency of dynamically created and removed subscriptions across multiple processes
 add_sen_integration_test(
   interest_filtering_dynamic_subscriptions
+  DESCRIPTION
+  "Keeps subscriptions consistent as they are added and removed across processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script}

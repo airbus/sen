@@ -66,6 +66,33 @@ run_step() {
     fi
 }
 
+# ctest counts this whole suite as one test, so the report would carry a single line for all of
+# them. bats 1.2.1, which the build image carries, writes its junit report without escaping
+# anything, and two of these test names contain angle brackets, so it produces XML no parser
+# will read; its TAP output is converted instead. One report per .bats file, in a directory
+# named for the ctest test, which is what folds them into that entry. The syntax step is not in
+# those files: when it alone fails, the suite keeps its own entry and the failure still shows.
+run_bats_reporting() {
+    out="$SEN_TEST_REPORT_DIR/installer_tests"
+    converter="$HERE/../../../.github/scripts/tap_to_junit.py"
+    mkdir -p "$out"
+    rc=0
+    if [ ! -f "$converter" ]; then
+        warn "no $converter; the bats cases will not reach the test report."
+    fi
+    for file in $bats_files; do
+        base=$(basename "$file" .bats)
+        tap="$out/$base.tap"
+        bats --tap "$file" > "$tap" || rc=1
+        cat "$tap"
+        if [ -f "$converter" ]; then
+            python3 "$converter" --suite "$base.bats" --output "$out/$base.xml" < "$tap" || rc=1
+        fi
+        rm -f "$tap"
+    done
+    return "$rc"
+}
+
 # Always run: shell syntax checks.
 run_step "syntax checks" sh "$HERE/test_syntax.sh"
 
@@ -75,8 +102,12 @@ if require_or_warn bats "bats-core unit tests"; then
     if [ -z "$bats_files" ]; then
         warn "no bats files found in $HERE"
     else
-        # shellcheck disable=SC2086
-        run_step "bats unit tests" bats $bats_files
+        if [ -n "${SEN_TEST_REPORT_DIR:-}" ]; then
+            run_step "bats unit tests" run_bats_reporting
+        else
+            # shellcheck disable=SC2086
+            run_step "bats unit tests" bats $bats_files
+        fi
     fi
 fi
 

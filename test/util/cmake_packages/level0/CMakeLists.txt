@@ -34,7 +34,11 @@ add_sen_package(
 )
 
 # smoke tests
-add_sen_run_smoke_test(level0_smoke CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level0.yaml)
 add_sen_run_smoke_test(
-  level0_addition_smoke CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level0_addition.yaml
+  level0_smoke DESCRIPTION "Loads a package with no package dependencies of its own."
+  CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level0.yaml
+)
+add_sen_run_smoke_test(
+  level0_addition_smoke DESCRIPTION "Loads two objects of a level-0 package in one component."
+  CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level0_addition.yaml
 )
