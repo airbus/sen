@@ -51,6 +51,8 @@ std::string renderTree(const TreeNode& root, int width = 60, int height = 20)
 // Construction and child management
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A new root holds no children.
 TEST(TreeView, EmptyRootHasNoChildren)
 {
   TreeNode root;
@@ -58,6 +60,8 @@ TEST(TreeView, EmptyRootHasNoChildren)
   EXPECT_EQ(root.findChild(path), nullptr);
 }
 
+/// @test
+/// Asking for a child that is not there creates it.
 TEST(TreeView, GetOrCreateAddsNewChild)
 {
   TreeNode root;
@@ -67,6 +71,8 @@ TEST(TreeView, GetOrCreateAddsNewChild)
   EXPECT_EQ(child, root.findChild(path));
 }
 
+/// @test
+/// Asking twice for the same child returns the same node rather than a second one.
 TEST(TreeView, GetOrCreateIsIdempotent)
 {
   TreeNode root;
@@ -76,6 +82,8 @@ TEST(TreeView, GetOrCreateIsIdempotent)
   EXPECT_EQ(first, second);
 }
 
+/// @test
+/// Asking for a nested path creates each node along the way.
 TEST(TreeView, GetOrCreateBuildsIntermediatePath)
 {
   TreeNode root;
@@ -87,6 +95,8 @@ TEST(TreeView, GetOrCreateBuildsIntermediatePath)
   EXPECT_EQ(root.findChild(leaf), c);
 }
 
+/// @test
+/// A child points back at its parent.
 TEST(TreeView, ParentPointersAreSet)
 {
   TreeNode root;
@@ -97,6 +107,8 @@ TEST(TreeView, ParentPointersAreSet)
   EXPECT_EQ(root.getParent(), nullptr);
 }
 
+/// @test
+/// Clearing a node drops its children, its annotation and its kind.
 TEST(TreeView, ClearDropsChildrenAndAnnotation)
 {
   TreeNode root;
@@ -110,6 +122,8 @@ TEST(TreeView, ClearDropsChildrenAndAnnotation)
   EXPECT_TRUE(root.getAnnotation().empty());
 }
 
+/// @test
+/// An annotation set on a node is read back unchanged.
 TEST(TreeView, AnnotationRoundTrip)
 {
   TreeNode node("name");
@@ -122,6 +136,8 @@ TEST(TreeView, AnnotationRoundTrip)
 // Rendering
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Rendering shows the name of each child.
 TEST(TreeView, RenderShowsChildNames)
 {
   TreeNode root;
@@ -132,6 +148,8 @@ TEST(TreeView, RenderShowsChildNames)
   EXPECT_THAT(out, ::testing::HasSubstr("beta"));
 }
 
+/// @test
+/// Rendering emits one element per node, counting nested nodes once each.
 TEST(TreeView, RenderEmitsOneElementPerNode)
 {
   TreeNode root;
@@ -145,6 +163,8 @@ TEST(TreeView, RenderEmitsOneElementPerNode)
   EXPECT_EQ(count, 4);
 }
 
+/// @test
+/// Rendering draws the tree with box drawing connectors.
 TEST(TreeView, RenderUsesBoxDrawingConnectors)
 {
   TreeNode root;
@@ -156,6 +176,8 @@ TEST(TreeView, RenderUsesBoxDrawingConnectors)
   EXPECT_THAT(out, ::testing::HasSubstr("\u2514"));
 }
 
+/// @test
+/// Rendering shows a node's annotation beside its name.
 TEST(TreeView, RenderShowsAnnotations)
 {
   TreeNode root;
@@ -166,6 +188,8 @@ TEST(TreeView, RenderShowsAnnotations)
   EXPECT_THAT(out, ::testing::HasSubstr("[Remote]"));
 }
 
+/// @test
+/// A deeper node is indented further than its parent.
 TEST(TreeView, RenderNestedChildrenShowDeeperIndent)
 {
   TreeNode root;
@@ -196,6 +220,9 @@ constexpr bool underSanitizer = false;
 constexpr bool underSanitizer = false;
 #endif
 
+/// @test
+/// Building a flat bus scales linearly with the number of siblings, not quadratically. The shape
+/// is measured by how the time grows when the count doubles, not against a wall-clock bound.
 TEST(TreeNode, BuildingAFlatBusIsNotQuadratic)
 {
   // A sanitizer replaces the allocator, which is where this build spends its time, so the ratio here

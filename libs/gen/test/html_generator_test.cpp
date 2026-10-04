@@ -98,6 +98,8 @@ class Derived: extends Base
 
 using sen::gen::test::everyKindStl;
 
+/// @test
+/// The generator emits index.html, app.css, app.js, logo.svg and model.js, none of them empty.
 TEST_F(AnHtmlGenerator, writesTheApplicationBesideTheModel)
 {
   generate(twoClasses);
@@ -109,6 +111,9 @@ TEST_F(AnHtmlGenerator, writesTheApplicationBesideTheModel)
 }
 
 // A title is the caller's text and reaches the page as markup.
+/// @test
+/// The caller's title is HTML escaped and reaches both places the shell uses it, the tab and the
+/// heading, with no substitution site left unfilled.
 TEST_F(AnHtmlGenerator, escapesTheTitle)
 {
   generate(twoClasses, R"(Ships & <b>Boats</b>)");
@@ -126,6 +131,8 @@ TEST_F(AnHtmlGenerator, escapesTheTitle)
 }
 
 // Every entry carries every key, so nothing the application reads is absent.
+/// @test
+/// Every type entry carries every key the application reads, and none of them is null.
 TEST_F(AnHtmlGenerator, everyEntryCarriesTheWholeShape)
 {
   generate(twoClasses);
@@ -158,6 +165,9 @@ TEST_F(AnHtmlGenerator, everyEntryCarriesTheWholeShape)
 
 // Primitives are referenced but not declared, so they are collected while walking. Without
 // an entry each their references resolve to nothing.
+/// @test
+/// A primitive that is referenced but not declared still gets an entry, so references to it
+/// resolve.
 TEST_F(AnHtmlGenerator, givesReferencedPrimitivesAnEntry)
 {
   generate(twoClasses);
@@ -169,6 +179,9 @@ TEST_F(AnHtmlGenerator, givesReferencedPrimitivesAnEntry)
 }
 
 // Every name the model mentions has to be a name the model holds, or a link goes nowhere.
+/// @test
+/// Every name the model emits is a name the model holds: member types, ancestors, users, and the
+/// types named in facts.
 TEST_F(AnHtmlGenerator, resolvesEveryReferenceItEmits)
 {
   generate(everyKindStl);
@@ -211,6 +224,9 @@ TEST_F(AnHtmlGenerator, resolvesEveryReferenceItEmits)
 
 // E4: the shell names the other files and the global; nothing else checks they agree, and
 // renaming either side ships a page that loads nothing and says nothing.
+/// @test
+/// The shell loads app.css, app.js and model.js by the names actually emitted, and each is
+/// non-empty.
 TEST_F(AnHtmlGenerator, theShellNamesFilesThatAreEmitted)
 {
   generate(twoClasses);
@@ -225,6 +241,9 @@ TEST_F(AnHtmlGenerator, theShellNamesFilesThatAreEmitted)
 
 // The control, the stylesheet and the script have to agree, and nothing else checks that they
 // do: a rule hiding the tree passes every other test in this file.
+/// @test
+/// The shell offers a control that reveals the tree, the stylesheet does not hide it outright,
+/// and the application can open and close it.
 TEST_F(AnHtmlGenerator, keepsTheTreeReachableWhenTheViewportIsNarrow)
 {
   generate(twoClasses);
@@ -240,6 +259,8 @@ TEST_F(AnHtmlGenerator, keepsTheTreeReachableWhenTheViewportIsNarrow)
   EXPECT_NE(file("app.js").find("setDrawer"), std::string::npos) << "the application never opens or closes the tree";
 }
 
+/// @test
+/// The global that model.js assigns is the one app.js reads.
 TEST_F(AnHtmlGenerator, theModelAndTheApplicationAgreeOnTheGlobal)
 {
   generate(twoClasses);
@@ -251,6 +272,9 @@ TEST_F(AnHtmlGenerator, theModelAndTheApplicationAgreeOnTheGlobal)
     << "model.js assigns " << assigned << ", which the application never reads";
 }
 
+/// @test
+/// An inherited member is grouped under the class that declares it, and the direct, inherited and
+/// total counts agree with the model.
 TEST_F(AnHtmlGenerator, groupsInheritedMembersByTheClassDeclaringThem)
 {
   generate(twoClasses);
@@ -264,6 +288,8 @@ TEST_F(AnHtmlGenerator, groupsInheritedMembersByTheClassDeclaringThem)
   EXPECT_EQ(derived["groups"][0]["members"][0]["name"], "one");
 }
 
+/// @test
+/// Each type records the types that use it.
 TEST_F(AnHtmlGenerator, recordsWhatUsesEachType)
 {
   generate(twoClasses);
@@ -275,6 +301,8 @@ TEST_F(AnHtmlGenerator, recordsWhatUsesEachType)
 
 // The kernel does not require a description to be UTF-8. A strict dump refused the whole
 // model over one byte.
+/// @test
+/// A description holding a byte that is not valid UTF-8 does not stop the model being written.
 TEST_F(AnHtmlGenerator, survivesADescriptionThatIsNotUtf8)
 {
   std::string stl =
@@ -285,6 +313,8 @@ TEST_F(AnHtmlGenerator, survivesADescriptionThatIsNotUtf8)
 }
 
 // An empty model is a model. It should produce the application, not an error.
+/// @test
+/// A model declaring nothing produces the application and an empty type set, not an error.
 TEST_F(AnHtmlGenerator, generatesForAModelThatDeclaresNothing)
 {
   generate("package t;\n");
@@ -295,6 +325,9 @@ TEST_F(AnHtmlGenerator, generatesForAModelThatDeclaresNothing)
 
 // The kind decides which group a type sits under and which filter reaches it, so a wrong
 // one hides a type in plain sight.
+/// @test
+/// Each type carries the kind that decides its group and its filter: quantity, enumeration,
+/// structure, variant, sequence, optional, alias, class or builtin.
 TEST_F(AnHtmlGenerator, namesTheKindOfEveryTypeItEmits)
 {
   generate(everyKindStl);
@@ -314,6 +347,9 @@ TEST_F(AnHtmlGenerator, namesTheKindOfEveryTypeItEmits)
 
 // What defines a type that has no members. Stated as fields, because prose cannot be read
 // back: a sequence once reached the page as "sequence<?>".
+/// @test
+/// A type with no members states what defines it as fields: the representation and unit of a
+/// quantity, what an optional or alias wraps, and a sequence's element, bound and fixed size.
 TEST_F(AnHtmlGenerator, statesWhatDefinesATypeWithNoMembers)
 {
   generate(everyKindStl);
@@ -338,6 +374,8 @@ TEST_F(AnHtmlGenerator, statesWhatDefinesATypeWithNoMembers)
   EXPECT_EQ(fixed["maxSize"], 3);
 }
 
+/// @test
+/// An enumeration lists each enumerator with its value.
 TEST_F(AnHtmlGenerator, listsTheValuesOfAnEnumeration)
 {
   generate(everyKindStl);
@@ -350,6 +388,8 @@ TEST_F(AnHtmlGenerator, listsTheValuesOfAnEnumeration)
   EXPECT_EQ(table["rows"][2][1], "2");
 }
 
+/// @test
+/// A variant lists each of its alternatives.
 TEST_F(AnHtmlGenerator, listsTheAlternativesOfAVariant)
 {
   generate(everyKindStl);
@@ -361,6 +401,9 @@ TEST_F(AnHtmlGenerator, listsTheAlternativesOfAVariant)
 }
 
 // No FOM in the corpus declares a method or an event, so nothing but STL exercises this.
+/// @test
+/// A class emits its methods with their return type and arguments, and its events with their
+/// arguments.
 TEST_F(AnHtmlGenerator, emitsMethodsAndEventsWithTheirArguments)
 {
   generate(everyKindStl);
@@ -384,6 +427,9 @@ TEST_F(AnHtmlGenerator, emitsMethodsAndEventsWithTheirArguments)
 
 // A type can be named from a member, a sequence element, an optional, an alias, a variant
 // alternative, a return type or an argument. Walking only members undercounted it badly.
+/// @test
+/// A use is counted from a member type, a sequence element, a fixed-size element, an optional,
+/// an alias, a variant alternative, a return type and an argument. Nothing counts itself.
 TEST_F(AnHtmlGenerator, countsAReferenceFromEveryPlaceOneCanAppear)
 {
   generate(everyKindStl);
@@ -414,6 +460,9 @@ TEST_F(AnHtmlGenerator, countsAReferenceFromEveryPlaceOneCanAppear)
 
 // The primitives are collected while walking, through state that lives for one call. If any
 // of it outlived the call, a second run would differ from the first.
+/// @test
+/// Two runs of the same model produce the same output apart from the timestamp, so no state
+/// survives a call.
 TEST_F(AnHtmlGenerator, producesTheSameModelEveryTime)
 {
   // Everything but the stamp: the point is that no state survives a call, not that the clock
@@ -437,6 +486,8 @@ TEST_F(AnHtmlGenerator, producesTheSameModelEveryTime)
 
 // Descriptions reach the page as one run of prose. The kernel joins wrapped lines before the
 // generator sees them, but runs of spaces and tabs survive that far and are collapsed here.
+/// @test
+/// Runs of spaces and tabs in a description collapse to single spaces.
 TEST_F(AnHtmlGenerator, collapsesRunsOfWhitespaceInDescriptions)
 {
   generate("package t;\n\n// A  description   with     runs\tof whitespace.\nstruct S\n{\n  a : i32\n}\n");
@@ -447,6 +498,8 @@ TEST_F(AnHtmlGenerator, collapsesRunsOfWhitespaceInDescriptions)
 
 // A kind with no name reaches the page as its bare identifier. The names live in the
 // generator so a new kind is named once; this is what makes sure it was.
+/// @test
+/// Every kind a type carries has a singular and a plural name in the metadata.
 TEST_F(AnHtmlGenerator, namesEveryKindItEmits)
 {
   generate(everyKindStl);
@@ -480,6 +533,9 @@ TEST_F(AnHtmlGenerator, namesEveryKindItEmits)
 // each showed up as an empty area of the page rather than as an error.
 //
 // The application is emitted here, so its reads can be checked against what was written.
+/// @test
+/// Every key app.js reads off a type, off the metadata and off the facts is a key the generator
+/// emits, so the two files stay in step.
 TEST_F(AnHtmlGenerator, emitsEveryKeyTheApplicationReads)
 {
   generate(everyKindStl);
@@ -524,6 +580,9 @@ TEST_F(AnHtmlGenerator, emitsEveryKeyTheApplicationReads)
 }
 
 // A named optional is a type in its own right, not the type it wraps.
+/// @test
+/// A member is named by its declared type rather than the type inside it, and the wrapper is
+/// credited with the use.
 TEST_F(AnHtmlGenerator, namesAMemberByItsDeclaredTypeNotWhatItWraps)
 {
   generate(everyKindStl);
@@ -542,6 +601,9 @@ TEST_F(AnHtmlGenerator, namesAMemberByItsDeclaredTypeNotWhatItWraps)
 
 // A void return is the absence of a type. Naming it put "void" in the index as a type
 // somebody had declared, with the class listed as using it.
+/// @test
+/// Void is not published as a type or counted as a kind, and a method returning nothing still
+/// appears.
 TEST_F(AnHtmlGenerator, doesNotPublishVoidAsAType)
 {
   generate(everyKindStl);
@@ -558,6 +620,9 @@ TEST_F(AnHtmlGenerator, doesNotPublishVoidAsAType)
 
 // A struct carries what its parent declares. Reading only its own fields showed a page
 // stating it had one member when it had two.
+/// @test
+/// A struct carries its parent in its ancestry, groups the inherited fields under it, and counts
+/// them in the inherited and total figures.
 TEST_F(AnHtmlGenerator, givesAStructWhatItInherits)
 {
   generate(everyKindStl);
@@ -571,6 +636,9 @@ TEST_F(AnHtmlGenerator, givesAStructWhatItInherits)
 }
 
 // Both sides of total = direct + inherited must count the same things.
+/// @test
+/// A method counts towards a class's own total, and a child inherits exactly the total its parent
+/// reports.
 TEST_F(AnHtmlGenerator, countsCallablesOnBothSidesOfTheTotal)
 {
   generate(everyKindStl);
@@ -587,6 +655,8 @@ TEST_F(AnHtmlGenerator, countsCallablesOnBothSidesOfTheTotal)
 }
 
 // What a type is built on is a use of it, and the one a reader most wants counted.
+/// @test
+/// A class and a struct each count their parent as a type they use.
 TEST_F(AnHtmlGenerator, countsAParentAsAUseOfIt)
 {
   generate(everyKindStl);
@@ -603,6 +673,8 @@ TEST_F(AnHtmlGenerator, countsAParentAsAUseOfIt)
 
 // An enumeration's first table column holds enumerator names, not type references. An
 // enumerator may legally be called string or f32, which named the built-in as a use.
+/// @test
+/// An enumerator named after a builtin is not read as a reference to that type.
 TEST_F(AnHtmlGenerator, doesNotReadEnumeratorNamesAsTypeReferences)
 {
   generate(R"(package t;
@@ -624,6 +696,8 @@ struct Holder { k : Trap, s : string, x : f32 }
   }
 }
 
+/// @test
+/// Every emitted path is a bare relative name that does not climb out of the output directory.
 TEST_F(AnHtmlGenerator, writesOnlyRelativePaths)
 {
   generate(twoClasses);
@@ -638,6 +712,7 @@ TEST_F(AnHtmlGenerator, writesOnlyRelativePaths)
   }
 }
 
+/// @test
 /// `[static]` resolves to staticRW, which can be set from code and configuration but has no public
 /// setter. Calling it writable told a reader the property had one. The other generators derive this
 /// from writeAllowed, which is true for dynamicRW alone.
@@ -679,6 +754,7 @@ class Flags
   EXPECT_TRUE(hasFlag("fixed", "Static"));
 }
 
+/// @test
 /// A variant whose alternatives carry no description should not be given a column of blanks. STL
 /// allows one per alternative, so the column appears when any of them is written.
 TEST_F(AnHtmlGenerator, omitsTheVariantDescriptionColumnWhenNothingDescribesAnArm)

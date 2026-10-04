@@ -33,6 +33,8 @@ using sen::util::SmartPtrIteratorAdapter;
 // Base Definitions
 //===--------------------------------------------------------------------------------------------------------------===//
 
+/// @test
+/// makeRange keeps the begin and end iterators it was given.
 TEST(IteratorRange, createRange)
 {
   std::array<int, 2> data {21, 42};
@@ -45,6 +47,8 @@ TEST(IteratorRange, createRange)
   EXPECT_EQ(iteratorRange.end(), expectedEnd);
 }
 
+/// @test
+/// A range over an array visits every element.
 TEST(IteratorRange, iterateOverSeqMemory)
 {
   std::array<int, 4> data {0, 1, 21, 42};
@@ -58,6 +62,8 @@ TEST(IteratorRange, iterateOverSeqMemory)
   EXPECT_EQ(testSum, std::accumulate(data.begin(), data.end(), 0));
 }
 
+/// @test
+/// A range over a vector visits every element.
 TEST(IteratorRange, iterateOverSeqDynMemory)
 {
   std::vector<int> data {0, 1, 21, 42, 10, 420, 40, 82, 27};
@@ -71,6 +77,8 @@ TEST(IteratorRange, iterateOverSeqDynMemory)
   EXPECT_EQ(testSum, std::accumulate(data.begin(), data.end(), 0));
 }
 
+/// @test
+/// A range over an unordered map visits every entry.
 TEST(IteratorRange, iterateOverNonSeqDynMemory)
 {
   std::unordered_map<int, int> data {{0, 0}, {1, 1}, {2, 21}, {3, 42}, {4, 10}, {5, 420}, {6, 40}, {7, 82}, {8, 27}};
@@ -110,6 +118,8 @@ private:
   int unlockCount_ {0};
 };
 
+/// @test
+/// A locked range over a vector visits every element.
 TEST(LockedRangeAdapter, createAndIterateNonConstContainerVector)
 {
   std::vector<int> cont {1, 2, 3, 4, 5, 6};
@@ -124,6 +134,8 @@ TEST(LockedRangeAdapter, createAndIterateNonConstContainerVector)
   EXPECT_EQ(sum, std::accumulate(cont.begin(), cont.end(), 0));
 }
 
+/// @test
+/// A locked range over a list visits every element.
 TEST(LockedRangeAdapter, createAndIterateNonConstContainerList)
 {
   std::list<int> cont {1, 2, 3, 4, 5, 6};
@@ -138,6 +150,8 @@ TEST(LockedRangeAdapter, createAndIterateNonConstContainerList)
   EXPECT_EQ(sum, std::accumulate(cont.begin(), cont.end(), 0));
 }
 
+/// @test
+/// A locked range over a const vector visits every element.
 TEST(LockedRangeAdapter, createAndIterateConstContainerVector)
 {
   const std::vector<int> cont {1, 2, 3, 4, 5, 6};
@@ -152,6 +166,9 @@ TEST(LockedRangeAdapter, createAndIterateConstContainerVector)
   EXPECT_EQ(sum, std::accumulate(cont.begin(), cont.end(), 0));
 }
 
+/// @test
+/// A locked range takes the mutex once for the whole iteration and releases it once, rather than
+/// per element.
 TEST(LockedRangeAdapter, correctLockCountNonConstContainerVector)
 {
   std::vector<int> cont {1, 2, 3, 4, 5, 6};
@@ -166,6 +183,9 @@ TEST(LockedRangeAdapter, correctLockCountNonConstContainerVector)
   EXPECT_EQ(m.lockCount(), m.unlockCount());
 }
 
+/// @test
+/// Two threads incrementing through a locked range with a std::mutex produce the sum of both
+/// passes, so no increment is lost.
 TEST(LockedRangeAdapter, stdMutexNonConstContainerVector)
 {
   std::vector<int> cont {1, 2, 3, 4, 5, 6};
@@ -198,6 +218,9 @@ TEST(LockedRangeAdapter, stdMutexNonConstContainerVector)
   EXPECT_EQ(expectedFinalSum, std::accumulate(cont.begin(), cont.end(), 0));
 }
 
+/// @test
+/// A locked range works with a std::shared_mutex, and a reader sees either the state before the
+/// writer or the state after it.
 TEST(LockedRangeAdapter, stdSharedMutexNonConstContainerVector)
 {
   std::vector<int> cont {1, 2, 3, 4, 5, 6};
@@ -240,6 +263,9 @@ TEST(LockedRangeAdapter, stdSharedMutexNonConstContainerVector)
 // Iterator Adapters
 //===--------------------------------------------------------------------------------------------------------------===//
 
+/// @test
+/// The adapted iterator dereferences to a raw pointer to the underlying type and compares for
+/// equality.
 TEST(SmartPtrIteratorAdapter, checkAdaptedIteratorInterface)
 {
   using UnderlyingType = int;
@@ -262,6 +288,8 @@ TEST(SmartPtrIteratorAdapter, checkAdaptedIteratorInterface)
   EXPECT_FALSE(adaptedBegin != adaptedEnd);
 }
 
+/// @test
+/// A range of unique pointers iterates as raw pointers to the values.
 TEST(SmartPtrIteratorAdapter, runtimeUniquePtr)
 {
   // given
@@ -283,6 +311,8 @@ TEST(SmartPtrIteratorAdapter, runtimeUniquePtr)
   EXPECT_EQ(testSum, std::accumulate(initData.begin(), initData.end(), 0));
 }
 
+/// @test
+/// A range of shared pointers iterates as raw pointers to the values.
 TEST(SmartPtrIteratorAdapter, runtimeSharedPtr)
 {
   // given

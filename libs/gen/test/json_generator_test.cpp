@@ -24,6 +24,8 @@ namespace
 {
 
 // A single JsonGenerator instance must produce identical output across calls.
+/// @test
+/// generatePackage returns the same schema each time it is called on an empty context.
 TEST(JsonGenerator, generatePackageIsIdempotentOnEmptyContext)
 {
   sen::gen::JsonGenerator generator;
@@ -35,6 +37,8 @@ TEST(JsonGenerator, generatePackageIsIdempotentOnEmptyContext)
   EXPECT_EQ(first, second);
 }
 
+/// @test
+/// The schema for an empty context is a JSON object.
 TEST(JsonGenerator, generatePackageEmitsObjectShapeOnEmptyContext)
 {
   sen::gen::JsonGenerator generator;
@@ -51,6 +55,8 @@ TEST(JsonGenerator, generatePackageEmitsObjectShapeOnEmptyContext)
   EXPECT_EQ(schema[last], '}');
 }
 
+/// @test
+/// combineSchemas returns the same text each time it is called with the same inputs.
 TEST(JsonGenerator, combineSchemasIsIdempotent)
 {
   sen::gen::JsonGenerator generator;
@@ -83,6 +89,8 @@ TEST(JsonGenerator, combineSchemasIsIdempotent)
 // A config writes a duration with its unit -- `2 s` -- which in YAML is a string, and a bare number
 // of nanoseconds is accepted too. Emitting "integer" alone made every shipped config fail its own
 // schema while the runtime accepted it.
+/// @test
+/// A Duration property accepts a string or an integer in the configuration schema.
 TEST(JsonGenerator, aDurationPropertyTakesEitherFormInTheConfigSchema)
 {
   const sen::gen::test::ResolvedModel model {R"(package d.test;
@@ -101,6 +109,9 @@ class Timed
 }
 
 // Every property was listed as required, so a config leaving out a read-only one failed validation.
+/// @test
+/// Only a static writable property is listed as required. A read-only static property and a
+/// dynamic one are not, so a configuration may leave them out.
 TEST(JsonGenerator, onlyStaticWritablePropertiesAreRequired)
 {
   const sen::gen::test::ResolvedModel model {R"(package d.test;

@@ -527,7 +527,7 @@ TEST(InputTest, OpenArchiveWithEmptyFile)
 }
 
 /// @test
-///
+/// Opening an archive whose runtime file is corrupt is refused.
 /// @requirements(SEN-364)
 TEST(InputTest, CorruptRuntimeFile)
 {
@@ -541,7 +541,7 @@ TEST(InputTest, CorruptRuntimeFile)
 }
 
 /// @test
-///
+/// Opening an archive whose summary file is corrupt is refused.
 /// @requirements(SEN-364)
 TEST(InputTest, CorruptSummaryFile)
 {
@@ -555,7 +555,7 @@ TEST(InputTest, CorruptSummaryFile)
 }
 
 /// @test
-///
+/// Opening an archive whose annotations file is corrupt is refused.
 /// @requirements(SEN-364)
 TEST(InputTest, CorruptAnnotationsFile)
 {
@@ -569,7 +569,7 @@ TEST(InputTest, CorruptAnnotationsFile)
 }
 
 /// @test
-///
+/// Opening an archive whose types file is corrupt is refused.
 /// @requirements(SEN-364)
 TEST(InputTest, CorruptTypesFile)
 {
@@ -583,7 +583,7 @@ TEST(InputTest, CorruptTypesFile)
 }
 
 /// @test
-///
+/// Opening an archive whose indexes file is corrupt is refused.
 /// @requirements(SEN-364)
 TEST(InputTest, CorruptIndexesFile)
 {
