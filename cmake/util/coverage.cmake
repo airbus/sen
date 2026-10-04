@@ -106,12 +106,34 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     clean-generate-coverage-data COMMAND ${CMAKE_COMMAND} -E remove_directory ${SEN_COVERAGE_DATA_DIR}
   )
 
+  # Only hand-written code is measured. The generator emits <name>.stl.{h,cpp} and <name>.xml.{h,cpp},
+  # a *_build_info.cpp per target and a sen_exported_types.cpp per package; no file of those names
+  # exists in the source tree, so matching them cannot hide anything written by hand.
+  #
+  # explorer, shell and rest are deprecated in 0.8.0: their lines would sit in the denominator as
+  # permanently uncovered and hide movement everywhere else. Drop each when its code goes, so the
+  # pattern never outlives the directory it names.
+  set(SEN_COVERAGE_IGNORE_PATTERNS
+      ".*generated.*"
+      ".*[.](stl|xml)[.](h|cpp)"
+      ".*_build_info[.]cpp"
+      "(.*/)?sen_exported_types[.]cpp"
+      "(.*/)?components/(explorer|shell|rest)/.*"
+      "${CMAKE_BINARY_DIR}/.*"
+  )
+  list(
+    JOIN
+    SEN_COVERAGE_IGNORE_PATTERNS
+    "|"
+    SEN_COVERAGE_IGNORE_REGEX
+  )
+
   add_custom_target(
     generate-coverage-report
     COMMAND
       ${Python3_EXECUTABLE} ${GENERATE_COVERAGE_REPORT_SCRIPT} ${LLVM_PROFDATA_PATH} ${LLVM_COV_PATH}
       ${SEN_COVERAGE_DATA_DIR} ${SEN_COVERAGE_REPORT_DIR} ${coverage_binaries} --ignore-filename-regex
-      ".*(generated|${CMAKE_BINARY_DIR}/.*).*"
+      "${SEN_COVERAGE_IGNORE_REGEX}"
     COMMAND echo "Generated coverage overview [see: ${SEN_COVERAGE_REPORT_DIR}index.html]"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS run_tests
