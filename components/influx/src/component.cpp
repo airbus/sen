@@ -15,17 +15,20 @@
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/duration.h"
+#include "sen/core/base/result.h"
 #include "sen/core/io/util.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
 
 // generated code
 #include "stl/configuration.stl.h"
+#include "stl/sen/kernel/basic_types.stl.h"
 
 // asio
 #include <asio/io_context.hpp>
 
 // std
+#include <exception>
 #include <memory>
 #include <utility>
 
@@ -79,7 +82,18 @@ public:
     }
 
     // create the recorder
-    auto recorder = std::make_unique<Recorder>(std::move(database), config.selections.asVector(), api);
+    std::unique_ptr<Recorder> recorder;
+    try
+    {
+      recorder = std::make_unique<Recorder>(std::move(database), config.selections.asVector(), api);
+    }
+    catch (const std::exception& err)
+    {
+      // A selection the component cannot read is a mistake in a configuration file. Letting it
+      // throw reached std::terminate, so a typo ended the run with a crash report and read as a
+      // fault in Sen rather than in the file.
+      return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, err.what()});
+    }
 
     getLogger()->info("sending information to InfluxDB");
     return api.execLoop(config.samplingPeriod, nullptr, false);
