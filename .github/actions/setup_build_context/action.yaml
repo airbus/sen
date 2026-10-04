@@ -70,8 +70,9 @@ runs:
     - name: Install system dependencies
       if: ${{ inputs.compiler-name != 'msvc' }}
       shell: bash
-      # libxext for clang compat with sdl2 2.24.0; bats for the installer tests
-      run: timeout 1200 sudo apt-get install -y libxext-dev bats
+      # libxext for clang compat with sdl2 2.24.0; bats runs the installer tests and
+      # fish is the second shell they activate under
+      run: timeout 1200 sudo apt-get install -y libxext-dev bats fish
 
     # conan renders the profile on every command, so this has to outlive the step.
     - name: Select the gcc version the profile builds with
