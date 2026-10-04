@@ -285,6 +285,8 @@ private:
 template <typename C>
 bool compare(const Value& a, const Value& b, C op)  // NOLINT
 {
+  // A property with no value right now: an empty optional reaches the stack as this, and nothing
+  // compares equal or unequal to it, so the object it belongs to does not match.
   if (holds<VariantAccessError>(a) || holds<VariantAccessError>(b))
   {
     return false;
@@ -579,6 +581,21 @@ Result<Value, VM::RuntimeError> VM::interpret(const Chunk& chunk, Environment en
   environment_ = environment;
   ip_ = chunk.code();
 
+  // A chunk that failed left its operands behind, and the next run must not read them.
+  stack_ = Stack {};
+
+  try
+  {
+    return run();
+  }
+  catch (const std::exception& err)
+  {
+    return Err(RuntimeError {err.what()});
+  }
+}
+
+Result<Value, VM::RuntimeError> VM::run()
+{
   for (;;)
   {
 #ifdef TRACE_VM_EXECUTION
@@ -684,6 +701,14 @@ void VM::negate()
 {
   auto value = pop();
 
+  // A property with no value is neither true nor false, so it is carried on rather than negated:
+  // an empty optional must not let an object in through `!`.
+  if (holds<VariantAccessError>(value))
+  {
+    push(VariantAccessError {});
+    return;
+  }
+
   if (holds<bool>(value))
   {
     push(!extract<bool>(value));
@@ -786,6 +811,13 @@ void VM::doAnd()
 {
   const auto b = pop();
   const auto a = pop();
+
+  if (holds<VariantAccessError>(a) || holds<VariantAccessError>(b))
+  {
+    push(VariantAccessError {});
+    return;
+  }
+
   push(extract<bool>(a) && extract<bool>(b));
 }
 
@@ -793,11 +825,25 @@ void VM::doOr()
 {
   const auto b = pop();
   const auto a = pop();
+
+  if (holds<VariantAccessError>(a) || holds<VariantAccessError>(b))
+  {
+    push(VariantAccessError {});
+    return;
+  }
+
   push(extract<bool>(a) || extract<bool>(b));
 }
 
 void VM::jumpIfFalse(uint16_t offset)
 {
+  // A property with no value is not a false one. Falling through leaves it for the operator that
+  // follows, which carries it on.
+  if (holds<VariantAccessError>(stack_.top()))
+  {
+    return;
+  }
+
   if (!extract<bool>(stack_.top()))
   {
     ip_ += offset;  // NOLINT
@@ -806,6 +852,11 @@ void VM::jumpIfFalse(uint16_t offset)
 
 void VM::jumpIfTrue(uint16_t offset)
 {
+  if (holds<VariantAccessError>(stack_.top()))
+  {
+    return;
+  }
+
   if (extract<bool>(stack_.top()))
   {
     ip_ += offset;  // NOLINT
@@ -839,7 +890,17 @@ void VM::between()
   push(compare(val, min, std::greater_equal {}) && compare(val, max, std::less_equal {}));
 }
 
-void VM::push(Value value) { stack_.push(std::move(value)); }
+void VM::push(Value value)
+{
+  // push_back on a full StaticVector reports by returning, and std::stack::push discards that, so
+  // the value would be dropped and a later pop would read a slot nothing wrote.
+  if (stack_.size() >= stackMax)
+  {
+    throw std::logic_error("expression too deep to evaluate");
+  }
+
+  stack_.push(std::move(value));
+}
 
 Value VM::pop()
 {
