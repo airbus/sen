@@ -5,7 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-set(recorder_tests recorder_crash_test.cpp)
+set(recorder_tests recorder_crash_test.cpp recorder_test.cpp)
 
 add_sen_unit_test_suite(
   recorder_test
