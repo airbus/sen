@@ -206,10 +206,28 @@ class TermTester:
         return not self.is_running()
 
     def stop(self) -> None:
-        """Kill the process if it is still running, and close the pty."""
+        """Ask the terminal to exit, then kill whatever is left, and close the pty.
+
+        SIGKILL cannot be caught, so a killed process never flushes its gcov counters and these tests
+        contributed nothing to the coverage report. Escape is a ladder -- it cancels a completion, then
+        ends a paste, then clears the line, then arms the exit -- so press it until the term is down.
+        Draining between presses, because an Escape and the byte after it arriving together are read as
+        one Alt chord.
+        """
+        if self.pid > 0 and self.is_running():
+            for _ in range(5):
+                if not self.is_running():
+                    break
+                try:
+                    os.write(self.fd, ESCAPE)
+                except OSError:
+                    break
+                self.read_output(timeout=0.4)
+            self.wait_for_exit(timeout=3.0)
         if self.pid > 0:
             try:
-                os.kill(self.pid, signal.SIGKILL)
+                if self.is_running():
+                    os.kill(self.pid, signal.SIGKILL)
                 os.waitpid(self.pid, 0)
             except (OSError, ChildProcessError):
                 pass
