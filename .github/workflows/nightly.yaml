@@ -614,14 +614,20 @@ jobs:
           compiler-version: 20
 
       # The report target runs the suite as it measures it.
+      #
+      # With the examples, because the pull-request lane that holds the floor builds them and this
+      # job publishes the report everyone reads: without them the 37 smoke tests under
+      # examples/config are missing from the measurement, and components they are the only tests of
+      # read as uncovered. Each is `sen run <config> --start-stop`, which loads the config's
+      # components and leaves through main.
       - name: Build and measure
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           conan install . --lockfile=.conan/conan.lock -s "&:build_type=Debug" -s "&:compiler.cppstd=17" --build=missing \
-            -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
+            -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True" -o "sen/*:with_examples=True"
           conan build . --lockfile=.conan/conan.lock -s "&:build_type=Debug" -s "&:compiler.cppstd=17" \
-            -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True"
+            -o "sen/*:with_tests=True" -o "sen/*:with_coverage=True" -o "sen/*:with_examples=True"
           # Same reason as the first of these, in standard_test.yaml.
           source build/clang/Debug/generators/conanbuild.sh
           cmake --build build/clang/Debug/ --target generate-coverage-report
