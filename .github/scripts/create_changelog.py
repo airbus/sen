@@ -44,6 +44,19 @@ TITLE_PATTERN = re.compile(r"^(?P<type>\w+)(?:[(\[](?P<scope>[^)\]]+)[)\]])?(?P<
 
 COMMIT_SEPARATOR = "---END---"
 
+# A commit subject reaches the release body as markdown, where GitHub reads @word as a mention: it
+# links an unrelated account and lists it among the release's participants. 0.7.0-rc2 did that to
+# two real ones.
+MENTION = re.compile(r"(?<![`\w])@([A-Za-z0-9][A-Za-z0-9_/-]*)")
+BACKTICKED = re.compile(r"(`[^`]*`)")
+
+
+def quote_mentions(text: str) -> str:
+    """Backticks every @mention that is not already inside a backticked span."""
+    parts = BACKTICKED.split(text)
+    parts[::2] = [MENTION.sub(r"`@\1`", part) for part in parts[::2]]
+    return "".join(parts)
+
 
 def contains_head(branch: str) -> bool:
     """Says whether the branch already contains the commit being released."""
@@ -147,10 +160,10 @@ def build_changelog(commits: list[str]) -> str:
                 description = " ".join(footer.split("\n\n")[0].split())
             else:
                 description = "<No specific breaking change description provided.>"
-            breaking_changes.append((title, description))
+            breaking_changes.append((quote_mentions(title), quote_mentions(description)))
 
         commit_type = match.group("type") if match else ""
-        groups[commit_type if commit_type in TYPE_MAP else UNPARSED_SECTION].append(title)
+        groups[commit_type if commit_type in TYPE_MAP else UNPARSED_SECTION].append(quote_mentions(title))
 
     sections = ["## 📝 Change Log\n"]
     if breaking_changes:
