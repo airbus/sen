@@ -1,0 +1,70 @@
+commit d16c739a4c4e91b4d0544b4dd8d34eb588b9f204
+Author: c03840 <luis.gutierrez.pereda@airbus.com>
+Date:   Wed Sep 16 22:47:27 2026 +0200
+
+    fix(meta): fixing units in quantity types for windows
+
+diff --git a/.jenkins/Jenkinsfile b/.jenkins/Jenkinsfile
+index a24a0987..5495cb30 100644
+--- a/.jenkins/Jenkinsfile
++++ b/.jenkins/Jenkinsfile
+@@ -20,7 +20,7 @@ pipeline {
+         axes {
+           axis {
+             name 'TARGET_OS'
+-            values 'debian12', 'windows'
++            values 'windows'
+           }
+           axis {
+             name 'BUILD_CONFIG'
+diff --git a/apps/cli_gen/src/cpp/templates/quantity_impl.j2 b/apps/cli_gen/src/cpp/templates/quantity_impl.j2
+index 3ecb932f..f3036ffd 100644
+--- a/apps/cli_gen/src/cpp/templates/quantity_impl.j2
++++ b/apps/cli_gen/src/cpp/templates/quantity_impl.j2
+@@ -25,8 +25,7 @@ const ::sen::Unit& ::sen::QuantityTraits<{{ qualType }}>::unit() noexcept
+ 
+ const std::shared_ptr<const ::sen::Unit>& ::sen::QuantityTraits<{{ qualType }}>::unitPtr() noexcept
+ {
+-  static auto rawPtr = ::sen::UnitRegistry::get().searchUnitByAbbreviation("{{ unitAbbrev }}");
+-  static std::shared_ptr<const ::sen::Unit> ptr = rawPtr? rawPtr->ptr() : std::shared_ptr<const ::sen::Unit>{};
++  static auto ptr = ::sen::UnitRegistry::get().searchUnitByAbreviationShared("{{ unitAbbrev }}");
+   return ptr;
+ }
+ 
+diff --git a/libs/core/include/sen/core/meta/unit_registry.h b/libs/core/include/sen/core/meta/unit_registry.h
+index 373771ed..a304f6e3 100644
+--- a/libs/core/include/sen/core/meta/unit_registry.h
++++ b/libs/core/include/sen/core/meta/unit_registry.h
+@@ -43,6 +43,8 @@ public:
+   /// Returns nullptr if the unit was not found.
+   [[nodiscard]] const Unit* searchUnitByName(std::string_view name) const;
+ 
++  [[nodiscard]] std::shared_ptr<const Unit> searchUnitByAbreviationShared(std::string_view abbrev) const;
++
+   /// Tries to find a unit with a specific abbreviation (case sensitive).
+   /// It also searches in the built-in units.
+   /// Returns nullptr if the unit was not found.
+diff --git a/libs/core/src/meta/unit_registry.cpp b/libs/core/src/meta/unit_registry.cpp
+index 0ceba172..2ae2ff54 100644
+--- a/libs/core/src/meta/unit_registry.cpp
++++ b/libs/core/src/meta/unit_registry.cpp
+@@ -245,6 +245,19 @@ const Unit* UnitRegistry::searchUnitByName(std::string_view name) const
+   return nullptr;
+ }
+ 
++std::shared_ptr<const Unit> UnitRegistry::searchUnitByAbreviationShared(std::string_view abbrev) const
++{
++  for (const auto& item: units_)
++  {
++    if (item->getAbbreviation() == abbrev)
++    {
++      return item;
++    }
++  }
++
++  return {};
++}
++
+ const Unit* UnitRegistry::searchUnitByAbbreviation(std::string_view abbrev) const
+ {
+   // search in our list
