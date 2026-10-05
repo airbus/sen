@@ -309,7 +309,17 @@ private:
     {
       track.alreadyEvaluatedOnce = true;
       lang::VM vm;
-      return std::get<bool>(vm.interpret(queryCode, track.environment).getValue());
+      auto result = vm.interpret(queryCode, track.environment);
+
+      // The query may not be answerable for this object: the expression itself can fail, and a
+      // property it names may not fit the value type the VM evaluates over. Either way the object
+      // does not match, rather than the exception this used to let past.
+      if (result.isError() || !std::holds_alternative<bool>(result.getValue()))
+      {
+        return false;
+      }
+
+      return std::get<bool>(result.getValue());
     }
 
     // keep the same previous result

@@ -6,6 +6,7 @@
 // =====================================================================================================================
 
 // sen
+#include "constants.h"
 #include "db_test_helpers.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/io/buffer_writer.h"
@@ -29,12 +30,18 @@
 #include <gtest/gtest.h>
 
 // std
+#include <algorithm>
+#include <array>
 #include <chrono>
 #include <cstdint>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <ios>
 #include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -793,6 +800,308 @@ TEST(InputTest, AnEventWithTheOldMemberIdStillResolves)
   }
 
   EXPECT_TRUE(found) << "no event was read back";
+}
+
+/// Copies an archive so that every case in a sweep starts from the same intact bytes.
+static std::filesystem::path copyArchiveTo(const std::filesystem::path& from, const std::filesystem::path& to)
+{
+  std::filesystem::copy(from, to, std::filesystem::copy_options::recursive);
+  return to;
+}
+
+/// Walks an archive to the end of both cursors. Returns how many entries came back in total, or
+/// nothing if the read was refused. Both cursors, because the runtime and the annotations have separate
+/// parsers and a sweep over one file must be visible to the count.
+static std::optional<int> countEntries(const std::filesystem::path& archive, sen::kernel::TestKernel& kernel)
+{
+  try
+  {
+    Input input(archive.string(), kernel.getTypes());
+
+    int entries = 0;
+    for (auto cursor = input.begin(); !cursor.atEnd();)
+    {
+      ++cursor;
+      if (cursor.atEnd())
+      {
+        break;
+      }
+      ++entries;
+    }
+
+    for (auto cursor = input.annotationsBegin(); !cursor.atEnd();)
+    {
+      ++cursor;
+      if (cursor.atEnd())
+      {
+        break;
+      }
+      ++entries;
+    }
+
+    return entries;
+  }
+  catch (const std::exception&)
+  {
+    return std::nullopt;
+  }
+}
+
+/// Writes an archive with something in every file it has: keyframes drive the runtime and the indexes,
+/// an annotation drives the annotations file, and the writer always produces the types and the summary.
+static std::filesystem::path writeSweepArchive(const std::filesystem::path& dir, sen::kernel::TestKernel& kernel)
+{
+  const auto archivePath = makeArchivePath("intact", dir);
+  auto settings = makeArchiveSettings("intact", dir);
+  settings.indexKeyframes = true;
+
+  Output output(std::move(settings), []() {});
+  for (int i = 0; i < 5; ++i)
+  {
+    output.keyframe(kernel.getTime(), {});
+    kernel.step();
+  }
+
+  ::sen::kernel::Buffer annotation;
+  {
+    sen::ResizableBufferWriter writer(annotation);
+    sen::OutputStream out(writer);
+    sen::SerializationTraits<int32_t>::write(out, 134);
+  }
+  output.annotation(kernel.getTime(), sen::Int32Type::get().type(), std::move(annotation));
+
+  return archivePath;
+}
+
+/// The five files an archive is made of, each with its own parser and its own end-of-file handling.
+static const std::array<std::string_view, 5> archiveFileNames {runtimeFileName,
+                                                               typesFileName,
+                                                               indexesFileName,
+                                                               annotationsFileName,
+                                                               summaryFileName};
+
+/// @test
+/// Every prefix of every file in an archive is either read as far as it goes or refused, and never
+/// yields more entries than the whole archive does.
+///
+/// One truncation at one offset in one file says little: a reader that walks off the end does it at a
+/// particular offset in a particular parser, and each of these five files has its own. The contract is
+/// deliberately loose about *which* of read-or-refuse happens, because both are defensible for a
+/// half-written entry; what it pins is that a shorter file never produces more entries, so a length
+/// read out of truncated bytes cannot become a count.
+///
+/// Its force comes from the nightly sanitizer lanes, which run this suite under the address sanitizer:
+/// there, "did not crash" is a statement about bounds rather than about luck.
+TEST(InputTest, EveryPrefixOfEveryArchiveFileIsReadOrRefused)
+{
+  TempDir tempDir;
+  auto kernel = sen::kernel::TestKernel::fromYamlString("");
+
+  std::filesystem::path intact;
+  {
+    intact = writeSweepArchive(tempDir.path(), kernel);
+  }
+
+  const auto full = countEntries(intact, kernel);
+  ASSERT_TRUE(full.has_value()) << "the intact archive could not be read, so the sweep proves nothing";
+  ASSERT_GT(*full, 0) << "the intact archive is empty, so a shorter one cannot be shorter";
+
+  for (const auto& fileName: archiveFileNames)
+  {
+    const auto target = intact / std::string(fileName);
+    const auto fileSize = std::filesystem::file_size(target);
+
+    // Deterministic offsets rather than random ones, so a failure is reproducible and the test cannot
+    // go green on a different draw. The early ones land inside the magic and the header, the rest
+    // across whatever the file holds.
+    std::vector<std::uintmax_t> lengths {0U, 1U, 4U, 8U, 12U};
+    for (int part = 1; part < 10; ++part)
+    {
+      lengths.push_back(fileSize * static_cast<std::uintmax_t>(part) / 10U);
+    }
+    if (fileSize > 0U)
+    {
+      lengths.push_back(fileSize - 1U);
+    }
+
+    // A small file collapses several of those fractions onto the same offset, and each case names its
+    // own directory, so the duplicates would copy over one another.
+    std::sort(lengths.begin(), lengths.end());
+    lengths.erase(std::unique(lengths.begin(), lengths.end()), lengths.end());
+
+    for (const auto length: lengths)
+    {
+      if (length > fileSize)
+      {
+        continue;
+      }
+
+      const auto candidate = tempDir.path() / ("cut_" + std::string(fileName) + "_" + std::to_string(length));
+      copyArchiveTo(intact, candidate);
+      std::filesystem::resize_file(candidate / std::string(fileName), length);
+
+      const auto entries = countEntries(candidate, kernel);
+      if (entries.has_value())
+      {
+        EXPECT_LE(*entries, *full) << "cutting '" << fileName << "' to " << length
+                                   << " bytes produced more entries than the whole archive";
+      }
+    }
+  }
+}
+
+/// @test
+/// A single flipped byte anywhere in any archive file is read or refused, and never yields more entries
+/// than the whole archive does.
+///
+/// Truncation only ever removes. This changes bytes in place, which is how a length or a count field
+/// comes to claim more than the file holds — the shape that walks a reader past the end rather than
+/// stopping it short.
+TEST(InputTest, ASingleFlippedByteIsReadOrRefused)
+{
+  TempDir tempDir;
+  auto kernel = sen::kernel::TestKernel::fromYamlString("");
+
+  std::filesystem::path intact;
+  {
+    intact = writeSweepArchive(tempDir.path(), kernel);
+  }
+
+  const auto full = countEntries(intact, kernel);
+  ASSERT_TRUE(full.has_value()) << "the intact archive could not be read, so the sweep proves nothing";
+
+  for (const auto& fileName: archiveFileNames)
+  {
+    const auto target = intact / std::string(fileName);
+    const auto fileSize = std::filesystem::file_size(target);
+
+    std::vector<std::uintmax_t> positions {0U, 3U, 4U, 5U, 8U};
+    for (int part = 1; part < 8; ++part)
+    {
+      positions.push_back(fileSize * static_cast<std::uintmax_t>(part) / 8U);
+    }
+
+    std::sort(positions.begin(), positions.end());
+    positions.erase(std::unique(positions.begin(), positions.end()), positions.end());
+
+    for (const auto position: positions)
+    {
+      if (position >= fileSize)
+      {
+        continue;
+      }
+
+      const auto candidate = tempDir.path() / ("flip_" + std::string(fileName) + "_" + std::to_string(position));
+      copyArchiveTo(intact, candidate);
+
+      {
+        std::fstream file(candidate / std::string(fileName), std::ios::binary | std::ios::in | std::ios::out);
+        ASSERT_TRUE(file.is_open());
+        file.seekg(static_cast<std::streamoff>(position));
+        char byte = 0;
+        file.read(&byte, 1);
+        file.seekp(static_cast<std::streamoff>(position));
+        const char flipped = static_cast<char>(~static_cast<unsigned char>(byte));
+        file.write(&flipped, 1);
+      }
+
+      const auto entries = countEntries(candidate, kernel);
+      if (entries.has_value())
+      {
+        EXPECT_LE(*entries, *full) << "flipping byte " << position << " of '" << fileName
+                                   << "' produced more entries than the whole archive";
+      }
+    }
+  }
+}
+
+/// Reads every part of an archive and returns the complaint if the read was refused, or nothing if it
+/// was accepted. It has to touch all five files: the two cursors leave the indexes file alone, which is
+/// opened only when an index is asked for, so a check on that file is invisible to a plain walk.
+static std::optional<std::string> refusalFromFullRead(const std::filesystem::path& archive,
+                                                      sen::kernel::TestKernel& kernel)
+{
+  try
+  {
+    Input input(archive.string(), kernel.getTypes());
+
+    for (auto cursor = input.begin(); !cursor.atEnd();)
+    {
+      ++cursor;
+    }
+
+    for (auto cursor = input.annotationsBegin(); !cursor.atEnd();)
+    {
+      ++cursor;
+    }
+
+    std::ignore = input.getObjectIndexDefinitions();
+
+    const auto keyframes = input.getAllKeyframeIndexes();
+    if (!keyframes.empty())
+    {
+      for (auto cursor = input.at(keyframes[0]); !cursor.atEnd();)
+      {
+        ++cursor;
+      }
+    }
+
+    return std::nullopt;
+  }
+  catch (const std::exception& error)
+  {
+    return std::string(error.what());
+  }
+}
+
+/// @test
+/// An archive whose header declares a layout this build does not know is refused, and says so.
+///
+/// Every archive that exists carries version 1, so this is about the day a second layout lands. Until
+/// then the field was written and never read, which the flipped-byte sweep above shows by accident: it
+/// inverts bytes 4 and 5 of every file and the archive still reads in full. That matters because the
+/// format has no framing that would catch a layout change on its own -- the same sweep shows single-byte
+/// damage is often accepted -- so a newer file met by an older reader would produce wrong data rather
+/// than a refusal.
+///
+/// The version is a u32 at bytes 4-7 of every file, immediately after the magic, so the test patches a
+/// written archive rather than needing a writer for a layout nobody has. Raising the first byte of the
+/// field by one gives an unknown version whichever way round the bytes are stored, which is why the
+/// assertion names the phrase and not the number.
+TEST(InputTest, AnArchiveDeclaringAnUnknownLayoutVersionIsRefused)
+{
+  TempDir tempDir;
+  auto kernel = sen::kernel::TestKernel::fromYamlString("");
+
+  const auto intact = writeSweepArchive(tempDir.path(), kernel);
+  ASSERT_FALSE(refusalFromFullRead(intact, kernel).has_value())
+    << "the intact archive was refused, so this proves nothing";
+
+  for (const auto& fileName: archiveFileNames)
+  {
+    const auto candidate = tempDir.path() / ("version_" + std::string(fileName));
+    copyArchiveTo(intact, candidate);
+
+    const auto target = candidate / std::string(fileName);
+    {
+      std::fstream file(target, std::ios::binary | std::ios::in | std::ios::out);
+      ASSERT_TRUE(file.is_open()) << "could not open '" << target.string() << "'";
+
+      const auto versionOffset = static_cast<std::streamoff>(sizeof(uint32_t));
+      file.seekg(versionOffset);
+      char byte = 0;
+      ASSERT_TRUE(file.read(&byte, 1)) << "could not read the version field of '" << fileName << "'";
+
+      const char raised = static_cast<char>(static_cast<unsigned char>(byte) + 1U);
+      file.seekp(versionOffset);
+      ASSERT_TRUE(file.write(&raised, 1)) << "could not patch the version field of '" << fileName << "'";
+    }
+
+    const auto message = refusalFromFullRead(candidate, kernel);
+    ASSERT_TRUE(message.has_value()) << "an archive declaring an unknown layout in '" << fileName << "' was read";
+    EXPECT_NE(message->find("unsupported archive version"), std::string::npos)
+      << "refused, but not as an unsupported version: " << *message;
+  }
 }
 
 }  // namespace sen::db::test
