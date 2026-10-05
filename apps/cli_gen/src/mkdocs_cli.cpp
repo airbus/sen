@@ -33,7 +33,7 @@ namespace
 
 struct MkDocsArgs
 {
-  std::filesystem::path outputFile;
+  std::filesystem::path outputFile = "output.md";
   std::string title = "Package Documentation";
 };
 
