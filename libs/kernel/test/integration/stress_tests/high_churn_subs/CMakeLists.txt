@@ -42,6 +42,8 @@ find_package(Python REQUIRED COMPONENTS Interpreter)
 
 add_sen_integration_test(
   stress_test_high_churn_subs
+  DESCRIPTION
+  "Adds and removes subscriptions at a high rate without losing consistency."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../run.py

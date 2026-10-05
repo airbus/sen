@@ -1,0 +1,4 @@
+# One session.bus per line; this line and the blank one below are ignored. The session is not `local`,
+# because a local bus has no network footprint and is refused.
+
+remote.demo

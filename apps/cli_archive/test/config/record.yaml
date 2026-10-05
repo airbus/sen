@@ -1,0 +1,21 @@
+# $schema: ../../../../schemas/recorder.json
+# Records the kernel's own objects into ./cli_archive_recording, so the tests beside this file have an
+# archive written by today's writer rather than a committed one. The py module ends the run once the
+# objects it selects are on the bus and a few keyframes have passed: --start-stop returns as soon as
+# every component is running, which left the archive empty on CI and absent on one lane.
+load:
+  - name: recorder
+    group: 2
+    recordings:
+      - name: cli_archive_recording
+        folder: .
+        indexKeyframes: true
+        indexObjects: true
+        keyframePeriod: 100 ms
+        autoStart: true
+        selections:
+          - SELECT * FROM local.kernel
+  - name: py
+    group: 3
+    freqHz: 50
+    module: record_control

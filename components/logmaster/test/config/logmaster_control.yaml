@@ -1,0 +1,10 @@
+# The logmaster, driven by a Python module rather than by a terminal: the component publishes
+# its LogMaster and a Logger per logger it finds, and both are called from there.
+load:
+  - name: logmaster
+    group: 4
+    period: 50ms
+  - name: py
+    group: 5
+    freqHz: 50
+    module: logmaster_control

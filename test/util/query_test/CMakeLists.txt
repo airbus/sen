@@ -18,4 +18,6 @@ add_sen_package(
 
 sen_enable_static_analysis(query_test)
 
-add_sen_run_smoke_test(query_test CONFIG_FILE config/component.yaml)
+add_sen_run_smoke_test(
+  query_test DESCRIPTION "Starts and stops a component that opens a query." CONFIG_FILE config/component.yaml
+)

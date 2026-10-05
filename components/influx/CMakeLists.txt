@@ -28,6 +28,7 @@ add_sen_package(
           src/util.cpp
   STL_FILES stl/configuration.stl
   PRIVATE_DEPS asio::asio spdlog::spdlog
+  TEST_TARGET influx_for_testing
   IS_COMPONENT
 )
 
@@ -40,3 +41,7 @@ sen_internal_configure_component(influx)
 sen_internal_install(influx)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/influx.json DESTINATION schemas)
+
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

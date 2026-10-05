@@ -1,0 +1,5 @@
+# Just the transport, so a run reaches ether's own startup and nothing else. The tests beside this file
+# set an environment variable and read the warning the component logs about it.
+load:
+  - name: ether
+    group: 10

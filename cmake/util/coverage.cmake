@@ -113,12 +113,16 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # explorer, shell and rest are deprecated in 0.8.0: their lines would sit in the denominator as
   # permanently uncovered and hide movement everywhere else. Drop each when its code goes, so the
   # pattern never outlives the directory it names.
+  #
+  # cli_remote_shell goes with them: it builds only under SEN_BUILD_SHELL, links the shell's
+  # terminal_lib and connects to a remote shell, so it is part of what is being withdrawn.
   set(SEN_COVERAGE_IGNORE_PATTERNS
       ".*generated.*"
       ".*[.](stl|xml)[.](h|cpp)"
       ".*_build_info[.]cpp"
       "(.*/)?sen_exported_types[.]cpp"
       "(.*/)?components/(explorer|shell|rest)/.*"
+      "(.*/)?apps/cli_remote_shell/.*"
       "${CMAKE_BINARY_DIR}/.*"
   )
   list(

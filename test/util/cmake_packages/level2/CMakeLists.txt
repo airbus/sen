@@ -38,8 +38,10 @@ add_sen_package(
 
 # smoke tests
 add_sen_run_smoke_test(
-  level2_smoke CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level2_dynamic.yaml
+  level2_smoke DESCRIPTION "Loads a package two dependency levels deep, linked dynamically."
+  CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level2_dynamic.yaml
 )
 add_sen_run_smoke_test(
-  level2S_smoke CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level2_static.yaml
+  level2S_smoke DESCRIPTION "Loads a package two dependency levels deep, linked statically."
+  CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level2_static.yaml
 )

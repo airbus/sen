@@ -1,0 +1,17 @@
+# UDP needs nothing listening: the datagrams go to a loopback port and are dropped, which is
+# enough to run the recorder, the transport and the conversion of every value shape.
+load:
+  - name: py
+    group: 3
+    freqHz: 50
+    module: influx_source
+    imports: [py_test_package]
+  - name: influx
+    group: 4
+    protocol: udp
+    telegrafAddress: 127.0.0.1
+    telegrafPort: 18086
+    samplingPeriod: 20ms
+    batchSize: 0
+    selections:
+      - SELECT * FROM my.tutorial

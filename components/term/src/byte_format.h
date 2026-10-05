@@ -50,26 +50,6 @@ inline std::string formatBytes(std::size_t bytes)
   return oss.str();
 }
 
-/// Format a byte rate as a compact human-readable throughput (B/s, KB/s, MB/s).
-inline std::string formatRate(double bytesPerSec)
-{
-  std::ostringstream oss;
-  oss << std::fixed << std::setprecision(1);
-  if (bytesPerSec < bytesPerKilobyte)
-  {
-    oss << bytesPerSec << " B/s";
-  }
-  else if (bytesPerSec < bytesPerMegabyte)
-  {
-    oss << bytesPerSec / bytesPerKilobyte << " KB/s";
-  }
-  else
-  {
-    oss << bytesPerSec / bytesPerMegabyte << " MB/s";
-  }
-  return oss.str();
-}
-
 }  // namespace sen::components::term::byte_format
 
 #endif  // SEN_COMPONENTS_TERM_SRC_BYTE_FORMAT_H

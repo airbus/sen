@@ -22,6 +22,7 @@ add_sen_package(
   STL_FILES stl/logmaster.stl
   DEPS sen::kernel
   PRIVATE_DEPS spdlog::spdlog
+  TEST_TARGET logmaster_for_testing
   IS_COMPONENT
 )
 
@@ -32,3 +33,7 @@ sen_internal_configure_component(logmaster)
 sen_internal_install(logmaster)
 
 install(FILES ${PROJECT_SOURCE_DIR}/schemas/logmaster.json DESTINATION schemas)
+
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

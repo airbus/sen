@@ -1,0 +1,5 @@
+# The footprint is reported by the ether component: without it cli_run answers "network footprint
+# reporter is not installed". ether is one of the three components every build mode carries.
+load:
+  - name: ether
+    group: 10
