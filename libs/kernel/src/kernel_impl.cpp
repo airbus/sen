@@ -249,6 +249,12 @@ void KernelImpl::doStop()
   }
 
   setCrashPhase("stopping");
+
+  // Before the components unload, not after: a worker holds a tracer owned by a trace component, and
+  // inbound work run during an unload reaches a component that is going away. Kept out of the lock
+  // below, because joining threads while holding a lifecycle mutex buys nothing.
+  sessionManager_.stopMessageProcessing();
+
   {
     Lock lock(usageMutex_);
     executor_.shutDown();

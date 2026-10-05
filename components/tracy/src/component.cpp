@@ -23,6 +23,7 @@
 // std
 #include <cstdint>
 #include <list>
+#include <mutex>
 #include <string_view>
 #include <tuple>
 
@@ -103,7 +104,13 @@ struct TracyComponent final: ::sen::kernel::Component
 {
   [[nodiscard]] ::sen::kernel::FuncResult preload(::sen::kernel::PreloadApi&& api) override
   {
-    ::tracy::StartupProfiler();  // NOLINT(misc-include-cleaner)
+    // Started once per process, and never shut down. Every kernel thread and every other component can
+    // plot through the tracer installed below, and shutdown unloads this component's group before the
+    // lower groups stop running, so a profiler released on unload would be gone while the kernel's own
+    // runner was still plotting into it.
+    static std::once_flag profilerStarted;
+    std::call_once(profilerStarted, []() { ::tracy::StartupProfiler(); });  // NOLINT(misc-include-cleaner)
+
     api.installTracerFactory([](auto name) { return std::make_unique<TracyTracer>(name); });
     return ::sen::Ok();
   }
@@ -111,7 +118,8 @@ struct TracyComponent final: ::sen::kernel::Component
   [[nodiscard]] ::sen::kernel::FuncResult unload(::sen::kernel::UnloadApi&& api) override
   {
     std::ignore = api;
-    ::tracy::ShutdownProfiler();  // NOLINT(misc-include-cleaner)
+
+    // No ShutdownProfiler here: see preload(). The profiler lives until the process exits.
     return ::sen::Ok();
   }
 

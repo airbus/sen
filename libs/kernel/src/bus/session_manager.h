@@ -62,6 +62,8 @@ public:
 
   void startMessageProcessing() { messageDispatcher_.start(); }
 
+  void stopMessageProcessing() { messageDispatcher_.stop(); }
+
 private:  // interface towards Session
   friend class Session;
 

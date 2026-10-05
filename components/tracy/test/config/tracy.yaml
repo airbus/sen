@@ -1,0 +1,5 @@
+# Just the tracer, so a run reaches the component's own load and nothing else. The component takes no
+# configuration: it installs a Tracy-backed Tracer and the kernel drives it per cycle.
+load:
+  - name: tracy
+    group: 10

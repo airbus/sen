@@ -152,7 +152,31 @@ public:
   {
   }
   SEN_NOCOPY_NOMOVE(MessageDispatcher)
-  ~MessageDispatcher()
+  ~MessageDispatcher() { stop(); }
+
+  /// Start the message dispatcher and the associated worker threads.
+  ///
+  /// Note: should not be called on a running MessageDispatcher.
+  void start()
+  {
+    SEN_ASSERT(workers_.size() == 0 && "Workers should not be started twice.");
+    SEN_ASSERT(!stopped_ && "A stopped MessageDispatcher cannot be restarted.");
+
+    size_t numWorkers = numRequestedWorkers();
+
+    workers_.reserve(numWorkers);
+    for (size_t workerId = 0; workerId < numWorkers; ++workerId)
+    {
+      workers_.emplace_back(workerId, this);
+    }
+  }
+
+  /// Stops the worker threads and waits for them to finish.
+  ///
+  /// The kernel calls this before components unload: a worker holds a tracer owned by a trace
+  /// component, so work processed after that component is gone would use a destroyed profiler.
+  /// Safe to call more than once, and on a dispatcher that was never started.
+  void stop()
   {
     continueWorking_ = false;
     for (Worker& worker: workers_)
@@ -162,22 +186,8 @@ public:
         worker.join();
       }
     }
-  }
 
-  /// Start the message dispatcher and the associated worker threads.
-  ///
-  /// Note: should not be called on a running MessageDispatcher.
-  void start()
-  {
-    SEN_ASSERT(workers_.size() == 0 && "Workers should not be started twice.");
-
-    size_t numWorkers = numRequestedWorkers();
-
-    workers_.reserve(numWorkers);
-    for (size_t workerId = 0; workerId < numWorkers; ++workerId)
-    {
-      workers_.emplace_back(workerId, this);
-    }
+    stopped_ = !workers_.empty();
   }
 
 public:
@@ -219,6 +229,7 @@ private:
 
 private:
   std::atomic_bool continueWorking_ {true};
+  bool stopped_ {false};
   TracerFactoryTy tracerFactory_;
   std::vector<Worker> workers_;
   UniqueByteBufferManager bufferManager_;
