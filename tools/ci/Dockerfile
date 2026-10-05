@@ -98,6 +98,9 @@ RUN printf '%s\n' \
         ccache \
         curl \
         default-jre-headless \
+        # The installer writes a fish activation script beside the POSIX one. Without
+        # fish here, the bats cases that parse and source it skip.
+        fish \
         # A lane that catches a crash reads the core where it happened, inside the
         # image: the paths recorded in a core are the container's, so a debugger on
         # the runner resolves none of the libraries.

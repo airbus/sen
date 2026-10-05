@@ -174,6 +174,18 @@ install(
 # Gated on SEN_BUILD_TESTS because REQ_DEPS references `my_package` and `inheritance` test
 # fixture targets that only exist when tests are enabled.
 if(SEN_BUILD_TESTS)
+  # The recording suite imports sen_db_python, which exists only under SEN_BUILD_PY, so it is
+  # asked for where it is there and left out where it is not.
+  set(_mcp_gateway_req_deps
+      jsonrpc
+      mcp_gateway_npm_install
+      mcp_gateway_build
+      my_package
+      inheritance
+  )
+  if(TARGET sen_db_python)
+    list(APPEND _mcp_gateway_req_deps sen_db_python)
+  endif()
   add_sen_integration_test(
     mcp_gateway_integration
     DESCRIPTION
@@ -187,7 +199,7 @@ if(SEN_BUILD_TESTS)
     --reporter=junit
     --outputFile.junit=${SEN_TEST_REPORT_DIR}/mcp_gateway_integration.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    REQ_DEPS jsonrpc mcp_gateway_npm_install mcp_gateway_build my_package inheritance
+    REQ_DEPS ${_mcp_gateway_req_deps}
   )
   # ctest's global --timeout is 20s, which every other test clears easily. Both vitest suites pay
   # for a node runtime before asserting anything, and this one also spawns a Sen kernel: ~18s of
@@ -206,6 +218,28 @@ if(SEN_BUILD_TESTS)
     "SEN_CONFIG=set:${CMAKE_CURRENT_SOURCE_DIR}/test/integration/configs/inheritance.yaml"
     "PATH=path_list_prepend:${_mcp_gateway_node_bin_dir}"
   )
+  # The recording tools' suite skipped three cases in every run for want of an archive, and one
+  # sits in the tree. It needs the archive and the bindings that walk it, so both are set together
+  # or neither is and the cases go on skipping.
+  #
+  # Not on a sanitizer build, for the reason libs/db/bindings/python/test/CMakeLists.txt gives
+  # about the same module: the script imports the bindings from a stock python3, which dlopens a
+  # sanitized libcore.so without the sanitizer runtime an instrumented executable would carry, and
+  # the import fails before a single assertion runs. Both cases exited 1 in 30 ms on the first
+  # lane that ran them.
+  if(TARGET sen_db_python AND SEN_USE_SANITIZER STREQUAL None)
+    # The root cannot be the directory holding the archive: listRecordings enumerates every direct
+    # child by design, and the generator and readme beside it sort first, so the suite would open a
+    # yaml file as a recording. One directory, one recording.
+    set(_mcp_gateway_recordings "${CMAKE_CURRENT_BINARY_DIR}/recordings")
+    file(COPY "${CMAKE_SOURCE_DIR}/components/recorder/test/data/crash_recording"
+         DESTINATION "${_mcp_gateway_recordings}"
+    )
+    append_test_env_modification(
+      mcp_gateway_integration "RECORDING_ROOT=set:${_mcp_gateway_recordings}"
+      "SEN_DB_PYTHON_PATH=set:$<TARGET_FILE_DIR:sen_db_python>"
+    )
+  endif()
 
   # Unit suite (no Sen subprocess). Needs the bake and the @sen/client dist: without either,
   # the imports fail to resolve and vitest reports a collection error, not a test failure.
