@@ -528,6 +528,19 @@ add_sen_cli_gen_smoke_test(
 )
 set_tests_properties(html_gen_smoke_unknown_flag PROPERTIES WILL_FAIL TRUE)
 
+# mkdocs without -o must fall back to output.md
+add_sen_cli_gen_smoke_test(
+  mkdocs_gen_smoke_default_output_stl
+  COMMAND ./cli_gen mkdocs stl ${hla_fom_gen_test_sources}/typescript/fixture.stl
+  WORKING_DIRECTORY ${working_dir}
+)
+
+add_sen_cli_gen_smoke_test(
+  mkdocs_gen_smoke_default_output_fom
+  COMMAND ./cli_gen mkdocs fom --directories=${hla_fom_gen_test_sources}/test1/fom
+  WORKING_DIRECTORY ${working_dir}
+)
+
 # The generators below had no test of their own: the suite above drives the C++ and HTML paths and
 # leaves the rest of the front ends unread. Each takes the same type set and writes its own form of
 # it, so a generator that stopped producing anything is caught here rather than by whoever next
