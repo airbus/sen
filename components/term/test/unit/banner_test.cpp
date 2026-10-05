@@ -25,6 +25,8 @@ namespace
 
 using test::renderToText;
 
+/// @test
+/// The banner names Sen and the version it was given.
 TEST(Banner, ContainsVersionInfo)
 {
   auto out = renderToText(renderBanner("1.2.3", "g++", "release"));
@@ -32,6 +34,8 @@ TEST(Banner, ContainsVersionInfo)
   EXPECT_THAT(out, ::testing::HasSubstr("1.2.3"));
 }
 
+/// @test
+/// The banner names the compiler and the build type it was given.
 TEST(Banner, ContainsBuildInfo)
 {
   auto out = renderToText(renderBanner("0.0.1", "clang++", "debug"));
@@ -39,6 +43,8 @@ TEST(Banner, ContainsBuildInfo)
   EXPECT_THAT(out, ::testing::HasSubstr("debug"));
 }
 
+/// @test
+/// Every quote in the table, with either of the prefixes renderBanner uses, fits the banner width.
 TEST(Banner, EveryQuoteAndAuthorFitsTheBannerWidth)
 {
   // banner.h states quotes must fit the banner width. Rendering a few random quotes and asserting that a
@@ -55,6 +61,8 @@ TEST(Banner, EveryQuoteAndAuthorFitsTheBannerWidth)
   }
 }
 
+/// @test
+/// The banner shows one of the quotes from the table with its author, dash prefixed.
 TEST(Banner, ShowsAQuoteFromTheTableWithItsAuthorDashPrefixed)
 {
   auto out = renderToText(renderBanner("1.0.0", "g++", "release"));
@@ -72,6 +80,8 @@ TEST(Banner, ShowsAQuoteFromTheTableWithItsAuthorDashPrefixed)
   EXPECT_TRUE(matched) << "the banner showed no author from the quote table";
 }
 
+/// @test
+/// The banner draws the bars that separate the title from the quote.
 TEST(Banner, HasColorBars)
 {
   auto out = renderToText(renderBanner("1.0.0", "g++", "release"));
@@ -79,6 +89,8 @@ TEST(Banner, HasColorBars)
   EXPECT_THAT(out, ::testing::HasSubstr("\u25AC"));
 }
 
+/// @test
+/// Whether a quote fits beside its author or not, both the quote and the author appear.
 TEST(Banner, TheQuoteAndAuthorEitherShareALineOrTheAuthorGetsItsOwn)
 {
   // This is the bound renderBanner branches on: `"  " + quote + 2 + "- " + author` against the banner
@@ -109,6 +121,8 @@ TEST(Banner, TheQuoteAndAuthorEitherShareALineOrTheAuthorGetsItsOwn)
   EXPECT_EQ(shareALine + authorOnItsOwnLine, quotes.size());
 }
 
+/// @test
+/// Empty version, compiler and build type still render a banner.
 TEST(Banner, DoesNotCrashWithEmptyFields)
 {
   // Should render without crashing even with empty strings

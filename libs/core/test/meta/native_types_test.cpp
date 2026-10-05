@@ -290,6 +290,8 @@ TEST(NativeTypes, voidCheck)
   EXPECT_FALSE(type->isAliasType());
 }
 
+/// @test
+/// The void type converts to nothing: every as<Type> accessor returns null.
 TEST(NativeTypes, voidConversion)
 {
   const auto& type = sen::VoidType::get();
@@ -358,6 +360,8 @@ TEST(NativeTypes, booleanCheck)
   EXPECT_FALSE(type->isAliasType());
 }
 
+/// @test
+/// The bool type converts to a native type and to a bool type, and to nothing else.
 TEST(NativeTypes, booleanConversion)
 {
   const auto& type = sen::BoolType::get();

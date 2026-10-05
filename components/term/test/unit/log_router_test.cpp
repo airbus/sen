@@ -46,6 +46,8 @@ private:
 namespace
 {
 
+/// @test
+/// parseLevel accepts trace.
 TEST(LogRouterParseLevel, Trace)
 {
   spdlog::level::level_enum level {};
@@ -53,6 +55,8 @@ TEST(LogRouterParseLevel, Trace)
   EXPECT_EQ(level, spdlog::level::trace);
 }
 
+/// @test
+/// parseLevel accepts debug.
 TEST(LogRouterParseLevel, Debug)
 {
   spdlog::level::level_enum level {};
@@ -60,6 +64,8 @@ TEST(LogRouterParseLevel, Debug)
   EXPECT_EQ(level, spdlog::level::debug);
 }
 
+/// @test
+/// parseLevel accepts info.
 TEST(LogRouterParseLevel, Info)
 {
   spdlog::level::level_enum level {};
@@ -67,6 +73,8 @@ TEST(LogRouterParseLevel, Info)
   EXPECT_EQ(level, spdlog::level::info);
 }
 
+/// @test
+/// parseLevel accepts both warn and warning for the same level.
 TEST(LogRouterParseLevel, WarnAndWarning)
 {
   spdlog::level::level_enum level {};
@@ -78,6 +86,8 @@ TEST(LogRouterParseLevel, WarnAndWarning)
   EXPECT_EQ(level, spdlog::level::warn);
 }
 
+/// @test
+/// parseLevel accepts both error and err for the same level.
 TEST(LogRouterParseLevel, ErrorAndErr)
 {
   spdlog::level::level_enum level {};
@@ -89,6 +99,8 @@ TEST(LogRouterParseLevel, ErrorAndErr)
   EXPECT_EQ(level, spdlog::level::err);
 }
 
+/// @test
+/// parseLevel accepts critical.
 TEST(LogRouterParseLevel, Critical)
 {
   spdlog::level::level_enum level {};
@@ -96,6 +108,8 @@ TEST(LogRouterParseLevel, Critical)
   EXPECT_EQ(level, spdlog::level::critical);
 }
 
+/// @test
+/// parseLevel accepts off.
 TEST(LogRouterParseLevel, Off)
 {
   spdlog::level::level_enum level {};
@@ -103,6 +117,8 @@ TEST(LogRouterParseLevel, Off)
   EXPECT_EQ(level, spdlog::level::off);
 }
 
+/// @test
+/// A name that is not a level is refused, and the level passed in is left alone.
 TEST(LogRouterParseLevel, Unknown)
 {
   spdlog::level::level_enum level = spdlog::level::info;
@@ -111,6 +127,8 @@ TEST(LogRouterParseLevel, Unknown)
   EXPECT_EQ(level, spdlog::level::info);
 }
 
+/// @test
+/// An empty name is refused, and the level passed in is left alone.
 TEST(LogRouterParseLevel, EmptyString)
 {
   spdlog::level::level_enum level = spdlog::level::info;
@@ -118,6 +136,8 @@ TEST(LogRouterParseLevel, EmptyString)
   EXPECT_EQ(level, spdlog::level::info);
 }
 
+/// @test
+/// A level is accepted in any case, since log lines print the level in upper case.
 TEST(LogRouterParseLevel, CaseIsIgnored)
 {
   // Every log line prints its level in upper case, so `log level INFO` is what a user types after reading
@@ -135,6 +155,9 @@ TEST(LogRouterParseLevel, CaseIsIgnored)
   EXPECT_EQ(level, spdlog::level::off);
 }
 
+/// @test
+/// Folding case does not make every word a level: an unknown name is still refused and the level
+/// passed in is left alone.
 TEST(LogRouterParseLevel, AnUnknownNameIsStillRefusedWhateverTheCase)
 {
   // Folding case must not turn every word into a level: the out-param is left alone on failure, and
@@ -145,6 +168,8 @@ TEST(LogRouterParseLevel, AnUnknownNameIsStillRefusedWhateverTheCase)
   EXPECT_EQ(level, spdlog::level::info);
 }
 
+/// @test
+/// A detached sink calls nothing, so a logger that outlives the router reaches no destroyed state.
 TEST(TermLogSink, ADetachedSinkStopsCallingBack)
 {
   // A logger holds the sink through a shared_ptr, so it outlives the LogRouter whose state the callback
@@ -164,6 +189,9 @@ TEST(TermLogSink, ADetachedSinkStopsCallingBack)
   EXPECT_EQ(calls, 1) << "a detached sink still reached the callback";
 }
 
+/// @test
+/// The queue stops at its cap and counts the lines it refused, so a flood cannot grow memory
+/// without bound.
 TEST(LogRouterQueue, TheProducerIsBoundedAndCountsWhatItRefuses)
 {
   // `log level debug` on a kernel with live traffic makes the bus loggers emit on almost every
@@ -183,6 +211,9 @@ TEST(LogRouterQueue, TheProducerIsBoundedAndCountsWhatItRefuses)
   EXPECT_EQ(access.droppedSoFar(), flood - 2000U) << "refused lines were not counted";
 }
 
+/// @test
+/// One tick takes at most its budget of lines, hands over the drop count once, and leaves the
+/// rest queued for the next tick.
 TEST(LogRouterQueue, OneTickTakesABudgetAndReportsTheDropsOnce)
 {
   // Rendering everything that arrived built an element per line, so a burst became a frame longer than

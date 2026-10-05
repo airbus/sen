@@ -114,6 +114,8 @@ private:
 // Terminal escape framing
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A copy writes the payload inside the OSC 52 framing the terminal reads.
 TEST(Clipboard, EmitsOsc52WrapperAroundPayload)
 {
   NoDisplayEnv guard;
@@ -124,6 +126,9 @@ TEST(Clipboard, EmitsOsc52WrapperAroundPayload)
   EXPECT_EQ(out.back(), '\x07');
 }
 
+/// @test
+/// Copying empty text still writes the framing, with nothing between the prefix and the
+/// terminator.
 TEST(Clipboard, EmitsEscapeEvenForEmptyText)
 {
   NoDisplayEnv guard;
@@ -142,29 +147,43 @@ TEST(Clipboard, EmitsEscapeEvenForEmptyText)
 // which is written for POSIX only, and the encoder is the one piece here that behaves identically on
 // every platform.
 
+/// @test
+/// A length that is a multiple of three encodes with no padding.
 TEST(Clipboard, Base64NoPaddingFor3ByteMultiple)
 {
   // "abc" -> YWJj (three bytes are four characters, no '=').
   EXPECT_EQ(clipboard::base64Encode("abc"), "YWJj");
 }
 
+/// @test
+/// Two bytes encode with one padding character.
 TEST(Clipboard, Base64SinglePaddingFor2Bytes) { EXPECT_EQ(clipboard::base64Encode("ab"), "YWI="); }
 
+/// @test
+/// One byte encodes with two padding characters.
 TEST(Clipboard, Base64DoublePaddingFor1Byte) { EXPECT_EQ(clipboard::base64Encode("a"), "YQ=="); }
 
+/// @test
+/// Empty input encodes to an empty string.
 TEST(Clipboard, Base64EmptyInput) { EXPECT_EQ(clipboard::base64Encode(""), ""); }
 
+/// @test
+/// Bytes above the ASCII range encode correctly, reaching the top of the six bit range.
 TEST(Clipboard, Base64HandlesNonAsciiBytes)
 {
   // 0xFF 0xFE 0xFD -> //79, which exercises the top of the 6-bit range and both alphabet tails.
   EXPECT_EQ(clipboard::base64Encode(std::string("\xFF\xFE\xFD", 3)), "//79");
 }
 
+/// @test
+/// A known string encodes to its known base64 form.
 TEST(Clipboard, Base64KnownValueHelloWorld)
 {
   EXPECT_EQ(clipboard::base64Encode("Hello, World!"), "SGVsbG8sIFdvcmxkIQ==");
 }
 
+/// @test
+/// The output holds only base64 alphabet characters and padding.
 TEST(Clipboard, Base64OutputUsesOnlyAlphabetChars)
 {
   const auto encoded = clipboard::base64Encode("The quick brown fox jumps over the lazy dog");

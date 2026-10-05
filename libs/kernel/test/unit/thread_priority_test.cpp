@@ -98,6 +98,9 @@ TEST(ThreadPriority, DoesNotPromoteAThreadThatAskedToBeLow)
 ///
 /// Linux only: the macOS shim always reports that it applied, so there is nothing to observe.
 #  if defined(__linux__)
+/// @test
+/// An affinity mask the machine cannot honour does not fail thread creation. The thread runs
+/// unpinned and affinityApplied is false.
 TEST(ThreadPriority, RunsUnpinnedWhenTheAffinityCannotBeApplied)
 {
   sen::kernel::PosixOS os {std::make_shared<sen::kernel::NativePosixAPI>()};

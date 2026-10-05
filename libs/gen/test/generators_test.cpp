@@ -99,6 +99,8 @@ class EveryGenerator: public ::testing::TestWithParam<std::string_view>
 {
 };
 
+/// @test
+/// Every generator produces non-empty output for a model holding one of every kind of type.
 TEST_P(EveryGenerator, rendersSomething)
 {
   const ResolvedModel model {everyKindStl};
@@ -106,6 +108,8 @@ TEST_P(EveryGenerator, rendersSomething)
   EXPECT_FALSE(renderedBy(GetParam(), model).empty());
 }
 
+/// @test
+/// Every generator names every data type the model declares.
 TEST_P(EveryGenerator, namesEveryDataTypeTheModelDeclares)
 {
   const ResolvedModel model {everyKindStl};
@@ -120,6 +124,8 @@ TEST_P(EveryGenerator, namesEveryDataTypeTheModelDeclares)
 // A type reaching the output says nothing about its contents. Blanking the field name in the
 // shared type storage left every name-only assertion green while all seven emitted nameless
 // fields.
+/// @test
+/// Every generator names the fields of a structure, not only the structure itself.
 TEST_P(EveryGenerator, namesTheFieldsOfAStructure)
 {
   const ResolvedModel model {everyKindStl};
@@ -131,6 +137,8 @@ TEST_P(EveryGenerator, namesTheFieldsOfAStructure)
   }
 }
 
+/// @test
+/// Every generator names each enumerator, not only the enumeration itself.
 TEST_P(EveryGenerator, listsTheValuesOfAnEnumeration)
 {
   const ResolvedModel model {everyKindStl};
@@ -150,6 +158,8 @@ INSTANTIATE_TEST_SUITE_P(Generators,
 // What a generator does with a class is its own decision, so each is stated rather than
 // assumed. TypeScript renders only a notification interface per event, and Python renders the
 // fields without the methods; both are deliberate.
+/// @test
+/// The html, json, mkdocs, uml, cpp and python generators render a class and its parent.
 TEST(GeneratorsAndClasses, renderTheClassHierarchyWhereThatIsTheirJob)
 {
   const ResolvedModel model {everyKindStl};
@@ -167,6 +177,8 @@ TEST(GeneratorsAndClasses, renderTheClassHierarchyWhereThatIsTheirJob)
   }
 }
 
+/// @test
+/// The html, json, mkdocs and uml generators render a class method and a class event.
 TEST(GeneratorsAndClasses, renderMethodsAndEventsWhereThatIsTheirJob)
 {
   const ResolvedModel model {everyKindStl};
@@ -180,6 +192,8 @@ TEST(GeneratorsAndClasses, renderMethodsAndEventsWhereThatIsTheirJob)
 }
 
 // TypeScript emits an interface per event and nothing else from a class.
+/// @test
+/// The typescript generator renders an event as a notification interface.
 TEST(GeneratorsAndClasses, typeScriptRendersAnEventAsANotification)
 {
   const ResolvedModel model {everyKindStl};

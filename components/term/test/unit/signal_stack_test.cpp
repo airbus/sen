@@ -68,6 +68,9 @@ private:
   struct sigaction saved_ {};
 };
 
+/// @test
+/// restoreAltStackOnFatalHandlers sets SA_ONSTACK on a fatal handler installed without it, and leaves
+/// the handler function unchanged.
 TEST(SignalStack, PutsTheAltStackFlagBackWithoutChangingTheHandler)
 {
   // The control is the first assertion: a handler installed the way FTXUI installs its own really does
@@ -84,6 +87,8 @@ TEST(SignalStack, PutsTheAltStackFlagBackWithoutChangingTheHandler)
     << "the handler itself changed; FTXUI's terminal restore and its uninstall depend on it";
 }
 
+/// @test
+/// A second call succeeds and leaves SA_ONSTACK set.
 TEST(SignalStack, IsIdempotent)
 {
   // Called once per init(), and a component can be loaded more than once in a process.
@@ -96,6 +101,8 @@ TEST(SignalStack, IsIdempotent)
 
 #else
 
+/// @test
+/// On Windows restoreAltStackOnFatalHandlers changes nothing and returns zero.
 TEST(SignalStack, IsANoOpOnWindows) { EXPECT_EQ(restoreAltStackOnFatalHandlers(), 0); }
 
 #endif

@@ -709,6 +709,9 @@ TEST(DeadReckonerTest, orientationExtrapolationHoldsStillAtThePitchLimit)
   }
 }
 
+/// @test
+/// After an update three seconds on, the smoothed situation converges to the updated position
+/// and orientation.
 TEST(DeadReckonerTest, testSmoothingConvergenceWithLongDeltas)
 {
   DeadReckonerBase deadReckoner {};
@@ -773,6 +776,9 @@ TEST(DeadReckonerTest, testSmoothingConvergenceWithLongDeltas)
   EXPECT_NEAR(currentSituation.angularAcceleration.z, 0.0, 1e-4);
 }
 
+/// @test
+/// An update less than a microsecond after the previous one leaves the position unchanged and
+/// takes the new timestamp.
 TEST(DeadReckonerTest, testSubMicrosecondThresholdGuard)
 {
   DeadReckonerBase deadReckoner {};

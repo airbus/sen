@@ -84,6 +84,8 @@ protected:
 // Add / remove invariants
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Adding an object surfaces the first segment of its relative name as a child of the scope.
 TEST_F(CompleterIncrementalTest, AddSurfacesChildName)
 {
   // Object name "term.foo.bus.obj" → at root scope: rel = "foo.bus.obj", first segment = "foo".
@@ -96,6 +98,8 @@ TEST_F(CompleterIncrementalTest, AddSurfacesChildName)
   EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 1U);
 }
 
+/// @test
+/// Removing the only object under a name retracts that name.
 TEST_F(CompleterIncrementalTest, RemoveRetractsChildName)
 {
   auto obj = makeScopedObject("foo", "bus", "obj");
@@ -106,6 +110,8 @@ TEST_F(CompleterIncrementalTest, RemoveRetractsChildName)
   EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 0U);
 }
 
+/// @test
+/// A name shared by two objects survives the removal of one of them.
 TEST_F(CompleterIncrementalTest, RemoveOnlyDropsChildWhenRefcountReachesZero)
 {
   // Two objects share the same first segment, removing one should keep "foo" in childNames_.
@@ -127,6 +133,8 @@ TEST_F(CompleterIncrementalTest, RemoveOnlyDropsChildWhenRefcountReachesZero)
   EXPECT_TRUE(CompleterIncrementalAccess::childNames(completer).empty());
 }
 
+/// @test
+/// Adding the same object twice counts it once.
 TEST_F(CompleterIncrementalTest, DoubleAddDoesNotDoubleCount)
 {
   auto obj = makeScopedObject("foo", "bus", "obj");
@@ -143,6 +151,8 @@ TEST_F(CompleterIncrementalTest, DoubleAddDoesNotDoubleCount)
   EXPECT_TRUE(CompleterIncrementalAccess::childNames(completer).empty());
 }
 
+/// @test
+/// Names stay in order however they were added.
 TEST_F(CompleterIncrementalTest, AddedChildrenStaySorted)
 {
   // Insert out of order, childNames_ should remain sorted.
@@ -157,6 +167,8 @@ TEST_F(CompleterIncrementalTest, AddedChildrenStaySorted)
   EXPECT_EQ(names[2], "charlie");
 }
 
+/// @test
+/// Removing an object that was never added leaves the state unchanged.
 TEST_F(CompleterIncrementalTest, RemoveUnknownIsNoop)
 {
   auto a = makeScopedObject("alpha", "bus", "obj");
@@ -172,6 +184,8 @@ TEST_F(CompleterIncrementalTest, RemoveUnknownIsNoop)
   EXPECT_EQ(CompleterIncrementalAccess::objectCount(completer), 1U);
 }
 
+/// @test
+/// An added object is found by its name relative to the scope, and an absent one is not.
 TEST_F(CompleterIncrementalTest, FindObjectAfterAdd)
 {
   auto obj = makeScopedObject("sesA", "bus", "target");
@@ -184,6 +198,8 @@ TEST_F(CompleterIncrementalTest, FindObjectAfterAdd)
   EXPECT_EQ(CompleterIncrementalAccess::find(completer, "sesA.bus.missing"), nullptr);
 }
 
+/// @test
+/// An add is ignored while the scope is dirty, because the next update rebuilds everything.
 TEST(CompleterIncrementalDirty, AddIsDroppedWhileScopeDirty)
 {
   Completer c;  // fresh, scopeDirty_ defaults to true (waiting for initial rebuild)
@@ -197,6 +213,9 @@ TEST(CompleterIncrementalDirty, AddIsDroppedWhileScopeDirty)
   EXPECT_EQ(CompleterIncrementalAccess::objectCount(c), 0U);
 }
 
+/// @test
+/// A method completion carries its argument count, for methods with none and with several, and
+/// for a property's getter and setter.
 TEST_F(CompleterIncrementalTest, MethodCompletionsCarryArgCount)
 {
   // Method completions carry the argument count (zero-arg method, multi-arg method, getter, setter).
@@ -242,6 +261,8 @@ TEST_F(CompleterIncrementalTest, MethodCompletionsCarryArgCount)
   EXPECT_EQ(setter->argCount, 1U);
 }
 
+/// @test
+/// A substring matches every object name holding it.
 TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 {
   completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "slowLogger"));
@@ -257,6 +278,8 @@ TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
   EXPECT_TRUE(hasSugg("fastLogger"));
 }
 
+/// @test
+/// listen completes the event names the object declares.
 TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 {
   // TestObject declares thresholdCrossed and tick, so this asserts on named candidates. With no events on
@@ -282,12 +305,16 @@ TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
   }
 }
 
+/// @test
+/// unlisten completes all.
 TEST_F(CompleterIncrementalTest, UnlistenAllCompletes)
 {
   auto result = completer.complete("unlisten a", 10);
   EXPECT_TRUE(hasCandidate(result, "all"));
 }
 
+/// @test
+/// help completes command names.
 TEST_F(CompleterIncrementalTest, HelpCompletesCommandNames)
 {
   auto result = completer.complete("help l", 6);

@@ -30,6 +30,9 @@
 namespace
 {
 
+/// @test
+/// getGitHash returns a full 40 character hexadecimal sha, so a crash report from this binary
+/// names a commit.
 TEST(BuildProvenance, gitHashIsAFullHexSha)
 {
   const std::string hash {sen::kernel::getGitHash()};
@@ -40,6 +43,8 @@ TEST(BuildProvenance, gitHashIsAFullHexSha)
     << "not hexadecimal: " << hash;
 }
 
+/// @test
+/// getBuildTime returns an ISO-8601 timestamp.
 TEST(BuildProvenance, buildTimeIsTheCommitTimestamp)
 {
   // ISO-8601 from `git log -1 --format=%cI`. Checked by shape rather than parsed: what matters
@@ -52,6 +57,9 @@ TEST(BuildProvenance, buildTimeIsTheCommitTimestamp)
   EXPECT_EQ(when[10], 'T') << when;
 }
 
+/// @test
+/// getGitStatus is clean or dirty, never unknown, which is the value that arrives when git could
+/// not be read at build time.
 TEST(BuildProvenance, gitStatusIsKnown)
 {
   // unknown means the status reached the binary as neither clean nor dirty, which is how an

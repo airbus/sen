@@ -34,6 +34,8 @@ using test::renderToText;
 // renderMethodSignature
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A method signature opens with the METHOD header and names the object it belongs to.
 TEST(SignatureRenderer, MethodHeaderAndObjectName)
 {
   auto* method = findTestMethod("add");
@@ -46,6 +48,8 @@ TEST(SignatureRenderer, MethodHeaderAndObjectName)
   EXPECT_THAT(out, ::testing::HasSubstr("add"));
 }
 
+/// @test
+/// A const method is marked as const.
 TEST(SignatureRenderer, MethodMarksConst)
 {
   // `add` is declared `[const]` in the stl.
@@ -57,6 +61,8 @@ TEST(SignatureRenderer, MethodMarksConst)
   EXPECT_THAT(out, ::testing::HasSubstr("[const]"));
 }
 
+/// @test
+/// A method that is not const carries no const marker.
 TEST(SignatureRenderer, MethodSkipsConstMarkerForNonConstMethods)
 {
   // `reset` is not const.
@@ -68,6 +74,8 @@ TEST(SignatureRenderer, MethodSkipsConstMarkerForNonConstMethods)
   EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("[const]")));
 }
 
+/// @test
+/// A method with arguments lists them under an ARGUMENTS heading.
 TEST(SignatureRenderer, MethodArgumentsSection)
 {
   auto* method = findTestMethod("add");
@@ -82,6 +90,8 @@ TEST(SignatureRenderer, MethodArgumentsSection)
   EXPECT_THAT(out, ::testing::HasSubstr("i32"));
 }
 
+/// @test
+/// A method with no arguments has no ARGUMENTS heading.
 TEST(SignatureRenderer, MethodNoArgsSkipsArgumentsSection)
 {
   auto* method = findTestMethod("ping");
@@ -92,6 +102,8 @@ TEST(SignatureRenderer, MethodNoArgsSkipsArgumentsSection)
   EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("ARGUMENTS")));
 }
 
+/// @test
+/// A method that returns a value names the type under a RETURNS heading.
 TEST(SignatureRenderer, MethodReturnsSection)
 {
   // `ping` returns string → the RETURNS section should appear.
@@ -103,6 +115,8 @@ TEST(SignatureRenderer, MethodReturnsSection)
   EXPECT_THAT(out, ::testing::HasSubstr("string"));
 }
 
+/// @test
+/// A method returning void has no RETURNS heading.
 TEST(SignatureRenderer, MethodVoidReturnOmitsReturnsSection)
 {
   // `reset` returns void → no RETURNS line.
@@ -118,6 +132,8 @@ TEST(SignatureRenderer, MethodVoidReturnOmitsReturnsSection)
 // renderPropertyValue
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A scalar property renders as its name and its value on one line.
 TEST(SignatureRenderer, PropertyValueInlineForScalar)
 {
   auto* prop = findTestProperty("counter");
@@ -128,6 +144,8 @@ TEST(SignatureRenderer, PropertyValueInlineForScalar)
   EXPECT_THAT(out, ::testing::HasSubstr("42"));
 }
 
+/// @test
+/// A property with no value renders as empty rather than blank.
 TEST(SignatureRenderer, PropertyValueEmpty)
 {
   // An empty Var should render inline as <empty> (the formatter's fallback).
@@ -143,12 +161,16 @@ TEST(SignatureRenderer, PropertyValueEmpty)
 // renderMethodResult
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A method returning void reports OK rather than a value.
 TEST(SignatureRenderer, MethodResultVoidShowsOK)
 {
   auto out = renderToText(renderMethodResult(Var {}, *VoidType::get()));
   EXPECT_THAT(out, ::testing::HasSubstr("OK"));
 }
 
+/// @test
+/// A method returning a value renders the value and not OK.
 TEST(SignatureRenderer, MethodResultValueRendersValue)
 {
   auto out = renderToText(renderMethodResult(Var(int32_t {7}), *Int32Type::get()));
@@ -160,6 +182,8 @@ TEST(SignatureRenderer, MethodResultValueRendersValue)
 // renderError
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// An error renders with the Error label, its title and its message.
 TEST(SignatureRenderer, ErrorBoxContainsTitleAndMessage)
 {
   auto out = renderToText(renderError("Unknown Method", "no such method: fooBar"));
