@@ -9,6 +9,8 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_sen_integration_test(
   kernel_termination_test
+  DESCRIPTION
+  "Checks that a termination request stops the kernel instead of killing it."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/terminate_test.py

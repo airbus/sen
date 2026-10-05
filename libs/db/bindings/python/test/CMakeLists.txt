@@ -17,6 +17,8 @@ if(SEN_USE_SANITIZER STREQUAL None)
 
   add_sen_integration_test(
     db_python_bindings_test
+    DESCRIPTION
+    "Reads a recorded archive through the Python bindings, reusing the recorder's fixture."
     COMMAND
     ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/test_bindings.py

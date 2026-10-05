@@ -20,8 +20,23 @@ set(_ls_sources_cases
 # and pty, fcntl, termios and SIGKILL are absent from CPython there.
 if(NOT MSVC)
   foreach(_case IN LISTS _ls_sources_cases)
+    string(
+      REGEX
+      REPLACE "^test_"
+              ""
+              _case_words
+              "${_case}"
+    )
+    string(
+      REPLACE "_"
+              " "
+              _case_words
+              "${_case_words}"
+    )
     add_sen_integration_test(
       term_ls_sources_${_case}
+      DESCRIPTION
+      "Checks that ${_case_words}."
       COMMAND
       ${Python_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/test_ls_sources.py

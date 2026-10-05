@@ -65,6 +65,8 @@ set_target_properties(type_clash_participant_4 PROPERTIES FOLDER "test")
 
 add_sen_integration_test(
   kernel_type_clash_test_1
+  DESCRIPTION
+  "Reports an incompatible remote implementation when two participants declare the same class differently."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py
@@ -86,6 +88,8 @@ set_tests_properties(
 
 add_sen_integration_test(
   kernel_type_clash_test_2
+  DESCRIPTION
+  "Reports an incompatible remote implementation when the clashing class reaches its definition by inheritance."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py
@@ -117,6 +121,8 @@ foreach(mode_case relaxed strict disabled)
 
   add_sen_integration_test(
     kernel_compatibility_mode_${mode_case}
+    DESCRIPTION
+    "Checks whether an object whose property was narrowed by another participant reaches its bus under the ${mode_case} compatibility mode."
     COMMAND
     ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py

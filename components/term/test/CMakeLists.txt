@@ -37,6 +37,11 @@ add_sen_unit_test_suite(
   unit/tree_view_test.cpp
   unit/clipboard_test.cpp
   unit/command_engine_test.cpp
+  unit/theme_test.cpp
+  unit/byte_format_test.cpp
+  unit/output_capture_test.cpp
+  unit/app_renderers_test.cpp
+  unit/type_peel_test.cpp
   LINK_DEPS
   ${term_test_deps}
 )

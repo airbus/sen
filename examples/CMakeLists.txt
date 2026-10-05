@@ -10,4 +10,8 @@ add_subdirectory(packages)
 add_subdirectory(apps)
 
 # configurations
-include(config/CMakeLists.txt)
+# A subdirectory rather than an include: the configs register their own tests, and CMake books a
+# test against the directory it was registered from. Included here, all of them were attributed to
+# examples/ rather than to examples/config, and the guard at the top of that file returned from
+# this scope rather than its own.
+add_subdirectory(config)

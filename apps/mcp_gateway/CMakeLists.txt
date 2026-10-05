@@ -176,10 +176,16 @@ install(
 if(SEN_BUILD_TESTS)
   add_sen_integration_test(
     mcp_gateway_integration
+    DESCRIPTION
+    "Runs the gateway's integration suite against a live kernel."
     COMMAND
     ${MCP_GATEWAY_NPM_EXEC}
     run
     test:integration
+    --
+    --reporter=default
+    --reporter=junit
+    --outputFile.junit=${SEN_TEST_REPORT_DIR}/mcp_gateway_integration.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     REQ_DEPS jsonrpc mcp_gateway_npm_install mcp_gateway_build my_package inheritance
   )
@@ -205,10 +211,16 @@ if(SEN_BUILD_TESTS)
   # the imports fail to resolve and vitest reports a collection error, not a test failure.
   add_sen_integration_test(
     mcp_gateway_unit
+    DESCRIPTION
+    "Runs the gateway's unit suite."
     COMMAND
     ${MCP_GATEWAY_NPM_EXEC}
     run
     test
+    --
+    --reporter=default
+    --reporter=junit
+    --outputFile.junit=${SEN_TEST_REPORT_DIR}/mcp_gateway_unit.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     REQ_DEPS mcp_gateway_npm_install mcp_gateway_bake jsonrpc_ts_client_dist
   )
@@ -219,6 +231,8 @@ if(SEN_BUILD_TESTS)
   # Serial: its `pretypecheck` bake rewrites the src/baked_*.ts that mcp_gateway_unit reads.
   add_sen_integration_test(
     mcp_gateway_typecheck
+    DESCRIPTION
+    "Type-checks the gateway's TypeScript."
     COMMAND
     ${MCP_GATEWAY_NPM_EXEC}
     run

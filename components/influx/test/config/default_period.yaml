@@ -1,0 +1,9 @@
+# No samplingPeriod, so the component falls back to its own default rather than sampling at zero.
+load:
+  - name: influx
+    group: 4
+    protocol: udp
+    telegrafAddress: 127.0.0.1
+    telegrafPort: 18089
+    selections:
+      - SELECT * FROM my.tutorial

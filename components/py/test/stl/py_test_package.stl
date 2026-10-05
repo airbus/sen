@@ -1,9 +1,35 @@
 package py_test_package;
 
+// Each shape below exists so that the Python-to-Sen converter has a type of that shape to convert:
+// FromPythonConverter visits the type and the visit for an enum, a string, a struct, a sequence and an
+// optional are all separate overloads.
+
+enum Mode: u8
+{
+  idle,     // nothing to do
+  running,  // working
+  halted    // stopped on purpose
+}
+
+struct Point
+{
+  x : i32,  // horizontal coordinate
+  y : i32   // vertical coordinate
+}
+
+sequence<i32> IntList;
+optional<f32> MaybeRate;
+
 class TestObject
 {
   var staticProp  : u32 [static];
   var dynamicProp : f64 [writable];
+
+  var mode   : Mode [writable];
+  var label  : string [writable, confirmed];
+  var origin : Point [writable];
+  var values : IntList [writable, confirmed];
+  var rate   : MaybeRate [writable];
 
   fn divide(a: f32, b: f32) -> f32;
   event divisionByZero();

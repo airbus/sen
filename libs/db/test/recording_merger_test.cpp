@@ -773,4 +773,114 @@ TEST(RecordingMergerTest, MergeWithoutAProgressReporterProducesTheSameArchive)
   EXPECT_EQ(reportedInput.getSummary().lastTime, silentInput.getSummary().lastTime);
 }
 
+/// Collects the object names the merged archive creates, which is what a duplicate resolution decides.
+[[nodiscard]] std::multiset<std::string> readCreatedObjectNames(const std::filesystem::path& archive,
+                                                                sen::kernel::TestKernel& kernel)
+{
+  Input input(archive, kernel.getTypes());
+  std::multiset<std::string> names;
+  auto cursor = input.begin();
+  while (!cursor.atEnd())
+  {
+    ++cursor;
+    if (!cursor.atEnd() && std::holds_alternative<Creation>(cursor.get().payload))
+    {
+      names.insert(std::get<Creation>(cursor.get().payload).getSnapshot().getName());
+    }
+  }
+
+  return names;
+}
+
+/// @test
+/// A duplicate object name on one bus is kept rather than rejected when the resolver picks one of them.
+///
+/// Without a resolver the merge throws, which MergeFailsForDuplicateObjectNamesOnSameBus pins. This is
+/// the other half: the caller decides, and `sen archive merge` asks the user at the terminal.
+TEST(RecordingMergerTest, MergeKeepsTheObjectTheResolverSelects)
+{
+  TempDir tempDir;
+  SingleClassSetup setup;
+
+  writeIndexedCreationRecording(
+    "first", tempDir, makeObjectInfo(setup.object, "shared_session", "shared_bus"), makeTime(10));
+  writeIndexedCreationRecording(
+    "second", tempDir, makeObjectInfo(setup.object, "shared_session", "shared_bus"), makeTime(20));
+
+  const auto mergedArchive = makeArchivePath("merged_keeping_one_object", tempDir);
+  auto settings =
+    makeMergeSettings({makeArchivePath("first", tempDir), makeArchivePath("second", tempDir)}, mergedArchive);
+
+  std::size_t asked = 0U;
+  settings.duplicateObjectResolver = [&asked](const RecordingMergeDuplicateObject& duplicate)
+  {
+    ++asked;
+    EXPECT_EQ(duplicate.objects.size(), 2U) << "both sides of the conflict should be offered";
+    return RecordingMergeDuplicateObjectResolution {RecordingMergeKeepSelectedObject {0U}};
+  };
+
+  ASSERT_NO_THROW(mergeRecordings(settings));
+  EXPECT_EQ(asked, 1U) << "the resolver was not consulted, so the conflict was settled some other way";
+
+  const auto names = readCreatedObjectNames(mergedArchive, *setup.kernel);
+  EXPECT_EQ(names.size(), 1U) << "the object that was not selected is still in the merged archive";
+}
+
+/// @test
+/// Renaming keeps both objects, under the names the resolver chose.
+TEST(RecordingMergerTest, MergeRenamesBothObjectsWhenTheResolverSaysSo)
+{
+  TempDir tempDir;
+  SingleClassSetup setup;
+
+  writeIndexedCreationRecording(
+    "first", tempDir, makeObjectInfo(setup.object, "shared_session", "shared_bus"), makeTime(10));
+  writeIndexedCreationRecording(
+    "second", tempDir, makeObjectInfo(setup.object, "shared_session", "shared_bus"), makeTime(20));
+
+  const auto mergedArchive = makeArchivePath("merged_renaming_objects", tempDir);
+  auto settings =
+    makeMergeSettings({makeArchivePath("first", tempDir), makeArchivePath("second", tempDir)}, mergedArchive);
+
+  settings.duplicateObjectResolver = [](const RecordingMergeDuplicateObject& duplicate)
+  {
+    RecordingMergeRenameObjects renames;
+    for (std::size_t i = 0U; i < duplicate.objects.size(); ++i)
+    {
+      renames.renamedObjects.push_back({i, "object_" + std::to_string(i)});
+    }
+
+    return RecordingMergeDuplicateObjectResolution {std::move(renames)};
+  };
+
+  ASSERT_NO_THROW(mergeRecordings(settings));
+
+  const auto names = readCreatedObjectNames(mergedArchive, *setup.kernel);
+  ASSERT_EQ(names.size(), 2U);
+  EXPECT_EQ(names.count("object_0"), 1U);
+  EXPECT_EQ(names.count("object_1"), 1U);
+}
+
+/// @test
+/// A resolver that selects an object outside the conflict is refused rather than read past the end.
+TEST(RecordingMergerTest, MergeFailsWhenTheResolverSelectsAnObjectThatIsNotThere)
+{
+  TempDir tempDir;
+  SingleClassSetup setup;
+
+  writeIndexedCreationRecording(
+    "first", tempDir, makeObjectInfo(setup.object, "shared_session", "shared_bus"), makeTime(10));
+  writeIndexedCreationRecording(
+    "second", tempDir, makeObjectInfo(setup.object, "shared_session", "shared_bus"), makeTime(20));
+
+  const auto mergedArchive = makeArchivePath("merged_with_a_bad_selection", tempDir);
+  auto settings =
+    makeMergeSettings({makeArchivePath("first", tempDir), makeArchivePath("second", tempDir)}, mergedArchive);
+
+  settings.duplicateObjectResolver = [](const RecordingMergeDuplicateObject& /*duplicate*/)
+  { return RecordingMergeDuplicateObjectResolution {RecordingMergeKeepSelectedObject {7U}}; };
+
+  EXPECT_ANY_THROW(mergeRecordings(settings));
+}
+
 }  // namespace sen::db::test

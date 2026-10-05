@@ -128,7 +128,10 @@ foreach(config_file ${configs})
   get_filename_component(config_dir_name ${config_dir} NAME)
 
   set(test_name ${config_dir_name}_${config}_smoke)
-  add_sen_run_smoke_test(${test_name} CONFIG_FILE ${config_file})
+  add_sen_run_smoke_test(
+    ${test_name} DESCRIPTION "Starts and stops the ${config} example configuration."
+    CONFIG_FILE ${config_file}
+  )
 
   append_test_env_modification(
     ${test_name} "PYTHONPATH=path_list_append:${PROJECT_SOURCE_DIR}/examples/config/10_python/scripts"

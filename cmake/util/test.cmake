@@ -118,6 +118,41 @@ if(TSAN_SUPPRESSION_FILE)
   )
 endif()
 
+# Where a runner that is not ctest writes its own JUnit report. ctest registers such a suite as one
+# test, so without this the whole suite is a single pass or fail; merging these in gives the report
+# an entry per case.
+set(SEN_TEST_REPORT_DIR "${CMAKE_BINARY_DIR}/test-reports")
+file(MAKE_DIRECTORY "${SEN_TEST_REPORT_DIR}")
+
+# A test registered here has no source file of its own to carry a description the way a test macro
+# does, so the helpers below take one and it is collected while the build configures. Truncated on
+# each configure, so a test that is no longer registered does not leave its line behind.
+set(SEN_TEST_DESCRIPTIONS_FILE "${CMAKE_BINARY_DIR}/test-descriptions.tsv")
+file(WRITE "${SEN_TEST_DESCRIPTIONS_FILE}" "")
+
+# record_test_description(<test_name> <description>)
+#
+# One tab-separated line per test. A tab or a newline in the text would split the record, so both
+# become spaces.
+function(record_test_description test_name description)
+  if(NOT description)
+    return()
+  endif()
+  string(
+    REPLACE "\t"
+            " "
+            description
+            "${description}"
+  )
+  string(
+    REPLACE "\n"
+            " "
+            description
+            "${description}"
+  )
+  file(APPEND "${SEN_TEST_DESCRIPTIONS_FILE}" "${test_name}\t${description}\n")
+endfunction()
+
 enable_testing()
 
 find_package(GTest QUIET)
@@ -296,7 +331,17 @@ function(add_sen_unit_test_suite test_name)
     )
   endif()
 
-  gtest_discover_tests(${test_name} DISCOVERY_MODE PRE_TEST PROPERTIES ${_test_props})
+  # NO_PRETTY_VALUES drops gtest's "# GetParam() = ..." from the registered name. Without it a
+  # parameter gtest cannot print reaches ctest as a hex dump of the object: 200 names carried one,
+  # the longest 613 characters, and the bytes change between builds. The suites that want a readable
+  # parameter give it a name generator, which this leaves alone.
+  gtest_discover_tests(
+    ${test_name}
+    DISCOVERY_MODE
+    PRE_TEST
+    NO_PRETTY_VALUES
+    PROPERTIES ${_test_props}
+  )
 
   add_dependencies(run_unit_tests ${test_name})
   add_dependencies(run_tests ${test_name})
@@ -311,7 +356,7 @@ endfunction()
 # )
 function(add_sen_integration_test test_name)
   set(_options FLAKY USE_TESTCONTAINERS)
-  set(_one_value_args)
+  set(_one_value_args DESCRIPTION)
   set(_multi_value_args REQ_COMPONENTS REQ_DEPS)
 
   cmake_parse_arguments(
@@ -323,6 +368,7 @@ function(add_sen_integration_test test_name)
   )
 
   add_test(NAME ${test_name} ${_arg_UNPARSED_ARGUMENTS})
+  record_test_description(${test_name} "${_arg_DESCRIPTION}")
 
   set(labels "integration")
   if(${_arg_FLAKY})
@@ -416,7 +462,7 @@ endfunction()
 # )
 function(add_sen_run_smoke_test test_name)
   set(_options NO_START_STOP WILL_FAIL FLAKY)
-  set(_one_value_args WORKING_DIRECTORY CONFIG_FILE)
+  set(_one_value_args WORKING_DIRECTORY CONFIG_FILE DESCRIPTION)
   set(_multi_value_args)
 
   cmake_parse_arguments(
@@ -472,6 +518,7 @@ function(add_sen_run_smoke_test test_name)
       WORKING_DIRECTORY ${_working_dir} COMMAND_EXPAND_LISTS
     )
   endif()
+  record_test_description(${test_name} "${_arg_DESCRIPTION}")
 
   set(labels "smoke")
   if(${_arg_FLAKY})
@@ -553,7 +600,7 @@ endfunction()
 # )
 function(add_sen_smoke_test test_name)
   set(_options FLAKY)
-  set(_one_value_args WORKING_DIRECTORY)
+  set(_one_value_args WORKING_DIRECTORY DESCRIPTION)
   set(_multi_value_args COMMAND REQ_DEPS)
 
   cmake_parse_arguments(
@@ -569,6 +616,7 @@ function(add_sen_smoke_test test_name)
     COMMAND ${_arg_COMMAND}
     WORKING_DIRECTORY ${_arg_WORKING_DIRECTORY}
   )
+  record_test_description(${test_name} "${_arg_DESCRIPTION}")
 
   set(labels "smoke")
   if(${_arg_FLAKY})
