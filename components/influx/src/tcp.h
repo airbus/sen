@@ -17,7 +17,7 @@
 // std
 #include <iostream>
 #include <string>
-#include <thread>
+#include <tuple>
 
 namespace sen::components::influx
 {
@@ -34,13 +34,19 @@ public:
 public:
   void send(std::string&& message) override;
 
-public:
-  void reconnect();
+private:
+  /// Closes the socket and dials the endpoint once. False when the far end is still gone.
+  [[nodiscard]] bool reconnect();
+
+  /// Says once that points are being dropped, whichever of the two writes gave up.
+  void reportDropping();
 
 private:
   asio::io_context& ioContext_;
   asio::ip::tcp::socket socket_;
   asio::ip::tcp::endpoint endpoint_;
+  /// Whether the last send failed, so a sink that stays down is reported once and not per point.
+  bool disconnected_ {false};
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -56,40 +62,60 @@ inline TCP::TCP(asio::io_context& ioContext, const std::string& hostname, int po
   endpoint_ = socket_.remote_endpoint();
 }
 
-inline void TCP::reconnect()
+inline void TCP::reportDropping()
 {
-  while (true)
+  if (!disconnected_)
   {
-    try
-    {
-      socket_.connect(endpoint_);
-    }
-    catch (...)
-    {
-      std::cerr << "error connecting to the enpoint - retrying in 1 second" << std::endl;
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      continue;
-    }
-
-    socket_.wait(asio::ip::tcp::socket::wait_write);
-    break;
+    std::cerr << "influx: the telegraf endpoint is not answering; points are being dropped" << std::endl;
+    disconnected_ = true;
   }
+}
+
+inline bool TCP::reconnect()
+{
+  // One attempt, not a loop. Waiting here for a sink that may never come back stops the
+  // application that is being recorded, which is the wrong way round: the recording is the part
+  // that can be missed.
+  // Closing a socket the far end has already dropped can fail, and it does not matter here: what
+  // the caller is told is whether the dial below answered.
+  asio::error_code error;
+  std::ignore = socket_.close(error);
+  std::ignore = socket_.connect(endpoint_, error);
+  return !error;
 }
 
 inline void TCP::send(std::string&& message)
 {
-  try
+  message.append("\n");
+  const auto buffer = asio::buffer(message, message.size());
+
+  asio::error_code error;
+  asio::write(socket_, buffer, error);
+
+  if (error)
   {
-    message.append("\n");
-    const size_t written = asio::write(socket_, asio::buffer(message, message.size()));
-    if (written != message.size())
+    // Telegraf restarting is an ordinary thing to happen, and this used to end the process: the
+    // throw reached the kernel's callback, where nothing catches it, and the run died with a
+    // crash report because a sink went away. One reconnect and one retry; after that the point
+    // is dropped, because the application being recorded must outlive its recorder.
+    if (!reconnect())
     {
-      throwRuntimeError("Error while transmitting data");
+      reportDropping();
+      return;
+    }
+
+    asio::write(socket_, buffer, error);
+    if (error)
+    {
+      reportDropping();
+      return;
     }
   }
-  catch (const asio::system_error& e)
+
+  if (disconnected_)
   {
-    throwRuntimeError(e.what());
+    std::cerr << "influx: the telegraf endpoint is answering again" << std::endl;
+    disconnected_ = false;
   }
 }
 
