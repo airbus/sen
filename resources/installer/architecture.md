@@ -100,5 +100,6 @@ Tests live in `test/`. `run.sh` is the entry point:
 sh test/run.sh
 ```
 
-`SEN_DEV_STRICT=1` makes a missing `bats` a hard error (the CI default). On a workstation, missing optional
-tooling skips the affected steps with a warning.
+`SEN_DEV_STRICT=1` makes missing tooling a hard error. CI does not set it: the build refuses to configure
+without `bats`, and the cases that need `fish` fail rather than skip when `CI` is set, since the image and
+`setup_build_context` both install it. On a workstation, missing optional tooling skips with a warning.

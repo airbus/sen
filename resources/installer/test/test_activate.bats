@@ -45,7 +45,7 @@ setup_two_builds() {
 }
 
 @test "activate: generated activate.fish parses under fish" {
-    if ! command -v fish >/dev/null 2>&1; then skip "fish not installed"; fi
+    require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -145,7 +145,7 @@ CM
 #---------------------------------------------------------------------------------------------------------------
 
 @test "activate.fish: source sets SEN_PREFIX (under fish)" {
-    if ! command -v fish >/dev/null 2>&1; then skip "fish not installed"; fi
+    require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -155,7 +155,7 @@ CM
 }
 
 @test "activate.fish: source prepends prefix/bin to PATH (under fish)" {
-    if ! command -v fish >/dev/null 2>&1; then skip "fish not installed"; fi
+    require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -165,7 +165,7 @@ CM
 }
 
 @test "activate.fish: source sets CMAKE_PREFIX_PATH with the /cmake suffix (under fish)" {
-    if ! command -v fish >/dev/null 2>&1; then skip "fish not installed"; fi
+    require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -175,7 +175,7 @@ CM
 }
 
 @test "activate.fish: switching builds drops the previous build's bin/ from PATH (under fish)" {
-    if ! command -v fish >/dev/null 2>&1; then skip "fish not installed"; fi
+    require_fish
     load_install
     setup_two_builds
     run fish -c "
