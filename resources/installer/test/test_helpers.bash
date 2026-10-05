@@ -20,6 +20,16 @@ setup() {
     # which Ubuntu 22.04 ships, does not set that variable, and the tests then write to the root directory.
     SEN_TEST_TMPDIR=$(mktemp -d)
     export SEN_TEST_TMPDIR
+    # fish keeps session state under XDG_RUNTIME_DIR; with none set it falls back to /tmp/fish.$USER,
+    # which a container user with no passwd entry cannot name, and writes "Runtime path not available"
+    # into whatever the test captured. One set per test, so two cases cannot share it either.
+    XDG_RUNTIME_DIR="$SEN_TEST_TMPDIR/run"
+    XDG_CONFIG_HOME="$SEN_TEST_TMPDIR/config"
+    XDG_DATA_HOME="$SEN_TEST_TMPDIR/data"
+    XDG_CACHE_HOME="$SEN_TEST_TMPDIR/cache"
+    mkdir -p "$XDG_RUNTIME_DIR" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME"
+    chmod 700 "$XDG_RUNTIME_DIR"
+    export XDG_RUNTIME_DIR XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME
     export SEN_HOST_ARCH=x86_64
     export SEN_INSTALLER_NO_SELF_COPY=1
 }
@@ -42,6 +52,20 @@ load_install() {
     . "$INSTALLER_DIR/install.sh"
     set +u
     set -e
+}
+
+# The build image and setup_build_context both install fish, so a skip in CI would mean the
+# environment lost it and the fish half of the activation script stopped being checked. A
+# workstation without fish still skips.
+require_fish() {
+    if command -v fish >/dev/null 2>&1; then
+        return 0
+    fi
+    if [ -n "${CI:-}" ] || [ -n "${SEN_DEV_STRICT:-}" ]; then
+        printf 'fish not found, and this environment is meant to carry it\n' >&2
+        return 1
+    fi
+    skip "fish not installed"
 }
 
 fixture_path() {
