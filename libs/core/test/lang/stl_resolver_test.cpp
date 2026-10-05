@@ -79,6 +79,9 @@ private:
   sen::lang::TypeSetContext globalContext_;
 };
 
+/// @test
+/// A file declaring a sequence, an enumeration, a struct, an optional, a variant, a quantity, an
+/// alias and a class resolves to those types in declaration order.
 TEST_F(AStlResolver, CorrectlyResolvesAValidComplexStlFile)
 {
   // arrange
@@ -102,6 +105,8 @@ TEST_F(AStlResolver, CorrectlyResolvesAValidComplexStlFile)
   ASSERT_TRUE(typeSet->types[10]->isClassType());
 }
 
+/// @test
+/// A property named as checked in the type settings resolves with its checked flag set.
 TEST_F(AStlResolver, CorrectlyResolvesPropertiesDecoratedAsChecked)
 {
   // arrange
@@ -131,6 +136,8 @@ class ClassUnderTest
   ASSERT_TRUE(property->getCheckedSet());
 }
 
+/// @test
+/// A method named as deferred in the type settings resolves with its deferred flag set.
 TEST_F(AStlResolver, CorrectlyResolvesMethodsDecoratedAsDeferred)
 {
   // arrange
@@ -160,6 +167,8 @@ class ClassUnderTest
   ASSERT_TRUE(method->getDeferred());
 }
 
+/// @test
+/// A type imported from another file resolves to the type that file declares.
 TEST_F(AStlResolver, CorrectlyResolvesTypesIncludedFromOtherStlFiles)
 {
   // arrange
@@ -208,6 +217,8 @@ struct AnotherTestStruct
   ASSERT_EQ(fieldData->name, "type");
 }
 
+/// @test
+/// A class cannot be the type of a property.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsPropertyTypes)
 {
   // arrange
@@ -226,6 +237,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsPropertyType)});
 }
 
+/// @test
+/// A class cannot be the return type of a method.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsFunctionReturnType)
 {
   // arrange
@@ -244,6 +257,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsFunctionReturnType)});
 }
 
+/// @test
+/// A class cannot be the type of a method argument.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsFunctionArgument)
 {
   // arrange
@@ -262,6 +277,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsFunctionArgument)});
 }
 
+/// @test
+/// A class cannot be the type of an event argument.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsEventArgument)
 {
   // arrange
@@ -280,6 +297,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsEventArgument)});
 }
 
+/// @test
+/// A class cannot be the type of a struct field.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsStructField)
 {
   // arrange
@@ -299,6 +318,8 @@ struct StructUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsStructField)});
 }
 
+/// @test
+/// A class cannot be an alternative of a variant.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsVariantType)
 {
   // arrange
@@ -318,6 +339,8 @@ variant VariantUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsVariantType)});
 }
 
+/// @test
+/// A class cannot be the element type of a sequence or an array.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsTypeOfSequenceOrArray)
 {
   // arrange
@@ -346,6 +369,8 @@ array<TestClass, 12> ArrayUnderTest;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsTypeOfArray)});
 }
 
+/// @test
+/// A class cannot be the type of an optional.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsTypeOfOptional)
 {
   // arrange
@@ -360,6 +385,8 @@ optional<TestClass> OptionalUnderTest;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsTypeOfOptional)});
 }
 
+/// @test
+/// A class cannot be the underlying type of a quantity.
 TEST_F(AStlResolver, ThrowsIfClassIsUsedAsTypeOfQuantity)
 {
   // arrange
@@ -374,6 +401,8 @@ quantity<TestClass, deg> QuantityUnderTest;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassAsTypeOfQuantity)});
 }
 
+/// @test
+/// A type declared before any package statement is rejected.
 TEST_F(AStlResolver, ThrowsIfNoPackageNameIsSpecifiedBeforeTheFirstTypeDeclaration)
 {
   // arrange
@@ -386,6 +415,8 @@ package test.package_declarations;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithTypeDeclarationBeforePackageName)});
 }
 
+/// @test
+/// A second package statement in one file is rejected.
 TEST_F(AStlResolver, ThrowsIfPackageNameIsRedeclared)
 {
   // arrange
@@ -398,6 +429,8 @@ package sen.package_redeclaration;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithPackageNameRedeclaration)});
 }
 
+/// @test
+/// A struct extending a name that is not declared is rejected.
 TEST_F(AStlResolver, ThrowsIfParentStructIsNotDefined)
 {
   // arrange
@@ -411,6 +444,8 @@ struct StructUnderTest : UndefinedParentStruct;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithUndefinedParentStruct)});
 }
 
+/// @test
+/// A struct extending a type that is not a struct is rejected.
 TEST_F(AStlResolver, ThrowsIfParentStructIsNotAStructType)
 {
   // arrange
@@ -431,6 +466,8 @@ struct StructUnderTest : TestVariant;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithNonStructTypeAsParentStruct)});
 }
 
+/// @test
+/// An enumeration whose storage type is not declared is rejected.
 TEST_F(AStlResolver, ThrowsIfTheStorageTypeOfAnEnumerationIsAnUnknownType)
 {
   // arrange
@@ -452,6 +489,8 @@ enum EnumUnderTest: UnknownStorageType
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidEnumeration)});
 }
 
+/// @test
+/// An enumeration whose storage type is not numeric is rejected.
 TEST_F(AStlResolver, ThrowsIfTheStorageTypeOfAnEnumerationIsNotNumeric)
 {
   // arrange
@@ -475,6 +514,8 @@ enum EnumUnderTest: TestStruct
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidEnumeration)});
 }
 
+/// @test
+/// A quantity whose underlying type is not declared is rejected.
 TEST_F(AStlResolver, ThrowsIfTheUnderlyingTypeOfAQuantityIsUnknown)
 {
   // arrange
@@ -488,6 +529,8 @@ quantity<UnknownType, deg> QuantityUnderTest;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidQuantity)});
 }
 
+/// @test
+/// A quantity whose underlying type is not numeric is rejected.
 TEST_F(AStlResolver, ThrowsIfTheUnderlyingTypeOfAQuantityIsNotNumeric)
 {
   // arrange
@@ -501,6 +544,8 @@ quantity<string, deg> QuantityUnderTest;
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidQuantity)});
 }
 
+/// @test
+/// A property carrying the same transport attribute twice is rejected.
 TEST_F(AStlResolver, ThrowsIfClassPropertyTransportAttributeValueIsRepeated)
 {
   // arrange
@@ -528,6 +573,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithRepeatedBestEffort)});
 }
 
+/// @test
+/// A property carrying an attribute that does not exist is rejected.
 TEST_F(AStlResolver, ThrowsIfClassPropertyAttributeIsInvalid)
 {
   // arrange
@@ -555,6 +602,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidMultiWordAttribute)});
 }
 
+/// @test
+/// A property name that is not lowerCamelCase is rejected.
 TEST_F(AStlResolver, ThrowsIfClassPropertyNameDoesNotComplyWithLowerCamelCase)
 {
   // arrange
@@ -572,6 +621,9 @@ class TestClass
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidClassPropertyName)});
 }
 
+/// @test
+/// The checked attribute written in the declaration is accepted and sets the property's checked
+/// flag. The warning the name mentions is not asserted.
 TEST_F(AStlResolver, EmittsAWarningIfClassPropertyIsDecoratedWithCheckedAttribute)
 {
   // arrange
@@ -597,6 +649,9 @@ class ClassUnderTest
   ASSERT_TRUE(property->getCheckedSet());
 }
 
+/// @test
+/// The deferred attribute written in the declaration is accepted and sets the method's deferred
+/// flag. The warning the name mentions is not asserted.
 TEST_F(AStlResolver, EmittsAWarningIfClassMethodIsDecoratedWithDeferredAttribute)
 {
   // arrange
@@ -622,6 +677,8 @@ class ClassUnderTest
   ASSERT_TRUE(method->getDeferred());
 }
 
+/// @test
+/// A class cannot extend an interface.
 TEST_F(AStlResolver, ThrowsIfClassTypeTriesToExtendParentInterface)
 {
   // arrange
@@ -643,6 +700,8 @@ class ClassUnderTest : extends SomeInterface
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassThatTriesToExtendParentInterface)});
 }
 
+/// @test
+/// A class cannot be used as a parent interface.
 TEST_F(AStlResolver, ThrowsIfClassTypeIsUsedAsParentInterface)
 {
   // arrange
@@ -664,6 +723,8 @@ class ClassUnderTest : implements TestClass
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithClassTypeUsedAsInterface)});
 }
 
+/// @test
+/// A value type cannot be used as a parent interface.
 TEST_F(AStlResolver, ThrowsIfValueTypeIsUsedAsParentInterface)
 {
   // arrange
@@ -682,6 +743,8 @@ class ClassUnderTest : implements SomeStruct
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithValueTypeAsInterface)});
 }
 
+/// @test
+/// A method carrying an attribute that does not exist is rejected.
 TEST_F(AStlResolver, ThrowsIfClassMethodAttributeIsInvalid)
 {
   // arrange
@@ -709,6 +772,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidMultiWordAttribute)});
 }
 
+/// @test
+/// An event carrying an invalid transport attribute is rejected.
 TEST_F(AStlResolver, ThrowsIfClassEventTransportPropertyIsInvalid)
 {
   // arrange
@@ -736,6 +801,8 @@ class ClassUnderTest
   ASSERT_ANY_THROW([[maybe_unused]] const auto typeSet {resolve(stlFileWithInvalidMultiWordAttribute)});
 }
 
+/// @test
+/// An unbounded writable property must use the confirmed transport mode.
 TEST_F(AStlResolver, ThrowsIfUnboundedDynamicPropertySpecifiesNonConfirmedTransportMode)
 {
   // arrange
@@ -765,6 +832,8 @@ class ClassUnderTest
     [[maybe_unused]] const auto typeSet {resolve(stlFileWithUnboundedDynamicPropertyWithNoTransportMode)});
 }
 
+/// @test
+/// A type declared twice in one package is rejected.
 TEST_F(AStlResolver, ThrowsIfCustomTypeDeclarationIsRepeated)
 {
   // arrange
@@ -872,6 +941,8 @@ interface InterfaceUnderTest
   ASSERT_ANY_THROW(resolve(stlFileWithRepeatedInterfaceDeclaration));
 }
 
+/// @test
+/// A variant listing the same type twice is rejected.
 TEST_F(AStlResolver, ThrowsIfAVariantHoldsTheSameTypeMoreThanOnce)
 {
   // arrange

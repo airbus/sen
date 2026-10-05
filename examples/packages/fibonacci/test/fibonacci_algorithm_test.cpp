@@ -18,8 +18,14 @@ namespace fibonacci
 [[nodiscard]] uint64_t computeFibonacci(uint32_t n);
 }  // namespace fibonacci
 
+/// @test
+/// computeFibonacci(0) is 0.
 TEST(FibonacciAlgorithmTest, BaseCase0) { EXPECT_EQ(fibonacci::computeFibonacci(0), 0U); }
+/// @test
+/// computeFibonacci(1) is 1.
 TEST(FibonacciAlgorithmTest, BaseCase1) { EXPECT_EQ(fibonacci::computeFibonacci(1), 1U); }
+/// @test
+/// The first terms of the sequence are computed correctly.
 TEST(FibonacciAlgorithmTest, SmallValues)
 {
   EXPECT_EQ(fibonacci::computeFibonacci(2), 1U);
@@ -29,4 +35,6 @@ TEST(FibonacciAlgorithmTest, SmallValues)
   EXPECT_EQ(fibonacci::computeFibonacci(10), 55U);
 }
 
+/// @test
+/// computeFibonacci(20) is 6765, so the recursion holds beyond the first terms.
 TEST(FibonacciAlgorithmTest, LargerValue) { EXPECT_EQ(fibonacci::computeFibonacci(20), 6765U); }

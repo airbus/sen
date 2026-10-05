@@ -7,7 +7,7 @@
 """Pins the counting and the empty-report failure."""
 
 import pytest
-from test_report import EmptyReport, main, read_report
+from test_report import EmptyReport, main, read_cases, read_report
 
 REPORT = """<?xml version="1.0"?>
 <testsuite name="sen" tests="4">
@@ -31,6 +31,29 @@ def test_counts_each_outcome(tmp_path):
     total, skipped, passed, failed = read_report(write(tmp_path, REPORT))
     assert (total, skipped, passed) == (4, 1, 1)
     assert failed == ["core.fails", "kernel.errors"]
+
+
+def test_a_ctest_failure_falls_back_to_the_output(tmp_path):
+    """Ctest's reason is the bare word Failed; the output is the only evidence there is."""
+    body = (
+        '<?xml version="1.0"?>\n<testsuite name="sen">'
+        '<testcase classname="a" name="a"><failure message="Failed"/>'
+        "<system-out>the shell never printed a prompt</system-out></testcase>"
+        "</testsuite>\n"
+    )
+    cases = read_cases(write(tmp_path, body))
+    assert cases[0].detail == "the shell never printed a prompt"
+
+
+def test_a_real_failure_message_is_kept(tmp_path):
+    """Gtest puts the assertion in the message, and that beats the raw output."""
+    body = (
+        '<?xml version="1.0"?>\n<testsuite name="sen">'
+        '<testcase classname="a" name="a"><failure message="expected 1 got 2"/>'
+        "<system-out>noise</system-out></testcase>"
+        "</testsuite>\n"
+    )
+    assert read_cases(write(tmp_path, body))[0].detail == "expected 1 got 2"
 
 
 def test_a_report_without_tests_is_an_error(tmp_path):

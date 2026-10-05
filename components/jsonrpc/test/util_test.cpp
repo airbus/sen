@@ -29,6 +29,8 @@ namespace
 
 using sen::components::jsonrpc::varToJson;
 
+/// @test
+/// An integer narrower than 64 bits becomes a JSON number, signed or unsigned as declared.
 TEST(VarToJson, narrowIntsStayAsJsonNumbers)
 {
   EXPECT_TRUE(varToJson(sen::Var {int32_t {42}}).is_number_integer());
@@ -36,12 +38,16 @@ TEST(VarToJson, narrowIntsStayAsJsonNumbers)
   EXPECT_TRUE(varToJson(sen::Var {uint16_t {7}}).is_number_unsigned());
 }
 
+/// @test
+/// A float and a double become JSON numbers.
 TEST(VarToJson, floatsStayAsJsonNumbers)
 {
   EXPECT_TRUE(varToJson(sen::Var {float {3.5F}}).is_number_float());
   EXPECT_TRUE(varToJson(sen::Var {double {2.5}}).is_number_float());
 }
 
+/// @test
+/// An int64 becomes a JSON string, because a JSON number cannot carry the full range.
 TEST(VarToJson, i64MaxRoundTripsAsString)
 {
   const auto value = std::numeric_limits<int64_t>::max();
@@ -50,6 +56,8 @@ TEST(VarToJson, i64MaxRoundTripsAsString)
   EXPECT_EQ(json.get<std::string>(), std::to_string(value));
 }
 
+/// @test
+/// A uint64 becomes a JSON string, for the same reason.
 TEST(VarToJson, u64MaxRoundTripsAsString)
 {
   const auto value = std::numeric_limits<uint64_t>::max();
@@ -58,6 +66,8 @@ TEST(VarToJson, u64MaxRoundTripsAsString)
   EXPECT_EQ(json.get<std::string>(), std::to_string(value));
 }
 
+/// @test
+/// A Duration becomes a string holding its nanosecond count.
 TEST(VarToJson, durationEmitsNanosecondsAsString)
 {
   const sen::Duration value {std::chrono::milliseconds {1500}};
@@ -66,6 +76,8 @@ TEST(VarToJson, durationEmitsNanosecondsAsString)
   EXPECT_EQ(json.get<std::string>(), std::to_string(value.getNanoseconds()));
 }
 
+/// @test
+/// A TimeStamp becomes an RFC 3339 string in UTC, with nanoseconds.
 TEST(VarToJson, timeStampEmitsRfc3339UtcWithNs)
 {
   const sen::TimeStamp value {sen::Duration {std::chrono::nanoseconds {1750000000000000001LL}}};
@@ -76,6 +88,8 @@ TEST(VarToJson, timeStampEmitsRfc3339UtcWithNs)
   EXPECT_EQ(s.back(), 'Z');
 }
 
+/// @test
+/// A string becomes a JSON string.
 TEST(VarToJson, stringsStayAsStrings)
 {
   const auto json = varToJson(sen::Var {std::string {"hello"}});

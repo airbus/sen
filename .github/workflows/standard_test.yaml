@@ -326,18 +326,135 @@ jobs:
             --target generate-coverage-report
           IN
 
+      # ctest sees one test per vitest package, so without this the document would carry five
+      # entries for the hundreds of cases behind them. The runners write their own JUnit into
+      # test-reports; this puts those cases where the package entry was.
+      - name: Fold the per-case reports in
+        if: always()
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
+          if [ ! -f "$directory/ctestReport.xml" ]; then
+            echo "no ctest report to fold into"
+            exit 0
+          fi
+          python .github/scripts/merge_test_reports.py \
+            --report "$directory/ctestReport.xml" \
+            --extra-dir "$directory/test-reports" \
+            --output "$directory/testReport.xml"
+          IN
+
       # Runs even when the build failed: that is when the report is worth reading.
       # Through the wrapper for the interpreter, not for the file: a leg that builds
       # in the image has no python installed on the runner. The summary is a runner
       # path and is not mounted, so the redirect stays outside.
-      - name: Publish the test report
+      - name: Summarise the test results
         if: always()
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh >> "$GITHUB_STEP_SUMMARY" <<'IN'
-          python .github/scripts/test_report.py \
-            "build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml"
+          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
+          report="$directory/testReport.xml"
+          [ -f "$report" ] || report="$directory/ctestReport.xml"
+          python .github/scripts/test_report.py "$report"
           IN
+
+      # The summary above says how many passed; this enumerates which, for QA. typst is in
+      # the image, and without it the .typ is still the artifact -- the arrangement
+      # sen_generate_typst already uses.
+      # Read from the machine that ran the tests, not stated on a command line: a configuration
+      # typed by hand is one nobody checks, and this report claimed the wrong architecture and the
+      # wrong language standard for a day before the record replaced it.
+      - name: Record the test environment
+        if: always()
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
+          python .github/scripts/record_environment.py \
+            --output "$directory/test-environment.tsv" \
+            --compiler "${{ matrix.compiler.cxx }}" \
+            --build-dir "$directory" \
+            --lockfile .conan/conan.lock
+          IN
+
+      - name: Render the test document
+        if: always()
+        shell: bash
+        env:
+          # A branch name is written by whoever opened the pull request, so it reaches the
+          # renderer as a value and never as script text.
+          SEN_DOC_REF: ${{ github.head_ref || github.ref_name }}
+          SEN_DOC_RUN: ${{ github.run_number }} attempt ${{ github.run_attempt }}
+        run: |
+          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
+          bash .github/scripts/in_environment.sh <<'IN'
+          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
+          report="$directory/testReport.xml"
+          [ -f "$report" ] || report="$directory/ctestReport.xml"
+          if [ ! -f "$report" ]; then
+            echo "no test report to render"
+            exit 0
+          fi
+          # The repository is the fifth argument: without it the document lists the tests and
+          # none of the descriptions they carry, which is most of what it is for. The coverage
+          # report exists only on the leg that instruments, and the renderer says so when it
+          # is not there rather than failing.
+          python .github/scripts/render_test_document.py \
+            "$report" "$directory/testReport.typ" \
+            "${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} ${{ matrix.build_type }} ${{ matrix.arch }}" \
+            "${{ github.sha }}" . --stopped-at-first-failure \
+            "--ref=$SEN_DOC_REF" \
+            "--run=$SEN_DOC_RUN" \
+            "--coverage=$directory/coverage_reports/coverage.txt" \
+            --coverage-floor=80 \
+            "--descriptions=$directory/test-descriptions.tsv" \
+            "--environment=$directory/test-environment.tsv" \
+            "--build=$directory" \
+            --logo=docs/assets/images/logo_simple.svg | tee "$directory/render.log"
+          if command -v typst > /dev/null; then
+            typst compile "$directory/testReport.typ" "$directory/testReport.pdf"
+            [ -s "$directory/testReport.pdf" ] || { echo "typst wrote no pdf"; exit 1; }
+          else
+            echo "typst not found: the document stays as .typ"
+          fi
+          # A run that tested something and wrote no document has lost the record of it. The
+          # step above can only fail loudly; this makes a silent one fail too.
+          [ -s "$directory/testReport.typ" ] || { echo "no test document was written"; exit 1; }
+          IN
+
+          # Outside the container, where the summary file lives. A report nobody opens is not a
+          # check, so the figures reach the pull request without downloading the artifact.
+          if [ -s "$directory/render.log" ]; then
+            {
+              echo "### Test document"
+              sed -n 's/^wrote [^ ]* for /- /p' "$directory/render.log"
+              sed -n 's/^the commit under test /- The commit under test /p' "$directory/render.log"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Kept rather than rendered and dropped: the enumeration is the QA record, and the
+      # job summary carries only the totals and the failures.
+      - name: Publish the test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          # Every leg writes one and a name cannot be written twice, so the fields that
+          # tell the jobs apart tell their reports apart.
+          name: test-report-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.arch }}-cxx${{ matrix.std }}-${{ matrix.build_type }}
+          # A leg that failed before the merge has nothing here, and the summary says so.
+          if-no-files-found: ignore
+          # The document travels with what it was made from: the release attaches the pdf, and
+          # the rest is the record a figure in it can be checked against.
+          path: |
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.xml
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.typ
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.pdf
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-descriptions.tsv
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-environment.tsv
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt
 
       - name: Publish the coverage report
         if: matrix.enable_coverage
@@ -347,14 +464,16 @@ jobs:
           if-no-files-found: error
           path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/
 
-      # The floor is a few points below what the suite measured on
-      # 2026-08-18 (66.74% of lines), so ordinary movement does not fail a
-      # pull request while a real drop does. Raise it when coverage rises.
+      # The floor is a point or so below what the suite measured on 2026-10-03
+      # (81.17% of lines), so ordinary movement does not fail a pull request while
+      # a real drop does. Raise it when coverage rises. That figure was measured on
+      # arm64 clang Debug and this lane is x86_64, so the first green run after the
+      # exclusions land is what confirms the headroom.
       - name: Show the coverage total and hold the floor
         if: matrix.enable_coverage
         shell: bash
         env:
-          MINIMUM_LINE_COVERAGE: "63"
+          MINIMUM_LINE_COVERAGE: "80"
         run: |
           summary="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt"
           {

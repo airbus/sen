@@ -20,6 +20,9 @@
 
 namespace
 {
+/// @test
+/// A default constructed token has the unknown type, an empty lexeme, an empty value and a code
+/// location pointing at nothing.
 TEST(AnStlToken, IsInAConsistentStateWhenDefaultConstructed)
 {
   // arrange + act
@@ -33,6 +36,8 @@ TEST(AnStlToken, IsInAConsistentStateWhenDefaultConstructed)
   ASSERT_EQ(token.codeLocation().src, nullptr);
 }
 
+/// @test
+/// A token returns the type, lexeme, value and code location it was built with.
 TEST(AnStlToken, ProvidesConsistentViewOfItsMembers)
 {
   // arrange
@@ -54,6 +59,8 @@ TEST(AnStlToken, ProvidesConsistentViewOfItsMembers)
   ASSERT_EQ(token.codeLocation().offset, offset);
 }
 
+/// @test
+/// Every token type has a string form, and a type outside the enum converts without faulting.
 TEST(AnStlToken, IsConvertibleToString)
 {
   // arrange

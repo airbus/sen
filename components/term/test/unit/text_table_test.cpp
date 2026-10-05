@@ -39,6 +39,8 @@ std::string renderText(std::vector<Row> rows, int width = 80, int height = 10, i
 // Basic layout
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A table with no rows renders blank lines only, with no placeholder text.
 TEST(TextTable, EmptyRowsRenderAsEmpty)
 {
   // Every line has to be blank. Asserting the absence of one letter was satisfied by almost any output:
@@ -55,6 +57,8 @@ TEST(TextTable, EmptyRowsRenderAsEmpty)
   }
 }
 
+/// @test
+/// A row's cells appear in the order they were given.
 TEST(TextTable, SingleRowShowsAllCellsInOrder)
 {
   std::vector<Row> rows {
@@ -75,6 +79,9 @@ TEST(TextTable, SingleRowShowsAllCellsInOrder)
 // Column alignment
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A column is as wide as its widest cell, so the next column starts at the same offset on
+/// every row.
 TEST(TextTable, ColumnsAlignToWidestCell)
 {
   // Two rows, first column widths 3 and 7 -> longer row dictates alignment.
@@ -100,6 +107,8 @@ TEST(TextTable, ColumnsAlignToWidestCell)
   EXPECT_EQ(xPos - lineStart(xPos), yPos - lineStart(yPos));
 }
 
+/// @test
+/// The configured gap is the number of spaces between two columns.
 TEST(TextTable, ColumnGapSeparatesCells)
 {
   std::vector<Row> rows {
@@ -119,6 +128,8 @@ TEST(TextTable, ColumnGapSeparatesCells)
 // Ragged rows / custom cells
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Rows with different numbers of cells all render.
 TEST(TextTable, RowsOfDifferentLengthStillRender)
 {
   std::vector<Row> rows {
@@ -132,6 +143,8 @@ TEST(TextTable, RowsOfDifferentLengthStillRender)
   EXPECT_THAT(out, ::testing::HasSubstr("d"));
 }
 
+/// @test
+/// A row with no cells renders as a horizontal separator between the rows around it.
 TEST(TextTable, EmptyRowRendersAsSeparator)
 {
   // An empty Row becomes a horizontal separator.
@@ -147,6 +160,9 @@ TEST(TextTable, EmptyRowRendersAsSeparator)
   EXPECT_THAT(out, ::testing::HasSubstr("\u2500"));
 }
 
+/// @test
+/// A cell declaring its own width source widens the column, so shorter cells in other rows are
+/// padded to match.
 TEST(TextTable, CustomCellWidthSourceWidensOtherRows)
 {
   // A custom cell declaring widthSource="abcdefg" (width 7) widens column 0
