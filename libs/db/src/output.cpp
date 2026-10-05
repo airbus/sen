@@ -206,7 +206,7 @@ public:
     std::for_each(files_.cbegin(), files_.cend(), [](auto& file) { write<v1::Magic>({beginMagic}, file); });
 
     // headers
-    constexpr uint32_t version = 1U;
+    constexpr uint32_t version = supportedFileVersion;
     write<v1::FileHeader>({version, v1::FileKind::dataFile}, dataFile_);
     write<v1::FileHeader>({version, v1::FileKind::indexesFile}, indexesFile_);
     write<v1::FileHeader>({version, v1::FileKind::typesFile}, typesFile_);

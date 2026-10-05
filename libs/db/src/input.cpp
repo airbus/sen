@@ -490,11 +490,11 @@ private:
   }
 
   /// Reads a v1::Magic and a v1::FileHeader from a recording file.
-  /// Returns the KernelProtocolVersion of the file (stored in the v1::FileHeader::version field)
-  static void readMagicAndHeaderV1(InputStream& in,
-                                   const std::filesystem::path& filePath,
-                                   uint32_t expectedMagic,
-                                   v1::FileKind expectedKind)
+  /// Returns the archive layout version the file declares, from the v1::FileHeader::version field.
+  [[nodiscard]] static uint32_t readMagicAndHeaderV1(InputStream& in,
+                                                     const std::filesystem::path& filePath,
+                                                     uint32_t expectedMagic,
+                                                     v1::FileKind expectedKind)
   {
     // magic
     {
@@ -533,6 +533,8 @@ private:
         err.append(".");
         throwRuntimeError(err);
       }
+
+      return header.version;
     }
   }
 
@@ -542,21 +544,38 @@ private:
                                     uint32_t expectedMagic,
                                     v1::FileKind expectedKind)
   {
+    std::optional<uint32_t> version;
     try
     {
-      readMagicAndHeaderV1(in, filePath, expectedMagic, expectedKind);
-      return;
+      version = readMagicAndHeaderV1(in, filePath, expectedMagic, expectedKind);
     }
     catch (...)
     {
       // NOTE try here with older versions if available
     }
 
-    // throw error if no matching version of Magic and Header was found
-    std::string err = "Invalid or unknown file version for '";
-    err.append(filePath.string());
-    err.append("'.");
-    throwRuntimeError(err);
+    if (!version.has_value())
+    {
+      // throw error if no matching version of Magic and Header was found
+      std::string err = "Invalid or unknown file version for '";
+      err.append(filePath.string());
+      err.append("'.");
+      throwRuntimeError(err);
+    }
+
+    // Deliberately outside the retry above: a layout this build does not know is a definitive refusal
+    // rather than a reason to try an older one, and the catch would hide which version was found.
+    if (*version != supportedFileVersion)
+    {
+      std::string err = "unsupported archive version ";
+      err.append(std::to_string(*version));
+      err.append(" in file '");
+      err.append(filePath.string());
+      err.append("'. This build reads version ");
+      err.append(std::to_string(supportedFileVersion));
+      err.append(".");
+      throwRuntimeError(err);
+    }
   }
 
   void tryReadSummary(InputStream& in)
@@ -728,9 +747,17 @@ private:
     }
 
     // try to find the type
-    const auto type = kernelTypes_.get(entry.type);
+    auto type = kernelTypes_.get(entry.type);
+    if (!type.has_value())
+    {
+      // Handled as the short read above is: a type the kernel does not know means the bytes cannot be
+      // trusted from here on, and ending the stream leaves the caller with what it already read. This
+      // used to assert, which aborted the process in every build configuration -- SEN_ASSERT is not
+      // conditional on DEBUG -- so a single corrupt byte killed whoever was reading the archive.
+      getLogger()->warn("Unknown type '{}' for an annotation; ending the annotation stream.", entry.type);
+      return {{}, End {}};
+    }
 
-    SEN_ASSERT(type.has_value() && "The type for the annotation should be known by the kernel.");
     return {entry.time, db::Annotation(std::move(type).value(), std::move(entry.value).asVector())};
   }
 
