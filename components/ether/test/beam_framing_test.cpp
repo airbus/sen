@@ -72,6 +72,8 @@ std::vector<uint8_t> makeBeam(std::size_t size)
   return beam;
 }
 
+/// @test
+/// A beam header encodes and decodes the same length, from one byte up to the maximum beam size.
 TEST(BeamFraming, TheHeaderRoundTrips)
 {
   for (const std::size_t size: {std::size_t {1},
@@ -85,6 +87,8 @@ TEST(BeamFraming, TheHeaderRoundTrips)
   }
 }
 
+/// @test
+/// A beam written in pieces, split inside the header and inside the payload, is read back whole.
 TEST(BeamFraming, ABeamSplitAcrossWritesIsReadBackWhole)
 {
   // The failure this guards: a stream socket does not preserve message boundaries, so a beam can
@@ -111,6 +115,8 @@ TEST(BeamFraming, ABeamSplitAcrossWritesIsReadBackWhole)
   EXPECT_EQ(readBeam, beam);
 }
 
+/// @test
+/// Two beams arriving in one read are read back as two beams.
 TEST(BeamFraming, TwoBeamsInOneArrivalAreReadSeparately)
 {
   // The other half of the same failure: two beams can land in one read, and a reader taking one
@@ -140,6 +146,9 @@ TEST(BeamFraming, TwoBeamsInOneArrivalAreReadSeparately)
   }
 }
 
+/// @test
+/// One receive returns whatever arrived rather than a whole beam, which is why the reader frames
+/// by length instead of by read.
 TEST(BeamFraming, ASingleReadDoesNotSeeAWholeBeam)
 {
   // The control, and the reason the two tests above are worth having: one receive returns whatever

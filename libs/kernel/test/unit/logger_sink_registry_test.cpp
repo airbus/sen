@@ -141,6 +141,8 @@ private:
   spdlog::level::level_enum levelOnEntry_ = spdlog::level::info;
 };
 
+/// @test
+/// A sink registered after a logger exists receives that logger's lines.
 TEST_F(LoggerSinkRegistryTest, AddedSinkReachesALoggerThatAlreadyExisted)
 {
   auto before = makeLogger("existing");
@@ -153,6 +155,8 @@ TEST_F(LoggerSinkRegistryTest, AddedSinkReachesALoggerThatAlreadyExisted)
   EXPECT_EQ(sink->count(), 1) << "a logger made before the registration did not reach the sink";
 }
 
+/// @test
+/// A sink registered first receives the lines of a logger made later.
 TEST_F(LoggerSinkRegistryTest, AddedSinkReachesALoggerMadeAfterwards)
 {
   auto sink = std::make_shared<CountingSink>();
@@ -165,6 +169,9 @@ TEST_F(LoggerSinkRegistryTest, AddedSinkReachesALoggerMadeAfterwards)
   EXPECT_EQ(sink->count(), 1) << "a logger made after the registration did not reach the sink";
 }
 
+/// @test
+/// Registering a sink as the terminal owner stops console output from loggers that already exist
+/// and from loggers made afterwards, and the owner still receives the lines.
 TEST_F(LoggerSinkRegistryTest, OwningTheTerminalSilencesConsoleSinksBothWays)
 {
   auto before = makeLogger("owned_before");
@@ -182,6 +189,9 @@ TEST_F(LoggerSinkRegistryTest, OwningTheTerminalSilencesConsoleSinksBothWays)
   EXPECT_EQ(sink->count(), 1) << "the owning component did not receive the line either";
 }
 
+/// @test
+/// Removing the owning sink restores console output on every logger, whether it existed before
+/// the claim, was made during it, or is made after the release.
 TEST_F(LoggerSinkRegistryTest, ReleasingTheTerminalGivesTheConsoleBack)
 {
   // Detaching console sinks without recording what they were would leave a kernel that outlives its
@@ -204,6 +214,8 @@ TEST_F(LoggerSinkRegistryTest, ReleasingTheTerminalGivesTheConsoleBack)
   EXPECT_TRUE(consoleIsAudible(after)) << "a logger made after the release was silenced anyway";
 }
 
+/// @test
+/// A component registered as shared takes the terminal by adding the same sink again as owned.
 TEST_F(LoggerSinkRegistryTest, ReAddingWithOwnedClaimsTheTerminal)
 {
   // The ownership rides on the add call, so re-adding is the only way a component that registered early
@@ -219,6 +231,8 @@ TEST_F(LoggerSinkRegistryTest, ReAddingWithOwnedClaimsTheTerminal)
   EXPECT_FALSE(consoleIsAudible(logger)) << "re-adding with owned did not claim the terminal";
 }
 
+/// @test
+/// A registered sink keeps its own pattern instead of taking the one a new logger pushes down.
 TEST_F(LoggerSinkRegistryTest, ARegisteredSinkKeepsItsOwnPattern)
 {
   // A new logger takes the registry's formatter and pushes it down onto its sinks, which would replace a
@@ -239,6 +253,8 @@ TEST_F(LoggerSinkRegistryTest, ARegisteredSinkKeepsItsOwnPattern)
     << "a new logger replaced the sink's pattern; the line came out as: " << sink->lastLine();
 }
 
+/// @test
+/// After removal a sink receives nothing, from existing loggers or from loggers made later.
 TEST_F(LoggerSinkRegistryTest, RemovingTakesTheSinkOffAndStopsNewLoggersGettingIt)
 {
   auto sink = std::make_shared<CountingSink>();
@@ -257,6 +273,8 @@ TEST_F(LoggerSinkRegistryTest, RemovingTakesTheSinkOffAndStopsNewLoggersGettingI
   EXPECT_EQ(sink->count(), 1) << "a logger made after removal still reached the sink";
 }
 
+/// @test
+/// Registering the same sink twice delivers each line once.
 TEST_F(LoggerSinkRegistryTest, AddingTheSameSinkTwiceDoesNotDoubleIt)
 {
   auto sink = std::make_shared<CountingSink>();
@@ -269,6 +287,9 @@ TEST_F(LoggerSinkRegistryTest, AddingTheSameSinkTwiceDoesNotDoubleIt)
   EXPECT_EQ(sink->count(), 1) << "the message arrived more than once, so the sink is attached twice";
 }
 
+/// @test
+/// Registering and removing leave an existing logger's sink vector unchanged. spdlog walks that
+/// vector without a lock, so appending to it while another thread logs is a use-after-free.
 TEST_F(LoggerSinkRegistryTest, RegisteringDoesNotTouchALoggersSinkVector)
 {
   // This is the property the whole design rests on, so it is asserted rather than argued. spdlog walks
@@ -291,6 +312,8 @@ TEST_F(LoggerSinkRegistryTest, RegisteringDoesNotTouchALoggersSinkVector)
   EXPECT_EQ(logger->sinks(), sinksBefore) << "removing a sink changed an existing logger's sink vector";
 }
 
+/// @test
+/// setAllLoggersLevel applies to loggers made after the call as well as to those that exist.
 TEST_F(LoggerSinkRegistryTest, TheLevelAppliesToLoggersMadeAfterwards)
 {
   // A walk over the registry could only reach what existed when it ran, so a level the user asked for
@@ -303,6 +326,9 @@ TEST_F(LoggerSinkRegistryTest, TheLevelAppliesToLoggersMadeAfterwards)
   EXPECT_EQ(later->level(), spdlog::level::info) << "an existing logger ignored the level";
 }
 
+/// @test
+/// addLoggerSink reports whether the sink was newly added, whether it owns the terminal, whether
+/// something else already owns it, and how many sinks are registered.
 TEST_F(LoggerSinkRegistryTest, RegisteringSaysWhatItDid)
 {
   // A void return would leave a component unable to learn whether its registration took, whether anything
@@ -334,6 +360,9 @@ TEST_F(LoggerSinkRegistryTest, RegisteringSaysWhatItDid)
   std::ignore = KernelApi::removeLoggerSink(second);
 }
 
+/// @test
+/// A null sink and a level outside the enum are refused. Removing a sink that was never
+/// registered is allowed.
 TEST_F(LoggerSinkRegistryTest, TheCallsThatCanFailReportIt)
 {
   // A null sink was a silent no-op in both directions, and an out-of-range level went straight into

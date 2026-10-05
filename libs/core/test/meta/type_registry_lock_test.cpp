@@ -49,6 +49,9 @@ void probeMaker(const std::string& /*name*/, const sen::VarMap& /*properties*/, 
 /// The registry must not hold usageMutex_ while calling a maker -- see
 /// CustomTypeRegistry::makeInstance. This cannot hang: the second thread blocks only until
 /// makeInstance returns.
+/// @test
+/// An instance maker runs without the registry lock held, so another thread can use the
+/// registry while a maker is running.
 TEST(TypeRegistryLock, makerRunsWithoutTheRegistryLockHeld)
 {
   sen::CustomTypeRegistry registry;

@@ -187,6 +187,70 @@ jobs:
           # sen-0.1.0-amd64-windows-msvc-19.44.35223.0-release.zip
           path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/sen-${{ github.ref_name }}-*
 
+  # The tag adds no commit, so the tests behind this release are the ones that ran on the commit
+  # it points at. Their results are taken from that run and the documents are written again here,
+  # where the tag is known and the cover can say which release they belong to.
+  collect_test_reports:
+    name: "Test reports for the tag"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # Reading the artifacts of the run that tested this commit.
+      actions: read
+    steps:
+      - name: Find the run that tested this commit
+        id: tested
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A release with no test run behind it should not be made quietly, so this fails
+          # rather than publishing without the documents.
+          run_id=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/main.yaml/runs?head_sha=${{ github.sha }}" \
+            --jq '[.workflow_runs[] | select(.conclusion == "success")] | first | .id // empty')
+          if [ -z "$run_id" ]; then
+            echo "no successful test run for ${{ github.sha }}, so there are no test reports to deliver"
+            exit 1
+          fi
+          echo "run-id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Take the documents that run wrote
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          run-id: ${{ steps.tested.outputs.run-id }}
+          github-token: ${{ github.token }}
+          pattern: test-report-*
+          path: test-reports
+
+      - name: Name each one after the leg that produced it
+        shell: bash
+        run: |
+          # The documents are rendered by the run that tested the commit, in the image, and this
+          # job only carries them. A release that re-rendered them would be the only place that
+          # code path ran, and the cover would still describe the commit rather than the tag.
+          shopt -s nullglob
+          mkdir -p documents
+          legs=(test-reports/*/)
+          if [ ${#legs[@]} -eq 0 ]; then
+            echo "that run left no test reports: either it ran no tests, or its artifacts expired"
+            exit 1
+          fi
+          for leg in "${legs[@]}"; do
+            name=$(basename "$leg")
+            [ -s "$leg/testReport.pdf" ] || { echo "$name wrote no pdf"; exit 1; }
+            cp "$leg/testReport.pdf" "documents/sen-test-report-${name#test-report-}.pdf"
+          done
+          ls -l documents
+
+      - name: Archive the documents
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: test-documents
+          if-no-files-found: error
+          path: documents/
+
   attach_release_artifacts:
     name: "Create Release Draft"
     runs-on: ubuntu-latest
@@ -196,6 +260,7 @@ jobs:
     needs:
       - create_release_with_artifacts
       - generate_changelog
+      - collect_test_reports
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
@@ -230,6 +295,7 @@ jobs:
           files: |
             release-*/*
             SHA256SUMS
+            test-documents/*.pdf
           fail_on_unmatched_files: true
           preserve_order: true
           draft: true

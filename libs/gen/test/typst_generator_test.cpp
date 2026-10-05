@@ -152,6 +152,8 @@ using sen::gen::test::everyKindStl;
   return text;
 }
 
+/// @test
+/// The generator emits reference.typ, style.typ and document.typ, none of them empty.
 TEST_F(ATypstGenerator, writesAReferenceAStyleAndASkeleton)
 {
   generate(twoClasses);
@@ -163,6 +165,9 @@ TEST_F(ATypstGenerator, writesAReferenceAStyleAndASkeleton)
 
 // The skeleton imports the style and includes the reference. If either name drifts the
 // document compiles to nothing useful and nothing else would notice.
+/// @test
+/// The skeleton imports the style and includes the reference by the names actually emitted, so
+/// the document compiles as a whole.
 TEST_F(ATypstGenerator, theSkeletonNamesTheFilesThatAreEmitted)
 {
   generate(twoClasses);
@@ -172,6 +177,8 @@ TEST_F(ATypstGenerator, theSkeletonNamesTheFilesThatAreEmitted)
 }
 
 // The style is the caller's to replace; emitting ours over theirs would overwrite it.
+/// @test
+/// No style.typ is written when the caller names their own, so theirs is not overwritten.
 TEST_F(ATypstGenerator, doesNotEmitAStyleWhenTheCallerBringsOne)
 {
   sen::gen::TypstOptions options;
@@ -181,6 +188,9 @@ TEST_F(ATypstGenerator, doesNotEmitAStyleWhenTheCallerBringsOne)
 }
 
 // An unset include point still tells a reader where their own content belongs.
+/// @test
+/// With no front matter the skeleton says where a title page belongs; with front matter named it
+/// includes that file instead.
 TEST_F(ATypstGenerator, leavesAHintWhereACallerSuppliesNoPage)
 {
   generate(twoClasses);
@@ -193,6 +203,8 @@ TEST_F(ATypstGenerator, leavesAHintWhereACallerSuppliesNoPage)
   EXPECT_FALSE(contains("document.typ", "your title page"));
 }
 
+/// @test
+/// Each type opens as a heading carrying its name and a chip naming its kind.
 TEST_F(ATypstGenerator, opensEveryTypeAsAHeadingCarryingItsKind)
 {
   generate(twoClasses);
@@ -202,6 +214,9 @@ TEST_F(ATypstGenerator, opensEveryTypeAsAHeadingCarryingItsKind)
 
 // The section heading already names the package, so repeating it on every heading, every
 // summary row and every type cell is noise that grows with the depth of the package tree.
+/// @test
+/// A name is written without its package inside that package's own section, and with the package
+/// in the index, which spans the document.
 TEST_F(ATypstGenerator, writesNamesUnqualifiedInsideTheirOwnPackage)
 {
   generate(twoClasses);
@@ -216,6 +231,8 @@ TEST_F(ATypstGenerator, writesNamesUnqualifiedInsideTheirOwnPackage)
 
 // The other half: shortening a name from elsewhere would hide that the link leaves the
 // section. Only the package doing the printing may be dropped.
+/// @test
+/// A name from another package keeps its package, so a link leaving the section is visible.
 TEST_F(ATypstGenerator, keepsThePackageOnANameFromAnotherOne)
 {
   generate(R"(package a;
@@ -241,6 +258,9 @@ class Holder
 
 // Typst treats a link to a label the document does not contain as an error rather than
 // a dangling link, so a reference may only be made to a type that is present.
+/// @test
+/// No link is made to a type the document does not contain, which typst treats as an error
+/// rather than a dangling link.
 TEST_F(ATypstGenerator, doesNotLinkToATypeTheDocumentDoesNotContain)
 {
   // Two packages, one excluded: the surviving one still names a type in the excluded one,
@@ -272,6 +292,8 @@ class Holder
     << visible(reference);
 }
 
+/// @test
+/// A class is written as a table of its properties and a table of its methods.
 TEST_F(ATypstGenerator, tabulatesWhatAClassCarriesAndWhatItCanBeAsked)
 {
   generate(twoClasses);
@@ -284,6 +306,9 @@ TEST_F(ATypstGenerator, tabulatesWhatAClassCarriesAndWhatItCanBeAsked)
 // comment, `~` as a non-breaking space and `--` as an en dash, so prose emitted as markup
 // either fails to compile or silently changes what the model said. A string literal is
 // read verbatim, and only the two characters that could end it need an escape.
+/// @test
+/// Prose from the model is emitted as a string literal, so typst markup characters in it keep
+/// their original meaning, and a quote is escaped.
 TEST_F(ATypstGenerator, writesModelProseAsDataRatherThanMarkup)
 {
   generate(R"(package t;
@@ -302,6 +327,9 @@ class Awkward
     << "and a quote, which would otherwise end the literal, has to be escaped";
 }
 
+/// @test
+/// A model holding one of every kind gets a section for classes, records, enumerations and
+/// variants.
 TEST_F(ATypstGenerator, rendersEveryKindTheModelCanHold)
 {
   generate(everyKindStl);
@@ -315,6 +343,9 @@ TEST_F(ATypstGenerator, rendersEveryKindTheModelCanHold)
 
 // A wrapper type is defined by what it wraps. Emitting the heading alone puts a page
 // number against a name and tells the reader nothing they did not have from the index.
+/// @test
+/// An optional, sequence, array, alias and quantity are each written as the declaration that says
+/// what they wrap.
 TEST_F(ATypstGenerator, saysWhatAWrapperTypeWraps)
 {
   generate(everyKindStl);
@@ -329,6 +360,9 @@ TEST_F(ATypstGenerator, saysWhatAWrapperTypeWraps)
 }
 
 // A section switch that is off must remove the section, or the option is decorative.
+/// @test
+/// Turning the summary and index switches off removes those sections, and both are present by
+/// default.
 TEST_F(ATypstGenerator, honoursTheSectionSwitches)
 {
   sen::gen::TypstOptions off;
@@ -348,6 +382,9 @@ TEST_F(ATypstGenerator, honoursTheSectionSwitches)
 // `link(<x>)` there is read as text plus a *label definition*. That yields a duplicate
 // label and typst refuses the document — but only when someone runs it, so the rule is
 // checked here where it costs nothing.
+/// @test
+/// Every link inside a content block carries its leading hash. A bare link there defines a
+/// duplicate label and typst refuses the document.
 TEST_F(ATypstGenerator, writesContentModeLinksInsideContentBlocks)
 {
   generate(everyKindStl);
@@ -370,6 +407,8 @@ TEST_F(ATypstGenerator, writesContentModeLinksInsideContentBlocks)
 
 // A class can carry nothing but events, and they were reaching the page as a heading
 // with no content under it at all.
+/// @test
+/// A class that carries events is written as a table of them.
 TEST_F(ATypstGenerator, tabulatesWhatAClassAnnounces)
 {
   generate(everyKindStl);
@@ -378,6 +417,8 @@ TEST_F(ATypstGenerator, tabulatesWhatAClassAnnounces)
 
 // A struct's own getFields() is own-fields-only and, unlike a class, nothing else in the
 // document said the type had a parent, so the inherited fields were unreachable.
+/// @test
+/// A record that extends another says so, since its own field list does not include the parent's.
 TEST_F(ATypstGenerator, saysWhenARecordExtendsAnother)
 {
   generate(everyKindStl);
@@ -385,6 +426,9 @@ TEST_F(ATypstGenerator, saysWhenARecordExtendsAnother)
 }
 
 // "at most 3" contradicted the model's own "always three" one line above it.
+/// @test
+/// An array is written as an array and a sequence as a sequence, with its bound, so a fixed size
+/// is not described as a maximum.
 TEST_F(ATypstGenerator, distinguishesAFixedArrayFromABoundedOne)
 {
   // The language has two keywords for this and they mean different things, so the
@@ -396,6 +440,8 @@ TEST_F(ATypstGenerator, distinguishesAFixedArrayFromABoundedOne)
 }
 
 // How wide an enumeration is on the wire is the fact an interface document is read for.
+/// @test
+/// An enumeration says which type holds it on the wire.
 TEST_F(ATypstGenerator, saysHowAnEnumerationIsHeld)
 {
   generate(everyKindStl);
@@ -404,6 +450,8 @@ TEST_F(ATypstGenerator, saysHowAnEnumerationIsHeld)
 
 // What names a type is how a reader works out what a change to it would break. The
 // option and the field both existed and neither was ever read.
+/// @test
+/// Each type lists the types that name it, and the switch removes that listing.
 TEST_F(ATypstGenerator, saysWhatNamesEachType)
 {
   generate(everyKindStl);
@@ -416,6 +464,8 @@ TEST_F(ATypstGenerator, saysWhatNamesEachType)
 }
 
 // The switch has to remove the section without taking the overview with it.
+/// @test
+/// Turning the hierarchy switch off removes the hierarchy and leaves the model overview.
 TEST_F(ATypstGenerator, honoursTheHierarchySwitch)
 {
   generate(twoClasses);
@@ -430,6 +480,9 @@ TEST_F(ATypstGenerator, honoursTheHierarchySwitch)
 
 // The caller's style was suppressed and never named, so the document imported a file
 // that nothing wrote and could not compile at all.
+/// @test
+/// Both the skeleton and the reference import the style file the caller named, and neither
+/// imports the default one.
 TEST_F(ATypstGenerator, importsTheStyleTheCallerNamed)
 {
   sen::gen::TypstOptions options;
@@ -443,6 +496,8 @@ TEST_F(ATypstGenerator, importsTheStyleTheCallerNamed)
 
 // The title is the one string a caller supplies that reaches the page, and it went in
 // unescaped: a quote in it ended the literal and the document stopped compiling.
+/// @test
+/// A quote in the caller's title is escaped, so it does not end the string literal.
 TEST_F(ATypstGenerator, escapesTheTitle)
 {
   sen::gen::TypstOptions options;
@@ -453,6 +508,8 @@ TEST_F(ATypstGenerator, escapesTheTitle)
 
 // Nothing said the generator was single-use, and a second run emitted links to types
 // only the first model held.
+/// @test
+/// A second run on a different model emits no link to a type only the first model held.
 TEST_F(ATypstGenerator, canBeRunTwice)
 {
   sen::gen::TypstGenerator generator;
@@ -477,6 +534,8 @@ struct Lonely { value : i32 }
 // A unit abbreviation is written for a machine -- "m_per_s_sq" -- and the page is read by
 // a person. Typeset upright as SI asks, and inline rather than as a stacked fraction,
 // which would be too tall for a line of declaration.
+/// @test
+/// A unit is typeset as mathematics, inline rather than stacked, and a degree sign is kept.
 TEST_F(ATypstGenerator, typesetsAUnitAsMathematics)
 {
   generate(R"(package t;

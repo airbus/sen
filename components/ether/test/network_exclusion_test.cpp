@@ -130,6 +130,8 @@ TEST(NetworkExclusion, ExcludesNothingBelowTheFirstRange)
   EXPECT_TRUE(exclusions.isExcluded(100));
 }
 
+/// @test
+/// Returns the first candidate the probe reaches that is not excluded.
 TEST(NetworkExclusion, FindsNextValue)
 {
   ConfiguredPortExclusions exclusions;

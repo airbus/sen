@@ -43,6 +43,8 @@ class StructTraitsBaseTest: public ::testing::Test
 using GeneratedSenClasses = ::testing::Types<MyEmptyStruct, MyStructWithNativeFieldsOnly, MyStructWithNonNativeFields>;
 TYPED_TEST_SUITE(StructTraitsBaseTest, GeneratedSenClasses);
 
+/// @test
+/// Asking a struct with no fields for a field getter is refused.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfTryingToAccessFieldValueGetterFunctionOnEmptyStruct)
 {
   // arrange
@@ -64,6 +66,8 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfTryingToAccessFieldValueGetterFunctionO
   }
 }
 
+/// @test
+/// Asking for a field getter with no field index is refused.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfNoFieldIndexIsPassedToFieldValueGetterFunctionOnNonEmptyStruct)
 {
   // arrange
@@ -86,6 +90,8 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfNoFieldIndexIsPassedToFieldValueGetterF
   }
 }
 
+/// @test
+/// A field index outside the struct's fields is refused.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfAnInvalidFieldIndexIsPassedToFieldValueGetterFunctionOnNonEmptyStruct)
 {
   // arrange
@@ -107,6 +113,8 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfAnInvalidFieldIndexIsPassedToFieldValue
   }
 }
 
+/// @test
+/// A field whose type is not native cannot be read through the field getter.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGetterFunction)
 {
   // arrange
@@ -132,6 +140,9 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGe
   }
 }
 
+/// @test
+/// Converting to a struct from a value that is not a map is refused, while a value written from
+/// the struct converts back.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfVarDoesNotHoldAVarMapWhenConvertingFromVarToValue)
 {
   // arrange

@@ -220,6 +220,9 @@ private:
 // Happy paths
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A request for the bundle's index returns it with an HTML content type, an etag and a no-cache
+/// directive.
 TEST(StaticFileRoutes, servesIndexAtNestedPath)
 {
   StaticFileFixture f;
@@ -231,6 +234,8 @@ TEST(StaticFileRoutes, servesIndexAtNestedPath)
   EXPECT_EQ(headerValue(resp.headers, "cache-control"), "no-cache");
 }
 
+/// @test
+/// A request for an asset returns it with the content type for its extension.
 TEST(StaticFileRoutes, servesAsset)
 {
   StaticFileFixture f;
@@ -240,6 +245,8 @@ TEST(StaticFileRoutes, servesAsset)
   EXPECT_EQ(headerValue(resp.headers, "content-type"), "application/javascript");
 }
 
+/// @test
+/// A request for the bundle root returns the index.
 TEST(StaticFileRoutes, servesIndexAtBundleRoot)
 {
   StaticFileFixture f;
@@ -248,6 +255,8 @@ TEST(StaticFileRoutes, servesIndexAtBundleRoot)
   EXPECT_EQ(resp.body, "<!doctype html><title>idx</title>");
 }
 
+/// @test
+/// A request for the bare prefix, with no trailing slash, returns the index.
 TEST(StaticFileRoutes, servesIndexAtBareUrlPrefix)
 {
   StaticFileFixture f;
@@ -256,6 +265,8 @@ TEST(StaticFileRoutes, servesIndexAtBareUrlPrefix)
   EXPECT_EQ(resp.body, "<!doctype html><title>idx</title>");
 }
 
+/// @test
+/// A path the bundle does not hold returns the index, so client-side routes resolve.
 TEST(StaticFileRoutes, spaFallbackServesIndexForUnknownPath)
 {
   StaticFileFixture f;
@@ -268,6 +279,8 @@ TEST(StaticFileRoutes, spaFallbackServesIndexForUnknownPath)
 // Caching
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A request carrying the etag of a previous response returns 304 with no body and the same etag.
 TEST(StaticFileRoutes, ifNoneMatchReturns304)
 {
   StaticFileFixture f;
@@ -286,6 +299,8 @@ TEST(StaticFileRoutes, ifNoneMatchReturns304)
 // Unregister - the captured bundleId becomes inert
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// After the bundle is unregistered its paths return 404.
 TEST(StaticFileRoutes, unregisterMakesRouteReturn404)
 {
   StaticFileFixture f;

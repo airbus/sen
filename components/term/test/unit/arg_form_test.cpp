@@ -46,6 +46,8 @@ namespace
 // isScalarType / methodIsFormCompatible
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A bool, an integer, a float, a string and a duration are all scalar types.
 TEST(ArgForm, ScalarPrimitivesAreScalar)
 {
   EXPECT_TRUE(isScalarType(BoolType::get()));
@@ -56,6 +58,8 @@ TEST(ArgForm, ScalarPrimitivesAreScalar)
   EXPECT_TRUE(isScalarType(DurationType::get()));
 }
 
+/// @test
+/// A sequence and a struct are not scalar types.
 TEST(ArgForm, CompositeTypesAreNotScalar)
 {
   auto seq = SequenceType::make(SequenceSpec {"Seq", "ns.Seq", "", Int32Type::get()});
@@ -65,12 +69,16 @@ TEST(ArgForm, CompositeTypesAreNotScalar)
   EXPECT_FALSE(isScalarType(str));
 }
 
+/// @test
+/// An optional wrapping a scalar is scalar.
 TEST(ArgForm, OptionalOfScalarUnwrapsToScalar)
 {
   auto opt = OptionalType::make(OptionalSpec {"O", "ns.O", "", Int32Type::get()});
   EXPECT_TRUE(isScalarType(opt));
 }
 
+/// @test
+/// An optional wrapping a composite is not scalar.
 TEST(ArgForm, OptionalOfCompositeIsNotScalar)
 {
   auto seq = SequenceType::make(SequenceSpec {"Seq", "ns.Seq", "", Int32Type::get()});
@@ -78,6 +86,8 @@ TEST(ArgForm, OptionalOfCompositeIsNotScalar)
   EXPECT_FALSE(isScalarType(opt));
 }
 
+/// @test
+/// A method taking scalars is form compatible, and one taking no arguments trivially is.
 TEST(ArgForm, TestMethodsAreFormCompatible)
 {
   // `add(a: i32, b: i32)` and `echo(message: string)` should both be form-compatible.
@@ -92,6 +102,9 @@ TEST(ArgForm, TestMethodsAreFormCompatible)
 // defaultTextFor
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Each primitive has a default text: false for a bool, zero for a number or duration, and
+/// nothing for a string.
 TEST(ArgForm, DefaultsForPrimitives)
 {
   EXPECT_EQ(defaultTextFor(BoolType::get()), "false");
@@ -101,6 +114,8 @@ TEST(ArgForm, DefaultsForPrimitives)
   EXPECT_EQ(defaultTextFor(DurationType::get()), "0");
 }
 
+/// @test
+/// An enumeration defaults to its first enumerator.
 TEST(ArgForm, DefaultForEnumIsFirstEnumerator)
 {
   auto e =
@@ -108,6 +123,8 @@ TEST(ArgForm, DefaultForEnumIsFirstEnumerator)
   EXPECT_EQ(defaultTextFor(e), "alpha");
 }
 
+/// @test
+/// An optional takes the default of the type it wraps.
 TEST(ArgForm, DefaultForOptionalUnwraps)
 {
   auto opt = OptionalType::make(OptionalSpec {"O", "ns.O", "", Int32Type::get()});
@@ -118,23 +135,31 @@ TEST(ArgForm, DefaultForOptionalUnwraps)
 // formatInlineArg
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// An integer formats as its digits, keeping a minus sign.
 TEST(ArgForm, InlineArgInteger)
 {
   EXPECT_EQ(formatInlineArg(Var(int32_t {42}), Int32Type::get()), "42");
   EXPECT_EQ(formatInlineArg(Var(int32_t {-7}), Int32Type::get()), "-7");
 }
 
+/// @test
+/// A bool formats as true or false.
 TEST(ArgForm, InlineArgBool)
 {
   EXPECT_EQ(formatInlineArg(Var(true), BoolType::get()), "true");
   EXPECT_EQ(formatInlineArg(Var(false), BoolType::get()), "false");
 }
 
+/// @test
+/// A string formats inside quotes.
 TEST(ArgForm, InlineArgStringIsQuoted)
 {
   EXPECT_EQ(formatInlineArg(Var(std::string("hello world")), StringType::get()), "\"hello world\"");
 }
 
+/// @test
+/// A quote, a backslash and a newline in a string are escaped, so the result can be typed back.
 TEST(ArgForm, InlineArgStringEscapesMetacharacters)
 {
   EXPECT_EQ(formatInlineArg(Var(std::string("a\"b")), StringType::get()), "\"a\\\"b\"");
@@ -142,6 +167,8 @@ TEST(ArgForm, InlineArgStringEscapesMetacharacters)
   EXPECT_EQ(formatInlineArg(Var(std::string("a\nb")), StringType::get()), "\"a\\nb\"");
 }
 
+/// @test
+/// An enumerator formats as its name, whether it is held as a name or as its integer key.
 TEST(ArgForm, InlineArgEnumUsesName)
 {
   auto e = EnumType::make(EnumSpec {"Col", "ns.Col", "", {{"red", 0, ""}, {"blue", 1, ""}}, UInt8Type::get()});
@@ -150,6 +177,8 @@ TEST(ArgForm, InlineArgEnumUsesName)
   EXPECT_EQ(formatInlineArg(Var(uint8_t {1}), e), "\"blue\"");
 }
 
+/// @test
+/// A duration formats as seconds with its unit, so reading it back gives the same duration.
 TEST(ArgForm, InlineArgDurationIsSecondsWithUnit)
 {
   // Duration inline format is a quoted string with unit ("N s") so the round-trip through
@@ -163,6 +192,8 @@ TEST(ArgForm, InlineArgDurationIsSecondsWithUnit)
   EXPECT_NE(formatted.find(" s"), std::string::npos);
 }
 
+/// @test
+/// A duration formatted and parsed again is the same duration.
 TEST(ArgForm, DurationRoundTripPreservesSeconds)
 {
   // Build a duration, format inline, reparse, the value we get back should be 1.5 seconds.
@@ -181,6 +212,8 @@ TEST(ArgForm, DurationRoundTripPreservesSeconds)
 // formatInlineInvocation
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A method with no arguments formats as an empty argument list.
 TEST(ArgForm, InvocationWithNoArgs)
 {
   const auto& cls = *::term::test::TestObjectInterface::meta();
@@ -191,6 +224,8 @@ TEST(ArgForm, InvocationWithNoArgs)
   EXPECT_EQ(out, "obj.ping");
 }
 
+/// @test
+/// A method with two integers formats both, separated.
 TEST(ArgForm, InvocationWithTwoIntegers)
 {
   const auto& cls = *::term::test::TestObjectInterface::meta();
@@ -202,6 +237,8 @@ TEST(ArgForm, InvocationWithTwoIntegers)
   EXPECT_EQ(out, "calc.add 3 4");
 }
 
+/// @test
+/// A method taking a string formats it quoted.
 TEST(ArgForm, InvocationWithString)
 {
   const auto& cls = *::term::test::TestObjectInterface::meta();
@@ -234,6 +271,8 @@ protected:
   }
 };
 
+/// @test
+/// A form has one field per argument, names the object and method, and starts on the first field.
 TEST_F(ArgFormStateful, BuildProducesOneFieldPerArg)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -244,6 +283,8 @@ TEST_F(ArgFormStateful, BuildProducesOneFieldPerArg)
   EXPECT_EQ(form->focusedIndex(), 0U);
 }
 
+/// @test
+/// With nothing prefilled, every field holds its default and is not marked as edited.
 TEST_F(ArgFormStateful, FieldsGetDefaultsWhenNothingPrefilled)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -255,6 +296,9 @@ TEST_F(ArgFormStateful, FieldsGetDefaultsWhenNothingPrefilled)
   }
 }
 
+/// @test
+/// A prefilled argument fills its field and marks it edited, the rest take defaults, and focus
+/// lands on the first unfilled field.
 TEST_F(ArgFormStateful, PrefilledValuesPopulateFieldsAndFocusNext)
 {
   std::vector<Var> prefilled = {Var(int32_t {5})};  // provide only the first arg
@@ -268,6 +312,8 @@ TEST_F(ArgFormStateful, PrefilledValuesPopulateFieldsAndFocusNext)
   EXPECT_EQ(form->focusedIndex(), 1U);  // cursor at first unfilled
 }
 
+/// @test
+/// Focus moves forward and backward and wraps at either end.
 TEST_F(ArgFormStateful, FocusNextAndPrevWrapAround)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -282,6 +328,8 @@ TEST_F(ArgFormStateful, FocusNextAndPrevWrapAround)
   EXPECT_EQ(form->focusedIndex(), 1U);
 }
 
+/// @test
+/// Typing changes the focused field and leaves the others alone.
 TEST_F(ArgFormStateful, InsertTextMutatesFocusedFieldOnly)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -295,6 +343,8 @@ TEST_F(ArgFormStateful, InsertTextMutatesFocusedFieldOnly)
   EXPECT_EQ(form->fields()[1].text, "0");  // untouched
 }
 
+/// @test
+/// Backspace removes the last character of the focused field.
 TEST_F(ArgFormStateful, BackspaceDropsTrailingCharacter)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -306,6 +356,8 @@ TEST_F(ArgFormStateful, BackspaceDropsTrailingCharacter)
   EXPECT_EQ(form->fields()[0].text, "4");
 }
 
+/// @test
+/// Submitting returns the typed text parsed into the argument types.
 TEST_F(ArgFormStateful, SubmitReturnsParsedValues)
 {
   std::vector<Var> prefilled = {Var(int32_t {3}), Var(int32_t {4})};
@@ -320,6 +372,8 @@ TEST_F(ArgFormStateful, SubmitReturnsParsedValues)
   EXPECT_EQ(values[1].get<int32_t>(), 4);
 }
 
+/// @test
+/// Submitting with an unparsable field fails, naming which field and why.
 TEST_F(ArgFormStateful, SubmitFailsOnInvalidField)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -336,6 +390,8 @@ TEST_F(ArgFormStateful, SubmitFailsOnInvalidField)
   EXPECT_FALSE(result.getError().message.empty());
 }
 
+/// @test
+/// Submitting with a required field left empty fails, naming that field.
 TEST_F(ArgFormStateful, SubmitEmptyRequiredFieldFails)
 {
   auto form = ArgForm::build(addMethod(), "calc");
@@ -347,6 +403,8 @@ TEST_F(ArgFormStateful, SubmitEmptyRequiredFieldFails)
   EXPECT_EQ(result.getError().fieldIndex, 0U);
 }
 
+/// @test
+/// A string field takes raw text, with no quotes needed.
 TEST_F(ArgFormStateful, StringFieldAcceptsRawTextWithoutQuotes)
 {
   auto form = ArgForm::build(echoMethod(), "e");
@@ -359,6 +417,8 @@ TEST_F(ArgFormStateful, StringFieldAcceptsRawTextWithoutQuotes)
   EXPECT_EQ(result.getValue()[0].get<std::string>(), "hello world");
 }
 
+/// @test
+/// A method with no arguments builds an empty form that submits an empty argument list.
 TEST_F(ArgFormStateful, NoArgsMethodBuildsEmptyForm)
 {
   auto form = ArgForm::build(pingMethod(), "obj");
@@ -370,6 +430,8 @@ TEST_F(ArgFormStateful, NoArgsMethodBuildsEmptyForm)
   EXPECT_TRUE(result.getValue().empty());
 }
 
+/// @test
+/// An enumerator is accepted written as a bare name.
 TEST_F(ArgFormStateful, EnumFieldAcceptsBareName)
 {
   // Bare enum name (no quotes) should parse correctly.
@@ -380,6 +442,8 @@ TEST_F(ArgFormStateful, EnumFieldAcceptsBareName)
   ASSERT_TRUE(impl::adaptVariant(*e, v).isOk());
 }
 
+/// @test
+/// The first keystroke replaces the default rather than appending to it.
 TEST_F(ArgFormStateful, FirstKeystrokeReplacesDefaultPlaceholder)
 {
   // First keystroke replaces the default placeholder, not appends to it.
@@ -393,6 +457,8 @@ TEST_F(ArgFormStateful, FirstKeystrokeReplacesDefaultPlaceholder)
   EXPECT_TRUE(form->fields()[0].userEdited);
 }
 
+/// @test
+/// Later keystrokes append to what has been typed.
 TEST_F(ArgFormStateful, SubsequentKeystrokesAppendAsNormal)
 {
   auto form = ArgForm::build(addMethod(), "obj");
@@ -403,6 +469,8 @@ TEST_F(ArgFormStateful, SubsequentKeystrokesAppendAsNormal)
   EXPECT_EQ(form->fields()[0].text, "57");
 }
 
+/// @test
+/// The first backspace clears the default rather than editing it.
 TEST_F(ArgFormStateful, FirstBackspaceClearsDefaultPlaceholder)
 {
   // Backspace on an untouched default clears the entire placeholder.
@@ -415,6 +483,8 @@ TEST_F(ArgFormStateful, FirstBackspaceClearsDefaultPlaceholder)
   EXPECT_TRUE(form->fields()[0].userEdited);
 }
 
+/// @test
+/// Backspace removes a whole character, not one byte of it.
 TEST_F(ArgFormStateful, BackspaceHandlesUtf8Multibyte)
 {
   auto form = ArgForm::build(echoMethod(), "e");
@@ -434,12 +504,16 @@ TEST_F(ArgFormStateful, BackspaceHandlesUtf8Multibyte)
 // effectiveDescription fallback
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A field uses the argument's own description when it has one.
 TEST(ArgFormEffectiveDescription, PrefersExplicitDescription)
 {
   // Explicit description takes priority over the type's built-in description.
   EXPECT_EQ(effectiveDescription("a user-chosen flag", BoolType::get()), "a user-chosen flag");
 }
 
+/// @test
+/// A field with no description of its own falls back to the type's.
 TEST(ArgFormEffectiveDescription, FallsBackToTypeDescriptionWhenEmpty)
 {
   auto desc = effectiveDescription("", BoolType::get());
@@ -459,6 +533,9 @@ protected:
   }
 };
 
+/// @test
+/// A struct argument becomes one composite field with a child per member, and only the children
+/// count as leaves.
 TEST_F(ArgFormStruct, BuildExpandsStructIntoChildren)
 {
   auto form = ArgForm::build(movePointMethod(), "obj");
@@ -478,6 +555,8 @@ TEST_F(ArgFormStruct, BuildExpandsStructIntoChildren)
   EXPECT_EQ(form->leafCount(), 2U);
 }
 
+/// @test
+/// Every leaf of a nested field takes its own default.
 TEST_F(ArgFormStruct, LeafDefaultsPropagate)
 {
   auto form = ArgForm::build(movePointMethod(), "obj");
@@ -488,6 +567,8 @@ TEST_F(ArgFormStruct, LeafDefaultsPropagate)
   EXPECT_EQ(form->fields()[0].children[1].text, "0");
 }
 
+/// @test
+/// A struct value typed on the command line fills the matching leaves.
 TEST_F(ArgFormStruct, PrefillFromVarMapPopulatesLeaves)
 {
   // Simulate the user having typed a partial struct value on the command line:
@@ -507,6 +588,8 @@ TEST_F(ArgFormStruct, PrefillFromVarMapPopulatesLeaves)
   EXPECT_TRUE(pField.children[1].userEdited);
 }
 
+/// @test
+/// Focus moves through the nested leaves rather than stopping at the composite.
 TEST_F(ArgFormStruct, FocusNavigatesThroughNestedLeaves)
 {
   auto form = ArgForm::build(movePointMethod(), "obj");
@@ -526,6 +609,8 @@ TEST_F(ArgFormStruct, FocusNavigatesThroughNestedLeaves)
   EXPECT_EQ(form->focusedField().name, "y");
 }
 
+/// @test
+/// Typing changes the focused leaf and leaves the other leaves alone.
 TEST_F(ArgFormStruct, InsertTextTargetsFocusedLeafOnly)
 {
   auto form = ArgForm::build(movePointMethod(), "obj");
@@ -541,6 +626,8 @@ TEST_F(ArgFormStruct, InsertTextTargetsFocusedLeafOnly)
   EXPECT_EQ(form->fields()[0].children[1].text, "9");
 }
 
+/// @test
+/// Submitting assembles the leaves back into a struct value.
 TEST_F(ArgFormStruct, SubmitAssemblesVarMap)
 {
   auto form = ArgForm::build(movePointMethod(), "obj");
@@ -564,6 +651,8 @@ TEST_F(ArgFormStruct, SubmitAssemblesVarMap)
   EXPECT_EQ(map.at("y").get<int32_t>(), 11);
 }
 
+/// @test
+/// Submitting with an unparsable nested leaf fails, naming that leaf.
 TEST_F(ArgFormStruct, SubmitFailsOnInvalidNestedLeaf)
 {
   auto form = ArgForm::build(movePointMethod(), "obj");
@@ -597,6 +686,8 @@ protected:
   }
 };
 
+/// @test
+/// A bool leaf is edited as a boolean.
 TEST_F(ArgFormEditors, BoolLeafClassifiedAsBooleanEditor)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -606,6 +697,8 @@ TEST_F(ArgFormEditors, BoolLeafClassifiedAsBooleanEditor)
   EXPECT_EQ(form->fields()[0].text, "false");  // default
 }
 
+/// @test
+/// An enumeration leaf is edited as an enumeration.
 TEST_F(ArgFormEditors, EnumLeafClassifiedAsEnumerationEditor)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -614,6 +707,8 @@ TEST_F(ArgFormEditors, EnumLeafClassifiedAsEnumerationEditor)
   EXPECT_EQ(form->fields()[1].text, "red");  // first enumerator
 }
 
+/// @test
+/// An integer leaf is edited as a spinner.
 TEST_F(ArgFormEditors, IntLeafClassifiedAsIntegerSpinEditor)
 {
   auto form = ArgForm::build(addMethod(), "obj");
@@ -622,6 +717,8 @@ TEST_F(ArgFormEditors, IntLeafClassifiedAsIntegerSpinEditor)
   EXPECT_EQ(form->fields()[1].editor, EditorKind::integerSpin);
 }
 
+/// @test
+/// Toggling a bool field flips it.
 TEST_F(ArgFormEditors, ToggleFocusedFlipsBool)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -634,6 +731,8 @@ TEST_F(ArgFormEditors, ToggleFocusedFlipsBool)
   EXPECT_EQ(form->focusedField().text, "false");
 }
 
+/// @test
+/// Cycling a bool field flips it.
 TEST_F(ArgFormEditors, CycleFocusedFlipsBool)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -646,6 +745,8 @@ TEST_F(ArgFormEditors, CycleFocusedFlipsBool)
   EXPECT_EQ(form->focusedField().text, "false");
 }
 
+/// @test
+/// Cycling an enumeration forward moves to the next enumerator.
 TEST_F(ArgFormEditors, CycleFocusedWalksEnumForward)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -662,6 +763,8 @@ TEST_F(ArgFormEditors, CycleFocusedWalksEnumForward)
   EXPECT_EQ(form->focusedField().text, "red");
 }
 
+/// @test
+/// Cycling an enumeration backward moves to the previous enumerator.
 TEST_F(ArgFormEditors, CycleFocusedWalksEnumBackward)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -674,6 +777,8 @@ TEST_F(ArgFormEditors, CycleFocusedWalksEnumBackward)
   EXPECT_EQ(form->focusedField().text, "green");
 }
 
+/// @test
+/// Toggling an enumeration does nothing, since toggling is for booleans.
 TEST_F(ArgFormEditors, ToggleNoOpOnEnum)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -684,6 +789,8 @@ TEST_F(ArgFormEditors, ToggleNoOpOnEnum)
   EXPECT_EQ(form->focusedField().text, "red");
 }
 
+/// @test
+/// Cycling an integer field steps its value.
 TEST_F(ArgFormEditors, CycleSpinsIntegerFields)
 {
   // Right spins +1, left spins -1, clamped to the type's range.
@@ -698,6 +805,8 @@ TEST_F(ArgFormEditors, CycleSpinsIntegerFields)
   EXPECT_EQ(form->focusedField().text, "1");
 }
 
+/// @test
+/// The editor reported is the one for the focused field.
 TEST_F(ArgFormEditors, FocusedEditorReflectsFocus)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -708,6 +817,8 @@ TEST_F(ArgFormEditors, FocusedEditorReflectsFocus)
   EXPECT_EQ(form->focusedEditor(), EditorKind::enumeration);
 }
 
+/// @test
+/// A bool and an enumeration set with the editors submit as the values chosen.
 TEST_F(ArgFormEditors, SubmitRoundTripBoolAndEnum)
 {
   auto form = ArgForm::build(configureMethod(), "obj");
@@ -738,6 +849,8 @@ TEST_F(ArgFormEditors, SubmitRoundTripBoolAndEnum)
 // Numeric input filtering + integer range-aware spin
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// An integer field ignores keystrokes that are not digits.
 TEST_F(ArgFormEditors, IntegerFieldRejectsNonDigitKeystrokes)
 {
   auto form = ArgForm::build(addMethod(), "obj");
@@ -750,6 +863,8 @@ TEST_F(ArgFormEditors, IntegerFieldRejectsNonDigitKeystrokes)
   EXPECT_EQ(form->focusedField().text, "42");
 }
 
+/// @test
+/// A signed integer field accepts a leading minus.
 TEST_F(ArgFormEditors, SignedIntegerAcceptsLeadingMinus)
 {
   auto form = ArgForm::build(addMethod(), "obj");
@@ -761,6 +876,8 @@ TEST_F(ArgFormEditors, SignedIntegerAcceptsLeadingMinus)
   EXPECT_EQ(form->focusedField().text, "-7");
 }
 
+/// @test
+/// Spinning up stops at the type's maximum.
 TEST_F(ArgFormEditors, IntegerSpinClampsAtTypeRange)
 {
   // Spin clamps at INT32_MAX.
@@ -774,6 +891,8 @@ TEST_F(ArgFormEditors, IntegerSpinClampsAtTypeRange)
   EXPECT_EQ(form->focusedField().text, std::to_string(std::numeric_limits<int32_t>::max()));
 }
 
+/// @test
+/// Spinning down stops at the type's minimum.
 TEST_F(ArgFormEditors, IntegerSpinClampsAtTypeRangeLow)
 {
   auto form = ArgForm::build(addMethod(), "obj");
@@ -787,6 +906,8 @@ TEST_F(ArgFormEditors, IntegerSpinClampsAtTypeRangeLow)
   EXPECT_EQ(form->focusedField().text, std::to_string(std::numeric_limits<int32_t>::min()));
 }
 
+/// @test
+/// An argument whose type is an alias of a quantity submits as that quantity.
 TEST(ArgFormAlias, AliasedQuantitySubmits)
 {
   // AliasType overrides none of the as*Type() accessors, so a field that stored the alias reported
@@ -803,6 +924,8 @@ TEST(ArgFormAlias, AliasedQuantitySubmits)
   EXPECT_TRUE(result.isOk()) << "submit failed: " << result.getError().message;
 }
 
+/// @test
+/// An alias is resolved before the form is built, so the form sees the underlying type.
 TEST(ArgFormAlias, TheGeneratorResolvesAnAliasBeforeTheFormSeesIt)
 {
   // Measured, not assumed: `setAliasedLength` takes AliasedMeters in the STL, and the form reports
@@ -818,6 +941,8 @@ TEST(ArgFormAlias, TheGeneratorResolvesAnAliasBeforeTheFormSeesIt)
   EXPECT_EQ(form->fields()[0].typeName, "Meters");
 }
 
+/// @test
+/// An alias of an optional can be filled and emptied like the optional itself.
 TEST(ArgFormAlias, AliasedOptionalToggles)
 {
   const auto& cls = *::term::test::TestObjectInterface::meta();
@@ -830,6 +955,8 @@ TEST(ArgFormAlias, AliasedOptionalToggles)
   EXPECT_NE(form->fields()[0].optionalIsEmpty, before) << "Ctrl+O did nothing on an aliased optional";
 }
 
+/// @test
+/// Spinning at the limit saturates rather than wrapping round.
 TEST_F(ArgFormEditors, IntegerSpinSaturatesInsteadOfOverflowing)
 {
   // The text is parsed as int64 before being clamped to the field's type, so a pasted INT64_MAX
@@ -847,6 +974,8 @@ TEST_F(ArgFormEditors, IntegerSpinSaturatesInsteadOfOverflowing)
   EXPECT_EQ(form->focusedField().text, std::to_string(std::numeric_limits<int32_t>::min()));
 }
 
+/// @test
+/// A value too large for a signed 64 bit integer is kept rather than truncated.
 TEST_F(ArgFormEditors, IntegerSpinKeepsAValueTooLargeForInt64)
 {
   // Anything above INT64_MAX threw out_of_range and was read as 0, so the first arrow press turned
@@ -859,6 +988,8 @@ TEST_F(ArgFormEditors, IntegerSpinKeepsAValueTooLargeForInt64)
   EXPECT_EQ(form->focusedField().text, std::to_string(std::numeric_limits<int32_t>::max()));
 }
 
+/// @test
+/// A quoted enumerator typed on the command line fills the field as a bare name.
 TEST_F(ArgFormEditors, PrefillStripsOuterQuotesForEnum)
 {
   // When the user types `configure true "blue"` inline, the enum arg arrives as the string
@@ -887,12 +1018,16 @@ protected:
   }
 };
 
+/// @test
+/// A method taking a sequence can be filled in from a form.
 TEST_F(ArgFormSequence, BuildIsFormCompatible)
 {
   EXPECT_TRUE(methodIsFormCompatible(sumIntsMethod()));
   EXPECT_TRUE(methodIsFormCompatible(centroidMethod()));
 }
 
+/// @test
+/// A sequence argument starts with no elements.
 TEST_F(ArgFormSequence, BuildEmptyByDefault)
 {
   auto form = ArgForm::build(sumIntsMethod(), "obj");
@@ -905,6 +1040,8 @@ TEST_F(ArgFormSequence, BuildEmptyByDefault)
   EXPECT_EQ(form->leafCount(), 0U);
 }
 
+/// @test
+/// A sequence typed on the command line fills one element per value.
 TEST_F(ArgFormSequence, PrefillFromVarListPopulatesElements)
 {
   VarList prefill = {Var(int32_t {10}), Var(int32_t {20}), Var(int32_t {30})};
@@ -919,6 +1056,8 @@ TEST_F(ArgFormSequence, PrefillFromVarListPopulatesElements)
   EXPECT_EQ(form->leafCount(), 3U);
 }
 
+/// @test
+/// Adding to an empty sequence creates its first element.
 TEST_F(ArgFormSequence, AddElementToEmptySequenceTopLevel)
 {
   auto form = ArgForm::build(sumIntsMethod(), "obj");
@@ -935,6 +1074,8 @@ TEST_F(ArgFormSequence, AddElementToEmptySequenceTopLevel)
   EXPECT_EQ(form->focusedField().name, "[0]");
 }
 
+/// @test
+/// Several added elements submit as a sequence of those values.
 TEST_F(ArgFormSequence, AddSeveralThenSubmit)
 {
   auto form = ArgForm::build(sumIntsMethod(), "obj");
@@ -957,6 +1098,8 @@ TEST_F(ArgFormSequence, AddSeveralThenSubmit)
   EXPECT_EQ(list[1].get<int32_t>(), 7);
 }
 
+/// @test
+/// Removing an element shortens the sequence and moves focus to a remaining one.
 TEST_F(ArgFormSequence, RemoveElementShrinksAndRefocuses)
 {
   auto form = ArgForm::build(sumIntsMethod(), "obj");
@@ -980,6 +1123,8 @@ TEST_F(ArgFormSequence, RemoveElementShrinksAndRefocuses)
   EXPECT_EQ(form->focusedField().name, "[1]");
 }
 
+/// @test
+/// Removing the last element moves focus to the one before it.
 TEST_F(ArgFormSequence, RemoveLastElementRefocusesToPrevious)
 {
   auto form = ArgForm::build(sumIntsMethod(), "obj");
@@ -993,6 +1138,8 @@ TEST_F(ArgFormSequence, RemoveLastElementRefocusesToPrevious)
   EXPECT_EQ(form->focusedField().name, "[0]");
 }
 
+/// @test
+/// A sequence of structs gives each element the struct's children.
 TEST_F(ArgFormSequence, NestedCompositeSequenceBuildsStructChildren)
 {
   // centroid takes a PointSeq = sequence<Point>. Each element expands into x/y leaves.
@@ -1013,6 +1160,8 @@ TEST_F(ArgFormSequence, NestedCompositeSequenceBuildsStructChildren)
   EXPECT_EQ(form->focusedField().name, "x");  // first leaf of second element
 }
 
+/// @test
+/// A sequence of structs submits as a list of struct values.
 TEST_F(ArgFormSequence, NestedCompositeSubmitAssemblesVarListOfMaps)
 {
   auto form = ArgForm::build(centroidMethod(), "obj");
@@ -1044,6 +1193,8 @@ TEST_F(ArgFormSequence, NestedCompositeSubmitAssemblesVarListOfMaps)
   EXPECT_EQ(list[1].get<VarMap>().at("y").get<int32_t>(), 4);
 }
 
+/// @test
+/// A sequence formatted inline parses back to the same sequence.
 TEST_F(ArgFormSequence, InlineFormattingRoundTrips)
 {
   VarList original = {Var(int32_t {1}), Var(int32_t {2}), Var(int32_t {3})};
@@ -1077,8 +1228,12 @@ protected:
   }
 };
 
+/// @test
+/// A method taking an optional can be filled in from a form.
 TEST_F(ArgFormOptional, MethodIsFormCompatible) { EXPECT_TRUE(methodIsFormCompatible(anchorMethod())); }
 
+/// @test
+/// An optional argument starts empty.
 TEST_F(ArgFormOptional, BuildStartsEmpty)
 {
   auto form = ArgForm::build(anchorMethod(), "obj");
@@ -1092,6 +1247,8 @@ TEST_F(ArgFormOptional, BuildStartsEmpty)
   EXPECT_EQ(form->leafCount(), 0U);  // no leaves when empty
 }
 
+/// @test
+/// Filling an empty optional builds the fields of the type it wraps.
 TEST_F(ArgFormOptional, ToggleEmptyToFilledBuildsInnerSubtree)
 {
   auto form = ArgForm::build(anchorMethod(), "obj");
@@ -1106,6 +1263,8 @@ TEST_F(ArgFormOptional, ToggleEmptyToFilledBuildsInnerSubtree)
   EXPECT_EQ(form->focusedField().name, "x");  // focus on first leaf of new inner
 }
 
+/// @test
+/// Emptying a filled optional drops those fields.
 TEST_F(ArgFormOptional, ToggleFilledToEmptyDropsSubtree)
 {
   auto form = ArgForm::build(anchorMethod(), "obj");
@@ -1119,6 +1278,8 @@ TEST_F(ArgFormOptional, ToggleFilledToEmptyDropsSubtree)
   EXPECT_EQ(form->leafCount(), 0U);
 }
 
+/// @test
+/// An optional left empty submits as no value.
 TEST_F(ArgFormOptional, SubmitEmptyProducesMonostate)
 {
   auto form = ArgForm::build(anchorMethod(), "obj");
@@ -1131,6 +1292,8 @@ TEST_F(ArgFormOptional, SubmitEmptyProducesMonostate)
   EXPECT_TRUE(values[0].holds<std::monostate>());
 }
 
+/// @test
+/// A filled optional submits as the value it holds.
 TEST_F(ArgFormOptional, SubmitFilledProducesInnerValue)
 {
   auto form = ArgForm::build(anchorMethod(), "obj");
@@ -1155,6 +1318,8 @@ TEST_F(ArgFormOptional, SubmitFilledProducesInnerValue)
   }
 }
 
+/// @test
+/// An optional given a value on the command line starts filled.
 TEST_F(ArgFormOptional, PrefillNonEmptyInitializesFilled)
 {
   VarMap pointMap;
@@ -1173,6 +1338,8 @@ TEST_F(ArgFormOptional, PrefillNonEmptyInitializesFilled)
   EXPECT_EQ(optField.children[0].children[1].text, "3");
 }
 
+/// @test
+/// An optional given no value on the command line stays empty.
 TEST_F(ArgFormOptional, PrefillMonostateStaysEmpty)
 {
   std::vector<Var> prefill = {Var {}};
@@ -1181,6 +1348,8 @@ TEST_F(ArgFormOptional, PrefillMonostateStaysEmpty)
   EXPECT_TRUE(form->fields()[0].optionalIsEmpty);
 }
 
+/// @test
+/// An empty optional formats as null.
 TEST_F(ArgFormOptional, InlineFormatEmptyIsNull)
 {
   const auto& arg = anchorMethod().getArgs()[0];
@@ -1188,6 +1357,8 @@ TEST_F(ArgFormOptional, InlineFormatEmptyIsNull)
   EXPECT_EQ(formatInlineArg(empty, arg.type), "null");
 }
 
+/// @test
+/// A filled optional formats as the value it holds.
 TEST_F(ArgFormOptional, InlineFormatFilledIsInnerJson)
 {
   const auto& arg = anchorMethod().getArgs()[0];
@@ -1211,6 +1382,8 @@ protected:
   }
 };
 
+/// @test
+/// An optional of a scalar starts empty.
 TEST_F(ArgFormOptionalScalar, BuildStartsEmpty)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1222,6 +1395,8 @@ TEST_F(ArgFormOptionalScalar, BuildStartsEmpty)
   EXPECT_EQ(form->leafCount(), 0U);
 }
 
+/// @test
+/// Filling it creates the scalar leaf.
 TEST_F(ArgFormOptionalScalar, ToggleFillsInnerScalarLeaf)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1237,6 +1412,8 @@ TEST_F(ArgFormOptionalScalar, ToggleFillsInnerScalarLeaf)
   EXPECT_EQ(form->focusedField().editor, EditorKind::integerSpin);
 }
 
+/// @test
+/// Left empty it submits as no value.
 TEST_F(ArgFormOptionalScalar, SubmitEmptyIsMonostate)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1246,6 +1423,8 @@ TEST_F(ArgFormOptionalScalar, SubmitEmptyIsMonostate)
   EXPECT_TRUE(result.getValue()[0].holds<std::monostate>());
 }
 
+/// @test
+/// Filled it submits as the scalar.
 TEST_F(ArgFormOptionalScalar, SubmitFilledProducesScalar)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1260,6 +1439,8 @@ TEST_F(ArgFormOptionalScalar, SubmitFilledProducesScalar)
   EXPECT_EQ(result.getValue()[0].get<int32_t>(), 42);
 }
 
+/// @test
+/// A scalar given on the command line starts it filled.
 TEST_F(ArgFormOptionalScalar, PrefillFromScalarInitializesFilled)
 {
   std::vector<Var> prefill = {Var(int32_t {7})};
@@ -1283,8 +1464,12 @@ protected:
   }
 };
 
+/// @test
+/// A method taking a variant can be filled in from a form.
 TEST_F(ArgFormVariant, MethodIsFormCompatible) { EXPECT_TRUE(methodIsFormCompatible(describeMethod())); }
 
+/// @test
+/// A variant gives a selector for the alternative and the fields of the one selected.
 TEST_F(ArgFormVariant, BuildProducesTypeSelectorAndValueSubtree)
 {
   auto form = ArgForm::build(describeMethod(), "obj");
@@ -1308,6 +1493,8 @@ TEST_F(ArgFormVariant, BuildProducesTypeSelectorAndValueSubtree)
   EXPECT_EQ(variantField.children[1].kind, FieldKind::structGroup);
 }
 
+/// @test
+/// Choosing the next alternative replaces the fields with that alternative's.
 TEST_F(ArgFormVariant, CycleForwardReshapesValueSubtree)
 {
   auto form = ArgForm::build(describeMethod(), "obj");
@@ -1326,6 +1513,8 @@ TEST_F(ArgFormVariant, CycleForwardReshapesValueSubtree)
   EXPECT_EQ(form->fields()[0].children[1].typeName, "string");
 }
 
+/// @test
+/// Choosing the previous alternative wraps round at the first.
 TEST_F(ArgFormVariant, CycleBackwardWraps)
 {
   auto form = ArgForm::build(describeMethod(), "obj");
@@ -1336,6 +1525,8 @@ TEST_F(ArgFormVariant, CycleBackwardWraps)
   EXPECT_EQ(form->fields()[0].selectedVariantIndex, 2U);
 }
 
+/// @test
+/// Focus stays on the selector after changing the alternative.
 TEST_F(ArgFormVariant, FocusStaysOnTypeSelectorAfterCycle)
 {
   auto form = ArgForm::build(describeMethod(), "obj");
@@ -1345,6 +1536,8 @@ TEST_F(ArgFormVariant, FocusStaysOnTypeSelectorAfterCycle)
   EXPECT_EQ(form->focusedField().editor, EditorKind::variantType);
 }
 
+/// @test
+/// Focus moves from the selector into the chosen alternative's fields.
 TEST_F(ArgFormVariant, NavigateFromTypeToValueLeaves)
 {
   // After Point is selected, leaves are: type (selector), x, y.
@@ -1359,6 +1552,8 @@ TEST_F(ArgFormVariant, NavigateFromTypeToValueLeaves)
   EXPECT_EQ(form->focusedField().name, "y");
 }
 
+/// @test
+/// Submitting builds the variant with its chosen alternative and value.
 TEST_F(ArgFormVariant, SubmitBuildsVariantVarMap)
 {
   auto form = ArgForm::build(describeMethod(), "obj");
@@ -1394,6 +1589,8 @@ TEST_F(ArgFormVariant, SubmitBuildsVariantVarMap)
   }
 }
 
+/// @test
+/// Submitting after changing the alternative uses the alternative then selected.
 TEST_F(ArgFormVariant, SubmitStringVariantAfterCycle)
 {
   auto form = ArgForm::build(describeMethod(), "obj");
@@ -1414,6 +1611,8 @@ TEST_F(ArgFormVariant, SubmitStringVariantAfterCycle)
   }
 }
 
+/// @test
+/// A variant typed on the command line selects its alternative and fills its value.
 TEST_F(ArgFormVariant, PrefillFromVarMapPopulatesSelection)
 {
   // Simulate the user having typed: obj.describe {"type": "string", "value": "hi"}
@@ -1432,6 +1631,8 @@ TEST_F(ArgFormVariant, PrefillFromVarMapPopulatesSelection)
   EXPECT_EQ(variantField.children[1].text, "hi");  // JSON quotes stripped for in-form display
 }
 
+/// @test
+/// A variant formatted inline parses back to the same variant.
 TEST_F(ArgFormVariant, InlineFormattingRoundTrips)
 {
   // Build a Var that looks like what adaptVariant would produce: a KeyedVar with inner Var.
@@ -1479,10 +1680,16 @@ protected:
   }
 };
 
+/// @test
+/// A method taking a quantity with a unit can be filled in from a form.
 TEST_F(ArgFormQuantity, WithUnitIsFormCompatible) { EXPECT_TRUE(methodIsFormCompatible(setLengthMethod())); }
 
+/// @test
+/// A method taking a quantity with no unit can be filled in from a form.
 TEST_F(ArgFormQuantity, UnitLessIsFormCompatible) { EXPECT_TRUE(methodIsFormCompatible(setRatioMethod())); }
 
+/// @test
+/// A quantity with a unit gives a value field and a unit selector.
 TEST_F(ArgFormQuantity, WithUnitBuildsQuantityGroupWithValueAndUnit)
 {
   auto form = ArgForm::build(setLengthMethod(), "obj");
@@ -1509,6 +1716,8 @@ TEST_F(ArgFormQuantity, WithUnitBuildsQuantityGroupWithValueAndUnit)
   EXPECT_EQ(unitLeaf.text, "m");
 }
 
+/// @test
+/// A quantity with no unit gives a plain scalar field.
 TEST_F(ArgFormQuantity, UnitLessBuildsScalarLeaf)
 {
   auto form = ArgForm::build(setRatioMethod(), "obj");
@@ -1522,6 +1731,8 @@ TEST_F(ArgFormQuantity, UnitLessBuildsScalarLeaf)
   EXPECT_EQ(q.children.size(), 0U);
 }
 
+/// @test
+/// Spinning up stops at the quantity's maximum.
 TEST_F(ArgFormQuantity, IntegerSpinClampsToQuantityMax)
 {
   auto form = ArgForm::build(setLengthMethod(), "obj");
@@ -1537,6 +1748,8 @@ TEST_F(ArgFormQuantity, IntegerSpinClampsToQuantityMax)
   EXPECT_EQ(form->focusedField().text, "499");
 }
 
+/// @test
+/// Spinning down stops at the quantity's minimum.
 TEST_F(ArgFormQuantity, IntegerSpinClampsToQuantityMin)
 {
   auto form = ArgForm::build(setLengthMethod(), "obj");
@@ -1548,6 +1761,8 @@ TEST_F(ArgFormQuantity, IntegerSpinClampsToQuantityMin)
   EXPECT_EQ(form->focusedField().text, "0");
 }
 
+/// @test
+/// The unit selector steps through the units available.
 TEST_F(ArgFormQuantity, CycleUnitSelectorSteps)
 {
   auto form = ArgForm::build(setLengthMethod(), "obj");
@@ -1561,6 +1776,8 @@ TEST_F(ArgFormQuantity, CycleUnitSelectorSteps)
   EXPECT_NE(form->focusedField().text, startUnit);  // moved to a different unit
 }
 
+/// @test
+/// Submitting converts the value to the quantity's canonical unit.
 TEST_F(ArgFormQuantity, SubmitConvertsToCanonicalUnit)
 {
   auto form = ArgForm::build(setLengthMethod(), "obj");
@@ -1578,6 +1795,8 @@ TEST_F(ArgFormQuantity, SubmitConvertsToCanonicalUnit)
   EXPECT_DOUBLE_EQ(values[0].getCopyAs<float64_t>(), 500.0);
 }
 
+/// @test
+/// A value entered in another unit is converted on submit.
 TEST_F(ArgFormQuantity, SubmitAppliesUnitConversionWhenUnitDiffersFromCanonical)
 {
   // If the user picks a different unit from the quantity's canonical one, assembleValue must
@@ -1606,6 +1825,8 @@ TEST_F(ArgFormQuantity, SubmitAppliesUnitConversionWhenUnitDiffersFromCanonical)
   EXPECT_DOUBLE_EQ(result.getValue()[0].getCopyAs<float64_t>(), 1.0);
 }
 
+/// @test
+/// A quantity with no unit submits as a plain number.
 TEST_F(ArgFormQuantity, UnitLessSubmitIsNumeric)
 {
   auto form = ArgForm::build(setRatioMethod(), "obj");
@@ -1622,6 +1843,8 @@ TEST_F(ArgFormQuantity, UnitLessSubmitIsNumeric)
 // Duration / TimeStamp, QuantityType subclasses with bespoke dispatch
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A duration is a scalar field rather than a value and unit pair.
 TEST(ArgFormDuration, DurationFieldIsScalarNotQuantityGroup)
 {
   // Duration fields use a scalar text editor (not the generic quantity group).
@@ -1638,6 +1861,8 @@ TEST(ArgFormDuration, DurationFieldIsScalarNotQuantityGroup)
   EXPECT_EQ(f.children.size(), 0U);
 }
 
+/// @test
+/// A duration field accepts a unit written with the number.
 TEST(ArgFormDuration, DurationAcceptsUnitLettersInInput)
 {
   // Duration input must accept unit suffix characters (s, m, n, h, ...).
@@ -1659,6 +1884,8 @@ TEST(ArgFormDuration, DurationAcceptsUnitLettersInInput)
   EXPECT_NEAR(values[0].getCopyAs<Duration>().toSeconds(), 0.5, 1e-6);
 }
 
+/// @test
+/// A duration typed in milliseconds survives the round trip through the command engine.
 TEST(ArgFormDuration, TypedMillisecondsRoundTripThroughCommandEngine)
 {
   // "1000 ms" typed in the Duration field must survive the full round-trip:
@@ -1703,6 +1930,8 @@ TEST(ArgFormDuration, TypedMillisecondsRoundTripThroughCommandEngine)
   EXPECT_NEAR(list[0].getCopyAs<Duration>().toSeconds(), 1.0, 1e-6);
 }
 
+/// @test
+/// A duration formatted into an invocation parses back to the same duration.
 TEST(ArgFormDuration, InlineInvocationRoundTripsTypedValue)
 {
   // Bare number "100" in the Duration field round-trips through inline invocation.
@@ -1725,6 +1954,8 @@ TEST(ArgFormDuration, InlineInvocationRoundTripsTypedValue)
   EXPECT_EQ(inlined.find("\"0 s\""), std::string::npos) << "old fallback '0 s' shouldn't appear, got: " << inlined;
 }
 
+/// @test
+/// A duration submits as a string carrying its unit, so the unit is not lost.
 TEST(ArgFormDuration, DurationSubmitUsesStringWithUnitSuffix)
 {
   // Type "1.5" in the duration field and submit, the form should emit a value that adaptVariant
@@ -1759,6 +1990,8 @@ protected:
   }
 };
 
+/// @test
+/// A plain scalar field reports that it is in neither a sequence nor an optional.
 TEST_F(ArgFormContext, ScalarFieldIsNotInsideSequenceOrOptional)
 {
   auto form = ArgForm::build(methodByName("add"), "obj");
@@ -1767,6 +2000,8 @@ TEST_F(ArgFormContext, ScalarFieldIsNotInsideSequenceOrOptional)
   EXPECT_FALSE(form->focusedIsInsideOptional());
 }
 
+/// @test
+/// An empty sequence argument reports that it is inside a sequence.
 TEST_F(ArgFormContext, EmptySequenceArgReportsInsideSequence)
 {
   // sumInts takes an IntSeq that starts empty, Ctrl+N should be advertised even though the
@@ -1778,6 +2013,8 @@ TEST_F(ArgFormContext, EmptySequenceArgReportsInsideSequence)
   EXPECT_FALSE(form->focusedIsInsideOptional());
 }
 
+/// @test
+/// An element of a sequence reports that it is inside a sequence.
 TEST_F(ArgFormContext, ElementInsideSequenceReportsInsideSequence)
 {
   auto form = ArgForm::build(methodByName("sumInts"), "obj");
@@ -1787,6 +2024,8 @@ TEST_F(ArgFormContext, ElementInsideSequenceReportsInsideSequence)
   EXPECT_TRUE(form->focusedIsInsideSequence());
 }
 
+/// @test
+/// An empty optional reports that it is inside an optional.
 TEST_F(ArgFormContext, EmptyOptionalReportsInsideOptional)
 {
   // `anchor(p: MaybePoint)`, MaybePoint starts empty (no inner leaves) but Ctrl+O should toggle
@@ -1798,6 +2037,8 @@ TEST_F(ArgFormContext, EmptyOptionalReportsInsideOptional)
   EXPECT_FALSE(form->focusedIsInsideSequence());
 }
 
+/// @test
+/// A bounded sequence at its limit refuses another element.
 TEST_F(ArgFormContext, BoundedSequenceAtCapacityDisallowsAdd)
 {
   // sumBounded takes a sequence<i32, 4>. Add four elements; the fifth add must be rejected and
@@ -1817,6 +2058,8 @@ TEST_F(ArgFormContext, BoundedSequenceAtCapacityDisallowsAdd)
   EXPECT_EQ(form->leafCount(), 4U);
 }
 
+/// @test
+/// A fixed size array starts with all its elements and refuses both adding and removing.
 TEST_F(ArgFormContext, FixedSizeArrayStartsFullAndRejectsAddRemove)
 {
   // sumTriple takes array<i32, 3>. The form must open with exactly 3 elements pre-filled, and
@@ -1838,6 +2081,8 @@ TEST_F(ArgFormContext, FixedSizeArrayStartsFullAndRejectsAddRemove)
   EXPECT_EQ(form->fields()[0].children.size(), 3U);
 }
 
+/// @test
+/// An unbounded sequence allows adding and removing.
 TEST_F(ArgFormContext, UnboundedSequenceAllowsAddAndRemove)
 {
   auto form = ArgForm::build(methodByName("sumInts"), "obj");
@@ -1850,6 +2095,8 @@ TEST_F(ArgFormContext, UnboundedSequenceAllowsAddAndRemove)
   EXPECT_TRUE(form->focusedCanRemoveElement());
 }
 
+/// @test
+/// A leaf inside a filled optional reports that it is inside an optional.
 TEST_F(ArgFormContext, LeafInsideFilledOptionalReportsInsideOptional)
 {
   auto form = ArgForm::build(methodByName("anchor"), "obj");
@@ -1859,6 +2106,8 @@ TEST_F(ArgFormContext, LeafInsideFilledOptionalReportsInsideOptional)
   EXPECT_TRUE(form->focusedIsInsideOptional());
 }
 
+/// @test
+/// A struct formatted inline parses back to the same struct.
 TEST_F(ArgFormStruct, InlineArgRoundTripsThroughParser)
 {
   // Build a value, render to inline, re-parse via the command-engine parser, should recover the

@@ -181,6 +181,7 @@ TEST_F(RestE2EFixture, type_introspection)
   ASSERT_EQ(typeInfo["name"].get<std::string>(), "string");
 }
 
+/// @test
 /// End-to-end test for interests retrieval (empty list)
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_interests)

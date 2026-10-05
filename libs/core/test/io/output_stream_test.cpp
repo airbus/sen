@@ -345,6 +345,9 @@ TEST(OutputStream, BigEndian)
 // Against literal byte patterns rather than against swapBytes. The BigEndian float cases above
 // compute their expectation with the same function they exercise, so they agreed with the old
 // unswapped output and could not have caught it. These are IEEE 754 for 3.14159, written out.
+/// @test
+/// writeFloat32 and writeFloat64 emit bytes in the stream's byte order, big endian and little
+/// endian alike.
 TEST(OutputStream, FloatsCrossInTheBufferByteOrder)
 {
   // float32_t little endian

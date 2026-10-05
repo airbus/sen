@@ -65,6 +65,8 @@ docker run --rm --interactive \
     --env CXX \
     --env SEN_INTEGRATION_TEST_IMAGE \
     --env SEN_GCC_VERSION \
+    --env SEN_DOC_REF \
+    --env SEN_DOC_RUN \
     --security-opt seccomp=unconfined \
     --ulimit core=-1 \
     "$SEN_CI_IMAGE" \

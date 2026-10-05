@@ -431,6 +431,9 @@ TEST(InputStream, tryAdvance)
 
 // The read side had its own float overloads that memcpy'd, so it never reached the swap at all.
 // Fixing swapBytes alone would have left a big-endian host unable to read back what it wrote.
+/// @test
+/// readFloat32 and readFloat64 decode a buffer in the stream's byte order, big endian and
+/// little endian alike.
 TEST(InputStream, FloatsAreReadInTheBufferByteOrder)
 {
   // float32_t big endian

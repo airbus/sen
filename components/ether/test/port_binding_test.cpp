@@ -283,6 +283,9 @@ TEST(PortBinding, SharesAPinnedTcpSourcePortBetweenPeers)
   EXPECT_TRUE(error) << "a bind without reuse_address should have been refused";
 }
 
+/// @test
+/// A pinned port is bound as configured for a TCP source, a TCP acceptor and a UDP unicast
+/// socket, rather than falling back to an ephemeral port.
 TEST(PortBinding, BindsPinnedPort)
 {
   const auto portTcpSource = pickFreeTcpPort();
