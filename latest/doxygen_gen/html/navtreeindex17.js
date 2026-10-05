@@ -1,5 +1,6 @@
 var NAVTREEINDEX17 =
 {
+"structsen_1_1_callable_spec.html#adabfa6ce8af63897d797489b72e2282b":[0,0,2,1,3,3],
 "structsen_1_1_enum_spec.html":[0,0,2,1,7],
 "structsen_1_1_enum_spec.html#a10238970204d15fdab151b051691637c":[0,0,2,1,7,7],
 "structsen_1_1_enum_spec.html#a36c49923b3e20868ae304ee672b96477":[0,0,2,1,7,6],
@@ -248,6 +249,5 @@ var NAVTREEINDEX17 =
 "structsen_1_1_variant_field.html#a387a46918db084808cdd11f48f0c7832":[0,0,2,1,37,0],
 "structsen_1_1_variant_field.html#a78cc484fa23bd5395cfe2cadda139b39":[0,0,2,1,37,5],
 "structsen_1_1_variant_field.html#a89ff56c01418039b497ee0271cf55df5":[0,0,2,1,37,1],
-"structsen_1_1_variant_field.html#ac80484a6b2a73a0550542a7562937951":[0,0,2,1,37,4],
-"structsen_1_1_variant_field.html#aeb67d96d4f9d41a7af5e405c36920e2a":[0,0,2,1,37,3]
+"structsen_1_1_variant_field.html#ac80484a6b2a73a0550542a7562937951":[0,0,2,1,37,4]
 };

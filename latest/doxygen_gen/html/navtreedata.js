@@ -80,9 +80,9 @@ var NAVTREEINDEX =
 "group__lang.html#gadaba2431bbf18b6f69e8511fe4bb9e11",
 "group__type__utils.html#ggafd213372bab1c5f96f95eba9eaf17a15adca2cad203c5597e105c9bea028554c2",
 "namespacepybind11_1_1detail.html",
-"namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70",
-"structsen_1_1_enum_spec.html",
-"structsen_1_1_variant_field.html#af72c215253107cb4c50368cedc3f9de0"
+"namespacesen_1_1std__util.html#aa8ae450554fedf0fc5ab16ffd132a8ba",
+"structsen_1_1_callable_spec.html#adabfa6ce8af63897d797489b72e2282b",
+"structsen_1_1_variant_field.html#aeb67d96d4f9d41a7af5e405c36920e2a"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

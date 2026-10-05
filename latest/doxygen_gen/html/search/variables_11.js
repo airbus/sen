@@ -30,5 +30,6 @@ var searchData=
   ['style_27',['style',['../namespacesen_1_1gen.html#a8496fc62b4d42d87da644d2b337e4563',1,'sen::gen::TypstOptions']]],
   ['styles_28',['styles',['../namespacesen_1_1gen_1_1detail.html#aefde87ca2ddf515b1204749637278a40',1,'sen::gen::detail::HtmlApp']]],
   ['summaries_29',['summaries',['../namespacesen_1_1gen.html#aef660266e5a5bfac39777fa66ab1fe4d',1,'sen::gen::TypstOptions']]],
-  ['summaryfilename_30',['summaryFileName',['../namespacesen_1_1db.html#a2bb63c85ecea8cb6e7b477d6042bab64',1,'sen::db']]]
+  ['summaryfilename_30',['summaryFileName',['../namespacesen_1_1db.html#a2bb63c85ecea8cb6e7b477d6042bab64',1,'sen::db']]],
+  ['supportedfileversion_31',['supportedFileVersion',['../namespacesen_1_1db.html#a549ab16df3a2db9298deef7845f215e7',1,'sen::db']]]
 ];
