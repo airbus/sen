@@ -84,6 +84,8 @@ set_target_properties(webexplorer_bundle PROPERTIES FOLDER "components/webexplor
 if(SEN_BUILD_TESTS)
   add_sen_integration_test(
     webexplorer_typecheck
+    DESCRIPTION
+    "Type-checks the web explorer frontend."
     COMMAND
     ${NPM_EXEC}
     run
@@ -98,10 +100,16 @@ if(SEN_BUILD_TESTS)
   # jsonrpc_ts_client_dist they fail to load rather than fail a check.
   add_sen_integration_test(
     webexplorer_unit
+    DESCRIPTION
+    "Runs the web explorer frontend's unit suite."
     COMMAND
     ${NPM_EXEC}
     run
     test
+    --
+    --reporter=default
+    --reporter=junit
+    --outputFile.junit=${SEN_TEST_REPORT_DIR}/webexplorer_unit.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     REQ_DEPS webexplorer_npm_install jsonrpc_ts_client_dist
   )

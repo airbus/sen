@@ -375,4 +375,46 @@ TEST_F(InputPaneHistoryTest, ALineAtTheLimitSurvivesARestart)
   EXPECT_EQ(next.getBuffer(), atTheLimit) << "accepted and run, then missing from the next session";
 }
 
+/// @test
+/// Walking down through history comes back to the line that was being typed.
+///
+/// Going up is covered; coming back down is the half that has to restore something rather than
+/// just read it. The unsent line is put aside on the way up and has to reappear at the bottom, or
+/// a user who presses Up to check a previous command loses what they were half way through typing.
+TEST(InputPaneHistory, WalkingDownComesBackToTheUnsentLine)
+{
+  InputPane pane {[](const std::string&) {}};
+  pane.addToHistory("ls");
+  pane.addToHistory("status");
+  pane.getBuffer() = "half typed";
+
+  pane.historyUp();
+  EXPECT_EQ(pane.getBuffer(), "status") << "the most recent entry comes first";
+  pane.historyUp();
+  EXPECT_EQ(pane.getBuffer(), "ls");
+
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "status");
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "half typed") << "the unsent line did not come back";
+}
+
+/// @test
+/// Down at the bottom of the history does nothing, rather than walking off the end of it.
+TEST(InputPaneHistory, DownAtTheBottomIsANoop)
+{
+  InputPane pane {[](const std::string&) {}};
+  pane.addToHistory("ls");
+  pane.getBuffer() = "untouched";
+
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "untouched");
+
+  // And again after a round trip, which is where the index could be left somewhere it should not be.
+  pane.historyUp();
+  pane.historyDown();
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "untouched");
+}
+
 }  // namespace sen::components::term

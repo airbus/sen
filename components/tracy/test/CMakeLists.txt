@@ -11,4 +11,7 @@
 #
 # What it does catch is load-time breakage -- a missing symbol, a bad export, a component that cannot be
 # dlopened by name -- which no other test here would see, since nothing else loads tracy at all.
-add_sen_run_smoke_test(tracy_smoke CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/config/tracy.yaml)
+add_sen_run_smoke_test(
+  tracy_smoke DESCRIPTION "Loads the tracy component by name, which nothing else in the tree does."
+  CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/config/tracy.yaml
+)

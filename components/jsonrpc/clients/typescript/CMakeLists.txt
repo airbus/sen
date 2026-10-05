@@ -104,10 +104,16 @@ if(SEN_BUILD_TESTS)
   # Sen subprocess; both are absolute so the test is cwd-independent.
   add_sen_integration_test(
     jsonrpc_ts_client_integration
+    DESCRIPTION
+    "Runs the TypeScript client's integration suite against a live kernel."
     COMMAND
     ${NPM_EXEC}
     run
     test:integration
+    --
+    --reporter=default
+    --reporter=junit
+    --outputFile.junit=${SEN_TEST_REPORT_DIR}/jsonrpc_ts_client_integration.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     REQ_DEPS jsonrpc jsonrpc_ts_client_codegen jsonrpc_ts_client_npm_install inheritance
   )
@@ -134,6 +140,8 @@ if(SEN_BUILD_TESTS)
   # (esbuild strips types), so without this gate a type error ships silently.
   add_sen_integration_test(
     jsonrpc_ts_client_typecheck
+    DESCRIPTION
+    "Type-checks the TypeScript client."
     COMMAND
     ${NPM_EXEC}
     run
@@ -147,10 +155,16 @@ if(SEN_BUILD_TESTS)
   # type-only import of src/generated, so npm install is the whole dependency.
   add_sen_integration_test(
     jsonrpc_ts_client_unit
+    DESCRIPTION
+    "Runs the TypeScript client's unit suite."
     COMMAND
     ${NPM_EXEC}
     run
     test
+    --
+    --reporter=default
+    --reporter=junit
+    --outputFile.junit=${SEN_TEST_REPORT_DIR}/jsonrpc_ts_client_unit.xml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     REQ_DEPS jsonrpc_ts_client_npm_install
   )

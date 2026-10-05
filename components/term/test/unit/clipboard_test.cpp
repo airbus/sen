@@ -177,5 +177,90 @@ TEST(Clipboard, Base64OutputUsesOnlyAlphabetChars)
   }
 }
 
+//--------------------------------------------------------------------------------------------------------------
+// The worker, and what it can say afterwards
+//--------------------------------------------------------------------------------------------------------------
+
+#ifndef _WIN32
+
+/// Sets a display so `copy` takes the local-helper path, and puts back whatever was there.
+/// The mirror of NoDisplayEnv above, which exists to keep that path out of the escape tests.
+class WithDisplayEnv
+{
+public:
+  WithDisplayEnv()
+  {
+    const char* existing = std::getenv("DISPLAY");
+    if (existing != nullptr)
+    {
+      saved_ = existing;
+    }
+    // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
+    ::setenv("DISPLAY", ":0", 1);
+  }
+
+  ~WithDisplayEnv()
+  {
+    if (saved_.empty())
+    {
+      // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
+      ::unsetenv("DISPLAY");
+    }
+    else
+    {
+      // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
+      ::setenv("DISPLAY", saved_.c_str(), 1);
+    }
+  }
+
+  WithDisplayEnv(const WithDisplayEnv&) = delete;
+  WithDisplayEnv& operator=(const WithDisplayEnv&) = delete;
+  WithDisplayEnv(WithDisplayEnv&&) = delete;
+  WithDisplayEnv& operator=(WithDisplayEnv&&) = delete;
+
+private:
+  std::string saved_;
+};
+
+/// @test
+/// Reading the last failure clears it, so a reason is shown once rather than on every frame.
+///
+/// The assertion is deliberately weaker than what the test exercises. With a display set, the copy
+/// takes the local-helper path, which on a machine with no helper installed fails through four
+/// commands and on a developer's machine with xclip or pbcopy succeeds. Asserting which of those
+/// happened would be a statement about the machine rather than about Sen. What holds everywhere is
+/// the contract the header states: reading it clears it.
+TEST(Clipboard, ReadingTheLastFailureClearsIt)
+{
+  {
+    const WithDisplayEnv display;
+    auto out = captureStdout([] { clipboard::copy("to the helper"); });
+    EXPECT_FALSE(out.empty()) << "the terminal escape goes out whatever the local helper does";
+    clipboard::shutdown();
+  }
+
+  const auto first = clipboard::takeFailure();
+  const auto second = clipboard::takeFailure();
+
+  if (first.has_value())
+  {
+    EXPECT_FALSE(first->empty()) << "a failure was reported with nothing to read";
+  }
+  EXPECT_FALSE(second.has_value()) << "the reason was still there after being read";
+}
+
+/// @test
+/// Shutting down is safe with nothing in flight and safe twice. It is called on the way out of the
+/// component, which is a path that also runs when the terminal never copied anything.
+TEST(Clipboard, ShutdownIsSafeWithNothingInFlight)
+{
+  clipboard::shutdown();
+  clipboard::shutdown();
+
+  EXPECT_FALSE(clipboard::takeFailure().has_value());
+}
+
+#endif  // _WIN32
+
 }  // namespace
 }  // namespace sen::components::term

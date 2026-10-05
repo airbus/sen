@@ -1,0 +1,11 @@
+# A selection with no source. The component has to name the query it cannot read and refuse to
+# start, rather than ending the process with a crash report over a typo.
+load:
+  - name: influx
+    group: 4
+    protocol: udp
+    telegrafAddress: 127.0.0.1
+    telegrafPort: 18088
+    samplingPeriod: 20ms
+    selections:
+      - SELECT *

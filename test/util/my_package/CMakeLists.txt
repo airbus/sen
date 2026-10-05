@@ -28,14 +28,43 @@ add_sen_package(
 set_target_properties(my_package PROPERTIES FOLDER "examples/basic")
 
 # smoke tests
-add_sen_run_smoke_test(my_package_abstract_smoke CONFIG_FILE config/my_package_abstract.yaml WILL_FAIL)
-add_sen_run_smoke_test(my_package_smoke CONFIG_FILE config/my_package.yaml)
-add_sen_run_smoke_test(my_package_shell_smoke CONFIG_FILE config/my_package_with_shell.yaml)
-add_sen_run_smoke_test(my_package_rshell_smoke CONFIG_FILE config/my_package_remote_shell.yaml)
-add_sen_run_smoke_test(my_package_vtime_smoke CONFIG_FILE config/my_package_virtual_time.yaml)
-add_sen_run_smoke_test(my_package_log_smoke CONFIG_FILE config/my_package_with_log.yaml)
-add_sen_run_smoke_test(my_package_fast NO_START_STOP CONFIG_FILE config/my_package_fast.yaml)
-add_sen_run_smoke_test(my_package_monitoring NO_START_STOP CONFIG_FILE config/my_package_monitored.yaml)
+add_sen_run_smoke_test(
+  my_package_abstract_smoke DESCRIPTION "Refuses a configuration that names an abstract class as a component."
+  CONFIG_FILE config/my_package_abstract.yaml WILL_FAIL
+)
+add_sen_run_smoke_test(
+  my_package_smoke DESCRIPTION "Starts and stops the example package." CONFIG_FILE config/my_package.yaml
+)
+add_sen_run_smoke_test(
+  my_package_shell_smoke DESCRIPTION "Starts and stops the example package with the shell component."
+  CONFIG_FILE config/my_package_with_shell.yaml
+)
+add_sen_run_smoke_test(
+  my_package_rshell_smoke DESCRIPTION "Starts and stops the example package with a remote shell."
+  CONFIG_FILE config/my_package_remote_shell.yaml
+)
+add_sen_run_smoke_test(
+  my_package_vtime_smoke DESCRIPTION "Starts and stops the example package under virtual time."
+  CONFIG_FILE config/my_package_virtual_time.yaml
+)
+add_sen_run_smoke_test(
+  my_package_log_smoke DESCRIPTION "Starts and stops the example package with logging configured."
+  CONFIG_FILE config/my_package_with_log.yaml
+)
+add_sen_run_smoke_test(
+  my_package_fast
+  DESCRIPTION
+  "Runs the example package in virtual time until it ends on its own."
+  NO_START_STOP
+  CONFIG_FILE config/my_package_fast.yaml
+)
+add_sen_run_smoke_test(
+  my_package_monitoring
+  DESCRIPTION
+  "Runs a monitored component until it ends on its own, within a 20 second bound."
+  NO_START_STOP
+  CONFIG_FILE config/my_package_monitored.yaml
+)
 
 # This one polls monitoring from a component thread while the kernel stops, which deadlocks if a
 # reader waits on the lock the shutdown holds across joining those threads, and a deadlock hangs
@@ -46,5 +75,8 @@ set_tests_properties(my_package_monitoring PROPERTIES TIMEOUT 20)
 
 # TODO: SEN-1298 investigate and fix the crash on Windows
 if(NOT WIN32)
-  add_sen_run_smoke_test(my_package_exception CONFIG_FILE config/my_package_exception.yaml WILL_FAIL)
+  add_sen_run_smoke_test(
+    my_package_exception DESCRIPTION "Fails the run when a component throws."
+    CONFIG_FILE config/my_package_exception.yaml WILL_FAIL
+  )
 endif()

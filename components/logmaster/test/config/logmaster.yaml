@@ -1,0 +1,6 @@
+# $schema: ../../../../schemas/logmaster.json
+# The configuration from docs/components/logmaster.md, with nothing added: both fields have defaults,
+# so this is the shape a user writes first.
+load:
+  - name: logmaster
+    group: 4

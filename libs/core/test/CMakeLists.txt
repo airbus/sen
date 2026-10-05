@@ -70,6 +70,7 @@ set(io_tests
 set(lang_tests
     lang/parser_test.cpp
     lang/compiler_test.cpp
+    lang/vm_test.cpp
     lang/stl_resolver_test.cpp
     lang/stl_token_test.cpp
 )

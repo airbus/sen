@@ -13,6 +13,7 @@
 
 // std
 #include <cstdint>
+#include <ostream>
 #include <tuple>
 
 using sen::std_util::cmp_equal;
@@ -31,6 +32,30 @@ struct ComparisonResultSpec
   bool shouldCompareLessEqual;
   bool shouldCompareGreaterEqual;
 };
+
+// Without this gtest writes the parameter as a hex dump of its bytes, and ctest takes that dump as
+// the test name. The relations that hold are what the case is about, so they are what it is named by.
+// The name is the one gtest looks up, so it cannot follow the naming rule.
+// NOLINTNEXTLINE(readability-identifier-naming)
+void PrintTo(const ComparisonResultSpec& spec, std::ostream* out)
+{
+  const char* separator = "";
+  const auto show = [out, &separator](bool held, const char* name)
+  {
+    if (held)
+    {
+      *out << separator << name;
+      separator = "|";
+    }
+  };
+
+  show(spec.shouldCompareEqual, "eq");
+  show(spec.shouldCompareNotEqual, "ne");
+  show(spec.shouldCompareLess, "lt");
+  show(spec.shouldCompareGreater, "gt");
+  show(spec.shouldCompareLessEqual, "le");
+  show(spec.shouldCompareGreaterEqual, "ge");
+}
 
 template <typename T1, typename T2>
 struct IntegerCompareTestSuiteBase: public testing::TestWithParam<std::tuple<T1, T2, ComparisonResultSpec>>

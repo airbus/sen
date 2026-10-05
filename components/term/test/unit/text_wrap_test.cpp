@@ -137,4 +137,25 @@ TEST(TextWrap, ANonPositiveWidthIsTreatedAsOne)
 }
 
 }  // namespace
+/// @test
+/// With the cursor near the start, the window shows the beginning and hides the tail.
+TEST(VisibleLines, CursorNearTheStartShowsTheBeginning)
+{
+  auto window = visibleLines(10, 1, 5);
+  ASSERT_FALSE(window.indices.empty());
+  EXPECT_EQ(window.indices.front(), 0) << "the first line is hidden with the cursor on the second";
+  EXPECT_LE(window.indices.size(), 5U);
+}
+
+/// @test
+/// A total of no lines still answers with one. The function's own comment calls this unreachable
+/// from wrapToWidth, which always returns a line; it is here because a caller that got it wrong
+/// should be given a prompt to draw rather than nothing, and that is worth holding to.
+TEST(VisibleLines, NoLinesAtAllStillAnswersWithOne)
+{
+  auto window = visibleLines(0, 0, 5);
+  ASSERT_EQ(window.indices.size(), 1U);
+  EXPECT_EQ(window.indices.front(), 0);
+}
+
 }  // namespace sen::components::term

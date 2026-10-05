@@ -960,5 +960,73 @@ TEST(CompleterContext, MultipleSpacesBetweenTokens)
   EXPECT_TRUE(hasCandidate(result, "local"));
 }
 
+//--------------------------------------------------------------------------------------------------------------
+// Query completion: SELECT <Type> FROM <bus> WHERE ...
+//--------------------------------------------------------------------------------------------------------------
+
+/// @test
+/// A named query is followed by SELECT, which is the only thing that can come next.
+TEST(CompleterQuery, ANamedQueryIsFollowedBySelect)
+{
+  Completer c;
+  auto result = c.complete("query myq ", 10);
+  EXPECT_TRUE(hasCandidate(result, "SELECT"));
+}
+
+/// @test
+/// After SELECT, a star stands for any type. The completer offers it whether or not it knows of
+/// any types, because a query over everything is the one a user writes without reading the STL.
+TEST(CompleterQuery, SelectOffersTheAnyTypeStar)
+{
+  Completer c;
+  auto result = c.complete("query myq SELECT ", 17);
+  EXPECT_TRUE(hasCandidate(result, "*"));
+}
+
+/// @test
+/// After FROM, a star stands for any bus. Reaching this means the keyword scan saw SELECT and then
+/// FROM and moved on: the same prefix with only SELECT behind it offers types instead.
+TEST(CompleterQuery, FromOffersTheAnyBusStar)
+{
+  Completer c;
+  auto result = c.complete("query myq SELECT * FROM ", 24);
+  EXPECT_TRUE(hasCandidate(result, "*"));
+}
+
+/// @test
+/// Past WHERE the completer stops. The predicate is an expression over property names and values,
+/// which it has no way to anticipate, and offering a bus or a type there would be worse than
+/// offering nothing.
+TEST(CompleterQuery, PastWhereNothingIsOffered)
+{
+  Completer c;
+  auto result = c.complete("query myq SELECT * FROM demo WHERE ", 35);
+  EXPECT_TRUE(result.candidates.empty());
+}
+
+/// @test
+/// The keyword scan reads the tokens that are complete, not the one being typed, so a half-typed
+/// FROM still leaves the completer in the state SELECT put it in.
+TEST(CompleterQuery, AHalfTypedKeywordDoesNotChangeTheState)
+{
+  Completer c;
+  auto result = c.complete("query myq SELECT * FRO", 22);
+  // Still the SELECT state: FRO is the prefix being completed, not a keyword behind the cursor.
+  EXPECT_FALSE(hasCandidate(result, "*")) << "a star is not a completion of 'FRO'";
+}
+
+/// @test
+/// `inspect` takes an object and not a command, so the command names that share the namespace are
+/// taken back out of what it offers.
+TEST(CompleterInspect, InspectOffersObjectsAndNotCommands)
+{
+  Completer c;
+  auto result = c.complete("inspect ", 8);
+  for (const auto& candidate: result.candidates)
+  {
+    EXPECT_NE(candidate.kind, CompletionKind::command) << "inspect offered the command " << candidate.text;
+  }
+}
+
 }  // namespace
 }  // namespace sen::components::term

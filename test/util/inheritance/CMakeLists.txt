@@ -25,4 +25,7 @@ add_sen_package(
 
 set_target_properties(inheritance PROPERTIES FOLDER "examples/basic")
 
-add_sen_run_smoke_test(inheritance_smoke CONFIG_FILE config/inheritance.yaml)
+add_sen_run_smoke_test(
+  inheritance_smoke DESCRIPTION "Starts and stops a component whose published types inherit from one another."
+  CONFIG_FILE config/inheritance.yaml
+)

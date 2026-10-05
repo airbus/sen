@@ -18,6 +18,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 from term_runner import (
+    ARROW_DOWN,
     ARROW_RIGHT,
     ARROW_UP,
     CTRL_D,
@@ -363,6 +364,111 @@ class TestTermSession(unittest.TestCase):
         self.assertNotIn("is not a recognized command", screen, f"'{command}' was not recognised:\n{screen[-800:]}")
         self.assertIn(needle, screen, f"'{command}' did not answer as expected:\n{screen[-1200:]}")
 
+    def test_a_command_from_another_shell_is_answered_with_a_hint(self) -> None:
+        """Typing a command from bash or Windows gets the Sen equivalent, not "not recognized".
+
+        The table carries these so a newcomer's reflexes land somewhere useful. Nothing ran any of
+        them, so the whole branch that answers them was untested.
+        """
+        for command, needle in (
+            ("dir", "Use 'ls'"),
+            ("cls", "Use 'clear'"),
+            ("ll", "Use 'ls'"),
+            ("vim", "read-on"),
+            ("sudo", "does not bow"),
+            ("rm", "No destruction"),
+            ("git", "Not a git shell"),
+            ("hello", "Type 'help' to get started"),
+        ):
+            self._run_and_expect(command, needle)
+
+    def test_cd_refuses_what_it_cannot_reach_and_says_why(self) -> None:
+        """Each refusal names what was wrong, so the next thing to type is obvious.
+
+        Four branches: a name with a space in it, a session nobody opened, a bare name, which is
+        read as a session and so lands on the same refusal, and a query that does not exist.
+
+        The query one is why this test exists. `cd @nosuchquery` used to be accepted, and the
+        prompt changed to a query that was not there, because the check written for it sat behind
+        a condition it could never satisfy.
+        """
+        self._run_and_expect("cd a b", "names cannot contain spaces")
+        self._run_and_expect("cd nosuchsession.nosuchbus", "not found. Use 'open' first")
+        self._run_and_expect("cd nosuchtarget", "not found. Use 'open' first")
+        self._run_and_expect("cd @nosuchquery", "No query named 'nosuchquery'")
+
+    def test_log_level_takes_a_logger_and_refuses_what_it_cannot_set(self) -> None:
+        """Setting one logger's level has three answers, and only one of them is success.
+
+        `log level <logger> <level>` is the per-logger form. The suite already covers the global
+        one; this reaches the branch that names a logger, and both of its refusals.
+        """
+        self._run_and_expect("log level kernel debug", "level set to debug")
+        self._run_and_expect("log level kernel nosuchlevel", "is not a valid log level")
+        self._run_and_expect("log level nosuchlogger debug", "No logger named 'nosuchlogger'")
+
+    def test_print_shows_every_property_of_an_object(self) -> None:
+        """Print is the command that dumps an object's state, and nothing had ever run it.
+
+        Three properties of different shapes, so this fails if print stops at the first or skips
+        the ones that need their own rendering.
+        """
+        self.term.forget()
+        self.term.send_command("local.demo.showcase.print", settle=2.0)
+        screen = self.term.screen()
+        for prop in ("ticks", "temperature", "status"):
+            self.assertIn(prop, screen, f"print did not show '{prop}':\n{screen[-1200:]}")
+
+    def test_help_describes_one_command_and_refuses_one_it_has_not(self) -> None:
+        """`help <command>` is a different branch from `help`, and nothing had taken it.
+
+        Three shapes: print, which carries its own hand-written entry; a command whose entry comes
+        from the table; and a name that is in neither.
+        """
+        self._run_and_expect("help print", "Display all property values")
+        self._run_and_expect("help listen", "Usage:")
+        self._run_and_expect("help nosuchcommand", "Unknown command 'nosuchcommand'")
+
+    def test_completing_a_path_offers_what_comes_after_it(self) -> None:
+        """A candidate that continues a path re-completes, so the next segment is one Tab away.
+
+        Accepting `local.` and then having to type the rest by hand would make completion useless
+        exactly where the names are longest. The suite completes a leaf; this completes a prefix.
+        """
+        self.term.forget()
+        self.term.type_text("cd local.dem")
+        self.term.send_keys(TAB, settle=1.5)
+        after_first = self.term.screen()
+
+        self.assertIn("local.demo", after_first, f"the prefix did not complete:\n{after_first[-800:]}")
+
+        # A second Tab, on the line the first one built, has to offer what lives under it.
+        self.term.send_keys(TAB, settle=1.5)
+        self.term.send_keys(b"\r", settle=2.0)
+        screen = self.term.screen()
+
+        self.assertNotIn("is not a recognized command", screen, f"the completed line did not run:\n{screen[-900:]}")
+
+    def test_a_command_that_needs_an_argument_shows_its_usage(self) -> None:
+        """Typing a command bare is how a user asks what it takes, and each one has to answer.
+
+        Every one of these is a separate branch, and none of them had run: the suite always gave
+        these commands something to do.
+        """
+        self._run_and_expect("open", "Usage: open <session.bus>")
+        self._run_and_expect("close", "Usage: close")
+        self._run_and_expect("query", "Usage: query <name> <SELECT...>")
+        self._run_and_expect("query rm", "Usage: query rm <name>")
+        self._run_and_expect("log level", "Usage: log level <level>")
+
+    def test_query_rm_reports_a_query_it_cannot_find(self) -> None:
+        """Removing a query that is not there is a mistake worth naming, not a no-op.
+
+        `close` on a bus that was never open is the opposite: it answers nothing at all, so the
+        branch that would report it is unreachable from the command line.
+        """
+        self._run_and_expect("query rm nosuchquery", "Remove Failed")
+
     def test_status_reports_the_running_components(self) -> None:
         """`status` reaches the kernel's component table."""
         self._run_and_expect("status", "showcaseComponent")
@@ -379,10 +485,63 @@ class TestTermSession(unittest.TestCase):
         self._run_and_expect("query rm probes", "removed")
 
     def test_listen_listeners_and_unlisten(self) -> None:
-        """A listener's whole life, on an event the showcase really emits."""
-        self._run_and_expect("listen showcase.tick", "showcase.tick")
-        self._run_and_expect("listeners", "showcase.tick")
-        self._run_and_expect("unlisten showcase", "showcase")
+        """A listener's whole life, on an event the showcase really emits.
+
+        Every assertion here names text only the attaching path prints. The earlier version of this
+        test asked for `showcase.tick` and got "'showcase.tick' is not here yet": a bare name does not
+        resolve from the root scope, the command registered a deferred listener instead, and the needle
+        was satisfied by that message and by the echo of the typed line alike.
+        """
+        self._run_and_expect("listen local.demo.showcase.tick", "Listening to 'local.demo.showcase.tick'.")
+        self._run_and_expect("listeners", "Active listeners:")
+        self._run_and_expect("unlisten local.demo.showcase.tick", "Stopped listening to 'local.demo.showcase.tick'.")
+        self._run_and_expect("listeners", "No active listeners.")
+
+    def test_a_listened_event_arrives_in_the_output(self) -> None:
+        """The point of listening: the event itself, not the confirmation that we asked for it.
+
+        Cleared and forgotten after the confirmation, because the term repaints its whole output pane
+        and the confirmation would otherwise satisfy this on every frame.
+        """
+        self._run_and_expect("listen local.demo.showcase.tick", "Listening to 'local.demo.showcase.tick'.")
+        self.term.send_command("clear")
+        self.term.forget()
+
+        self.assertTrue(
+            self.term.wait_for("local.demo.showcase", timeout=8.0),
+            f"no tick arrived after listening. Screen:\n{self.term.screen()[-1200:]}",
+        )
+        self.assertIn("tick", self.term.screen())
+
+    def test_listening_to_a_whole_object_takes_every_event(self) -> None:
+        """Naming an object rather than an event listens to all of them, and says how many."""
+        self._run_and_expect("listen local.demo.showcase", "Listening to 4 events on 'local.demo.showcase'.")
+        self._run_and_expect("listen local.demo.showcase", "Already listening to all events")
+        self._run_and_expect("unlisten all", "Cleared 4 listeners.")
+        self._run_and_expect("listeners", "No active listeners.")
+
+    def test_listening_twice_to_one_event_is_refused_politely(self) -> None:
+        """The second ask says so rather than adding a second listener."""
+        self._run_and_expect("listen local.demo.showcase.tick", "Listening to 'local.demo.showcase.tick'.")
+        self._run_and_expect("listen local.demo.showcase.tick", "Already listening to 'local.demo.showcase.tick'.")
+
+    def test_listen_reports_an_event_that_does_not_exist(self) -> None:
+        """A name that splits into a real object and an unreal event."""
+        self._run_and_expect("listen local.demo.showcase.nosuchevent", "Unknown Event")
+
+    def test_listen_on_an_object_that_is_not_here_yet_waits_for_it(self) -> None:
+        """A name that resolves to nothing is remembered rather than refused.
+
+        This is the branch the old version of the listener test was taking by accident; it is real
+        behaviour and worth pinning deliberately.
+        """
+        self._run_and_expect("listen not.here.yet.tick", "is not here yet")
+        self._run_and_expect("listeners", "not.here.yet.tick")
+
+    def test_listen_and_unlisten_show_their_usage(self) -> None:
+        """Both refuse an empty argument with the form they take."""
+        self._run_and_expect("listen", "listen <object>[.<event>]")
+        self._run_and_expect("unlisten", "unlisten <object>.<event> | all")
 
     def test_log_reports_and_sets_a_level(self) -> None:
         """`log` reads the level and `log level` sets it, then puts it back."""
@@ -402,8 +561,52 @@ class TestTermSession(unittest.TestCase):
         self._run_and_expect("units", "velocity")
 
     def test_theme_switches_and_reports(self) -> None:
-        """`theme` answers at all: 311 lines and ten themes had no test."""
-        self._run_and_expect("theme", "theme")
+        """Switching themes, asserted on the confirmation rather than on the word "theme".
+
+        The earlier version ran `theme` with no argument and asked for "theme": that is the usage
+        error, whose text contains the word, so it passed without a theme ever being applied.
+        """
+        self._run_and_expect("theme dracula", "Theme changed to 'dracula'.")
+        self._run_and_expect("theme oneDark", "Theme changed to 'oneDark'.")
+
+    def test_theme_with_no_name_lists_the_ones_it_takes(self) -> None:
+        """The usage path names every theme, which is how a user finds one."""
+        self._run_and_expect("theme", "Available: oneDark")
+
+    def test_theme_refuses_a_name_it_does_not_know(self) -> None:
+        """An unknown name is refused by name rather than silently ignored."""
+        self._run_and_expect("theme nosuchtheme", "'nosuchtheme' is not a known theme.")
+
+    def test_inspect_shows_a_class_named_rather_than_an_instance(self) -> None:
+        """Naming a class takes a different renderer from naming one of its objects.
+
+        The suite already inspects `local.demo.showcase`, which is an instance and renders current
+        values. Naming the class renders what the class *has* — its properties, its methods and its
+        events — and that is what a user reaches for when no instance exists yet.
+        """
+        self._run_and_expect("inspect term_showcase.Worker", "statusChanged")
+        self._run_and_expect("inspect term_showcase.Worker", "Properties")
+
+    def test_inspect_shows_a_sequences_element_type(self) -> None:
+        """A sequence's content is its element type and whatever bound it carries."""
+        self._run_and_expect("inspect term_showcase.IntList", "Element type")
+
+    def test_inspect_shows_a_variant_and_an_enum(self) -> None:
+        """Two type shapes with their own rendering: a variant's alternatives, an enum's values."""
+        self._run_and_expect("inspect term_showcase.Action", "Alternatives")
+        self._run_and_expect("inspect term_showcase.Severity", "debug = 0")
+
+    def test_inspect_shows_a_quantitys_unit_and_bounds(self) -> None:
+        """A quantity carries a storage type, a unit and a range, and inspect prints all three."""
+        self._run_and_expect("inspect term_showcase.Length", "Unit: meter (m)")
+        self._run_and_expect("inspect term_showcase.Length", "Storage: u16")
+
+    def test_inspect_refuses_what_it_cannot_find(self) -> None:
+        """Both refusals: nothing to inspect, and a name that is neither object nor type."""
+        self._run_and_expect("inspect", "inspect <object | type>")
+        self._run_and_expect(
+            "inspect local.demo.nosuchobject", "'local.demo.nosuchobject' is not a known object or type."
+        )
 
     def test_clear_empties_the_output(self) -> None:
         """`clear` empties everything, which is what its help now says."""
@@ -451,6 +654,46 @@ class TestTermSession(unittest.TestCase):
         self.assertTrue(
             self.term.wait_for("moveTo", timeout=8.0),
             f"the call was never echoed:\n{self.term.screen()[-1200:]}",
+        )
+
+    def test_a_form_goes_backwards_and_takes_a_correction(self) -> None:
+        """Going back is as much a part of filling a form as going forward.
+
+        The suite already moves forward with Tab and submits. The keys that undo — the arrows in
+        both directions and a Backspace over something already typed — are the other half, and a
+        form a user cannot correct is one they have to escape and open again.
+
+        The corrected value itself is not asserted: the echo's shape is not pinned anywhere, and a
+        test that guessed at it would fail for the wrong reason. What is asserted is that the form
+        accepted the correction rather than refusing it, and that the call went out.
+        """
+        self.term.forget()
+        self.term.send_command("cd local.demo", settle=1.5)
+        self.term.forget()
+        self.term.send_command("showcase.moveTo", settle=2.5)
+        self.assertTrue(
+            self.term.wait_for("target", timeout=8.0),
+            f"the form did not open:\n{self.term.screen()[-1500:]}",
+        )
+
+        # Fill the first field, move on with the arrow rather than Tab, fill the second, then go
+        # back up to the first and correct it with a Backspace.
+        self.term.send_keys(CTRL_U, settle=0.4)
+        self.term.type_text("12", settle=0.4)
+        self.term.send_keys(ARROW_DOWN, settle=0.4)
+        self.term.send_keys(CTRL_U, settle=0.4)
+        self.term.type_text("99", settle=0.4)
+        self.term.send_keys(ARROW_UP, settle=0.4)
+        self.term.send_keys(b"\x7f", settle=0.4)
+        self.term.type_text("5", settle=0.4)
+        self.term.forget()
+        self.term.send_keys(b"\r", settle=2.5)
+
+        answer = self.term.screen()
+        self.assertNotIn("value required", answer, f"the form refused a corrected value:\n{answer[-1200:]}")
+        self.assertTrue(
+            self.term.wait_for("moveTo", timeout=8.0),
+            f"the corrected call was never echoed:\n{self.term.screen()[-1200:]}",
         )
 
     def test_escape_closes_a_form_without_calling(self) -> None:

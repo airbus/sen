@@ -17,4 +17,7 @@ add_sen_package(
 )
 sen_enable_static_analysis(publish_types_manually)
 
-add_sen_run_smoke_test(publish_types_manually CONFIG_FILE config/component.yaml)
+add_sen_run_smoke_test(
+  publish_types_manually DESCRIPTION "Starts and stops a component that publishes its types by hand."
+  CONFIG_FILE config/component.yaml
+)

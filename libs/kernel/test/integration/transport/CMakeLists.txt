@@ -52,6 +52,8 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_sen_integration_test(
   kernel_transport_test
+  DESCRIPTION
+  "Carries data between two processes over the transport."
   COMMAND
   ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/../runner.py
