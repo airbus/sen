@@ -115,6 +115,13 @@ CLI::App* setupFomInput(CLI::App& app, std::function<void(std::shared_ptr<FomArg
     ->check(CLI::ExistingDirectory)
     ->required();
 
+  fom
+    ->add_option("-e, --extensions",
+                 args->extensions,
+                 "XML files, or directories of them, adding members to types the FOM declares")
+    ->delimiter(',')
+    ->check(CLI::ExistingPath);
+
   fom->add_option("-s, --settings", args->codegenOptionsFile, "Code generation settings file")
     ->check(CLI::ExistingFile);
 

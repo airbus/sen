@@ -80,7 +80,7 @@ void setupPythonCli(CLI::App& app)
                            [](auto args)
                            {
                              const sen::lang::TypeSetContext typeSets =
-                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+                               sen::lang::parseFomDocuments(args->paths, args->extensions, args->mappingFiles, {});
 
                              sen::gen::PythonGenerator generator;
                              for (const auto& typeSet: typeSets)

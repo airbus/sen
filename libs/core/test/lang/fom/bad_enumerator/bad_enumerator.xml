@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification><name>Bad Enumerator Module</name><type>FOM</type></modelIdentification>
+    <dataTypes>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>Broken</name>
+                <representation>HLAinteger32BE</representation>
+                <semantics>Carries a value that is not a number.</semantics>
+                <enumerator><name>Fine</name><value>1</value></enumerator>
+                <enumerator><name>Nonsense</name><value>twelve</value></enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+    </dataTypes>
+</objectModel>

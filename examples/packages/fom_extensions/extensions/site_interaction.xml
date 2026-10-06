@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Adds a parameter to an interaction the RPR FOM declares. The interaction is named by nesting
+     down to it from HLAinteractionRoot, the same shape a class extension uses. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Site Interaction Extension</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>WeaponFire</name>
+                <parameter>
+                    <name>SiteAuthorizingUnit</name>
+                    <dataType>ForceIdentifierEnum8</dataType>
+                    <semantics>Which force authorized the engagement. Added by the site, not by RPR.</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+</objectModel>

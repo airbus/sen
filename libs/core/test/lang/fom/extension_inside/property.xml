@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass><name>HLAobjectRoot</name>
+            <objectClass><name>Vehicle</name>
+                <attribute>
+                    <name>Callsign</name>
+                    <dataType>Knots</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>What it is called.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

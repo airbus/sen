@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification><name>Octet Enumerator Module</name><type>FOM</type></modelIdentification>
+    <dataTypes><enumeratedDataTypes><enumeratedData><name>Small</name>
+        <representation>HLAoctet</representation><semantics>A small kind.</semantics>
+        <enumerator><name>Fits</name><value>200</value></enumerator>
+        <enumerator><name>TooBig</name><value>300</value></enumerator>
+    </enumeratedData></enumeratedDataTypes></dataTypes>
+</objectModel>

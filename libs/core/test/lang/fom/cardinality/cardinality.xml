@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification><name>Cardinality Module</name><type>FOM</type></modelIdentification>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>Metres</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A length.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>SmallCountArray</name>
+                <dataType>Metres</dataType>
+                <cardinality>8</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>A count below the cap, which bounds the sequence.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>SmallRangeArray</name>
+                <dataType>Metres</dataType>
+                <cardinality>[0..8]</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>A range below the cap, which bounds the sequence.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>HugeCountArray</name>
+                <dataType>Metres</dataType>
+                <cardinality>99999999</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>A count above the cap, which leaves the sequence unbounded.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>HugeRangeArray</name>
+                <dataType>Metres</dataType>
+                <cardinality>[0..99999999]</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>A range above the cap, which leaves the sequence unbounded.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+    </dataTypes>
+</objectModel>

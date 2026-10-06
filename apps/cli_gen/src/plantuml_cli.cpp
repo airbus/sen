@@ -105,7 +105,7 @@ void setupPlantUMLCli(CLI::App& app)
                            [umlArgs](auto args)
                            {
                              const sen::lang::TypeSetContext typeSets =
-                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+                               sen::lang::parseFomDocuments(args->paths, args->extensions, args->mappingFiles, {});
                              writeOutput(typeSets, *umlArgs);
                            });
 

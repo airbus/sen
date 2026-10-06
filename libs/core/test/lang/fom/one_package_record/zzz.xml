@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification><name>Record Z</name><type>FOM</type></modelIdentification>
+    <dataTypes>
+        <simpleDataTypes><simpleData><name>Metres</name>
+            <representation>HLAinteger32BE</representation><units>NA</units><semantics>A length.</semantics>
+        </simpleData></simpleDataTypes>
+        <fixedRecordDataTypes><fixedRecordData>
+            <name>PositionStruct</name><encoding>HLAfixedRecord</encoding><semantics>Where something is.</semantics>
+            <field><name>Y</name><dataType>Metres</dataType><semantics>A coordinate.</semantics></field>
+        </fixedRecordData></fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>

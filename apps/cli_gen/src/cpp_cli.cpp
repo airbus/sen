@@ -125,8 +125,8 @@ void setupCppCli(CLI::App& app)
                              // FOM input emits next to its sources; no basePath needed.
 
                              const auto settings = readTypeSettings(args->codegenOptionsFile);
-                             const auto typeSets =
-                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, settings);
+                             const auto typeSets = sen::lang::parseFomDocuments(
+                               args->paths, args->extensions, args->mappingFiles, settings);
 
                              for (const auto& set: typeSets)
                              {

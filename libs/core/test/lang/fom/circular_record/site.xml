@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- A record with a field of its own type, which cannot be laid out. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Circular Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Chain</name>
+                    <dataType>ChainStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>A chain.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>ChainStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>A record that names itself.</semantics>
+                <field>
+                    <name>Next</name>
+                    <dataType>ChainStruct</dataType>
+                    <semantics>The next one.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>

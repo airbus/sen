@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes><variantRecordDataTypes>
+        <variantRecordData>
+            <name>ShapeStruct</name>
+            <alternative>
+                <enumerator>Blue</enumerator>
+                <name>Line</name>
+                <dataType>PositionStruct</dataType>
+                <semantics>A different line.</semantics>
+            </alternative>
+        </variantRecordData>
+    </variantRecordDataTypes></dataTypes>
+</objectModel>
