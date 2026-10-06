@@ -41,6 +41,7 @@ namespace {{type.namespace}}
 {
   [[nodiscard]] const ::sen::Type* senExport{{type.name}}(const char* packageName);
   void make{{type.name}}(const std::string& name, const ::sen::VarMap& args, std::shared_ptr<::sen::NativeObject> &outputStorage);
+  [[nodiscard]] ::sen::ConstructionValidatorFunc getConstructionValidator{{type.name}}();
 } // {{type.namespace}}
 
 extern "C" SEN_EXPORT const ::sen::Type* {{type.typeGetterFunc}}()
@@ -51,6 +52,11 @@ extern "C" SEN_EXPORT const ::sen::Type* {{type.typeGetterFunc}}()
 extern "C" SEN_EXPORT void {{type.instanceMakerFunc}}(const std::string& name, const ::sen::VarMap& args, std::shared_ptr<::sen::NativeObject> &outputStorage)
 {
   {{type.namespace}}::make{{type.name}}(name, args, outputStorage);
+}
+
+extern "C" SEN_EXPORT ::sen::ConstructionValidatorFunc {{type.instanceMakerFunc}}ConstructionValidator()
+{
+  return {{type.namespace}}::getConstructionValidator{{type.name}}();
 }
 ## endfor
 
