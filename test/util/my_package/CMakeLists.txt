@@ -66,9 +66,9 @@ add_sen_run_smoke_test(
   CONFIG_FILE config/my_package_monitored.yaml
 )
 add_sen_run_smoke_test(
-  my_package_construction_validation_smoke
-  CONFIG_FILE
-  config/my_package_construction_validation.yaml
+  my_package_construction_validation_smoke DESCRIPTION
+  "Rejects invalid construction arguments and reports the error without calling the constructor"
+  CONFIG_FILE config/my_package_construction_validation.yaml
 )
 # This one polls monitoring from a component thread while the kernel stops, which deadlocks if a
 # reader waits on the lock the shutdown holds across joining those threads, and a deadlock hangs
