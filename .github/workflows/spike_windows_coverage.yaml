@@ -1,0 +1,163 @@
+# === spike_windows_coverage.yaml ======================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+name: Spike -- Windows coverage of an unmodified binary
+
+# THROWAWAY. Delete this file with the branch.
+#
+# Answers whether coverage of a shipped MSVC binary is possible without rebuilding it, which is
+# what a report may claim about an artefact. OpenCppCoverage reads the PDB and runs the real
+# executable, so there is no instrumented second build; the open questions are whether it follows a
+# child process, whether it sees inside a DLL loaded at run time, and what it costs.
+#
+# A minimal probe rather than Sen's suite on purpose: an MSVC build of Sen is the pipeline's long
+# pole at around forty minutes, and none of the three questions needs it. If this passes, the cost
+# figure is worth a real build; if it fails, nothing was spent finding out.
+#
+# The probe carries both halves of each control. Functions reachable only from the child, only
+# through the DLL, and not at all -- so a tool that reports everything fails here as visibly as one
+# that reports nothing.
+
+on:
+  push:
+    branches: ['spike/windows-coverage']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: "OpenCppCoverage against a child process and a runtime DLL"
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Install OpenCppCoverage
+        shell: pwsh
+        run: |
+          choco install opencppcoverage --no-progress -y
+          $exe = "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe"
+          if (-not (Test-Path $exe)) { throw "OpenCppCoverage did not install where expected" }
+          "OCC=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Write the probe
+        shell: bash
+        run: |
+          mkdir -p spike && cd spike
+          cat > probe_lib.cpp <<'EOF'
+          #include <cstdio>
+          // Reached only through LoadLibrary, which is how Sen opens a component.
+          extern "C" __declspec(dllexport) void dllOnly() { std::puts("dll function ran"); }
+          // Control: exported, never called.
+          extern "C" __declspec(dllexport) void dllNeverCalled() { std::puts("must not appear"); }
+          EOF
+          cat > probe.cpp <<'EOF'
+          #include <windows.h>
+          #include <cstdio>
+          #include <cstring>
+
+          void parentOnly() { std::puts("parent ran"); }
+          void childOnly() { std::puts("child ran"); }
+          void neverCalled() { std::puts("must not appear"); }
+
+          int main(int argc, char** argv)
+          {
+            if (argc > 1 && std::strcmp(argv[1], "child") == 0)
+            {
+              childOnly();
+              return 0;
+            }
+            char self[MAX_PATH];
+            GetModuleFileNameA(nullptr, self, MAX_PATH);
+            char cmd[MAX_PATH + 16];
+            std::snprintf(cmd, sizeof cmd, "\"%s\" child", self);
+            STARTUPINFOA si {};
+            si.cb = sizeof si;
+            PROCESS_INFORMATION pi {};
+            if (CreateProcessA(nullptr, cmd, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
+            {
+              WaitForSingleObject(pi.hProcess, INFINITE);
+              CloseHandle(pi.hProcess);
+              CloseHandle(pi.hThread);
+            }
+            parentOnly();
+            HMODULE lib = LoadLibraryA("probe_lib.dll");
+            if (lib != nullptr)
+            {
+              auto fn = reinterpret_cast<void (*)()>(GetProcAddress(lib, "dllOnly"));
+              if (fn != nullptr) { fn(); }
+            }
+            return 0;
+          }
+          EOF
+          echo "probe written"
+
+      - name: Build it with MSVC, with debug information and no optimisation
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set VS=%%i
+          call "%VS%\VC\Auxiliary\Build\vcvars64.bat"
+          cd spike
+          cl /nologo /Zi /Od /LD probe_lib.cpp /link /DEBUG
+          cl /nologo /Zi /Od probe.cpp /link /DEBUG
+          dir
+
+      - name: Run it uncovered, to show the probe itself works
+        shell: cmd
+        working-directory: spike
+        run: probe.exe
+
+      # Two runs on purpose. OpenCppCoverage does not follow children unless asked, so the pair
+      # shows both that the flag is needed and that it works -- one run could not distinguish
+      # "follows children" from "the child never ran".
+      - name: Measure, without and with child coverage
+        shell: pwsh
+        working-directory: spike
+        run: |
+          $src = (Get-Location).Path
+          $t0 = Get-Date
+          & $env:OCC --sources $src --export_type cobertura:nochild.xml -- .\probe.exe
+          $t1 = Get-Date
+          & $env:OCC --cover_children --sources $src --export_type cobertura:withchild.xml -- .\probe.exe
+          $t2 = Get-Date
+          "no-children run: {0:n1}s" -f ($t1 - $t0).TotalSeconds
+          "with-children run: {0:n1}s" -f ($t2 - $t1).TotalSeconds
+
+      - name: Read the verdict out of the reports
+        shell: bash
+        working-directory: spike
+        run: |
+          python - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          sources = {p: open(p).read().split("\n") for p in ("probe.cpp", "probe_lib.cpp")}
+          for report in ("nochild.xml", "withchild.xml"):
+              print(f"--- {report} ---")
+              root = ET.parse(report).getroot()
+              for cls in root.iter("class"):
+                  name = (cls.get("filename") or "").replace("\\", "/").split("/")[-1]
+                  if name not in sources:
+                      continue
+                  for line in cls.iter("line"):
+                      n, hits = int(line.get("number")), line.get("hits")
+                      text = sources[name][n - 1].strip() if n - 1 < len(sources[name]) else ""
+                      for marker in ("parentOnly()", "childOnly()", "neverCalled()", "dllOnly()", "dllNeverCalled()"):
+                          if text.startswith("void " + marker) or text.startswith('extern "C" __declspec(dllexport) void ' + marker):
+                              print(f"  {'COVERED ' if hits != '0' else 'not hit '} {marker}")
+          print()
+          print("expected: parentOnly and dllOnly covered in both; childOnly only with --cover_children;")
+          print("          neverCalled and dllNeverCalled never covered in either.")
+          PY
+
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: windows-coverage-spike
+          if-no-files-found: error
+          path: spike/*.xml
