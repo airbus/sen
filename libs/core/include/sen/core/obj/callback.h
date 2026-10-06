@@ -18,6 +18,7 @@
 
 // std
 #include "detail/work_queue.h"
+#include "sen/core/obj/callback_dispatch_scope.h"
 
 #include <exception>
 #include <functional>
@@ -190,6 +191,8 @@ public:
 
     if (SEN_LIKELY(impl::CallbackLock::isCallbackDataValid(data)))
     {
+      const impl::CallbackDispatchScope dispatchScope;
+
       std::holds_alternative<Function>(func_) ? std::get<Function>(func_)(args...)
                                               : std::get<FunctionWithCallInfo>(func_)(info, args...);
     }

@@ -7,6 +7,7 @@
 
 add_sen_unit_test_suite(
   kernel_test
+  bus/local_participant_callback_test.cpp
   bus/remote_interest_handler_test.cpp
   build_provenance_test.cpp
   env_substitution_test.cpp
@@ -51,7 +52,7 @@ target_include_directories(
   PRIVATE ${spdlog_SOURCE_DIR}/include
 )
 
-target_link_libraries(kernel_test PRIVATE concurrentqueue::concurrentqueue)
+target_link_libraries(kernel_test PRIVATE concurrentqueue::concurrentqueue xenium::xenium)
 
 set_target_properties(
   kernel_test PROPERTIES FOLDER "test" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"

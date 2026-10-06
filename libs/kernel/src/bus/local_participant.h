@@ -56,6 +56,9 @@ class SessionManager;
 class RemoteParticipant;
 class Session;
 
+constexpr std::string_view errorAddFromCallback = "LocalParticipant::add called from callback";
+constexpr std::string_view errorRemoveFromCallback = "LocalParticipant::remove called from callback";
+
 /// A local participant of a bus. There can be multiple LocalParticipants in the same component.
 class LocalParticipant: public Participant, public ObjectSource, public std::enable_shared_from_this<LocalParticipant>
 {

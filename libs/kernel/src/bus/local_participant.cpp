@@ -23,6 +23,7 @@
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
+#include "sen/core/obj/callback_dispatch_scope.h"
 #include "sen/core/obj/detail/event_buffer.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/interest.h"
@@ -142,6 +143,11 @@ BusAddress LocalParticipant::getBusAddress() const noexcept
 
 bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 {
+  if (sen::impl::isInsideCallbackDispatch())
+  {
+    getLogger().error(errorAddFromCallback);
+  }
+
   std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
   if (tornDown_)
   {
@@ -221,6 +227,11 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 
 void LocalParticipant::remove(const Span<std::shared_ptr<NativeObject>>& instances)
 {
+  if (sen::impl::isInsideCallbackDispatch())
+  {
+    getLogger().error(errorRemoveFromCallback);
+  }
+
   std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
   if (tornDown_)
   {

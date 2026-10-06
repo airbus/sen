@@ -107,6 +107,7 @@ set(obj_sources
     src/obj/callback.cpp
     src/obj/object_list.cpp
     src/obj/subscription.cpp
+    src/obj/callback_dispatch_scope.cpp
 )
 
 # -------------------------------------------------------------------------------------------------------------
