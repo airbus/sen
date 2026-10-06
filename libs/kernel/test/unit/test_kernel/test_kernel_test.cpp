@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
+#include <future>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -64,6 +65,21 @@ void runKernelStepAndDestroy(sen::kernel::TestComponent& component)
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
 }
+
+/// A component that runs its own cycle instead of calling execLoop, as a bridge to a system with
+/// its own clock does. Real-time only, so the kernel leaves it out of the set it advances. The
+/// kernel waits only for a component that is inside execLoop.
+class SelfDrivenComponent: public sen::kernel::TestComponent
+{
+public:
+  SEN_NOCOPY_NOMOVE(SelfDrivenComponent)
+
+public:
+  SelfDrivenComponent() = default;
+  ~SelfDrivenComponent() override = default;
+
+  [[nodiscard]] bool isRealTimeOnly() const noexcept override { return true; }
+};
 
 //--------------------------------------------------------------------------------------------------------------
 // Tests
@@ -258,6 +274,128 @@ TEST(TestKernel, repeatedNames)
 
   sen::kernel::TestKernel kernel(&component);
   kernel.step();
+}
+
+/// @test
+/// A component driving its own cycle can stamp what it sends with the time its data came from
+/// instead of the kernel's, which is what a bridge to a system with its own clock needs.
+TEST(TestKernel, commitStampsTheObjectsWithTheTimeGiven)
+{
+  const sen::TimeStamp originTime {sen::Duration {std::chrono::seconds {1234}}};
+
+  auto object = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  SelfDrivenComponent component;
+  std::shared_ptr<sen::ObjectSource> source;
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source = api.getSource("local.test");
+      source->add(object);
+      return sen::kernel::done();
+    });
+
+  // The cycle a component runs for itself, as the python binding does. With no execLoop nothing
+  // commits after this, so this stamp is the one subscribers receive.
+  std::promise<void> cycleRan;
+  auto cycleDone = cycleRan.get_future();
+  sen::TimeStamp senTime;
+  component.onRun(
+    [&](auto& api)
+    {
+      api.drainInputs();
+      api.update();
+      object->setNextProp(object->getProp() + 1);
+      senTime = api.getTime();
+      api.commit(originTime);
+      cycleRan.set_value();
+      return sen::kernel::done();
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+
+  // The component has its own thread and the kernel does not step it, so wait for its cycle and
+  // not for a step. The wait is bounded so a regression fails here instead of hanging the suite.
+  ASSERT_EQ(std::future_status::ready, cycleDone.wait_for(std::chrono::seconds {10}));
+
+  EXPECT_EQ(object->getLastCommitTime(), originTime);
+
+  // The kernel kept its own time while the component tagged its data.
+  EXPECT_NE(senTime, originTime);
+}
+
+/// @test
+/// commit() with no argument stamps the kernel's time, so a component that does not ask for the
+/// overload sees no change.
+TEST(TestKernel, commitWithoutATimeStampsTheKernelsOwn)
+{
+  auto object = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  SelfDrivenComponent component;
+  std::shared_ptr<sen::ObjectSource> source;
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source = api.getSource("local.test");
+      source->add(object);
+      return sen::kernel::done();
+    });
+
+  std::promise<void> cycleRan;
+  auto cycleDone = cycleRan.get_future();
+  sen::TimeStamp senTime;
+  component.onRun(
+    [&](auto& api)
+    {
+      api.drainInputs();
+      api.update();
+      object->setNextProp(object->getProp() + 1);
+      senTime = api.getTime();
+      api.commit();
+      cycleRan.set_value();
+      return sen::kernel::done();
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+  ASSERT_EQ(std::future_status::ready, cycleDone.wait_for(std::chrono::seconds {10}));
+
+  EXPECT_EQ(object->getLastCommitTime(), senTime);
+}
+
+/// @test
+/// execLoop commits at the end of every cycle, so a stamp given inside its work function is
+/// replaced by the kernel's. The overload is for a component that runs its own cycle.
+TEST(TestKernel, execLoopReplacesAStampGivenInsideIt)
+{
+  const sen::TimeStamp originTime {sen::Duration {std::chrono::seconds {1234}}};
+
+  auto object = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  sen::kernel::TestComponent component;
+  std::shared_ptr<sen::ObjectSource> source;
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source = api.getSource("local.test");
+      source->add(object);
+      return sen::kernel::done();
+    });
+
+  component.onRun(
+    [&](auto& api)
+    {
+      return api.execLoop(std::chrono::seconds(1),
+                          [&]()
+                          {
+                            object->setNextProp(object->getProp() + 1);
+                            api.commit(originTime);
+                          });
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+  kernel.step();
+
+  EXPECT_NE(object->getLastCommitTime(), originTime);
 }
 
 /// @test
