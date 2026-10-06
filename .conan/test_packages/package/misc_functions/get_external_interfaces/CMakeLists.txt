@@ -33,6 +33,7 @@ set_target_properties(
              STL_FILES "${original_base_path}/stl/first.stl"
              HLA_FOM_DIRS "${original_base_path}/hla"
              HLA_MAPPINGS "${original_base_path}/hla/mapping.xml"
+             HLA_EXTENSIONS "${original_base_path}/extensions/extension.xml"
 )
 
 get_external_interfaces(
@@ -46,3 +47,6 @@ assert_installed_path(cmake_external_interfaces INSTALL_BASE_PATH "${install_dir
 assert_installed_path(cmake_external_interfaces INSTALL_STL_FILES "${install_dir}/interfaces/stl/first.stl")
 assert_installed_path(cmake_external_interfaces INSTALL_HLA_FOM_DIRS "${install_dir}/hla")
 assert_installed_path(cmake_external_interfaces INSTALL_HLA_MAPPINGS "${install_dir}/hla/mapping.xml")
+assert_installed_path(
+  cmake_external_interfaces INSTALL_HLA_EXTENSIONS "${install_dir}/extensions/extension.xml"
+)

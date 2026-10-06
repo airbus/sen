@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes><enumeratedDataTypes>
+        <enumeratedData>
+            <name>Colour</name>
+            <enumerator><name>Red</name><value>99</value></enumerator>
+        </enumeratedData>
+    </enumeratedDataTypes></dataTypes>
+</objectModel>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- A FOM naming a standard later than the one the reader expects. The namespace here stands in for
+     whatever a later standard uses; the reader has no list of other versions, it reports the one it
+     found. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2025">
+    <modelIdentification>
+        <name>Later Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Speed</name>
+                    <dataType>HLAinteger32BE</dataType>
+                    <semantics>How fast it goes.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

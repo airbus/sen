@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Depends on the provider by the name the provider gives itself. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Consumer Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+        <reference>
+            <type>Dependency</type>
+            <identification>Provider Module</identification>
+        </reference>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Station</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A station.</semantics>
+                <attribute>
+                    <name>Operator</name>
+                    <dataType>StationTag</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Who is at it.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+        </interactionClass>
+    </interactions>
+</objectModel>

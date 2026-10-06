@@ -8,7 +8,7 @@
 #include "sen/core/lang/stl_resolver.h"
 
 // implementation
-#include "fom_document_set.h"
+#include "fom_documents.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -1187,14 +1187,14 @@ const TypeSet* readFomFile(const std::filesystem::path& originalFileName,
     }
   }
 
-  FomDocumentSet fomDocumentSet(fomPaths, fomMappingFiles, settings);
-  auto typeSets = fomDocumentSet.computeTypeSets();
+  fom::FomDocuments documents(fomPaths, std::vector<std::filesystem::path> {}, fomMappingFiles, settings);
+  auto typeSets = documents.takeTypeSets();
 
   // find the set
   const TypeSet* result {nullptr};
-  for (auto& [document, set]: typeSets)
+  for (auto& [path, set]: typeSets)
   {
-    if (document->filePath == absoluteFileName)
+    if (path == absoluteFileName)
     {
       result = set.get();
       break;
@@ -1210,10 +1210,11 @@ const TypeSet* readFomFile(const std::filesystem::path& originalFileName,
   }
 
   // store the types in the global context for future reuse
-  globalContext.append(std::move(fomDocumentSet).getRootTypeSet());
+  globalContext.append(std::move(documents).takeRootTypeSet());
 
-  for (auto& [doc, set]: typeSets)
+  for (auto& [path, set]: typeSets)
   {
+    std::ignore = path;
     globalContext.append(std::move(set));
   }
 

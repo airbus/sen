@@ -27,6 +27,17 @@ class FomParser
 
 public:
   /// Stores the tokens for eventual parsing.
+  ///
+  /// \param paths directories of FOM modules, each directory giving its name to a package
+  /// \param extensions files, or directories of them, that add members to types the modules
+  ///        declare. An extension owns no type and generates no file of its own.
+  FomParser(const std::vector<std::filesystem::path>& paths,
+            const std::vector<std::filesystem::path>& extensions,
+            const std::vector<std::filesystem::path>& mappings,
+            const TypeSettings& settings);
+
+  /// The same without extensions. Kept so that a binary compiled against 0.7.0 still resolves
+  /// this constructor when only the shared library is replaced.
   FomParser(const std::vector<std::filesystem::path>& paths,
             const std::vector<std::filesystem::path>& mappings,
             const TypeSettings& settings);
@@ -50,11 +61,20 @@ private:
 };
 
 inline TypeSetContext parseFomDocuments(const std::vector<std::filesystem::path>& paths,
+                                        const std::vector<std::filesystem::path>& extensions,
                                         const std::vector<std::filesystem::path>& mappings,
                                         const TypeSettings& settings)
 {
-  sen::lang::FomParser documents(paths, mappings, settings);
+  sen::lang::FomParser documents(paths, extensions, mappings, settings);
   return std::move(documents).convertToCompleteTypeSetContext();
+}
+
+/// The same without extensions, for a caller written against 0.7.0.
+inline TypeSetContext parseFomDocuments(const std::vector<std::filesystem::path>& paths,
+                                        const std::vector<std::filesystem::path>& mappings,
+                                        const TypeSettings& settings)
+{
+  return parseFomDocuments(paths, {}, mappings, settings);
 }
 
 /// @}

@@ -57,6 +57,10 @@ include_guard()
 #     HLA mapping files that customise FOM-to-code translation.
 #     Requires HLA_FOM_DIRS.
 #
+#   [HLA_EXTENSIONS_FILE <files...>]
+#     XML files, or directories of them, that add members to types the FOM declares.
+#     Requires HLA_FOM_DIRS.
+#
 #   [VISIBLE_CLASSES <YES|NO>]
 #     Whether generated class symbols are exported with public visibility.
 #     Defaults to NO. Set to YES when the generated headers must be consumed
@@ -75,7 +79,12 @@ function(sen_generate_code)
       HLA_OUTPUT_DIR
       VISIBLE_CLASSES
   )
-  set(_multi_value_args STL_FILES HLA_FOM_DIRS HLA_MAPPINGS_FILE)
+  set(_multi_value_args
+      STL_FILES
+      HLA_FOM_DIRS
+      HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
+  )
 
   cmake_parse_arguments(
     _arg
@@ -103,6 +112,12 @@ function(sen_generate_code)
   if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
     message(
       FATAL_ERROR "  sen_generate_code: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified"
+    )
+  endif()
+
+  if(_arg_HLA_EXTENSIONS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(
+      FATAL_ERROR "  sen_generate_code: HLA_EXTENSIONS_FILE is defined, but no HLA_FOM_DIRS were specified"
     )
   endif()
 
@@ -438,13 +453,38 @@ function(sen_generate_code)
 
     endif()
 
+    set(_extensions_opt)
+    if(_arg_HLA_EXTENSIONS_FILE)
+      set(_abs_extensions)
+
+      foreach(_extensions_file ${_arg_HLA_EXTENSIONS_FILE})
+        get_filename_component(_abs_extensions_file ${_extensions_file} ABSOLUTE)
+        list(APPEND _xml_files ${_abs_extensions_file})
+        list(APPEND _abs_extensions ${_abs_extensions_file})
+      endforeach()
+
+      list(
+        JOIN
+        _abs_extensions
+        ","
+        _all_extensions
+      )
+      set(_extensions_opt "--extensions=${_all_extensions}")
+      set_property(
+        TARGET ${_arg_TARGET}
+        APPEND
+        PROPERTY HLA_EXTENSIONS ${_abs_extensions}
+      )
+
+    endif()
+
     target_sources(${_arg_TARGET} PRIVATE ${_xml_files})
 
     add_custom_command(
       OUTPUT ${_fom_generated_files}
       COMMAND_EXPAND_LISTS VERBATIM
       COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} fom ${_settings_file_option} ${_mapping_opt}
-              --directories=${_abs_fom_dirs}
+              ${_extensions_opt} --directories=${_abs_fom_dirs}
       DEPENDS sen::cli_gen ${_xml_files} ${_abs_settings_path}
       WORKING_DIRECTORY ${_output_dir}
       COMMENT "Generating sen code for ${_arg_HLA_FOM_DIRS} in ${_output_dir}"
@@ -454,8 +494,8 @@ function(sen_generate_code)
       add_custom_command(
         OUTPUT ${_arg_SCHEMA_FILE}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen json ${_schema_type} fom ${_mapping_opt} --directories=${_abs_fom_dirs}
-                ${_extra_options} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
+        COMMAND sen::cli_gen json ${_schema_type} fom ${_mapping_opt} ${_extensions_opt}
+                --directories=${_abs_fom_dirs} ${_extra_options} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
         DEPENDS sen::cli_gen ${_xml_files}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_HLA_FOM_DIRS} in ${_arg_SCHEMA_FILE}"
@@ -490,6 +530,7 @@ function(sen_generate_code)
     BASE_PATH
     STL_FILES
     HLA_MAPPINGS
+    HLA_EXTENSIONS
     HLA_FOM_DIRS
     SEN_IMPORT_DIRS
     SEN_EXPORTS_TYPES
@@ -508,7 +549,12 @@ endfunction()
 function(sen_generate_interface_package)
 
   set(_one_value_args TARGET BASE_PATH)
-  set(_multi_value_args STL_FILES HLA_FOM_DIRS HLA_MAPPINGS_FILE)
+  set(_multi_value_args
+      STL_FILES
+      HLA_FOM_DIRS
+      HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
+  )
 
   cmake_parse_arguments(
     _arg
@@ -540,6 +586,13 @@ function(sen_generate_interface_package)
     message(
       FATAL_ERROR
         "  sen_generate_interface_package: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified"
+    )
+  endif()
+
+  if(_arg_HLA_EXTENSIONS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(
+      FATAL_ERROR
+        "  sen_generate_interface_package: HLA_EXTENSIONS_FILE is defined, but no HLA_FOM_DIRS were specified"
     )
   endif()
 
@@ -607,6 +660,20 @@ function(sen_generate_interface_package)
         PROPERTY HLA_MAPPINGS ${_abs_mappings}
       )
     endif()
+
+    if(_arg_HLA_EXTENSIONS_FILE)
+      set(_abs_extensions)
+      foreach(_extensions_file ${_arg_HLA_EXTENSIONS_FILE})
+        get_filename_component(_abs_extensions_file ${_extensions_file} ABSOLUTE)
+        list(APPEND _abs_extensions ${_abs_extensions_file})
+      endforeach()
+
+      set_property(
+        TARGET ${_arg_TARGET}
+        APPEND
+        PROPERTY HLA_EXTENSIONS ${_abs_extensions}
+      )
+    endif()
   endif()
 
 endfunction()
@@ -646,6 +713,10 @@ endmacro()
 #   [HLA_MAPPINGS_FILE <files...>]
 #     HLA mapping files forwarded to the diagram generator. Requires HLA_FOM_DIRS.
 #
+#   [HLA_EXTENSIONS_FILE <files...>]
+#     XML files, or directories of them, that add members to types the FOM declares.
+#     Requires HLA_FOM_DIRS.
+#
 #   [CLASSES_ONLY]
 #     Include only class and interface definitions in the diagram.
 #     Omits primitive types, structs, and enumerations.
@@ -661,7 +732,12 @@ function(sen_generate_uml)
 
   set(_options CLASSES_ONLY TYPES_ONLY TYPES_ONLY_NO_ENUMS)
   set(_one_value_args TARGET BASE_PATH OUT)
-  set(_multi_value_args STL_FILES HLA_FOM_DIRS HLA_MAPPINGS_FILE)
+  set(_multi_value_args
+      STL_FILES
+      HLA_FOM_DIRS
+      HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
+  )
 
   cmake_parse_arguments(
     _arg
@@ -685,6 +761,10 @@ function(sen_generate_uml)
 
   if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
     message(FATAL_ERROR "sen_generate_uml: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified")
+  endif()
+
+  if(_arg_HLA_EXTENSIONS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(FATAL_ERROR "sen_generate_uml: HLA_EXTENSIONS_FILE is defined, but no HLA_FOM_DIRS were specified")
   endif()
 
   set(_flags)
@@ -745,10 +825,27 @@ function(sen_generate_uml)
       set(_mapping_opt "--mappings=${_abs_mapping_file}")
     endif()
 
+    set(_extensions_opt)
+    if(_arg_HLA_EXTENSIONS_FILE)
+      set(_abs_extensions)
+      foreach(_extensions_file ${_arg_HLA_EXTENSIONS_FILE})
+        get_filename_component(_abs_extensions_file ${_extensions_file} ABSOLUTE)
+        list(APPEND _input_xmls ${_abs_extensions_file})
+        list(APPEND _abs_extensions ${_abs_extensions_file})
+      endforeach()
+      list(
+        JOIN
+        _abs_extensions
+        ","
+        _all_extensions
+      )
+      set(_extensions_opt "--extensions=${_all_extensions}")
+    endif()
+
     add_custom_target(
       ${_arg_TARGET}
-      COMMAND sen::cli_gen uml fom ${_mapping_opt} --directories=${_abs_fom_dirs} --output ${_arg_OUT}
-              ${_flags}
+      COMMAND sen::cli_gen uml fom ${_mapping_opt} ${_extensions_opt} --directories=${_abs_fom_dirs} --output
+              ${_arg_OUT} ${_flags}
       DEPENDS sen::cli_gen ${_input_xmls}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating plantuml diagram for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
@@ -784,6 +881,10 @@ endfunction()
 #
 #   [HLA_MAPPINGS_FILE <files...>]
 #     HLA mapping files forwarded to the generator. Requires HLA_FOM_DIRS.
+#
+#   [HLA_EXTENSIONS_FILE <files...>]
+#     XML files, or directories of them, that add members to types the FOM declares.
+#     Requires HLA_FOM_DIRS.
 function(sen_generate_html)
 
   set(_options)
@@ -793,7 +894,12 @@ function(sen_generate_html)
       OUT
       TITLE
   )
-  set(_multi_value_args STL_FILES HLA_FOM_DIRS HLA_MAPPINGS_FILE)
+  set(_multi_value_args
+      STL_FILES
+      HLA_FOM_DIRS
+      HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
+  )
 
   cmake_parse_arguments(
     _arg
@@ -817,6 +923,12 @@ function(sen_generate_html)
 
   if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
     message(FATAL_ERROR "sen_generate_html: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified")
+  endif()
+
+  if(_arg_HLA_EXTENSIONS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(
+      FATAL_ERROR "sen_generate_html: HLA_EXTENSIONS_FILE is defined, but no HLA_FOM_DIRS were specified"
+    )
   endif()
 
   set(_title_opt)
@@ -874,10 +986,27 @@ function(sen_generate_html)
       set(_mapping_opt "--mappings=${_abs_mapping_file}")
     endif()
 
+    set(_extensions_opt)
+    if(_arg_HLA_EXTENSIONS_FILE)
+      set(_abs_extensions)
+      foreach(_extensions_file ${_arg_HLA_EXTENSIONS_FILE})
+        get_filename_component(_abs_extensions_file ${_extensions_file} ABSOLUTE)
+        list(APPEND _input_xmls ${_abs_extensions_file})
+        list(APPEND _abs_extensions ${_abs_extensions_file})
+      endforeach()
+      list(
+        JOIN
+        _abs_extensions
+        ","
+        _all_extensions
+      )
+      set(_extensions_opt "--extensions=${_all_extensions}")
+    endif()
+
     add_custom_target(
       ${_arg_TARGET}
-      COMMAND sen::cli_gen html fom ${_mapping_opt} --directories=${_abs_fom_dirs} --output ${_arg_OUT}
-              ${_title_opt}
+      COMMAND sen::cli_gen html fom ${_mapping_opt} ${_extensions_opt} --directories=${_abs_fom_dirs} --output
+              ${_arg_OUT} ${_title_opt}
       DEPENDS sen::cli_gen ${_input_xmls}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating html reference for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
@@ -931,6 +1060,10 @@ endfunction()
 #
 #   [HLA_MAPPINGS_FILE <files...>]
 #     HLA mapping files forwarded to the generator. Requires HLA_FOM_DIRS.
+#
+#   [HLA_EXTENSIONS_FILE <files...>]
+#     XML files, or directories of them, that add members to types the FOM declares.
+#     Requires HLA_FOM_DIRS.
 function(sen_generate_typst)
 
   set(_options PDF)
@@ -948,6 +1081,7 @@ function(sen_generate_typst)
       STL_FILES
       HLA_FOM_DIRS
       HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
       IMPORT_PATHS
   )
 
@@ -973,6 +1107,12 @@ function(sen_generate_typst)
 
   if(_arg_HLA_MAPPINGS_FILE AND NOT _arg_HLA_FOM_DIRS)
     message(FATAL_ERROR "sen_generate_typst: HLA_MAPPINGS_FILE is defined, but no HLA_FOM_DIRS were specified")
+  endif()
+
+  if(_arg_HLA_EXTENSIONS_FILE AND NOT _arg_HLA_FOM_DIRS)
+    message(
+      FATAL_ERROR "sen_generate_typst: HLA_EXTENSIONS_FILE is defined, but no HLA_FOM_DIRS were specified"
+    )
   endif()
 
   set(_opts)
@@ -1075,10 +1215,27 @@ function(sen_generate_typst)
       set(_mapping_opt "--mappings=${_abs_mapping_file}")
     endif()
 
+    set(_extensions_opt)
+    if(_arg_HLA_EXTENSIONS_FILE)
+      set(_abs_extensions)
+      foreach(_extensions_file ${_arg_HLA_EXTENSIONS_FILE})
+        get_filename_component(_abs_extensions_file ${_extensions_file} ABSOLUTE)
+        list(APPEND _input_xmls ${_abs_extensions_file})
+        list(APPEND _abs_extensions ${_abs_extensions_file})
+      endforeach()
+      list(
+        JOIN
+        _abs_extensions
+        ","
+        _all_extensions
+      )
+      set(_extensions_opt "--extensions=${_all_extensions}")
+    endif()
+
     add_custom_target(
       ${_arg_TARGET}
-      COMMAND sen::cli_gen typst fom ${_mapping_opt} --directories=${_abs_fom_dirs} --output ${_arg_OUT}
-              ${_opts}
+      COMMAND sen::cli_gen typst fom ${_mapping_opt} ${_extensions_opt} --directories=${_abs_fom_dirs} --output
+              ${_arg_OUT} ${_opts}
       DEPENDS sen::cli_gen ${_input_xmls}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating typst reference for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"

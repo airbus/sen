@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes><enumeratedDataTypes>
+        <enumeratedData>
+            <name>Colour</name>
+            <representation>HLAoctet</representation>
+            <enumerator><name>Blue</name><value>2</value></enumerator>
+        </enumeratedData>
+    </enumeratedDataTypes></dataTypes>
+</objectModel>

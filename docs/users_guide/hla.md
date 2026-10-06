@@ -428,6 +428,26 @@ example:
 </class>
 ```
 
+The struct takes the interaction's name, `rpr::MunitionDetonation` here, and holds the parameters
+left after the ignores. Sen also generates a struct with **every** parameter the interaction
+declares, because a FOM's interaction is a type in its own right; where a mapping packs and ignores
+at once, that one takes a `Full` suffix, `rpr::MunitionDetonationFull`. An interaction no mapping
+packs has one struct under its own name and no suffixed twin.
+
+!!! note "`<ignore>` and `pack` together: a behaviour change"
+
+    `<ignore>` used to have no effect on a **packed** callable. The complete struct and the packed
+    one were both looked up by the interaction's name, so whichever was built first won, and that
+    was the complete one; the ignored parameters stayed in the payload. They are now left out,
+    which is what the mapping asked for, and the struct holding all of them is the one that took a
+    new name rather than the one your code names. If you pack and ignore together, check whether
+    any code of yours reads a parameter it asked to drop.
+
+    `<ignore>` without `pack` is unaffected: those parameters were, and are, simply left out of the
+    argument list.
+
+    The changelog names the release this lands in.
+
 **Optionals.**
 
 There's no formal support for truly optional values in HLA. However, the Sen code generator treats
@@ -438,6 +458,185 @@ one of the following:
 - "Optional ("
 - "Optional:"
 - "Optional,"
+
+## Adding members to a published FOM
+
+A FOM you did not write is a FOM you cannot edit. When a project needs one more attribute on
+`PhysicalEntity`, the usual answer is a subclass, which puts the attribute on a different class
+from the one everybody else publishes and subscribes to. Extensions are the other answer: an extra
+XML file that adds the attribute to `PhysicalEntity` itself, leaving the published module untouched.
+
+You pass those files with `HLA_EXTENSIONS_FILE`, beside the FOM directories:
+
+```cmake
+add_sen_package(
+  TARGET site_model
+  HLA_FOM_DIRS hla/rpr hla/netn
+  HLA_EXTENSIONS_FILE extensions/site_physical_entity.xml
+  NO_SCHEMA
+)
+```
+
+and on the command line with `--extensions`, which takes files or directories of them:
+
+```text
+cli_gen cpp fom --directories=hla/rpr --extensions=extensions/site_physical_entity.xml
+```
+
+An extension is an object model like any module, carrying only what it adds. It can sit beside the
+modules or anywhere else; a file named as an extension is never also read as a module. To add an attribute to
+`BaseEntity.PhysicalEntity`, nest the object classes down to it and put the attribute on the
+innermost one:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>BaseEntity</name>
+                <objectClass>
+                    <name>PhysicalEntity</name>
+                    <attribute>
+                        <name>SiteTrackNumber</name>
+                        <dataType>Integer32</dataType>
+                        <updateType>Conditional</updateType>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAreliable</transportation>
+                        <semantics>The track number this site assigns to the entity.</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>
+```
+
+Nested, not dotted: the class is identified by its path in the hierarchy, the same path a mappings
+file uses. It needs no `<modelIdentification>`, no name and no Dependency reference, and a class
+node in an extension needs no `<semantics>` — carrying a member is what makes it a contribution.
+An extension does not join the set that Dependency references resolve against, so no module can
+name it as a dependency.
+
+What can be added: an **attribute** to an object class, an **enumerator** to an enumeration, a
+**field** to a fixed record, an **alternative** to a variant record, and a **parameter** to an
+interaction class. Each goes in the element the FOM uses for it, under the type's own name:
+
+```xml
+<dataTypes>
+    <enumeratedDataTypes>
+        <enumeratedData>
+            <name>DesignatorCodeEnum16</name>
+            <enumerator>
+                <name>SiteLocalCode</name>
+                <value>60000</value>
+            </enumerator>
+        </enumeratedData>
+    </enumeratedDataTypes>
+</dataTypes>
+```
+
+### What the generated code looks like
+
+The type stays where its own module put it. A contributed attribute on `PhysicalEntity` appears in
+`rpr.PhysicalEntity`, in the file generated for `RPR-Physical_v2.0.xml`, with the same accessors,
+change notifications and serialization as the attributes the module declares. No new file appears
+and no existing one is removed. Measured on the bundled RPR modules: one contributed attribute
+changes two of the 56 generated files and nothing else.
+
+A contributed interaction parameter arrives the same way, as the last argument of the event or
+method the mapping binds that interaction to.
+
+Members are **appended**, never interleaved. That matters in one place: the generated constructor
+takes every static read-write property in FOM declaration order, so a contributed `Static`
+attribute with `PublishSubscribe` sharing adds a parameter at the end:
+
+```cpp
+PhysicalEntityBase(std::string name, EntityTypeStruct entityType,
+                   EntityIdentifierStruct entityIdentifier, EntityTypeStruct alternateEntityType,
+                   Integer32 siteCallsign);   // contributed
+```
+
+Every existing construction site then stops compiling until it passes the new argument. This is
+loud rather than silent, and within one project everybody rebuilds, but it is worth knowing before
+you choose: declare the attribute `Conditional` instead and it becomes a dynamic read-only property,
+which stays out of the constructor. Accessor names are alphabetical and so do not move.
+
+A type that only an extension declares is adopted by the module that referenced it and takes that
+module's package, because the generator emits one file per module and a file of its own would have
+to import the module that uses it and be imported by it.
+
+### When several modules declare one type
+
+A type named by more than one module is one type, holding the union of what they declare. This is
+how HLA 4 defines merging over a set of modules, and Sen uses its two words for the two roles: the
+declaration carrying `<semantics>` is the **complete definition** and every other is an
+**extension** of it.
+
+The complete definition decides the package. If `rpr/RPR-Physical_v2.0.xml` defines
+`BaseEntity.PhysicalEntity` and a module in another directory adds an attribute to it, there is one
+`rpr.PhysicalEntity` carrying both, and the adding module generates no class of its own. Which
+declaration is the complete definition does not depend on the order the files are read, so the same
+directories give the same model on every machine; a directory is read in name order for the same
+reason.
+
+This matters most for what it stops being silent about. A module that declared part of a type and
+carried no semantics used to have its members dropped, and nothing said so.
+
+### What is refused
+
+A member declared twice has to agree. Two declarations of one attribute with different types, modes
+or transports are a contradiction rather than a merge, and generation stops naming both files:
+
+```text
+property 'camouflageType' of 'PhysicalEntity' is declared twice and the two do not agree:
+'.../RPR-Physical_v2.0.xml' and '.../site_physical_entity.xml'
+```
+
+An exact repeat is kept once instead. The same holds for the type's own header: a record's
+`<include>`, an enumeration's `<representation>`, a variant's `<discriminant>`. A file whose root
+is not an object model is refused, naming the file. A contribution to a class no module declares is
+dropped, because a contribution adds to a definition and there is none to add to.
+
+### On the wire, and in your source
+
+A property, an enumerator and a record field are identified by name — a hash of it for a property,
+the written value for an enumerator — so adding one does not renumber the others, and a participant
+that does not know it ignores it under the default `relaxed` compatibility. **A variant alternative
+is not**: its discriminant is the position it was read in, so a contributed alternative takes the
+next key and the order the extension files are given decides which. Give them in a fixed order, and
+treat a contributed alternative as a change every participant has to take together. It is also not
+free in **C++ source**, for the constructor reason above.
+[Run-time compatibility](compatibility_conversions.md) covers what a participant without the
+extension does with a message that carries it.
+
+### An example
+
+`examples/packages/fom_extensions` adds one member of each kind to types the bundled RPR FOM
+declares, one file per kind: a property on `BaseEntity.PhysicalEntity`, an enumerator on
+`DesignatorCodeEnum16`, a field on `UniformGeomRecStruct`, and an alternative on
+`GridAxisTypeVariantStruct`. The files sit in the example's own directory, not in
+`examples/packages/hla_fom/rpr`, which stays exactly as published.
+
+```cmake title="examples/packages/fom_extensions/CMakeLists.txt"
+--8<-- "examples/packages/fom_extensions/CMakeLists.txt:uml"
+```
+
+Build `fom_extensions_uml` and the diagram shows the contributed members on the published classes.
+The target is on demand rather than part of the default build.
+
+No package is generated from it, which is deliberate: a second package over the same FOM directory
+would produce a second, different `rpr` model, and two components claiming one class with different
+members is the clash `libs/kernel/test/integration/type_clash` exists to catch. That extensions
+reach generated C++ is held elsewhere — by the parser's own tests, and by
+`test/util/fom_extension`, a file that names an accessor from the module and one from the extension
+and so does not compile if a contributed attribute went missing.
+
+Extensions are a stopgap for what IEEE 1516-2025 (HLA 4) calls extended FOM module merging, using
+the same vocabulary: a complete definition owns the type, and an extension adds to it. When Sen
+reads HLA 4 modules directly, an extension becomes an ordinary module and the separate input goes
+away; what an extension file says will not have to change.
 
 ## Customizing the generated code
 
@@ -515,8 +714,24 @@ Sen generates no encoder or decoder, and does not need to. Encoding is a wire co
 whatever is on the wire: an adapter or gateway does it against the FOM, using the encoding helpers
 its RTI provides.
 
-Currently, Sen expects the element layout of the IEEE 1516.2-2010 DIF. Only files with an `.xml`
-extension are processed.
+Sen reads the IEEE 1516.2-2010 DIF, and only that one. A FOM is recognized by the namespace on its
+`objectModel` element, so a file declaring a different one is refused by name rather than read into
+a model missing most of what it declares:
+
+```text
+'site.xml' is not a FOM Sen can read: it declares
+'http://standards.ieee.org/IEEE1516-2025'. Sen reads the IEEE 1516.2-2010 DIF,
+'http://standards.ieee.org/IEEE1516-2010'
+```
+
+The namespace found is quoted back rather than matched against a list, so a FOM from a standard
+later than this page knows about still gets a message naming the version it carries. A file with no
+namespace at all, which is the shape standards before 2010 used, is refused the same way. The
+namespace must be the element's default: Sen does not resolve a prefix, and a `hla:objectModel` is
+refused for that rather than silently skipped.
+
+Only files with an `.xml` extension are processed. HLA 4's own module merging is not read yet;
+[adding members to a published FOM](#adding-members-to-a-published-fom) is the stopgap for it.
 
 These are **not supported yet**: `ownership`, `order`, `updateCondition` and `dimensions`. A FOM
 declaring `DivestAcquire` on an attribute imports cleanly and that declaration is currently dropped,

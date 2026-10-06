@@ -1,0 +1,6 @@
+<!-- Names an interaction no module declares, so the mapping cannot be applied. -->
+<senMapping>
+    <class name="Vehicle">
+        <method hlaInteraction="Transaction.NoSuchTransaction"/>
+    </class>
+</senMapping>
