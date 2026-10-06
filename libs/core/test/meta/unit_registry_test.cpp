@@ -20,7 +20,6 @@
 using sen::Unit;
 using sen::UnitCategory;
 using sen::UnitRegistry;
-using sen::UnitSpec;
 
 namespace
 {
