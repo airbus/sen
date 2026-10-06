@@ -361,7 +361,7 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga569ce99f551ca24057515ee353756526" id="r_ga569ce99f551ca24057515ee353756526"><td class="memItemLeft"><a class="el" href="classsen_1_1lang_1_1_type_set_context.html">TypeSetContext</a>&#160;</td><td class="memItemRight"><a class="el" href="#ga569ce99f551ca24057515ee353756526">sen::lang::parseFomDocuments</a> (const std::vector&lt; std::filesystem::path &gt; &amp;paths, const std::vector&lt; std::filesystem::path &gt; &amp;mappings, const <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> &amp;settings)</td></tr>
+<tr class="memitem:gafb48dfc603a31ef4999586b8e979c200" id="r_gafb48dfc603a31ef4999586b8e979c200"><td class="memItemLeft"><a class="el" href="classsen_1_1lang_1_1_type_set_context.html">TypeSetContext</a>&#160;</td><td class="memItemRight"><a class="el" href="#gafb48dfc603a31ef4999586b8e979c200">sen::lang::parseFomDocuments</a> (const std::vector&lt; std::filesystem::path &gt; &amp;paths, const std::vector&lt; std::filesystem::path &gt; &amp;extensions, const std::vector&lt; std::filesystem::path &gt; &amp;mappings, const <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> &amp;settings)</td></tr>
 <tr class="memitem:gae0d63c4e041503eb3ec72d8ff2512032" id="r_gae0d63c4e041503eb3ec72d8ff2512032"><td class="memItemLeft">const <a class="el" href="#structsen_1_1lang_1_1_type_set">TypeSet</a> *&#160;</td><td class="memItemRight"><a class="el" href="#gae0d63c4e041503eb3ec72d8ff2512032">sen::lang::readTypesFile</a> (const std::filesystem::path &amp;fileName, const std::vector&lt; std::filesystem::path &gt; &amp;includePaths, <a class="el" href="classsen_1_1lang_1_1_type_set_context.html">TypeSetContext</a> &amp;globalTypeSetContext, const <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> &amp;settings, std::string_view from={})</td></tr>
 <tr class="memdesc:gae0d63c4e041503eb3ec72d8ff2512032"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to use the resolver.  <br /></td></tr>
 <tr class="memitem:gabb35b56e81d8cbb3473b0fcbfddb2643" id="r_gabb35b56e81d8cbb3473b0fcbfddb2643"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#gabb35b56e81d8cbb3473b0fcbfddb2643">sen::lang::computePackagePrefix</a> (const std::vector&lt; std::string &gt; &amp;path)</td></tr>
@@ -2074,8 +2074,8 @@ condition</td>
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
-<a id="ga569ce99f551ca24057515ee353756526" name="ga569ce99f551ca24057515ee353756526"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga569ce99f551ca24057515ee353756526">&#9670;&#160;</a></span>parseFomDocuments()</h2>
+<a id="gafb48dfc603a31ef4999586b8e979c200" name="gafb48dfc603a31ef4999586b8e979c200"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafb48dfc603a31ef4999586b8e979c200">&#9670;&#160;</a></span>parseFomDocuments()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2087,6 +2087,11 @@ condition</td>
           <td class="memname"><a class="el" href="classsen_1_1lang_1_1_type_set_context.html">TypeSetContext</a> sen::lang::parseFomDocuments </td>
           <td>(</td>
           <td class="paramtype">const std::vector&lt; std::filesystem::path &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>paths</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::filesystem::path &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>extensions</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

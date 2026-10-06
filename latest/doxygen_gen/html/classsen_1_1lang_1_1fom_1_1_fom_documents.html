@@ -10,7 +10,7 @@
     <meta property="og:title" content="Sen" />
     <meta property="og:description" content="Sen API Documentation." />
     <!-- END opengraph metadata -->
-    <title>Sen API: sen::lang::FomDocumentSet Class Reference</title>
+    <title>Sen API: sen::lang::fom::FomDocuments Class Reference</title>
     <link href="tabs.css" rel="stylesheet" type="text/css"/>
     <link rel="icon" type="image/svg+xml" href="logo.drawio.svg">
     <script type="text/javascript" src="jquery.js"></script>
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 </div>
 <script type="text/javascript">
-document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1lang_1_1_fom_document_set.html','','classsen_1_1lang_1_1_fom_document_set-members'); });
+document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1lang_1_1fom_1_1_fom_documents.html','','classsen_1_1lang_1_1fom_1_1_fom_documents-members'); });
 </script>
 <div id="container">
 <div id="doc-content">
@@ -131,53 +131,43 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('classsen_1_1la
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">sen::lang::FomDocumentSet Class Reference</div></div>
+  <div class="headertitle"><div class="title">sen::lang::fom::FomDocuments Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="fom__document__set_8h_source.html">fom_document_set.h</a>&gt;</code></p>
+<p>Reads every document, indexes what each one declares, then builds the types. A type is built on first reference, from every declaration of it rather than only the first, which is what lets a file beside the FOM add members to it.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="fom__documents_8h_source.html">fom_documents.h</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:a804a6303ae7918c30b5d551735e0db04" id="r_a804a6303ae7918c30b5d551735e0db04"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a804a6303ae7918c30b5d551735e0db04">DocStorageList</a> = std::vector&lt;std::unique_ptr&lt;<a class="el" href="namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document">FomDocument</a>&gt;&gt;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa1b8d28d3c19f8744120f1c7a814ec8e" id="r_aa1b8d28d3c19f8744120f1c7a814ec8e"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#aa1b8d28d3c19f8744120f1c7a814ec8e">FomDocumentSet</a> (const std::vector&lt; std::filesystem::path &gt; &amp;paths, const std::vector&lt; std::filesystem::path &gt; &amp;mappings, <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> settings)</td></tr>
-<tr class="memitem:a2061e402ba94096b161197337bb6d78a" id="r_a2061e402ba94096b161197337bb6d78a"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a2061e402ba94096b161197337bb6d78a">~FomDocumentSet</a> ()=default</td></tr>
-<tr class="memitem:a8429105aa3b357dce2ca766b7f10fb95" id="r_a8429105aa3b357dce2ca766b7f10fb95"><td class="memItemLeft">std::map&lt; const <a class="el" href="namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document">FomDocument</a> *, std::unique_ptr&lt; <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">lang::TypeSet</a> &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a8429105aa3b357dce2ca766b7f10fb95">computeTypeSets</a> () const</td></tr>
-<tr class="memitem:abfde385a53eaaf13196ddff0c0be491b" id="r_abfde385a53eaaf13196ddff0c0be491b"><td class="memItemLeft">const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">lang::TypeSet</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#abfde385a53eaaf13196ddff0c0be491b">getRootTypeSet</a> () const &amp;noexcept</td></tr>
-<tr class="memitem:a010b5be57783f5836784a92569684484" id="r_a010b5be57783f5836784a92569684484"><td class="memItemLeft">std::unique_ptr&lt; <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">lang::TypeSet</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a010b5be57783f5836784a92569684484">getRootTypeSet</a> () &amp;&amp;noexcept</td></tr>
+<tr class="memitem:ad9a03bddf9a818f099b6edbc499016e6" id="r_ad9a03bddf9a818f099b6edbc499016e6"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#ad9a03bddf9a818f099b6edbc499016e6">FomDocuments</a> (const std::vector&lt; std::filesystem::path &gt; &amp;paths, const std::vector&lt; std::filesystem::path &gt; &amp;extensions, const std::vector&lt; std::filesystem::path &gt; &amp;mappings, <a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a> settings)</td></tr>
+<tr class="memitem:ad75205aa056ad308fdec071d96e8ccf7" id="r_ad75205aa056ad308fdec071d96e8ccf7"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#ad75205aa056ad308fdec071d96e8ccf7">~FomDocuments</a> ()=default</td></tr>
+<tr class="memitem:ae5c7f0970a841ec3350363bc0c17b7a3" id="r_ae5c7f0970a841ec3350363bc0c17b7a3"><td class="memItemLeft">std::vector&lt; <a class="el" href="namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_document_type_set">DocumentTypeSet</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ae5c7f0970a841ec3350363bc0c17b7a3">takeTypeSets</a> ()</td></tr>
+<tr class="memdesc:ae5c7f0970a841ec3350363bc0c17b7a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">One set per document, in the order the documents were read, which follows the directories given on the command line. An extension gets none: it owns no type.  <br /></td></tr>
+<tr class="memitem:ab94f5882e591969a0c4bfc6a237d303a" id="r_ab94f5882e591969a0c4bfc6a237d303a"><td class="memItemLeft">const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">TypeSet</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ab94f5882e591969a0c4bfc6a237d303a">rootTypeSet</a> () const &amp;noexcept</td></tr>
+<tr class="memitem:a0085e1fda9a62738a3281ce96f53a09c" id="r_a0085e1fda9a62738a3281ce96f53a09c"><td class="memItemLeft">std::unique_ptr&lt; <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">TypeSet</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a0085e1fda9a62738a3281ce96f53a09c">takeRootTypeSet</a> () &amp;&amp;</td></tr>
+<tr class="memdesc:a0085e1fda9a62738a3281ce96f53a09c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hands over the root set, which leaves this reader without one. Rvalue-qualified so a second call is a compile error rather than a null dereference.  <br /></td></tr>
 </table>
-<a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Member Typedef Documentation</h2>
-<a id="a804a6303ae7918c30b5d551735e0db04" name="a804a6303ae7918c30b5d551735e0db04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a804a6303ae7918c30b5d551735e0db04">&#9670;&#160;</a></span>DocStorageList</h2>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Reads every document, indexes what each one declares, then builds the types. A type is built on first reference, from every declaration of it rather than only the first, which is what lets a file beside the FOM add members to it. </p>
+</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ad9a03bddf9a818f099b6edbc499016e6" name="ad9a03bddf9a818f099b6edbc499016e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9a03bddf9a818f099b6edbc499016e6">&#9670;&#160;</a></span>FomDocuments()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="#a804a6303ae7918c30b5d551735e0db04">sen::lang::FomDocumentSet::DocStorageList</a> = std::vector&lt;std::unique_ptr&lt;<a class="el" href="namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document">FomDocument</a>&gt;&gt;</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="aa1b8d28d3c19f8744120f1c7a814ec8e" name="aa1b8d28d3c19f8744120f1c7a814ec8e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa1b8d28d3c19f8744120f1c7a814ec8e">&#9670;&#160;</a></span>FomDocumentSet()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">sen::lang::FomDocumentSet::FomDocumentSet </td>
+          <td class="memname">sen::lang::fom::FomDocuments::FomDocuments </td>
           <td>(</td>
           <td class="paramtype">const std::vector&lt; std::filesystem::path &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>paths</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::filesystem::path &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>extensions</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -190,17 +180,12 @@ Public Member Functions</h2></td></tr>
           <td class="paramtype"><a class="el" href="structsen_1_1lang_1_1_type_settings.html">TypeSettings</a></td>          <td class="paramname"><span class="paramname"><em>settings</em></span>&#160;)</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel explicit">explicit</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a2061e402ba94096b161197337bb6d78a" name="a2061e402ba94096b161197337bb6d78a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2061e402ba94096b161197337bb6d78a">&#9670;&#160;</a></span>~FomDocumentSet()</h2>
+<a id="ad75205aa056ad308fdec071d96e8ccf7" name="ad75205aa056ad308fdec071d96e8ccf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad75205aa056ad308fdec071d96e8ccf7">&#9670;&#160;</a></span>~FomDocuments()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -209,7 +194,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">sen::lang::FomDocumentSet::~FomDocumentSet </td>
+          <td class="memname">sen::lang::fom::FomDocuments::~FomDocuments </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td></td>
@@ -225,8 +210,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
-<a id="a8429105aa3b357dce2ca766b7f10fb95" name="a8429105aa3b357dce2ca766b7f10fb95"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8429105aa3b357dce2ca766b7f10fb95">&#9670;&#160;</a></span>computeTypeSets()</h2>
+<a id="ae5c7f0970a841ec3350363bc0c17b7a3" name="ae5c7f0970a841ec3350363bc0c17b7a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5c7f0970a841ec3350363bc0c17b7a3">&#9670;&#160;</a></span>takeTypeSets()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -235,10 +220,10 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::map&lt; const <a class="el" href="namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document">FomDocument</a> *, std::unique_ptr&lt; <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">lang::TypeSet</a> &gt; &gt; sen::lang::FomDocumentSet::computeTypeSets </td>
+          <td class="memname">std::vector&lt; <a class="el" href="namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_document_type_set">DocumentTypeSet</a> &gt; sen::lang::fom::FomDocuments::takeTypeSets </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -248,10 +233,12 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>One set per document, in the order the documents were read, which follows the directories given on the command line. An extension gets none: it owns no type. </p>
+
 </div>
 </div>
-<a id="abfde385a53eaaf13196ddff0c0be491b" name="abfde385a53eaaf13196ddff0c0be491b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfde385a53eaaf13196ddff0c0be491b">&#9670;&#160;</a></span>getRootTypeSet() <span class="overload">[1/2]</span></h2>
+<a id="ab94f5882e591969a0c4bfc6a237d303a" name="ab94f5882e591969a0c4bfc6a237d303a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab94f5882e591969a0c4bfc6a237d303a">&#9670;&#160;</a></span>rootTypeSet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -260,7 +247,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">lang::TypeSet</a> &amp; sen::lang::FomDocumentSet::getRootTypeSet </td>
+          <td class="memname">const <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">TypeSet</a> &amp; sen::lang::fom::FomDocuments::rootTypeSet </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const &amp;</td>
@@ -268,15 +255,15 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a010b5be57783f5836784a92569684484" name="a010b5be57783f5836784a92569684484"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a010b5be57783f5836784a92569684484">&#9670;&#160;</a></span>getRootTypeSet() <span class="overload">[2/2]</span></h2>
+<a id="a0085e1fda9a62738a3281ce96f53a09c" name="a0085e1fda9a62738a3281ce96f53a09c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0085e1fda9a62738a3281ce96f53a09c">&#9670;&#160;</a></span>takeRootTypeSet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -285,7 +272,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">lang::TypeSet</a> &gt; sen::lang::FomDocumentSet::getRootTypeSet </td>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="group__lang.html#structsen_1_1lang_1_1_type_set">TypeSet</a> &gt; sen::lang::fom::FomDocuments::takeRootTypeSet </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> &amp;&amp;</td>
@@ -293,15 +280,17 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
+<p>Hands over the root set, which leaves this reader without one. Rvalue-qualified so a second call is a compile error rather than a null dereference. </p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="fom__document__set_8h_source.html">fom_document_set.h</a></li>
+<li><a class="el" href="fom__documents_8h_source.html">fom_documents.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -316,7 +305,7 @@ Public Member Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a href="namespacesen.html">sen</a></li><li class="navelem"><a href="namespacesen_1_1lang.html">lang</a></li><li class="navelem"><a href="classsen_1_1lang_1_1_fom_document_set.html">FomDocumentSet</a></li>
+    <li class="navelem"><a href="namespacesen.html">sen</a></li><li class="navelem"><a href="namespacesen_1_1lang.html">lang</a></li><li class="navelem"><a href="namespacesen_1_1lang_1_1fom.html">fom</a></li><li class="navelem"><a href="classsen_1_1lang_1_1fom_1_1_fom_documents.html">FomDocuments</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.17.0 </li>
   </ul>
 </div>

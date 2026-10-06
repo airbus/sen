@@ -74,6 +74,8 @@ var hierarchy =
         [ "sen::util::SettableDeadReckoner< T >", "classsen_1_1util_1_1_settable_dead_reckoner.html", null ]
       ] ]
     ] ],
+    [ "sen::lang::fom::Declaration", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_declaration", null ],
+    [ "sen::lang::fom::Declarations", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_declarations", null ],
     [ "sen::db::Deletion", "classsen_1_1db_1_1_deletion.html", null ],
     [ "std::disjunction", null, [
       [ "sen::IsContained< T, MemberTypes... >", "structsen_1_1_is_contained.html", [
@@ -81,6 +83,8 @@ var hierarchy =
       ] ],
       [ "sen::IsContained< T, TypeList >", "structsen_1_1_is_contained.html", null ]
     ] ],
+    [ "sen::lang::fom::Document", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_document", null ],
+    [ "sen::lang::fom::DocumentTypeSet", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_document_type_set", null ],
     [ "sen::util::DrConfig", "group__dr.html#structsen_1_1util_1_1_dr_config", null ],
     [ "sen::util::DrThreshold", "group__dr.html#structsen_1_1util_1_1_dr_threshold", null ],
     [ "sen::db::test::DualClassSetup", "structsen_1_1db_1_1test_1_1_dual_class_setup.html", null ],
@@ -138,8 +142,7 @@ var hierarchy =
       [ "sen::std_util::detail::IsInPlaceType< T >", "structsen_1_1std__util_1_1detail_1_1_is_in_place_type.html", null ],
       [ "sen::util::impl::HasCommitTime< T, typename >", "structsen_1_1util_1_1impl_1_1_has_commit_time.html", null ]
     ] ],
-    [ "sen::lang::FomDocument", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document", null ],
-    [ "sen::lang::FomDocumentSet", "classsen_1_1lang_1_1_fom_document_set.html", null ],
+    [ "sen::lang::fom::FomDocuments", "classsen_1_1lang_1_1fom_1_1_fom_documents.html", null ],
     [ "sen::lang::FomParser", "classsen_1_1lang_1_1_fom_parser.html", null ],
     [ "sen::FullTypeVisitor", "classsen_1_1_full_type_visitor.html", [
       [ "sen::TypeVisitor", "classsen_1_1_type_visitor.html", null ]
@@ -189,6 +192,7 @@ var hierarchy =
     [ "sen::util::Location", "group__dr.html#structsen_1_1util_1_1_location", null ],
     [ "sen::util::LockedRangeAdapter&lt; LockType, IteratorType, MutexType &gt;", "classsen_1_1util_1_1_locked_range_adapter.html", null ],
     [ "sen::kernel::LoggerSinkRegistration", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration", null ],
+    [ "sen::lang::fom::MappingDocument", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_mapping_document", null ],
     [ "sen::util::Mat3&lt; T &gt;", "classsen_1_1util_1_1_mat3.html", null ],
     [ "sen::MetaTypeTrait&lt; T &gt;", "group__traits.html#structsen_1_1_meta_type_trait", null ],
     [ "sen::MetaTypeTrait&lt; Duration &gt;", "structsen_1_1_meta_type_trait_3_01_duration_01_4.html", null ],
@@ -235,7 +239,6 @@ var hierarchy =
     [ "sen::OutputStreamTemplate&lt; BufferEndian &gt;", "classsen_1_1_output_stream_template.html", null ],
     [ "sen::kernel::PackageManager", "classsen_1_1kernel_1_1_package_manager.html", null ],
     [ "sen::gen::PackageOptions", "group__gen.html#structsen_1_1gen_1_1_package_options", null ],
-    [ "sen::lang::ParsedDoc", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_parsed_doc", null ],
     [ "sen::kernel::ParticipantAddr", "group__kernel.html#structsen_1_1kernel_1_1_participant_addr", null ],
     [ "sen::kernel::KernelConfig::PipelineToLoad", "classsen_1_1kernel_1_1_kernel_config.html#structsen_1_1kernel_1_1_kernel_config_1_1_pipeline_to_load", null ],
     [ "sen::gen::PlantUMLGenerator", "classsen_1_1gen_1_1_plant_u_m_l_generator.html", null ],

@@ -8,7 +8,7 @@ var group__lang =
       [ "ReportFunc", "classsen_1_1lang_1_1_error_reporter.html#a64636aa01bfbe95905def819dd61d702", null ]
     ] ],
     [ "sen::lang::FomParser", "classsen_1_1lang_1_1_fom_parser.html", [
-      [ "FomParser", "classsen_1_1lang_1_1_fom_parser.html#a37271fb73a7d4b9ed5549af8113368ec", null ],
+      [ "FomParser", "classsen_1_1lang_1_1_fom_parser.html#a80b30b1399149acb8f49b82c31bb4fb5", null ],
       [ "~FomParser", "classsen_1_1lang_1_1_fom_parser.html#a854dff33b572bdfc19796c7406a8e7cf", null ],
       [ "computeTypeSets", "classsen_1_1lang_1_1_fom_parser.html#ad7a5e8cd6517a2a7c438b5e28f14bb9f", null ],
       [ "convertToCompleteTypeSetContext", "classsen_1_1lang_1_1_fom_parser.html#a91cda9559d60b62107475b0d8e1ea405", null ],
@@ -373,7 +373,7 @@ var group__lang =
       [ "sen::lang::opFetchVariable", "group__lang.html#gga5e453be867105964bd4d0c8a48f0d4edafb0dfd39c955c22b80e2c8ad2ec1fc57", null ],
       [ "sen::lang::opBetween", "group__lang.html#gga5e453be867105964bd4d0c8a48f0d4edac02a2d6fafcbb4be8e4e1881d34c387f", null ]
     ] ],
-    [ "sen::lang::parseFomDocuments", "group__lang.html#ga569ce99f551ca24057515ee353756526", null ],
+    [ "sen::lang::parseFomDocuments", "group__lang.html#gafb48dfc603a31ef4999586b8e979c200", null ],
     [ "sen::lang::readTypesFile", "group__lang.html#gae0d63c4e041503eb3ec72d8ff2512032", null ],
     [ "sen::lang::computePackagePrefix", "group__lang.html#gabb35b56e81d8cbb3473b0fcbfddb2643", null ],
     [ "sen::lang::toString", "group__lang.html#ga0a44153d268ffa532e1547d714ddbc1c", null ],

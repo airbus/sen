@@ -619,6 +619,64 @@
 </nav>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#adding-members-to-a-published-fom">
+<span class="md-ellipsis">
+      
+        Adding members to a published FOM
+      
+    </span>
+</a>
+<nav aria-label="Adding members to a published FOM" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-the-generated-code-looks-like">
+<span class="md-ellipsis">
+      
+        What the generated code looks like
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-several-modules-declare-one-type">
+<span class="md-ellipsis">
+      
+        When several modules declare one type
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-is-refused">
+<span class="md-ellipsis">
+      
+        What is refused
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#on-the-wire-and-in-your-source">
+<span class="md-ellipsis">
+      
+        On the wire, and in your source
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-example">
+<span class="md-ellipsis">
+      
+        An example
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#customizing-the-generated-code">
 <span class="md-ellipsis">
       
@@ -2262,6 +2320,23 @@ example:</p>
 </span><span id="__span-10-5"><a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">    </span><span class="nt">&lt;/event&gt;</span>
 </span><span id="__span-10-6"><a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="nt">&lt;/class&gt;</span>
 </span></code></pre></div>
+<p>The struct takes the interaction's name, <code>rpr::MunitionDetonation</code> here, and holds the parameters
+left after the ignores. Sen also generates a struct with <strong>every</strong> parameter the interaction
+declares, because a <abbr title="Federation Object Model">FOM</abbr>'s interaction is a type in its own right; where a mapping packs and ignores
+at once, that one takes a <code>Full</code> suffix, <code>rpr::MunitionDetonationFull</code>. An interaction no mapping
+packs has one struct under its own name and no suffixed twin.</p>
+<div class="admonition note">
+<p class="admonition-title"><code>&lt;ignore&gt;</code> and <code>pack</code> together: a behaviour change</p>
+<p><code>&lt;ignore&gt;</code> used to have no effect on a <strong>packed</strong> callable. The complete struct and the packed
+one were both looked up by the interaction's name, so whichever was built first won, and that
+was the complete one; the ignored parameters stayed in the payload. They are now left out,
+which is what the mapping asked for, and the struct holding all of them is the one that took a
+new name rather than the one your code names. If you pack and ignore together, check whether
+any code of yours reads a parameter it asked to drop.</p>
+<p><code>&lt;ignore&gt;</code> without <code>pack</code> is unaffected: those parameters were, and are, simply left out of the
+argument list.</p>
+<p>The changelog names the release this lands in.</p>
+</div>
 <p><strong>Optionals.</strong></p>
 <p>There's no formal support for truly optional values in <abbr title="High Level Architecture">HLA</abbr>. However, the Sen code generator treats
 an attribute or an interaction parameter as optional when its documentation (semantics) starts with
@@ -2272,6 +2347,156 @@ one of the following:</p>
 <li>"Optional:"</li>
 <li>"Optional,"</li>
 </ul>
+<h2 id="adding-members-to-a-published-fom">Adding members to a published <abbr title="Federation Object Model">FOM</abbr><a class="headerlink" href="#adding-members-to-a-published-fom" title="Permanent link">¶</a></h2>
+<p>A <abbr title="Federation Object Model">FOM</abbr> you did not write is a <abbr title="Federation Object Model">FOM</abbr> you cannot edit. When a project needs one more attribute on
+<code>PhysicalEntity</code>, the usual answer is a subclass, which puts the attribute on a different class
+from the one everybody else publishes and subscribes to. Extensions are the other answer: an extra
+XML file that adds the attribute to <code>PhysicalEntity</code> itself, leaving the published module untouched.</p>
+<p>You pass those files with <code>HLA_EXTENSIONS_FILE</code>, beside the <abbr title="Federation Object Model">FOM</abbr> directories:</p>
+<div class="language-cmake highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="nb">add_sen_package</span><span class="p">(</span>
+</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">site_model</span>
+</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">  </span><span class="s">HLA_FOM_DIRS</span><span class="w"> </span><span class="s">hla/rpr</span><span class="w"> </span><span class="s">hla/netn</span>
+</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">  </span><span class="s">HLA_EXTENSIONS_FILE</span><span class="w"> </span><span class="s">extensions/site_physical_entity.xml</span>
+</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">  </span><span class="s">NO_SCHEMA</span>
+</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>and on the command line with <code>--extensions</code>, which takes files or directories of them:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>cli_gen cpp fom --directories=hla/rpr --extensions=extensions/site_physical_entity.xml
+</span></code></pre></div>
+<p>An extension is an object model like any module, carrying only what it adds. It can sit beside the
+modules or anywhere else; a file named as an extension is never also read as a module. To add an attribute to
+<code>BaseEntity.PhysicalEntity</code>, nest the object classes down to it and put the attribute on the
+innermost one:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="nt">&lt;objectModel</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">"http://standards.ieee.org/IEEE1516-2010"</span><span class="nt">&gt;</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="nt">&lt;objects&gt;</span>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">        </span><span class="nt">&lt;objectClass&gt;</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">            </span><span class="nt">&lt;name&gt;</span>HLAobjectRoot<span class="nt">&lt;/name&gt;</span>
+</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">            </span><span class="nt">&lt;objectClass&gt;</span>
+</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">                </span><span class="nt">&lt;name&gt;</span>BaseEntity<span class="nt">&lt;/name&gt;</span>
+</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">                </span><span class="nt">&lt;objectClass&gt;</span>
+</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="w">                    </span><span class="nt">&lt;name&gt;</span>PhysicalEntity<span class="nt">&lt;/name&gt;</span>
+</span><span id="__span-13-10"><a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="w">                    </span><span class="nt">&lt;attribute&gt;</span>
+</span><span id="__span-13-11"><a href="#__codelineno-13-11" id="__codelineno-13-11" name="__codelineno-13-11"></a><span class="w">                        </span><span class="nt">&lt;name&gt;</span>SiteTrackNumber<span class="nt">&lt;/name&gt;</span>
+</span><span id="__span-13-12"><a href="#__codelineno-13-12" id="__codelineno-13-12" name="__codelineno-13-12"></a><span class="w">                        </span><span class="nt">&lt;dataType&gt;</span>Integer32<span class="nt">&lt;/dataType&gt;</span>
+</span><span id="__span-13-13"><a href="#__codelineno-13-13" id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="w">                        </span><span class="nt">&lt;updateType&gt;</span>Conditional<span class="nt">&lt;/updateType&gt;</span>
+</span><span id="__span-13-14"><a href="#__codelineno-13-14" id="__codelineno-13-14" name="__codelineno-13-14"></a><span class="w">                        </span><span class="nt">&lt;sharing&gt;</span>PublishSubscribe<span class="nt">&lt;/sharing&gt;</span>
+</span><span id="__span-13-15"><a href="#__codelineno-13-15" id="__codelineno-13-15" name="__codelineno-13-15"></a><span class="w">                        </span><span class="nt">&lt;transportation&gt;</span>HLAreliable<span class="nt">&lt;/transportation&gt;</span>
+</span><span id="__span-13-16"><a href="#__codelineno-13-16" id="__codelineno-13-16" name="__codelineno-13-16"></a><span class="w">                        </span><span class="nt">&lt;semantics&gt;</span>The<span class="w"> </span>track<span class="w"> </span>number<span class="w"> </span>this<span class="w"> </span>site<span class="w"> </span>assigns<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>entity.<span class="nt">&lt;/semantics&gt;</span>
+</span><span id="__span-13-17"><a href="#__codelineno-13-17" id="__codelineno-13-17" name="__codelineno-13-17"></a><span class="w">                    </span><span class="nt">&lt;/attribute&gt;</span>
+</span><span id="__span-13-18"><a href="#__codelineno-13-18" id="__codelineno-13-18" name="__codelineno-13-18"></a><span class="w">                </span><span class="nt">&lt;/objectClass&gt;</span>
+</span><span id="__span-13-19"><a href="#__codelineno-13-19" id="__codelineno-13-19" name="__codelineno-13-19"></a><span class="w">            </span><span class="nt">&lt;/objectClass&gt;</span>
+</span><span id="__span-13-20"><a href="#__codelineno-13-20" id="__codelineno-13-20" name="__codelineno-13-20"></a><span class="w">        </span><span class="nt">&lt;/objectClass&gt;</span>
+</span><span id="__span-13-21"><a href="#__codelineno-13-21" id="__codelineno-13-21" name="__codelineno-13-21"></a><span class="w">    </span><span class="nt">&lt;/objects&gt;</span>
+</span><span id="__span-13-22"><a href="#__codelineno-13-22" id="__codelineno-13-22" name="__codelineno-13-22"></a><span class="nt">&lt;/objectModel&gt;</span>
+</span></code></pre></div>
+<p>Nested, not dotted: the class is identified by its path in the hierarchy, the same path a mappings
+file uses. It needs no <code>&lt;modelIdentification&gt;</code>, no name and no Dependency reference, and a class
+node in an extension needs no <code>&lt;semantics&gt;</code> — carrying a member is what makes it a contribution.
+An extension does not join the set that Dependency references resolve against, so no module can
+name it as a dependency.</p>
+<p>What can be added: an <strong>attribute</strong> to an object class, an <strong>enumerator</strong> to an enumeration, a
+<strong>field</strong> to a fixed record, an <strong>alternative</strong> to a variant record, and a <strong>parameter</strong> to an
+interaction class. Each goes in the element the <abbr title="Federation Object Model">FOM</abbr> uses for it, under the type's own name:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="nt">&lt;dataTypes&gt;</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">    </span><span class="nt">&lt;enumeratedDataTypes&gt;</span>
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">        </span><span class="nt">&lt;enumeratedData&gt;</span>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">            </span><span class="nt">&lt;name&gt;</span>DesignatorCodeEnum16<span class="nt">&lt;/name&gt;</span>
+</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="w">            </span><span class="nt">&lt;enumerator&gt;</span>
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="w">                </span><span class="nt">&lt;name&gt;</span>SiteLocalCode<span class="nt">&lt;/name&gt;</span>
+</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">                </span><span class="nt">&lt;value&gt;</span>60000<span class="nt">&lt;/value&gt;</span>
+</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="w">            </span><span class="nt">&lt;/enumerator&gt;</span>
+</span><span id="__span-14-9"><a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="w">        </span><span class="nt">&lt;/enumeratedData&gt;</span>
+</span><span id="__span-14-10"><a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a><span class="w">    </span><span class="nt">&lt;/enumeratedDataTypes&gt;</span>
+</span><span id="__span-14-11"><a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a><span class="nt">&lt;/dataTypes&gt;</span>
+</span></code></pre></div>
+<h3 id="what-the-generated-code-looks-like">What the generated code looks like<a class="headerlink" href="#what-the-generated-code-looks-like" title="Permanent link">¶</a></h3>
+<p>The type stays where its own module put it. A contributed attribute on <code>PhysicalEntity</code> appears in
+<code>rpr.PhysicalEntity</code>, in the file generated for <code>RPR-Physical_v2.0.xml</code>, with the same accessors,
+change notifications and serialization as the attributes the module declares. No new file appears
+and no existing one is removed. Measured on the bundled <abbr title="Real-time Platform Reference">RPR</abbr> modules: one contributed attribute
+changes two of the 56 generated files and nothing else.</p>
+<p>A contributed interaction parameter arrives the same way, as the last argument of the event or
+method the mapping binds that interaction to.</p>
+<p>Members are <strong>appended</strong>, never interleaved. That matters in one place: the generated constructor
+takes every static read-write property in <abbr title="Federation Object Model">FOM</abbr> declaration order, so a contributed <code>Static</code>
+attribute with <code>PublishSubscribe</code> sharing adds a parameter at the end:</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="n">PhysicalEntityBase</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">EntityTypeStruct</span><span class="w"> </span><span class="n">entityType</span><span class="p">,</span>
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">                   </span><span class="n">EntityIdentifierStruct</span><span class="w"> </span><span class="n">entityIdentifier</span><span class="p">,</span><span class="w"> </span><span class="n">EntityTypeStruct</span><span class="w"> </span><span class="n">alternateEntityType</span><span class="p">,</span>
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">                   </span><span class="n">Integer32</span><span class="w"> </span><span class="n">siteCallsign</span><span class="p">);</span><span class="w">   </span><span class="c1">// contributed</span>
+</span></code></pre></div>
+<p>Every existing construction site then stops compiling until it passes the new argument. This is
+loud rather than silent, and within one project everybody rebuilds, but it is worth knowing before
+you choose: declare the attribute <code>Conditional</code> instead and it becomes a dynamic read-only property,
+which stays out of the constructor. Accessor names are alphabetical and so do not move.</p>
+<p>A type that only an extension declares is adopted by the module that referenced it and takes that
+module's package, because the generator emits one file per module and a file of its own would have
+to import the module that uses it and be imported by it.</p>
+<h3 id="when-several-modules-declare-one-type">When several modules declare one type<a class="headerlink" href="#when-several-modules-declare-one-type" title="Permanent link">¶</a></h3>
+<p>A type named by more than one module is one type, holding the union of what they declare. This is
+how <abbr title="High Level Architecture">HLA</abbr> 4 defines merging over a set of modules, and Sen uses its two words for the two roles: the
+declaration carrying <code>&lt;semantics&gt;</code> is the <strong>complete definition</strong> and every other is an
+<strong>extension</strong> of it.</p>
+<p>The complete definition decides the package. If <code>rpr/RPR-Physical_v2.0.xml</code> defines
+<code>BaseEntity.PhysicalEntity</code> and a module in another directory adds an attribute to it, there is one
+<code>rpr.PhysicalEntity</code> carrying both, and the adding module generates no class of its own. Which
+declaration is the complete definition does not depend on the order the files are read, so the same
+directories give the same model on every machine; a directory is read in name order for the same
+reason.</p>
+<p>This matters most for what it stops being silent about. A module that declared part of a type and
+carried no semantics used to have its members dropped, and nothing said so.</p>
+<h3 id="what-is-refused">What is refused<a class="headerlink" href="#what-is-refused" title="Permanent link">¶</a></h3>
+<p>A member declared twice has to agree. Two declarations of one attribute with different types, modes
+or transports are a contradiction rather than a merge, and generation stops naming both files:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a>property 'camouflageType' of 'PhysicalEntity' is declared twice and the two do not agree:
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>'.../RPR-Physical_v2.0.xml' and '.../site_physical_entity.xml'
+</span></code></pre></div>
+<p>An exact repeat is kept once instead. The same holds for the type's own header: a record's
+<code>&lt;include&gt;</code>, an enumeration's <code>&lt;representation&gt;</code>, a variant's <code>&lt;discriminant&gt;</code>. A file whose root
+is not an object model is refused, naming the file. A contribution to a class no module declares is
+dropped, because a contribution adds to a definition and there is none to add to.</p>
+<h3 id="on-the-wire-and-in-your-source">On the wire, and in your source<a class="headerlink" href="#on-the-wire-and-in-your-source" title="Permanent link">¶</a></h3>
+<p>A property, an enumerator and a record field are identified by name — a hash of it for a property,
+the written value for an enumerator — so adding one does not renumber the others, and a participant
+that does not know it ignores it under the default <code>relaxed</code> compatibility. <strong>A variant alternative
+is not</strong>: its discriminant is the position it was read in, so a contributed alternative takes the
+next key and the order the extension files are given decides which. Give them in a fixed order, and
+treat a contributed alternative as a change every participant has to take together. It is also not
+free in <strong>C++ source</strong>, for the constructor reason above.
+<a href="compatibility_conversions.html">Run-time compatibility</a> covers what a participant without the
+extension does with a message that carries it.</p>
+<h3 id="an-example">An example<a class="headerlink" href="#an-example" title="Permanent link">¶</a></h3>
+<p><code>examples/packages/fom_extensions</code> adds one member of each kind to types the bundled <abbr title="Real-time Platform Reference">RPR</abbr> <abbr title="Federation Object Model">FOM</abbr>
+declares, one file per kind: a property on <code>BaseEntity.PhysicalEntity</code>, an enumerator on
+<code>DesignatorCodeEnum16</code>, a field on <code>UniformGeomRecStruct</code>, and an alternative on
+<code>GridAxisTypeVariantStruct</code>. The files sit in the example's own directory, not in
+<code>examples/packages/hla_fom/rpr</code>, which stays exactly as published.</p>
+<div class="language-cmake highlight"><span class="filename">examples/packages/fom_extensions/CMakeLists.txt</span><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="nb">sen_generate_uml</span><span class="p">(</span>
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">  </span><span class="s">TARGET</span><span class="w"> </span><span class="s">fom_extensions_uml</span>
+</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="s">OUT</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span><span class="s">/fom_extensions.plantuml</span>
+</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">  </span><span class="s">HLA_FOM_DIRS</span>
+</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="w">    </span><span class="s">../hla_fom/rpr</span>
+</span><span id="__span-17-6"><a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="s">HLA_EXTENSIONS_FILE</span>
+</span><span id="__span-17-7"><a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">    </span><span class="s">extensions/site_physical_entity.xml</span>
+</span><span id="__span-17-8"><a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">    </span><span class="s">extensions/site_enumerations.xml</span>
+</span><span id="__span-17-9"><a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">    </span><span class="s">extensions/site_records.xml</span>
+</span><span id="__span-17-10"><a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">    </span><span class="s">extensions/site_variants.xml</span>
+</span><span id="__span-17-11"><a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="w">    </span><span class="s">extensions/site_interaction.xml</span>
+</span><span id="__span-17-12"><a href="#__codelineno-17-12" id="__codelineno-17-12" name="__codelineno-17-12"></a><span class="w">  </span><span class="s">CLASSES_ONLY</span>
+</span><span id="__span-17-13"><a href="#__codelineno-17-13" id="__codelineno-17-13" name="__codelineno-17-13"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>Build <code>fom_extensions_uml</code> and the diagram shows the contributed members on the published classes.
+The target is on demand rather than part of the default build.</p>
+<p>No package is generated from it, which is deliberate: a second package over the same <abbr title="Federation Object Model">FOM</abbr> directory
+would produce a second, different <code>rpr</code> model, and two components claiming one class with different
+members is the clash <code>libs/kernel/test/integration/type_clash</code> exists to catch. That extensions
+reach generated C++ is held elsewhere — by the parser's own tests, and by
+<code>test/util/fom_extension</code>, a file that names an accessor from the module and one from the extension
+and so does not compile if a contributed attribute went missing.</p>
+<p>Extensions are a stopgap for what IEEE 1516-2025 (<abbr title="High Level Architecture">HLA</abbr> 4) calls extended <abbr title="Federation Object Model">FOM</abbr> module merging, using
+the same vocabulary: a complete definition owns the type, and an extension adds to it. When Sen
+reads <abbr title="High Level Architecture">HLA</abbr> 4 modules directly, an extension becomes an ordinary module and the separate input goes
+away; what an extension file says will not have to change.</p>
 <h2 id="customizing-the-generated-code">Customizing the generated code<a class="headerlink" href="#customizing-the-generated-code" title="Permanent link">¶</a></h2>
 <p>The same <code>codegen_settings.json</code> that customizes <abbr title="Sen Type Language">STL</abbr>-declared classes also works on classes imported
 from a <abbr title="Federation Object Model">FOM</abbr>. <code>checkedProperties</code> asks your implementation for approval
@@ -2279,13 +2504,13 @@ before an external write is applied, and <code>deferredMethods</code>, which let
 it chooses. <a href="stl.html#customizing-the-generated-code">Customizing the generated code</a> explains both.</p>
 <p>The one thing that differs for <abbr title="Federation Object Model">FOM</abbr> classes is how you name the class, and it is not the name the
 mappings file uses:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="p">{</span>
-</span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">  </span><span class="nt">"classes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">    </span><span class="nt">"rpr.Munition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-4"><a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">      </span><span class="nt">"checkedProperties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"launcherFlashPresent"</span><span class="p">]</span>
-</span><span id="__span-11-5"><a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-11-6"><a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="p">{</span>
+</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="w">  </span><span class="nt">"classes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">    </span><span class="nt">"rpr.Munition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">      </span><span class="nt">"checkedProperties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"launcherFlashPresent"</span><span class="p">]</span>
+</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>The key is the <strong>Sen qualified name</strong>: the package, then the class. The package is the <abbr title="Federation Object Model">FOM</abbr>
 directory name in lower case, so <code>HLA_FOM_DIRS rpr netn</code> gives packages <code>rpr</code> and <code>netn</code>, and the
@@ -2346,8 +2571,20 @@ transport concern and this layer is an API.</p>
 <p>Sen generates no encoder or decoder, and does not need to. Encoding is a wire concern and belongs to
 whatever is on the wire: an adapter or gateway does it against the <abbr title="Federation Object Model">FOM</abbr>, using the encoding helpers
 its <abbr title="Run-Time Infrastructure, the broker an HLA federation runs through">RTI</abbr> provides.</p>
-<p>Currently, Sen expects the element layout of the IEEE 1516.2-2010 <abbr title="Data Interchange Format">DIF</abbr>. Only files with an <code>.xml</code>
-extension are processed.</p>
+<p>Sen reads the IEEE 1516.2-2010 <abbr title="Data Interchange Format">DIF</abbr>, and only that one. A <abbr title="Federation Object Model">FOM</abbr> is recognized by the namespace on its
+<code>objectModel</code> element, so a file declaring a different one is refused by name rather than read into
+a model missing most of what it declares:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a>'site.xml' is not a FOM Sen can read: it declares
+</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a>'http://standards.ieee.org/IEEE1516-2025'. Sen reads the IEEE 1516.2-2010 DIF,
+</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>'http://standards.ieee.org/IEEE1516-2010'
+</span></code></pre></div>
+<p>The namespace found is quoted back rather than matched against a list, so a <abbr title="Federation Object Model">FOM</abbr> from a standard
+later than this page knows about still gets a message naming the version it carries. A file with no
+namespace at all, which is the shape standards before 2010 used, is refused the same way. The
+namespace must be the element's default: Sen does not resolve a prefix, and a <code>hla:objectModel</code> is
+refused for that rather than silently skipped.</p>
+<p>Only files with an <code>.xml</code> extension are processed. <abbr title="High Level Architecture">HLA</abbr> 4's own module merging is not read yet;
+<a href="#adding-members-to-a-published-fom">adding members to a published <abbr title="Federation Object Model">FOM</abbr></a> is the stopgap for it.</p>
 <p>These are <strong>not supported yet</strong>: <code>ownership</code>, <code>order</code>, <code>updateCondition</code> and <code>dimensions</code>. A <abbr title="Federation Object Model">FOM</abbr>
 declaring <code>DivestAcquire</code> on an attribute imports cleanly and that declaration is currently dropped,
 so plan on Sen's own ownership model for now; see <a href="main_concepts.html">Main concepts</a>. A <abbr title="Federation Object Model">FOM</abbr> declaring
@@ -2420,7 +2657,7 @@ not part of this distribution. They may be open-sourced in the future; nothing i
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 22:39:10 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 6, 2026 15:18:53 UTC">October 6, 2026</span>
 </span>
 </aside>
 </article>

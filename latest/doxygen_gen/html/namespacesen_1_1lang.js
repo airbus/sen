@@ -1,14 +1,12 @@
 var namespacesen_1_1lang =
 [
+    [ "fom", "namespacesen_1_1lang_1_1fom.html", "namespacesen_1_1lang_1_1fom" ],
     [ "BusNameStatement", "group__lang.html#structsen_1_1lang_1_1_bus_name_statement", "group__lang_structsen_1_1lang_1_1_bus_name_statement" ],
     [ "Chunk", "classsen_1_1lang_1_1_chunk.html", "classsen_1_1lang_1_1_chunk" ],
     [ "ClassAnnotations", "group__lang.html#structsen_1_1lang_1_1_class_annotations", "group__lang_structsen_1_1lang_1_1_class_annotations" ],
     [ "CodeLocation", "group__lang.html#structsen_1_1lang_1_1_code_location", "group__lang_structsen_1_1lang_1_1_code_location" ],
     [ "ErrorReporter", "classsen_1_1lang_1_1_error_reporter.html", "classsen_1_1lang_1_1_error_reporter" ],
-    [ "FomDocument", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document", "namespacesen_1_1lang_structsen_1_1lang_1_1_fom_document_dup" ],
-    [ "FomDocumentSet", "classsen_1_1lang_1_1_fom_document_set.html", "classsen_1_1lang_1_1_fom_document_set" ],
     [ "FomParser", "classsen_1_1lang_1_1_fom_parser.html", "classsen_1_1lang_1_1_fom_parser" ],
-    [ "ParsedDoc", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_parsed_doc", "namespacesen_1_1lang_structsen_1_1lang_1_1_parsed_doc_dup" ],
     [ "QueryStatement", "group__lang.html#structsen_1_1lang_1_1_query_statement", "group__lang_structsen_1_1lang_1_1_query_statement" ],
     [ "ResolverContext", "group__lang.html#structsen_1_1lang_1_1_resolver_context", "group__lang_structsen_1_1lang_1_1_resolver_context" ],
     [ "StlArgStatement", "group__lang.html#structsen_1_1lang_1_1_stl_arg_statement", "group__lang_structsen_1_1lang_1_1_stl_arg_statement" ],
@@ -158,7 +156,7 @@ var namespacesen_1_1lang =
       [ "opFetchVariable", "group__lang.html#gga5e453be867105964bd4d0c8a48f0d4edafb0dfd39c955c22b80e2c8ad2ec1fc57", null ],
       [ "opBetween", "group__lang.html#gga5e453be867105964bd4d0c8a48f0d4edac02a2d6fafcbb4be8e4e1881d34c387f", null ]
     ] ],
-    [ "parseFomDocuments", "group__lang.html#ga569ce99f551ca24057515ee353756526", null ],
+    [ "parseFomDocuments", "group__lang.html#gafb48dfc603a31ef4999586b8e979c200", null ],
     [ "readTypesFile", "group__lang.html#gae0d63c4e041503eb3ec72d8ff2512032", null ],
     [ "computePackagePrefix", "group__lang.html#gabb35b56e81d8cbb3473b0fcbfddb2643", null ],
     [ "toString", "group__lang.html#ga0a44153d268ffa532e1547d714ddbc1c", null ],

@@ -17,5 +17,6 @@ var searchData=
   ['typedend_14',['typedEnd',['../structsen_1_1_object_list_1_1_iterators.html#af8301965395e27bce0348467e076308a',1,'sen::ObjectList::Iterators']]],
   ['typename_15',['typeName',['../group__lang.html#adf2d43dfb278d3f878ecf3b70d145a50',1,'sen::lang::StlStructFieldStatement::typeName'],['../group__lang.html#a5438664bd3b379b071f186475929844e',1,'sen::lang::StlVariantElement::typeName'],['../group__lang.html#a3ad9cd76cb51dedac922bf52fc36020c',1,'sen::lang::StlTypeAliasStatement::typeName'],['../group__lang.html#ac53757783756b1119cb126eb236a356b',1,'sen::lang::StlOptionalTypeStatement::typeName'],['../group__lang.html#a3739eec8bb94780510e7703db3a66815',1,'sen::lang::StlArgStatement::typeName'],['../group__lang.html#a7d99c1dba4c7029b10040d911406cad1',1,'sen::lang::StlVarStatement::typeName']]],
   ['types_16',['types',['../group__lang.html#a13339d404be5fc7284bc610344309d6d',1,'sen::lang::TypeSet']]],
-  ['typesfilename_17',['typesFileName',['../namespacesen_1_1db.html#a65d869f49b3380e8aeaab50aabe8fbf6',1,'sen::db']]]
+  ['typeset_17',['typeSet',['../namespacesen_1_1lang_1_1fom.html#a55df038204056fe056256e44db1480b2',1,'sen::lang::fom::DocumentTypeSet']]],
+  ['typesfilename_18',['typesFileName',['../namespacesen_1_1db.html#a65d869f49b3380e8aeaab50aabe8fbf6',1,'sen::db']]]
 ];

@@ -2241,7 +2241,9 @@ generators.</p>
 </span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
 </span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
 </span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>  -e,--extensions TEXT:PATH(existing) ...
+</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a>                                   XML files, or directories of them, adding members to types the FOM declares
+</span><span id="__span-12-11"><a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h4 id="c-exports">C++ exports<a class="headerlink" href="#c-exports" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate cpp exports</span><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>Generate the export symbols file for a sen STL package
@@ -2295,14 +2297,16 @@ generators.</p>
 </span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
 </span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
 </span><span id="__span-16-8"><a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-16-10"><a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a>  -o,--output TEXT                 Output PlantUML file
-</span><span id="__span-16-11"><a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a>  --only-classes Excludes: --only-types --no-enumerators
-</span><span id="__span-16-12"><a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a>                                   Only generate class diagrams
-</span><span id="__span-16-13"><a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a>  --only-types Excludes: --only-classes
-</span><span id="__span-16-14"><a href="#__codelineno-16-14" id="__codelineno-16-14" name="__codelineno-16-14"></a>                                   Only generate diagrams for basic types
-</span><span id="__span-16-15"><a href="#__codelineno-16-15" id="__codelineno-16-15" name="__codelineno-16-15"></a>  --no-enumerators Excludes: --only-classes
-</span><span id="__span-16-16"><a href="#__codelineno-16-16" id="__codelineno-16-16" name="__codelineno-16-16"></a>                                   Do not generate enumerations
+</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a>  -e,--extensions TEXT:PATH(existing) ...
+</span><span id="__span-16-10"><a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a>                                   XML files, or directories of them, adding members to types the FOM declares
+</span><span id="__span-16-11"><a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-16-12"><a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a>  -o,--output TEXT                 Output PlantUML file
+</span><span id="__span-16-13"><a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a>  --only-classes Excludes: --only-types --no-enumerators
+</span><span id="__span-16-14"><a href="#__codelineno-16-14" id="__codelineno-16-14" name="__codelineno-16-14"></a>                                   Only generate class diagrams
+</span><span id="__span-16-15"><a href="#__codelineno-16-15" id="__codelineno-16-15" name="__codelineno-16-15"></a>  --only-types Excludes: --only-classes
+</span><span id="__span-16-16"><a href="#__codelineno-16-16" id="__codelineno-16-16" name="__codelineno-16-16"></a>                                   Only generate diagrams for basic types
+</span><span id="__span-16-17"><a href="#__codelineno-16-17" id="__codelineno-16-17" name="__codelineno-16-17"></a>  --no-enumerators Excludes: --only-classes
+</span><span id="__span-16-18"><a href="#__codelineno-16-18" id="__codelineno-16-18" name="__codelineno-16-18"></a>                                   Do not generate enumerations
 </span></code></pre></div>
 <h3 id="mkdocs-markdown">MKDocs markdown<a class="headerlink" href="#mkdocs-markdown" title="Permanent link">¶</a></h3>
 <p>Works the same way as C++, but with slightly different options.</p>
@@ -2340,9 +2344,11 @@ generators.</p>
 </span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
 </span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
 </span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-19-10"><a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a>  -o,--output TEXT                 Output file
-</span><span id="__span-19-11"><a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a>  -t,--title TEXT                  Document title
+</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a>  -e,--extensions TEXT:PATH(existing) ...
+</span><span id="__span-19-10"><a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a>                                   XML files, or directories of them, adding members to types the FOM declares
+</span><span id="__span-19-11"><a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-19-12"><a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a>  -o,--output TEXT                 Output file
+</span><span id="__span-19-13"><a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a>  -t,--title TEXT                  Document title
 </span></code></pre></div>
 <h3 id="html-reference">HTML reference<a class="headerlink" href="#html-reference" title="Permanent link">¶</a></h3>
 <p>Renders the data model as a small web application: a tree, a search, and a page per type. It
@@ -2381,9 +2387,11 @@ needs no server and no network, so the output opens straight from a file.</p>
 </span><span id="__span-22-6"><a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
 </span><span id="__span-22-7"><a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
 </span><span id="__span-22-8"><a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-22-9"><a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-22-10"><a href="#__codelineno-22-10" id="__codelineno-22-10" name="__codelineno-22-10"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
-</span><span id="__span-22-11"><a href="#__codelineno-22-11" id="__codelineno-22-11" name="__codelineno-22-11"></a>  -t,--title TEXT                  Name of the model, shown on screen
+</span><span id="__span-22-9"><a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a>  -e,--extensions TEXT:PATH(existing) ...
+</span><span id="__span-22-10"><a href="#__codelineno-22-10" id="__codelineno-22-10" name="__codelineno-22-10"></a>                                   XML files, or directories of them, adding members to types the FOM declares
+</span><span id="__span-22-11"><a href="#__codelineno-22-11" id="__codelineno-22-11" name="__codelineno-22-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-22-12"><a href="#__codelineno-22-12" id="__codelineno-22-12" name="__codelineno-22-12"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
+</span><span id="__span-22-13"><a href="#__codelineno-22-13" id="__codelineno-22-13" name="__codelineno-22-13"></a>  -t,--title TEXT                  Name of the model, shown on screen
 </span></code></pre></div>
 <h3 id="typeset-reference-pdf">Typeset reference (PDF)<a class="headerlink" href="#typeset-reference-pdf" title="Permanent link">¶</a></h3>
 <p>Renders the data model as a Typst document, in the shape of an interface control document:
@@ -2438,22 +2446,24 @@ from the model.</p>
 </span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
 </span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
 </span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-25-10"><a href="#__codelineno-25-10" id="__codelineno-25-10" name="__codelineno-25-10"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
-</span><span id="__span-25-11"><a href="#__codelineno-25-11" id="__codelineno-25-11" name="__codelineno-25-11"></a>  -t,--title TEXT                  Name of the model, shown on the running header
-</span><span id="__span-25-12"><a href="#__codelineno-25-12" id="__codelineno-25-12" name="__codelineno-25-12"></a>  --include-package TEXT ...       Only document this package; repeatable
-</span><span id="__span-25-13"><a href="#__codelineno-25-13" id="__codelineno-25-13" name="__codelineno-25-13"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
-</span><span id="__span-25-14"><a href="#__codelineno-25-14" id="__codelineno-25-14" name="__codelineno-25-14"></a>  --no-overview{false}             Drop the model overview
-</span><span id="__span-25-15"><a href="#__codelineno-25-15" id="__codelineno-25-15" name="__codelineno-25-15"></a>  --no-hierarchy{false}            Drop the class hierarchy
-</span><span id="__span-25-16"><a href="#__codelineno-25-16" id="__codelineno-25-16" name="__codelineno-25-16"></a>  --no-summaries{false}            Drop the per-package summary lists
-</span><span id="__span-25-17"><a href="#__codelineno-25-17" id="__codelineno-25-17" name="__codelineno-25-17"></a>  --no-index{false}                Drop the index of every type
-</span><span id="__span-25-18"><a href="#__codelineno-25-18" id="__codelineno-25-18" name="__codelineno-25-18"></a>  --no-used-by{false}              Drop the list of what refers to each type
-</span><span id="__span-25-19"><a href="#__codelineno-25-19" id="__codelineno-25-19" name="__codelineno-25-19"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
-</span><span id="__span-25-20"><a href="#__codelineno-25-20" id="__codelineno-25-20" name="__codelineno-25-20"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
-</span><span id="__span-25-21"><a href="#__codelineno-25-21" id="__codelineno-25-21" name="__codelineno-25-21"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
-</span><span id="__span-25-22"><a href="#__codelineno-25-22" id="__codelineno-25-22" name="__codelineno-25-22"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
-</span><span id="__span-25-23"><a href="#__codelineno-25-23" id="__codelineno-25-23" name="__codelineno-25-23"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
-</span><span id="__span-25-24"><a href="#__codelineno-25-24" id="__codelineno-25-24" name="__codelineno-25-24"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
+</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a>  -e,--extensions TEXT:PATH(existing) ...
+</span><span id="__span-25-10"><a href="#__codelineno-25-10" id="__codelineno-25-10" name="__codelineno-25-10"></a>                                   XML files, or directories of them, adding members to types the FOM declares
+</span><span id="__span-25-11"><a href="#__codelineno-25-11" id="__codelineno-25-11" name="__codelineno-25-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-25-12"><a href="#__codelineno-25-12" id="__codelineno-25-12" name="__codelineno-25-12"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
+</span><span id="__span-25-13"><a href="#__codelineno-25-13" id="__codelineno-25-13" name="__codelineno-25-13"></a>  -t,--title TEXT                  Name of the model, shown on the running header
+</span><span id="__span-25-14"><a href="#__codelineno-25-14" id="__codelineno-25-14" name="__codelineno-25-14"></a>  --include-package TEXT ...       Only document this package; repeatable
+</span><span id="__span-25-15"><a href="#__codelineno-25-15" id="__codelineno-25-15" name="__codelineno-25-15"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
+</span><span id="__span-25-16"><a href="#__codelineno-25-16" id="__codelineno-25-16" name="__codelineno-25-16"></a>  --no-overview{false}             Drop the model overview
+</span><span id="__span-25-17"><a href="#__codelineno-25-17" id="__codelineno-25-17" name="__codelineno-25-17"></a>  --no-hierarchy{false}            Drop the class hierarchy
+</span><span id="__span-25-18"><a href="#__codelineno-25-18" id="__codelineno-25-18" name="__codelineno-25-18"></a>  --no-summaries{false}            Drop the per-package summary lists
+</span><span id="__span-25-19"><a href="#__codelineno-25-19" id="__codelineno-25-19" name="__codelineno-25-19"></a>  --no-index{false}                Drop the index of every type
+</span><span id="__span-25-20"><a href="#__codelineno-25-20" id="__codelineno-25-20" name="__codelineno-25-20"></a>  --no-used-by{false}              Drop the list of what refers to each type
+</span><span id="__span-25-21"><a href="#__codelineno-25-21" id="__codelineno-25-21" name="__codelineno-25-21"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
+</span><span id="__span-25-22"><a href="#__codelineno-25-22" id="__codelineno-25-22" name="__codelineno-25-22"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
+</span><span id="__span-25-23"><a href="#__codelineno-25-23" id="__codelineno-25-23" name="__codelineno-25-23"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
+</span><span id="__span-25-24"><a href="#__codelineno-25-24" id="__codelineno-25-24" name="__codelineno-25-24"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
+</span><span id="__span-25-25"><a href="#__codelineno-25-25" id="__codelineno-25-25" name="__codelineno-25-25"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
+</span><span id="__span-25-26"><a href="#__codelineno-25-26" id="__codelineno-25-26" name="__codelineno-25-26"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
 </span></code></pre></div>
 <h3 id="json-schemas">JSON schemas<a class="headerlink" href="#json-schemas" title="Permanent link">¶</a></h3>
 <p>Generates json schemas from a Sen data model.</p>
@@ -2481,9 +2491,11 @@ from the model.</p>
 </span><span id="__span-27-6"><a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="w">  </span>-m,--mappings<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w">      </span>XML<span class="w"> </span>defining<span class="w"> </span>custom<span class="w"> </span>mappings<span class="w"> </span>between<span class="w"> </span>sen<span class="w"> </span>and<span class="w"> </span>HLA
 </span><span id="__span-27-7"><a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a><span class="w">  </span>-d,--directories<span class="w"> </span>TEXT:DIR<span class="w"> </span>...<span class="w"> </span>REQUIRED
 </span><span id="__span-27-8"><a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a><span class="w">                                   </span>Directories<span class="w"> </span>containing<span class="w"> </span>FOM<span class="w"> </span>XML<span class="w"> </span>files
-</span><span id="__span-27-9"><a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-27-10"><a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-27-11"><a href="#__codelineno-27-11" id="__codelineno-27-11" name="__codelineno-27-11"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
+</span><span id="__span-27-9"><a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a><span class="w">  </span>-e,--extensions<span class="w"> </span>TEXT:PATH<span class="o">(</span>existing<span class="o">)</span><span class="w"> </span>...
+</span><span id="__span-27-10"><a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a><span class="w">                                   </span>XML<span class="w"> </span>files,<span class="w"> </span>or<span class="w"> </span>directories<span class="w"> </span>of<span class="w"> </span>them,<span class="w"> </span>adding<span class="w"> </span>members<span class="w"> </span>to<span class="w"> </span>types<span class="w"> </span>the<span class="w"> </span>FOM<span class="w"> </span>declares
+</span><span id="__span-27-11"><a href="#__codelineno-27-11" id="__codelineno-27-11" name="__codelineno-27-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-27-12"><a href="#__codelineno-27-12" id="__codelineno-27-12" name="__codelineno-27-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-27-13"><a href="#__codelineno-27-13" id="__codelineno-27-13" name="__codelineno-27-13"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
 </span></code></pre></div>
 <h4 id="json-schemas-for-sen-packages-from-stl">JSON schemas for Sen packages from <abbr title="Sen Type Language">STL</abbr><a class="headerlink" href="#json-schemas-for-sen-packages-from-stl" title="Permanent link">¶</a></h4>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a>Process<span class="w"> </span>STL<span class="w"> </span>files
@@ -2509,9 +2521,11 @@ from the model.</p>
 </span><span id="__span-29-6"><a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a><span class="w">  </span>-m,--mappings<span class="w"> </span>TEXT:FILE<span class="w"> </span>...<span class="w">      </span>XML<span class="w"> </span>defining<span class="w"> </span>custom<span class="w"> </span>mappings<span class="w"> </span>between<span class="w"> </span>sen<span class="w"> </span>and<span class="w"> </span>HLA
 </span><span id="__span-29-7"><a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">  </span>-d,--directories<span class="w"> </span>TEXT:DIR<span class="w"> </span>...<span class="w"> </span>REQUIRED
 </span><span id="__span-29-8"><a href="#__codelineno-29-8" id="__codelineno-29-8" name="__codelineno-29-8"></a><span class="w">                                   </span>Directories<span class="w"> </span>containing<span class="w"> </span>FOM<span class="w"> </span>XML<span class="w"> </span>files
-</span><span id="__span-29-9"><a href="#__codelineno-29-9" id="__codelineno-29-9" name="__codelineno-29-9"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-29-10"><a href="#__codelineno-29-10" id="__codelineno-29-10" name="__codelineno-29-10"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-29-11"><a href="#__codelineno-29-11" id="__codelineno-29-11" name="__codelineno-29-11"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
+</span><span id="__span-29-9"><a href="#__codelineno-29-9" id="__codelineno-29-9" name="__codelineno-29-9"></a><span class="w">  </span>-e,--extensions<span class="w"> </span>TEXT:PATH<span class="o">(</span>existing<span class="o">)</span><span class="w"> </span>...
+</span><span id="__span-29-10"><a href="#__codelineno-29-10" id="__codelineno-29-10" name="__codelineno-29-10"></a><span class="w">                                   </span>XML<span class="w"> </span>files,<span class="w"> </span>or<span class="w"> </span>directories<span class="w"> </span>of<span class="w"> </span>them,<span class="w"> </span>adding<span class="w"> </span>members<span class="w"> </span>to<span class="w"> </span>types<span class="w"> </span>the<span class="w"> </span>FOM<span class="w"> </span>declares
+</span><span id="__span-29-11"><a href="#__codelineno-29-11" id="__codelineno-29-11" name="__codelineno-29-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-29-12"><a href="#__codelineno-29-12" id="__codelineno-29-12" name="__codelineno-29-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-29-13"><a href="#__codelineno-29-13" id="__codelineno-29-13" name="__codelineno-29-13"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
 </span></code></pre></div>
 <h4 id="combine-multiple-json-schemas-to-create-a-kernel-configuration-schema">Combine multiple JSON schemas to create a kernel configuration schema<a class="headerlink" href="#combine-multiple-json-schemas-to-create-a-kernel-configuration-schema" title="Permanent link">¶</a></h4>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-30-1"><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a>Generate<span class="w"> </span>JSON<span class="w"> </span>schemas<span class="w"> </span><span class="k">for</span><span class="w"> </span>sen<span class="w"> </span>configurations
@@ -2558,7 +2572,9 @@ from the model.</p>
 </span><span id="__span-33-6"><a href="#__codelineno-33-6" id="__codelineno-33-6" name="__codelineno-33-6"></a>  -m,--mappings TEXT:FILE ...      XML defining custom mappings between sen and HLA
 </span><span id="__span-33-7"><a href="#__codelineno-33-7" id="__codelineno-33-7" name="__codelineno-33-7"></a>  -d,--directories TEXT:DIR ... REQUIRED
 </span><span id="__span-33-8"><a href="#__codelineno-33-8" id="__codelineno-33-8" name="__codelineno-33-8"></a>                                   Directories containing FOM XML files
-</span><span id="__span-33-9"><a href="#__codelineno-33-9" id="__codelineno-33-9" name="__codelineno-33-9"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-33-9"><a href="#__codelineno-33-9" id="__codelineno-33-9" name="__codelineno-33-9"></a>  -e,--extensions TEXT:PATH(existing) ...
+</span><span id="__span-33-10"><a href="#__codelineno-33-10" id="__codelineno-33-10" name="__codelineno-33-10"></a>                                   XML files, or directories of them, adding members to types the FOM declares
+</span><span id="__span-33-11"><a href="#__codelineno-33-11" id="__codelineno-33-11" name="__codelineno-33-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h3 id="typescript">TypeScript<a class="headerlink" href="#typescript" title="Permanent link">¶</a></h3>
 <p>TypeScript generation reads <abbr title="Sen Type Language">STL</abbr> only; there is no <abbr title="Federation Object Model">FOM</abbr> subcommand today.</p>

@@ -102,15 +102,20 @@ var annotated_dup =
         [ "UnloadApi", "classsen_1_1kernel_1_1_unload_api.html", "classsen_1_1kernel_1_1_unload_api" ]
       ] ],
       [ "lang", "namespacesen_1_1lang.html", [
+        [ "fom", "namespacesen_1_1lang_1_1fom.html", [
+          [ "Document", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_document", "namespacesen_1_1lang_1_1fom_structsen_1_1lang_1_1fom_1_1_document_dup" ],
+          [ "MappingDocument", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_mapping_document", "namespacesen_1_1lang_1_1fom_structsen_1_1lang_1_1fom_1_1_mapping_document_dup" ],
+          [ "DocumentTypeSet", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_document_type_set", "namespacesen_1_1lang_1_1fom_structsen_1_1lang_1_1fom_1_1_document_type_set_dup" ],
+          [ "Declaration", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_declaration", "namespacesen_1_1lang_1_1fom_structsen_1_1lang_1_1fom_1_1_declaration_dup" ],
+          [ "Declarations", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_declarations", "namespacesen_1_1lang_1_1fom_structsen_1_1lang_1_1fom_1_1_declarations_dup" ],
+          [ "FomDocuments", "classsen_1_1lang_1_1fom_1_1_fom_documents.html", "classsen_1_1lang_1_1fom_1_1_fom_documents" ]
+        ] ],
         [ "BusNameStatement", "group__lang.html#structsen_1_1lang_1_1_bus_name_statement", "group__lang_structsen_1_1lang_1_1_bus_name_statement" ],
         [ "Chunk", "classsen_1_1lang_1_1_chunk.html", "classsen_1_1lang_1_1_chunk" ],
         [ "ClassAnnotations", "group__lang.html#structsen_1_1lang_1_1_class_annotations", "group__lang_structsen_1_1lang_1_1_class_annotations" ],
         [ "CodeLocation", "group__lang.html#structsen_1_1lang_1_1_code_location", "group__lang_structsen_1_1lang_1_1_code_location" ],
         [ "ErrorReporter", "classsen_1_1lang_1_1_error_reporter.html", "classsen_1_1lang_1_1_error_reporter" ],
-        [ "FomDocument", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_fom_document", "namespacesen_1_1lang_structsen_1_1lang_1_1_fom_document_dup" ],
-        [ "FomDocumentSet", "classsen_1_1lang_1_1_fom_document_set.html", "classsen_1_1lang_1_1_fom_document_set" ],
         [ "FomParser", "classsen_1_1lang_1_1_fom_parser.html", "classsen_1_1lang_1_1_fom_parser" ],
-        [ "ParsedDoc", "namespacesen_1_1lang.html#structsen_1_1lang_1_1_parsed_doc", "namespacesen_1_1lang_structsen_1_1lang_1_1_parsed_doc_dup" ],
         [ "QueryStatement", "group__lang.html#structsen_1_1lang_1_1_query_statement", "group__lang_structsen_1_1lang_1_1_query_statement" ],
         [ "ResolverContext", "group__lang.html#structsen_1_1lang_1_1_resolver_context", "group__lang_structsen_1_1lang_1_1_resolver_context" ],
         [ "StlArgStatement", "group__lang.html#structsen_1_1lang_1_1_stl_arg_statement", "group__lang_structsen_1_1lang_1_1_stl_arg_statement" ],

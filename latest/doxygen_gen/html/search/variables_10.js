@@ -3,7 +3,7 @@ var searchData=
   ['recursive_0',['recursive',['../group__gen.html#a9db96aeb41e7c6ca086c036dd23a2a96',1,'sen::gen::CppOptions']]],
   ['referencesystem_1',['referenceSystem',['../group__dr.html#a4e70b65ca94f8801e52c40bc38ba51c7',1,'sen::util::DrThreshold']]],
   ['registeredsinks_2',['registeredSinks',['../namespacesen_1_1kernel.html#a0f7f75542818324beaa9159dacfaeeea',1,'sen::kernel::LoggerSinkRegistration']]],
-  ['registry_3',['registry',['../namespacesen_1_1lang.html#aeefb9ab375d3b6614d175ff6c37fc1ec',1,'sen::lang::ParsedDoc']]],
+  ['registry_3',['registry',['../namespacesen_1_1lang_1_1fom.html#a12692354d3f24933883bf853c97c58c0',1,'sen::lang::fom::Document']]],
   ['renamedobjects_4',['renamedObjects',['../group__db.html#aec24473c9220e3fe068fc99251bdf707',1,'sen::db::RecordingMergeRenameObjects']]],
   ['requiresrealtime_5',['requiresRealTime',['../namespacesen_1_1kernel.html#aa6355e97b5179179ba5dc55332739739',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['returntype_6',['returnType',['../structsen_1_1_method_spec.html#a4d9e509854e06e43b6d48d13d3906410',1,'sen::MethodSpec']]],
