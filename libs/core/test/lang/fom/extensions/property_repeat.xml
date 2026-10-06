@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass><name>HLAobjectRoot</name>
+            <objectClass><name>Vehicle</name>
+                <attribute>
+                    <name>Speed</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How fast it goes.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Owner</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Who owns it.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

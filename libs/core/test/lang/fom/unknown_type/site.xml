@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- An attribute whose dataType is misspelt, which is the commonest way to reach the
+     could-not-find-type refusal. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Unknown Type Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Position</name>
+                    <dataType>PostionStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Where it is.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>Metres</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A length.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>PositionStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Where something is.</semantics>
+                <field>
+                    <name>X</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Across.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>

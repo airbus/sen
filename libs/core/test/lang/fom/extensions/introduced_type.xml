@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes><fixedRecordDataTypes>
+        <fixedRecordData>
+            <name>TrackStruct</name>
+            <encoding>HLAfixedRecord</encoding>
+            <semantics>A track this site adds.</semantics>
+            <field><name>Number</name><dataType>Metres</dataType><semantics>Which one.</semantics></field>
+        </fixedRecordData>
+    </fixedRecordDataTypes></dataTypes>
+    <objects>
+        <objectClass><name>HLAobjectRoot</name>
+            <objectClass><name>Vehicle</name>
+                <attribute>
+                    <name>Track</name>
+                    <dataType>TrackStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>The track for this vehicle.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

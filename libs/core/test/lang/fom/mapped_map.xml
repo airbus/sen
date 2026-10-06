@@ -1,0 +1,28 @@
+<!-- Beside the module directory rather than in it, which is where the bundled FOM keeps its own
+     mapping file. -->
+<senMapping>
+
+    <class name="Vehicle">
+        <property name="speed" writable="true"/>
+
+        <event hlaInteraction="Collision">
+            <ignore parameter="EventIdentifier"/>
+        </event>
+
+        <event hlaInteraction="Signal" pack="true">
+            <ignore parameter="Spare"/>
+        </event>
+
+        <method hlaInteraction="Transaction.VehicleTransaction">
+            <ignore parameter="RequestingIdentifier"/>
+            <return hlaInteraction="TransactionReply">
+                <ignore parameter="ReplyIdentifier"/>
+            </return>
+        </method>
+
+        <method hlaInteraction="Report" pack="true" local="true">
+            <return dataType="Metres"/>
+        </method>
+    </class>
+
+</senMapping>

@@ -12,6 +12,7 @@ set(packages
     calculators
     school
     hla_fom
+    fom_extensions
     aircrafts
     terrain_server
     weather_server

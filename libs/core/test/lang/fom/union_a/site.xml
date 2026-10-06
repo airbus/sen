@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- The complete definition of Vehicle: it carries semantics, so it owns the type and its package. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Union A</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Speed</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How fast it goes.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>Metres</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A length.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+    </dataTypes>
+</objectModel>

@@ -69,6 +69,7 @@ get_filename_component(SEN_CMAKE_TEMPLATES_DIR "${CMAKE_CURRENT_LIST_DIR}/../tem
 #     Mutually exclusive with STL_FILES.
 #
 #   [HLA_MAPPINGS_FILE <files...>]
+#   [HLA_EXTENSIONS_FILE <files...>]
 #     HLA mapping files that customise FOM-to-C++ translation.
 #     Requires HLA_FOM_DIRS.
 #
@@ -146,6 +147,7 @@ function(add_sen_package)
       STL_FILES
       HLA_FOM_DIRS
       HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
       EXPORTED_CLASSES
   )
 
@@ -285,6 +287,7 @@ function(add_sen_package)
         BASE_PATH ${_arg_BASE_PATH}
         HLA_FOM_DIRS ${_arg_HLA_FOM_DIRS}
         HLA_MAPPINGS_FILE ${_arg_HLA_MAPPINGS_FILE}
+        HLA_EXTENSIONS_FILE ${_arg_HLA_EXTENSIONS_FILE}
         CODEGEN_SETTINGS ${_arg_CODEGEN_SETTINGS}
         SCHEMA_FILE ${_schema_file}
         GEN_HDR_FILES _gen_hdr_files VISIBLE_CLASSES ${_make_classes_visible}
@@ -313,6 +316,7 @@ function(add_sen_package)
           BASE_PATH
           STL_FILES
           HLA_MAPPINGS
+          HLA_EXTENSIONS
           HLA_FOM_DIRS
           SEN_IMPORT_DIRS
         )
@@ -398,6 +402,7 @@ function(add_sen_package)
         BASE_PATH
         STL_FILES
         HLA_MAPPINGS
+        HLA_EXTENSIONS
         HLA_FOM_DIRS
         SEN_IMPORT_DIRS
       )
@@ -427,6 +432,7 @@ function(add_sen_package)
         BASE_PATH
         STL_FILES
         HLA_MAPPINGS
+        HLA_EXTENSIONS
         HLA_FOM_DIRS
         SEN_IMPORT_DIRS
       )
@@ -468,6 +474,7 @@ endfunction()
 #     Mutually exclusive with STL_FILES.
 #
 #   [HLA_MAPPINGS_FILE <files...>]
+#   [HLA_EXTENSIONS_FILE <files...>]
 #     HLA mapping files that customise FOM-to-C++ translation.
 #     Requires HLA_FOM_DIRS.
 #
@@ -488,6 +495,7 @@ function(add_sen_interface_package)
       STL_FILES
       HLA_FOM_DIRS
       HLA_MAPPINGS_FILE
+      HLA_EXTENSIONS_FILE
   )
 
   cmake_parse_arguments(
@@ -557,6 +565,8 @@ function(add_sen_interface_package)
         ${_arg_HLA_FOM_DIRS}
         HLA_MAPPINGS_FILE
         ${_arg_HLA_MAPPINGS_FILE}
+        HLA_EXTENSIONS_FILE
+        ${_arg_HLA_EXTENSIONS_FILE}
       )
     endif()
   endif()
@@ -569,6 +579,7 @@ function(add_sen_interface_package)
       BASE_PATH
       STL_FILES
       HLA_MAPPINGS
+      HLA_EXTENSIONS
       HLA_FOM_DIRS
       SEN_IMPORT_DIRS
     )

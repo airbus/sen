@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification><name>Spaced Enumerator Module</name><type>FOM</type></modelIdentification>
+    <dataTypes><enumeratedDataTypes><enumeratedData><name>Kind</name>
+        <representation>HLAinteger32BE</representation><semantics>A kind of thing.</semantics>
+        <enumerator><name>Spaced</name><value> 1 </value></enumerator>
+        <enumerator><name>Signed</name><value>+2</value></enumerator>
+    </enumeratedData></enumeratedDataTypes></dataTypes>
+</objectModel>

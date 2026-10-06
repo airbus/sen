@@ -39,6 +39,7 @@ struct StlArgs
 struct FomArgs
 {
   std::vector<std::filesystem::path> paths;
+  std::vector<std::filesystem::path> extensions;
   std::vector<std::filesystem::path> mappingFiles;
   std::string codegenOptionsFile;
 };

@@ -36,6 +36,14 @@ add_library(probe_target INTERFACE IMPORTED)
 @properties@
 
 get_external_interfaces(TARGET probe_target INSTALLATION_DIR "@install_dir@")
+
+# Printed so a test can assert on what was rewritten, not merely that nothing failed.
+foreach(_property INSTALL_STL_FILES INSTALL_HLA_FOM_DIRS INSTALL_HLA_MAPPINGS INSTALL_HLA_EXTENSIONS)
+  get_target_property(_value probe_target ${_property})
+  if(_value)
+    message(STATUS "REWROTE ${_property}=${_value}")
+  endif()
+endforeach()
 """
 
 PROPERTY_LINES = {
@@ -61,6 +69,7 @@ def configure(tmp_path: Path, properties: str) -> subprocess.CompletedProcess:
         installed.write_text("", encoding="utf-8")
     (install_dir / "hla").mkdir(parents=True, exist_ok=True)
     (install_dir / "hla" / "m.xml").write_text("", encoding="utf-8")
+    (install_dir / "hla" / "e.xml").write_text("", encoding="utf-8")
 
     source = tmp_path / "probe"
     source.mkdir(parents=True, exist_ok=True)
@@ -117,3 +126,24 @@ def test_the_function_still_rewrites_a_path_it_was_given(tmp_path):
     run = configure(tmp_path, properties=PROPERTY_LINES["stl"])
     assert run.returncode == 0, run.stderr
     assert "could not be found on system" not in run.stderr, run.stderr
+
+
+def test_an_extensions_path_is_rewritten_too(tmp_path):
+    """A package built with extensions installs a model its consumers cannot reproduce without them.
+
+    HLA_EXTENSIONS is not in PROPERTY_LINES because it never stands alone: extensions require
+    HLA_FOM_DIRS at generation time, so a target carrying one carries the other.
+    """
+    properties = (
+        'set_target_properties(probe_target PROPERTIES BASE_PATH "@base@" '
+        'HLA_FOM_DIRS "@base@/hla" HLA_EXTENSIONS "@base@/hla/e.xml")'
+    )
+    run = configure(tmp_path, properties=properties)
+    assert run.returncode == 0, run.stderr
+    assert "could not be found on system" not in run.stderr, run.stderr
+    assert "REWROTE INSTALL_HLA_EXTENSIONS=" in run.stdout, run.stdout
+
+    # The rewritten path keeps the leading separator of the relative part, so it carries a
+    # double slash. The mappings path has always looked the same; this asserts the shape that
+    # exists rather than a tidier one.
+    assert "installed//hla/e.xml" in run.stdout, run.stdout

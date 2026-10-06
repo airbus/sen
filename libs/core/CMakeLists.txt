@@ -222,8 +222,10 @@ set(lang_sources
     src/lang/string_utils.cpp
     src/lang/vm.cpp
     src/lang/stl_token.cpp
-    src/lang/fom_document_set.cpp
-    src/lang/fom_document_set.h
+    src/lang/fom_common.cpp
+    src/lang/fom_common.h
+    src/lang/fom_documents.cpp
+    src/lang/fom_documents.h
     src/lang/fom_parser.cpp
 )
 

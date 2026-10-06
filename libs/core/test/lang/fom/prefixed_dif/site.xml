@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- The 2010 DIF, but with the namespace bound to a prefix instead of the default. The reader does
+     not resolve prefixes, so every one of its queries would miss. -->
+<hla:objectModel xmlns:hla="http://standards.ieee.org/IEEE1516-2010">
+    <hla:modelIdentification>
+        <hla:name>Prefixed Module</hla:name>
+        <hla:type>FOM</hla:type>
+    </hla:modelIdentification>
+    <hla:objects>
+        <hla:objectClass>
+            <hla:name>HLAobjectRoot</hla:name>
+        </hla:objectClass>
+    </hla:objects>
+</hla:objectModel>
