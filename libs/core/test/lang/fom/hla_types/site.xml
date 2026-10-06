@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- The type names the standard defines and Sen maps onto its own, one attribute each. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Standard Types Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Reading</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>One of each standard type.</semantics>
+                <attribute>
+                    <name>Letter</name>
+                    <dataType>HLAASCIIchar</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>A character.</semantics>
+                </attribute>
+                <attribute>
+                    <name>WideLetter</name>
+                    <dataType>HLAunicodeChar</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>A wider character.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Raw</name>
+                    <dataType>HLAbyte</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>A byte.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Tally</name>
+                    <dataType>HLAcount</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How many.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Elapsed</name>
+                    <dataType>HLAseconds</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How long, in seconds.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ElapsedFine</name>
+                    <dataType>HLAmsec</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How long, in milliseconds.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Position</name>
+                    <dataType>HLAindex</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Which one.</semantics>
+                </attribute>
+                <attribute>
+                    <name>WhenWhole</name>
+                    <dataType>HLAinteger64Time</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>A time as a whole number.</semantics>
+                </attribute>
+                <attribute>
+                    <name>WhenReal</name>
+                    <dataType>HLAfloat64Time</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>A time as a real number.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

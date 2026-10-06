@@ -53,7 +53,7 @@ protected:
                    sen::gen::PlantUMLGenerationMode generationMode = sen::gen::PlantUMLGenerationMode::all,
                    sen::gen::PlantUMLEnumMode enumMode = sen::gen::PlantUMLEnumMode::all)
   {
-    context_ = sen::lang::parseFomDocuments(paths, {}, sen::lang::TypeSettings {});
+    context_ = sen::lang::parseFomDocuments(paths, {}, {}, sen::lang::TypeSettings {});
     content_ = sen::gen::PlantUMLGenerator {}.generate(context_, generationMode, enumMode);
   }
 

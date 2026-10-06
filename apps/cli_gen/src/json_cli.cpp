@@ -116,7 +116,7 @@ void setupGenJsonPackage(CLI::App& app)
                            [pkgArgs](auto args)
                            {
                              const sen::lang::TypeSetContext typeSets =
-                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+                               sen::lang::parseFomDocuments(args->paths, args->extensions, args->mappingFiles, {});
                              writePackageOutput(typeSets, *pkgArgs);
                            });
 
@@ -147,7 +147,7 @@ void setupGenJsonComponent(CLI::App& app)
                            [compArgs](auto args)
                            {
                              const sen::lang::TypeSetContext typeSets =
-                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+                               sen::lang::parseFomDocuments(args->paths, args->extensions, args->mappingFiles, {});
                              writeComponentOutput(typeSets, *compArgs);
                            });
 

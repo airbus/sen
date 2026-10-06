@@ -1,0 +1,6 @@
+<!-- A mapping with a boolean attribute that is neither true nor false. -->
+<senMapping>
+    <class name="Vehicle">
+        <property name="speed" writable="maybe"/>
+    </class>
+</senMapping>

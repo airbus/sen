@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Names a dependency no module in the set provides. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Orphan Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+        <reference>
+            <type>Dependency</type>
+            <identification>A Module That Is Not Here</identification>
+        </reference>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+        </objectClass>
+    </objects>
+</objectModel>

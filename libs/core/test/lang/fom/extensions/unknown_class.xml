@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass><name>HLAobjectRoot</name>
+            <objectClass><name>Vehicle</name>
+                <attribute>
+                    <name>Tail</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How long it is.</semantics>
+                </attribute>
+            </objectClass>
+            <objectClass><name>Aircraft</name>
+                <attribute>
+                    <name>Altitude</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How high it flies.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

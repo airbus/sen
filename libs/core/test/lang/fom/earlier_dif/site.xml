@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- A FOM in the shape an earlier standard used: no namespace, and a class member written as an XML
+     attribute rather than a child element. Read as if it were the 2010 DIF it would yield a class
+     with no attributes at all. -->
+<objectModel>
+    <objects>
+        <objectClass name="HLAobjectRoot">
+            <objectClass name="Vehicle" sharing="PublishSubscribe">
+                <attribute name="Speed" dataType="HLAinteger32BE" transportation="HLAreliable"/>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

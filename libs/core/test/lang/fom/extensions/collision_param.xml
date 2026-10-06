@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Adds a parameter to an interaction the module declares. The data type is one the module owns:
+     an extension names the FOM's types and declares none of its own. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Collision Parameter</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>Collision</name>
+                <parameter>
+                    <name>SiteImpactForce</name>
+                    <dataType>Metres</dataType>
+                    <semantics>How hard they met.</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+</objectModel>

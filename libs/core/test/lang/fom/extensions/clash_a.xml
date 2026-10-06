@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass><name>HLAobjectRoot</name>
+            <objectClass><name>Vehicle</name>
+                <attribute>
+                    <name>Tag</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How it is tagged.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

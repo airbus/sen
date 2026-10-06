@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- One attribute with a transportation the DIF does not define. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Bad Transport</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Speed</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAwhenever</transportation>
+                    <semantics>How fast it goes.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Beacon</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <semantics>Position reported without confirmation.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Owner</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Static</updateType>
+                    <sharing>Subscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Who it belongs to.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Cargo</name>
+                    <dataType>CargoArray</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Optional. What it carries, when it carries anything.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>Collision</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <semantics>Two vehicles met.</semantics>
+                <parameter>
+                    <name>EventIdentifier</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Which event this is.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ClosingSpeed</name>
+                    <dataType>Metres</dataType>
+                    <semantics>How fast they met.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>Signal</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <semantics>A signal sent without confirmation.</semantics>
+                <parameter>
+                    <name>Strength</name>
+                    <dataType>Metres</dataType>
+                    <semantics>How strong.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Spare</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Optional. Unused.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>Transaction</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <semantics>A request.</semantics>
+                <interactionClass>
+                    <name>VehicleTransaction</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <semantics>A request to a vehicle.</semantics>
+                    <parameter>
+                        <name>RequestingIdentifier</name>
+                        <dataType>Metres</dataType>
+                        <semantics>Who asked.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Distance</name>
+                        <dataType>Metres</dataType>
+                        <semantics>How far to go.</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass>
+                <name>TransactionReply</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <semantics>The answer to a request.</semantics>
+                <parameter>
+                    <name>ReplyIdentifier</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Which request this answers.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Arrived</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Where it got to.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>Report</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <semantics>A standing report.</semantics>
+                <parameter>
+                    <name>Reading</name>
+                    <dataType>Metres</dataType>
+                    <semantics>What was read.</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <basicDataRepresentations>
+            <basicData>
+                <name>SiteUnsigned8</name>
+                <size>8</size>
+                <endian>Big</endian>
+                <encoding>8-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>SiteUnsigned16</name>
+                <size>16</size>
+                <endian>Big</endian>
+                <encoding>16-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>SiteUnsigned32</name>
+                <size>32</size>
+                <endian>Big</endian>
+                <encoding>32-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>SiteUnsigned64</name>
+                <size>64</size>
+                <endian>Big</endian>
+                <encoding>64-bit unsigned integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>SiteSigned16</name>
+                <size>16</size>
+                <endian>Big</endian>
+                <encoding>16-bit signed integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>SiteSigned32</name>
+                <size>32</size>
+                <endian>Big</endian>
+                <encoding>32-bit signed integer.</encoding>
+            </basicData>
+            <basicData>
+                <name>SiteSigned64</name>
+                <size>64</size>
+                <endian>Big</endian>
+                <encoding>64-bit signed integer.</encoding>
+            </basicData>
+        </basicDataRepresentations>
+        <simpleDataTypes>
+            <simpleData>
+                <name>Metres</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A length.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>CargoArray</name>
+                <dataType>Metres</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>What a vehicle carries.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+    </dataTypes>
+</objectModel>

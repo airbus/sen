@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- A record that includes another, which is the one shape of record inheritance Sen can
+     represent. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Record Include Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Placement</name>
+                    <dataType>OrientedPositionStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>Where it is and which way it faces.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>Metres</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A length.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>PositionStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Where something is.</semantics>
+                <field>
+                    <name>X</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Across.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>OrientedPositionStruct</name>
+                <include>PositionStruct</include>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>A position with a heading.</semantics>
+                <field>
+                    <name>Heading</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Which way it faces.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>
