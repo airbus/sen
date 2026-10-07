@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -239,6 +240,11 @@ void ShowcaseImpl::update(sen::kernel::RunApi& /*runApi*/)
 }
 
 std::string ShowcaseImpl::echoImpl(const std::string& message) const { return std::string("echo: ") + message; }
+
+std::string ShowcaseImpl::failImpl(const std::string& reason) const
+{
+  throw std::runtime_error("could not do it: " + reason);
+}
 
 i32 ShowcaseImpl::addImpl(i32 a, i32 b) const { return a + b; }
 
