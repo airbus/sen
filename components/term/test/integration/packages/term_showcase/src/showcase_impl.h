@@ -46,6 +46,7 @@ public:
 
 protected:
   std::string echoImpl(const std::string& message) const override;
+  std::string failImpl(const std::string& reason) const override;
   i32 addImpl(i32 a, i32 b) const override;
   std::string waitImpl(sen::Duration duration) const override;
   std::string configureImpl(bool enabled, const Severity& level) const override;

@@ -61,6 +61,7 @@ set(_term_session_cases
     test_a_form_opens_takes_values_and_submits_the_call
     test_escape_closes_a_form_without_calling
     test_a_form_goes_backwards_and_takes_a_correction
+    test_a_call_that_fails_reports_without_another_command
     test_f1_runs_help
     test_page_up_scrolls_back_and_page_down_returns
     test_arrow_up_recalls_the_previous_command

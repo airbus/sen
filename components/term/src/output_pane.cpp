@@ -148,6 +148,15 @@ void OutputPane::replacePendingCall(std::size_t id, ftxui::Element result)
       {
         --pendingCount_;
       }
+      // The cache is rebuilt only when the layout is marked or a call is in flight, and this is
+      // the frame where the last one finishes, so without marking it here the pane goes on drawing
+      // the spinner it cached. The scroll is re-pinned because the answer is taller than the line
+      // it replaces.
+      contentHeightDirty_ = true;
+      if (followBottom_)
+      {
+        scrollPosition_ = scrollBottom;
+      }
       return;
     }
   }

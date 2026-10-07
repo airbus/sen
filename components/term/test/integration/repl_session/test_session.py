@@ -13,6 +13,7 @@ suite starts it. These do.
 
 import argparse
 import sys
+import time
 import unittest
 from pathlib import Path
 
@@ -654,6 +655,39 @@ class TestTermSession(unittest.TestCase):
         self.assertTrue(
             self.term.wait_for("moveTo", timeout=8.0),
             f"the call was never echoed:\n{self.term.screen()[-1200:]}",
+        )
+
+    def test_a_call_that_fails_reports_without_another_command(self) -> None:
+        """A method that throws reports itself, rather than waiting for the next command.
+
+        The bound is what makes this a regression test. The answer did arrive eventually, once
+        something else appended to the output pane, so a test asserting only that it appears would
+        pass against the defect it is here to catch.
+        """
+        self.term.send_command("cd local.demo", settle=1.5)
+        self.term.forget()
+
+        self.term.send_command("showcase.fail", settle=2.0)
+        self.assertTrue(self.term.wait_for("reason", timeout=8.0), "the argument form never opened")
+        self.term.type_text("ABCD", settle=0.4)
+        self.term.forget()
+
+        started = time.monotonic()
+        self.term.send_keys(b"\r", settle=0.05)
+
+        latency = None
+        while time.monotonic() - started < 15.0:
+            if "Call Error" in self.term.screen():
+                latency = time.monotonic() - started
+                break
+            self.term.read_output(timeout=0.05, quiet=0.05)
+
+        if latency is None:
+            self.fail(f"the error never appeared:\n{repr(self.term.screen()[-900:])}")
+        self.assertLess(
+            latency,
+            1.0,
+            f"the error took {latency:.2f}s and nothing else was typed; it should land on the next frame",
         )
 
     def test_a_form_goes_backwards_and_takes_a_correction(self) -> None:
