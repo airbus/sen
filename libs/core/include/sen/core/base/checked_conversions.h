@@ -16,7 +16,6 @@
 // std
 #include <cassert>
 #include <cmath>
-#include <iostream>
 #include <limits>
 #include <string>
 #include <string_view>
@@ -26,11 +25,15 @@
 namespace sen::std_util
 {
 
+/// Writes to standard error. Out of line so this header, which every user of the conversion
+/// helpers includes, does not carry <iostream>.
+void reportToStandardError(std::string_view message);
+
 struct ReportPolicyAssertion
 {
   static void report(const std::string_view message)
   {
-    std::cerr << message.data() << std::endl;
+    reportToStandardError(message);
     SEN_ASSERT(false);
   }
 };
