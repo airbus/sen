@@ -96,11 +96,13 @@ else()
 
     # fmt sits beside spdlog when spdlog was built against it, which is how Sen builds it. base.h
     # counts too: core.h is only a deprecation stub, and losing it would silently unset the define.
+    # FMT_HEADER_ONLY is set with it because the install ships fmt's headers and no library, so a
+    # consumer calling an external fmt would have nothing to link.
     if(EXISTS "${SPDLOG_INCLUDE_DIR}/fmt/core.h" OR EXISTS "${SPDLOG_INCLUDE_DIR}/fmt/base.h")
       set_property(
         TARGET spdlog::spdlog
         APPEND
-        PROPERTY INTERFACE_COMPILE_DEFINITIONS "SPDLOG_FMT_EXTERNAL"
+        PROPERTY INTERFACE_COMPILE_DEFINITIONS "SPDLOG_FMT_EXTERNAL" "FMT_HEADER_ONLY"
       )
     endif()
   endif()
