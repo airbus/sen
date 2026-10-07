@@ -20,6 +20,7 @@
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <tuple>
 
 #ifndef _WIN32
 #  include <fcntl.h>
@@ -278,12 +279,12 @@ TEST(Clipboard, WritingToClosedPipeDoesNotCrash)
     const WithDisplayEnv display;
     std::string hugePayload(1024 * 1024, 'A');
 
-    auto out = captureStdout([&] { clipboard::copy(hugePayload); });
+    std::ignore = captureStdout([&] { clipboard::copy(hugePayload); });
     clipboard::shutdown();
   }
 
   const auto failure = clipboard::takeFailure();
-  EXPECT_TRUE(failure.has_value());
+  ASSERT_TRUE(failure.has_value());
   EXPECT_FALSE(failure->empty());
 }
 
