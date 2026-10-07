@@ -269,6 +269,25 @@ TEST(Clipboard, ReadingTheLastFailureClearsIt)
 }
 
 /// @test
+/// Ensure that if there is a fail that closes the pipe before we finish writing,
+/// term component catches the SIGPIPE and survive instead of crashing.
+TEST(Clipboard, WritingToClosedPipeDoesNotCrash)
+{
+  {
+    // Force a broken environment that will trigger a SIGPIPE.
+    const WithDisplayEnv display;
+    std::string hugePayload(1024 * 1024, 'A');
+
+    auto out = captureStdout([&] { clipboard::copy(hugePayload); });
+    clipboard::shutdown();
+  }
+
+  const auto failure = clipboard::takeFailure();
+  EXPECT_TRUE(failure.has_value());
+  EXPECT_FALSE(failure->empty());
+}
+
+/// @test
 /// Shutting down is safe with nothing in flight and safe twice. It is called on the way out of the
 /// component, which is a path that also runs when the terminal never copied anything.
 TEST(Clipboard, ShutdownIsSafeWithNothingInFlight)
