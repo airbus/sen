@@ -126,6 +126,21 @@ public:
   {
     if (blocked_)
     {
+      // Blocked SIGPIPE remains pending in the thread's signal queue.
+      // If we unblock it now, the OS will immediately deliver it and kill the process.
+      // We check if it's pending and consume it silently before restoring the mask.
+      sigset_t pending;
+      sigemptyset(&pending);
+
+      if (::sigpending(&pending) == 0 && ::sigismember(&pending, SIGPIPE))
+      {
+        sigset_t waitSet;
+        sigemptyset(&waitSet);
+        sigaddset(&waitSet, SIGPIPE);
+        int consumedSignal = 0;
+        ::sigwait(&waitSet, &consumedSignal);
+      }
+
       ::pthread_sigmask(SIG_SETMASK, &previous_, nullptr);
     }
   }
