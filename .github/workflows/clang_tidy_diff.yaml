@@ -162,7 +162,8 @@ jobs:
         id: scope
         shell: bash
         env:
-          # One of these is set per event, as classify_changes is given the same way.
+          # One of these is set per event. A manual run sets none, which the scope check
+          # below reads as full scope.
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
@@ -170,8 +171,12 @@ jobs:
           # and `.clang-tidy` sorts first, so git is still writing when the pipe closes:
           # past the pipe buffer it dies on SIGPIPE, pipefail makes that the condition's
           # status, and the branch taken is the one for a change that did not happen.
+          # A manual run has no base to diff against, so no changed lines can be picked out.
+          # The whole compile database is the only scope left that checks anything.
           changed=$(git diff --name-only "$BASE_SHA...HEAD")
-          if grep -qxF '.clang-tidy' <<<"$changed"; then
+          if [ -z "$BASE_SHA" ]; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+          elif grep -qxF '.clang-tidy' <<<"$changed"; then
             echo "full=true" >> "$GITHUB_OUTPUT"
           else
             echo "full=false" >> "$GITHUB_OUTPUT"
