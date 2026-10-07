@@ -81,9 +81,9 @@ var NAVTREEINDEX =
 "group__type__utils.html#ggafd213372bab1c5f96f95eba9eaf17a15adca2cad203c5597e105c9bea028554c2",
 "namespacepybind11_1_1detail.html",
 "namespacesen_1_1lang_1_1fom.html#a9958864dc59480832d6a18e6596b6e74",
-"strong__type_8h.html#a794ac49b006d5e22f4fe4bb12f4dff3e",
-"structsen_1_1_subscription.html#a0f8a64d4a7537bfd72a90346c2da1417",
-"work__queue_8h_source.html"
+"strong__type_8h.html",
+"structsen_1_1_subscription.html",
+"work__queue_8h.html"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

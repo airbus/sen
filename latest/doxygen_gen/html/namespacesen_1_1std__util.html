@@ -158,6 +158,8 @@ Typedefs</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:acb24a1ebd1bfaa2e66f4037578c69be1" id="r_acb24a1ebd1bfaa2e66f4037578c69be1"><td class="memTemplParams" colspan="2">template&lt;class To, class From&gt; </td></tr>
 <tr class="memitem:acb24a1ebd1bfaa2e66f4037578c69be1 template"><td class="memItemLeft">std::enable_if_t&lt; sizeof(To)==sizeof(From) &amp;&amp;std::is_trivially_copyable_v&lt; From &gt; &amp;&amp;std::is_trivially_copyable_v&lt; To &gt;, To &gt;&#160;</td><td class="memItemRight"><a class="el" href="#acb24a1ebd1bfaa2e66f4037578c69be1">bit_cast</a> (const From &amp;src) noexcept</td></tr>
+<tr class="memitem:a2022cb55a3d038ea47b50de0d4569178" id="r_a2022cb55a3d038ea47b50de0d4569178"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a2022cb55a3d038ea47b50de0d4569178">reportToStandardError</a> (std::string_view message)</td></tr>
+<tr class="memdesc:a2022cb55a3d038ea47b50de0d4569178"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes to standard error. Out of line so this header, which every user of the conversion helpers includes, does not carry &lt;iostream&gt;.  <br /></td></tr>
 <tr class="memitem:a8cfff482b84f679a8a67fb246cd29a32" id="r_a8cfff482b84f679a8a67fb246cd29a32"><td class="memTemplParams" colspan="2">template&lt;typename ToType, typename ReportPolicy = ReportPolicyAssertion, typename FromType&gt; </td></tr>
 <tr class="memitem:a8cfff482b84f679a8a67fb246cd29a32 template"><td class="memItemLeft">ToType&#160;</td><td class="memItemRight"><a class="el" href="#a8cfff482b84f679a8a67fb246cd29a32">checkedConversion</a> (FromType from)</td></tr>
 <tr class="memdesc:a8cfff482b84f679a8a67fb246cd29a32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safely convert between two different integral types. If the value stored in <code class="param">from</code> cannot be represented in <code class="param">ToType</code>, the value is truncated.  <br /></td></tr>
@@ -227,6 +229,25 @@ template&lt;class To, class From&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2022cb55a3d038ea47b50de0d4569178" name="a2022cb55a3d038ea47b50de0d4569178"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2022cb55a3d038ea47b50de0d4569178">&#9670;&#160;</a></span>reportToStandardError()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::std_util::reportToStandardError </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>message</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes to standard error. Out of line so this header, which every user of the conversion helpers includes, does not carry &lt;iostream&gt;. </p>
 
 </div>
 </div>

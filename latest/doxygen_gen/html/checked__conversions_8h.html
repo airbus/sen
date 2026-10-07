@@ -139,7 +139,6 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('checked__conve
 <code>#include &quot;<a class="el" href="numbers_8h_source.html">sen/core/base/numbers.h</a>&quot;</code><br />
 <code>#include &lt;cassert&gt;</code><br />
 <code>#include &lt;cmath&gt;</code><br />
-<code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;limits&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
@@ -163,6 +162,8 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a2022cb55a3d038ea47b50de0d4569178" id="r_a2022cb55a3d038ea47b50de0d4569178"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1std__util.html#a2022cb55a3d038ea47b50de0d4569178">sen::std_util::reportToStandardError</a> (std::string_view message)</td></tr>
+<tr class="memdesc:a2022cb55a3d038ea47b50de0d4569178"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes to standard error. Out of line so this header, which every user of the conversion helpers includes, does not carry &lt;iostream&gt;.  <br /></td></tr>
 <tr class="memitem:a5507386efeae9143636b7e22280e7602" id="r_a5507386efeae9143636b7e22280e7602"><td class="memTemplParams" colspan="2">template&lt;typename ToType, typename FromType, typename ReportPolicy = ReportPolicyIgnore&gt; </td></tr>
 <tr class="memitem:a5507386efeae9143636b7e22280e7602 template"><td class="memItemLeft">ToType&#160;</td><td class="memItemRight"><a class="el" href="namespacesen_1_1std__util_1_1impl.html#a5507386efeae9143636b7e22280e7602">sen::std_util::impl::conversionImpl</a> (FromType from)</td></tr>
 <tr class="memdesc:a5507386efeae9143636b7e22280e7602"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safely convert between two different integral types. If the value stored in <code class="param">from</code> cannot be represented in <code class="param">ToType</code>, the value is truncated.  <br /></td></tr>

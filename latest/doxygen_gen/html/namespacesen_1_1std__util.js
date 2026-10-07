@@ -12,6 +12,7 @@ var namespacesen_1_1std__util =
     [ "ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ],
     [ "move_only_function", "namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70", null ],
     [ "bit_cast", "namespacesen_1_1std__util.html#acb24a1ebd1bfaa2e66f4037578c69be1", null ],
+    [ "reportToStandardError", "namespacesen_1_1std__util.html#a2022cb55a3d038ea47b50de0d4569178", null ],
     [ "checkedConversion", "namespacesen_1_1std__util.html#a8cfff482b84f679a8a67fb246cd29a32", null ],
     [ "ignoredLossyConversion", "namespacesen_1_1std__util.html#a19530ff98aeb4ed478e0b2ab033a4023", null ],
     [ "cmp_equal", "namespacesen_1_1std__util.html#a2c471fe37cf5311da69f4e2e3310f158", null ],
